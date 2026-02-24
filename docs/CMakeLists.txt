@@ -1,46 +1,52 @@
-# Copyright (C) Alexander Lamaison <alexander.lamaison@gmail.com>
 # Copyright (C) Viktor Szakats
-#
-# Redistribution and use in source and binary forms,
-# with or without modification, are permitted provided
-# that the following conditions are met:
-#
-#   Redistributions of source code must retain the above
-#   copyright notice, this list of conditions and the
-#   following disclaimer.
-#
-#   Redistributions in binary form must reproduce the above
-#   copyright notice, this list of conditions and the following
-#   disclaimer in the documentation and/or other materials
-#   provided with the distribution.
-#
-#   Neither the name of the copyright holder nor the names
-#   of any other contributors may be used to endorse or
-#   promote products derived from this software without
-#   specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
-# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
-# INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-# OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-# USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
-# OF SUCH DAMAGE.
-#
 # SPDX-License-Identifier: BSD-3-Clause
 
-libssh2_transform_makefile_inc("Makefile.am" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.am.cmake")
-# Get dist_man_MANS variable
-include("${CMAKE_CURRENT_BINARY_DIR}/Makefile.am.cmake")
+# Get man_MANS variable
+libssh2_transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
+include("${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
 
+# Generate man pages
+function(libssh2_add_manual_pages _listname)
+  # Maximum number of files per command to stay within shell/OS limits
+  if(CMAKE_HOST_UNIX)
+    set(_files_per_batch 10000)
+  else()  # e.g. Windows with cmd.exe and other obsolete/unidentified shells
+    set(_files_per_batch 200)
+  endif()
+  set(_file_count 0)
+  set(_rofffiles "")
+  set(_mdfiles "")
+  set(_eol "_EOL_")
+  foreach(_file IN LISTS ${_listname} _eol)
+    math(EXPR _file_count "${_file_count} + 1")
+    if(_file_count GREATER_EQUAL _files_per_batch OR _file STREQUAL "_EOL_")
+      add_custom_command(OUTPUT ${_rofffiles}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMAND "${PERL_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/cd2nroff" -k -d "${CMAKE_CURRENT_BINARY_DIR}" ${_mdfiles}
+        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/cd2nroff" ${_mdfiles}
+        VERBATIM
+      )
+      set(_file_count 0)
+      set(_rofffiles "")
+      set(_mdfiles "")
+    endif()
+
+    list(APPEND _rofffiles "${CMAKE_CURRENT_BINARY_DIR}/${_file}")
+    string(REPLACE ".3" ".md" _mdfile "${_file}")
+    list(APPEND _mdfiles "${_mdfile}")
+  endforeach()
+  unset(_rofffiles)
+  unset(_mdfiles)
+endfunction()
+
+libssh2_add_manual_pages(man_MANS)
+add_custom_target(libssh2-man ALL DEPENDS ${man_MANS})
 if(NOT LIBSSH2_DISABLE_INSTALL)
+  set(_src "")
+  foreach(_file IN LISTS man_MANS)
+    list(APPEND _src "${CMAKE_CURRENT_BINARY_DIR}/${_file}")
+  endforeach()
   include(GNUInstallDirs)
-  install(FILES ${dist_man_MANS} DESTINATION "${CMAKE_INSTALL_MANDIR}/man3")
+  install(FILES ${_src} DESTINATION "${CMAKE_INSTALL_MANDIR}/man3")
+  unset(_src)
 endif()

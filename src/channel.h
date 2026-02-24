@@ -96,7 +96,6 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
                       uint32_t packet_size,
                       const unsigned char *message, size_t message_len);
 
-
 /*
  * _libssh2_channel_process_startup
  *

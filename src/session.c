@@ -119,8 +119,8 @@ banner_receive(LIBSSH2_SESSION * session)
     }
 
     while((banner_len < sizeof(session->banner_TxRx_banner)) &&
-          ((banner_len == 0)
-           || (session->banner_TxRx_banner[banner_len - 1] != '\n'))) {
+          ((banner_len == 0) ||
+           (session->banner_TxRx_banner[banner_len - 1] != '\n'))) {
         char c = '\0';
 
         /* no incoming block yet! */
@@ -837,6 +837,7 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
     }
 
     if(session->startup_state == libssh2_NB_state_sent4) {
+        struct string_buf buf;
         rc = _libssh2_packet_require(session, SSH_MSG_SERVICE_ACCEPT,
                                      &session->startup_data,
                                      &session->startup_data_len, 0, NULL, 0,
@@ -846,24 +847,22 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
                                   "Failed to get response to "
                                   "ssh-userauth request");
 
-        if(session->startup_data_len < 5) {
-            return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                                  "Unexpected packet length");
-        }
+        buf.data = session->startup_data;
+        buf.dataptr = buf.data;
+        buf.len = session->startup_data_len;
 
-        session->startup_service_length =
-            _libssh2_ntohu32(session->startup_data + 1);
+        /* advance past packet type */
+        buf.dataptr++;
 
-
-        if((session->startup_service_length != (sizeof("ssh-userauth") - 1))
-            || strncmp("ssh-userauth",
-                       (const char *) session->startup_data + 5,
-                       session->startup_service_length)) {
+        if(_libssh2_match_string(&buf, "ssh-userauth")) {
             LIBSSH2_FREE(session, session->startup_data);
             session->startup_data = NULL;
             return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                   "Invalid response received from server");
         }
+
+        session->startup_service_length = (sizeof("ssh-userauth") - 1);
+
         LIBSSH2_FREE(session, session->startup_data);
         session->startup_data = NULL;
 
@@ -1490,7 +1489,6 @@ libssh2_session_get_blocking(LIBSSH2_SESSION * session)
     return session->api_block_mode;
 }
 
-
 /* libssh2_session_set_timeout
  *
  * Set a session's timeout (in msec) for blocking mode,
@@ -1562,8 +1560,8 @@ libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended)
 
         if(channel->local.id == _libssh2_ntohu32(packet->data + 1)) {
             if(extended == 1 &&
-                (packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA
-                 || packet->data[0] == SSH_MSG_CHANNEL_DATA)) {
+                (packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA ||
+                 packet->data[0] == SSH_MSG_CHANNEL_DATA)) {
                 return 1;
             }
             else if(extended == 0 &&
@@ -1777,8 +1775,8 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
                             poll_channel_write(fds[i].fd. channel) ?
                             LIBSSH2_POLLFD_POLLOUT : 0;
                     }
-                    if(fds[i].fd.channel->remote.close
-                        || fds[i].fd.channel->local.close) {
+                    if(fds[i].fd.channel->remote.close ||
+                       fds[i].fd.channel->local.close) {
                         fds[i].revents |= LIBSSH2_POLLFD_CHANNEL_CLOSED;
                     }
                     if(fds[i].fd.channel->session->socket_state ==

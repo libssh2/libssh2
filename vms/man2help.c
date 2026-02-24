@@ -45,7 +45,6 @@ fpcopy(char *output, char *input, int len)
     }
 }
 
-
 /*----------------------------------------------------------*/
 /* give part of ilename in partname. See code for proper
    value of i ( 0 = node, 1 = dev, 2 = dir, 3 = name etc.
@@ -136,15 +135,15 @@ int find_file(char *filename, char *gevonden, int *findex)
 
     if((status & 1) == 1) {
         /* !checksrc! disable BANNEDFUNC 1 */ /* FIXME */
-        strcpy(gevonden, strtok(gevonden_file, " "));
+        strcpy(gevonden,
+               strtok(gevonden_file, " "));
     }
     else {
-         gevonden[0] = 0;
+        gevonden[0] = 0;
     }
 
     return status;
 }
-
 
 /*--------------------------------------------*/
 
@@ -412,7 +411,6 @@ int convertman(char *filespec, FILE *hlp, int base_level, int add_parentheses)
     } /* end for mode */
 
     *h = 0;
-
 
     if(return_status & 2) {
         fprintf(hlp, "%s\n\n", uit);

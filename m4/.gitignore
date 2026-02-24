@@ -1,3 +1,7 @@
+# Copyright (C) The libssh2 project and its contributors.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
 libtool.m4
 ltoptions.m4
 ltsugar.m4

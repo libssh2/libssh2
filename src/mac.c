@@ -64,9 +64,6 @@ mac_none_MAC(LIBSSH2_SESSION * session, unsigned char *buf,
     return 0;
 }
 
-
-
-
 static LIBSSH2_MAC_METHOD mac_method_none = {
     "none",
     0,
@@ -92,8 +89,6 @@ mac_method_common_init(LIBSSH2_SESSION * session, unsigned char *key,
     return 0;
 }
 
-
-
 /* mac_method_common_dtor
  * Cleanup simple mac methods
  */
@@ -107,8 +102,6 @@ mac_method_common_dtor(LIBSSH2_SESSION * session, void **abstract)
 
     return 0;
 }
-
-
 
 #if LIBSSH2_HMAC_SHA512
 /* mac_method_hmac_sha512_hash
@@ -143,8 +136,6 @@ mac_method_hmac_sha2_512_hash(LIBSSH2_SESSION * session,
     return !res;
 }
 
-
-
 static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_512 = {
     "hmac-sha2-512",
     64,
@@ -166,8 +157,6 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_512_etm = {
 };
 
 #endif
-
-
 
 #if LIBSSH2_HMAC_SHA256
 /* mac_method_hmac_sha256_hash
@@ -202,8 +191,6 @@ mac_method_hmac_sha2_256_hash(LIBSSH2_SESSION * session,
     return !res;
 }
 
-
-
 static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_256 = {
     "hmac-sha2-256",
     32,
@@ -225,9 +212,6 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_256_etm = {
 };
 
 #endif
-
-
-
 
 /* mac_method_hmac_sha1_hash
  * Calculate hash using full sha1 value
@@ -260,8 +244,6 @@ mac_method_hmac_sha1_hash(LIBSSH2_SESSION * session,
 
     return !res;
 }
-
-
 
 static const LIBSSH2_MAC_METHOD mac_method_hmac_sha1 = {
     "hmac-sha1",
@@ -303,8 +285,6 @@ mac_method_hmac_sha1_96_hash(LIBSSH2_SESSION * session,
     memcpy(buf, (char *) temp, 96 / 8);
     return 0;
 }
-
-
 
 static const LIBSSH2_MAC_METHOD mac_method_hmac_sha1_96 = {
     "hmac-sha1-96",
@@ -349,8 +329,6 @@ mac_method_hmac_md5_hash(LIBSSH2_SESSION * session, unsigned char *buf,
     return !res;
 }
 
-
-
 static const LIBSSH2_MAC_METHOD mac_method_hmac_md5 = {
     "hmac-md5",
     16,
@@ -381,8 +359,6 @@ mac_method_hmac_md5_96_hash(LIBSSH2_SESSION * session,
     memcpy(buf, (char *) temp, 96 / 8);
     return 0;
 }
-
-
 
 static const LIBSSH2_MAC_METHOD mac_method_hmac_md5_96 = {
     "hmac-md5-96",
@@ -428,8 +404,6 @@ mac_method_hmac_ripemd160_hash(LIBSSH2_SESSION * session,
 
     return !res;
 }
-
-
 
 static const LIBSSH2_MAC_METHOD mac_method_hmac_ripemd160 = {
     "hmac-ripemd160",

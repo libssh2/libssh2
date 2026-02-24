@@ -41,7 +41,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-/* Conveniance-macros to allow code like this;
+/* Convenience-macros to allow code like this;
 
    int rc = BLOCK_ADJUST(rc, session, session_startup(session, sock));
 
@@ -85,7 +85,6 @@
             rc = _libssh2_wait_socket(sess, entry_time); \
         } while(!rc); \
     } while(0)
-
 
 int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t entry_time);
 

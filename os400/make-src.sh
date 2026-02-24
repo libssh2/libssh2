@@ -9,7 +9,6 @@ SCRIPTDIR=$(dirname "${0}")
 . "${SCRIPTDIR}/initscript.sh"
 cd "${TOPDIR}/src" || exit 1
 
-
 #       Function to extract external prototypes from header files.
 #       Input: concatenated header files.
 #       Output: external prototypes, one per (long) line.
@@ -45,7 +44,6 @@ then    rm -f modasa.mih
         ln -s '/QSYS.LIB/QSYSINC.LIB/MIH.FILE/MODASA.MBR' modasa.mih
 fi
 
-
 #      Create and compile the identification source file.
 
 {
@@ -57,7 +55,6 @@ fi
 make_module     OS400           os400.c
 LINK=                           # No need to rebuild service program yet.
 MODULES=
-
 
 #       Generate the procedures implementing macros.
 
@@ -95,7 +92,6 @@ sed -e ':begin'                                                         \
       < Makefile.inc > tmpscript.sh
 . ./tmpscript.sh
 
-
 #       Compile the sources into modules.
 
 # shellcheck disable=SC2034
@@ -106,7 +102,6 @@ for SRC in "${TOPDIR}/os400/os400sys.c" "${TOPDIR}/os400/ccsid.c"       \
 do      MODULE=$(db2_name "${SRC}")
         make_module "${MODULE}" "${SRC}"
 done
-
 
 #       If needed, (re)create the static binding directory.
 
@@ -134,7 +129,6 @@ then    rm -rf "${LIBIFSNAME}/${STATBNDDIR}.BNDDIR"
         system "${CMD}"
 fi
 
-
 #       The exportation file for service program creation must be in a DB2
 #               source file, so make sure it exists.
 
@@ -143,7 +137,6 @@ then    CMD="CRTSRCPF FILE(${TARGETLIB}/TOOLS) RCDLEN(112)"
         CMD="${CMD} TEXT('libssh2: build tools')"
         system "${CMD}"
 fi
-
 
 #       Gather the list of symbols to export.
 
@@ -170,7 +163,6 @@ then    echo " STRPGMEXP PGMLVL(*CURRENT) SIGNATURE('LIBSSH2_${SONAME}')" \
         echo ' ENDPGMEXP' >> "${BSF}"
 fi
 
-
 #       Build the service program if needed.
 
 if action_needed "${LIBIFSNAME}/${SRVPGM}.SRVPGM"
@@ -193,7 +185,6 @@ then    CMD="CRTSRVPGM SRVPGM(${TARGETLIB}/${SRVPGM})"
         system "${CMD}"
         LINK=YES
 fi
-
 
 #       If needed, (re)create the dynamic binding directory.
 

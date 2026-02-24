@@ -15,7 +15,7 @@
 #include <libssh2_sftp.h>
 
 #ifdef _WIN32
-#define write(f, b, c)  write((f), (b), (unsigned int)(c))
+#define write(f, b, c)  write(f, b, (unsigned int)(c))
 #endif
 
 #ifdef HAVE_SYS_SOCKET_H

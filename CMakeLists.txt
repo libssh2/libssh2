@@ -406,6 +406,8 @@ configure_file("src/libssh2_config_cmake.h.in"
 
 ## Cryptography backend choice
 
+set(__runtime_dependencies "")
+
 set(CRYPTO_BACKEND "" CACHE
   STRING "The backend to use for cryptography: OpenSSL, wolfSSL, Libgcrypt, WinCNG, mbedTLS, or empty to try any available")
 
@@ -422,7 +424,6 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
     set(CRYPTO_BACKEND "OpenSSL")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_OPENSSL")
     list(APPEND LIBSSH2_LIBS OpenSSL::Crypto)
-    set_target_properties(OpenSSL::Crypto PROPERTIES INTERFACE_LIBSSH2_PC_MODULES "libcrypto")
 
     if(WIN32)
       # Statically linking to OpenSSL requires crypt32 for some Windows APIs.
@@ -536,8 +537,18 @@ if(BUILD_TESTING)
 endif()
 
 option(LINT "Check style while building" OFF)
+option(LIBSSH2_BUILD_DOCS "Build man pages" ON)
+
+if(LINT OR LIBSSH2_BUILD_DOCS)
+  find_package(Perl)
+endif()
+
 if(LINT)
-  add_custom_target(lint ALL "./ci/checksrc.sh" WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+  add_custom_target(lint ALL
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    COMMAND "${PERL_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/ci/checksrc-all.pl"
+    DEPENDS "${PROJECT_SOURCE_DIR}/ci/checksrc-all.pl" "${PROJECT_SOURCE_DIR}/ci/checksrc.pl"
+  )
   if(BUILD_STATIC_LIBS)
     add_dependencies(${LIB_STATIC} lint)
   else()
@@ -545,7 +556,16 @@ if(LINT)
   endif()
 endif()
 
-add_subdirectory(docs)
+set(_build_docs FALSE)
+if(LIBSSH2_BUILD_DOCS)
+  if(PERL_FOUND)
+    set(_build_docs TRUE)
+    add_subdirectory(docs)
+  else()
+    message(WARNING "Perl not found. Will not build manuals.")
+  endif()
+endif()
+add_feature_info("Docs" _build_docs "build docs")
 
 feature_summary(WHAT ALL)
 

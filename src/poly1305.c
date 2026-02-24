@@ -109,7 +109,6 @@ poly1305_donna_16bytes:
     h3 += ((uint32_t)((((uint64_t)t3 << 32) | t2) >> 14) & 0x3ffffff);
     h4 += (t3 >> 8) | (1 << 24);
 
-
 poly1305_donna_mul:
     t[0] = mul32x32_64(h0, r0) + mul32x32_64(h1, s4) + mul32x32_64(h2, s3) +
         mul32x32_64(h3, s2) + mul32x32_64(h4, s1);

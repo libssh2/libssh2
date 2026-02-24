@@ -347,7 +347,6 @@ int _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                     size_t privatekeydata_len,
                                     const char *passphrase);
 
-
 int _libssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                                   unsigned char **method,
                                   size_t *method_len,

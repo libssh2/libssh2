@@ -8,8 +8,8 @@
 
 #ifdef _WIN32
 #include <ws2tcpip.h>  /* for socklen_t */
-#define recv(s, b, l, f)  recv((s), (b), (int)(l), (f))
-#define send(s, b, l, f)  send((s), (b), (int)(l), (f))
+#define recv(s, b, l, f)  recv(s, b, (int)(l), f)
+#define send(s, b, l, f)  send(s, b, (int)(l), f)
 #endif
 
 #ifdef HAVE_SYS_SOCKET_H

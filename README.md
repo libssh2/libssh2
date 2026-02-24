@@ -1,3 +1,9 @@
+<!--
+Copyright (C) The libssh2 project and its contributors.
+
+SPDX-License-Identifier: BSD-3-Clause
+-->
+
 # libssh2 - SSH2 library
 
 libssh2 is a library implementing the SSH2 protocol, available under

@@ -2,7 +2,6 @@
 by Jose Baars. This file will be installed as
 libssh2*.release_notes by the product install kit.
 
-
 LIBSSH2
 -------
 
@@ -38,7 +37,6 @@ multiple libraries including zlib.
 
 Install
 -------
-
 
 The kit will install gnv$libssh2.exe in a directory tree that might
 already be available on your system if you have installed other gnv*
@@ -81,7 +79,6 @@ and 'YES' to either or both the following questions:
 
     Do you want the complete libssh2 source tree ?  [NO]
 
-
 Post installation tasks
 -----------------------
 
@@ -114,7 +111,6 @@ library provided in the source backup saveset. Both an uppercase and a
 mixed case object library, called libssh2.olb and libssh2_asis.olb
 are provided.
 
-
 Compiling and linking against libssh2
 -------------------------------------
 
@@ -138,9 +134,6 @@ $ cc/include=dev:[gnv.usr.include.libssh2] xxx.c/names=shortened
 $ link/opt=sys$input: xxx.obj
 gnv$libssh2/share
 
-
-
-
 Building gnv$libssh2
 ====================
 
@@ -151,7 +144,6 @@ For production use, it is probably advisable to use a stable version, and
 link against that. To check out new features, statically linking against
 the object library is probably more practical, to avoid compatibility
 issues.
-
 
 Prerequisites
 -------------
@@ -248,7 +240,6 @@ the complete libssh2 directory is made available in
 By restoring this backup saveset, you end up with the same
 set of files as by the direct download from libssh2.org.
 
-
 Building the library
 --------------------
 
@@ -262,8 +253,6 @@ command:
 @libssh2_make_lib.dcl
 
 This should produce libssh2_x_y_z.exe in this same vms directory.
-
-
 
 Building the examples
 ---------------------
@@ -292,7 +281,6 @@ the procedure like so:
 
 The procedure defines a process logical gnv$libssh2 pointing to the shared
 image library in the directory, which obviously will not survive a logout.
-
 
 Building the help library
 -------------------------

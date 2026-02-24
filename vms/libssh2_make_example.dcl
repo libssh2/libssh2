@@ -1,3 +1,6 @@
+$! Copyright (C) The libssh2 project and its contributors.
+$!
+$! SPDX-License-Identifier: BSD-3-Clause
 $!
 $!
 $ olddir = f$environment("default")
@@ -38,7 +41,6 @@ $!
 $exit
 $endsubroutine
 
-
 $Make: subroutine
 $!
 $ set noon
@@ -61,7 +63,6 @@ $End:
 $ delete objdir:'what'.obj;*
 $exit
 $endsubroutine
-
 
 $Init:
 $!

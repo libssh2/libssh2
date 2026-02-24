@@ -420,7 +420,6 @@ crypt_init_chacha20_poly(LIBSSH2_SESSION * session,
     return 0;
 }
 
-
 static int
 crypt_encrypt_chacha20_poly_buffer(LIBSSH2_SESSION * session,
                                    unsigned int seqno,

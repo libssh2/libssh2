@@ -60,7 +60,6 @@ if(ENABLE_ZLIB_COMPRESSION)
   find_package(ZLIB REQUIRED)
 
   list(APPEND LIBSSH2_LIBS ZLIB::ZLIB)
-  set_target_properties(ZLIB::ZLIB PROPERTIES INTERFACE_LIBSSH2_PC_MODULES "zlib")
   list(APPEND _libssh2_definitions "LIBSSH2_HAVE_ZLIB")
 endif()
 
@@ -113,6 +112,7 @@ if(BUILD_STATIC_LIBS OR BUILD_STATIC_FOR_TESTS)
   add_library(${LIB_STATIC} STATIC ${_sources})
   add_library(${PROJECT_NAME}::${LIB_STATIC} ALIAS ${LIB_STATIC})
   target_compile_definitions(${LIB_STATIC} PRIVATE ${CRYPTO_BACKEND_DEFINE} ${_libssh2_definitions})
+  set_property(TARGET ${LIB_STATIC} APPEND PROPERTY COMPILE_OPTIONS "${LIBSSH2_PICKY_C_FLAGS}")
   target_link_libraries(${LIB_STATIC} PRIVATE ${LIBSSH2_LIBS})
   set_target_properties(${LIB_STATIC} PROPERTIES
     PREFIX "" OUTPUT_NAME "libssh2" SOVERSION "${_libssh2_soversion}" VERSION "${_libssh2_libversion}"
@@ -156,7 +156,7 @@ if(BUILD_SHARED_LIBS)
     set_property(TARGET ${LIB_SHARED} APPEND PROPERTY SOURCES "libssh2.rc")
   endif()
   target_compile_definitions(${LIB_SHARED} PRIVATE ${CRYPTO_BACKEND_DEFINE} ${_libssh2_definitions} ${LIB_SHARED_DEFINITIONS})
-  target_compile_options(${LIB_SHARED} PRIVATE ${LIB_SHARED_C_FLAGS})
+  set_property(TARGET ${LIB_SHARED} APPEND PROPERTY COMPILE_OPTIONS "${LIBSSH2_PICKY_C_FLAGS}" "${LIB_SHARED_C_FLAGS}")
   target_link_libraries(${LIB_SHARED} PRIVATE ${LIBSSH2_LIBS})
   set_target_properties(${LIB_SHARED} PROPERTIES
     PREFIX "" OUTPUT_NAME "libssh2" SOVERSION "${_libssh2_soversion}" VERSION "${_libssh2_libversion}"
@@ -217,7 +217,7 @@ if(NOT LIBSSH2_DISABLE_INSTALL)
   export(PACKAGE ${PROJECT_NAME})  # register it
 
   # Generate libssh2-config.cmake into build tree and install it with dependencies
-  configure_file("${PROJECT_SOURCE_DIR}/cmake/libssh2-config.cmake.in" "${PROJECT_NAME}-config.cmake" @ONLY)
+  configure_file("${PROJECT_SOURCE_DIR}/cmake/libssh2-config.in.cmake" "${PROJECT_NAME}-config.cmake" @ONLY)
   install(
     FILES
       "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake"
@@ -282,7 +282,13 @@ if(NOT LIBSSH2_DISABLE_INSTALL)
       if(NOT _libname AND NOT _libs AND NOT _libdirs)
         message(WARNING "Bad lib in library list: ${_lib}")
       endif()
-      get_target_property(_modules "${_lib}" INTERFACE_LIBSSH2_PC_MODULES)
+      if(_lib STREQUAL OpenSSL::Crypto)
+        set(_modules "libcrypto")
+      elseif(_lib STREQUAL ZLIB::ZLIB)
+        set(_modules "zlib")
+      else()
+        get_target_property(_modules "${_lib}" INTERFACE_LIBSSH2_PC_MODULES)
+      endif()
       if(_modules)
         list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE "${_modules}")
       endif()
@@ -291,8 +297,13 @@ if(NOT LIBSSH2_DISABLE_INSTALL)
         if(_lib MATCHES "/")
           # This gets a bit more complex, because we want to specify the
           # directory separately, and only once per directory
-          get_filename_component(_libdir ${_lib} DIRECTORY)
-          get_filename_component(_libname ${_lib} NAME_WE)
+          if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.20)
+            cmake_path(GET _lib PARENT_PATH _libdir)
+            cmake_path(GET _lib STEM _libname)
+          else()
+            get_filename_component(_libdir "${_lib}" DIRECTORY)
+            get_filename_component(_libname "${_lib}" NAME_WE)
+          endif()
           if(_libname MATCHES "^lib")
             if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.20)
               cmake_path(SET _libdir NORMALIZE "${_libdir}")
@@ -391,6 +402,7 @@ if(NOT LIBSSH2_DISABLE_INSTALL)
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 
   # Consumed variables:
+  #   CMAKE_MINIMUM_REQUIRED_VERSION
   #   CRYPTO_BACKEND
   #   LIB_NAME
   #   LIB_SELECTED

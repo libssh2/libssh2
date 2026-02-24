@@ -78,7 +78,6 @@ static void remove_node(struct chan_X11_list *elem)
     }
 }
 
-
 static void session_shutdown(LIBSSH2_SESSION *session)
 {
     libssh2_session_disconnect(session, "Normal Shutdown");

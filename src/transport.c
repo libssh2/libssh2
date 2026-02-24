@@ -117,13 +117,11 @@ debugdump(LIBSSH2_SESSION * session,
 #define debugdump(a,x,y,z) do {} while(0)
 #endif
 
-
 /* decrypt() decrypts 'len' bytes from 'source' to 'dest' in units of
  * blocksize.
  *
  * returns 0 on success and negative on failure
  */
-
 static int
 decrypt(LIBSSH2_SESSION * session, unsigned char *source,
         unsigned char *dest, ssize_t len, int firstlast)
@@ -149,8 +147,8 @@ decrypt(LIBSSH2_SESSION * session, unsigned char *source,
         /* If the last block would be less than a whole blocksize, combine it
            with the previous block to make it larger. This ensures that the
            whole MAC is included in a single decrypt call. */
-        if(CRYPT_FLAG_R(session, PKTLEN_AAD) && IS_LAST(firstlast)
-           && (len < blocksize*2)) {
+        if(CRYPT_FLAG_R(session, PKTLEN_AAD) && IS_LAST(firstlast) &&
+           (len < blocksize*2)) {
             decryptlen = len;
             lowerfirstlast = LAST_BLOCK;
         }
@@ -159,6 +157,7 @@ decrypt(LIBSSH2_SESSION * session, unsigned char *source,
                                         &session->remote.crypt_abstract,
                                         lowerfirstlast)) {
             LIBSSH2_FREE(session, p->payload);
+            p->payload = NULL;
             return LIBSSH2_ERROR_DECRYPT;
         }
 
@@ -311,6 +310,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
                                               session->fullpacket_payload_len,
                                               &session->remote.comp_abstract);
             LIBSSH2_FREE(session, p->payload);
+            p->payload = NULL;
             if(rc)
                 return rc;
 
@@ -347,7 +347,6 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
 
     return session->fullpacket_packet_type;
 }
-
 
 /*
  * _libssh2_transport_read
@@ -465,8 +464,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
         assert(remainbuf >= 0);
 
         if(remainbuf < blocksize ||
-           (CRYPT_FLAG_R(session, REQUIRES_FULL_PACKET)
-            && ((ssize_t)p->total_num) > remainbuf)) {
+           (CRYPT_FLAG_R(session, REQUIRES_FULL_PACKET) &&
+            ((ssize_t)p->total_num) > remainbuf)) {
             /* If we have less than a blocksize left, it is too
                little data to deal with, read more */
             ssize_t nread;
@@ -524,7 +523,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                                  fields */
 
             /* packet length is not encrypted in encode-then-mac mode
-               and we donøt need to decrypt first block */
+               and we do not need to decrypt first block */
             ssize_t required_size = etm ? 4 : blocksize;
 
             /* No payload package area allocated yet. To know the
@@ -532,7 +531,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                blocksize data. */
 
             if(numbytes < required_size) {
-                /* we can't act on anything less than blocksize, but this
+                /* we cannot act on anything less than blocksize, but this
                    check is only done for the initial block since once we have
                    got the start of a block we can in fact deal with fractions
                 */
@@ -695,6 +694,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                     else {
                         if(p->payload)
                             LIBSSH2_FREE(session, p->payload);
+                        p->payload = NULL;
                         return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
                     }
                 }
@@ -854,6 +854,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
             else {
                 if(p->payload)
                     LIBSSH2_FREE(session, p->payload);
+                p->payload = NULL;
                 return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
             }
 
@@ -1111,7 +1112,6 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
         data_len += data2_len; /* use the combined length */
     }
 
-
     /* RFC4253 says: Note that the length of the concatenation of
        'packet_length', 'padding_length', 'payload', and 'random padding'
        MUST be a multiple of the cipher block size or 8, whichever is
@@ -1213,8 +1213,8 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
                 /* The INTEGRATED_MAC case always has an extra call below, so
                    it will never be LAST_BLOCK up here. */
                 int firstlast = i == 0 ? FIRST_BLOCK :
-                (!CRYPT_FLAG_L(session, INTEGRATED_MAC)
-                 && (i == packet_length - session->local.crypt->blocksize)
+                (!CRYPT_FLAG_L(session, INTEGRATED_MAC) &&
+                 (i == packet_length - session->local.crypt->blocksize)
                  ? LAST_BLOCK : MIDDLE_BLOCK);
                 /* In the AAD case, the last block would be only 4 bytes
                    because everything is offset by 4 since the initial
