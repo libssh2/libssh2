@@ -1866,7 +1866,6 @@ do {                                                                         \
         rc = -1;                                                             \
         break;                                                               \
     }                                                                        \
-    exchange_state->exchange_hash = (void *)&ctx;                            \
     hok = 1;                                                                 \
     if(session->local.banner) {                                              \
         _libssh2_htonu32(exchange_state->h_sig_comp,                         \
