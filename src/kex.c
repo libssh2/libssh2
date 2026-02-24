@@ -55,7 +55,6 @@
 /* Helper macro called from
    kex_method_diffie_hellman_group1_sha1_key_exchange */
 
-
 #define LIBSSH2_KEX_METHOD_SHA_VALUE_HASH(digest_type, value,               \
                                           reqlen, version)                  \
 do {                                                                        \
@@ -1025,8 +1024,6 @@ clean_exit:
 
     return ret;
 }
-
-
 
 /* kex_method_diffie_hellman_group1_sha1_key_exchange
  * Diffie-Hellman Group1 (Actually Group2) Key Exchange using SHA1
@@ -2411,7 +2408,6 @@ mlkem_nistp(LIBSSH2_SESSION *session,
             goto clean_exit;
     }
 
-
     if(exchange_state->state == libssh2_NB_state_idle) {
 
         /* Setup initial values */
@@ -2728,7 +2724,6 @@ clean_exit:
 }
 #endif
 #endif /* LIBSSH2_ECDSA */
-
 
 #if LIBSSH2_ED25519
 
