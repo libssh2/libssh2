@@ -35,6 +35,43 @@ static const char *username = "username";
 static const char *password = "password";
 static const char *sftppath = "/tmp/sftp_mkdir_nonblock";
 
+static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
+{
+    struct timeval timeout;
+    int rc;
+    fd_set fd;
+    fd_set *writefd = NULL;
+    fd_set *readfd = NULL;
+    int dir;
+
+    timeout.tv_sec = 10;
+    timeout.tv_usec = 0;
+
+    FD_ZERO(&fd);
+
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+    FD_SET(socket_fd, &fd);
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
+
+    /* now make sure we wait in the correct direction */
+    dir = libssh2_session_block_directions(session);
+
+    if(dir & LIBSSH2_SESSION_BLOCK_INBOUND)
+        readfd = &fd;
+
+    if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
+        writefd = &fd;
+
+    rc = select((int)(socket_fd + 1), readfd, writefd, NULL, &timeout);
+
+    return rc;
+}
+
 int main(int argc, char *argv[])
 {
     uint32_t hostaddr;
@@ -44,7 +81,7 @@ int main(int argc, char *argv[])
     const char *fingerprint;
     int rc;
     LIBSSH2_SESSION *session = NULL;
-    LIBSSH2_SFTP *sftp_session;
+    LIBSSH2_SFTP *sftp_session = NULL;
 
 #ifdef _WIN32
     WSADATA wsadata;
@@ -106,7 +143,9 @@ int main(int argc, char *argv[])
     /* ... start it up. This will trade welcome banners, exchange keys,
      * and setup crypto, compression, and MAC layers
      */
-    rc = libssh2_session_handshake(session, sock);
+    while((rc = libssh2_session_handshake(session, sock)) ==
+          LIBSSH2_ERROR_EAGAIN)
+        waitsocket(sock, session);
     if(rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
         goto shutdown;
@@ -126,16 +165,22 @@ int main(int argc, char *argv[])
 
     if(auth_pw) {
         /* We could authenticate via password */
-        if(libssh2_userauth_password(session, username, password)) {
+        while((rc = libssh2_userauth_password(session, username, password)) ==
+              LIBSSH2_ERROR_EAGAIN)
+              waitsocket(sock, session);
+        if(rc) {
             fprintf(stderr, "Authentication by password failed.\n");
             goto shutdown;
         }
     }
     else {
         /* Or by public key */
-        if(libssh2_userauth_publickey_fromfile(session, username,
-                                               pubkey, privkey,
-                                               password)) {
+        while((rc = libssh2_userauth_publickey_fromfile(session, username,
+                                                        pubkey, privkey,
+                                                        password)) ==
+              LIBSSH2_ERROR_EAGAIN)
+              waitsocket(sock, session);
+        if(rc) {
             fprintf(stderr, "Authentication by public key failed.\n");
             goto shutdown;
         }
@@ -158,15 +203,21 @@ int main(int argc, char *argv[])
                              LIBSSH2_SFTP_S_IXGRP |
                              LIBSSH2_SFTP_S_IROTH |
                              LIBSSH2_SFTP_S_IXOTH) ==
-          LIBSSH2_ERROR_EAGAIN);
-
-    libssh2_sftp_shutdown(sftp_session);
+          LIBSSH2_ERROR_EAGAIN)
+        waitsocket(sock, session);
 
 shutdown:
 
+    if(sftp_session)
+        while(libssh2_sftp_shutdown(sftp_session) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
+
     if(session) {
-        libssh2_session_disconnect(session, "Normal Shutdown");
-        libssh2_session_free(session);
+        while(libssh2_session_disconnect(session, "Normal Shutdown") ==
+              LIBSSH2_ERROR_EAGAIN)
+                waitsocket(sock, session);
+        while(libssh2_session_free(session) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
     }
 
     if(sock != LIBSSH2_INVALID_SOCKET) {

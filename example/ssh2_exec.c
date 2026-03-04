@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     const char *fingerprint;
     int rc;
     LIBSSH2_SESSION *session = NULL;
-    LIBSSH2_CHANNEL *channel;
+    LIBSSH2_CHANNEL *channel = NULL;
     int exitcode;
     char *exitsignal = NULL;
     ssize_t bytecount = 0;
@@ -152,7 +152,8 @@ int main(int argc, char *argv[])
      * and setup crypto, compression, and MAC layers
      */
     while((rc = libssh2_session_handshake(session, sock)) ==
-          LIBSSH2_ERROR_EAGAIN);
+          LIBSSH2_ERROR_EAGAIN)
+          waitsocket(sock, session);
     if(rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
         goto shutdown;
@@ -199,7 +200,8 @@ int main(int argc, char *argv[])
     if(strlen(password) != 0) {
         /* We could authenticate via password */
         while((rc = libssh2_userauth_password(session, username, password)) ==
-              LIBSSH2_ERROR_EAGAIN);
+              LIBSSH2_ERROR_EAGAIN)
+              waitsocket(sock, session);
         if(rc) {
             fprintf(stderr, "Authentication by password failed.\n");
             goto shutdown;
@@ -210,7 +212,8 @@ int main(int argc, char *argv[])
         while((rc = libssh2_userauth_publickey_fromfile(session, username,
                                                         pubkey, privkey,
                                                         password)) ==
-              LIBSSH2_ERROR_EAGAIN);
+              LIBSSH2_ERROR_EAGAIN)
+              waitsocket(sock, session);
         if(rc) {
             fprintf(stderr, "Authentication by public key failed.\n");
             goto shutdown;
@@ -289,14 +292,32 @@ int main(int argc, char *argv[])
         fprintf(stderr, "\nEXIT: %d bytecount: %ld\n",
                 exitcode, (long)bytecount);
 
-    libssh2_channel_free(channel);
-    channel = NULL;
-
 shutdown:
 
+    if(channel) {
+        fprintf(stderr, "Sending EOF\n");
+        while(libssh2_channel_send_eof(channel) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
+
+        fprintf(stderr, "Waiting for EOF\n");
+        while(libssh2_channel_wait_eof(channel) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
+
+        fprintf(stderr, "Waiting for channel to close\n");
+        while(libssh2_channel_wait_closed(channel) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
+
+        while(libssh2_channel_free(channel) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
+        channel = NULL;
+    }
+
     if(session) {
-        libssh2_session_disconnect(session, "Normal Shutdown");
-        libssh2_session_free(session);
+        while(libssh2_session_disconnect(session, "Normal Shutdown") ==
+              LIBSSH2_ERROR_EAGAIN)
+                waitsocket(sock, session);
+        while(libssh2_session_free(session) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
     }
 
     if(sock != LIBSSH2_INVALID_SOCKET) {
