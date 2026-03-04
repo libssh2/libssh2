@@ -281,6 +281,16 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
         }
         else if(status == Z_BUF_ERROR) {
             /* the input data has been exhausted so we are done */
+
+            if((out_maxlen - strm->avail_out) == 0) {
+                /* nothing was decompressed */
+                LIBSSH2_FREE(session, out);
+                _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
+                                "zlib empty src error %d", status));
+                return _libssh2_error(session, LIBSSH2_ERROR_ZLIB,
+                                      "decompression failure");
+            }
+
             break;
         }
         else {
