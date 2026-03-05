@@ -187,6 +187,8 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
     const LIBSSH2_MAC_METHOD *remote_mac = NULL;
     uint32_t seq = session->remote.seqno;
 
+    memset(macbuf, '\0', sizeof(macbuf));
+
     if(!encrypted || (!CRYPT_FLAG_R(session, REQUIRES_FULL_PACKET) &&
                       !CRYPT_FLAG_R(session, INTEGRATED_MAC))) {
         remote_mac = session->remote.mac;
@@ -258,6 +260,12 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
                 /* grab padding length and copy anything else
                    into target buffer */
                 p->padding_length = first_block[0];
+
+                if(p->padding_length > p->packet_length - 1) {
+                    LIBSSH2_FREE(session, decrypt_buffer);
+                    return LIBSSH2_ERROR_PROTO;
+                }
+
                 if(blocksize > 1) {
                     memcpy(decrypt_buffer, first_block + 1, blocksize - 1);
                 }
@@ -301,8 +309,8 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
              * cannot decompress.
              */
 
-            unsigned char *data;
-            size_t data_len;
+            unsigned char *data = NULL;
+            size_t data_len = 0;
             rc = session->remote.comp->decomp(session,
                                               &data, &data_len,
                                               LIBSSH2_PACKET_MAXDECOMP,
@@ -608,6 +616,10 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 }
 
                 if(etm) {
+                    /* don't know what padding is until we decrypt the full
+                     packet */
+                    p->padding_length = 0;
+
                     /* we collect entire undecrypted packet including the
                        packet length field that we run MAC over */
                     p->packet_length = _libssh2_ntohu32(block);
