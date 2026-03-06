@@ -1139,21 +1139,38 @@ libssh2_packet_add_jump_point1:
 
         case SSH_MSG_CHANNEL_REQUEST:
             if(datalen >= 9) {
-                channel = _libssh2_ntohu32(data + 1);
-                len = _libssh2_ntohu32(data + 5);
-                want_reply = 1;
+                unsigned char *request;
+                size_t r_len;
+                struct string_buf buf;
+                buf.data = data;
+                buf.dataptr = buf.data;
+                buf.len = datalen;
 
-                if((len + 9) < datalen)
-                    want_reply = data[len + 9];
+                buf.dataptr++; /* Advance past packet type */
+
+                if(_libssh2_get_u32(&buf, &channel)) {
+                    return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                          "Unexpected channel value.");
+                }
+                if(_libssh2_get_string(&buf, &request, &r_len)) {
+                    return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                          "Unexpected request value.");
+                }
+
+                len = (uint32_t)r_len;
+
+                if(_libssh2_get_byte(&buf, &want_reply)) {
+                    return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                          "Unexpected want reply value.");
+                }
 
                 _libssh2_debug((session,
                                LIBSSH2_TRACE_CONN,
                                "Channel %u received request type %.*s (wr %X)",
-                               channel, (int)len, data + 9, want_reply));
+                               channel, (int)len, request, want_reply));
 
                 if(len == strlen("exit-status") &&
-                   (strlen("exit-status") + 9) <= datalen &&
-                   !memcmp("exit-status", data + 9, strlen("exit-status"))) {
+                   !memcmp("exit-status", request, strlen("exit-status"))) {
 
                     /* we've got "exit-status" packet. Set the session value */
                     if(datalen >= 20)
@@ -1174,8 +1191,7 @@ libssh2_packet_add_jump_point1:
 
                 }
                 else if(len == strlen("exit-signal") &&
-                        (strlen("exit-signal") + 9) <= datalen &&
-                        !memcmp("exit-signal", data + 9,
+                        !memcmp("exit-signal", request,
                                 strlen("exit-signal"))) {
                     /* command terminated due to signal */
                     if(datalen >= 20)
