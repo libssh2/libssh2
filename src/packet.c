@@ -1246,7 +1246,7 @@ libssh2_packet_add_jump_point4:
                 }
             }
 
-            clean_exit:
+clean_exit:
 
             LIBSSH2_FREE(session, data);
             session->packAdd_state = libssh2_NB_state_idle;
