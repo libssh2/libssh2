@@ -1149,19 +1149,23 @@ libssh2_packet_add_jump_point1:
                 buf.dataptr++; /* Advance past packet type */
 
                 if(_libssh2_get_u32(&buf, &channel)) {
-                    return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                                          "Unexpected channel value.");
+                    rc = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                        "Unexpected channel value.");
+                    goto clean_exit;
                 }
+
                 if(_libssh2_get_string(&buf, &request, &r_len)) {
-                    return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                                          "Unexpected request value.");
+                    rc = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                        "Unexpected request value.");
+                    goto clean_exit;
                 }
 
                 len = (uint32_t)r_len;
 
                 if(_libssh2_get_byte(&buf, &want_reply)) {
-                    return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                                          "Unexpected want reply value.");
+                    rc = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                        "Unexpected want reply value.");
+                    goto clean_exit;
                 }
 
                 _libssh2_debug((session,
@@ -1241,6 +1245,9 @@ libssh2_packet_add_jump_point4:
                         return rc;
                 }
             }
+
+            clean_exit:
+
             LIBSSH2_FREE(session, data);
             session->packAdd_state = libssh2_NB_state_idle;
             return rc;
