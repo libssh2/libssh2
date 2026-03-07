@@ -91,6 +91,7 @@
 # define LIBSSH2_ECDSA          0
 #endif
 #define LIBSSH2_ED25519         0
+#define LIBSSH2_MLKEM           0
 
 #include "crypto_config.h"
 
