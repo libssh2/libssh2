@@ -533,6 +533,7 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_ERROR_MAC_FAILURE               -52
 #define LIBSSH2_ERROR_HASH_INIT                 -53
 #define LIBSSH2_ERROR_HASH_CALC                 -54
+#define LIBSSH2_ERROR_PARTIAL_SUCCESS           -55
 
 /* this is a define to provide the old (<= 1.2.7) name */
 #define LIBSSH2_ERROR_BANNER_NONE LIBSSH2_ERROR_BANNER_RECV
