@@ -324,7 +324,7 @@ jobs:
 
       - name: 'cache mbedTLS'
         if: ${{ matrix.crypto == 'mbedTLS-from-source' }}
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         id: cache-mbedtls
         with:
           path: ~/usr
@@ -375,7 +375,7 @@ jobs:
 
       - name: 'cache BoringSSL'
         if: ${{ matrix.crypto == 'BoringSSL' }}
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         id: cache-boringssl
         with:
           path: ~/usr
@@ -397,7 +397,7 @@ jobs:
 
       - name: 'cache AWS-LC'
         if: ${{ matrix.crypto == 'AWS-LC' }}
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         id: cache-aws-lc
         with:
           path: ~/usr
@@ -414,7 +414,7 @@ jobs:
 
       - name: 'cache LibreSSL'
         if: ${{ matrix.crypto == 'LibreSSL' }}
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         id: cache-libressl
         with:
           path: ~/usr
@@ -434,7 +434,7 @@ jobs:
 
       - name: 'cache OpenSSL'
         if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' }}
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         id: cache-openssl
         with:
           path: ~/usr
@@ -452,7 +452,7 @@ jobs:
 
       - name: 'cache OpenSSL 1.1.1'
         if: ${{ matrix.crypto == 'OpenSSL-111-from-source' }}
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         id: cache-openssl111
         with:
           path: ~/usr
@@ -655,7 +655,7 @@ jobs:
           - { build: 'autotools', platform: 'x86_64', compiler: 'gcc' }
           - { build: 'cmake'    , platform: 'x86_64', compiler: 'gcc' }
     steps:
-      - uses: cygwin/cygwin-install-action@f2009323764960f80959895c7bc3bb30210afe4d # v6.0
+      - uses: cygwin/cygwin-install-action@711d29f3da23c9f4a1798e369a6f01198c13b11a # v6.1
         with:
           platform: ${{ matrix.platform }}
           packages: ${{ matrix.build == 'autotools' && 'autoconf automake libtool make' || 'cmake ninja' }} gcc-core gcc-g++ binutils libssl-devel zlib-devel
