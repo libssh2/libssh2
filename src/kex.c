@@ -3425,39 +3425,41 @@ static int kexinit(LIBSSH2_SESSION * session)
 
 #ifdef LIBSSH2DEBUG
         {
-            /* Funnily enough, they'll all "appear" to be '\0' terminated */
             unsigned char *p = data + 21;   /* type(1) + cookie(16) + len(4) */
 
             _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-                           "Sent KEX: %s", p));
+                           "Sent KEX: %.*s", (int)kex_len, p));
             p += kex_len + 4;
             _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-                           "Sent HOSTKEY: %s", p));
+                           "Sent HOSTKEY: %.*s", (int)hostkey_len, p));
             p += hostkey_len + 4;
             _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-                           "Sent CRYPT_CS: %s", p));
+                           "Sent CRYPT_CS: %.*s", (int)crypt_cs_len, p));
             p += crypt_cs_len + 4;
             _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-                           "Sent CRYPT_SC: %s", p));
+                           "Sent CRYPT_SC: %.*s", (int)crypt_sc_len, p));
             p += crypt_sc_len + 4;
             _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-                           "Sent MAC_CS: %s", p));
+                           "Sent MAC_CS: %.*s", (int)mac_cs_len, p));
             p += mac_cs_len + 4;
             _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-                           "Sent MAC_SC: %s", p));
+                           "Sent MAC_SC: %.*s", (int)mac_sc_len, p));
             p += mac_sc_len + 4;
             _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-                           "Sent COMP_CS: %s", p));
+                           "Sent COMP_CS: %.*s", (int)comp_cs_len, p));
             p += comp_cs_len + 4;
             _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-                           "Sent COMP_SC: %s", p));
+                           "Sent COMP_SC: %.*s", (int)comp_sc_len, p));
             p += comp_sc_len + 4;
             _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-                           "Sent LANG_CS: %s", p));
+                           "Sent LANG_CS: %.*s", (int)lang_cs_len, p));
             p += lang_cs_len + 4;
             _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-                           "Sent LANG_SC: %s", p));
-            /* p += lang_sc_len + 4; */
+                           "Sent LANG_SC: %.*s", (int)lang_sc_len, p));
+            p += lang_sc_len;
+            _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+                           "Sent first_kex_packet_follows: %02x", p[0]));
+
         }
 #endif /* LIBSSH2DEBUG */
 
