@@ -1,5 +1,13 @@
 /* Copyright (C) The libssh2 project and its contributors.
  *
+ * Sample showing how to do TCP forward in non-blocking manner.
+ *
+ * The sample code has default values for host name, user name, password
+ * listenip, listenport and remoteip and remoteport, but you can specify
+ * them on the command line like:
+ *
+ * $ ./direct_tcpip 192.168.0.1 user password 127.0.0.1 2222 192.168.1.1 22
+ *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
@@ -51,6 +59,43 @@ enum {
     AUTH_PASSWORD = 1,
     AUTH_PUBLICKEY = 2
 };
+
+static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
+{
+    struct timeval timeout;
+    int rc;
+    fd_set fd;
+    fd_set *writefd = NULL;
+    fd_set *readfd = NULL;
+    int dir;
+
+    timeout.tv_sec = 10;
+    timeout.tv_usec = 0;
+
+    FD_ZERO(&fd);
+
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+    FD_SET(socket_fd, &fd);
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
+
+    /* now make sure we wait in the correct direction */
+    dir = libssh2_session_block_directions(session);
+
+    if(dir & LIBSSH2_SESSION_BLOCK_INBOUND)
+        readfd = &fd;
+
+    if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
+        writefd = &fd;
+
+    rc = select((int)(socket_fd + 1), readfd, writefd, NULL, &timeout);
+
+    return rc;
+}
 
 int main(int argc, char *argv[])
 {
@@ -335,12 +380,30 @@ shutdown:
         LIBSSH2_SOCKET_CLOSE(listensock);
     }
 
-    if(channel)
-        libssh2_channel_free(channel);
+    if(channel) {
+        fprintf(stderr, "Sending EOF\n");
+        while(libssh2_channel_send_eof(channel) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
+
+        fprintf(stderr, "Waiting for EOF\n");
+        while(libssh2_channel_wait_eof(channel) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
+
+        fprintf(stderr, "Waiting for channel to close\n");
+        while(libssh2_channel_wait_closed(channel) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
+
+        while(libssh2_channel_free(channel) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
+        channel = NULL;
+    }
 
     if(session) {
-        libssh2_session_disconnect(session, "Normal Shutdown");
-        libssh2_session_free(session);
+        while(libssh2_session_disconnect(session, "Normal Shutdown") ==
+              LIBSSH2_ERROR_EAGAIN)
+                waitsocket(sock, session);
+        while(libssh2_session_free(session) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
     }
 
     if(sock != LIBSSH2_INVALID_SOCKET) {

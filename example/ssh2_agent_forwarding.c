@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
     struct sockaddr_in sin;
     int rc;
     LIBSSH2_SESSION *session = NULL;
-    LIBSSH2_CHANNEL *channel;
+    LIBSSH2_CHANNEL *channel = NULL;
     LIBSSH2_AGENT *agent = NULL;
     struct libssh2_agent_publickey *identity, *prev_identity = NULL;
     int exitcode;
@@ -282,14 +282,33 @@ int main(int argc, char *argv[])
                 exitcode, (long)bytecount);
     }
 
-    libssh2_channel_free(channel);
-    channel = NULL;
 
 shutdown:
 
+    if(channel) {
+        fprintf(stderr, "Sending EOF\n");
+        while(libssh2_channel_send_eof(channel) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
+
+        fprintf(stderr, "Waiting for EOF\n");
+        while(libssh2_channel_wait_eof(channel) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
+
+        fprintf(stderr, "Waiting for channel to close\n");
+        while(libssh2_channel_wait_closed(channel) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
+
+        while(libssh2_channel_free(channel) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
+        channel = NULL;
+    }
+
     if(session) {
-        libssh2_session_disconnect(session, "Normal Shutdown");
-        libssh2_session_free(session);
+        while(libssh2_session_disconnect(session, "Normal Shutdown") ==
+              LIBSSH2_ERROR_EAGAIN)
+                waitsocket(sock, session);
+        while(libssh2_session_free(session) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
     }
 
     if(sock != LIBSSH2_INVALID_SOCKET) {

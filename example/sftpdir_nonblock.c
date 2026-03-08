@@ -41,6 +41,43 @@ static const char *username = "username";
 static const char *password = "password";
 static const char *sftppath = "/tmp/secretdir";
 
+static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
+{
+    struct timeval timeout;
+    int rc;
+    fd_set fd;
+    fd_set *writefd = NULL;
+    fd_set *readfd = NULL;
+    int dir;
+
+    timeout.tv_sec = 10;
+    timeout.tv_usec = 0;
+
+    FD_ZERO(&fd);
+
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+    FD_SET(socket_fd, &fd);
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
+
+    /* now make sure we wait in the correct direction */
+    dir = libssh2_session_block_directions(session);
+
+    if(dir & LIBSSH2_SESSION_BLOCK_INBOUND)
+        readfd = &fd;
+
+    if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
+        writefd = &fd;
+
+    rc = select((int)(socket_fd + 1), readfd, writefd, NULL, &timeout);
+
+    return rc;
+}
+
 int main(int argc, char *argv[])
 {
     uint32_t hostaddr;
@@ -50,8 +87,8 @@ int main(int argc, char *argv[])
     const char *fingerprint;
     int rc;
     LIBSSH2_SESSION *session = NULL;
-    LIBSSH2_SFTP *sftp_session;
-    LIBSSH2_SFTP_HANDLE *sftp_handle;
+    LIBSSH2_SFTP *sftp_session = NULL;
+    LIBSSH2_SFTP_HANDLE *sftp_handle = NULL;
 
 #ifdef _WIN32
     WSADATA wsadata;
@@ -116,8 +153,9 @@ int main(int argc, char *argv[])
     /* ... start it up. This will trade welcome banners, exchange keys,
      * and setup crypto, compression, and MAC layers
      */
-    while((rc = libssh2_session_handshake(session, sock)) ==
-          LIBSSH2_ERROR_EAGAIN);
+   while((rc = libssh2_session_handshake(session, sock)) ==
+          LIBSSH2_ERROR_EAGAIN)
+        waitsocket(sock, session);
     if(rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
         goto shutdown;
@@ -138,7 +176,8 @@ int main(int argc, char *argv[])
     if(auth_pw) {
         /* We could authenticate via password */
         while((rc = libssh2_userauth_password(session, username, password)) ==
-              LIBSSH2_ERROR_EAGAIN);
+              LIBSSH2_ERROR_EAGAIN)
+              waitsocket(sock, session);
         if(rc) {
             fprintf(stderr, "Authentication by password failed.\n");
             goto shutdown;
@@ -149,7 +188,8 @@ int main(int argc, char *argv[])
         while((rc = libssh2_userauth_publickey_fromfile(session, username,
                                                         pubkey, privkey,
                                                         password)) ==
-              LIBSSH2_ERROR_EAGAIN);
+              LIBSSH2_ERROR_EAGAIN)
+              waitsocket(sock, session);
         if(rc) {
             fprintf(stderr, "Authentication by public key failed.\n");
             goto shutdown;
@@ -160,10 +200,15 @@ int main(int argc, char *argv[])
     do {
         sftp_session = libssh2_sftp_init(session);
 
-        if(!sftp_session &&
-           libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
-            fprintf(stderr, "Unable to init SFTP session\n");
-            goto shutdown;
+        if(!sftp_handle) {
+            if(libssh2_session_last_errno(session) == LIBSSH2_ERROR_EAGAIN) {
+                fprintf(stderr, "non-blocking init\n");
+                waitsocket(sock, session); /* now we wait */
+           }
+           else {
+                fprintf(stderr, "Unable to init SFTP session\n");
+                goto shutdown;
+            }
         }
     } while(!sftp_session);
 
@@ -172,10 +217,15 @@ int main(int argc, char *argv[])
     do {
         sftp_handle = libssh2_sftp_opendir(sftp_session, sftppath);
 
-        if(!sftp_handle &&
-           libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
-            fprintf(stderr, "Unable to open dir with SFTP\n");
-            goto shutdown;
+        if(!sftp_handle) {
+            if(libssh2_session_last_errno(session) == LIBSSH2_ERROR_EAGAIN) {
+                fprintf(stderr, "non-blocking init\n");
+                waitsocket(sock, session); /* now we wait */
+           }
+           else {
+                fprintf(stderr, "Unable to opendir in SFTP session\n");
+                goto shutdown;
+            }
         }
     } while(!sftp_handle);
 
@@ -186,7 +236,8 @@ int main(int argc, char *argv[])
 
         /* loop until we fail */
         while((rc = libssh2_sftp_readdir(sftp_handle, mem, sizeof(mem),
-                                         &attrs)) == LIBSSH2_ERROR_EAGAIN);
+                                         &attrs)) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
         if(rc > 0) {
             /* rc is the length of the file name in the mem
                buffer */
@@ -223,14 +274,22 @@ int main(int argc, char *argv[])
 
     } while(1);
 
-    libssh2_sftp_closedir(sftp_handle);
-    libssh2_sftp_shutdown(sftp_session);
-
 shutdown:
 
+    if(sftp_handle)
+        while(libssh2_sftp_closedir(sftp_handle) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
+
+    if(sftp_session)
+        while(libssh2_sftp_shutdown(sftp_session) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
+
     if(session) {
-        libssh2_session_disconnect(session, "Normal Shutdown");
-        libssh2_session_free(session);
+        while(libssh2_session_disconnect(session, "Normal Shutdown") ==
+              LIBSSH2_ERROR_EAGAIN)
+                waitsocket(sock, session);
+        while(libssh2_session_free(session) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
     }
 
     if(sock != LIBSSH2_INVALID_SOCKET) {
