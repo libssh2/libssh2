@@ -28,9 +28,10 @@
         (p)[3] = (uint8_t)((v) >> 24); \
     } while (0)
 
-void
-poly1305_auth(unsigned char out[POLY1305_TAGLEN], const unsigned char *m,
-              size_t inlen, const unsigned char key[POLY1305_KEYLEN]) {
+void poly1305_auth(unsigned char out[POLY1305_TAGLEN],
+                   const unsigned char *m, size_t inlen,
+                   const unsigned char key[POLY1305_KEYLEN])
+{
     uint32_t t0;
     uint32_t t1;
     uint32_t t2;
