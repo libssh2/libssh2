@@ -94,6 +94,16 @@
 #endif
 #endif
 
+#ifdef LIBSSH2_GSSAPI
+#ifdef _WIN32
+#define SECURITY_WIN32
+#include "Windows.h"
+#include "sspi.h"
+#else
+#include <gssapi/gssapi_krb5.h>
+#endif
+#endif
+
 #include "libssh2.h"
 #include "libssh2_publickey.h"
 #include "libssh2_sftp.h"
@@ -953,6 +963,33 @@ struct _LIBSSH2_SESSION
     size_t scpSend_response_len;
     LIBSSH2_CHANNEL *scpSend_channel;
 
+#ifdef LIBSSH2_GSSAPI
+    /* State variable used in libssh2_userauth_gssapi_with_mic() */
+    unsigned char *userauth_gss_data;
+    size_t userauth_gss_data_len;
+    libssh2_nonblocking_states userauth_gss_state;
+    packet_requirev_state_t userauth_gss_packet_requirev_state;
+    unsigned char *userauth_gss_input_data;
+    size_t userauth_gss_input_data_len;
+    unsigned char *userauth_gss_output_data;
+    size_t userauth_gss_output_data_len;
+    unsigned char *userauth_gss_mic_data;
+    size_t userauth_gss_mic_data_len;
+#ifdef _WIN32
+    SEC_CHAR *userauth_gss_target_name;
+    CredHandle userauth_gss_cred;
+    CredHandle userauth_gss_context;
+    CredHandle *userauth_gss_context_handle;
+    SECURITY_STATUS userauth_gss_maj_stat;
+    ULONG userauth_gss_flags;
+#else
+    gss_name_t userauth_gss_target_name;
+    gss_ctx_id_t userauth_gss_context;
+    OM_uint32 userauth_gss_maj_stat;
+    OM_uint32 userauth_gss_flags;
+#endif
+#endif
+
     /* Keepalive variables used by keepalive.c. */
     int keepalive_interval;
     int keepalive_want_reply;
@@ -1168,11 +1205,23 @@ _libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
 
 /* "public key" method */
 #define SSH_MSG_USERAUTH_PK_OK                      60
+
 /* "password" method */
 #define SSH_MSG_USERAUTH_PASSWD_CHANGEREQ           60
+
 /* "keyboard-interactive" method */
 #define SSH_MSG_USERAUTH_INFO_REQUEST               60
 #define SSH_MSG_USERAUTH_INFO_RESPONSE              61
+
+#ifdef LIBSSH2_GSSAPI
+/* "gssapi" method */
+#define SSH_MSG_USERAUTH_GSSAPI_RESPONSE            60
+#define SSH_MSG_USERAUTH_GSSAPI_TOKEN               61
+#define SSH_MSG_USERAUTH_GSSAPI_EXCHANGE_COMPLETE   63
+#define SSH_MSG_USERAUTH_GSSAPI_ERROR               64
+#define SSH_MSG_USERAUTH_GSSAPI_ERRTOK              65
+#define SSH_MSG_USERAUTH_GSSAPI_MIC                 66
+#endif
 
 /* Channels */
 #define SSH_MSG_GLOBAL_REQUEST                      80
@@ -1197,6 +1246,10 @@ _libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
 #define SSH_OPEN_CONNECT_FAILED              2
 #define SSH_OPEN_UNKNOWN_CHANNELTYPE         3
 #define SSH_OPEN_RESOURCE_SHORTAGE           4
+
+#ifdef LIBSSH2_GSSAPI
+#define SSH2_GSS_OIDTYPE 0x06
+#endif
 
 ssize_t _libssh2_recv(libssh2_socket_t socket, void *buffer,
                       size_t length, int flags, void **abstract);

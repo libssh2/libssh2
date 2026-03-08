@@ -533,6 +533,10 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_ERROR_MAC_FAILURE               -52
 #define LIBSSH2_ERROR_HASH_INIT                 -53
 #define LIBSSH2_ERROR_HASH_CALC                 -54
+#define LIBSSH2_ERROR_PARTIAL_SUCCESS           -55
+#ifdef LIBSSH2_GSSAPI
+#define LIBSSH2_ERROR_GSSAPI_FAILURE            -56
+#endif
 
 /* this is a define to provide the old (<= 1.2.7) name */
 #define LIBSSH2_ERROR_BANNER_NONE LIBSSH2_ERROR_BANNER_RECV
@@ -759,6 +763,22 @@ libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
                               LIBSSH2_USERAUTH_SK_SIGN_FUNC
                                   ((*sign_callback)),
                               void **abstract);
+
+#ifdef LIBSSH2_GSSAPI
+LIBSSH2_API int
+libssh2_userauth_gssapi_with_mic_ex(LIBSSH2_SESSION *session,
+                                 const char *username,
+                                 size_t username_len,
+                                 const char *hostname,
+                                 size_t hostname_len,
+                                 int delegation_flag);
+#define libssh2_userauth_gssapi_with_mic(session, username, hostname) \
+    libssh2_userauth_gssapi_with_mic_ex((session), (username), \
+                                 (size_t)strlen(username), \
+                                 (hostname), \
+                                 (size_t)strlen(hostname), \
+                                 0)
+#endif
 
 LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds,
                              long timeout);

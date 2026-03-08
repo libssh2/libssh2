@@ -253,6 +253,18 @@ if(HIDE_SYMBOLS)
   endif()
 endif()
 
+# GSSAPI
+option(LIBSSH2_GSSAPI_ENABLE "Build libssh2 with GSSAPI support" OFF)
+if(LIBSSH2_GSSAPI_ENABLE)
+    list(APPEND C_MAKE_FLAGS "-DUSE_GSSAPI")
+    if(WIN32)
+        list(APPEND LIBSSH2_LIBS "secur32")
+	    list(APPEND LIBSSH2_PICKY_C_FLAGS "-DUSE_GSSAPI")
+    else()
+        list(APPEND LIBSSH2_LIBS "gssapi_krb5")
+    endif()
+endif()
+
 # Options
 
 # Enable debugging logging by default if the user configured a debug build
