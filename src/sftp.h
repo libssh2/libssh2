@@ -237,6 +237,18 @@ struct _LIBSSH2_SFTP
     libssh2_nonblocking_states symlink_state;
     unsigned char *symlink_packet;
     uint32_t symlink_request_id;
+
+    /* State variables used in libssh2_sftp_copydata() */
+    libssh2_nonblocking_states copydata_state;
+    unsigned char *copydata_packet;
+    uint32_t copydata_request_id;
+    uint32_t server_supports_copydata;
+
+    /* State variables used in libssh2_sftp_copyfile() */
+    libssh2_nonblocking_states copyfile_state;
+    unsigned char *copyfile_packet;
+    uint32_t copyfile_request_id;
+    uint32_t server_supports_copyfile;
 };
 
 #endif /* LIBSSH2_SFTP_PRIV_H */
