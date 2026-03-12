@@ -57,6 +57,8 @@
 #include "channel.h"
 #include "packet.h"
 
+int64_t _ssh2_get_time(void);
+
 /*
  * libssh2_packet_queue_listener
  *
@@ -1535,7 +1537,7 @@ _libssh2_packet_require(LIBSSH2_SESSION * session, unsigned char packet_type,
             return 0;
         }
 
-        state->start = time(NULL);
+        state->start = _ssh2_get_time();
     }
 
     while(session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
@@ -1559,8 +1561,8 @@ _libssh2_packet_require(LIBSSH2_SESSION * session, unsigned char packet_type,
         }
         else if(ret == 0) {
             /* nothing available, wait until data arrives or we time out */
-            long left = session->packet_read_timeout - (long)(time(NULL) -
-                                                              state->start);
+            long left = session->packet_read_timeout * 1000 -
+                (long)(_ssh2_get_time() - state->start);
 
             if(left <= 0) {
                 state->start = 0;
@@ -1662,7 +1664,7 @@ _libssh2_packet_requirev(LIBSSH2_SESSION *session,
     }
 
     if(state->start == 0) {
-        state->start = time(NULL);
+        state->start = _ssh2_get_time();
     }
 
     while(session->socket_state != LIBSSH2_SOCKET_DISCONNECTED) {
@@ -1672,8 +1674,8 @@ _libssh2_packet_requirev(LIBSSH2_SESSION *session,
             return ret;
         }
         if(ret <= 0) {
-            long left = session->packet_read_timeout -
-                (long)(time(NULL) - state->start);
+            long left = session->packet_read_timeout * 1000 -
+                (long)(_ssh2_get_time() - state->start);
 
             if(left <= 0) {
                 state->start = 0;

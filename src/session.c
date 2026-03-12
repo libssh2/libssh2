@@ -43,6 +43,7 @@
 
 #ifdef _WIN32
 #include <ws2tcpip.h>  /* for socklen_t */
+#include <windows.h>
 #endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -53,6 +54,8 @@
 
 #include <errno.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <time.h>
 #include <fcntl.h>
 
 #include "transport.h"
@@ -593,13 +596,56 @@ libssh2_session_callback_set(LIBSSH2_SESSION * session,
 #pragma GCC diagnostic pop
 #endif
 
+int64_t _ssh2_get_time()
+{
+#ifdef _WIN32
+#define NS_PER_SEC (1000ULL * 1000ULL * 1000ULL)
+
+    LARGE_INTEGER ticksPerSec;
+    LARGE_INTEGER ticks;
+
+    QueryPerformanceFrequency(&ticksPerSec);
+    if(!ticksPerSec.QuadPart) {
+        /* according to spec, Win XP and later
+         * do support high resolution counter,
+         * fallback in unsupported case */
+        return time(NULL) * 1000; /* ms */
+    }
+
+    QueryPerformanceCounter(&ticks);
+
+    int64_t sec = (int64_t)(ticks.QuadPart / ticksPerSec.QuadPart);
+    int64_t nsec = (int64_t)((
+        (ticks.QuadPart % ticksPerSec.QuadPart) * NS_PER_SEC)
+        / ticksPerSec.QuadPart);
+
+    return sec * 1000 + nsec / 1000 / 1000; /* ms */
+#else /* _WIN32 */
+    struct timespec ts;
+#if defined(CLOCK_UPTIME_RAW) /* Apple */
+    if(clock_gettime(CLOCK_UPTIME_RAW, &ts) == 0)
+#elif defined(CLOCK_UPTIME) /* *BSD */
+    if(clock_gettime(CLOCK_UPTIME, &ts) == 0)
+#elif defined(CLOCK_MONOTONIC_RAW) /* Linux */
+    if(clock_gettime(CLOCK_MONOTONIC_RAW, &ts) == 0)
+#elif defined(CLOCK_MONOTONIC) /* POSIX */
+    if(clock_gettime(CLOCK_MONOTONIC, &ts) == 0)
+#else /* monotonic clock not available */
+    if(0)
+#endif
+        return ts.tv_sec * 1000 + ts.tv_nsec / 1000 / 1000;  /* ms */
+    /* fallback */
+    return time(NULL) * 1000;  // ms
+#endif /* _WIN32 */
+}
+
 /*
  * _libssh2_wait_socket
  *
  * Utility function that waits for action on the socket. Returns 0 when ready
  * to run again or error on timeout.
  */
-int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
+int _libssh2_wait_socket(LIBSSH2_SESSION *session, int64_t start_time)
 {
     int rc;
     int seconds_to_next;
@@ -635,8 +681,8 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
     if(session->api_timeout > 0 &&
         (seconds_to_next == 0 ||
          ms_to_next > session->api_timeout)) {
-        time_t now = time(NULL);
-        elapsed_ms = (long)(1000*difftime(now, start_time));
+        int64_t now = _ssh2_get_time();
+        elapsed_ms = (now > start_time) ? (long)(now - start_time) : 0;
         if(elapsed_ms > session->api_timeout) {
             return _libssh2_error(session, LIBSSH2_ERROR_TIMEOUT,
                                   "API timeout expired");

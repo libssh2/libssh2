@@ -59,6 +59,7 @@
 #include <string.h>
 #include <time.h>
 #include <limits.h>
+#include <stdint.h>
 
 /* The following CPP block should really only be in session.c and packet.c.
    However, AIX have #define's for 'events' and 'revents' and we are using
@@ -320,12 +321,12 @@ typedef enum
 typedef struct packet_require_state_t
 {
     libssh2_nonblocking_states state;
-    time_t start;
+    int64_t start;
 } packet_require_state_t;
 
 typedef struct packet_requirev_state_t
 {
-    time_t start;
+    int64_t start;
 } packet_requirev_state_t;
 
 typedef struct kmdhgGPshakex_state_t

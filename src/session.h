@@ -54,7 +54,7 @@
 */
 #define BLOCK_ADJUST(rc, sess, x) \
     do { \
-        time_t entry_time = time(NULL); \
+        int64_t entry_time = _ssh2_get_time(); \
         do { \
             rc = x; \
             /* the order of the check below is important to properly \
@@ -74,7 +74,7 @@
  */
 #define BLOCK_ADJUST_ERRNO(ptr, sess, x) \
     do { \
-        time_t entry_time = time(NULL); \
+        int64_t entry_time = _ssh2_get_time(); \
         int rc; \
         do { \
             ptr = x; \
@@ -86,9 +86,10 @@
         } while(!rc); \
     } while(0)
 
-int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t entry_time);
+int _libssh2_wait_socket(LIBSSH2_SESSION *session, int64_t entry_time);
 
 /* this is the lib-internal set blocking function */
 int _libssh2_session_set_blocking(LIBSSH2_SESSION * session, int blocking);
 
+int64_t _ssh2_get_time();
 #endif /* LIBSSH2_SESSION_H */
