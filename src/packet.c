@@ -57,7 +57,7 @@
 #include "channel.h"
 #include "packet.h"
 
-int64_t _ssh2_get_time(void);
+extern int64_t _ssh2_get_time(void);
 
 /*
  * libssh2_packet_queue_listener
