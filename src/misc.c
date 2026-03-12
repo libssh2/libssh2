@@ -977,6 +977,7 @@ int64_t _libssh2_get_time(void)
 
     LARGE_INTEGER ticksPerSec;
     LARGE_INTEGER ticks;
+    int64_t sec, nsec;
 
     QueryPerformanceFrequency(&ticksPerSec);
     if(!ticksPerSec.QuadPart) {
@@ -988,7 +989,6 @@ int64_t _libssh2_get_time(void)
 
     QueryPerformanceCounter(&ticks);
 
-    int64_t sec, nsec;
     sec = (int64_t)(ticks.QuadPart / ticksPerSec.QuadPart);
     nsec = (int64_t)((
         (ticks.QuadPart % ticksPerSec.QuadPart) * NS_PER_SEC)
