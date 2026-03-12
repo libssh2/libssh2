@@ -141,4 +141,6 @@ void _libssh2_xor_data(unsigned char *output,
                        const unsigned char *input2,
                        size_t length);
 
+int64_t _libssh2_get_time(void);
+
 #endif /* LIBSSH2_MISC_H */

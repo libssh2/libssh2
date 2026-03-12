@@ -49,6 +49,7 @@
 #include <assert.h>
 
 #ifdef _WIN32
+#include <windows.h>
 /* Force parameter type. */
 #define libssh2_recv(s, b, l, f)  recv(s, b, (int)(l), f)
 #define libssh2_send(s, b, l, f)  send(s, b, (int)(l), f)
@@ -61,6 +62,8 @@
    We provide a safe wrapper if snprintf not found */
 #ifdef LIBSSH2_SNPRINTF
 #include <stdarg.h>
+#include <stdint.h>
+#include <time.h>
 
 /* Want safe, 'n += snprintf(b + n ...)' like function. If cp_max_len is 1
 * then assume cp is pointing to a null char and do nothing. Returns number
@@ -965,4 +968,48 @@ int _libssh2_eob(struct string_buf *buf)
 {
     unsigned char *endp = &buf->data[buf->len];
     return buf->dataptr >= endp;
+}
+
+int64_t _libssh2_get_time(void)
+{
+#ifdef _WIN32
+#define NS_PER_SEC (1000ULL * 1000ULL * 1000ULL)
+
+    LARGE_INTEGER ticksPerSec;
+    LARGE_INTEGER ticks;
+    int64_t sec, nsec;
+
+    QueryPerformanceFrequency(&ticksPerSec);
+    if(!ticksPerSec.QuadPart) {
+        /* according to spec, Win XP and later
+         * do support high resolution counter,
+         * fallback in unsupported case */
+        return time(NULL) * 1000; /* ms */
+    }
+
+    QueryPerformanceCounter(&ticks);
+
+    sec = (int64_t)(ticks.QuadPart / ticksPerSec.QuadPart);
+    nsec = (int64_t)((
+        (ticks.QuadPart % ticksPerSec.QuadPart) * NS_PER_SEC)
+        / ticksPerSec.QuadPart);
+
+    return sec * 1000 + nsec / 1000 / 1000; /* ms */
+#else /* _WIN32 */
+    struct timespec ts;
+#if defined(CLOCK_UPTIME_RAW) /* Apple */
+    if(clock_gettime(CLOCK_UPTIME_RAW, &ts) == 0)
+#elif defined(CLOCK_UPTIME) /* *BSD */
+    if(clock_gettime(CLOCK_UPTIME, &ts) == 0)
+#elif defined(CLOCK_MONOTONIC_RAW) /* Linux */
+    if(clock_gettime(CLOCK_MONOTONIC_RAW, &ts) == 0)
+#elif defined(CLOCK_MONOTONIC) /* POSIX */
+    if(clock_gettime(CLOCK_MONOTONIC, &ts) == 0)
+#else /* monotonic clock not available */
+    if(0)
+#endif
+        return ts.tv_sec * 1000 + ts.tv_nsec / 1000 / 1000;  /* ms */
+    /* fallback */
+    return time(NULL) * 1000;  // ms
+#endif /* _WIN32 */
 }
