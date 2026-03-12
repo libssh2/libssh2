@@ -596,7 +596,7 @@ libssh2_session_callback_set(LIBSSH2_SESSION * session,
 #pragma GCC diagnostic pop
 #endif
 
-int64_t _ssh2_get_time()
+int64_t _ssh2_get_time(void)
 {
 #ifdef _WIN32
 #define NS_PER_SEC (1000ULL * 1000ULL * 1000ULL)

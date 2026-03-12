@@ -91,5 +91,5 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, int64_t entry_time);
 /* this is the lib-internal set blocking function */
 int _libssh2_session_set_blocking(LIBSSH2_SESSION * session, int blocking);
 
-int64_t _ssh2_get_time();
+int64_t _ssh2_get_time(void);
 #endif /* LIBSSH2_SESSION_H */
