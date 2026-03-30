@@ -2676,7 +2676,6 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
                                 "packet");
         }
         else {
-
             _libssh2_store_u32(&s, packet_len - 4);
             *(s++) = SSH_FXP_CLOSE;
             handle->close_request_id = sftp->request_id++;
@@ -2694,6 +2693,8 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
             return (int)nwritten;
         }
         else if((ssize_t)packet_len != nwritten) {
+            LIBSSH2_FREE(session, handle->close_packet);
+            handle->close_packet = NULL;
             handle->close_state = libssh2_NB_state_idle;
             rc = _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                                 "Unable to send FXP_CLOSE command");
