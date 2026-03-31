@@ -226,7 +226,9 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
              * buffer. Note that 'payload_len' here is the packet_length
              * field which includes the padding but not the MAC.
              */
-            if(memcmp(macbuf, p->payload + p->total_num - mac_len, mac_len)) {
+            if(_libssh2_timingsafe_bcmp(macbuf,
+                                        p->payload + p->total_num - mac_len,
+                                        mac_len)) {
                 _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
                                "Failed MAC check"));
                 session->fullpacket_macstate = LIBSSH2_MAC_INVALID;
