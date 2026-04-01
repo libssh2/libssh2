@@ -1508,6 +1508,7 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
         unsigned char *p, *g;
         struct string_buf buf;
         libssh2_sha1_ctx exchange_hash_ctx;
+        int bits;
 
         if(key_state->data_len < 9) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
@@ -1536,6 +1537,14 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
         if(_libssh2_bn_from_bin(key_state->p, p_len, p)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                  "Invalid DH-SHA1 p");
+            goto dh_gex_clean_exit;
+        }
+
+        bits = (int)_libssh2_bn_bits(key_state->p);
+        if(bits < LIBSSH2_DH_GEX_MINGROUP ||
+           bits > LIBSSH2_DH_GEX_MAXGROUP) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                 "DH-SHA1 p out of range");
             goto dh_gex_clean_exit;
         }
 
@@ -1628,6 +1637,7 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
         size_t p_len, g_len;
         struct string_buf buf;
         libssh2_sha256_ctx exchange_hash_ctx;
+        int bits;
 
         if(key_state->data_len < 9) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
@@ -1656,6 +1666,14 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
         if(_libssh2_bn_from_bin(key_state->p, p_len, p)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                  "Invalid DH-SHA256 p");
+            goto dh_gex_clean_exit;
+        }
+
+        bits = (int)_libssh2_bn_bits(key_state->p);
+        if(bits < LIBSSH2_DH_GEX_MINGROUP ||
+           bits > LIBSSH2_DH_GEX_MAXGROUP) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                 "DH-SHA256 p out of range");
             goto dh_gex_clean_exit;
         }
 
