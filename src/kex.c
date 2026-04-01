@@ -1541,7 +1541,7 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
         }
 
         bits = (int)_libssh2_bn_bits(key_state->p);
-        if(bits < 0 || bits < LIBSSH2_DH_GEX_MINGROUP ||
+        if(bits < LIBSSH2_DH_GEX_MINGROUP ||
            bits > LIBSSH2_DH_GEX_MAXGROUP) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                  "DH-SHA1 p out of range");
@@ -1670,7 +1670,7 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
         }
 
         bits = (int)_libssh2_bn_bits(key_state->p);
-        if(bits < 0 || bits < LIBSSH2_DH_GEX_MINGROUP ||
+        if(bits < LIBSSH2_DH_GEX_MINGROUP ||
            bits > LIBSSH2_DH_GEX_MAXGROUP) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                  "DH-SHA256 p out of range");
