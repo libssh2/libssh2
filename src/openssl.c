@@ -2946,7 +2946,7 @@ _libssh2_ecdsa_sign(LIBSSH2_SESSION * session, libssh2_ecdsa_ctx * ec_ctx,
     }
 
     out_buffer_len = EVP_PKEY_get_size(ec_ctx);
-    temp_buffer = LIBSSH2_ALLOC(session, out_buffer_len);
+    temp_buffer = OPENSSL_malloc(out_buffer_len);
     if(!temp_buffer) {
         goto clean_exit;
     }
