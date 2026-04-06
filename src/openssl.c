@@ -1146,7 +1146,12 @@ void _libssh2_openssl_crypto_init(void)
 #endif
 }
 
-void _libssh2_openssl_crypto_exit(void) {}
+void _libssh2_openssl_crypto_exit(void)
+{
+#if OPENSSL_VERSION_NUMBER >= 0x40000000L
+    OPENSSL_cleanup();
+#endif
+}
 
 #if LIBSSH2_RSA || LIBSSH2_DSA || LIBSSH2_ECDSA || LIBSSH2_ED25519
 /* TODO: Optionally call a passphrase callback specified by the
