@@ -98,8 +98,6 @@ comp_method_none_decomp(LIBSSH2_SESSION * session,
     return 0;
 }
 
-
-
 static const LIBSSH2_COMP_METHOD comp_method_none = {
     "none",
     0, /* not really compressing */
@@ -135,8 +133,6 @@ comp_method_zlib_free(voidpf opaque, voidpf address)
 
     LIBSSH2_FREE(session, address);
 }
-
-
 
 /* libssh2_comp_method_zlib_init
  * All your bandwidth are belong to us (so save some)
@@ -285,6 +281,16 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
         }
         else if(status == Z_BUF_ERROR) {
             /* the input data has been exhausted so we are done */
+
+            if((out_maxlen - strm->avail_out) == 0) {
+                /* nothing was decompressed */
+                LIBSSH2_FREE(session, out);
+                _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
+                                "zlib empty src error %d", status));
+                return _libssh2_error(session, LIBSSH2_ERROR_ZLIB,
+                                      "decompression failure");
+            }
+
             break;
         }
         else {
@@ -321,7 +327,6 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
 
     return 0;
 }
-
 
 /* libssh2_comp_method_zlib_dtor
  * All done, no more compression for you

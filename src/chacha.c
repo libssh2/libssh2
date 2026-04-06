@@ -41,16 +41,16 @@ typedef struct chacha_ctx chacha_ctx;
     (p)[3] = U8V((v) >> 24); \
   } while (0)
 
-#define ROTATE(v,c) (ROTL32(v,c))
-#define XOR(v,w) ((v) ^ (w))
-#define PLUS(v,w) (U32V((v) + (w)))
+#define ROTATE(v, c) (ROTL32(v,c))
+#define XOR(v, w) ((v) ^ (w))
+#define PLUS(v, w) (U32V((v) + (w)))
 #define PLUSONE(v) (PLUS((v),1))
 
-#define QUARTERROUND(a,b,c,d) \
-  a = PLUS(a,b); d = ROTATE(XOR(d,a),16); \
-  c = PLUS(c,d); b = ROTATE(XOR(b,c),12); \
-  a = PLUS(a,b); d = ROTATE(XOR(d,a), 8); \
-  c = PLUS(c,d); b = ROTATE(XOR(b,c), 7);
+#define QUARTERROUND(a, b, c, d) \
+  a = PLUS(a, b); d = ROTATE(XOR(d, a), 16); \
+  c = PLUS(c, d); b = ROTATE(XOR(b, c), 12); \
+  a = PLUS(a, b); d = ROTATE(XOR(d, a),  8); \
+  c = PLUS(c, d); b = ROTATE(XOR(b, c),  7);
 
 static const char sigma[17] = "expand 32-byte k";
 static const char tau[17] = "expand 16-byte k";
@@ -58,66 +58,66 @@ static const char tau[17] = "expand 16-byte k";
 void
 chacha_keysetup(chacha_ctx *x, const u8 *k, u32 kbits)
 {
-  const char *constants;
+    const char *constants;
 
-  x->input[4] = U8TO32_LITTLE(k + 0);
-  x->input[5] = U8TO32_LITTLE(k + 4);
-  x->input[6] = U8TO32_LITTLE(k + 8);
-  x->input[7] = U8TO32_LITTLE(k + 12);
-  if(kbits == 256) { /* recommended */
-    k += 16;
-    constants = sigma;
-  }
-  else { /* kbits == 128 */
-    constants = tau;
-  }
-  x->input[8] = U8TO32_LITTLE(k + 0);
-  x->input[9] = U8TO32_LITTLE(k + 4);
-  x->input[10] = U8TO32_LITTLE(k + 8);
-  x->input[11] = U8TO32_LITTLE(k + 12);
-  x->input[0] = U8TO32_LITTLE(constants + 0);
-  x->input[1] = U8TO32_LITTLE(constants + 4);
-  x->input[2] = U8TO32_LITTLE(constants + 8);
-  x->input[3] = U8TO32_LITTLE(constants + 12);
+    x->input[4] = U8TO32_LITTLE(k + 0);
+    x->input[5] = U8TO32_LITTLE(k + 4);
+    x->input[6] = U8TO32_LITTLE(k + 8);
+    x->input[7] = U8TO32_LITTLE(k + 12);
+    if(kbits == 256) { /* recommended */
+        k += 16;
+        constants = sigma;
+    }
+    else { /* kbits == 128 */
+        constants = tau;
+    }
+    x->input[8] = U8TO32_LITTLE(k + 0);
+    x->input[9] = U8TO32_LITTLE(k + 4);
+    x->input[10] = U8TO32_LITTLE(k + 8);
+    x->input[11] = U8TO32_LITTLE(k + 12);
+    x->input[0] = U8TO32_LITTLE(constants + 0);
+    x->input[1] = U8TO32_LITTLE(constants + 4);
+    x->input[2] = U8TO32_LITTLE(constants + 8);
+    x->input[3] = U8TO32_LITTLE(constants + 12);
 }
 
 void
 chacha_ivsetup(chacha_ctx *x, const u8 *iv, const u8 *counter)
 {
-  x->input[12] = counter == NULL ? 0 : U8TO32_LITTLE(counter + 0);
-  x->input[13] = counter == NULL ? 0 : U8TO32_LITTLE(counter + 4);
-  x->input[14] = U8TO32_LITTLE(iv + 0);
-  x->input[15] = U8TO32_LITTLE(iv + 4);
+    x->input[12] = counter == NULL ? 0 : U8TO32_LITTLE(counter + 0);
+    x->input[13] = counter == NULL ? 0 : U8TO32_LITTLE(counter + 4);
+    x->input[14] = U8TO32_LITTLE(iv + 0);
+    x->input[15] = U8TO32_LITTLE(iv + 4);
 }
 
 void
 chacha_encrypt_bytes(chacha_ctx *x, const u8 *m, u8 *c, u32 bytes)
 {
-  u32 x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15;
-  u32 j0, j1, j2, j3, j4, j5, j6, j7, j8, j9, j10, j11, j12, j13, j14, j15;
-  u8 *ctarget = NULL;
-  u8 tmp[64];
-  u_int i;
+    u32 x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15;
+    u32 j0, j1, j2, j3, j4, j5, j6, j7, j8, j9, j10, j11, j12, j13, j14, j15;
+    u8 *ctarget = NULL;
+    u8 tmp[64];
+    u_int i;
 
-  if(!bytes)
-      return;
+    if(!bytes)
+        return;
 
-  j0 = x->input[0];
-  j1 = x->input[1];
-  j2 = x->input[2];
-  j3 = x->input[3];
-  j4 = x->input[4];
-  j5 = x->input[5];
-  j6 = x->input[6];
-  j7 = x->input[7];
-  j8 = x->input[8];
-  j9 = x->input[9];
-  j10 = x->input[10];
-  j11 = x->input[11];
-  j12 = x->input[12];
-  j13 = x->input[13];
-  j14 = x->input[14];
-  j15 = x->input[15];
+    j0 = x->input[0];
+    j1 = x->input[1];
+    j2 = x->input[2];
+    j3 = x->input[3];
+    j4 = x->input[4];
+    j5 = x->input[5];
+    j6 = x->input[6];
+    j7 = x->input[7];
+    j8 = x->input[8];
+    j9 = x->input[9];
+    j10 = x->input[10];
+    j11 = x->input[11];
+    j12 = x->input[12];
+    j13 = x->input[13];
+    j14 = x->input[14];
+    j15 = x->input[15];
 
     for(;;) {
         if(bytes < 64) {

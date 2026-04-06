@@ -195,7 +195,7 @@ struct iovec {
 
 #ifdef __OS400__
 /* Force parameter type. */
-#define send(s, b, l, f)    send((s), (unsigned char *) (b), (l), (f))
+#define send(s, b, l, f)  send(s, (unsigned char *)(b), l, f)
 #endif
 
 #include "crypto.h"
@@ -229,63 +229,63 @@ struct iovec {
 #define MAX_SHA_DIGEST_LEN SHA512_DIGEST_LENGTH
 
 #define LIBSSH2_ALLOC(session, count) \
-    session->alloc((count), &(session)->abstract)
+    session->alloc(count, &(session)->abstract)
 #define LIBSSH2_CALLOC(session, count) _libssh2_calloc(session, count)
 #define LIBSSH2_REALLOC(session, ptr, count) \
-    ((ptr) ? session->realloc((ptr), (count), &(session)->abstract) : \
-             session->alloc((count), &(session)->abstract))
+    ((ptr) ? (session)->realloc(ptr, count, &(session)->abstract) : \
+             (session)->alloc(count, &(session)->abstract))
 #define LIBSSH2_FREE(session, ptr) \
-    session->free((ptr), &(session)->abstract)
+    session->free(ptr, &(session)->abstract)
 #define LIBSSH2_IGNORE(session, data, datalen) \
-    session->ssh_msg_ignore((session), (data), (int)(datalen), \
+    session->ssh_msg_ignore(session, data, (int)(datalen), \
                             &(session)->abstract)
 #define LIBSSH2_DEBUG(session, always_display, message, message_len, \
                       language, language_len) \
-    session->ssh_msg_debug((session), (always_display), \
-                           (message), (int)(message_len), \
-                           (language), (int)(language_len), \
+    session->ssh_msg_debug(session, always_display, \
+                           message, (int)(message_len), \
+                           language, (int)(language_len), \
                            &(session)->abstract)
 #define LIBSSH2_DISCONNECT(session, reason, message, message_len, \
                            language, language_len) \
-    session->ssh_msg_disconnect((session), (reason), \
-                                (message), (int)(message_len), \
-                                (language), (int)(language_len), \
+    session->ssh_msg_disconnect(session, reason, \
+                                message, (int)(message_len), \
+                                language, (int)(language_len), \
                                 &(session)->abstract)
 
 #define LIBSSH2_MACERROR(session, data, datalen) \
-    session->macerror((session), (data), (int)(datalen), &(session)->abstract)
+    session->macerror(session, data, (int)(datalen), &(session)->abstract)
 #define LIBSSH2_X11_OPEN(channel, shost, sport) \
-    channel->session->x11(((channel)->session), (channel), \
-                          (shost), (sport), (&(channel)->session->abstract))
+    channel->session->x11((channel)->session, channel, \
+                          shost, sport, &(channel)->session->abstract)
 
 #define LIBSSH2_AUTHAGENT(channel) \
-    channel->session->authagent(((channel)->session), (channel), \
-                                (&(channel)->session->abstract))
+    channel->session->authagent((channel)->session, channel, \
+                                &(channel)->session->abstract)
 
 #define LIBSSH2_ADD_IDENTITIES(session, buffer, agentPath) \
-    session->addLocalIdentities((session), (buffer), \
-                                (agentPath), (&(session->abstract)))
+    session->addLocalIdentities(session, buffer, \
+                                agentPath, &(session)->abstract)
 
 #define LIBSSH2_AUTHAGENT_SIGN(session, blob, blen, \
                                data, dlen, sig, sigLen, \
                                agentPath) \
-    session->agentSignCallback((session), (blob), (blen), \
-                               (data), (dlen), (sig), (sigLen), \
-                               (agentPath), (&(session->abstract)))
+    session->agentSignCallback(session, blob, blen, \
+                               data, dlen, sig, sigLen, \
+                               agentPath, &(session)->abstract)
 
 #define LIBSSH2_CHANNEL_CLOSE(session, channel) \
-    channel->close_cb((session), &(session)->abstract, \
-                      (channel), &(channel)->abstract)
+    channel->close_cb(session, &(session)->abstract, \
+                      channel, &(channel)->abstract)
 
 #define LIBSSH2_SEND_FD(session, fd, buffer, length, flags) \
-    (session->send)(fd, buffer, length, flags, &session->abstract)
+    ((session)->send)(fd, buffer, length, flags, &(session)->abstract)
 #define LIBSSH2_RECV_FD(session, fd, buffer, length, flags) \
-    (session->recv)(fd, buffer, length, flags, &session->abstract)
+    ((session)->recv)(fd, buffer, length, flags, &(session)->abstract)
 
 #define LIBSSH2_SEND(session, buffer, length, flags) \
-    LIBSSH2_SEND_FD(session, session->socket_fd, buffer, length, flags)
+    LIBSSH2_SEND_FD(session, (session)->socket_fd, buffer, length, flags)
 #define LIBSSH2_RECV(session, buffer, length, flags) \
-    LIBSSH2_RECV_FD(session, session->socket_fd, buffer, length, flags)
+    LIBSSH2_RECV_FD(session, (session)->socket_fd, buffer, length, flags)
 
 typedef struct _LIBSSH2_KEX_METHOD LIBSSH2_KEX_METHOD;
 typedef struct _LIBSSH2_HOSTKEY_METHOD LIBSSH2_HOSTKEY_METHOD;
@@ -361,7 +361,9 @@ typedef struct key_exchange_state_low_t
     kmdhgGPshakex_state_t exchange_state;
     _libssh2_bn *p;             /* SSH2 defined value (p_value) */
     _libssh2_bn *g;             /* SSH2 defined value (2) */
-    unsigned char request[256]; /* Must fit EC_MAX_POINT_LEN + data */
+    /* Request must fit mlkem1024nistp384 keys + 5 bytes overhead */
+    unsigned char request[LIBSSH2_MLKEM_1024_PUBLIC_KEY_LEN +
+                          LIBSSH2_EC_P384_PUBLIC_KEY_LEN + 5];
     unsigned char *data;
     size_t request_len;
     size_t data_len;
@@ -373,6 +375,8 @@ typedef struct key_exchange_state_low_t
                                              bytes */
     unsigned char *curve25519_private_key; /* curve25519 private key, 32
                                               bytes */
+    unsigned char *mlkem_public_key; /* ML-KEM public key */
+    unsigned char *mlkem_private_key; /* ML-KEM private key */
 } key_exchange_state_low_t;
 
 typedef struct key_exchange_state_t
@@ -734,7 +738,7 @@ struct _LIBSSH2_SESSION
 #if LIBSSH2_MD5
     unsigned char server_hostkey_md5[MD5_DIGEST_LENGTH];
     int server_hostkey_md5_valid;
-#endif /* ! LIBSSH2_MD5 */
+#endif /* !LIBSSH2_MD5 */
     unsigned char server_hostkey_sha1[SHA_DIGEST_LENGTH];
     int server_hostkey_sha1_valid;
 
@@ -1206,7 +1210,6 @@ ssize_t _libssh2_send(libssh2_socket_t socket, const void *buffer,
 #define LIBSSH2_DEFAULT_READ_TIMEOUT 60 /* generic timeout in seconds used when
                                            waiting for more data to arrive */
 
-
 int _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
                           key_exchange_state_t * state);
 
@@ -1260,7 +1263,7 @@ void _libssh2_init_if_needed(void);
 /* Utility function for certificate auth */
 size_t plain_method(char *method, size_t method_len);
 
-#define ARRAY_SIZE(a) (sizeof ((a)) / sizeof ((a)[0]))
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
 /* define to output the libssh2_int64_t type in a *printf() */
 #if defined(__MINGW32__) || (defined(_MSC_VER) && (_MSC_VER >= 1800))

@@ -119,7 +119,7 @@ _libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *ctx,
     if(!ctx)
         return -1;
 
-    op = encrypt == 0 ? MBEDTLS_ENCRYPT : MBEDTLS_DECRYPT;
+    op = encrypt ? MBEDTLS_ENCRYPT : MBEDTLS_DECRYPT;
 
     cipher_info = mbedtls_cipher_info_from_type(algo);
     if(!cipher_info)
@@ -127,6 +127,20 @@ _libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *ctx,
 
     mbedtls_cipher_init(ctx);
     ret = mbedtls_cipher_setup(ctx, cipher_info);
+
+    /* libssh2 computes and adds SSH packet padding itself, so for CBC
+     * tell mbedTLS to expect no padding on the cipher layer. Only call
+     * set_padding_mode for CBC ciphers since other modes (CTR, stream)
+     * are not applicable and will cause an error. */
+    if(!ret) {
+        if(algo == MBEDTLS_CIPHER_AES_128_CBC ||
+           algo == MBEDTLS_CIPHER_AES_192_CBC ||
+           algo == MBEDTLS_CIPHER_AES_256_CBC ||
+           algo == MBEDTLS_CIPHER_DES_EDE3_CBC) {
+            ret = mbedtls_cipher_set_padding_mode(ctx, MBEDTLS_PADDING_NONE);
+        }
+    }
+
     if(!ret)
         ret = mbedtls_cipher_setkey(ctx,
                   secret,
@@ -185,7 +199,6 @@ _libssh2_mbedtls_cipher_dtor(_libssh2_cipher_ctx *ctx)
 {
     mbedtls_cipher_free(ctx);
 }
-
 
 int
 _libssh2_mbedtls_hash_init(mbedtls_md_context_t *ctx,
@@ -374,7 +387,6 @@ _libssh2_mbedtls_bignum_random(_libssh2_bn *bn, int bits, int top, int bottom)
     return 0;
 }
 
-
 /*******************************************************************/
 /*
  * mbedTLS backend: RSA functions
@@ -516,6 +528,12 @@ _libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
     *rsa = (libssh2_rsa_ctx *) mbedtls_calloc(1, sizeof(libssh2_rsa_ctx));
     if(!*rsa)
         return -1;
+
+#if MBEDTLS_VERSION_NUMBER >= 0x03000000
+    mbedtls_rsa_init(*rsa);
+#else
+    mbedtls_rsa_init(*rsa, MBEDTLS_RSA_PKCS_V15, 0);
+#endif
 
     /*
     mbedtls checks in "mbedtls/pkparse.c:1184" if "key[keylen - 1] != '\0'"
@@ -926,7 +944,6 @@ void _libssh2_init_aes_ctr(void)
     /* no implementation */
 }
 
-
 /*******************************************************************/
 /*
  * mbedTLS backend: Diffie-Hellman functions
@@ -1026,7 +1043,6 @@ failed:
  * Creates a new public key given an octal string, length and type
  *
  */
-
 int
 _libssh2_mbedtls_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx **ctx,
                                                  const unsigned char *k,
@@ -1066,7 +1082,6 @@ failed:
  * Computes the shared secret K given a local private key,
  * remote public key and length
  */
-
 int
 _libssh2_mbedtls_ecdh_gen_k(_libssh2_bn **k,
                             _libssh2_ec_key *privkey,
@@ -1123,7 +1138,6 @@ cleanup:
  * Verifies the ECDSA signature of a hashed message
  *
  */
-
 int
 _libssh2_mbedtls_ecdsa_verify(libssh2_ecdsa_ctx *ctx,
                               const unsigned char *r, size_t r_len,
@@ -1293,7 +1307,6 @@ int mbedtls_pk_load_file(const char *path, unsigned char **buf, size_t *n);
  * Creates a new private key given a file path and password
  *
  */
-
 int
 _libssh2_mbedtls_ecdsa_new_private(libssh2_ecdsa_ctx **ctx,
                                    LIBSSH2_SESSION *session,
@@ -1330,7 +1343,6 @@ cleanup:
  * Creates a new private key given a file data and password
  *
  */
-
 int
 _libssh2_mbedtls_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx **ctx,
                                               LIBSSH2_SESSION *session,
@@ -1401,7 +1413,6 @@ done:
  * Computes the ECDSA signature of a previously-hashed message
  *
  */
-
 int
 _libssh2_mbedtls_ecdsa_sign(LIBSSH2_SESSION *session,
                             libssh2_ecdsa_ctx *ctx,
@@ -1461,7 +1472,6 @@ cleanup:
  * returns key curve type that maps to libssh2_curve_type
  *
  */
-
 libssh2_curve_type
 _libssh2_mbedtls_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ctx)
 {
@@ -1473,7 +1483,6 @@ _libssh2_mbedtls_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ctx)
  * returns 0 for success, key curve type that maps to libssh2_curve_type
  *
  */
-
 int
 _libssh2_mbedtls_ecdsa_curve_type_from_name(const char *name,
                                             libssh2_curve_type *out_type)
@@ -1509,13 +1518,11 @@ _libssh2_mbedtls_ecdsa_free(libssh2_ecdsa_ctx *ctx)
 }
 #endif /* LIBSSH2_ECDSA */
 
-
 /* _libssh2_supported_key_sign_algorithms
  *
  * Return supported key hash algo upgrades, see crypto.h
  *
  */
-
 const char *
 _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
                                        unsigned char *key_method,

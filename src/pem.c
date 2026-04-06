@@ -262,6 +262,13 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
         goto out;
     }
 
+    if(*datalen == 0) {
+        /* Invalid decode */
+        LIBSSH2_FREE(session, *data);
+        ret = -1;
+        goto out;
+    }
+
     if(method) {
 #if LIBSSH2_MD5_PEM
         /* Set up decryption */
@@ -299,7 +306,8 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
         if(method->init(session, method, iv, &free_iv, secret,
             &free_secret, 0, &abstract)) {
             _libssh2_explicit_zero((char *)secret, sizeof(secret));
-            LIBSSH2_FREE(session, data);
+            _libssh2_explicit_zero(*data, *datalen);
+            LIBSSH2_FREE(session, *data);
             ret = -1;
             goto out;
         }
@@ -350,7 +358,14 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
 
         /* Account for padding */
         padding = (*data)[*datalen - 1];
-        memset(&(*data)[*datalen - padding], 0, padding);
+        if(padding > *datalen) {
+            /* Invalid padding len */
+            ret = LIBSSH2_ERROR_DECRYPT;
+            _libssh2_explicit_zero(*data, *datalen);
+            LIBSSH2_FREE(session, *data);
+            goto out;
+        }
+        memset(&(*data)[*datalen-padding], 0, padding);
         *datalen -= padding;
 
         /* Clean up */

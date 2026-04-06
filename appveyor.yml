@@ -79,7 +79,6 @@ environment:
       BUILD_STATIC_LIBS: 'OFF'
       CRYPTO_BACKEND: 'OpenSSL'
       OPENSSL_ROOT_DIR: 'C:/OpenSSL-v111-Win32'
-      SKIP_CTEST: 'no'
 
     - job_name: 'VS2013, OpenSSL 1.1, x64, Build-only, Static-only'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
@@ -88,13 +87,6 @@ environment:
       BUILD_SHARED_LIBS: 'OFF'
       CRYPTO_BACKEND: 'OpenSSL'
       OPENSSL_ROOT_DIR: 'C:/OpenSSL-v111-Win64'
-
-    - job_name: 'VS2008, WinCNG, x86, Build-only'
-      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
-      GENERATOR: 'Visual Studio 9 2008'
-      PLATFORM: 'x86'
-      CRYPTO_BACKEND: 'WinCNG'
-      ENABLE_ECDSA_WINCNG: 'ON'
 
     - job_name: 'VS2010, WinCNG, x64, Build-only, non-unity'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
@@ -132,7 +124,6 @@ environment:
       PLATFORM: 'x86'
       CRYPTO_BACKEND: 'WinCNG'
       ENABLE_ECDSA_WINCNG: 'ON'
-      SKIP_CTEST: 'no'
 
 matrix:
   fast_finish: true
