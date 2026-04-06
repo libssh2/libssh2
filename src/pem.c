@@ -272,7 +272,8 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
     if(method) {
 #if LIBSSH2_MD5_PEM
         /* Set up decryption */
-        int free_iv = 0, free_secret = 0, len_decrypted = 0, padding = 0;
+        int free_iv = 0, free_secret = 0, len_decrypted = 0;
+        size_t padding = 0;
         int blocksize = method->blocksize;
         void *abstract;
         unsigned char secret[2 * MD5_DIGEST_LENGTH];
