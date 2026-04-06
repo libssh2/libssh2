@@ -408,8 +408,8 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
         session->scpRecv_state = libssh2_NB_state_sent2;
     }
 
-    if((session->scpRecv_state == libssh2_NB_state_sent2)
-        || (session->scpRecv_state == libssh2_NB_state_sent3)) {
+    if((session->scpRecv_state == libssh2_NB_state_sent2) ||
+       (session->scpRecv_state == libssh2_NB_state_sent3)) {
         while(sb && (session->scpRecv_response_len <
                      LIBSSH2_SCP_RESPONSE_BUFLEN)) {
             unsigned char *s, *p;
@@ -477,26 +477,26 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                 if((session->scpRecv_response_len > 1) &&
                     ((session->
                       scpRecv_response[session->scpRecv_response_len - 1] <
-                      '0')
-                     || (session->
-                         scpRecv_response[session->scpRecv_response_len - 1] >
-                         '9'))
-                    && (session->
-                        scpRecv_response[session->scpRecv_response_len - 1] !=
-                        ' ')
-                    && (session->
-                        scpRecv_response[session->scpRecv_response_len - 1] !=
-                        '\r')
-                    && (session->
-                        scpRecv_response[session->scpRecv_response_len - 1] !=
-                        '\n')) {
+                      '0') ||
+                     (session->
+                      scpRecv_response[session->scpRecv_response_len - 1] >
+                      '9')) &&
+                    (session->
+                     scpRecv_response[session->scpRecv_response_len - 1] !=
+                     ' ') &&
+                    (session->
+                     scpRecv_response[session->scpRecv_response_len - 1] !=
+                     '\r') &&
+                    (session->
+                     scpRecv_response[session->scpRecv_response_len - 1] !=
+                     '\n')) {
                     _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                                    "Invalid data in SCP response");
                     goto scp_recv_error;
                 }
 
-                if((session->scpRecv_response_len < 9)
-                    || (session->
+                if((session->scpRecv_response_len < 9) ||
+                   (session->
                         scpRecv_response[session->scpRecv_response_len - 1] !=
                         '\n')) {
                     if(session->scpRecv_response_len ==
@@ -516,10 +516,10 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                    logic above */
                 while((session->
                         scpRecv_response[session->scpRecv_response_len - 1] ==
-                        '\r')
-                       || (session->
-                           scpRecv_response[session->scpRecv_response_len -
-                                            1] == '\n'))
+                        '\r') ||
+                       (session->
+                        scpRecv_response[session->scpRecv_response_len - 1] ==
+                        '\n'))
                     session->scpRecv_response_len--;
                 session->scpRecv_response[session->scpRecv_response_len] =
                     '\0';
@@ -609,8 +609,8 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
         session->scpRecv_state = libssh2_NB_state_sent5;
     }
 
-    if((session->scpRecv_state == libssh2_NB_state_sent5)
-        || (session->scpRecv_state == libssh2_NB_state_sent6)) {
+    if((session->scpRecv_state == libssh2_NB_state_sent5) ||
+       (session->scpRecv_state == libssh2_NB_state_sent6)) {
         while(session->scpRecv_response_len < LIBSSH2_SCP_RESPONSE_BUFLEN) {
             char *s, *p, *e = NULL;
 
@@ -644,11 +644,10 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                 if((session->scpRecv_response_len > 1) &&
                     (session->
                      scpRecv_response[session->scpRecv_response_len - 1] !=
-                     '\r')
-                    && (session->
-                        scpRecv_response[session->scpRecv_response_len - 1] !=
-                        '\n')
-                    &&
+                     '\r') &&
+                    (session->
+                     scpRecv_response[session->scpRecv_response_len - 1] !=
+                     '\n') &&
                     (session->
                      scpRecv_response[session->scpRecv_response_len - 1]
                      < 32)) {
@@ -657,10 +656,10 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                     goto scp_recv_error;
                 }
 
-                if((session->scpRecv_response_len < 7)
-                    || (session->
-                        scpRecv_response[session->scpRecv_response_len - 1] !=
-                        '\n')) {
+                if((session->scpRecv_response_len < 7) ||
+                   (session->
+                    scpRecv_response[session->scpRecv_response_len - 1] !=
+                    '\n')) {
                     if(session->scpRecv_response_len ==
                         LIBSSH2_SCP_RESPONSE_BUFLEN) {
                         /* You had your chance */
@@ -678,10 +677,10 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                    logic above */
                 while((session->
                         scpRecv_response[session->scpRecv_response_len - 1] ==
-                        '\r')
-                       || (session->
-                           scpRecv_response[session->scpRecv_response_len -
-                                            1] == '\n')) {
+                        '\r') ||
+                      (session->
+                       scpRecv_response[session->scpRecv_response_len - 1] ==
+                        '\n')) {
                     session->scpRecv_response_len--;
                 }
                 session->scpRecv_response[session->scpRecv_response_len] =

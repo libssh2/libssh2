@@ -19,7 +19,7 @@
         {                                                                     \
             fprintf(stderr, "Assertion failed: " #COND "\n%s",                \
                     strerror(errno));                                         \
-            assert((COND));                                                   \
+            goto EXIT_LABEL;                                                  \
         }                                                                     \
     } while(0)
 

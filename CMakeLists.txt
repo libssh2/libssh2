@@ -424,7 +424,6 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
     set(CRYPTO_BACKEND "OpenSSL")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_OPENSSL")
     list(APPEND LIBSSH2_LIBS OpenSSL::Crypto)
-    set_target_properties(OpenSSL::Crypto PROPERTIES INTERFACE_LIBSSH2_PC_MODULES "libcrypto")
 
     if(WIN32)
       # Statically linking to OpenSSL requires crypt32 for some Windows APIs.
@@ -538,8 +537,18 @@ if(BUILD_TESTING)
 endif()
 
 option(LINT "Check style while building" OFF)
+option(LIBSSH2_BUILD_DOCS "Build man pages" ON)
+
+if(LINT OR LIBSSH2_BUILD_DOCS)
+  find_package(Perl)
+endif()
+
 if(LINT)
-  add_custom_target(lint ALL "./ci/checksrc.sh" WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+  add_custom_target(lint ALL
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    COMMAND "${PERL_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/ci/checksrc-all.pl"
+    DEPENDS "${PROJECT_SOURCE_DIR}/ci/checksrc-all.pl" "${PROJECT_SOURCE_DIR}/ci/checksrc.pl"
+  )
   if(BUILD_STATIC_LIBS)
     add_dependencies(${LIB_STATIC} lint)
   else()
@@ -547,10 +556,8 @@ if(LINT)
   endif()
 endif()
 
-option(LIBSSH2_BUILD_DOCS "Build man pages" ON)
 set(_build_docs FALSE)
 if(LIBSSH2_BUILD_DOCS)
-  find_package(Perl)
   if(PERL_FOUND)
     set(_build_docs TRUE)
     add_subdirectory(docs)
