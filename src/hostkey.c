@@ -1339,7 +1339,7 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_ed25519_cert = {
 /*
  * hostkey_methods
  *
- * Host Key order matches OpenSSH for compatiblity
+ * Host Key order matches OpenSSH for compatibility
  */
 static const LIBSSH2_HOSTKEY_METHOD *hostkey_methods[] = {
 #if LIBSSH2_ED25519
