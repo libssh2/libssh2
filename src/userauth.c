@@ -303,7 +303,8 @@ userauth_password(LIBSSH2_SESSION *session,
         { SSH_MSG_USERAUTH_SUCCESS,
           SSH_MSG_USERAUTH_FAILURE,
           SSH_MSG_USERAUTH_PASSWD_CHANGEREQ,
-          SSH_MSG_USERAUTH_BANNER, 0
+          SSH_MSG_USERAUTH_BANNER,
+          0
         };
     int rc;
     unsigned int banner_len;
