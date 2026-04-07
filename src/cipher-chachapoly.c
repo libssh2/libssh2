@@ -53,8 +53,9 @@ chachapoly_crypt(struct chachapoly_ctx *ctx, libssh2_uint64_t seqnr,
                  size_t aadlen, int do_encrypt)
 {
     unsigned char seqbuf[8];
-    const unsigned char one[8] =
-        { 1, 0, 0, 0, 0, 0, 0, 0 }; /* NB little-endian */
+    const unsigned char one[8] = {
+        1, 0, 0, 0, 0, 0, 0, 0  /* NB little-endian */
+    };
     unsigned char expected_tag[POLY1305_TAGLEN], poly_key[POLY1305_KEYLEN];
     int r = LIBSSH2_ERROR_INVAL;
     unsigned char *ptr = NULL;
