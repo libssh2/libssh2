@@ -12,7 +12,6 @@ This document lists the entities that must/may be defined in the header file.
 Procedures listed as "void" may indeed have a result type: the void indication
 indicates the libssh2 core modules never use the function result.
 
-
 0) Build system.
 
 Adding a crypto backend to the autotools build system (./configure) is easy:
@@ -79,7 +78,6 @@ Must return 1 for success and 0 for failure.
 
 void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx);
 Releases the HMAC computation context at ctx.
-
 
 3) Hash algorithms.
 
@@ -303,7 +301,6 @@ Setup the HMAC computation context ctx for an HMAC-RIPEMD-160 computation using
 the keylen-byte key. Is invoked just after libssh2_hmac_ctx_init().
 Returns 1 for success and 0 for failure.
 
-
 4) Bidirectional key ciphers.
 
 _libssh2_cipher_ctx
@@ -409,7 +406,6 @@ _libssh2_cipher_3des
 TripleDES-CBC algorithm identifier initializer.
 #define with constant value of type _libssh2_cipher_type().
 
-
 5) Diffie-Hellman support.
 
 LIBSSH2_DH_GEX_MINGROUP
@@ -455,7 +451,6 @@ context creation. The result is stored in `secret'.
 
 void libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
 Destroys Diffie-Hellman context at `dhctx' and resets its storage.
-
 
 6) Big numbers.
 Positive multi-byte integers support is sufficient.
@@ -514,7 +509,6 @@ Converts the absolute value of bn into big-endian form and store it at
 val. val must point to _libssh2_bn_bytes(bn) bytes of memory.
 Returns the length of the big-endian number.
 
-
 7) Private key algorithms.
 Format of an RSA public key:
 a) "ssh-rsa".
@@ -569,7 +563,6 @@ method (ssh-rsa or ssh-dss) into (method, method_len).
 Both buffers have to be allocated using LIBSSH2_ALLOC().
 Returns 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
-
 
 7.1) RSA
 LIBSSH2_RSA
@@ -717,7 +710,6 @@ LIBSSH2_DSA
 #define as 1 if the crypto library supports DSA, else 0.
 If defined as 0, the rest of this section can be omitted.
 
-
 libssh2_dsa_ctx
 Type of a DSA computation context. Generally a struct.
 
@@ -776,7 +768,6 @@ This procedure is already prototyped in crypto.h.
 
 void _libssh2_dsa_free(libssh2_dsa_ctx *dsactx);
 Releases the DSA computation context at dsactx.
-
 
 7.3) ECDSA
 LIBSSH2_ECDSA
@@ -883,12 +874,10 @@ This procedure is already prototyped in crypto.h.
 void _libssh2_ecdsa_free(libssh2_ecdsa_ctx *ecdsactx);
 Releases the ECDSA computation context at ecdsactx.
 
-
 7.4) ED25519
 LIBSSH2_ED25519
 #define as 1 if the crypto library supports ED25519, else 0.
 If defined as 0, the rest of this section can be omitted.
-
 
 libssh2_ed25519_ctx
 Type of an ED25519 computation context. Generally a struct.
@@ -961,7 +950,6 @@ This procedure is already prototyped in crypto.h.
 
 void _libssh2_ed25519_free(libssh2_ed25519_ctx *ed25519ctx);
 Releases the ED25519 computation context at ed25519ctx.
-
 
 8) Miscellaneous
 

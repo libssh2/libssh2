@@ -105,7 +105,7 @@ extern "C" {
 /* Allow alternate API prefix from CFLAGS or calling app */
 #ifndef LIBSSH2_API
 # ifdef _WIN32
-#  if defined(LIBSSH2_EXPORTS) || defined(_WINDLL)
+#  ifdef LIBSSH2_EXPORTS
 #   ifdef LIBSSH2_LIBRARY
 #    define LIBSSH2_API __declspec(dllexport)
 #   else
@@ -123,20 +123,9 @@ extern "C" {
 # include <sys/uio.h>
 #endif
 
-#if defined(_MSC_VER) && (_MSC_VER < 1600)
-typedef unsigned char uint8_t;
-typedef unsigned short int uint16_t;
-typedef unsigned int uint32_t;
-typedef __int32 int32_t;
-typedef __int64 int64_t;
-typedef unsigned __int64 uint64_t;
-typedef unsigned __int64 libssh2_uint64_t;
-typedef __int64 libssh2_int64_t;
-#else
 #include <stdint.h>
 typedef unsigned long long libssh2_uint64_t;
 typedef long long libssh2_int64_t;
-#endif
 
 #if defined(_MSC_VER) && !defined(HAVE_SSIZE_T) && !defined(ssize_t)
 typedef SSIZE_T ssize_t;
@@ -155,14 +144,9 @@ typedef int libssh2_socket_t;
 
 /* Compile-time deprecation macros */
 #if !defined(LIBSSH2_DISABLE_DEPRECATION) && !defined(LIBSSH2_LIBRARY)
-#  if defined(_MSC_VER)
-#    if _MSC_VER >= 1400
-#      define LIBSSH2_DEPRECATED(version, message) \
-         __declspec(deprecated("since libssh2 " # version ". " message))
-#    elif _MSC_VER >= 1310
-#      define LIBSSH2_DEPRECATED(version, message) \
-         __declspec(deprecated)
-#   endif
+#  ifdef _MSC_VER
+#    define LIBSSH2_DEPRECATED(version, message) \
+       __declspec(deprecated("since libssh2 " # version ". " message))
 #  elif defined(__GNUC__) && !defined(__INTEL_COMPILER)
 #    if (defined(__clang__) && __clang_major__ >= 3) || \
         (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5))
@@ -183,58 +167,14 @@ typedef int libssh2_socket_t;
 #endif
 
 /*
- * Determine whether there is small or large file support on windows.
- */
-
-#if defined(_MSC_VER) && !defined(_WIN32_WCE)
-#  if (_MSC_VER >= 900) && (_INTEGRAL_MAX_BITS >= 64)
-#    define LIBSSH2_USE_WIN32_LARGE_FILES
-#  else
-#    define LIBSSH2_USE_WIN32_SMALL_FILES
-#  endif
-#endif
-
-#if defined(__MINGW32__) && !defined(LIBSSH2_USE_WIN32_LARGE_FILES)
-#  define LIBSSH2_USE_WIN32_LARGE_FILES
-#endif
-
-#if defined(__WATCOMC__) && !defined(LIBSSH2_USE_WIN32_LARGE_FILES)
-#  define LIBSSH2_USE_WIN32_LARGE_FILES
-#endif
-
-#if defined(__POCC__)
-#  undef LIBSSH2_USE_WIN32_LARGE_FILES
-#endif
-
-#if defined(_WIN32) && !defined(LIBSSH2_USE_WIN32_LARGE_FILES) && \
-    !defined(LIBSSH2_USE_WIN32_SMALL_FILES)
-#  define LIBSSH2_USE_WIN32_SMALL_FILES
-#endif
-
-/*
  * Large file (>2Gb) support using WIN32 functions.
  */
-
-#ifdef LIBSSH2_USE_WIN32_LARGE_FILES
+#ifdef _WIN32
 #  include <io.h>
 #  define LIBSSH2_STRUCT_STAT_SIZE_FORMAT    "%I64d"
 typedef struct _stati64 libssh2_struct_stat;
 typedef __int64 libssh2_struct_stat_size;
-#endif
-
-/*
- * Small file (<2Gb) support using WIN32 functions.
- */
-
-#ifdef LIBSSH2_USE_WIN32_SMALL_FILES
-#  ifndef _WIN32_WCE
-#    define LIBSSH2_STRUCT_STAT_SIZE_FORMAT    "%d"
-typedef struct _stat libssh2_struct_stat;
-typedef off_t libssh2_struct_stat_size;
-#  endif
-#endif
-
-#ifndef LIBSSH2_STRUCT_STAT_SIZE_FORMAT
+#else
 #  ifdef __VMS
 /* We have to roll our own format here because %z is a C99-ism we don't
    have. */

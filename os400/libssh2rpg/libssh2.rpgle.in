@@ -1602,7 +1602,6 @@
      d  typemask                           value like(libssh2_Cint)
      d  store                          *                                        libssh2_knownhost *
 
-
       * libssh2_knownhost_check
       *
       * Check a host and its associated key against the collection of known

@@ -289,8 +289,6 @@ libssh2_userauth_authenticated(LIBSSH2_SESSION * session)
     return (session->state & LIBSSH2_STATE_AUTHENTICATED) ? 1 : 0;
 }
 
-
-
 /* userauth_password
  * Plain ol' login
  */
@@ -302,7 +300,8 @@ userauth_password(LIBSSH2_SESSION *session,
 {
     unsigned char *s;
     static const unsigned char reply_codes[5] =
-        { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE,
+        { SSH_MSG_USERAUTH_SUCCESS,
+          SSH_MSG_USERAUTH_FAILURE,
           SSH_MSG_USERAUTH_PASSWD_CHANGEREQ,
           SSH_MSG_USERAUTH_BANNER, 0
         };
@@ -371,9 +370,9 @@ userauth_password(LIBSSH2_SESSION *session,
 
 password_response:
 
-    if((session->userauth_pswd_state == libssh2_NB_state_sent)
-        || (session->userauth_pswd_state == libssh2_NB_state_sent1)
-        || (session->userauth_pswd_state == libssh2_NB_state_sent2)) {
+    if((session->userauth_pswd_state == libssh2_NB_state_sent) ||
+       (session->userauth_pswd_state == libssh2_NB_state_sent1) ||
+       (session->userauth_pswd_state == libssh2_NB_state_sent2)) {
         if(session->userauth_pswd_state == libssh2_NB_state_sent) {
             rc = _libssh2_packet_requirev(session, reply_codes,
                                           &session->userauth_pswd_data,
@@ -464,9 +463,9 @@ password_response:
         }
 
         if((session->userauth_pswd_data[0] ==
-             SSH_MSG_USERAUTH_PASSWD_CHANGEREQ)
-            || (session->userauth_pswd_data0 ==
-                SSH_MSG_USERAUTH_PASSWD_CHANGEREQ)) {
+             SSH_MSG_USERAUTH_PASSWD_CHANGEREQ) ||
+           (session->userauth_pswd_data0 ==
+             SSH_MSG_USERAUTH_PASSWD_CHANGEREQ)) {
             session->userauth_pswd_data0 = SSH_MSG_USERAUTH_PASSWD_CHANGEREQ;
 
             if((session->userauth_pswd_state == libssh2_NB_state_sent1) ||
@@ -797,9 +796,9 @@ memory_read_privatekey(LIBSSH2_SESSION * session,
     *hostkey_method = NULL;
     *hostkey_abstract = NULL;
     while(*hostkey_methods_avail && (*hostkey_methods_avail)->name) {
-        if((*hostkey_methods_avail)->initPEMFromMemory
-             && strncmp((*hostkey_methods_avail)->name, (const char *) method,
-                        method_len) == 0) {
+        if((*hostkey_methods_avail)->initPEMFromMemory &&
+           strncmp((*hostkey_methods_avail)->name, (const char *) method,
+                   method_len) == 0) {
             *hostkey_method = *hostkey_methods_avail;
             break;
         }
@@ -839,9 +838,9 @@ file_read_privatekey(LIBSSH2_SESSION * session,
     *hostkey_method = NULL;
     *hostkey_abstract = NULL;
     while(*hostkey_methods_avail && (*hostkey_methods_avail)->name) {
-        if((*hostkey_methods_avail)->initPEM
-            && strncmp((*hostkey_methods_avail)->name, (const char *) method,
-                       method_len) == 0) {
+        if((*hostkey_methods_avail)->initPEM &&
+           strncmp((*hostkey_methods_avail)->name, (const char *) method,
+                   method_len) == 0) {
             *hostkey_method = *hostkey_methods_avail;
             break;
         }
@@ -1323,7 +1322,7 @@ size_t plain_method(char *method, size_t method_len)
        !strncmp("rsa-sha2-512-cert-v01@openssh.com",
                 method,
                 method_len)) {
-       return 12;
+        return 12;
     }
 
     if(!strncmp("ecdsa-sha2-nistp256-cert-v01@openssh.com",
@@ -1576,10 +1575,12 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                             ((*sign_callback)),
                             void *abstract)
 {
-    unsigned char reply_codes[4] =
-        { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE,
-          SSH_MSG_USERAUTH_PK_OK, 0
-        };
+    unsigned char reply_codes[4] = {
+        SSH_MSG_USERAUTH_SUCCESS,
+        SSH_MSG_USERAUTH_FAILURE,
+        SSH_MSG_USERAUTH_PK_OK,
+        0
+    };
     int rc;
     unsigned char *s;
     int auth_attempts = 0;
@@ -1929,7 +1930,8 @@ retry_auth:
                                &session->userauth_pblc_packet_requirev_state);
     if(rc == LIBSSH2_ERROR_EAGAIN) {
         return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-                              "Would block requesting userauth list");
+                              "Would block waiting for publickey "
+                              "USERAUTH response");
     }
     else if(rc || session->userauth_pblc_data_len < 1) {
         session->userauth_pblc_state = libssh2_NB_state_idle;
@@ -2146,8 +2148,6 @@ libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                                              sign_callback, abstract));
     return rc;
 }
-
-
 
 /*
  * userauth_keyboard_interactive

@@ -231,8 +231,8 @@ sftp_packet_add(LIBSSH2_SFTP *sftp, unsigned char *data,
                    request_id));
 
     /* Don't add the packet if it answers a request we've given up on. */
-    if((data[0] == SSH_FXP_STATUS || data[0] == SSH_FXP_DATA)
-       && find_zombie_request(sftp, request_id)) {
+    if((data[0] == SSH_FXP_STATUS || data[0] == SSH_FXP_DATA) &&
+       find_zombie_request(sftp, request_id)) {
 
         /* If we get here, the file ended before the response arrived. We
            are no longer interested in the request so we discard it */
@@ -451,7 +451,6 @@ static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
         chunk = next;
     }
 }
-
 
 /*
  * sftp_packet_ask
@@ -1001,8 +1000,8 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
             extversion = (uint32_t)strtol(extversion_str, NULL, 10);
             LIBSSH2_FREE(session, extversion_str);
         }
-        if(extname_len == 24
-           && strncmp("posix-rename@openssh.com", (char *)extname, 24) == 0) {
+        if(extname_len == 24 &&
+           strncmp("posix-rename@openssh.com", (char *)extname, 24) == 0) {
             sftp_handle->posix_rename_version = extversion;
         }
 
@@ -1136,9 +1135,9 @@ libssh2_sftp_shutdown(LIBSSH2_SFTP *sftp)
     return rc;
 }
 
-/* *******************************
+/*******************************
  * SFTP File and Directory Ops *
- ******************************* */
+ *******************************/
 
 /* sftp_open
  */
@@ -2424,7 +2423,6 @@ libssh2_sftp_fsync(LIBSSH2_SFTP_HANDLE *hnd)
     return rc;
 }
 
-
 /* sftp_fstat
  * Get or Set stat on a file
  */
@@ -2549,7 +2547,6 @@ libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *hnd,
     return rc;
 }
 
-
 /* libssh2_sftp_seek64
  * Set the read/write pointer to an arbitrary position within the file
  */
@@ -2627,7 +2624,7 @@ static void sftp_packet_flush(LIBSSH2_SFTP *sftp)
         LIBSSH2_SFTP_PACKET *next;
 
         /* check next struct in the list */
-        next =  _libssh2_list_next(&packet->node);
+        next = _libssh2_list_next(&packet->node);
         _libssh2_list_remove(&packet->node);
         LIBSSH2_FREE(session, packet->data);
         LIBSSH2_FREE(session, packet);
@@ -2679,7 +2676,6 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
                                 "packet");
         }
         else {
-
             _libssh2_store_u32(&s, packet_len - 4);
             *(s++) = SSH_FXP_CLOSE;
             handle->close_request_id = sftp->request_id++;
@@ -2697,6 +2693,8 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
             return (int)nwritten;
         }
         else if((ssize_t)packet_len != nwritten) {
+            LIBSSH2_FREE(session, handle->close_packet);
+            handle->close_packet = NULL;
             handle->close_state = libssh2_NB_state_idle;
             rc = _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                                 "Unable to send FXP_CLOSE command");
@@ -3480,7 +3478,6 @@ libssh2_sftp_statvfs(LIBSSH2_SFTP *sftp, const char *path,
                  sftp_statvfs(sftp, path, (unsigned int)path_len, st));
     return rc;
 }
-
 
 /* sftp_mkdir
  * Create an SFTP directory

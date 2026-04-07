@@ -732,7 +732,6 @@ _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx,
  * returns key curve type that maps to libssh2_curve_type
  *
  */
-
 libssh2_curve_type
 _libssh2_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ec_ctx)
 {
@@ -762,7 +761,6 @@ _libssh2_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ec_ctx)
  * returns 0 for success, key curve type that maps to libssh2_curve_type
  *
  */
-
 int
 _libssh2_ecdsa_curve_type_from_name(const char *name,
                                     libssh2_curve_type *out_type)
@@ -794,7 +792,6 @@ _libssh2_ecdsa_curve_type_from_name(const char *name,
  * Creates a new public key given an octal string, length and type
  *
  */
-
 int
 _libssh2_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx ** ec_ctx,
      const unsigned char *k,
@@ -1151,6 +1148,9 @@ void _libssh2_openssl_crypto_init(void)
 
 void _libssh2_openssl_crypto_exit(void)
 {
+#if OPENSSL_VERSION_NUMBER >= 0x40000000L
+    OPENSSL_cleanup();
+#endif
 }
 
 #if LIBSSH2_RSA || LIBSSH2_DSA || LIBSSH2_ECDSA || LIBSSH2_ED25519
@@ -2091,7 +2091,6 @@ int _libssh2_ecdsa_new_private_frommemory_sk(libssh2_ecdsa_ctx ** ec_ctx,
 
 #endif /* LIBSSH2_ECDSA */
 
-
 #if LIBSSH2_ED25519
 
 int
@@ -2161,7 +2160,6 @@ clean_exit:
     return rc;
 }
 
-
 static int
 gen_publickey_from_ed_evp(LIBSSH2_SESSION *session,
                           unsigned char **method,
@@ -2229,7 +2227,6 @@ fail:
         LIBSSH2_FREE(session, keyBuf);
     return -1;
 }
-
 
 static int
 gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
@@ -2429,7 +2426,7 @@ gen_publickey_from_sk_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
         if(*handle_len > 0) {
             *key_handle = LIBSSH2_ALLOC(session, *handle_len);
 
-            if(key_handle) {
+            if(key_handle && *key_handle) {
                 memcpy((void *)LIBSSH2_UNCONST(*key_handle),
                        handle, *handle_len);
             }
@@ -2515,12 +2512,12 @@ clean_exit:
         LIBSSH2_FREE(session, key);
 
     if(application && *application) {
-        LIBSSH2_FREE(session, (void *)application);
+        LIBSSH2_FREE(session, (void *)LIBSSH2_UNCONST(*application));
         *application = NULL;
     }
 
     if(key_handle && *key_handle) {
-        LIBSSH2_FREE(session, (void *)key_handle);
+        LIBSSH2_FREE(session, (void *)LIBSSH2_UNCONST(*key_handle));
         *key_handle = NULL;
     }
 
@@ -2753,6 +2750,173 @@ _libssh2_ed25519_new_public(libssh2_ed25519_ctx ** ed_ctx,
 }
 #endif /* LIBSSH2_ED25519 */
 
+#if LIBSSH2_MLKEM
+
+int
+_libssh2_mlkem_new(LIBSSH2_SESSION *session,
+                   int ml_kem_size,
+                   unsigned char **out_public_key,
+                   unsigned char **out_private_key)
+{
+    EVP_PKEY *key = NULL;
+    EVP_PKEY_CTX *pctx = NULL;
+    unsigned char *priv = NULL, *pub = NULL;
+    const char *evp_name;
+    size_t privLen, actualPrivLen, pubLen, actualPubLen;
+    int rc = -1;
+
+    switch(ml_kem_size) {
+        case 512:
+            evp_name = "ML-KEM-512";
+            privLen = LIBSSH2_MLKEM_512_PRIVATE_KEY_LEN;
+            pubLen = LIBSSH2_MLKEM_512_PUBLIC_KEY_LEN;
+            break;
+        case 768:
+            evp_name = "ML-KEM-768";
+            privLen = LIBSSH2_MLKEM_768_PRIVATE_KEY_LEN;
+            pubLen = LIBSSH2_MLKEM_768_PUBLIC_KEY_LEN;
+            break;
+        case 1024:
+            evp_name = "ML-KEM-1024";
+            privLen = LIBSSH2_MLKEM_1024_PRIVATE_KEY_LEN;
+            pubLen = LIBSSH2_MLKEM_1024_PUBLIC_KEY_LEN;
+            break;
+        default:
+            goto clean_exit;
+    }
+
+    pctx = EVP_PKEY_CTX_new_from_name(NULL, evp_name, NULL);
+    if(!pctx)
+        return -1;
+
+    if(EVP_PKEY_keygen_init(pctx) != 1 ||
+       EVP_PKEY_keygen(pctx, &key) != 1) {
+        goto clean_exit;
+    }
+
+    if(out_private_key) {
+        priv = LIBSSH2_ALLOC(session, privLen);
+        actualPrivLen = privLen;
+        if(!priv)
+            goto clean_exit;
+        if(EVP_PKEY_get_raw_private_key(key, priv, &actualPrivLen) != 1 ||
+           privLen != actualPrivLen) {
+            goto clean_exit;
+        }
+
+        *out_private_key = priv;
+        priv = NULL;
+    }
+
+    if(out_public_key) {
+        pub = LIBSSH2_ALLOC(session, pubLen);
+        if(!pub)
+            goto clean_exit;
+
+        if(EVP_PKEY_get_raw_public_key(key, pub, &actualPubLen) != 1 ||
+           pubLen != actualPubLen) {
+            goto clean_exit;
+        }
+
+        *out_public_key = pub;
+        pub = NULL;
+    }
+
+    /* success */
+    rc = 0;
+
+clean_exit:
+
+    if(pctx)
+        EVP_PKEY_CTX_free(pctx);
+    if(key)
+        EVP_PKEY_free(key);
+    if(priv)
+        LIBSSH2_FREE(session, priv);
+    if(pub)
+        LIBSSH2_FREE(session, pub);
+
+    return rc;
+}
+
+int
+_libssh2_mlkem_get_sk(unsigned char *out_shared_key,
+                      int ml_kem_size,
+                      uint8_t *private_key,
+                      uint8_t *server_ciphertext)
+{
+    int rc = -1;
+    EVP_PKEY *client_key = NULL;
+    EVP_PKEY_CTX *client_key_ctx = NULL;
+    size_t out_len = 0;
+    const char *evp_name;
+    size_t privLen, ciphertextLen;
+
+    switch(ml_kem_size) {
+        case 512:
+            evp_name = "ML-KEM-512";
+            privLen = LIBSSH2_MLKEM_512_PRIVATE_KEY_LEN;
+            ciphertextLen = LIBSSH2_MLKEM_512_CIPHERTEXT;
+            break;
+        case 768:
+            evp_name = "ML-KEM-768";
+            privLen = LIBSSH2_MLKEM_768_PRIVATE_KEY_LEN;
+            ciphertextLen = LIBSSH2_MLKEM_768_CIPHERTEXT;
+            break;
+        case 1024:
+            evp_name = "ML-KEM-1024";
+            privLen = LIBSSH2_MLKEM_1024_PRIVATE_KEY_LEN;
+            ciphertextLen = LIBSSH2_MLKEM_1024_CIPHERTEXT;
+            break;
+        default:
+            goto clean_exit;
+    }
+
+    if(!out_shared_key)
+        return -1;
+
+    client_key = EVP_PKEY_new_raw_private_key_ex(NULL, evp_name,
+                                                 NULL, private_key, privLen);
+
+    if(!client_key) {
+        goto clean_exit;
+    }
+
+    client_key_ctx = EVP_PKEY_CTX_new(client_key, NULL);
+    if(!client_key_ctx) {
+        goto clean_exit;
+    }
+
+    rc = EVP_PKEY_decapsulate_init(client_key_ctx, NULL);
+    if(rc <= 0) {
+        goto clean_exit;
+    }
+
+    rc = EVP_PKEY_decapsulate(client_key_ctx, NULL, &out_len,
+                              server_ciphertext, ciphertextLen);
+    if(rc <= 0) {
+        goto clean_exit;
+    }
+
+    if(out_len != LIBSSH2_MLKEM_SHARED_SECRET_LEN) {
+        rc = -1;
+        goto clean_exit;
+    }
+
+    rc = EVP_PKEY_decapsulate(client_key_ctx, out_shared_key, &out_len,
+                              server_ciphertext, ciphertextLen);
+
+clean_exit:
+
+    if(client_key_ctx)
+        EVP_PKEY_CTX_free(client_key_ctx);
+    if(client_key)
+        EVP_PKEY_free(client_key);
+
+    return (rc == 1) ? 0 : -1;
+}
+
+#endif
 
 #if LIBSSH2_RSA
 int
@@ -2955,7 +3119,7 @@ _libssh2_ecdsa_sign(LIBSSH2_SESSION * session, libssh2_ecdsa_ctx * ec_ctx,
     }
 
     out_buffer_len = EVP_PKEY_get_size(ec_ctx);
-    temp_buffer = LIBSSH2_ALLOC(session, out_buffer_len);
+    temp_buffer = OPENSSL_malloc(out_buffer_len);
     if(!temp_buffer) {
         goto clean_exit;
     }
@@ -3860,7 +4024,6 @@ fail:
     return rc;
 }
 
-
 static int
 _libssh2_ecdsa_new_openssh_private(libssh2_ecdsa_ctx ** ec_ctx,
                                    LIBSSH2_SESSION * session,
@@ -4053,7 +4216,6 @@ _libssh2_ecdsa_new_private_sk(libssh2_ecdsa_ctx ** ec_ctx,
 
     return rc;
 }
-
 
 /*
  * _libssh2_ecdsa_create_key
@@ -4364,7 +4526,6 @@ clean_exit:
 #endif
 }
 
-
 #endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519
@@ -4491,7 +4652,6 @@ clean_exit:
 
     return (rc == 1) ? 0 : -1;
 }
-
 
 int
 _libssh2_ed25519_verify(libssh2_ed25519_ctx *ctx, const uint8_t *s,
@@ -5184,7 +5344,6 @@ _libssh2_bn_from_bin(_libssh2_bn *bn, size_t len, const unsigned char *val)
  * Return supported key hash algo upgrades, see crypto.h
  *
  */
-
 const char *
 _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
                                        unsigned char *key_method,

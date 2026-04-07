@@ -53,6 +53,8 @@
 #include <windows.h>
 #include <bcrypt.h>
 
+#define LIBSSH2_MD5_ENABLE
+#define LIBSSH2_MD5_PEM_ENABLE
 #define LIBSSH2_MD5 1
 
 #define LIBSSH2_HMAC_RIPEMD 0
@@ -72,6 +74,7 @@
 #define LIBSSH2_RSA_SHA2 1
 #define LIBSSH2_DSA 1
 #define LIBSSH2_ED25519 0
+#define LIBSSH2_MLKEM 0
 
 /*
  * Conditionally enable ECDSA support.
@@ -142,7 +145,6 @@ struct _libssh2_wincng_ctx {
 
 extern struct _libssh2_wincng_ctx _libssh2_wincng;
 
-
 /*******************************************************************/
 /*
  * Windows CNG backend: Generic functions
@@ -157,7 +159,6 @@ extern struct _libssh2_wincng_ctx _libssh2_wincng;
     _libssh2_wincng_random(buf, len)
 
 #define libssh2_prepare_iovec(vec, len)  /* Empty. */
-
 
 /*******************************************************************/
 /*
@@ -240,7 +241,6 @@ typedef struct __libssh2_wincng_hash_ctx {
 
 #define libssh2_hmac_ctx _libssh2_wincng_hash_ctx
 
-
 /*******************************************************************/
 /*
  * Windows CNG backend: Key Context structure
@@ -251,7 +251,6 @@ typedef struct __libssh2_wincng_key_ctx {
     void *pbKeyObject;
     DWORD cbKeyObject;
 } _libssh2_wincng_key_ctx;
-
 
 /*
  * Windows CNG backend: RSA functions
@@ -302,7 +301,6 @@ typedef struct __libssh2_wincng_key_ctx {
     _libssh2_wincng_dsa_sha1_verify(dsactx, sig, m, m_len)
 #define _libssh2_dsa_free(dsactx) \
     _libssh2_wincng_dsa_free(dsactx)
-
 
 /*
  * Windows CNG backend: ECDSA functions
@@ -358,7 +356,6 @@ _libssh2_wincng_ecdsa_free(libssh2_ecdsa_ctx* ctx);
 
 #define _libssh2_ecdsa_free(ecdsactx) \
     _libssh2_wincng_ecdsa_free(ecdsactx)
-
 
 /*
  * Windows CNG backend: Key functions
@@ -436,7 +433,6 @@ struct _libssh2_wincng_cipher_type {
 #define _libssh2_bn_ctx int /* not used */
 #define _libssh2_bn_ctx_new() 0 /* not used */
 #define _libssh2_bn_ctx_free(bnctx) ((void)0) /* not used */
-
 
 /*******************************************************************/
 /*

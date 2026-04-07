@@ -114,6 +114,8 @@ void _libssh2_htonu32(unsigned char *buf, uint32_t val);
 void _libssh2_store_u32(unsigned char **buf, uint32_t value);
 void _libssh2_store_u64(unsigned char **buf, libssh2_uint64_t value);
 int _libssh2_store_str(unsigned char **buf, const char *str, size_t len);
+int _libssh2_store_hybrid_str(unsigned char **buf, const char *str_1,
+                              size_t len_1, const char *str_2, size_t len_2);
 int _libssh2_store_bignum2_bytes(unsigned char **buf,
                                  const unsigned char *bytes,
                                  size_t len);
@@ -140,5 +142,7 @@ void _libssh2_xor_data(unsigned char *output,
                        const unsigned char *input1,
                        const unsigned char *input2,
                        size_t length);
+
+int _libssh2_timingsafe_bcmp(const void *b1, const void *b2, size_t n);
 
 #endif /* LIBSSH2_MISC_H */

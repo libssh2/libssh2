@@ -345,8 +345,8 @@ cleanup:
         *total += bytes_transferred;                                   \
         if(!ret) {                                                     \
             err = GetLastError();                                      \
-            if((!agent->pending_io && ERROR_IO_PENDING == err)         \
-               || (agent->pending_io && ERROR_IO_INCOMPLETE == err)) { \
+            if((!agent->pending_io && ERROR_IO_PENDING == err) ||      \
+               (agent->pending_io && ERROR_IO_INCOMPLETE == err)) {    \
                 agent->pending_io = TRUE;                              \
                 return LIBSSH2_ERROR_EAGAIN;                           \
             }                                                          \
@@ -479,6 +479,7 @@ agent_connect_unix(LIBSSH2_AGENT *agent)
 {
     const char *path;
     struct sockaddr_un s_un;
+    size_t plen;
 
     path = agent->identity_agent_path;
     if(!path) {
@@ -493,11 +494,17 @@ agent_connect_unix(LIBSSH2_AGENT *agent)
         return _libssh2_error(agent->session, LIBSSH2_ERROR_BAD_SOCKET,
                               "failed creating socket");
 
+    plen = strlen(path);
+    if(plen >= sizeof(s_un.sun_path)) {
+        close(agent->fd);
+        return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                              "SSH_AUTH_SOCK path too long");
+    }
+
     s_un.sun_family = AF_UNIX;
-    /* !checksrc! disable BANNEDFUNC 1 */ /* FIXME */
-    strncpy(s_un.sun_path, path, sizeof(s_un.sun_path));
-    s_un.sun_path[sizeof(s_un.sun_path)-1] = 0; /* make sure there's a trailing
-                                                   zero */
+    memcpy(s_un.sun_path, path, plen);
+    s_un.sun_path[plen] = '\0';
+
     if(connect(agent->fd, (struct sockaddr*)(&s_un), sizeof(s_un)) != 0) {
         close(agent->fd);
         return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,

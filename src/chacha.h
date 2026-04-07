@@ -30,4 +30,3 @@ void chacha_encrypt_bytes(struct chacha_ctx *x, const u_char *m,
                           u_char *c, u_int bytes);
 
 #endif /* CHACHA_H */
-

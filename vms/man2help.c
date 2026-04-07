@@ -45,7 +45,6 @@ fpcopy(char *output, char *input, int len)
     }
 }
 
-
 /*----------------------------------------------------------*/
 /* give part of ilename in partname. See code for proper
    value of i ( 0 = node, 1 = dev, 2 = dir, 3 = name etc.
@@ -145,7 +144,6 @@ int find_file(char *filename, char *gevonden, int *findex)
 
     return status;
 }
-
 
 /*--------------------------------------------*/
 
@@ -413,7 +411,6 @@ int convertman(char *filespec, FILE *hlp, int base_level, int add_parentheses)
     } /* end for mode */
 
     *h = 0;
-
 
     if(return_status & 2) {
         fprintf(hlp, "%s\n\n", uit);
