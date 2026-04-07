@@ -500,10 +500,7 @@ shutdown:
 
     libssh2_exit();
 
-    if(rc)
-        return 1;
-    else
-        return 0;
+    return rc ? 1 : 0;
 }
 
 #else
