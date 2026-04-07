@@ -157,6 +157,7 @@ decrypt(LIBSSH2_SESSION * session, unsigned char *source,
                                         &session->remote.crypt_abstract,
                                         lowerfirstlast)) {
             LIBSSH2_FREE(session, p->payload);
+            p->payload = NULL;
             return LIBSSH2_ERROR_DECRYPT;
         }
 
@@ -185,6 +186,8 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
     int compressed;
     const LIBSSH2_MAC_METHOD *remote_mac = NULL;
     uint32_t seq = session->remote.seqno;
+
+    memset(macbuf, '\0', sizeof(macbuf));
 
     if(!encrypted || (!CRYPT_FLAG_R(session, REQUIRES_FULL_PACKET) &&
                       !CRYPT_FLAG_R(session, INTEGRATED_MAC))) {
@@ -223,7 +226,9 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
              * buffer. Note that 'payload_len' here is the packet_length
              * field which includes the padding but not the MAC.
              */
-            if(memcmp(macbuf, p->payload + p->total_num - mac_len, mac_len)) {
+            if(_libssh2_timingsafe_bcmp(macbuf,
+                                        p->payload + p->total_num - mac_len,
+                                        mac_len)) {
                 _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
                                "Failed MAC check"));
                 session->fullpacket_macstate = LIBSSH2_MAC_INVALID;
@@ -257,6 +262,12 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
                 /* grab padding length and copy anything else
                    into target buffer */
                 p->padding_length = first_block[0];
+
+                if(p->padding_length > p->packet_length - 1) {
+                    LIBSSH2_FREE(session, decrypt_buffer);
+                    return LIBSSH2_ERROR_PROTO;
+                }
+
                 if(blocksize > 1) {
                     memcpy(decrypt_buffer, first_block + 1, blocksize - 1);
                 }
@@ -300,8 +311,8 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
              * cannot decompress.
              */
 
-            unsigned char *data;
-            size_t data_len;
+            unsigned char *data = NULL;
+            size_t data_len = 0;
             rc = session->remote.comp->decomp(session,
                                               &data, &data_len,
                                               LIBSSH2_PACKET_MAXDECOMP,
@@ -309,6 +320,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
                                               session->fullpacket_payload_len,
                                               &session->remote.comp_abstract);
             LIBSSH2_FREE(session, p->payload);
+            p->payload = NULL;
             if(rc)
                 return rc;
 
@@ -606,6 +618,10 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 }
 
                 if(etm) {
+                    /* don't know what padding is until we decrypt the full
+                     packet */
+                    p->padding_length = 0;
+
                     /* we collect entire undecrypted packet including the
                        packet length field that we run MAC over */
                     p->packet_length = _libssh2_ntohu32(block);
@@ -692,6 +708,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                     else {
                         if(p->payload)
                             LIBSSH2_FREE(session, p->payload);
+                        p->payload = NULL;
                         return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
                     }
                 }
@@ -851,6 +868,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
             else {
                 if(p->payload)
                     LIBSSH2_FREE(session, p->payload);
+                p->payload = NULL;
                 return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
             }
 

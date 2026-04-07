@@ -119,7 +119,7 @@ _libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *ctx,
     if(!ctx)
         return -1;
 
-    op = encrypt == 0 ? MBEDTLS_ENCRYPT : MBEDTLS_DECRYPT;
+    op = encrypt ? MBEDTLS_ENCRYPT : MBEDTLS_DECRYPT;
 
     cipher_info = mbedtls_cipher_info_from_type(algo);
     if(!cipher_info)
@@ -127,6 +127,20 @@ _libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *ctx,
 
     mbedtls_cipher_init(ctx);
     ret = mbedtls_cipher_setup(ctx, cipher_info);
+
+    /* libssh2 computes and adds SSH packet padding itself, so for CBC
+     * tell mbedTLS to expect no padding on the cipher layer. Only call
+     * set_padding_mode for CBC ciphers since other modes (CTR, stream)
+     * are not applicable and will cause an error. */
+    if(!ret) {
+        if(algo == MBEDTLS_CIPHER_AES_128_CBC ||
+           algo == MBEDTLS_CIPHER_AES_192_CBC ||
+           algo == MBEDTLS_CIPHER_AES_256_CBC ||
+           algo == MBEDTLS_CIPHER_DES_EDE3_CBC) {
+            ret = mbedtls_cipher_set_padding_mode(ctx, MBEDTLS_PADDING_NONE);
+        }
+    }
+
     if(!ret)
         ret = mbedtls_cipher_setkey(ctx,
                   secret,
@@ -514,6 +528,12 @@ _libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
     *rsa = (libssh2_rsa_ctx *) mbedtls_calloc(1, sizeof(libssh2_rsa_ctx));
     if(!*rsa)
         return -1;
+
+#if MBEDTLS_VERSION_NUMBER >= 0x03000000
+    mbedtls_rsa_init(*rsa);
+#else
+    mbedtls_rsa_init(*rsa, MBEDTLS_RSA_PKCS_V15, 0);
+#endif
 
     /*
     mbedtls checks in "mbedtls/pkparse.c:1184" if "key[keylen - 1] != '\0'"

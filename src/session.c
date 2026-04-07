@@ -837,6 +837,7 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
     }
 
     if(session->startup_state == libssh2_NB_state_sent4) {
+        struct string_buf buf;
         rc = _libssh2_packet_require(session, SSH_MSG_SERVICE_ACCEPT,
                                      &session->startup_data,
                                      &session->startup_data_len, 0, NULL, 0,
@@ -846,23 +847,22 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
                                   "Failed to get response to "
                                   "ssh-userauth request");
 
-        if(session->startup_data_len < 5) {
-            return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                                  "Unexpected packet length");
-        }
+        buf.data = session->startup_data;
+        buf.dataptr = buf.data;
+        buf.len = session->startup_data_len;
 
-        session->startup_service_length =
-            _libssh2_ntohu32(session->startup_data + 1);
+        /* advance past packet type */
+        buf.dataptr++;
 
-        if((session->startup_service_length != (sizeof("ssh-userauth") - 1)) ||
-           strncmp("ssh-userauth",
-                   (const char *) session->startup_data + 5,
-                   session->startup_service_length)) {
+        if(_libssh2_match_string(&buf, "ssh-userauth")) {
             LIBSSH2_FREE(session, session->startup_data);
             session->startup_data = NULL;
             return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                   "Invalid response received from server");
         }
+
+        session->startup_service_length = (sizeof("ssh-userauth") - 1);
+
         LIBSSH2_FREE(session, session->startup_data);
         session->startup_data = NULL;
 

@@ -846,7 +846,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
     }
 
     /* Figure out host format */
-    if((hostlen > 2) && memcmp(host, "|1|", 3)) {
+    if((hostlen < 3) || memcmp(host, "|1|", 3)) {
         /* old style plain text: [name]([,][name])*
 
            for the sake of simplicity, we add them as separate hosts with the

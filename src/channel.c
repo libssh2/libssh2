@@ -1421,11 +1421,11 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
         }
         else {
             int i;
-            /* note: the extra +1 below is necessary since the sprintf()
-               loop will always write 3 bytes so the last one will write
-               the trailing zero at the LIBSSH2_X11_RANDOM_COOKIE_LEN/2
-               border */
-            unsigned char buffer[(LIBSSH2_X11_RANDOM_COOKIE_LEN / 2) + 1];
+            /* note: the snprintf() loop will always write 3 bytes so the
+               last one will write the trailing zero after the
+               LIBSSH2_X11_RANDOM_COOKIE_LEN border in s, but s has extra
+               4 bytes of size (for screen_number) */
+            unsigned char buffer[LIBSSH2_X11_RANDOM_COOKIE_LEN / 2];
 
             if(_libssh2_random(buffer, LIBSSH2_X11_RANDOM_COOKIE_LEN / 2)) {
                 return _libssh2_error(session, LIBSSH2_ERROR_RANDGEN,
@@ -2875,6 +2875,48 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
     }
     if(channel->process_packet) {
         LIBSSH2_FREE(session, channel->process_packet);
+    }
+
+    /* Free some entries in session-structure, if channel found */
+    if(session->open_channel == channel) {
+        session->open_channel = NULL;
+        session->open_state = libssh2_NB_state_idle;
+        if(session->open_packet) {
+            LIBSSH2_FREE(session, session->open_packet);
+            session->open_packet = NULL;
+        }
+        if(session->open_data) {
+            LIBSSH2_FREE(session, session->open_data);
+            session->open_data = NULL;
+        }
+    }
+    if(session->pkeyInit_channel == channel) {
+        session->pkeyInit_channel = NULL;
+        session->pkeyInit_state = libssh2_NB_state_idle;
+        if(session->pkeyInit_data) {
+            LIBSSH2_FREE(session, session->pkeyInit_data);
+            session->pkeyInit_data = NULL;
+        }
+    }
+    if(session->packAdd_channelp == channel) {
+        session->packAdd_channelp = NULL;
+        session->packAdd_state = libssh2_NB_state_idle;
+    }
+    if(session->scpSend_channel == channel) {
+        session->scpSend_channel = NULL;
+        session->scpSend_state = libssh2_NB_state_idle;
+        if(session->scpSend_command) {
+            LIBSSH2_FREE(session, session->scpSend_command);
+            session->scpSend_command = NULL;
+        }
+    }
+    if(session->scpRecv_channel == channel) {
+        session->scpRecv_channel = NULL;
+        session->scpRecv_state = libssh2_NB_state_idle;
+        if(session->scpRecv_command) {
+            LIBSSH2_FREE(session, session->scpRecv_command);
+            session->scpRecv_command = NULL;
+        }
     }
 
     LIBSSH2_FREE(session, channel);
