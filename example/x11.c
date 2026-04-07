@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
     libssh2_socket_t sock = LIBSSH2_INVALID_SOCKET;
     struct sockaddr_in sin;
     LIBSSH2_SESSION *session = NULL;
-    LIBSSH2_CHANNEL* channel = NULL;;
+    LIBSSH2_CHANNEL* channel = NULL;
     char *username = NULL;
     char *password = NULL;
     size_t bufsiz = 8193;
