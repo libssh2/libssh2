@@ -78,12 +78,6 @@ static void remove_node(struct chan_X11_list *elem)
     }
 }
 
-static void session_shutdown(LIBSSH2_SESSION *session)
-{
-    libssh2_session_disconnect(session, "Normal Shutdown");
-    libssh2_session_free(session);
-}
-
 static int _raw_mode(void)
 {
     int rc;
@@ -276,7 +270,7 @@ int main(int argc, char *argv[])
     libssh2_socket_t sock = LIBSSH2_INVALID_SOCKET;
     struct sockaddr_in sin;
     LIBSSH2_SESSION *session = NULL;
-    LIBSSH2_CHANNEL *channel;
+    LIBSSH2_CHANNEL* channel = NULL;
     char *username = NULL;
     char *password = NULL;
     size_t bufsiz = 8193;
@@ -306,7 +300,7 @@ int main(int argc, char *argv[])
     else {
         fprintf(stderr, "Usage: %s destination username password",
                 argv[0]);
-        return -1;
+        return 1;
     }
 
     if(argc > 4) {
@@ -323,7 +317,7 @@ int main(int argc, char *argv[])
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock == LIBSSH2_INVALID_SOCKET) {
         fprintf(stderr, "failed to open socket.\n");
-        return -1;
+        return 1;
     }
 
     sin.sin_family = AF_INET;
@@ -332,14 +326,14 @@ int main(int argc, char *argv[])
 
     if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "Failed to established connection.\n");
-        return -1;
+        return 1;
     }
     /* Open a session */
     session = libssh2_session_init();
     rc      = libssh2_session_handshake(session, sock);
     if(rc) {
         fprintf(stderr, "Failed Start the SSH session\n");
-        return -1;
+        return 1;
     }
 
     if(set_debug_on == 1)
@@ -360,59 +354,41 @@ int main(int argc, char *argv[])
     rc = libssh2_userauth_password(session, username, password);
     if(rc) {
         fprintf(stderr, "Failed to authenticate\n");
-        session_shutdown(session);
-        shutdown(sock, SHUT_RDWR);
-        LIBSSH2_SOCKET_CLOSE(sock);
-        return -1;
+        goto shutdown;
     }
 
     /* Open a channel */
     channel = libssh2_channel_open_session(session);
     if(!channel) {
         fprintf(stderr, "Failed to open a new channel\n");
-        session_shutdown(session);
-        shutdown(sock, SHUT_RDWR);
-        LIBSSH2_SOCKET_CLOSE(sock);
-        return -1;
+        goto shutdown;
     }
 
     /* Request a PTY */
     rc = libssh2_channel_request_pty(channel, "xterm");
     if(rc) {
         fprintf(stderr, "Failed to request a pty\n");
-        session_shutdown(session);
-        shutdown(sock, SHUT_RDWR);
-        LIBSSH2_SOCKET_CLOSE(sock);
-        return -1;
+        goto shutdown;
     }
 
     /* Request X11 */
     rc = libssh2_channel_x11_req(channel, 0);
     if(rc) {
         fprintf(stderr, "Failed to request X11 forwarding\n");
-        session_shutdown(session);
-        shutdown(sock, SHUT_RDWR);
-        LIBSSH2_SOCKET_CLOSE(sock);
-        return -1;
+        goto shutdown;
     }
 
     /* Request a shell */
     rc = libssh2_channel_shell(channel);
     if(rc) {
         fprintf(stderr, "Failed to open a shell\n");
-        session_shutdown(session);
-        shutdown(sock, SHUT_RDWR);
-        LIBSSH2_SOCKET_CLOSE(sock);
-        return -1;
+        goto shutdown;
     }
 
     rc = _raw_mode();
     if(rc) {
         fprintf(stderr, "Failed to entered in raw mode\n");
-        session_shutdown(session);
-        shutdown(sock, SHUT_RDWR);
-        LIBSSH2_SOCKET_CLOSE(sock);
-        return -1;
+        goto shutdown;
     }
 
     memset(&w_size, 0, sizeof(struct winsize));
@@ -501,15 +477,30 @@ int main(int argc, char *argv[])
         }
     }
 
+shutdown:
+
     if(channel) {
         libssh2_channel_free(channel);
         channel = NULL;
     }
+
+    if(session) {
+        libssh2_session_disconnect(session, "Normal Shutdown");
+        libssh2_session_free(session);
+    }
+
+    if(sock != LIBSSH2_INVALID_SOCKET) {
+        shutdown(sock, 2);
+        LIBSSH2_SOCKET_CLOSE(sock);
+    }
+
+    fprintf(stderr, "all done\n");
+
     _normal_mode();
 
     libssh2_exit();
 
-    return 0;
+    return rc ? 1 : 0;
 }
 
 #else
