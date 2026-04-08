@@ -53,9 +53,6 @@ foreach(_example IN LISTS noinst_PROGRAMS)
     "${PROJECT_SOURCE_DIR}/src")
   target_link_libraries(${_example} ${LIB_SELECTED} ${LIBSSH2_LIBS})
   set_property(TARGET ${_example} APPEND PROPERTY COMPILE_OPTIONS "${LIBSSH2_PICKY_C_FLAGS}")
-  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    set_property(TARGET ${_example} APPEND PROPERTY COMPILE_DEFINITIONS "_DEFAULT_SOURCE")  # for fileno(), tcsetattr() in glibc ISO mode
-  endif()
   set_target_properties(${_example} PROPERTIES UNITY_BUILD OFF)
 endforeach()
 
