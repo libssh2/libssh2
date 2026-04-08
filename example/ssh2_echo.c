@@ -235,8 +235,8 @@ int main(int argc, char *argv[])
         size_t totread = 0;
         int rereads = 0;
         int rewrites = 0;
-        int i;
         char *exitsignal = NULL;
+        size_t i;
 
         for(i = 0; i < sizeof(buffer); i++)
             buffer[i] = 'A';
