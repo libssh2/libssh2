@@ -85,7 +85,7 @@ jobs:
             cmake --build . --verbose
           else
             eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-            export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls)/lib/pkgconfig"
+            export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls@3)/lib/pkgconfig"
             for crypto in OpenSSL Libgcrypt mbedTLS wolfSSL; do
               cmake -B _bld-"${crypto}" -G Ninja -DCRYPTO_BACKEND="${crypto}" -DENABLE_ZLIB_COMPRESSION=ON
               cmake --build _bld-"${crypto}" --verbose
