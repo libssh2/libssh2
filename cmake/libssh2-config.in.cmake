@@ -12,7 +12,7 @@ endif()
 include(CMakeFindDependencyMacro)
 
 set(_libssh2_cmake_module_path_save ${CMAKE_MODULE_PATH})
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_MODULE_PATH})
+list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
 set(_libssh2_libs "")
 if("@CRYPTO_BACKEND@" STREQUAL "OpenSSL")
