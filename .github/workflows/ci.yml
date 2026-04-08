@@ -425,7 +425,7 @@ jobs:
             --location "https://github.com/awslabs/aws-lc/archive/refs/tags/v${AWSLC_VERSION}.tar.gz" --output pkg.bin
           sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${AWSLC_SHA256}" && tar -xzf pkg.bin && rm -f pkg.bin
           cd "aws-lc-${AWSLC_VERSION}"
-          cmake -B . -G Ninja -DCMAKE_INSTALL_PREFIX="$HOME"/usr
+          cmake -B . -G Ninja -DCMAKE_INSTALL_PREFIX="$HOME"/usr -DBUILD_TOOL=OFF -DBUILD_TESTING=OFF
           cmake --build .
           cmake --install .
 
