@@ -85,7 +85,6 @@ int main(int argc, char *argv[])
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
     int exitcode = 0;
-    char *exitsignal = NULL;
     size_t len;
     LIBSSH2_KNOWNHOSTS *nh;
     int type;
@@ -238,6 +237,7 @@ int main(int argc, char *argv[])
         int rereads = 0;
         int rewrites = 0;
         int i;
+        char *exitsignal = NULL;
 
         for(i = 0; i < BUFSIZE; i++)
             buffer[i] = 'A';
