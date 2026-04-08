@@ -389,6 +389,7 @@ libssh2_sign_sk(LIBSSH2_SESSION *session,
                 size_t data_len,
                 void **abstract);
 
+#ifndef LIBSSH2_NO_DEPRECATED
 typedef struct _LIBSSH2_POLLFD {
     unsigned char type; /* LIBSSH2_POLLFD_* below */
 
@@ -431,6 +432,7 @@ typedef struct _LIBSSH2_POLLFD {
                                                   Socket/Win32 */
 #define LIBSSH2_POLLFD_CHANNEL_CLOSED   0x0080 /* Channel Disconnect */
 #define LIBSSH2_POLLFD_LISTENER_CLOSED  0x0080 /* Listener Disconnect */
+#endif /* LIBSSH2_NO_DEPRECATED */
 
 #define HAVE_LIBSSH2_SESSION_BLOCK_DIRECTION
 /* Block Direction Types */
