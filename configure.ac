@@ -13,8 +13,8 @@ AM_MAINTAINER_MODE
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 dnl SED is needed by some of the tools
-AC_PATH_PROG( SED, sed, sed-was-not-found-by-configure,
-              $PATH:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(SED, sed, sed-was-not-found-by-configure,
+             $PATH:/usr/bin:/usr/local/bin)
 AC_SUBST(SED)
 
 if test "x$SED" = "xsed-was-not-found-by-configure"; then
@@ -34,17 +34,17 @@ AC_SUBST(LIBSSH2_VERSION)
 # get this removed.
 AC_CANONICAL_HOST
 case "$host" in
-    *-mingw*)
+  *-mingw*)
     LIBS="$LIBS -lws2_32"
     ;;
-    *darwin*)
+  *darwin*)
     ;;
-    *hpux*)
+  *hpux*)
     ;;
-    *osf*)
+  *osf*)
     CFLAGS="$CFLAGS -D_POSIX_PII_SOCKET"
     ;;
-    *)
+  *)
     ;;
 esac
 
