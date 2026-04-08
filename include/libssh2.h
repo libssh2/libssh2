@@ -760,8 +760,11 @@ libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
                                   ((*sign_callback)),
                               void **abstract);
 
+#ifndef LIBSSH2_NO_DEPRECATED
+LIBSSH2_DEPRECATED(1.2.0, "Use system poll() or select()")
 LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds,
                              long timeout);
+#endif
 
 /* Channel API */
 #define LIBSSH2_CHANNEL_WINDOW_DEFAULT  (2*1024*1024)
