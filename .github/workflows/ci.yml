@@ -528,7 +528,6 @@ jobs:
             cmake -B bld -G Ninja ${options} $TOOLCHAIN_OPTION \
               -DCMAKE_UNITY_BUILD=ON \
               -DENABLE_WERROR=ON \
-              -DBUILD_TESTING=OFF \
               -DCRYPTO_BACKEND=${crypto} \
               -DENABLE_ZLIB_COMPRESSION="${MATRIX_ZLIB}"
           else
