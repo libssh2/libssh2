@@ -73,8 +73,6 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
     return rc;
 }
 
-#define BUFSIZE 32000
-
 int main(int argc, char *argv[])
 {
     uint32_t hostaddr;
@@ -229,8 +227,8 @@ int main(int argc, char *argv[])
 #if 0
         LIBSSH2_POLLFD *fds = NULL;
         int running = 1;
-        size_t bufsize = BUFSIZE;
-        char buffer[BUFSIZE];
+        char buffer[32000];
+        size_t bufsize = sizeof(buffer);
         size_t totsize = 1500000;
         size_t totwritten = 0;
         size_t totread = 0;
@@ -239,7 +237,7 @@ int main(int argc, char *argv[])
         int i;
         char *exitsignal = NULL;
 
-        for(i = 0; i < BUFSIZE; i++)
+        for(i = 0; i < sizeof(buffer); i++)
             buffer[i] = 'A';
 
         fds = malloc(sizeof(LIBSSH2_POLLFD));
