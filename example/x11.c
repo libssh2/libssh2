@@ -14,7 +14,7 @@
 
 #include <stdio.h>
 
-#ifdef HAVE_SYS_UN_H
+#if defined(HAVE_SYS_UN_H) && !defined(LIBSSH2_NO_DEPRECATED)
 
 #ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
@@ -513,8 +513,9 @@ shutdown:
 
 int main(void)
 {
-    fprintf(stderr, "Sorry, this platform is not supported.");
+    fprintf(stderr, "Sorry, this platform is not supported, "
+            "or required deprecated libssh2 API not built in.");
     return 1;
 }
 
-#endif /* HAVE_SYS_UN_H */
+#endif /* HAVE_SYS_UN_H && !LIBSSH2_NO_DEPRECATED */

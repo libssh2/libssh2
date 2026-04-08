@@ -13,6 +13,10 @@
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
+#include <stdio.h>
+
+#ifndef LIBSSH2_NO_DEPRECATED
+
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
@@ -29,7 +33,6 @@
 #include <arpa/inet.h>
 #endif
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -382,3 +385,13 @@ shutdown:
 
     return exitcode;
 }
+
+#else
+
+int main(void)
+{
+  printf("Required deprecated libssh2 API not built in.\n");
+  return 1;
+}
+
+#endif /* !LIBSSH2_NO_DEPRECATED */
