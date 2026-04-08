@@ -103,7 +103,7 @@ jobs:
   build_integration:
     name: 'CM integration ${{ matrix.image }}'
     runs-on: ${{ matrix.image }}
-    timeout-minutes: 10
+    timeout-minutes: 5
     defaults:
       run:
         shell: ${{ contains(matrix.image, 'windows') && 'msys2 {0}' || 'bash' }}
@@ -218,7 +218,7 @@ jobs:
   build_linux:
     name: 'linux'
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
@@ -577,12 +577,12 @@ jobs:
 
       - name: 'autotools distcheck'
         if: ${{ matrix.target == 'distcheck' }}
-        timeout-minutes: 10
+        timeout-minutes: 5
         run: make -C bld distcheck
 
       - name: 'autotools maketgz'
         if: ${{ matrix.target == 'maketgz' }}
-        timeout-minutes: 10
+        timeout-minutes: 5
         run: |
           export SOURCE_DATE_EPOCH=1711526400
           ./configure --enable-werror --disable-debug \
@@ -609,7 +609,7 @@ jobs:
   build_linux_cross_mingw64:
     name: "linux -> mingw-w64, ${{ matrix.build == 'cmake' && 'CM' || 'AM' }} ${{ matrix.compiler }}"
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
@@ -674,7 +674,7 @@ jobs:
   build_cygwin:
     name: 'cygwin'
     runs-on: windows-2022
-    timeout-minutes: 30
+    timeout-minutes: 10
     defaults:
       run:
         shell: D:\cygwin\bin\bash.exe '{0}'  # zizmor: ignore[misfeature]
@@ -753,7 +753,7 @@ jobs:
   build_msys2:
     name: 'msys2'
     runs-on: windows-2022
-    timeout-minutes: 30
+    timeout-minutes: 10
     defaults:
       run:
         shell: msys2 {0}  # zizmor: ignore[misfeature]
@@ -873,7 +873,7 @@ jobs:
   build_msvc:
     name: 'msvc'
     runs-on: windows-2022
-    timeout-minutes: 30
+    timeout-minutes: 10
     defaults:
       run:
         shell: bash
@@ -944,7 +944,7 @@ jobs:
   build_macos:
     name: 'macOS (${{ matrix.build }}, ${{ matrix.crypto.name }})'
     runs-on: macos-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
     env:
       MATRIX_BUILD: '${{ matrix.build }}'
       MATRIX_INSTALL: '${{ matrix.crypto.install }}'
@@ -1043,7 +1043,7 @@ jobs:
   build_netbsd:
     name: 'NetBSD (cmake, openssl, clang)'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
@@ -1075,7 +1075,7 @@ jobs:
   build_openbsd:
     name: 'OpenBSD (cmake, libressl, clang)'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
@@ -1108,7 +1108,7 @@ jobs:
   build_freebsd:
     name: 'FreeBSD (autotools, openssl, clang)'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
     env:
       CC: clang
     strategy:
