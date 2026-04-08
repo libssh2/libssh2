@@ -50,6 +50,12 @@
 #endif
 #endif
 
+#ifdef LIBSSH2_TESTS
+#ifndef _DEFAULT_SOURCE
+#define _DEFAULT_SOURCE /* for popen(), pclose() in glibc */
+#endif
+#endif /* LIBSSH2_TESTS */
+
 #define LIBSSH2_LIBRARY
 
 /* platform/compiler-specific setup */
