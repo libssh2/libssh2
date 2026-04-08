@@ -340,9 +340,6 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
 
           case "$CFLAGS" in
             *-std=c89*|*-std=c90*|*-std=gnu89*|*-std=gnu90*)
-              if test "$compiler_num" -ge "300"; then
-                tmp_CFLAGS="$tmp_CFLAGS -Wno-c99-extensions"  # Avoid: warning: '_Bool' is a C99 extension
-              fi
               if test "$compiler_num" -ge "309"; then
                 tmp_CFLAGS="$tmp_CFLAGS -Wno-comma"  # Just silly
               fi
