@@ -524,7 +524,7 @@ jobs:
               cflags+=' -m32'
             fi
             [ "${MATRIX_COMPILER}" = 'clang-tidy' ] && options+=' -DLIBSSH2_CLANG_TIDY=ON'
-            if [[ "${MATRIX_CRYPTO}" =~ ^(OpenSSL|mbedTLS|wolfSSL)$ && "${MATRIX_COMPILER}" != 'clang-tidy' && "${MATRIX_ZLIB}" = 'ON' ]]; then
+            if [[ "${MATRIX_CRYPTO}" =~ ^(OpenSSL|Libgcrypt|mbedTLS|wolfSSL)$ && "${MATRIX_COMPILER}" != 'clang-tidy' && "${MATRIX_ZLIB}" = 'ON' ]]; then
               options+=' -DCMAKE_C_STANDARD=90'
               cflags+=' -D_DEFAULT_SOURCE'  # for tests and examples
             fi
@@ -535,14 +535,9 @@ jobs:
               -DCRYPTO_BACKEND=${crypto} \
               -DENABLE_ZLIB_COMPRESSION="${MATRIX_ZLIB}"
           else
-            export CFLAGS
             if [ "${MATRIX_ARCH}" = 'i386' ]; then
               options='--host=i686-pc-linux-gnu'
-              CFLAGS+=' -m32'
-            fi
-            if [[ "${MATRIX_CRYPTO}" =~ ^(Libgcrypt)$ && "${MATRIX_COMPILER}" != 'clang-tidy' && "${MATRIX_ZLIB}" = 'ON' ]]; then
-              CFLAGS+=' -std=c89'
-              CFLAGS+=' -D_DEFAULT_SOURCE'  # for tests and examples
+              export CFLAGS=-m32
             fi
             mkdir bld && cd bld
             if [ "${MATRIX_ZLIB}" = 'OFF' ]; then
