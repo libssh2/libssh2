@@ -519,10 +519,17 @@ jobs:
               crypto="${MATRIX_CRYPTO}"
             fi
             [ -d "$HOME"/usr ] && options+=" -DCMAKE_PREFIX_PATH=$HOME/usr"
-            [ "${MATRIX_ARCH}" = 'i386' ] && options+=" -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${MATRIX_ARCH} -DCMAKE_C_FLAGS=-m32"
+            if [ "${MATRIX_ARCH}" = 'i386' ]; then
+              options+=" -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${MATRIX_ARCH}"
+              cflags+=' -m32'
+            fi
             [ "${MATRIX_COMPILER}" = 'clang-tidy' ] && options+=' -DLIBSSH2_CLANG_TIDY=ON'
-            [[ "${MATRIX_CRYPTO}" =~ ^(OpenSSL|Libgcrypt|mbedTLS|wolfSSL)$ && "${MATRIX_COMPILER}" != 'clang-tidy' && "${MATRIX_ZLIB}" = 'ON' ]] && options+=' -DCMAKE_C_STANDARD=90'
+            if [[ "${MATRIX_CRYPTO}" =~ ^(OpenSSL|Libgcrypt|mbedTLS|wolfSSL)$ && "${MATRIX_COMPILER}" != 'clang-tidy' && "${MATRIX_ZLIB}" = 'ON' ]]; then
+              options+=' -DCMAKE_C_STANDARD=90'
+              cflags+=' -D_DEFAULT_SOURCE'  # for glibc ISO mode, in tests: popen(), pclose(), in examples: fileno(), tcsetattr()
+            fi
             cmake -B bld -G Ninja ${options} $TOOLCHAIN_OPTION \
+              -DCMAKE_C_FLAGS="${cflags}" \
               -DCMAKE_UNITY_BUILD=ON \
               -DENABLE_WERROR=ON \
               -DCRYPTO_BACKEND=${crypto} \
