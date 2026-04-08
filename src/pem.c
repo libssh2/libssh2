@@ -39,9 +39,6 @@
  */
 
 #include "libssh2_priv.h"
-#ifdef LIBSSH2_WINCNG
-#include "wincng.h"  /* for MD5 functions */
-#endif
 
 static int
 readline(char *line, int line_size, FILE * fp)
