@@ -8,6 +8,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#define LIBSSH2_DISABLE_DEPRECATION  /* FIXME */
+
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
@@ -224,7 +226,6 @@ int main(int argc, char *argv[])
         return 1;
     }
     else {
-#if 0
         LIBSSH2_POLLFD *fds = NULL;
         int running = 1;
         char buffer[32000];
@@ -357,7 +358,6 @@ int main(int argc, char *argv[])
                     (unsigned long)totwritten, (unsigned long)totread);
             return 1;
         }
-#endif
     }
 
 shutdown:

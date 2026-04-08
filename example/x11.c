@@ -7,6 +7,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#define LIBSSH2_DISABLE_DEPRECATION  /* FIXME */
+
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
@@ -195,7 +197,6 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
  */
 static int x11_send_receive(LIBSSH2_CHANNEL *channel, libssh2_socket_t sock)
 {
-#if 0
     char *buf;
     unsigned int bufsize = 8192;
     int rc;
@@ -261,10 +262,6 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, libssh2_socket_t sock)
     if(libssh2_channel_eof(channel) == 1) {
         return -1;
     }
-#else
-    (void)channel;
-    (void)sock;
-#endif
     return 0;
 }
 
@@ -284,10 +281,9 @@ int main(int argc, char *argv[])
     size_t bufsiz = 8193;
     char *buf = NULL;
     int set_debug_on = 0;
-#if 0
+
     unsigned int nfds = 1;
     LIBSSH2_POLLFD *fds = NULL;
-#endif
 
     /* Chan List struct */
     struct chan_X11_list *current_node = NULL;
@@ -431,7 +427,6 @@ int main(int argc, char *argv[])
         if(!buf)
             break;
 
-#if 0
         fds = malloc(sizeof(LIBSSH2_POLLFD));
         if(!fds) {
             free(buf);
@@ -449,7 +444,6 @@ int main(int argc, char *argv[])
             fprintf(stdout, "%s", buf);
             fflush(stdout);
         }
-#endif
 
         /* Looping on X clients */
         if(gp_x11_chan) {
@@ -481,9 +475,7 @@ int main(int argc, char *argv[])
                 libssh2_channel_write(channel, buf, sizeof(buf));
         }
 
-#if 0
         free(fds);
-#endif
         free(buf);
 
         if(libssh2_channel_eof(channel) == 1) {
