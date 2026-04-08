@@ -7,12 +7,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#define LIBSSH2_DISABLE_DEPRECATION  /* FIXME */
+
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
 #include <stdio.h>
 
-#ifdef HAVE_SYS_UN_H
+#if defined(HAVE_SYS_UN_H) && !defined(LIBSSH2_NO_DEPRECATED)
 
 #ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
@@ -279,6 +281,7 @@ int main(int argc, char *argv[])
     size_t bufsiz = 8193;
     char *buf = NULL;
     int set_debug_on = 0;
+
     unsigned int nfds = 1;
     LIBSSH2_POLLFD *fds = NULL;
 
@@ -510,8 +513,9 @@ shutdown:
 
 int main(void)
 {
-    fprintf(stderr, "Sorry, this platform is not supported.");
+    fprintf(stderr, "Sorry, this platform is not supported, "
+            "or required deprecated libssh2 API not built in.");
     return 1;
 }
 
-#endif /* HAVE_SYS_UN_H */
+#endif /* HAVE_SYS_UN_H && !LIBSSH2_NO_DEPRECATED */

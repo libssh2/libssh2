@@ -1599,6 +1599,7 @@ poll_listener_queued(LIBSSH2_LISTENER * listener)
     return _libssh2_list_first(&listener->queue) ? 1 : 0;
 }
 
+#ifndef LIBSSH2_NO_DEPRECATED
 /*
  * libssh2_poll
  *
@@ -1620,7 +1621,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
         /* systems without alloca use a fixed-size array, this can be fixed if
            we really want to, at least if the compiler is a C99 capable one */
         return -1;
-#endif
+#endif /* HAVE_ALLOCA */
     /* Setup sockets for polling */
     for(i = 0; i < nfds; i++) {
         fds[i].revents = 0;
@@ -1729,13 +1730,9 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
             return -1;
         }
     }
-#else
-    /* No select() or poll()
-     * no sockets structure to setup
-     */
-
-    timeout = 0;
-#endif /* HAVE_POLL or HAVE_SELECT */
+#else /* !HAVE_POLL && !HAVE_SELECT */
+    timeout = 0;  /* no sockets structure to setup */
+#endif /* HAVE_POLL || HAVE_SELECT */
 
     timeout_remaining = timeout;
     do {
@@ -1932,12 +1929,13 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
                 }
             }
         }
-#endif /* else no select() or poll() -- timeout (and by extension
+#endif /* !HAVE_POLL && !HAVE_SELECT -- timeout (and by extension
         * timeout_remaining) will be equal to 0 */
     } while((timeout_remaining > 0) && !active_fds);
 
     return active_fds;
 }
+#endif /* LIBSSH2_NO_DEPRECATED */
 
 /*
  * libssh2_session_block_directions
