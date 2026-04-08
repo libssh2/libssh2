@@ -195,6 +195,7 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
  */
 static int x11_send_receive(LIBSSH2_CHANNEL *channel, libssh2_socket_t sock)
 {
+#if 0
     char *buf;
     unsigned int bufsize = 8192;
     int rc;
@@ -260,6 +261,10 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, libssh2_socket_t sock)
     if(libssh2_channel_eof(channel) == 1) {
         return -1;
     }
+#else
+    (void)channel;
+    (void)sock;
+#endif
     return 0;
 }
 

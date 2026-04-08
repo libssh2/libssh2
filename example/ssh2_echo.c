@@ -227,6 +227,7 @@ int main(int argc, char *argv[])
         return 1;
     }
     else {
+#if 0
         LIBSSH2_POLLFD *fds = NULL;
         int running = 1;
         size_t bufsize = BUFSIZE;
@@ -358,6 +359,7 @@ int main(int argc, char *argv[])
                     (unsigned long)totwritten, (unsigned long)totread);
             return 1;
         }
+#endif
     }
 
 shutdown:
