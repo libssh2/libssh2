@@ -8,6 +8,10 @@ EXTRA_DIST = CMakeLists.txt
 include Makefile.inc
 
 AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/src -I$(top_srcdir)/include
+
+# for fileno(), tcsetattr() in glibc ISO mode
+AM_CPPFLAGS += -D_DEFAULT_SOURCE
+
 LDADD = $(top_builddir)/src/libssh2.la
 
 # This might hold -Werror
