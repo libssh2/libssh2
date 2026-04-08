@@ -124,8 +124,8 @@ reward and we do not consider them security problems.
 
 ## NULL dereferences and crashes
 
-If a malicious server can trigger a NULL dereference in curl or otherwise
-cause curl to crash (and nothing worse), chances are big that we do not
+If a malicious server can trigger a NULL dereference in libssh2 or otherwise
+cause libssh2 to crash (and nothing worse), chances are big that we do not
 consider that a security problem.
 
 Malicious servers can already cause considerable harm and denial of service
