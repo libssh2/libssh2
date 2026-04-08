@@ -289,6 +289,13 @@ if(CMAKE_C_COMPILER_ID STREQUAL "Clang" AND MSVC)
   endforeach()
 endif()
 
+if(CMAKE_C_STANDARD STREQUAL 90)
+  if((CMAKE_C_COMPILER_ID STREQUAL "Clang"      AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 3.9) OR
+     (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 8.1))
+    list(APPEND _picky "-Wno-comma")  # Just silly
+  endif()
+endif()
+
 if(_picky_nocheck OR _picky)
   set(_picky_tmp "${_picky_nocheck}" "${_picky}")
   string(REPLACE ";" " " _picky_tmp "${_picky_tmp}")
