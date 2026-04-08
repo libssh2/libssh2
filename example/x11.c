@@ -7,12 +7,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#define LIBSSH2_DISABLE_DEPRECATION  /* FIXME */
+
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
 #include <stdio.h>
 
-#if defined(HAVE_SYS_UN_H) && !defined(LIBSSH2_NO_DEPRECATED)  /* FIXME */
+#if defined(HAVE_SYS_UN_H) && !defined(LIBSSH2_NO_DEPRECATED)
 
 #ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
