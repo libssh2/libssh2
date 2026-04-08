@@ -40,7 +40,7 @@
 
 #include "libssh2_priv.h"
 #ifdef LIBSSH2_WINCNG
-#include "wincng.h"     // get MD5 functions
+#include "wincng.h"  /* for MD5 functions */
 #endif
 
 static int
@@ -83,7 +83,7 @@ readline_memory(char *line, size_t line_size,
 
     for(len = 0; off + len < filedata_len && len < line_size - 1; len++) {
         if(filedata[off + len] == '\n' ||
-            filedata[off + len] == '\r') {
+           filedata[off + len] == '\r') {
                 break;
         }
     }
@@ -127,14 +127,14 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
     filedata = LIBSSH2_ALLOC(session, filedata_len);
     if(!filedata) {
         _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-            "Unable to allocate memory for PEM parsing");
+                       "Unable to allocate memory for PEM parsing");
         ret = -1;
         goto out;
     }
 
     if(fread(filedata, 1, filedata_len, fp) != filedata_len) {
         _libssh2_error(session, LIBSSH2_ERROR_FILE,
-            "Bad read in PEM parsing");
+                       "Bad read in PEM parsing");
         ret = -1;
         goto out;
     }
@@ -206,7 +206,7 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
         /* None of the available crypt methods were able to decrypt the key */
         if(!method) {
             _libssh2_error(session, LIBSSH2_ERROR_ALGO_UNSUPPORTED,
-                "Unable to decrypt PEM, unsupported algorithm");
+                           "Unable to decrypt PEM, unsupported algorithm");
             ret = -1;
             goto out;
         }
@@ -374,7 +374,7 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
         method->dtor(session, &abstract);
 #else
         _libssh2_error(session, LIBSSH2_ERROR_ALGO_UNSUPPORTED,
-            "Unable to decrypt PEM, MD5 not enabled");
+                       "Unable to decrypt PEM, MD5 not enabled");
         ret = -1;
         goto out;
 #endif
