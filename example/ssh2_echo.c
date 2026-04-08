@@ -390,8 +390,8 @@ shutdown:
 
 int main(void)
 {
-  printf("Required deprecated libssh2 API not built in.\n");
-  return 1;
+    printf("Required deprecated libssh2 API not built in.\n");
+    return 1;
 }
 
 #endif /* !LIBSSH2_NO_DEPRECATED */
