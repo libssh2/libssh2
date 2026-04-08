@@ -1336,25 +1336,38 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_ed25519_cert = {
 
 #endif /* LIBSSH2_ED25519 */
 
+/*
+ * hostkey_methods
+ *
+ * Host Key order matches OpenSSH for compatibility
+ */
 static const LIBSSH2_HOSTKEY_METHOD *hostkey_methods[] = {
 #if LIBSSH2_ED25519
-    &hostkey_method_ssh_ed25519,
     &hostkey_method_ssh_ed25519_cert,
 #endif
 #if LIBSSH2_ECDSA
-    &hostkey_method_ecdsa_ssh_nistp256,
-    &hostkey_method_ecdsa_ssh_nistp384,
-    &hostkey_method_ecdsa_ssh_nistp521,
     &hostkey_method_ecdsa_ssh_nistp256_cert,
     &hostkey_method_ecdsa_ssh_nistp384_cert,
     &hostkey_method_ecdsa_ssh_nistp521_cert,
 #endif
 #if LIBSSH2_RSA
 #if LIBSSH2_RSA_SHA2
-    &hostkey_method_ssh_rsa_sha2_512,
-    &hostkey_method_ssh_rsa_sha2_256,
     &hostkey_method_ssh_rsa_sha2_512_cert,
     &hostkey_method_ssh_rsa_sha2_256_cert,
+#endif
+#endif
+#if LIBSSH2_ED25519
+    &hostkey_method_ssh_ed25519,
+#endif
+#if LIBSSH2_ECDSA
+    &hostkey_method_ecdsa_ssh_nistp256,
+    &hostkey_method_ecdsa_ssh_nistp384,
+    &hostkey_method_ecdsa_ssh_nistp521,
+#endif
+#if LIBSSH2_RSA
+#if LIBSSH2_RSA_SHA2
+    &hostkey_method_ssh_rsa_sha2_512,
+    &hostkey_method_ssh_rsa_sha2_256,
 #endif /* LIBSSH2_RSA_SHA2 */
 #if LIBSSH2_RSA_SHA1
     &hostkey_method_ssh_rsa,
