@@ -299,14 +299,22 @@ jobs:
       MATRIX_CRYPTO: '${{ matrix.crypto }}'
       MATRIX_ZLIB: '${{ matrix.zlib }}'
       FIXTURE_TRACE_ALL_CONNECT: 0
-      MBEDTLS_VERSION: 3.6.5
-      WOLFSSL_VERSION: 5.8.2
+      MBEDTLS_VERSION: 3.6.6
+      MBEDTLS_SHA256: 8fb65fae8dcae5840f793c0a334860a411f884cc537ea290ce1c52bb64ca007a
+      WOLFSSL_VERSION: 5.9.0
+      WOLFSSL_SHA256: 6efc62b86f145a5c52bfd62294ca66c20ce85b54e9033f5d7e0ee73eb30306c1
       WOLFSSL_VERSION_PREV: 5.5.4
+      WOLFSSL_SHA256_PREV: b7ee150e49def77c765bc02aac92ddeb0bebefd4cb12aa263d8f95e405221fb8
       BORINGSSL_VERSION: 0.20251002.0
-      AWSLC_VERSION: 1.61.4
-      LIBRESSL_VERSION: 4.2.0
-      OPENSSL_VERSION: 3.6.0
+      BORINGSSL_SHA256: f96733fc3df03d4195db656d1b7b8c174c33f95d052f811f0ecc8f4e4e3db332
+      AWSLC_VERSION: 1.69.0
+      AWSLC_SHA256: cdaa8dcd5f4ead8c82646fabef3c811381c4c7906de4489415e3fdf2558922f8
+      LIBRESSL_VERSION: 4.2.1
+      LIBRESSL_SHA256: 6d5c2f58583588ea791f4c8645004071d00dfa554a5bf788a006ca1eb5abd70b
+      OPENSSL_VERSION: 3.6.2
+      OPENSSL_SHA256: aaf51a1fe064384f811daeaeb4ec4dce7340ec8bd893027eee676af31e83a04f
       OPENSSL111_VERSION: 1.1.1w
+      OPENSSL111_SHA256: cf3098950cb4d853ad95c0841f1f9c6d3dc102dccfcacd521d93925208b76ac8
     steps:
       - name: 'install architecture'
         if: ${{ matrix.arch != 'amd64' }}
@@ -337,7 +345,9 @@ jobs:
       - name: 'install mbedTLS from source'
         if: ${{ matrix.crypto == 'mbedTLS-from-source' && !steps.cache-mbedtls.outputs.cache-hit }}
         run: |
-          curl -fsS -L "https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-${MBEDTLS_VERSION}/mbedtls-${MBEDTLS_VERSION}.tar.bz2" | tar -xj
+          curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
+            --location "https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-${MBEDTLS_VERSION}/mbedtls-${MBEDTLS_VERSION}.tar.bz2" --output pkg.bin
+          sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${MBEDTLS_SHA256}" && tar -xjf pkg.bin && rm -f pkg.bin
           cd "mbedtls-${MBEDTLS_VERSION}"
           if [ "${MATRIX_ARCH}" = 'i386' ]; then
             options="-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${MATRIX_ARCH}"
@@ -356,14 +366,15 @@ jobs:
       - name: 'install wolfSSL from source'
         if: ${{ startsWith(matrix.crypto, 'wolfSSL-from-source') }}
         run: |
-          if [ "${MATRIX_CRYPTO}" = 'wolfSSL-from-source' ]; then
-            WOLFSSLVER="${WOLFSSL_VERSION}"
-          else
-            WOLFSSLVER="${WOLFSSL_VERSION_PREV}"
+          if [ "${MATRIX_CRYPTO}" != 'wolfSSL-from-source' ]; then
+            WOLFSSL_VERSION="${WOLFSSL_VERSION_PREV}"
+            WOLFSSL_SHA256="${WOLFSSL_SHA256_PREV}"
             options='-DWOLFSSL_OPENSSLEXTRA=ON'
           fi
-          curl -fsS -L https://github.com/wolfSSL/wolfssl/archive/refs/tags/v$WOLFSSLVER-stable.tar.gz | tar -xz
-          cd wolfssl-$WOLFSSLVER-stable
+          curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
+            --location "https://github.com/wolfSSL/wolfssl/archive/v${WOLFSSL_VERSION}-stable.tar.gz" --output pkg.bin
+          sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${WOLFSSL_SHA256}" && tar -xzf pkg.bin && rm -f pkg.bin
+          cd "wolfssl-${WOLFSSL_VERSION}-stable"
           cmake -B bld -G Ninja ${options} \
             -DWOLFSSL_LIBSSH2=ON \
             -DBUILD_SELFTEST=OFF \
@@ -388,9 +399,10 @@ jobs:
       - name: 'install BoringSSL from source'
         if: ${{ matrix.crypto == 'BoringSSL' && !steps.cache-boringssl.outputs.cache-hit }}
         run: |
-          mkdir boringssl
-          cd boringssl
-          curl -fsS "https://boringssl.googlesource.com/boringssl/+archive/${BORINGSSL_VERSION}.tar.gz" | tar -xz
+          curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
+            --location "https://github.com/google/boringssl/releases/download/${BORINGSSL_VERSION}/boringssl-${BORINGSSL_VERSION}.tar.gz" --output pkg.bin
+          sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${BORINGSSL_SHA256}" && tar -xzf pkg.bin && rm -f pkg.bin
+          cd "boringssl-${BORINGSSL_VERSION}"
           cmake -B . -G Ninja \
             -DBUILD_TESTING=OFF \
             -DOPENSSL_SMALL=ON \
@@ -410,9 +422,11 @@ jobs:
       - name: 'install AWS-LC from source'
         if: ${{ matrix.crypto == 'AWS-LC' && !steps.cache-aws-lc.outputs.cache-hit }}
         run: |
-          curl -fsS -L "https://github.com/aws/aws-lc/archive/refs/tags/v${AWSLC_VERSION}.tar.gz" | tar -xz
+          curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
+            --location "https://github.com/awslabs/aws-lc/archive/refs/tags/v${AWSLC_VERSION}.tar.gz" --output pkg.bin
+          sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${AWSLC_SHA256}" && tar -xzf pkg.bin && rm -f pkg.bin
           cd "aws-lc-${AWSLC_VERSION}"
-          cmake -B . -G Ninja -DCMAKE_INSTALL_PREFIX="$HOME"/usr
+          cmake -B . -G Ninja -DCMAKE_INSTALL_PREFIX="$HOME"/usr -DBUILD_TOOL=OFF -DBUILD_TESTING=OFF
           cmake --build .
           cmake --install .
 
@@ -427,7 +441,9 @@ jobs:
       - name: 'install LibreSSL from source'
         if: ${{ matrix.crypto == 'LibreSSL' && !steps.cache-libressl.outputs.cache-hit }}
         run: |
-          curl -fsS -L "https://github.com/libressl/portable/releases/download/v${LIBRESSL_VERSION}/libressl-${LIBRESSL_VERSION}.tar.gz" | tar -xz
+          curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
+            --location "https://github.com/libressl/portable/releases/download/v${LIBRESSL_VERSION}/libressl-${LIBRESSL_VERSION}.tar.gz" --output pkg.bin
+          sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${LIBRESSL_SHA256}" && tar -xzf pkg.bin && rm -f pkg.bin
           cd "libressl-${LIBRESSL_VERSION}"
           cmake -B . -G Ninja \
             -DLIBRESSL_APPS=OFF \
@@ -447,7 +463,9 @@ jobs:
       - name: 'install OpenSSL from source'
         if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' && !steps.cache-openssl.outputs.cache-hit }}
         run: |
-          curl -fsS -L "https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz" | tar -xz
+          curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
+            --location "https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz" --output pkg.bin
+          sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${OPENSSL_SHA256}" && tar -xzf pkg.bin && rm -f pkg.bin
           cd "openssl-${OPENSSL_VERSION}"
           ./Configure no-deprecated \
             no-apps no-docs no-tests no-makedepend \
@@ -465,7 +483,9 @@ jobs:
       - name: 'install OpenSSL 1.1.1 from source'
         if: ${{ matrix.crypto == 'OpenSSL-111-from-source' && !steps.cache-openssl111.outputs.cache-hit }}
         run: |
-          curl -fsS -L "https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-${OPENSSL111_VERSION}.tar.gz" | tar -xz
+          curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
+            --location "https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-${OPENSSL111_VERSION}.tar.gz" --output pkg.bin
+          sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${OPENSSL111_SHA256}" && tar -xzf pkg.bin && rm -f pkg.bin
           cd "openssl-${OPENSSL111_VERSION}"
           ./config no-unit-test no-makedepend --prefix="$HOME"/usr no-tests
           make
