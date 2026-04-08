@@ -52,7 +52,7 @@
 
 #ifdef LIBSSH2_TESTS
 #ifndef _DEFAULT_SOURCE
-#define _DEFAULT_SOURCE /* for popen(), pclose() in glibc ISO mode */
+#define _DEFAULT_SOURCE  /* for popen(), pclose() in glibc ISO mode */
 #endif
 #endif /* LIBSSH2_TESTS */
 
