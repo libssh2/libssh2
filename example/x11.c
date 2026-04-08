@@ -285,7 +285,9 @@ int main(int argc, char *argv[])
     char *buf = NULL;
     int set_debug_on = 0;
     unsigned int nfds = 1;
+#if 0
     LIBSSH2_POLLFD *fds = NULL;
+#endif
 
     /* Chan List struct */
     struct chan_X11_list *current_node = NULL;
@@ -429,6 +431,7 @@ int main(int argc, char *argv[])
         if(!buf)
             break;
 
+#if 0
         fds = malloc(sizeof(LIBSSH2_POLLFD));
         if(!fds) {
             free(buf);
@@ -446,6 +449,7 @@ int main(int argc, char *argv[])
             fprintf(stdout, "%s", buf);
             fflush(stdout);
         }
+#endif
 
         /* Looping on X clients */
         if(gp_x11_chan) {
@@ -477,7 +481,9 @@ int main(int argc, char *argv[])
                 libssh2_channel_write(channel, buf, sizeof(buf));
         }
 
+#if 0
         free(fds);
+#endif
         free(buf);
 
         if(libssh2_channel_eof(channel) == 1) {
