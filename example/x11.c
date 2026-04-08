@@ -7,10 +7,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef _DEFAULT_SOURCE
-#define _DEFAULT_SOURCE /* for fileno(), tcsetattr() in glibc */
-#endif
-
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
