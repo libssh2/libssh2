@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+# for files created by the libssh2 build process
 .deps
 .libs
 *-*-*
@@ -49,4 +50,3 @@ tags
 TAGS
 tap-driver.sh
 test-driver
-.DS_Store

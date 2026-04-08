@@ -58,12 +58,12 @@ dnl result in a set of double-quoted strings the returned expansion will
 dnl actually be a single double-quoted string concatenating all them.
 
 AC_DEFUN([CURL_CHECK_DEF], [
-  AC_REQUIRE([CURL_CPP_P])dnl
+  AC_REQUIRE([CURL_CPP_P])
   OLDCPPFLAGS=$CPPFLAGS
   # CPPPFLAG comes from CURL_CPP_P
   CPPFLAGS="$CPPFLAGS $CPPPFLAG"
-  AS_VAR_PUSHDEF([ac_HaveDef], [curl_cv_have_def_$1])dnl
-  AS_VAR_PUSHDEF([ac_Def], [curl_cv_def_$1])dnl
+  AS_VAR_PUSHDEF([ac_HaveDef], [curl_cv_have_def_$1])
+  AS_VAR_PUSHDEF([ac_Def], [curl_cv_def_$1])
   if test -z "$SED"; then
     AC_MSG_ERROR([SED not set. Cannot continue without SED being set.])
   fi
@@ -96,8 +96,8 @@ CURL_DEF_TOKEN $1
     AS_VAR_SET(ac_Def, $tmp_exp)
     ifelse($3,,[AC_MSG_RESULT([$tmp_exp])])
   fi
-  AS_VAR_POPDEF([ac_Def])dnl
-  AS_VAR_POPDEF([ac_HaveDef])dnl
+  AS_VAR_POPDEF([ac_Def])
+  AS_VAR_POPDEF([ac_HaveDef])
   CPPFLAGS=$OLDCPPFLAGS
 ])
 
@@ -106,7 +106,7 @@ dnl -------------------------------------------------
 dnl Verify if compiler being used is clang.
 
 AC_DEFUN([CURL_CHECK_COMPILER_CLANG], [
-  AC_BEFORE([$0],[CURL_CHECK_COMPILER_GNU_C])dnl
+  AC_BEFORE([$0],[CURL_CHECK_COMPILER_GNU_C])
   AC_MSG_CHECKING([if compiler is clang])
   CURL_CHECK_DEF([__clang__], [], [silent])
   if test "$curl_cv_have_def___clang__" = "yes"; then
@@ -238,12 +238,12 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [cast-align])
           tmp_CFLAGS="$tmp_CFLAGS -Wno-system-headers"
           CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [shorten-64-to-32])
-          #
+
           dnl Only clang 1.1 or later
           if test "$compiler_num" -ge "101"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [unused])
           fi
-          #
+
           dnl Only clang 2.7 or later
           if test "$compiler_num" -ge "207"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [address])
@@ -263,13 +263,13 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
             fi
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [unreachable-code unused-parameter])
           fi
-          #
+
           dnl Only clang 2.8 or later
           if test "$compiler_num" -ge "208"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [ignored-qualifiers])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [vla])
           fi
-          #
+
           dnl Only clang 2.9 or later
           if test "$compiler_num" -ge "209"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [sign-conversion])
@@ -277,14 +277,14 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [shift-sign-overflow])
           # CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [padded])  # Not used because we cannot change public structs
           fi
-          #
+
           dnl Only clang 3.0 or later
           if test "$compiler_num" -ge "300"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [cast-qual])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [language-extension-token])
             tmp_CFLAGS="$tmp_CFLAGS -Wformat=2"
           fi
-          #
+
           dnl Only clang 3.2 or later
           if test "$compiler_num" -ge "302"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [enum-conversion])
@@ -299,24 +299,24 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
                 ;;
             esac
           fi
-          #
+
           dnl Only clang 3.4 or later
           if test "$compiler_num" -ge "304"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [header-guard])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [unused-const-variable])
           fi
-          #
+
           dnl Only clang 3.5 or later
           if test "$compiler_num" -ge "305"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [pragmas])
           # CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [unreachable-code-break])  # Not used: Silent in "unity" builds
           fi
-          #
+
           dnl Only clang 3.6 or later
           if test "$compiler_num" -ge "306"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [double-promotion])
           fi
-          #
+
           dnl Only clang 3.9 or later
           if test "$compiler_num" -ge "309"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [comma])
@@ -393,20 +393,20 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [all])
           tmp_CFLAGS="$tmp_CFLAGS -W"
           CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [pointer-arith write-strings])
-          #
+
           dnl Only gcc 2.7 or later
           if test "$compiler_num" -ge "207"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [inline nested-externs])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [missing-declarations])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [missing-prototypes])
           fi
-          #
+
           dnl Only gcc 2.95 or later
           if test "$compiler_num" -ge "295"; then
             tmp_CFLAGS="$tmp_CFLAGS -Wno-long-long"
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [bad-function-cast])
           fi
-          #
+
           dnl Only gcc 2.96 or later
           if test "$compiler_num" -ge "296"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [float-equal])
@@ -417,7 +417,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
             dnl headers with gcc 2.95.4 on FreeBSD 4.9
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [undef])
           fi
-          #
+
           dnl Only gcc 3.0 or later
           if test "$compiler_num" -ge "300"; then
             tmp_CFLAGS="$tmp_CFLAGS -Wno-system-headers"
@@ -427,24 +427,24 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
             dnl over making it unusable for generic purposes. Let's not use it.
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [unused shadow])
           fi
-          #
+
           dnl Only gcc 3.3 or later
           if test "$compiler_num" -ge "303"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [endif-labels strict-prototypes])
           fi
-          #
+
           dnl Only gcc 3.4 or later
           if test "$compiler_num" -ge "304"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [declaration-after-statement])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [old-style-definition])
           fi
-          #
+
           dnl Only gcc 4.0 or later
           if test "$compiler_num" -ge "400"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [cast-qual])
             tmp_CFLAGS="$tmp_CFLAGS -Wstrict-aliasing=3"
           fi
-          #
+
           dnl Only gcc 4.1 or later (possibly earlier)
           if test "$compiler_num" -ge "401"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [attributes])
@@ -458,12 +458,12 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           # CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [switch-enum])      # Not used because this basically disallows default case
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [unused-macros])
           fi
-          #
+
           dnl Only gcc 4.2 or later
           if test "$compiler_num" -ge "402"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [cast-align])
           fi
-          #
+
           dnl Only gcc 4.3 or later
           if test "$compiler_num" -ge "403"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [address])
@@ -477,7 +477,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
             dnl required for -Warray-bounds, included in -Wall
             tmp_CFLAGS="$tmp_CFLAGS -ftree-vrp"
           fi
-          #
+
           dnl Only gcc 4.5 or later
           if test "$compiler_num" -ge "405"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [jump-misses-init])
@@ -488,23 +488,23 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
                 ;;
             esac
           fi
-          #
+
           dnl Only gcc 4.6 or later
           if test "$compiler_num" -ge "406"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [double-promotion])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [trampolines])
           fi
-          #
+
           dnl only gcc 4.8 or later
           if test "$compiler_num" -ge "408"; then
             tmp_CFLAGS="$tmp_CFLAGS -Wformat=2"
           fi
-          #
+
           dnl Only gcc 5 or later
           if test "$compiler_num" -ge "500"; then
             tmp_CFLAGS="$tmp_CFLAGS -Warray-bounds=2"
           fi
-          #
+
           dnl Only gcc 6 or later
           if test "$compiler_num" -ge "600"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [shift-negative-value])
@@ -514,7 +514,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [duplicated-cond])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [unused-const-variable])
           fi
-          #
+
           dnl Only gcc 7 or later
           if test "$compiler_num" -ge "700"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [duplicated-branches])
@@ -524,24 +524,23 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
             tmp_CFLAGS="$tmp_CFLAGS -Wformat-truncation=2"
             tmp_CFLAGS="$tmp_CFLAGS -Wimplicit-fallthrough"
           fi
-          #
+
           dnl Only gcc 10 or later
           if test "$compiler_num" -ge "1000"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [arith-conversion])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [enum-conversion])
           fi
-          #
+
           dnl Only gcc 12 or later
           if test "$compiler_num" -ge "1200"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [array-compare])
           fi
-          #
+
           dnl Only gcc 13 or later
           if test "$compiler_num" -ge "1300"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [enum-int-mismatch])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [xor-used-as-pow])
           fi
-          #
 
           for flag in $CPPFLAGS; do
             case "$flag" in
@@ -591,7 +590,7 @@ dnl Add each compiler warning from NEW-WARNINGS that has not
 dnl been disabled via CFLAGS to WARNING-LIST.
 
 AC_DEFUN([CURL_ADD_COMPILER_WARNINGS], [
-  AC_REQUIRE([CURL_SHFUNC_SQUEEZE])dnl
+  AC_REQUIRE([CURL_SHFUNC_SQUEEZE])
   ac_var_added_warnings=""
   for warning in [$2]; do
     CURL_VAR_MATCH(CFLAGS, [-Wno-$warning -W$warning])
@@ -801,17 +800,17 @@ dnl that it is defined equally for further configure
 dnl tests and generated config file.
 
 AC_DEFUN([CURL_CONFIGURE_REENTRANT], [
-  AC_PREREQ([2.50])dnl
-  #
+  AC_PREREQ([2.50])
+
   AC_MSG_CHECKING([if _REENTRANT is already defined])
   AC_COMPILE_IFELSE([
     AC_LANG_PROGRAM([[
     ]],[[
-#ifdef _REENTRANT
-      int dummy=1;
-#else
-      force compilation error
-#endif
+      #ifdef _REENTRANT
+        int dummy=1;
+      #else
+        force compilation error
+      #endif
     ]])
   ],[
     AC_MSG_RESULT([yes])
@@ -820,7 +819,7 @@ AC_DEFUN([CURL_CONFIGURE_REENTRANT], [
     AC_MSG_RESULT([no])
     tmp_reentrant_initially_defined="no"
   ])
-  #
+
   if test "$tmp_reentrant_initially_defined" = "no"; then
     AC_MSG_CHECKING([if _REENTRANT is actually needed])
     CURL_CHECK_NEED_REENTRANT_SYSTEM
@@ -831,7 +830,7 @@ AC_DEFUN([CURL_CONFIGURE_REENTRANT], [
       AC_MSG_RESULT([no])
     fi
   fi
-  #
+
   AC_MSG_CHECKING([if _REENTRANT is onwards defined])
   if test "$tmp_reentrant_initially_defined" = "yes" ||
     test "$tmp_need_reentrant" = "yes"; then
@@ -840,7 +839,6 @@ AC_DEFUN([CURL_CONFIGURE_REENTRANT], [
   else
     AC_MSG_RESULT([no])
   fi
-  #
 ])
 
 dnl LIBSSH2_LIB_HAVE_LINKFLAGS
@@ -938,7 +936,7 @@ dnl --enable-werror or --disable-werror, and set
 dnl shell variable want_werror as appropriate.
 
 AC_DEFUN([LIBSSH2_CHECK_OPTION_WERROR], [
-  AC_BEFORE([$0],[LIBSSH2_CHECK_COMPILER])dnl
+  AC_BEFORE([$0],[LIBSSH2_CHECK_COMPILER])
   AC_MSG_CHECKING([whether to enable compiler warnings as errors])
   OPT_COMPILER_WERROR="default"
   AC_ARG_ENABLE(werror,
