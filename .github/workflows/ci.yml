@@ -368,6 +368,7 @@ jobs:
         run: |
           if [ "${MATRIX_CRYPTO}" != 'wolfSSL-from-source' ]; then
             WOLFSSL_VERSION="${WOLFSSL_VERSION_PREV}"
+            WOLFSSL_SHA256="${WOLFSSL_SHA256_PREV}"
             options='-DWOLFSSL_OPENSSLEXTRA=ON'
           fi
           curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
