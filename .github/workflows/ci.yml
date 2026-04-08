@@ -373,7 +373,7 @@ jobs:
           curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
             --location "https://github.com/wolfSSL/wolfssl/archive/v${WOLFSSL_VERSION}-stable.tar.gz" --output pkg.bin
           sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${WOLFSSL_SHA256}" && tar -xzf pkg.bin && rm -f pkg.bin
-          cd wolfssl-$WOLFSSLVER-stable
+          cd "wolfssl-${WOLFSSL_VERSION}-stable"
           cmake -B bld -G Ninja ${options} \
             -DWOLFSSL_LIBSSH2=ON \
             -DBUILD_SELFTEST=OFF \
