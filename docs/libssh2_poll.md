@@ -33,6 +33,10 @@ three types. The calling semantics for this function generally match
 to accommodate the disparate datatypes, POLLFD constants have been namespaced
 to avoid platform discrepancies, and revents has additional values defined.
 
+# AVAILABILITY
+
+Marked as deprecated since 1.2.0
+
 # RETURN VALUE
 
 Number of fds with interesting events.
