@@ -284,8 +284,8 @@ int main(int argc, char *argv[])
     size_t bufsiz = 8193;
     char *buf = NULL;
     int set_debug_on = 0;
-    unsigned int nfds = 1;
 #if 0
+    unsigned int nfds = 1;
     LIBSSH2_POLLFD *fds = NULL;
 #endif
 
