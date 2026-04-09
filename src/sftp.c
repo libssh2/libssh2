@@ -1004,7 +1004,14 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
            strncmp("posix-rename@openssh.com", (char *)extname, 24) == 0) {
             sftp_handle->posix_rename_version = extversion;
         }
-
+        else if(extname_len == 9 &&
+            strncmp("copy-data", (char *)extname, 9) == 0) {
+            sftp_handle->server_supports_copydata = extversion;
+        }
+        else if(extname_len == 9 &&
+            strncmp("copy-file", (char *)extname, 9) == 0) {
+            sftp_handle->server_supports_copyfile = extversion;
+        }
     }
     LIBSSH2_FREE(session, data);
 
@@ -4097,4 +4104,348 @@ libssh2_sftp_get_channel(LIBSSH2_SFTP *sftp)
         return NULL;
 
     return sftp->channel;
+}
+
+static int
+sftp_copydata(LIBSSH2_SFTP_HANDLE* source_handle,
+              const size_t source_offset, const size_t len,
+              LIBSSH2_SFTP_HANDLE* dest_handle,
+              const size_t dest_offset)
+{
+    LIBSSH2_SFTP* sftp = source_handle->sftp;
+    LIBSSH2_CHANNEL* channel = sftp->channel;
+    LIBSSH2_SESSION* session = channel->session;
+    uint32_t packet_len;
+    size_t data_len = 0;
+    unsigned char *packet, *s, *data = NULL;
+    ssize_t rc;
+    uint32_t retcode;
+
+    if(source_handle->sftp != dest_handle->sftp) {
+        return _libssh2_error(session, LIBSSH2_ERROR_BAD_USE,
+            "SFTP handles are not in the same SFT session "
+            "sftp_copydata");
+    }
+
+    /* 54 = packet_len(4) + packet_type(1) + request_id(4) +
+       string_len(4) + strlen("copy-data")(9) +
+       source_handle_len(4) + source_offset(8) + len(8) +
+       dest_handle_len(4) + dest_offset(8) */
+
+    packet_len = 54 + (uint32_t)source_handle->handle_len +
+        (uint32_t)dest_handle->handle_len;
+
+    if(sftp->copydata_state == libssh2_NB_state_idle) {
+        sftp->last_errno = LIBSSH2_FX_OK;
+        _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
+            "Issuing copy-data command"));
+        s = packet = LIBSSH2_ALLOC(session, packet_len);
+        if(!packet) {
+            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                "Unable to allocate memory for FXP_EXTENDED "
+                "packet");
+        }
+
+        _libssh2_store_u32(&s, packet_len - 4);
+        *(s++) = SSH_FXP_EXTENDED;
+        sftp->copydata_request_id = sftp->request_id++;
+        _libssh2_store_u32(&s, sftp->copydata_request_id);
+        _libssh2_store_str(&s, "copy-data", 9);
+        _libssh2_store_str(&s, source_handle->handle,
+            source_handle->handle_len);
+        _libssh2_store_u64(&s, source_offset);
+        _libssh2_store_u64(&s, len);
+        _libssh2_store_str(&s, dest_handle->handle,
+            dest_handle->handle_len);
+        _libssh2_store_u64(&s, dest_offset);
+
+        sftp->copydata_state = libssh2_NB_state_created;
+    }
+    else {
+        packet = sftp->copydata_packet;
+    }
+
+    if(sftp->copydata_state == libssh2_NB_state_created) {
+        rc = _libssh2_channel_write(channel, 0, packet, packet_len);
+
+        if(rc == LIBSSH2_ERROR_EAGAIN ||
+            (0 <= rc && rc < (ssize_t)packet_len)) {
+            sftp->copydata_packet = packet;
+            return LIBSSH2_ERROR_EAGAIN;
+        }
+
+        LIBSSH2_FREE(session, packet);
+        sftp->copydata_packet = NULL;
+
+        if(rc < 0) {
+            sftp->copydata_state = libssh2_NB_state_idle;
+            return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+                "_libssh2_channel_write() failed");
+        }
+        sftp->copydata_state = libssh2_NB_state_sent;
+    }
+
+    rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
+        sftp->copydata_request_id,
+        &data, &data_len, 9);
+    if(rc == LIBSSH2_ERROR_EAGAIN) {
+        return (int)rc;
+    }
+    else if(rc == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
+        if(data_len > 0) {
+            LIBSSH2_FREE(session, data);
+        }
+        return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+            "SFTP copy-data packet too short");
+    }
+    else if(rc) {
+        sftp->copydata_state = libssh2_NB_state_idle;
+        return (int)_libssh2_error(session, (int)rc,
+            "Error waiting for FXP EXTENDED REPLY");
+    }
+
+    sftp->copydata_state = libssh2_NB_state_idle;
+
+    retcode = _libssh2_ntohu32(data + 5);
+    LIBSSH2_FREE(session, data);
+
+    if(retcode != LIBSSH2_FX_OK) {
+        sftp->last_errno = retcode;
+        return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+            "copy-data failed");
+    }
+
+    return 0;
+}
+
+/* libssh2_sftp_copydata
+ * Copy data between to SFTP_HANDLES on server
+ */
+LIBSSH2_API int
+libssh2_sftp_copydata(LIBSSH2_SFTP_HANDLE *source_handle,
+                      const size_t source_offset,
+                      const size_t len,
+                      LIBSSH2_SFTP_HANDLE *dest_handle,
+                      const size_t dest_offset)
+{
+    int rc;
+    if(!source_handle || !dest_handle)
+        return LIBSSH2_ERROR_BAD_USE;
+
+    if(source_handle->sftp->server_supports_copydata) {
+        BLOCK_ADJUST(rc, source_handle->sftp->channel->session,
+            sftp_copydata(source_handle, source_offset, len,
+                dest_handle, dest_offset));
+
+    }
+    else {
+        source_handle->sftp->last_errno = LIBSSH2_FX_OP_UNSUPPORTED;
+        return _libssh2_error(source_handle->sftp->channel->session,
+            LIBSSH2_ERROR_SFTP_PROTOCOL,
+            "copy-data failed");
+    }
+
+    return rc;
+}
+
+static int
+sftp_copyfile_using_copydata(LIBSSH2_SFTP *sftp,
+                             const char *source_path,
+                             const size_t source_path_len,
+                             const char *dest_path,
+                             const size_t dest_path_len,
+                             int overwrite_flg)
+{
+    int rc;
+    LIBSSH2_SESSION *session = sftp->channel->session;
+    LIBSSH2_SFTP_HANDLE *sftp_source_handle;
+    LIBSSH2_SFTP_HANDLE *sftp_dest_handle;
+    long mode;
+
+    if((strlen(source_path) != source_path_len) ||
+        (strlen(dest_path) != dest_path_len)) {
+        return LIBSSH2_ERROR_BAD_USE;
+    }
+
+    sftp_source_handle = libssh2_sftp_open(sftp, source_path,
+        LIBSSH2_FXF_READ, 0);
+    if(!sftp_source_handle) {
+        return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+            "Error open source_path");
+    }
+
+    if(overwrite_flg) {
+        mode = LIBSSH2_FXF_WRITE | LIBSSH2_FXF_CREAT | LIBSSH2_FXF_TRUNC;
+    }
+    else {
+        mode = LIBSSH2_FXF_WRITE | LIBSSH2_FXF_CREAT;
+    }
+    sftp_dest_handle = libssh2_sftp_open(sftp, dest_path,
+        mode,
+        LIBSSH2_SFTP_S_IRUSR |
+        LIBSSH2_SFTP_S_IWUSR |
+        LIBSSH2_SFTP_S_IRGRP |
+        LIBSSH2_SFTP_S_IROTH);
+    if(!sftp_dest_handle) {
+        libssh2_sftp_close(sftp_source_handle);
+        return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+            "Error open dest_path");
+    }
+
+    rc = libssh2_sftp_copydata(sftp_source_handle, 0, 0, sftp_dest_handle, 0);
+
+    if(rc) {
+        libssh2_sftp_close(sftp_source_handle);
+        libssh2_sftp_close(sftp_dest_handle);
+        libssh2_sftp_unlink(sftp, dest_path);
+        return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+            "copy-data in copyfile failed");
+    }
+
+    libssh2_sftp_close(sftp_source_handle);
+    libssh2_sftp_close(sftp_dest_handle);
+
+    return 0;
+}
+
+static int
+sftp_copyfile(LIBSSH2_SFTP* sftp,
+              const char *source_path,
+              const size_t source_path_len,
+              const char *dest_path,
+              const size_t dest_path_len,
+              int overwrite_flg)
+{
+    int rc;
+    LIBSSH2_SESSION* session = sftp->channel->session;
+    LIBSSH2_CHANNEL* channel = sftp->channel;
+    uint32_t packet_len;
+    size_t data_len = 0;
+    unsigned char *packet, *s, *data = NULL;
+    uint32_t retcode;
+
+    /* 31 = packet_len(4) + packet_type(1) + request_id(4) +
+       string_len(4) + strlen("copy-file")(9) +
+       source_file_len(4) + dest_file_len(4) + owerwrite(1) */
+
+    packet_len = 31 + (uint32_t)source_path_len + (uint32_t)dest_path_len;
+
+    if(sftp->copyfile_state == libssh2_NB_state_idle) {
+        sftp->last_errno = LIBSSH2_FX_OK;
+        _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
+            "Issuing copy-file command"));
+        s = packet = LIBSSH2_ALLOC(session, packet_len);
+        if(!packet) {
+            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                "Unable to allocate memory for FXP_EXTENDED "
+                "packet");
+        }
+
+        _libssh2_store_u32(&s, packet_len - 4);
+        *(s++) = SSH_FXP_EXTENDED;
+        sftp->copyfile_request_id = sftp->request_id++;
+        _libssh2_store_u32(&s, sftp->copyfile_request_id);
+        _libssh2_store_str(&s, "copy-file", 9);
+        _libssh2_store_str(&s, source_path,
+            source_path_len);
+        _libssh2_store_str(&s, dest_path,
+            dest_path_len);
+        *(s++) = (unsigned char)overwrite_flg;
+
+        sftp->copyfile_state = libssh2_NB_state_created;
+    }
+    else {
+        packet = sftp->copyfile_packet;
+    }
+
+    if(sftp->copyfile_state == libssh2_NB_state_created) {
+        rc = (int)_libssh2_channel_write(channel, 0, packet, packet_len);
+
+        if(rc == LIBSSH2_ERROR_EAGAIN ||
+            (0 <= rc && rc < (ssize_t)packet_len)) {
+            sftp->copyfile_packet = packet;
+            return LIBSSH2_ERROR_EAGAIN;
+        }
+
+        LIBSSH2_FREE(session, packet);
+        sftp->copyfile_packet = NULL;
+
+        if(rc < 0) {
+            sftp->copyfile_state = libssh2_NB_state_idle;
+            return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+                "_libssh2_channel_write() failed");
+        }
+        sftp->copyfile_state = libssh2_NB_state_sent;
+    }
+
+    rc = (int)sftp_packet_require(sftp, SSH_FXP_STATUS,
+        sftp->copyfile_request_id,
+        &data, &data_len, 9);
+    if(rc == LIBSSH2_ERROR_EAGAIN) {
+        return (int)rc;
+    }
+    else if(rc == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
+        if(data_len > 0) {
+            LIBSSH2_FREE(session, data);
+        }
+        return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+            "SFTP copy-file packet too short");
+    }
+    else if(rc) {
+        sftp->copyfile_state = libssh2_NB_state_idle;
+        return (int)_libssh2_error(session, (int)rc,
+            "Error waiting for FXP EXTENDED REPLY");
+    }
+
+    sftp->copyfile_state = libssh2_NB_state_idle;
+
+    retcode = _libssh2_ntohu32(data + 5);
+    LIBSSH2_FREE(session, data);
+
+    if(retcode != LIBSSH2_FX_OK) {
+        sftp->last_errno = retcode;
+        return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+            "copy-file failed");
+    }
+
+    return 0;
+}
+
+/* libssh2_sftp_copyfile
+ * Copy file on server
+ */
+LIBSSH2_API int
+libssh2_sftp_copyfile_ex(LIBSSH2_SFTP *sftp,
+                         const char *source_path,
+                         const size_t source_path_len,
+                         const char *dest_path,
+                         const size_t dest_path_len,
+                         int overwrite_flg)
+{
+    int rc;
+
+    if(!sftp)
+        return LIBSSH2_ERROR_BAD_USE;
+
+    if(sftp->server_supports_copyfile) {
+        BLOCK_ADJUST(rc, sftp->channel->session,
+            sftp_copyfile(sftp, source_path, source_path_len,
+                dest_path, dest_path_len, overwrite_flg));
+
+    }
+    else if(sftp->server_supports_copydata) {
+        BLOCK_ADJUST(rc, sftp->channel->session,
+            sftp_copyfile_using_copydata(sftp, source_path,
+                source_path_len,
+                dest_path, dest_path_len,
+                overwrite_flg));
+    }
+    else {
+        sftp->last_errno = LIBSSH2_FX_OP_UNSUPPORTED;
+        return _libssh2_error(sftp->channel->session,
+            LIBSSH2_ERROR_SFTP_PROTOCOL,
+            "copy-file failed");
+    }
+
+    return rc;
 }

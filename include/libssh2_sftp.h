@@ -375,6 +375,25 @@ LIBSSH2_API int libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp,
                             (target), (maxlen), \
                             LIBSSH2_SFTP_REALPATH)
 
+LIBSSH2_API int
+libssh2_sftp_copydata(LIBSSH2_SFTP_HANDLE *source_handle,
+                      const size_t source_offset,
+                      const size_t len,
+                      LIBSSH2_SFTP_HANDLE *dest_handle,
+                      const size_t dest_offset);
+
+LIBSSH2_API int
+libssh2_sftp_copyfile_ex(LIBSSH2_SFTP *sftp,
+                         const char *source_path,
+                         const size_t source_path_len,
+                         const char *dest_path,
+                         const size_t dest_path_len,
+                         int overwrite_flg);
+
+#define libssh2_sftp_copyfile(sftp, source_path, dest_path) \
+    libssh2_sftp_copyfile_ex((sftp), (source_path), strlen(source_path), \
+                          (dest_path), strlen(dest_path), 1);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
