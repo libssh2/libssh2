@@ -58,12 +58,12 @@ dnl result in a set of double-quoted strings the returned expansion will
 dnl actually be a single double-quoted string concatenating all them.
 
 AC_DEFUN([CURL_CHECK_DEF], [
-  AC_REQUIRE([CURL_CPP_P])dnl
+  AC_REQUIRE([CURL_CPP_P])
   OLDCPPFLAGS=$CPPFLAGS
   # CPPPFLAG comes from CURL_CPP_P
   CPPFLAGS="$CPPFLAGS $CPPPFLAG"
-  AS_VAR_PUSHDEF([ac_HaveDef], [curl_cv_have_def_$1])dnl
-  AS_VAR_PUSHDEF([ac_Def], [curl_cv_def_$1])dnl
+  AS_VAR_PUSHDEF([ac_HaveDef], [curl_cv_have_def_$1])
+  AS_VAR_PUSHDEF([ac_Def], [curl_cv_def_$1])
   if test -z "$SED"; then
     AC_MSG_ERROR([SED not set. Cannot continue without SED being set.])
   fi
@@ -96,8 +96,8 @@ CURL_DEF_TOKEN $1
     AS_VAR_SET(ac_Def, $tmp_exp)
     ifelse($3,,[AC_MSG_RESULT([$tmp_exp])])
   fi
-  AS_VAR_POPDEF([ac_Def])dnl
-  AS_VAR_POPDEF([ac_HaveDef])dnl
+  AS_VAR_POPDEF([ac_Def])
+  AS_VAR_POPDEF([ac_HaveDef])
   CPPFLAGS=$OLDCPPFLAGS
 ])
 
@@ -106,7 +106,7 @@ dnl -------------------------------------------------
 dnl Verify if compiler being used is clang.
 
 AC_DEFUN([CURL_CHECK_COMPILER_CLANG], [
-  AC_BEFORE([$0],[CURL_CHECK_COMPILER_GNU_C])dnl
+  AC_BEFORE([$0],[CURL_CHECK_COMPILER_GNU_C])
   AC_MSG_CHECKING([if compiler is clang])
   CURL_CHECK_DEF([__clang__], [], [silent])
   if test "$curl_cv_have_def___clang__" = "yes"; then
@@ -590,7 +590,7 @@ dnl Add each compiler warning from NEW-WARNINGS that has not
 dnl been disabled via CFLAGS to WARNING-LIST.
 
 AC_DEFUN([CURL_ADD_COMPILER_WARNINGS], [
-  AC_REQUIRE([CURL_SHFUNC_SQUEEZE])dnl
+  AC_REQUIRE([CURL_SHFUNC_SQUEEZE])
   ac_var_added_warnings=""
   for warning in [$2]; do
     CURL_VAR_MATCH(CFLAGS, [-Wno-$warning -W$warning])
@@ -800,7 +800,7 @@ dnl that it is defined equally for further configure
 dnl tests and generated config file.
 
 AC_DEFUN([CURL_CONFIGURE_REENTRANT], [
-  AC_PREREQ([2.50])dnl
+  AC_PREREQ([2.50])
 
   AC_MSG_CHECKING([if _REENTRANT is already defined])
   AC_COMPILE_IFELSE([
@@ -936,7 +936,7 @@ dnl --enable-werror or --disable-werror, and set
 dnl shell variable want_werror as appropriate.
 
 AC_DEFUN([LIBSSH2_CHECK_OPTION_WERROR], [
-  AC_BEFORE([$0],[LIBSSH2_CHECK_COMPILER])dnl
+  AC_BEFORE([$0],[LIBSSH2_CHECK_COMPILER])
   AC_MSG_CHECKING([whether to enable compiler warnings as errors])
   OPT_COMPILER_WERROR="default"
   AC_ARG_ENABLE(werror,
