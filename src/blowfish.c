@@ -74,11 +74,6 @@ typedef struct BlowfishContext {
  *      Blowfish_expand0state( state, key, keylen )
  */
 
-static void Blowfish_encipher(blf_ctx *, uint32_t *, uint32_t *);
-#ifdef _DEBUG_BLOWFISH
-static void Blowfish_decipher(blf_ctx *, uint32_t *, uint32_t *);
-#endif
-static void Blowfish_initstate(blf_ctx *);
 static void Blowfish_expand0state(blf_ctx *, const uint8_t *, uint16_t);
 static void Blowfish_expandstate
 (blf_ctx *, const uint8_t *, uint16_t, const uint8_t *, uint16_t);
