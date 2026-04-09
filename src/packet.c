@@ -327,7 +327,7 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
             goto x11_exit;
         }
 
-        if(_libssh2_get_string(&buf, &(temp_buf), &temp_len)) {
+        if(_libssh2_get_string(&buf, &temp_buf, &temp_len)) {
             _libssh2_error(session, LIBSSH2_ERROR_INVAL,
                            "unexpected host size");
             failure_code = SSH_OPEN_CONNECT_FAILED;

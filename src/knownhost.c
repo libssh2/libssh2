@@ -371,7 +371,7 @@ knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                 const char *hostp, int port,
                 const char *key, size_t keylen,
                 int typemask,
-                struct libssh2_knownhost **ext)
+                struct libssh2_knownhost **store)
 {
     struct known_host *node;
     struct known_host *badkey = NULL;
@@ -481,8 +481,8 @@ knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                     /* host name and key type match, now compare the keys */
                     if(!strcmp(key, node->key)) {
                         /* they match! */
-                        if(ext)
-                            *ext = knownhost_to_external(node);
+                        if(store)
+                            *store = knownhost_to_external(node);
                         badkey = NULL;
                         rc = LIBSSH2_KNOWNHOST_CHECK_MATCH;
                         break;
@@ -504,8 +504,8 @@ knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
 
     if(badkey) {
         /* key mismatch */
-        if(ext)
-            *ext = knownhost_to_external(badkey);
+        if(store)
+            *store = knownhost_to_external(badkey);
         rc = LIBSSH2_KNOWNHOST_CHECK_MISMATCH;
     }
 
@@ -535,12 +535,12 @@ knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
  */
 LIBSSH2_API int
 libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
-                        const char *hostp, const char *key, size_t keylen,
+                        const char *host, const char *key, size_t keylen,
                         int typemask,
-                        struct libssh2_knownhost **ext)
+                        struct libssh2_knownhost **store)
 {
-    return knownhost_check(hosts, hostp, -1, key, keylen,
-                           typemask, ext);
+    return knownhost_check(hosts, host, -1, key, keylen,
+                           typemask, store);
 }
 
 /*
@@ -568,13 +568,13 @@ libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
  */
 LIBSSH2_API int
 libssh2_knownhost_checkp(LIBSSH2_KNOWNHOSTS *hosts,
-                         const char *hostp, int port,
+                         const char *host, int port,
                          const char *key, size_t keylen,
                          int typemask,
-                         struct libssh2_knownhost **ext)
+                         struct libssh2_knownhost **store)
 {
-    return knownhost_check(hosts, hostp, port, key, keylen,
-                           typemask, ext);
+    return knownhost_check(hosts, host, port, key, keylen,
+                           typemask, store);
 }
 
 /*
@@ -1270,17 +1270,16 @@ libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
  */
 LIBSSH2_API int
 libssh2_knownhost_get(LIBSSH2_KNOWNHOSTS *hosts,
-                      struct libssh2_knownhost **ext,
-                      struct libssh2_knownhost *oprev)
+                      struct libssh2_knownhost **store,
+                      struct libssh2_knownhost *prev)
 {
     struct known_host *node;
-    if(oprev && oprev->node) {
+    if(prev && prev->node) {
         /* we have a starting point */
-        struct known_host *prev = oprev->node;
+        struct known_host *prev_node = prev->node;
 
         /* get the next node in the list */
-        node = _libssh2_list_next(&prev->node);
-
+        node = _libssh2_list_next(&prev_node->node);
     }
     else
         node = _libssh2_list_first(&hosts->head);
@@ -1289,7 +1288,7 @@ libssh2_knownhost_get(LIBSSH2_KNOWNHOSTS *hosts,
         /* no (more) node */
         return 1;
 
-    *ext = knownhost_to_external(node);
+    *store = knownhost_to_external(node);
 
     return 0;
 }

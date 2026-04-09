@@ -155,14 +155,14 @@ int _libssh2_wsa2errno(void)
  * Replacement for the standard recv, return -errno on failure.
  */
 ssize_t
-_libssh2_recv(libssh2_socket_t sock, void *buffer, size_t length,
+_libssh2_recv(libssh2_socket_t socket, void *buffer, size_t length,
               int flags, void **abstract)
 {
     ssize_t rc;
 
     (void)abstract;
 
-    rc = libssh2_recv(sock, buffer, length, flags);
+    rc = libssh2_recv(socket, buffer, length, flags);
     if(rc < 0) {
         int err;
 #ifdef _WIN32
@@ -194,14 +194,14 @@ _libssh2_recv(libssh2_socket_t sock, void *buffer, size_t length,
  * Replacement for the standard send, return -errno on failure.
  */
 ssize_t
-_libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
+_libssh2_send(libssh2_socket_t socket, const void *buffer, size_t length,
               int flags, void **abstract)
 {
     ssize_t rc;
 
     (void)abstract;
 
-    rc = libssh2_send(sock, buffer, length, flags);
+    rc = libssh2_send(socket, buffer, length, flags);
     if(rc < 0) {
         int err;
 #ifdef _WIN32
@@ -380,17 +380,17 @@ static const short base64_reverse_table[256] = {
  * Legacy public function.
  */
 LIBSSH2_API int
-libssh2_base64_decode(LIBSSH2_SESSION *session, char **data,
-                      unsigned int *datalen, const char *src,
+libssh2_base64_decode(LIBSSH2_SESSION *session, char **dest,
+                      unsigned int *dest_len, const char *src,
                       unsigned int src_len)
 {
     int rc;
     size_t dlen;
 
-    rc = _libssh2_base64_decode(session, data, &dlen, src, src_len);
+    rc = _libssh2_base64_decode(session, dest, &dlen, src, src_len);
 
-    if(datalen)
-        *datalen = (unsigned int)dlen;
+    if(dest_len)
+        *dest_len = (unsigned int)dlen;
 
     return rc;
 }
@@ -549,11 +549,11 @@ libssh2_trace(LIBSSH2_SESSION * session, int bitmask)
 }
 
 LIBSSH2_API int
-libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *handler_context,
+libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *context,
                          libssh2_trace_handler_func callback)
 {
     session->tracehandler = callback;
-    session->tracehandler_context = handler_context;
+    session->tracehandler_context = context;
     return 0;
 }
 
@@ -639,11 +639,11 @@ libssh2_trace(LIBSSH2_SESSION * session, int bitmask)
 }
 
 LIBSSH2_API int
-libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *handler_context,
+libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *context,
                          libssh2_trace_handler_func callback)
 {
     (void)session;
-    (void)handler_context;
+    (void)context;
     (void)callback;
     return 0;
 }
@@ -987,11 +987,11 @@ int _libssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf,
    callers can read the next len number of bytes out of the buffer
    before reading the buffer content */
 
-int _libssh2_check_length(struct string_buf *buf, size_t len)
+int _libssh2_check_length(struct string_buf *buf, size_t requested_len)
 {
     unsigned char *endp = &buf->data[buf->len];
     size_t left = endp - buf->dataptr;
-    return (len <= left) && (left <= buf->len);
+    return (requested_len <= left) && (left <= buf->len);
 }
 
 int _libssh2_eob(struct string_buf *buf)

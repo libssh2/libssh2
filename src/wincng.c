@@ -1422,13 +1422,13 @@ _libssh2_wincng_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
 
 #if LIBSSH2_RSA_SHA1
 int
-_libssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
+_libssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
                                 const unsigned char *sig,
                                 size_t sig_len,
                                 const unsigned char *m,
                                 size_t m_len)
 {
-    return _libssh2_wincng_key_sha_verify(rsa, SHA_DIGEST_LENGTH,
+    return _libssh2_wincng_key_sha_verify(rsactx, SHA_DIGEST_LENGTH,
                                           sig, (ULONG)sig_len,
                                           m, (ULONG)m_len,
                                           BCRYPT_PAD_PKCS1);
@@ -1437,14 +1437,14 @@ _libssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
 
 #if LIBSSH2_RSA_SHA2
 int
-_libssh2_wincng_rsa_sha2_verify(libssh2_rsa_ctx *rsa,
+_libssh2_wincng_rsa_sha2_verify(libssh2_rsa_ctx *rsactx,
                                 size_t hash_len,
                                 const unsigned char *sig,
                                 size_t sig_len,
                                 const unsigned char *m,
                                 size_t m_len)
 {
-    return _libssh2_wincng_key_sha_verify(rsa, (ULONG)hash_len,
+    return _libssh2_wincng_key_sha_verify(rsactx, (ULONG)hash_len,
                                           sig, (ULONG)sig_len,
                                           m, (ULONG)m_len,
                                           BCRYPT_PAD_PKCS1);
@@ -1514,26 +1514,26 @@ _libssh2_wincng_rsa_sha_sign(LIBSSH2_SESSION *session,
 
 int
 _libssh2_wincng_rsa_sha1_sign(LIBSSH2_SESSION *session,
-                              libssh2_rsa_ctx *rsa,
+                              libssh2_rsa_ctx *rsactx,
                               const unsigned char *hash,
                               size_t hash_len,
                               unsigned char **signature,
                               size_t *signature_len)
 {
-    return _libssh2_wincng_rsa_sha_sign(session, rsa,
+    return _libssh2_wincng_rsa_sha_sign(session, rsactx,
                                         hash, hash_len,
                                         signature, signature_len);
 }
 
 int
 _libssh2_wincng_rsa_sha2_sign(LIBSSH2_SESSION *session,
-                              libssh2_rsa_ctx *rsa,
+                              libssh2_rsa_ctx *rsactx,
                               const unsigned char *hash,
                               size_t hash_len,
                               unsigned char **signature,
                               size_t *signature_len)
 {
-    return _libssh2_wincng_rsa_sha_sign(session, rsa,
+    return _libssh2_wincng_rsa_sha_sign(session, rsactx,
                                         hash, hash_len,
                                         signature, signature_len);
 }
@@ -3300,8 +3300,8 @@ _libssh2_wincng_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
  * Windows CNG backend: Cipher functions
  */
 int
-_libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
-                            _libssh2_cipher_type(type),
+_libssh2_wincng_cipher_init(_libssh2_cipher_ctx *h,
+                            _libssh2_cipher_type(algo),
                             unsigned char *iv,
                             unsigned char *secret,
                             int encrypt)
@@ -3314,7 +3314,7 @@ _libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
 
     (void)encrypt;
 
-    ret = BCryptGetProperty(*type.phAlg, BCRYPT_OBJECT_LENGTH,
+    ret = BCryptGetProperty(*algo.phAlg, BCRYPT_OBJECT_LENGTH,
                             (unsigned char *)&dwKeyObject,
                             sizeof(dwKeyObject),
                             &cbData, 0);
@@ -3322,7 +3322,7 @@ _libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
         return -1;
     }
 
-    ret = BCryptGetProperty(*type.phAlg, BCRYPT_BLOCK_LENGTH,
+    ret = BCryptGetProperty(*algo.phAlg, BCRYPT_BLOCK_LENGTH,
                             (unsigned char *)&dwBlockLength,
                             sizeof(dwBlockLength),
                             &cbData, 0);
@@ -3336,7 +3336,7 @@ _libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
     }
 
     keylen = (ULONG)sizeof(BCRYPT_KEY_DATA_BLOB_HEADER) +
-             type.dwKeyLength;
+             algo.dwKeyLength;
     header = (BCRYPT_KEY_DATA_BLOB_HEADER *)malloc(keylen);
     if(!header) {
         free(pbKeyObject);
@@ -3345,12 +3345,12 @@ _libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
 
     header->dwMagic = BCRYPT_KEY_DATA_BLOB_MAGIC;
     header->dwVersion = BCRYPT_KEY_DATA_BLOB_VERSION1;
-    header->cbKeyData = type.dwKeyLength;
+    header->cbKeyData = algo.dwKeyLength;
 
     memcpy((unsigned char *)header + sizeof(BCRYPT_KEY_DATA_BLOB_HEADER),
-           secret, type.dwKeyLength);
+           secret, algo.dwKeyLength);
 
-    ret = BCryptImportKey(*type.phAlg, NULL, BCRYPT_KEY_DATA_BLOB, &hKey,
+    ret = BCryptImportKey(*algo.phAlg, NULL, BCRYPT_KEY_DATA_BLOB, &hKey,
                           pbKeyObject, dwKeyObject,
                           (PUCHAR)header, keylen, 0);
 
@@ -3366,7 +3366,7 @@ _libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
     dwIV = 0;
     dwCtrLength = 0;
 
-    if(type.useIV || type.ctrMode) {
+    if(algo.useIV || algo.ctrMode) {
         pbIVCopy = malloc(dwBlockLength);
         if(!pbIVCopy) {
             BCryptDestroyKey(hKey);
@@ -3375,24 +3375,24 @@ _libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
         }
         memcpy(pbIVCopy, iv, dwBlockLength);
 
-        if(type.ctrMode) {
+        if(algo.ctrMode) {
             pbCtr = pbIVCopy;
             dwCtrLength = dwBlockLength;
         }
-        else if(type.useIV) {
+        else if(algo.useIV) {
             pbIV = pbIVCopy;
             dwIV = dwBlockLength;
         }
     }
 
-    ctx->hKey = hKey;
-    ctx->pbKeyObject = pbKeyObject;
-    ctx->pbIV = pbIV;
-    ctx->pbCtr = pbCtr;
-    ctx->dwKeyObject = dwKeyObject;
-    ctx->dwIV = dwIV;
-    ctx->dwBlockLength = dwBlockLength;
-    ctx->dwCtrLength = dwCtrLength;
+    h->hKey = hKey;
+    h->pbKeyObject = pbKeyObject;
+    h->pbIV = pbIV;
+    h->pbCtr = pbCtr;
+    h->dwKeyObject = dwKeyObject;
+    h->dwIV = dwIV;
+    h->dwBlockLength = dwBlockLength;
+    h->dwCtrLength = dwCtrLength;
 
     return 0;
 }
@@ -3417,28 +3417,28 @@ static void _libssh2_aes_ctr_increment(unsigned char *ctr,
 
 int
 _libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
-                             _libssh2_cipher_type(type),
+                             _libssh2_cipher_type(algo),
                              int encrypt,
                              unsigned char *block,
-                             size_t blocklen, int firstlast)
+                             size_t blocksize, int firstlast)
 {
     unsigned char *pbOutput, *pbInput;
     ULONG cbOutput, cbInput;
     NTSTATUS ret;
 
-    (void)type;
+    (void)algo;
     (void)firstlast;
 
-    cbInput = (ULONG)blocklen;
+    cbInput = (ULONG)blocksize;
 
-    if(type.ctrMode) {
+    if(algo.ctrMode) {
         pbInput = ctx->pbCtr;
     }
     else {
         pbInput = block;
     }
 
-    if(encrypt || type.ctrMode) {
+    if(encrypt || algo.ctrMode) {
         ret = BCryptEncrypt(ctx->hKey, pbInput, cbInput, NULL,
                             ctx->pbIV, ctx->dwIV, NULL, 0, &cbOutput, 0);
     }
@@ -3449,7 +3449,7 @@ _libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
     if(BCRYPT_SUCCESS(ret)) {
         pbOutput = malloc(cbOutput);
         if(pbOutput) {
-            if(encrypt || type.ctrMode) {
+            if(encrypt || algo.ctrMode) {
                 ret = BCryptEncrypt(ctx->hKey, pbInput, cbInput, NULL,
                                     ctx->pbIV, ctx->dwIV,
                                     pbOutput, cbOutput, &cbOutput, 0);
@@ -3460,8 +3460,9 @@ _libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
                                     pbOutput, cbOutput, &cbOutput, 0);
             }
             if(BCRYPT_SUCCESS(ret)) {
-                if(type.ctrMode) {
-                    _libssh2_xor_data(block, block, pbOutput, blocklen);
+                if(algo.ctrMode) {
+                    /* NOLINTNEXTLINE(readability-suspicious-call-argument) */
+                    _libssh2_xor_data(block, block, pbOutput, blocksize);
                     _libssh2_aes_ctr_increment(ctx->pbCtr, ctx->dwCtrLength);
                 }
                 else {

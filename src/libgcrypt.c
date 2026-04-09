@@ -186,7 +186,7 @@ _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
 }
 
 int
-_libssh2_rsa_sha2_verify(libssh2_rsa_ctx * rsa,
+_libssh2_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
                          size_t hash_len,
                          const unsigned char *sig,
                          size_t sig_len,
@@ -235,7 +235,7 @@ _libssh2_rsa_sha2_verify(libssh2_rsa_ctx * rsa,
         goto out;
     }
 
-    ret = (gcry_pk_verify(s_sig, s_hash, rsa) == 0) ? 0 : -1;
+    ret = (gcry_pk_verify(s_sig, s_hash, rsactx) == 0) ? 0 : -1;
 
 out:
     if(s_sig)
@@ -250,12 +250,12 @@ out:
 
 #if LIBSSH2_RSA_SHA1
 int
-_libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsa,
+_libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsactx,
                          const unsigned char *sig,
                          size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return _libssh2_rsa_sha2_verify(rsa, SHA_DIGEST_LENGTH, sig, sig_len, m,
+    return _libssh2_rsa_sha2_verify(rsactx, SHA_DIGEST_LENGTH, sig, sig_len, m,
                                     m_len);
 }
 #endif
@@ -773,7 +773,7 @@ _libssh2_cipher_init(_libssh2_cipher_ctx * h,
 int
 _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
                       _libssh2_cipher_type(algo),
-                      int encrypt, unsigned char *block, size_t blklen,
+                      int encrypt, unsigned char *block, size_t blocksize,
                       int firstlast)
 {
     int ret;
@@ -782,10 +782,10 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
     (void)firstlast;
 
     if(encrypt) {
-        ret = gcry_cipher_encrypt(*ctx, block, blklen, block, blklen);
+        ret = gcry_cipher_encrypt(*ctx, block, blocksize, block, blocksize);
     }
     else {
-        ret = gcry_cipher_decrypt(*ctx, block, blklen, block, blklen);
+        ret = gcry_cipher_decrypt(*ctx, block, blocksize, block, blocksize);
     }
     return ret;
 }

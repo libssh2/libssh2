@@ -28,7 +28,7 @@ struct chacha_ctx {
 #define CHACHA_BLOCKLEN     64
 
 void chacha_keysetup(struct chacha_ctx *x, const u8 *k, u32 kbits);
-void chacha_ivsetup(struct chacha_ctx *x, const u8 *iv, const u8 *ctr);
+void chacha_ivsetup(struct chacha_ctx *x, const u8 *iv, const u8 *counter);
 void chacha_encrypt_bytes(struct chacha_ctx *x, const u8 *m,
                           u8 *c, size_t bytes);
 

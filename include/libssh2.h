@@ -138,7 +138,7 @@ typedef SOCKET libssh2_socket_t;
 #define LIBSSH2_SOCKET_CLOSE(s) closesocket(s)
 #else /* !_WIN32 */
 typedef int libssh2_socket_t;
-#define LIBSSH2_INVALID_SOCKET -1
+#define LIBSSH2_INVALID_SOCKET (-1)
 #define LIBSSH2_SOCKET_CLOSE(s) close(s)
 #endif /* _WIN32 */
 
@@ -220,10 +220,11 @@ typedef off_t libssh2_struct_stat_size;
 #define LIBSSH2_PACKET_MAXPAYLOAD   40000
 
 /* Malloc callbacks */
-#define LIBSSH2_ALLOC_FUNC(name)   void *name(size_t count, void **abstract)
-#define LIBSSH2_REALLOC_FUNC(name) void *name(void *ptr, size_t count, \
-                                              void **abstract)
-#define LIBSSH2_FREE_FUNC(name)    void name(void *ptr, void **abstract)
+#define LIBSSH2_ALLOC_FUNC(name)   void (*(name)(size_t count, \
+                                                 void **abstract))
+#define LIBSSH2_REALLOC_FUNC(name) void (*(name)(void *ptr, size_t count, \
+                                                 void **abstract))
+#define LIBSSH2_FREE_FUNC(name)    void ((name)(void *ptr, void **abstract))
 
 typedef struct _LIBSSH2_USERAUTH_KBDINT_PROMPT
 {
@@ -478,63 +479,63 @@ typedef struct _LIBSSH2_POLLFD {
    LIBSSH2_ERROR_SOCKET_NONE uses over time. As this is a generic error code,
    the goal is to never ever return this code but instead make sure that a
    more accurate and descriptive error code is used. */
-#define LIBSSH2_ERROR_SOCKET_NONE               -1
+#define LIBSSH2_ERROR_SOCKET_NONE               (-1)
 
-#define LIBSSH2_ERROR_BANNER_RECV               -2
-#define LIBSSH2_ERROR_BANNER_SEND               -3
-#define LIBSSH2_ERROR_INVALID_MAC               -4
-#define LIBSSH2_ERROR_KEX_FAILURE               -5
-#define LIBSSH2_ERROR_ALLOC                     -6
-#define LIBSSH2_ERROR_SOCKET_SEND               -7
-#define LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE      -8
-#define LIBSSH2_ERROR_TIMEOUT                   -9
-#define LIBSSH2_ERROR_HOSTKEY_INIT              -10
-#define LIBSSH2_ERROR_HOSTKEY_SIGN              -11
-#define LIBSSH2_ERROR_DECRYPT                   -12
-#define LIBSSH2_ERROR_SOCKET_DISCONNECT         -13
-#define LIBSSH2_ERROR_PROTO                     -14
-#define LIBSSH2_ERROR_PASSWORD_EXPIRED          -15
-#define LIBSSH2_ERROR_FILE                      -16
-#define LIBSSH2_ERROR_METHOD_NONE               -17
-#define LIBSSH2_ERROR_AUTHENTICATION_FAILED     -18
+#define LIBSSH2_ERROR_BANNER_RECV               (-2)
+#define LIBSSH2_ERROR_BANNER_SEND               (-3)
+#define LIBSSH2_ERROR_INVALID_MAC               (-4)
+#define LIBSSH2_ERROR_KEX_FAILURE               (-5)
+#define LIBSSH2_ERROR_ALLOC                     (-6)
+#define LIBSSH2_ERROR_SOCKET_SEND               (-7)
+#define LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE      (-8)
+#define LIBSSH2_ERROR_TIMEOUT                   (-9)
+#define LIBSSH2_ERROR_HOSTKEY_INIT              (-10)
+#define LIBSSH2_ERROR_HOSTKEY_SIGN              (-11)
+#define LIBSSH2_ERROR_DECRYPT                   (-12)
+#define LIBSSH2_ERROR_SOCKET_DISCONNECT         (-13)
+#define LIBSSH2_ERROR_PROTO                     (-14)
+#define LIBSSH2_ERROR_PASSWORD_EXPIRED          (-15)
+#define LIBSSH2_ERROR_FILE                      (-16)
+#define LIBSSH2_ERROR_METHOD_NONE               (-17)
+#define LIBSSH2_ERROR_AUTHENTICATION_FAILED     (-18)
 #define LIBSSH2_ERROR_PUBLICKEY_UNRECOGNIZED    \
     LIBSSH2_ERROR_AUTHENTICATION_FAILED
-#define LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED      -19
-#define LIBSSH2_ERROR_CHANNEL_OUTOFORDER        -20
-#define LIBSSH2_ERROR_CHANNEL_FAILURE           -21
-#define LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED    -22
-#define LIBSSH2_ERROR_CHANNEL_UNKNOWN           -23
-#define LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED   -24
-#define LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED   -25
-#define LIBSSH2_ERROR_CHANNEL_CLOSED            -26
-#define LIBSSH2_ERROR_CHANNEL_EOF_SENT          -27
-#define LIBSSH2_ERROR_SCP_PROTOCOL              -28
-#define LIBSSH2_ERROR_ZLIB                      -29
-#define LIBSSH2_ERROR_SOCKET_TIMEOUT            -30
-#define LIBSSH2_ERROR_SFTP_PROTOCOL             -31
-#define LIBSSH2_ERROR_REQUEST_DENIED            -32
-#define LIBSSH2_ERROR_METHOD_NOT_SUPPORTED      -33
-#define LIBSSH2_ERROR_INVAL                     -34
-#define LIBSSH2_ERROR_INVALID_POLL_TYPE         -35
-#define LIBSSH2_ERROR_PUBLICKEY_PROTOCOL        -36
-#define LIBSSH2_ERROR_EAGAIN                    -37
-#define LIBSSH2_ERROR_BUFFER_TOO_SMALL          -38
-#define LIBSSH2_ERROR_BAD_USE                   -39
-#define LIBSSH2_ERROR_COMPRESS                  -40
-#define LIBSSH2_ERROR_OUT_OF_BOUNDARY           -41
-#define LIBSSH2_ERROR_AGENT_PROTOCOL            -42
-#define LIBSSH2_ERROR_SOCKET_RECV               -43
-#define LIBSSH2_ERROR_ENCRYPT                   -44
-#define LIBSSH2_ERROR_BAD_SOCKET                -45
-#define LIBSSH2_ERROR_KNOWN_HOSTS               -46
-#define LIBSSH2_ERROR_CHANNEL_WINDOW_FULL       -47
-#define LIBSSH2_ERROR_KEYFILE_AUTH_FAILED       -48
-#define LIBSSH2_ERROR_RANDGEN                   -49
-#define LIBSSH2_ERROR_MISSING_USERAUTH_BANNER   -50
-#define LIBSSH2_ERROR_ALGO_UNSUPPORTED          -51
-#define LIBSSH2_ERROR_MAC_FAILURE               -52
-#define LIBSSH2_ERROR_HASH_INIT                 -53
-#define LIBSSH2_ERROR_HASH_CALC                 -54
+#define LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED      (-19)
+#define LIBSSH2_ERROR_CHANNEL_OUTOFORDER        (-20)
+#define LIBSSH2_ERROR_CHANNEL_FAILURE           (-21)
+#define LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED    (-22)
+#define LIBSSH2_ERROR_CHANNEL_UNKNOWN           (-23)
+#define LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED   (-24)
+#define LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED   (-25)
+#define LIBSSH2_ERROR_CHANNEL_CLOSED            (-26)
+#define LIBSSH2_ERROR_CHANNEL_EOF_SENT          (-27)
+#define LIBSSH2_ERROR_SCP_PROTOCOL              (-28)
+#define LIBSSH2_ERROR_ZLIB                      (-29)
+#define LIBSSH2_ERROR_SOCKET_TIMEOUT            (-30)
+#define LIBSSH2_ERROR_SFTP_PROTOCOL             (-31)
+#define LIBSSH2_ERROR_REQUEST_DENIED            (-32)
+#define LIBSSH2_ERROR_METHOD_NOT_SUPPORTED      (-33)
+#define LIBSSH2_ERROR_INVAL                     (-34)
+#define LIBSSH2_ERROR_INVALID_POLL_TYPE         (-35)
+#define LIBSSH2_ERROR_PUBLICKEY_PROTOCOL        (-36)
+#define LIBSSH2_ERROR_EAGAIN                    (-37)
+#define LIBSSH2_ERROR_BUFFER_TOO_SMALL          (-38)
+#define LIBSSH2_ERROR_BAD_USE                   (-39)
+#define LIBSSH2_ERROR_COMPRESS                  (-40)
+#define LIBSSH2_ERROR_OUT_OF_BOUNDARY           (-41)
+#define LIBSSH2_ERROR_AGENT_PROTOCOL            (-42)
+#define LIBSSH2_ERROR_SOCKET_RECV               (-43)
+#define LIBSSH2_ERROR_ENCRYPT                   (-44)
+#define LIBSSH2_ERROR_BAD_SOCKET                (-45)
+#define LIBSSH2_ERROR_KNOWN_HOSTS               (-46)
+#define LIBSSH2_ERROR_CHANNEL_WINDOW_FULL       (-47)
+#define LIBSSH2_ERROR_KEYFILE_AUTH_FAILED       (-48)
+#define LIBSSH2_ERROR_RANDGEN                   (-49)
+#define LIBSSH2_ERROR_MISSING_USERAUTH_BANNER   (-50)
+#define LIBSSH2_ERROR_ALGO_UNSUPPORTED          (-51)
+#define LIBSSH2_ERROR_MAC_FAILURE               (-52)
+#define LIBSSH2_ERROR_HASH_INIT                 (-53)
+#define LIBSSH2_ERROR_HASH_CALC                 (-54)
 
 /* this is a define to provide the old (<= 1.2.7) name */
 #define LIBSSH2_ERROR_BANNER_NONE LIBSSH2_ERROR_BANNER_RECV
@@ -753,8 +754,8 @@ LIBSSH2_API int
 libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
                               const char *username,
                               size_t username_len,
-                              const unsigned char *pubkeydata,
-                              size_t pubkeydata_len,
+                              const unsigned char *publickeydata,
+                              size_t publickeydata_len,
                               const char *privatekeydata,
                               size_t privatekeydata_len,
                               const char *passphrase,
@@ -971,8 +972,8 @@ LIBSSH2_API int libssh2_channel_handle_extended_data2(LIBSSH2_CHANNEL *channel,
                                        LIBSSH2_CHANNEL_EXTENDED_DATA_NORMAL)
 #endif
 
-#define LIBSSH2_CHANNEL_FLUSH_EXTENDED_DATA     -1
-#define LIBSSH2_CHANNEL_FLUSH_ALL               -2
+#define LIBSSH2_CHANNEL_FLUSH_EXTENDED_DATA     (-1)
+#define LIBSSH2_CHANNEL_FLUSH_ALL               (-2)
 LIBSSH2_API int libssh2_channel_flush_ex(LIBSSH2_CHANNEL *channel,
                                          int streamid);
 #define libssh2_channel_flush(channel) libssh2_channel_flush_ex((channel), 0)
@@ -1176,7 +1177,7 @@ LIBSSH2_API int
 libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                         const char *host, const char *key, size_t keylen,
                         int typemask,
-                        struct libssh2_knownhost **knownhost);
+                        struct libssh2_knownhost **store);
 
 /* this function is identical to the above one, but also takes a port
    argument that allows libssh2 to do a better check */
@@ -1185,7 +1186,7 @@ libssh2_knownhost_checkp(LIBSSH2_KNOWNHOSTS *hosts,
                          const char *host, int port,
                          const char *key, size_t keylen,
                          int typemask,
-                         struct libssh2_knownhost **knownhost);
+                         struct libssh2_knownhost **store);
 
 /*
  * libssh2_knownhost_del()

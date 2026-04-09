@@ -29,12 +29,12 @@ struct chachapoly_ctx {
     struct chacha_ctx main_ctx, header_ctx;
 };
 
-int chachapoly_init(struct chachapoly_ctx *cpctx,
-                    const unsigned char *key, size_t keylen);
-int chachapoly_crypt(struct chachapoly_ctx *cpctx, libssh2_uint64_t seqnr,
+int chachapoly_init(struct chachapoly_ctx *ctx, const unsigned char *key,
+                    size_t keylen);
+int chachapoly_crypt(struct chachapoly_ctx *ctx, libssh2_uint64_t seqnr,
                      unsigned char *dest, const unsigned char *src, size_t len,
                      size_t aadlen, int do_encrypt);
-int chachapoly_get_length(struct chachapoly_ctx *cpctx,
+int chachapoly_get_length(struct chachapoly_ctx *ctx,
                           unsigned int *plenp, libssh2_uint64_t seqnr,
                           const unsigned char *cp, size_t len);
 

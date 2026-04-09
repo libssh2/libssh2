@@ -188,7 +188,6 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
             }
         }
     }
-    return;
 }
 
 /*

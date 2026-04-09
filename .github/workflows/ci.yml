@@ -334,11 +334,13 @@ jobs:
 
       - name: 'install packages'
         run: |
-          [ "${MATRIX_CRYPTO}" = 'OpenSSL' ] && pkg='libssl-dev'
-          [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && pkg='libgcrypt-dev'
-          [ "${MATRIX_CRYPTO}" = 'wolfSSL' ] && pkg='libwolfssl-dev'
-          if [ -n "${pkg}" ]; then
-            sudo apt-get -o Dpkg::Use-Pty=0 install "${pkg}:${MATRIX_ARCH}"
+          pkgs=''
+          [ "${MATRIX_COMPILER}" = 'clang-tidy' ] && pkgs+=' clang-20 clang-tidy-20'
+          [ "${MATRIX_CRYPTO}" = 'OpenSSL' ] && pkgs+=" libssl-dev:${MATRIX_ARCH}"
+          [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && pkgs+=" libgcrypt-dev:${MATRIX_ARCH}"
+          [ "${MATRIX_CRYPTO}" = 'wolfSSL' ] && pkgs+=" libwolfssl-dev:${MATRIX_ARCH}"
+          if [ -n "${pkgs}" ]; then
+            sudo apt-get -o Dpkg::Use-Pty=0 install ${pkgs}
           fi
 
       - name: 'cache mbedTLS'
@@ -554,7 +556,10 @@ jobs:
               options+=" -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${MATRIX_ARCH}"
               cflags+=' -m32'
             fi
-            [ "${MATRIX_COMPILER}" = 'clang-tidy' ] && options+=' -DLIBSSH2_CLANG_TIDY=ON'
+            if [ "${MATRIX_COMPILER}" = 'clang-tidy' ]; then
+              options+=' -DLIBSSH2_CLANG_TIDY=ON -DCLANG_TIDY=/usr/bin/clang-tidy-20'
+              options+=' -DCMAKE_C_COMPILER=clang-20'
+            fi
             if [[ "${MATRIX_CRYPTO}" =~ ^(OpenSSL|Libgcrypt|mbedTLS|wolfSSL)$ && "${MATRIX_COMPILER}" != 'clang-tidy' && "${MATRIX_ZLIB}" = 'ON' ]]; then
               options+=' -DCMAKE_C_STANDARD=90'
               cflags+=' -D_DEFAULT_SOURCE'  # for glibc ISO mode, in tests: popen(), pclose(), in examples: fileno(), tcsetattr()
@@ -654,7 +659,7 @@ jobs:
     steps:
       - name: 'install packages'
         env:
-          INSTALL_PACKAGES: ${{ matrix.compiler == 'clang-tidy' && 'clang' || '' }}
+          INSTALL_PACKAGES: ${{ matrix.compiler == 'clang-tidy' && 'clang-20 clang-tidy-20' || '' }}
         run: sudo apt-get -o Dpkg::Use-Pty=0 install mingw-w64 ${INSTALL_PACKAGES}
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -671,9 +676,9 @@ jobs:
         run: |
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
             if [ "${MATRIX_COMPILER}" = 'clang-tidy' ]; then
-              options+=' -DLIBSSH2_CLANG_TIDY=ON'
-              options+=' -DCMAKE_C_COMPILER=clang'
-              options+=" -DCMAKE_RC_COMPILER=llvm-windres-$(clang -dumpversion | cut -d '.' -f 1)"
+              options+=' -DLIBSSH2_CLANG_TIDY=ON -DCLANG_TIDY=/usr/bin/clang-tidy-20'
+              options+=' -DCMAKE_C_COMPILER=clang-20'
+              options+=" -DCMAKE_RC_COMPILER=llvm-windres-$(clang-20 -dumpversion | cut -d '.' -f 1)"
             else
               options+=" -DCMAKE_C_COMPILER=${TRIPLET}-gcc"
             fi

@@ -819,6 +819,7 @@ _libssh2_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx ** ec_ctx,
     if(group_name && data) {
         OSSL_PARAM params[3] = { 0 };
 
+        /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
         memcpy(group_name, n, strlen(n));
         memcpy(data, k, k_len);
 
@@ -905,20 +906,20 @@ _libssh2_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx ** ec_ctx,
 #endif
 
 int
-_libssh2_ecdsa_verify(libssh2_ecdsa_ctx * ecdsa_ctx,
+_libssh2_ecdsa_verify(libssh2_ecdsa_ctx * ec_ctx,
                       const unsigned char *r, size_t r_len,
                       const unsigned char *s, size_t s_len,
                       const unsigned char *m, size_t m_len)
 {
     int ret = 0;
-    libssh2_curve_type type = _libssh2_ecdsa_get_curve_type(ecdsa_ctx);
+    libssh2_curve_type type = _libssh2_ecdsa_get_curve_type(ec_ctx);
 
 #ifdef USE_OPENSSL_3
     EVP_PKEY_CTX *ctx = NULL;
     unsigned char *der = NULL;
     int der_len = 0;
 #else
-    EC_KEY *ec_key = (EC_KEY*)ecdsa_ctx;
+    EC_KEY *ec_key = (EC_KEY*)ec_ctx;
 #endif
 
 #ifdef HAVE_OPAQUE_STRUCTS
@@ -939,7 +940,7 @@ _libssh2_ecdsa_verify(libssh2_ecdsa_ctx * ecdsa_ctx,
 #endif
 
 #ifdef USE_OPENSSL_3
-    ctx = EVP_PKEY_CTX_new(ecdsa_ctx, NULL);
+    ctx = EVP_PKEY_CTX_new(ec_ctx, NULL);
     if(!ctx) {
         ret = -1;
         goto cleanup;
@@ -1307,6 +1308,7 @@ gen_publickey_from_rsa(LIBSSH2_SESSION *session, libssh2_rsa_ctx *rsa,
 
     _libssh2_htonu32(p, 7);  /* Key type. */
     p += 4;
+    /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
     memcpy(p, "ssh-rsa", 7);
     p += 7;
 
@@ -1362,6 +1364,7 @@ gen_publickey_from_rsa_evp(LIBSSH2_SESSION *session,
     RSA_free(rsa);
 #endif
 
+    /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
     memcpy(method_buf, "ssh-rsa", 7);
     *method = method_buf;
     if(method_len) {
@@ -2275,6 +2278,7 @@ gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
         unsigned char *comment = LIBSSH2_CALLOC(session, tmp_len + 1);
         if(comment) {
             memcpy(comment, buf, tmp_len);
+            /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
             memcpy(comment + tmp_len, "\0", 1);
 
             _libssh2_debug((session, LIBSSH2_TRACE_AUTH, "Key comment: %s",
@@ -2324,6 +2328,7 @@ gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
         _libssh2_store_str(&p, "ssh-ed25519", 11);
         _libssh2_store_str(&p, (const char *)pub_key, LIBSSH2_ED25519_KEY_LEN);
 
+        /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
         memcpy(method_buf, "ssh-ed25519", 11);
 
         if(method)
@@ -2469,6 +2474,7 @@ gen_publickey_from_sk_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
             memcpy((void *)LIBSSH2_UNCONST(*application), app, app_len);
         }
 
+        /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
         memcpy(method_buf, key_type, strlen(key_type));
 
         if(method)
@@ -3789,6 +3795,7 @@ gen_publickey_from_ecdsa_openssh_priv_data(LIBSSH2_SESSION *session,
     if(!group_name)
         goto fail;
 
+    /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
     memcpy(group_name, n, strlen(n));
     _libssh2_swap_bytes(exponent, (unsigned long)exponentlen);
 

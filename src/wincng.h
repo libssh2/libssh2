@@ -181,9 +181,9 @@ typedef struct __libssh2_wincng_hash_ctx {
     (_libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHashSHA1, \
                                SHA_DIGEST_LENGTH, NULL, 0) == 0)
 #define libssh2_sha1_update(ctx, data, datalen) \
-    (_libssh2_wincng_hash_update(&ctx, data, (ULONG) datalen) == 0)
+    (_libssh2_wincng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
 #define libssh2_sha1_final(ctx, hash) \
-    (_libssh2_wincng_hash_final(&ctx, hash) == 0)
+    (_libssh2_wincng_hash_final(&(ctx), hash) == 0)
 #define libssh2_sha1(data, datalen, hash) \
     _libssh2_wincng_hash(data, datalen, _libssh2_wincng.hAlgHashSHA1, \
                          hash, SHA_DIGEST_LENGTH)
@@ -193,9 +193,9 @@ typedef struct __libssh2_wincng_hash_ctx {
     (_libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHashSHA256, \
                                SHA256_DIGEST_LENGTH, NULL, 0) == 0)
 #define libssh2_sha256_update(ctx, data, datalen) \
-    (_libssh2_wincng_hash_update(&ctx, data, (ULONG) datalen) == 0)
+    (_libssh2_wincng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
 #define libssh2_sha256_final(ctx, hash) \
-    (_libssh2_wincng_hash_final(&ctx, hash) == 0)
+    (_libssh2_wincng_hash_final(&(ctx), hash) == 0)
 #define libssh2_sha256(data, datalen, hash) \
     _libssh2_wincng_hash(data, datalen, _libssh2_wincng.hAlgHashSHA256, \
                          hash, SHA256_DIGEST_LENGTH)
@@ -205,9 +205,9 @@ typedef struct __libssh2_wincng_hash_ctx {
     (_libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHashSHA384, \
                                SHA384_DIGEST_LENGTH, NULL, 0) == 0)
 #define libssh2_sha384_update(ctx, data, datalen) \
-    (_libssh2_wincng_hash_update(&ctx, data, (ULONG) datalen) == 0)
+    (_libssh2_wincng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
 #define libssh2_sha384_final(ctx, hash) \
-    (_libssh2_wincng_hash_final(&ctx, hash) == 0)
+    (_libssh2_wincng_hash_final(&(ctx), hash) == 0)
 #define libssh2_sha384(data, datalen, hash) \
     _libssh2_wincng_hash(data, datalen, _libssh2_wincng.hAlgHashSHA384, \
                          hash, SHA384_DIGEST_LENGTH)
@@ -217,9 +217,9 @@ typedef struct __libssh2_wincng_hash_ctx {
     (_libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHashSHA512, \
                                SHA512_DIGEST_LENGTH, NULL, 0) == 0)
 #define libssh2_sha512_update(ctx, data, datalen) \
-    (_libssh2_wincng_hash_update(&ctx, data, (ULONG) datalen) == 0)
+    (_libssh2_wincng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
 #define libssh2_sha512_final(ctx, hash) \
-    (_libssh2_wincng_hash_final(&ctx, hash) == 0)
+    (_libssh2_wincng_hash_final(&(ctx), hash) == 0)
 #define libssh2_sha512(data, datalen, hash) \
     _libssh2_wincng_hash(data, datalen, _libssh2_wincng.hAlgHashSHA512, \
                          hash, SHA512_DIGEST_LENGTH)
@@ -230,9 +230,9 @@ typedef struct __libssh2_wincng_hash_ctx {
     (_libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHashMD5, \
                                MD5_DIGEST_LENGTH, NULL, 0) == 0)
 #define libssh2_md5_update(ctx, data, datalen) \
-    (_libssh2_wincng_hash_update(&ctx, data, (ULONG) datalen) == 0)
+    (_libssh2_wincng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
 #define libssh2_md5_final(ctx, hash) \
-    (_libssh2_wincng_hash_final(&ctx, hash) == 0)
+    (_libssh2_wincng_hash_final(&(ctx), hash) == 0)
 #endif
 
 /*
@@ -457,7 +457,7 @@ struct _libssh2_wincng_bignum {
 #define _libssh2_bn_set_word(bn, word) \
     _libssh2_wincng_bignum_set_word(bn, word)
 #define _libssh2_bn_from_bin(bn, len, bin) \
-    _libssh2_wincng_bignum_from_bin(bn, (ULONG) len, bin)
+    _libssh2_wincng_bignum_from_bin(bn, (ULONG)(len), bin)
 #define _libssh2_bn_to_bin(bn, bin) \
     _libssh2_wincng_bignum_to_bin(bn, bin)
 #define _libssh2_bn_bytes(bn) bn->length

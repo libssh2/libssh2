@@ -194,7 +194,7 @@ poly1305_donna_finish:
     h3 = (h3 & nb) | (g3 & b);
     h4 = (h4 & nb) | (g4 & b);
 
-    f0 = ((h0      ) | (h1 << 26)) + (uint64_t)U8TO32_LE(&key[16]);
+    f0 = ( h0        | (h1 << 26)) + (uint64_t)U8TO32_LE(&key[16]);
     f1 = ((h1 >>  6) | (h2 << 20)) + (uint64_t)U8TO32_LE(&key[20]);
     f2 = ((h2 >> 12) | (h3 << 14)) + (uint64_t)U8TO32_LE(&key[24]);
     f3 = ((h3 >> 18) | (h4 <<  8)) + (uint64_t)U8TO32_LE(&key[28]);

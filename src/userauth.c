@@ -244,12 +244,12 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
  * username should be NULL, or a null terminated string
  */
 LIBSSH2_API char *
-libssh2_userauth_list(LIBSSH2_SESSION * session, const char *user,
-                      unsigned int user_len)
+libssh2_userauth_list(LIBSSH2_SESSION * session, const char *username,
+                      unsigned int username_len)
 {
     char *ptr;
     BLOCK_ADJUST_ERRNO(ptr, session,
-                       userauth_list(session, user, user_len));
+                       userauth_list(session, username, username_len));
     return ptr;
 }
 
@@ -1254,22 +1254,25 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
  */
 LIBSSH2_API int
 libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
-                                       const char *user,
-                                       unsigned int user_len,
+                                       const char *username,
+                                       unsigned int username_len,
                                        const char *publickey,
                                        const char *privatekey,
                                        const char *passphrase,
-                                       const char *host,
-                                       unsigned int host_len,
-                                       const char *localuser,
-                                       unsigned int localuser_len)
+                                       const char *hostname,
+                                       unsigned int hostname_len,
+                                       const char *local_username,
+                                       unsigned int local_username_len)
 {
     int rc;
     BLOCK_ADJUST(rc, session,
-                 userauth_hostbased_fromfile(session, user, user_len,
+                 userauth_hostbased_fromfile(session,
+                                             username, username_len,
                                              publickey, privatekey,
-                                             passphrase, host, host_len,
-                                             localuser, localuser_len));
+                                             passphrase,
+                                             hostname, hostname_len,
+                                             local_username,
+                                             local_username_len));
     return rc;
 }
 
@@ -1312,6 +1315,7 @@ size_t plain_method(char *method, size_t method_len)
                 method,
                 method_len)) {
         const char *new_method = "sk-ecdsa-sha2-nistp256@openssh.com";
+        /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
         memcpy(method, new_method, strlen(new_method));
         return strlen(new_method);
     }
@@ -1320,6 +1324,7 @@ size_t plain_method(char *method, size_t method_len)
                 method,
                 method_len)) {
         const char *new_method = "sk-ssh-ed25519@openssh.com";
+        /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
         memcpy(method, new_method, strlen(new_method));
         return strlen(new_method);
     }
@@ -2040,8 +2045,8 @@ userauth_publickey_fromfile(LIBSSH2_SESSION *session,
  */
 LIBSSH2_API int
 libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
-                                      const char *user,
-                                      size_t user_len,
+                                      const char *username,
+                                      size_t username_len,
                                       const char *publickeyfiledata,
                                       size_t publickeyfiledata_len,
                                       const char *privatekeyfiledata,
@@ -2056,7 +2061,8 @@ libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
         passphrase = "";
 
     BLOCK_ADJUST(rc, session,
-                 userauth_publickey_frommemory(session, user, user_len,
+                 userauth_publickey_frommemory(session,
+                                               username, username_len,
                                                publickeyfiledata,
                                                publickeyfiledata_len,
                                                privatekeyfiledata,
@@ -2070,8 +2076,8 @@ libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
  */
 LIBSSH2_API int
 libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
-                                       const char *user,
-                                       unsigned int user_len,
+                                       const char *username,
+                                       unsigned int username_len,
                                        const char *publickey,
                                        const char *privatekey,
                                        const char *passphrase)
@@ -2084,7 +2090,8 @@ libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
         passphrase = "";
 
     BLOCK_ADJUST(rc, session,
-                 userauth_publickey_fromfile(session, user, user_len,
+                 userauth_publickey_fromfile(session,
+                                             username, username_len,
                                              publickey, privatekey,
                                              passphrase));
     return rc;
@@ -2095,7 +2102,7 @@ libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
  */
 LIBSSH2_API int
 libssh2_userauth_publickey(LIBSSH2_SESSION *session,
-                           const char *user,
+                           const char *username,
                            const unsigned char *pubkeydata,
                            size_t pubkeydata_len,
                            LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC
@@ -2108,7 +2115,8 @@ libssh2_userauth_publickey(LIBSSH2_SESSION *session,
         return LIBSSH2_ERROR_BAD_USE;
 
     BLOCK_ADJUST(rc, session,
-                 _libssh2_userauth_publickey(session, user, strlen(user),
+                 _libssh2_userauth_publickey(session,
+                                             username, strlen(username),
                                              pubkeydata, pubkeydata_len,
                                              sign_callback, abstract));
     return rc;
@@ -2395,14 +2403,14 @@ cleanup:
  */
 LIBSSH2_API int
 libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION *session,
-                                         const char *user,
-                                         unsigned int user_len,
+                                         const char *username,
+                                         unsigned int username_len,
                                          LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC
                                              ((*response_callback)))
 {
     int rc;
     BLOCK_ADJUST(rc, session,
-                 userauth_keyboard_interactive(session, user, user_len,
+                 userauth_keyboard_interactive(session, username, username_len,
                                                response_callback));
     return rc;
 }
