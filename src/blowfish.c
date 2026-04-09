@@ -58,9 +58,9 @@
  * of the key affect all cipherbits.
  */
 
-#define BLF_N   16                      /* Number of Subkeys */
-#define BLF_MAXKEYLEN ((BLF_N-2)*4)     /* 448 bits */
-#define BLF_MAXUTILIZED ((BLF_N + 2)*4)   /* 576 bits */
+#define BLF_N   16                       /* Number of Subkeys */
+#define BLF_MAXKEYLEN   ((BLF_N - 2)*4)  /* 448 bits */
+#define BLF_MAXUTILIZED ((BLF_N + 2)*4)  /* 576 bits */
 
 /* Blowfish context */
 typedef struct BlowfishContext {
@@ -74,33 +74,9 @@ typedef struct BlowfishContext {
  *      Blowfish_expand0state( state, key, keylen )
  */
 
-static void Blowfish_expand0state(blf_ctx *, const uint8_t *, uint16_t);
-static void Blowfish_expandstate
-(blf_ctx *, const uint8_t *, uint16_t, const uint8_t *, uint16_t);
-
 /* Standard Blowfish */
 
-#ifdef _DEBUG_BLOWFISH
-static void blf_key(blf_ctx *, const uint8_t *, uint16_t);
-#endif
-static void blf_enc(blf_ctx *, uint32_t *, uint16_t);
-#ifdef _DEBUG_BLOWFISH
-static void blf_dec(blf_ctx *, uint32_t *, uint16_t);
-#endif
-
-#if 0
-static void blf_ecb_encrypt(blf_ctx *, uint8_t *, uint32_t);
-static void blf_ecb_decrypt(blf_ctx *, uint8_t *, uint32_t);
-
-static void blf_cbc_encrypt(blf_ctx *, uint8_t *, uint8_t *, uint32_t);
-static void blf_cbc_decrypt(blf_ctx *, uint8_t *, uint8_t *, uint32_t);
-#endif
-
-/* Converts uint8_t to uint32_t */
-static uint32_t Blowfish_stream2word(const uint8_t *, uint16_t, uint16_t *);
-
 /* Function for Feistel Networks */
-
 #define F(s, x) ((((s)[        (((x) >> 24) & 0xFF)]      \
                  + (s)[0x100 + (((x) >> 16) & 0xFF)])     \
                  ^ (s)[0x200 + (((x) >>  8) & 0xFF)])     \
@@ -439,6 +415,7 @@ Blowfish_initstate(blf_ctx *c)
     *c = initstate;
 }
 
+/* Converts uint8_t to uint32_t */
 static uint32_t
 Blowfish_stream2word(const uint8_t *data, uint16_t databytes,
                      uint16_t *current)
@@ -578,121 +555,7 @@ blf_dec(blf_ctx *c, uint32_t *data, uint16_t blocks)
         d += 2;
     }
 }
-#endif
 
-#if 0
-static void
-blf_ecb_encrypt(blf_ctx *c, uint8_t *data, uint32_t len)
-{
-    uint32_t l, r;
-    uint32_t i;
-
-    for(i = 0; i < len; i += 8) {
-        l = data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3];
-        r = data[4] << 24 | data[5] << 16 | data[6] << 8 | data[7];
-        Blowfish_encipher(c, &l, &r);
-        data[0] = (uint8_t)(l >> 24 & 0xff);
-        data[1] = l >> 16 & 0xff;
-        data[2] = l >> 8 & 0xff;
-        data[3] = l & 0xff;
-        data[4] = (uint8_t)(r >> 24 & 0xff);
-        data[5] = r >> 16 & 0xff;
-        data[6] = r >> 8 & 0xff;
-        data[7] = r & 0xff;
-        data += 8;
-    }
-}
-
-static void
-blf_ecb_decrypt(blf_ctx *c, uint8_t *data, uint32_t len)
-{
-    uint32_t l, r;
-    uint32_t i;
-
-    for(i = 0; i < len; i += 8) {
-        l = data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3];
-        r = data[4] << 24 | data[5] << 16 | data[6] << 8 | data[7];
-        Blowfish_decipher(c, &l, &r);
-        data[0] = (uint8_t)(l >> 24 & 0xff);
-        data[1] = l >> 16 & 0xff;
-        data[2] = l >> 8 & 0xff;
-        data[3] = l & 0xff;
-        data[4] = (uint8_t)(r >> 24 & 0xff);
-        data[5] = r >> 16 & 0xff;
-        data[6] = r >> 8 & 0xff;
-        data[7] = r & 0xff;
-        data += 8;
-    }
-}
-
-static void
-blf_cbc_encrypt(blf_ctx *c, uint8_t *iv, uint8_t *data, uint32_t len)
-{
-    uint32_t l, r;
-    uint32_t i, j;
-
-    for(i = 0; i < len; i += 8) {
-        for(j = 0; j < 8; j++)
-            data[j] ^= iv[j];
-        l = data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3];
-        r = data[4] << 24 | data[5] << 16 | data[6] << 8 | data[7];
-        Blowfish_encipher(c, &l, &r);
-        data[0] = (uint8_t)(l >> 24 & 0xff);
-        data[1] = l >> 16 & 0xff;
-        data[2] = l >> 8 & 0xff;
-        data[3] = l & 0xff;
-        data[4] = (uint8_t)(r >> 24 & 0xff);
-        data[5] = r >> 16 & 0xff;
-        data[6] = r >> 8 & 0xff;
-        data[7] = r & 0xff;
-        iv = data;
-        data += 8;
-    }
-}
-
-static void
-blf_cbc_decrypt(blf_ctx *c, uint8_t *iva, uint8_t *data, uint32_t len)
-{
-    uint32_t l, r;
-    uint8_t *iv;
-    uint32_t i, j;
-
-    iv = data + len - 16;
-    data = data + len - 8;
-    for(i = len - 8; i >= 8; i -= 8) {
-        l = data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3];
-        r = data[4] << 24 | data[5] << 16 | data[6] << 8 | data[7];
-        Blowfish_decipher(c, &l, &r);
-        data[0] = (uint8_t)(l >> 24 & 0xff);
-        data[1] = l >> 16 & 0xff;
-        data[2] = l >> 8 & 0xff;
-        data[3] = l & 0xff;
-        data[4] = (uint8_t)(r >> 24 & 0xff);
-        data[5] = r >> 16 & 0xff;
-        data[6] = r >> 8 & 0xff;
-        data[7] = r & 0xff;
-        for(j = 0; j < 8; j++)
-            data[j] ^= iv[j];
-        iv -= 8;
-        data -= 8;
-    }
-    l = data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3];
-    r = data[4] << 24 | data[5] << 16 | data[6] << 8 | data[7];
-    Blowfish_decipher(c, &l, &r);
-    data[0] = (uint8_t)(l >> 24 & 0xff);
-    data[1] = l >> 16 & 0xff;
-    data[2] = l >> 8 & 0xff;
-    data[3] = l & 0xff;
-    data[4] = (uint8_t)(r >> 24 & 0xff);
-    data[5] = r >> 16 & 0xff;
-    data[6] = r >> 8 & 0xff;
-    data[7] = r & 0xff;
-    for(j = 0; j < 8; j++)
-        data[j] ^= iva[j];
-}
-#endif
-
-#ifdef _DEBUG_BLOWFISH
 static void
 report(uint32_t data[], uint16_t len)
 {
