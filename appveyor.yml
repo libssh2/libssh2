@@ -30,105 +30,78 @@
 # https://www.appveyor.com/docs/windows-images-software/
 
 environment:
-  CONFIGURATION: 'Release'
+  CMAKE_CONFIGURATION: 'Release'
+  CMAKE_VERSION: 3.18.4
+  CMAKE_SHA256: a932bc0c8ee79f1003204466c525b38a840424d4ae29f9e5fb88959116f2407d
   FIXTURE_XFER_COUNT: 35020
   SKIP_CTEST: 'yes'  # Connection to test server has been failing consistently since 2024-08-29
 
   matrix:
     - job_name: 'VS2022, OpenSSL 3, x64, Server 2019, clang-cl'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
-      GENERATOR: 'Visual Studio 17 2022'
-      PLATFORM: 'x64'
-      CRYPTO_BACKEND: 'OpenSSL'
-      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v35-Win64'
-      TOOLSET: 'ClangCl'
+      CMAKE_GENERATOR: 'Visual Studio 17 2022'
+      CMAKE_GENERATE: '-A x64 -T ClangCl -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v35-Win64'
 
     - job_name: 'VS2022, OpenSSL 3, x64, Server 2019'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
-      GENERATOR: 'Visual Studio 17 2022'
-      PLATFORM: 'x64'
-      CRYPTO_BACKEND: 'OpenSSL'
-      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v30-Win64'
+      CMAKE_GENERATOR: 'Visual Studio 17 2022'
+      CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v30-Win64'
 
     - job_name: 'VS2015, OpenSSL 1.1, x86, Server 2016'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
-      GENERATOR: 'Visual Studio 14 2015'
-      PLATFORM: 'x86'
-      CRYPTO_BACKEND: 'OpenSSL'
-      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v111-Win32'
+      CMAKE_GENERATOR: 'Visual Studio 14 2015'
+      CMAKE_GENERATE: '-A Win32 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32'
 
-    - job_name: 'VS2015, OpenSSL 1.1, x64, Server 2012 R2, Logging'
+    - job_name: 'VS2015, OpenSSL 1.1, x64, Server 2012 R2, Debug-logging'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
-      GENERATOR: 'Visual Studio 14 2015'
-      PLATFORM: 'x64'
-      CRYPTO_BACKEND: 'OpenSSL'
-      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v111-Win64'
-      ENABLE_DEBUG_LOGGING: 'ON'
+      CMAKE_GENERATOR: 'Visual Studio 14 2015'
+      CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64 -DENABLE_DEBUG_LOGGING=ON'
 
     - job_name: 'VS2013, OpenSSL 1.1, x64, Server 2012 R2'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
-      GENERATOR: 'Visual Studio 12 2013'
-      PLATFORM: 'x64'
-      CRYPTO_BACKEND: 'OpenSSL'
-      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v111-Win64'
+      CMAKE_GENERATOR: 'Visual Studio 12 2013'
+      CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64'
 
     - job_name: 'VS2013, OpenSSL 1.1, x86, Server 2012 R2, Shared-only'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
-      GENERATOR: 'Visual Studio 12 2013'
-      PLATFORM: 'x86'
-      BUILD_STATIC_LIBS: 'OFF'
-      CRYPTO_BACKEND: 'OpenSSL'
-      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v111-Win32'
+      CMAKE_GENERATOR: 'Visual Studio 12 2013'
+      CMAKE_GENERATE: '-A Win32 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32 -DBUILD_STATIC_LIBS=OFF'
 
     - job_name: 'VS2013, OpenSSL 1.1, x64, Build-only, Static-only'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
-      GENERATOR: 'Visual Studio 12 2013'
-      PLATFORM: 'x64'
-      BUILD_SHARED_LIBS: 'OFF'
-      CRYPTO_BACKEND: 'OpenSSL'
-      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v111-Win64'
+      CMAKE_GENERATOR: 'Visual Studio 12 2013'
+      CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64 -DBUILD_SHARED_LIBS=OFF'
 
     - job_name: 'VS2010, WinCNG, x64, Build-only, non-unity'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
-      GENERATOR: 'Visual Studio 10 2010'
-      PLATFORM: 'x64'
-      CRYPTO_BACKEND: 'WinCNG'
-      ENABLE_ECDSA_WINCNG: 'ON'
-      UNITY: 'OFF'
+      CMAKE_GENERATOR: 'Visual Studio 10 2010'
+      CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=WinCNG -DENABLE_ECDSA_WINCNG=ON -DCMAKE_UNITY_BUILD=OFF'
 
-    - job_name: 'VS2022, WinCNG, x64, Server 2019, Logging'
+    - job_name: 'VS2022, WinCNG, x64, Server 2019, Debug-logging'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
-      GENERATOR: 'Visual Studio 17 2022'
-      PLATFORM: 'x64'
-      CRYPTO_BACKEND: 'WinCNG'
-      ENABLE_ECDSA_WINCNG: 'ON'
-      ENABLE_DEBUG_LOGGING: 'ON'
+      CMAKE_GENERATOR: 'Visual Studio 17 2022'
+      CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=WinCNG -DENABLE_DEBUG_LOGGING=ON'
 
     - job_name: 'VS2022, WinCNG, ARM64, Build-only'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
-      GENERATOR: 'Visual Studio 17 2022'
-      PLATFORM: 'ARM64'
-      CRYPTO_BACKEND: 'WinCNG'
-      ENABLE_ECDSA_WINCNG: 'ON'
+      CMAKE_GENERATOR: 'Visual Studio 17 2022'
+      CMAKE_GENERATE: '-A ARM64 -DCRYPTO_BACKEND=WinCNG -DENABLE_ECDSA_WINCNG=ON'
 
     - job_name: 'VS2015, WinCNG, x64, Server 2012 R2'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
-      GENERATOR: 'Visual Studio 14 2015'
-      PLATFORM: 'x64'
-      CRYPTO_BACKEND: 'WinCNG'
-      ENABLE_ECDSA_WINCNG: 'OFF'
+      CMAKE_GENERATOR: 'Visual Studio 14 2015'
+      CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=WinCNG'
 
     - job_name: 'VS2015, WinCNG, x86, Server 2016'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
-      GENERATOR: 'Visual Studio 14 2015'
-      PLATFORM: 'x86'
-      CRYPTO_BACKEND: 'WinCNG'
-      ENABLE_ECDSA_WINCNG: 'ON'
+      CMAKE_GENERATOR: 'Visual Studio 14 2015'
+      CMAKE_GENERATE: '-A Win32 -DCRYPTO_BACKEND=WinCNG -DENABLE_ECDSA_WINCNG=ON'
 
 matrix:
   fast_finish: true
 
 install:
+  - ps: $env:PATH = "C:/my-cmake/bin;$env:PATH"
   # prepare local SSH server for reverse tunneling from GitHub Actions hosting our docker container
   - ps: |
       $env:OPENSSH_SERVER_PORT = Get-Random -Minimum 2000 -Maximum 2300
@@ -136,56 +109,11 @@ install:
       .\ci\appveyor\docker-bridge.ps1
 
 build_script:
-  - ps: |
-      $options = @('-DENABLE_WERROR=ON')
-
-      $options += "-G$env:GENERATOR"
-      if($env:PLATFORM -ne 'x86') {
-        $options += "-A$env:PLATFORM"
-      }
-
-      if($env:TOOLSET) {
-        $options += "-T $env:TOOLSET"
-      }
-
-      $options += "-DCRYPTO_BACKEND=$env:CRYPTO_BACKEND"
-      if($env:OPENSSL_ROOT_DIR -and $env:OPENSSL_ROOT_DIR -ne '') {
-        if(Test-Path $env:OPENSSL_ROOT_DIR) {
-          $options += "-DOPENSSL_ROOT_DIR=$env:OPENSSL_ROOT_DIR"
-        }
-        else {
-          Write-Error "Directory '$env:OPENSSL_ROOT_DIR' expected, but not found."
-          exit 1
-        }
-      }
-
-      if($env:ENABLE_DEBUG_LOGGING -eq 'ON') {
-        $options += '-DENABLE_DEBUG_LOGGING=ON'
-      }
-      if($env:UNITY -ne 'OFF') {
-        $options += '-DCMAKE_UNITY_BUILD=ON'
-      }
-      if($env:ENABLE_ECDSA_WINCNG -eq 'ON') {
-        $options += '-DENABLE_ECDSA_WINCNG=ON'
-      }
-      if($env:BUILD_STATIC_LIBS -eq 'OFF') {
-        $options += '-DBUILD_STATIC_LIBS=OFF'
-      }
-      if($env:BUILD_SHARED_LIBS -eq 'OFF') {
-        $options += '-DBUILD_SHARED_LIBS=OFF'
-      }
-      $options += '-DCMAKE_VS_GLOBALS=TrackFileAccess=false'
-      # FIXME: First sshd test sometimes timeouts, subsequent ones almost always fail:
-      #        'libssh2_session_handshake failed (-43): Failed getting banner'
-      $options += '-DRUN_SSHD_TESTS=OFF'
-
-      Write-Host 'CMake options:' $options
-      cmake -B _builds $options
-      cmake --build _builds --config "$env:CONFIGURATION" --parallel 2
+  - cmd: sh -c ./appveyor.sh
 
 test_script:
   - ps: |
-      if($env:SKIP_CTEST -ne 'yes' -and $env:PLATFORM -ne 'ARM64') {
+      if($env:SKIP_CTEST -ne 'yes' -and -not $env:CMAKE_GENERATE -like '*ARM64*') {
         appveyor-retry choco install --yes --no-progress --limit-output --timeout 180 docker-cli
         Write-Host 'Waiting for SSH connection from GitHub Actions' -NoNewline
         $endDate = (Get-Date).AddMinutes(5)
@@ -201,11 +129,11 @@ test_script:
         else {
           Write-Host '... failed.'
         }
-        if($env:CRYPTO_BACKEND -eq 'WinCNG') {
+        if($env:CMAKE_GENERATE -like '*WinCNG*') {
           $env:FIXTURE_TRACE_ALL_CONNECT = '1'
         }
         $env:OPENSSH_SERVER_IMAGE=[string] (& bash -c "echo ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)")
-        cd _builds; ctest -VV -C $($env:CONFIGURATION) --output-on-failure --timeout 900
+        cd _builds; ctest -VV -C $($env:CMAKE_CONFIGURATION) --output-on-failure --timeout 900
       }
 
 on_failure:
