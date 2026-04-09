@@ -31,6 +31,8 @@
 
 environment:
   CMAKE_CONFIGURATION: 'Release'
+  CMAKE_VERSION: 3.18.4
+  CMAKE_SHA256: a932bc0c8ee79f1003204466c525b38a840424d4ae29f9e5fb88959116f2407d
   FIXTURE_XFER_COUNT: 35020
   SKIP_CTEST: 'yes'  # Connection to test server has been failing consistently since 2024-08-29
 

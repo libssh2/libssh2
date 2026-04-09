@@ -10,10 +10,6 @@ set -eux; [ -n "${BASH:-}${ZSH_NAME:-}" ] && set -o pipefail
 
 # Install custom cmake version
 if [ "${APPVEYOR_BUILD_WORKER_IMAGE}" != 'Visual Studio 2022' ]; then
-
-  CMAKE_VERSION=3.18.4
-  CMAKE_SHA256=a932bc0c8ee79f1003204466c525b38a840424d4ae29f9e5fb88959116f2407d
-
   cmake_ver="$(printf '%02d%02d' \
     "$(echo "${CMAKE_VERSION}" | cut -f1 -d.)" \
     "$(echo "${CMAKE_VERSION}" | cut -f2 -d.)")"
