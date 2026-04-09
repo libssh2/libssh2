@@ -334,11 +334,12 @@ jobs:
 
       - name: 'install packages'
         run: |
+          [ "${MATRIX_COMPILER}" = 'clang-tidy' ] && tools='clang-20 clang-tidy-20'
           [ "${MATRIX_CRYPTO}" = 'OpenSSL' ] && pkg='libssl-dev'
           [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && pkg='libgcrypt-dev'
           [ "${MATRIX_CRYPTO}" = 'wolfSSL' ] && pkg='libwolfssl-dev'
           if [ -n "${pkg}" ]; then
-            sudo apt-get -o Dpkg::Use-Pty=0 install "${pkg}:${MATRIX_ARCH}"
+            sudo apt-get -o Dpkg::Use-Pty=0 install "${pkg}:${MATRIX_ARCH}" ${tools}
           fi
 
       - name: 'cache mbedTLS'
@@ -654,7 +655,7 @@ jobs:
     steps:
       - name: 'install packages'
         env:
-          INSTALL_PACKAGES: ${{ matrix.compiler == 'clang-tidy' && 'clang' || '' }}
+          INSTALL_PACKAGES: ${{ matrix.compiler == 'clang-tidy' && 'clang-20' || '' }}
         run: sudo apt-get -o Dpkg::Use-Pty=0 install mingw-w64 ${INSTALL_PACKAGES}
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -672,8 +673,8 @@ jobs:
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
             if [ "${MATRIX_COMPILER}" = 'clang-tidy' ]; then
               options+=' -DLIBSSH2_CLANG_TIDY=ON'
-              options+=' -DCMAKE_C_COMPILER=clang'
-              options+=" -DCMAKE_RC_COMPILER=llvm-windres-$(clang -dumpversion | cut -d '.' -f 1)"
+              options+=' -DCMAKE_C_COMPILER=clang-20'
+              options+=" -DCMAKE_RC_COMPILER=llvm-windres-$(clang-20 -dumpversion | cut -d '.' -f 1)"
             else
               options+=" -DCMAKE_C_COMPILER=${TRIPLET}-gcc"
             fi
