@@ -7,7 +7,7 @@
 # https://clang.llvm.org/extra/clang-tidy/checks/list.html
 Checks:
   - clang-analyzer-*
-  # -clang-analyzer-optin.performance.Padding
+  - -clang-analyzer-optin.performance.Padding
   - -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
   # -clang-diagnostic-nullability-extension
   - bugprone-assert-side-effect
