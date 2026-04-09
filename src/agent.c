@@ -333,30 +333,32 @@ cleanup:
     DWORD err;                                                         \
     int rc;                                                            \
                                                                        \
-    while(*total < length) {                                           \
+    while(*(total) < (length)) {                                       \
         if(!agent->pending_io)                                         \
-            ret = func(agent->pipe, (char *)buffer + *total,           \
-                       (DWORD)(length - *total), &bytes_transferred,   \
+            ret = func((agent)->pipe, (char *)(buffer) + *(total),     \
+                       (DWORD)((length) - *(total)),                   \
+                       &bytes_transferred,                             \
                        &agent->overlapped);                            \
         else                                                           \
-            ret = GetOverlappedResult(agent->pipe, &agent->overlapped, \
+            ret = GetOverlappedResult((agent)->pipe,                   \
+                                      &(agent)->overlapped,            \
                                       &bytes_transferred, FALSE);      \
                                                                        \
-        *total += bytes_transferred;                                   \
+        *(total) += bytes_transferred;                                 \
         if(!ret) {                                                     \
             err = GetLastError();                                      \
-            if((!agent->pending_io && ERROR_IO_PENDING == err) ||      \
-               (agent->pending_io && ERROR_IO_INCOMPLETE == err)) {    \
-                agent->pending_io = TRUE;                              \
+            if((!(agent)->pending_io && ERROR_IO_PENDING == err) ||    \
+               ((agent)->pending_io && ERROR_IO_INCOMPLETE == err)) {  \
+                (agent)->pending_io = TRUE;                            \
                 return LIBSSH2_ERROR_EAGAIN;                           \
             }                                                          \
                                                                        \
             return LIBSSH2_ERROR_SOCKET_NONE;                          \
         }                                                              \
-        agent->pending_io = FALSE;                                     \
+        (agent)->pending_io = FALSE;                                   \
     }                                                                  \
                                                                        \
-    rc = (int)*total;                                                  \
+    rc = (int)*(total);                                                \
     *total = 0;                                                        \
     return rc;
 
@@ -514,22 +516,22 @@ agent_connect_unix(LIBSSH2_AGENT *agent)
     return LIBSSH2_ERROR_NONE;
 }
 
-#define RECV_SEND_ALL(func, socket, buffer, length, flags, abstract) \
-    do {                                                             \
-        size_t finished = 0;                                         \
-                                                                     \
-        while(finished < length) {                                   \
-            ssize_t rc;                                              \
-            rc = func(socket,                                        \
-                      (char *)buffer + finished, length - finished,  \
-                      flags, abstract);                              \
-            if(rc < 0)                                               \
-                return rc;                                           \
-                                                                     \
-            finished += rc;                                          \
-        }                                                            \
-                                                                     \
-        return finished;                                             \
+#define RECV_SEND_ALL(func, socket, buffer, length, flags, abstract)    \
+    do {                                                                \
+        size_t finished = 0;                                            \
+                                                                        \
+        while(finished < (length)) {                                    \
+            ssize_t rc;                                                 \
+            rc = func(socket,                                           \
+                      (char *)(buffer) + finished, (length) - finished, \
+                      flags, abstract);                                 \
+            if(rc < 0)                                                  \
+                return rc;                                              \
+                                                                        \
+            finished += rc;                                             \
+        }                                                               \
+                                                                        \
+        return finished;                                                \
     } while(0)
 
 static ssize_t _send_all(LIBSSH2_SEND_FUNC(func), libssh2_socket_t socket,

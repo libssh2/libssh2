@@ -55,53 +55,53 @@
 /* Helper macro called from
    kex_method_diffie_hellman_group1_sha1_key_exchange */
 
-#define LIBSSH2_KEX_METHOD_SHA_VALUE_HASH(digest_type, value,               \
-                                          reqlen, version)                  \
-do {                                                                        \
-    libssh2_sha##digest_type##_ctx hash;                                    \
-    size_t len = 0;                                                         \
-    if(!(value)) {                                                          \
-        value = LIBSSH2_ALLOC(session,                                      \
-                              reqlen + SHA##digest_type##_DIGEST_LENGTH);   \
-    }                                                                       \
-    if(value)                                                               \
-        while(len < (size_t)reqlen) {                                       \
-            if(!libssh2_sha##digest_type##_init(&hash) ||                   \
-               !libssh2_sha##digest_type##_update(hash,                     \
-                                       exchange_state->k_value,             \
-                                       exchange_state->k_value_len) ||      \
-               !libssh2_sha##digest_type##_update(hash,                     \
-                                       exchange_state->h_sig_comp,          \
-                                       SHA##digest_type##_DIGEST_LENGTH)) { \
-                LIBSSH2_FREE(session, value);                               \
-                value = NULL;                                               \
-                break;                                                      \
-            }                                                               \
-            if(len > 0) {                                                   \
-                if(!libssh2_sha##digest_type##_update(hash, value, len)) {  \
-                    LIBSSH2_FREE(session, value);                           \
-                    value = NULL;                                           \
-                    break;                                                  \
-                }                                                           \
-            }                                                               \
-            else {                                                          \
-                if(!libssh2_sha##digest_type##_update(hash,                 \
-                                                      (version), 1) ||      \
-                   !libssh2_sha##digest_type##_update(hash,                 \
-                                                session->session_id,        \
-                                                session->session_id_len)) { \
-                    LIBSSH2_FREE(session, value);                           \
-                    value = NULL;                                           \
-                    break;                                                  \
-                }                                                           \
-            }                                                               \
-            if(!libssh2_sha##digest_type##_final(hash, (value) + len)) {    \
-                LIBSSH2_FREE(session, value);                               \
-                value = NULL;                                               \
-                break;                                                      \
-            }                                                               \
-            len += SHA##digest_type##_DIGEST_LENGTH;                        \
-        }                                                                   \
+#define LIBSSH2_KEX_METHOD_SHA_VALUE_HASH(digest_type, value,                 \
+                                          reqlen, version)                    \
+do {                                                                          \
+    libssh2_sha##digest_type##_ctx hash;                                      \
+    size_t len = 0;                                                           \
+    if(!(value)) {                                                            \
+        (value) = LIBSSH2_ALLOC(session,                                      \
+                                (reqlen) + SHA##digest_type##_DIGEST_LENGTH); \
+    }                                                                         \
+    if(value)                                                                 \
+        while(len < (size_t)(reqlen)) {                                       \
+            if(!libssh2_sha##digest_type##_init(&hash) ||                     \
+               !libssh2_sha##digest_type##_update(hash,                       \
+                                       exchange_state->k_value,               \
+                                       exchange_state->k_value_len) ||        \
+               !libssh2_sha##digest_type##_update(hash,                       \
+                                       exchange_state->h_sig_comp,            \
+                                       SHA##digest_type##_DIGEST_LENGTH)) {   \
+                LIBSSH2_FREE(session, value);                                 \
+                (value) = NULL;                                               \
+                break;                                                        \
+            }                                                                 \
+            if(len > 0) {                                                     \
+                if(!libssh2_sha##digest_type##_update(hash, value, len)) {    \
+                    LIBSSH2_FREE(session, value);                             \
+                    (value) = NULL;                                           \
+                    break;                                                    \
+                }                                                             \
+            }                                                                 \
+            else {                                                            \
+                if(!libssh2_sha##digest_type##_update(hash,                   \
+                                                      (version), 1) ||        \
+                   !libssh2_sha##digest_type##_update(hash,                   \
+                                                session->session_id,          \
+                                                session->session_id_len)) {   \
+                    LIBSSH2_FREE(session, value);                             \
+                    (value) = NULL;                                           \
+                    break;                                                    \
+                }                                                             \
+            }                                                                 \
+            if(!libssh2_sha##digest_type##_final(hash, (value) + len)) {      \
+                LIBSSH2_FREE(session, value);                                 \
+                (value) = NULL;                                               \
+                break;                                                        \
+            }                                                                 \
+            len += SHA##digest_type##_DIGEST_LENGTH;                          \
+        }                                                                     \
 } while(0)
 
 /*!
@@ -3610,12 +3610,12 @@ kex_method_list(unsigned char *buf, uint32_t list_strlen,
     do {                                                                      \
         if(prefvar) {                                                         \
             _libssh2_htonu32((buf), (prefvarlen));                            \
-            buf += 4;                                                         \
+            (buf) += 4;                                                       \
             memcpy((buf), (prefvar), (prefvarlen));                           \
-            buf += (prefvarlen);                                              \
+            (buf) += (prefvarlen);                                            \
         }                                                                     \
         else {                                                                \
-            buf += kex_method_list((buf), (prefvarlen),                       \
+            (buf) += kex_method_list((buf), (prefvarlen),                     \
                                 (const LIBSSH2_COMMON_METHOD**)(defaultvar)); \
         }                                                                     \
     } while(0)

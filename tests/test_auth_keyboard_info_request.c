@@ -43,7 +43,7 @@
 #include <stdlib.h>
 
 #define PASS 0
-#define FAIL -1
+#define FAIL (-1)
 
 struct expected {
     int rc;

@@ -1085,8 +1085,8 @@ struct _LIBSSH2_CRYPT_METHOD
 #define LAST_BLOCK 2
 
 /* Convenience macros for accessing firstlast */
-#define IS_FIRST(firstlast) (firstlast & FIRST_BLOCK)
-#define IS_LAST(firstlast) (firstlast & LAST_BLOCK)
+#define IS_FIRST(firstlast) ((firstlast) & FIRST_BLOCK)
+#define IS_LAST(firstlast)  ((firstlast) & LAST_BLOCK)
 
 struct _LIBSSH2_COMP_METHOD
 {
@@ -1121,7 +1121,7 @@ _libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
 
 #define LIBSSH2_SOCKET_UNKNOWN                   1
 #define LIBSSH2_SOCKET_CONNECTED                 0
-#define LIBSSH2_SOCKET_DISCONNECTED             -1
+#define LIBSSH2_SOCKET_DISCONNECTED              (-1)
 
 /* Initial packet state, prior to MAC check */
 #define LIBSSH2_MAC_UNCONFIRMED                  1
@@ -1129,7 +1129,7 @@ _libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
    "confirmed" */
 #define LIBSSH2_MAC_CONFIRMED                    0
 /* Something very bad is going on */
-#define LIBSSH2_MAC_INVALID                     -1
+#define LIBSSH2_MAC_INVALID                      (-1)
 
 /* Flags for _libssh2_error_flags */
 /* Error message is allocated on the heap */
