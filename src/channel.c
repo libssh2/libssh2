@@ -1418,6 +1418,7 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
 
         _libssh2_store_u32(&s, (uint32_t)cookie_len);
         if(auth_cookie) {
+            /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
             memcpy(s, auth_cookie, cookie_len);
         }
         else {
