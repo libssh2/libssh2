@@ -438,8 +438,8 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
             }
 
             s = session->pkeyInit_data;
-            if((response =
-                 publickey_response_id(&s, session->pkeyInit_data_len)) < 0) {
+            response = publickey_response_id(&s, session->pkeyInit_data_len);
+            if(response < 0) {
                 _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                                "Invalid publickey subsystem response code");
                 goto err_exit;
@@ -880,9 +880,9 @@ libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY * pkey, unsigned long *num_keys,
         }
 
         pkey->listFetch_s = pkey->listFetch_data;
-        if((response =
-             publickey_response_id(&pkey->listFetch_s,
-                                   pkey->listFetch_data_len)) < 0) {
+        response = publickey_response_id(&pkey->listFetch_s,
+                                         pkey->listFetch_data_len);
+        if(response < 0) {
             _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                            "Invalid publickey subsystem response code");
             goto err_exit;
