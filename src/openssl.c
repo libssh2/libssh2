@@ -1307,6 +1307,7 @@ gen_publickey_from_rsa(LIBSSH2_SESSION *session, libssh2_rsa_ctx *rsa,
 
     _libssh2_htonu32(p, 7);  /* Key type. */
     p += 4;
+    /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
     memcpy(p, "ssh-rsa", 7);
     p += 7;
 
@@ -1362,6 +1363,7 @@ gen_publickey_from_rsa_evp(LIBSSH2_SESSION *session,
     RSA_free(rsa);
 #endif
 
+    /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
     memcpy(method_buf, "ssh-rsa", 7);
     *method = method_buf;
     if(method_len) {
