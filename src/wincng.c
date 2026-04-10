@@ -1422,13 +1422,13 @@ _libssh2_wincng_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
 
 #if LIBSSH2_RSA_SHA1
 int
-_libssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
+_libssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
                                 const unsigned char *sig,
                                 size_t sig_len,
                                 const unsigned char *m,
                                 size_t m_len)
 {
-    return _libssh2_wincng_key_sha_verify(rsa, SHA_DIGEST_LENGTH,
+    return _libssh2_wincng_key_sha_verify(rsactx, SHA_DIGEST_LENGTH,
                                           sig, (ULONG)sig_len,
                                           m, (ULONG)m_len,
                                           BCRYPT_PAD_PKCS1);
@@ -1437,14 +1437,14 @@ _libssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
 
 #if LIBSSH2_RSA_SHA2
 int
-_libssh2_wincng_rsa_sha2_verify(libssh2_rsa_ctx *rsa,
+_libssh2_wincng_rsa_sha2_verify(libssh2_rsa_ctx *rsactx,
                                 size_t hash_len,
                                 const unsigned char *sig,
                                 size_t sig_len,
                                 const unsigned char *m,
                                 size_t m_len)
 {
-    return _libssh2_wincng_key_sha_verify(rsa, (ULONG)hash_len,
+    return _libssh2_wincng_key_sha_verify(rsactx, (ULONG)hash_len,
                                           sig, (ULONG)sig_len,
                                           m, (ULONG)m_len,
                                           BCRYPT_PAD_PKCS1);
@@ -1514,26 +1514,26 @@ _libssh2_wincng_rsa_sha_sign(LIBSSH2_SESSION *session,
 
 int
 _libssh2_wincng_rsa_sha1_sign(LIBSSH2_SESSION *session,
-                              libssh2_rsa_ctx *rsa,
+                              libssh2_rsa_ctx *rsactx,
                               const unsigned char *hash,
                               size_t hash_len,
                               unsigned char **signature,
                               size_t *signature_len)
 {
-    return _libssh2_wincng_rsa_sha_sign(session, rsa,
+    return _libssh2_wincng_rsa_sha_sign(session, rsactx,
                                         hash, hash_len,
                                         signature, signature_len);
 }
 
 int
 _libssh2_wincng_rsa_sha2_sign(LIBSSH2_SESSION *session,
-                              libssh2_rsa_ctx *rsa,
+                              libssh2_rsa_ctx *rsactx,
                               const unsigned char *hash,
                               size_t hash_len,
                               unsigned char **signature,
                               size_t *signature_len)
 {
-    return _libssh2_wincng_rsa_sha_sign(session, rsa,
+    return _libssh2_wincng_rsa_sha_sign(session, rsactx,
                                         hash, hash_len,
                                         signature, signature_len);
 }
