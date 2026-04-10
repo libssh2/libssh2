@@ -327,7 +327,7 @@ cleanup:
     return ret;
 }
 
-#define RECV_SEND_ALL(func, agent, buffer, length, total)              \
+#define WIN32_RECV_SEND_ALL(func, agent, buffer, length, total)        \
     DWORD bytes_transferred;                                           \
     BOOL ret;                                                          \
     DWORD err;                                                         \
@@ -366,17 +366,15 @@ static int
 win32_openssh_send_all(LIBSSH2_AGENT *agent, void *buffer, size_t length,
                        size_t *send_recv_total)
 {
-    RECV_SEND_ALL(WriteFile, agent, buffer, length, send_recv_total)
+    WIN32_RECV_SEND_ALL(WriteFile, agent, buffer, length, send_recv_total)
 }
 
 static int
 win32_openssh_recv_all(LIBSSH2_AGENT *agent, void *buffer, size_t length,
                        size_t *send_recv_total)
 {
-    RECV_SEND_ALL(ReadFile, agent, buffer, length, send_recv_total)
+    WIN32_RECV_SEND_ALL(ReadFile, agent, buffer, length, send_recv_total)
 }
-
-#undef RECV_SEND_ALL
 
 static int
 agent_transact_openssh(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
@@ -549,8 +547,6 @@ static ssize_t _recv_all(LIBSSH2_RECV_FUNC(func), libssh2_socket_t socket,
     RECV_SEND_ALL(func, socket, buffer, length,
                   flags, abstract);
 }
-
-#undef RECV_SEND_ALL
 
 static int
 agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
