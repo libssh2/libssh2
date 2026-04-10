@@ -2200,7 +2200,6 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
             ret = _libssh2_error(session, LIBSSH2_ERROR_KEX_FAILURE,
                                  "Unknown SHA digest for EC curve");
             goto clean_exit;
-
         }
         ret = finish_kex(session, exchange_state, digest_len, sha_algo_value);
         if(ret == LIBSSH2_ERROR_EAGAIN) {
@@ -2518,7 +2517,7 @@ mlkem_nistp(LIBSSH2_SESSION *session,
         if(_libssh2_bn_to_bin(exchange_state->k,
                            shared_secret + LIBSSH2_MLKEM_SHARED_SECRET_LEN)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                     "Can't write shared secret");
+                                 "Can't write shared secret");
             goto clean_exit;
         }
 
@@ -3756,7 +3755,6 @@ static int kexinit(LIBSSH2_SESSION * session)
             p += lang_sc_len;
             _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                            "Sent first_kex_packet_follows: %02x", p[0]));
-
         }
 #endif /* LIBSSH2DEBUG */
 
@@ -3781,7 +3779,6 @@ static int kexinit(LIBSSH2_SESSION * session)
         session->kexinit_state = libssh2_NB_state_idle;
         return _libssh2_error(session, rc,
                               "Unable to send KEXINIT packet to remote host");
-
     }
 
     if(session->local.kexinit) {

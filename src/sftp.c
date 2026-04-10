@@ -1004,7 +1004,6 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
            strncmp("posix-rename@openssh.com", (char *)extname, 24) == 0) {
             sftp_handle->posix_rename_version = extversion;
         }
-
     }
     LIBSSH2_FREE(session, data);
 
@@ -2317,7 +2316,6 @@ libssh2_sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
     BLOCK_ADJUST(rc, handle->sftp->channel->session,
                  sftp_write(handle, buffer, count));
     return rc;
-
 }
 
 static int sftp_fsync(LIBSSH2_SFTP_HANDLE *handle)
@@ -2641,7 +2639,6 @@ static void sftp_packet_flush(LIBSSH2_SFTP *sftp)
         LIBSSH2_FREE(session, zombie);
         zombie = next;
     }
-
 }
 
 /* sftp_close_handle
@@ -2733,7 +2730,6 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
         /* if it reaches this point with data unset, something unwanted
            happened for which we should have set an error code */
         assert(rc);
-
     }
     else {
         uint32_t retcode = _libssh2_ntohu32(data + 5);

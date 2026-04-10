@@ -872,7 +872,6 @@ libssh2_channel_forward_accept(LIBSSH2_LISTENER *listener)
     BLOCK_ADJUST_ERRNO(ptr, listener->session,
                        channel_forward_accept(listener));
     return ptr;
-
 }
 
 /*
@@ -2682,7 +2681,6 @@ int _libssh2_channel_close(LIBSSH2_CHANNEL * channel)
             _libssh2_error(session, rc,
                            "Would block sending close-channel");
             return rc;
-
         }
         else if(rc) {
             _libssh2_error(session, rc,
@@ -2690,7 +2688,6 @@ int _libssh2_channel_close(LIBSSH2_CHANNEL * channel)
                            "but closing anyway");
             /* skip waiting for the response and fall through to
                LIBSSH2_CHANNEL_CLOSE below */
-
         }
         else
             channel->close_state = libssh2_NB_state_sent;

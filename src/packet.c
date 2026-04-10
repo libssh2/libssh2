@@ -266,7 +266,6 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
     else if(rc) {
         listen_state->state = libssh2_NB_state_idle;
         return _libssh2_error(session, rc, "Unable to send open failure");
-
     }
     listen_state->state = libssh2_NB_state_idle;
     return 0;
@@ -1190,7 +1189,6 @@ libssh2_packet_add_jump_point1:
                                        channelp->local.id,
                                        channelp->remote.id));
                     }
-
                 }
                 else if(len == strlen("exit-signal") &&
                         !memcmp("exit-signal", request,

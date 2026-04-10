@@ -900,7 +900,6 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
             /* no NUL-termination needed, so memcpy will do */
             memcpy(&session->scpSend_command[cmd_len], path, path_len);
             cmd_len += path_len;
-
         }
         else {
             cmd_len += shell_quotearg(path,
