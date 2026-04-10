@@ -119,7 +119,7 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
 
     fseek(fp, 0L, SEEK_END);
     filedata_len = ftell(fp);
-    fseek(fp, 0L, 0);
+    fseek(fp, 0L, SEEK_SET);
 
     filedata = LIBSSH2_ALLOC(session, filedata_len);
     if(!filedata) {
