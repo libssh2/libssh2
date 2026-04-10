@@ -959,12 +959,15 @@ agent_list_identities(LIBSSH2_AGENT *agent)
                               "agent not connected");
 
     rc = agent->ops->transact(agent, transctx);
+
+    LIBSSH2_FREE(session, transctx->request);
+    transctx->request = NULL;
+
     if(rc) {
         LIBSSH2_FREE(agent->session, transctx->response);
         transctx->response = NULL;
         return rc;
     }
-    transctx->request = NULL;
 
     len = transctx->response_len;
     s = transctx->response;
