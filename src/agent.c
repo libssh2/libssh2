@@ -338,7 +338,7 @@ cleanup:
             ret = func((agent)->pipe, (char *)(buffer) + *(total),     \
                        (DWORD)((length) - *(total)),                   \
                        &bytes_transferred,                             \
-                       &agent->overlapped);                            \
+                       &(agent)->overlapped);                          \
         else                                                           \
             ret = GetOverlappedResult((agent)->pipe,                   \
                                       &(agent)->overlapped,            \
@@ -359,7 +359,7 @@ cleanup:
     }                                                                  \
                                                                        \
     rc = (int)*(total);                                                \
-    *total = 0;                                                        \
+    *(total) = 0;                                                      \
     return rc;
 
 static int
