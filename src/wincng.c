@@ -3420,7 +3420,7 @@ _libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
                              _libssh2_cipher_type(algo),
                              int encrypt,
                              unsigned char *block,
-                             size_t blocklen, int firstlast)
+                             size_t blocksize, int firstlast)
 {
     unsigned char *pbOutput, *pbInput;
     ULONG cbOutput, cbInput;
@@ -3429,7 +3429,7 @@ _libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
     (void)algo;
     (void)firstlast;
 
-    cbInput = (ULONG)blocklen;
+    cbInput = (ULONG)blocksize;
 
     if(algo.ctrMode) {
         pbInput = ctx->pbCtr;
@@ -3462,7 +3462,7 @@ _libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
             if(BCRYPT_SUCCESS(ret)) {
                 if(algo.ctrMode) {
                     /* NOLINTNEXTLINE(readability-suspicious-call-argument) */
-                    _libssh2_xor_data(block, block, pbOutput, blocklen);
+                    _libssh2_xor_data(block, block, pbOutput, blocksize);
                     _libssh2_aes_ctr_increment(ctx->pbCtr, ctx->dwCtrLength);
                 }
                 else {
