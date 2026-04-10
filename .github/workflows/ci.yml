@@ -555,7 +555,10 @@ jobs:
               options+=" -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${MATRIX_ARCH}"
               cflags+=' -m32'
             fi
-            [ "${MATRIX_COMPILER}" = 'clang-tidy' ] && options+=' -DLIBSSH2_CLANG_TIDY=ON'
+            if [ "${MATRIX_COMPILER}" = 'clang-tidy' ]; then
+              options+=' -DLIBSSH2_CLANG_TIDY=ON -DCLANG_TIDY=/usr/bin/clang-tidy-20'
+              options+=' -DCMAKE_C_COMPILER=clang-20'
+            fi
             if [[ "${MATRIX_CRYPTO}" =~ ^(OpenSSL|Libgcrypt|mbedTLS|wolfSSL)$ && "${MATRIX_COMPILER}" != 'clang-tidy' && "${MATRIX_ZLIB}" = 'ON' ]]; then
               options+=' -DCMAKE_C_STANDARD=90'
               cflags+=' -D_DEFAULT_SOURCE'  # for glibc ISO mode, in tests: popen(), pclose(), in examples: fileno(), tcsetattr()
@@ -672,7 +675,7 @@ jobs:
         run: |
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
             if [ "${MATRIX_COMPILER}" = 'clang-tidy' ]; then
-              options+=' -DLIBSSH2_CLANG_TIDY=ON'
+              options+=' -DLIBSSH2_CLANG_TIDY=ON -DCLANG_TIDY=/usr/bin/clang-tidy-20'
               options+=' -DCMAKE_C_COMPILER=clang-20'
               options+=" -DCMAKE_RC_COMPILER=llvm-windres-$(clang-20 -dumpversion | cut -d '.' -f 1)"
             else
