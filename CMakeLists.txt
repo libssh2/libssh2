@@ -280,7 +280,6 @@ if(LIBSSH2_CLANG_TIDY)
   set(CMAKE_UNITY_BUILD OFF)
   if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
     set(PICKY_COMPILER OFF)  # Do a best effort and skip passing non-clang warning options to clang-tidy.
-    # This lets through warning options enabled via CURL_WERROR=ON, affecting lib and src.
   endif()
   set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY}")
   list(APPEND CMAKE_C_CLANG_TIDY "--config-file=${PROJECT_SOURCE_DIR}/.clang-tidy.yml")
