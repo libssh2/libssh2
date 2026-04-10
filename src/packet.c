@@ -1353,20 +1353,27 @@ libssh2_packet_add_jump_authagent:
                     _libssh2_channel_locate(session,
                                             _libssh2_ntohu32(data + 1));
                 if(channelp) {
-                    channelp->local.window_size += bytestoadd;
+                    if(bytestoadd > UINT32_MAX - channelp->local.window_size) {
+                        rc = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                            "Window adjust out of bounds");
+                    }
+                    else {
+                        channelp->local.window_size += bytestoadd;
 
-                    _libssh2_debug((session, LIBSSH2_TRACE_CONN,
-                                   "Window adjust for channel %u/%u, "
-                                   "adding %u bytes, new window_size=%u",
-                                   channelp->local.id,
-                                   channelp->remote.id,
-                                   bytestoadd,
-                                   channelp->local.window_size));
+                        _libssh2_debug((session, LIBSSH2_TRACE_CONN,
+                                        "Window adjust for channel %u/%u, "
+                                        "adding %u bytes, new window_size=%u",
+                                        channelp->local.id,
+                                        channelp->remote.id,
+                                        bytestoadd,
+                                        channelp->local.window_size));
+                    }
                 }
             }
+
             LIBSSH2_FREE(session, data);
             session->packAdd_state = libssh2_NB_state_idle;
-            return 0;
+            return rc;
         default:
             break;
         }
