@@ -659,7 +659,7 @@ jobs:
     steps:
       - name: 'install packages'
         env:
-          INSTALL_PACKAGES: ${{ matrix.compiler == 'clang-tidy' && 'clang-20' || '' }}
+          INSTALL_PACKAGES: ${{ matrix.compiler == 'clang-tidy' && 'clang-20 clang-tidy-20' || '' }}
         run: sudo apt-get -o Dpkg::Use-Pty=0 install mingw-w64 ${INSTALL_PACKAGES}
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
