@@ -334,12 +334,13 @@ jobs:
 
       - name: 'install packages'
         run: |
-          [ "${MATRIX_COMPILER}" = 'clang-tidy' ] && tools='clang-20 clang-tidy-20'
-          [ "${MATRIX_CRYPTO}" = 'OpenSSL' ] && pkg='libssl-dev'
-          [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && pkg='libgcrypt-dev'
-          [ "${MATRIX_CRYPTO}" = 'wolfSSL' ] && pkg='libwolfssl-dev'
-          if [ -n "${pkg}" ]; then
-            sudo apt-get -o Dpkg::Use-Pty=0 install "${pkg}:${MATRIX_ARCH}" ${tools}
+          pkgs=''
+          [ "${MATRIX_COMPILER}" = 'clang-tidy' ] && pkgs+=' clang-20 clang-tidy-20'
+          [ "${MATRIX_CRYPTO}" = 'OpenSSL' ] && pkgs+=" libssl-dev:${MATRIX_ARCH}"
+          [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && pkgs+=" libgcrypt-dev:${MATRIX_ARCH}"
+          [ "${MATRIX_CRYPTO}" = 'wolfSSL' ] && pkgs+=" libwolfssl-dev:${MATRIX_ARCH}"
+          if [ -n "${pkgs}" ]; then
+            sudo apt-get -o Dpkg::Use-Pty=0 install ${pkgs}
           fi
 
       - name: 'cache mbedTLS'
