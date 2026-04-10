@@ -1315,7 +1315,6 @@ size_t plain_method(char *method, size_t method_len)
                 method,
                 method_len)) {
         const char *new_method = "sk-ecdsa-sha2-nistp256@openssh.com";
-        /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
         memcpy(method, new_method, strlen(new_method));
         return strlen(new_method);
     }
@@ -1324,7 +1323,6 @@ size_t plain_method(char *method, size_t method_len)
                 method,
                 method_len)) {
         const char *new_method = "sk-ssh-ed25519@openssh.com";
-        /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
         memcpy(method, new_method, strlen(new_method));
         return strlen(new_method);
     }

@@ -706,7 +706,6 @@ gen_publickey_from_rsa(LIBSSH2_SESSION *session,
 
     _libssh2_htonu32(p, 7);  /* Key type. */
     p += 4;
-    /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
     memcpy(p, "ssh-rsa", 7);
     p += 7;
 
