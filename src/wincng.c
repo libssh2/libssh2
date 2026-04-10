@@ -3461,7 +3461,6 @@ _libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
             }
             if(BCRYPT_SUCCESS(ret)) {
                 if(algo.ctrMode) {
-                    /* NOLINTNEXTLINE(readability-suspicious-call-argument) */
                     _libssh2_xor_data(block, block, pbOutput, blocksize);
                     _libssh2_aes_ctr_increment(ctx->pbCtr, ctx->dwCtrLength);
                 }
