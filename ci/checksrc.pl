@@ -49,6 +49,8 @@ my @ignore_line;
 
 my %banfunc = (
     "_access" => 1,
+    "_fstati64" => 1,
+    "_lseeki64" => 1,
     "_mbscat" => 1,
     "_mbsncat" => 1,
     "_open" => 1,
@@ -70,6 +72,7 @@ my %banfunc = (
     "atoi" => 1,
     "atol" => 1,
     "calloc" => 1,
+    "close" => 1,
     "CreateFile" => 1,
     "CreateFileA" => 1,
     "CreateFileW" => 1,
@@ -80,9 +83,11 @@ my %banfunc = (
     "free" => 1,
     "freeaddrinfo" => 1,
     "freopen" => 1,
+    "fstat" => 1,
     "getaddrinfo" => 1,
     "gets" => 1,
     "gmtime" => 1,
+    "llseek" => 1,
     "LoadLibrary" => 1,
     "LoadLibraryA" => 1,
     "LoadLibraryEx" => 1,
@@ -90,6 +95,7 @@ my %banfunc = (
     "LoadLibraryExW" => 1,
     "LoadLibraryW" => 1,
     "localtime" => 1,
+    "lseek" => 1,
     "malloc" => 1,
     "mbstowcs" => 1,
     "MoveFileEx" => 1,
@@ -149,11 +155,12 @@ my %warnings = (
     'BRACEPOS'              => 'wrong position for an open brace',
     'BRACEWHILE'            => 'A single space between open brace and while',
     'COMMANOSPACE'          => 'comma without following space',
-    "CLOSEBRACE"            => 'close brace indent level vs line above is off',
+    'CLOSEBRACE'            => 'close brace indent level vs line above is off',
     'COMMENTNOSPACEEND'     => 'no space before */',
     'COMMENTNOSPACESTART'   => 'no space following /*',
     'COPYRIGHT'             => 'file missing a copyright statement',
     'CPPCOMMENTS'           => '// comment detected',
+    'CPPSPACE'              => 'space before preprocessor hash',
     'DOBRACE'               => 'A single space between do and open brace',
     'EMPTYLINEBRACE'        => 'Empty line before the open brace',
     'EQUALSNOSPACE'         => 'equals sign without following space',
@@ -266,7 +273,7 @@ sub readlocalfile {
 sub checkwarn {
     my ($name, $num, $col, $file, $line, $msg, $error) = @_;
 
-    my $w=$error?"error":"warning";
+    my $w=$error ? "error" : "warning";
     my $nowarn=0;
 
     #if(!$warnings{$name}) {
@@ -405,7 +412,7 @@ readskiplist();
 readlocalfile($file);
 
 do {
-    if("$wlist" !~ / $file /) {
+    if($wlist !~ / $file /) {
         my $fullname = $file;
         $fullname = "$dir/$file" if($fullname !~ '^\.?\.?/');
         scanfile($fullname);
@@ -674,6 +681,11 @@ sub scanfile {
             $includes{$path} = $l;
         }
 
+        # detect leading space before the hash
+        if($l =~ /^([ \t]+)\#/) {
+            checkwarn("CPPSPACE",
+                      $line, 0, $file, $l, "space before preprocessor hash");
+        }
         # detect and strip preprocessor directives
         if($l =~ /^[ \t]*\#/) {
             # preprocessor line
@@ -966,9 +978,11 @@ sub scanfile {
             my $bad = $2;
             my $prefix = $1;
             my $suff = $3;
-            checkwarn("BANNEDFUNC",
-                      $line, length($prefix), $file, $ol,
-                      "use of $bad is banned");
+            if($prefix !~ /(->|\.)$/) {
+                checkwarn("BANNEDFUNC",
+                          $line, length($prefix), $file, $ol,
+                          "use of $bad is banned");
+            }
             my $search = quotemeta($prefix . $bad . $suff);
             my $replace = $prefix . 'x' x (length($bad) + 1);
             $l =~ s/$search/$replace/;
@@ -1175,7 +1189,7 @@ sub scanfile {
         # which are tracked in the Git repo and edited in the workdir, or
         # committed locally on the branch without being in upstream master.
         #
-        # The simple and naive test is to simply check for the current year,
+        # The simple and naive test is to check for the current year,
         # but updating the year even without an edit is against project policy
         # (and it would fail every file on January 1st).
         #
@@ -1216,7 +1230,6 @@ sub scanfile {
     checksrc_endoffile($file);
 
     close($R);
-
 }
 
 if($errors || $warnings || $verbose) {

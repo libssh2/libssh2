@@ -66,11 +66,11 @@ int main(int argc, char *argv[])
     (void)argc;
     (void)argv;
 
-    #ifdef _WIN32
-    #define LIBSSH2_FALLBACK_USER_ENV "USERNAME"
-    #else
-    #define LIBSSH2_FALLBACK_USER_ENV "LOGNAME"
-    #endif
+#ifdef _WIN32
+#define LIBSSH2_FALLBACK_USER_ENV "USERNAME"
+#else
+#define LIBSSH2_FALLBACK_USER_ENV "LOGNAME"
+#endif
 
     if(getenv("USER"))
         username = getenv("USER");
