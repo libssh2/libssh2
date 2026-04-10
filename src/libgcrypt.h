@@ -161,9 +161,9 @@
 #define _libssh2_cipher_type(name) int name
 #define _libssh2_cipher_ctx gcry_cipher_hd_t
 
-#define _libssh2_gcry_ciphermode(c,m) ((c << 8) | m)
-#define _libssh2_gcry_cipher(c) (c >> 8)
-#define _libssh2_gcry_mode(m) (m & 0xFF)
+#define _libssh2_gcry_ciphermode(c,m) (((c) << 8) | (m))
+#define _libssh2_gcry_cipher(c) ((c) >> 8)
+#define _libssh2_gcry_mode(m) ((m) & 0xFF)
 
 #define _libssh2_cipher_aes256ctr \
     _libssh2_gcry_ciphermode(GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR)
