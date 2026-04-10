@@ -452,14 +452,14 @@ void
 _libssh2_mbedtls_bignum_free(_libssh2_bn *bn);
 
 void
-_libssh2_mbedtls_rsa_free(libssh2_rsa_ctx *rsa);
+_libssh2_mbedtls_rsa_free(libssh2_rsa_ctx *ctx);
 
 #if LIBSSH2_ECDSA
 libssh2_curve_type
 _libssh2_mbedtls_ecdsa_key_get_curve_type(libssh2_ecdsa_ctx *ctx);
 int
 _libssh2_mbedtls_ecdsa_curve_type_from_name(const char *name,
-                                            libssh2_curve_type *type);
+                                            libssh2_curve_type *out_type);
 void
 _libssh2_mbedtls_ecdsa_free(libssh2_ecdsa_ctx *ctx);
 #endif /* LIBSSH2_ECDSA */
