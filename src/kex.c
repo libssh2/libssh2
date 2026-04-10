@@ -2527,8 +2527,8 @@ mlkem_nistp(LIBSSH2_SESSION *session,
             case LIBSSH2_EC_CURVE_NISTP256: {
                 libssh2_sha256_ctx k_ctx;
                 if(!libssh2_sha256_init(&k_ctx)) {
-                    ret = _libssh2_error(session, LIBSSH2_ERROR_HASH_CALC,
-                                         "kex: failed to calculate hash");
+                    ret = _libssh2_error(session, LIBSSH2_ERROR_HASH_INIT,
+                                         "kex: failed to initialize hash");
                     goto clean_exit;
                 }
 
@@ -2550,8 +2550,8 @@ mlkem_nistp(LIBSSH2_SESSION *session,
             case LIBSSH2_EC_CURVE_NISTP384: {
                 libssh2_sha384_ctx k_ctx;
                 if(!libssh2_sha384_init(&k_ctx)) {
-                    ret = _libssh2_error(session, LIBSSH2_ERROR_HASH_CALC,
-                                         "kex: failed to calculate hash");
+                    ret = _libssh2_error(session, LIBSSH2_ERROR_HASH_INIT,
+                                         "kex: failed to initialize hash");
                     goto clean_exit;
                 }
 
@@ -3205,8 +3205,8 @@ mlkem768x25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         }
 
         if(!libssh2_sha256_init(&k_ctx)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_HASH_CALC,
-                                 "kex: failed to calculate hash");
+            ret = _libssh2_error(session, LIBSSH2_ERROR_HASH_INIT,
+                                 "kex: failed to initialize hash");
             goto clean_exit;
         }
 
