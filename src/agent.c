@@ -934,11 +934,11 @@ agent_list_identities(LIBSSH2_AGENT *agent)
     ssize_t len, num_identities;
     unsigned char *s;
     int rc;
-    static unsigned char c = SSH2_AGENTC_REQUEST_IDENTITIES;
+    static const unsigned char c = SSH2_AGENTC_REQUEST_IDENTITIES;
 
     /* Create a request to list identities */
     if(transctx->state == agent_NB_state_init) {
-        transctx->request = &c;
+        transctx->request = LIBSSH2_UNCONST(&c);
         transctx->request_len = 1;
         transctx->send_recv_total = 0;
         transctx->state = agent_NB_state_request_created;
