@@ -514,7 +514,6 @@ Blowfish_expandstate(blf_ctx *c, const uint8_t *data, uint16_t databytes,
             c->S[i][k + 1] = datar;
         }
     }
-
 }
 
 #ifdef _DEBUG_BLOWFISH

@@ -232,7 +232,6 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
                 _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
                                "Failed MAC check"));
                 session->fullpacket_macstate = LIBSSH2_MAC_INVALID;
-
             }
             else if(etm) {
                 /* MAC was ok and we start by decrypting the first block that
@@ -968,7 +967,6 @@ send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
            a send success now, so that we don't risk sending EAGAIN later
            which then would confuse the parent function */
         return LIBSSH2_ERROR_NONE;
-
     }
     else if(rc < 0) {
         /* nothing was sent */

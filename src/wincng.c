@@ -1958,7 +1958,6 @@ _libssh2_wincng_publickey_from_point(IN _libssh2_wincng_ecc_keytype keytype,
                                      IN _libssh2_ecdsa_point *point,
                                      OUT BCRYPT_KEY_HANDLE *key)
 {
-
     int result = LIBSSH2_ERROR_NONE;
     NTSTATUS status;
 
@@ -3150,7 +3149,6 @@ _libssh2_wincng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
         else {
             ret = -1;
         }
-
     }
     else {
         ret = -1;

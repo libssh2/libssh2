@@ -873,7 +873,6 @@ out:
         LIBSSH2_FREE(session, b64data);
     }
     return ret;
-
 }
 
 static int
