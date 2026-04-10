@@ -1255,13 +1255,13 @@ session_disconnect(LIBSSH2_SESSION *session, int reason,
  */
 LIBSSH2_API int
 libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reason,
-                              const char *desc, const char *lang)
+                              const char *description, const char *lang)
 {
     int rc;
     session->state &= ~LIBSSH2_STATE_INITIAL_KEX;
     session->state &= ~LIBSSH2_STATE_EXCHANGING_KEYS;
     BLOCK_ADJUST(rc, session,
-                 session_disconnect(session, reason, desc, lang));
+                 session_disconnect(session, reason, description, lang));
 
     return rc;
 }

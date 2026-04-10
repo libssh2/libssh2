@@ -1807,14 +1807,14 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
  * Read from an SFTP file handle
  */
 LIBSSH2_API ssize_t
-libssh2_sftp_read(LIBSSH2_SFTP_HANDLE *hnd, char *buffer,
+libssh2_sftp_read(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                   size_t buffer_maxlen)
 {
     ssize_t rc;
-    if(!hnd)
+    if(!handle)
         return LIBSSH2_ERROR_BAD_USE;
-    BLOCK_ADJUST(rc, hnd->sftp->channel->session,
-                 sftp_read(hnd, buffer, buffer_maxlen));
+    BLOCK_ADJUST(rc, handle->sftp->channel->session,
+                 sftp_read(handle, buffer, buffer_maxlen));
     return rc;
 }
 
@@ -2040,16 +2040,16 @@ end:
  * Read from an SFTP directory handle
  */
 LIBSSH2_API int
-libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *hnd, char *buffer,
+libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                         size_t buffer_maxlen, char *longentry,
                         size_t longentry_maxlen,
                         LIBSSH2_SFTP_ATTRIBUTES *attrs)
 {
     ssize_t rc;
-    if(!hnd)
+    if(!handle)
         return LIBSSH2_ERROR_BAD_USE;
-    BLOCK_ADJUST(rc, hnd->sftp->channel->session,
-                 sftp_readdir(hnd, buffer, buffer_maxlen, longentry,
+    BLOCK_ADJUST(rc, handle->sftp->channel->session,
+                 sftp_readdir(handle, buffer, buffer_maxlen, longentry,
                               longentry_maxlen, attrs));
     return (int)rc;  /* FIXME: -> ssize_t */
 }
@@ -2308,14 +2308,14 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
  * Write data to a file handle
  */
 LIBSSH2_API ssize_t
-libssh2_sftp_write(LIBSSH2_SFTP_HANDLE *hnd, const char *buffer,
+libssh2_sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
                    size_t count)
 {
     ssize_t rc;
-    if(!hnd)
+    if(!handle)
         return LIBSSH2_ERROR_BAD_USE;
-    BLOCK_ADJUST(rc, hnd->sftp->channel->session,
-                 sftp_write(hnd, buffer, count));
+    BLOCK_ADJUST(rc, handle->sftp->channel->session,
+                 sftp_write(handle, buffer, count));
     return rc;
 
 }
@@ -2413,13 +2413,13 @@ static int sftp_fsync(LIBSSH2_SFTP_HANDLE *handle)
  * Commit data on the handle to disk.
  */
 LIBSSH2_API int
-libssh2_sftp_fsync(LIBSSH2_SFTP_HANDLE *hnd)
+libssh2_sftp_fsync(LIBSSH2_SFTP_HANDLE *handle)
 {
     int rc;
-    if(!hnd)
+    if(!handle)
         return LIBSSH2_ERROR_BAD_USE;
-    BLOCK_ADJUST(rc, hnd->sftp->channel->session,
-                 sftp_fsync(hnd));
+    BLOCK_ADJUST(rc, handle->sftp->channel->session,
+                 sftp_fsync(handle));
     return rc;
 }
 
@@ -2536,14 +2536,14 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
  * Get or Set stat on a file
  */
 LIBSSH2_API int
-libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *hnd,
+libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *handle,
                       LIBSSH2_SFTP_ATTRIBUTES *attrs, int setstat)
 {
     int rc;
-    if(!hnd || !attrs)
+    if(!handle || !attrs)
         return LIBSSH2_ERROR_BAD_USE;
-    BLOCK_ADJUST(rc, hnd->sftp->channel->session,
-                 sftp_fstat(hnd, attrs, setstat));
+    BLOCK_ADJUST(rc, handle->sftp->channel->session,
+                 sftp_fstat(handle, attrs, setstat));
     return rc;
 }
 
@@ -2775,12 +2775,13 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
  * Also frees handle resource and unlinks it from the SFTP structure
  */
 LIBSSH2_API int
-libssh2_sftp_close_handle(LIBSSH2_SFTP_HANDLE *hnd)
+libssh2_sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
 {
     int rc;
-    if(!hnd)
+    if(!handle)
         return LIBSSH2_ERROR_BAD_USE;
-    BLOCK_ADJUST(rc, hnd->sftp->channel->session, sftp_close_handle(hnd));
+    BLOCK_ADJUST(rc, handle->sftp->channel->session,
+                 sftp_close_handle(handle));
     return rc;
 }
 

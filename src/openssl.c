@@ -905,20 +905,20 @@ _libssh2_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx ** ec_ctx,
 #endif
 
 int
-_libssh2_ecdsa_verify(libssh2_ecdsa_ctx * ecdsa_ctx,
+_libssh2_ecdsa_verify(libssh2_ecdsa_ctx * ec_ctx,
                       const unsigned char *r, size_t r_len,
                       const unsigned char *s, size_t s_len,
                       const unsigned char *m, size_t m_len)
 {
     int ret = 0;
-    libssh2_curve_type type = _libssh2_ecdsa_get_curve_type(ecdsa_ctx);
+    libssh2_curve_type type = _libssh2_ecdsa_get_curve_type(ec_ctx);
 
 #ifdef USE_OPENSSL_3
     EVP_PKEY_CTX *ctx = NULL;
     unsigned char *der = NULL;
     int der_len = 0;
 #else
-    EC_KEY *ec_key = (EC_KEY*)ecdsa_ctx;
+    EC_KEY *ec_key = (EC_KEY*)ec_ctx;
 #endif
 
 #ifdef HAVE_OPAQUE_STRUCTS
@@ -939,7 +939,7 @@ _libssh2_ecdsa_verify(libssh2_ecdsa_ctx * ecdsa_ctx,
 #endif
 
 #ifdef USE_OPENSSL_3
-    ctx = EVP_PKEY_CTX_new(ecdsa_ctx, NULL);
+    ctx = EVP_PKEY_CTX_new(ec_ctx, NULL);
     if(!ctx) {
         ret = -1;
         goto cleanup;

@@ -784,7 +784,7 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
                               size_t hostkey_data_len,
                               void **abstract)
 {
-    libssh2_ecdsa_ctx *ecdsactx = NULL;
+    libssh2_ecdsa_ctx *ec_ctx = NULL;
     unsigned char *type_str, *domain, *public_key;
     size_t key_len, len;
     libssh2_curve_type type;
@@ -844,12 +844,12 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
     if(!_libssh2_eob(&buf))
         return -1;
 
-    if(_libssh2_ecdsa_curve_name_with_octal_new(&ecdsactx, public_key,
+    if(_libssh2_ecdsa_curve_name_with_octal_new(&ec_ctx, public_key,
                                                 key_len, type))
         return -1;
 
     if(abstract)
-        *abstract = ecdsactx;
+        *abstract = ec_ctx;
 
     return 0;
 }

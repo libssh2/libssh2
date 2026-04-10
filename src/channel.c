@@ -354,10 +354,10 @@ channel_error:
  * Establish a generic session channel
  */
 LIBSSH2_API LIBSSH2_CHANNEL *
-libssh2_channel_open_ex(LIBSSH2_SESSION *session, const char *type,
-                        unsigned int type_len,
+libssh2_channel_open_ex(LIBSSH2_SESSION *session, const char *channel_type,
+                        unsigned int channel_type_len,
                         unsigned int window_size, unsigned int packet_size,
-                        const char *msg, unsigned int msg_len)
+                        const char *message, unsigned int message_len)
 {
     LIBSSH2_CHANNEL *ptr;
 
@@ -365,10 +365,11 @@ libssh2_channel_open_ex(LIBSSH2_SESSION *session, const char *type,
         return NULL;
 
     BLOCK_ADJUST_ERRNO(ptr, session,
-                       _libssh2_channel_open(session, type, type_len,
+                       _libssh2_channel_open(session,
+                                             channel_type, channel_type_len,
                                              window_size, packet_size,
-                                             (const unsigned char *)msg,
-                                             msg_len));
+                                             (const unsigned char *)message,
+                                             message_len));
     return ptr;
 }
 
@@ -1631,8 +1632,8 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
  */
 LIBSSH2_API int
 libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
-                                const char *req, unsigned int req_len,
-                                const char *msg, unsigned int msg_len)
+                                const char *request, unsigned int request_len,
+                                const char *message, unsigned int message_len)
 {
     int rc;
 
@@ -1640,8 +1641,9 @@ libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
         return LIBSSH2_ERROR_BAD_USE;
 
     BLOCK_ADJUST(rc, channel->session,
-                 _libssh2_channel_process_startup(channel, req, req_len,
-                                                  msg, msg_len));
+                 _libssh2_channel_process_startup(channel,
+                                                  request, request_len,
+                                                  message, message_len));
     return rc;
 }
 
@@ -1762,7 +1764,7 @@ _libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid)
  * Returns number of bytes flushed, or negative on failure
  */
 LIBSSH2_API int
-libssh2_channel_flush_ex(LIBSSH2_CHANNEL *channel, int stream)
+libssh2_channel_flush_ex(LIBSSH2_CHANNEL *channel, int streamid)
 {
     int rc;
 
@@ -1770,7 +1772,7 @@ libssh2_channel_flush_ex(LIBSSH2_CHANNEL *channel, int stream)
         return LIBSSH2_ERROR_BAD_USE;
 
     BLOCK_ADJUST(rc, channel->session,
-                 _libssh2_channel_flush(channel, stream));
+                 _libssh2_channel_flush(channel, streamid));
     return rc;
 }
 
@@ -1940,7 +1942,7 @@ _libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL * channel,
  */
 LIBSSH2_API unsigned long
 libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
-                                      unsigned long adj,
+                                      unsigned long adjustment,
                                       unsigned char force)
 {
     unsigned int window;
@@ -1951,7 +1953,7 @@ libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
 
     BLOCK_ADJUST(rc, channel->session,
                  _libssh2_channel_receive_window_adjust(channel,
-                                                        (uint32_t)adj,
+                                                        (uint32_t)adjustment,
                                                         force, &window));
 
     /* stupid - but this is how it was made to work before and this is just
@@ -1973,9 +1975,9 @@ libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
  */
 LIBSSH2_API int
 libssh2_channel_receive_window_adjust2(LIBSSH2_CHANNEL *channel,
-                                       unsigned long adj,
+                                       unsigned long adjustment,
                                        unsigned char force,
-                                       unsigned int *window)
+                                       unsigned int *storewindow)
 {
     int rc;
 
@@ -1984,8 +1986,8 @@ libssh2_channel_receive_window_adjust2(LIBSSH2_CHANNEL *channel,
 
     BLOCK_ADJUST(rc, channel->session,
                  _libssh2_channel_receive_window_adjust(channel,
-                                                        (uint32_t)adj,
-                                                        force, window));
+                                                        (uint32_t)adjustment,
+                                                        force, storewindow));
     return rc;
 }
 
@@ -2022,15 +2024,15 @@ _libssh2_channel_extended_data(LIBSSH2_CHANNEL *channel, int ignore_mode)
  */
 LIBSSH2_API int
 libssh2_channel_handle_extended_data2(LIBSSH2_CHANNEL *channel,
-                                      int mode)
+                                      int ignore_mode)
 {
     int rc;
 
     if(!channel)
         return LIBSSH2_ERROR_BAD_USE;
 
-    BLOCK_ADJUST(rc, channel->session, _libssh2_channel_extended_data(channel,
-                                                                      mode));
+    BLOCK_ADJUST(rc, channel->session,
+                 _libssh2_channel_extended_data(channel, ignore_mode));
     return rc;
 }
 

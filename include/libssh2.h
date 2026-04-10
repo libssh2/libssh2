@@ -754,8 +754,8 @@ LIBSSH2_API int
 libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
                               const char *username,
                               size_t username_len,
-                              const unsigned char *pubkeydata,
-                              size_t pubkeydata_len,
+                              const unsigned char *publickeydata,
+                              size_t publickeydata_len,
                               const char *privatekeydata,
                               size_t privatekeydata_len,
                               const char *passphrase,
@@ -1177,7 +1177,7 @@ LIBSSH2_API int
 libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                         const char *host, const char *key, size_t keylen,
                         int typemask,
-                        struct libssh2_knownhost **knownhost);
+                        struct libssh2_knownhost **store);
 
 /* this function is identical to the above one, but also takes a port
    argument that allows libssh2 to do a better check */
@@ -1186,7 +1186,7 @@ libssh2_knownhost_checkp(LIBSSH2_KNOWNHOSTS *hosts,
                          const char *host, int port,
                          const char *key, size_t keylen,
                          int typemask,
-                         struct libssh2_knownhost **knownhost);
+                         struct libssh2_knownhost **store);
 
 /*
  * libssh2_knownhost_del()

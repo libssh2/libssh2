@@ -120,7 +120,7 @@ int _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
                            size_t hash_len,
                            unsigned char **signature,
                            size_t *signature_len);
-int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsa,
+int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsactx,
                              const unsigned char *sig,
                              size_t sig_len,
                              const unsigned char *m, size_t m_len);
@@ -132,7 +132,7 @@ int _libssh2_rsa_sha2_sign(LIBSSH2_SESSION * session,
                            size_t hash_len,
                            unsigned char **signature,
                            size_t *signature_len);
-int _libssh2_rsa_sha2_verify(libssh2_rsa_ctx * rsa,
+int _libssh2_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
                              size_t hash_len,
                              const unsigned char *sig,
                              size_t sig_len,
@@ -175,10 +175,10 @@ int _libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx ** dsa,
 
 #if LIBSSH2_ECDSA
 int
-_libssh2_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx ** ecdsactx,
+_libssh2_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx ** ec_ctx,
                                          const unsigned char *k,
                                          size_t k_len,
-                                         libssh2_curve_type type);
+                                         libssh2_curve_type curve);
 
 int
 _libssh2_ecdsa_new_private(libssh2_ecdsa_ctx ** ec_ctx,
@@ -197,7 +197,7 @@ _libssh2_ecdsa_new_private_sk(libssh2_ecdsa_ctx ** ec_ctx,
                               const unsigned char *passphrase);
 
 int
-_libssh2_ecdsa_verify(libssh2_ecdsa_ctx * ctx,
+_libssh2_ecdsa_verify(libssh2_ecdsa_ctx * ec_ctx,
                       const unsigned char *r, size_t r_len,
                       const unsigned char *s, size_t s_len,
                       const unsigned char *m, size_t m_len);

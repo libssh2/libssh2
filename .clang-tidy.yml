@@ -10,11 +10,11 @@ Checks:
   - -clang-analyzer-optin.performance.Padding
   - -clang-analyzer-security.ArrayBound  # due to false positives with clang-tidy v21.1.0+
   - -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
-  # -clang-diagnostic-nullability-extension
   - bugprone-assert-side-effect
   - bugprone-assignment-in-if-condition
   - bugprone-chained-comparison
   - bugprone-dynamic-static-initializers
+  - bugprone-invalid-enum-default-initialization
   - bugprone-macro-parentheses
   - bugprone-macro-repeated-side-effects
   - bugprone-misplaced-operator-in-strlen-in-alloc
@@ -23,6 +23,7 @@ Checks:
   - bugprone-posix-return
   - bugprone-redundant-branch-condition
   - bugprone-signed-char-misuse
+  - bugprone-sizeof-expression
   - bugprone-suspicious-enum-usage
   - bugprone-suspicious-memset-usage
   - bugprone-suspicious-missing-comma
@@ -32,6 +33,7 @@ Checks:
   - misc-header-include-cycle
   - portability-*
   - readability-duplicate-include
+  - readability-inconsistent-declaration-parameter-name
   - readability-named-parameter
   - readability-redundant-control-flow
   - readability-redundant-declaration
@@ -40,5 +42,8 @@ Checks:
   - readability-redundant-preprocessor
   - readability-suspicious-call-argument
   - readability-uppercase-literal-suffix
+
+CheckOptions:
+  readability-inconsistent-declaration-parameter-name.Strict: true
 
 HeaderFilterRegex: '.*'  # Default in v22.1.0+

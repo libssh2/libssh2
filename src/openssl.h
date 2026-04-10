@@ -424,7 +424,7 @@ libssh2_curve_type;
 #define _libssh2_bn_init_from_bin() _libssh2_bn_init()
 #define _libssh2_bn_set_word(bn, val) !BN_set_word(bn, val)
 extern int _libssh2_bn_from_bin(_libssh2_bn *bn, size_t len,
-                                const unsigned char *v);
+                                const unsigned char *val);
 #define _libssh2_bn_to_bin(bn, val) (BN_bn2bin(bn, val) <= 0)
 #define _libssh2_bn_bytes(bn) BN_num_bytes(bn)
 #define _libssh2_bn_bits(bn) BN_num_bits(bn)

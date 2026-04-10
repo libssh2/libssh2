@@ -1211,7 +1211,7 @@ ssize_t _libssh2_send(libssh2_socket_t socket, const void *buffer,
                                            waiting for more data to arrive */
 
 int _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
-                          key_exchange_state_t * state);
+                          key_exchange_state_t * key_state);
 
 unsigned char *_libssh2_kex_agree_instr(unsigned char *haystack,
                                         size_t haystack_len,
