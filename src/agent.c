@@ -934,15 +934,11 @@ agent_list_identities(LIBSSH2_AGENT *agent)
     ssize_t len, num_identities;
     unsigned char *s;
     int rc;
+    static unsigned char c = SSH2_AGENTC_REQUEST_IDENTITIES;
 
     /* Create a request to list identities */
     if(transctx->state == agent_NB_state_init) {
-        transctx->request = LIBSSH2_ALLOC(agent->session, 1);
-        if(!transctx->request) {
-            return _libssh2_error(agent->session, LIBSSH2_ERROR_ALLOC,
-                                  "out of memory");
-        }
-        *transctx->request = SSH2_AGENTC_REQUEST_IDENTITIES;
+        transctx->request = &c;
         transctx->request_len = 1;
         transctx->send_recv_total = 0;
         transctx->state = agent_NB_state_request_created;
@@ -960,7 +956,6 @@ agent_list_identities(LIBSSH2_AGENT *agent)
 
     rc = agent->ops->transact(agent, transctx);
 
-    LIBSSH2_FREE(session, transctx->request);
     transctx->request = NULL;
 
     if(rc) {
