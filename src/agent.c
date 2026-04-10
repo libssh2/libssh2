@@ -334,7 +334,7 @@ cleanup:
     int rc;                                                            \
                                                                        \
     while(*(total) < (length)) {                                       \
-        if(!agent->pending_io)                                         \
+        if(!(agent)->pending_io)                                       \
             ret = func((agent)->pipe, (char *)(buffer) + *(total),     \
                        (DWORD)((length) - *(total)),                   \
                        &bytes_transferred,                             \
