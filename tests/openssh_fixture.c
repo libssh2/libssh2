@@ -337,6 +337,18 @@ static int port_from_container(char *container_id, char **port_out)
     }
 }
 
+static void close_socket_to_container(libssh2_socket_t sock)
+{
+    if(sock != LIBSSH2_INVALID_SOCKET) {
+        shutdown(sock, 2 /* SHUT_RDWR */);
+#ifdef _WIN32
+        closesocket(sock);
+#else
+        close(sock);
+#endif
+    }
+}
+
 static libssh2_socket_t open_socket_to_container(char *container_id)
 {
     char *ip_address = NULL;
@@ -416,6 +428,7 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
         }
     }
     if(ret == LIBSSH2_INVALID_SOCKET) {
+        close_socket_to_container(sock);
         fprintf(stderr, "Failed to connect to %s:%s\n",
                 ip_address, port_string);
         goto cleanup;
@@ -426,18 +439,6 @@ cleanup:
     free(port_string);
 
     return ret;
-}
-
-static void close_socket_to_container(libssh2_socket_t sock)
-{
-    if(sock != LIBSSH2_INVALID_SOCKET) {
-        shutdown(sock, 2 /* SHUT_RDWR */);
-#ifdef _WIN32
-        closesocket(sock);
-#else
-        close(sock);
-#endif
-    }
 }
 
 static char *running_container_id = NULL;
