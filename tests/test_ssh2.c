@@ -45,6 +45,7 @@ int main(int argc, char *argv[])
     uint32_t hostaddr;
     libssh2_socket_t sock;
     int i, auth_pw = 0;
+    int connected = 0;
     struct sockaddr_in sin;
     const char *fingerprint;
     char *userauthlist;
@@ -116,10 +117,11 @@ int main(int argc, char *argv[])
             portable_sleep(1 + 2*counter);
         }
         else {
+            connected = 1;
             break;
         }
     }
-    if(sock == LIBSSH2_INVALID_SOCKET) {
+    if(!connected) {
         fprintf(stderr, "Failed to connect to %s:%d\n",
                 hostname, port_number);
         goto shutdown;
