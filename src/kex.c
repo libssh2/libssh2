@@ -2136,7 +2136,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
             if(_libssh2_bn_to_bin(exchange_state->k,
                                   exchange_state->k_value + 5)) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                     "Can't write exchange_state->e");
+                                     "Can't write exchange_state->k");
                 goto clean_exit;
             }
         }
@@ -2884,7 +2884,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
             if(_libssh2_bn_to_bin(exchange_state->k,
                                   exchange_state->k_value + 4)) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                     "Can't write exchange_state->e");
+                                     "Can't write exchange_state->k");
                 goto clean_exit;
             }
         }
@@ -2893,7 +2893,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
             if(_libssh2_bn_to_bin(exchange_state->k,
                                   exchange_state->k_value + 5)) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                     "Can't write exchange_state->e");
+                                     "Can't write exchange_state->k");
                 goto clean_exit;
             }
         }
