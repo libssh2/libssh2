@@ -34,7 +34,7 @@ static const char *password = "password";
 static void portable_sleep(unsigned int seconds)
 {
 #ifdef _WIN32
-    Sleep(seconds);
+    Sleep(seconds * 1000);
 #else
     sleep(seconds);
 #endif
