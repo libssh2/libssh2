@@ -416,6 +416,7 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
         }
     }
     if(ret == LIBSSH2_INVALID_SOCKET) {
+        close_socket_to_container(sock);
         fprintf(stderr, "Failed to connect to %s:%s\n",
                 ip_address, port_string);
         goto cleanup;
