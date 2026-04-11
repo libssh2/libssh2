@@ -282,7 +282,7 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
            https://github.com/docker/machine/issues/2612), so we retry a few
            times with exponential backoff if it fails */
         int attempt_no = 0;
-        unsigned int wait_time = 500;
+        unsigned int wait_time = 1;
         for(;;) {
             int ret = run_command(ip_address_out, "docker-machine ip %s",
                                   active_docker_machine);
