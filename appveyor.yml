@@ -109,6 +109,18 @@ install:
       $env:OPENSSH_SERVER_PORT = Get-Random -Minimum 2000 -Maximum 2300
       [System.Environment]::SetEnvironmentVariable('OPENSSH_SERVER_PORT', $env:OPENSSH_SERVER_PORT)
       .\ci\appveyor\docker-bridge.ps1
+      Write-Host '1|' + $env:SKIP_CTEST + '|';
+      Write-Host '2|' + $env:CMAKE_GENERATE + '|';
+      if($env:SKIP_CTEST -ne 'yes') {
+        Write-Host '3|TRUE|';
+      }
+      if(-not $env:CMAKE_GENERATE -like '*ARM64*') {
+        Write-Host '4|TRUE|';
+      }
+      if($env:SKIP_CTEST -ne 'yes' -and -not $env:CMAKE_GENERATE -like '*ARM64*') {
+        Write-Host '5|TRUE|';
+      }
+      Write-Host '6|--------------------|';
 
 build_script:
   - cmd: sh -c ./appveyor.sh
