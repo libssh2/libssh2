@@ -22,7 +22,7 @@ elseif($ip.StartsWith('10.0.')) {
 $extip = (New-Object Net.WebClient).DownloadString('https://www.appveyor.com/tools/my-ip.aspx').Trim()
 
 # allow inbound traffic
-New-NetFirewallRule -DisplayName 'SSH via RDP port' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 22,3389
+New-NetFirewallRule -DisplayName "SSH via RDP port" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 22,3389
 
 # launch remote docker daemon with reverse SSH tunnel
 $scriptPath = (split-path -parent $MyInvocation.MyCommand.Definition) -replace '\\', '/'
