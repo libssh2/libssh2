@@ -112,7 +112,6 @@ build_script:
 
 test_script:
   - ps: |
-      if($env:SKIP_CTEST -ne 'yes' -and -not $env:CMAKE_GENERATE -like '*ARM64*') {
         appveyor-retry choco install --yes --no-progress --limit-output --timeout 180 docker-cli
         Write-Host 'Waiting for SSH connection from GitHub Actions' -NoNewline
         $endDate = (Get-Date).AddMinutes(5)
@@ -133,7 +132,6 @@ test_script:
         }
         $env:OPENSSH_SERVER_IMAGE=[string] (& bash -c "echo ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)")
         cd _builds; ctest -VV -C $($env:CMAKE_CONFIGURATION) --output-on-failure --timeout 900
-      }
 
 on_failure:
   - ps: |
