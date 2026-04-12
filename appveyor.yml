@@ -70,11 +70,13 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       CMAKE_GENERATOR: 'Visual Studio 12 2013'
       CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64 -DBUILD_SHARED_LIBS=OFF'
+      SKIP_CTEST: 'no'
 
     - job_name: 'VS2010, WinCNG, x64, Build-only, non-unity'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       CMAKE_GENERATOR: 'Visual Studio 10 2010'
       CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=WinCNG -DENABLE_ECDSA_WINCNG=ON -DCMAKE_UNITY_BUILD=OFF'
+      SKIP_CTEST: 'no'
 
     - job_name: 'VS2022, WinCNG, x64, Server 2019, Debug-logging'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
@@ -85,6 +87,7 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
       CMAKE_GENERATOR: 'Visual Studio 17 2022'
       CMAKE_GENERATE: '-A ARM64 -DCRYPTO_BACKEND=WinCNG -DENABLE_ECDSA_WINCNG=ON'
+      SKIP_CTEST: 'no'
 
     - job_name: 'VS2015, WinCNG, x64, Server 2012 R2'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
@@ -106,6 +109,13 @@ install:
       $env:OPENSSH_SERVER_PORT = Get-Random -Minimum 2000 -Maximum 2300
       [System.Environment]::SetEnvironmentVariable('OPENSSH_SERVER_PORT', $env:OPENSSH_SERVER_PORT)
       .\ci\appveyor\docker-bridge.ps1
+
+build_script:
+  - cmd: sh -c ./appveyor.sh
+
+test_script:
+  - ps: |
+      if($env:SKIP_CTEST -ne 'yes' -and $env:CMAKE_GENERATE -notlike '*ARM64*') {
         appveyor-retry choco install --yes --no-progress --limit-output --timeout 180 docker-cli
         Write-Host 'Waiting for SSH connection from GitHub Actions' -NoNewline
         $endDate = (Get-Date).AddMinutes(5)
@@ -121,17 +131,12 @@ install:
         else {
           Write-Host '... failed.'
         }
-
-build_script:
-  - cmd: sh -c ./appveyor.sh
-
-test_script:
-  - ps: |
         if($env:CMAKE_GENERATE -like '*WinCNG*') {
           $env:FIXTURE_TRACE_ALL_CONNECT = '1'
         }
         $env:OPENSSH_SERVER_IMAGE=[string] (& bash -c "echo ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)")
         cd _builds; ctest -VV -C $($env:CMAKE_CONFIGURATION) --output-on-failure --timeout 900
+      }
 
 on_failure:
   - ps: |
