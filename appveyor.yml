@@ -106,12 +106,6 @@ install:
       $env:OPENSSH_SERVER_PORT = Get-Random -Minimum 2000 -Maximum 2300
       [System.Environment]::SetEnvironmentVariable('OPENSSH_SERVER_PORT', $env:OPENSSH_SERVER_PORT)
       .\ci\appveyor\docker-bridge.ps1
-
-build_script:
-  - cmd: sh -c ./appveyor.sh
-
-test_script:
-  - ps: |
         appveyor-retry choco install --yes --no-progress --limit-output --timeout 180 docker-cli
         Write-Host 'Waiting for SSH connection from GitHub Actions' -NoNewline
         $endDate = (Get-Date).AddMinutes(5)
@@ -127,6 +121,12 @@ test_script:
         else {
           Write-Host '... failed.'
         }
+
+build_script:
+  - cmd: sh -c ./appveyor.sh
+
+test_script:
+  - ps: |
         if($env:CMAKE_GENERATE -like '*WinCNG*') {
           $env:FIXTURE_TRACE_ALL_CONNECT = '1'
         }
