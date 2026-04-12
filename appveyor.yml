@@ -117,6 +117,15 @@ install:
       if(-not $env:CMAKE_GENERATE -like '*ARM64*') {
         Write-Host '4|TRUE|';
       }
+      if(-not ($env:CMAKE_GENERATE -like '*ARM64*')) {
+        Write-Host '4a|TRUE|';
+      }
+      if($env:CMAKE_GENERATE -notlike '*ARM64*') {
+        Write-Host '4b|TRUE|';
+      }
+      if($env:CMAKE_GENERATE -like '*ARM64*') {
+        Write-Host '4c|TRUE|';
+      }
       if($env:SKIP_CTEST -ne 'yes' -and -not $env:CMAKE_GENERATE -like '*ARM64*') {
         Write-Host '5|TRUE|';
       }
