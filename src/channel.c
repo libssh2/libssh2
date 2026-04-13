@@ -1920,7 +1920,13 @@ _libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL * channel,
                               "packet, deferring");
     }
     else {
-        channel->remote.window_size += adjustment;
+        if(adjustment > UINT32_MAX - channel->remote.window_size) {
+            return _libssh2_error(channel->session, LIBSSH2_ERROR_PROTO,
+                                  "Window adjust out of bounds");
+        }
+        else {
+            channel->remote.window_size += adjustment;
+        }
     }
 
     channel->adjust_state = libssh2_NB_state_idle;
