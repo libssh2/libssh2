@@ -125,7 +125,7 @@ _libssh2_mbedtls_safe_free(void *buf, size_t len)
 }
 
 int
-_libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *h,
+_libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *ctx,
                              _libssh2_cipher_type(algo),
                              unsigned char *iv,
                              unsigned char *secret,
@@ -134,7 +134,7 @@ _libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *h,
     _libssh2_mbedtls_cipher_ctx *cctx;
     int ret;
 
-    if(!h)
+    if(!ctx)
         return -1;
 
     /* Allocate unified context structure */
@@ -177,8 +177,8 @@ _libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *h,
             return -1;
         }
 
-        /* Store the context pointer */
-        *(void **)h = cctx;
+            /* Store the context pointer */
+        *(void **)ctx = cctx;
         return 0;
     }
 #endif
@@ -230,7 +230,7 @@ _libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *h,
         }
 
         /* Store the context pointer */
-        *(void **)h = cctx;
+        *(void **)ctx = cctx;
         return 0;
     }
 }
