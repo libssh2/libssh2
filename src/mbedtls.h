@@ -361,8 +361,8 @@ typedef enum {
  * mbedTLS backend: Cipher functions
  */
 
-#define _libssh2_cipher_init(ctx, type, iv, secret, encrypt) \
-    _libssh2_mbedtls_cipher_init(ctx, type, iv, secret, encrypt)
+#define _libssh2_cipher_init(h, type, iv, secret, encrypt) \
+    _libssh2_mbedtls_cipher_init(h, type, iv, secret, encrypt)
 #define _libssh2_cipher_crypt(ctx, type, encrypt, block, blocklen, fl) \
     _libssh2_mbedtls_cipher_crypt(ctx, type, encrypt, block, blocklen, fl)
 #define _libssh2_cipher_dtor(ctx) \
