@@ -177,8 +177,8 @@ _libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *h,
             return -1;
         }
 
-            /* Store the context pointer */
-        *(void **)ctx = cctx;
+        /* Store the context pointer */
+        *(void **)h = cctx;
         return 0;
     }
 #endif
@@ -230,7 +230,7 @@ _libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *h,
         }
 
         /* Store the context pointer */
-        *(void **)ctx = cctx;
+        *(void **)h = cctx;
         return 0;
     }
 }
