@@ -1145,7 +1145,7 @@ _libssh2_wincng_bn_size(const unsigned char *bignum, ULONG length)
 {
     ULONG offset;
 
-    if(!bignum)
+    if(!bignum || length == 0)
         return 0;
 
     length--;
@@ -1931,6 +1931,12 @@ _libssh2_wincng_p1363signature_from_point(IN const unsigned char *r,
         s_trimmed++;
         s_trimmed_len--;
     }
+
+    /* Validate r and s will fit into signature */
+    if(r_trimmed_len > *signature_length / 2 ||
+        s_trimmed_len > *signature_length / 2) {
+        return LIBSSH2_ERROR_INVAL;
+   }
 
     /* Concatenate into zero-filled buffer and zero-pad if necessary */
     *signature = calloc(1, *signature_length);
