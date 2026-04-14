@@ -1223,15 +1223,23 @@ libssh2_packet_add_jump_point1:
                         else if(sig_len > 0) {
                             channelp->exit_signal =
                             LIBSSH2_ALLOC(session, sig_len + 1);
-                            memcpy(channelp->exit_signal, sig_name, sig_len);
-                            channelp->exit_signal[sig_len] = '\0';
-
-                            _libssh2_debug((session, LIBSSH2_TRACE_CONN,
-                                            "Exit signal %s received for "
-                                            "channel %u/%u",
-                                            channelp->exit_signal,
-                                            channelp->local.id,
-                                            channelp->remote.id));
+                            
+                            if(channelp->exit_signal) {
+                                memcpy(channelp->exit_signal, sig_name, sig_len);
+                                channelp->exit_signal[sig_len] = '\0';
+    
+                                _libssh2_debug((session, LIBSSH2_TRACE_CONN,
+                                                "Exit signal %s received for "
+                                                "channel %u/%u",
+                                                channelp->exit_signal,
+                                                channelp->local.id,
+                                                channelp->remote.id));
+                            }
+                            else {
+                                rc = _libssh2_error(session,
+                                                    LIBSSH2_ERROR_ALLOC,
+                                                    "exit signal alloc error");
+                            }
                         }
                         else {
                             channelp->exit_signal = NULL;
