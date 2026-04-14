@@ -3,7 +3,7 @@
 netsh interface portproxy add v4tov4 listenport=3389 listenaddress=%1 connectport=22 connectaddress=127.0.0.1
 netsh interface portproxy show all
 
-C:\msys64\usr\bin\sh -l -c "/usr/bin/ssh-keygen -t ed25519 -f auth -q -N '' && mkdir .ssh && mv auth.pub .ssh/authorized_keys"
+C:\msys64\usr\bin\sh -l -c "/usr/bin/ssh-keygen -b 2048 -t rsa -f auth -q -N '' && mkdir .ssh && mv auth.pub .ssh/authorized_keys"
 C:\msys64\usr\bin\sh -l -c "/usr/bin/ssh-keygen -A"
 C:\msys64\usr\bin\sh -l -c "/usr/bin/sshd"
 
