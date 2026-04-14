@@ -1,4 +1,6 @@
 @echo off
+:: Copyright (C) The libssh2 project and its contributors.
+:: SPDX-License-Identifier: BSD-3-Clause
 
 netsh interface portproxy add v4tov4 listenport=3389 listenaddress=%1 connectport=22 connectaddress=127.0.0.1
 netsh interface portproxy show all
