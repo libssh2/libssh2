@@ -1195,7 +1195,6 @@ libssh2_packet_add_jump_point1:
                                         channelp->local.id,
                                         channelp->remote.id));
                     }
-
                 }
                 else if(len == strlen("exit-signal") &&
                         !memcmp("exit-signal", request,
