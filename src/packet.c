@@ -1175,57 +1175,66 @@ libssh2_packet_add_jump_point1:
 
                     /* we've got "exit-status" packet. Set the session value */
                     if(datalen >= 20)
-                        channelp =
-                            _libssh2_channel_locate(session, channel);
+                        channelp = _libssh2_channel_locate(session, channel);
 
-                    if(channelp && (strlen("exit-status") + 14) <= datalen) {
-                        channelp->exit_status =
-                            _libssh2_ntohu32(data + 10 +
-                                             strlen("exit-status"));
+                    if(channelp) {
+
+                        uint32_t status = 0;
+                        if(_libssh2_get_u32(&buf, &status)) {
+                            rc = _libssh2_error(session,
+                                                LIBSSH2_ERROR_PROTO,
+                                                "exit-signal status error");
+                        }
+
+                        channelp->exit_status = (int)status;
+
                         _libssh2_debug((session, LIBSSH2_TRACE_CONN,
-                                       "Exit status %d received for "
-                                       "channel %u/%u",
-                                       channelp->exit_status,
-                                       channelp->local.id,
-                                       channelp->remote.id));
+                                        "Exit status %d received for "
+                                        "channel %u/%u",
+                                        channelp->exit_status,
+                                        channelp->local.id,
+                                        channelp->remote.id));
                     }
                 }
                 else if(len == strlen("exit-signal") &&
                         !memcmp("exit-signal", request,
                                 strlen("exit-signal"))) {
+
                     /* command terminated due to signal */
                     if(datalen >= 20)
                         channelp = _libssh2_channel_locate(session, channel);
 
-                    if(channelp && (strlen("exit-signal") + 14) <= datalen) {
-                        /* set signal name (without SIG prefix) */
-                        uint32_t namelen =
-                            _libssh2_ntohu32(data + 10 +
-                                             strlen("exit-signal"));
+                    if(channelp) {
 
-                        if(namelen <= UINT_MAX - 1) {
+                        /* signal name (without SIG prefix) */
+                        unsigned char *sig_name = NULL;
+                        size_t sig_len = 0;
+                        if(_libssh2_get_string(&buf, &sig_name, &sig_len)) {
+                            rc = _libssh2_error(session,
+                                                LIBSSH2_ERROR_PROTO,
+                                                "signal name protocol error");
+                        }
+
+                        if(sig_len > UINT32_MAX - 1) {
+                            rc = _libssh2_error(session,
+                                                LIBSSH2_ERROR_PROTO,
+                                                "signal name out of bounds");
+                        }
+                        else if(sig_len > 0) {
                             channelp->exit_signal =
-                                LIBSSH2_ALLOC(session, namelen + 1);
+                            LIBSSH2_ALLOC(session, sig_len + 1);
+                            memcpy(channelp->exit_signal, sig_name, sig_len);
+                            channelp->exit_signal[sig_len] = '\0';
+
+                            _libssh2_debug((session, LIBSSH2_TRACE_CONN,
+                                            "Exit signal %s received for "
+                                            "channel %u/%u",
+                                            channelp->exit_signal,
+                                            channelp->local.id,
+                                            channelp->remote.id));
                         }
                         else {
                             channelp->exit_signal = NULL;
-                        }
-
-                        if(!channelp->exit_signal)
-                            rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                                "memory for signal name");
-                        else if((strlen("exit-signal") + 14 + namelen <=
-                                 datalen)) {
-                            memcpy(channelp->exit_signal,
-                                   data + 14 + strlen("exit-signal"), namelen);
-                            channelp->exit_signal[namelen] = '\0';
-                            /* TODO: save error message and language tag */
-                            _libssh2_debug((session, LIBSSH2_TRACE_CONN,
-                                           "Exit signal %s received for "
-                                           "channel %u/%u",
-                                           channelp->exit_signal,
-                                           channelp->local.id,
-                                           channelp->remote.id));
                         }
                     }
                 }
