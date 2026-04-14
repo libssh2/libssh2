@@ -1934,9 +1934,9 @@ _libssh2_wincng_p1363signature_from_point(IN const unsigned char *r,
 
     /* Validate r and s will fit into signature */
     if(r_trimmed_len > *signature_length / 2 ||
-        s_trimmed_len > *signature_length / 2) {
+       s_trimmed_len > *signature_length / 2) {
         return LIBSSH2_ERROR_INVAL;
-   }
+    }
 
     /* Concatenate into zero-filled buffer and zero-pad if necessary */
     *signature = calloc(1, *signature_length);
