@@ -332,7 +332,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
                                  session->fullpacket_macstate, seq);
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return rc;
-        /* p->payload is FREE:ed in packet_add unless ERROR_EAGAIN. */
+        /* p->payload is freed in packet_add unless ERROR_EAGAIN. */
         p->payload = NULL;
         if(rc) {
             session->fullpacket_state = libssh2_NB_state_idle;
