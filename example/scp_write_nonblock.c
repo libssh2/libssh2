@@ -24,7 +24,7 @@
 #include <arpa/inet.h>
 #endif
 #ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
+#include <sys/time.h>  /* for timeval */
 #endif
 
 #include <stdio.h>
