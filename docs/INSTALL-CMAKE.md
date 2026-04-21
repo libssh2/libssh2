@@ -12,7 +12,7 @@ Web site source code: <https://github.com/libssh2/www>
 
 # Installation instructions with CMake
 
-To build libssh2 you need [CMake v3.18 or later](https://cmake.org/download/)
+To build libssh2 you need [CMake v3.18 or higher](https://cmake.org/download/)
 and one of the following cryptography libraries:
 
 * Libgcrypt
