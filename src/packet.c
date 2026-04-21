@@ -525,7 +525,7 @@ packet_authagent_open(LIBSSH2_SESSION * session,
 
     if(session->authagent) {
         if(authagent_state->state == libssh2_NB_state_allocated) {
-            channel = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_CHANNEL));
+            channel = LIBSSH2_CALLOC(session, sizeof(LIBSSH2_CHANNEL));
             authagent_state->channel = channel;
 
             if(!channel) {
@@ -534,7 +534,6 @@ packet_authagent_open(LIBSSH2_SESSION * session,
                 failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
                 goto authagent_exit;
             }
-            memset(channel, 0, sizeof(LIBSSH2_CHANNEL));
 
             channel->session = session;
             channel->channel_type_len = strlen("auth agent");
