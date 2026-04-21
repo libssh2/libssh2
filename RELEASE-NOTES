@@ -199,7 +199,7 @@ This release includes the following enhancements and bugfixes:
 - cmake: pre-fill more, simplify control flow (300da4e2 #1620)
 - cmake: drop redundant `-lws2_32` meant for `libssh2.pc` (22784a56 #1619 #827 #811 #1535 #1128)
 - cmake: add linter, fix issues (694b9d96 #1610)
-- cmake: test integration with old cmake (v3.11.4 2018-03-28) (f522f10c #1591)
+- cmake: test integration with old cmake (f522f10c #1591)
 - cmake: honor individual picky option overrides found in `CMAKE_C_FLAGS` (62ad6a84 #1590)
 - cmake: fix copy-paste typo in integration tests for old cmake (4e78006c #1592 #1589)
 - cmake: extend integration tests (77df7677 #1589)
