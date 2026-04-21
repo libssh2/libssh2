@@ -12,7 +12,7 @@ Web site source code: https://github.com/libssh2/www
 
 Installation instructions are in docs/INSTALL
 =======
-To build libssh2 you will need CMake v3.7 or later [1] and one of the
+To build libssh2 you will need CMake v3.18 or later [1] and one of the
 following cryptography libraries:
 
 * OpenSSL
@@ -30,14 +30,6 @@ change to it, configure the build environment and build the project:
 ```
   cmake -B bld
   cmake --build bld
-```
-
-Use this with CMake 3.12.x or older:
-```
-  mkdir bld
-  cd bld
-  cmake ..
-  cmake --build .
 ```
 
 libssh2 will be built as a static library and will use any
@@ -179,7 +171,7 @@ builds your project:
         SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src
         INSTALL_COMMAND "")
 
-[1] https://www.cmake.org/cmake/resources/software.html
-[2] https://www.cmake.org/cmake/help/v3.0/manual/cmake-packages.7.html
-[3] https://www.cmake.org/cmake/help/v3.0/manual/cmake-packages.7.html#package-registry
-[4] https://blog.kitware.com/wp-content/uploads/2016/01/kitware_quarterly1009.pdf
+[1] https://cmake.org/download/
+[2] https://cmake.org/cmake/help/v3.18/manual/cmake-packages.7.html
+[3] https://cmake.org/cmake/help/v3.18/manual/cmake-packages.7.html#package-registry
+[4] https://www.kitware.com/main/wp-content/uploads/2016/01/kitware_quarterly1009.pdf
