@@ -944,8 +944,6 @@ static int _libssh2_wincng_load_private_memory(LIBSSH2_SESSION *session,
     size_t datalen = 0;
     int ret = -1;
 
-    (void)passphrase;
-
     if(ret && tryLoadRSA) {
         ret = _libssh2_pem_parse_memory(session,
                                         PEM_RSA_HEADER, PEM_RSA_FOOTER,
@@ -1364,8 +1362,6 @@ _libssh2_wincng_rsa_new_private(libssh2_rsa_ctx **rsa,
     size_t cbEncoded;
     int ret;
 
-    (void)session;
-
     ret = _libssh2_wincng_load_private(session, filename, passphrase,
                                        &pbEncoded, &cbEncoded, 1, 0);
     if(ret) {
@@ -1396,8 +1392,6 @@ _libssh2_wincng_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
     unsigned char *pbEncoded;
     size_t cbEncoded;
     int ret;
-
-    (void)session;
 
     ret = _libssh2_wincng_load_private_memory(session, filedata, filedata_len,
                                               passphrase,
