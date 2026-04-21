@@ -499,7 +499,7 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_WINCNG")
     list(APPEND LIBSSH2_LIBS "crypt32" "bcrypt")
 
-    option(ENABLE_ECDSA_WINCNG "Enable WinCNG ECDSA support (requires Windows 10 or later)" OFF)
+    option(ENABLE_ECDSA_WINCNG "Enable WinCNG ECDSA support (requires Windows 10 or newer)" OFF)
     add_feature_info("WinCNG" ENABLE_ECDSA_WINCNG "WinCNG ECDSA support")
     if(ENABLE_ECDSA_WINCNG)
       set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "LIBSSH2_ECDSA_WINCNG")
