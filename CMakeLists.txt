@@ -87,7 +87,7 @@ endfunction()
 
 # CMake does not recognize some targets accurately. Touch up configuration manually as a workaround.
 if(WINDOWS_STORE AND MINGW)  # mingw UWP build
-  # CMake (as of v3.31.2) gets confused and applies the MSVC rc.exe command-line
+  # CMake (as of 3.31.2) gets confused and applies the MSVC rc.exe command-line
   # template to windres. Reset it to the windres template via 'Modules/Platform/Windows-windres.cmake':
   set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> -O coff <DEFINES> <INCLUDES> <FLAGS> <SOURCE> <OBJECT>")
 endif()
@@ -476,7 +476,7 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_WINCNG")
     list(APPEND LIBSSH2_LIBS "crypt32" "bcrypt")
 
-    option(ENABLE_ECDSA_WINCNG "Enable WinCNG ECDSA support (requires Windows 10 or later)" OFF)
+    option(ENABLE_ECDSA_WINCNG "Enable WinCNG ECDSA support (requires Windows 10 or newer)" OFF)
     add_feature_info("WinCNG" ENABLE_ECDSA_WINCNG "WinCNG ECDSA support")
     if(ENABLE_ECDSA_WINCNG)
       set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "LIBSSH2_ECDSA_WINCNG")

@@ -8,7 +8,7 @@
 Checks:
   - clang-analyzer-*
   - -clang-analyzer-optin.performance.Padding
-  - -clang-analyzer-security.ArrayBound  # due to false positives with clang-tidy v21.1.0+
+  - -clang-analyzer-security.ArrayBound  # due to false positives with clang-tidy 21.1.0+
   - -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
   - bugprone-assert-side-effect
   - bugprone-assignment-in-if-condition
@@ -46,4 +46,4 @@ Checks:
 CheckOptions:
   readability-inconsistent-declaration-parameter-name.Strict: true
 
-HeaderFilterRegex: '.*'  # Default in v22.1.0+
+HeaderFilterRegex: '.*'  # Default in 22.1.0+

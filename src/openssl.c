@@ -952,7 +952,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo), int encrypt,
                in!=NULL is equivalent to EVP_CipherUpdate
                in==NULL is equivalent to EVP_CipherFinal */
 #if defined(LIBSSH2_WOLFSSL) && LIBWOLFSSL_VERSION_HEX < 0x05007000
-            /* Workaround for wolfSSL bug fixed in v5.7.0:
+            /* Workaround for wolfSSL bug fixed in 5.7.0:
                https://github.com/wolfSSL/wolfssl/pull/7143 */
             unsigned char buf2[EVP_MAX_BLOCK_LENGTH];
             int outb;
