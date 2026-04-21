@@ -321,7 +321,7 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
         }
         if(_libssh2_get_u32(&buf, &(x11open_state->packet_size))) {
             _libssh2_error(session, LIBSSH2_ERROR_INVAL,
-                           "unexpected window size");
+                           "unexpected packet size");
             failure_code = SSH_OPEN_CONNECT_FAILED;
             goto x11_exit;
         }
@@ -447,7 +447,7 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
     }
     else
         failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
-    /* fall-trough */
+    /* fall-through */
 x11_exit:
     LIBSSH2_FREE(session, x11open_state->shost);
     x11open_state->shost = NULL;
