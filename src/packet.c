@@ -321,7 +321,7 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
         }
         if(_libssh2_get_u32(&buf, &(x11open_state->packet_size))) {
             _libssh2_error(session, LIBSSH2_ERROR_INVAL,
-                           "unexpected window size");
+                           "unexpected packet size");
             failure_code = SSH_OPEN_CONNECT_FAILED;
             goto x11_exit;
         }
@@ -447,7 +447,7 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
     }
     else
         failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
-    /* fall-trough */
+    /* fall-through */
 x11_exit:
     LIBSSH2_FREE(session, x11open_state->shost);
     x11open_state->shost = NULL;
@@ -525,7 +525,7 @@ packet_authagent_open(LIBSSH2_SESSION * session,
 
     if(session->authagent) {
         if(authagent_state->state == libssh2_NB_state_allocated) {
-            channel = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_CHANNEL));
+            channel = LIBSSH2_CALLOC(session, sizeof(LIBSSH2_CHANNEL));
             authagent_state->channel = channel;
 
             if(!channel) {
@@ -534,7 +534,6 @@ packet_authagent_open(LIBSSH2_SESSION * session,
                 failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
                 goto authagent_exit;
             }
-            memset(channel, 0, sizeof(LIBSSH2_CHANNEL));
 
             channel->session = session;
             channel->channel_type_len = strlen("auth agent");

@@ -174,7 +174,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
                 LIBSSH2_FREE(session, session->userauth_list_data);
                 session->userauth_list_data = NULL;
                 _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                              "Unable to allocate memory for userauth_banner");
+                              "Unable to allocate memory for userauth banner");
                 return NULL;
             }
             memcpy(session->userauth_banner, session->userauth_list_data + 5,
