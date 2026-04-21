@@ -1250,11 +1250,6 @@ cleanup:
     return *ctx ? 0 : -1;
 }
 
-/* Force-expose internal mbedTLS function */
-#if MBEDTLS_VERSION_NUMBER >= 0x03060000
-int mbedtls_pk_load_file(const char *path, unsigned char **buf, size_t *n);
-#endif
-
 /* _libssh2_ecdsa_new_private
  *
  * Creates a new private key given a file path and password
@@ -1269,11 +1264,28 @@ _libssh2_mbedtls_ecdsa_new_private(libssh2_ecdsa_ctx **ec_ctx,
     mbedtls_pk_context pkey;
     unsigned char *data = NULL;
     size_t data_len = 0;
+    FILE *fp = NULL;
+    long file_size;
 
     mbedtls_pk_init(&pkey);
 
-    /* FIXME: Reimplement this functionality via a public API. */
-    if(mbedtls_pk_load_file(filename, &data, &data_len))
+    fp = fopen(filename, "rb");
+    if(!fp)
+        goto cleanup;
+    if(fseek(fp, 0, SEEK_END) != 0)
+        goto cleanup;
+    file_size = ftell(fp);
+    if(file_size < 0 || file_size > (1024 * 1024))
+        goto cleanup;
+    if(fseek(fp, 0, SEEK_SET) != 0)
+        goto cleanup;
+    data_len = (size_t)file_size;
+    if(data_len == 0)
+        goto cleanup;
+    data = LIBSSH2_ALLOC(session, data_len + 1);
+    if(!data)
+        goto cleanup;
+    if(fread(data, 1, data_len, fp) != data_len)
         goto cleanup;
 
     if(_libssh2_mbedtls_parse_eckey(ec_ctx, &pkey, session,
@@ -1285,9 +1297,14 @@ _libssh2_mbedtls_ecdsa_new_private(libssh2_ecdsa_ctx **ec_ctx,
 
 cleanup:
 
-    mbedtls_pk_free(&pkey);
+    if(fp)
+        fclose(fp);
+    if(data) {
+        _libssh2_explicit_zero(data, data_len);
+        LIBSSH2_FREE(session, data);
+    }
 
-    _libssh2_mbedtls_safe_free(data, data_len);
+    mbedtls_pk_free(&pkey);
 
     return *ec_ctx ? 0 : -1;
 }
