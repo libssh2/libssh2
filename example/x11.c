@@ -116,7 +116,7 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
     display = getenv("DISPLAY");
     if(display) {
         if(strncmp(display, "unix:", 5) == 0 ||
-            display[0] == ':') {
+           display[0] == ':') {
             /* Connect to the local unix domain */
             ptr = strrchr(display, ':');
             temp_buff = (char *)calloc(strlen(ptr + 1) + 1, sizeof(char));
