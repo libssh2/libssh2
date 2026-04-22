@@ -106,7 +106,7 @@ install:
   - ps: |
       $env:OPENSSH_SERVER_PORT = Get-Random -Minimum 2000 -Maximum 2300
       [System.Environment]::SetEnvironmentVariable('OPENSSH_SERVER_PORT', $env:OPENSSH_SERVER_PORT)
-      .\ci\appveyor\docker-bridge.ps1
+      ./scripts/appveyor/docker-bridge.ps1
 
 build_script:
   - cmd: sh -c ./appveyor.sh

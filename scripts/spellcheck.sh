@@ -9,5 +9,5 @@ cd "$(dirname "$0")"/..
 git ls-files -z | xargs -0 -r \
 codespell \
   --skip 'docs/AUTHORS' \
-  --ignore-words 'ci/codespell-ignore.words' \
+  --ignore-words 'scripts/codespell-ignore.words' \
   --
