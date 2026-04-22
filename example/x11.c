@@ -61,31 +61,6 @@ struct chan_X11_list {
 static struct chan_X11_list * gp_x11_chan = NULL;
 static struct termios         _saved_tio;
 
-/*
- * Utility function to remove a Node of the chained list
- */
-static void remove_node(struct chan_X11_list *elem)
-{
-    struct chan_X11_list *current_node = NULL;
-
-    current_node = gp_x11_chan;
-
-    if(gp_x11_chan == elem) {
-        gp_x11_chan = gp_x11_chan->next;
-        free(current_node);
-        return;
-    }
-
-    while(current_node->next) {
-        if(current_node->next == elem) {
-            current_node->next = current_node->next->next;
-            current_node = current_node->next;
-            free(current_node);
-            break;
-        }
-    }
-}
-
 static int _raw_mode(void)
 {
     int rc;
@@ -141,7 +116,7 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
     display = getenv("DISPLAY");
     if(display) {
         if(strncmp(display, "unix:", 5) == 0 ||
-            display[0] == ':') {
+           display[0] == ':') {
             /* Connect to the local unix domain */
             ptr = strrchr(display, ':');
             temp_buff = (char *)calloc(strlen(ptr + 1) + 1, sizeof(char));
@@ -306,7 +281,7 @@ int main(int argc, char *argv[])
         password = argv[3];
     }
     else {
-        fprintf(stderr, "Usage: %s destination username password",
+        fprintf(stderr, "Usage: %s destination username password [DEBUG]",
                 argv[0]);
         return 1;
     }
@@ -403,6 +378,7 @@ int main(int argc, char *argv[])
     memset(&w_size_bck, 0, sizeof(struct winsize));
 
     for(;;) {
+        struct chan_X11_list *prev_node;
 
         FD_ZERO(&set);
 #if defined(__GNUC__) || defined(__clang__)
@@ -448,11 +424,8 @@ int main(int argc, char *argv[])
         }
 
         /* Looping on X clients */
-        if(gp_x11_chan) {
-            current_node = gp_x11_chan;
-        }
-        else
-            current_node = NULL;
+        current_node = gp_x11_chan;
+        prev_node = NULL;
 
         while(current_node) {
             struct chan_X11_list *next_node;
@@ -461,9 +434,15 @@ int main(int argc, char *argv[])
             if(rc == -1) {
                 shutdown(current_node->sock, SHUT_RDWR);
                 LIBSSH2_SOCKET_CLOSE(current_node->sock);
-                remove_node(current_node);
+                /* Remove node */
+                if(prev_node)
+                    prev_node->next = next_node;
+                else
+                    gp_x11_chan = next_node;
+                free(current_node);
             }
-
+            else
+                prev_node = current_node;
             current_node = next_node;
         }
 
