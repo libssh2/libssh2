@@ -333,7 +333,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           fi
           dnl clang 10 or higher
           if test "$compiler_num" -ge "1000"; then
-            tmp_CFLAGS="$tmp_CFLAGS -Wimplicit-fallthrough"  # we have silencing markup for clang 10.0 and above only
+            tmp_CFLAGS="$tmp_CFLAGS -Wimplicit-fallthrough"  # we have silencing markup for clang 10.0 or higher only
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [xor-used-as-pow])
           fi
 
@@ -381,7 +381,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           tmp_CFLAGS="-wd279,269,981,1418,1419"
 
           if test "$compiler_num" -gt "600"; then
-             dnl icc 6.0 and older doesn't have the -Wall flag
+             dnl icc 6.0 and older does not have the -Wall flag
              tmp_CFLAGS="-Wall $tmp_CFLAGS"
           fi
         else dnl $ICC = yes
