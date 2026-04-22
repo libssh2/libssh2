@@ -104,20 +104,16 @@ extern "C" {
 
 /* Allow alternate API prefix from CFLAGS or calling app */
 #ifndef LIBSSH2_API
-# ifdef _WIN32
-#  ifdef LIBSSH2_EXPORTS
-#   ifdef LIBSSH2_LIBRARY
-#    define LIBSSH2_API __declspec(dllexport)
-#   else
-#    define LIBSSH2_API __declspec(dllimport)
-#   endif /* LIBSSH2_LIBRARY */
+# if defined(_WIN32) && defined(LIBSSH2_EXPORTS)
+#  ifdef LIBSSH2_LIBRARY
+#   define LIBSSH2_API __declspec(dllexport)
 #  else
-#   define LIBSSH2_API
-#  endif
-# else /* !_WIN32 */
+#   define LIBSSH2_API __declspec(dllimport)
+#  endif /* LIBSSH2_LIBRARY */
+# else
 #  define LIBSSH2_API
-# endif /* _WIN32 */
-#endif /* LIBSSH2_API */
+# endif /* _WIN32 && LIBSSH2_EXPORTS */
+#endif /* !LIBSSH2_API */
 
 #ifdef HAVE_SYS_UIO_H
 # include <sys/uio.h>
