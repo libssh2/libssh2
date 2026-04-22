@@ -81,4 +81,4 @@ gen-coverage:
 coverage: init-coverage build-coverage gen-coverage
 
 checksrc:
-	ci/checksrc-all.pl
+	scripts/checksrc-all.pl

@@ -31,7 +31,7 @@ jobs:
         with:
           persist-credentials: false
       - name: 'checksrc'
-        run: ci/checksrc-all.pl
+        run: scripts/checksrc-all.pl
 
   linters:
     name: 'linters'
@@ -85,20 +85,20 @@ jobs:
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           shellcheck --version
-          ci/shellcheck.sh
+          scripts/shellcheck.sh
 
       - name: 'spacecheck'
-        run: ci/spacecheck.pl
+        run: scripts/spacecheck.pl
 
       - name: 'cmakelint'
         run: |
           source ~/venv/bin/activate
-          ci/cmakelint.sh
+          scripts/cmakelint.sh
 
       - name: 'spellcheck'
         run: |
           source ~/venv/bin/activate
-          ci/spellcheck.sh
+          scripts/spellcheck.sh
 
   build_integration:
     name: 'CM integration ${{ matrix.image }}'

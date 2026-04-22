@@ -550,8 +550,8 @@ endif()
 if(LINT)
   add_custom_target(lint ALL
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-    COMMAND "${PERL_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/ci/checksrc-all.pl"
-    DEPENDS "${PROJECT_SOURCE_DIR}/ci/checksrc-all.pl" "${PROJECT_SOURCE_DIR}/ci/checksrc.pl"
+    COMMAND "${PERL_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/scripts/checksrc-all.pl"
+    DEPENDS "${PROJECT_SOURCE_DIR}/scripts/checksrc-all.pl" "${PROJECT_SOURCE_DIR}/scripts/checksrc.pl"
   )
   if(BUILD_STATIC_LIBS)
     add_dependencies(${LIB_STATIC} lint)
