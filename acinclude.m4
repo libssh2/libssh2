@@ -353,7 +353,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
 
           dnl clang 10 or higher
           if test "$compiler_num" -ge "1000"; then
-            tmp_CFLAGS="$tmp_CFLAGS -Wimplicit-fallthrough"  # we have silencing markup for clang 10.0 and above only
+            tmp_CFLAGS="$tmp_CFLAGS -Wimplicit-fallthrough"  # we have silencing markup for clang 10.0 or higher only
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [xor-used-as-pow])
           fi
 
