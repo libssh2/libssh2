@@ -281,7 +281,7 @@ int main(int argc, char *argv[])
         password = argv[3];
     }
     else {
-        fprintf(stderr, "Usage: %s destination username password",
+        fprintf(stderr, "Usage: %s destination username password [DEBUG]",
                 argv[0]);
         return 1;
     }
