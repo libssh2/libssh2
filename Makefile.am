@@ -37,7 +37,7 @@ OS400FILES = os400/README400 os400/initscript.sh os400/make.sh \
   os400/libssh2rpg/libssh2_sftp.rpgle \
   os400/rpg-examples/SFTPXMPLE
 
-SCRIPTS = \
+SCRIPTSFILES = \
   scripts/checksrc-all.pl \
   scripts/checksrc.pl \
   scripts/cmakelint.sh \
@@ -48,7 +48,7 @@ SCRIPTS = \
 EXTRA_DIST = $(WIN32FILES) get_ver.awk \
   maketgz RELEASE-NOTES libssh2.pc.in $(VMSFILES) config.rpath \
   CMakeLists.txt cmake git2news.pl libssh2-style.el README.md $(OS400FILES) \
-  $(SCRIPTS)
+  $(SCRIPTSFILES)
 
 ACLOCAL_AMFLAGS = -I m4
 
