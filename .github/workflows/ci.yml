@@ -19,6 +19,7 @@ concurrency:
 permissions: {}
 
 env:
+  DO_NOT_TRACK: '1'
   MAKEFLAGS: -j 5
 
 jobs:

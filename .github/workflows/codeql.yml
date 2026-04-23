@@ -22,6 +22,9 @@ concurrency:
 
 permissions: {}
 
+env:
+  DO_NOT_TRACK: '1'
+
 jobs:
   gha:
     if: ${{ github.repository_owner == 'libssh2' || github.event_name != 'schedule' }}
