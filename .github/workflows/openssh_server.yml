@@ -37,6 +37,9 @@ concurrency:
 
 permissions: {}
 
+env:
+  DO_NOT_TRACK: '1'
+
 jobs:
   build-and-push:
     name: 'Image build and push'

@@ -48,6 +48,9 @@ concurrency:
 
 permissions: {}
 
+env:
+  DO_NOT_TRACK: '1'
+
 jobs:
   daemon:
     name: 'Daemon'
