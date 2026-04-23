@@ -1404,9 +1404,8 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     const char * const remote_ver_pre = "OpenSSH_";
 
     const char *supported_algs =
-    _libssh2_supported_key_sign_algorithms(session,
-                                           *key_method,
-                                           *key_method_len);
+        _libssh2_supported_key_sign_algorithms(session,
+                                               *key_method, *key_method_len);
 
     if(!supported_algs || !session->server_sign_algorithms) {
         /* no upgrading key algorithm supported, do nothing */
