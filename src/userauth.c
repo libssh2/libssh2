@@ -1507,8 +1507,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     if(match) {
         if(*key_method && *key_method_len == method_len &&
            memcmp(*key_method, method, method_len)) {
-            if(*key_method)
-                LIBSSH2_FREE(session, *key_method);
+            LIBSSH2_FREE(session, *key_method);
             *key_method = LIBSSH2_ALLOC(session, match_len + suffix_len);
             if(*key_method) {
                 memcpy(*key_method, match, match_len);
