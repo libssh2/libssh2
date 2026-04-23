@@ -4,7 +4,7 @@ Copyright (C) The libssh2 project and its contributors.
 SPDX-License-Identifier: BSD-3-Clause
 -->
 
-License: see COPYING
+License: see `COPYING`
 
 Source code: <https://github.com/libssh2/libssh2>
 
@@ -58,7 +58,7 @@ The following options are available:
 
  * `BUILD_SHARED_LIBS=OFF`
 
-    Determines whether to build a libssh2 shared library (.dll/.so).
+    Determines whether to build a libssh2 shared library (`.dll`/`.so`).
     Can be `ON` or `OFF`. Default: `ON`
 
  * `CRYPTO_BACKEND=`
