@@ -15,11 +15,11 @@ Web site source code: <https://github.com/libssh2/www>
 To build libssh2 you need [CMake v3.18 or later](https://cmake.org/download/)
 and one of the following cryptography libraries:
 
-* OpenSSL
-* wolfSSL
 * Libgcrypt
-* WinCNG
 * mbedTLS
+* OpenSSL
+* WinCNG
+* wolfSSL
 
 ## Getting started
 
