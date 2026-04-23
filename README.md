@@ -18,5 +18,5 @@ the revised BSD license.
 [Web site source code](https://github.com/libssh2/www)
 
 Installation instructions:
- - [for autotools](docs/INSTALL_AUTOTOOLS.md)
- - [for CMake](docs/INSTALL_CMAKE.md)
+ - [for autotools](docs/INSTALL-AUTOTOOLS.md)
+ - [for CMake](docs/INSTALL-CMAKE.md)
