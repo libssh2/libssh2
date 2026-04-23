@@ -15,5 +15,5 @@ Source code: https://github.com/libssh2/libssh2
 Web site source code: https://github.com/libssh2/www
 
 Installation instructions are in:
- - docs/INSTALL_AUTOTOOLS.md for autotools
- - docs/INSTALL_CMAKE.md for CMake
+ - docs/INSTALL-AUTOTOOLS.md for autotools
+ - docs/INSTALL-CMAKE.md for CMake

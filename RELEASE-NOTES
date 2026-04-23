@@ -198,7 +198,7 @@ This release includes the following enhancements and bugfixes:
 - GHA/dependabot: fix Dockerfile path (d1ba043d #1724)
 - GHA/dependabot: fix pip directory (5dd317fa)
 - gitignore: compress rules (90a686ef)
-- INSTALL_CMAKE: fixes build result directories (98cd10d1 #1617)
+- INSTALL-CMAKE: fixes build result directories (98cd10d1 #1617)
 - kex: remove unused kex state variable `exchange_hash` (c3d8976c #1713)
 - kex: fix DH-GEX-sha256 bignum initialization (30befffe #1599 follow: 09c5e599)
 - kex: fix possible null pointer dereference in diffie_hellman_sha_algo() (1ac1ff44 #1508)
