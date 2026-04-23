@@ -1411,13 +1411,6 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
         return LIBSSH2_ERROR_NONE;
     }
 
-    filtered_algs = LIBSSH2_ALLOC(session, strlen(supported_algs) + 1);
-    if(!filtered_algs) {
-        rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                            "Unable to allocate filtered algs");
-        return rc;
-    }
-
     /* Set "SSH_BUG_SIGTYPE" flag when the remote server version is OpenSSH 7.7
        or lower and when the RSA key in question is a certificate to ignore
        "server-sig-algs" and only offer ssh-rsa signature algorithm for
@@ -1432,10 +1425,16 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
             if(SSH_BUG_SIGTYPE &&
                *key_method && *key_method_len == method_len &&
                memcmp(*key_method, method, method_len) == 0) {
-                LIBSSH2_FREE(session, filtered_algs);
                 return LIBSSH2_ERROR_NONE;
             }
         }
+    }
+
+    filtered_algs = LIBSSH2_ALLOC(session, strlen(supported_algs) + 1);
+    if(!filtered_algs) {
+        rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                            "Unable to allocate filtered algs");
+        return rc;
     }
 
     s = session->server_sign_algorithms;
