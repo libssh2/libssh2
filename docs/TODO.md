@@ -38,11 +38,11 @@ SPDX-License-Identifier: BSD-3-Clause
 * stop using #defined macros as part of the official API. The macros should
   either be turned into real functions or discarded from the API.
 
-* delete or deprecate `libssh2_session_callback_set()`
+* delete or deprecate `libssh2_session_callback_set()`.
 
-* bump length arguments in callback functions to `size_t`/`ssize_t`
+* bump length arguments in callback functions to `size_t`/`ssize_t`.
 
-* remove the following functions from the API/ABI
+* remove the following functions from the API/ABI:
   ```
   libssh2_base64_decode()
   libssh2_session_flag()
@@ -56,7 +56,7 @@ SPDX-License-Identifier: BSD-3-Clause
   libssh2_banner_set() (libssh2_session_banner_set() is the replacement)
   ```
 
-* Rename a few function:
+* Rename a few functions:
   ```
   libssh2_hostkey_hash => libssh2_session_hostkey_hash
   libssh2_banner_set => libssh2_session_banner_set
