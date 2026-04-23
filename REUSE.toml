@@ -20,7 +20,6 @@ path = [
   "RELEASE-NOTES",
   "docs/AUTHORS",
   "docs/HACKING-CRYPTO",
-  "docs/TODO",
   "os400/README400",
   "tests/key_*",
   "tests/openssh_server/authorized_keys",
