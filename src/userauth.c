@@ -1379,7 +1379,6 @@ static int is_version_less_than_78(const char *version)
  * @param key_method_len length of the key method buffer
  * @result error code or zero on success
  */
-
 static int
 _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
                             unsigned char **key_method,
