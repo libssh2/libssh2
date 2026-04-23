@@ -113,26 +113,44 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
                    const unsigned char *passphrase,
                    FILE * fp, unsigned char **data, size_t *datalen)
 {
-    int ret;
+    int ret = -1;
     char *filedata = NULL;
+    long file_size;
     size_t filedata_len;
 
-    fseek(fp, 0L, SEEK_END);
-    filedata_len = ftell(fp);
-    fseek(fp, 0L, SEEK_SET);
+    if(fseek(fp, 0L, SEEK_END) != 0) {
+        _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                       "Bad seek to file end in PEM parsing");
+        goto out;
+    }
+    file_size = ftell(fp);
+    if(file_size < 0) {
+        _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                       "Error determining size in PEM parsing");
+        goto out;
+    }
+    if(file_size > (1024 * 1024)) {
+        _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                       "Input too large in PEM parsing");
+        goto out;
+    }
+    if(fseek(fp, 0L, SEEK_SET) != 0) {
+        _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                       "Bad seek to 0 in PEM parsing");
+        goto out;
+    }
 
+    filedata_len = (size_t)file_size;
     filedata = LIBSSH2_ALLOC(session, filedata_len);
     if(!filedata) {
         _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                        "Unable to allocate memory for PEM parsing");
-        ret = -1;
         goto out;
     }
 
     if(fread(filedata, 1, filedata_len, fp) != filedata_len) {
         _libssh2_error(session, LIBSSH2_ERROR_FILE,
                        "Bad read in PEM parsing");
-        ret = -1;
         goto out;
     }
 
