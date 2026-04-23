@@ -1396,7 +1396,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     size_t match_len = 0;
     char *filtered_algs = NULL;
     const size_t suffix_len = sizeof("-cert-v01@openssh.com") - 1;
-    const char * const certSuffix = "-cert-v01@openssh.com";
+    const char * const suffix = "-cert-v01@openssh.com";
     const size_t method_len = sizeof("ssh-rsa-cert-v01@openssh.com") - 1;
     const char * const method = "ssh-rsa-cert-v01@openssh.com";
     const char *remote_banner = NULL;
@@ -1510,7 +1510,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
             *key_method = LIBSSH2_ALLOC(session, match_len + suffix_len);
             if(*key_method) {
                 memcpy(*key_method, match, match_len);
-                memcpy(*key_method + match_len, certSuffix, suffix_len);
+                memcpy(*key_method + match_len, suffix, suffix_len);
                 *key_method_len = match_len + suffix_len;
             }
         }
