@@ -101,7 +101,7 @@ You can compile the package for more than one kind of computer at the same
 time, by placing the object files for each architecture in their own
 directory. To do this, you must use a version of `make` that supports the
 `VPATH` variable, such as GNU `make`. `cd` to the directory where you want the
-object files and executables to go and run the `configure` script. 
+object files and executables to go and run the `configure` script.
 `configure` automatically checks for the source code in the directory that
 `configure` is in and in `..`.
 
