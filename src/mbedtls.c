@@ -1282,7 +1282,7 @@ _libssh2_mbedtls_ecdsa_new_private(libssh2_ecdsa_ctx **ec_ctx,
     data_len = (size_t)file_size;
     if(data_len == 0)
         goto cleanup;
-    data = LIBSSH2_ALLOC(session, data_len + 1);
+    data = LIBSSH2_ALLOC(session, data_len);
     if(!data)
         goto cleanup;
     if(fread(data, 1, data_len, fp) != data_len)
