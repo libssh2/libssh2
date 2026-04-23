@@ -1429,7 +1429,8 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
         if(remote_ver_start) {
             const char *remote_ver = remote_ver_start + strlen(remote_ver_pre);
             int SSH_BUG_SIGTYPE = is_version_less_than_78(remote_ver);
-            if(SSH_BUG_SIGTYPE && *key_method_len == method_len &&
+            if(SSH_BUG_SIGTYPE &&
+               *key_method && *key_method_len == method_len &&
                memcmp(*key_method, method, method_len) == 0) {
                 LIBSSH2_FREE(session, filtered_algs);
                 return LIBSSH2_ERROR_NONE;
