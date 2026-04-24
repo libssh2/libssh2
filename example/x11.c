@@ -240,6 +240,7 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, libssh2_socket_t sock)
             libssh2_channel_write(channel, buf, (size_t)nread);
         }
         else {
+            free(fds);
             free(buf);
             return -1;
         }
@@ -247,9 +248,11 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, libssh2_socket_t sock)
 
     free(fds);
     free(buf);
+
     if(libssh2_channel_eof(channel) == 1) {
         return -1;
     }
+
     return 0;
 }
 
