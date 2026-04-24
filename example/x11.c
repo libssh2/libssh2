@@ -425,7 +425,8 @@ int main(int argc, char *argv[])
                 fflush(stdout);
             }
             else if(nread < 0 && nread != LIBSSH2_ERROR_EAGAIN) {
-                rc = (int)nread;
+                fprintf(stderr, "libssh2_channel_read returned %ld\n",
+                        (long)nread);
             }
         }
 
