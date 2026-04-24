@@ -1,6 +1,6 @@
 /* Copyright (C) The libssh2 project and its contributors.
  *
- * Sample showing how to makes SSH2 with X11 Forwarding works.
+ * Sample showing how to make SSH2 with X11 Forwarding work.
  *
  * $ ./x11 host user password [DEBUG]
  *
@@ -308,14 +308,14 @@ int main(int argc, char *argv[])
     sin.sin_addr.s_addr = hostaddr;
 
     if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
-        fprintf(stderr, "Failed to established connection.\n");
+        fprintf(stderr, "Failed to establish connection.\n");
         return 1;
     }
     /* Open a session */
     session = libssh2_session_init();
     rc      = libssh2_session_handshake(session, sock);
     if(rc) {
-        fprintf(stderr, "Failed Start the SSH session\n");
+        fprintf(stderr, "Failed to start the SSH session\n");
         return 1;
     }
 
@@ -370,7 +370,7 @@ int main(int argc, char *argv[])
 
     rc = _raw_mode();
     if(rc) {
-        fprintf(stderr, "Failed to entered in raw mode\n");
+        fprintf(stderr, "Failed to enter raw mode\n");
         goto shutdown;
     }
 
@@ -418,9 +418,16 @@ int main(int argc, char *argv[])
 
         rc = libssh2_poll(fds, nfds, 0);
         if(rc > 0) {
-            libssh2_channel_read(channel, buf, sizeof(buf));
-            fprintf(stdout, "%s", buf);
-            fflush(stdout);
+            ssize_t nread;
+            nread = libssh2_channel_read(channel, buf, bufsiz);
+            if(nread > 0) {
+                fwrite(buf, 1, (size_t)nread, stdout);
+                fflush(stdout);
+            }
+            else if(nread < 0 && nread != LIBSSH2_ERROR_EAGAIN) {
+                fprintf(stderr, "libssh2_channel_read returned %ld\n",
+                        (long)nread);
+            }
         }
 
         /* Looping on X clients */
@@ -453,7 +460,7 @@ int main(int argc, char *argv[])
             /* Data in stdin */
             nread = read(fileno(stdin), buf, 1);
             if(nread > 0)
-                libssh2_channel_write(channel, buf, sizeof(buf));
+                libssh2_channel_write(channel, buf, (size_t)nread);
         }
 
         free(fds);
