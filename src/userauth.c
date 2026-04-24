@@ -1435,7 +1435,8 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
         }
     }
 
-    filtered_algs = LIBSSH2_ALLOC(session, strlen(supported_algs) + 1);
+    filtered_algs = LIBSSH2_ALLOC(session,
+                                  strlen(session->server_sign_algorithms) + 1);
     if(!filtered_algs) {
         rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate filtered algs");
