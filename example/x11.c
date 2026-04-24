@@ -418,9 +418,15 @@ int main(int argc, char *argv[])
 
         rc = libssh2_poll(fds, nfds, 0);
         if(rc > 0) {
-            libssh2_channel_read(channel, buf, bufsiz);
-            fprintf(stdout, "%s", buf);
-            fflush(stdout);
+            ssize_t nread;
+            nread = libssh2_channel_read(channel, buf, bufsiz);
+            if(nread > 0) {
+                fwrite(buf, 1, (size_t)nread, stdout);
+                fflush(stdout);
+            }
+            else if(nread < 0 && nread != LIBSSH2_ERROR_EAGAIN) {
+                rc = (int)nread;
+            }
         }
 
         /* Looping on X clients */
