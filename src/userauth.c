@@ -263,7 +263,7 @@ libssh2_userauth_list(LIBSSH2_SESSION * session, const char *username,
  *
  * Retrieve banner message from server, if available.
  * When no such message is sent by server or if no authentication attempt has
- * been made, this function returns LIBSSH2_ERROR_MISSING_AUTH_BANNER.
+ * been made, this function returns LIBSSH2_ERROR_MISSING_USERAUTH_BANNER.
  */
 LIBSSH2_API int
 libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner)
