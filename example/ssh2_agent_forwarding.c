@@ -251,11 +251,10 @@ int main(int argc, char *argv[])
                     fputc(buffer[i], stderr);
                 fprintf(stderr, "\n");
             }
-            else {
-                if(nread != LIBSSH2_ERROR_EAGAIN)
-                    /* no need to output this for the EAGAIN case */
-                    fprintf(stderr, "libssh2_channel_read returned %ld\n",
-                            (long)nread);
+            else if(nread != LIBSSH2_ERROR_EAGAIN) {
+                /* no need to output this for the EAGAIN case */
+                fprintf(stderr, "libssh2_channel_read returned %ld\n",
+                        (long)nread);
             }
         } while(nread > 0);
 
