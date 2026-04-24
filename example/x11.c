@@ -137,7 +137,7 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
             if(rc != -1) {
                 /* Connection Successful */
                 if(!gp_x11_chan) {
-                    /* calloc ensure that gp_x11_chan is full of 0 */
+                    /* calloc ensures that gp_x11_chan is zero-initialized. */
                     gp_x11_chan = (struct chan_X11_list *)
                         calloc(1, sizeof(struct chan_X11_list));
                     if(!gp_x11_chan) {
@@ -389,12 +389,18 @@ int main(int argc, char *argv[])
     memset(&w_size_bck, 0, sizeof(struct winsize));
 
     buf = calloc(bufsiz, sizeof(char));
-    if(!buf)
+    if(!buf) {
+        fprintf(stderr, "Out of memory allocating buffer\n");
+        rc = 1;
         goto shutdown;
+    }
 
     fds = malloc(sizeof(LIBSSH2_POLLFD));
-    if(!fds)
+    if(!fds) {
+        fprintf(stderr, "Out of memory allocating buffer\n");
+        rc = 1;
         goto shutdown;
+    }
 
     for(;;) {
         struct chan_X11_list *prev_node;
