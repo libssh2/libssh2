@@ -418,7 +418,7 @@ int main(int argc, char *argv[])
 
         rc = libssh2_poll(fds, nfds, 0);
         if(rc > 0) {
-            libssh2_channel_read(channel, buf, bufsize);
+            libssh2_channel_read(channel, buf, bufsiz);
             fprintf(stdout, "%s", buf);
             fflush(stdout);
         }
