@@ -111,18 +111,17 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
     if(display) {
         if(strncmp(display, "unix:", 5) == 0 ||
            display[0] == ':') {
-            char *ptr;
+            const char *ptr;
             char *temp_buff;
             int display_port;
             int rc;
             /* Connect to the local unix domain */
             ptr = strrchr(display, ':');
-            temp_buff = (char *)calloc(strlen(ptr + 1) + 1, sizeof(char));
+            temp_buff = strdup(ptr + 1);
             if(!temp_buff) {
-                fprintf(stderr, "failed to calloc().\n");
+                fprintf(stderr, "failed to strdup().\n");
                 return;
             }
-            memcpy(temp_buff, ptr + 1, strlen(ptr + 1));
             display_port = atoi(temp_buff);
             free(temp_buff);
 
