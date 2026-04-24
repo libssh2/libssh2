@@ -97,14 +97,8 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
                          char *shost, int sport, void **abstract)
 {
     const char *display;
-    char *ptr;
-    char *temp_buff;
-    int display_port;
-    int rc;
     libssh2_socket_t sock = LIBSSH2_INVALID_SOCKET;
     struct sockaddr_un addr;
-    struct chan_X11_list *new;
-    struct chan_X11_list *chan_iter;
     (void)session;
     (void)shost;
     (void)sport;
@@ -117,6 +111,10 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
     if(display) {
         if(strncmp(display, "unix:", 5) == 0 ||
            display[0] == ':') {
+            char *ptr;
+            char *temp_buff;
+            int display_port;
+            int rc;
             /* Connect to the local unix domain */
             ptr = strrchr(display, ':');
             temp_buff = (char *)calloc(strlen(ptr + 1) + 1, sizeof(char));
@@ -143,21 +141,37 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
                     /* Calloc ensure that gp_X11_chan is full of 0 */
                     gp_x11_chan = (struct chan_X11_list *)
                         calloc(1, sizeof(struct chan_X11_list));
-                    gp_x11_chan->sock = sock;
-                    gp_x11_chan->chan = channel;
-                    gp_x11_chan->next = NULL;
+                    if(!gp_x11_chan) {
+                        fprintf(stderr, "failed to calloc().\n");
+                        shutdown(sock, SHUT_RDWR);
+                        LIBSSH2_SOCKET_CLOSE(sock);
+                    }
+                    else {
+                        gp_x11_chan->sock = sock;
+                        gp_x11_chan->chan = channel;
+                        gp_x11_chan->next = NULL;
+                    }
                 }
                 else {
+                    struct chan_X11_list *new;
+                    struct chan_X11_list *chan_iter;
                     chan_iter = gp_x11_chan;
                     while(chan_iter->next)
                         chan_iter = chan_iter->next;
                     /* Create the new Node */
                     new = (struct chan_X11_list *)
-                        malloc(sizeof(struct chan_X11_list));
-                    new->sock = sock;
-                    new->chan = channel;
-                    new->next = NULL;
-                    chan_iter->next = new;
+                        calloc(1, sizeof(struct chan_X11_list));
+                    if(!new) {
+                        fprintf(stderr, "failed to calloc().\n");
+                        shutdown(sock, SHUT_RDWR);
+                        LIBSSH2_SOCKET_CLOSE(sock);
+                    }
+                    else {
+                        new->sock = sock;
+                        new->chan = channel;
+                        new->next = NULL;
+                        chan_iter->next = new;
+                    }
                 }
             }
             else {
@@ -176,6 +190,7 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, libssh2_socket_t sock)
 {
     char *buf;
     unsigned int bufsize = 8192;
+    ssize_t nread;
     int rc;
     unsigned int nfds = 1;
     LIBSSH2_POLLFD *fds = NULL;
@@ -211,7 +226,6 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, libssh2_socket_t sock)
 
     rc = libssh2_poll(fds, nfds, 0);
     if(rc > 0) {
-        ssize_t nread;
         nread = libssh2_channel_read(channel, buf, bufsize);
         if(nread > 0)
             write(sock, buf, (size_t)nread);
@@ -219,8 +233,6 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, libssh2_socket_t sock)
 
     rc = select((int)(sock + 1), &set, NULL, NULL, &timeval_out);
     if(rc > 0) {
-        ssize_t nread;
-
         memset(buf, 0, bufsize);
 
         /* Data in sock */
@@ -379,6 +391,7 @@ int main(int argc, char *argv[])
 
     for(;;) {
         struct chan_X11_list *prev_node;
+        ssize_t nread;
 
         FD_ZERO(&set);
 #if defined(__GNUC__) || defined(__clang__)
@@ -418,7 +431,6 @@ int main(int argc, char *argv[])
 
         rc = libssh2_poll(fds, nfds, 0);
         if(rc > 0) {
-            ssize_t nread;
             nread = libssh2_channel_read(channel, buf, bufsiz);
             if(nread > 0) {
                 fwrite(buf, 1, (size_t)nread, stdout);
@@ -455,8 +467,6 @@ int main(int argc, char *argv[])
 
         rc = select((int)(fileno(stdin) + 1), &set, NULL, NULL, &timeval_out);
         if(rc > 0) {
-            ssize_t nread;
-
             /* Data in stdin */
             nread = read(fileno(stdin), buf, 1);
             if(nread > 0)
@@ -484,7 +494,7 @@ shutdown:
     }
 
     if(sock != LIBSSH2_INVALID_SOCKET) {
-        shutdown(sock, 2);
+        shutdown(sock, SHUT_RDWR);
         LIBSSH2_SOCKET_CLOSE(sock);
     }
 
