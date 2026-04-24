@@ -129,6 +129,11 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
                        "Error determining size in PEM parsing");
         goto out;
     }
+    if(file_size == 0) {
+        _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                       "Zero-length file in PEM parsing");
+        goto out;
+    }
     if(file_size > (1024 * 1024)) {
         _libssh2_error(session, LIBSSH2_ERROR_FILE,
                        "Input too large in PEM parsing");
