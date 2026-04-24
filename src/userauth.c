@@ -1350,17 +1350,22 @@ size_t plain_method(char *method, size_t method_len)
  */
 static int is_version_less_than_78(const char *version)
 {
-    char *endptr = NULL;
+    char *endptr_major = NULL;
+    char *endptr_minor = NULL;
     long major = 0;
-    int minor = 0;
+    long minor = 0;
 
     if(!version)
         return 0;
 
-    major = strtol(version, &endptr, 10);
-    if(!endptr || *endptr != '.')
+    major = strtol(version, &endptr_major, 10);
+    if(!endptr_major || *endptr_major != '.')
         return 0; /* Not a valid number */
-    minor = (endptr + 1)[0] - '0';
+
+    minor = strtol(endptr_major + 1, &endptr_minor, 10);
+    if(!endptr_minor || endptr_minor == endptr_major + 1)
+        return 0; /* Not a valid number */
+
     if((major >= 1 && major <= 6) ||
        (major == 7 && minor >= 0 && minor <= 7)) {
         return 1; /* Version is in the specified range */
@@ -1430,7 +1435,8 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
         }
     }
 
-    filtered_algs = LIBSSH2_ALLOC(session, strlen(supported_algs) + 1);
+    filtered_algs = LIBSSH2_ALLOC(session,
+                                  strlen(session->server_sign_algorithms) + 1);
     if(!filtered_algs) {
         rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate filtered algs");
@@ -1445,12 +1451,12 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
 
     while(s && *s) {
         p = strchr(s, ',');
-        p_len = (p ? (size_t)(p - s) : strlen(s));
+        p_len = p ? (size_t)(p - s) : strlen(s);
         a = supported_algs;
 
         while(a && *a) {
             f = strchr(a, ',');
-            f_len = (f ? (size_t)(f - a) : strlen(a));
+            f_len = f ? (size_t)(f - a) : strlen(a);
 
             if(f_len == p_len && memcmp(a, s, p_len) == 0) {
 
@@ -1469,26 +1475,21 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
         s = p ? (p + 1) : NULL;
     }
 
-    filtered_algs[i - filtered_algs] = '\0';
+    *i = '\0';
 
-    if(session->sign_algo_prefs) {
-        s = session->sign_algo_prefs;
-    }
-    else {
-        s = supported_algs;
-    }
+    s = session->sign_algo_prefs ? session->sign_algo_prefs : supported_algs;
 
     /* now that we have the possible supported algos, match based on the prefs
        or what is supported by the crypto backend, look for a match */
 
     while(s && *s && !match) {
         p = strchr(s, ',');
-        p_len = (p ? (size_t)(p - s) : strlen(s));
+        p_len = p ? (size_t)(p - s) : strlen(s);
         a = filtered_algs;
 
         while(a && *a && !match) {
             f = strchr(a, ',');
-            f_len = (f ? (size_t)(f - a) : strlen(a));
+            f_len = f ? (size_t)(f - a) : strlen(a);
 
             if(f_len == p_len && memcmp(a, s, p_len) == 0) {
                 /* found a match, upgrade key method */
