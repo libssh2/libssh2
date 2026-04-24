@@ -1,6 +1,6 @@
 /* Copyright (C) The libssh2 project and its contributors.
  *
- * Sample showing how to make SSH2 with X11 Forwarding works.
+ * Sample showing how to make SSH2 with X11 Forwarding work.
  *
  * $ ./x11 host user password [DEBUG]
  *
