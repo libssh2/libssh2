@@ -1351,8 +1351,9 @@ size_t plain_method(char *method, size_t method_len)
 static int is_version_less_than_78(const char *version)
 {
     const char *endptr_major = NULL;
+    const char *endptr_minor = NULL;
     long major = 0;
-    int minor = 0;
+    long minor = 0;
 
     if(!version)
         return 0;
@@ -1360,7 +1361,11 @@ static int is_version_less_than_78(const char *version)
     major = strtol(version, &endptr_major, 10);
     if(!endptr_major || *endptr_major != '.')
         return 0; /* Not a valid number */
-    minor = (endptr_major + 1)[0] - '0';
+
+    minor = strtol(endptr_major + 1, &minor_endptr, 10);
+    if(!minor_endptr || minor_endptr == endptr_major + 1)
+        return 0; /* Not a valid number */
+
     if((major >= 1 && major <= 6) ||
        (major == 7 && minor >= 0 && minor <= 7)) {
         return 1; /* Version is in the specified range */
