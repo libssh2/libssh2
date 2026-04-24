@@ -1469,7 +1469,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
         s = p ? (p + 1) : NULL;
     }
 
-    filtered_algs[i - filtered_algs] = '\0';
+    *i = '\0';
 
     if(session->sign_algo_prefs) {
         s = session->sign_algo_prefs;
