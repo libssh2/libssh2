@@ -887,7 +887,7 @@ static int _libssh2_wincng_load_pem(LIBSSH2_SESSION *session,
     FILE *fp;
     int ret;
 
-    fp = fopen(filename, FOPEN_READTEXT);
+    fp = fopen(filename, "rb");
     if(!fp) {
         return -1;
     }
@@ -2648,7 +2648,7 @@ _libssh2_wincng_ecdsa_new_private(OUT _libssh2_wincng_ecdsa_key **key,
             "Passphrase-protected ECDSA private key files are unsupported");
     }
 
-    file_handle = fopen(filename, FOPEN_READTEXT);
+    file_handle = fopen(filename, "rb");
     if(!file_handle) {
         result = _libssh2_error(
             session,
