@@ -1350,8 +1350,8 @@ size_t plain_method(char *method, size_t method_len)
  */
 static int is_version_less_than_78(const char *version)
 {
-    const char *endptr_major = NULL;
-    const char *endptr_minor = NULL;
+    char *endptr_major = NULL;
+    char *endptr_minor = NULL;
     long major = 0;
     long minor = 0;
 
