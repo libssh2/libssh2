@@ -1451,12 +1451,12 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
 
     while(s && *s) {
         p = strchr(s, ',');
-        p_len = (p ? (size_t)(p - s) : strlen(s));
+        p_len = p ? (size_t)(p - s) : strlen(s);
         a = supported_algs;
 
         while(a && *a) {
             f = strchr(a, ',');
-            f_len = (f ? (size_t)(f - a) : strlen(a));
+            f_len = f ? (size_t)(f - a) : strlen(a);
 
             if(f_len == p_len && memcmp(a, s, p_len) == 0) {
 
@@ -1484,12 +1484,12 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
 
     while(s && *s && !match) {
         p = strchr(s, ',');
-        p_len = (p ? (size_t)(p - s) : strlen(s));
+        p_len = p ? (size_t)(p - s) : strlen(s);
         a = filtered_algs;
 
         while(a && *a && !match) {
             f = strchr(a, ',');
-            f_len = (f ? (size_t)(f - a) : strlen(a));
+            f_len = f ? (size_t)(f - a) : strlen(a);
 
             if(f_len == p_len && memcmp(a, s, p_len) == 0) {
                 /* found a match, upgrade key method */
