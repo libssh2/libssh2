@@ -289,8 +289,7 @@ int main(int argc, char *argv[])
             }
             wr = 0;
             while(wr < len) {
-                ssize_t nwritten = libssh2_channel_write(channel,
-                                                         buf + wr,
+                ssize_t nwritten = libssh2_channel_write(channel, buf + wr,
                                                          (size_t)(len - wr));
                 if(nwritten == LIBSSH2_ERROR_EAGAIN) {
                     continue;
