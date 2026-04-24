@@ -111,18 +111,17 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
     if(display) {
         if(strncmp(display, "unix:", 5) == 0 ||
            display[0] == ':') {
-            char *ptr;
+            const char *ptr;
             char *temp_buff;
             int display_port;
             int rc;
             /* Connect to the local unix domain */
             ptr = strrchr(display, ':');
-            temp_buff = (char *)calloc(strlen(ptr + 1) + 1, sizeof(char));
+            temp_buff = strdup(ptr + 1);
             if(!temp_buff) {
-                fprintf(stderr, "failed to calloc().\n");
+                fprintf(stderr, "failed to strdup().\n");
                 return;
             }
-            memcpy(temp_buff, ptr + 1, strlen(ptr + 1));
             display_port = atoi(temp_buff);
             free(temp_buff);
 
@@ -138,7 +137,7 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
             if(rc != -1) {
                 /* Connection Successful */
                 if(!gp_x11_chan) {
-                    /* Calloc ensure that gp_X11_chan is full of 0 */
+                    /* calloc ensures that gp_x11_chan is zero-initialized. */
                     gp_x11_chan = (struct chan_X11_list *)
                         calloc(1, sizeof(struct chan_X11_list));
                     if(!gp_x11_chan) {
@@ -389,6 +388,20 @@ int main(int argc, char *argv[])
     memset(&w_size, 0, sizeof(struct winsize));
     memset(&w_size_bck, 0, sizeof(struct winsize));
 
+    buf = calloc(bufsiz, sizeof(char));
+    if(!buf) {
+        fprintf(stderr, "Out of memory allocating buffer\n");
+        rc = 1;
+        goto shutdown;
+    }
+
+    fds = malloc(sizeof(LIBSSH2_POLLFD));
+    if(!fds) {
+        fprintf(stderr, "Out of memory allocating buffer\n");
+        rc = 1;
+        goto shutdown;
+    }
+
     for(;;) {
         struct chan_X11_list *prev_node;
         ssize_t nread;
@@ -412,16 +425,6 @@ int main(int argc, char *argv[])
             libssh2_channel_request_pty_size(channel,
                                              w_size.ws_col,
                                              w_size.ws_row);
-        }
-
-        buf = calloc(bufsiz, sizeof(char));
-        if(!buf)
-            break;
-
-        fds = malloc(sizeof(LIBSSH2_POLLFD));
-        if(!fds) {
-            free(buf);
-            break;
         }
 
         fds[0].type = LIBSSH2_POLLFD_CHANNEL;
@@ -473,15 +476,18 @@ int main(int argc, char *argv[])
                 libssh2_channel_write(channel, buf, (size_t)nread);
         }
 
-        free(fds);
-        free(buf);
-
         if(libssh2_channel_eof(channel) == 1) {
             break;
         }
     }
 
 shutdown:
+
+    if(buf)
+        free(buf);
+
+    if(fds)
+        free(fds);
 
     if(channel) {
         libssh2_channel_free(channel);
