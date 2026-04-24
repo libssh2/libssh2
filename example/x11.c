@@ -322,9 +322,15 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Failed to establish connection.\n");
         return 1;
     }
+
     /* Open a session */
     session = libssh2_session_init();
-    rc      = libssh2_session_handshake(session, sock);
+    if(!session) {
+        fprintf(stderr, "Could not initialize SSH session.\n");
+        return 1;
+    }
+
+    rc = libssh2_session_handshake(session, sock);
     if(rc) {
         fprintf(stderr, "Failed to start the SSH session\n");
         return 1;
