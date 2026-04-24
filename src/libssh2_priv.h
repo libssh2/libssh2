@@ -1280,7 +1280,6 @@ size_t plain_method(char *method, size_t method_len);
 #if defined(_WIN32) || defined(MSDOS)
 #define FOPEN_READTEXT "rt"
 #define FOPEN_WRITETEXT "wt"
-#define FOPEN_APPENDTEXT "at"
 #elif defined(__CYGWIN__)
 /* Cygwin has specific behavior we need to address when _WIN32 is not defined.
      https://cygwin.com/cygwin-ug-net/using-textbinary.html
@@ -1290,11 +1289,9 @@ size_t plain_method(char *method, size_t method_len);
  */
 #define FOPEN_READTEXT "rt"
 #define FOPEN_WRITETEXT "w"
-#define FOPEN_APPENDTEXT "a"
 #else
 #define FOPEN_READTEXT "r"
 #define FOPEN_WRITETEXT "w"
-#define FOPEN_APPENDTEXT "a"
 #endif
 
 #endif /* LIBSSH2_PRIV_H */
