@@ -293,7 +293,7 @@ int main(int argc, char *argv[])
         password = argv[3];
     }
     else {
-        fprintf(stderr, "Usage: %s destination username password [DEBUG]",
+        fprintf(stderr, "Usage: %s destination username password [DEBUG]\n",
                 argv[0]);
         return 1;
     }
@@ -512,7 +512,7 @@ shutdown:
 int main(void)
 {
     fprintf(stderr, "Sorry, this platform is not supported, "
-            "or required deprecated libssh2 API not built in.");
+            "or required deprecated libssh2 API not built in.\n");
     return 1;
 }
 
