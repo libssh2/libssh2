@@ -2134,13 +2134,9 @@ load_rsa_private_file(LIBSSH2_SESSION *session, const char *filename,
     if(ret)
         ret = try_pem_load(session, fp, passphrase, beginrsaprivkeyhdr,
                            endrsaprivkeyhdr, proc1, loadkeydata);
-    fclose(fp);
 
+    /* Try DER encoding. */
     if(ret) {
-        /* Try DER encoding. */
-        fp = fopen(filename, "rb");
-        if(!fp)
-            return -1;
         fseek(fp, 0L, SEEK_END);
         filesize = ftell(fp);
 
@@ -2163,8 +2159,9 @@ load_rsa_private_file(LIBSSH2_SESSION *session, const char *filename,
                                    loadkeydata);
             }
         }
-        fclose(fp);
     }
+
+    fclose(fp);
 
     return ret;
 }
