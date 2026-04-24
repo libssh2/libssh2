@@ -453,7 +453,7 @@ int main(int argc, char *argv[])
             /* Data in stdin */
             nread = read(fileno(stdin), buf, 1);
             if(nread > 0)
-                libssh2_channel_write(channel, buf, sizeof(buf));
+                libssh2_channel_write(channel, buf, (size_t)nread);
         }
 
         free(fds);
