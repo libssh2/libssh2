@@ -237,7 +237,20 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, libssh2_socket_t sock)
         /* Data in sock */
         nread = read(sock, buf, bufsize);
         if(nread > 0) {
-            libssh2_channel_write(channel, buf, (size_t)nread);
+            ssize_t wr = 0;
+            while(wr < nread) {
+                ssize_t nwritten = libssh2_channel_write(channel, buf + wr,
+                                                         (size_t)(nread - wr));
+                if(nwritten == LIBSSH2_ERROR_EAGAIN) {
+                    continue;
+                }
+                if(nwritten < 0) {
+                    free(fds);
+                    free(buf);
+                    return -1;
+                }
+                wr += nwritten;
+            }
         }
         else {
             free(fds);
@@ -481,8 +494,16 @@ int main(int argc, char *argv[])
         if(rc > 0) {
             /* Data in stdin */
             nread = read(fileno(stdin), buf, 1);
-            if(nread > 0)
-                libssh2_channel_write(channel, buf, (size_t)nread);
+            if(nread > 0) {
+                ssize_t nwritten = libssh2_channel_write(channel,
+                                                         buf, (size_t)nread);
+                if(nwritten < 0 && nwritten != LIBSSH2_ERROR_EAGAIN) {
+                    fprintf(stderr, "libssh2_channel_write returned %ld\n",
+                            (long)nwritten);
+                    rc = (int)nwritten;
+                    goto shutdown;
+                }
+            }
         }
 
         if(libssh2_channel_eof(channel) == 1) {
