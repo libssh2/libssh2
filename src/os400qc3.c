@@ -313,7 +313,6 @@ static const char   beginprivkeyhdr[] = "-----BEGIN PRIVATE KEY-----";
 static const char   endprivkeyhdr[] = "-----END PRIVATE KEY-----";
 static const char   beginrsaprivkeyhdr[] = "-----BEGIN RSA PRIVATE KEY-----";
 static const char   endrsaprivkeyhdr[] = "-----END RSA PRIVATE KEY-----";
-static const char   fopenrbmode[] = "rb";
 
 /* The rest of character literals in this module are in EBCDIC. */
 #pragma convert(37)
@@ -2110,7 +2109,7 @@ load_rsa_private_file(LIBSSH2_SESSION *session, const char *filename,
                       unsigned const char *passphrase,
                       loadkeyproc proc1, loadkeyproc proc8, void *loadkeydata)
 {
-    FILE *fp = fopen(filename, fopenrbmode);
+    FILE *fp = fopen(filename, "rb");
     unsigned char *data = NULL;
     size_t datalen = 0;
     int ret;
@@ -2139,7 +2138,7 @@ load_rsa_private_file(LIBSSH2_SESSION *session, const char *filename,
 
     if(ret) {
         /* Try DER encoding. */
-        fp = fopen(filename, fopenrbmode);
+        fp = fopen(filename, "rb");
         fseek(fp, 0L, SEEK_END);
         filesize = ftell(fp);
 
