@@ -1362,8 +1362,8 @@ static int is_version_less_than_78(const char *version)
     if(!endptr_major || *endptr_major != '.')
         return 0; /* Not a valid number */
 
-    minor = strtol(endptr_major + 1, &minor_endptr, 10);
-    if(!minor_endptr || minor_endptr == endptr_major + 1)
+    minor = strtol(endptr_major + 1, &endptr_minor, 10);
+    if(!endptr_minor || endptr_minor == endptr_major + 1)
         return 0; /* Not a valid number */
 
     if((major >= 1 && major <= 6) ||
