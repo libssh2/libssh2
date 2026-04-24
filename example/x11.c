@@ -389,6 +389,14 @@ int main(int argc, char *argv[])
     memset(&w_size, 0, sizeof(struct winsize));
     memset(&w_size_bck, 0, sizeof(struct winsize));
 
+    buf = calloc(bufsiz, sizeof(char));
+    if(!buf)
+        goto shutdown;
+
+    fds = malloc(sizeof(LIBSSH2_POLLFD));
+    if(!fds)
+        goto shutdown;
+
     for(;;) {
         struct chan_X11_list *prev_node;
         ssize_t nread;
@@ -412,16 +420,6 @@ int main(int argc, char *argv[])
             libssh2_channel_request_pty_size(channel,
                                              w_size.ws_col,
                                              w_size.ws_row);
-        }
-
-        buf = calloc(bufsiz, sizeof(char));
-        if(!buf)
-            break;
-
-        fds = malloc(sizeof(LIBSSH2_POLLFD));
-        if(!fds) {
-            free(buf);
-            break;
         }
 
         fds[0].type = LIBSSH2_POLLFD_CHANNEL;
@@ -473,15 +471,18 @@ int main(int argc, char *argv[])
                 libssh2_channel_write(channel, buf, (size_t)nread);
         }
 
-        free(fds);
-        free(buf);
-
         if(libssh2_channel_eof(channel) == 1) {
             break;
         }
     }
 
 shutdown:
+
+    if(buf)
+        free(buf);
+
+    if(fds)
+        free(fds);
 
     if(channel) {
         libssh2_channel_free(channel);
