@@ -1471,12 +1471,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
 
     *i = '\0';
 
-    if(session->sign_algo_prefs) {
-        s = session->sign_algo_prefs;
-    }
-    else {
-        s = supported_algs;
-    }
+    s = session->sign_algo_prefs ? session->sign_algo_prefs : supported_algs;
 
     /* now that we have the possible supported algos, match based on the prefs
        or what is supported by the crypto backend, look for a match */
