@@ -2140,7 +2140,8 @@ load_rsa_private_file(LIBSSH2_SESSION *session, const char *filename,
         fseek(fp, 0L, SEEK_END);
         filesize = ftell(fp);
 
-        if(filesize <= 32768) {        /* Limit to a reasonable size. */
+        if(filesize > 0 &&
+           filesize <= 32768) {  /* Limit to a reasonable size. */
             datalen = filesize;
             data = (unsigned char *) alloca(datalen);
             if(data) {
