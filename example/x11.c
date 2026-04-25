@@ -492,17 +492,21 @@ int main(int argc, char *argv[])
 
         rc = select((int)(fileno(stdin) + 1), &set, NULL, NULL, &timeval_out);
         if(rc > 0) {
-            /* Data in stdin */
-            nread = read(fileno(stdin), buf, 1);
-            if(nread > 0) {
-                ssize_t nwritten = libssh2_channel_write(channel,
-                                                         buf, (size_t)nread);
-                if(nwritten < 0 && nwritten != LIBSSH2_ERROR_EAGAIN) {
+            ssize_t wr = 0;
+            nread = read(fileno(stdin), buf, 1);  /* Data in stdin */
+            while(wr < nread) {
+                ssize_t nwritten = libssh2_channel_write(channel, buf + wr,
+                                                         (size_t)(nread - wr));
+                if(nwritten == LIBSSH2_ERROR_EAGAIN) {
+                    continue;
+                }
+                if(nwritten < 0) {
                     fprintf(stderr, "libssh2_channel_write returned %ld\n",
                             (long)nwritten);
                     rc = (int)nwritten;
                     goto shutdown;
                 }
+                wr += nwritten;
             }
         }
 
