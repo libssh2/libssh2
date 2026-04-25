@@ -317,9 +317,9 @@ int main(int argc, char *argv[])
 
     if(argc > 4) {
         int my_port = atoi(argv[4]);
-        if(my_port != 0)
+        if(my_port)
             port = my_port;
-        if(my_port == 0 || argc > 5) {
+        if(!my_port || argc > 5) {
             set_debug_on = 1;
             fprintf(stderr, "DEBUG is ON: %d\n", set_debug_on);
         }
