@@ -2,7 +2,7 @@
  *
  * Sample showing how to make SSH2 with X11 Forwarding work.
  *
- * $ ./x11 host user password [DEBUG]
+ * $ ./x11 host user password [port] [DEBUG]
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -284,6 +284,7 @@ int main(int argc, char *argv[])
     char *password = NULL;
     size_t bufsiz = 8193;
     char *buf = NULL;
+    int port = 22;
     int set_debug_on = 0;
 
     unsigned int nfds = 1;
@@ -308,14 +309,20 @@ int main(int argc, char *argv[])
         password = argv[3];
     }
     else {
-        fprintf(stderr, "Usage: %s destination username password [DEBUG]\n",
+        fprintf(stderr,
+                "Usage: %s destination username password [port] [DEBUG]\n",
                 argv[0]);
         return 1;
     }
 
     if(argc > 4) {
-        set_debug_on = 1;
-        fprintf(stderr, "DEBUG is ON: %d\n", set_debug_on);
+        int my_port = atoi(argv[4]);
+        if(my_port != 0)
+            port = my_port;
+        if(my_port == 0 || argc > 5) {
+            set_debug_on = 1;
+            fprintf(stderr, "DEBUG is ON: %d\n", set_debug_on);
+        }
     }
 
     rc = libssh2_init(0);
@@ -331,7 +338,7 @@ int main(int argc, char *argv[])
     }
 
     sin.sin_family = AF_INET;
-    sin.sin_port = htons(22);
+    sin.sin_port = htons((unsigned short)port);
     sin.sin_addr.s_addr = hostaddr;
 
     if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
