@@ -74,11 +74,13 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       CMAKE_GENERATOR: 'Visual Studio 12 2013'
       CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64 -DBUILD_SHARED_LIBS=OFF'
+      #SKIP_CTEST: 'yes'
 
     - job_name: 'VS2010, WinCNG, x64, Build-only, non-unity'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       CMAKE_GENERATOR: 'Visual Studio 10 2010'
       CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=WinCNG -DENABLE_ECDSA_WINCNG=ON -DCMAKE_UNITY_BUILD=OFF'
+      #SKIP_CTEST: 'yes'
 
     - job_name: 'VS2022, WinCNG, x64, Server 2019, Debug-logging'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
@@ -89,6 +91,7 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
       CMAKE_GENERATOR: 'Visual Studio 17 2022'
       CMAKE_GENERATE: '-A ARM64 -DCRYPTO_BACKEND=WinCNG -DENABLE_ECDSA_WINCNG=ON'
+      #SKIP_CTEST: 'yes'
 
     - job_name: 'VS2015, WinCNG, x64, Server 2012 R2'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
@@ -105,18 +108,13 @@ matrix:
 
 install:
   - ps: $env:PATH = "C:/my-cmake/bin;C:/my-docker/docker;$env:PATH"
-  # prepare local SSH server for reverse tunneling from GitHub Actions hosting our docker container
   - ps: |
+      # prepare local SSH server for reverse tunneling from GitHub Actions hosting our docker container
       $env:OPENSSH_SERVER_PORT = Get-Random -Minimum 2000 -Maximum 2300
       [System.Environment]::SetEnvironmentVariable('OPENSSH_SERVER_PORT', $env:OPENSSH_SERVER_PORT)
       ./scripts/appveyor/docker-bridge.ps1
 
-build_script:
-  - cmd: sh -c ./appveyor.sh
-
-test_script:
-  - ps: |
-      if($env:SKIP_CTEST -ne 'yes' -and $env:CMAKE_GENERATE -notlike '*ARM64*') {
+      if($env:SKIP_CTEST -ne 'yes') {
         Write-Host 'Waiting for SSH connection from GitHub Actions' -NoNewline
         $endDate = (Get-Date).AddMinutes(5)
         while((Get-Process -Name 'sshd' -ErrorAction SilentlyContinue).Count -eq 1 -and (Get-Date) -lt $endDate) {
@@ -131,6 +129,14 @@ test_script:
         else {
           Write-Host '... failed.'
         }
+      }
+
+build_script:
+  - cmd: sh -c ./appveyor.sh
+
+test_script:
+  - ps: |
+      if($env:SKIP_CTEST -ne 'yes') {
         if($env:CMAKE_GENERATE -like '*WinCNG*') {
           $env:FIXTURE_TRACE_ALL_CONNECT = '1'
         }
