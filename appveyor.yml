@@ -103,11 +103,13 @@ matrix:
 
 install:
   - ps: $env:PATH = "C:/my-cmake/bin;$env:PATH"
-  # prepare local SSH server for reverse tunneling from GitHub Actions hosting our docker container
   - ps: |
-      $env:OPENSSH_SERVER_PORT = Get-Random -Minimum 2000 -Maximum 2300
-      [System.Environment]::SetEnvironmentVariable('OPENSSH_SERVER_PORT', $env:OPENSSH_SERVER_PORT)
-      ./scripts/appveyor/docker-bridge.ps1
+      if($env:SKIP_CTEST -ne 'yes' -and $env:CMAKE_GENERATE -notlike '*ARM64*') {
+        # prepare local SSH server for reverse tunneling from GitHub Actions hosting our docker container
+        $env:OPENSSH_SERVER_PORT = Get-Random -Minimum 2000 -Maximum 2300
+        [System.Environment]::SetEnvironmentVariable('OPENSSH_SERVER_PORT', $env:OPENSSH_SERVER_PORT)
+        ./scripts/appveyor/docker-bridge.ps1
+      }
 
 build_script:
   - cmd: sh -c ./appveyor.sh
