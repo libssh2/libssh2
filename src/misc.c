@@ -1058,5 +1058,4 @@ libssh2_uint64_t _libssh2_get_time(void)
     /* fallback */
     return time(NULL) * 1000;  /* ms */
 #endif /* _WIN32 */
-
 }

@@ -636,7 +636,7 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, libssh2_uint64_t start_time)
         (seconds_to_next == 0 ||
          ms_to_next > session->api_timeout)) {
         libssh2_uint64_t now = _libssh2_get_time();
-        elapsed_ms = (now > start_time) ? (long)(now - start_time) : 0;;
+        elapsed_ms = (now > start_time) ? (long)(now - start_time) : 0;
         if(elapsed_ms > session->api_timeout) {
             return _libssh2_error(session, LIBSSH2_ERROR_TIMEOUT,
                                   "API timeout expired");
