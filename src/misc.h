@@ -142,7 +142,7 @@ void _libssh2_xor_data(unsigned char *output,
                        const unsigned char *input1,
                        const unsigned char *input2,
                        size_t length);
-
+libssh2_uint64_t _libssh2_get_time(void);
 int _libssh2_timingsafe_bcmp(const void *b1, const void *b2, size_t n);
 
 #endif /* LIBSSH2_MISC_H */

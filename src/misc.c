@@ -52,6 +52,7 @@
 /* Force parameter type. */
 #define libssh2_recv(s, b, l, f)  recv(s, b, (int)(l), f)
 #define libssh2_send(s, b, l, f)  send(s, b, (int)(l), f)
+#include <windows.h>
 #else
 #define libssh2_recv  recv
 #define libssh2_send  send
@@ -1009,4 +1010,53 @@ int _libssh2_timingsafe_bcmp(const void *b1, const void *b2, size_t n)
     for(; n > 0; n--)
         ret |= *p1++ ^ *p2++;
     return (ret != 0);
+}
+
+libssh2_uint64_t _libssh2_get_time(void)
+{
+#ifdef _WIN32
+#define NS_PER_SEC (1000ULL * 1000ULL * 1000ULL)
+    /* following is adapted from
+     * https://stackoverflow.com
+     * /questions/5404277/porting-clock-gettime-to-windows
+     */
+
+    LARGE_INTEGER ticksPerSec;
+    LARGE_INTEGER ticks;
+    libssh2_uint64_t sec = 0;
+    libssh2_uint64_t nsec = 0;
+
+    QueryPerformanceFrequency(&ticksPerSec);
+    if(!ticksPerSec.QuadPart) {
+        /* according to spec, Win XP and
+         * later do support high resolution counter
+         */
+        /* fallback in unspported case */
+        return time(NULL) * 1000; /* ms */
+    }
+    QueryPerformanceCounter(&ticks);
+
+    sec = (int64_t)(ticks.QuadPart / ticksPerSec.QuadPart);
+    nsec = (int64_t)(((ticks.QuadPart % ticksPerSec.QuadPart) * NS_PER_SEC)
+        / ticksPerSec.QuadPart);
+
+    return sec * 1000 + nsec / 1000 / 1000; /* ms */
+#else /* _WIN32 */
+    struct timespec ts;
+#if defined(CLOCK_UPTIME_RAW) /* Apple */
+    if(clock_gettime(CLOCK_UPTIME_RAW, &ts) == 0)
+#elif defined(CLOCK_UPTIME) /* *BSD */
+    if(clock_gettime(CLOCK_UPTIME, &ts) == 0)
+#elif defined(CLOCK_MONOTONIC_RAW) /* Linux */
+    if(clock_gettime(CLOCK_MONOTONIC_RAW, &ts) == 0)
+#elif defined(CLOCK_MONOTONIC) /* POSIX */
+    if(clock_gettime(CLOCK_MONOTONIC, &ts) == 0)
+#else /* monotonic clock not available */
+    if(0)
+#endif
+        return ts.tv_sec * 1000 + ts.tv_nsec / 1000 / 1000;  /* ms */
+    /* fallback */
+    return time(NULL) * 1000;  /* ms */
+#endif /* _WIN32 */
+
 }
