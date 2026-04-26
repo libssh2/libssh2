@@ -34,6 +34,8 @@ environment:
   CMAKE_VERSION: 3.18.4
   CMAKE_SHA256: a932bc0c8ee79f1003204466c525b38a840424d4ae29f9e5fb88959116f2407d
   DO_NOT_TRACK: '1'
+  DOCKER_CLI_VERSION: 29.4.1
+  DOCKER_CLI_SHA256: 927cb16737c6b7916db15ce31789c0864cf86264a56f2655bae41faa25628d5b
   FIXTURE_XFER_COUNT: 35020
   SKIP_CTEST: 'yes'  # Connection to test server has been failing consistently since 2024-08-29
 
@@ -102,7 +104,7 @@ matrix:
   fast_finish: true
 
 install:
-  - ps: $env:PATH = "C:/my-cmake/bin;$env:PATH"
+  - ps: $env:PATH = "C:/my-cmake/bin;C:/my-docker/docker;$env:PATH"
   # prepare local SSH server for reverse tunneling from GitHub Actions hosting our docker container
   - ps: |
       $env:OPENSSH_SERVER_PORT = Get-Random -Minimum 2000 -Maximum 2300
@@ -115,7 +117,6 @@ build_script:
 test_script:
   - ps: |
       if($env:SKIP_CTEST -ne 'yes' -and $env:CMAKE_GENERATE -notlike '*ARM64*') {
-        appveyor-retry choco install --yes --no-progress --limit-output --timeout 180 docker-cli
         Write-Host 'Waiting for SSH connection from GitHub Actions' -NoNewline
         $endDate = (Get-Date).AddMinutes(5)
         while((Get-Process -Name 'sshd' -ErrorAction SilentlyContinue).Count -eq 1 -and (Get-Date) -lt $endDate) {
