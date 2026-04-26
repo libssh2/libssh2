@@ -1031,7 +1031,7 @@ libssh2_uint64_t _libssh2_get_time(void)
         /* according to spec, Win XP and
          * later do support high resolution counter
          */
-        /* fallback in unspported case */
+        /* fallback in unsupported case */
         return time(NULL) * 1000; /* ms */
     }
     QueryPerformanceCounter(&ticks);
