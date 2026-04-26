@@ -34,3 +34,11 @@ cmake -B _builds \
   -DRUN_SSHD_TESTS=OFF \
   ${CMAKE_GENERATE:-}
 cmake --build _builds --config "${CMAKE_CONFIGURATION}" --parallel 2
+
+# Install docker-cli for tests
+if [ "${SKIP_CTEST:-}" != 'yes' ]; then
+  cd /c && mkdir my-docker && cd my-docker
+  curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 3 --retry-connrefused \
+    "https://download.docker.com/win/static/stable/x86_64/docker-${DOCKER_CLI_VERSION}.zip" --output pkg.bin
+  sha256sum pkg.bin && sha256sum pkg.bin | grep -qwF -- "${DOCKER_CLI_SHA256}" && 7z x -y pkg.bin >/dev/null && rm -f pkg.bin && ls -l && docker --version
+fi
