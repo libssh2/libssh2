@@ -495,7 +495,7 @@ packet_authagent_open(LIBSSH2_SESSION * session,
     buf.dataptr = buf.data;
     buf.len = datalen;
 
-    if(datalen < offset) {
+    if(datalen < offset + 12) {  /* 27-byte header + 3 * 4-byte */
         return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                               "Unexpected packet size");
     }
