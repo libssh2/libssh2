@@ -1093,9 +1093,9 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
          */
         session->userauth_host_s = session->userauth_host_packet =
             LIBSSH2_ALLOC(session,
-                          session->userauth_host_packet_len + 4 +
-                          (4 + session->userauth_host_method_len) +
-                          (4 + pubkeydata_len));
+                          4 + session->userauth_host_packet_len +
+                          4 + session->userauth_host_method_len +
+                          4 + pubkeydata_len);
         if(!session->userauth_host_packet) {
             LIBSSH2_FREE(session, session->userauth_host_method);
             session->userauth_host_method = NULL;
@@ -1161,9 +1161,9 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
             unsigned char *newpacket;
             /* Should *NEVER* happen, but...well.. better safe than sorry */
             newpacket = LIBSSH2_REALLOC(session, session->userauth_host_packet,
-                                        session->userauth_host_packet_len + 4 +
-                                        (4 + session->userauth_host_method_len)
-                                        + (4 + sig_len)); /* PK sigblob */
+                                        4 + session->userauth_host_packet_len +
+                                        4 + session->userauth_host_method_len +
+                                        4 + sig_len); /* PK sigblob */
             if(!newpacket) {
                 LIBSSH2_FREE(session, sig);
                 LIBSSH2_FREE(session, session->userauth_host_packet);
@@ -1647,9 +1647,9 @@ retry_auth:
          */
         s = session->userauth_pblc_packet =
             LIBSSH2_ALLOC(session,
-                          session->userauth_pblc_packet_len + 4 +
-                          (4 + session->userauth_pblc_method_len)
-                          + (4 + pubkeydata_len));
+                          4 + session->userauth_pblc_packet_len +
+                          4 + session->userauth_pblc_method_len +
+                          4 + pubkeydata_len);
         if(!session->userauth_pblc_packet) {
             LIBSSH2_FREE(session, session->userauth_pblc_method);
             session->userauth_pblc_method = NULL;
@@ -1761,8 +1761,9 @@ retry_auth:
         unsigned char *sig = NULL;
         size_t sig_len;
 
-        s = buf = LIBSSH2_ALLOC(session, 4 + session->session_id_len
-                                + session->userauth_pblc_packet_len);
+        s = buf = LIBSSH2_ALLOC(session,
+                                4 + session->session_id_len +
+                                session->userauth_pblc_packet_len);
         if(!buf) {
             return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                   "Unable to allocate memory for "
@@ -1816,9 +1817,9 @@ retry_auth:
             /* Should *NEVER* happen, but...well.. better safe than sorry */
             newpacket = LIBSSH2_REALLOC(session,
                                         session->userauth_pblc_packet,
-                                        session->userauth_pblc_packet_len + 4 +
-                                        (4 + session->userauth_pblc_method_len)
-                                        + (4 + sig_len)); /* PK sigblob */
+                                        4 + session->userauth_pblc_packet_len +
+                                        4 + session->userauth_pblc_method_len +
+                                        4 + sig_len); /* PK sigblob */
             if(!newpacket) {
                 LIBSSH2_FREE(session, sig);
                 LIBSSH2_FREE(session, session->userauth_pblc_packet);
