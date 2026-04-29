@@ -246,25 +246,25 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
 
 /* 'publickey' authentication callback */
 #define LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC(name) \
-    int name(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len, \
-             const unsigned char *data, size_t data_len, void **abstract)
+    int (name)(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len, \
+               const unsigned char *data, size_t data_len, void **abstract)
 
 /* 'keyboard-interactive' authentication callback */
 /* FIXME: name_len, instruction_len -> size_t, num_prompts -> unsigned int? */
 #define LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(name_) \
-    void name_(const char *name, int name_len, const char *instruction, \
-               int instruction_len, int num_prompts, \
-               const LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts, \
-               LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses, void **abstract)
+    void (name_)(const char *name, int name_len, const char *instruction, \
+                 int instruction_len, int num_prompts, \
+                 const LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts, \
+                 LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses, void **abstract)
 
 /* SK authentication callback */
 #define LIBSSH2_USERAUTH_SK_SIGN_FUNC(name) \
-    int name(LIBSSH2_SESSION *session, LIBSSH2_SK_SIG_INFO *sig_info, \
-             const unsigned char *data, size_t data_len, \
-             int algorithm, uint8_t flags, \
-             const char *application, const unsigned char *key_handle, \
-             size_t handle_len, \
-             void **abstract)
+    int (name)(LIBSSH2_SESSION *session, LIBSSH2_SK_SIG_INFO *sig_info, \
+               const unsigned char *data, size_t data_len, \
+               int algorithm, uint8_t flags, \
+               const char *application, const unsigned char *key_handle, \
+               size_t handle_len, \
+               void **abstract)
 
 /* Flags for SK authentication */
 #define LIBSSH2_SK_PRESENCE_REQUIRED     0x01
@@ -274,62 +274,62 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
 
 /* Callbacks for special SSH packets */
 #define LIBSSH2_IGNORE_FUNC(name) \
-    void name(LIBSSH2_SESSION *session, const char *message, int message_len, \
-              void **abstract)
+    void (name)(LIBSSH2_SESSION *session, const char *message, int message_len, \
+                void **abstract)
 
 #define LIBSSH2_DEBUG_FUNC(name) \
-    void name(LIBSSH2_SESSION *session, int always_display, \
-              const char *message, int message_len, \
-              const char *language, int language_len, \
-              void **abstract)
+    void (name)(LIBSSH2_SESSION *session, int always_display, \
+                const char *message, int message_len, \
+                const char *language, int language_len, \
+                void **abstract)
 
 #define LIBSSH2_DISCONNECT_FUNC(name) \
-    void name(LIBSSH2_SESSION *session, int reason, \
-              const char *message, int message_len, \
-              const char *language, int language_len, \
-              void **abstract)
+    void (name)(LIBSSH2_SESSION *session, int reason, \
+                const char *message, int message_len, \
+                const char *language, int language_len, \
+                void **abstract)
 
 #define LIBSSH2_PASSWD_CHANGEREQ_FUNC(name) \
-    void name(LIBSSH2_SESSION *session, char **newpw, int *newpw_len, \
-              void **abstract)
+    void (name)(LIBSSH2_SESSION *session, char **newpw, int *newpw_len, \
+                void **abstract)
 
 #define LIBSSH2_MACERROR_FUNC(name) \
-    int name(LIBSSH2_SESSION *session, const char *packet, int packet_len, \
-             void **abstract)
+    int (name)(LIBSSH2_SESSION *session, const char *packet, int packet_len, \
+               void **abstract)
 
 #define LIBSSH2_X11_OPEN_FUNC(name) \
-    void name(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel, \
-              const char *shost, int sport, void **abstract)
+    void (name)(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel, \
+                const char *shost, int sport, void **abstract)
 
 #define LIBSSH2_AUTHAGENT_FUNC(name) \
-    void name(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel, \
-              void **abstract)
+    void (name)(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel, \
+                void **abstract)
 
 #define LIBSSH2_ADD_IDENTITIES_FUNC(name) \
-    void name(LIBSSH2_SESSION *session, void *buffer, \
-              const char *agent_path, void **abstract)
+    void (name)(LIBSSH2_SESSION *session, void *buffer, \
+                const char *agent_path, void **abstract)
 
 #define LIBSSH2_AUTHAGENT_SIGN_FUNC(name) \
-    int name(LIBSSH2_SESSION* session, \
-             unsigned char *blob, unsigned int blen, \
-             const unsigned char *data, unsigned int dlen, \
-             unsigned char **signature, unsigned int *sigLen, \
-             const char *agentPath, \
-             void **abstract)
+    int (name)(LIBSSH2_SESSION* session, \
+               unsigned char *blob, unsigned int blen, \
+               const unsigned char *data, unsigned int dlen, \
+               unsigned char **signature, unsigned int *sigLen, \
+               const char *agentPath, \
+               void **abstract)
 
 #define LIBSSH2_CHANNEL_CLOSE_FUNC(name) \
-    void name(LIBSSH2_SESSION *session, void **session_abstract, \
-              LIBSSH2_CHANNEL *channel, void **channel_abstract)
+    void (name)(LIBSSH2_SESSION *session, void **session_abstract, \
+                LIBSSH2_CHANNEL *channel, void **channel_abstract)
 
 /* I/O callbacks */
 #define LIBSSH2_RECV_FUNC(name)                                         \
-    ssize_t name(libssh2_socket_t socket,                               \
-                 void *buffer, size_t length,                           \
-                 int flags, void **abstract)
+    ssize_t (name)(libssh2_socket_t socket,                             \
+                   void *buffer, size_t length,                         \
+                   int flags, void **abstract)
 #define LIBSSH2_SEND_FUNC(name)                                         \
-    ssize_t name(libssh2_socket_t socket,                               \
-                 const void *buffer, size_t length,                     \
-                 int flags, void **abstract)
+    ssize_t (name)(libssh2_socket_t socket,                             \
+                   const void *buffer, size_t length,                   \
+                   int flags, void **abstract)
 
 /* libssh2_session_callback_set() constants */
 #define LIBSSH2_CALLBACK_IGNORE               0
