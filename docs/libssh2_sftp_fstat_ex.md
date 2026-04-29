@@ -23,9 +23,9 @@ libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *handle,
                       LIBSSH2_SFTP_ATTRIBUTES *attrs, int setstat)
 
 #define libssh2_sftp_fstat(handle, attrs) \
-    libssh2_sftp_fstat_ex((handle), (attrs), 0)
+    libssh2_sftp_fstat_ex(handle, attrs, 0)
 #define libssh2_sftp_fsetstat(handle, attrs) \
-    libssh2_sftp_fstat_ex((handle), (attrs), 1)
+    libssh2_sftp_fstat_ex(handle, attrs, 1)
 ~~~
 
 # DESCRIPTION

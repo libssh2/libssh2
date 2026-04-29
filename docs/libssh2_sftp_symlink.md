@@ -19,7 +19,7 @@ libssh2_sftp_symlink - convenience macro for *libssh2_sftp_symlink_ex(3)*
 #include <libssh2_sftp.h>
 
 #define libssh2_sftp_symlink(sftp, orig, linkpath) \
-    libssh2_sftp_symlink_ex((sftp), (orig), strlen(orig), (linkpath), \
+    libssh2_sftp_symlink_ex(sftp, orig, strlen(orig), linkpath, \
                             strlen(linkpath), LIBSSH2_SFTP_SYMLINK)
 ~~~
 

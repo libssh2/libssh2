@@ -225,8 +225,7 @@
 
 #define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 
-#define _libssh2_random(buf, len) \
-    _libssh2_openssl_random((buf), (len))
+#define _libssh2_random(buf, len)  _libssh2_openssl_random(buf, len)
 
 #define libssh2_prepare_iovec(vec, len)  /* Empty. */
 

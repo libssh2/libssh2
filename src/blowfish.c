@@ -82,7 +82,7 @@ typedef struct BlowfishContext {
                  ^ (s)[0x200 + (((x) >>  8) & 0xFF)])     \
                  + (s)[0x300 + ( (x)        & 0xFF)])
 
-#define BLFRND(s,p,i,j,n) ((i) ^= F(s,j) ^ (p)[n])
+#define BLFRND(s, p, i, j, n)  ((i) ^= F(s,j) ^ (p)[n])
 
 static void
 Blowfish_encipher(blf_ctx *c, uint32_t *xl, uint32_t *xr)

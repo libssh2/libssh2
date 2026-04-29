@@ -19,8 +19,8 @@ libssh2_sftp_realpath - convenience macro for *libssh2_sftp_symlink_ex(3)*
 #include <libssh2_sftp.h>
 
 #define libssh2_sftp_realpath(sftp, path, target, maxlen) \
-    libssh2_sftp_symlink_ex((sftp), (path), strlen(path), \
-                            (target), (maxlen), \
+    libssh2_sftp_symlink_ex(sftp, path, strlen(path), \
+                            target, maxlen, \
                             LIBSSH2_SFTP_REALPATH)
 ~~~
 

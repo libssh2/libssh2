@@ -632,7 +632,7 @@ int _libssh2_wincng_hash_init(_libssh2_wincng_hash_ctx *ctx,
                             (unsigned char *)&dwHash,
                             sizeof(dwHash),
                             &cbData, 0);
-    if((!BCRYPT_SUCCESS(ret)) || dwHash != hashlen) {
+    if(!BCRYPT_SUCCESS(ret) || dwHash != hashlen) {
         return -1;
     }
 
@@ -766,7 +766,7 @@ int _libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
 int _libssh2_hmac_update(libssh2_hmac_ctx *ctx,
                          const void *data, size_t datalen)
 {
-    int ret = _libssh2_wincng_hash_update(ctx, data, (ULONG) datalen);
+    int ret = _libssh2_wincng_hash_update(ctx, data, (ULONG)datalen);
 
     return ret == 0 ? 1 : 0;
 }
@@ -3549,7 +3549,7 @@ _libssh2_wincng_bignum_rand(_libssh2_bn *rnd, int bits, int top, int bottom)
     if(!rnd)
         return -1;
 
-    length = (ULONG) (ceil(((double)bits) / 8.0) * sizeof(unsigned char));
+    length = (ULONG)(ceil(((double)bits) / 8.0) * sizeof(unsigned char));
     if(_libssh2_wincng_bignum_resize(rnd, length))
         return -1;
 
@@ -3671,7 +3671,7 @@ _libssh2_wincng_bignum_set_word(_libssh2_bn *bn, ULONG word)
         bits++;
     bits++;
 
-    length = (ULONG) (ceil(((double)bits) / 8.0) * sizeof(unsigned char));
+    length = (ULONG)(ceil(((double)bits) / 8.0) * sizeof(unsigned char));
     if(_libssh2_wincng_bignum_resize(bn, length))
         return -1;
 
@@ -3720,7 +3720,7 @@ _libssh2_wincng_bignum_from_bin(_libssh2_bn *bn, ULONG len,
     memcpy(bn->bignum, bin, len);
 
     bits = _libssh2_wincng_bignum_bits(bn);
-    length = (ULONG) (ceil(((double)bits) / 8.0) * sizeof(unsigned char));
+    length = (ULONG)(ceil(((double)bits) / 8.0) * sizeof(unsigned char));
 
     offset = bn->length - length;
     if(offset > 0) {

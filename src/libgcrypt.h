@@ -80,7 +80,7 @@
 #define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 
 #define _libssh2_random(buf, len) \
-    (gcry_randomize((buf), (len), GCRY_STRONG_RANDOM), 0)
+    (gcry_randomize(buf, len, GCRY_STRONG_RANDOM), 0)
 
 #define libssh2_prepare_iovec(vec, len)  /* Empty. */
 
@@ -92,7 +92,7 @@
     (gcry_md_write(ctx, data, len), 1)
 #define libssh2_sha1_final(ctx, out) \
     (memcpy(out, gcry_md_read(ctx, 0), SHA_DIGEST_LENGTH), \
-    gcry_md_close(ctx), 1)
+     gcry_md_close(ctx), 1)
 #define libssh2_sha1(message, len, out) \
     (gcry_md_hash_buffer(GCRY_MD_SHA1, out, message, len), 0)
 
@@ -103,7 +103,7 @@
     (gcry_md_write(ctx, data, len), 1)
 #define libssh2_sha256_final(ctx, out) \
     (memcpy(out, gcry_md_read(ctx, 0), SHA256_DIGEST_LENGTH), \
-    gcry_md_close(ctx), 1)
+     gcry_md_close(ctx), 1)
 #define libssh2_sha256(message, len, out) \
     (gcry_md_hash_buffer(GCRY_MD_SHA256, out, message, len), 0)
 
@@ -114,7 +114,7 @@
     (gcry_md_write(ctx, data, len), 1)
 #define libssh2_sha384_final(ctx, out) \
     (memcpy(out, gcry_md_read(ctx, 0), SHA384_DIGEST_LENGTH), \
-    gcry_md_close(ctx), 1)
+     gcry_md_close(ctx), 1)
 #define libssh2_sha384(message, len, out) \
     (gcry_md_hash_buffer(GCRY_MD_SHA384, out, message, len), 0)
 
@@ -125,7 +125,7 @@
     (gcry_md_write(ctx, data, len), 1)
 #define libssh2_sha512_final(ctx, out) \
     (memcpy(out, gcry_md_read(ctx, 0), SHA512_DIGEST_LENGTH), \
-    gcry_md_close(ctx), 1)
+     gcry_md_close(ctx), 1)
 #define libssh2_sha512(message, len, out) \
     (gcry_md_hash_buffer(GCRY_MD_SHA512, out, message, len), 0)
 
@@ -137,7 +137,7 @@
     (gcry_md_write(ctx, data, len), 1)
 #define libssh2_md5_final(ctx, out) \
     (memcpy(out, gcry_md_read(ctx, 0), MD5_DIGEST_LENGTH), \
-    gcry_md_close(ctx), 1)
+     gcry_md_close(ctx), 1)
 #endif
 
 #define libssh2_hmac_ctx gcry_md_hd_t
@@ -199,7 +199,7 @@
                                              new bignum */
 #define _libssh2_bn_set_word(bn, val) gcry_mpi_set_ui(bn, val)
 #define _libssh2_bn_from_bin(bn, len, val) \
-    gcry_mpi_scan(&((bn)), GCRYMPI_FMT_USG, val, len, NULL)
+    gcry_mpi_scan(&(bn), GCRYMPI_FMT_USG, val, len, NULL)
 #define _libssh2_bn_to_bin(bn, val) \
     gcry_mpi_print(GCRYMPI_FMT_USG, val, _libssh2_bn_bytes(bn), NULL, bn)
 #define _libssh2_bn_bytes(bn) \

@@ -302,7 +302,7 @@ static int
 userauth_password(LIBSSH2_SESSION *session,
                   const char *username, unsigned int username_len,
                   const unsigned char *password, unsigned int password_len,
-                  LIBSSH2_PASSWD_CHANGEREQ_FUNC((*passwd_change_cb)))
+                  LIBSSH2_PASSWD_CHANGEREQ_FUNC(*passwd_change_cb))
 {
     unsigned char *s;
     static const unsigned char reply_codes[4] = {
@@ -569,8 +569,7 @@ LIBSSH2_API int
 libssh2_userauth_password_ex(LIBSSH2_SESSION *session, const char *username,
                              unsigned int username_len, const char *password,
                              unsigned int password_len,
-                             LIBSSH2_PASSWD_CHANGEREQ_FUNC
-                             ((*passwd_change_cb)))
+                             LIBSSH2_PASSWD_CHANGEREQ_FUNC(*passwd_change_cb))
 {
     int rc;
     BLOCK_ADJUST(rc, session,
@@ -1547,8 +1546,7 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                             size_t username_len,
                             const unsigned char *pubkeydata,
                             size_t pubkeydata_len,
-                            LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC
-                            ((*sign_callback)),
+                          LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC(*sign_callback),
                             void *abstract)
 {
     unsigned char reply_codes[4] = {
@@ -2112,8 +2110,7 @@ libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                            const char *username,
                            const unsigned char *pubkeydata,
                            size_t pubkeydata_len,
-                           LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC
-                               ((*sign_callback)),
+                          LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC(*sign_callback),
                            void **abstract)
 {
     int rc;
@@ -2138,8 +2135,7 @@ static int
 userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                               const char *username,
                               unsigned int username_len,
-                              LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC
-                                  ((*response_callback)))
+                     LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(*response_callback))
 {
     unsigned char *s;
 
@@ -2412,8 +2408,7 @@ LIBSSH2_API int
 libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION *session,
                                          const char *username,
                                          unsigned int username_len,
-                                         LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC
-                                             ((*response_callback)))
+                     LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(*response_callback))
 {
     int rc;
     BLOCK_ADJUST(rc, session,
@@ -2436,8 +2431,7 @@ libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
                               const char *privatekeydata,
                               size_t privatekeydata_len,
                               const char *passphrase,
-                              LIBSSH2_USERAUTH_SK_SIGN_FUNC
-                                  ((*sign_callback)),
+                              LIBSSH2_USERAUTH_SK_SIGN_FUNC(*sign_callback),
                               void **abstract)
 {
     int rc = LIBSSH2_ERROR_NONE;
