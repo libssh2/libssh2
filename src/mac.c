@@ -282,7 +282,7 @@ mac_method_hmac_sha1_96_hash(LIBSSH2_SESSION * session,
                                  addtl, addtl_len, abstract))
         return 1;
 
-    memcpy(buf, (char *) temp, 96 / 8);
+    memcpy(buf, (char *)temp, 96 / 8);
     return 0;
 }
 
@@ -356,7 +356,7 @@ mac_method_hmac_md5_96_hash(LIBSSH2_SESSION * session,
                                 addtl, addtl_len, abstract))
         return 1;
 
-    memcpy(buf, (char *) temp, 96 / 8);
+    memcpy(buf, (char *)temp, 96 / 8);
     return 0;
 }
 
