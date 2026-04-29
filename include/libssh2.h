@@ -374,7 +374,7 @@ typedef struct _LIBSSH2_PRIVKEY_SK {
     const char *application;
     const unsigned char *key_handle;
     size_t handle_len;
-    LIBSSH2_USERAUTH_SK_SIGN_FUNC((*sign_callback));
+    LIBSSH2_USERAUTH_SK_SIGN_FUNC(*sign_callback);
     void **orig_abstract;
 } LIBSSH2_PRIVKEY_SK;
 
@@ -661,8 +661,7 @@ libssh2_userauth_password_ex(LIBSSH2_SESSION *session,
                              unsigned int username_len,
                              const char *password,
                              unsigned int password_len,
-                             LIBSSH2_PASSWD_CHANGEREQ_FUNC
-                                 ((*passwd_change_cb)));
+                             LIBSSH2_PASSWD_CHANGEREQ_FUNC(*passwd_change_cb));
 
 #define libssh2_userauth_password(session, username, password) \
     libssh2_userauth_password_ex(session, username, \
@@ -690,8 +689,7 @@ libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                            const char *username,
                            const unsigned char *pubkeydata,
                            size_t pubkeydata_len,
-                           LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC
-                               ((*sign_callback)),
+                          LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC(*sign_callback),
                            void **abstract);
 
 LIBSSH2_API int
@@ -737,8 +735,7 @@ LIBSSH2_API int
 libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION* session,
                                          const char *username,
                                          unsigned int username_len,
-                                         LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC
-                                             ((*response_callback)));
+                    LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(*response_callback));
 
 #define libssh2_userauth_keyboard_interactive(session, username,             \
                                               response_callback)             \
@@ -755,8 +752,7 @@ libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
                               const char *privatekeydata,
                               size_t privatekeydata_len,
                               const char *passphrase,
-                              LIBSSH2_USERAUTH_SK_SIGN_FUNC
-                                  ((*sign_callback)),
+                              LIBSSH2_USERAUTH_SK_SIGN_FUNC(*sign_callback),
                               void **abstract);
 
 #ifndef LIBSSH2_NO_DEPRECATED

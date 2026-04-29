@@ -26,7 +26,7 @@ libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
                               const char *privatekeydata,
                               size_t privatekeydata_len,
                               const char *passphrase,
-                              LIBSSH2_USERAUTH_SK_SIGN_FUNC((*sign_callback)),
+                              LIBSSH2_USERAUTH_SK_SIGN_FUNC(*sign_callback),
                               void **abstract);
 ~~~
 

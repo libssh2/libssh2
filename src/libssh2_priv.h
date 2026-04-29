@@ -693,16 +693,16 @@ struct _LIBSSH2_SESSION
     LIBSSH2_FREE_FUNC(*free);
 
     /* Other callbacks */
-    LIBSSH2_IGNORE_FUNC((*ssh_msg_ignore));
-    LIBSSH2_DEBUG_FUNC((*ssh_msg_debug));
-    LIBSSH2_DISCONNECT_FUNC((*ssh_msg_disconnect));
-    LIBSSH2_MACERROR_FUNC((*macerror));
-    LIBSSH2_X11_OPEN_FUNC((*x11));
-    LIBSSH2_AUTHAGENT_FUNC((*authagent));
-    LIBSSH2_ADD_IDENTITIES_FUNC((*addLocalIdentities));
-    LIBSSH2_AUTHAGENT_SIGN_FUNC((*agentSignCallback));
-    LIBSSH2_SEND_FUNC((*send));
-    LIBSSH2_RECV_FUNC((*recv));
+    LIBSSH2_IGNORE_FUNC(*ssh_msg_ignore);
+    LIBSSH2_DEBUG_FUNC(*ssh_msg_debug);
+    LIBSSH2_DISCONNECT_FUNC(*ssh_msg_disconnect);
+    LIBSSH2_MACERROR_FUNC(*macerror);
+    LIBSSH2_X11_OPEN_FUNC(*x11);
+    LIBSSH2_AUTHAGENT_FUNC(*authagent);
+    LIBSSH2_ADD_IDENTITIES_FUNC(*addLocalIdentities);
+    LIBSSH2_AUTHAGENT_SIGN_FUNC(*agentSignCallback);
+    LIBSSH2_SEND_FUNC(*send);
+    LIBSSH2_RECV_FUNC(*recv);
 
     /* Method preferences -- NULL yields "load order" */
     char *kex_prefs;
