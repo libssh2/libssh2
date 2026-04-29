@@ -482,7 +482,7 @@ struct _LIBSSH2_CHANNEL
     LIBSSH2_SESSION *session;
 
     void *abstract;
-      LIBSSH2_CHANNEL_CLOSE_FUNC((*close_cb));
+    LIBSSH2_CHANNEL_CLOSE_FUNC(*close_cb);
 
     /* State variables used in libssh2_channel_setenv_ex() */
     libssh2_nonblocking_states setenv_state;

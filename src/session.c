@@ -502,54 +502,52 @@ libssh2_session_callback_set2(LIBSSH2_SESSION *session, int cbtype,
     switch(cbtype) {
     case LIBSSH2_CALLBACK_IGNORE:
         oldcb = (libssh2_cb_generic *)session->ssh_msg_ignore;
-        session->ssh_msg_ignore = (LIBSSH2_IGNORE_FUNC((*)))callback;
+        session->ssh_msg_ignore = (LIBSSH2_IGNORE_FUNC(*))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_DEBUG:
         oldcb = (libssh2_cb_generic *)session->ssh_msg_debug;
-        session->ssh_msg_debug = (LIBSSH2_DEBUG_FUNC((*)))callback;
+        session->ssh_msg_debug = (LIBSSH2_DEBUG_FUNC(*))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_DISCONNECT:
         oldcb = (libssh2_cb_generic *)session->ssh_msg_disconnect;
-        session->ssh_msg_disconnect = (LIBSSH2_DISCONNECT_FUNC((*)))callback;
+        session->ssh_msg_disconnect = (LIBSSH2_DISCONNECT_FUNC(*))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_MACERROR:
         oldcb = (libssh2_cb_generic *)session->macerror;
-        session->macerror = (LIBSSH2_MACERROR_FUNC((*)))callback;
+        session->macerror = (LIBSSH2_MACERROR_FUNC(*))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_X11:
         oldcb = (libssh2_cb_generic *)session->x11;
-        session->x11 = (LIBSSH2_X11_OPEN_FUNC((*)))callback;
+        session->x11 = (LIBSSH2_X11_OPEN_FUNC(*))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_SEND:
         oldcb = (libssh2_cb_generic *)session->send;
-        session->send = (LIBSSH2_SEND_FUNC((*)))callback;
+        session->send = (LIBSSH2_SEND_FUNC(*))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_RECV:
         oldcb = (libssh2_cb_generic *)session->recv;
-        session->recv = (LIBSSH2_RECV_FUNC((*)))callback;
+        session->recv = (LIBSSH2_RECV_FUNC(*))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_AUTHAGENT:
         oldcb = (libssh2_cb_generic *)session->authagent;
-        session->authagent = (LIBSSH2_AUTHAGENT_FUNC((*)))callback;
+        session->authagent = (LIBSSH2_AUTHAGENT_FUNC(*))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_AUTHAGENT_IDENTITIES:
         oldcb = (libssh2_cb_generic *)session->addLocalIdentities;
-        session->addLocalIdentities =
-            (LIBSSH2_ADD_IDENTITIES_FUNC((*)))callback;
+        session->addLocalIdentities = (LIBSSH2_ADD_IDENTITIES_FUNC(*))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_AUTHAGENT_SIGN:
         oldcb = (libssh2_cb_generic *)session->agentSignCallback;
-        session->agentSignCallback =
-            (LIBSSH2_AUTHAGENT_SIGN_FUNC((*)))callback;
+        session->agentSignCallback = (LIBSSH2_AUTHAGENT_SIGN_FUNC(*))callback;
         return oldcb;
     }
     _libssh2_debug((session, LIBSSH2_TRACE_TRANS, "Setting Callback %d",
