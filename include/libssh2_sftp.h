@@ -329,8 +329,7 @@ LIBSSH2_API int libssh2_sftp_rmdir_ex(LIBSSH2_SFTP *sftp,
     libssh2_sftp_rmdir_ex(sftp, path, (unsigned int)strlen(path))
 
 LIBSSH2_API int libssh2_sftp_stat_ex(LIBSSH2_SFTP *sftp,
-                                     const char *path,
-                                     unsigned int path_len,
+                                     const char *path, unsigned int path_len,
                                      int stat_type,
                                      LIBSSH2_SFTP_ATTRIBUTES *attrs);
 #define libssh2_sftp_stat(sftp, path, attrs) \
@@ -346,8 +345,7 @@ LIBSSH2_API int libssh2_sftp_stat_ex(LIBSSH2_SFTP *sftp,
 LIBSSH2_API int libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp,
                                         const char *path,
                                         unsigned int path_len,
-                                        char *target,
-                                        unsigned int target_len,
+                                        char *target, unsigned int target_len,
                                         int link_type);
 #define libssh2_sftp_symlink(sftp, orig, linkpath) \
     libssh2_sftp_symlink_ex(sftp, \
@@ -355,15 +353,11 @@ LIBSSH2_API int libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp,
                             linkpath, (unsigned int)strlen(linkpath), \
                             LIBSSH2_SFTP_SYMLINK)
 #define libssh2_sftp_readlink(sftp, path, target, maxlen) \
-    libssh2_sftp_symlink_ex(sftp, \
-                            path, (unsigned int)strlen(path), \
-                            target, maxlen, \
-                            LIBSSH2_SFTP_READLINK)
+    libssh2_sftp_symlink_ex(sftp, path, (unsigned int)strlen(path), \
+                            target, maxlen, LIBSSH2_SFTP_READLINK)
 #define libssh2_sftp_realpath(sftp, path, target, maxlen) \
-    libssh2_sftp_symlink_ex(sftp, \
-                            path, (unsigned int)strlen(path), \
-                            target, maxlen, \
-                            LIBSSH2_SFTP_REALPATH)
+    libssh2_sftp_symlink_ex(sftp, path, (unsigned int)strlen(path), \
+                            target, maxlen, LIBSSH2_SFTP_REALPATH)
 
 #ifdef __cplusplus
 } /* extern "C" */
