@@ -246,7 +246,8 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
 
 /* 'publickey' authentication callback */
 #define LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC(name) \
-    int (name)(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len, \
+    int (name)(LIBSSH2_SESSION *session, \
+               unsigned char **sig, size_t *sig_len, \
                const unsigned char *data, size_t data_len, void **abstract)
 
 /* 'keyboard-interactive' authentication callback */
@@ -274,8 +275,8 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
 
 /* Callbacks for special SSH packets */
 #define LIBSSH2_IGNORE_FUNC(name) \
-    void (name)(LIBSSH2_SESSION *session, const char *message, int message_len, \
-                void **abstract)
+    void (name)(LIBSSH2_SESSION *session, \
+                const char *message, int message_len, void **abstract)
 
 #define LIBSSH2_DEBUG_FUNC(name) \
     void (name)(LIBSSH2_SESSION *session, int always_display, \
