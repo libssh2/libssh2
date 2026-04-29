@@ -632,7 +632,7 @@ int _libssh2_wincng_hash_init(_libssh2_wincng_hash_ctx *ctx,
                             (unsigned char *)&dwHash,
                             sizeof(dwHash),
                             &cbData, 0);
-    if((!BCRYPT_SUCCESS(ret)) || dwHash != hashlen) {
+    if(!BCRYPT_SUCCESS(ret) || dwHash != hashlen) {
         return -1;
     }
 
