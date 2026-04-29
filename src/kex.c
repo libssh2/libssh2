@@ -3608,13 +3608,13 @@ kex_method_list(unsigned char *buf, uint32_t list_strlen,
 #define LIBSSH2_METHOD_PREFS_STR(buf, prefvarlen, prefvar, defaultvar)        \
     do {                                                                      \
         if(prefvar) {                                                         \
-            _libssh2_htonu32((buf), (prefvarlen));                            \
+            _libssh2_htonu32(buf, prefvarlen);                                \
             (buf) += 4;                                                       \
-            memcpy((buf), (prefvar), (prefvarlen));                           \
+            memcpy(buf, prefvar, prefvarlen);                                 \
             (buf) += (prefvarlen);                                            \
         }                                                                     \
         else {                                                                \
-            (buf) += kex_method_list((buf), (prefvarlen),                     \
+            (buf) += kex_method_list(buf, prefvarlen,                         \
                                 (const LIBSSH2_COMMON_METHOD**)(defaultvar)); \
         }                                                                     \
     } while(0)
