@@ -43,7 +43,7 @@ environment:
     - job_name: 'VS2022, OpenSSL 3, x64, Server 2019, clang-cl'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
       CMAKE_GENERATOR: 'Visual Studio 17 2022'
-      CMAKE_GENERATE: '-A x64 -T ClangCl -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v35-Win64'
+      CMAKE_GENERATE: '-A x64 -T ClangCl -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v36-Win64'
 
     - job_name: 'VS2022, OpenSSL 3, x64, Server 2019'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
