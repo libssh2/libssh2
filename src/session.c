@@ -440,13 +440,13 @@ libssh2_banner_set(LIBSSH2_SESSION * session, const char *banner)
  * to the callbacks (so they know who's asking)
  */
 LIBSSH2_API LIBSSH2_SESSION *
-libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
-                        LIBSSH2_FREE_FUNC((*my_free)),
-                        LIBSSH2_REALLOC_FUNC((*my_realloc)), void *abstract)
+libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC(*my_alloc),
+                        LIBSSH2_FREE_FUNC(*my_free),
+                        LIBSSH2_REALLOC_FUNC(*my_realloc), void *abstract)
 {
-    LIBSSH2_ALLOC_FUNC((*local_alloc)) = libssh2_default_alloc;
-    LIBSSH2_FREE_FUNC((*local_free)) = libssh2_default_free;
-    LIBSSH2_REALLOC_FUNC((*local_realloc)) = libssh2_default_realloc;
+    LIBSSH2_ALLOC_FUNC(*local_alloc) = libssh2_default_alloc;
+    LIBSSH2_FREE_FUNC(*local_free) = libssh2_default_free;
+    LIBSSH2_REALLOC_FUNC(*local_realloc) = libssh2_default_realloc;
     LIBSSH2_SESSION *session;
 
     if(my_alloc) {

@@ -688,9 +688,9 @@ struct _LIBSSH2_SESSION
     /* Memory management callbacks */
     void *abstract;
 
-    LIBSSH2_ALLOC_FUNC((*alloc));
-    LIBSSH2_REALLOC_FUNC((*realloc));
-    LIBSSH2_FREE_FUNC((*free));
+    LIBSSH2_ALLOC_FUNC(*alloc);
+    LIBSSH2_REALLOC_FUNC(*realloc);
+    LIBSSH2_FREE_FUNC(*free);
 
     /* Other callbacks */
     LIBSSH2_IGNORE_FUNC((*ssh_msg_ignore));
