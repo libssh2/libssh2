@@ -193,15 +193,13 @@ int listofmans(char *filespec, manPtr *manroot)
     for(;;) {
         status = find_file(filespec, gevonden, &ffindex);
 
-        if((status&1)) {
+        if((status & 1) != 0) {
             r = addman(manroot, gevonden);
             if(!r)
                 return 2;
         }
-        else {
-            if(!(status&1))
-                break;
-        }
+        else
+            break;
     }
 
     lib$find_file_end(&ffindex);
