@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
     }
     else
         libssh2_sftp_seek64(sftp_handle, attrs.filesize);
-    fprintf(stderr, "Did a seek to position %ld\n", (long) attrs.filesize);
+    fprintf(stderr, "Did a seek to position %ld\n", (long)attrs.filesize);
 
     fprintf(stderr, "libssh2_sftp_open() a handle for APPEND\n");
     if(!sftp_handle) {
