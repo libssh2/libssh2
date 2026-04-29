@@ -20,7 +20,7 @@
 #define U32V(v) ((u32)(v) & U32C(0xFFFFFFFF))
 
 #define ROTL32(v, n) \
-  (U32V((v) << (n)) | ((v) >> (32 - (n))))
+  U32V((v) << (n)) | ((v) >> (32 - (n)))
 
 #define U8TO32_LITTLE(p) \
   (((u32)((p)[0])      ) | \
@@ -36,10 +36,10 @@
     (p)[3] = U8V((v) >> 24); \
   } while (0)
 
-#define ROTATE(v, c) (ROTL32(v,c))
+#define ROTATE(v, c) ROTL32(v, c)
 #define XOR(v, w) ((v) ^ (w))
-#define PLUS(v, w) (U32V((v) + (w)))
-#define PLUSONE(v) (PLUS((v),1))
+#define PLUS(v, w) U32V((v) + (w))
+#define PLUSONE(v) PLUS(v, 1)
 
 #define QUARTERROUND(a, b, c, d) \
   (a) = PLUS(a, b); (d) = ROTATE(XOR(d, a), 16); \
