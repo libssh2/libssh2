@@ -93,7 +93,7 @@ debugdump(LIBSSH2_SESSION * session,
             }
 
             buffer[used++] = ' ';
-            if((width/2) - 1 == c)
+            if((width / 2) - 1 == c)
                 buffer[used++] = ' ';
         }
 
