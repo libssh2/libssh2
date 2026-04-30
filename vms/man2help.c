@@ -29,7 +29,7 @@ typedef struct pf_fabnam {
 
 /*----------------------------------------------------------*/
 
-fpcopy(char *output, char *input, int len)
+void fpcopy(char *output, char *input, int len)
 {
     char *is, *os;
     int i;
