@@ -26,7 +26,7 @@
         (p)[1] = (uint8_t)((v) >>  8); \
         (p)[2] = (uint8_t)((v) >> 16); \
         (p)[3] = (uint8_t)((v) >> 24); \
-    } while (0)
+    } while(0)
 
 void poly1305_auth(unsigned char out[POLY1305_TAGLEN],
                    const unsigned char *m, size_t inlen,
