@@ -491,7 +491,7 @@ void print_help(void)
 }
 /*--------------------------------------------*/
 
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
     int     status;
     int     i, j;
