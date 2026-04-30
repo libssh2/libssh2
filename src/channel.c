@@ -1286,7 +1286,7 @@ libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel, const char *term,
 }
 
 static int
-channel_request_pty_size(LIBSSH2_CHANNEL * channel, int width,
+channel_request_pty_size(LIBSSH2_CHANNEL *channel, int width,
                          int height, int width_px, int height_px)
 {
     LIBSSH2_SESSION *session = channel->session;
@@ -1654,7 +1654,7 @@ libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
  * blocking.
  */
 LIBSSH2_API void
-libssh2_channel_set_blocking(LIBSSH2_CHANNEL * channel, int blocking)
+libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel, int blocking)
 {
     if(channel)
         (void)_libssh2_session_set_blocking(channel->session, blocking);
@@ -1866,7 +1866,7 @@ libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL *channel,
  * Calls _libssh2_error() !
  */
 int
-_libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL * channel,
+_libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
                                        uint32_t adjustment,
                                        unsigned char force,
                                        unsigned int *store)
@@ -2271,7 +2271,7 @@ libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id, char *buf,
  * isn't a packet.
  */
 size_t
-_libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel, int stream_id)
+_libssh2_channel_packet_data_len(LIBSSH2_CHANNEL *channel, int stream_id)
 {
     LIBSSH2_SESSION *session = channel->session;
     LIBSSH2_PACKET *read_packet;
@@ -2542,7 +2542,7 @@ libssh2_channel_send_eof(LIBSSH2_CHANNEL *channel)
  * Read channel's eof status
  */
 LIBSSH2_API int
-libssh2_channel_eof(LIBSSH2_CHANNEL * channel)
+libssh2_channel_eof(LIBSSH2_CHANNEL *channel)
 {
     LIBSSH2_SESSION *session;
     LIBSSH2_PACKET *packet;
@@ -2644,7 +2644,7 @@ libssh2_channel_wait_eof(LIBSSH2_CHANNEL *channel)
     return rc;
 }
 
-int _libssh2_channel_close(LIBSSH2_CHANNEL * channel)
+int _libssh2_channel_close(LIBSSH2_CHANNEL *channel)
 {
     LIBSSH2_SESSION *session = channel->session;
     int rc = 0;
