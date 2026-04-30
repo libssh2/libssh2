@@ -1231,7 +1231,7 @@ _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
         _libssh2_bn_from_bin(e2, e2len, e2data);
         coeff = _libssh2_bn_init_from_bin();
         _libssh2_bn_from_bin(coeff, coefflen, coeffdata);
-        if(!d || !p || !q ||!e1 || !e2 || !coeff)
+        if(!d || !p || !q || !e1 || !e2 || !coeff)
             ret = -1;
 
         if(!ret) {
