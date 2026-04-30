@@ -66,12 +66,12 @@ static int fnamepart(char *inputfile, char *part, int whatpart)
 
     pf->dfab.fab$l_naml = &pf->dnam;
 
-    pf->dfab.fab$l_fna = (char *) -1;
-    pf->dfab.fab$l_dna = (char *) -1;
+    pf->dfab.fab$l_fna = (char *)-1;
+    pf->dfab.fab$l_dna = (char *)-1;
     pf->dfab.fab$b_fns = 0;
     pf->dfab.fab$w_ifi = 0;
 
-    pf->dnam.naml$l_long_defname = NULL;  /* inputfile; */
+    pf->dnam.naml$l_long_defname = NULL; /* inputfile; */
     pf->dnam.naml$l_long_defname_size = 0; /* strlen(inputfile); */
 
     pf->dnam.naml$l_long_filename = inputfile;
