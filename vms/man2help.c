@@ -433,10 +433,10 @@ int convertman(char *filespec, FILE *hlp, int base_level, int add_parentheses)
         }
     }
 
-    /*
-     printf("read %d from %s, written %d to helpfile, return_status = %d\n",
-        len, filespec, strlen(uit), return_status);
-    */
+#if 0
+    printf("read %d from %s, written %d to helpfile, return_status = %d\n",
+           len, filespec, strlen(uit), return_status);
+#endif
 
     free(in);
     free(uit);
@@ -545,10 +545,10 @@ int main(int argc, char **argv)
         }
     }
 
-    /*
+#if 0
     fprintf(stderr,"manfile: %s, helpfile: %s, append: %d, base_level : %d\n",
             manfile, helpfile, append, base_level);
-    */
+#endif
 
     status = convertmans(manfile, helpfile, base_level, append,
                          add_parentheses);
