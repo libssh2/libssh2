@@ -470,7 +470,7 @@ _libssh2_mbedtls_rsa_new_private(libssh2_rsa_ctx **rsa,
     mbedtls_pk_context pkey;
     mbedtls_rsa_context *pk_rsa;
 
-    *rsa = (libssh2_rsa_ctx *) LIBSSH2_ALLOC(session, sizeof(libssh2_rsa_ctx));
+    *rsa = (libssh2_rsa_ctx *)LIBSSH2_ALLOC(session, sizeof(libssh2_rsa_ctx));
     if(!*rsa)
         return -1;
 

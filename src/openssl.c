@@ -494,9 +494,9 @@ _libssh2_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
 
 #else
 
-    ret = RSA_verify(nid_type, hash, (unsigned int) hash_len,
+    ret = RSA_verify(nid_type, hash, (unsigned int)hash_len,
                      (const unsigned char *)sig,
-                     (unsigned int) sig_len, rsactx);
+                     (unsigned int)sig_len, rsactx);
 #endif
 
     free(hash);
@@ -1237,10 +1237,10 @@ _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa,
 
 #ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_rsa =
-        (pem_read_bio_func) &PEM_read_bio_PrivateKey;
+        (pem_read_bio_func)&PEM_read_bio_PrivateKey;
 #else
     pem_read_bio_func read_rsa =
-        (pem_read_bio_func) &PEM_read_bio_RSAPrivateKey;
+        (pem_read_bio_func)&PEM_read_bio_RSAPrivateKey;
 #endif
 
     _libssh2_init_if_needed();
@@ -1647,15 +1647,15 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
 
 #ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_rsa =
-        (pem_read_bio_func) &PEM_read_bio_PrivateKey;
+        (pem_read_bio_func)&PEM_read_bio_PrivateKey;
 #else
     pem_read_bio_func read_rsa =
-        (pem_read_bio_func) &PEM_read_bio_RSAPrivateKey;
+        (pem_read_bio_func)&PEM_read_bio_RSAPrivateKey;
 #endif
 
     _libssh2_init_if_needed();
 
-    rc = read_private_key_from_file((void **) rsa, read_rsa,
+    rc = read_private_key_from_file((void **)rsa, read_rsa,
                                     filename, passphrase);
 
     if(rc) {
@@ -1679,10 +1679,10 @@ _libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx ** dsa,
 
 #ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_dsa =
-        (pem_read_bio_func) &PEM_read_bio_PrivateKey;
+        (pem_read_bio_func)&PEM_read_bio_PrivateKey;
 #else
     pem_read_bio_func read_dsa =
-        (pem_read_bio_func) &PEM_read_bio_DSAPrivateKey;
+        (pem_read_bio_func)&PEM_read_bio_DSAPrivateKey;
 #endif
 
     _libssh2_init_if_needed();
@@ -2004,15 +2004,15 @@ _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
 
 #ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_dsa =
-        (pem_read_bio_func) &PEM_read_bio_PrivateKey;
+        (pem_read_bio_func)&PEM_read_bio_PrivateKey;
 #else
     pem_read_bio_func read_dsa =
-        (pem_read_bio_func) &PEM_read_bio_DSAPrivateKey;
+        (pem_read_bio_func)&PEM_read_bio_DSAPrivateKey;
 #endif
 
     _libssh2_init_if_needed();
 
-    rc = read_private_key_from_file((void **) dsa, read_dsa,
+    rc = read_private_key_from_file((void **)dsa, read_dsa,
                                     filename, passphrase);
 
     if(rc) {
@@ -2036,10 +2036,10 @@ _libssh2_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx ** ec_ctx,
 
 #ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_ec =
-        (pem_read_bio_func) &PEM_read_bio_PrivateKey;
+        (pem_read_bio_func)&PEM_read_bio_PrivateKey;
 #else
     pem_read_bio_func read_ec =
-        (pem_read_bio_func) &PEM_read_bio_ECPrivateKey;
+        (pem_read_bio_func)&PEM_read_bio_ECPrivateKey;
 #endif
 
     _libssh2_init_if_needed();
@@ -2981,13 +2981,13 @@ _libssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
 #else
     if(hash_len == SHA_DIGEST_LENGTH)
         ret = RSA_sign(NID_sha1,
-                       hash, (unsigned int) hash_len, sig, &sig_len, rsactx);
+                       hash, (unsigned int)hash_len, sig, &sig_len, rsactx);
     else if(hash_len == SHA256_DIGEST_LENGTH)
         ret = RSA_sign(NID_sha256,
-                       hash, (unsigned int) hash_len, sig, &sig_len, rsactx);
+                       hash, (unsigned int)hash_len, sig, &sig_len, rsactx);
     else if(hash_len == SHA512_DIGEST_LENGTH)
         ret = RSA_sign(NID_sha512,
-                       hash, (unsigned int) hash_len, sig, &sig_len, rsactx);
+                       hash, (unsigned int)hash_len, sig, &sig_len, rsactx);
     else {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "Unsupported hash digest length");
@@ -3009,7 +3009,7 @@ _libssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
 #if LIBSSH2_RSA_SHA1
 int
 _libssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
-                       libssh2_rsa_ctx * rsactx,
+                       libssh2_rsa_ctx *rsactx,
                        const unsigned char *hash,
                        size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
@@ -3022,7 +3022,7 @@ _libssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
 
 #if LIBSSH2_DSA
 int
-_libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
+_libssh2_dsa_sha1_sign(libssh2_dsa_ctx *dsactx,
                        const unsigned char *hash,
                        size_t hash_len, unsigned char *signature)
 {
@@ -4161,10 +4161,10 @@ _libssh2_ecdsa_new_private(libssh2_ecdsa_ctx **ec_ctx,
 
 #ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_ec =
-        (pem_read_bio_func) &PEM_read_bio_PrivateKey;
+        (pem_read_bio_func)&PEM_read_bio_PrivateKey;
 #else
     pem_read_bio_func read_ec =
-        (pem_read_bio_func) &PEM_read_bio_ECPrivateKey;
+        (pem_read_bio_func)&PEM_read_bio_ECPrivateKey;
 #endif
 
     _libssh2_init_if_needed();
@@ -4194,15 +4194,15 @@ _libssh2_ecdsa_new_private_sk(libssh2_ecdsa_ctx **ec_ctx,
 
 #ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_ec =
-        (pem_read_bio_func) &PEM_read_bio_PrivateKey;
+        (pem_read_bio_func)&PEM_read_bio_PrivateKey;
 #else
     pem_read_bio_func read_ec =
-        (pem_read_bio_func) &PEM_read_bio_ECPrivateKey;
+        (pem_read_bio_func)&PEM_read_bio_ECPrivateKey;
 #endif
 
     _libssh2_init_if_needed();
 
-    rc = read_private_key_from_file((void **) ec_ctx, read_ec,
+    rc = read_private_key_from_file((void **)ec_ctx, read_ec,
                                     filename, passphrase);
 
     if(rc) {

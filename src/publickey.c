@@ -388,7 +388,7 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
 
         _libssh2_debug((session, LIBSSH2_TRACE_PUBLICKEY,
                        "Sending publickey advertising version %d support",
-                       (int) LIBSSH2_PUBLICKEY_VERSION));
+                       (int)LIBSSH2_PUBLICKEY_VERSION));
 
         session->pkeyInit_state = libssh2_NB_state_sent2;
     }

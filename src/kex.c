@@ -739,7 +739,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         }
 
         _libssh2_debug((session, LIBSSH2_TRACE_KEX, "Sending KEX packet %u",
-                       (unsigned int) packet_type_init));
+                       (unsigned int)packet_type_init));
         exchange_state->state = libssh2_NB_state_created;
     }
 
@@ -782,7 +782,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
 
             _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                            "Burnt packet of type: %02x",
-                           (unsigned int) burn_type));
+                           (unsigned int)burn_type));
         }
 
         exchange_state->state = libssh2_NB_state_sent1;

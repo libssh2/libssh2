@@ -668,7 +668,7 @@ _libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
     case libssh2_NB_state_idle:
         _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
                        "Packet type %u received, length=%ld",
-                       (unsigned int) msg, (long)datalen));
+                       (unsigned int)msg, (long)datalen));
 
         if((macstate == LIBSSH2_MAC_INVALID) &&
             (!session->macerror ||
