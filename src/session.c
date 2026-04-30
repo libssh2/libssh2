@@ -219,8 +219,8 @@ banner_send(LIBSSH2_SESSION * session)
     if(session->banner_TxRx_state == libssh2_NB_state_idle) {
         if(session->local.banner) {
             /* setopt_string will have given us our \r\n characters */
-            banner_len = strlen((char *) session->local.banner);
-            banner = (char *) session->local.banner;
+            banner_len = strlen((char *)session->local.banner);
+            banner = (char *)session->local.banner;
         }
 #ifdef LIBSSH2DEBUG
         {
@@ -310,7 +310,7 @@ session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
     return ioctl(sockfd, FIONBIO, &flags);
 #elif defined(HAVE_IOCTLSOCKET_CASE)
     /* presumably for Amiga */
-    return IoctlSocket(sockfd, FIONBIO, (long) nonblock);
+    return IoctlSocket(sockfd, FIONBIO, (long)nonblock);
 #elif defined(HAVE_SO_NONBLOCK)
     /* BeOS */
     long b = nonblock ? 1 : 0;
@@ -351,7 +351,7 @@ get_socket_nonblocking(libssh2_socket_t sockfd)
         /* Assume blocking on error */
         return 1;
     }
-    return (int) b;
+    return (int)b;
 #elif defined(SO_STATE) && defined(__VMS)
     /* VMS TCP/IP Services */
 
@@ -373,11 +373,11 @@ get_socket_nonblocking(libssh2_socket_t sockfd)
     socklen_t option_len = sizeof(option_value);
 
     if(getsockopt(sockfd, SOL_SOCKET, SO_ERROR,
-                  (void *) &option_value, &option_len)) {
+                  (void *)&option_value, &option_len)) {
         /* Assume blocking on error */
         return 1;
     }
-    return (int) option_value;
+    return (int)option_value;
 #else
     (void)sockfd;
     return 1;                   /* returns blocking */
@@ -906,7 +906,7 @@ libssh2_session_handshake(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 LIBSSH2_API int
 libssh2_session_startup(LIBSSH2_SESSION *session, int sock)
 {
-    return libssh2_session_handshake(session, (libssh2_socket_t) sock);
+    return libssh2_session_handshake(session, (libssh2_socket_t)sock);
 }
 #endif
 
@@ -1283,31 +1283,31 @@ libssh2_session_methods(LIBSSH2_SESSION * session, int method_type)
         break;
 
     case LIBSSH2_METHOD_HOSTKEY:
-        method = (const LIBSSH2_KEX_METHOD *) session->hostkey;
+        method = (const LIBSSH2_KEX_METHOD *)session->hostkey;
         break;
 
     case LIBSSH2_METHOD_CRYPT_CS:
-        method = (const LIBSSH2_KEX_METHOD *) session->local.crypt;
+        method = (const LIBSSH2_KEX_METHOD *)session->local.crypt;
         break;
 
     case LIBSSH2_METHOD_CRYPT_SC:
-        method = (const LIBSSH2_KEX_METHOD *) session->remote.crypt;
+        method = (const LIBSSH2_KEX_METHOD *)session->remote.crypt;
         break;
 
     case LIBSSH2_METHOD_MAC_CS:
-        method = (const LIBSSH2_KEX_METHOD *) session->local.mac;
+        method = (const LIBSSH2_KEX_METHOD *)session->local.mac;
         break;
 
     case LIBSSH2_METHOD_MAC_SC:
-        method = (const LIBSSH2_KEX_METHOD *) session->remote.mac;
+        method = (const LIBSSH2_KEX_METHOD *)session->remote.mac;
         break;
 
     case LIBSSH2_METHOD_COMP_CS:
-        method = (const LIBSSH2_KEX_METHOD *) session->local.comp;
+        method = (const LIBSSH2_KEX_METHOD *)session->local.comp;
         break;
 
     case LIBSSH2_METHOD_COMP_SC:
-        method = (const LIBSSH2_KEX_METHOD *) session->remote.comp;
+        method = (const LIBSSH2_KEX_METHOD *)session->remote.comp;
         break;
 
     case LIBSSH2_METHOD_LANG_CS:
@@ -1962,5 +1962,5 @@ libssh2_session_banner_get(LIBSSH2_SESSION *session)
     if(!session->remote.banner)
         return NULL;
 
-    return (const char *) session->remote.banner;
+    return (const char *)session->remote.banner;
 }

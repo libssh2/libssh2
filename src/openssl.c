@@ -370,29 +370,29 @@ _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
     BIGNUM * iqmp = 0;
 
     e = BN_new();
-    BN_bin2bn(edata, (int) elen, e);
+    BN_bin2bn(edata, (int)elen, e);
 
     n = BN_new();
-    BN_bin2bn(ndata, (int) nlen, n);
+    BN_bin2bn(ndata, (int)nlen, n);
 
     if(ddata) {
         d = BN_new();
-        BN_bin2bn(ddata, (int) dlen, d);
+        BN_bin2bn(ddata, (int)dlen, d);
 
         p = BN_new();
-        BN_bin2bn(pdata, (int) plen, p);
+        BN_bin2bn(pdata, (int)plen, p);
 
         q = BN_new();
-        BN_bin2bn(qdata, (int) qlen, q);
+        BN_bin2bn(qdata, (int)qlen, q);
 
         dmp1 = BN_new();
-        BN_bin2bn(e1data, (int) e1len, dmp1);
+        BN_bin2bn(e1data, (int)e1len, dmp1);
 
         dmq1 = BN_new();
-        BN_bin2bn(e2data, (int) e2len, dmq1);
+        BN_bin2bn(e2data, (int)e2len, dmq1);
 
         iqmp = BN_new();
-        BN_bin2bn(coeffdata, (int) coefflen, iqmp);
+        BN_bin2bn(coeffdata, (int)coefflen, iqmp);
     }
 
     *rsa = RSA_new();
@@ -495,7 +495,7 @@ _libssh2_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
 #else
 
     ret = RSA_verify(nid_type, hash, (unsigned int) hash_len,
-                     (const unsigned char *) sig,
+                     (const unsigned char *)sig,
                      (unsigned int) sig_len, rsactx);
 #endif
 
@@ -628,20 +628,20 @@ _libssh2_dsa_new(libssh2_dsa_ctx ** dsactx,
     BIGNUM * priv_key = NULL;
 
     p_bn = BN_new();
-    BN_bin2bn(p, (int) p_len, p_bn);
+    BN_bin2bn(p, (int)p_len, p_bn);
 
     q_bn = BN_new();
-    BN_bin2bn(q, (int) q_len, q_bn);
+    BN_bin2bn(q, (int)q_len, q_bn);
 
     g_bn = BN_new();
-    BN_bin2bn(g, (int) g_len, g_bn);
+    BN_bin2bn(g, (int)g_len, g_bn);
 
     pub_key = BN_new();
-    BN_bin2bn(y, (int) y_len, pub_key);
+    BN_bin2bn(y, (int)y_len, pub_key);
 
     if(x_len) {
         priv_key = BN_new();
-        BN_bin2bn(x, (int) x_len, priv_key);
+        BN_bin2bn(x, (int)x_len, priv_key);
     }
 
     *dsactx = DSA_new();
@@ -927,16 +927,16 @@ _libssh2_ecdsa_verify(libssh2_ecdsa_ctx * ec_ctx,
     BIGNUM *pr = BN_new();
     BIGNUM *ps = BN_new();
 
-    BN_bin2bn(r, (int) r_len, pr);
-    BN_bin2bn(s, (int) s_len, ps);
+    BN_bin2bn(r, (int)r_len, pr);
+    BN_bin2bn(s, (int)s_len, ps);
     ECDSA_SIG_set0(ecdsa_sig, pr, ps);
 #else
     ECDSA_SIG ecdsa_sig_;
     ECDSA_SIG *ecdsa_sig = &ecdsa_sig_;
     ecdsa_sig_.r = BN_new();
-    BN_bin2bn(r, (int) r_len, ecdsa_sig_.r);
+    BN_bin2bn(r, (int)r_len, ecdsa_sig_.r);
     ecdsa_sig_.s = BN_new();
-    BN_bin2bn(s, (int) s_len, ecdsa_sig_.s);
+    BN_bin2bn(s, (int)s_len, ecdsa_sig_.s);
 #endif
 
 #ifdef USE_OPENSSL_3
@@ -1156,7 +1156,7 @@ void _libssh2_openssl_crypto_exit(void) {}
 static int
 passphrase_cb(char *buf, int size, int rwflag, void *passphrase)
 {
-    int passphrase_len = (int) strlen(passphrase);
+    int passphrase_len = (int)strlen(passphrase);
 
     (void)rwflag;
 
@@ -1193,8 +1193,8 @@ read_private_key_from_memory(void **key_ctx,
         return -1;
     }
 
-    *key_ctx = read_private_key(bp, NULL, (pem_password_cb *) passphrase_cb,
-                                (void *) LIBSSH2_UNCONST(passphrase));
+    *key_ctx = read_private_key(bp, NULL, (pem_password_cb *)passphrase_cb,
+                                (void *)LIBSSH2_UNCONST(passphrase));
 
     BIO_free(bp);
     return (*key_ctx) ? 0 : -1;
@@ -1217,8 +1217,8 @@ read_private_key_from_file(void **key_ctx,
         return -1;
     }
 
-    *key_ctx = read_private_key(bp, NULL, (pem_password_cb *) passphrase_cb,
-                                (void *) LIBSSH2_UNCONST(passphrase));
+    *key_ctx = read_private_key(bp, NULL, (pem_password_cb *)passphrase_cb,
+                                (void *)LIBSSH2_UNCONST(passphrase));
 
     BIO_free(bp);
     return (*key_ctx) ? 0 : -1;
@@ -2200,7 +2200,7 @@ gen_publickey_from_ed_evp(LIBSSH2_SESSION *session,
     }
 
     _libssh2_store_str(&bufPos, methodName, sizeof(methodName) - 1);
-    _libssh2_store_u32(&bufPos, (uint32_t) rawKeyLen);
+    _libssh2_store_u32(&bufPos, (uint32_t)rawKeyLen);
 
     if(EVP_PKEY_get_raw_public_key(pk, bufPos, &rawKeyLen) != 1) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
@@ -3837,7 +3837,7 @@ gen_publickey_from_ecdsa_openssh_priv_data(LIBSSH2_SESSION *session,
         goto fail;
     }
 
-    BN_bin2bn(exponent, (int) exponentlen, bn_exponent);
+    BN_bin2bn(exponent, (int)exponentlen, bn_exponent);
     rc = (EC_KEY_set_private_key(ec_key, bn_exponent) != 1);
 #endif
 
@@ -4497,7 +4497,7 @@ _libssh2_ecdh_gen_k(_libssh2_bn **k, _libssh2_ec_key *private_key,
         goto clean_exit;
     }
 
-    BN_bin2bn(secret, (int) secret_len, *k);
+    BN_bin2bn(secret, (int)secret_len, *k);
 #endif
 
 clean_exit:

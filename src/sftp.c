@@ -754,7 +754,7 @@ LIBSSH2_CHANNEL_CLOSE_FUNC(libssh2_sftp_dtor);
  */
 LIBSSH2_CHANNEL_CLOSE_FUNC(libssh2_sftp_dtor)
 {
-    LIBSSH2_SFTP *sftp = (LIBSSH2_SFTP *) (*channel_abstract);
+    LIBSSH2_SFTP *sftp = (LIBSSH2_SFTP *)(*channel_abstract);
 
     (void)session_abstract;
     (void)channel;
@@ -1854,7 +1854,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
             ssize_t attr_len = 0;
 
             if(names_packet_len >= 4) {
-                s = (unsigned char *) handle->u.dir.next_name;
+                s = (unsigned char *)handle->u.dir.next_name;
                 real_filename_len = _libssh2_ntohu32(s);
                 s += 4;
                 names_packet_len -= 4;
@@ -1929,7 +1929,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                 goto end;
             }
 
-            handle->u.dir.next_name = (char *) s;
+            handle->u.dir.next_name = (char *)s;
             handle->u.dir.names_packet_len = names_packet_len;
 
             if((--handle->u.dir.names_left) == 0)
@@ -2027,7 +2027,7 @@ end:
 
     handle->u.dir.names_left = num_names;
     handle->u.dir.names_packet = data;
-    handle->u.dir.next_name = (char *) data + 9;
+    handle->u.dir.next_name = (char *)data + 9;
     handle->u.dir.names_packet_len = data_len - 9;
 
     /* use the name popping mechanism from the start of the function */

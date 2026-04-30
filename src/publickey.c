@@ -138,7 +138,7 @@ publickey_packet_receive(LIBSSH2_PUBLICKEY * pkey,
     *data_len = 0;
 
     if(pkey->receive_state == libssh2_NB_state_idle) {
-        rc = _libssh2_channel_read(channel, 0, (char *) buffer, 4);
+        rc = _libssh2_channel_read(channel, 0, (char *)buffer, 4);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             return (int)rc;
         }
@@ -160,7 +160,7 @@ publickey_packet_receive(LIBSSH2_PUBLICKEY * pkey,
     }
 
     if(pkey->receive_state == libssh2_NB_state_sent) {
-        rc = _libssh2_channel_read(channel, 0, (char *) pkey->receive_packet,
+        rc = _libssh2_channel_read(channel, 0, (char *)pkey->receive_packet,
                                    pkey->receive_packet_len);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             return (int)rc;
@@ -211,7 +211,7 @@ publickey_response_id(unsigned char **pdata, size_t data_len)
 
     while(codes->name) {
         if((unsigned long)codes->name_len == response_len &&
-            strncmp(codes->name, (char *) data, response_len) == 0) {
+            strncmp(codes->name, (char *)data, response_len) == 0) {
             *pdata = data + response_len;
             return codes->code;
         }
@@ -614,7 +614,7 @@ libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey, const unsigned char *name,
                 if(attrs[i].name_len == (sizeof("comment") - 1) &&
                     strncmp(attrs[i].name, "comment",
                             sizeof("comment") - 1) == 0) {
-                    comment = (const unsigned char *) attrs[i].value;
+                    comment = (const unsigned char *)attrs[i].value;
                     comment_len = attrs[i].value_len;
                     break;
                 }
@@ -995,7 +995,7 @@ libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY * pkey, unsigned long *num_keys,
                     }
                     list[keys].attrs[0].name = "comment";
                     list[keys].attrs[0].name_len = sizeof("comment") - 1;
-                    list[keys].attrs[0].value = (char *) pkey->listFetch_s;
+                    list[keys].attrs[0].value = (char *)pkey->listFetch_s;
                     list[keys].attrs[0].value_len = comment_len;
                     list[keys].attrs[0].mandatory = 0;
 
@@ -1136,7 +1136,7 @@ libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY * pkey, unsigned long *num_keys,
                         if(pkey->listFetch_s + list[keys].attrs[i].name_len <=
                            pkey->listFetch_data + pkey->listFetch_data_len) {
                             list[keys].attrs[i].name =
-                                (char *) pkey->listFetch_s;
+                                (char *)pkey->listFetch_s;
                             pkey->listFetch_s += list[keys].attrs[i].name_len;
                         }
                         else {
@@ -1163,7 +1163,7 @@ libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY * pkey, unsigned long *num_keys,
                            list[keys].attrs[i].value_len <=
                            pkey->listFetch_data + pkey->listFetch_data_len) {
                             list[keys].attrs[i].value =
-                                (char *) pkey->listFetch_s;
+                                (char *)pkey->listFetch_s;
                             pkey->listFetch_s += list[keys].attrs[i].value_len;
                         }
                         else {

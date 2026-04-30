@@ -772,7 +772,7 @@ memory_read_privatekey(LIBSSH2_SESSION * session,
     *hostkey_abstract = NULL;
     while(*hostkey_methods_avail && (*hostkey_methods_avail)->name) {
         if((*hostkey_methods_avail)->initPEMFromMemory &&
-           strncmp((*hostkey_methods_avail)->name, (const char *) method,
+           strncmp((*hostkey_methods_avail)->name, (const char *)method,
                    method_len) == 0) {
             *hostkey_method = *hostkey_methods_avail;
             break;
@@ -786,7 +786,7 @@ memory_read_privatekey(LIBSSH2_SESSION * session,
 
     if((*hostkey_method)->
         initPEMFromMemory(session, privkeyfiledata, privkeyfiledata_len,
-                          (const unsigned char *) passphrase,
+                          (const unsigned char *)passphrase,
                           hostkey_abstract)) {
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                               "Unable to initialize private key from memory");
@@ -814,7 +814,7 @@ file_read_privatekey(LIBSSH2_SESSION * session,
     *hostkey_abstract = NULL;
     while(*hostkey_methods_avail && (*hostkey_methods_avail)->name) {
         if((*hostkey_methods_avail)->initPEM &&
-           strncmp((*hostkey_methods_avail)->name, (const char *) method,
+           strncmp((*hostkey_methods_avail)->name, (const char *)method,
                    method_len) == 0) {
             *hostkey_method = *hostkey_methods_avail;
             break;
@@ -827,7 +827,7 @@ file_read_privatekey(LIBSSH2_SESSION * session,
     }
 
     if((*hostkey_method)->
-        initPEM(session, privkeyfile, (const unsigned char *) passphrase,
+        initPEM(session, privkeyfile, (const unsigned char *)passphrase,
                 hostkey_abstract)) {
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                               "Unable to initialize private key from file");
@@ -851,7 +851,7 @@ static int
 sign_frommemory(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
                 const unsigned char *data, size_t data_len, void **abstract)
 {
-    struct privkey_mem *pk_mem = (struct privkey_mem *) (*abstract);
+    struct privkey_mem *pk_mem = (struct privkey_mem *)(*abstract);
     const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
     void *hostkey_abstract;
     struct iovec datavec;
@@ -891,7 +891,7 @@ static int
 sign_fromfile(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
               const unsigned char *data, size_t data_len, void **abstract)
 {
-    struct privkey_file *privkey_file = (struct privkey_file *) (*abstract);
+    struct privkey_file *privkey_file = (struct privkey_file *)(*abstract);
     const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
     void *hostkey_abstract;
     struct iovec datavec;
@@ -931,7 +931,7 @@ libssh2_sign_sk(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
                 const unsigned char *data, size_t data_len, void **abstract)
 {
     int rc = LIBSSH2_ERROR_DECRYPT;
-    LIBSSH2_PRIVKEY_SK *sk_info = (LIBSSH2_PRIVKEY_SK *) (*abstract);
+    LIBSSH2_PRIVKEY_SK *sk_info = (LIBSSH2_PRIVKEY_SK *)(*abstract);
     LIBSSH2_SK_SIG_INFO sig_info = { 0 };
 
     if(sk_info->handle_len <= 0) {

@@ -410,7 +410,7 @@ _libssh2_mbedtls_rsa_new(libssh2_rsa_ctx **rsa,
     int ret;
     libssh2_rsa_ctx *ctx;
 
-    ctx = (libssh2_rsa_ctx *) mbedtls_calloc(1, sizeof(libssh2_rsa_ctx));
+    ctx = (libssh2_rsa_ctx *)mbedtls_calloc(1, sizeof(libssh2_rsa_ctx));
     if(ctx)
         mbedtls_rsa_init(ctx);
     else
@@ -508,7 +508,7 @@ _libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
     void *filedata_nullterm;
     size_t pwd_len;
 
-    *rsa = (libssh2_rsa_ctx *) mbedtls_calloc(1, sizeof(libssh2_rsa_ctx));
+    *rsa = (libssh2_rsa_ctx *)mbedtls_calloc(1, sizeof(libssh2_rsa_ctx));
     if(!*rsa)
         return -1;
 
@@ -1146,7 +1146,7 @@ _libssh2_mbedtls_parse_eckey(libssh2_ecdsa_ctx **ctx,
 {
     size_t pwd_len;
 
-    pwd_len = pwd ? strlen((const char *) pwd) : 0;
+    pwd_len = pwd ? strlen((const char *)pwd) : 0;
 
     if(mbedtls_pk_parse_key(pkey, data, data_len, pwd, pwd_len,
                             mbedtls_ctr_drbg_random,

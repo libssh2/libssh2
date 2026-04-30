@@ -580,7 +580,7 @@ main(void)
     for(i = 0; i < 10; i++)
         data[i] = i;
 
-    blf_key(&c, (uint8_t *) key, 5);
+    blf_key(&c, (uint8_t *)key, 5);
     blf_enc(&c, data, 5);
     blf_dec(&c, data, 1);
     blf_dec(&c, data + 2, 4);
@@ -588,7 +588,7 @@ main(void)
     report(data, 10);
 
     /* Second test */
-    blf_key(&c, (uint8_t *) key2, (uint16_t)strlen(key2));
+    blf_key(&c, (uint8_t *)key2, (uint16_t)strlen(key2));
     blf_enc(&c, data2, 1);
     printf("\nShould read as: 0x324ed0fe 0xf413a203.\n");
     report(data2, 2);

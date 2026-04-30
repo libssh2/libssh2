@@ -521,7 +521,7 @@ _libssh2_mac_override(const LIBSSH2_CRYPT_METHOD *crypt)
        !strcmp(crypt->name, "aes128-gcm@openssh.com"))
         return &mac_method_hmac_aesgcm;
 #else
-    (void) crypt;
+    (void)crypt;
 #endif /* LIBSSH2_AES_GCM */
     return NULL;
 }

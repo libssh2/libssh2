@@ -123,8 +123,8 @@ crypt_encrypt(LIBSSH2_SESSION * session,
               int firstlast)
 {
     struct crypt_ctx *cctx = *(struct crypt_ctx **) abstract;
-    (void) session;
-    (void) seqno;
+    (void)session;
+    (void)seqno;
     return _libssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, buf,
                                  buf_len, firstlast);
 }

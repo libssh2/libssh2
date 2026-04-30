@@ -727,7 +727,7 @@ int _libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
 {
     int ret = _libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHmacMD5,
                                         MD5_DIGEST_LENGTH,
-                                        key, (ULONG) keylen);
+                                        key, (ULONG)keylen);
 
     return ret == 0 ? 1 : 0;
 }
@@ -738,7 +738,7 @@ int _libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
 {
     int ret = _libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHmacSHA1,
                                         SHA_DIGEST_LENGTH,
-                                        key, (ULONG) keylen);
+                                        key, (ULONG)keylen);
 
     return ret == 0 ? 1 : 0;
 }
@@ -748,7 +748,7 @@ int _libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
 {
     int ret = _libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHmacSHA256,
                                         SHA256_DIGEST_LENGTH,
-                                        key, (ULONG) keylen);
+                                        key, (ULONG)keylen);
 
     return ret == 0 ? 1 : 0;
 }
@@ -758,7 +758,7 @@ int _libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
 {
     int ret = _libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHmacSHA512,
                                         SHA512_DIGEST_LENGTH,
-                                        key, (ULONG) keylen);
+                                        key, (ULONG)keylen);
 
     return ret == 0 ? 1 : 0;
 }

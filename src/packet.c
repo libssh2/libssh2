@@ -63,7 +63,7 @@
  * Queue a connection request for a listener
  */
 static inline int
-packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
+packet_queue_listener(LIBSSH2_SESSION *session, unsigned char *data,
                       size_t datalen,
                       packet_queue_listener_state_t *listen_state)
 {
@@ -137,7 +137,7 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
 
     if(listen_state->state != libssh2_NB_state_sent) {
         while(listn) {
-            if((listn->port == (int) listen_state->port) &&
+            if((listn->port == (int)listen_state->port) &&
                 (strlen(listn->host) == listen_state->host_len) &&
                 (memcmp(listn->host, listen_state->host,
                         listen_state->host_len) == 0)) {
@@ -277,7 +277,7 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
  * Accept a forwarded X11 connection
  */
 static inline int
-packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
+packet_x11_open(LIBSSH2_SESSION *session, unsigned char *data,
                 size_t datalen,
                 packet_x11_open_state_t *x11open_state)
 {
@@ -478,7 +478,7 @@ x11_exit:
  * Open a connection to authentication agent
  */
 static inline int
-packet_authagent_open(LIBSSH2_SESSION * session,
+packet_authagent_open(LIBSSH2_SESSION *session,
                       unsigned char *data, size_t datalen,
                       packet_authagent_state_t *authagent_state)
 {
@@ -668,11 +668,11 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
     case libssh2_NB_state_idle:
         _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
                        "Packet type %u received, length=%ld",
-                       (unsigned int) msg, (long) datalen));
+                       (unsigned int) msg, (long)datalen));
 
         if((macstate == LIBSSH2_MAC_INVALID) &&
             (!session->macerror ||
-             LIBSSH2_MACERROR(session, (char *) data, datalen))) {
+             LIBSSH2_MACERROR(session, (char *)data, datalen))) {
             /* Bad MAC input, but no callback set or non-zero return from the
                callback */
 
@@ -811,7 +811,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
         case SSH_MSG_IGNORE:
             if(datalen >= 2) {
                 if(session->ssh_msg_ignore) {
-                    LIBSSH2_IGNORE(session, (char *) data + 1, datalen - 1);
+                    LIBSSH2_IGNORE(session, (char *)data + 1, datalen - 1);
                 }
             }
             else if(session->ssh_msg_ignore) {
@@ -1006,7 +1006,7 @@ libssh2_packet_add_jump_point5:
 
                 _libssh2_debug((session, LIBSSH2_TRACE_CONN,
                                "%ld bytes packet_add() for %u/%u/%u",
-                               (long) (datalen - data_head),
+                               (long)(datalen - data_head),
                                channelp->local.id,
                                channelp->remote.id,
                                stream_id));
@@ -1020,7 +1020,7 @@ libssh2_packet_add_jump_point5:
 
                 _libssh2_debug((session, LIBSSH2_TRACE_CONN,
                               "Ignoring extended data and refunding %ld bytes",
-                               (long) (datalen - 13)));
+                               (long)(datalen - 13)));
                 if(channelp->read_avail + datalen - data_head >=
                     channelp->remote.window_size)
                     datalen = channelp->remote.window_size -
@@ -1031,9 +1031,9 @@ libssh2_packet_add_jump_point5:
                 _libssh2_debug((session, LIBSSH2_TRACE_CONN,
                                "shrinking window size by %ld bytes to %u, "
                                "read_avail %ld",
-                               (long) (datalen - data_head),
+                               (long)(datalen - data_head),
                                channelp->remote.window_size,
-                               (long) channelp->read_avail));
+                               (long)channelp->read_avail));
 
                 session->packAdd_channelp = channelp;
 
@@ -1519,7 +1519,7 @@ _libssh2_packet_askv(LIBSSH2_SESSION * session,
                      const unsigned char *match_buf,
                      size_t match_len)
 {
-    size_t i, packet_types_len = strlen((const char *) packet_types);
+    size_t i, packet_types_len = strlen((const char *)packet_types);
 
     for(i = 0; i < packet_types_len; i++) {
         if(_libssh2_packet_ask(session, packet_types[i], data,
@@ -1674,7 +1674,7 @@ _libssh2_packet_requirev(LIBSSH2_SESSION *session,
                          unsigned char **data, size_t *data_len,
                          int match_ofs,
                          const unsigned char *match_buf, size_t match_len,
-                         packet_requirev_state_t * state)
+                         packet_requirev_state_t *state)
 {
     if(_libssh2_packet_askv(session, packet_types, data, data_len, match_ofs,
                             match_buf, match_len) == 0) {
@@ -1706,7 +1706,7 @@ _libssh2_packet_requirev(LIBSSH2_SESSION *session,
             }
         }
 
-        if(strchr((const char *) packet_types, ret)) {
+        if(strchr((const char *)packet_types, ret)) {
             /* Be lazy, let packet_ask pull it out of the brigade */
             ret = _libssh2_packet_askv(session, packet_types, data,
                                        data_len, match_ofs, match_buf,
