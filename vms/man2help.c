@@ -546,7 +546,7 @@ int main(int argc, char **argv)
     }
 
 #if 0
-    fprintf(stderr,"manfile: %s, helpfile: %s, append: %d, base_level : %d\n",
+    fprintf(stderr, "manfile: %s, helpfile: %s, append: %d, base_level : %d\n",
             manfile, helpfile, append, base_level);
 #endif
 
