@@ -170,7 +170,7 @@ int _libssh2_gettimeofday(struct timeval *tp, void *tzp);
     (defined(__clang__) && __clang_major__ >= 10)
 #  define LIBSSH2_FALLTHROUGH()  __attribute__((fallthrough))
 #else
-#  define LIBSSH2_FALLTHROUGH()  do {} while (0)
+#  define LIBSSH2_FALLTHROUGH()  do {} while(0)
 #endif
 #endif
 
@@ -996,11 +996,11 @@ struct _LIBSSH2_KEX_METHOD
 
     /* Key exchange, populates session->* and returns 0 on success, non-0 on
        error */
-    int (*exchange_keys) (LIBSSH2_SESSION *session,
-                          key_exchange_state_low_t *key_state);
+    int (*exchange_keys)(LIBSSH2_SESSION *session,
+                         key_exchange_state_low_t *key_state);
 
-    void (*cleanup) (LIBSSH2_SESSION *session,
-                     key_exchange_state_low_t *key_state);
+    void (*cleanup)(LIBSSH2_SESSION *session,
+                    key_exchange_state_low_t *key_state);
 
     long flags;
 };
@@ -1010,25 +1010,25 @@ struct _LIBSSH2_HOSTKEY_METHOD
     const char *name;
     size_t hash_len;
 
-    int (*init) (LIBSSH2_SESSION *session, const unsigned char *hostkey_data,
-                 size_t hostkey_data_len, void **abstract);
-    int (*initPEM) (LIBSSH2_SESSION *session, const char *privkeyfile,
-                    const unsigned char *passphrase, void **abstract);
-    int (*initPEMFromMemory) (LIBSSH2_SESSION *session,
-                              const char *privkeyfiledata,
-                              size_t privkeyfiledata_len,
-                              const unsigned char *passphrase,
-                              void **abstract);
-    int (*sig_verify) (LIBSSH2_SESSION *session, const unsigned char *sig,
-                       size_t sig_len, const unsigned char *m,
-                       size_t m_len, void **abstract);
-    int (*signv) (LIBSSH2_SESSION *session, unsigned char **signature,
-                  size_t *signature_len, int veccount,
-                  const struct iovec datavec[], void **abstract);
-    int (*encrypt) (LIBSSH2_SESSION *session, unsigned char **dst,
-                    size_t *dst_len, const unsigned char *src,
-                    size_t src_len, void **abstract);
-    int (*dtor) (LIBSSH2_SESSION *session, void **abstract);
+    int (*init)(LIBSSH2_SESSION *session, const unsigned char *hostkey_data,
+                size_t hostkey_data_len, void **abstract);
+    int (*initPEM)(LIBSSH2_SESSION *session, const char *privkeyfile,
+                   const unsigned char *passphrase, void **abstract);
+    int (*initPEMFromMemory)(LIBSSH2_SESSION *session,
+                             const char *privkeyfiledata,
+                             size_t privkeyfiledata_len,
+                             const unsigned char *passphrase,
+                             void **abstract);
+    int (*sig_verify)(LIBSSH2_SESSION *session, const unsigned char *sig,
+                      size_t sig_len, const unsigned char *m,
+                      size_t m_len, void **abstract);
+    int (*signv)(LIBSSH2_SESSION *session, unsigned char **signature,
+                 size_t *signature_len, int veccount,
+                 const struct iovec datavec[], void **abstract);
+    int (*encrypt)(LIBSSH2_SESSION *session, unsigned char **dst,
+                   size_t *dst_len, const unsigned char *src,
+                   size_t src_len, void **abstract);
+    int (*dtor)(LIBSSH2_SESSION *session, void **abstract);
 };
 
 struct _LIBSSH2_CRYPT_METHOD
@@ -1093,21 +1093,21 @@ struct _LIBSSH2_COMP_METHOD
     const char *name;
     int compress; /* 1 if it does compress, 0 if it doesn't */
     int use_in_auth; /* 1 if compression should be used in userauth */
-    int (*init) (LIBSSH2_SESSION *session, int compress, void **abstract);
-    int (*comp) (LIBSSH2_SESSION *session,
-                 unsigned char *dest,
-                 size_t *dest_len,
-                 const unsigned char *src,
-                 size_t src_len,
-                 void **abstract);
-    int (*decomp) (LIBSSH2_SESSION *session,
-                   unsigned char **dest,
-                   size_t *dest_len,
-                   size_t payload_limit,
-                   const unsigned char *src,
-                   size_t src_len,
-                   void **abstract);
-    int (*dtor) (LIBSSH2_SESSION *session, int compress, void **abstract);
+    int (*init)(LIBSSH2_SESSION *session, int compress, void **abstract);
+    int (*comp)(LIBSSH2_SESSION *session,
+                unsigned char *dest,
+                size_t *dest_len,
+                const unsigned char *src,
+                size_t src_len,
+                void **abstract);
+    int (*decomp)(LIBSSH2_SESSION *session,
+                  unsigned char **dest,
+                  size_t *dest_len,
+                  size_t payload_limit,
+                  const unsigned char *src,
+                  size_t src_len,
+                  void **abstract);
+    int (*dtor)(LIBSSH2_SESSION *session, int compress, void **abstract);
 };
 
 #ifdef LIBSSH2DEBUG

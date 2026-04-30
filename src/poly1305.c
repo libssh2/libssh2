@@ -12,7 +12,7 @@
 
 #include "poly1305.h"
 
-#define mul32x32_64(a,b) ((uint64_t)(a) * (b))
+#define mul32x32_64(a, b) ((uint64_t)(a) * (b))
 
 #define U8TO32_LE(p) \
     (((uint32_t)((p)[0])) | \
@@ -26,7 +26,7 @@
         (p)[1] = (uint8_t)((v) >>  8); \
         (p)[2] = (uint8_t)((v) >> 16); \
         (p)[3] = (uint8_t)((v) >> 24); \
-    } while (0)
+    } while(0)
 
 void poly1305_auth(unsigned char out[POLY1305_TAGLEN],
                    const unsigned char *m, size_t inlen,

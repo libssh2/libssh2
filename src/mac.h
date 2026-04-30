@@ -52,13 +52,13 @@ struct _LIBSSH2_MAC_METHOD
     int key_len;
 
     /* Message Authentication Code Hashing algo */
-    int (*init) (LIBSSH2_SESSION *session, unsigned char *key, int *free_key,
-                 void **abstract);
-    int (*hash) (LIBSSH2_SESSION *session, unsigned char *buf,
-                 uint32_t seqno, const unsigned char *packet,
-                 size_t packet_len, const unsigned char *addtl,
-                 size_t addtl_len, void **abstract);
-    int (*dtor) (LIBSSH2_SESSION *session, void **abstract);
+    int (*init)(LIBSSH2_SESSION *session, unsigned char *key, int *free_key,
+                void **abstract);
+    int (*hash)(LIBSSH2_SESSION *session, unsigned char *buf,
+                uint32_t seqno, const unsigned char *packet,
+                size_t packet_len, const unsigned char *addtl,
+                size_t addtl_len, void **abstract);
+    int (*dtor)(LIBSSH2_SESSION *session, void **abstract);
 
     int etm; /* encrypt-then-mac */
 };
