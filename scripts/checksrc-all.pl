@@ -12,7 +12,7 @@ use Cwd 'abs_path';
 
 my @options = (
     "-i4", "-m79",
-    "-AFIXME", "-AERRNOVAR", "-AFOPENMODE", "-ATYPEDEFSTRUCT",
+    "-AFIXME", "-AERRNOVAR", "-ATYPEDEFSTRUCT",
     "-aaccept",
     "-aatoi",
     "-acalloc",
@@ -38,14 +38,16 @@ my @options = (
 );
 
 my @files;
+my $is_git = 0;
 if(system('git rev-parse --is-inside-work-tree >/dev/null 2>&1') == 0) {
-  @files = `git ls-files '*.[ch]'`;
+    open(O, '-|', 'git', 'ls-files', '*.[ch]') || die; push @files, <O>; close(O);
+    $is_git = 1;
 }
 else {
-  find(sub { if(/\.[ch]$/) { push(@files, $File::Find::name) } }, ('.'));
+    find(sub { if(/\.[ch]$/) { push(@files, $File::Find::name) } }, ('.'));
 }
 if(@ARGV) {
-  find(sub { if(/\.[ch]$/) { push(@files, $File::Find::name) } }, @ARGV);
+    find(sub { if(/\.[ch]$/) { push(@files, $File::Find::name) } }, @ARGV);
 }
 
 @files = grep !/\/CMakeFiles\//, @files;
@@ -56,7 +58,14 @@ my $scripts_dir = dirname(abs_path($0));
 my $anyfailed = 0;
 
 for my $dir (@dirs) {
-    @files = glob("$dir/*.[ch]");
+    if($is_git) {
+        @files = ();
+        open(O, '-|', 'git', 'ls-files', "$dir/*.[ch]") || die; push @files, <O>; close(O);
+        chomp(@files);
+    }
+    else {
+        @files = glob("$dir/*.[ch]");
+    }
     if(@files && system("$scripts_dir/checksrc.pl", @options, @files) != 0) {
         $anyfailed = 1;
     }
