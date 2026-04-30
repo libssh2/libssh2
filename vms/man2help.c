@@ -123,14 +123,14 @@ static int find_file(char *filename, char *found, int *findex)
     struct  dsc$descriptor filespec;
     char    found_file[NAM$C_MAXRSS + 1];
 
-    filespec.dsc$w_length = strlen(filename);
-    filespec.dsc$b_dtype  = DSC$K_DTYPE_T;
-    filespec.dsc$b_class  = DSC$K_CLASS_S;
+    filespec.dsc$w_length  = strlen(filename);
+    filespec.dsc$b_dtype   = DSC$K_DTYPE_T;
+    filespec.dsc$b_class   = DSC$K_CLASS_S;
     filespec.dsc$a_pointer = filename;
 
-    foundd.dsc$w_length = NAM$C_MAXRSS;
-    foundd.dsc$b_dtype  = DSC$K_DTYPE_T;
-    foundd.dsc$b_class  = DSC$K_CLASS_S;
+    foundd.dsc$w_length  = NAM$C_MAXRSS;
+    foundd.dsc$b_dtype   = DSC$K_DTYPE_T;
+    foundd.dsc$b_class   = DSC$K_CLASS_S;
     foundd.dsc$a_pointer = found_file;
 
     status = lib$find_file(&filespec, &foundd, findex, 0, 0, 0, 0);
