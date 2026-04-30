@@ -58,8 +58,8 @@ struct chan_X11_list {
     struct chan_X11_list *next;
 };
 
-static struct chan_X11_list * gp_x11_chan = NULL;
-static struct termios         _saved_tio;
+static struct chan_X11_list *gp_x11_chan = NULL;
+static struct termios        _saved_tio;
 
 static int _raw_mode(void)
 {
