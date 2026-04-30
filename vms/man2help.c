@@ -57,6 +57,8 @@ static int fnamepart(char *inputfile, char *part, int whatpart)
     char   ipart[6][256], *i, *p;
 
     pf = calloc(1, sizeof(pfn));
+    if(!pf)
+        return 0;
 
     pf->dfab = cc$rms_fab;
     pf->drab = cc$rms_rab;
@@ -81,7 +83,7 @@ static int fnamepart(char *inputfile, char *part, int whatpart)
     pf->dnam.naml$b_nop |= NAML$M_SYNCHK | NAML$M_PWD;
 
     status = sys$parse(&pf->dfab, 0, 0);
-    if(!(status&1)) {
+    if(!(status & 1)) {
         free(pf);
         return status;
     }
@@ -134,9 +136,11 @@ static int find_file(char *filename, char *gevonden, int *findex)
     status = lib$find_file(&filespec, &gevondend, findex, 0, 0, 0, 0);
 
     if((status & 1) == 1) {
-        /* !checksrc! disable BANNEDFUNC 1 */ /* FIXME */
-        strcpy(gevonden,
-               strtok(gevonden_file, " "));
+        const char *token = strtok(gevonden_file, " ");
+        if(token)
+            memcpy(gevonden, token, strlen(token) + 1);
+        else
+            gevonden[0] = '\0';
     }
     else {
         gevonden[0] = 0;
@@ -156,6 +160,10 @@ static manPtr addman(manPtr *manroot, char *filename)
         return NULL;
 
     m->filename = strdup(filename);
+    if(!m->filename) {
+        free(m);
+        return NULL;
+    }
 
     if(!*manroot) {
         *manroot = m;
@@ -221,15 +229,22 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
     int     bol, mode, return_status = 1;
     char subjectname[NAM$C_MAXRSS + 1];
 
-    in  = calloc(1, maxlen + 1);
-    uit = calloc(1, maxlen + 1);
-
-    if(!in || !uit)
+    in = calloc(1, maxlen + 1);
+    if(!in)
         return 2;
 
+    uit = calloc(1, maxlen + 1);
+    if(!uit) {
+        free(in);
+        return 2;
+    }
+
     man = fopen(filespec, "r");
-    if(!man)
+    if(!man) {
+        free(in);
+        free(uit);
         return vaxc$errno;
+    }
 
     for(len = 0; !feof(man) && len < maxlen; len += thislen) {
         thislen = fread(in + len, 1, maxlen - len, man);
@@ -465,12 +480,12 @@ static int convertmans(char *filespec, char *hlpfilename, int base_level,
         return vaxc$errno;
 
     status = listofmans(filespec, &manroot);
-    if(!(status&1))
+    if(!(status & 1))
         return status;
 
     for(m = manroot; m; m = m->next) {
         status = convertman(m->filename, hlp, base_level, add_parentheses);
-        if(!(status&1)) {
+        if(!(status & 1)) {
             fprintf(stderr, "Convertman of %s went wrong\n", m->filename);
             break;
         }
@@ -483,12 +498,12 @@ static int convertmans(char *filespec, char *hlpfilename, int base_level,
 static void print_help(void)
 {
     fprintf(stderr,
-        "Usage: [-a] [-b x] convertman <manfilespec> <helptextfile>\n"
-        "       -a append <manfilespec> to <helptextfile>\n"
-        "       -b <baselevel> if no headers found create one "
-                   "with level <baselevel>\n"
-        "          and the filename as title.\n"
-        "       -p add parentheses() to baselevel help items.\n");
+            "Usage: [-a] [-b x] convertman <manfilespec> <helptextfile>\n"
+            "       -a append <manfilespec> to <helptextfile>\n"
+            "       -b <baselevel> if no headers found create one "
+                       "with level <baselevel>\n"
+            "          and the filename as title.\n"
+            "       -p add parentheses() to baselevel help items.\n");
 }
 /*--------------------------------------------*/
 
