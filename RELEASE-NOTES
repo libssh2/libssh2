@@ -171,7 +171,7 @@ This release includes the following enhancements and bugfixes:
 - docs: convert man page sources to "curldown" format (b889b399 #1660)
 - docs: improve man page for `libssh2_channel_request_auth_agent` (30203f16 #1503)
 - example/x11.c: free session/cleanup (bb3c6bbf #1762)
-- examples: readd `sys/time.h` where necessary (d8b219ba #1863 #1792 #1001 follow: e53aae0e)
+- examples: re-add `sys/time.h` where necessary (d8b219ba #1863 #1792 #1001 follow: e53aae0e)
 - Fix incorrect frees on errors #1802 (2b71623a #1803 #1802)
 - Fix mbedTLS AES-CBC backend: avoid BAD_INPUT_DATA during cipher_finish() in SSH handshake (26f57efd #1758 #793)
 - fix two NULL checks (openssl, userauth) (51b35d1b #1656 #698 #1314 follow: 3a6ab70d follow: ed439a29)
