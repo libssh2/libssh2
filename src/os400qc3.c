@@ -1231,7 +1231,7 @@ _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
         _libssh2_bn_from_bin(e2, e2len, e2data);
         coeff = _libssh2_bn_init_from_bin();
         _libssh2_bn_from_bin(coeff, coefflen, coeffdata);
-        if(!d || !p || !q ||!e1 || !e2 || !coeff)
+        if(!d || !p || !q || !e1 || !e2 || !coeff)
             ret = -1;
 
         if(!ret) {
@@ -1355,7 +1355,7 @@ _libssh2_os400qc3_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
     pubkey = alloca(pubkeysize);
     _libssh2_bn_to_bin(f, pubkey);
     secretbufsize = (_libssh2_bn_bits(p) + 7) >> 3;
-    secretbuf = alloca(pubkeysize);
+    secretbuf = alloca(secretbufsize);
     set_EC_length(errcode, sizeof(errcode));
     Qc3CalculateDHSecretKey(dhctx->token, pubkey, &pubkeysize,
                             secretbuf, &secretbufsize, &secretbuflen,
@@ -1684,8 +1684,10 @@ parse_rc2(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
             switch(effkeysize) {
             case 160:
                 effkeysize = 40;
+                break;
             case 120:
                 effkeysize = 64;
+                break;
             case 58:
                 effkeysize = 128;
                 break;
@@ -2270,6 +2272,7 @@ _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
            --> PKCS#1 RSAPrivateKey */
         ret = _libssh2_pem_parse_memory(session,
                                         beginrsaprivkeyhdr, endrsaprivkeyhdr,
+                                        passphrase,
                                         filedata, filedata_len,
                                         &data, &datalen);
         if(!ret)
@@ -2326,6 +2329,7 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
        --> PKCS#8 EncryptedPrivateKeyInfo */
     ret = _libssh2_pem_parse_memory(session,
                                     beginencprivkeyhdr, endencprivkeyhdr,
+                                    passphrase,
                                     privatekeydata, privatekeydata_len,
                                     &data, &datalen);
 
@@ -2334,6 +2338,7 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     if(ret)
         ret = _libssh2_pem_parse_memory(session,
                                         beginprivkeyhdr, endprivkeyhdr,
+                                        passphrase,
                                         privatekeydata, privatekeydata_len,
                                         &data, &datalen);
 
@@ -2347,6 +2352,7 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
            --> PKCS#1 RSAPrivateKey */
         ret = _libssh2_pem_parse_memory(session,
                                         beginrsaprivkeyhdr, endrsaprivkeyhdr,
+                                        passphrase,
                                         privatekeydata, privatekeydata_len,
                                         &data, &datalen);
         if(!ret)
