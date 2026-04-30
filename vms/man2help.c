@@ -56,6 +56,8 @@ static int fnamepart(char *inputfile, char *part, int whatpart)
     int status;
     char ipart[6][256], *i, *p;
 
+    part[0] = '\0';
+
     pf = calloc(1, sizeof(struct pf_fabnam));
     if(!pf)
         return 0;
