@@ -46,7 +46,7 @@ fpcopy(char *output, char *input, int len)
 }
 
 /*----------------------------------------------------------*/
-/* give part of ilename in partname. See code for proper
+/* give part of filename in partname. See code for proper
    value of i ( 0 = node, 1 = dev, 2 = dir, 3 = name etc.
 */
 
