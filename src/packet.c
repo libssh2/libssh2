@@ -85,7 +85,7 @@ packet_queue_listener(LIBSSH2_SESSION *session, unsigned char *data,
         buf.dataptr = buf.data;
         buf.len = datalen;
 
-        if(datalen < offset + 12) {
+        if(datalen < offset + 12) {  /* 3 * 4-byte */
             return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                   "Unexpected packet size");
         }
