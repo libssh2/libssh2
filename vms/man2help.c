@@ -29,20 +29,12 @@ struct pf_fabnam {
 
 /*----------------------------------------------------------*/
 
-static void fpcopy(char *output, char *input, int len)
+static void fpcopy(char *output, char *input, int size)
 {
-    char *is, *os;
-    int i;
+    if(size)
+        memcpy(output, input, (size_t)size);
 
-    if(len) {
-        for(is = input, os = output, i = 0; i < len; ++i, ++is, ++os) {
-            *os = *is;
-        }
-        *os = 0;
-    }
-    else {
-        output[0] = 0;
-    }
+    output[size] = 0;
 }
 
 /*----------------------------------------------------------*/
@@ -269,24 +261,22 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
                     mode = 1;
                 }
                 else {
-                    *h = *m;
-                    ++h;
+                    *h++ = *m;
                 }
                 break;
             case '\\':
                 if(bol) {
-                    *h = ' '; ++h;
-                    *h = ' '; ++h;
+                    *h++ = ' ';
+                    *h++ = ' ';
                 }
                 mode = 2;
                 break;
             default:
                 if(bol) {
-                    *h = ' '; ++h;
-                    *h = ' '; ++h;
+                    *h++ = ' ';
+                    *h++ = ' ';
                 }
-                *h = *m;
-                ++h;
+                *h++ = *m;
                 break;
             }
             break;
@@ -300,7 +290,7 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
                 break;
             case 'B':
                 ++m;
-                *h = ' '; ++h;
+                *h++ = ' ';
                 mode = 0;
                 break;
             case 'I':
@@ -323,7 +313,7 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
 
                 /* if line ends in ., this is an EOL */
 
-                if(*(h-1) == '.') {
+                if(*(h - 1) == '.') {
                     --h;
                     --m;
                 }
@@ -337,7 +327,7 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
                 break;
             case 'S':
                 if(*(m + 1) == 'H') {
-                    *h = '\n';++h;
+                    *h++ = '\n';
                     if(strncmp(m + 3, "NAME", 4) == 0 ||
                        strncmp(m + 3, "SYNOPSIS", 8) == 0 ||
                        strncmp(m + 3, "DESCRIPTION", 11) == 0) {
@@ -350,33 +340,33 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
 
                         /* write help level, and flag it */
 
-                        *h = '0' + base_level + 1; ++h;
+                        *h++ = '0' + base_level + 1;
                         return_status |= 2;
 
-                        *h = ' '; ++h;
+                        *h++ = ' ';
 
                         /* skip H (or whatever after S) and blank */
-                        ++m; ++m;
+                        m += 2;
 
                         for(; *m != '\n' && *m != '\r' && *m; ++m, ++h) {
 
-                           /* write help label in lowercase, skip quotes */
-                           /* fill blanks with underscores */
+                            /* write help label in lowercase, skip quotes */
+                            /* fill blanks with underscores */
 
-                           if(*m != '\"') {
-                               *h = tolower(*m);
-                               if(*h == ' ')
-                                   *h = '_';
-                           }
-                           else {
-                               --h;
-                           }
+                            if(*m != '\"') {
+                                *h = tolower(*m);
+                                if(*h == ' ')
+                                    *h = '_';
+                            }
+                            else {
+                                --h;
+                            }
                         }
 
                         /* Add a linefeed or two */
 
-                        *h = *m; ++h;
-                        *h = *m; ++h;
+                        *h++ = *m;
+                        *h++ = *m;
 
                         mode = 0;
                     }
@@ -384,15 +374,15 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
                 break;
             case 'T':
                 if(*(m + 1) == 'H') {
-                    *h = '0' + base_level; ++h;
+                    *h++ = '0' + base_level;
                     return_status |= 2;
-                    *h = ' '; ++h;
+                    *h++ = ' ';
                     for(m = m + 3; *m != ' ' && *m; ++m, ++h) {
                         *h = *m;
                     }
                     if(add_parentheses) {
-                        *h = '('; ++h;
-                        *h = ')'; ++h;
+                        *h++ = '(';
+                        *h++ = ')';
                     }
                     while(*m != '\n' && *m != '\r' && *m)
                         ++m;
@@ -407,15 +397,14 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
             break;
         case 2: /* after \ skip two characters or print the backslash */
             switch(*m) {
-                case '\\':
-                    *h = *m;
-                    ++h;
-                    mode = 0;
-                    break;
-                default:
-                    ++m;
-                    mode = 0;
-                    break;
+            case '\\':
+                *h++ = *m;
+                mode = 0;
+                break;
+            default:
+                ++m;
+                mode = 0;
+                break;
             }
             break;
         } /* end switch mode */
@@ -527,7 +516,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    append     = 0;
+    append = 0;
     base_level = 1;
     basechange = 0;
     add_parentheses = 0;
@@ -536,18 +525,18 @@ int main(int argc, char **argv)
         if(argv[i][0] == '-') {
             for(j = 1; argv[i][j]; ++j) {
                 switch(argv[i][j]) {
-                    case 'a':
-                        append = 1;
-                        break;
-                    case 'b':
-                        if((i + 1) < argc) {
-                            base_level = atoi(argv[i + 1]);
-                            basechange = 1;
-                        }
-                        break;
-                    case 'p':
-                        add_parentheses = 1;
-                        break;
+                case 'a':
+                    append = 1;
+                    break;
+                case 'b':
+                    if((i + 1) < argc) {
+                        base_level = atoi(argv[i + 1]);
+                        basechange = 1;
+                    }
+                    break;
+                case 'p':
+                    add_parentheses = 1;
+                    break;
                 }
             }
             if(basechange) {
