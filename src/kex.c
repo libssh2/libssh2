@@ -3560,7 +3560,7 @@ typedef struct _LIBSSH2_COMMON_METHOD
  * Another sign of bad coding practices gone mad.  Pretend you don't see this.
  */
 static size_t
-kex_method_strlen(const LIBSSH2_COMMON_METHOD ** method)
+kex_method_strlen(const LIBSSH2_COMMON_METHOD **method)
 {
     size_t len = 0;
 
@@ -3581,7 +3581,7 @@ kex_method_strlen(const LIBSSH2_COMMON_METHOD ** method)
  */
 static uint32_t
 kex_method_list(unsigned char *buf, uint32_t list_strlen,
-                const LIBSSH2_COMMON_METHOD ** method)
+                const LIBSSH2_COMMON_METHOD **method)
 {
     _libssh2_htonu32(buf, list_strlen);
     buf += 4;
@@ -3852,7 +3852,7 @@ _libssh2_kex_agree_instr(unsigned char *haystack, size_t haystack_len,
 /* kex_get_method_by_name */
 static const LIBSSH2_COMMON_METHOD *
 kex_get_method_by_name(const char *name, size_t name_len,
-                       const LIBSSH2_COMMON_METHOD ** methodlist)
+                       const LIBSSH2_COMMON_METHOD **methodlist)
 {
     while(*methodlist) {
         if((strlen((*methodlist)->name) == name_len) &&

@@ -271,7 +271,7 @@ _libssh2_openssl_random(void *buf, size_t len)
 
 #if LIBSSH2_RSA
 int
-_libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
+_libssh2_rsa_new(libssh2_rsa_ctx **rsa,
                  const unsigned char *edata,
                  unsigned long elen,
                  const unsigned char *ndata,
@@ -519,7 +519,7 @@ _libssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
 
 #if LIBSSH2_DSA
 int
-_libssh2_dsa_new(libssh2_dsa_ctx ** dsactx,
+_libssh2_dsa_new(libssh2_dsa_ctx **dsactx,
                  const unsigned char *p,
                  unsigned long p_len,
                  const unsigned char *q,
@@ -793,7 +793,7 @@ _libssh2_ecdsa_curve_type_from_name(const char *name,
  *
  */
 int
-_libssh2_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx ** ec_ctx,
+_libssh2_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx **ec_ctx,
      const unsigned char *k,
      size_t k_len, libssh2_curve_type curve)
 {
@@ -1227,7 +1227,7 @@ read_private_key_from_file(void **key_ctx,
 
 #if LIBSSH2_RSA
 int
-_libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa,
+_libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
                                     LIBSSH2_SESSION *session,
                                     const char *filedata,
                                     size_t filedata_len,
@@ -1583,7 +1583,7 @@ fail:
 }
 
 static int
-_libssh2_rsa_new_openssh_private(libssh2_rsa_ctx ** rsa,
+_libssh2_rsa_new_openssh_private(libssh2_rsa_ctx **rsa,
                                  LIBSSH2_SESSION *session,
                                  const char *filename,
                                  const unsigned char *passphrase)
@@ -1639,7 +1639,7 @@ _libssh2_rsa_new_openssh_private(libssh2_rsa_ctx ** rsa,
 }
 
 int
-_libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
+_libssh2_rsa_new_private(libssh2_rsa_ctx **rsa,
                          LIBSSH2_SESSION *session,
                          const char *filename, const unsigned char *passphrase)
 {
@@ -1669,7 +1669,7 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
 
 #if LIBSSH2_DSA
 int
-_libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx ** dsa,
+_libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx **dsa,
                                     LIBSSH2_SESSION *session,
                                     const char *filedata,
                                     size_t filedata_len,
@@ -1940,7 +1940,7 @@ fail:
 }
 
 static int
-_libssh2_dsa_new_openssh_private(libssh2_dsa_ctx ** dsa,
+_libssh2_dsa_new_openssh_private(libssh2_dsa_ctx **dsa,
                                  LIBSSH2_SESSION *session,
                                  const char *filename,
                                  const unsigned char *passphrase)
@@ -1996,7 +1996,7 @@ _libssh2_dsa_new_openssh_private(libssh2_dsa_ctx ** dsa,
 }
 
 int
-_libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
+_libssh2_dsa_new_private(libssh2_dsa_ctx **dsa,
                          LIBSSH2_SESSION *session,
                          const char *filename, const unsigned char *passphrase)
 {
@@ -2026,7 +2026,7 @@ _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
 
 #if LIBSSH2_ECDSA
 int
-_libssh2_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx ** ec_ctx,
+_libssh2_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx **ec_ctx,
                                       LIBSSH2_SESSION *session,
                                       const char *filedata,
                                       size_t filedata_len,
@@ -2059,7 +2059,7 @@ _libssh2_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx ** ec_ctx,
     return rc;
 }
 
-int _libssh2_ecdsa_new_private_frommemory_sk(libssh2_ecdsa_ctx ** ec_ctx,
+int _libssh2_ecdsa_new_private_frommemory_sk(libssh2_ecdsa_ctx **ec_ctx,
                                              unsigned char *flags,
                                              const char **application,
                                              const unsigned char **key_handle,
@@ -2526,7 +2526,7 @@ clean_exit:
 }
 
 int
-_libssh2_ed25519_new_private(libssh2_ed25519_ctx ** ed_ctx,
+_libssh2_ed25519_new_private(libssh2_ed25519_ctx **ed_ctx,
                              LIBSSH2_SESSION *session,
                              const char *filename, const uint8_t *passphrase)
 {
@@ -2664,7 +2664,7 @@ _libssh2_ed25519_new_private_sk(libssh2_ed25519_ctx **ed_ctx,
 }
 
 int
-_libssh2_ed25519_new_private_frommemory(libssh2_ed25519_ctx ** ed_ctx,
+_libssh2_ed25519_new_private_frommemory(libssh2_ed25519_ctx **ed_ctx,
                                         LIBSSH2_SESSION *session,
                                         const char *filedata,
                                         size_t filedata_len,
@@ -2726,7 +2726,7 @@ _libssh2_ed25519_new_private_frommemory_sk(libssh2_ed25519_ctx **ed_ctx,
 }
 
 int
-_libssh2_ed25519_new_public(libssh2_ed25519_ctx ** ed_ctx,
+_libssh2_ed25519_new_public(libssh2_ed25519_ctx **ed_ctx,
                             LIBSSH2_SESSION *session,
                             const unsigned char *raw_pub_key,
                             const size_t key_len)
@@ -4027,7 +4027,7 @@ fail:
 }
 
 static int
-_libssh2_ecdsa_new_openssh_private(libssh2_ecdsa_ctx ** ec_ctx,
+_libssh2_ecdsa_new_openssh_private(libssh2_ecdsa_ctx **ec_ctx,
                                    LIBSSH2_SESSION *session,
                                    const char *filename,
                                    const unsigned char *passphrase)
@@ -4087,7 +4087,7 @@ _libssh2_ecdsa_new_openssh_private(libssh2_ecdsa_ctx ** ec_ctx,
 }
 
 static int
-_libssh2_ecdsa_new_openssh_private_sk(libssh2_ecdsa_ctx ** ec_ctx,
+_libssh2_ecdsa_new_openssh_private_sk(libssh2_ecdsa_ctx **ec_ctx,
                                       uint8_t *flags,
                                       const char **application,
                                       const unsigned char **key_handle,

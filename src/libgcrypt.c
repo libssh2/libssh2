@@ -143,7 +143,7 @@ void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
 
 #if LIBSSH2_RSA
 int
-_libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
+_libssh2_rsa_new(libssh2_rsa_ctx **rsa,
                  const unsigned char *edata,
                  unsigned long elen,
                  const unsigned char *ndata,
@@ -263,7 +263,7 @@ _libssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
 
 #if LIBSSH2_DSA
 int
-_libssh2_dsa_new(libssh2_dsa_ctx ** dsactx,
+_libssh2_dsa_new(libssh2_dsa_ctx **dsactx,
                  const unsigned char *p,
                  unsigned long p_len,
                  const unsigned char *q,
@@ -298,7 +298,7 @@ _libssh2_dsa_new(libssh2_dsa_ctx ** dsactx,
 
 #if LIBSSH2_RSA
 int
-_libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa,
+_libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
                                     LIBSSH2_SESSION *session,
                                     const char *filedata, size_t filedata_len,
                                     const unsigned char *passphrase)
@@ -314,7 +314,7 @@ _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa,
 }
 
 int
-_libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
+_libssh2_rsa_new_private(libssh2_rsa_ctx **rsa,
                          LIBSSH2_SESSION *session,
                          const char *filename, const unsigned char *passphrase)
 {
@@ -418,7 +418,7 @@ fail:
 
 #if LIBSSH2_DSA
 int
-_libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx ** dsa,
+_libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx **dsa,
                                     LIBSSH2_SESSION *session,
                                     const char *filedata, size_t filedata_len,
                                     const unsigned char *passphrase)
@@ -434,7 +434,7 @@ _libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx ** dsa,
 }
 
 int
-_libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
+_libssh2_dsa_new_private(libssh2_dsa_ctx **dsa,
                          LIBSSH2_SESSION *session,
                          const char *filename, const unsigned char *passphrase)
 {

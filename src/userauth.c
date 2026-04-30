@@ -759,7 +759,7 @@ file_read_publickey(LIBSSH2_SESSION *session, unsigned char **method,
 
 static int
 memory_read_privatekey(LIBSSH2_SESSION *session,
-                       const LIBSSH2_HOSTKEY_METHOD ** hostkey_method,
+                       const LIBSSH2_HOSTKEY_METHOD **hostkey_method,
                        void **hostkey_abstract,
                        const unsigned char *method, size_t method_len,
                        const char *privkeyfiledata, size_t privkeyfiledata_len,
@@ -800,7 +800,7 @@ memory_read_privatekey(LIBSSH2_SESSION *session,
  */
 static int
 file_read_privatekey(LIBSSH2_SESSION *session,
-                     const LIBSSH2_HOSTKEY_METHOD ** hostkey_method,
+                     const LIBSSH2_HOSTKEY_METHOD **hostkey_method,
                      void **hostkey_abstract,
                      const unsigned char *method, size_t method_len,
                      const char *privkeyfile, const char *passphrase)
