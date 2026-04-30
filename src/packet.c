@@ -298,7 +298,7 @@ packet_x11_open(LIBSSH2_SESSION *session, unsigned char *data,
         buf.dataptr = buf.data;
         buf.len = datalen;
 
-        if(datalen < offset + 12) {
+        if(datalen < offset + 12) {  /* 3 * 4-byte */
             _libssh2_error(session, LIBSSH2_ERROR_INVAL,
                            "unexpected data length");
             failure_code = SSH_OPEN_CONNECT_FAILED;
