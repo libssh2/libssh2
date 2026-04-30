@@ -480,8 +480,10 @@ static int convertmans(char *filespec, char *hlpfilename, int base_level,
         return vaxc$errno;
 
     status = listofmans(filespec, &manroot);
-    if(!(status & 1))
+    if(!(status & 1)) {
+        fclose(hlp);
         return status;
+    }
 
     for(m = manroot; m; m = m->next) {
         status = convertman(m->filename, hlp, base_level, add_parentheses);
@@ -491,6 +493,9 @@ static int convertmans(char *filespec, char *hlpfilename, int base_level,
         }
     }
     freeman(&manroot);
+
+    fclose(hlp);
+
     return status;
 }
 
