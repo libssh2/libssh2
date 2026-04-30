@@ -597,7 +597,7 @@ libssh2_session_callback_set(LIBSSH2_SESSION *session,
  * Utility function that waits for action on the socket. Returns 0 when ready
  * to run again or error on timeout.
  */
-int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
+int _libssh2_wait_socket(LIBSSH2_SESSION *session, libssh2_uint64_t start_time)
 {
     int rc;
     int seconds_to_next;
@@ -633,8 +633,8 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
     if(session->api_timeout > 0 &&
         (seconds_to_next == 0 ||
          ms_to_next > session->api_timeout)) {
-        time_t now = time(NULL);
-        elapsed_ms = (long)(1000*difftime(now, start_time));
+        libssh2_uint64_t now = _libssh2_get_time();
+        elapsed_ms = (now > start_time) ? (long)(now - start_time) : 0;
         if(elapsed_ms > session->api_timeout) {
             return _libssh2_error(session, LIBSSH2_ERROR_TIMEOUT,
                                   "API timeout expired");

@@ -320,12 +320,12 @@ typedef enum
 typedef struct packet_require_state_t
 {
     libssh2_nonblocking_states state;
-    time_t start;
+    libssh2_uint64_t start;
 } packet_require_state_t;
 
 typedef struct packet_requirev_state_t
 {
-    time_t start;
+    libssh2_uint64_t start;
 } packet_requirev_state_t;
 
 typedef struct kmdhgGPshakex_state_t
