@@ -46,7 +46,7 @@ fpcopy(char *output, char *input, int len)
 }
 
 /*----------------------------------------------------------*/
-/* give part of ilename in partname. See code for proper
+/* give part of filename in partname. See code for proper
    value of i ( 0 = node, 1 = dev, 2 = dir, 3 = name etc.
 */
 
@@ -433,13 +433,13 @@ int convertman(char *filespec, FILE *hlp, int base_level, int add_parentheses)
         }
     }
 
-    /*
-     printf("read %d from %s, written %d to helpfile, return_status = %d\n",
-        len, filespec, strlen(uit), return_status);
-    */
+#if 0
+    printf("read %d from %s, written %d to helpfile, return_status = %d\n",
+           len, filespec, strlen(uit), return_status);
+#endif
 
-    free(m);
-    free(h);
+    free(in);
+    free(uit);
 
     return 1;
 }
@@ -491,7 +491,7 @@ void print_help(void)
 }
 /*--------------------------------------------*/
 
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
     int     status;
     int     i, j;
@@ -545,10 +545,10 @@ main(int argc, char **argv)
         }
     }
 
-    /*
-    fprintf(stderr,"manfile: %s, helpfile: %s, append: %d, base_level : %d\n",
+#if 0
+    fprintf(stderr, "manfile: %s, helpfile: %s, append: %d, base_level : %d\n",
             manfile, helpfile, append, base_level);
-    */
+#endif
 
     status = convertmans(manfile, helpfile, base_level, append,
                          add_parentheses);
