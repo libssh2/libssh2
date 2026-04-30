@@ -269,24 +269,22 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
                     mode = 1;
                 }
                 else {
-                    *h = *m;
-                    ++h;
+                    *h++ = *m;
                 }
                 break;
             case '\\':
                 if(bol) {
-                    *h = ' '; ++h;
-                    *h = ' '; ++h;
+                    *h++ = ' ';
+                    *h++ = ' ';
                 }
                 mode = 2;
                 break;
             default:
                 if(bol) {
-                    *h = ' '; ++h;
-                    *h = ' '; ++h;
+                    *h++ = ' ';
+                    *h++ = ' ';
                 }
-                *h = *m;
-                ++h;
+                *h++ = *m;
                 break;
             }
             break;
@@ -300,7 +298,7 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
                 break;
             case 'B':
                 ++m;
-                *h = ' '; ++h;
+                *h++ = ' ';
                 mode = 0;
                 break;
             case 'I':
@@ -337,7 +335,7 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
                 break;
             case 'S':
                 if(*(m + 1) == 'H') {
-                    *h = '\n';++h;
+                    *h++ = '\n';
                     if(strncmp(m + 3, "NAME", 4) == 0 ||
                        strncmp(m + 3, "SYNOPSIS", 8) == 0 ||
                        strncmp(m + 3, "DESCRIPTION", 11) == 0) {
@@ -350,10 +348,10 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
 
                         /* write help level, and flag it */
 
-                        *h = '0' + base_level + 1; ++h;
+                        *h++ = '0' + base_level + 1;
                         return_status |= 2;
 
-                        *h = ' '; ++h;
+                        *h++ = ' ';
 
                         /* skip H (or whatever after S) and blank */
                         ++m; ++m;
@@ -375,8 +373,8 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
 
                         /* Add a linefeed or two */
 
-                        *h = *m; ++h;
-                        *h = *m; ++h;
+                        *h++ = *m;
+                        *h++ = *m;
 
                         mode = 0;
                     }
@@ -384,15 +382,15 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
                 break;
             case 'T':
                 if(*(m + 1) == 'H') {
-                    *h = '0' + base_level; ++h;
+                    *h++ = '0' + base_level;
                     return_status |= 2;
-                    *h = ' '; ++h;
+                    *h++ = ' ';
                     for(m = m + 3; *m != ' ' && *m; ++m, ++h) {
                         *h = *m;
                     }
                     if(add_parentheses) {
-                        *h = '('; ++h;
-                        *h = ')'; ++h;
+                        *h++ = '(';
+                        *h++ = ')';
                     }
                     while(*m != '\n' && *m != '\r' && *m)
                         ++m;
@@ -408,8 +406,7 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
         case 2: /* after \ skip two characters or print the backslash */
             switch(*m) {
                 case '\\':
-                    *h = *m;
-                    ++h;
+                    *h++ = *m;
                     mode = 0;
                     break;
                 default:
