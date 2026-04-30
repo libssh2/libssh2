@@ -85,7 +85,7 @@ packet_queue_listener(LIBSSH2_SESSION *session, unsigned char *data,
         buf.dataptr = buf.data;
         buf.len = datalen;
 
-        if(datalen < offset) {
+        if(datalen < offset + 12) {
             return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                   "Unexpected packet size");
         }
@@ -298,7 +298,7 @@ packet_x11_open(LIBSSH2_SESSION *session, unsigned char *data,
         buf.dataptr = buf.data;
         buf.len = datalen;
 
-        if(datalen < offset) {
+        if(datalen < offset + 12) {
             _libssh2_error(session, LIBSSH2_ERROR_INVAL,
                            "unexpected data length");
             failure_code = SSH_OPEN_CONNECT_FAILED;
