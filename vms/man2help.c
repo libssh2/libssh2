@@ -15,17 +15,17 @@
 #include <descrip.h>
 #include <rms.h>
 
-typedef struct manl {
+struct manl {
     struct manl *next;
     char *filename;
-} man, *manPtr;
+};
 
-typedef struct pf_fabnam {
+struct pf_fabnam {
     struct FAB dfab;
     struct RAB drab;
     struct namldef dnam;
-    char   expanded_filename[NAM$C_MAXRSS + 1];
-} pfn, *pfnPtr;
+    char expanded_filename[NAM$C_MAXRSS + 1];
+};
 
 /*----------------------------------------------------------*/
 
@@ -52,11 +52,11 @@ static void fpcopy(char *output, char *input, int len)
 
 static int fnamepart(char *inputfile, char *part, int whatpart)
 {
-    pfnPtr pf;
-    int    status;
-    char   ipart[6][256], *i, *p;
+    struct pf_fabnam *pf;
+    int status;
+    char ipart[6][256], *i, *p;
 
-    pf = calloc(1, sizeof(pfn));
+    pf = calloc(1, sizeof(struct pf_fabnam));
     if(!pf)
         return 0;
 
@@ -151,11 +151,11 @@ static int find_file(char *filename, char *found, int *findex)
 
 /*--------------------------------------------*/
 
-static manPtr addman(manPtr *manroot, char *filename)
+static struct manl *addman(struct manl **manroot, char *filename)
 {
-    manPtr m, f;
+    struct manl *m, *f;
 
-    m = calloc(1, sizeof(man));
+    m = calloc(1, sizeof(struct manl));
     if(!m)
         return NULL;
 
@@ -177,9 +177,9 @@ static manPtr addman(manPtr *manroot, char *filename)
 }
 
 /*--------------------------------------------*/
-static void freeman(manPtr *manroot)
+static void freeman(struct manl **manroot)
 {
-    manPtr m, n;
+    struct manl *m, *n;
 
     for(m = *manroot; m; m = n) {
         free(m->filename);
@@ -191,12 +191,12 @@ static void freeman(manPtr *manroot)
 
 /*--------------------------------------------*/
 
-static int listofmans(char *filespec, manPtr *manroot)
+static int listofmans(char *filespec, struct manl **manroot)
 {
-    manPtr  r;
-    int     status;
-    int     ffindex = 0;
-    char    found[NAM$C_MAXRSS + 1];
+    struct manl *r;
+    int status;
+    int ffindex = 0;
+    char found[NAM$C_MAXRSS + 1];
 
     for(;;) {
         status = find_file(filespec, found, &ffindex);
@@ -466,8 +466,8 @@ static int convertmans(char *filespec, char *hlpfilename, int base_level,
                        int append, int add_parentheses)
 {
     int status = 1;
-    manPtr  manroot = NULL, m;
-    FILE    *hlp;
+    struct manl *manroot = NULL, *m;
+    FILE *hlp;
 
     if(append) {
         hlp = fopen(hlpfilename, "a+");
