@@ -170,7 +170,7 @@ int _libssh2_gettimeofday(struct timeval *tp, void *tzp);
     (defined(__clang__) && __clang_major__ >= 10)
 #  define LIBSSH2_FALLTHROUGH()  __attribute__((fallthrough))
 #else
-#  define LIBSSH2_FALLTHROUGH()  do {} while (0)
+#  define LIBSSH2_FALLTHROUGH()  do {} while(0)
 #endif
 #endif
 
