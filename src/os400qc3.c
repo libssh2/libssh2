@@ -1684,8 +1684,10 @@ parse_rc2(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
             switch(effkeysize) {
             case 160:
                 effkeysize = 40;
+                break;
             case 120:
                 effkeysize = 64;
+                break;
             case 58:
                 effkeysize = 128;
                 break;
