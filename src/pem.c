@@ -41,7 +41,7 @@
 #include "libssh2_priv.h"
 
 static int
-readline(char *line, int line_size, FILE * fp)
+readline(char *line, int line_size, FILE *fp)
 {
     size_t len;
 
@@ -111,7 +111,7 @@ _libssh2_pem_parse(LIBSSH2_SESSION *session,
                    const char *headerbegin,
                    const char *headerend,
                    const unsigned char *passphrase,
-                   FILE * fp, unsigned char **data, size_t *datalen)
+                   FILE *fp, unsigned char **data, size_t *datalen)
 {
     int ret = -1;
     char *filedata = NULL;
@@ -752,7 +752,7 @@ out:
 int
 _libssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
                            const unsigned char *passphrase,
-                           FILE * fp, struct string_buf **decrypted_buf)
+                           FILE *fp, struct string_buf **decrypted_buf)
 {
     char line[LINE_SIZE];
     char *b64data = NULL;

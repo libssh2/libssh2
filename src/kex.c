@@ -614,7 +614,7 @@ diffie_hellman_state_cleanup(LIBSSH2_SESSION *session,
 
 static void
 kex_diffie_hellman_cleanup(LIBSSH2_SESSION *session,
-                           key_exchange_state_low_t * key_state) {
+                           key_exchange_state_low_t *key_state) {
     if(key_state->state != libssh2_NB_state_idle) {
         _libssh2_bn_free(key_state->p);
         key_state->p = NULL;
@@ -1458,7 +1458,7 @@ clean_exit:
 static int
 kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
                                           LIBSSH2_SESSION *session,
-                                          key_exchange_state_low_t * key_state)
+                                          key_exchange_state_low_t *key_state)
 {
     int ret = 0;
     int rc;
@@ -1586,7 +1586,7 @@ dh_gex_clean_exit:
 static int
 kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
                                           LIBSSH2_SESSION *session,
-                                          key_exchange_state_low_t * key_state)
+                                          key_exchange_state_low_t *key_state)
 {
     int ret = 0;
     int rc;
@@ -2021,7 +2021,7 @@ ecdh_exchange_state_cleanup(LIBSSH2_SESSION *session,
 
 static void
 kex_method_ecdh_cleanup
-(LIBSSH2_SESSION *session, key_exchange_state_low_t * key_state)
+(LIBSSH2_SESSION *session, key_exchange_state_low_t *key_state)
 {
     if(key_state->public_key_oct) {
         LIBSSH2_FREE(session, key_state->public_key_oct);
@@ -2221,7 +2221,7 @@ clean_exit:
  */
 static int
 kex_method_ecdh_key_exchange
-(LIBSSH2_SESSION *session, key_exchange_state_low_t * key_state)
+(LIBSSH2_SESSION *session, key_exchange_state_low_t *key_state)
 {
     int ret = 0;
     int rc = 0;
@@ -2344,7 +2344,7 @@ mlkem_nistp_exchange_state_cleanup(LIBSSH2_SESSION *session,
 
 static void
 kex_method_mlkem_nistp_cleanup
-(LIBSSH2_SESSION *session, key_exchange_state_low_t * key_state)
+(LIBSSH2_SESSION *session, key_exchange_state_low_t *key_state)
 {
     if(key_state->public_key_oct) {
         LIBSSH2_FREE(session, key_state->public_key_oct);
@@ -2620,7 +2620,7 @@ clean_exit:
 
 static int
 kex_method_mlkem_nistp_key_exchange
-(LIBSSH2_SESSION *session, key_exchange_state_low_t * key_state)
+(LIBSSH2_SESSION *session, key_exchange_state_low_t *key_state)
 {
     int ret = 0;
     int rc = 0;
@@ -2767,7 +2767,7 @@ curve25519_exchange_state_cleanup(LIBSSH2_SESSION *session,
 
 static void
 kex_method_curve25519_cleanup
-(LIBSSH2_SESSION *session, key_exchange_state_low_t * key_state)
+(LIBSSH2_SESSION *session, key_exchange_state_low_t *key_state)
 {
     if(key_state->curve25519_public_key) {
         _libssh2_explicit_zero(key_state->curve25519_public_key,
@@ -2946,7 +2946,7 @@ clean_exit:
  */
 static int
 kex_method_curve25519_key_exchange
-(LIBSSH2_SESSION *session, key_exchange_state_low_t * key_state)
+(LIBSSH2_SESSION *session, key_exchange_state_low_t *key_state)
 {
     int ret = 0;
     int rc = 0;
@@ -3061,7 +3061,7 @@ mlkem768x25519_exchange_state_cleanup(LIBSSH2_SESSION *session,
 
 static void
 kex_method_mlkem768x25519_cleanup
-(LIBSSH2_SESSION *session, key_exchange_state_low_t * key_state)
+(LIBSSH2_SESSION *session, key_exchange_state_low_t *key_state)
 {
     if(key_state->curve25519_public_key) {
         _libssh2_explicit_zero(key_state->curve25519_public_key,
@@ -3267,7 +3267,7 @@ clean_exit:
 
 static int
 kex_method_mlkem768x25519_key_exchange
-(LIBSSH2_SESSION *session, key_exchange_state_low_t * key_state)
+(LIBSSH2_SESSION *session, key_exchange_state_low_t *key_state)
 {
     int ret = 0;
     int rc = 0;
@@ -4078,7 +4078,7 @@ static int kex_agree_crypt(LIBSSH2_SESSION *session,
  * Agree on a message authentication hash
  */
 static int kex_agree_mac(LIBSSH2_SESSION *session,
-                         libssh2_endpoint_data * endpoint, unsigned char *mac,
+                         libssh2_endpoint_data *endpoint, unsigned char *mac,
                          size_t mac_len)
 {
     const LIBSSH2_MAC_METHOD **macp = _libssh2_mac_methods();
@@ -4311,7 +4311,7 @@ static int kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *data,
  */
 int
 _libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
-                      key_exchange_state_t * key_state)
+                      key_exchange_state_t *key_state)
 {
     int rc = 0;
     int retcode;

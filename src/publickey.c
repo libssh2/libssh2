@@ -127,7 +127,7 @@ publickey_status_error(const LIBSSH2_PUBLICKEY *pkey,
  * Read a packet from the subsystem
  */
 static int
-publickey_packet_receive(LIBSSH2_PUBLICKEY * pkey,
+publickey_packet_receive(LIBSSH2_PUBLICKEY *pkey,
                          unsigned char **data, size_t *data_len)
 {
     LIBSSH2_CHANNEL *channel = pkey->channel;
@@ -226,7 +226,7 @@ publickey_response_id(unsigned char **pdata, size_t data_len)
  * Generic helper routine to wait for success response and nothing else
  */
 static int
-publickey_response_success(LIBSSH2_PUBLICKEY * pkey)
+publickey_response_success(LIBSSH2_PUBLICKEY *pkey)
 {
     LIBSSH2_SESSION *session = pkey->channel->session;
     unsigned char *data, *s;
@@ -729,7 +729,7 @@ libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey, const unsigned char *name,
  * performed using it
  */
 LIBSSH2_API int
-libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY * pkey,
+libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
                             const unsigned char *name, unsigned long name_len,
                             const unsigned char *blob, unsigned long blob_len)
 {
@@ -814,8 +814,8 @@ libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY * pkey,
  * Fetch a list of supported public key from a server
  */
 LIBSSH2_API int
-libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY * pkey, unsigned long *num_keys,
-                             libssh2_publickey_list ** pkey_list)
+libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey, unsigned long *num_keys,
+                             libssh2_publickey_list **pkey_list)
 {
     LIBSSH2_CHANNEL *channel;
     LIBSSH2_SESSION *session;
@@ -1214,8 +1214,8 @@ err_exit:
  * Free a previously fetched list of public keys
  */
 LIBSSH2_API void
-libssh2_publickey_list_free(LIBSSH2_PUBLICKEY * pkey,
-                            libssh2_publickey_list * pkey_list)
+libssh2_publickey_list_free(LIBSSH2_PUBLICKEY *pkey,
+                            libssh2_publickey_list *pkey_list)
 {
     LIBSSH2_SESSION *session;
     libssh2_publickey_list *p = pkey_list;

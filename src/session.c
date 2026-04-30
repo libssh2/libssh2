@@ -1581,7 +1581,7 @@ libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended)
  * non-0 if data can be written without blocking
  */
 static inline int
-poll_channel_write(LIBSSH2_CHANNEL * channel)
+poll_channel_write(LIBSSH2_CHANNEL *channel)
 {
     return channel->local.window_size ? 1 : 0;
 }
@@ -1592,7 +1592,7 @@ poll_channel_write(LIBSSH2_CHANNEL * channel)
  * non-0 if one or more connections are available
  */
 static inline int
-poll_listener_queued(LIBSSH2_LISTENER * listener)
+poll_listener_queued(LIBSSH2_LISTENER *listener)
 {
     return _libssh2_list_first(&listener->queue) ? 1 : 0;
 }
@@ -1604,7 +1604,7 @@ poll_listener_queued(LIBSSH2_LISTENER * listener)
  * Poll sockets, channels, and listeners for activity
  */
 LIBSSH2_API int
-libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
+libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
 {
     long timeout_remaining;
     unsigned int i, active_fds;

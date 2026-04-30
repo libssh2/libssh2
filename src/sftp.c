@@ -626,7 +626,7 @@ static int sftp_attrsize(unsigned long flags)
  * Populate attributes into an SFTP block
  */
 static ssize_t
-sftp_attr2bin(unsigned char *p, const LIBSSH2_SFTP_ATTRIBUTES * attrs)
+sftp_attr2bin(unsigned char *p, const LIBSSH2_SFTP_ATTRIBUTES *attrs)
 {
     unsigned char *s = p;
     uint32_t flag_mask =
@@ -1409,7 +1409,7 @@ libssh2_sftp_open_ex_r(LIBSSH2_SFTP *sftp, const char *filename,
 /* sftp_read
  * Read from an SFTP file handle
  */
-static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
+static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                          size_t buffer_size)
 {
     LIBSSH2_SFTP *sftp = handle->sftp;
@@ -3718,7 +3718,7 @@ libssh2_sftp_rmdir_ex(LIBSSH2_SFTP *sftp, const char *path,
  */
 static int sftp_stat(LIBSSH2_SFTP *sftp, const char *path,
                      unsigned int path_len, int stat_type,
-                     LIBSSH2_SFTP_ATTRIBUTES * attrs)
+                     LIBSSH2_SFTP_ATTRIBUTES *attrs)
 {
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;

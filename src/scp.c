@@ -277,7 +277,7 @@ shell_quotearg(const char *path, unsigned char *buf,
  *
  */
 static LIBSSH2_CHANNEL *
-scp_recv(LIBSSH2_SESSION *session, const char *path, libssh2_struct_stat * sb)
+scp_recv(LIBSSH2_SESSION *session, const char *path, libssh2_struct_stat *sb)
 {
     size_t cmd_len;
     int rc;

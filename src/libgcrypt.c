@@ -186,7 +186,7 @@ _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
 }
 
 int
-_libssh2_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
+_libssh2_rsa_sha2_verify(libssh2_rsa_ctx *rsactx,
                          size_t hash_len,
                          const unsigned char *sig,
                          size_t sig_len,
@@ -250,7 +250,7 @@ out:
 
 #if LIBSSH2_RSA_SHA1
 int
-_libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsactx,
+_libssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
                          const unsigned char *sig,
                          size_t sig_len,
                          const unsigned char *m, size_t m_len)
@@ -610,7 +610,7 @@ _libssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
 
 #if LIBSSH2_DSA
 int
-_libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
+_libssh2_dsa_sha1_sign(libssh2_dsa_ctx *dsactx,
                        const unsigned char *hash,
                        size_t hash_len, unsigned char *sig)
 {
@@ -700,7 +700,7 @@ out:
 }
 
 int
-_libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx,
+_libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
                          const unsigned char *sig,
                          const unsigned char *m, size_t m_len)
 {
@@ -733,7 +733,7 @@ _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx,
 #endif
 
 int
-_libssh2_cipher_init(_libssh2_cipher_ctx * h,
+_libssh2_cipher_init(_libssh2_cipher_ctx *h,
                      _libssh2_cipher_type(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
@@ -771,7 +771,7 @@ _libssh2_cipher_init(_libssh2_cipher_ctx * h,
 }
 
 int
-_libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
+_libssh2_cipher_crypt(_libssh2_cipher_ctx *ctx,
                       _libssh2_cipher_type(algo),
                       int encrypt, unsigned char *block, size_t blocksize,
                       int firstlast)

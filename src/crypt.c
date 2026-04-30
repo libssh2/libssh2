@@ -92,7 +92,7 @@ struct crypt_ctx
 
 static int
 crypt_init(LIBSSH2_SESSION *session,
-           const LIBSSH2_CRYPT_METHOD * method,
+           const LIBSSH2_CRYPT_METHOD *method,
            unsigned char *iv, int *free_iv,
            unsigned char *secret, int *free_secret,
            int encrypt, void **abstract)
@@ -319,7 +319,7 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_arcfour = {
 
 static int
 crypt_init_arcfour128(LIBSSH2_SESSION *session,
-                      const LIBSSH2_CRYPT_METHOD * method,
+                      const LIBSSH2_CRYPT_METHOD *method,
                       unsigned char *iv, int *free_iv,
                       unsigned char *secret, int *free_secret,
                       int encrypt, void **abstract)
@@ -393,7 +393,7 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_3des_cbc = {
 
 static int
 crypt_init_chacha20_poly(LIBSSH2_SESSION *session,
-           const LIBSSH2_CRYPT_METHOD * method,
+           const LIBSSH2_CRYPT_METHOD *method,
            unsigned char *iv, int *free_iv,
            unsigned char *secret, int *free_secret,
            int encrypt, void **abstract)
