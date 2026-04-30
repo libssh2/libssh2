@@ -321,7 +321,7 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
 
                 /* if line ends in ., this is an EOL */
 
-                if(*(h-1) == '.') {
+                if(*(h - 1) == '.') {
                     --h;
                     --m;
                 }
@@ -354,21 +354,21 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
                         *h++ = ' ';
 
                         /* skip H (or whatever after S) and blank */
-                        ++m; ++m;
+                        m += 2;
 
                         for(; *m != '\n' && *m != '\r' && *m; ++m, ++h) {
 
-                           /* write help label in lowercase, skip quotes */
-                           /* fill blanks with underscores */
+                            /* write help label in lowercase, skip quotes */
+                            /* fill blanks with underscores */
 
-                           if(*m != '\"') {
-                               *h = tolower(*m);
-                               if(*h == ' ')
-                                   *h = '_';
-                           }
-                           else {
-                               --h;
-                           }
+                            if(*m != '\"') {
+                                *h = tolower(*m);
+                                if(*h == ' ')
+                                    *h = '_';
+                            }
+                            else {
+                                --h;
+                            }
                         }
 
                         /* Add a linefeed or two */
@@ -405,14 +405,14 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
             break;
         case 2: /* after \ skip two characters or print the backslash */
             switch(*m) {
-                case '\\':
-                    *h++ = *m;
-                    mode = 0;
-                    break;
-                default:
-                    ++m;
-                    mode = 0;
-                    break;
+            case '\\':
+                *h++ = *m;
+                mode = 0;
+                break;
+            default:
+                ++m;
+                mode = 0;
+                break;
             }
             break;
         } /* end switch mode */
@@ -524,7 +524,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    append     = 0;
+    append = 0;
     base_level = 1;
     basechange = 0;
     add_parentheses = 0;
@@ -533,18 +533,18 @@ int main(int argc, char **argv)
         if(argv[i][0] == '-') {
             for(j = 1; argv[i][j]; ++j) {
                 switch(argv[i][j]) {
-                    case 'a':
-                        append = 1;
-                        break;
-                    case 'b':
-                        if((i + 1) < argc) {
-                            base_level = atoi(argv[i + 1]);
-                            basechange = 1;
-                        }
-                        break;
-                    case 'p':
-                        add_parentheses = 1;
-                        break;
+                case 'a':
+                    append = 1;
+                    break;
+                case 'b':
+                    if((i + 1) < argc) {
+                        base_level = atoi(argv[i + 1]);
+                        basechange = 1;
+                    }
+                    break;
+                case 'p':
+                    add_parentheses = 1;
+                    break;
                 }
             }
             if(basechange) {
