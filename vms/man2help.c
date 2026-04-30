@@ -15,17 +15,17 @@
 #include <descrip.h>
 #include <rms.h>
 
-typedef struct manl {
+struct manl {
     struct manl *next;
     char *filename;
-} man, *manPtr;
+};
 
-typedef struct pf_fabnam {
+struct pf_fabnam {
     struct FAB dfab;
     struct RAB drab;
     struct namldef dnam;
-    char   expanded_filename[NAM$C_MAXRSS + 1];
-} pfn, *pfnPtr;
+    char expanded_filename[NAM$C_MAXRSS + 1];
+};
 
 /*----------------------------------------------------------*/
 
@@ -52,11 +52,15 @@ static void fpcopy(char *output, char *input, int len)
 
 static int fnamepart(char *inputfile, char *part, int whatpart)
 {
-    pfnPtr pf;
-    int    status;
-    char   ipart[6][256], *i, *p;
+    struct pf_fabnam *pf;
+    int status;
+    char ipart[6][256], *i, *p;
 
-    pf = calloc(1, sizeof(pfn));
+    part[0] = '\0';
+
+    pf = calloc(1, sizeof(struct pf_fabnam));
+    if(!pf)
+        return 0;
 
     pf->dfab = cc$rms_fab;
     pf->drab = cc$rms_rab;
@@ -64,12 +68,12 @@ static int fnamepart(char *inputfile, char *part, int whatpart)
 
     pf->dfab.fab$l_naml = &pf->dnam;
 
-    pf->dfab.fab$l_fna = (char *) -1;
-    pf->dfab.fab$l_dna = (char *) -1;
+    pf->dfab.fab$l_fna = (char *)-1;
+    pf->dfab.fab$l_dna = (char *)-1;
     pf->dfab.fab$b_fns = 0;
     pf->dfab.fab$w_ifi = 0;
 
-    pf->dnam.naml$l_long_defname = NULL;  /* inputfile; */
+    pf->dnam.naml$l_long_defname = NULL; /* inputfile; */
     pf->dnam.naml$l_long_defname_size = 0; /* strlen(inputfile); */
 
     pf->dnam.naml$l_long_filename = inputfile;
@@ -81,7 +85,7 @@ static int fnamepart(char *inputfile, char *part, int whatpart)
     pf->dnam.naml$b_nop |= NAML$M_SYNCHK | NAML$M_PWD;
 
     status = sys$parse(&pf->dfab, 0, 0);
-    if(!(status&1)) {
+    if(!(status & 1)) {
         free(pf);
         return status;
     }
@@ -114,32 +118,34 @@ static int fnamepart(char *inputfile, char *part, int whatpart)
 }
 /*----------------------------------------------------------*/
 
-static int find_file(char *filename, char *gevonden, int *findex)
+static int find_file(char *filename, char *found, int *findex)
 {
-    int     status;
-    struct  dsc$descriptor gevondend;
-    struct  dsc$descriptor filespec;
-    char    gevonden_file[NAM$C_MAXRSS + 1];
+    int status;
+    struct dsc$descriptor foundd;
+    struct dsc$descriptor filespec;
+    char found_file[NAM$C_MAXRSS + 1];
 
-    filespec.dsc$w_length = strlen(filename);
-    filespec.dsc$b_dtype  = DSC$K_DTYPE_T;
-    filespec.dsc$b_class  = DSC$K_CLASS_S;
+    filespec.dsc$w_length  = strlen(filename);
+    filespec.dsc$b_dtype   = DSC$K_DTYPE_T;
+    filespec.dsc$b_class   = DSC$K_CLASS_S;
     filespec.dsc$a_pointer = filename;
 
-    gevondend.dsc$w_length = NAM$C_MAXRSS;
-    gevondend.dsc$b_dtype  = DSC$K_DTYPE_T;
-    gevondend.dsc$b_class  = DSC$K_CLASS_S;
-    gevondend.dsc$a_pointer = gevonden_file;
+    foundd.dsc$w_length  = NAM$C_MAXRSS;
+    foundd.dsc$b_dtype   = DSC$K_DTYPE_T;
+    foundd.dsc$b_class   = DSC$K_CLASS_S;
+    foundd.dsc$a_pointer = found_file;
 
-    status = lib$find_file(&filespec, &gevondend, findex, 0, 0, 0, 0);
+    status = lib$find_file(&filespec, &foundd, findex, 0, 0, 0, 0);
 
     if((status & 1) == 1) {
-        /* !checksrc! disable BANNEDFUNC 1 */ /* FIXME */
-        strcpy(gevonden,
-               strtok(gevonden_file, " "));
+        const char *token = strtok(found_file, " ");
+        if(token)
+            memcpy(found, token, strlen(token) + 1);
+        else
+            found[0] = '\0';
     }
     else {
-        gevonden[0] = 0;
+        found[0] = 0;
     }
 
     return status;
@@ -147,15 +153,19 @@ static int find_file(char *filename, char *gevonden, int *findex)
 
 /*--------------------------------------------*/
 
-static manPtr addman(manPtr *manroot, char *filename)
+static struct manl *addman(struct manl **manroot, char *filename)
 {
-    manPtr m, f;
+    struct manl *m, *f;
 
-    m = calloc(1, sizeof(man));
+    m = calloc(1, sizeof(struct manl));
     if(!m)
         return NULL;
 
     m->filename = strdup(filename);
+    if(!m->filename) {
+        free(m);
+        return NULL;
+    }
 
     if(!*manroot) {
         *manroot = m;
@@ -169,9 +179,9 @@ static manPtr addman(manPtr *manroot, char *filename)
 }
 
 /*--------------------------------------------*/
-static void freeman(manPtr *manroot)
+static void freeman(struct manl **manroot)
 {
-    manPtr m, n;
+    struct manl *m, *n;
 
     for(m = *manroot; m; m = n) {
         free(m->filename);
@@ -183,18 +193,18 @@ static void freeman(manPtr *manroot)
 
 /*--------------------------------------------*/
 
-static int listofmans(char *filespec, manPtr *manroot)
+static int listofmans(char *filespec, struct manl **manroot)
 {
-    manPtr  r;
-    int     status;
-    int     ffindex = 0;
-    char    gevonden[NAM$C_MAXRSS + 1];
+    struct manl *r;
+    int status;
+    int ffindex = 0;
+    char found[NAM$C_MAXRSS + 1];
 
     for(;;) {
-        status = find_file(filespec, gevonden, &ffindex);
+        status = find_file(filespec, found, &ffindex);
 
         if((status & 1) != 0) {
-            r = addman(manroot, gevonden);
+            r = addman(manroot, found);
             if(!r)
                 return 2;
         }
@@ -214,22 +224,29 @@ static int listofmans(char *filespec, manPtr *manroot)
 static int convertman(char *filespec, FILE *hlp, int base_level,
                       int add_parentheses)
 {
-    FILE    *man;
-    char    *in, *uit;
-    char    *m, *h;
-    size_t  len, thislen, maxlen = 50000;
-    int     bol, mode, return_status = 1;
+    FILE *man;
+    char *in, *uit;
+    char *m, *h;
+    size_t len, thislen, maxlen = 50000;
+    int bol, mode, return_status = 1;
     char subjectname[NAM$C_MAXRSS + 1];
 
-    in  = calloc(1, maxlen + 1);
-    uit = calloc(1, maxlen + 1);
-
-    if(!in || !uit)
+    in = calloc(1, maxlen + 1);
+    if(!in)
         return 2;
 
+    uit = calloc(1, maxlen + 1);
+    if(!uit) {
+        free(in);
+        return 2;
+    }
+
     man = fopen(filespec, "r");
-    if(!man)
+    if(!man) {
+        free(in);
+        free(uit);
         return vaxc$errno;
+    }
 
     for(len = 0; !feof(man) && len < maxlen; len += thislen) {
         thislen = fread(in + len, 1, maxlen - len, man);
@@ -451,8 +468,8 @@ static int convertmans(char *filespec, char *hlpfilename, int base_level,
                        int append, int add_parentheses)
 {
     int status = 1;
-    manPtr  manroot = NULL, m;
-    FILE    *hlp;
+    struct manl *manroot = NULL, *m;
+    FILE *hlp;
 
     if(append) {
         hlp = fopen(hlpfilename, "a+");
@@ -465,17 +482,22 @@ static int convertmans(char *filespec, char *hlpfilename, int base_level,
         return vaxc$errno;
 
     status = listofmans(filespec, &manroot);
-    if(!(status&1))
+    if(!(status & 1)) {
+        fclose(hlp);
         return status;
+    }
 
     for(m = manroot; m; m = m->next) {
         status = convertman(m->filename, hlp, base_level, add_parentheses);
-        if(!(status&1)) {
+        if(!(status & 1)) {
             fprintf(stderr, "Convertman of %s went wrong\n", m->filename);
             break;
         }
     }
     freeman(&manroot);
+
+    fclose(hlp);
+
     return status;
 }
 
@@ -483,22 +505,22 @@ static int convertmans(char *filespec, char *hlpfilename, int base_level,
 static void print_help(void)
 {
     fprintf(stderr,
-        "Usage: [-a] [-b x] convertman <manfilespec> <helptextfile>\n"
-        "       -a append <manfilespec> to <helptextfile>\n"
-        "       -b <baselevel> if no headers found create one "
-                   "with level <baselevel>\n"
-        "          and the filename as title.\n"
-        "       -p add parentheses() to baselevel help items.\n");
+            "Usage: [-a] [-b x] convertman <manfilespec> <helptextfile>\n"
+            "       -a append <manfilespec> to <helptextfile>\n"
+            "       -b <baselevel> if no headers found create one "
+                       "with level <baselevel>\n"
+            "          and the filename as title.\n"
+            "       -p add parentheses() to baselevel help items.\n");
 }
 /*--------------------------------------------*/
 
 int main(int argc, char **argv)
 {
-    int     status;
-    int     i, j;
-    int     append, base_level, basechange, add_parentheses;
-    char    *manfile = NULL;
-    char    *helpfile = NULL;
+    int status;
+    int i, j;
+    int append, base_level, basechange, add_parentheses;
+    char *manfile = NULL;
+    char *helpfile = NULL;
 
     if(argc < 3) {
         print_help();
