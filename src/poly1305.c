@@ -12,7 +12,7 @@
 
 #include "poly1305.h"
 
-#define mul32x32_64(a,b) ((uint64_t)(a) * (b))
+#define mul32x32_64(a, b) ((uint64_t)(a) * (b))
 
 #define U8TO32_LE(p) \
     (((uint32_t)((p)[0])) | \
