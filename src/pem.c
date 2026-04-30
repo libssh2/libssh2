@@ -107,7 +107,7 @@ static unsigned char hex_decode(char digit)
 }
 
 int
-_libssh2_pem_parse(LIBSSH2_SESSION * session,
+_libssh2_pem_parse(LIBSSH2_SESSION *session,
                    const char *headerbegin,
                    const char *headerend,
                    const unsigned char *passphrase,
@@ -171,7 +171,7 @@ out:
 }
 
 int
-_libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
+_libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
                           const char *headerbegin,
                           const char *headerend,
                           const unsigned char *passphrase,
@@ -415,7 +415,7 @@ out:
 #define OPENSSH_HEADER_END "-----END OPENSSH PRIVATE KEY-----"
 
 static int
-_libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
+_libssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
                                 const unsigned char *passphrase,
                                 const char *b64data, size_t b64datalen,
                                 struct string_buf **decrypted_buf)
@@ -750,7 +750,7 @@ out:
 }
 
 int
-_libssh2_openssh_pem_parse(LIBSSH2_SESSION * session,
+_libssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
                            const unsigned char *passphrase,
                            FILE * fp, struct string_buf **decrypted_buf)
 {
@@ -820,7 +820,7 @@ out:
 }
 
 int
-_libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
+_libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
                                   const unsigned char *passphrase,
                                   const char *filedata, size_t filedata_len,
                                   struct string_buf **decrypted_buf)

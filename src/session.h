@@ -89,6 +89,6 @@
 int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time);
 
 /* this is the lib-internal set blocking function */
-int _libssh2_session_set_blocking(LIBSSH2_SESSION * session, int blocking);
+int _libssh2_session_set_blocking(LIBSSH2_SESSION *session, int blocking);
 
 #endif /* LIBSSH2_SESSION_H */

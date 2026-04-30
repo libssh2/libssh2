@@ -61,7 +61,7 @@
  * Determine the next channel ID we can use at our end
  */
 uint32_t
-_libssh2_channel_nextid(LIBSSH2_SESSION * session)
+_libssh2_channel_nextid(LIBSSH2_SESSION *session)
 {
     uint32_t id = session->next_channel;
     LIBSSH2_CHANNEL *channel;
@@ -128,7 +128,7 @@ _libssh2_channel_locate(LIBSSH2_SESSION *session, uint32_t channel_id)
  * Establish a generic session channel
  */
 LIBSSH2_CHANNEL *
-_libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
+_libssh2_channel_open(LIBSSH2_SESSION *session, const char *channel_type,
                       uint32_t channel_type_len,
                       uint32_t window_size,
                       uint32_t packet_size,
@@ -379,7 +379,7 @@ libssh2_channel_open_ex(LIBSSH2_SESSION *session, const char *channel_type,
  * Tunnel TCP/IP connect through the SSH session to direct host/port
  */
 static LIBSSH2_CHANNEL *
-channel_direct_tcpip(LIBSSH2_SESSION * session, const char *host,
+channel_direct_tcpip(LIBSSH2_SESSION *session, const char *host,
                      int port, const char *shost, int sport)
 {
     LIBSSH2_CHANNEL *channel;
@@ -460,7 +460,7 @@ libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *session, const char *host,
  * Tunnel TCP/IP connect through the SSH session to direct UNIX socket
  */
 static LIBSSH2_CHANNEL *
-channel_direct_streamlocal(LIBSSH2_SESSION * session, const char *socket_path,
+channel_direct_streamlocal(LIBSSH2_SESSION *session, const char *socket_path,
                            const char *shost, int sport)
 {
     LIBSSH2_CHANNEL *channel;
@@ -518,7 +518,7 @@ channel_direct_streamlocal(LIBSSH2_SESSION * session, const char *socket_path,
  * Tunnel TCP/IP connect through the SSH session to direct UNIX socket
  */
 LIBSSH2_API LIBSSH2_CHANNEL *
-libssh2_channel_direct_streamlocal_ex(LIBSSH2_SESSION * session,
+libssh2_channel_direct_streamlocal_ex(LIBSSH2_SESSION *session,
                                       const char *socket_path,
                                       const char *shost, int sport)
 {
@@ -539,7 +539,7 @@ libssh2_channel_direct_streamlocal_ex(LIBSSH2_SESSION * session,
  * Bind a port on the remote host and listen for connections
  */
 static LIBSSH2_LISTENER *
-channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
+channel_forward_listen(LIBSSH2_SESSION *session, const char *host,
                        int port, int *bound_port, int queue_maxsize)
 {
     unsigned char *s;

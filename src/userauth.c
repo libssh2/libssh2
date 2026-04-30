@@ -250,7 +250,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
  * username should be NULL, or a null terminated string
  */
 LIBSSH2_API char *
-libssh2_userauth_list(LIBSSH2_SESSION * session, const char *username,
+libssh2_userauth_list(LIBSSH2_SESSION *session, const char *username,
                       unsigned int username_len)
 {
     char *ptr;
@@ -290,7 +290,7 @@ libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner)
  *          1 if already authenticated
  */
 LIBSSH2_API int
-libssh2_userauth_authenticated(LIBSSH2_SESSION * session)
+libssh2_userauth_authenticated(LIBSSH2_SESSION *session)
 {
     return (session->state & LIBSSH2_STATE_AUTHENTICATED) ? 1 : 0;
 }
@@ -581,7 +581,7 @@ libssh2_userauth_password_ex(LIBSSH2_SESSION *session, const char *username,
 }
 
 static int
-memory_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
+memory_read_publickey(LIBSSH2_SESSION *session, unsigned char **method,
                       size_t *method_len,
                       unsigned char **pubkeydata,
                       size_t *pubkeydata_len,
@@ -664,7 +664,7 @@ memory_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
  * in method on success.
  */
 static int
-file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
+file_read_publickey(LIBSSH2_SESSION *session, unsigned char **method,
                     size_t *method_len,
                     unsigned char **pubkeydata,
                     size_t *pubkeydata_len,
@@ -758,7 +758,7 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
 }
 
 static int
-memory_read_privatekey(LIBSSH2_SESSION * session,
+memory_read_privatekey(LIBSSH2_SESSION *session,
                        const LIBSSH2_HOSTKEY_METHOD ** hostkey_method,
                        void **hostkey_abstract,
                        const unsigned char *method, size_t method_len,
@@ -799,7 +799,7 @@ memory_read_privatekey(LIBSSH2_SESSION * session,
  * Read a PEM encoded private key from an id_??? style file
  */
 static int
-file_read_privatekey(LIBSSH2_SESSION * session,
+file_read_privatekey(LIBSSH2_SESSION *session,
                      const LIBSSH2_HOSTKEY_METHOD ** hostkey_method,
                      void **hostkey_abstract,
                      const unsigned char *method, size_t method_len,
@@ -2123,7 +2123,7 @@ libssh2_userauth_publickey(LIBSSH2_SESSION *session,
  * Authenticate using a challenge-response authentication
  */
 static int
-userauth_keyboard_interactive(LIBSSH2_SESSION * session,
+userauth_keyboard_interactive(LIBSSH2_SESSION *session,
                               const char *username,
                               unsigned int username_len,
                      LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(*response_callback))

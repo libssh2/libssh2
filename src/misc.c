@@ -542,7 +542,7 @@ libssh2_free(LIBSSH2_SESSION *session, void *ptr)
 #include <stdarg.h>
 
 LIBSSH2_API int
-libssh2_trace(LIBSSH2_SESSION * session, int bitmask)
+libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
 {
     session->showmask = bitmask;
     return 0;
@@ -558,7 +558,7 @@ libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *context,
 }
 
 void
-_libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
+_libssh2_debug_low(LIBSSH2_SESSION *session, int context, const char *format,
                    ...)
 {
     char buffer[1536];
@@ -631,7 +631,7 @@ _libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
 
 #else
 LIBSSH2_API int
-libssh2_trace(LIBSSH2_SESSION * session, int bitmask)
+libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
 {
     (void)session;
     (void)bitmask;

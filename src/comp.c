@@ -80,7 +80,7 @@ comp_method_none_comp(LIBSSH2_SESSION *session,
  * Minimalist decompression: Absolutely none
  */
 static int
-comp_method_none_decomp(LIBSSH2_SESSION * session,
+comp_method_none_decomp(LIBSSH2_SESSION *session,
                         unsigned char **dest,
                         size_t *dest_len,
                         size_t payload_limit,
@@ -138,7 +138,7 @@ comp_method_zlib_free(voidpf opaque, voidpf address)
  * All your bandwidth are belong to us (so save some)
  */
 static int
-comp_method_zlib_init(LIBSSH2_SESSION * session, int compr,
+comp_method_zlib_init(LIBSSH2_SESSION *session, int compr,
                       void **abstract)
 {
     z_stream *strm;
@@ -222,7 +222,7 @@ comp_method_zlib_comp(LIBSSH2_SESSION *session,
  * Decompresses source to destination. Allocates the output memory.
  */
 static int
-comp_method_zlib_decomp(LIBSSH2_SESSION * session,
+comp_method_zlib_decomp(LIBSSH2_SESSION *session,
                         unsigned char **dest,
                         size_t *dest_len,
                         size_t payload_limit,

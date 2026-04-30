@@ -299,7 +299,7 @@ _libssh2_dsa_new(libssh2_dsa_ctx ** dsactx,
 #if LIBSSH2_RSA
 int
 _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa,
-                                    LIBSSH2_SESSION * session,
+                                    LIBSSH2_SESSION *session,
                                     const char *filedata, size_t filedata_len,
                                     const unsigned char *passphrase)
 {
@@ -315,7 +315,7 @@ _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa,
 
 int
 _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
-                         LIBSSH2_SESSION * session,
+                         LIBSSH2_SESSION *session,
                          const char *filename, const unsigned char *passphrase)
 {
     FILE *fp;
@@ -419,7 +419,7 @@ fail:
 #if LIBSSH2_DSA
 int
 _libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx ** dsa,
-                                    LIBSSH2_SESSION * session,
+                                    LIBSSH2_SESSION *session,
                                     const char *filedata, size_t filedata_len,
                                     const unsigned char *passphrase)
 {
@@ -435,7 +435,7 @@ _libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx ** dsa,
 
 int
 _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
-                         LIBSSH2_SESSION * session,
+                         LIBSSH2_SESSION *session,
                          const char *filename, const unsigned char *passphrase)
 {
     FILE *fp;
@@ -524,8 +524,8 @@ fail:
 
 #if LIBSSH2_RSA
 int
-_libssh2_rsa_sha2_sign(LIBSSH2_SESSION * session,
-                       libssh2_rsa_ctx * rsactx,
+_libssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
+                       libssh2_rsa_ctx *rsactx,
                        const unsigned char *hash,
                        size_t hash_len,
                        unsigned char **signature,
@@ -595,8 +595,8 @@ out:
 
 #if LIBSSH2_RSA_SHA1
 int
-_libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
-                       libssh2_rsa_ctx * rsactx,
+_libssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
+                       libssh2_rsa_ctx *rsactx,
                        const unsigned char *hash,
                        size_t hash_len,
                        unsigned char **signature,

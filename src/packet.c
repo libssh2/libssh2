@@ -648,7 +648,7 @@ authagent_exit:
  * This function will always be called with 'datalen' greater than zero.
  */
 int
-_libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
+_libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                     size_t datalen, int macstate, uint32_t seq)
 {
     int rc = 0;
@@ -1465,7 +1465,7 @@ libssh2_packet_add_jump_authagent:
  * a packet first
  */
 int
-_libssh2_packet_ask(LIBSSH2_SESSION * session, unsigned char packet_type,
+_libssh2_packet_ask(LIBSSH2_SESSION *session, unsigned char packet_type,
                     unsigned char **data, size_t *data_len,
                     int match_ofs, const unsigned char *match_buf,
                     size_t match_len)
@@ -1512,7 +1512,7 @@ _libssh2_packet_ask(LIBSSH2_SESSION * session, unsigned char packet_type,
  * socket for a packet first
  */
 int
-_libssh2_packet_askv(LIBSSH2_SESSION * session,
+_libssh2_packet_askv(LIBSSH2_SESSION *session,
                      const unsigned char *packet_types,
                      unsigned char **data, size_t *data_len,
                      int match_ofs,
@@ -1542,7 +1542,7 @@ _libssh2_packet_askv(LIBSSH2_SESSION * session,
  * Returns 0 when it has taken care of the requested packet.
  */
 int
-_libssh2_packet_require(LIBSSH2_SESSION * session, unsigned char packet_type,
+_libssh2_packet_require(LIBSSH2_SESSION *session, unsigned char packet_type,
                         unsigned char **data, size_t *data_len,
                         int match_ofs,
                         const unsigned char *match_buf,
@@ -1604,8 +1604,8 @@ _libssh2_packet_require(LIBSSH2_SESSION * session, unsigned char packet_type,
  * Used during KEX exchange to discard badly guessed KEX_INIT packets
  */
 int
-_libssh2_packet_burn(LIBSSH2_SESSION * session,
-                     libssh2_nonblocking_states * state)
+_libssh2_packet_burn(LIBSSH2_SESSION *session,
+                     libssh2_nonblocking_states *state)
 {
     unsigned char *data;
     size_t data_len;

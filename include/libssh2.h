@@ -795,7 +795,7 @@ libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *session, const char *host,
     libssh2_channel_direct_tcpip_ex(session, host, port, "127.0.0.1", 22)
 
 LIBSSH2_API LIBSSH2_CHANNEL *
-libssh2_channel_direct_streamlocal_ex(LIBSSH2_SESSION * session,
+libssh2_channel_direct_streamlocal_ex(LIBSSH2_SESSION *session,
                                       const char *socket_path,
                                       const char *shost, int sport);
 

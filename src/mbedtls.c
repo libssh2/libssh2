@@ -554,7 +554,7 @@ _libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
 }
 
 int
-_libssh2_mbedtls_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
+_libssh2_mbedtls_rsa_sha2_verify(libssh2_rsa_ctx *rsactx,
                                  size_t hash_len,
                                  const unsigned char *sig,
                                  size_t sig_len,
@@ -601,7 +601,7 @@ _libssh2_mbedtls_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
 }
 
 int
-_libssh2_mbedtls_rsa_sha1_verify(libssh2_rsa_ctx * rsactx,
+_libssh2_mbedtls_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
                                  const unsigned char *sig,
                                  size_t sig_len,
                                  const unsigned char *m,
@@ -662,8 +662,8 @@ _libssh2_mbedtls_rsa_sha2_sign(LIBSSH2_SESSION *session,
 }
 
 int
-_libssh2_mbedtls_rsa_sha1_sign(LIBSSH2_SESSION * session,
-                               libssh2_rsa_ctx * rsactx,
+_libssh2_mbedtls_rsa_sha1_sign(LIBSSH2_SESSION *session,
+                               libssh2_rsa_ctx *rsactx,
                                const unsigned char *hash,
                                size_t hash_len,
                                unsigned char **signature,

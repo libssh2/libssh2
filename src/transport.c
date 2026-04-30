@@ -54,7 +54,7 @@
 #ifdef LIBSSH2DEBUG
 #define UNPRINTABLE_CHAR '.'
 static void
-debugdump(LIBSSH2_SESSION * session,
+debugdump(LIBSSH2_SESSION *session,
           const char *desc, const unsigned char *ptr, size_t size)
 {
     size_t i;
@@ -123,7 +123,7 @@ debugdump(LIBSSH2_SESSION * session,
  * returns 0 on success and negative on failure
  */
 static int
-decrypt(LIBSSH2_SESSION * session, unsigned char *source,
+decrypt(LIBSSH2_SESSION *session, unsigned char *source,
         unsigned char *dest, ssize_t len, int firstlast)
 {
     struct transportpacket *p = &session->packet;
@@ -178,7 +178,7 @@ decrypt(LIBSSH2_SESSION * session, unsigned char *source,
  * collected.
  */
 static int
-fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
+fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */ )
 {
     unsigned char macbuf[MAX_MACSIZE];
     struct transportpacket *p = &session->packet;
@@ -372,7 +372,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
  *
  * DOES NOT call _libssh2_error() for ANY error case.
  */
-int _libssh2_transport_read(LIBSSH2_SESSION * session)
+int _libssh2_transport_read(LIBSSH2_SESSION *session)
 {
     int rc;
     struct transportpacket *p = &session->packet;

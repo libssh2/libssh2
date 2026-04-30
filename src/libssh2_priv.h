@@ -996,10 +996,10 @@ struct _LIBSSH2_KEX_METHOD
 
     /* Key exchange, populates session->* and returns 0 on success, non-0 on
        error */
-    int (*exchange_keys) (LIBSSH2_SESSION * session,
+    int (*exchange_keys) (LIBSSH2_SESSION *session,
                           key_exchange_state_low_t * key_state);
 
-    void (*cleanup) (LIBSSH2_SESSION * session,
+    void (*cleanup) (LIBSSH2_SESSION *session,
                      key_exchange_state_low_t * key_state);
 
     long flags;
@@ -1010,25 +1010,25 @@ struct _LIBSSH2_HOSTKEY_METHOD
     const char *name;
     size_t hash_len;
 
-    int (*init) (LIBSSH2_SESSION * session, const unsigned char *hostkey_data,
+    int (*init) (LIBSSH2_SESSION *session, const unsigned char *hostkey_data,
                  size_t hostkey_data_len, void **abstract);
-    int (*initPEM) (LIBSSH2_SESSION * session, const char *privkeyfile,
+    int (*initPEM) (LIBSSH2_SESSION *session, const char *privkeyfile,
                     const unsigned char *passphrase, void **abstract);
-    int (*initPEMFromMemory) (LIBSSH2_SESSION * session,
+    int (*initPEMFromMemory) (LIBSSH2_SESSION *session,
                               const char *privkeyfiledata,
                               size_t privkeyfiledata_len,
                               const unsigned char *passphrase,
                               void **abstract);
-    int (*sig_verify) (LIBSSH2_SESSION * session, const unsigned char *sig,
+    int (*sig_verify) (LIBSSH2_SESSION *session, const unsigned char *sig,
                        size_t sig_len, const unsigned char *m,
                        size_t m_len, void **abstract);
-    int (*signv) (LIBSSH2_SESSION * session, unsigned char **signature,
+    int (*signv) (LIBSSH2_SESSION *session, unsigned char **signature,
                   size_t *signature_len, int veccount,
                   const struct iovec datavec[], void **abstract);
-    int (*encrypt) (LIBSSH2_SESSION * session, unsigned char **dst,
+    int (*encrypt) (LIBSSH2_SESSION *session, unsigned char **dst,
                     size_t *dst_len, const unsigned char *src,
                     size_t src_len, void **abstract);
-    int (*dtor) (LIBSSH2_SESSION * session, void **abstract);
+    int (*dtor) (LIBSSH2_SESSION *session, void **abstract);
 };
 
 struct _LIBSSH2_CRYPT_METHOD
@@ -1047,17 +1047,17 @@ struct _LIBSSH2_CRYPT_METHOD
 
     long flags;
 
-    int (*init) (LIBSSH2_SESSION * session,
+    int (*init) (LIBSSH2_SESSION *session,
                  const LIBSSH2_CRYPT_METHOD * method, unsigned char *iv,
                  int *free_iv, unsigned char *secret, int *free_secret,
                  int encrypt, void **abstract);
-    int (*get_len) (LIBSSH2_SESSION * session, unsigned int seqno,
+    int (*get_len) (LIBSSH2_SESSION *session, unsigned int seqno,
                     unsigned char *data, size_t data_size, unsigned int *len,
                     void **abstract);
-    int (*crypt) (LIBSSH2_SESSION * session, unsigned int seqno,
+    int (*crypt) (LIBSSH2_SESSION *session, unsigned int seqno,
                   unsigned char *block, size_t blocksize, void **abstract,
                   int firstlast);
-    int (*dtor) (LIBSSH2_SESSION * session, void **abstract);
+    int (*dtor) (LIBSSH2_SESSION *session, void **abstract);
 
     _libssh2_cipher_type(algo);
 };
@@ -1107,12 +1107,12 @@ struct _LIBSSH2_COMP_METHOD
                    const unsigned char *src,
                    size_t src_len,
                    void **abstract);
-    int (*dtor) (LIBSSH2_SESSION * session, int compress, void **abstract);
+    int (*dtor) (LIBSSH2_SESSION *session, int compress, void **abstract);
 };
 
 #ifdef LIBSSH2DEBUG
 void
-_libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
+_libssh2_debug_low(LIBSSH2_SESSION *session, int context, const char *format,
                    ...) LIBSSH2_PRINTF(3, 4);
 #define _libssh2_debug(x) _libssh2_debug_low x
 #else
@@ -1210,7 +1210,7 @@ ssize_t _libssh2_send(libssh2_socket_t socket, const void *buffer,
 #define LIBSSH2_DEFAULT_READ_TIMEOUT 60 /* generic timeout in seconds used when
                                            waiting for more data to arrive */
 
-int _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
+int _libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
                           key_exchange_state_t * key_state);
 
 unsigned char *_libssh2_kex_agree_instr(unsigned char *haystack,
@@ -1231,12 +1231,12 @@ int _libssh2_bcrypt_pbkdf(const char *pass,
                           unsigned int rounds);
 
 /* pem.c */
-int _libssh2_pem_parse(LIBSSH2_SESSION * session,
+int _libssh2_pem_parse(LIBSSH2_SESSION *session,
                        const char *headerbegin,
                        const char *headerend,
                        const unsigned char *passphrase,
                        FILE * fp, unsigned char **data, size_t *datalen);
-int _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
+int _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
                               const char *headerbegin,
                               const char *headerend,
                               const unsigned char *passphrase,
@@ -1244,11 +1244,11 @@ int _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
                               unsigned char **data, size_t *datalen);
  /* OpenSSL keys */
 int
-_libssh2_openssh_pem_parse(LIBSSH2_SESSION * session,
+_libssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
                            const unsigned char *passphrase,
                            FILE * fp, struct string_buf **decrypted_buf);
 int
-_libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
+_libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
                                   const unsigned char *passphrase,
                                   const char *filedata, size_t filedata_len,
                                   struct string_buf **decrypted_buf);
