@@ -1355,7 +1355,7 @@ _libssh2_os400qc3_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
     pubkey = alloca(pubkeysize);
     _libssh2_bn_to_bin(f, pubkey);
     secretbufsize = (_libssh2_bn_bits(p) + 7) >> 3;
-    secretbuf = alloca(pubkeysize);
+    secretbuf = alloca(secretbufsize);
     set_EC_length(errcode, sizeof(errcode));
     Qc3CalculateDHSecretKey(dhctx->token, pubkey, &pubkeysize,
                             secretbuf, &secretbufsize, &secretbuflen,
