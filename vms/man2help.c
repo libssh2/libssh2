@@ -438,8 +438,8 @@ int convertman(char *filespec, FILE *hlp, int base_level, int add_parentheses)
         len, filespec, strlen(uit), return_status);
     */
 
-    free(m);
-    free(h);
+    free(in);
+    free(uit);
 
     return 1;
 }
