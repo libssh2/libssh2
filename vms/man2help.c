@@ -116,34 +116,34 @@ static int fnamepart(char *inputfile, char *part, int whatpart)
 }
 /*----------------------------------------------------------*/
 
-static int find_file(char *filename, char *gevonden, int *findex)
+static int find_file(char *filename, char *found, int *findex)
 {
     int     status;
-    struct  dsc$descriptor gevondend;
+    struct  dsc$descriptor foundd;
     struct  dsc$descriptor filespec;
-    char    gevonden_file[NAM$C_MAXRSS + 1];
+    char    found_file[NAM$C_MAXRSS + 1];
 
     filespec.dsc$w_length = strlen(filename);
     filespec.dsc$b_dtype  = DSC$K_DTYPE_T;
     filespec.dsc$b_class  = DSC$K_CLASS_S;
     filespec.dsc$a_pointer = filename;
 
-    gevondend.dsc$w_length = NAM$C_MAXRSS;
-    gevondend.dsc$b_dtype  = DSC$K_DTYPE_T;
-    gevondend.dsc$b_class  = DSC$K_CLASS_S;
-    gevondend.dsc$a_pointer = gevonden_file;
+    foundd.dsc$w_length = NAM$C_MAXRSS;
+    foundd.dsc$b_dtype  = DSC$K_DTYPE_T;
+    foundd.dsc$b_class  = DSC$K_CLASS_S;
+    foundd.dsc$a_pointer = found_file;
 
-    status = lib$find_file(&filespec, &gevondend, findex, 0, 0, 0, 0);
+    status = lib$find_file(&filespec, &foundd, findex, 0, 0, 0, 0);
 
     if((status & 1) == 1) {
-        const char *token = strtok(gevonden_file, " ");
+        const char *token = strtok(found_file, " ");
         if(token)
-            memcpy(gevonden, token, strlen(token) + 1);
+            memcpy(found, token, strlen(token) + 1);
         else
-            gevonden[0] = '\0';
+            found[0] = '\0';
     }
     else {
-        gevonden[0] = 0;
+        found[0] = 0;
     }
 
     return status;
@@ -196,13 +196,13 @@ static int listofmans(char *filespec, manPtr *manroot)
     manPtr  r;
     int     status;
     int     ffindex = 0;
-    char    gevonden[NAM$C_MAXRSS + 1];
+    char    found[NAM$C_MAXRSS + 1];
 
     for(;;) {
-        status = find_file(filespec, gevonden, &ffindex);
+        status = find_file(filespec, found, &ffindex);
 
         if((status & 1) != 0) {
-            r = addman(manroot, gevonden);
+            r = addman(manroot, found);
             if(!r)
                 return 2;
         }
