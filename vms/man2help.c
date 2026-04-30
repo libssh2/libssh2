@@ -118,10 +118,10 @@ static int fnamepart(char *inputfile, char *part, int whatpart)
 
 static int find_file(char *filename, char *found, int *findex)
 {
-    int     status;
-    struct  dsc$descriptor foundd;
-    struct  dsc$descriptor filespec;
-    char    found_file[NAM$C_MAXRSS + 1];
+    int status;
+    struct dsc$descriptor foundd;
+    struct dsc$descriptor filespec;
+    char found_file[NAM$C_MAXRSS + 1];
 
     filespec.dsc$w_length  = strlen(filename);
     filespec.dsc$b_dtype   = DSC$K_DTYPE_T;
@@ -222,11 +222,11 @@ static int listofmans(char *filespec, struct manl **manroot)
 static int convertman(char *filespec, FILE *hlp, int base_level,
                       int add_parentheses)
 {
-    FILE    *man;
-    char    *in, *uit;
-    char    *m, *h;
-    size_t  len, thislen, maxlen = 50000;
-    int     bol, mode, return_status = 1;
+    FILE *man;
+    char *in, *uit;
+    char *m, *h;
+    size_t len, thislen, maxlen = 50000;
+    int bol, mode, return_status = 1;
     char subjectname[NAM$C_MAXRSS + 1];
 
     in = calloc(1, maxlen + 1);
@@ -509,11 +509,11 @@ static void print_help(void)
 
 int main(int argc, char **argv)
 {
-    int     status;
-    int     i, j;
-    int     append, base_level, basechange, add_parentheses;
-    char    *manfile = NULL;
-    char    *helpfile = NULL;
+    int status;
+    int i, j;
+    int append, base_level, basechange, add_parentheses;
+    char *manfile = NULL;
+    char *helpfile = NULL;
 
     if(argc < 3) {
         print_help();
