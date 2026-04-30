@@ -29,7 +29,7 @@ typedef struct pf_fabnam {
 
 /*----------------------------------------------------------*/
 
-void fpcopy(char *output, char *input, int len)
+static void fpcopy(char *output, char *input, int len)
 {
     char *is, *os;
     int i;
@@ -50,7 +50,7 @@ void fpcopy(char *output, char *input, int len)
    value of i ( 0 = node, 1 = dev, 2 = dir, 3 = name etc.
 */
 
-int fnamepart(char *inputfile, char *part, int whatpart)
+static int fnamepart(char *inputfile, char *part, int whatpart)
 {
     pfnPtr pf;
     int    status;
@@ -114,7 +114,7 @@ int fnamepart(char *inputfile, char *part, int whatpart)
 }
 /*----------------------------------------------------------*/
 
-int find_file(char *filename, char *gevonden, int *findex)
+static int find_file(char *filename, char *gevonden, int *findex)
 {
     int     status;
     struct  dsc$descriptor gevondend;
@@ -147,7 +147,7 @@ int find_file(char *filename, char *gevonden, int *findex)
 
 /*--------------------------------------------*/
 
-manPtr addman(manPtr *manroot, char *filename)
+static manPtr addman(manPtr *manroot, char *filename)
 {
     manPtr m, f;
 
@@ -169,7 +169,7 @@ manPtr addman(manPtr *manroot, char *filename)
 }
 
 /*--------------------------------------------*/
-void freeman(manPtr *manroot)
+static void freeman(manPtr *manroot)
 {
     manPtr m, n;
 
@@ -183,7 +183,7 @@ void freeman(manPtr *manroot)
 
 /*--------------------------------------------*/
 
-int listofmans(char *filespec, manPtr *manroot)
+static int listofmans(char *filespec, manPtr *manroot)
 {
     manPtr  r;
     int     status;
@@ -211,7 +211,8 @@ int listofmans(char *filespec, manPtr *manroot)
 
 /*--------------------------------------------*/
 
-int convertman(char *filespec, FILE *hlp, int base_level, int add_parentheses)
+static int convertman(char *filespec, FILE *hlp, int base_level,
+                      int add_parentheses)
 {
     FILE    *man;
     char    *in, *uit;
@@ -446,8 +447,8 @@ int convertman(char *filespec, FILE *hlp, int base_level, int add_parentheses)
 
 /*--------------------------------------------*/
 
-int convertmans(char *filespec, char *hlpfilename, int base_level, int append,
-                int add_parentheses)
+static int convertmans(char *filespec, char *hlpfilename, int base_level,
+                       int append, int add_parentheses)
 {
     int status = 1;
     manPtr  manroot = NULL, m;
@@ -479,7 +480,7 @@ int convertmans(char *filespec, char *hlpfilename, int base_level, int append,
 }
 
 /*--------------------------------------------*/
-void print_help(void)
+static void print_help(void)
 {
     fprintf(stderr,
         "Usage: [-a] [-b x] convertman <manfilespec> <helptextfile>\n"
