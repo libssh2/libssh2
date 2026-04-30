@@ -80,7 +80,7 @@ comp_method_none_comp(LIBSSH2_SESSION *session,
  * Minimalist decompression: Absolutely none
  */
 static int
-comp_method_none_decomp(LIBSSH2_SESSION * session,
+comp_method_none_decomp(LIBSSH2_SESSION *session,
                         unsigned char **dest,
                         size_t *dest_len,
                         size_t payload_limit,
@@ -121,15 +121,15 @@ static const LIBSSH2_COMP_METHOD comp_method_none = {
 static voidpf
 comp_method_zlib_alloc(voidpf opaque, uInt items, uInt size)
 {
-    LIBSSH2_SESSION *session = (LIBSSH2_SESSION *) opaque;
+    LIBSSH2_SESSION *session = (LIBSSH2_SESSION *)opaque;
 
-    return (voidpf) LIBSSH2_ALLOC(session, items * size);
+    return (voidpf)LIBSSH2_ALLOC(session, items * size);
 }
 
 static void
 comp_method_zlib_free(voidpf opaque, voidpf address)
 {
-    LIBSSH2_SESSION *session = (LIBSSH2_SESSION *) opaque;
+    LIBSSH2_SESSION *session = (LIBSSH2_SESSION *)opaque;
 
     LIBSSH2_FREE(session, address);
 }
@@ -138,7 +138,7 @@ comp_method_zlib_free(voidpf opaque, voidpf address)
  * All your bandwidth are belong to us (so save some)
  */
 static int
-comp_method_zlib_init(LIBSSH2_SESSION * session, int compr,
+comp_method_zlib_init(LIBSSH2_SESSION *session, int compr,
                       void **abstract)
 {
     z_stream *strm;
@@ -151,9 +151,9 @@ comp_method_zlib_init(LIBSSH2_SESSION * session, int compr,
                               "zlib compression/decompression");
     }
 
-    strm->opaque = (voidpf) session;
-    strm->zalloc = (alloc_func) comp_method_zlib_alloc;
-    strm->zfree = (free_func) comp_method_zlib_free;
+    strm->opaque = (voidpf)session;
+    strm->zalloc = (alloc_func)comp_method_zlib_alloc;
+    strm->zfree = (free_func)comp_method_zlib_free;
     if(compr) {
         /* deflate */
         status = deflateInit(strm, Z_DEFAULT_COMPRESSION);
@@ -222,7 +222,7 @@ comp_method_zlib_comp(LIBSSH2_SESSION *session,
  * Decompresses source to destination. Allocates the output memory.
  */
 static int
-comp_method_zlib_decomp(LIBSSH2_SESSION * session,
+comp_method_zlib_decomp(LIBSSH2_SESSION *session,
                         unsigned char **dest,
                         size_t *dest_len,
                         size_t payload_limit,
@@ -259,7 +259,7 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
 #endif
     strm->avail_in = (uInt)src_len;
     strm->next_out = (Bytef *)LIBSSH2_ALLOC(session, (uInt)out_maxlen);
-    out = (char *) strm->next_out;
+    out = (char *)strm->next_out;
     strm->avail_out = (uInt)out_maxlen;
     if(!strm->next_out)
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
@@ -322,7 +322,7 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
         strm->avail_out = (uInt)(out_maxlen - out_ofs);
     }
 
-    *dest = (unsigned char *) out;
+    *dest = (unsigned char *)out;
     *dest_len = out_maxlen - strm->avail_out;
 
     return 0;

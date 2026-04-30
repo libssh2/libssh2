@@ -507,12 +507,12 @@ sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
     }
 
     _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "Requiring packet %u id %u",
-                   (unsigned int) packet_type, request_id));
+                   (unsigned int)packet_type, request_id));
 
     if(sftp_packet_ask(sftp, packet_type, request_id, data, data_len) == 0) {
         /* The right packet was available in the packet brigade */
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "Got %u",
-                       (unsigned int) packet_type));
+                       (unsigned int)packet_type));
 
         if(*data_len < required_size) {
             return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
@@ -530,7 +530,7 @@ sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
         if(!sftp_packet_ask(sftp, packet_type, request_id, data, data_len)) {
             /* The right packet was available in the packet brigade */
             _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "Got %d",
-                           (unsigned int) packet_type));
+                           (unsigned int)packet_type));
 
             if(*data_len < required_size) {
                 return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
@@ -626,7 +626,7 @@ static int sftp_attrsize(unsigned long flags)
  * Populate attributes into an SFTP block
  */
 static ssize_t
-sftp_attr2bin(unsigned char *p, const LIBSSH2_SFTP_ATTRIBUTES * attrs)
+sftp_attr2bin(unsigned char *p, const LIBSSH2_SFTP_ATTRIBUTES *attrs)
 {
     unsigned char *s = p;
     uint32_t flag_mask =
@@ -754,7 +754,7 @@ LIBSSH2_CHANNEL_CLOSE_FUNC(libssh2_sftp_dtor);
  */
 LIBSSH2_CHANNEL_CLOSE_FUNC(libssh2_sftp_dtor)
 {
-    LIBSSH2_SFTP *sftp = (LIBSSH2_SFTP *) (*channel_abstract);
+    LIBSSH2_SFTP *sftp = (LIBSSH2_SFTP *)(*channel_abstract);
 
     (void)session_abstract;
     (void)channel;
@@ -1409,7 +1409,7 @@ libssh2_sftp_open_ex_r(LIBSSH2_SFTP *sftp, const char *filename,
 /* sftp_read
  * Read from an SFTP file handle
  */
-static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
+static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                          size_t buffer_size)
 {
     LIBSSH2_SFTP *sftp = handle->sftp;
@@ -1854,7 +1854,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
             ssize_t attr_len = 0;
 
             if(names_packet_len >= 4) {
-                s = (unsigned char *) handle->u.dir.next_name;
+                s = (unsigned char *)handle->u.dir.next_name;
                 real_filename_len = _libssh2_ntohu32(s);
                 s += 4;
                 names_packet_len -= 4;
@@ -1929,7 +1929,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                 goto end;
             }
 
-            handle->u.dir.next_name = (char *) s;
+            handle->u.dir.next_name = (char *)s;
             handle->u.dir.names_packet_len = names_packet_len;
 
             if((--handle->u.dir.names_left) == 0)
@@ -2027,7 +2027,7 @@ end:
 
     handle->u.dir.names_left = num_names;
     handle->u.dir.names_packet = data;
-    handle->u.dir.next_name = (char *) data + 9;
+    handle->u.dir.next_name = (char *)data + 9;
     handle->u.dir.names_packet_len = data_len - 9;
 
     /* use the name popping mechanism from the start of the function */
@@ -3718,7 +3718,7 @@ libssh2_sftp_rmdir_ex(LIBSSH2_SFTP *sftp, const char *path,
  */
 static int sftp_stat(LIBSSH2_SFTP *sftp, const char *path,
                      unsigned int path_len, int stat_type,
-                     LIBSSH2_SFTP_ATTRIBUTES * attrs)
+                     LIBSSH2_SFTP_ATTRIBUTES *attrs)
 {
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;

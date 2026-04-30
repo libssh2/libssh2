@@ -321,18 +321,18 @@ typedef struct {        /* Diffie-Hellman context. */
 
 #define libssh2_rsa_ctx         _libssh2_os400qc3_crypto_ctx
 #define _libssh2_rsa_free(ctx)  (_libssh2_os400qc3_crypto_dtor(ctx),        \
-                                 free((char *) ctx))
-#define libssh2_prepare_iovec(vec, len) memset((char *) (vec), 0,           \
+                                 free((char *)ctx))
+#define libssh2_prepare_iovec(vec, len) memset((char *)(vec), 0,            \
                                                (len) * sizeof(struct iovec))
 #define _libssh2_rsa_sha1_signv(session, sig, siglen, count, vector, ctx)   \
             _libssh2_os400qc3_rsa_signv(session, Qc3_SHA1, sig, siglen,     \
-                                             count, vector, ctx)
+                                        count, vector, ctx)
 #define _libssh2_rsa_sha2_256_signv(session, sig, siglen, cnt, vector, ctx) \
             _libssh2_os400qc3_rsa_signv(session, Qc3_SHA256, sig, siglen,   \
-                                             cnt, vector, ctx)
+                                        cnt, vector, ctx)
 #define _libssh2_rsa_sha2_512_signv(session, sig, siglen, cnt, vector, ctx) \
             _libssh2_os400qc3_rsa_signv(session, Qc3_SHA512, sig, siglen,   \
-                                             cnt, vector, ctx)
+                                        cnt, vector, ctx)
 
 /* Default generate and safe prime sizes for diffie-hellman-group-exchange-sha1
    Qc3 is limited to a maximum 2048-bit modulus/key size. */

@@ -250,7 +250,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
  * username should be NULL, or a null terminated string
  */
 LIBSSH2_API char *
-libssh2_userauth_list(LIBSSH2_SESSION * session, const char *username,
+libssh2_userauth_list(LIBSSH2_SESSION *session, const char *username,
                       unsigned int username_len)
 {
     char *ptr;
@@ -290,7 +290,7 @@ libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner)
  *          1 if already authenticated
  */
 LIBSSH2_API int
-libssh2_userauth_authenticated(LIBSSH2_SESSION * session)
+libssh2_userauth_authenticated(LIBSSH2_SESSION *session)
 {
     return (session->state & LIBSSH2_STATE_AUTHENTICATED) ? 1 : 0;
 }
@@ -581,7 +581,7 @@ libssh2_userauth_password_ex(LIBSSH2_SESSION *session, const char *username,
 }
 
 static int
-memory_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
+memory_read_publickey(LIBSSH2_SESSION *session, unsigned char **method,
                       size_t *method_len,
                       unsigned char **pubkeydata,
                       size_t *pubkeydata_len,
@@ -664,7 +664,7 @@ memory_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
  * in method on success.
  */
 static int
-file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
+file_read_publickey(LIBSSH2_SESSION *session, unsigned char **method,
                     size_t *method_len,
                     unsigned char **pubkeydata,
                     size_t *pubkeydata_len,
@@ -758,8 +758,8 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
 }
 
 static int
-memory_read_privatekey(LIBSSH2_SESSION * session,
-                       const LIBSSH2_HOSTKEY_METHOD ** hostkey_method,
+memory_read_privatekey(LIBSSH2_SESSION *session,
+                       const LIBSSH2_HOSTKEY_METHOD **hostkey_method,
                        void **hostkey_abstract,
                        const unsigned char *method, size_t method_len,
                        const char *privkeyfiledata, size_t privkeyfiledata_len,
@@ -772,7 +772,7 @@ memory_read_privatekey(LIBSSH2_SESSION * session,
     *hostkey_abstract = NULL;
     while(*hostkey_methods_avail && (*hostkey_methods_avail)->name) {
         if((*hostkey_methods_avail)->initPEMFromMemory &&
-           strncmp((*hostkey_methods_avail)->name, (const char *) method,
+           strncmp((*hostkey_methods_avail)->name, (const char *)method,
                    method_len) == 0) {
             *hostkey_method = *hostkey_methods_avail;
             break;
@@ -786,7 +786,7 @@ memory_read_privatekey(LIBSSH2_SESSION * session,
 
     if((*hostkey_method)->
         initPEMFromMemory(session, privkeyfiledata, privkeyfiledata_len,
-                          (const unsigned char *) passphrase,
+                          (const unsigned char *)passphrase,
                           hostkey_abstract)) {
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                               "Unable to initialize private key from memory");
@@ -799,8 +799,8 @@ memory_read_privatekey(LIBSSH2_SESSION * session,
  * Read a PEM encoded private key from an id_??? style file
  */
 static int
-file_read_privatekey(LIBSSH2_SESSION * session,
-                     const LIBSSH2_HOSTKEY_METHOD ** hostkey_method,
+file_read_privatekey(LIBSSH2_SESSION *session,
+                     const LIBSSH2_HOSTKEY_METHOD **hostkey_method,
                      void **hostkey_abstract,
                      const unsigned char *method, size_t method_len,
                      const char *privkeyfile, const char *passphrase)
@@ -814,7 +814,7 @@ file_read_privatekey(LIBSSH2_SESSION * session,
     *hostkey_abstract = NULL;
     while(*hostkey_methods_avail && (*hostkey_methods_avail)->name) {
         if((*hostkey_methods_avail)->initPEM &&
-           strncmp((*hostkey_methods_avail)->name, (const char *) method,
+           strncmp((*hostkey_methods_avail)->name, (const char *)method,
                    method_len) == 0) {
             *hostkey_method = *hostkey_methods_avail;
             break;
@@ -827,7 +827,7 @@ file_read_privatekey(LIBSSH2_SESSION * session,
     }
 
     if((*hostkey_method)->
-        initPEM(session, privkeyfile, (const unsigned char *) passphrase,
+        initPEM(session, privkeyfile, (const unsigned char *)passphrase,
                 hostkey_abstract)) {
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                               "Unable to initialize private key from file");
@@ -851,7 +851,7 @@ static int
 sign_frommemory(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
                 const unsigned char *data, size_t data_len, void **abstract)
 {
-    struct privkey_mem *pk_mem = (struct privkey_mem *) (*abstract);
+    struct privkey_mem *pk_mem = (struct privkey_mem *)(*abstract);
     const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
     void *hostkey_abstract;
     struct iovec datavec;
@@ -891,7 +891,7 @@ static int
 sign_fromfile(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
               const unsigned char *data, size_t data_len, void **abstract)
 {
-    struct privkey_file *privkey_file = (struct privkey_file *) (*abstract);
+    struct privkey_file *privkey_file = (struct privkey_file *)(*abstract);
     const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
     void *hostkey_abstract;
     struct iovec datavec;
@@ -931,7 +931,7 @@ libssh2_sign_sk(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
                 const unsigned char *data, size_t data_len, void **abstract)
 {
     int rc = LIBSSH2_ERROR_DECRYPT;
-    LIBSSH2_PRIVKEY_SK *sk_info = (LIBSSH2_PRIVKEY_SK *) (*abstract);
+    LIBSSH2_PRIVKEY_SK *sk_info = (LIBSSH2_PRIVKEY_SK *)(*abstract);
     LIBSSH2_SK_SIG_INFO sig_info = { 0 };
 
     if(sk_info->handle_len <= 0) {
@@ -1289,41 +1289,33 @@ libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
 size_t plain_method(char *method, size_t method_len)
 {
     if(!strncmp("ssh-rsa-cert-v01@openssh.com",
-                method,
-                method_len)) {
+                method, method_len)) {
         return 7;
     }
 
     if(!strncmp("rsa-sha2-256-cert-v01@openssh.com",
-                method,
-                method_len) ||
+                method, method_len) ||
        !strncmp("rsa-sha2-512-cert-v01@openssh.com",
-                method,
-                method_len)) {
+                method, method_len)) {
         return 12;
     }
 
     if(!strncmp("ecdsa-sha2-nistp256-cert-v01@openssh.com",
-                method,
-                method_len) ||
+                method, method_len) ||
        !strncmp("ecdsa-sha2-nistp384-cert-v01@openssh.com",
-                method,
-                method_len) ||
+                method, method_len) ||
        !strncmp("ecdsa-sha2-nistp521-cert-v01@openssh.com",
-                method,
-                method_len)) {
+                method, method_len)) {
         return 19;
     }
 
     if(!strncmp("ssh-ed25519-cert-v01@openssh.com",
-                method,
-                method_len)) {
+                method, method_len)) {
         return 11;
     }
 
     if(!strncmp("sk-ecdsa-sha2-nistp256-cert-v01@openssh.com",
-                method,
-                method_len)) {
+                method, method_len)) {
         const char *new_method = "sk-ecdsa-sha2-nistp256@openssh.com";
         /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
         memcpy(method, new_method, strlen(new_method));
@@ -1331,8 +1323,7 @@ size_t plain_method(char *method, size_t method_len)
     }
 
     if(!strncmp("sk-ssh-ed25519-cert-v01@openssh.com",
-                method,
-                method_len)) {
+                method, method_len)) {
         const char *new_method = "sk-ssh-ed25519@openssh.com";
         /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
         memcpy(method, new_method, strlen(new_method));
@@ -2132,7 +2123,7 @@ libssh2_userauth_publickey(LIBSSH2_SESSION *session,
  * Authenticate using a challenge-response authentication
  */
 static int
-userauth_keyboard_interactive(LIBSSH2_SESSION * session,
+userauth_keyboard_interactive(LIBSSH2_SESSION *session,
                               const char *username,
                               unsigned int username_len,
                      LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(*response_callback))

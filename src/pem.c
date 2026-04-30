@@ -41,7 +41,7 @@
 #include "libssh2_priv.h"
 
 static int
-readline(char *line, int line_size, FILE * fp)
+readline(char *line, int line_size, FILE *fp)
 {
     size_t len;
 
@@ -107,11 +107,11 @@ static unsigned char hex_decode(char digit)
 }
 
 int
-_libssh2_pem_parse(LIBSSH2_SESSION * session,
+_libssh2_pem_parse(LIBSSH2_SESSION *session,
                    const char *headerbegin,
                    const char *headerend,
                    const unsigned char *passphrase,
-                   FILE * fp, unsigned char **data, size_t *datalen)
+                   FILE *fp, unsigned char **data, size_t *datalen)
 {
     int ret = -1;
     char *filedata = NULL;
@@ -171,7 +171,7 @@ out:
 }
 
 int
-_libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
+_libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
                           const char *headerbegin,
                           const char *headerend,
                           const unsigned char *passphrase,
@@ -415,7 +415,7 @@ out:
 #define OPENSSH_HEADER_END "-----END OPENSSH PRIVATE KEY-----"
 
 static int
-_libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
+_libssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
                                 const unsigned char *passphrase,
                                 const char *b64data, size_t b64datalen,
                                 struct string_buf **decrypted_buf)
@@ -457,7 +457,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
         goto out;
     }
 
-    if(strncmp((const char *) decoded.dataptr, AUTH_MAGIC,
+    if(strncmp((const char *)decoded.dataptr, AUTH_MAGIC,
                strlen(AUTH_MAGIC)) != 0) {
         ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                              "key auth magic mismatch");
@@ -750,9 +750,9 @@ out:
 }
 
 int
-_libssh2_openssh_pem_parse(LIBSSH2_SESSION * session,
+_libssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
                            const unsigned char *passphrase,
-                           FILE * fp, struct string_buf **decrypted_buf)
+                           FILE *fp, struct string_buf **decrypted_buf)
 {
     char line[LINE_SIZE];
     char *b64data = NULL;
@@ -820,7 +820,7 @@ out:
 }
 
 int
-_libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
+_libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
                                   const unsigned char *passphrase,
                                   const char *filedata, size_t filedata_len,
                                   struct string_buf **decrypted_buf)

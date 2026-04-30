@@ -410,7 +410,7 @@ _libssh2_mbedtls_rsa_new(libssh2_rsa_ctx **rsa,
     int ret;
     libssh2_rsa_ctx *ctx;
 
-    ctx = (libssh2_rsa_ctx *) mbedtls_calloc(1, sizeof(libssh2_rsa_ctx));
+    ctx = (libssh2_rsa_ctx *)mbedtls_calloc(1, sizeof(libssh2_rsa_ctx));
     if(ctx)
         mbedtls_rsa_init(ctx);
     else
@@ -470,7 +470,7 @@ _libssh2_mbedtls_rsa_new_private(libssh2_rsa_ctx **rsa,
     mbedtls_pk_context pkey;
     mbedtls_rsa_context *pk_rsa;
 
-    *rsa = (libssh2_rsa_ctx *) LIBSSH2_ALLOC(session, sizeof(libssh2_rsa_ctx));
+    *rsa = (libssh2_rsa_ctx *)LIBSSH2_ALLOC(session, sizeof(libssh2_rsa_ctx));
     if(!*rsa)
         return -1;
 
@@ -508,7 +508,7 @@ _libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
     void *filedata_nullterm;
     size_t pwd_len;
 
-    *rsa = (libssh2_rsa_ctx *) mbedtls_calloc(1, sizeof(libssh2_rsa_ctx));
+    *rsa = (libssh2_rsa_ctx *)mbedtls_calloc(1, sizeof(libssh2_rsa_ctx));
     if(!*rsa)
         return -1;
 
@@ -554,7 +554,7 @@ _libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
 }
 
 int
-_libssh2_mbedtls_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
+_libssh2_mbedtls_rsa_sha2_verify(libssh2_rsa_ctx *rsactx,
                                  size_t hash_len,
                                  const unsigned char *sig,
                                  size_t sig_len,
@@ -601,7 +601,7 @@ _libssh2_mbedtls_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
 }
 
 int
-_libssh2_mbedtls_rsa_sha1_verify(libssh2_rsa_ctx * rsactx,
+_libssh2_mbedtls_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
                                  const unsigned char *sig,
                                  size_t sig_len,
                                  const unsigned char *m,
@@ -662,8 +662,8 @@ _libssh2_mbedtls_rsa_sha2_sign(LIBSSH2_SESSION *session,
 }
 
 int
-_libssh2_mbedtls_rsa_sha1_sign(LIBSSH2_SESSION * session,
-                               libssh2_rsa_ctx * rsactx,
+_libssh2_mbedtls_rsa_sha1_sign(LIBSSH2_SESSION *session,
+                               libssh2_rsa_ctx *rsactx,
                                const unsigned char *hash,
                                size_t hash_len,
                                unsigned char **signature,
@@ -1146,7 +1146,7 @@ _libssh2_mbedtls_parse_eckey(libssh2_ecdsa_ctx **ctx,
 {
     size_t pwd_len;
 
-    pwd_len = pwd ? strlen((const char *) pwd) : 0;
+    pwd_len = pwd ? strlen((const char *)pwd) : 0;
 
     if(mbedtls_pk_parse_key(pkey, data, data_len, pwd, pwd_len,
                             mbedtls_ctr_drbg_random,

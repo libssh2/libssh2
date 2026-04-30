@@ -58,7 +58,7 @@
  *
  */
 static int
-crypt_none_crypt(LIBSSH2_SESSION * session,
+crypt_none_crypt(LIBSSH2_SESSION *session,
                  unsigned int seqno,
                  unsigned char *buf,
                  size_t buf_len,
@@ -91,8 +91,8 @@ struct crypt_ctx
 };
 
 static int
-crypt_init(LIBSSH2_SESSION * session,
-           const LIBSSH2_CRYPT_METHOD * method,
+crypt_init(LIBSSH2_SESSION *session,
+           const LIBSSH2_CRYPT_METHOD *method,
            unsigned char *iv, int *free_iv,
            unsigned char *secret, int *free_secret,
            int encrypt, void **abstract)
@@ -115,24 +115,24 @@ crypt_init(LIBSSH2_SESSION * session,
 }
 
 static int
-crypt_encrypt(LIBSSH2_SESSION * session,
+crypt_encrypt(LIBSSH2_SESSION *session,
               unsigned int seqno,
               unsigned char *buf,
               size_t buf_len,
               void **abstract,
               int firstlast)
 {
-    struct crypt_ctx *cctx = *(struct crypt_ctx **) abstract;
-    (void) session;
-    (void) seqno;
+    struct crypt_ctx *cctx = *(struct crypt_ctx **)abstract;
+    (void)session;
+    (void)seqno;
     return _libssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, buf,
                                  buf_len, firstlast);
 }
 
 static int
-crypt_dtor(LIBSSH2_SESSION * session, void **abstract)
+crypt_dtor(LIBSSH2_SESSION *session, void **abstract)
 {
-    struct crypt_ctx **cctx = (struct crypt_ctx **) abstract;
+    struct crypt_ctx **cctx = (struct crypt_ctx **)abstract;
     if(cctx && *cctx) {
         _libssh2_cipher_dtor(&(*cctx)->h);
         LIBSSH2_FREE(session, *cctx);
@@ -318,8 +318,8 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_arcfour = {
 };
 
 static int
-crypt_init_arcfour128(LIBSSH2_SESSION * session,
-                      const LIBSSH2_CRYPT_METHOD * method,
+crypt_init_arcfour128(LIBSSH2_SESSION *session,
+                      const LIBSSH2_CRYPT_METHOD *method,
                       unsigned char *iv, int *free_iv,
                       unsigned char *secret, int *free_secret,
                       int encrypt, void **abstract)
@@ -329,7 +329,7 @@ crypt_init_arcfour128(LIBSSH2_SESSION * session,
     rc = crypt_init(session, method, iv, free_iv, secret, free_secret,
                     encrypt, abstract);
     if(rc == 0) {
-        struct crypt_ctx *cctx = *(struct crypt_ctx **) abstract;
+        struct crypt_ctx *cctx = *(struct crypt_ctx **)abstract;
         unsigned char block[8];
         size_t discard = 1536;
         for(; discard; discard -= 8)
@@ -392,8 +392,8 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_3des_cbc = {
 #endif
 
 static int
-crypt_init_chacha20_poly(LIBSSH2_SESSION * session,
-           const LIBSSH2_CRYPT_METHOD * method,
+crypt_init_chacha20_poly(LIBSSH2_SESSION *session,
+           const LIBSSH2_CRYPT_METHOD *method,
            unsigned char *iv, int *free_iv,
            unsigned char *secret, int *free_secret,
            int encrypt, void **abstract)
@@ -421,7 +421,7 @@ crypt_init_chacha20_poly(LIBSSH2_SESSION * session,
 }
 
 static int
-crypt_encrypt_chacha20_poly_buffer(LIBSSH2_SESSION * session,
+crypt_encrypt_chacha20_poly_buffer(LIBSSH2_SESSION *session,
                                    unsigned int seqno,
                                    unsigned char *buf,
                                    size_t buf_len,
@@ -429,7 +429,7 @@ crypt_encrypt_chacha20_poly_buffer(LIBSSH2_SESSION * session,
                                    int firstlast)
 {
     int ret = 1;
-    struct crypt_ctx *ctx = *(struct crypt_ctx **) abstract;
+    struct crypt_ctx *ctx = *(struct crypt_ctx **)abstract;
 
     (void)session;
     (void)firstlast;
@@ -463,11 +463,11 @@ crypt_encrypt_chacha20_poly_buffer(LIBSSH2_SESSION * session,
 }
 
 static int
-crypt_get_length_chacha20_poly(LIBSSH2_SESSION * session, unsigned int seqno,
+crypt_get_length_chacha20_poly(LIBSSH2_SESSION *session, unsigned int seqno,
                                unsigned char *data, size_t data_size,
                                unsigned int *len, void **abstract)
 {
-    struct crypt_ctx *ctx = *(struct crypt_ctx **) abstract;
+    struct crypt_ctx *ctx = *(struct crypt_ctx **)abstract;
 
     (void)session;
 
@@ -476,9 +476,9 @@ crypt_get_length_chacha20_poly(LIBSSH2_SESSION * session, unsigned int seqno,
 }
 
 static int
-crypt_dtor_chacha20_poly(LIBSSH2_SESSION * session, void **abstract)
+crypt_dtor_chacha20_poly(LIBSSH2_SESSION *session, void **abstract)
 {
-    struct crypt_ctx **cctx = (struct crypt_ctx **) abstract;
+    struct crypt_ctx **cctx = (struct crypt_ctx **)abstract;
     if(cctx && *cctx) {
         LIBSSH2_FREE(session, *cctx);
         *abstract = NULL;

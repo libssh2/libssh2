@@ -58,8 +58,8 @@ struct chan_X11_list {
     struct chan_X11_list *next;
 };
 
-static struct chan_X11_list * gp_x11_chan = NULL;
-static struct termios         _saved_tio;
+static struct chan_X11_list *gp_x11_chan = NULL;
+static struct termios        _saved_tio;
 
 static int _raw_mode(void)
 {
@@ -132,7 +132,7 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
             addr.sun_family = AF_UNIX;
             snprintf(addr.sun_path, sizeof(addr.sun_path),
                      _PATH_UNIX_X, display_port);
-            rc = connect(sock, (struct sockaddr *) &addr, sizeof(addr));
+            rc = connect(sock, (struct sockaddr *)&addr, sizeof(addr));
 
             if(rc != -1) {
                 /* Connection Successful */

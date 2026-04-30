@@ -496,12 +496,12 @@ size_t _libssh2_base64_encode(LIBSSH2_SESSION *session,
                 ibuf[i] = 0;
         }
 
-        obuf[0] = (unsigned char)  ((ibuf[0] & 0xFC) >> 2);
-        obuf[1] = (unsigned char) (((ibuf[0] & 0x03) << 4) | \
-                                   ((ibuf[1] & 0xF0) >> 4));
-        obuf[2] = (unsigned char) (((ibuf[1] & 0x0F) << 2) | \
-                                   ((ibuf[2] & 0xC0) >> 6));
-        obuf[3] = (unsigned char)   (ibuf[2] & 0x3F);
+        obuf[0] = (unsigned char) ((ibuf[0] & 0xFC) >> 2);
+        obuf[1] = (unsigned char)(((ibuf[0] & 0x03) << 4) | \
+                                  ((ibuf[1] & 0xF0) >> 4));
+        obuf[2] = (unsigned char)(((ibuf[1] & 0x0F) << 2) | \
+                                  ((ibuf[2] & 0xC0) >> 6));
+        obuf[3] = (unsigned char)  (ibuf[2] & 0x3F);
 
         switch(inputparts) {
         case 1: /* only one byte read */
@@ -542,7 +542,7 @@ libssh2_free(LIBSSH2_SESSION *session, void *ptr)
 #include <stdarg.h>
 
 LIBSSH2_API int
-libssh2_trace(LIBSSH2_SESSION * session, int bitmask)
+libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
 {
     session->showmask = bitmask;
     return 0;
@@ -558,7 +558,7 @@ libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *context,
 }
 
 void
-_libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
+_libssh2_debug_low(LIBSSH2_SESSION *session, int context, const char *format,
                    ...)
 {
     char buffer[1536];
@@ -631,7 +631,7 @@ _libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
 
 #else
 LIBSSH2_API int
-libssh2_trace(LIBSSH2_SESSION * session, int bitmask)
+libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
 {
     (void)session;
     (void)bitmask;
