@@ -394,7 +394,7 @@ struct libssh2_wincng_cipher_ctx {
  * Windows CNG backend: Cipher Type structure
  */
 
-struct _libssh2_wincng_cipher_type {
+struct libssh2_wincng_cipher_type {
     BCRYPT_ALG_HANDLE *phAlg;
     ULONG dwKeyLength;
     int useIV;      /* TODO: Convert to bool when a C89 compatible bool type
@@ -402,7 +402,7 @@ struct _libssh2_wincng_cipher_type {
     int ctrMode;
 };
 
-#define LIBSSH2_CIPHER_T(type) struct _libssh2_wincng_cipher_type type
+#define LIBSSH2_CIPHER_T(type) struct libssh2_wincng_cipher_type type
 
 #define libssh2_cipher_aes256ctr { &_libssh2_wincng.hAlgAES_ECB, 32, 0, 1 }
 #define libssh2_cipher_aes192ctr { &_libssh2_wincng.hAlgAES_ECB, 24, 0, 1 }
