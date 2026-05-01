@@ -4022,7 +4022,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
  * Agree on a cipher algo
  */
 static int kex_agree_crypt(LIBSSH2_SESSION *session,
-                           libssh2_endpoint_data *endpoint,
+                           struct endpoint_data *endpoint,
                            unsigned char *crypt,
                            size_t crypt_len)
 {
@@ -4077,7 +4077,7 @@ static int kex_agree_crypt(LIBSSH2_SESSION *session,
  * Agree on a message authentication hash
  */
 static int kex_agree_mac(LIBSSH2_SESSION *session,
-                         libssh2_endpoint_data *endpoint, unsigned char *mac,
+                         struct endpoint_data *endpoint, unsigned char *mac,
                          size_t mac_len)
 {
     const struct mac_method **macp = _libssh2_mac_methods();
@@ -4138,7 +4138,7 @@ static int kex_agree_mac(LIBSSH2_SESSION *session,
  * Agree on a compression scheme
  */
 static int kex_agree_comp(LIBSSH2_SESSION *session,
-                          libssh2_endpoint_data *endpoint, unsigned char *comp,
+                          struct endpoint_data *endpoint, unsigned char *comp,
                           size_t comp_len)
 {
     const LIBSSH2_COMP_METHOD **compp = _libssh2_comp_methods(session);

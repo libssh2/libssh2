@@ -585,8 +585,7 @@ struct _LIBSSH2_LISTENER
     size_t chanFwdCncl_data_len;
 };
 
-typedef struct _libssh2_endpoint_data
-{
+struct endpoint_data {
     unsigned char *banner;
 
     unsigned char *kexinit;
@@ -607,7 +606,7 @@ typedef struct _libssh2_endpoint_data
     char *mac_prefs;
     char *comp_prefs;
     char *lang_prefs;
-} libssh2_endpoint_data;
+};
 
 #define PACKETBUFSIZE MAX_SSH_PACKET_LEN
 
@@ -755,10 +754,10 @@ struct _LIBSSH2_SESSION
     int kex_strict;
 
     /* (remote as source of data -- packet_read ) */
-    libssh2_endpoint_data remote;
+    struct endpoint_data remote;
 
     /* (local as source of data -- packet_write ) */
-    libssh2_endpoint_data local;
+    struct endpoint_data local;
 
     /* Inbound Data linked list -- Sometimes the packet that comes in isn't the
        packet we're ready for */
