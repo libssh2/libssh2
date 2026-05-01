@@ -936,6 +936,8 @@ struct _LIBSSH2_SESSION
                                            + version_id(4) */
     size_t sftpInit_sent; /* number of bytes from the buffer that have been
                              sent */
+    int sftpInit_err_code; /* saved errorcode if close_channel returns
+                              EAGAIN */
 
     /* State variables used in libssh2_scp_recv2() */
     libssh2_nonblocking_states scpRecv_state;
