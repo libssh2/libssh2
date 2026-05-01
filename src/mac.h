@@ -64,6 +64,6 @@ struct mac_method {
 
 const struct mac_method **_libssh2_mac_methods(void);
 const struct mac_method *_libssh2_mac_override(
-    const LIBSSH2_CRYPT_METHOD *crypt);
+    const struct crypt_method *crypt);
 
 #endif /* LIBSSH2_MAC_H */
