@@ -65,7 +65,7 @@
 static inline int
 packet_queue_listener(LIBSSH2_SESSION *session, unsigned char *data,
                       size_t datalen,
-                      packet_queue_listener_state_t *listen_state)
+                      struct packet_queue_listener_state *listen_state)
 {
     /*
      * Look for a matching listener

@@ -380,8 +380,7 @@ struct key_exchange_state {
 
 #define FwdNotReq "Forward not requested"
 
-typedef struct packet_queue_listener_state_t
-{
+struct packet_queue_listener_state {
     libssh2_nonblocking_states state;
     unsigned char packet[17 + (sizeof(FwdNotReq) - 1)];
     unsigned char *host;
@@ -394,7 +393,7 @@ typedef struct packet_queue_listener_state_t
     uint32_t host_len;
     uint32_t shost_len;
     LIBSSH2_CHANNEL *channel;
-} packet_queue_listener_state_t;
+};
 
 #define X11FwdUnAvil "X11 Forward Unavailable"
 
@@ -902,7 +901,7 @@ struct _LIBSSH2_SESSION
     libssh2_nonblocking_states packAdd_state;
     LIBSSH2_CHANNEL *packAdd_channelp; /* keeper of the channel during EAGAIN
                                           states */
-    packet_queue_listener_state_t packAdd_Qlstn_state;
+    struct packet_queue_listener_state packAdd_Qlstn_state;
     packet_x11_open_state_t packAdd_x11open_state;
     packet_authagent_state_t packAdd_authagent_state;
 
