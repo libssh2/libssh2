@@ -341,20 +341,20 @@ typedef enum {
 
 #define LIBSSH2_CIPHER_T(algo)    mbedtls_cipher_type_t algo
 
-#define _libssh2_cipher_aes256ctr MBEDTLS_CIPHER_AES_256_CTR
-#define _libssh2_cipher_aes192ctr MBEDTLS_CIPHER_AES_192_CTR
-#define _libssh2_cipher_aes128ctr MBEDTLS_CIPHER_AES_128_CTR
-#define _libssh2_cipher_aes256    MBEDTLS_CIPHER_AES_256_CBC
-#define _libssh2_cipher_aes192    MBEDTLS_CIPHER_AES_192_CBC
-#define _libssh2_cipher_aes128    MBEDTLS_CIPHER_AES_128_CBC
+#define libssh2_cipher_aes256ctr  MBEDTLS_CIPHER_AES_256_CTR
+#define libssh2_cipher_aes192ctr  MBEDTLS_CIPHER_AES_192_CTR
+#define libssh2_cipher_aes128ctr  MBEDTLS_CIPHER_AES_128_CTR
+#define libssh2_cipher_aes256     MBEDTLS_CIPHER_AES_256_CBC
+#define libssh2_cipher_aes192     MBEDTLS_CIPHER_AES_192_CBC
+#define libssh2_cipher_aes128     MBEDTLS_CIPHER_AES_128_CBC
 #ifdef MBEDTLS_CIPHER_BLOWFISH_CBC
-#define _libssh2_cipher_blowfish  MBEDTLS_CIPHER_BLOWFISH_CBC
+#define libssh2_cipher_blowfish   MBEDTLS_CIPHER_BLOWFISH_CBC
 #endif
 #ifdef MBEDTLS_CIPHER_ARC4_128
-#define _libssh2_cipher_arcfour   MBEDTLS_CIPHER_ARC4_128
+#define libssh2_cipher_arcfour    MBEDTLS_CIPHER_ARC4_128
 #endif
-#define _libssh2_cipher_3des      MBEDTLS_CIPHER_DES_EDE3_CBC
-#define _libssh2_cipher_chacha20  MBEDTLS_CIPHER_CHACHA20_POLY1305
+#define libssh2_cipher_3des       MBEDTLS_CIPHER_DES_EDE3_CBC
+#define libssh2_cipher_chacha20   MBEDTLS_CIPHER_CHACHA20_POLY1305
 
 /*******************************************************************/
 /*

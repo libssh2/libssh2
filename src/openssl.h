@@ -394,20 +394,20 @@ libssh2_curve_type;
 #define libssh2_cipher_ctx EVP_CIPHER_CTX
 #endif
 
-#define _libssh2_cipher_aes256gcm EVP_aes_256_gcm
-#define _libssh2_cipher_aes128gcm EVP_aes_128_gcm
+#define libssh2_cipher_aes256gcm EVP_aes_256_gcm
+#define libssh2_cipher_aes128gcm EVP_aes_128_gcm
 
-#define _libssh2_cipher_aes256 EVP_aes_256_cbc
-#define _libssh2_cipher_aes192 EVP_aes_192_cbc
-#define _libssh2_cipher_aes128 EVP_aes_128_cbc
-#define _libssh2_cipher_aes128ctr EVP_aes_128_ctr
-#define _libssh2_cipher_aes192ctr EVP_aes_192_ctr
-#define _libssh2_cipher_aes256ctr EVP_aes_256_ctr
-#define _libssh2_cipher_blowfish EVP_bf_cbc
-#define _libssh2_cipher_arcfour EVP_rc4
-#define _libssh2_cipher_cast5 EVP_cast5_cbc
-#define _libssh2_cipher_3des EVP_des_ede3_cbc
-#define _libssh2_cipher_chacha20 NULL
+#define libssh2_cipher_aes256 EVP_aes_256_cbc
+#define libssh2_cipher_aes192 EVP_aes_192_cbc
+#define libssh2_cipher_aes128 EVP_aes_128_cbc
+#define libssh2_cipher_aes128ctr EVP_aes_128_ctr
+#define libssh2_cipher_aes192ctr EVP_aes_192_ctr
+#define libssh2_cipher_aes256ctr EVP_aes_256_ctr
+#define libssh2_cipher_blowfish EVP_bf_cbc
+#define libssh2_cipher_arcfour EVP_rc4
+#define libssh2_cipher_cast5 EVP_cast5_cbc
+#define libssh2_cipher_3des EVP_des_ede3_cbc
+#define libssh2_cipher_chacha20 NULL
 
 #ifdef HAVE_OPAQUE_STRUCTS
 #define _libssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_free(*(ctx))

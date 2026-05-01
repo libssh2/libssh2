@@ -404,15 +404,15 @@ struct _libssh2_wincng_cipher_type {
 
 #define LIBSSH2_CIPHER_T(type) struct _libssh2_wincng_cipher_type type
 
-#define _libssh2_cipher_aes256ctr { &_libssh2_wincng.hAlgAES_ECB, 32, 0, 1 }
-#define _libssh2_cipher_aes192ctr { &_libssh2_wincng.hAlgAES_ECB, 24, 0, 1 }
-#define _libssh2_cipher_aes128ctr { &_libssh2_wincng.hAlgAES_ECB, 16, 0, 1 }
-#define _libssh2_cipher_aes256    { &_libssh2_wincng.hAlgAES_CBC, 32, 1, 0 }
-#define _libssh2_cipher_aes192    { &_libssh2_wincng.hAlgAES_CBC, 24, 1, 0 }
-#define _libssh2_cipher_aes128    { &_libssh2_wincng.hAlgAES_CBC, 16, 1, 0 }
-#define _libssh2_cipher_arcfour   { &_libssh2_wincng.hAlgRC4_NA, 16, 0, 0 }
-#define _libssh2_cipher_3des      { &_libssh2_wincng.hAlg3DES_CBC, 24, 1, 0 }
-#define _libssh2_cipher_chacha20  { &_libssh2_wincng.hAlgChacha20, 24, 1, 0 }
+#define libssh2_cipher_aes256ctr { &_libssh2_wincng.hAlgAES_ECB, 32, 0, 1 }
+#define libssh2_cipher_aes192ctr { &_libssh2_wincng.hAlgAES_ECB, 24, 0, 1 }
+#define libssh2_cipher_aes128ctr { &_libssh2_wincng.hAlgAES_ECB, 16, 0, 1 }
+#define libssh2_cipher_aes256    { &_libssh2_wincng.hAlgAES_CBC, 32, 1, 0 }
+#define libssh2_cipher_aes192    { &_libssh2_wincng.hAlgAES_CBC, 24, 1, 0 }
+#define libssh2_cipher_aes128    { &_libssh2_wincng.hAlgAES_CBC, 16, 1, 0 }
+#define libssh2_cipher_arcfour   { &_libssh2_wincng.hAlgRC4_NA, 16, 0, 0 }
+#define libssh2_cipher_3des      { &_libssh2_wincng.hAlg3DES_CBC, 24, 1, 0 }
+#define libssh2_cipher_chacha20  { &_libssh2_wincng.hAlgChacha20, 24, 1, 0 }
 
 /*
  * Windows CNG backend: Cipher functions

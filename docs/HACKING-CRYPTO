@@ -341,15 +341,15 @@ LIBSSH2_AES
 #define as 1 if the crypto library supports AES in CBC mode, else 0.
 If defined as 0, the rest of this section can be omitted.
 
-_libssh2_cipher_aes128
+libssh2_cipher_aes128
 AES-128-CBC algorithm identifier initializer.
 #define with constant value of type LIBSSH2_CIPHER_T().
 
-_libssh2_cipher_aes192
+libssh2_cipher_aes192
 AES-192-CBC algorithm identifier initializer.
 #define with constant value of type LIBSSH2_CIPHER_T().
 
-_libssh2_cipher_aes256
+libssh2_cipher_aes256
 AES-256-CBC algorithm identifier initializer.
 #define with constant value of type LIBSSH2_CIPHER_T().
 
@@ -358,15 +358,15 @@ LIBSSH2_AES_CTR
 #define as 1 if the crypto library supports AES in CTR mode, else 0.
 If defined as 0, the rest of this section can be omitted.
 
-_libssh2_cipher_aes128ctr
+libssh2_cipher_aes128ctr
 AES-128-CTR algorithm identifier initializer.
 #define with constant value of type LIBSSH2_CIPHER_T().
 
-_libssh2_cipher_aes192ctr
+libssh2_cipher_aes192ctr
 AES-192-CTR algorithm identifier initializer.
 #define with constant value of type LIBSSH2_CIPHER_T().
 
-_libssh2_cipher_aes256ctr
+libssh2_cipher_aes256ctr
 AES-256-CTR algorithm identifier initializer.
 #define with constant value of type LIBSSH2_CIPHER_T().
 
@@ -375,7 +375,7 @@ LIBSSH2_BLOWFISH
 #define as 1 if the crypto library supports blowfish in CBC mode, else 0.
 If defined as 0, the rest of this section can be omitted.
 
-_libssh2_cipher_blowfish
+libssh2_cipher_blowfish
 Blowfish-CBC algorithm identifier initializer.
 #define with constant value of type LIBSSH2_CIPHER_T().
 
@@ -384,7 +384,7 @@ LIBSSH2_RC4
 #define as 1 if the crypto library supports RC4 (arcfour), else 0.
 If defined as 0, the rest of this section can be omitted.
 
-_libssh2_cipher_arcfour
+libssh2_cipher_arcfour
 RC4 algorithm identifier initializer.
 #define with constant value of type LIBSSH2_CIPHER_T().
 
@@ -393,7 +393,7 @@ LIBSSH2_CAST
 #define 1 if the crypto library supports cast, else 0.
 If defined as 0, the rest of this section can be omitted.
 
-_libssh2_cipher_cast5
+libssh2_cipher_cast5
 CAST5-CBC algorithm identifier initializer.
 #define with constant value of type LIBSSH2_CIPHER_T().
 
@@ -402,7 +402,7 @@ LIBSSH2_3DES
 #define as 1 if the crypto library supports TripleDES in CBC mode, else 0.
 If defined as 0, the rest of this section can be omitted.
 
-_libssh2_cipher_3des
+libssh2_cipher_3des
 TripleDES-CBC algorithm identifier initializer.
 #define with constant value of type LIBSSH2_CIPHER_T().
 

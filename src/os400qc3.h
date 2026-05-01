@@ -300,23 +300,20 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define _libssh2_bn_bytes(bn)   ((bn)->length)
 
 #define LIBSSH2_CIPHER_T(name)  struct os400qc3_cipher name
-#define _libssh2_cipher_aes128 {Qc3_Alg_Block_Cipher, Qc3_AES, 16,          \
-                                Qc3_CBC, 16}
-#define _libssh2_cipher_aes192 {Qc3_Alg_Block_Cipher, Qc3_AES, 16,          \
-                                Qc3_CBC, 24}
-#define _libssh2_cipher_aes256 {Qc3_Alg_Block_Cipher, Qc3_AES, 16,          \
-                                Qc3_CBC, 32}
-#define _libssh2_cipher_aes128ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 16,       \
-                                   Qc3_CTR, 16}
-#define _libssh2_cipher_aes192ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 16,       \
-                                   Qc3_CTR, 24}
-#define _libssh2_cipher_aes256ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 16,       \
-                                   Qc3_CTR, 32}
-#define _libssh2_cipher_3des {Qc3_Alg_Block_Cipher, Qc3_TDES, 8,            \
-                              Qc3_CBC, 24}
+#define libssh2_cipher_aes128 {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 16}
+#define libssh2_cipher_aes192 {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 24}
+#define libssh2_cipher_aes256 {Qc3_Alg_Block_Cipher, Qc3_AES, 16,          \
+                               Qc3_CBC, 32}
+#define libssh2_cipher_aes128ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 16,       \
+                                  Qc3_CTR, 16}
+#define libssh2_cipher_aes192ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 16,       \
+                                  Qc3_CTR, 24}
+#define libssh2_cipher_aes256ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 16,       \
+                                  Qc3_CTR, 32}
+#define libssh2_cipher_3des {Qc3_Alg_Block_Cipher, Qc3_TDES, 8, Qc3_CBC, 24}
 /* Nonsense values for chacha20-poly1305 */
-#define _libssh2_cipher_chacha20 {Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16}
-#define _libssh2_cipher_arcfour {Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16}
+#define libssh2_cipher_chacha20 {Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16}
+#define libssh2_cipher_arcfour  {Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16}
 
 #define _libssh2_cipher_dtor(ctx) _libssh2_os400qc3_crypto_dtor(ctx)
 
