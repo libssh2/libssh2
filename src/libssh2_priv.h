@@ -952,9 +952,9 @@ struct _LIBSSH2_SESSION {
 /* session.flag helpers */
 #ifdef MSG_NOSIGNAL
 #define LIBSSH2_SOCKET_SEND_FLAGS(session)         \
-    (((session)->flag.sigpipe) ? 0 : MSG_NOSIGNAL)
+    ((session)->flag.sigpipe ? 0 : MSG_NOSIGNAL)
 #define LIBSSH2_SOCKET_RECV_FLAGS(session)         \
-    (((session)->flag.sigpipe) ? 0 : MSG_NOSIGNAL)
+    ((session)->flag.sigpipe ? 0 : MSG_NOSIGNAL)
 #else
 /* If MSG_NOSIGNAL isn't defined we're SOL on blocking SIGPIPE */
 #define LIBSSH2_SOCKET_SEND_FLAGS(session) 0
