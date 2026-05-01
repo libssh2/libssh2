@@ -31,13 +31,14 @@ Deprecation notices:
 
 - The next release drops support for the above options.
 
-- This release dropped support for OpenSSL <1.1.1 and LibreSSL <2.7.
-
-- The next release drops mbedTLS 2.x support, following its
-  deprecation upstream.
+- This release drops support for OpenSSL <1.1.1, LibreSSL <2.7,
+  mbedTLS 2.x, zlib <1.2.5.2, old/classic mingw, mingw-w64 <3.0.
 
 - This release drops support for Visual Studio 2008 and older.
   Requiring 2010 or newer (`_MSC_VER` >= 1600).
+
+- This release drops support for Windows XP and older.
+  Requiring Windows Vista / Server 2008 or newer.
 
 - This release always enables large file support on Windows.
 

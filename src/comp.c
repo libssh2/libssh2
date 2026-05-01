@@ -194,11 +194,7 @@ comp_method_zlib_comp(LIBSSH2_SESSION *session,
     uInt out_maxlen = (uInt)*dest_len;
     int status;
 
-#ifdef z_const
     strm->next_in = (z_const Bytef *)src;
-#else
-    strm->next_in = (Bytef *)LIBSSH2_UNCONST(src);
-#endif
     strm->avail_in = (uInt)src_len;
     strm->next_out = dest;
     strm->avail_out = out_maxlen;
@@ -252,11 +248,7 @@ comp_method_zlib_decomp(LIBSSH2_SESSION *session,
     if(out_maxlen > payload_limit)
         out_maxlen = payload_limit;
 
-#ifdef z_const
     strm->next_in = (z_const Bytef *)src;
-#else
-    strm->next_in = (Bytef *)LIBSSH2_UNCONST(src);
-#endif
     strm->avail_in = (uInt)src_len;
     strm->next_out = (Bytef *)LIBSSH2_ALLOC(session, (uInt)out_maxlen);
     out = (char *)strm->next_out;
