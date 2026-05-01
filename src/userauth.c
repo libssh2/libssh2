@@ -55,6 +55,13 @@
 
 #include <stdlib.h>  /* strtol() */
 
+/* Reject inputs implausibly larger than any legitimate SSH field
+   (username, hostname, method name, public-key blob, etc.). The cap
+   prevents size_t addition from wrapping when computing packet sizes
+   on 32-bit (or any) platforms, which would otherwise lead to
+   undersized heap allocations followed by out-of-bounds writes. */
+#define LIBSSH2_USERAUTH_FIELD_MAX 65536
+
 /* userauth_list
  *
  * List authentication methods
@@ -1075,21 +1082,11 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                 return rc;
         }
 
-        /*
-         * Reject implausibly large input lengths before computing the
-         * packet size. Each of these fields is a short, bounded string
-         * (username, hostname, method name, public key blob, etc.) and
-         * none should ever come close to 64 KiB in legitimate use. This
-         * cap prevents the size_t additions below from wrapping on
-         * 32-bit (or any) platforms, which would otherwise lead to an
-         * undersized heap allocation followed by out-of-bounds writes
-         * in the _libssh2_store_str() calls that follow.
-         */
-        if(username_len                       > 65536 ||
-           session->userauth_host_method_len  > 65536 ||
-           hostname_len                       > 65536 ||
-           local_username_len                 > 65536 ||
-           pubkeydata_len                     > 65536) {
+        if(username_len > LIBSSH2_USERAUTH_FIELD_MAX ||
+           session->userauth_host_method_len > LIBSSH2_USERAUTH_FIELD_MAX ||
+           hostname_len > LIBSSH2_USERAUTH_FIELD_MAX ||
+           local_username_len > LIBSSH2_USERAUTH_FIELD_MAX ||
+           pubkeydata_len > LIBSSH2_USERAUTH_FIELD_MAX) {
             LIBSSH2_FREE(session, session->userauth_host_method);
             session->userauth_host_method = NULL;
             LIBSSH2_FREE(session, pubkeydata);
@@ -1637,6 +1634,15 @@ retry_auth:
                            session->userauth_pblc_method));
         }
 
+        if(username_len > LIBSSH2_USERAUTH_FIELD_MAX ||
+           session->userauth_pblc_method_len > LIBSSH2_USERAUTH_FIELD_MAX ||
+           pubkeydata_len > LIBSSH2_USERAUTH_FIELD_MAX) {
+            LIBSSH2_FREE(session, session->userauth_pblc_method);
+            session->userauth_pblc_method = NULL;
+            return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                                  "Input lengths too large");
+        }
+
         /*
          * 45 = packet_type(1) + username_len(4) + servicename_len(4) +
          * service_name(14)"ssh-connection" + authmethod_len(4) +
@@ -2171,6 +2177,11 @@ userauth_keyboard_interactive(LIBSSH2_SESSION *session,
         /* Zero the whole thing out */
         memset(&session->userauth_kybd_packet_requirev_state, 0,
                sizeof(session->userauth_kybd_packet_requirev_state));
+
+        if(username_len > LIBSSH2_USERAUTH_FIELD_MAX) {
+            return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                                  "Input lengths too large");
+        }
 
         session->userauth_kybd_packet_len =
             1                   /* byte    SSH_MSG_USERAUTH_REQUEST */
