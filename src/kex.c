@@ -4081,8 +4081,8 @@ static int kex_agree_mac(LIBSSH2_SESSION *session,
                          libssh2_endpoint_data *endpoint, unsigned char *mac,
                          size_t mac_len)
 {
-    const LIBSSH2_MAC_METHOD **macp = _libssh2_mac_methods();
-    const LIBSSH2_MAC_METHOD *override;
+    const struct mac_method **macp = _libssh2_mac_methods();
+    const struct mac_method *override;
     unsigned char *s;
     (void)session;
 
@@ -4102,9 +4102,9 @@ static int kex_agree_mac(LIBSSH2_SESSION *session,
             size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
 
             if(_libssh2_kex_agree_instr(mac, mac_len, s, method_len)) {
-                const LIBSSH2_MAC_METHOD *method = (const LIBSSH2_MAC_METHOD *)
+                const struct mac_method *method = (const struct mac_method *)
                     kex_get_method_by_name((char *)s, method_len,
-                                           (const LIBSSH2_COMMON_METHOD **)
+                                           (const LIBSSH2_COMMON_METHOD**)
                                            macp);
 
                 if(!method) {

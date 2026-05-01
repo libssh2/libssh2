@@ -41,8 +41,7 @@
 
 #include "libssh2_priv.h"
 
-struct _LIBSSH2_MAC_METHOD
-{
+struct mac_method {
     const char *name;
 
     /* The length of a given MAC packet */
@@ -63,10 +62,8 @@ struct _LIBSSH2_MAC_METHOD
     int etm; /* encrypt-then-mac */
 };
 
-typedef struct _LIBSSH2_MAC_METHOD LIBSSH2_MAC_METHOD;
-
-const LIBSSH2_MAC_METHOD **_libssh2_mac_methods(void);
-const LIBSSH2_MAC_METHOD *_libssh2_mac_override(
-        const LIBSSH2_CRYPT_METHOD *crypt);
+const struct mac_method **_libssh2_mac_methods(void);
+const struct mac_method *_libssh2_mac_override(
+    const LIBSSH2_CRYPT_METHOD *crypt);
 
 #endif /* LIBSSH2_MAC_H */
