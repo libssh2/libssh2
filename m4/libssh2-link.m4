@@ -178,8 +178,6 @@ dnl   acl_hardcode_direct,
 dnl   acl_hardcode_minus_L.
 AC_DEFUN([LIBSSH2_RPATH],
 [
-  dnl Tell automake >= 1.10 to complain if config.rpath is missing.
-  m4_ifdef([AC_REQUIRE_AUX_FILE], [AC_REQUIRE_AUX_FILE([config.rpath])])
   AC_REQUIRE([AC_PROG_CC])                dnl we use $CC, $GCC, $LDFLAGS
   AC_REQUIRE([AC_CANONICAL_HOST])         dnl we use $host
   AC_REQUIRE([AC_CONFIG_AUX_DIR_DEFAULT]) dnl we use $ac_aux_dir
