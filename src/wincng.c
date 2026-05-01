@@ -260,7 +260,7 @@ typedef enum {
     WINCNG_ECC_KEYTYPE_ECDH = 1,
 } _libssh2_wincng_ecc_keytype;
 
-typedef struct __libssh2_wincng_ecdsa_algorithm {
+struct ecdsa_algorithm {
     /* Algorithm name */
     const char *name;
 
@@ -279,10 +279,10 @@ typedef struct __libssh2_wincng_ecdsa_algorithm {
 
     /* Magic for private key import, indexed by _libssh2_wincng_ecc_keytype */
     ULONG private_import_magic[2];
-} _libssh2_wincng_ecdsa_algorithm;
+};
 
 /* Supported algorithms, indexed by libssh2_curve_type */
-static _libssh2_wincng_ecdsa_algorithm _wincng_ecdsa_algorithms[] = {
+static const struct ecdsa_algorithm _wincng_ecdsa_algorithms[] = {
     {
         "ecdsa-sha2-nistp256",
         256,
@@ -310,7 +310,7 @@ static _libssh2_wincng_ecdsa_algorithm _wincng_ecdsa_algorithms[] = {
 };
 
 /* An encoded point */
-typedef struct __libssh2_ecdsa_point {
+struct ecdsa_point {
     libssh2_curve_type curve;
 
     const unsigned char *x;
@@ -318,7 +318,7 @@ typedef struct __libssh2_ecdsa_point {
 
     const unsigned char *y;
     ULONG y_len;
-} _libssh2_ecdsa_point;
+};
 
 /* Lookup libssh2_curve_type by name */
 static int
@@ -327,7 +327,7 @@ _libssh2_wincng_ecdsa_curve_type_from_name(IN const char *name,
 
 /* Parse an OpenSSL-formatted ECDSA private key */
 static int
-_libssh2_wincng_parse_ecdsa_privatekey(OUT _libssh2_wincng_ecdsa_key **key,
+_libssh2_wincng_parse_ecdsa_privatekey(OUT struct wincng_ecdsa_ctx **key,
                                        IN unsigned char *privatekey,
                                        IN size_t privatekey_len);
 
@@ -619,7 +619,7 @@ static void memcpy_with_be_padding(unsigned char *dest, ULONG dest_len,
  * Windows CNG backend: Hash functions
  */
 
-int _libssh2_wincng_hash_init(_libssh2_wincng_hash_ctx *ctx,
+int _libssh2_wincng_hash_init(struct wincng_hash_ctx *ctx,
                               BCRYPT_ALG_HANDLE hAlg, ULONG hashlen,
                               unsigned char *key, ULONG keylen)
 {
@@ -666,7 +666,7 @@ int _libssh2_wincng_hash_init(_libssh2_wincng_hash_ctx *ctx,
 }
 
 int
-_libssh2_wincng_hash_update(_libssh2_wincng_hash_ctx *ctx,
+_libssh2_wincng_hash_update(struct wincng_hash_ctx *ctx,
                             const void *data, ULONG datalen)
 {
     int ret;
@@ -677,7 +677,7 @@ _libssh2_wincng_hash_update(_libssh2_wincng_hash_ctx *ctx,
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-int _libssh2_wincng_hash_final(_libssh2_wincng_hash_ctx *ctx,
+int _libssh2_wincng_hash_final(struct wincng_hash_ctx *ctx,
                                unsigned char *hash)
 {
     int ret;
@@ -698,7 +698,7 @@ int _libssh2_wincng_hash(const unsigned char *data, ULONG datalen,
                          BCRYPT_ALG_HANDLE hAlg,
                          unsigned char *hash, ULONG hashlen)
 {
-    _libssh2_wincng_hash_ctx ctx;
+    struct wincng_hash_ctx ctx;
     int ret;
 
     ret = _libssh2_wincng_hash_init(&ctx, hAlg, hashlen, NULL, 0);
@@ -793,7 +793,7 @@ void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
  * Windows CNG backend: Key functions
  */
 
-static int _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
+static int _libssh2_wincng_key_sha_verify(struct wincng_key_ctx *ctx,
                                           ULONG hashlen,
                                           const unsigned char *sig,
                                           ULONG sig_len,
@@ -1850,7 +1850,7 @@ static int
 _libssh2_wincng_ecdsa_decode_uncompressed_point(
     IN const unsigned char *encoded_point,
     IN size_t encoded_point_len,
-    OUT _libssh2_ecdsa_point *point)
+    OUT struct ecdsa_point *point)
 {
     unsigned int curve;
 
@@ -1955,7 +1955,7 @@ _libssh2_wincng_p1363signature_from_point(IN const unsigned char *r,
  */
 static int
 _libssh2_wincng_publickey_from_point(IN _libssh2_wincng_ecc_keytype keytype,
-                                     IN _libssh2_ecdsa_point *point,
+                                     IN struct ecdsa_point *point,
                                      OUT BCRYPT_KEY_HANDLE *key)
 {
     int result = LIBSSH2_ERROR_NONE;
@@ -2023,7 +2023,7 @@ cleanup:
  */
 static int
 _libssh2_wincng_privatekey_from_point(IN _libssh2_wincng_ecc_keytype keytype,
-                                      IN _libssh2_ecdsa_point *q,
+                                      IN struct ecdsa_point *q,
                                       IN unsigned char *d,
                                       IN size_t d_len,
                                       OUT BCRYPT_KEY_HANDLE *key)
@@ -2209,7 +2209,7 @@ _libssh_wincng_reverse_bytes(IN PUCHAR buffer,
  * Windows CNG backend: ECDSA functions
  */
 void
-_libssh2_wincng_ecdsa_free(IN _libssh2_wincng_ecdsa_key *key)
+_libssh2_wincng_ecdsa_free(IN struct wincng_ecdsa_ctx *key)
 {
     if(!key) {
         return;
@@ -2227,7 +2227,7 @@ _libssh2_wincng_ecdsa_free(IN _libssh2_wincng_ecdsa_key *key)
  */
 int
 _libssh2_wincng_ecdh_create_key(IN LIBSSH2_SESSION *session,
-                                OUT _libssh2_wincng_ecdsa_key **privatekey,
+                                OUT struct wincng_ecdsa_ctx **privatekey,
                                 OUT unsigned char **encoded_publickey,
                                 OUT size_t *encoded_publickey_len,
                                 IN libssh2_curve_type curve)
@@ -2290,7 +2290,7 @@ _libssh2_wincng_ecdh_create_key(IN LIBSSH2_SESSION *session,
             "Exporting ECDH key pair failed");
     }
 
-    *privatekey = malloc(sizeof(_libssh2_wincng_ecdsa_key));
+    *privatekey = malloc(sizeof(struct wincng_ecdsa_ctx));
     if(!*privatekey) {
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
@@ -2318,7 +2318,7 @@ cleanup:
  */
 int
 _libssh2_wincng_ecdsa_curve_name_with_octal_new(
-    OUT _libssh2_wincng_ecdsa_key **key,
+    OUT struct wincng_ecdsa_ctx **key,
     IN const unsigned char *publickey_encoded,
     IN size_t publickey_encoded_len,
     IN libssh2_curve_type curve)
@@ -2326,7 +2326,7 @@ _libssh2_wincng_ecdsa_curve_name_with_octal_new(
     int result = LIBSSH2_ERROR_NONE;
 
     BCRYPT_KEY_HANDLE publickey_handle;
-    _libssh2_ecdsa_point publickey;
+    struct ecdsa_point publickey;
 
     /* Validate parameters */
     if(curve >= ARRAY_SIZE(_wincng_ecdsa_algorithms)) {
@@ -2355,7 +2355,7 @@ _libssh2_wincng_ecdsa_curve_name_with_octal_new(
         goto cleanup;
     }
 
-    *key = malloc(sizeof(_libssh2_wincng_ecdsa_key));
+    *key = malloc(sizeof(struct wincng_ecdsa_ctx));
     if(!*key) {
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
@@ -2377,7 +2377,7 @@ cleanup:
  */
 int
 _libssh2_wincng_ecdh_gen_k(OUT _libssh2_bn **secret,
-                           IN _libssh2_wincng_ecdsa_key *privatekey,
+                           IN struct wincng_ecdsa_ctx *privatekey,
                            IN const unsigned char *server_publickey_encoded,
                            IN size_t server_publickey_encoded_len)
 {
@@ -2387,7 +2387,7 @@ _libssh2_wincng_ecdh_gen_k(OUT _libssh2_bn **secret,
     BCRYPT_KEY_HANDLE publickey_handle;
     BCRYPT_SECRET_HANDLE agreed_secret_handle = NULL;
     ULONG secret_len;
-    _libssh2_ecdsa_point server_publickey;
+    struct ecdsa_point server_publickey;
 
     /* Validate parameters */
     if(!secret) {
@@ -2521,7 +2521,7 @@ _libssh2_wincng_ecdsa_curve_type_from_name(IN const char *name,
  *
  */
 int
-_libssh2_wincng_ecdsa_verify(IN _libssh2_wincng_ecdsa_key *key,
+_libssh2_wincng_ecdsa_verify(IN struct wincng_ecdsa_ctx *key,
                              IN const unsigned char *r,
                              IN size_t r_len,
                              IN const unsigned char *s,
@@ -2623,7 +2623,7 @@ cleanup:
  *
  */
 int
-_libssh2_wincng_ecdsa_new_private(OUT _libssh2_wincng_ecdsa_key **key,
+_libssh2_wincng_ecdsa_new_private(OUT struct wincng_ecdsa_ctx **key,
                                   IN LIBSSH2_SESSION *session,
                                   IN const char *filename,
                                   IN const unsigned char *passphrase)
@@ -2691,7 +2691,7 @@ cleanup:
 }
 
 int
-_libssh2_wincng_parse_ecdsa_privatekey(OUT _libssh2_wincng_ecdsa_key **key,
+_libssh2_wincng_parse_ecdsa_privatekey(OUT struct wincng_ecdsa_ctx **key,
                                        IN unsigned char *privatekey,
                                        IN size_t privatekey_len)
 {
@@ -2709,7 +2709,7 @@ _libssh2_wincng_parse_ecdsa_privatekey(OUT _libssh2_wincng_ecdsa_key **key,
     uint32_t check1, check2;
     struct string_buf data_buffer;
 
-    _libssh2_ecdsa_point q;
+    struct ecdsa_point q;
     unsigned char *d;
     size_t d_len;
 
@@ -2792,7 +2792,7 @@ _libssh2_wincng_parse_ecdsa_privatekey(OUT _libssh2_wincng_ecdsa_key **key,
         goto cleanup;
     }
 
-    *key = malloc(sizeof(_libssh2_wincng_ecdsa_key));
+    *key = malloc(sizeof(struct wincng_ecdsa_ctx));
     if(!*key) {
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
@@ -2820,7 +2820,7 @@ cleanup:
  */
 int
 _libssh2_wincng_ecdsa_new_private_frommemory(
-    OUT _libssh2_wincng_ecdsa_key **key,
+    OUT struct wincng_ecdsa_ctx **key,
     IN LIBSSH2_SESSION *session,
     IN const char *data,
     IN size_t data_len,
@@ -2928,7 +2928,7 @@ cleanup:
  */
 int
 _libssh2_wincng_ecdsa_sign(IN LIBSSH2_SESSION *session,
-                           IN _libssh2_wincng_ecdsa_key *key,
+                           IN struct wincng_ecdsa_ctx *key,
                            IN const unsigned char *hash,
                            IN size_t hash_len,
                            OUT unsigned char **signature,
@@ -3034,7 +3034,7 @@ cleanup:
  *
  */
 libssh2_curve_type
-_libssh2_wincng_ecdsa_get_curve_type(IN _libssh2_wincng_ecdsa_key *key)
+_libssh2_wincng_ecdsa_get_curve_type(IN struct wincng_ecdsa_ctx *key)
 {
     return key->curve;
 }
@@ -3771,7 +3771,7 @@ _libssh2_wincng_bignum_free(_libssh2_bn *bn)
  */
 
 void
-_libssh2_dh_init(_libssh2_dh_ctx *dhctx)
+_libssh2_dh_init(struct wincng_dh_ctx *dhctx)
 {
     /* Random from client */
     dhctx->dh_handle = NULL;
@@ -3780,7 +3780,7 @@ _libssh2_dh_init(_libssh2_dh_ctx *dhctx)
 }
 
 void
-_libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
+_libssh2_dh_dtor(struct wincng_dh_ctx *dhctx)
 {
     if(dhctx->dh_handle) {
         BCryptDestroyKey(dhctx->dh_handle);
@@ -3810,7 +3810,7 @@ round_down(int number, int multiple)
  * the public key is returned in `public'.  0 is returned upon success, else
  * -1.  */
 int
-_libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
+_libssh2_dh_key_pair(struct wincng_dh_ctx *dhctx, _libssh2_bn *public,
                      _libssh2_bn *g, _libssh2_bn *p, int group_order)
 {
     const int hasAlgDHwithKDF = _libssh2_wincng.hasAlgDHwithKDF;
@@ -4000,7 +4000,7 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
  * used at context creation. The result is stored in `secret'.  0 is returned
  * upon success, else -1.  */
 int
-_libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
+_libssh2_dh_secret(struct wincng_dh_ctx *dhctx, _libssh2_bn *secret,
                    _libssh2_bn *f, _libssh2_bn *p)
 {
     if(_libssh2_wincng.hAlgDH && _libssh2_wincng.hasAlgDHwithKDF != -1 &&
