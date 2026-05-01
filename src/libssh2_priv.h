@@ -344,8 +344,7 @@ struct kmdhgGPshakex_state {
     libssh2_nonblocking_states burn_state;
 };
 
-typedef struct key_exchange_state_low_t
-{
+struct key_exchange_state_low {
     libssh2_nonblocking_states state;
     struct packet_require_state req_state;
     struct kmdhgGPshakex_state exchange_state;
@@ -367,13 +366,13 @@ typedef struct key_exchange_state_low_t
                                               bytes */
     unsigned char *mlkem_public_key; /* ML-KEM public key */
     unsigned char *mlkem_private_key; /* ML-KEM private key */
-} key_exchange_state_low_t;
+};
 
 typedef struct key_exchange_state_t
 {
     libssh2_nonblocking_states state;
     struct packet_require_state req_state;
-    key_exchange_state_low_t key_state_low;
+    struct key_exchange_state_low key_state_low;
     unsigned char *data;
     size_t data_len;
     unsigned char *oldlocal;
@@ -983,10 +982,10 @@ struct kex_method {
     /* Key exchange, populates session->* and returns 0 on success, non-0 on
        error */
     int (*exchange_keys)(LIBSSH2_SESSION *session,
-                         key_exchange_state_low_t *key_state);
+                         struct key_exchange_state_low *key_state);
 
     void (*cleanup)(LIBSSH2_SESSION *session,
-                    key_exchange_state_low_t *key_state);
+                    struct key_exchange_state_low *key_state);
 
     long flags;
 };
