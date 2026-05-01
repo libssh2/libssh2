@@ -876,6 +876,8 @@ m4_case([$1],
 [openssl], [
   LIBSSH2_LIB_HAVE_LINKFLAGS([ssl], [crypto], [#include <openssl/ssl.h>], [
     AC_DEFINE(LIBSSH2_OPENSSL, 1, [Use $1])
+    found_crypto="$1"
+    found_crypto_str="OpenSSL"
 
     AC_MSG_CHECKING([for BoringSSL])
     AC_COMPILE_IFELSE([
@@ -888,7 +890,7 @@ m4_case([$1],
       ]])
     ],[
       AC_MSG_RESULT([yes])
-      ssl_msg="BoringSSL"
+      found_crypto_str="BoringSSL"
       OPENSSL_IS_BORINGSSL=1
     ],[
       AC_MSG_RESULT([no])
@@ -897,8 +899,6 @@ m4_case([$1],
     if test "$OPENSSL_IS_BORINGSSL" != "1"; then  dnl BoringSSL does not provide libcrypto.pc
       LIBSSH2_PC_REQUIRES_PRIVATE="$LIBSSH2_PC_REQUIRES_PRIVATE${LIBSSH2_PC_REQUIRES_PRIVATE:+,}libcrypto"
     fi
-    found_crypto="$1"
-    found_crypto_str="OpenSSL"
   ])
 ],
 
