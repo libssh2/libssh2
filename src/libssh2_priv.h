@@ -368,8 +368,7 @@ struct key_exchange_state_low {
     unsigned char *mlkem_private_key; /* ML-KEM private key */
 };
 
-typedef struct key_exchange_state_t
-{
+struct key_exchange_state {
     libssh2_nonblocking_states state;
     struct packet_require_state req_state;
     struct key_exchange_state_low key_state_low;
@@ -377,7 +376,7 @@ typedef struct key_exchange_state_t
     size_t data_len;
     unsigned char *oldlocal;
     size_t oldlocal_len;
-} key_exchange_state_t;
+};
 
 #define FwdNotReq "Forward not requested"
 
@@ -796,7 +795,7 @@ struct _LIBSSH2_SESSION
     unsigned char startup_service[sizeof("ssh-userauth") + 5 - 1];
     size_t startup_service_length;
     struct packet_require_state startup_req_state;
-    key_exchange_state_t startup_key_state;
+    struct key_exchange_state startup_key_state;
 
     /* State variables used in libssh2_session_free() */
     libssh2_nonblocking_states free_state;
@@ -1193,7 +1192,7 @@ ssize_t _libssh2_send(libssh2_socket_t socket, const void *buffer,
                                            waiting for more data to arrive */
 
 int _libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
-                          key_exchange_state_t *key_state);
+                          struct key_exchange_state *key_state);
 
 unsigned char *_libssh2_kex_agree_instr(unsigned char *haystack,
                                         size_t haystack_len,

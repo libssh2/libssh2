@@ -1418,8 +1418,9 @@ libssh2_packet_add_jump_authagent:
     }
 
     if((msg == SSH_MSG_KEXINIT &&
-         !(session->state & LIBSSH2_STATE_EXCHANGING_KEYS)) ||
+        !(session->state & LIBSSH2_STATE_EXCHANGING_KEYS)) ||
         (session->packAdd_state == libssh2_NB_state_sent2)) {
+
         if(session->packAdd_state == libssh2_NB_state_sent1) {
             /*
              * Remote wants new keys
@@ -1443,7 +1444,8 @@ libssh2_packet_add_jump_authagent:
         session->packAdd_state = libssh2_NB_state_idle;
         session->fullpacket_state = libssh2_NB_state_idle;
 
-        memset(&session->startup_key_state, 0, sizeof(key_exchange_state_t));
+        memset(&session->startup_key_state, 0,
+               sizeof(session->startup_key_state));
 
         /*
          * If there was a key reexchange failure, let's just hope we didn't

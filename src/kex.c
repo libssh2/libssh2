@@ -4300,7 +4300,7 @@ static int kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *data,
  */
 int
 _libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
-                      key_exchange_state_t *key_state)
+                      struct key_exchange_state *key_state)
 {
     int rc = 0;
     int retcode;
