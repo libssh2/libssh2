@@ -184,7 +184,7 @@ fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */ )
     struct transportpacket *p = &session->packet;
     int rc;
     int compressed;
-    const LIBSSH2_MAC_METHOD *remote_mac = NULL;
+    const struct mac_method *remote_mac = NULL;
     uint32_t seq = session->remote.seqno;
 
     memset(macbuf, '\0', sizeof(macbuf));
@@ -390,7 +390,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
     int encrypted = 1; /* whether the packet is encrypted or not */
     int firstlast = FIRST_BLOCK; /* if the first or last block to decrypt */
     unsigned int auth_len = 0; /* length of the authentication tag */
-    const LIBSSH2_MAC_METHOD *remote_mac = NULL; /* The remote MAC, if used */
+    const struct mac_method *remote_mac = NULL; /* The remote MAC, if used */
 
     block[4] = 0;
 
@@ -1022,7 +1022,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
     ssize_t ret;
     int rc;
     const unsigned char *orgdata = data;
-    const LIBSSH2_MAC_METHOD *local_mac = NULL;
+    const struct mac_method *local_mac = NULL;
     unsigned int auth_len = 0;
     size_t orgdata_len = data_len;
     size_t crypt_offset, etm_crypt_offset;
@@ -1035,7 +1035,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
      * See the similar block in _libssh2_transport_read for more details.
      */
     if(session->state & LIBSSH2_STATE_EXCHANGING_KEYS &&
-        !(session->state & LIBSSH2_STATE_KEX_ACTIVE)) {
+       !(session->state & LIBSSH2_STATE_KEX_ACTIVE)) {
         /* Don't write any new packets if we're still in the middle of a key
          * exchange. */
         _libssh2_debug((session, LIBSSH2_TRACE_TRANS, "Redirecting into the"

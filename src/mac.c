@@ -64,7 +64,7 @@ mac_none_MAC(LIBSSH2_SESSION *session, unsigned char *buf,
     return 0;
 }
 
-static LIBSSH2_MAC_METHOD mac_method_none = {
+static const struct mac_method mac_method_none = {
     "none",
     0,
     0,
@@ -136,7 +136,7 @@ mac_method_hmac_sha2_512_hash(LIBSSH2_SESSION *session,
     return !res;
 }
 
-static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_512 = {
+static const struct mac_method mac_method_hmac_sha2_512 = {
     "hmac-sha2-512",
     64,
     64,
@@ -146,7 +146,7 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_512 = {
     0
 };
 
-static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_512_etm = {
+static const struct mac_method mac_method_hmac_sha2_512_etm = {
     "hmac-sha2-512-etm@openssh.com",
     64,
     64,
@@ -191,7 +191,7 @@ mac_method_hmac_sha2_256_hash(LIBSSH2_SESSION *session,
     return !res;
 }
 
-static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_256 = {
+static const struct mac_method mac_method_hmac_sha2_256 = {
     "hmac-sha2-256",
     32,
     32,
@@ -201,7 +201,7 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_256 = {
     0
 };
 
-static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_256_etm = {
+static const struct mac_method mac_method_hmac_sha2_256_etm = {
     "hmac-sha2-256-etm@openssh.com",
     32,
     32,
@@ -245,7 +245,7 @@ mac_method_hmac_sha1_hash(LIBSSH2_SESSION *session,
     return !res;
 }
 
-static const LIBSSH2_MAC_METHOD mac_method_hmac_sha1 = {
+static const struct mac_method mac_method_hmac_sha1 = {
     "hmac-sha1",
     20,
     20,
@@ -255,7 +255,7 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_sha1 = {
     0
 };
 
-static const LIBSSH2_MAC_METHOD mac_method_hmac_sha1_etm = {
+static const struct mac_method mac_method_hmac_sha1_etm = {
     "hmac-sha1-etm@openssh.com",
     20,
     20,
@@ -286,7 +286,7 @@ mac_method_hmac_sha1_96_hash(LIBSSH2_SESSION *session,
     return 0;
 }
 
-static const LIBSSH2_MAC_METHOD mac_method_hmac_sha1_96 = {
+static const struct mac_method mac_method_hmac_sha1_96 = {
     "hmac-sha1-96",
     12,
     20,
@@ -329,7 +329,7 @@ mac_method_hmac_md5_hash(LIBSSH2_SESSION *session, unsigned char *buf,
     return !res;
 }
 
-static const LIBSSH2_MAC_METHOD mac_method_hmac_md5 = {
+static const struct mac_method mac_method_hmac_md5 = {
     "hmac-md5",
     16,
     16,
@@ -360,7 +360,7 @@ mac_method_hmac_md5_96_hash(LIBSSH2_SESSION *session,
     return 0;
 }
 
-static const LIBSSH2_MAC_METHOD mac_method_hmac_md5_96 = {
+static const struct mac_method mac_method_hmac_md5_96 = {
     "hmac-md5-96",
     12,
     16,
@@ -405,7 +405,7 @@ mac_method_hmac_ripemd160_hash(LIBSSH2_SESSION *session,
     return !res;
 }
 
-static const LIBSSH2_MAC_METHOD mac_method_hmac_ripemd160 = {
+static const struct mac_method mac_method_hmac_ripemd160 = {
     "hmac-ripemd160",
     20,
     20,
@@ -415,7 +415,7 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_ripemd160 = {
     0
 };
 
-static const LIBSSH2_MAC_METHOD mac_method_hmac_ripemd160_openssh_com = {
+static const struct mac_method mac_method_hmac_ripemd160_openssh_com = {
     "hmac-ripemd160@openssh.com",
     20,
     20,
@@ -426,7 +426,7 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_ripemd160_openssh_com = {
 };
 #endif /* LIBSSH2_HMAC_RIPEMD */
 
-static const LIBSSH2_MAC_METHOD *mac_methods[] = {
+static const struct mac_method *mac_methods[] = {
 #if LIBSSH2_HMAC_SHA256
     &mac_method_hmac_sha2_256,
     &mac_method_hmac_sha2_256_etm,
@@ -452,7 +452,7 @@ static const LIBSSH2_MAC_METHOD *mac_methods[] = {
     NULL
 };
 
-const LIBSSH2_MAC_METHOD **
+const struct mac_method**
 _libssh2_mac_methods(void)
 {
     return mac_methods;
@@ -500,7 +500,7 @@ mac_method_none_dtor(LIBSSH2_SESSION *session, void **abstract)
 /* Stub for aes256-gcm@openssh.com crypto type, which has an integrated
    HMAC method. This must not be added to mac_methods[] since it cannot be
    negotiated separately. */
-static const LIBSSH2_MAC_METHOD mac_method_hmac_aesgcm = {
+static const struct mac_method mac_method_hmac_aesgcm = {
     "INTEGRATED-AES-GCM",  /* made up name for display only */
     16,
     16,
@@ -513,7 +513,7 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_aesgcm = {
 
 /* See if the negotiated crypto method has its own authentication scheme that
  * obviates the need for a separate negotiated hmac method */
-const LIBSSH2_MAC_METHOD *
+const struct mac_method *
 _libssh2_mac_override(const LIBSSH2_CRYPT_METHOD *crypt)
 {
 #if LIBSSH2_AES_GCM

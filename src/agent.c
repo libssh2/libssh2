@@ -118,18 +118,18 @@ typedef enum {
     agent_NB_state_response_received
 } agent_nonblocking_states;
 
-typedef struct agent_transaction_ctx {
+struct agent_transaction_ctx {
     unsigned char *request;
     size_t request_len;
     unsigned char *response;
     size_t response_len;
     agent_nonblocking_states state;
     size_t send_recv_total;
-} *agent_transaction_ctx_t;
+};
 
 typedef int (*agent_connect_func)(LIBSSH2_AGENT *agent);
 typedef int (*agent_transact_func)(LIBSSH2_AGENT *agent,
-                                   agent_transaction_ctx_t transctx);
+                                   struct agent_transaction_ctx *transctx);
 typedef int (*agent_disconnect_func)(LIBSSH2_AGENT *agent);
 
 struct agent_publickey {
@@ -376,8 +376,8 @@ win32_openssh_recv_all(LIBSSH2_AGENT *agent, void *buffer, size_t length,
     WIN32_RECV_SEND_ALL(ReadFile, agent, buffer, length, send_recv_total)
 }
 
-static int
-agent_transact_openssh(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
+static int agent_transact_openssh(LIBSSH2_AGENT *agent,
+                                  struct agent_transaction_ctx *transctx)
 {
     unsigned char buf[4];
     int rc;
@@ -548,8 +548,8 @@ static ssize_t _recv_all(LIBSSH2_RECV_FUNC(func), libssh2_socket_t socket,
                   flags, abstract);
 }
 
-static int
-agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
+static int agent_transact_unix(LIBSSH2_AGENT *agent,
+                               struct agent_transaction_ctx *transctx)
 {
     unsigned char buf[4];
     int rc;
@@ -661,8 +661,8 @@ agent_connect_pageant(LIBSSH2_AGENT *agent)
     return LIBSSH2_ERROR_NONE;
 }
 
-static int
-agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
+static int agent_transact_pageant(LIBSSH2_AGENT *agent,
+                                  struct agent_transaction_ctx *transctx)
 {
     HWND hwnd;
     char mapname[23];
@@ -768,7 +768,7 @@ agent_sign(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
            const unsigned char *data, size_t data_len, void **abstract)
 {
     LIBSSH2_AGENT *agent = (LIBSSH2_AGENT *)(*abstract);
-    agent_transaction_ctx_t transctx = &agent->transctx;
+    struct agent_transaction_ctx *transctx = &agent->transctx;
     struct agent_publickey *identity = agent->identity;
     ssize_t len = 1 + 4 + identity->external.blob_len + 4 + data_len + 4;
     ssize_t method_len;
@@ -928,7 +928,7 @@ error:
 static int
 agent_list_identities(LIBSSH2_AGENT *agent)
 {
-    agent_transaction_ctx_t transctx = &agent->transctx;
+    struct agent_transaction_ctx *transctx = &agent->transctx;
     ssize_t len, num_identities;
     unsigned char *s;
     int rc;

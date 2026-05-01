@@ -595,7 +595,7 @@ typedef struct _libssh2_endpoint_data
     const LIBSSH2_CRYPT_METHOD *crypt;
     void *crypt_abstract;
 
-    const struct _LIBSSH2_MAC_METHOD *mac;
+    const struct mac_method *mac;
     uint32_t seqno;
     void *mac_abstract;
 

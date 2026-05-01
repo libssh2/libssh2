@@ -172,7 +172,7 @@ sftp_packet_add(LIBSSH2_SFTP *sftp, unsigned char *data,
                 size_t data_len)
 {
     LIBSSH2_SESSION *session = sftp->channel->session;
-    LIBSSH2_SFTP_PACKET *packet;
+    struct sftp_packet *packet;
     uint32_t request_id;
 
     if(data_len < 5) {
@@ -243,7 +243,7 @@ sftp_packet_add(LIBSSH2_SFTP *sftp, unsigned char *data,
         return LIBSSH2_ERROR_NONE;
     }
 
-    packet = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_SFTP_PACKET));
+    packet = LIBSSH2_ALLOC(session, sizeof(struct sftp_packet));
     if(!packet) {
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate datablock for SFTP packet");
@@ -463,7 +463,7 @@ sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
                 size_t *data_len)
 {
     LIBSSH2_SESSION *session = sftp->channel->session;
-    LIBSSH2_SFTP_PACKET *packet = _libssh2_list_first(&sftp->packets);
+    struct sftp_packet *packet = _libssh2_list_first(&sftp->packets);
 
     if(!packet)
         return -1;
@@ -2614,12 +2614,12 @@ static void sftp_packet_flush(LIBSSH2_SFTP *sftp)
 {
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
-    LIBSSH2_SFTP_PACKET *packet = _libssh2_list_first(&sftp->packets);
+    struct sftp_packet *packet = _libssh2_list_first(&sftp->packets);
     struct sftp_zombie_requests *zombie =
         _libssh2_list_first(&sftp->zombie_requests);
 
     while(packet) {
-        LIBSSH2_SFTP_PACKET *next;
+        struct sftp_packet *next;
 
         /* check next struct in the list */
         next = _libssh2_list_next(&packet->node);
