@@ -132,22 +132,20 @@ found_crypto=none
 found_crypto_str=""
 crypto_errors=""
 
-m4_set_add([crypto_backends], [openssl])
-m4_set_add([crypto_backends], [libgcrypt])
-m4_set_add([crypto_backends], [mbedtls])
-m4_set_add([crypto_backends], [wincng])
-m4_set_add([crypto_backends], [wolfssl])
-
 AC_ARG_WITH([crypto],
-  AS_HELP_STRING([--with-crypto=auto|]m4_set_contents([crypto_backends], [|]),
+  AS_HELP_STRING([--with-crypto=auto|openssl|libgcrypt|mbedtls|wincng|wolfssl],
     [Select crypto backend (default: auto)]),
   use_crypto=$withval,
   use_crypto=auto
 )
 
 case "${use_crypto}" in
-  auto|m4_set_contents([crypto_backends], [|]))
-    m4_set_map([crypto_backends], [LIBSSH2_CHECK_CRYPTO])
+  auto|openssl|libgcrypt|mbedtls|wincng|wolfssl)
+    LIBSSH2_CHECK_CRYPTO([openssl])
+    LIBSSH2_CHECK_CRYPTO([libgcrypt])
+    LIBSSH2_CHECK_CRYPTO([mbedtls])
+    LIBSSH2_CHECK_CRYPTO([wincng])
+    LIBSSH2_CHECK_CRYPTO([wolfssl])
     ;;
   yes|"")
     crypto_errors="No crypto backend specified."
@@ -161,7 +159,7 @@ if test "$found_crypto" = "none"; then
   crypto_errors="${crypto_errors}
 Specify --with-crypto=\$backend and/or the necessary library search prefix.
 
-Known crypto backends: auto, m4_set_contents([crypto_backends], [, ])"
+Known crypto backends: auto, openssl, libgcrypt, mbedtls, wincng, wolfssl"
   AS_MESSAGE([ERROR: ${crypto_errors}])
 else
   test "$found_crypto_str" = "" && found_crypto_str="$found_crypto"
