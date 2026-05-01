@@ -39,13 +39,13 @@
  * Bruce Schneier.
  */
 
-#if defined(LIBSSH2_BCRYPT_PBKDF_C) || defined(_DEBUG_BLOWFISH)
+#if defined(LIBSSH2_BCRYPT_PBKDF_C) || defined(DEBUG_BLOWFISH)
 
 #if !defined(HAVE_BCRYPT_PBKDF) && (!defined(HAVE_BLOWFISH_INITSTATE) || \
                                     !defined(HAVE_BLOWFISH_EXPAND0STATE) || \
                                     !defined(HAVE_BLF_ENC))
 
-#ifdef _DEBUG_BLOWFISH
+#ifdef DEBUG_BLOWFISH
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
@@ -109,7 +109,7 @@ static void Blowfish_encipher(struct blf_ctx *c, uint32_t *xl, uint32_t *xr)
     *xr = Xl;
 }
 
-#ifdef _DEBUG_BLOWFISH
+#ifdef DEBUG_BLOWFISH
 static void Blowfish_decipher(struct blf_ctx *c, uint32_t *xl, uint32_t *xr)
 {
     uint32_t Xl;
@@ -513,7 +513,7 @@ static void Blowfish_expandstate(struct blf_ctx *c,
     }
 }
 
-#ifdef _DEBUG_BLOWFISH
+#ifdef DEBUG_BLOWFISH
 static void blf_key(struct blf_ctx *c, const uint8_t *k, uint16_t len)
 {
     /* Initialize S-boxes and subkeys with Pi */
@@ -536,7 +536,7 @@ static void blf_enc(struct blf_ctx *c, uint32_t *data, uint16_t blocks)
     }
 }
 
-#ifdef _DEBUG_BLOWFISH
+#ifdef DEBUG_BLOWFISH
 static void blf_dec(struct blf_ctx *c, uint32_t *data, uint16_t blocks)
 {
     uint32_t *d;
@@ -598,4 +598,4 @@ int main(void)
           !defined(HAVE_BLOWFISH_EXPAND0STATE) || \
           '!defined(HAVE_BLF_ENC)) */
 
-#endif /* defined(LIBSSH2_BCRYPT_PBKDF_C) || defined(_DEBUG_BLOWFISH) */
+#endif /* defined(LIBSSH2_BCRYPT_PBKDF_C) || defined(DEBUG_BLOWFISH) */
