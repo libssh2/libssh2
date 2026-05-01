@@ -3771,7 +3771,7 @@ _libssh2_wincng_bignum_free(_libssh2_bn *bn)
  */
 
 void
-_libssh2_dh_init(_libssh2_dh_ctx *dhctx)
+_libssh2_dh_init(struct wincng_dh_ctx *dhctx)
 {
     /* Random from client */
     dhctx->dh_handle = NULL;
@@ -3780,7 +3780,7 @@ _libssh2_dh_init(_libssh2_dh_ctx *dhctx)
 }
 
 void
-_libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
+_libssh2_dh_dtor(struct wincng_dh_ctx *dhctx)
 {
     if(dhctx->dh_handle) {
         BCryptDestroyKey(dhctx->dh_handle);
@@ -3810,7 +3810,7 @@ round_down(int number, int multiple)
  * the public key is returned in `public'.  0 is returned upon success, else
  * -1.  */
 int
-_libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
+_libssh2_dh_key_pair(struct wincng_dh_ctx *dhctx, _libssh2_bn *public,
                      _libssh2_bn *g, _libssh2_bn *p, int group_order)
 {
     const int hasAlgDHwithKDF = _libssh2_wincng.hasAlgDHwithKDF;
@@ -4000,7 +4000,7 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
  * used at context creation. The result is stored in `secret'.  0 is returned
  * upon success, else -1.  */
 int
-_libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
+_libssh2_dh_secret(struct wincng_dh_ctx *dhctx, _libssh2_bn *secret,
                    _libssh2_bn *f, _libssh2_bn *p)
 {
     if(_libssh2_wincng.hAlgDH && _libssh2_wincng.hasAlgDHwithKDF != -1 &&

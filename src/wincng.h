@@ -478,7 +478,7 @@ struct _libssh2_wincng_bignum {
 
 #define LIBSSH2_DH_MAX_MODULUS_BITS 16384
 
-typedef struct {
+struct wincng_dh_ctx {
     /* holds our private and public key components */
     BCRYPT_KEY_HANDLE dh_handle;
     /* records the parsed out modulus and generator
@@ -487,7 +487,7 @@ typedef struct {
     /* records the parsed out private key component for
      * fallback if the DH API raw KDF is not supported */
     struct _libssh2_wincng_bignum *dh_privbn;
-} _libssh2_dh_ctx;
+};
 
 #define libssh2_dh_init(dhctx) _libssh2_dh_init(dhctx)
 #define libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
@@ -544,14 +544,14 @@ _libssh2_wincng_bignum_to_bin(const _libssh2_bn *bn, unsigned char *bin);
 void
 _libssh2_wincng_bignum_free(_libssh2_bn *bn);
 extern void
-_libssh2_dh_init(_libssh2_dh_ctx *dhctx);
+_libssh2_dh_init(struct wincng_dh_ctx *dhctx);
 extern int
-_libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
+_libssh2_dh_key_pair(struct wincng_dh_ctx *dhctx, _libssh2_bn *public,
                      _libssh2_bn *g, _libssh2_bn *p, int group_order);
 extern int
-_libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
+_libssh2_dh_secret(struct wincng_dh_ctx *dhctx, _libssh2_bn *secret,
                    _libssh2_bn *f, _libssh2_bn *p);
 extern void
-_libssh2_dh_dtor(_libssh2_dh_ctx *dhctx);
+_libssh2_dh_dtor(struct wincng_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_WINCNG_H */
