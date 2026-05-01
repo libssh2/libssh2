@@ -223,7 +223,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
     eval additional_includedir=\"$includedir\"
     eval additional_libdir=\"$libdir\"
   ])
-  LIBSSH2_ARG_WITH([lib]N_A_M_E[-prefix],
+  AC_ARG_WITH([lib]N_A_M_E[-prefix],
 [  --with-lib]N_A_M_E[-prefix[=DIR]  search for lib$1 in DIR/include and DIR/lib
   --without-lib]N_A_M_E[-prefix     don't search for lib$1 in includedir and libdir],
 [
