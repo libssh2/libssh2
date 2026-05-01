@@ -247,7 +247,7 @@
 #define PKCS_RSA_PRIVATE_KEY ((LPCSTR)(size_t)43)
 #endif
 
-static int _libssh2_wincng_bignum_resize(_libssh2_bn* bn, ULONG length);
+static int _libssh2_wincng_bignum_resize(libssh2_bn* bn, ULONG length);
 
 /*******************************************************************/
 /*
@@ -2376,7 +2376,7 @@ cleanup:
  * remote public key and length
  */
 int
-_libssh2_wincng_ecdh_gen_k(OUT _libssh2_bn **secret,
+_libssh2_wincng_ecdh_gen_k(OUT libssh2_bn **secret,
                            IN struct wincng_ecdsa_ctx *privatekey,
                            IN const unsigned char *server_publickey_encoded,
                            IN size_t server_publickey_encoded_len)
@@ -3298,8 +3298,8 @@ _libssh2_wincng_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
  * Windows CNG backend: Cipher functions
  */
 int
-_libssh2_wincng_cipher_init(_libssh2_cipher_ctx *h,
-                            _libssh2_cipher_type(algo),
+_libssh2_wincng_cipher_init(libssh2_cipher_ctx *h,
+                            LIBSSH2_CIPHER_T(algo),
                             unsigned char *iv,
                             unsigned char *secret,
                             int encrypt)
@@ -3414,8 +3414,8 @@ static void _libssh2_aes_ctr_increment(unsigned char *ctr,
 }
 
 int
-_libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
-                             _libssh2_cipher_type(algo),
+_libssh2_wincng_cipher_crypt(libssh2_cipher_ctx *ctx,
+                             LIBSSH2_CIPHER_T(algo),
                              int encrypt,
                              unsigned char *block,
                              size_t blocksize, int firstlast)
@@ -3478,7 +3478,7 @@ _libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
 }
 
 void
-_libssh2_wincng_cipher_dtor(_libssh2_cipher_ctx *ctx)
+_libssh2_wincng_cipher_dtor(libssh2_cipher_ctx *ctx)
 {
     BCryptDestroyKey(ctx->hKey);
     ctx->hKey = NULL;
@@ -3501,12 +3501,12 @@ _libssh2_wincng_cipher_dtor(_libssh2_cipher_ctx *ctx)
  * Windows CNG backend: BigNumber functions
  */
 
-_libssh2_bn *
+libssh2_bn *
 _libssh2_wincng_bignum_init(void)
 {
-    _libssh2_bn *bignum;
+    libssh2_bn *bignum;
 
-    bignum = (_libssh2_bn *)malloc(sizeof(_libssh2_bn));
+    bignum = (libssh2_bn *)malloc(sizeof(libssh2_bn));
     if(bignum) {
         bignum->bignum = NULL;
         bignum->length = 0;
@@ -3516,7 +3516,7 @@ _libssh2_wincng_bignum_init(void)
 }
 
 static int
-_libssh2_wincng_bignum_resize(_libssh2_bn *bn, ULONG length)
+_libssh2_wincng_bignum_resize(libssh2_bn *bn, ULONG length)
 {
     unsigned char *bignum;
 
@@ -3541,7 +3541,7 @@ _libssh2_wincng_bignum_resize(_libssh2_bn *bn, ULONG length)
 }
 
 static int
-_libssh2_wincng_bignum_rand(_libssh2_bn *rnd, int bits, int top, int bottom)
+_libssh2_wincng_bignum_rand(libssh2_bn *rnd, int bits, int top, int bottom)
 {
     unsigned char *bignum;
     ULONG length;
@@ -3583,10 +3583,10 @@ _libssh2_wincng_bignum_rand(_libssh2_bn *rnd, int bits, int top, int bottom)
 }
 
 static int
-_libssh2_wincng_bignum_mod_exp(_libssh2_bn *r,
-                               _libssh2_bn *a,
-                               _libssh2_bn *p,
-                               _libssh2_bn *m)
+_libssh2_wincng_bignum_mod_exp(libssh2_bn *r,
+                               libssh2_bn *a,
+                               libssh2_bn *p,
+                               libssh2_bn *m)
 {
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_RSAKEY_BLOB *rsakey;
@@ -3658,7 +3658,7 @@ _libssh2_wincng_bignum_mod_exp(_libssh2_bn *r,
 }
 
 int
-_libssh2_wincng_bignum_set_word(_libssh2_bn *bn, ULONG word)
+_libssh2_wincng_bignum_set_word(libssh2_bn *bn, ULONG word)
 {
     ULONG offset, number, bits, length;
 
@@ -3682,7 +3682,7 @@ _libssh2_wincng_bignum_set_word(_libssh2_bn *bn, ULONG word)
 }
 
 ULONG
-_libssh2_wincng_bignum_bits(const _libssh2_bn *bn)
+_libssh2_wincng_bignum_bits(const libssh2_bn *bn)
 {
     unsigned char number;
     ULONG offset, length, bits;
@@ -3705,7 +3705,7 @@ _libssh2_wincng_bignum_bits(const _libssh2_bn *bn)
 }
 
 int
-_libssh2_wincng_bignum_from_bin(_libssh2_bn *bn, ULONG len,
+_libssh2_wincng_bignum_from_bin(libssh2_bn *bn, ULONG len,
                                 const unsigned char *bin)
 {
     unsigned char *bignum;
@@ -3742,7 +3742,7 @@ _libssh2_wincng_bignum_from_bin(_libssh2_bn *bn, ULONG len,
 }
 
 int
-_libssh2_wincng_bignum_to_bin(const _libssh2_bn *bn, unsigned char *bin)
+_libssh2_wincng_bignum_to_bin(const libssh2_bn *bn, unsigned char *bin)
 {
     if(bin && bn && bn->bignum && bn->length > 0) {
         memcpy(bin, bn->bignum, bn->length);
@@ -3753,7 +3753,7 @@ _libssh2_wincng_bignum_to_bin(const _libssh2_bn *bn, unsigned char *bin)
 }
 
 void
-_libssh2_wincng_bignum_free(_libssh2_bn *bn)
+_libssh2_wincng_bignum_free(libssh2_bn *bn)
 {
     if(bn) {
         if(bn->bignum) {
@@ -3761,7 +3761,7 @@ _libssh2_wincng_bignum_free(_libssh2_bn *bn)
             bn->bignum = NULL;
         }
         bn->length = 0;
-        _libssh2_wincng_safe_free(bn, sizeof(_libssh2_bn));
+        _libssh2_wincng_safe_free(bn, sizeof(libssh2_bn));
     }
 }
 
@@ -3810,8 +3810,8 @@ round_down(int number, int multiple)
  * the public key is returned in `public'.  0 is returned upon success, else
  * -1.  */
 int
-_libssh2_dh_key_pair(struct wincng_dh_ctx *dhctx, _libssh2_bn *public,
-                     _libssh2_bn *g, _libssh2_bn *p, int group_order)
+_libssh2_dh_key_pair(struct wincng_dh_ctx *dhctx, libssh2_bn *public,
+                     libssh2_bn *g, libssh2_bn *p, int group_order)
 {
     const int hasAlgDHwithKDF = _libssh2_wincng.hasAlgDHwithKDF;
 
@@ -4000,8 +4000,8 @@ _libssh2_dh_key_pair(struct wincng_dh_ctx *dhctx, _libssh2_bn *public,
  * used at context creation. The result is stored in `secret'.  0 is returned
  * upon success, else -1.  */
 int
-_libssh2_dh_secret(struct wincng_dh_ctx *dhctx, _libssh2_bn *secret,
-                   _libssh2_bn *f, _libssh2_bn *p)
+_libssh2_dh_secret(struct wincng_dh_ctx *dhctx, libssh2_bn *secret,
+                   libssh2_bn *f, libssh2_bn *p)
 {
     if(_libssh2_wincng.hAlgDH && _libssh2_wincng.hasAlgDHwithKDF != -1 &&
        dhctx->dh_handle && dhctx->dh_params && f) {

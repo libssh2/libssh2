@@ -989,8 +989,8 @@ cleanup:
 #endif /* LIBSSH2_ECDSA */
 
 int
-_libssh2_cipher_init(_libssh2_cipher_ctx *h,
-                     _libssh2_cipher_type(algo),
+_libssh2_cipher_init(libssh2_cipher_ctx *h,
+                     LIBSSH2_CIPHER_T(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
@@ -1024,8 +1024,8 @@ _libssh2_cipher_init(_libssh2_cipher_ctx *h,
 #endif
 
 int
-_libssh2_cipher_crypt(_libssh2_cipher_ctx *ctx,
-                      _libssh2_cipher_type(algo),
+_libssh2_cipher_crypt(libssh2_cipher_ctx *ctx,
+                      LIBSSH2_CIPHER_T(algo),
                       int encrypt, unsigned char *block, size_t blocksize,
                       int firstlast)
 {
@@ -4229,7 +4229,7 @@ _libssh2_ecdsa_new_private_sk(libssh2_ecdsa_ctx **ec_ctx,
 
 int
 _libssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
-                          _libssh2_ec_key **out_private_key,
+                          libssh2_ec_key **out_private_key,
                           unsigned char **out_public_key_octal,
                           size_t *out_public_key_octal_len,
                           libssh2_curve_type curve_type)
@@ -4237,7 +4237,7 @@ _libssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
     int ret = 1;
     size_t octal_len = 0;
     unsigned char octal_value[EC_MAX_POINT_LEN];
-    _libssh2_ec_key *private_key = NULL;
+    libssh2_ec_key *private_key = NULL;
 
 #ifdef USE_OPENSSL_3
     EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
@@ -4347,7 +4347,7 @@ clean_exit:
  */
 
 int
-_libssh2_ecdh_gen_k(_libssh2_bn **k, _libssh2_ec_key *private_key,
+_libssh2_ecdh_gen_k(libssh2_bn **k, libssh2_ec_key *private_key,
                     const unsigned char *server_public_key,
                     size_t server_public_key_len)
 {
@@ -4577,7 +4577,7 @@ clean_exit:
 }
 
 int
-_libssh2_curve25519_gen_k(_libssh2_bn **k,
+_libssh2_curve25519_gen_k(libssh2_bn **k,
                           uint8_t private_key[LIBSSH2_ED25519_KEY_LEN],
                           uint8_t server_public_key[LIBSSH2_ED25519_KEY_LEN])
 {
@@ -5298,15 +5298,15 @@ _libssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
 }
 
 void
-_libssh2_dh_init(_libssh2_dh_ctx *dhctx)
+_libssh2_dh_init(libssh2_dh_ctx *dhctx)
 {
     *dhctx = BN_new();                          /* Random from client */
 }
 
 int
-_libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
-                     _libssh2_bn *g, _libssh2_bn *p, int group_order,
-                     _libssh2_bn_ctx *bnctx)
+_libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
+                     libssh2_bn *g, libssh2_bn *p, int group_order,
+                     libssh2_bn_ctx *bnctx)
 {
     /* Generate x and e */
     BN_rand(*dhctx, group_order * 8 - 1, 0, -1);
@@ -5315,9 +5315,9 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
 }
 
 int
-_libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
-                   _libssh2_bn *f, _libssh2_bn *p,
-                   _libssh2_bn_ctx *bnctx)
+_libssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
+                   libssh2_bn *f, libssh2_bn *p,
+                   libssh2_bn_ctx *bnctx)
 {
     /* Compute the shared secret */
     BN_mod_exp(secret, f, *dhctx, p, bnctx);
@@ -5325,14 +5325,14 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
 }
 
 void
-_libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
+_libssh2_dh_dtor(libssh2_dh_ctx *dhctx)
 {
     BN_clear_free(*dhctx);
     *dhctx = NULL;
 }
 
 int
-_libssh2_bn_from_bin(_libssh2_bn *bn, size_t len, const unsigned char *val)
+_libssh2_bn_from_bin(libssh2_bn *bn, size_t len, const unsigned char *val)
 {
     if(!BN_bin2bn(val, (int)len, bn)) {
         return -1;

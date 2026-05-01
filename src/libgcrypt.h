@@ -155,43 +155,43 @@
 
 #if LIBSSH2_ECDSA
 #else
-#define _libssh2_ec_key void
+#define libssh2_ec_key void
 #endif
 
-#define _libssh2_cipher_type(name) int name
-#define _libssh2_cipher_ctx gcry_cipher_hd_t
+#define LIBSSH2_CIPHER_T(name) int name
+#define libssh2_cipher_ctx gcry_cipher_hd_t
 
 #define _libssh2_gcry_ciphermode(c,m) (((c) << 8) | (m))
 #define _libssh2_gcry_cipher(c) ((c) >> 8)
 #define _libssh2_gcry_mode(m) ((m) & 0xFF)
 
-#define _libssh2_cipher_aes256ctr \
+#define libssh2_cipher_aes256ctr \
     _libssh2_gcry_ciphermode(GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR)
-#define _libssh2_cipher_aes192ctr \
+#define libssh2_cipher_aes192ctr \
     _libssh2_gcry_ciphermode(GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CTR)
-#define _libssh2_cipher_aes128ctr \
+#define libssh2_cipher_aes128ctr \
     _libssh2_gcry_ciphermode(GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR)
-#define _libssh2_cipher_aes256 \
+#define libssh2_cipher_aes256 \
     _libssh2_gcry_ciphermode(GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CBC)
-#define _libssh2_cipher_aes192 \
+#define libssh2_cipher_aes192 \
     _libssh2_gcry_ciphermode(GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CBC)
-#define _libssh2_cipher_aes128 \
+#define libssh2_cipher_aes128 \
     _libssh2_gcry_ciphermode(GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CBC)
-#define _libssh2_cipher_blowfish \
+#define libssh2_cipher_blowfish \
     _libssh2_gcry_ciphermode(GCRY_CIPHER_BLOWFISH, GCRY_CIPHER_MODE_CBC)
-#define _libssh2_cipher_arcfour \
+#define libssh2_cipher_arcfour \
     _libssh2_gcry_ciphermode(GCRY_CIPHER_ARCFOUR, GCRY_CIPHER_MODE_STREAM)
-#define _libssh2_cipher_cast5 \
+#define libssh2_cipher_cast5 \
     _libssh2_gcry_ciphermode(GCRY_CIPHER_CAST5, GCRY_CIPHER_MODE_CBC)
-#define _libssh2_cipher_3des \
+#define libssh2_cipher_3des \
     _libssh2_gcry_ciphermode(GCRY_CIPHER_3DES, GCRY_CIPHER_MODE_CBC)
-#define _libssh2_cipher_chacha20 \
+#define libssh2_cipher_chacha20 \
     _libssh2_gcry_ciphermode(GCRY_CIPHER_CHACHA20, GCRY_CIPHER_MODE_STREAM)
 
 #define _libssh2_cipher_dtor(ctx) gcry_cipher_close(*(ctx))
 
-#define _libssh2_bn struct gcry_mpi
-#define _libssh2_bn_ctx int
+#define libssh2_bn struct gcry_mpi
+#define libssh2_bn_ctx int
 #define _libssh2_bn_ctx_new() 0
 #define _libssh2_bn_ctx_free(bnctx) ((void)0)
 #define _libssh2_bn_init() gcry_mpi_new(0)
@@ -216,7 +216,7 @@
 
 #define LIBSSH2_DH_MAX_MODULUS_BITS 16384
 
-#define _libssh2_dh_ctx struct gcry_mpi *
+#define libssh2_dh_ctx struct gcry_mpi *
 #define libssh2_dh_init(dhctx) _libssh2_dh_init(dhctx)
 #define libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
     _libssh2_dh_key_pair(dhctx, public, g, p, group_order)
@@ -224,12 +224,12 @@
     _libssh2_dh_secret(dhctx, secret, f, p)
 #define libssh2_dh_dtor(dhctx) _libssh2_dh_dtor(dhctx)
 extern void _libssh2_init_aes_ctr(void);
-extern void _libssh2_dh_init(_libssh2_dh_ctx *dhctx);
-extern int _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
-                                _libssh2_bn *g, _libssh2_bn *p,
+extern void _libssh2_dh_init(libssh2_dh_ctx *dhctx);
+extern int _libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
+                                libssh2_bn *g, libssh2_bn *p,
                                 int group_order);
-extern int _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
-                              _libssh2_bn *f, _libssh2_bn *p);
-extern void _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx);
+extern int _libssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
+                              libssh2_bn *f, libssh2_bn *p);
+extern void _libssh2_dh_dtor(libssh2_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_LIBGCRYPT_H */

@@ -103,8 +103,8 @@ _libssh2_mbedtls_safe_free(void *buf, size_t len)
 }
 
 int
-_libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *h,
-                             _libssh2_cipher_type(algo),
+_libssh2_mbedtls_cipher_init(libssh2_cipher_ctx *h,
+                             LIBSSH2_CIPHER_T(algo),
                              unsigned char *iv,
                              unsigned char *secret,
                              int encrypt)
@@ -151,8 +151,8 @@ _libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *h,
 }
 
 int
-_libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
-                              _libssh2_cipher_type(algo),
+_libssh2_mbedtls_cipher_crypt(libssh2_cipher_ctx *ctx,
+                              LIBSSH2_CIPHER_T(algo),
                               int encrypt,
                               unsigned char *block,
                               size_t blocksize, int firstlast)
@@ -191,7 +191,7 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
 }
 
 void
-_libssh2_mbedtls_cipher_dtor(_libssh2_cipher_ctx *ctx)
+_libssh2_mbedtls_cipher_dtor(libssh2_cipher_ctx *ctx)
 {
     mbedtls_cipher_free(ctx);
 }
@@ -314,12 +314,12 @@ void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
  * mbedTLS backend: BigNumber functions
  */
 
-_libssh2_bn *
+libssh2_bn *
 _libssh2_mbedtls_bignum_init(void)
 {
-    _libssh2_bn *bignum;
+    libssh2_bn *bignum;
 
-    bignum = (_libssh2_bn *)mbedtls_calloc(1, sizeof(_libssh2_bn));
+    bignum = (libssh2_bn *)mbedtls_calloc(1, sizeof(libssh2_bn));
     if(bignum) {
         mbedtls_mpi_init(bignum);
     }
@@ -328,7 +328,7 @@ _libssh2_mbedtls_bignum_init(void)
 }
 
 void
-_libssh2_mbedtls_bignum_free(_libssh2_bn *bn)
+_libssh2_mbedtls_bignum_free(libssh2_bn *bn)
 {
     if(bn) {
         mbedtls_mpi_free(bn);
@@ -337,7 +337,7 @@ _libssh2_mbedtls_bignum_free(_libssh2_bn *bn)
 }
 
 static int
-_libssh2_mbedtls_bignum_random(_libssh2_bn *bn, int bits, int top, int bottom)
+_libssh2_mbedtls_bignum_random(libssh2_bn *bn, int bits, int top, int bottom)
 {
     size_t len;
     int err;
@@ -906,14 +906,14 @@ void _libssh2_init_aes_ctr(void)
  */
 
 void
-_libssh2_dh_init(_libssh2_dh_ctx *dhctx)
+_libssh2_dh_init(libssh2_dh_ctx *dhctx)
 {
     *dhctx = _libssh2_mbedtls_bignum_init();    /* Random from client */
 }
 
 int
-_libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
-                     _libssh2_bn *g, _libssh2_bn *p, int group_order)
+_libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
+                     libssh2_bn *g, libssh2_bn *p, int group_order)
 {
     /* Generate x and e */
     _libssh2_mbedtls_bignum_random(*dhctx, group_order * 8 - 1, 0, -1);
@@ -922,8 +922,8 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
 }
 
 int
-_libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
-                   _libssh2_bn *f, _libssh2_bn *p)
+_libssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
+                   libssh2_bn *f, libssh2_bn *p)
 {
     /* Compute the shared secret */
     mbedtls_mpi_exp_mod(secret, f, *dhctx, p, NULL);
@@ -931,7 +931,7 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
 }
 
 void
-_libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
+_libssh2_dh_dtor(libssh2_dh_ctx *dhctx)
 {
     _libssh2_mbedtls_bignum_free(*dhctx);
     *dhctx = NULL;
@@ -953,7 +953,7 @@ _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
  */
 int
 _libssh2_mbedtls_ecdsa_create_key(LIBSSH2_SESSION *session,
-                                  _libssh2_ec_key **out_private_key,
+                                  libssh2_ec_key **out_private_key,
                                   unsigned char **out_public_key_octal,
                                   size_t *out_public_key_octal_len,
                                   libssh2_curve_type curve_type)
@@ -1040,8 +1040,8 @@ failed:
  * remote public key and length
  */
 int
-_libssh2_mbedtls_ecdh_gen_k(_libssh2_bn **k,
-                            _libssh2_ec_key *private_key,
+_libssh2_mbedtls_ecdh_gen_k(libssh2_bn **k,
+                            libssh2_ec_key *private_key,
                             const unsigned char *server_public_key,
                             size_t server_public_key_len)
 {

@@ -204,13 +204,13 @@ _libssh2_ecdsa_verify(libssh2_ecdsa_ctx *ec_ctx,
 
 int
 _libssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
-                          _libssh2_ec_key **out_private_key,
+                          libssh2_ec_key **out_private_key,
                           unsigned char **out_public_key_octal,
                           size_t *out_public_key_octal_len,
                           libssh2_curve_type curve_type);
 
 int
-_libssh2_ecdh_gen_k(_libssh2_bn **k, _libssh2_ec_key *private_key,
+_libssh2_ecdh_gen_k(libssh2_bn **k, libssh2_ec_key *private_key,
                     const unsigned char *server_public_key,
                     size_t server_public_key_len);
 
@@ -251,7 +251,7 @@ _libssh2_curve25519_new(LIBSSH2_SESSION *session, uint8_t **out_public_key,
                         uint8_t **out_private_key);
 
 int
-_libssh2_curve25519_gen_k(_libssh2_bn **k,
+_libssh2_curve25519_gen_k(libssh2_bn **k,
                           uint8_t private_key[LIBSSH2_ED25519_KEY_LEN],
                           uint8_t server_public_key[LIBSSH2_ED25519_KEY_LEN]);
 
@@ -320,13 +320,13 @@ _libssh2_mlkem_get_sk(unsigned char *out_shared_key,
 
 #endif /* LIBSSH2_MLKEM */
 
-int _libssh2_cipher_init(_libssh2_cipher_ctx *h,
-                         _libssh2_cipher_type(algo),
+int _libssh2_cipher_init(libssh2_cipher_ctx *h,
+                         LIBSSH2_CIPHER_T(algo),
                          unsigned char *iv,
                          unsigned char *secret, int encrypt);
 
-int _libssh2_cipher_crypt(_libssh2_cipher_ctx *ctx,
-                          _libssh2_cipher_type(algo),
+int _libssh2_cipher_crypt(libssh2_cipher_ctx *ctx,
+                          LIBSSH2_CIPHER_T(algo),
                           int encrypt, unsigned char *block, size_t blocksize,
                           int firstlast);
 
