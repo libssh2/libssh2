@@ -377,7 +377,7 @@ _libssh2_wincng_ecdsa_free(libssh2_ecdsa_ctx* ctx);
  * Windows CNG backend: Cipher Context structure
  */
 
-struct _libssh2_wincng_cipher_ctx {
+struct libssh2_wincng_cipher_ctx {
     BCRYPT_KEY_HANDLE hKey;
     unsigned char *pbKeyObject;
     unsigned char *pbIV;
@@ -388,7 +388,7 @@ struct _libssh2_wincng_cipher_ctx {
     ULONG dwCtrLength;
 };
 
-#define libssh2_cipher_ctx struct _libssh2_wincng_cipher_ctx
+#define libssh2_cipher_ctx struct libssh2_wincng_cipher_ctx
 
 /*
  * Windows CNG backend: Cipher Type structure
