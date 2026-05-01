@@ -489,6 +489,8 @@ struct wincng_dh_ctx {
     struct _libssh2_wincng_bignum *dh_privbn;
 };
 
+#define _libssh2_dh_ctx struct wincng_dh_ctx
+
 #define libssh2_dh_init(dhctx) _libssh2_dh_init(dhctx)
 #define libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
     _libssh2_dh_key_pair(dhctx, public, g, p, group_order)
