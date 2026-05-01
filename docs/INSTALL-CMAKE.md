@@ -88,12 +88,12 @@ The following options are available:
     Disable secure zero memory before freeing it (not recommended).
     Can be `ON` or `OFF`. Default: `ON`
 
-## Using BoringSSL or AWS-LC
+## Using AWS-LC or BoringSSL
 
-You can also build against [BoringSSL](https://github.com/google/boringssl) or
-[AWS-LC](https://github.com/aws/aws-lc). Specify `CRYPTO_BACKEND=OpenSSL`,
-then indicate the installation directory of the cryptography library using
-`OPENSSL_ROOT_DIR=`
+You can also build against [AWS-LC](https://github.com/aws/aws-lc) or
+[BoringSSL](https://github.com/google/boringssl). Specify
+`CRYPTO_BACKEND=OpenSSL`, then indicate the installation directory of
+the cryptography library using `OPENSSL_ROOT_DIR=`
 
 ## Build tools
 

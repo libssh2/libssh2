@@ -410,7 +410,7 @@ configure_file("src/libssh2_config_cmake.h.in"
 set(__runtime_dependencies "")
 
 set(CRYPTO_BACKEND "" CACHE
-  STRING "The backend to use for cryptography: OpenSSL, wolfSSL, Libgcrypt, WinCNG, mbedTLS, or empty to try any available")
+  STRING "The backend to use for cryptography: Libgcrypt, mbedTLS, OpenSSL, WinCNG, wolfSSL, or empty to try any available")
 
 # If the crypto backend was given, rather than searching for the first
 # we are able to find, the find_package commands must abort configuration
