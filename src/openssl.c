@@ -5306,7 +5306,7 @@ _libssh2_dh_init(libssh2_dh_ctx *dhctx)
 int
 _libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
                      libssh2_bn *g, libssh2_bn *p, int group_order,
-                     _libssh2_bn_ctx *bnctx)
+                     libssh2_bn_ctx *bnctx)
 {
     /* Generate x and e */
     BN_rand(*dhctx, group_order * 8 - 1, 0, -1);
@@ -5317,7 +5317,7 @@ _libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
 int
 _libssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
                    libssh2_bn *f, libssh2_bn *p,
-                   _libssh2_bn_ctx *bnctx)
+                   libssh2_bn_ctx *bnctx)
 {
     /* Compute the shared secret */
     BN_mod_exp(secret, f, *dhctx, p, bnctx);

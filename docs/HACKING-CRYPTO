@@ -435,7 +435,7 @@ creation needed here.
 
 int libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
                         libssh2_bn *g, libssh2_bn *p, int group_order,
-                        _libssh2_bn_ctx *bnctx);
+                        libssh2_bn_ctx *bnctx);
 Generates a Diffie-Hellman key pair using base `g', prime `p' and the given
 `group_order'. Can use the given big number context `bnctx' if needed.
 The private key is stored as opaque in the Diffie-Hellman context `*dhctx' and
@@ -443,7 +443,7 @@ the public key is returned in `public'.
 0 is returned upon success, else -1.
 
 int libssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
-                      libssh2_bn *f, libssh2_bn *p, _libssh2_bn_ctx * bnctx)
+                      libssh2_bn *f, libssh2_bn *p, libssh2_bn_ctx * bnctx)
 Computes the Diffie-Hellman secret from the previously created context `*dhctx',
 the public key `f' from the other party and the same prime `p' used at
 context creation. The result is stored in `secret'.
@@ -459,14 +459,14 @@ Positive multi-byte integers support is sufficient.
 This has a real meaning if the big numbers computations need some context
 storage. If not, use a dummy type and functions (macros).
 
-_libssh2_bn_ctx
+libssh2_bn_ctx
 Type of multiple precision computation context. May not be empty. if not used,
 #define as char, for example.
 
-_libssh2_bn_ctx _libssh2_bn_ctx_new(void);
+libssh2_bn_ctx _libssh2_bn_ctx_new(void);
 Returns a new multiple precision computation context.
 
-void _libssh2_bn_ctx_free(_libssh2_bn_ctx ctx);
+void _libssh2_bn_ctx_free(libssh2_bn_ctx ctx);
 Releases a multiple precision computation context.
 
 6.2) Computation support.

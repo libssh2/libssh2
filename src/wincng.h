@@ -430,7 +430,7 @@ struct _libssh2_wincng_cipher_type {
  * Windows CNG backend: BigNumber Context
  */
 
-#define _libssh2_bn_ctx int /* not used */
+#define libssh2_bn_ctx int /* not used */
 #define _libssh2_bn_ctx_new() 0 /* not used */
 #define _libssh2_bn_ctx_free(bnctx) ((void)0) /* not used */
 

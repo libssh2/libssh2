@@ -291,7 +291,7 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
                                 _libssh2_os400qc3_hash_final(&(ctx), out)
 #endif
 
-#define _libssh2_bn_ctx         int                 /* Not used. */
+#define libssh2_bn_ctx         int                 /* Not used. */
 
 #define _libssh2_bn_ctx_new()           0
 #define _libssh2_bn_ctx_free(bnctx)     ((void) 0)

@@ -373,7 +373,7 @@ typedef enum {
  * mbedTLS backend: BigNumber Support
  */
 
-#define _libssh2_bn_ctx int /* not used */
+#define libssh2_bn_ctx int /* not used */
 #define _libssh2_bn_ctx_new() 0 /* not used */
 #define _libssh2_bn_ctx_free(bnctx) ((void)0) /* not used */
 
