@@ -287,7 +287,6 @@ struct iovec {
 #define LIBSSH2_RECV(session, buffer, length, flags) \
     LIBSSH2_RECV_FD(session, (session)->socket_fd, buffer, length, flags)
 
-typedef struct _LIBSSH2_KEX_METHOD LIBSSH2_KEX_METHOD;
 typedef struct _LIBSSH2_HOSTKEY_METHOD LIBSSH2_HOSTKEY_METHOD;
 typedef struct _LIBSSH2_CRYPT_METHOD LIBSSH2_CRYPT_METHOD;
 typedef struct _LIBSSH2_COMP_METHOD LIBSSH2_COMP_METHOD;
@@ -713,7 +712,7 @@ struct _LIBSSH2_SESSION
     struct flags flag;
 
     /* Agreed Key Exchange Method */
-    const LIBSSH2_KEX_METHOD *kex;
+    const struct kex_method *kex;
     unsigned int burn_optimistic_kexinit;
 
     unsigned char *session_id;
@@ -989,8 +988,7 @@ struct _LIBSSH2_SESSION
 /* libssh2 extensible ssh api, ultimately I'd like to allow loading additional
    methods via .so/.dll */
 
-struct _LIBSSH2_KEX_METHOD
-{
+struct kex_method {
     const char *name;
 
     /* Key exchange, populates session->* and returns 0 on success, non-0 on

@@ -3377,42 +3377,42 @@ clean_exit:
 #define LIBSSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY     0x0001
 #define LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY    0x0002
 
-static const LIBSSH2_KEX_METHOD kex_method_diffie_helman_group1_sha1 = {
+static const struct kex_method kex_method_diffie_helman_group1_sha1 = {
     "diffie-hellman-group1-sha1",
     kex_method_diffie_hellman_group1_sha1_key_exchange,
     kex_diffie_hellman_cleanup,
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
-static const LIBSSH2_KEX_METHOD kex_method_diffie_helman_group14_sha1 = {
+static const struct kex_method kex_method_diffie_helman_group14_sha1 = {
     "diffie-hellman-group14-sha1",
     kex_method_diffie_hellman_group14_sha1_key_exchange,
     kex_diffie_hellman_cleanup,
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
-static const LIBSSH2_KEX_METHOD kex_method_diffie_helman_group14_sha256 = {
+static const struct kex_method kex_method_diffie_helman_group14_sha256 = {
     "diffie-hellman-group14-sha256",
     kex_method_diffie_hellman_group14_sha256_key_exchange,
     kex_diffie_hellman_cleanup,
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
-static const LIBSSH2_KEX_METHOD kex_method_diffie_helman_group16_sha512 = {
+static const struct kex_method kex_method_diffie_helman_group16_sha512 = {
     "diffie-hellman-group16-sha512",
     kex_method_diffie_hellman_group16_sha512_key_exchange,
     kex_diffie_hellman_cleanup,
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
-static const LIBSSH2_KEX_METHOD kex_method_diffie_helman_group18_sha512 = {
+static const struct kex_method kex_method_diffie_helman_group18_sha512 = {
     "diffie-hellman-group18-sha512",
     kex_method_diffie_hellman_group18_sha512_key_exchange,
     kex_diffie_hellman_cleanup,
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
-static const LIBSSH2_KEX_METHOD
+static const struct kex_method
 kex_method_diffie_helman_group_exchange_sha1 = {
     "diffie-hellman-group-exchange-sha1",
     kex_method_diffie_hellman_group_exchange_sha1_key_exchange,
@@ -3420,7 +3420,7 @@ kex_method_diffie_helman_group_exchange_sha1 = {
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
-static const LIBSSH2_KEX_METHOD
+static const struct kex_method
 kex_method_diffie_helman_group_exchange_sha256 = {
     "diffie-hellman-group-exchange-sha256",
     kex_method_diffie_hellman_group_exchange_sha256_key_exchange,
@@ -3429,7 +3429,7 @@ kex_method_diffie_helman_group_exchange_sha256 = {
 };
 
 #if LIBSSH2_ECDSA
-static const LIBSSH2_KEX_METHOD
+static const struct kex_method
 kex_method_ecdh_sha2_nistp256 = {
     "ecdh-sha2-nistp256",
     kex_method_ecdh_key_exchange,
@@ -3437,7 +3437,7 @@ kex_method_ecdh_sha2_nistp256 = {
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
-static const LIBSSH2_KEX_METHOD
+static const struct kex_method
 kex_method_ecdh_sha2_nistp384 = {
     "ecdh-sha2-nistp384",
     kex_method_ecdh_key_exchange,
@@ -3445,7 +3445,7 @@ kex_method_ecdh_sha2_nistp384 = {
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
-static const LIBSSH2_KEX_METHOD
+static const struct kex_method
 kex_method_ecdh_sha2_nistp521 = {
     "ecdh-sha2-nistp521",
     kex_method_ecdh_key_exchange,
@@ -3453,14 +3453,14 @@ kex_method_ecdh_sha2_nistp521 = {
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 #if LIBSSH2_MLKEM
-static const LIBSSH2_KEX_METHOD
+static const struct kex_method
 kex_method_ssh_mlkem768_nistp256_sha256 = {
     "mlkem768nistp256-sha256",
     kex_method_mlkem_nistp_key_exchange,
     kex_method_mlkem_nistp_cleanup,
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
-static const LIBSSH2_KEX_METHOD
+static const struct kex_method
 kex_method_ssh_mlkem1024_nistp384_sha384 = {
     "mlkem1024nistp384-sha384",
     kex_method_mlkem_nistp_key_exchange,
@@ -3471,14 +3471,14 @@ kex_method_ssh_mlkem1024_nistp384_sha384 = {
 #endif
 
 #if LIBSSH2_ED25519
-static const LIBSSH2_KEX_METHOD
+static const struct kex_method
 kex_method_ssh_curve25519_sha256_libssh = {
     "curve25519-sha256@libssh.org",
     kex_method_curve25519_key_exchange,
     kex_method_curve25519_cleanup,
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
-static const LIBSSH2_KEX_METHOD
+static const struct kex_method
 kex_method_ssh_curve25519_sha256 = {
     "curve25519-sha256",
     kex_method_curve25519_key_exchange,
@@ -3486,7 +3486,7 @@ kex_method_ssh_curve25519_sha256 = {
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 #if LIBSSH2_MLKEM
-static const LIBSSH2_KEX_METHOD
+static const struct kex_method
 kex_method_ssh_mlkem768_x25519_sha256 = {
     "mlkem768x25519-sha256",
     kex_method_mlkem768x25519_key_exchange,
@@ -3500,7 +3500,7 @@ kex_method_ssh_mlkem768_x25519_sha256 = {
  * as described in https://datatracker.ietf.org/doc/html/rfc8308
 */
 
-static const LIBSSH2_KEX_METHOD
+static const struct kex_method
 kex_method_extension_negotiation = {
     "ext-info-c",
     NULL,
@@ -3508,7 +3508,7 @@ kex_method_extension_negotiation = {
     0,
 };
 
-static const LIBSSH2_KEX_METHOD
+static const struct kex_method
 kex_method_strict_client_extension = {
     "kex-strict-c-v00@openssh.com",
     NULL,
@@ -3516,7 +3516,7 @@ kex_method_strict_client_extension = {
     0,
 };
 
-static const LIBSSH2_KEX_METHOD *libssh2_kex_methods[] = {
+static const struct kex_method *libssh2_kex_methods[] = {
 #if LIBSSH2_MLKEM
 #if LIBSSH2_ED25519
     &kex_method_ssh_mlkem768_x25519_sha256,
@@ -3945,7 +3945,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
                                  size_t kex_len, unsigned char *hostkey,
                                  size_t hostkey_len)
 {
-    const LIBSSH2_KEX_METHOD **kexp = libssh2_kex_methods;
+    const struct kex_method **kexp = libssh2_kex_methods;
     unsigned char *s;
     const unsigned char *strict =
         (const unsigned char *)"kex-strict-s-v00@openssh.com";
@@ -3962,7 +3962,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
             size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
             q = _libssh2_kex_agree_instr(kex, kex_len, s, method_len);
             if(q) {
-                const LIBSSH2_KEX_METHOD *method = (const LIBSSH2_KEX_METHOD *)
+                const struct kex_method *method = (const struct kex_method *)
                     kex_get_method_by_name((char *)s, method_len,
                                            (const struct common_method **)
                                            kexp);
