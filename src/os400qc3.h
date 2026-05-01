@@ -210,29 +210,30 @@
  *******************************************************************/
 
 /* HMAC & private key algorithms support structure. */
-typedef struct _libssh2_os400qc3_crypto_ctx _libssh2_os400qc3_crypto_ctx;
-struct _libssh2_os400qc3_crypto_ctx {
+struct os400qc3_crypto_ctx {
     Qc3_Format_ALGD0100_T           hash;           /* Hash algorithm. */
     Qc3_Format_KEYD0100_T           key;            /* Key. */
-    _libssh2_os400qc3_crypto_ctx *  kek;            /* Key encryption. */
+    struct os400qc3_crypto_ctx *    kek;            /* Key encryption. */
 };
 
-typedef struct {        /* Big number. */
+struct os400qc3_bn {    /* Big number. */
     unsigned char *         bignum;         /* Number bits, little-endian. */
     unsigned int            length;         /* Length of bignum (# bytes). */
-}       _libssh2_bn;
+};
 
-typedef struct {        /* Algorithm description. */
+#define _libssh2_bn struct os400qc3_bn
+
+struct os400qc3_cipher {  /* Algorithm description. */
     char *                  fmt;            /* Format of Qc3 structure. */
     int                     algo;           /* Algorithm identifier. */
     unsigned char           size;           /* Block length. */
     unsigned char           mode;           /* Block mode. */
     int                     keylen;         /* Key length. */
-}       _libssh2_os400qc3_cipher_t;
+};
 
-typedef struct {        /* Diffie-Hellman context. */
+struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
     char                    token[8];       /* Context token. */
-}       _libssh2_os400qc3_dh_ctx;
+};
 
 /*******************************************************************
  *
@@ -247,8 +248,8 @@ typedef struct {        /* Diffie-Hellman context. */
 #define libssh2_sha256_ctx      Qc3_Format_ALGD0100_T
 #define libssh2_sha384_ctx      Qc3_Format_ALGD0100_T
 #define libssh2_sha512_ctx      Qc3_Format_ALGD0100_T
-#define libssh2_hmac_ctx        _libssh2_os400qc3_crypto_ctx
-#define _libssh2_cipher_ctx     _libssh2_os400qc3_crypto_ctx
+#define libssh2_hmac_ctx        struct os400qc3_crypto_ctx
+#define _libssh2_cipher_ctx     struct os400qc3_crypto_ctx
 
 #define libssh2_sha1_init(x)    _libssh2_os400qc3_hash_init(x, Qc3_SHA1)
 #define libssh2_sha1_update(ctx, data, len)                                 \
@@ -298,7 +299,7 @@ typedef struct {        /* Diffie-Hellman context. */
 #define _libssh2_bn_init_from_bin() _libssh2_bn_init()
 #define _libssh2_bn_bytes(bn)   ((bn)->length)
 
-#define _libssh2_cipher_type(name)  _libssh2_os400qc3_cipher_t name
+#define _libssh2_cipher_type(name)  struct os400qc3_cipher name
 #define _libssh2_cipher_aes128 {Qc3_Alg_Block_Cipher, Qc3_AES, 16,          \
                                 Qc3_CBC, 16}
 #define _libssh2_cipher_aes192 {Qc3_Alg_Block_Cipher, Qc3_AES, 16,          \
@@ -319,7 +320,7 @@ typedef struct {        /* Diffie-Hellman context. */
 
 #define _libssh2_cipher_dtor(ctx) _libssh2_os400qc3_crypto_dtor(ctx)
 
-#define libssh2_rsa_ctx         _libssh2_os400qc3_crypto_ctx
+#define libssh2_rsa_ctx         struct os400qc3_crypto_ctx
 #define _libssh2_rsa_free(ctx)  (_libssh2_os400qc3_crypto_dtor(ctx),        \
                                  free((char *)ctx))
 #define libssh2_prepare_iovec(vec, len) memset((char *)(vec), 0,            \
@@ -342,7 +343,7 @@ typedef struct {        /* Diffie-Hellman context. */
 
 #define LIBSSH2_DH_MAX_MODULUS_BITS 2048
 
-#define _libssh2_dh_ctx         _libssh2_os400qc3_dh_ctx
+#define _libssh2_dh_ctx         struct os400qc3_dh_ctx
 #define libssh2_dh_init(dhctx)  _libssh2_os400qc3_dh_init(dhctx)
 #define libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx)        \
             _libssh2_os400qc3_dh_key_pair(dhctx, public, g, p, group_order)
@@ -364,7 +365,7 @@ extern int      _libssh2_bn_from_bin(_libssh2_bn *bn, size_t len,
 extern int      _libssh2_bn_set_word(_libssh2_bn *bn, unsigned long val);
 extern int      _libssh2_bn_to_bin(_libssh2_bn *bn, unsigned char *val);
 extern int      _libssh2_random(unsigned char *buf, size_t len);
-extern void     _libssh2_os400qc3_crypto_dtor(_libssh2_os400qc3_crypto_ctx *x);
+extern void     _libssh2_os400qc3_crypto_dtor(struct os400qc3_crypto_ctx *x);
 extern int      _libssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x,
                                             unsigned int algo);
 extern int      _libssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
