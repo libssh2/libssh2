@@ -59,9 +59,9 @@
 #endif
 
 /* Ensure va_list operations are not on an array. */
-typedef struct {
+struct valiststr {
     va_list     list;
-}       valiststr;
+};
 
 typedef int (*loadkeyproc)(LIBSSH2_SESSION *session,
                            const unsigned char *data, unsigned int datalen,
@@ -679,9 +679,9 @@ asn1uint(_libssh2_bn *bn)
 }
 
 static asn1Element *
-asn1containerv(unsigned int type, valiststr args)
+asn1containerv(unsigned int type, struct valiststr args)
 {
-    valiststr va;
+    struct valiststr va;
     asn1Element *e;
     asn1Element *p;
     unsigned char *bp;
@@ -706,7 +706,7 @@ asn1containerv(unsigned int type, valiststr args)
 static asn1Element *
 asn1container(unsigned int type, ...)
 {
-    valiststr va;
+    struct valiststr va;
     asn1Element *e;
 
     va_start(va.list, type);
