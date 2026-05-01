@@ -1076,6 +1076,28 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         }
 
         /*
+         * Reject implausibly large input lengths before computing the
+         * packet size. Each of these fields is a short, bounded string
+         * (username, hostname, method name, public key blob, etc.) and
+         * none should ever come close to 64 KiB in legitimate use. This
+         * cap prevents the size_t additions below from wrapping on
+         * 32-bit (or any) platforms, which would otherwise lead to an
+         * undersized heap allocation followed by out-of-bounds writes
+         * in the _libssh2_store_str() calls that follow.
+         */
+        if(username_len                       > 65536 ||
+           session->userauth_host_method_len  > 65536 ||
+           hostname_len                       > 65536 ||
+           local_username_len                 > 65536 ||
+           pubkeydata_len                     > 65536) {
+            LIBSSH2_FREE(session, session->userauth_host_method);
+            session->userauth_host_method = NULL;
+            LIBSSH2_FREE(session, pubkeydata);
+            return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                                  "Input lengths too large");
+        }
+
+        /*
          * 52 = packet_type(1) + username_len(4) + servicename_len(4) +
          * service_name(14)"ssh-connection" + authmethod_len(4) +
          * authmethod(9)"hostbased" + method_len(4) + pubkeydata_len(4) +
