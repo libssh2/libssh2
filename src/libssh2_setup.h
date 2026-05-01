@@ -62,12 +62,8 @@
 #endif
 
 #ifdef __MINGW32__
-# ifdef __MINGW64_VERSION_MAJOR
-/* Number of bits in a file offset, on hosts where this is settable. */
-#  ifndef _FILE_OFFSET_BITS
-#  define _FILE_OFFSET_BITS 64
-#  endif
-# endif
+# undef _FILE_OFFSET_BITS
+# define _FILE_OFFSET_BITS 64
 #elif defined(_MSC_VER)
 # ifndef _CRT_SECURE_NO_WARNINGS
 # define _CRT_SECURE_NO_WARNINGS  /* for fopen(), getenv() */
