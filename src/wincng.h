@@ -393,7 +393,7 @@ struct libssh2_wincng_cipher_ctx {
 struct libssh2_wincng_cipher_type {
     BCRYPT_ALG_HANDLE *phAlg;
     ULONG dwKeyLength;
-    int useIV;      /* TODO: Convert to bool when a C89 compatible bool type
+    int useIV;      /* TODO: Convert to bool when a C89-compatible bool type
                        is defined */
     int ctrMode;
 };
