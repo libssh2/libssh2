@@ -434,8 +434,8 @@ static uint32_t Blowfish_stream2word(const uint8_t *data, uint16_t databytes,
     return temp;
 }
 
-static void
-Blowfish_expand0state(struct blf_ctx *c, const uint8_t *key, uint16_t keybytes)
+static void Blowfish_expand0state(struct blf_ctx *c,
+                                  const uint8_t *key, uint16_t keybytes)
 {
     int i;
     int k;
