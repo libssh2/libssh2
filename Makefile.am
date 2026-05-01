@@ -41,14 +41,15 @@ SCRIPTSFILES = \
   scripts/checksrc-all.pl \
   scripts/checksrc.pl \
   scripts/cmakelint.sh \
+  scripts/git2news.pl \
+  scripts/maketgz \
   scripts/spacecheck.pl \
   scripts/spellcheck.sh \
   scripts/codespell-ignore.words
 
 EXTRA_DIST = $(WIN32FILES) \
-  maketgz RELEASE-NOTES libssh2.pc.in $(VMSFILES) config.rpath \
-  CMakeLists.txt cmake git2news.pl libssh2-style.el README.md $(OS400FILES) \
-  $(SCRIPTSFILES)
+  RELEASE-NOTES libssh2.pc.in $(VMSFILES) config.rpath \
+  CMakeLists.txt cmake libssh2-style.el README.md $(OS400FILES) $(SCRIPTSFILES)
 
 ACLOCAL_AMFLAGS = -I m4
 
