@@ -155,7 +155,7 @@
 
 #if LIBSSH2_ECDSA
 #else
-#define _libssh2_ec_key void
+#define libssh2_ec_key void
 #endif
 
 #define LIBSSH2_CIPHER_T(name) int name

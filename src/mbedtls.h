@@ -269,9 +269,9 @@ typedef enum {
 #endif
 } libssh2_curve_type;
 
-# define _libssh2_ec_key mbedtls_ecp_keypair
+# define libssh2_ec_key mbedtls_ecp_keypair
 #else
-# define _libssh2_ec_key void
+# define libssh2_ec_key void
 #endif /* LIBSSH2_ECDSA */
 
 /*******************************************************************/

@@ -365,11 +365,11 @@ extern void _libssh2_openssl_crypto_exit(void);
 #ifdef USE_OPENSSL_3
 #define libssh2_ecdsa_ctx EVP_PKEY
 #define _libssh2_ecdsa_free(ecdsactx) EVP_PKEY_free(ecdsactx)
-#define _libssh2_ec_key EVP_PKEY
+#define libssh2_ec_key EVP_PKEY
 #else
 #define libssh2_ecdsa_ctx EC_KEY
 #define _libssh2_ecdsa_free(ecdsactx) EC_KEY_free(ecdsactx)
-#define _libssh2_ec_key EC_KEY
+#define libssh2_ec_key EC_KEY
 #endif
 
 typedef enum {
@@ -379,7 +379,7 @@ typedef enum {
 }
 libssh2_curve_type;
 #else /* !LIBSSH2_ECDSA */
-#define _libssh2_ec_key void
+#define libssh2_ec_key void
 #endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519

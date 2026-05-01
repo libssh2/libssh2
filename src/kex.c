@@ -2044,7 +2044,7 @@ static void kex_method_ecdh_cleanup(LIBSSH2_SESSION *session,
 static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
                            unsigned char *data, size_t data_len,
                            unsigned char *public_key,
-                           size_t public_key_len, _libssh2_ec_key *private_key,
+                           size_t public_key_len, libssh2_ec_key *private_key,
                            struct kmdhgGPshakex_state *exchange_state)
 {
     int ret = 0;
@@ -2379,7 +2379,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
                        unsigned char *data, size_t data_len,
                        unsigned char *public_t_key,
                        size_t public_t_key_len,
-                       _libssh2_ec_key *private_t_key,
+                       libssh2_ec_key *private_t_key,
                        unsigned char *public_pq_key,
                        unsigned char *private_pq_key,
                        struct kmdhgGPshakex_state *exchange_state)

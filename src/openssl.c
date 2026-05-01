@@ -4229,7 +4229,7 @@ _libssh2_ecdsa_new_private_sk(libssh2_ecdsa_ctx **ec_ctx,
 
 int
 _libssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
-                          _libssh2_ec_key **out_private_key,
+                          libssh2_ec_key **out_private_key,
                           unsigned char **out_public_key_octal,
                           size_t *out_public_key_octal_len,
                           libssh2_curve_type curve_type)
@@ -4237,7 +4237,7 @@ _libssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
     int ret = 1;
     size_t octal_len = 0;
     unsigned char octal_value[EC_MAX_POINT_LEN];
-    _libssh2_ec_key *private_key = NULL;
+    libssh2_ec_key *private_key = NULL;
 
 #ifdef USE_OPENSSL_3
     EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
@@ -4347,7 +4347,7 @@ clean_exit:
  */
 
 int
-_libssh2_ecdh_gen_k(libssh2_bn **k, _libssh2_ec_key *private_key,
+_libssh2_ecdh_gen_k(libssh2_bn **k, libssh2_ec_key *private_key,
                     const unsigned char *server_public_key,
                     size_t server_public_key_len)
 {

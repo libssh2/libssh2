@@ -953,7 +953,7 @@ _libssh2_dh_dtor(libssh2_dh_ctx *dhctx)
  */
 int
 _libssh2_mbedtls_ecdsa_create_key(LIBSSH2_SESSION *session,
-                                  _libssh2_ec_key **out_private_key,
+                                  libssh2_ec_key **out_private_key,
                                   unsigned char **out_public_key_octal,
                                   size_t *out_public_key_octal_len,
                                   libssh2_curve_type curve_type)
@@ -1041,7 +1041,7 @@ failed:
  */
 int
 _libssh2_mbedtls_ecdh_gen_k(libssh2_bn **k,
-                            _libssh2_ec_key *private_key,
+                            libssh2_ec_key *private_key,
                             const unsigned char *server_public_key,
                             size_t server_public_key_len)
 {
