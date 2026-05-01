@@ -209,7 +209,7 @@ _libssh2_wincng_parse_ecdsa_privatekey(OUT struct wincng_ecdsa_ctx **key,
  * Windows CNG backend: Generic functions
  */
 
-struct _libssh2_wincng_ctx _libssh2_wincng;
+struct libssh2_wincng_ctx _libssh2_wincng;
 
 void _libssh2_wincng_init(void)
 {
