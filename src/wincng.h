@@ -246,17 +246,17 @@ struct wincng_hash_ctx {
  * Windows CNG backend: Key Context structure
  */
 
-typedef struct __libssh2_wincng_key_ctx {
+struct wincng_key_ctx {
     BCRYPT_KEY_HANDLE hKey;
     void *pbKeyObject;
     DWORD cbKeyObject;
-} _libssh2_wincng_key_ctx;
+};
 
 /*
  * Windows CNG backend: RSA functions
  */
 
-#define libssh2_rsa_ctx _libssh2_wincng_key_ctx
+#define libssh2_rsa_ctx struct wincng_key_ctx
 #define _libssh2_rsa_new(rsactx, e, e_len, n, n_len, \
                          d, d_len, p, p_len, q, q_len, \
                          e1, e1_len, e2, e2_len, c, c_len) \
@@ -284,7 +284,7 @@ typedef struct __libssh2_wincng_key_ctx {
  * Windows CNG backend: DSA functions
  */
 
-#define libssh2_dsa_ctx _libssh2_wincng_key_ctx
+#define libssh2_dsa_ctx struct wincng_key_ctx
 #define _libssh2_dsa_new(dsactx, p, p_len, q, q_len, \
                          g, g_len, y, y_len, x, x_len) \
     _libssh2_wincng_dsa_new(dsactx, p, p_len, q, q_len, \

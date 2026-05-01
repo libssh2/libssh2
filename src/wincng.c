@@ -793,7 +793,7 @@ void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
  * Windows CNG backend: Key functions
  */
 
-static int _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
+static int _libssh2_wincng_key_sha_verify(struct wincng_key_ctx *ctx,
                                           ULONG hashlen,
                                           const unsigned char *sig,
                                           ULONG sig_len,
