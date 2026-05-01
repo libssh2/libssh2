@@ -189,7 +189,7 @@ found_libz=no
 libz_errors=""
 
 if test "$use_libz" != no; then
-  AC_LIB_HAVE_LINKFLAGS([z], [], [#include <zlib.h>])
+  LIBSSH2_HAVE_LINKFLAGS([z], [], [#include <zlib.h>])
   if test "$ac_cv_libz" != yes; then
     if test "$use_libz" = auto; then
       AC_MSG_NOTICE([Cannot find libz, disabling compression])
