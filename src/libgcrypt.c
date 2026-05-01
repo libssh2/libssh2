@@ -733,8 +733,8 @@ _libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
 #endif
 
 int
-_libssh2_cipher_init(_libssh2_cipher_ctx *h,
-                     _libssh2_cipher_type(algo),
+_libssh2_cipher_init(libssh2_cipher_ctx *h,
+                     LIBSSH2_CIPHER_T(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
     int ret;
@@ -771,8 +771,8 @@ _libssh2_cipher_init(_libssh2_cipher_ctx *h,
 }
 
 int
-_libssh2_cipher_crypt(_libssh2_cipher_ctx *ctx,
-                      _libssh2_cipher_type(algo),
+_libssh2_cipher_crypt(libssh2_cipher_ctx *ctx,
+                      LIBSSH2_CIPHER_T(algo),
                       int encrypt, unsigned char *block, size_t blocksize,
                       int firstlast)
 {
@@ -874,14 +874,14 @@ void _libssh2_init_aes_ctr(void)
 }
 
 void
-_libssh2_dh_init(_libssh2_dh_ctx *dhctx)
+_libssh2_dh_init(libssh2_dh_ctx *dhctx)
 {
     *dhctx = gcry_mpi_new(0);                   /* Random from client */
 }
 
 int
-_libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
-                     _libssh2_bn *g, _libssh2_bn *p, int group_order)
+_libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
+                     libssh2_bn *g, libssh2_bn *p, int group_order)
 {
     /* Generate x and e */
     gcry_mpi_randomize(*dhctx, group_order * 8 - 1, GCRY_WEAK_RANDOM);
@@ -890,8 +890,8 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
 }
 
 int
-_libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
-                   _libssh2_bn *f, _libssh2_bn *p)
+_libssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
+                   libssh2_bn *f, libssh2_bn *p)
 {
     /* Compute the shared secret */
     gcry_mpi_powm(secret, f, *dhctx, p);
@@ -899,7 +899,7 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
 }
 
 void
-_libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
+_libssh2_dh_dtor(libssh2_dh_ctx *dhctx)
 {
     gcry_mpi_release(*dhctx);
     *dhctx = NULL;
