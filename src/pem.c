@@ -184,7 +184,7 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
     size_t b64datalen = 0;
     size_t off = 0;
     int ret;
-    const struct crypt_method* method = NULL;
+    const struct crypt_method *method = NULL;
 
     do {
         *line = '\0';
@@ -203,7 +203,7 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
 
     if(passphrase &&
        memcmp(line, crypt_annotation, strlen(crypt_annotation)) == 0) {
-        const struct crypt_method** all_methods, * cur_method;
+        const struct crypt_method **all_methods, *cur_method;
         int i;
 
         if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
