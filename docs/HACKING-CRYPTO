@@ -442,7 +442,7 @@ the public key is returned in `public'.
 0 is returned upon success, else -1.
 
 int libssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
-                      libssh2_bn *f, libssh2_bn *p, libssh2_bn_ctx * bnctx)
+                      libssh2_bn *f, libssh2_bn *p, libssh2_bn_ctx *bnctx)
 Computes the Diffie-Hellman secret from the previously created context `*dhctx',
 the public key `f' from the other party and the same prime `p' used at
 context creation. The result is stored in `secret'.
@@ -473,10 +473,10 @@ libssh2_bn
 Type of multiple precision numbers (aka bignumbers or huge integers) for the
 crypto library.
 
-libssh2_bn * _libssh2_bn_init(void);
+libssh2_bn *_libssh2_bn_init(void);
 Creates a multiple precision number (preset to zero).
 
-libssh2_bn * _libssh2_bn_init_from_bin(void);
+libssh2_bn *_libssh2_bn_init_from_bin(void);
 Create a multiple precision number intended to be set by the
 _libssh2_bn_from_bin() function (see below). Unlike _libssh2_bn_init(), this
 code may be a dummy initializer if the _libssh2_bn_from_bin() actually
@@ -496,8 +496,8 @@ int _libssh2_bn_set_word(libssh2_bn *bn, unsigned long val);
 Sets the value of bn to val.
 Returns 1 on success, 0 otherwise.
 
-libssh2_bn * _libssh2_bn_from_bin(libssh2_bn *bn, int len,
-                                   const unsigned char *val);
+libssh2_bn *_libssh2_bn_from_bin(libssh2_bn *bn, int len,
+                                 const unsigned char *val);
 Converts the positive integer in big-endian form of length len at val
 into a libssh2_bn and place it in bn. If bn is NULL, a new libssh2_bn is
 created.
@@ -660,8 +660,8 @@ LIBSSH2_RSA_SHA2
 #define as 1 if the crypto library supports RSA SHA2 256/512, else 0.
 If defined as 0, the rest of this section can be omitted.
 
-int _libssh2_rsa_sha2_sign(LIBSSH2_SESSION * session,
-                           libssh2_rsa_ctx * rsactx,
+int _libssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
+                           libssh2_rsa_ctx *rsactx,
                            const unsigned char *hash,
                            size_t hash_len,
                            unsigned char **signature,
@@ -694,7 +694,7 @@ Signature buffer must be allocated from the given session.
 Returns 0 if OK, else -1.
 Note: this procedure is optional: if provided, it MUST be defined as a macro.
 
-int _libssh2_rsa_sha2_verify(libssh2_rsa_ctx * rsa,
+int _libssh2_rsa_sha2_verify(libssh2_rsa_ctx *rsa,
                              size_t hash_len,
                              const unsigned char *sig,
                              size_t sig_len,
@@ -801,7 +801,7 @@ Return 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
 
 int _libssh2_ecdsa_new_private(libssh2_ecdsa_ctx **ec_ctx,
-                               LIBSSH2_SESSION * session,
+                               LIBSSH2_SESSION *session,
                                const char *filename,
                                const unsigned char *passphrase);
 Reads an ECDSA private key from PEM file filename into a new ECDSA context.
@@ -809,8 +809,8 @@ Must call _libssh2_init_if_needed().
 Return 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
 
-int _libssh2_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx ** ec_ctx,
-                                          LIBSSH2_SESSION * session,
+int _libssh2_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx **ec_ctx,
+                                          LIBSSH2_SESSION *session,
                                           const char *filedata,
                                           size_t filedata_len,
                                           const unsigned char *passphrase);
@@ -830,7 +830,7 @@ Return 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
 
 int _libssh2_ecdsa_new_openssh_private(libssh2_ecdsa_ctx **ec_ctx,
-                                       LIBSSH2_SESSION * session,
+                                       LIBSSH2_SESSION *session,
                                        const char *filename,
                                        const unsigned char *passphrase);
 Reads a PEM-encoded ECDSA private key from file filename encrypted with
@@ -962,9 +962,9 @@ int _libssh2_random(unsigned char *buf, size_t len);
 Store len random bytes at buf.
 Returns 0 if OK, else -1.
 
-const char * _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
-                                                    unsigned char *key_method,
-                                                    size_t key_method_len);
+const char *_libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
+                                                   unsigned char *key_method,
+                                                   size_t key_method_len);
 
 This function is for implementing key hash upgrading as defined in RFC 8332.
 
