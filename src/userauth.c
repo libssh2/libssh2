@@ -60,7 +60,7 @@
    prevents size_t addition from wrapping when computing packet sizes
    on 32-bit (or any) platforms, which would otherwise lead to
    undersized heap allocations followed by out-of-bounds writes. */
-#define LIBSSH2_USERAUTH_FIELD_MAX 65536
+#define MAX_INPUT_LEN 65536
 
 /* userauth_list
  *
@@ -1082,11 +1082,11 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                 return rc;
         }
 
-        if(username_len > LIBSSH2_USERAUTH_FIELD_MAX ||
-           session->userauth_host_method_len > LIBSSH2_USERAUTH_FIELD_MAX ||
-           hostname_len > LIBSSH2_USERAUTH_FIELD_MAX ||
-           local_username_len > LIBSSH2_USERAUTH_FIELD_MAX ||
-           pubkeydata_len > LIBSSH2_USERAUTH_FIELD_MAX) {
+        if(username_len > MAX_INPUT_LEN ||
+           session->userauth_host_method_len > MAX_INPUT_LEN ||
+           hostname_len > MAX_INPUT_LEN ||
+           local_username_len > MAX_INPUT_LEN ||
+           pubkeydata_len > MAX_INPUT_LEN) {
             LIBSSH2_FREE(session, session->userauth_host_method);
             session->userauth_host_method = NULL;
             LIBSSH2_FREE(session, pubkeydata);
@@ -1634,9 +1634,9 @@ retry_auth:
                            session->userauth_pblc_method));
         }
 
-        if(username_len > LIBSSH2_USERAUTH_FIELD_MAX ||
-           session->userauth_pblc_method_len > LIBSSH2_USERAUTH_FIELD_MAX ||
-           pubkeydata_len > LIBSSH2_USERAUTH_FIELD_MAX) {
+        if(username_len > MAX_INPUT_LEN ||
+           session->userauth_pblc_method_len > MAX_INPUT_LEN ||
+           pubkeydata_len > MAX_INPUT_LEN) {
             LIBSSH2_FREE(session, session->userauth_pblc_method);
             session->userauth_pblc_method = NULL;
             return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
@@ -2178,7 +2178,7 @@ userauth_keyboard_interactive(LIBSSH2_SESSION *session,
         memset(&session->userauth_kybd_packet_requirev_state, 0,
                sizeof(session->userauth_kybd_packet_requirev_state));
 
-        if(username_len > LIBSSH2_USERAUTH_FIELD_MAX) {
+        if(username_len > MAX_INPUT_LEN) {
             return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
                                   "Input lengths too large");
         }
