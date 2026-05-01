@@ -55,12 +55,14 @@
 
 #include <stdlib.h>  /* strtol() */
 
-/* Reject inputs implausibly larger than any legitimate SSH field
-   (username, hostname, method name, public-key blob, etc.). The cap
-   prevents size_t addition from wrapping when computing packet sizes
-   on 32-bit (or any) platforms, which would otherwise lead to
-   undersized heap allocations followed by out-of-bounds writes. */
-#define MAX_INPUT_LEN 65536
+/*
+ *  Cap each userauth input field below the per-call transport
+ *  limit. Bounds packet-size arithmetic to prevent size_t wrap
+ *  and undersized allocations on 32-bit (or any) platforms.
+ *  Packets with multiple near-cap fields may still exceed the
+ *  transport limit and be rejected later with LIBSSH2_ERROR_INVAL. 
+ */
+#define MAX_INPUT_LEN (MAX_SSH_PACKET_LEN - 0x100)
 
 /* userauth_list
  *
@@ -1091,7 +1093,7 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
             session->userauth_host_method = NULL;
             LIBSSH2_FREE(session, pubkeydata);
             return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
-                                  "Input lengths too large");
+                                  "username length too large");
         }
 
         /*
@@ -1582,6 +1584,17 @@ retry_auth:
             return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
                                   "Invalid public key, too short");
 
+        /*
+         * Cap caller-supplied input lengths early, before any allocation
+         * derived from them. This bounds packet-size arithmetic and the
+         * method-length parse below.
+         */
+        if(username_len > MAX_INPUT_LEN ||
+           pubkeydata_len > MAX_INPUT_LEN)
+            return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                                  "input length exceeds maximum "
+                                  "allowed size");
+
         /* Zero the whole thing out */
         memset(&session->userauth_pblc_packet_requirev_state, 0,
                sizeof(session->userauth_pblc_packet_requirev_state));
@@ -1595,7 +1608,8 @@ retry_auth:
         if(!session->userauth_pblc_method) {
             session->userauth_pblc_method_len = _libssh2_ntohu32(pubkeydata);
 
-            if(session->userauth_pblc_method_len > pubkeydata_len - 4)
+            if(session->userauth_pblc_method_len > MAX_INPUT_LEN ||
+                session->userauth_pblc_method_len > pubkeydata_len - 4)
                 /* the method length cannot be longer than the entire passed
                    in data, so we use this to detect crazy input data */
                 return _libssh2_error(session,
@@ -1632,15 +1646,6 @@ retry_auth:
                            "Signing using %.*s",
                            (int)session->userauth_pblc_method_len,
                            session->userauth_pblc_method));
-        }
-
-        if(username_len > MAX_INPUT_LEN ||
-           session->userauth_pblc_method_len > MAX_INPUT_LEN ||
-           pubkeydata_len > MAX_INPUT_LEN) {
-            LIBSSH2_FREE(session, session->userauth_pblc_method);
-            session->userauth_pblc_method = NULL;
-            return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
-                                  "Input lengths too large");
         }
 
         /*
@@ -2180,7 +2185,7 @@ userauth_keyboard_interactive(LIBSSH2_SESSION *session,
 
         if(username_len > MAX_INPUT_LEN) {
             return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
-                                  "Input lengths too large");
+                                  "username length too large");
         }
 
         session->userauth_kybd_packet_len =
