@@ -30,7 +30,6 @@ use File::Basename;
 
 my @tabs = (
     "Makefile\\.[a-z]+\$",
-    "m4/lib-.+\\.m4\$",
 );
 
 my @mixed_eol = (
