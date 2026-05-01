@@ -98,7 +98,7 @@ comp_method_none_decomp(LIBSSH2_SESSION *session,
     return 0;
 }
 
-static const LIBSSH2_COMP_METHOD comp_method_none = {
+static const struct comp_method comp_method_none = {
     "none",
     0, /* not really compressing */
     0, /* isn't used in userauth, go figure */
@@ -348,7 +348,7 @@ comp_method_zlib_dtor(LIBSSH2_SESSION *session, int compr, void **abstract)
     return 0;
 }
 
-static const LIBSSH2_COMP_METHOD comp_method_zlib = {
+static const struct comp_method comp_method_zlib = {
     "zlib",
     1, /* yes, this compresses */
     1, /* do compression during userauth */
@@ -358,7 +358,7 @@ static const LIBSSH2_COMP_METHOD comp_method_zlib = {
     comp_method_zlib_dtor,
 };
 
-static const LIBSSH2_COMP_METHOD comp_method_zlib_openssh = {
+static const struct comp_method comp_method_zlib_openssh = {
     "zlib@openssh.com",
     1, /* yes, this compresses */
     0, /* don't use compression during userauth */
@@ -371,7 +371,7 @@ static const LIBSSH2_COMP_METHOD comp_method_zlib_openssh = {
 
 /* If compression is enabled by the API, then this array is used which then
    may allow compression if zlib is available at build time */
-static const LIBSSH2_COMP_METHOD *comp_methods[] = {
+static const struct comp_method *comp_methods[] = {
 #ifdef LIBSSH2_HAVE_ZLIB
     &comp_method_zlib,
     &comp_method_zlib_openssh,
@@ -381,12 +381,12 @@ static const LIBSSH2_COMP_METHOD *comp_methods[] = {
 };
 
 /* If compression is disabled by the API, then this array is used */
-static const LIBSSH2_COMP_METHOD *no_comp_methods[] = {
+static const struct comp_method *no_comp_methods[] = {
     &comp_method_none,
     NULL
 };
 
-const LIBSSH2_COMP_METHOD **
+const struct comp_method **
 _libssh2_comp_methods(LIBSSH2_SESSION *session)
 {
     if(session->flag.compress)

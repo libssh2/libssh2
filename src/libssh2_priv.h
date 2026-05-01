@@ -287,8 +287,6 @@ struct iovec {
 #define LIBSSH2_RECV(session, buffer, length, flags) \
     LIBSSH2_RECV_FD(session, (session)->socket_fd, buffer, length, flags)
 
-typedef struct _LIBSSH2_COMP_METHOD LIBSSH2_COMP_METHOD;
-
 typedef struct _LIBSSH2_PACKET LIBSSH2_PACKET;
 
 typedef enum
@@ -595,7 +593,7 @@ struct endpoint_data {
     uint32_t seqno;
     void *mac_abstract;
 
-    const LIBSSH2_COMP_METHOD *comp;
+    const struct comp_method *comp;
     void *comp_abstract;
 
     /* Method Preferences -- NULL yields "load order" */
@@ -1081,8 +1079,7 @@ struct crypt_method {
 #define IS_FIRST(firstlast) ((firstlast) & FIRST_BLOCK)
 #define IS_LAST(firstlast)  ((firstlast) & LAST_BLOCK)
 
-struct _LIBSSH2_COMP_METHOD
-{
+struct comp_method {
     const char *name;
     int compress; /* 1 if it does compress, 0 if it doesn't */
     int use_in_auth; /* 1 if compression should be used in userauth */

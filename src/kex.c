@@ -4141,7 +4141,7 @@ static int kex_agree_comp(LIBSSH2_SESSION *session,
                           struct endpoint_data *endpoint, unsigned char *comp,
                           size_t comp_len)
 {
-    const LIBSSH2_COMP_METHOD **compp = _libssh2_comp_methods(session);
+    const struct comp_method **compp = _libssh2_comp_methods(session);
     unsigned char *s;
     (void)session;
 
@@ -4153,8 +4153,8 @@ static int kex_agree_comp(LIBSSH2_SESSION *session,
             size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
 
             if(_libssh2_kex_agree_instr(comp, comp_len, s, method_len)) {
-                const LIBSSH2_COMP_METHOD *method =
-                    (const LIBSSH2_COMP_METHOD *)
+                const struct comp_method *method =
+                    (const struct comp_method *)
                     kex_get_method_by_name((char *)s, method_len,
                                            (const struct common_method **)
                                            compp);

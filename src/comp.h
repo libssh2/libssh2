@@ -40,6 +40,6 @@
 
 #include "libssh2_priv.h"
 
-const LIBSSH2_COMP_METHOD **_libssh2_comp_methods(LIBSSH2_SESSION *session);
+const struct comp_method **_libssh2_comp_methods(LIBSSH2_SESSION *session);
 
 #endif /* LIBSSH2_COMP_H */
