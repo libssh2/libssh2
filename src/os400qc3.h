@@ -231,9 +231,9 @@ struct os400qc3_cipher {  /* Algorithm description. */
     int                     keylen;         /* Key length. */
 };
 
-typedef struct {        /* Diffie-Hellman context. */
+struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
     char                    token[8];       /* Context token. */
-}       _libssh2_os400qc3_dh_ctx;
+};
 
 /*******************************************************************
  *
@@ -343,7 +343,7 @@ typedef struct {        /* Diffie-Hellman context. */
 
 #define LIBSSH2_DH_MAX_MODULUS_BITS 2048
 
-#define _libssh2_dh_ctx         _libssh2_os400qc3_dh_ctx
+#define _libssh2_dh_ctx         struct os400qc3_dh_ctx
 #define libssh2_dh_init(dhctx)  _libssh2_os400qc3_dh_init(dhctx)
 #define libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx)        \
             _libssh2_os400qc3_dh_key_pair(dhctx, public, g, p, group_order)
