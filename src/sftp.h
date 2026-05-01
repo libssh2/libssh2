@@ -92,9 +92,9 @@ struct _LIBSSH2_SFTP_HANDLE
         LIBSSH2_SFTP_HANDLE_DIR
     } handle_type;
 
-    union _libssh2_sftp_handle_data
+    union libssh2_sftp_handle_data
     {
-        struct _libssh2_sftp_handle_file_data
+        struct libssh2_sftp_handle_file_data
         {
             libssh2_uint64_t offset;
             libssh2_uint64_t offset_sent;
@@ -112,7 +112,7 @@ struct _LIBSSH2_SFTP_HANDLE
 
             char eof; /* we have read to the end */
         } file;
-        struct _libssh2_sftp_handle_dir_data
+        struct libssh2_sftp_handle_dir_data
         {
             uint32_t names_left;
             void *names_packet;
