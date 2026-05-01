@@ -331,9 +331,9 @@ struct kmdhgGPshakex_state {
     size_t tmp_len;
     _libssh2_bn_ctx *ctx;
     libssh2_dh_ctx x;
-    _libssh2_bn *e;
-    _libssh2_bn *f;
-    _libssh2_bn *k;
+    libssh2_bn *e;
+    libssh2_bn *f;
+    libssh2_bn *k;
     unsigned char *f_value;
     unsigned char *k_value;
     unsigned char *h_sig;
@@ -348,8 +348,8 @@ struct key_exchange_state_low {
     libssh2_nonblocking_states state;
     struct packet_require_state req_state;
     struct kmdhgGPshakex_state exchange_state;
-    _libssh2_bn *p;             /* SSH2 defined value (p_value) */
-    _libssh2_bn *g;             /* SSH2 defined value (2) */
+    libssh2_bn *p;             /* SSH2 defined value (p_value) */
+    libssh2_bn *g;             /* SSH2 defined value (2) */
     /* Request must fit mlkem1024nistp384 keys + 5 bytes overhead */
     unsigned char request[LIBSSH2_MLKEM_1024_PUBLIC_KEY_LEN +
                           LIBSSH2_EC_P384_PUBLIC_KEY_LEN + 5];

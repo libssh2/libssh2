@@ -4347,7 +4347,7 @@ clean_exit:
  */
 
 int
-_libssh2_ecdh_gen_k(_libssh2_bn **k, _libssh2_ec_key *private_key,
+_libssh2_ecdh_gen_k(libssh2_bn **k, _libssh2_ec_key *private_key,
                     const unsigned char *server_public_key,
                     size_t server_public_key_len)
 {
@@ -4577,7 +4577,7 @@ clean_exit:
 }
 
 int
-_libssh2_curve25519_gen_k(_libssh2_bn **k,
+_libssh2_curve25519_gen_k(libssh2_bn **k,
                           uint8_t private_key[LIBSSH2_ED25519_KEY_LEN],
                           uint8_t server_public_key[LIBSSH2_ED25519_KEY_LEN])
 {
@@ -5304,8 +5304,8 @@ _libssh2_dh_init(libssh2_dh_ctx *dhctx)
 }
 
 int
-_libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, _libssh2_bn *public,
-                     _libssh2_bn *g, _libssh2_bn *p, int group_order,
+_libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
+                     libssh2_bn *g, libssh2_bn *p, int group_order,
                      _libssh2_bn_ctx *bnctx)
 {
     /* Generate x and e */
@@ -5315,8 +5315,8 @@ _libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, _libssh2_bn *public,
 }
 
 int
-_libssh2_dh_secret(libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
-                   _libssh2_bn *f, _libssh2_bn *p,
+_libssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
+                   libssh2_bn *f, libssh2_bn *p,
                    _libssh2_bn_ctx *bnctx)
 {
     /* Compute the shared secret */
@@ -5332,7 +5332,7 @@ _libssh2_dh_dtor(libssh2_dh_ctx *dhctx)
 }
 
 int
-_libssh2_bn_from_bin(_libssh2_bn *bn, size_t len, const unsigned char *val)
+_libssh2_bn_from_bin(libssh2_bn *bn, size_t len, const unsigned char *val)
 {
     if(!BN_bin2bn(val, (int)len, bn)) {
         return -1;

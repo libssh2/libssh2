@@ -190,7 +190,7 @@
 
 #define _libssh2_cipher_dtor(ctx) gcry_cipher_close(*(ctx))
 
-#define _libssh2_bn struct gcry_mpi
+#define libssh2_bn struct gcry_mpi
 #define _libssh2_bn_ctx int
 #define _libssh2_bn_ctx_new() 0
 #define _libssh2_bn_ctx_free(bnctx) ((void)0)
@@ -225,11 +225,11 @@
 #define libssh2_dh_dtor(dhctx) _libssh2_dh_dtor(dhctx)
 extern void _libssh2_init_aes_ctr(void);
 extern void _libssh2_dh_init(libssh2_dh_ctx *dhctx);
-extern int _libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, _libssh2_bn *public,
-                                _libssh2_bn *g, _libssh2_bn *p,
+extern int _libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
+                                libssh2_bn *g, libssh2_bn *p,
                                 int group_order);
-extern int _libssh2_dh_secret(libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
-                              _libssh2_bn *f, _libssh2_bn *p);
+extern int _libssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
+                              libssh2_bn *f, libssh2_bn *p);
 extern void _libssh2_dh_dtor(libssh2_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_LIBGCRYPT_H */

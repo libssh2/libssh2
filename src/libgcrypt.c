@@ -880,8 +880,8 @@ _libssh2_dh_init(libssh2_dh_ctx *dhctx)
 }
 
 int
-_libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, _libssh2_bn *public,
-                     _libssh2_bn *g, _libssh2_bn *p, int group_order)
+_libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
+                     libssh2_bn *g, libssh2_bn *p, int group_order)
 {
     /* Generate x and e */
     gcry_mpi_randomize(*dhctx, group_order * 8 - 1, GCRY_WEAK_RANDOM);
@@ -890,8 +890,8 @@ _libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, _libssh2_bn *public,
 }
 
 int
-_libssh2_dh_secret(libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
-                   _libssh2_bn *f, _libssh2_bn *p)
+_libssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
+                   libssh2_bn *f, libssh2_bn *p)
 {
     /* Compute the shared secret */
     gcry_mpi_powm(secret, f, *dhctx, p);

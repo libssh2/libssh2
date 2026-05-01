@@ -314,12 +314,12 @@ void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
  * mbedTLS backend: BigNumber functions
  */
 
-_libssh2_bn *
+libssh2_bn *
 _libssh2_mbedtls_bignum_init(void)
 {
-    _libssh2_bn *bignum;
+    libssh2_bn *bignum;
 
-    bignum = (_libssh2_bn *)mbedtls_calloc(1, sizeof(_libssh2_bn));
+    bignum = (libssh2_bn *)mbedtls_calloc(1, sizeof(libssh2_bn));
     if(bignum) {
         mbedtls_mpi_init(bignum);
     }
@@ -328,7 +328,7 @@ _libssh2_mbedtls_bignum_init(void)
 }
 
 void
-_libssh2_mbedtls_bignum_free(_libssh2_bn *bn)
+_libssh2_mbedtls_bignum_free(libssh2_bn *bn)
 {
     if(bn) {
         mbedtls_mpi_free(bn);
@@ -337,7 +337,7 @@ _libssh2_mbedtls_bignum_free(_libssh2_bn *bn)
 }
 
 static int
-_libssh2_mbedtls_bignum_random(_libssh2_bn *bn, int bits, int top, int bottom)
+_libssh2_mbedtls_bignum_random(libssh2_bn *bn, int bits, int top, int bottom)
 {
     size_t len;
     int err;
@@ -912,8 +912,8 @@ _libssh2_dh_init(libssh2_dh_ctx *dhctx)
 }
 
 int
-_libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, _libssh2_bn *public,
-                     _libssh2_bn *g, _libssh2_bn *p, int group_order)
+_libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
+                     libssh2_bn *g, libssh2_bn *p, int group_order)
 {
     /* Generate x and e */
     _libssh2_mbedtls_bignum_random(*dhctx, group_order * 8 - 1, 0, -1);
@@ -922,8 +922,8 @@ _libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, _libssh2_bn *public,
 }
 
 int
-_libssh2_dh_secret(libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
-                   _libssh2_bn *f, _libssh2_bn *p)
+_libssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
+                   libssh2_bn *f, libssh2_bn *p)
 {
     /* Compute the shared secret */
     mbedtls_mpi_exp_mod(secret, f, *dhctx, p, NULL);
@@ -1040,7 +1040,7 @@ failed:
  * remote public key and length
  */
 int
-_libssh2_mbedtls_ecdh_gen_k(_libssh2_bn **k,
+_libssh2_mbedtls_ecdh_gen_k(libssh2_bn **k,
                             _libssh2_ec_key *private_key,
                             const unsigned char *server_public_key,
                             size_t server_public_key_len)

@@ -415,14 +415,14 @@ libssh2_curve_type;
 #define _libssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_cleanup(ctx)
 #endif
 
-#define _libssh2_bn BIGNUM
+#define libssh2_bn BIGNUM
 #define _libssh2_bn_ctx BN_CTX
 #define _libssh2_bn_ctx_new() BN_CTX_new()
 #define _libssh2_bn_ctx_free(bnctx) BN_CTX_free(bnctx)
 #define _libssh2_bn_init() BN_new()
 #define _libssh2_bn_init_from_bin() _libssh2_bn_init()
 #define _libssh2_bn_set_word(bn, val) !BN_set_word(bn, val)
-extern int _libssh2_bn_from_bin(_libssh2_bn *bn, size_t len,
+extern int _libssh2_bn_from_bin(libssh2_bn *bn, size_t len,
                                 const unsigned char *val);
 #define _libssh2_bn_to_bin(bn, val) (BN_bn2bin(bn, val) <= 0)
 #define _libssh2_bn_bytes(bn) BN_num_bytes(bn)
@@ -445,12 +445,12 @@ extern int _libssh2_bn_from_bin(_libssh2_bn *bn, size_t len,
     _libssh2_dh_secret(dhctx, secret, f, p, bnctx)
 #define libssh2_dh_dtor(dhctx) _libssh2_dh_dtor(dhctx)
 extern void _libssh2_dh_init(libssh2_dh_ctx *dhctx);
-extern int _libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, _libssh2_bn *public,
-                                _libssh2_bn *g, _libssh2_bn *p,
+extern int _libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
+                                libssh2_bn *g, libssh2_bn *p,
                                 int group_order,
                                 _libssh2_bn_ctx *bnctx);
-extern int _libssh2_dh_secret(libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
-                              _libssh2_bn *f, _libssh2_bn *p,
+extern int _libssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
+                              libssh2_bn *f, libssh2_bn *p,
                               _libssh2_bn_ctx *bnctx);
 extern void _libssh2_dh_dtor(libssh2_dh_ctx *dhctx);
 

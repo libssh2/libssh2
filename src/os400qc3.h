@@ -221,7 +221,7 @@ struct os400qc3_bn {    /* Big number. */
     unsigned int            length;         /* Length of bignum (# bytes). */
 };
 
-#define _libssh2_bn struct os400qc3_bn
+#define libssh2_bn struct os400qc3_bn
 
 struct os400qc3_cipher {  /* Algorithm description. */
     char *                  fmt;            /* Format of Qc3 structure. */
@@ -357,13 +357,13 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
  *
  *******************************************************************/
 
-extern _libssh2_bn *    _libssh2_bn_init(void);
-extern void     _libssh2_bn_free(_libssh2_bn *bn);
-extern unsigned long    _libssh2_bn_bits(_libssh2_bn *bn);
-extern int      _libssh2_bn_from_bin(_libssh2_bn *bn, size_t len,
+extern libssh2_bn *    _libssh2_bn_init(void);
+extern void     _libssh2_bn_free(libssh2_bn *bn);
+extern unsigned long    _libssh2_bn_bits(libssh2_bn *bn);
+extern int      _libssh2_bn_from_bin(libssh2_bn *bn, size_t len,
                                      const unsigned char *v);
-extern int      _libssh2_bn_set_word(_libssh2_bn *bn, unsigned long val);
-extern int      _libssh2_bn_to_bin(_libssh2_bn *bn, unsigned char *val);
+extern int      _libssh2_bn_set_word(libssh2_bn *bn, unsigned long val);
+extern int      _libssh2_bn_to_bin(libssh2_bn *bn, unsigned char *val);
 extern int      _libssh2_random(unsigned char *buf, size_t len);
 extern void     _libssh2_os400qc3_crypto_dtor(struct os400qc3_crypto_ctx *x);
 extern int      _libssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x,
@@ -384,12 +384,12 @@ extern int      _libssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session, int algo,
                                             libssh2_rsa_ctx *ctx);
 extern void     _libssh2_os400qc3_dh_init(libssh2_dh_ctx *dhctx);
 extern int      _libssh2_os400qc3_dh_key_pair(libssh2_dh_ctx *dhctx,
-                                              _libssh2_bn *public,
-                                              _libssh2_bn *g,
-                                              _libssh2_bn *p, int group_order);
+                                              libssh2_bn *public,
+                                              libssh2_bn *g,
+                                              libssh2_bn *p, int group_order);
 extern int      _libssh2_os400qc3_dh_secret(libssh2_dh_ctx *dhctx,
-                                            _libssh2_bn *secret,
-                                            _libssh2_bn *f, _libssh2_bn *p);
+                                            libssh2_bn *secret,
+                                            libssh2_bn *f, libssh2_bn *p);
 extern void     _libssh2_os400qc3_dh_dtor(libssh2_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_OS400QC3_H */

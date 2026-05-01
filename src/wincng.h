@@ -444,7 +444,7 @@ struct _libssh2_wincng_bignum {
     ULONG length;
 };
 
-#define _libssh2_bn struct _libssh2_wincng_bignum
+#define libssh2_bn struct _libssh2_wincng_bignum
 
 /*
  * Windows CNG backend: BigNumber functions
@@ -532,27 +532,27 @@ _libssh2_wincng_dsa_free(libssh2_dsa_ctx *dsa);
 void
 _libssh2_wincng_cipher_dtor(_libssh2_cipher_ctx *ctx);
 
-_libssh2_bn *
+libssh2_bn *
 _libssh2_wincng_bignum_init(void);
 int
-_libssh2_wincng_bignum_set_word(_libssh2_bn *bn, ULONG word);
+_libssh2_wincng_bignum_set_word(libssh2_bn *bn, ULONG word);
 ULONG
-_libssh2_wincng_bignum_bits(const _libssh2_bn *bn);
+_libssh2_wincng_bignum_bits(const libssh2_bn *bn);
 int
-_libssh2_wincng_bignum_from_bin(_libssh2_bn *bn, ULONG len,
+_libssh2_wincng_bignum_from_bin(libssh2_bn *bn, ULONG len,
                                 const unsigned char *bin);
 int
-_libssh2_wincng_bignum_to_bin(const _libssh2_bn *bn, unsigned char *bin);
+_libssh2_wincng_bignum_to_bin(const libssh2_bn *bn, unsigned char *bin);
 void
-_libssh2_wincng_bignum_free(_libssh2_bn *bn);
+_libssh2_wincng_bignum_free(libssh2_bn *bn);
 extern void
 _libssh2_dh_init(struct wincng_dh_ctx *dhctx);
 extern int
-_libssh2_dh_key_pair(struct wincng_dh_ctx *dhctx, _libssh2_bn *public,
-                     _libssh2_bn *g, _libssh2_bn *p, int group_order);
+_libssh2_dh_key_pair(struct wincng_dh_ctx *dhctx, libssh2_bn *public,
+                     libssh2_bn *g, libssh2_bn *p, int group_order);
 extern int
-_libssh2_dh_secret(struct wincng_dh_ctx *dhctx, _libssh2_bn *secret,
-                   _libssh2_bn *f, _libssh2_bn *p);
+_libssh2_dh_secret(struct wincng_dh_ctx *dhctx, libssh2_bn *secret,
+                   libssh2_bn *f, libssh2_bn *p);
 extern void
 _libssh2_dh_dtor(struct wincng_dh_ctx *dhctx);
 
