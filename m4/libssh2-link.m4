@@ -62,7 +62,7 @@ AC_DEFUN([LIBSSH2_PREPARE_MULTILIB],
   acl_libdirstem=lib
   searchpath=`(LC_ALL=C $CC -print-search-dirs) 2>/dev/null | sed -n -e 's,^libraries: ,,p' | sed -e 's,^=,,'`
   if test -n "$searchpath"; then
-    acl_save_IFS="${IFS=       }"; IFS=":"
+    acl_save_IFS="${IFS= 	}"; IFS=":"
     for searchdir in $searchpath; do
       if test -d "$searchdir"; then
         case "$searchdir" in
