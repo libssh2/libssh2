@@ -222,6 +222,8 @@ typedef off_t libssh2_struct_stat_size;
                                                  void **abstract))
 #define LIBSSH2_FREE_FUNC(name)    void ((name)(void *ptr, void **abstract))
 
+/* for pre-existing ones: !checksrc! disable TYPEDEFSTRUCT all */
+
 typedef struct _LIBSSH2_USERAUTH_KBDINT_PROMPT
 {
     unsigned char *text;
