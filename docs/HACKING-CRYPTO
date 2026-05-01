@@ -18,7 +18,7 @@ Adding a crypto backend to the autotools build system (./configure) is easy:
 
 0.1) Add logic to configure.ac
 
-Seach for an existing backend (e.g. 'openssl'), duplicate each occurrence and
+Search for an existing backend (e.g. 'openssl'), duplicate each occurrence and
 use the new backend's name in them.
 
 0.2) Add an m4_case stanza to LIBSSH2_CRYPTO_CHECK in acinclude.m4
