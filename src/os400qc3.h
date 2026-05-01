@@ -216,10 +216,12 @@ struct os400qc3_crypto_ctx {
     struct os400qc3_crypto_ctx *    kek;            /* Key encryption. */
 };
 
-typedef struct {        /* Big number. */
+struct os400qc3_bn {    /* Big number. */
     unsigned char *         bignum;         /* Number bits, little-endian. */
     unsigned int            length;         /* Length of bignum (# bytes). */
-}       _libssh2_bn;
+};
+
+#define _libssh2_bn struct os400qc3_bn
 
 typedef struct {        /* Algorithm description. */
     char *                  fmt;            /* Format of Qc3 structure. */
