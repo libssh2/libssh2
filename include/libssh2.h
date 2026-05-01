@@ -93,8 +93,8 @@ extern "C" {
 #endif
 
 #ifdef _WIN32
-# include <basetsd.h>
-# include <winsock2.h>
+#include <basetsd.h>
+#include <winsock2.h>
 #endif
 
 #include <stddef.h>
@@ -104,19 +104,19 @@ extern "C" {
 
 /* Allow alternate API prefix from CFLAGS or calling app */
 #ifndef LIBSSH2_API
-# if defined(_WIN32) && defined(LIBSSH2_EXPORTS)
-#  ifdef LIBSSH2_LIBRARY
-#   define LIBSSH2_API __declspec(dllexport)
+#  if defined(_WIN32) && defined(LIBSSH2_EXPORTS)
+#    ifdef LIBSSH2_LIBRARY
+#      define LIBSSH2_API __declspec(dllexport)
+#    else
+#      define LIBSSH2_API __declspec(dllimport)
+#    endif /* LIBSSH2_LIBRARY */
 #  else
-#   define LIBSSH2_API __declspec(dllimport)
-#  endif /* LIBSSH2_LIBRARY */
-# else
-#  define LIBSSH2_API
-# endif /* _WIN32 && LIBSSH2_EXPORTS */
+#    define LIBSSH2_API
+#  endif /* _WIN32 && LIBSSH2_EXPORTS */
 #endif /* !LIBSSH2_API */
 
 #ifdef HAVE_SYS_UIO_H
-# include <sys/uio.h>
+#include <sys/uio.h>
 #endif
 
 #include <stdint.h>
