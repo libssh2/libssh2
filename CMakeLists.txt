@@ -426,6 +426,13 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_OPENSSL")
     list(APPEND LIBSSH2_LIBS OpenSSL::Crypto)
 
+    if(NOT DEFINED HAVE_BORINGSSL)
+      cmake_push_check_state()
+      list(APPEND CMAKE_REQUIRED_LIBRARIES OpenSSL::Crypto)
+      check_symbol_exists("OPENSSL_IS_BORINGSSL" "openssl/base.h" HAVE_BORINGSSL)
+      cmake_pop_check_state()
+    endif()
+
     if(WIN32)
       # Statically linking to OpenSSL requires crypt32 for some Windows APIs.
       # This should really be handled by FindOpenSSL.cmake.

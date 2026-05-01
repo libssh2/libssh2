@@ -256,7 +256,7 @@ if(NOT LIBSSH2_DISABLE_INSTALL)
       if(NOT _libname AND NOT _libs AND NOT _libdirs)
         message(WARNING "Bad lib in library list: ${_lib}")
       endif()
-      if(_lib STREQUAL OpenSSL::Crypto)
+      if(_lib STREQUAL OpenSSL::Crypto AND NOT HAVE_BORINGSSL)  # BoringSSL does not provide libcrypto.pc
         set(_modules "libcrypto")
       elseif(_lib STREQUAL ZLIB::ZLIB)
         set(_modules "zlib")
