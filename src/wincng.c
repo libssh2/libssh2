@@ -129,7 +129,7 @@ static int _libssh2_wincng_bignum_resize(libssh2_bn* bn, ULONG length);
 typedef enum {
     WINCNG_ECC_KEYTYPE_ECDSA = 0,
     WINCNG_ECC_KEYTYPE_ECDH = 1,
-} _libssh2_wincng_ecc_keytype;
+} wincng_ecc_keytype;
 
 struct ecdsa_algorithm {
     /* Algorithm name */
@@ -142,13 +142,13 @@ struct ecdsa_algorithm {
     ULONG point_length;
 
     /* Name of CNG algorithm provider, */
-    /* indexed by _libssh2_wincng_ecc_keytype */
+    /* indexed by wincng_ecc_keytype */
     LPCWSTR provider[2];
 
-    /* Magic for public key import, indexed by _libssh2_wincng_ecc_keytype */
+    /* Magic for public key import, indexed by wincng_ecc_keytype */
     ULONG public_import_magic[2];
 
-    /* Magic for private key import, indexed by _libssh2_wincng_ecc_keytype */
+    /* Magic for private key import, indexed by wincng_ecc_keytype */
     ULONG private_import_magic[2];
 };
 
@@ -1823,7 +1823,7 @@ _libssh2_wincng_p1363signature_from_point(IN const unsigned char *r,
  * Create a CNG public key from an ECC point.
  */
 static int
-_libssh2_wincng_publickey_from_point(IN _libssh2_wincng_ecc_keytype keytype,
+_libssh2_wincng_publickey_from_point(IN wincng_ecc_keytype keytype,
                                      IN struct ecdsa_point *point,
                                      OUT BCRYPT_KEY_HANDLE *key)
 {
@@ -1891,7 +1891,7 @@ cleanup:
  * Create a CNG private key from an ECC point.
  */
 static int
-_libssh2_wincng_privatekey_from_point(IN _libssh2_wincng_ecc_keytype keytype,
+_libssh2_wincng_privatekey_from_point(IN wincng_ecc_keytype keytype,
                                       IN struct ecdsa_point *q,
                                       IN unsigned char *d,
                                       IN size_t d_len,
