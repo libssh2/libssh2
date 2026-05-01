@@ -3547,10 +3547,9 @@ static const LIBSSH2_KEX_METHOD *libssh2_kex_methods[] = {
     NULL
 };
 
-typedef struct _LIBSSH2_COMMON_METHOD
-{
+struct common_method {
     const char *name;
-} LIBSSH2_COMMON_METHOD;
+};
 
 /* kex_method_strlen
  *
@@ -3560,7 +3559,7 @@ typedef struct _LIBSSH2_COMMON_METHOD
  * Another sign of bad coding practices gone mad.  Pretend you don't see this.
  */
 static size_t
-kex_method_strlen(const LIBSSH2_COMMON_METHOD **method)
+kex_method_strlen(const struct common_method **method)
 {
     size_t len = 0;
 
@@ -3581,7 +3580,7 @@ kex_method_strlen(const LIBSSH2_COMMON_METHOD **method)
  */
 static uint32_t
 kex_method_list(unsigned char *buf, uint32_t list_strlen,
-                const LIBSSH2_COMMON_METHOD **method)
+                const struct common_method **method)
 {
     _libssh2_htonu32(buf, list_strlen);
     buf += 4;
@@ -3603,20 +3602,20 @@ kex_method_list(unsigned char *buf, uint32_t list_strlen,
 
 #define LIBSSH2_METHOD_PREFS_LEN(prefvar, defaultvar)           \
     (uint32_t)((prefvar) ? strlen(prefvar) :                    \
-        kex_method_strlen((const LIBSSH2_COMMON_METHOD**)(defaultvar)))
+        kex_method_strlen((const struct common_method**)(defaultvar)))
 
-#define LIBSSH2_METHOD_PREFS_STR(buf, prefvarlen, prefvar, defaultvar)        \
-    do {                                                                      \
-        if(prefvar) {                                                         \
-            _libssh2_htonu32(buf, prefvarlen);                                \
-            (buf) += 4;                                                       \
-            memcpy(buf, prefvar, prefvarlen);                                 \
-            (buf) += (prefvarlen);                                            \
-        }                                                                     \
-        else {                                                                \
-            (buf) += kex_method_list(buf, prefvarlen,                         \
-                                (const LIBSSH2_COMMON_METHOD**)(defaultvar)); \
-        }                                                                     \
+#define LIBSSH2_METHOD_PREFS_STR(buf, prefvarlen, prefvar, defaultvar)       \
+    do {                                                                     \
+        if(prefvar) {                                                        \
+            _libssh2_htonu32(buf, prefvarlen);                               \
+            (buf) += 4;                                                      \
+            memcpy(buf, prefvar, prefvarlen);                                \
+            (buf) += (prefvarlen);                                           \
+        }                                                                    \
+        else {                                                               \
+            (buf) += kex_method_list(buf, prefvarlen,                        \
+                                (const struct common_method**)(defaultvar)); \
+        }                                                                    \
     } while(0)
 
 /* kexinit
@@ -3850,9 +3849,9 @@ _libssh2_kex_agree_instr(unsigned char *haystack, size_t haystack_len,
 }
 
 /* kex_get_method_by_name */
-static const LIBSSH2_COMMON_METHOD *
+static const struct common_method *
 kex_get_method_by_name(const char *name, size_t name_len,
-                       const LIBSSH2_COMMON_METHOD **methodlist)
+                       const struct common_method **methodlist)
 {
     while(*methodlist) {
         if((strlen((*methodlist)->name) == name_len) &&
@@ -3884,7 +3883,7 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session,
                 const LIBSSH2_HOSTKEY_METHOD *method =
                     (const LIBSSH2_HOSTKEY_METHOD *)
                     kex_get_method_by_name((char *)s, method_len,
-                                           (const LIBSSH2_COMMON_METHOD **)
+                                           (const struct common_method **)
                                            hostkeyp);
 
                 if(!method) {
@@ -3965,7 +3964,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
             if(q) {
                 const LIBSSH2_KEX_METHOD *method = (const LIBSSH2_KEX_METHOD *)
                     kex_get_method_by_name((char *)s, method_len,
-                                           (const LIBSSH2_COMMON_METHOD **)
+                                           (const struct common_method **)
                                            kexp);
 
                 if(!method) {
@@ -4043,7 +4042,7 @@ static int kex_agree_crypt(LIBSSH2_SESSION *session,
                 const LIBSSH2_CRYPT_METHOD *method =
                     (const LIBSSH2_CRYPT_METHOD *)
                     kex_get_method_by_name((char *)s, method_len,
-                                           (const LIBSSH2_COMMON_METHOD **)
+                                           (const struct common_method **)
                                            cryptp);
 
                 if(!method) {
@@ -4104,7 +4103,7 @@ static int kex_agree_mac(LIBSSH2_SESSION *session,
             if(_libssh2_kex_agree_instr(mac, mac_len, s, method_len)) {
                 const struct mac_method *method = (const struct mac_method *)
                     kex_get_method_by_name((char *)s, method_len,
-                                           (const LIBSSH2_COMMON_METHOD**)
+                                           (const struct common_method**)
                                            macp);
 
                 if(!method) {
@@ -4157,7 +4156,7 @@ static int kex_agree_comp(LIBSSH2_SESSION *session,
                 const LIBSSH2_COMP_METHOD *method =
                     (const LIBSSH2_COMP_METHOD *)
                     kex_get_method_by_name((char *)s, method_len,
-                                           (const LIBSSH2_COMMON_METHOD **)
+                                           (const struct common_method **)
                                            compp);
 
                 if(!method) {
@@ -4455,47 +4454,47 @@ libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
     char **prefvar, *s, *newprefs;
     char *tmpprefs = NULL;
     size_t prefs_len = strlen(prefs);
-    const LIBSSH2_COMMON_METHOD **mlist;
+    const struct common_method **mlist;
 
     switch(method_type) {
     case LIBSSH2_METHOD_KEX:
         prefvar = &session->kex_prefs;
-        mlist = (const LIBSSH2_COMMON_METHOD **)libssh2_kex_methods;
+        mlist = (const struct common_method **)libssh2_kex_methods;
         break;
 
     case LIBSSH2_METHOD_HOSTKEY:
         prefvar = &session->hostkey_prefs;
-        mlist = (const LIBSSH2_COMMON_METHOD **)libssh2_hostkey_methods();
+        mlist = (const struct common_method **)libssh2_hostkey_methods();
         break;
 
     case LIBSSH2_METHOD_CRYPT_CS:
         prefvar = &session->local.crypt_prefs;
-        mlist = (const LIBSSH2_COMMON_METHOD **)libssh2_crypt_methods();
+        mlist = (const struct common_method **)libssh2_crypt_methods();
         break;
 
     case LIBSSH2_METHOD_CRYPT_SC:
         prefvar = &session->remote.crypt_prefs;
-        mlist = (const LIBSSH2_COMMON_METHOD **)libssh2_crypt_methods();
+        mlist = (const struct common_method **)libssh2_crypt_methods();
         break;
 
     case LIBSSH2_METHOD_MAC_CS:
         prefvar = &session->local.mac_prefs;
-        mlist = (const LIBSSH2_COMMON_METHOD **)_libssh2_mac_methods();
+        mlist = (const struct common_method **)_libssh2_mac_methods();
         break;
 
     case LIBSSH2_METHOD_MAC_SC:
         prefvar = &session->remote.mac_prefs;
-        mlist = (const LIBSSH2_COMMON_METHOD **)_libssh2_mac_methods();
+        mlist = (const struct common_method **)_libssh2_mac_methods();
         break;
 
     case LIBSSH2_METHOD_COMP_CS:
         prefvar = &session->local.comp_prefs;
-        mlist = (const LIBSSH2_COMMON_METHOD **)_libssh2_comp_methods(session);
+        mlist = (const struct common_method **)_libssh2_comp_methods(session);
         break;
 
     case LIBSSH2_METHOD_COMP_SC:
         prefvar = &session->remote.comp_prefs;
-        mlist = (const LIBSSH2_COMMON_METHOD **)_libssh2_comp_methods(session);
+        mlist = (const struct common_method **)_libssh2_comp_methods(session);
         break;
 
     case LIBSSH2_METHOD_LANG_CS:
@@ -4604,7 +4603,7 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
     unsigned int i;
     unsigned int j;
     unsigned int ialg;
-    const LIBSSH2_COMMON_METHOD **mlist;
+    const struct common_method **mlist;
 
     /* to prevent coredumps due to dereferencing of NULL */
     if(!algs)
@@ -4613,26 +4612,26 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
 
     switch(method_type) {
     case LIBSSH2_METHOD_KEX:
-        mlist = (const LIBSSH2_COMMON_METHOD **)libssh2_kex_methods;
+        mlist = (const struct common_method **)libssh2_kex_methods;
         break;
 
     case LIBSSH2_METHOD_HOSTKEY:
-        mlist = (const LIBSSH2_COMMON_METHOD **)libssh2_hostkey_methods();
+        mlist = (const struct common_method **)libssh2_hostkey_methods();
         break;
 
     case LIBSSH2_METHOD_CRYPT_CS:
     case LIBSSH2_METHOD_CRYPT_SC:
-        mlist = (const LIBSSH2_COMMON_METHOD **)libssh2_crypt_methods();
+        mlist = (const struct common_method **)libssh2_crypt_methods();
         break;
 
     case LIBSSH2_METHOD_MAC_CS:
     case LIBSSH2_METHOD_MAC_SC:
-        mlist = (const LIBSSH2_COMMON_METHOD **)_libssh2_mac_methods();
+        mlist = (const struct common_method **)_libssh2_mac_methods();
         break;
 
     case LIBSSH2_METHOD_COMP_CS:
     case LIBSSH2_METHOD_COMP_SC:
-        mlist = (const LIBSSH2_COMMON_METHOD **)_libssh2_comp_methods(session);
+        mlist = (const struct common_method **)_libssh2_comp_methods(session);
         break;
 
     case LIBSSH2_METHOD_SIGN_ALGO:
