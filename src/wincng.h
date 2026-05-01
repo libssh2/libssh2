@@ -312,15 +312,15 @@ typedef enum {
     LIBSSH2_EC_CURVE_NISTP521 = 2,
 } libssh2_curve_type;
 
-typedef struct __libssh2_wincng_ecdsa_ctx {
+struct wincng_ecdsa_ctx {
     BCRYPT_KEY_HANDLE handle;
     libssh2_curve_type curve;
-} _libssh2_wincng_ecdsa_key;
+};
 
-#define libssh2_ecdsa_ctx _libssh2_wincng_ecdsa_key
+#define libssh2_ecdsa_ctx struct wincng_ecdsa_ctx
 
 #if LIBSSH2_ECDSA
-#define _libssh2_ec_key _libssh2_wincng_ecdsa_key
+#define _libssh2_ec_key struct wincng_ecdsa_ctx
 #endif
 
 void

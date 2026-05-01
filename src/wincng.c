@@ -327,7 +327,7 @@ _libssh2_wincng_ecdsa_curve_type_from_name(IN const char *name,
 
 /* Parse an OpenSSL-formatted ECDSA private key */
 static int
-_libssh2_wincng_parse_ecdsa_privatekey(OUT _libssh2_wincng_ecdsa_key **key,
+_libssh2_wincng_parse_ecdsa_privatekey(OUT struct wincng_ecdsa_ctx **key,
                                        IN unsigned char *privatekey,
                                        IN size_t privatekey_len);
 
@@ -2209,7 +2209,7 @@ _libssh_wincng_reverse_bytes(IN PUCHAR buffer,
  * Windows CNG backend: ECDSA functions
  */
 void
-_libssh2_wincng_ecdsa_free(IN _libssh2_wincng_ecdsa_key *key)
+_libssh2_wincng_ecdsa_free(IN struct wincng_ecdsa_ctx *key)
 {
     if(!key) {
         return;
@@ -2227,7 +2227,7 @@ _libssh2_wincng_ecdsa_free(IN _libssh2_wincng_ecdsa_key *key)
  */
 int
 _libssh2_wincng_ecdh_create_key(IN LIBSSH2_SESSION *session,
-                                OUT _libssh2_wincng_ecdsa_key **privatekey,
+                                OUT struct wincng_ecdsa_ctx **privatekey,
                                 OUT unsigned char **encoded_publickey,
                                 OUT size_t *encoded_publickey_len,
                                 IN libssh2_curve_type curve)
@@ -2290,7 +2290,7 @@ _libssh2_wincng_ecdh_create_key(IN LIBSSH2_SESSION *session,
             "Exporting ECDH key pair failed");
     }
 
-    *privatekey = malloc(sizeof(_libssh2_wincng_ecdsa_key));
+    *privatekey = malloc(sizeof(struct wincng_ecdsa_ctx));
     if(!*privatekey) {
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
@@ -2318,7 +2318,7 @@ cleanup:
  */
 int
 _libssh2_wincng_ecdsa_curve_name_with_octal_new(
-    OUT _libssh2_wincng_ecdsa_key **key,
+    OUT struct wincng_ecdsa_ctx **key,
     IN const unsigned char *publickey_encoded,
     IN size_t publickey_encoded_len,
     IN libssh2_curve_type curve)
@@ -2355,7 +2355,7 @@ _libssh2_wincng_ecdsa_curve_name_with_octal_new(
         goto cleanup;
     }
 
-    *key = malloc(sizeof(_libssh2_wincng_ecdsa_key));
+    *key = malloc(sizeof(struct wincng_ecdsa_ctx));
     if(!*key) {
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
@@ -2377,7 +2377,7 @@ cleanup:
  */
 int
 _libssh2_wincng_ecdh_gen_k(OUT _libssh2_bn **secret,
-                           IN _libssh2_wincng_ecdsa_key *privatekey,
+                           IN struct wincng_ecdsa_ctx *privatekey,
                            IN const unsigned char *server_publickey_encoded,
                            IN size_t server_publickey_encoded_len)
 {
@@ -2521,7 +2521,7 @@ _libssh2_wincng_ecdsa_curve_type_from_name(IN const char *name,
  *
  */
 int
-_libssh2_wincng_ecdsa_verify(IN _libssh2_wincng_ecdsa_key *key,
+_libssh2_wincng_ecdsa_verify(IN struct wincng_ecdsa_ctx *key,
                              IN const unsigned char *r,
                              IN size_t r_len,
                              IN const unsigned char *s,
@@ -2623,7 +2623,7 @@ cleanup:
  *
  */
 int
-_libssh2_wincng_ecdsa_new_private(OUT _libssh2_wincng_ecdsa_key **key,
+_libssh2_wincng_ecdsa_new_private(OUT struct wincng_ecdsa_ctx **key,
                                   IN LIBSSH2_SESSION *session,
                                   IN const char *filename,
                                   IN const unsigned char *passphrase)
@@ -2691,7 +2691,7 @@ cleanup:
 }
 
 int
-_libssh2_wincng_parse_ecdsa_privatekey(OUT _libssh2_wincng_ecdsa_key **key,
+_libssh2_wincng_parse_ecdsa_privatekey(OUT struct wincng_ecdsa_ctx **key,
                                        IN unsigned char *privatekey,
                                        IN size_t privatekey_len)
 {
@@ -2792,7 +2792,7 @@ _libssh2_wincng_parse_ecdsa_privatekey(OUT _libssh2_wincng_ecdsa_key **key,
         goto cleanup;
     }
 
-    *key = malloc(sizeof(_libssh2_wincng_ecdsa_key));
+    *key = malloc(sizeof(struct wincng_ecdsa_ctx));
     if(!*key) {
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
@@ -2820,7 +2820,7 @@ cleanup:
  */
 int
 _libssh2_wincng_ecdsa_new_private_frommemory(
-    OUT _libssh2_wincng_ecdsa_key **key,
+    OUT struct wincng_ecdsa_ctx **key,
     IN LIBSSH2_SESSION *session,
     IN const char *data,
     IN size_t data_len,
@@ -2928,7 +2928,7 @@ cleanup:
  */
 int
 _libssh2_wincng_ecdsa_sign(IN LIBSSH2_SESSION *session,
-                           IN _libssh2_wincng_ecdsa_key *key,
+                           IN struct wincng_ecdsa_ctx *key,
                            IN const unsigned char *hash,
                            IN size_t hash_len,
                            OUT unsigned char **signature,
@@ -3034,7 +3034,7 @@ cleanup:
  *
  */
 libssh2_curve_type
-_libssh2_wincng_ecdsa_get_curve_type(IN _libssh2_wincng_ecdsa_key *key)
+_libssh2_wincng_ecdsa_get_curve_type(IN struct wincng_ecdsa_ctx *key)
 {
     return key->curve;
 }
