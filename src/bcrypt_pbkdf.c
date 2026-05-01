@@ -53,10 +53,9 @@
 #define BCRYPT_BLOCKS 8
 #define BCRYPT_HASHSIZE (BCRYPT_BLOCKS * 4)
 
-static void
-bcrypt_hash(uint8_t *sha2pass, uint8_t *sha2salt, uint8_t *out)
+static void bcrypt_hash(uint8_t *sha2pass, uint8_t *sha2salt, uint8_t *out)
 {
-    blf_ctx state;
+    struct blf_ctx state;
     uint8_t ciphertext[BCRYPT_HASHSIZE] = {
         'O', 'x', 'y', 'c', 'h', 'r', 'o', 'm', 'a', 't', 'i', 'c',
         'B', 'l', 'o', 'w', 'f', 'i', 's', 'h',
@@ -97,10 +96,9 @@ bcrypt_hash(uint8_t *sha2pass, uint8_t *sha2salt, uint8_t *out)
     _libssh2_explicit_zero(&state, sizeof(state));
 }
 
-static int
-bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt,
-             size_t saltlen,
-             uint8_t *key, size_t keylen, unsigned int rounds)
+static int bcrypt_pbkdf(const char *pass, size_t passlen,
+                        const uint8_t *salt, size_t saltlen,
+                        uint8_t *key, size_t keylen, unsigned int rounds)
 {
     uint8_t sha2pass[SHA512_DIGEST_LENGTH];
     uint8_t sha2salt[SHA512_DIGEST_LENGTH];

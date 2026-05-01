@@ -58,15 +58,15 @@
  * of the key affect all cipherbits.
  */
 
-#define BLF_N   16                       /* Number of Subkeys */
-#define BLF_MAXKEYLEN   ((BLF_N - 2)*4)  /* 448 bits */
-#define BLF_MAXUTILIZED ((BLF_N + 2)*4)  /* 576 bits */
+#define BLF_N   16                         /* Number of Subkeys */
+#define BLF_MAXKEYLEN   ((BLF_N - 2) * 4)  /* 448 bits */
+#define BLF_MAXUTILIZED ((BLF_N + 2) * 4)  /* 576 bits */
 
 /* Blowfish context */
-typedef struct BlowfishContext {
+struct blf_ctx {
     uint32_t S[4][256];     /* S-Boxes */
     uint32_t P[BLF_N + 2];  /* Subkeys */
-} blf_ctx;
+};
 
 /* Raw access to customized Blowfish
  *      blf_key is just:
@@ -77,15 +77,15 @@ typedef struct BlowfishContext {
 /* Standard Blowfish */
 
 /* Function for Feistel Networks */
-#define F(s, x) ((((s)[        (((x) >> 24) & 0xFF)]      \
-                 + (s)[0x100 + (((x) >> 16) & 0xFF)])     \
-                 ^ (s)[0x200 + (((x) >>  8) & 0xFF)])     \
-                 + (s)[0x300 + ( (x)        & 0xFF)])
+#define F(s, x)                           \
+    ((((s)[        (((x) >> 24) & 0xFF)]  \
+     + (s)[0x100 + (((x) >> 16) & 0xFF)]) \
+     ^ (s)[0x200 + (((x) >>  8) & 0xFF)]) \
+     + (s)[0x300 + ( (x)        & 0xFF)])
 
 #define BLFRND(s, p, i, j, n)  ((i) ^= F(s,j) ^ (p)[n])
 
-static void
-Blowfish_encipher(blf_ctx *c, uint32_t *xl, uint32_t *xr)
+static void Blowfish_encipher(struct blf_ctx *c, uint32_t *xl, uint32_t *xr)
 {
     uint32_t Xl;
     uint32_t Xr;
@@ -110,8 +110,7 @@ Blowfish_encipher(blf_ctx *c, uint32_t *xl, uint32_t *xr)
 }
 
 #ifdef _DEBUG_BLOWFISH
-static void
-Blowfish_decipher(blf_ctx *c, uint32_t *xl, uint32_t *xr)
+static void Blowfish_decipher(struct blf_ctx *c, uint32_t *xl, uint32_t *xr)
 {
     uint32_t Xl;
     uint32_t Xr;
@@ -136,12 +135,11 @@ Blowfish_decipher(blf_ctx *c, uint32_t *xl, uint32_t *xr)
 }
 #endif
 
-static void
-Blowfish_initstate(blf_ctx *c)
+static void Blowfish_initstate(struct blf_ctx *c)
 {
     /* P-box and S-box tables initialized with digits of Pi */
 
-    static const blf_ctx initstate =
+    static const struct blf_ctx initstate =
         { {
                 {
                     0xd1310ba6, 0x98dfb5ac, 0x2ffd72db, 0xd01adfb7,
@@ -416,9 +414,8 @@ Blowfish_initstate(blf_ctx *c)
 }
 
 /* Converts uint8_t to uint32_t */
-static uint32_t
-Blowfish_stream2word(const uint8_t *data, uint16_t databytes,
-                     uint16_t *current)
+static uint32_t Blowfish_stream2word(const uint8_t *data, uint16_t databytes,
+                                     uint16_t *current)
 {
     uint8_t i;
     uint16_t j;
@@ -438,7 +435,7 @@ Blowfish_stream2word(const uint8_t *data, uint16_t databytes,
 }
 
 static void
-Blowfish_expand0state(blf_ctx *c, const uint8_t *key, uint16_t keybytes)
+Blowfish_expand0state(struct blf_ctx *c, const uint8_t *key, uint16_t keybytes)
 {
     int i;
     int k;
@@ -474,9 +471,9 @@ Blowfish_expand0state(blf_ctx *c, const uint8_t *key, uint16_t keybytes)
     }
 }
 
-static void
-Blowfish_expandstate(blf_ctx *c, const uint8_t *data, uint16_t databytes,
-                     const uint8_t *key, uint16_t keybytes)
+static void Blowfish_expandstate(struct blf_ctx *c,
+                                 const uint8_t *data, uint16_t databytes,
+                                 const uint8_t *key, uint16_t keybytes)
 {
     int i;
     int k;
@@ -517,8 +514,7 @@ Blowfish_expandstate(blf_ctx *c, const uint8_t *data, uint16_t databytes,
 }
 
 #ifdef _DEBUG_BLOWFISH
-static void
-blf_key(blf_ctx *c, const uint8_t *k, uint16_t len)
+static void blf_key(struct blf_ctx *c, const uint8_t *k, uint16_t len)
 {
     /* Initialize S-boxes and subkeys with Pi */
     Blowfish_initstate(c);
@@ -528,8 +524,7 @@ blf_key(blf_ctx *c, const uint8_t *k, uint16_t len)
 }
 #endif
 
-static void
-blf_enc(blf_ctx *c, uint32_t *data, uint16_t blocks)
+static void blf_enc(struct blf_ctx *c, uint32_t *data, uint16_t blocks)
 {
     uint32_t *d;
     uint16_t i;
@@ -542,8 +537,7 @@ blf_enc(blf_ctx *c, uint32_t *data, uint16_t blocks)
 }
 
 #ifdef _DEBUG_BLOWFISH
-static void
-blf_dec(blf_ctx *c, uint32_t *data, uint16_t blocks)
+static void blf_dec(struct blf_ctx *c, uint32_t *data, uint16_t blocks)
 {
     uint32_t *d;
     uint16_t i;
@@ -555,20 +549,19 @@ blf_dec(blf_ctx *c, uint32_t *data, uint16_t blocks)
     }
 }
 
-static void
-report(uint32_t data[], uint16_t len)
+static void report(uint32_t data[], uint16_t len)
 {
     int i;
     for(i = 0; i < len; i += 2)
         printf("Block %d: 0x%08lx 0x%08lx.\n",
                i / 2, (unsigned long)data[i], (unsigned long)data[i + 1]);
 }
-int
-main(void)
+
+int main(void)
 {
-    blf_ctx c;
-    char    key[] = "AAAAA";
-    char    key2[] = "abcdefghijklmnopqrstuvwxyz";
+    struct blf_ctx c;
+    char key[] = "AAAAA";
+    char key2[] = "abcdefghijklmnopqrstuvwxyz";
 
     uint32_t data[10];
     uint32_t data2[] =
