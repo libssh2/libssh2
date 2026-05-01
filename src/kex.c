@@ -187,11 +187,12 @@ static int _libssh2_sha_algo_ctx_final(int sha_algo, void *ctx,
     return 0;
 }
 
-static void _libssh2_sha_algo_value_hash(int sha_algo,
-                                         LIBSSH2_SESSION *session,
-                                         kmdhgGPshakex_state_t *exchange_state,
-                                         unsigned char **data, size_t data_len,
-                                         const unsigned char *version)
+static void _libssh2_sha_algo_value_hash(
+    int sha_algo,
+    LIBSSH2_SESSION *session,
+    struct kmdhgGPshakex_state *exchange_state,
+    unsigned char **data, size_t data_len,
+    const unsigned char *version)
 {
     if(sha_algo == 512) {
         LIBSSH2_KEX_METHOD_SHA_VALUE_HASH(512, *data, data_len, version);
@@ -212,11 +213,10 @@ static void _libssh2_sha_algo_value_hash(int sha_algo,
     }
 }
 
-static int
-process_host_key(LIBSSH2_SESSION *session,
-                 struct string_buf *buf,
-                 const kmdhgGPshakex_state_t *exchange_state,
-                 unsigned char *data, size_t data_len)
+static int process_host_key(LIBSSH2_SESSION *session,
+                            struct string_buf *buf,
+                            const struct kmdhgGPshakex_state *exchange_state,
+                            unsigned char *data, size_t data_len)
 {
     size_t host_key_len;
 
@@ -355,10 +355,9 @@ process_host_key(LIBSSH2_SESSION *session,
     return 0;
 }
 
-static int
-finish_kex(LIBSSH2_SESSION *session,
-           kmdhgGPshakex_state_t *exchange_state,
-           int digest_len, int sha_algo_value)
+static int finish_kex(LIBSSH2_SESSION *session,
+                      struct kmdhgGPshakex_state *exchange_state,
+                      int digest_len, int sha_algo_value)
 {
     int rc;
     rc = _libssh2_packet_require(session, SSH_MSG_NEWKEYS,
@@ -580,9 +579,9 @@ finish_kex(LIBSSH2_SESSION *session,
     return 0;
 }
 
-static void
-diffie_hellman_state_cleanup(LIBSSH2_SESSION *session,
-                             kmdhgGPshakex_state_t *exchange_state)
+static void diffie_hellman_state_cleanup(
+    LIBSSH2_SESSION *session,
+    struct kmdhgGPshakex_state *exchange_state)
 {
     libssh2_dh_dtor(&exchange_state->x);
     _libssh2_bn_free(exchange_state->e);
@@ -649,7 +648,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                                    unsigned char packet_type_reply,
                                    unsigned char *midhash,
                                    size_t midhash_len,
-                                   kmdhgGPshakex_state_t *exchange_state)
+                                   struct kmdhgGPshakex_state *exchange_state)
 {
     int ret = 0;
     int rc;
@@ -1097,25 +1096,25 @@ clean_exit:
 /* kex_method_diffie_hellman_group14_key_exchange
  * Diffie-Hellman Group14 Key Exchange with hash function callback
  */
-typedef int (*diffie_hellman_hash_func_t)(LIBSSH2_SESSION *,
-                                          _libssh2_bn *,
-                                          _libssh2_bn *,
-                                          int,
-                                          int,
-                                          void *,
-                                          unsigned char,
-                                          unsigned char,
-                                          unsigned char *,
-                                          size_t,
-                                          kmdhgGPshakex_state_t *);
-static int
-kex_method_diffie_hellman_group14_key_exchange(LIBSSH2_SESSION *session,
-                                               key_exchange_state_low_t
-                                               * key_state,
-                                               int sha_algo_value,
-                                               void *exchange_hash_ctx,
-                                               diffie_hellman_hash_func_t
-                                               hashfunc)
+typedef int (*diffie_hellman_hash_func_t)(
+    LIBSSH2_SESSION *session,
+    _libssh2_bn *g,
+    _libssh2_bn *p,
+    int group_order,
+    int sha_algo_value,
+    void *exchange_hash_ctx,
+    unsigned char packet_type_init,
+    unsigned char packet_type_reply,
+    unsigned char *midhash,
+    size_t midhash_len,
+    struct kmdhgGPshakex_state *exchange_state);
+
+static int kex_method_diffie_hellman_group14_key_exchange(
+    LIBSSH2_SESSION *session,
+    key_exchange_state_low_t *key_state,
+    int sha_algo_value,
+    void *exchange_hash_ctx,
+    diffie_hellman_hash_func_t hashfunc)
 {
     static const unsigned char p_value[256] = {
         0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -2005,9 +2004,9 @@ kex_session_ecdh_curve_type(const char *name, libssh2_curve_type *out_type)
     return 0;
 }
 
-static void
-ecdh_exchange_state_cleanup(LIBSSH2_SESSION *session,
-                            kmdhgGPshakex_state_t *exchange_state)
+static void ecdh_exchange_state_cleanup(
+    LIBSSH2_SESSION *session,
+    struct kmdhgGPshakex_state *exchange_state)
 {
     _libssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
@@ -2053,7 +2052,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
                            unsigned char *data, size_t data_len,
                            unsigned char *public_key,
                            size_t public_key_len, _libssh2_ec_key *private_key,
-                           kmdhgGPshakex_state_t *exchange_state)
+                           struct kmdhgGPshakex_state *exchange_state)
 {
     int ret = 0;
     int rc;
@@ -2328,9 +2327,9 @@ ecdh_clean_exit:
 
 #if LIBSSH2_MLKEM
 
-static void
-mlkem_nistp_exchange_state_cleanup(LIBSSH2_SESSION *session,
-                                   kmdhgGPshakex_state_t *exchange_state)
+static void mlkem_nistp_exchange_state_cleanup(
+    LIBSSH2_SESSION *session,
+    struct kmdhgGPshakex_state *exchange_state)
 {
     _libssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
@@ -2383,15 +2382,14 @@ kex_method_mlkem_nistp_cleanup
     }
 }
 
-static int
-mlkem_nistp(LIBSSH2_SESSION *session,
-            unsigned char *data, size_t data_len,
-            unsigned char *public_t_key,
-            size_t public_t_key_len,
-            _libssh2_ec_key *private_t_key,
-            unsigned char *public_pq_key,
-            unsigned char *private_pq_key,
-            kmdhgGPshakex_state_t *exchange_state)
+static int mlkem_nistp(LIBSSH2_SESSION *session,
+                       unsigned char *data, size_t data_len,
+                       unsigned char *public_t_key,
+                       size_t public_t_key_len,
+                       _libssh2_ec_key *private_t_key,
+                       unsigned char *public_pq_key,
+                       unsigned char *private_pq_key,
+                       struct kmdhgGPshakex_state *exchange_state)
 {
     int ret = 0;
     int rc, ml_kem_size, sha_algo_value;
@@ -2751,9 +2749,9 @@ clean_exit:
 
 #if LIBSSH2_ED25519
 
-static void
-curve25519_exchange_state_cleanup(LIBSSH2_SESSION *session,
-                                  kmdhgGPshakex_state_t *exchange_state)
+static void curve25519_exchange_state_cleanup(
+    LIBSSH2_SESSION *session,
+    struct kmdhgGPshakex_state *exchange_state)
 {
     _libssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
@@ -2799,12 +2797,12 @@ kex_method_curve25519_cleanup
 /* curve25519_sha256
  * Elliptic Curve Key Exchange
  */
-static int
-curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
-                  size_t data_len,
-                  unsigned char public_key[LIBSSH2_ED25519_KEY_LEN],
-                  unsigned char private_key[LIBSSH2_ED25519_KEY_LEN],
-                  kmdhgGPshakex_state_t *exchange_state)
+static int curve25519_sha256(
+    LIBSSH2_SESSION *session, unsigned char *data,
+    size_t data_len,
+    unsigned char public_key[LIBSSH2_ED25519_KEY_LEN],
+    unsigned char private_key[LIBSSH2_ED25519_KEY_LEN],
+    struct kmdhgGPshakex_state *exchange_state)
 {
     int ret = 0;
     int rc;
@@ -3045,9 +3043,9 @@ clean_exit:
 
 #if LIBSSH2_MLKEM
 
-static void
-mlkem768x25519_exchange_state_cleanup(LIBSSH2_SESSION *session,
-                                  kmdhgGPshakex_state_t *exchange_state)
+static void mlkem768x25519_exchange_state_cleanup(
+    LIBSSH2_SESSION *session,
+    struct kmdhgGPshakex_state *exchange_state)
 {
     _libssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
@@ -3104,16 +3102,14 @@ kex_method_mlkem768x25519_cleanup
     }
 }
 
-static int
-mlkem768x25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
-                      size_t data_len,
-                      unsigned char public_t_key[LIBSSH2_ED25519_KEY_LEN],
-                      unsigned char private_t_key[LIBSSH2_ED25519_KEY_LEN],
-                      unsigned char public_pq_key
-                        [LIBSSH2_MLKEM_768_PUBLIC_KEY_LEN],
-                      unsigned char private_pq_key
-                        [LIBSSH2_MLKEM_768_PRIVATE_KEY_LEN],
-                      kmdhgGPshakex_state_t *exchange_state)
+static int mlkem768x25519_sha256(
+    LIBSSH2_SESSION *session,
+    unsigned char *data, size_t data_len,
+    unsigned char public_t_key[LIBSSH2_ED25519_KEY_LEN],
+    unsigned char private_t_key[LIBSSH2_ED25519_KEY_LEN],
+    unsigned char public_pq_key[LIBSSH2_MLKEM_768_PUBLIC_KEY_LEN],
+    unsigned char private_pq_key[LIBSSH2_MLKEM_768_PRIVATE_KEY_LEN],
+    struct kmdhgGPshakex_state *exchange_state)
 {
     int ret = 0;
     int rc;

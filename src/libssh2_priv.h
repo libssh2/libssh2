@@ -319,8 +319,7 @@ struct packet_requirev_state {
     time_t start;
 };
 
-typedef struct kmdhgGPshakex_state_t
-{
+struct kmdhgGPshakex_state {
     libssh2_nonblocking_states state;
     unsigned char *e_packet;
     unsigned char *s_packet;
@@ -343,13 +342,13 @@ typedef struct kmdhgGPshakex_state_t
     size_t h_sig_len;
     struct packet_require_state req_state;
     libssh2_nonblocking_states burn_state;
-} kmdhgGPshakex_state_t;
+};
 
 typedef struct key_exchange_state_low_t
 {
     libssh2_nonblocking_states state;
     struct packet_require_state req_state;
-    kmdhgGPshakex_state_t exchange_state;
+    struct kmdhgGPshakex_state exchange_state;
     _libssh2_bn *p;             /* SSH2 defined value (p_value) */
     _libssh2_bn *g;             /* SSH2 defined value (2) */
     /* Request must fit mlkem1024nistp384 keys + 5 bytes overhead */
