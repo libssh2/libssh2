@@ -165,18 +165,18 @@ extern struct _libssh2_wincng_ctx _libssh2_wincng;
  * Windows CNG backend: Hash structure
  */
 
-typedef struct __libssh2_wincng_hash_ctx {
+struct wincng_hash_ctx {
     BCRYPT_HASH_HANDLE hHash;
     unsigned char *pbHashObject;
     ULONG dwHashObject;
     ULONG cbHash;
-} _libssh2_wincng_hash_ctx;
+};
 
 /*
  * Windows CNG backend: Hash functions
  */
 
-#define libssh2_sha1_ctx _libssh2_wincng_hash_ctx
+#define libssh2_sha1_ctx struct wincng_hash_ctx
 #define libssh2_sha1_init(ctx) \
     (_libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHashSHA1, \
                                SHA_DIGEST_LENGTH, NULL, 0) == 0)
@@ -188,7 +188,7 @@ typedef struct __libssh2_wincng_hash_ctx {
     _libssh2_wincng_hash(data, datalen, _libssh2_wincng.hAlgHashSHA1, \
                          hash, SHA_DIGEST_LENGTH)
 
-#define libssh2_sha256_ctx _libssh2_wincng_hash_ctx
+#define libssh2_sha256_ctx struct wincng_hash_ctx
 #define libssh2_sha256_init(ctx) \
     (_libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHashSHA256, \
                                SHA256_DIGEST_LENGTH, NULL, 0) == 0)
@@ -200,7 +200,7 @@ typedef struct __libssh2_wincng_hash_ctx {
     _libssh2_wincng_hash(data, datalen, _libssh2_wincng.hAlgHashSHA256, \
                          hash, SHA256_DIGEST_LENGTH)
 
-#define libssh2_sha384_ctx _libssh2_wincng_hash_ctx
+#define libssh2_sha384_ctx struct wincng_hash_ctx
 #define libssh2_sha384_init(ctx) \
     (_libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHashSHA384, \
                                SHA384_DIGEST_LENGTH, NULL, 0) == 0)
@@ -212,7 +212,7 @@ typedef struct __libssh2_wincng_hash_ctx {
     _libssh2_wincng_hash(data, datalen, _libssh2_wincng.hAlgHashSHA384, \
                          hash, SHA384_DIGEST_LENGTH)
 
-#define libssh2_sha512_ctx _libssh2_wincng_hash_ctx
+#define libssh2_sha512_ctx struct wincng_hash_ctx
 #define libssh2_sha512_init(ctx) \
     (_libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHashSHA512, \
                                SHA512_DIGEST_LENGTH, NULL, 0) == 0)
@@ -225,7 +225,7 @@ typedef struct __libssh2_wincng_hash_ctx {
                          hash, SHA512_DIGEST_LENGTH)
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define libssh2_md5_ctx _libssh2_wincng_hash_ctx
+#define libssh2_md5_ctx struct wincng_hash_ctx
 #define libssh2_md5_init(ctx) \
     (_libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHashMD5, \
                                MD5_DIGEST_LENGTH, NULL, 0) == 0)
@@ -239,7 +239,7 @@ typedef struct __libssh2_wincng_hash_ctx {
  * Windows CNG backend: HMAC functions
  */
 
-#define libssh2_hmac_ctx _libssh2_wincng_hash_ctx
+#define libssh2_hmac_ctx struct wincng_hash_ctx
 
 /*******************************************************************/
 /*
@@ -505,14 +505,14 @@ void _libssh2_wincng_free(void);
 int _libssh2_wincng_random(void *buf, size_t len);
 
 int
-_libssh2_wincng_hash_init(_libssh2_wincng_hash_ctx *ctx,
+_libssh2_wincng_hash_init(struct wincng_hash_ctx *ctx,
                           BCRYPT_ALG_HANDLE hAlg, ULONG hashlen,
                           unsigned char *key, ULONG keylen);
 int
-_libssh2_wincng_hash_update(_libssh2_wincng_hash_ctx *ctx,
+_libssh2_wincng_hash_update(struct wincng_hash_ctx *ctx,
                             const void *data, ULONG datalen);
 int
-_libssh2_wincng_hash_final(_libssh2_wincng_hash_ctx *ctx,
+_libssh2_wincng_hash_final(struct wincng_hash_ctx *ctx,
                            unsigned char *hash);
 int
 _libssh2_wincng_hash(const unsigned char *data, ULONG datalen,

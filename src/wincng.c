@@ -619,7 +619,7 @@ static void memcpy_with_be_padding(unsigned char *dest, ULONG dest_len,
  * Windows CNG backend: Hash functions
  */
 
-int _libssh2_wincng_hash_init(_libssh2_wincng_hash_ctx *ctx,
+int _libssh2_wincng_hash_init(struct wincng_hash_ctx *ctx,
                               BCRYPT_ALG_HANDLE hAlg, ULONG hashlen,
                               unsigned char *key, ULONG keylen)
 {
@@ -666,7 +666,7 @@ int _libssh2_wincng_hash_init(_libssh2_wincng_hash_ctx *ctx,
 }
 
 int
-_libssh2_wincng_hash_update(_libssh2_wincng_hash_ctx *ctx,
+_libssh2_wincng_hash_update(struct wincng_hash_ctx *ctx,
                             const void *data, ULONG datalen)
 {
     int ret;
@@ -677,7 +677,7 @@ _libssh2_wincng_hash_update(_libssh2_wincng_hash_ctx *ctx,
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-int _libssh2_wincng_hash_final(_libssh2_wincng_hash_ctx *ctx,
+int _libssh2_wincng_hash_final(struct wincng_hash_ctx *ctx,
                                unsigned char *hash)
 {
     int ret;
@@ -698,7 +698,7 @@ int _libssh2_wincng_hash(const unsigned char *data, ULONG datalen,
                          BCRYPT_ALG_HANDLE hAlg,
                          unsigned char *hash, ULONG hashlen)
 {
-    _libssh2_wincng_hash_ctx ctx;
+    struct wincng_hash_ctx ctx;
     int ret;
 
     ret = _libssh2_wincng_hash_init(&ctx, hAlg, hashlen, NULL, 0);
