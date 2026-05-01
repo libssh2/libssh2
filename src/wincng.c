@@ -3298,7 +3298,7 @@ _libssh2_wincng_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
  * Windows CNG backend: Cipher functions
  */
 int
-_libssh2_wincng_cipher_init(_libssh2_cipher_ctx *h,
+_libssh2_wincng_cipher_init(libssh2_cipher_ctx *h,
                             _libssh2_cipher_type(algo),
                             unsigned char *iv,
                             unsigned char *secret,
@@ -3414,7 +3414,7 @@ static void _libssh2_aes_ctr_increment(unsigned char *ctr,
 }
 
 int
-_libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
+_libssh2_wincng_cipher_crypt(libssh2_cipher_ctx *ctx,
                              _libssh2_cipher_type(algo),
                              int encrypt,
                              unsigned char *block,
@@ -3478,7 +3478,7 @@ _libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
 }
 
 void
-_libssh2_wincng_cipher_dtor(_libssh2_cipher_ctx *ctx)
+_libssh2_wincng_cipher_dtor(libssh2_cipher_ctx *ctx)
 {
     BCryptDestroyKey(ctx->hKey);
     ctx->hKey = NULL;

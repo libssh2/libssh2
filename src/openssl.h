@@ -389,9 +389,9 @@ libssh2_curve_type;
 
 #define _libssh2_cipher_type(name) const EVP_CIPHER *(*(name))(void)
 #ifdef HAVE_OPAQUE_STRUCTS
-#define _libssh2_cipher_ctx EVP_CIPHER_CTX *
+#define libssh2_cipher_ctx EVP_CIPHER_CTX *
 #else
-#define _libssh2_cipher_ctx EVP_CIPHER_CTX
+#define libssh2_cipher_ctx EVP_CIPHER_CTX
 #endif
 
 #define _libssh2_cipher_aes256gcm EVP_aes_256_gcm

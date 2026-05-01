@@ -388,7 +388,7 @@ struct _libssh2_wincng_cipher_ctx {
     ULONG dwCtrLength;
 };
 
-#define _libssh2_cipher_ctx struct _libssh2_wincng_cipher_ctx
+#define libssh2_cipher_ctx struct _libssh2_wincng_cipher_ctx
 
 /*
  * Windows CNG backend: Cipher Type structure
@@ -530,7 +530,7 @@ _libssh2_wincng_dsa_free(libssh2_dsa_ctx *dsa);
 #endif
 
 void
-_libssh2_wincng_cipher_dtor(_libssh2_cipher_ctx *ctx);
+_libssh2_wincng_cipher_dtor(libssh2_cipher_ctx *ctx);
 
 libssh2_bn *
 _libssh2_wincng_bignum_init(void);

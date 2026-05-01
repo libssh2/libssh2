@@ -86,7 +86,7 @@ struct crypt_ctx
 {
     int encrypt;
     _libssh2_cipher_type(algo);
-    _libssh2_cipher_ctx h;
+    libssh2_cipher_ctx h;
     struct chachapoly_ctx chachapoly_ctx;
 };
 

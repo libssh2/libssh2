@@ -733,7 +733,7 @@ _libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
 #endif
 
 int
-_libssh2_cipher_init(_libssh2_cipher_ctx *h,
+_libssh2_cipher_init(libssh2_cipher_ctx *h,
                      _libssh2_cipher_type(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
@@ -771,7 +771,7 @@ _libssh2_cipher_init(_libssh2_cipher_ctx *h,
 }
 
 int
-_libssh2_cipher_crypt(_libssh2_cipher_ctx *ctx,
+_libssh2_cipher_crypt(libssh2_cipher_ctx *ctx,
                       _libssh2_cipher_type(algo),
                       int encrypt, unsigned char *block, size_t blocksize,
                       int firstlast)

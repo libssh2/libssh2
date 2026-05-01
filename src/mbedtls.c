@@ -103,7 +103,7 @@ _libssh2_mbedtls_safe_free(void *buf, size_t len)
 }
 
 int
-_libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *h,
+_libssh2_mbedtls_cipher_init(libssh2_cipher_ctx *h,
                              _libssh2_cipher_type(algo),
                              unsigned char *iv,
                              unsigned char *secret,
@@ -151,7 +151,7 @@ _libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *h,
 }
 
 int
-_libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
+_libssh2_mbedtls_cipher_crypt(libssh2_cipher_ctx *ctx,
                               _libssh2_cipher_type(algo),
                               int encrypt,
                               unsigned char *block,
@@ -191,7 +191,7 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
 }
 
 void
-_libssh2_mbedtls_cipher_dtor(_libssh2_cipher_ctx *ctx)
+_libssh2_mbedtls_cipher_dtor(libssh2_cipher_ctx *ctx)
 {
     mbedtls_cipher_free(ctx);
 }

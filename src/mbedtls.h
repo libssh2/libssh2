@@ -337,7 +337,7 @@ typedef enum {
  * mbedTLS backend: Cipher Context structure
  */
 
-#define _libssh2_cipher_ctx         mbedtls_cipher_context_t
+#define libssh2_cipher_ctx          mbedtls_cipher_context_t
 
 #define _libssh2_cipher_type(algo)  mbedtls_cipher_type_t algo
 
@@ -432,7 +432,7 @@ int
 _libssh2_mbedtls_random(unsigned char *buf, size_t len);
 
 void
-_libssh2_mbedtls_cipher_dtor(_libssh2_cipher_ctx *ctx);
+_libssh2_mbedtls_cipher_dtor(libssh2_cipher_ctx *ctx);
 
 int
 _libssh2_mbedtls_hash_init(mbedtls_md_context_t *ctx,

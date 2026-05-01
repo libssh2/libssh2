@@ -303,14 +303,14 @@ Returns 1 for success and 0 for failure.
 
 4) Bidirectional key ciphers.
 
-_libssh2_cipher_ctx
+libssh2_cipher_ctx
 Type of a cipher computation context.
 
 _libssh2_cipher_type(name);
 Macro defining name as storage identifying a cipher algorithm for
 the crypto library interface. No trailing semicolon.
 
-int _libssh2_cipher_init(_libssh2_cipher_ctx *h,
+int _libssh2_cipher_init(libssh2_cipher_ctx *h,
                          _libssh2_cipher_type(algo),
                          unsigned char *iv,
                          unsigned char *secret,
@@ -321,7 +321,7 @@ encrypt.
 Return 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
 
-int _libssh2_cipher_crypt(_libssh2_cipher_ctx *ctx,
+int _libssh2_cipher_crypt(libssh2_cipher_ctx *ctx,
                           _libssh2_cipher_type(algo),
                           int encrypt,
                           unsigned char *block,
@@ -332,7 +332,7 @@ context and/or algorithm.
 Return 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
 
-void _libssh2_cipher_dtor(_libssh2_cipher_ctx *ctx);
+void _libssh2_cipher_dtor(libssh2_cipher_ctx *ctx);
 Release cipher context at ctx.
 
 4.1) AES
