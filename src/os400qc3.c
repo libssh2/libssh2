@@ -894,11 +894,11 @@ rsaprivatekeyinfo(struct asn1Element *privkey)
  *
  *******************************************************************/
 
-static _libssh2_os400qc3_crypto_ctx *
-libssh2_init_crypto_ctx(_libssh2_os400qc3_crypto_ctx *ctx)
+static struct os400qc3_crypto_ctx *
+libssh2_init_crypto_ctx(struct os400qc3_crypto_ctx *ctx)
 {
     if(!ctx)
-        ctx = (_libssh2_os400qc3_crypto_ctx *) malloc(sizeof(*ctx));
+        ctx = (struct os400qc3_crypto_ctx *) malloc(sizeof(*ctx));
 
     if(ctx) {
         memset((char *) ctx, 0, sizeof(*ctx));
@@ -916,7 +916,7 @@ null_token(const char *token)
 }
 
 void
-_libssh2_os400qc3_crypto_dtor(_libssh2_os400qc3_crypto_ctx *x)
+_libssh2_os400qc3_crypto_dtor(struct os400qc3_crypto_ctx *x)
 {
     if(!x)
         return;
@@ -1006,7 +1006,7 @@ _libssh2_os400qc3_hash(const unsigned char *message, unsigned long len,
 }
 
 static int
-libssh2_os400qc3_hmac_init(_libssh2_os400qc3_crypto_ctx *ctx,
+libssh2_os400qc3_hmac_init(struct os400qc3_crypto_ctx *ctx,
                            int algo, size_t minkeylen, void *key, int keylen)
 {
     Qus_EC_t errcode;
@@ -1481,7 +1481,7 @@ pbkdf2(LIBSSH2_SESSION *session, char **dk, const unsigned char *passphrase,
     unsigned long long t;
     char *mac;
     char *buf;
-    _libssh2_os400qc3_crypto_ctx hctx;
+    struct os400qc3_crypto_ctx hctx;
 
     *dk = NULL;
     t = ((unsigned long long) pkcs5->dklen + pkcs5->hashlen - 1) /
@@ -1750,7 +1750,7 @@ parse_pbes1(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
 }
 
 static int
-pkcs8kek(LIBSSH2_SESSION *session, _libssh2_os400qc3_crypto_ctx **ctx,
+pkcs8kek(LIBSSH2_SESSION *session, struct os400qc3_crypto_ctx **ctx,
          const unsigned char *data, unsigned int datalen,
          const unsigned char *passphrase, struct asn1Element *privkeyinfo)
 {
@@ -1859,7 +1859,7 @@ rsapkcs8privkey(LIBSSH2_SESSION *session,
     char keyform = Qc3_Clear;
     char *kek = NULL;
     char *kea = NULL;
-    _libssh2_os400qc3_crypto_ctx *kekctx;
+    struct os400qc3_crypto_ctx *kekctx;
     struct asn1Element pki;
     int pkilen;
     Qus_EC_t errcode;
@@ -1943,7 +1943,7 @@ rsapkcs8pubkey(LIBSSH2_SESSION *session,
     char keyform = Qc3_Clear;
     char *kek = NULL;
     char *kea = NULL;
-    _libssh2_os400qc3_crypto_ctx *kekctx;
+    struct os400qc3_crypto_ctx *kekctx;
     struct asn1Element subjpubkeyinfo;
     struct asn1Element algorithmid;
     struct asn1Element algorithm;
