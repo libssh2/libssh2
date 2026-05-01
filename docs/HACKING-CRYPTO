@@ -16,11 +16,10 @@ indicates the libssh2 core modules never use the function result.
 
 Adding a crypto backend to the autotools build system (./configure) is easy:
 
-0.1) Add one new line in configure.ac
+0.1) Add logic to configure.ac
 
-m4_set_add([crypto_backends], [newname])
-
-This automatically creates a --with-crypto=newname option.
+Seach for an existing backend (e.g. 'openssl'), duplicate each occurrence and
+use the new backend's name in them.
 
 0.2) Add an m4_case stanza to LIBSSH2_CRYPTO_CHECK in acinclude.m4
 
