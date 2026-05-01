@@ -843,7 +843,7 @@ AC_DEFUN([CURL_CONFIGURE_REENTRANT], [
 
 dnl LIBSSH2_LIB_HAVE_LINKFLAGS
 dnl --------------------------
-dnl Wrapper around AC_LIB_HAVE_LINKFLAGS to also check $prefix/lib, if set.
+dnl Wrapper around LIBSSH2_HAVE_LINKFLAGS to also check $prefix/lib, if set.
 dnl
 dnl autoconf only checks $prefix/lib64 if gcc -print-search-dirs output
 dnl includes a directory named lib64. So, to find libraries in $prefix/lib
@@ -860,7 +860,7 @@ AC_DEFUN([LIBSSH2_LIB_HAVE_LINKFLAGS], [
     LDFLAGS="$LDFLAGS${LDFLAGS:+ }-L${with_lib$1_prefix}/lib"
   fi
 
-  AC_LIB_HAVE_LINKFLAGS([$1], [$2], [$3])
+  LIBSSH2_HAVE_LINKFLAGS([$1], [$2], [$3])
 
   if test "$ac_cv_lib$1" = "yes"; then :
     $4

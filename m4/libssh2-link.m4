@@ -10,21 +10,89 @@ dnl From Bruno Haible.
 
 AC_PREREQ([2.54])
 
-dnl AC_LIB_LINKFLAGS(name [, dependencies]) searches for libname and
+dnl LIBSSH2_WITH_FINAL_PREFIX([statement]) evaluates statement, with the
+dnl variables prefix and exec_prefix bound to the values they will have
+dnl at the end of the configure script.
+AC_DEFUN([LIBSSH2_WITH_FINAL_PREFIX],
+[
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+  $1
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+])
+
+dnl LIBSSH2_PREPARE_PREFIX creates variables acl_final_prefix,
+dnl acl_final_exec_prefix, containing the values to which $prefix and
+dnl $exec_prefix will expand at the end of the configure script.
+AC_DEFUN([LIBSSH2_PREPARE_PREFIX],
+[
+  dnl Unfortunately, prefix and exec_prefix get only finally determined
+  dnl at the end of configure.
+  if test "X$prefix" = "XNONE"; then
+    acl_final_prefix="$ac_default_prefix"
+  else
+    acl_final_prefix="$prefix"
+  fi
+  if test "X$exec_prefix" = "XNONE"; then
+    acl_final_exec_prefix='${prefix}'
+  else
+    acl_final_exec_prefix="$exec_prefix"
+  fi
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  eval acl_final_exec_prefix=\"$acl_final_exec_prefix\"
+  prefix="$acl_save_prefix"
+])
+
+dnl LIBSSH2_PREPARE_MULTILIB creates a variable acl_libdirstem, containing
+dnl the basename of the libdir, either "lib" or "lib64".
+AC_DEFUN([LIBSSH2_PREPARE_MULTILIB],
+[
+  dnl There is no formal standard regarding lib and lib64. The current
+  dnl practice is that on a system supporting 32-bit and 64-bit instruction
+  dnl sets or ABIs, 64-bit libraries go under $prefix/lib64 and 32-bit
+  dnl libraries go under $prefix/lib. We determine the compiler's default
+  dnl mode by looking at the compiler's library search path. If at least
+  dnl of its elements ends in /lib64 or points to a directory whose absolute
+  dnl pathname ends in /lib64, we assume a 64-bit ABI. Otherwise we use the
+  dnl default, namely "lib".
+  acl_libdirstem=lib
+  searchpath=`(LC_ALL=C $CC -print-search-dirs) 2>/dev/null | sed -n -e 's,^libraries: ,,p' | sed -e 's,^=,,'`
+  if test -n "$searchpath"; then
+    acl_save_IFS="${IFS= 	}"; IFS=":"
+    for searchdir in $searchpath; do
+      if test -d "$searchdir"; then
+        case "$searchdir" in
+          */lib64/ | */lib64 ) acl_libdirstem=lib64 ;;
+          *) searchdir=`cd "$searchdir" && pwd`
+             case "$searchdir" in
+               */lib64 ) acl_libdirstem=lib64 ;;
+             esac ;;
+        esac
+      fi
+    done
+    IFS="$acl_save_IFS"
+  fi
+])
+
+dnl LIBSSH2_LINKFLAGS(name [, dependencies]) searches for libname and
 dnl the libraries corresponding to explicit and implicit dependencies.
 dnl Sets and AC_SUBSTs the LIB${NAME} and LTLIB${NAME} variables and
 dnl augments the CPPFLAGS variable.
 dnl Sets and AC_SUBSTs the LIB${NAME}_PREFIX variable to nonempty if libname
 dnl was found in ${LIB${NAME}_PREFIX}/$acl_libdirstem.
-AC_DEFUN([AC_LIB_LINKFLAGS],
+AC_DEFUN([LIBSSH2_LINKFLAGS],
 [
-  AC_REQUIRE([AC_LIB_PREPARE_PREFIX])
-  AC_REQUIRE([AC_LIB_RPATH])
+  AC_REQUIRE([LIBSSH2_PREPARE_PREFIX])
+  AC_REQUIRE([LIBSSH2_RPATH])
   define([Name],[translit([$1],[./-], [___])])
   define([NAME],[translit([$1],[abcdefghijklmnopqrstuvwxyz./-],
                                [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
   AC_CACHE_CHECK([how to link with lib[]$1], [ac_cv_lib[]Name[]_libs], [
-    AC_LIB_LINKFLAGS_BODY([$1], [$2])
+    LIBSSH2_LINKFLAGS_BODY([$1], [$2])
     ac_cv_lib[]Name[]_libs="$LIB[]NAME"
     ac_cv_lib[]Name[]_ltlibs="$LTLIB[]NAME"
     ac_cv_lib[]Name[]_cppflags="$INC[]NAME"
@@ -34,18 +102,18 @@ AC_DEFUN([AC_LIB_LINKFLAGS],
   LTLIB[]NAME="$ac_cv_lib[]Name[]_ltlibs"
   INC[]NAME="$ac_cv_lib[]Name[]_cppflags"
   LIB[]NAME[]_PREFIX="$ac_cv_lib[]Name[]_prefix"
-  AC_LIB_APPENDTOVAR([CPPFLAGS], [$INC]NAME)
+  LIBSSH2_APPENDTOVAR([CPPFLAGS], [$INC]NAME)
   AC_SUBST([LIB]NAME)
   AC_SUBST([LTLIB]NAME)
   AC_SUBST([LIB]NAME[_PREFIX])
-  dnl Also set HAVE_LIB[]NAME so that AC_LIB_HAVE_LINKFLAGS can reuse the
+  dnl Also set HAVE_LIB[]NAME so that LIBSSH2_HAVE_LINKFLAGS can reuse the
   dnl results of this search when this library appears as a dependency.
   HAVE_LIB[]NAME=yes
   undefine([Name])
   undefine([NAME])
 ])
 
-dnl AC_LIB_HAVE_LINKFLAGS(name, dependencies, includes, testcode)
+dnl LIBSSH2_HAVE_LINKFLAGS(name, dependencies, includes, testcode)
 dnl searches for libname and the libraries corresponding to explicit and
 dnl implicit dependencies, together with the specified include files and
 dnl the ability to compile and link the specified testcode. If found, it
@@ -55,23 +123,23 @@ dnl #defines HAVE_LIB${NAME} to 1. Otherwise, it sets and AC_SUBSTs
 dnl HAVE_LIB${NAME}=no and LIB${NAME} and LTLIB${NAME} to empty.
 dnl Sets and AC_SUBSTs the LIB${NAME}_PREFIX variable to nonempty if libname
 dnl was found in ${LIB${NAME}_PREFIX}/$acl_libdirstem.
-AC_DEFUN([AC_LIB_HAVE_LINKFLAGS],
+AC_DEFUN([LIBSSH2_HAVE_LINKFLAGS],
 [
-  AC_REQUIRE([AC_LIB_PREPARE_PREFIX])
-  AC_REQUIRE([AC_LIB_RPATH])
+  AC_REQUIRE([LIBSSH2_PREPARE_PREFIX])
+  AC_REQUIRE([LIBSSH2_RPATH])
   define([Name],[translit([$1],[./-], [___])])
   define([NAME],[translit([$1],[abcdefghijklmnopqrstuvwxyz./-],
                                [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
 
   dnl Search for lib[]Name and define LIB[]NAME, LTLIB[]NAME and INC[]NAME
   dnl accordingly.
-  AC_LIB_LINKFLAGS_BODY([$1], [$2])
+  LIBSSH2_LINKFLAGS_BODY([$1], [$2])
 
   dnl Add $INC[]NAME to CPPFLAGS before performing the following checks,
   dnl because if the user has installed lib[]Name and not disabled its use
   dnl via --without-lib[]Name-prefix, he wants to use it.
   ac_save_CPPFLAGS="$CPPFLAGS"
-  AC_LIB_APPENDTOVAR([CPPFLAGS], [$INC]NAME)
+  LIBSSH2_APPENDTOVAR([CPPFLAGS], [$INC]NAME)
 
   AC_CACHE_CHECK([for lib[]$1], [ac_cv_lib[]Name], [
     ac_save_LIBS="$LIBS"
@@ -108,16 +176,13 @@ dnl   acl_hardcode_libdir_flag_spec,
 dnl   acl_hardcode_libdir_separator,
 dnl   acl_hardcode_direct,
 dnl   acl_hardcode_minus_L.
-AC_DEFUN([AC_LIB_RPATH],
+AC_DEFUN([LIBSSH2_RPATH],
 [
-  dnl Tell automake >= 1.10 to complain if config.rpath is missing.
-  m4_ifdef([AC_REQUIRE_AUX_FILE], [AC_REQUIRE_AUX_FILE([config.rpath])])
   AC_REQUIRE([AC_PROG_CC])                dnl we use $CC, $GCC, $LDFLAGS
-  AC_REQUIRE([AC_LIB_PROG_LD])            dnl we use $LD, $with_gnu_ld
   AC_REQUIRE([AC_CANONICAL_HOST])         dnl we use $host
   AC_REQUIRE([AC_CONFIG_AUX_DIR_DEFAULT]) dnl we use $ac_aux_dir
   AC_CACHE_CHECK([for shared library run path origin], acl_cv_rpath, [
-    CC="$CC" GCC="$GCC" LDFLAGS="$LDFLAGS" LD="$LD" with_gnu_ld="$with_gnu_ld" \
+    CC="$CC" GCC="$GCC" LDFLAGS="$LDFLAGS" \
     ${CONFIG_SHELL-/bin/sh} "$ac_aux_dir/config.rpath" "$host" > conftest.sh
     . ./conftest.sh
     rm -f ./conftest.sh
@@ -138,25 +203,25 @@ AC_DEFUN([AC_LIB_RPATH],
     :, enable_rpath=yes)
 ])
 
-dnl AC_LIB_LINKFLAGS_BODY(name [, dependencies]) searches for libname and
+dnl LIBSSH2_LINKFLAGS_BODY(name [, dependencies]) searches for libname and
 dnl the libraries corresponding to explicit and implicit dependencies.
 dnl Sets the LIB${NAME}, LTLIB${NAME} and INC${NAME} variables.
 dnl Also, sets the LIB${NAME}_PREFIX variable to nonempty if libname was found
 dnl in ${LIB${NAME}_PREFIX}/$acl_libdirstem.
-AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
+AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
 [
-  AC_REQUIRE([AC_LIB_PREPARE_MULTILIB])
+  AC_REQUIRE([LIBSSH2_PREPARE_MULTILIB])
   define([NAME],[translit([$1],[abcdefghijklmnopqrstuvwxyz./-],
                                [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
   dnl Autoconf >= 2.61 supports dots in --with options.
   define([N_A_M_E],[m4_if(m4_version_compare(m4_defn([m4_PACKAGE_VERSION]),[2.61]),[-1],[translit([$1],[.],[_])],[$1])])
   dnl By default, look in $includedir and $libdir.
   use_additional=yes
-  AC_LIB_WITH_FINAL_PREFIX([
+  LIBSSH2_WITH_FINAL_PREFIX([
     eval additional_includedir=\"$includedir\"
     eval additional_libdir=\"$libdir\"
   ])
-  AC_LIB_ARG_WITH([lib]N_A_M_E[-prefix],
+  AC_ARG_WITH([lib]N_A_M_E[-prefix],
 [  --with-lib]N_A_M_E[-prefix[=DIR]  search for lib$1 in DIR/include and DIR/lib
   --without-lib]N_A_M_E[-prefix     don't search for lib$1 in includedir and libdir],
 [
@@ -164,7 +229,7 @@ AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
       use_additional=no
     else
       if test "X$withval" = "X"; then
-        AC_LIB_WITH_FINAL_PREFIX([
+        LIBSSH2_WITH_FINAL_PREFIX([
           eval additional_includedir=\"$includedir\"
           eval additional_libdir=\"$libdir\"
         ])
@@ -197,8 +262,8 @@ AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
       done
       if test -z "$already_handled"; then
         names_already_handled="$names_already_handled $name"
-        dnl See if it was already located by an earlier AC_LIB_LINKFLAGS
-        dnl or AC_LIB_HAVE_LINKFLAGS call.
+        dnl See if it was already located by an earlier LIBSSH2_LINKFLAGS
+        dnl or LIBSSH2_HAVE_LINKFLAGS call.
         uppername=`echo "$name" | sed -e 'y|abcdefghijklmnopqrstuvwxyz./-|ABCDEFGHIJKLMNOPQRSTUVWXYZ___|'`
         eval value=\"\$HAVE_LIB$uppername\"
         if test -n "$value"; then
@@ -208,7 +273,7 @@ AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
             eval value=\"\$LTLIB$uppername\"
             test -z "$value" || LTLIB[]NAME="${LTLIB[]NAME}${LTLIB[]NAME:+ }$value"
           else
-            dnl An earlier call to AC_LIB_HAVE_LINKFLAGS has determined
+            dnl An earlier call to LIBSSH2_HAVE_LINKFLAGS has determined
             dnl that this library doesn't exist. So just drop it.
             :
           fi
@@ -271,7 +336,7 @@ AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
           fi
           if test "X$found_dir" = "X"; then
             for x in $LDFLAGS $LTLIB[]NAME; do
-              AC_LIB_WITH_FINAL_PREFIX([eval x=\"$x\"])
+              LIBSSH2_WITH_FINAL_PREFIX([eval x=\"$x\"])
               case "$x" in
                 -L*)
                   dir=`echo "X$x" | sed -e 's/^X-L//'`
@@ -375,7 +440,7 @@ AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
                     dnl or the already constructed $LIBNAME
                     haveit=
                     for x in $LDFLAGS $LIB[]NAME; do
-                      AC_LIB_WITH_FINAL_PREFIX([eval x=\"$x\"])
+                      LIBSSH2_WITH_FINAL_PREFIX([eval x=\"$x\"])
                       if test "X$x" = "X-L$found_dir"; then
                         haveit=yes
                         break
@@ -440,7 +505,7 @@ AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
                 fi
                 if test -z "$haveit"; then
                   for x in $CPPFLAGS $INC[]NAME; do
-                    AC_LIB_WITH_FINAL_PREFIX([eval x=\"$x\"])
+                    LIBSSH2_WITH_FINAL_PREFIX([eval x=\"$x\"])
                     if test "X$x" = "X-I$additional_includedir"; then
                       haveit=yes
                       break
@@ -490,7 +555,7 @@ AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
                       if test -z "$haveit"; then
                         haveit=
                         for x in $LDFLAGS $LIB[]NAME; do
-                          AC_LIB_WITH_FINAL_PREFIX([eval x=\"$x\"])
+                          LIBSSH2_WITH_FINAL_PREFIX([eval x=\"$x\"])
                           if test "X$x" = "X-L$additional_libdir"; then
                             haveit=yes
                             break
@@ -504,7 +569,7 @@ AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
                         fi
                         haveit=
                         for x in $LDFLAGS $LTLIB[]NAME; do
-                          AC_LIB_WITH_FINAL_PREFIX([eval x=\"$x\"])
+                          LIBSSH2_WITH_FINAL_PREFIX([eval x=\"$x\"])
                           if test "X$x" = "X-L$additional_libdir"; then
                             haveit=yes
                             break
@@ -613,16 +678,16 @@ AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
   fi
 ])
 
-dnl AC_LIB_APPENDTOVAR(VAR, CONTENTS) appends the elements of CONTENTS to VAR,
+dnl LIBSSH2_APPENDTOVAR(VAR, CONTENTS) appends the elements of CONTENTS to VAR,
 dnl unless already present in VAR.
 dnl Works only for CPPFLAGS, not for LIB* variables because that sometimes
 dnl contains two or three consecutive elements that belong together.
-AC_DEFUN([AC_LIB_APPENDTOVAR],
+AC_DEFUN([LIBSSH2_APPENDTOVAR],
 [
   for element in [$2]; do
     haveit=
     for x in $[$1]; do
-      AC_LIB_WITH_FINAL_PREFIX([eval x=\"$x\"])
+      LIBSSH2_WITH_FINAL_PREFIX([eval x=\"$x\"])
       if test "X$x" = "X$element"; then
         haveit=yes
         break
@@ -637,14 +702,14 @@ AC_DEFUN([AC_LIB_APPENDTOVAR],
 dnl For those cases where a variable contains several -L and -l options
 dnl referring to unknown libraries and directories, this macro determines the
 dnl necessary additional linker options for the runtime path.
-dnl AC_LIB_LINKFLAGS_FROM_LIBS([LDADDVAR], [LIBSVALUE], [USE-LIBTOOL])
+dnl LIBSSH2_LINKFLAGS_FROM_LIBS([LDADDVAR], [LIBSVALUE], [USE-LIBTOOL])
 dnl sets LDADDVAR to linker options needed together with LIBSVALUE.
 dnl If USE-LIBTOOL evaluates to non-empty, linking with libtool is assumed,
 dnl otherwise linking without libtool is assumed.
-AC_DEFUN([AC_LIB_LINKFLAGS_FROM_LIBS],
+AC_DEFUN([LIBSSH2_LINKFLAGS_FROM_LIBS],
 [
-  AC_REQUIRE([AC_LIB_RPATH])
-  AC_REQUIRE([AC_LIB_PREPARE_MULTILIB])
+  AC_REQUIRE([LIBSSH2_RPATH])
+  AC_REQUIRE([LIBSSH2_PREPARE_MULTILIB])
   $1=
   if test "$enable_rpath" != no; then
     if test -n "$acl_hardcode_libdir_flag_spec" && test "$acl_hardcode_minus_L" = no; then
