@@ -47,8 +47,7 @@ SCRIPTSFILES = \
   scripts/spellcheck.sh \
   scripts/codespell-ignore.words
 
-EXTRA_DIST = $(WIN32FILES) \
-  RELEASE-NOTES libssh2.pc.in $(VMSFILES) config.rpath \
+EXTRA_DIST = $(WIN32FILES) RELEASE-NOTES libssh2.pc.in $(VMSFILES) \
   CMakeLists.txt cmake libssh2-style.el README.md $(OS400FILES) $(SCRIPTSFILES)
 
 ACLOCAL_AMFLAGS = -I m4
