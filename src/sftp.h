@@ -94,7 +94,7 @@ struct _LIBSSH2_SFTP_HANDLE
 
     union _libssh2_sftp_handle_data
     {
-        struct _libssh2_sftp_handle_file_data
+        struct libssh2_sftp_handle_file_data
         {
             libssh2_uint64_t offset;
             libssh2_uint64_t offset_sent;

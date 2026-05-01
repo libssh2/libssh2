@@ -1419,8 +1419,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
     struct sftp_pipeline_chunk *chunk;
     struct sftp_pipeline_chunk *next;
     ssize_t rc;
-    struct _libssh2_sftp_handle_file_data *filep =
-        &handle->u.file;
+    struct libssh2_sftp_handle_file_data *filep = &handle->u.file;
     size_t bytes_in_buffer = 0;
     char *sliding_bufferp = buffer;
 
