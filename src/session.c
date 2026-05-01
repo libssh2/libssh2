@@ -920,7 +920,7 @@ static int
 session_free(LIBSSH2_SESSION *session)
 {
     int rc;
-    LIBSSH2_PACKET *pkg;
+    struct packet *pkg;
     LIBSSH2_CHANNEL *ch;
     LIBSSH2_LISTENER *l;
     int packets_left = 0;
@@ -1275,7 +1275,7 @@ LIBSSH2_API const char *
 libssh2_session_methods(LIBSSH2_SESSION *session, int method_type)
 {
     /* All methods have char *name as their first element */
-    const LIBSSH2_KEX_METHOD *method = NULL;
+    const struct kex_method *method = NULL;
 
     switch(method_type) {
     case LIBSSH2_METHOD_KEX:
@@ -1283,31 +1283,31 @@ libssh2_session_methods(LIBSSH2_SESSION *session, int method_type)
         break;
 
     case LIBSSH2_METHOD_HOSTKEY:
-        method = (const LIBSSH2_KEX_METHOD *)session->hostkey;
+        method = (const struct kex_method *)session->hostkey;
         break;
 
     case LIBSSH2_METHOD_CRYPT_CS:
-        method = (const LIBSSH2_KEX_METHOD *)session->local.crypt;
+        method = (const struct kex_method *)session->local.crypt;
         break;
 
     case LIBSSH2_METHOD_CRYPT_SC:
-        method = (const LIBSSH2_KEX_METHOD *)session->remote.crypt;
+        method = (const struct kex_method *)session->remote.crypt;
         break;
 
     case LIBSSH2_METHOD_MAC_CS:
-        method = (const LIBSSH2_KEX_METHOD *)session->local.mac;
+        method = (const struct kex_method *)session->local.mac;
         break;
 
     case LIBSSH2_METHOD_MAC_SC:
-        method = (const LIBSSH2_KEX_METHOD *)session->remote.mac;
+        method = (const struct kex_method *)session->remote.mac;
         break;
 
     case LIBSSH2_METHOD_COMP_CS:
-        method = (const LIBSSH2_KEX_METHOD *)session->local.comp;
+        method = (const struct kex_method *)session->local.comp;
         break;
 
     case LIBSSH2_METHOD_COMP_SC:
-        method = (const LIBSSH2_KEX_METHOD *)session->remote.comp;
+        method = (const struct kex_method *)session->remote.comp;
         break;
 
     case LIBSSH2_METHOD_LANG_CS:
@@ -1542,7 +1542,7 @@ LIBSSH2_API int
 libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended)
 {
     LIBSSH2_SESSION *session;
-    LIBSSH2_PACKET *packet;
+    struct packet *packet;
 
     if(!channel)
         return LIBSSH2_ERROR_BAD_USE;

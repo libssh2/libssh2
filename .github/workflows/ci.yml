@@ -232,12 +232,32 @@ jobs:
       matrix:
         compiler: [gcc, clang, clang-tidy]
         arch: [amd64]
-        crypto: [OpenSSL, Libgcrypt, mbedTLS-prev, wolfSSL]
+        crypto: [Libgcrypt, mbedTLS-prev, OpenSSL, wolfSSL]
         build: [cmake]
         zlib: ['OFF', 'ON']
         exclude:
           - { compiler: clang-tidy, zlib: 'OFF' }
         include:
+          - compiler: gcc
+            arch: amd64
+            crypto: AWS-LC
+            build: cmake
+            zlib: 'ON'
+          - compiler: gcc
+            arch: amd64
+            crypto: BoringSSL
+            build: cmake
+            zlib: 'ON'
+          - compiler: gcc
+            arch: amd64
+            crypto: LibreSSL
+            build: cmake
+            zlib: 'ON'
+          - compiler: gcc
+            arch: i386
+            crypto: mbedTLS-from-source
+            build: cmake
+            zlib: 'ON'
           - compiler: gcc
             arch: amd64
             crypto: OpenSSL
@@ -270,26 +290,6 @@ jobs:
             crypto: OpenSSL-111-from-source
             build: cmake
             zlib: 'ON'
-          - compiler: gcc
-            arch: amd64
-            crypto: BoringSSL
-            build: cmake
-            zlib: 'ON'
-          - compiler: gcc
-            arch: amd64
-            crypto: AWS-LC
-            build: cmake
-            zlib: 'ON'
-          - compiler: gcc
-            arch: amd64
-            crypto: LibreSSL
-            build: cmake
-            zlib: 'ON'
-          - compiler: gcc
-            arch: i386
-            crypto: mbedTLS-from-source
-            build: cmake
-            zlib: 'ON'
           - compiler: clang
             arch: amd64
             crypto: wolfSSL-from-source
@@ -308,24 +308,24 @@ jobs:
       MATRIX_CRYPTO: '${{ matrix.crypto }}'
       MATRIX_ZLIB: '${{ matrix.zlib }}'
       FIXTURE_TRACE_ALL_CONNECT: 0
+      AWSLC_VERSION: 1.69.0
+      AWSLC_SHA256: cdaa8dcd5f4ead8c82646fabef3c811381c4c7906de4489415e3fdf2558922f8
+      BORINGSSL_VERSION: 0.20251002.0
+      BORINGSSL_SHA256: f96733fc3df03d4195db656d1b7b8c174c33f95d052f811f0ecc8f4e4e3db332
+      LIBRESSL_VERSION: 4.2.1
+      LIBRESSL_SHA256: 6d5c2f58583588ea791f4c8645004071d00dfa554a5bf788a006ca1eb5abd70b
       MBEDTLS_VERSION: 3.6.6
       MBEDTLS_SHA256: 8fb65fae8dcae5840f793c0a334860a411f884cc537ea290ce1c52bb64ca007a
       MBEDTLS_VERSION_PREV: 3.1.0
       MBEDTLS_SHA256_PREV: b02df6f68dd1537e115a8497d5c173dc71edc55ad084756e57a30f951b725acd
-      WOLFSSL_VERSION: 5.9.0
-      WOLFSSL_SHA256: 6efc62b86f145a5c52bfd62294ca66c20ce85b54e9033f5d7e0ee73eb30306c1
-      WOLFSSL_VERSION_PREV: 5.5.4
-      WOLFSSL_SHA256_PREV: b7ee150e49def77c765bc02aac92ddeb0bebefd4cb12aa263d8f95e405221fb8
-      BORINGSSL_VERSION: 0.20251002.0
-      BORINGSSL_SHA256: f96733fc3df03d4195db656d1b7b8c174c33f95d052f811f0ecc8f4e4e3db332
-      AWSLC_VERSION: 1.69.0
-      AWSLC_SHA256: cdaa8dcd5f4ead8c82646fabef3c811381c4c7906de4489415e3fdf2558922f8
-      LIBRESSL_VERSION: 4.2.1
-      LIBRESSL_SHA256: 6d5c2f58583588ea791f4c8645004071d00dfa554a5bf788a006ca1eb5abd70b
       OPENSSL_VERSION: 3.6.2
       OPENSSL_SHA256: aaf51a1fe064384f811daeaeb4ec4dce7340ec8bd893027eee676af31e83a04f
       OPENSSL111_VERSION: 1.1.1w
       OPENSSL111_SHA256: cf3098950cb4d853ad95c0841f1f9c6d3dc102dccfcacd521d93925208b76ac8
+      WOLFSSL_VERSION: 5.9.0
+      WOLFSSL_SHA256: 6efc62b86f145a5c52bfd62294ca66c20ce85b54e9033f5d7e0ee73eb30306c1
+      WOLFSSL_VERSION_PREV: 5.5.4
+      WOLFSSL_SHA256_PREV: b7ee150e49def77c765bc02aac92ddeb0bebefd4cb12aa263d8f95e405221fb8
     steps:
       - name: 'install architecture'
         if: ${{ matrix.arch != 'amd64' }}
@@ -342,13 +342,77 @@ jobs:
         run: |
           pkgs=''
           [ "${MATRIX_COMPILER}" = 'clang-tidy' ] && pkgs+=' clang-20 clang-tidy-20'
-          [ "${MATRIX_CRYPTO}" = 'OpenSSL' ] && pkgs+=" libssl-dev:${MATRIX_ARCH}"
           [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && pkgs+=" libgcrypt-dev:${MATRIX_ARCH}"
+          [ "${MATRIX_CRYPTO}" = 'OpenSSL' ] && pkgs+=" libssl-dev:${MATRIX_ARCH}"
           [ "${MATRIX_CRYPTO}" = 'wolfSSL' ] && pkgs+=" libwolfssl-dev:${MATRIX_ARCH}"
           if [ -n "${pkgs}" ]; then
             sudo sed -i 's/priority:1/priority:9/' /etc/apt/apt-mirrors.txt; cat /etc/apt/apt-mirrors.txt
             sudo apt-get -o Dpkg::Use-Pty=0 install ${pkgs}
           fi
+
+      - name: 'cache AWS-LC'
+        if: ${{ matrix.crypto == 'AWS-LC' }}
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        id: cache-aws-lc
+        with:
+          path: ~/usr
+          key: ${{ runner.os }}-aws-lc-${{ env.AWSLC_VERSION }}-${{ matrix.arch }}
+
+      - name: 'install AWS-LC from source'
+        if: ${{ matrix.crypto == 'AWS-LC' && !steps.cache-aws-lc.outputs.cache-hit }}
+        run: |
+          curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
+            --location "https://github.com/awslabs/aws-lc/archive/refs/tags/v${AWSLC_VERSION}.tar.gz" --output pkg.bin
+          sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${AWSLC_SHA256}" && tar -xzf pkg.bin && rm -f pkg.bin
+          cd "aws-lc-${AWSLC_VERSION}"
+          cmake -B . -G Ninja -DCMAKE_INSTALL_PREFIX="$HOME"/usr -DBUILD_TOOL=OFF -DBUILD_TESTING=OFF
+          cmake --build .
+          cmake --install .
+
+      - name: 'cache BoringSSL'
+        if: ${{ matrix.crypto == 'BoringSSL' }}
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        id: cache-boringssl
+        with:
+          path: ~/usr
+          key: ${{ runner.os }}-boringssl-${{ env.BORINGSSL_VERSION }}-${{ matrix.arch }}
+
+      - name: 'install BoringSSL from source'
+        if: ${{ matrix.crypto == 'BoringSSL' && !steps.cache-boringssl.outputs.cache-hit }}
+        run: |
+          curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
+            --location "https://github.com/google/boringssl/releases/download/${BORINGSSL_VERSION}/boringssl-${BORINGSSL_VERSION}.tar.gz" --output pkg.bin
+          sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${BORINGSSL_SHA256}" && tar -xzf pkg.bin && rm -f pkg.bin
+          cd "boringssl-${BORINGSSL_VERSION}"
+          cmake -B . -G Ninja \
+            -DBUILD_TESTING=OFF \
+            -DOPENSSL_SMALL=ON \
+            -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+            -DCMAKE_INSTALL_PREFIX="$HOME"/usr
+          cmake --build .
+          cmake --install .
+
+      - name: 'cache LibreSSL'
+        if: ${{ matrix.crypto == 'LibreSSL' }}
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        id: cache-libressl
+        with:
+          path: ~/usr
+          key: ${{ runner.os }}-libressl-${{ env.LIBRESSL_VERSION }}-${{ matrix.arch }}
+
+      - name: 'install LibreSSL from source'
+        if: ${{ matrix.crypto == 'LibreSSL' && !steps.cache-libressl.outputs.cache-hit }}
+        run: |
+          curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
+            --location "https://github.com/libressl/portable/releases/download/v${LIBRESSL_VERSION}/libressl-${LIBRESSL_VERSION}.tar.gz" --output pkg.bin
+          sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${LIBRESSL_SHA256}" && tar -xzf pkg.bin && rm -f pkg.bin
+          cd "libressl-${LIBRESSL_VERSION}"
+          cmake -B . -G Ninja \
+            -DLIBRESSL_APPS=OFF \
+            -DLIBRESSL_TESTS=OFF \
+            -DCMAKE_INSTALL_PREFIX="$HOME"/usr
+          cmake --build .
+          cmake --install .
 
       - name: 'cache mbedTLS'
         if: ${{ matrix.crypto == 'mbedTLS-from-source' }}
@@ -404,95 +468,6 @@ jobs:
           cmake --build .
           cmake --install .
 
-      - name: 'install wolfSSL from source'
-        if: ${{ startsWith(matrix.crypto, 'wolfSSL-from-source') }}
-        run: |
-          if [ "${MATRIX_CRYPTO}" != 'wolfSSL-from-source' ]; then
-            WOLFSSL_VERSION="${WOLFSSL_VERSION_PREV}"
-            WOLFSSL_SHA256="${WOLFSSL_SHA256_PREV}"
-            options='-DWOLFSSL_OPENSSLEXTRA=ON'
-          fi
-          curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
-            --location "https://github.com/wolfSSL/wolfssl/archive/v${WOLFSSL_VERSION}-stable.tar.gz" --output pkg.bin
-          sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${WOLFSSL_SHA256}" && tar -xzf pkg.bin && rm -f pkg.bin
-          cd "wolfssl-${WOLFSSL_VERSION}-stable"
-          cmake -B bld -G Ninja ${options} \
-            -DWOLFSSL_LIBSSH2=ON \
-            -DBUILD_SELFTEST=OFF \
-            -DWOLFSSL_OPENSSLALL=ON \
-            -DWOLFSSL_EXAMPLES=OFF \
-            -DWOLFSSL_CRYPT_TESTS=OFF \
-            -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-            -DCMAKE_C_FLAGS='-DWOLFSSL_AESGCM_STREAM' \
-            -DCMAKE_INSTALL_PREFIX="$HOME"/usr
-          cmake --build bld
-          cmake --install bld
-          cd ..
-
-      - name: 'cache BoringSSL'
-        if: ${{ matrix.crypto == 'BoringSSL' }}
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
-        id: cache-boringssl
-        with:
-          path: ~/usr
-          key: ${{ runner.os }}-boringssl-${{ env.BORINGSSL_VERSION }}-${{ matrix.arch }}
-
-      - name: 'install BoringSSL from source'
-        if: ${{ matrix.crypto == 'BoringSSL' && !steps.cache-boringssl.outputs.cache-hit }}
-        run: |
-          curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
-            --location "https://github.com/google/boringssl/releases/download/${BORINGSSL_VERSION}/boringssl-${BORINGSSL_VERSION}.tar.gz" --output pkg.bin
-          sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${BORINGSSL_SHA256}" && tar -xzf pkg.bin && rm -f pkg.bin
-          cd "boringssl-${BORINGSSL_VERSION}"
-          cmake -B . -G Ninja \
-            -DBUILD_TESTING=OFF \
-            -DOPENSSL_SMALL=ON \
-            -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-            -DCMAKE_INSTALL_PREFIX="$HOME"/usr
-          cmake --build .
-          cmake --install .
-
-      - name: 'cache AWS-LC'
-        if: ${{ matrix.crypto == 'AWS-LC' }}
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
-        id: cache-aws-lc
-        with:
-          path: ~/usr
-          key: ${{ runner.os }}-aws-lc-${{ env.AWSLC_VERSION }}-${{ matrix.arch }}
-
-      - name: 'install AWS-LC from source'
-        if: ${{ matrix.crypto == 'AWS-LC' && !steps.cache-aws-lc.outputs.cache-hit }}
-        run: |
-          curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
-            --location "https://github.com/awslabs/aws-lc/archive/refs/tags/v${AWSLC_VERSION}.tar.gz" --output pkg.bin
-          sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${AWSLC_SHA256}" && tar -xzf pkg.bin && rm -f pkg.bin
-          cd "aws-lc-${AWSLC_VERSION}"
-          cmake -B . -G Ninja -DCMAKE_INSTALL_PREFIX="$HOME"/usr -DBUILD_TOOL=OFF -DBUILD_TESTING=OFF
-          cmake --build .
-          cmake --install .
-
-      - name: 'cache LibreSSL'
-        if: ${{ matrix.crypto == 'LibreSSL' }}
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
-        id: cache-libressl
-        with:
-          path: ~/usr
-          key: ${{ runner.os }}-libressl-${{ env.LIBRESSL_VERSION }}-${{ matrix.arch }}
-
-      - name: 'install LibreSSL from source'
-        if: ${{ matrix.crypto == 'LibreSSL' && !steps.cache-libressl.outputs.cache-hit }}
-        run: |
-          curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
-            --location "https://github.com/libressl/portable/releases/download/v${LIBRESSL_VERSION}/libressl-${LIBRESSL_VERSION}.tar.gz" --output pkg.bin
-          sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${LIBRESSL_SHA256}" && tar -xzf pkg.bin && rm -f pkg.bin
-          cd "libressl-${LIBRESSL_VERSION}"
-          cmake -B . -G Ninja \
-            -DLIBRESSL_APPS=OFF \
-            -DLIBRESSL_TESTS=OFF \
-            -DCMAKE_INSTALL_PREFIX="$HOME"/usr
-          cmake --build .
-          cmake --install .
-
       - name: 'cache OpenSSL'
         if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' }}
         uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
@@ -532,6 +507,31 @@ jobs:
           make
           make -j1 install_sw
 
+      - name: 'install wolfSSL from source'
+        if: ${{ startsWith(matrix.crypto, 'wolfSSL-from-source') }}
+        run: |
+          if [ "${MATRIX_CRYPTO}" != 'wolfSSL-from-source' ]; then
+            WOLFSSL_VERSION="${WOLFSSL_VERSION_PREV}"
+            WOLFSSL_SHA256="${WOLFSSL_SHA256_PREV}"
+            options='-DWOLFSSL_OPENSSLEXTRA=ON'
+          fi
+          curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
+            --location "https://github.com/wolfSSL/wolfssl/archive/v${WOLFSSL_VERSION}-stable.tar.gz" --output pkg.bin
+          sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${WOLFSSL_SHA256}" && tar -xzf pkg.bin && rm -f pkg.bin
+          cd "wolfssl-${WOLFSSL_VERSION}-stable"
+          cmake -B bld -G Ninja ${options} \
+            -DWOLFSSL_LIBSSH2=ON \
+            -DBUILD_SELFTEST=OFF \
+            -DWOLFSSL_OPENSSLALL=ON \
+            -DWOLFSSL_EXAMPLES=OFF \
+            -DWOLFSSL_CRYPT_TESTS=OFF \
+            -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+            -DCMAKE_C_FLAGS='-DWOLFSSL_AESGCM_STREAM' \
+            -DCMAKE_INSTALL_PREFIX="$HOME"/usr
+          cmake --build bld
+          cmake --install bld
+          cd ..
+
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
@@ -546,8 +546,8 @@ jobs:
           MATRIX_COMPILER: '${{ matrix.compiler }}'
         run: |
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
-            if [ "${MATRIX_CRYPTO}" = 'BoringSSL' ] || \
-               [ "${MATRIX_CRYPTO}" = 'AWS-LC' ] || \
+            if [ "${MATRIX_CRYPTO}" = 'AWS-LC' ] || \
+               [ "${MATRIX_CRYPTO}" = 'BoringSSL' ] || \
                [ "${MATRIX_CRYPTO}" = 'LibreSSL' ] || \
                [[ "${MATRIX_CRYPTO}" = 'OpenSSL-'* ]]; then
               crypto='OpenSSL'
@@ -999,6 +999,18 @@ jobs:
       matrix:
         build: [autotools, cmake]
         crypto:
+          - name: 'Libgcrypt'
+            install: libgcrypt
+            configure: --with-crypto=libgcrypt --with-libgcrypt-prefix=/opt/homebrew
+            cmake: -DCRYPTO_BACKEND=Libgcrypt
+          - name: 'LibreSSL'
+            install: libressl
+            configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/libressl
+            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/libressl
+          - name: 'mbedTLS'
+            install: mbedtls@3
+            configure: --with-crypto=mbedtls --with-libmbedcrypto-prefix=/opt/homebrew
+            cmake: -DCRYPTO_BACKEND=mbedTLS
           - name: 'OpenSSL 3'
             install: openssl
             configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl
@@ -1007,18 +1019,6 @@ jobs:
             install: openssl@1.1
             configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl@1.1
             cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@1.1
-          - name: 'LibreSSL'
-            install: libressl
-            configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/libressl
-            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/libressl
-          - name: 'Libgcrypt'
-            install: libgcrypt
-            configure: --with-crypto=libgcrypt --with-libgcrypt-prefix=/opt/homebrew
-            cmake: -DCRYPTO_BACKEND=Libgcrypt
-          - name: 'mbedTLS'
-            install: mbedtls@3
-            configure: --with-crypto=mbedtls --with-libmbedcrypto-prefix=/opt/homebrew
-            cmake: -DCRYPTO_BACKEND=mbedTLS
           - name: 'wolfSSL'
             install: wolfssl
             configure: --with-crypto=wolfssl --with-libwolfssl-prefix=/opt/homebrew

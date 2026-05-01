@@ -766,13 +766,13 @@ file_read_publickey(LIBSSH2_SESSION *session, unsigned char **method,
 
 static int
 memory_read_privatekey(LIBSSH2_SESSION *session,
-                       const LIBSSH2_HOSTKEY_METHOD **hostkey_method,
+                       const struct hostkey_method **hostkey_method,
                        void **hostkey_abstract,
                        const unsigned char *method, size_t method_len,
                        const char *privkeyfiledata, size_t privkeyfiledata_len,
                        const char *passphrase)
 {
-    const LIBSSH2_HOSTKEY_METHOD **hostkey_methods_avail =
+    const struct hostkey_method **hostkey_methods_avail =
         libssh2_hostkey_methods();
 
     *hostkey_method = NULL;
@@ -807,12 +807,12 @@ memory_read_privatekey(LIBSSH2_SESSION *session,
  */
 static int
 file_read_privatekey(LIBSSH2_SESSION *session,
-                     const LIBSSH2_HOSTKEY_METHOD **hostkey_method,
+                     const struct hostkey_method **hostkey_method,
                      void **hostkey_abstract,
                      const unsigned char *method, size_t method_len,
                      const char *privkeyfile, const char *passphrase)
 {
-    const LIBSSH2_HOSTKEY_METHOD **hostkey_methods_avail =
+    const struct hostkey_method **hostkey_methods_avail =
         libssh2_hostkey_methods();
 
     _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
@@ -859,7 +859,7 @@ sign_frommemory(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
                 const unsigned char *data, size_t data_len, void **abstract)
 {
     struct privkey_mem *pk_mem = (struct privkey_mem *)(*abstract);
-    const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
+    const struct hostkey_method *privkeyobj;
     void *hostkey_abstract;
     struct iovec datavec;
     int rc;
@@ -899,7 +899,7 @@ sign_fromfile(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
               const unsigned char *data, size_t data_len, void **abstract)
 {
     struct privkey_file *privkey_file = (struct privkey_file *)(*abstract);
-    const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
+    const struct hostkey_method *privkeyobj;
     void *hostkey_abstract;
     struct iovec datavec;
     int rc;
@@ -1049,7 +1049,7 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
     int rc;
 
     if(session->userauth_host_state == libssh2_NB_state_idle) {
-        const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
+        const struct hostkey_method *privkeyobj;
         unsigned char *pubkeydata = NULL;
         unsigned char *sig = NULL;
         size_t pubkeydata_len = 0;

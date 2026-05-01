@@ -65,7 +65,7 @@
 static inline int
 packet_queue_listener(LIBSSH2_SESSION *session, unsigned char *data,
                       size_t datalen,
-                      packet_queue_listener_state_t *listen_state)
+                      struct packet_queue_listener_state *listen_state)
 {
     /*
      * Look for a matching listener
@@ -279,7 +279,7 @@ packet_queue_listener(LIBSSH2_SESSION *session, unsigned char *data,
 static inline int
 packet_x11_open(LIBSSH2_SESSION *session, unsigned char *data,
                 size_t datalen,
-                packet_x11_open_state_t *x11open_state)
+                struct packet_x11_open_state *x11open_state)
 {
     uint32_t failure_code = SSH_OPEN_CONNECT_FAILED;
     /* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */
@@ -480,7 +480,7 @@ x11_exit:
 static inline int
 packet_authagent_open(LIBSSH2_SESSION *session,
                       unsigned char *data, size_t datalen,
-                      packet_authagent_state_t *authagent_state)
+                      struct packet_authagent_state *authagent_state)
 {
     uint32_t failure_code = SSH_OPEN_CONNECT_FAILED;
     /* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */
@@ -1399,8 +1399,8 @@ libssh2_packet_add_jump_authagent:
     }
 
     if(session->packAdd_state == libssh2_NB_state_sent) {
-        LIBSSH2_PACKET *packetp =
-            LIBSSH2_ALLOC(session, sizeof(LIBSSH2_PACKET));
+        struct packet *packetp =
+            LIBSSH2_ALLOC(session, sizeof(struct packet));
         if(!packetp) {
             _libssh2_debug((session, LIBSSH2_ERROR_ALLOC,
                            "memory for packet"));
@@ -1418,8 +1418,9 @@ libssh2_packet_add_jump_authagent:
     }
 
     if((msg == SSH_MSG_KEXINIT &&
-         !(session->state & LIBSSH2_STATE_EXCHANGING_KEYS)) ||
+        !(session->state & LIBSSH2_STATE_EXCHANGING_KEYS)) ||
         (session->packAdd_state == libssh2_NB_state_sent2)) {
+
         if(session->packAdd_state == libssh2_NB_state_sent1) {
             /*
              * Remote wants new keys
@@ -1443,7 +1444,8 @@ libssh2_packet_add_jump_authagent:
         session->packAdd_state = libssh2_NB_state_idle;
         session->fullpacket_state = libssh2_NB_state_idle;
 
-        memset(&session->startup_key_state, 0, sizeof(key_exchange_state_t));
+        memset(&session->startup_key_state, 0,
+               sizeof(session->startup_key_state));
 
         /*
          * If there was a key reexchange failure, let's just hope we didn't
@@ -1470,7 +1472,7 @@ _libssh2_packet_ask(LIBSSH2_SESSION *session, unsigned char packet_type,
                     int match_ofs, const unsigned char *match_buf,
                     size_t match_len)
 {
-    LIBSSH2_PACKET *packet = _libssh2_list_first(&session->packets);
+    struct packet *packet = _libssh2_list_first(&session->packets);
 
     _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
                    "Looking for packet of type: %u",
@@ -1547,7 +1549,7 @@ _libssh2_packet_require(LIBSSH2_SESSION *session, unsigned char packet_type,
                         int match_ofs,
                         const unsigned char *match_buf,
                         size_t match_len,
-                        packet_require_state_t *state)
+                        struct packet_require_state *state)
 {
     if(state->start == 0) {
         if(_libssh2_packet_ask(session, packet_type, data, data_len,
@@ -1674,7 +1676,7 @@ _libssh2_packet_requirev(LIBSSH2_SESSION *session,
                          unsigned char **data, size_t *data_len,
                          int match_ofs,
                          const unsigned char *match_buf, size_t match_len,
-                         packet_requirev_state_t *state)
+                         struct packet_requirev_state *state)
 {
     if(_libssh2_packet_askv(session, packet_types, data, data_len, match_ofs,
                             match_buf, match_len) == 0) {
