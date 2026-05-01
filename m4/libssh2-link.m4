@@ -10,6 +10,20 @@ dnl From Bruno Haible.
 
 AC_PREREQ([2.54])
 
+dnl LIBSSH2_WITH_FINAL_PREFIX([statement]) evaluates statement, with the
+dnl variables prefix and exec_prefix bound to the values they will have
+dnl at the end of the configure script.
+AC_DEFUN([LIBSSH2_WITH_FINAL_PREFIX],
+[
+  acl_save_prefix="$prefix"
+  prefix="$acl_final_prefix"
+  acl_save_exec_prefix="$exec_prefix"
+  exec_prefix="$acl_final_exec_prefix"
+  $1
+  exec_prefix="$acl_save_exec_prefix"
+  prefix="$acl_save_prefix"
+])
+
 dnl LIBSSH2_PREPARE_PREFIX creates variables acl_final_prefix,
 dnl acl_final_exec_prefix, containing the values to which $prefix and
 dnl $exec_prefix will expand at the end of the configure script.
