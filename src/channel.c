@@ -1670,14 +1670,14 @@ int
 _libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid)
 {
     if(channel->flush_state == libssh2_NB_state_idle) {
-        LIBSSH2_PACKET *packet =
+        struct packet *packet =
             _libssh2_list_first(&channel->session->packets);
         channel->flush_refund_bytes = 0;
         channel->flush_flush_bytes = 0;
 
         while(packet) {
             unsigned char packet_type;
-            LIBSSH2_PACKET *next = _libssh2_list_next(&packet->node);
+            struct packet *next = _libssh2_list_next(&packet->node);
 
             if(packet->data_len < 1) {
                 packet = next;
@@ -2079,8 +2079,8 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
     size_t bytes_read = 0;
     size_t bytes_want;
     int unlink_packet;
-    LIBSSH2_PACKET *read_packet;
-    LIBSSH2_PACKET *read_next;
+    struct packet *read_packet;
+    struct packet *read_next;
 
     _libssh2_debug((session, LIBSSH2_TRACE_CONN,
                    "channel_read() wants %ld bytes from channel %u/%u "
@@ -2128,7 +2128,7 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
            makes us flush buffers prematurely and loose data.
         */
 
-        LIBSSH2_PACKET *readpkt = read_packet;
+        struct packet *readpkt = read_packet;
 
         /* In case packet gets destroyed during this iteration */
         read_next = _libssh2_list_next(&readpkt->node);
@@ -2274,8 +2274,8 @@ size_t
 _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL *channel, int stream_id)
 {
     LIBSSH2_SESSION *session = channel->session;
-    LIBSSH2_PACKET *read_packet;
-    LIBSSH2_PACKET *next_packet;
+    struct packet *read_packet;
+    struct packet *next_packet;
     uint32_t read_local_id;
 
     read_packet = _libssh2_list_first(&session->packets);
@@ -2545,8 +2545,8 @@ LIBSSH2_API int
 libssh2_channel_eof(LIBSSH2_CHANNEL *channel)
 {
     LIBSSH2_SESSION *session;
-    LIBSSH2_PACKET *packet;
-    LIBSSH2_PACKET *next_packet;
+    struct packet *packet;
+    struct packet *next_packet;
 
     if(!channel)
         return LIBSSH2_ERROR_BAD_USE;
@@ -2972,8 +2972,8 @@ libssh2_channel_window_read_ex(LIBSSH2_CHANNEL *channel,
 
     if(read_avail) {
         size_t bytes_queued = 0;
-        LIBSSH2_PACKET *next_packet;
-        LIBSSH2_PACKET *packet =
+        struct packet *next_packet;
+        struct packet *packet =
             _libssh2_list_first(&channel->session->packets);
 
         while(packet) {

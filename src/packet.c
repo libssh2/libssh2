@@ -1399,8 +1399,8 @@ libssh2_packet_add_jump_authagent:
     }
 
     if(session->packAdd_state == libssh2_NB_state_sent) {
-        LIBSSH2_PACKET *packetp =
-            LIBSSH2_ALLOC(session, sizeof(LIBSSH2_PACKET));
+        struct packet *packetp =
+            LIBSSH2_ALLOC(session, sizeof(struct packet));
         if(!packetp) {
             _libssh2_debug((session, LIBSSH2_ERROR_ALLOC,
                            "memory for packet"));
@@ -1470,7 +1470,7 @@ _libssh2_packet_ask(LIBSSH2_SESSION *session, unsigned char packet_type,
                     int match_ofs, const unsigned char *match_buf,
                     size_t match_len)
 {
-    LIBSSH2_PACKET *packet = _libssh2_list_first(&session->packets);
+    struct packet *packet = _libssh2_list_first(&session->packets);
 
     _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
                    "Looking for packet of type: %u",

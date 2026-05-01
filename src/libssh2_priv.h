@@ -287,8 +287,6 @@ struct iovec {
 #define LIBSSH2_RECV(session, buffer, length, flags) \
     LIBSSH2_RECV_FD(session, (session)->socket_fd, buffer, length, flags)
 
-typedef struct _LIBSSH2_PACKET LIBSSH2_PACKET;
-
 typedef enum
 {
     libssh2_NB_state_idle = 0,
@@ -430,8 +428,7 @@ typedef struct packet_authagent_state_t
     LIBSSH2_CHANNEL *channel;
 } packet_authagent_state_t;
 
-struct _LIBSSH2_PACKET
-{
+struct packet {
     struct list_node node; /* linked list header */
 
     /* the raw unencrypted payload */

@@ -920,7 +920,7 @@ static int
 session_free(LIBSSH2_SESSION *session)
 {
     int rc;
-    LIBSSH2_PACKET *pkg;
+    struct packet *pkg;
     LIBSSH2_CHANNEL *ch;
     LIBSSH2_LISTENER *l;
     int packets_left = 0;
@@ -1542,7 +1542,7 @@ LIBSSH2_API int
 libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended)
 {
     LIBSSH2_SESSION *session;
-    LIBSSH2_PACKET *packet;
+    struct packet *packet;
 
     if(!channel)
         return LIBSSH2_ERROR_BAD_USE;
