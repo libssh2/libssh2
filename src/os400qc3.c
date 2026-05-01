@@ -115,7 +115,6 @@ static unsigned char    OID_dhKeyAgreement[] =
 
 /* PKCS#5 support. */
 
-typedef struct pkcs5params  pkcs5params;
 struct pkcs5params {
     int         cipher;         /* Encryption cipher. */
     int         blocksize;      /* Cipher block size. */
@@ -123,7 +122,8 @@ struct pkcs5params {
     char        padopt;         /* Pad option. */
     char        padchar;        /* Pad character. */
     int         (*kdf)(LIBSSH2_SESSION *session, char **dk,
-                       const unsigned char *passphrase, pkcs5params *pkcs5);
+                       const unsigned char *passphrase,
+                       struct pkcs5params *pkcs5);
     int         hash;           /* KDF hash algorithm. */
     size_t      hashlen;        /* KDF hash digest length. */
     char *      salt;           /* Salt. */
@@ -138,7 +138,7 @@ struct pkcs5params {
 typedef struct pkcs5algo    pkcs5algo;
 struct pkcs5algo {
     const unsigned char *   oid;
-    int         (*parse)(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+    int         (*parse)(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
                          pkcs5algo *algo, struct asn1Element *param);
     int         cipher;         /* Encryption cipher. */
     size_t      blocksize;      /* Cipher block size. */
@@ -157,7 +157,7 @@ struct pkcs5algo {
 static const unsigned char  OID_id_PBES2[] = {
     9, 40 + 2, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x05, 0x0D
 };
-static int  parse_pbes2(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+static int  parse_pbes2(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
                         pkcs5algo *algo, struct asn1Element *param);
 static const pkcs5algo  PBES2 = {
     OID_id_PBES2,   parse_pbes2,    0,  0,  '\0',   '\0',   '\0',   0,
@@ -168,7 +168,7 @@ static const pkcs5algo  PBES2 = {
 static const unsigned char  OID_id_PBKDF2[] = {
     9, 40 + 2, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x05, 0x0C
 };
-static int  parse_pbkdf2(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+static int  parse_pbkdf2(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
                          pkcs5algo *algo, struct asn1Element *param);
 static const pkcs5algo  PBKDF2 = {
     OID_id_PBKDF2,  parse_pbkdf2,   0,  0,  '\0',   '\0',   '\0',
@@ -179,7 +179,8 @@ static const pkcs5algo  PBKDF2 = {
 static const unsigned char  OID_id_hmacWithSHA1[] = {
     8, 40 + 2, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x02, 0x07
 };
-static int  parse_hmacWithSHA1(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+static int  parse_hmacWithSHA1(LIBSSH2_SESSION *session,
+                               struct pkcs5params *pkcs5,
                                pkcs5algo *algo, struct asn1Element *param);
 static const pkcs5algo  hmacWithSHA1 = {
     OID_id_hmacWithSHA1,    parse_hmacWithSHA1, 0,  0,  '\0',   '\0',   '\0',
@@ -188,7 +189,7 @@ static const pkcs5algo  hmacWithSHA1 = {
 
 /* desCBC OID: 1.3.14.3.2.7 */
 static const unsigned char  OID_desCBC[] = {5, 40 + 3, 0x0E, 0x03, 0x02, 0x07};
-static int  parse_iv(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+static int  parse_iv(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
                      pkcs5algo *algo, struct asn1Element *param);
 static const pkcs5algo  desCBC = {
     OID_desCBC, parse_iv,   Qc3_DES,    8,  Qc3_CBC,    Qc3_Pad_Counter,
@@ -208,14 +209,14 @@ static const pkcs5algo  des_EDE3_CBC = {
 static const unsigned char  OID_rc2CBC[] = {
     8, 40 + 2, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x03, 0x02
 };
-static int  parse_rc2(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+static int  parse_rc2(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
                       pkcs5algo *algo, struct asn1Element *param);
 static const pkcs5algo  rc2CBC = {
     OID_rc2CBC, parse_rc2,  Qc3_RC2,    8,  Qc3_CBC,    Qc3_Pad_Counter,
     '\0',   0,  0,  0,  8,  0,  32
 };
 
-static int  parse_pbes1(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+static int  parse_pbes1(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
                         pkcs5algo *algo, struct asn1Element *param);
 
 #if LIBSSH2_MD5
@@ -1413,7 +1414,7 @@ asn1getword(struct asn1Element *e, unsigned long *v)
 
 static int
 pbkdf1(LIBSSH2_SESSION *session, char **dk, const unsigned char *passphrase,
-       pkcs5params *pkcs5)
+       struct pkcs5params *pkcs5)
 {
     int i;
     Qc3_Format_ALGD0100_T hctx;
@@ -1470,7 +1471,7 @@ pbkdf1(LIBSSH2_SESSION *session, char **dk, const unsigned char *passphrase,
 
 static int
 pbkdf2(LIBSSH2_SESSION *session, char **dk, const unsigned char *passphrase,
-       pkcs5params *pkcs5)
+       struct pkcs5params *pkcs5)
 {
     size_t i;
     size_t k;
@@ -1535,7 +1536,7 @@ pbkdf2(LIBSSH2_SESSION *session, char **dk, const unsigned char *passphrase,
 }
 
 static int
-parse_pkcs5_algorithm(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+parse_pkcs5_algorithm(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
                       struct asn1Element *algid, pkcs5algo **algotable)
 {
     struct asn1Element oid;
@@ -1558,7 +1559,7 @@ parse_pkcs5_algorithm(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
 }
 
 static int
-parse_pbes2(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+parse_pbes2(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
             pkcs5algo *algo, struct asn1Element *param)
 {
     struct asn1Element keyDerivationFunc;
@@ -1581,7 +1582,7 @@ parse_pbes2(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
 }
 
 static int
-parse_pbkdf2(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+parse_pbkdf2(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
              pkcs5algo *algo, struct asn1Element *param)
 {
     struct asn1Element salt;
@@ -1633,7 +1634,7 @@ parse_pbkdf2(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
 }
 
 static int
-parse_hmacWithSHA1(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+parse_hmacWithSHA1(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
                    pkcs5algo *algo, struct asn1Element *param)
 {
     if(!param || *param->header != ASN1_NULL)
@@ -1644,7 +1645,7 @@ parse_hmacWithSHA1(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
 }
 
 static int
-parse_iv(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+parse_iv(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
          pkcs5algo *algo, struct asn1Element *param)
 {
     if(!param || *param->header != ASN1_OCTET_STRING ||
@@ -1662,7 +1663,7 @@ parse_iv(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
 }
 
 static int
-parse_rc2(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+parse_rc2(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
           pkcs5algo *algo, struct asn1Element *param)
 {
     struct asn1Element iv;
@@ -1711,7 +1712,7 @@ parse_rc2(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
 }
 
 static int
-parse_pbes1(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+parse_pbes1(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
             pkcs5algo *algo, struct asn1Element *param)
 {
     struct asn1Element salt;
@@ -1755,7 +1756,7 @@ pkcs8kek(LIBSSH2_SESSION *session, _libssh2_os400qc3_crypto_ctx **ctx,
 {
     struct asn1Element encprivkeyinfo;
     struct asn1Element pkcs5alg;
-    pkcs5params pkcs5;
+    struct pkcs5params pkcs5;
     size_t pplen;
     char *cp;
     unsigned long t;
