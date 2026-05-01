@@ -49,7 +49,7 @@
    banner. Release versions have no appended strings and may of course not
    have dashes either. The release version (without "_DEV") is not stored in
    the source code repo, as the version is properly set in the tarballs by the
-   maketgz script.*/
+   scripts/maketgz script.*/
 #define LIBSSH2_VERSION                             "1.11.2_DEV"
 
 /* The numeric version number is also available "in parts" by using these
@@ -78,7 +78,7 @@
 /*
  * This is the date and time when the full source package was created. The
  * timestamp is not stored in the source code repo, as the timestamp is
- * properly set in the tarballs by the maketgz script.
+ * properly set in the tarballs by the scripts/maketgz script.
  *
  * The format of the date should follow this template:
  *

@@ -630,11 +630,11 @@ jobs:
           export SOURCE_DATE_EPOCH=1711526400
           ./configure --enable-werror --disable-debug \
             --disable-dependency-tracking
-          ./maketgz 99.98.97
+          ./scripts/maketgz 99.98.97
           # Test reproducibility
           mkdir run1; mv ./libssh2-99.98.97.* run1/
           make clean
-          ./maketgz 99.98.97
+          ./scripts/maketgz 99.98.97
           mkdir run2; cp -p ./libssh2-99.98.97.* run2/
           diff run1 run2
           # Test build from tarball
