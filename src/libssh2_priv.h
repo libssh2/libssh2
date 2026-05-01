@@ -1038,7 +1038,7 @@ struct crypt_method {
                  int firstlast);
     int (*dtor)(LIBSSH2_SESSION *session, void **abstract);
 
-    _libssh2_cipher_type(algo);
+    LIBSSH2_CIPHER_T(algo);
 };
 
 /* Bit flags for struct crypt_method */

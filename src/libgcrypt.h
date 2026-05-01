@@ -158,7 +158,7 @@
 #define _libssh2_ec_key void
 #endif
 
-#define _libssh2_cipher_type(name) int name
+#define LIBSSH2_CIPHER_T(name) int name
 #define libssh2_cipher_ctx gcry_cipher_hd_t
 
 #define _libssh2_gcry_ciphermode(c,m) (((c) << 8) | (m))

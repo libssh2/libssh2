@@ -104,7 +104,7 @@ _libssh2_mbedtls_safe_free(void *buf, size_t len)
 
 int
 _libssh2_mbedtls_cipher_init(libssh2_cipher_ctx *h,
-                             _libssh2_cipher_type(algo),
+                             LIBSSH2_CIPHER_T(algo),
                              unsigned char *iv,
                              unsigned char *secret,
                              int encrypt)
@@ -152,7 +152,7 @@ _libssh2_mbedtls_cipher_init(libssh2_cipher_ctx *h,
 
 int
 _libssh2_mbedtls_cipher_crypt(libssh2_cipher_ctx *ctx,
-                              _libssh2_cipher_type(algo),
+                              LIBSSH2_CIPHER_T(algo),
                               int encrypt,
                               unsigned char *block,
                               size_t blocksize, int firstlast)

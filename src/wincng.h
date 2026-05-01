@@ -402,7 +402,7 @@ struct _libssh2_wincng_cipher_type {
     int ctrMode;
 };
 
-#define _libssh2_cipher_type(type) struct _libssh2_wincng_cipher_type type
+#define LIBSSH2_CIPHER_T(type) struct _libssh2_wincng_cipher_type type
 
 #define _libssh2_cipher_aes256ctr { &_libssh2_wincng.hAlgAES_ECB, 32, 0, 1 }
 #define _libssh2_cipher_aes192ctr { &_libssh2_wincng.hAlgAES_ECB, 24, 0, 1 }

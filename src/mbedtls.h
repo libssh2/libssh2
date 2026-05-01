@@ -337,9 +337,9 @@ typedef enum {
  * mbedTLS backend: Cipher Context structure
  */
 
-#define libssh2_cipher_ctx          mbedtls_cipher_context_t
+#define libssh2_cipher_ctx        mbedtls_cipher_context_t
 
-#define _libssh2_cipher_type(algo)  mbedtls_cipher_type_t algo
+#define LIBSSH2_CIPHER_T(algo)    mbedtls_cipher_type_t algo
 
 #define _libssh2_cipher_aes256ctr MBEDTLS_CIPHER_AES_256_CTR
 #define _libssh2_cipher_aes192ctr MBEDTLS_CIPHER_AES_192_CTR

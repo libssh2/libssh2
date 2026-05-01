@@ -321,12 +321,12 @@ _libssh2_mlkem_get_sk(unsigned char *out_shared_key,
 #endif /* LIBSSH2_MLKEM */
 
 int _libssh2_cipher_init(libssh2_cipher_ctx *h,
-                         _libssh2_cipher_type(algo),
+                         LIBSSH2_CIPHER_T(algo),
                          unsigned char *iv,
                          unsigned char *secret, int encrypt);
 
 int _libssh2_cipher_crypt(libssh2_cipher_ctx *ctx,
-                          _libssh2_cipher_type(algo),
+                          LIBSSH2_CIPHER_T(algo),
                           int encrypt, unsigned char *block, size_t blocksize,
                           int firstlast);
 

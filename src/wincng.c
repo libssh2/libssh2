@@ -3299,7 +3299,7 @@ _libssh2_wincng_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
  */
 int
 _libssh2_wincng_cipher_init(libssh2_cipher_ctx *h,
-                            _libssh2_cipher_type(algo),
+                            LIBSSH2_CIPHER_T(algo),
                             unsigned char *iv,
                             unsigned char *secret,
                             int encrypt)
@@ -3415,7 +3415,7 @@ static void _libssh2_aes_ctr_increment(unsigned char *ctr,
 
 int
 _libssh2_wincng_cipher_crypt(libssh2_cipher_ctx *ctx,
-                             _libssh2_cipher_type(algo),
+                             LIBSSH2_CIPHER_T(algo),
                              int encrypt,
                              unsigned char *block,
                              size_t blocksize, int firstlast)

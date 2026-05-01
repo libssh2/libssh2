@@ -306,12 +306,12 @@ Returns 1 for success and 0 for failure.
 libssh2_cipher_ctx
 Type of a cipher computation context.
 
-_libssh2_cipher_type(name);
+LIBSSH2_CIPHER_T(name);
 Macro defining name as storage identifying a cipher algorithm for
 the crypto library interface. No trailing semicolon.
 
 int _libssh2_cipher_init(libssh2_cipher_ctx *h,
-                         _libssh2_cipher_type(algo),
+                         LIBSSH2_CIPHER_T(algo),
                          unsigned char *iv,
                          unsigned char *secret,
                          int encrypt);
@@ -322,7 +322,7 @@ Return 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
 
 int _libssh2_cipher_crypt(libssh2_cipher_ctx *ctx,
-                          _libssh2_cipher_type(algo),
+                          LIBSSH2_CIPHER_T(algo),
                           int encrypt,
                           unsigned char *block,
                           size_t blocksize,
@@ -343,15 +343,15 @@ If defined as 0, the rest of this section can be omitted.
 
 _libssh2_cipher_aes128
 AES-128-CBC algorithm identifier initializer.
-#define with constant value of type _libssh2_cipher_type().
+#define with constant value of type LIBSSH2_CIPHER_T().
 
 _libssh2_cipher_aes192
 AES-192-CBC algorithm identifier initializer.
-#define with constant value of type _libssh2_cipher_type().
+#define with constant value of type LIBSSH2_CIPHER_T().
 
 _libssh2_cipher_aes256
 AES-256-CBC algorithm identifier initializer.
-#define with constant value of type _libssh2_cipher_type().
+#define with constant value of type LIBSSH2_CIPHER_T().
 
 4.1.2) AES in CTR block mode.
 LIBSSH2_AES_CTR
@@ -360,15 +360,15 @@ If defined as 0, the rest of this section can be omitted.
 
 _libssh2_cipher_aes128ctr
 AES-128-CTR algorithm identifier initializer.
-#define with constant value of type _libssh2_cipher_type().
+#define with constant value of type LIBSSH2_CIPHER_T().
 
 _libssh2_cipher_aes192ctr
 AES-192-CTR algorithm identifier initializer.
-#define with constant value of type _libssh2_cipher_type().
+#define with constant value of type LIBSSH2_CIPHER_T().
 
 _libssh2_cipher_aes256ctr
 AES-256-CTR algorithm identifier initializer.
-#define with constant value of type _libssh2_cipher_type().
+#define with constant value of type LIBSSH2_CIPHER_T().
 
 4.2) Blowfish in CBC block mode.
 LIBSSH2_BLOWFISH
@@ -377,7 +377,7 @@ If defined as 0, the rest of this section can be omitted.
 
 _libssh2_cipher_blowfish
 Blowfish-CBC algorithm identifier initializer.
-#define with constant value of type _libssh2_cipher_type().
+#define with constant value of type LIBSSH2_CIPHER_T().
 
 4.3) RC4.
 LIBSSH2_RC4
@@ -386,7 +386,7 @@ If defined as 0, the rest of this section can be omitted.
 
 _libssh2_cipher_arcfour
 RC4 algorithm identifier initializer.
-#define with constant value of type _libssh2_cipher_type().
+#define with constant value of type LIBSSH2_CIPHER_T().
 
 4.4) CAST5 in CBC block mode.
 LIBSSH2_CAST
@@ -395,7 +395,7 @@ If defined as 0, the rest of this section can be omitted.
 
 _libssh2_cipher_cast5
 CAST5-CBC algorithm identifier initializer.
-#define with constant value of type _libssh2_cipher_type().
+#define with constant value of type LIBSSH2_CIPHER_T().
 
 4.5) Triple DES in CBC block mode.
 LIBSSH2_3DES
@@ -404,7 +404,7 @@ If defined as 0, the rest of this section can be omitted.
 
 _libssh2_cipher_3des
 TripleDES-CBC algorithm identifier initializer.
-#define with constant value of type _libssh2_cipher_type().
+#define with constant value of type LIBSSH2_CIPHER_T().
 
 5) Diffie-Hellman support.
 

@@ -299,7 +299,7 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define _libssh2_bn_init_from_bin() _libssh2_bn_init()
 #define _libssh2_bn_bytes(bn)   ((bn)->length)
 
-#define _libssh2_cipher_type(name)  struct os400qc3_cipher name
+#define LIBSSH2_CIPHER_T(name)  struct os400qc3_cipher name
 #define _libssh2_cipher_aes128 {Qc3_Alg_Block_Cipher, Qc3_AES, 16,          \
                                 Qc3_CBC, 16}
 #define _libssh2_cipher_aes192 {Qc3_Alg_Block_Cipher, Qc3_AES, 16,          \
