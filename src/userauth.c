@@ -60,7 +60,7 @@
  *  limit. Bounds packet-size arithmetic to prevent size_t wrap
  *  and undersized allocations on 32-bit (or any) platforms.
  *  Packets with multiple near-cap fields may still exceed the
- *  transport limit and be rejected later with LIBSSH2_ERROR_INVAL. 
+ *  transport limit and be rejected later with LIBSSH2_ERROR_INVAL.
  */
 #define MAX_INPUT_LEN (MAX_SSH_PACKET_LEN - 0x100)
 
