@@ -287,7 +287,6 @@ struct iovec {
 #define LIBSSH2_RECV(session, buffer, length, flags) \
     LIBSSH2_RECV_FD(session, (session)->socket_fd, buffer, length, flags)
 
-typedef struct _LIBSSH2_CRYPT_METHOD LIBSSH2_CRYPT_METHOD;
 typedef struct _LIBSSH2_COMP_METHOD LIBSSH2_COMP_METHOD;
 
 typedef struct _LIBSSH2_PACKET LIBSSH2_PACKET;
@@ -589,7 +588,7 @@ struct endpoint_data {
     unsigned char *kexinit;
     size_t kexinit_len;
 
-    const LIBSSH2_CRYPT_METHOD *crypt;
+    const struct crypt_method *crypt;
     void *crypt_abstract;
 
     const struct mac_method *mac;
@@ -1026,8 +1025,7 @@ struct hostkey_method {
     int (*dtor)(LIBSSH2_SESSION *session, void **abstract);
 };
 
-struct _LIBSSH2_CRYPT_METHOD
-{
+struct crypt_method {
     const char *name;
     const char *pem_annotation;
 
@@ -1043,7 +1041,7 @@ struct _LIBSSH2_CRYPT_METHOD
     long flags;
 
     int (*init)(LIBSSH2_SESSION *session,
-                const LIBSSH2_CRYPT_METHOD *method, unsigned char *iv,
+                const struct crypt_method *method, unsigned char *iv,
                 int *free_iv, unsigned char *secret, int *free_secret,
                 int encrypt, void **abstract);
     int (*get_len)(LIBSSH2_SESSION *session, unsigned int seqno,
@@ -1057,7 +1055,7 @@ struct _LIBSSH2_CRYPT_METHOD
     _libssh2_cipher_type(algo);
 };
 
-/* Bit flags for _LIBSSH2_CRYPT_METHOD */
+/* Bit flags for struct crypt_method */
 
 /* Crypto method has integrated message authentication */
 #define LIBSSH2_CRYPT_FLAG_INTEGRATED_MAC            1
@@ -1214,7 +1212,7 @@ unsigned char *_libssh2_kex_agree_instr(unsigned char *haystack,
                                         size_t needle_len);
 
 /* Let crypt.c/hostkey.c expose their method structs */
-const LIBSSH2_CRYPT_METHOD **libssh2_crypt_methods(void);
+const struct crypt_method **libssh2_crypt_methods(void);
 const struct hostkey_method **libssh2_hostkey_methods(void);
 
 int _libssh2_bcrypt_pbkdf(const char *pass,

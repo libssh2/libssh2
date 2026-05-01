@@ -4026,7 +4026,7 @@ static int kex_agree_crypt(LIBSSH2_SESSION *session,
                            unsigned char *crypt,
                            size_t crypt_len)
 {
-    const LIBSSH2_CRYPT_METHOD **cryptp = libssh2_crypt_methods();
+    const struct crypt_method **cryptp = libssh2_crypt_methods();
     unsigned char *s;
 
     (void)session;
@@ -4039,8 +4039,8 @@ static int kex_agree_crypt(LIBSSH2_SESSION *session,
             size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
 
             if(_libssh2_kex_agree_instr(crypt, crypt_len, s, method_len)) {
-                const LIBSSH2_CRYPT_METHOD *method =
-                    (const LIBSSH2_CRYPT_METHOD *)
+                const struct crypt_method *method =
+                    (const struct crypt_method *)
                     kex_get_method_by_name((char *)s, method_len,
                                            (const struct common_method **)
                                            cryptp);

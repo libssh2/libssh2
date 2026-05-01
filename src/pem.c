@@ -184,7 +184,7 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
     size_t b64datalen = 0;
     size_t off = 0;
     int ret;
-    const LIBSSH2_CRYPT_METHOD* method = NULL;
+    const struct crypt_method* method = NULL;
 
     do {
         *line = '\0';
@@ -203,7 +203,7 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
 
     if(passphrase &&
        memcmp(line, crypt_annotation, strlen(crypt_annotation)) == 0) {
-        const LIBSSH2_CRYPT_METHOD** all_methods, * cur_method;
+        const struct crypt_method** all_methods, * cur_method;
         int i;
 
         if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
@@ -420,7 +420,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
                                 const char *b64data, size_t b64datalen,
                                 struct string_buf **decrypted_buf)
 {
-    const LIBSSH2_CRYPT_METHOD *method = NULL;
+    const struct crypt_method *method = NULL;
     struct string_buf decoded, decrypted, kdf_buf;
     unsigned char *ciphername = NULL;
     unsigned char *kdfname = NULL;
@@ -538,7 +538,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
     decrypted.len = tmp_len;
 
     if(ciphername && strcmp((const char *)ciphername, "none") != 0) {
-        const LIBSSH2_CRYPT_METHOD **all_methods, *cur_method;
+        const struct crypt_method **all_methods, *cur_method;
 
         all_methods = libssh2_crypt_methods();
         /* !checksrc! disable EQUALSNULL 1 */
