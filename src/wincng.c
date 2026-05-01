@@ -310,7 +310,7 @@ static const struct ecdsa_algorithm _wincng_ecdsa_algorithms[] = {
 };
 
 /* An encoded point */
-typedef struct __libssh2_ecdsa_point {
+struct ecdsa_point {
     libssh2_curve_type curve;
 
     const unsigned char *x;
@@ -318,7 +318,7 @@ typedef struct __libssh2_ecdsa_point {
 
     const unsigned char *y;
     ULONG y_len;
-} _libssh2_ecdsa_point;
+};
 
 /* Lookup libssh2_curve_type by name */
 static int
@@ -1850,7 +1850,7 @@ static int
 _libssh2_wincng_ecdsa_decode_uncompressed_point(
     IN const unsigned char *encoded_point,
     IN size_t encoded_point_len,
-    OUT _libssh2_ecdsa_point *point)
+    OUT struct ecdsa_point *point)
 {
     unsigned int curve;
 
@@ -1955,7 +1955,7 @@ _libssh2_wincng_p1363signature_from_point(IN const unsigned char *r,
  */
 static int
 _libssh2_wincng_publickey_from_point(IN _libssh2_wincng_ecc_keytype keytype,
-                                     IN _libssh2_ecdsa_point *point,
+                                     IN struct ecdsa_point *point,
                                      OUT BCRYPT_KEY_HANDLE *key)
 {
     int result = LIBSSH2_ERROR_NONE;
@@ -2023,7 +2023,7 @@ cleanup:
  */
 static int
 _libssh2_wincng_privatekey_from_point(IN _libssh2_wincng_ecc_keytype keytype,
-                                      IN _libssh2_ecdsa_point *q,
+                                      IN struct ecdsa_point *q,
                                       IN unsigned char *d,
                                       IN size_t d_len,
                                       OUT BCRYPT_KEY_HANDLE *key)
@@ -2326,7 +2326,7 @@ _libssh2_wincng_ecdsa_curve_name_with_octal_new(
     int result = LIBSSH2_ERROR_NONE;
 
     BCRYPT_KEY_HANDLE publickey_handle;
-    _libssh2_ecdsa_point publickey;
+    struct ecdsa_point publickey;
 
     /* Validate parameters */
     if(curve >= ARRAY_SIZE(_wincng_ecdsa_algorithms)) {
@@ -2387,7 +2387,7 @@ _libssh2_wincng_ecdh_gen_k(OUT _libssh2_bn **secret,
     BCRYPT_KEY_HANDLE publickey_handle;
     BCRYPT_SECRET_HANDLE agreed_secret_handle = NULL;
     ULONG secret_len;
-    _libssh2_ecdsa_point server_publickey;
+    struct ecdsa_point server_publickey;
 
     /* Validate parameters */
     if(!secret) {
@@ -2709,7 +2709,7 @@ _libssh2_wincng_parse_ecdsa_privatekey(OUT _libssh2_wincng_ecdsa_key **key,
     uint32_t check1, check2;
     struct string_buf data_buffer;
 
-    _libssh2_ecdsa_point q;
+    struct ecdsa_point q;
     unsigned char *d;
     size_t d_len;
 
