@@ -260,7 +260,7 @@ typedef enum {
     WINCNG_ECC_KEYTYPE_ECDH = 1,
 } _libssh2_wincng_ecc_keytype;
 
-typedef struct __libssh2_wincng_ecdsa_algorithm {
+struct ecdsa_algorithm {
     /* Algorithm name */
     const char *name;
 
@@ -279,10 +279,10 @@ typedef struct __libssh2_wincng_ecdsa_algorithm {
 
     /* Magic for private key import, indexed by _libssh2_wincng_ecc_keytype */
     ULONG private_import_magic[2];
-} _libssh2_wincng_ecdsa_algorithm;
+};
 
 /* Supported algorithms, indexed by libssh2_curve_type */
-static _libssh2_wincng_ecdsa_algorithm _wincng_ecdsa_algorithms[] = {
+static const struct ecdsa_algorithm _wincng_ecdsa_algorithms[] = {
     {
         "ecdsa-sha2-nistp256",
         256,
