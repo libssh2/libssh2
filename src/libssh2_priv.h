@@ -287,7 +287,6 @@ struct iovec {
 #define LIBSSH2_RECV(session, buffer, length, flags) \
     LIBSSH2_RECV_FD(session, (session)->socket_fd, buffer, length, flags)
 
-typedef struct _LIBSSH2_HOSTKEY_METHOD LIBSSH2_HOSTKEY_METHOD;
 typedef struct _LIBSSH2_CRYPT_METHOD LIBSSH2_CRYPT_METHOD;
 typedef struct _LIBSSH2_COMP_METHOD LIBSSH2_COMP_METHOD;
 
@@ -725,7 +724,7 @@ struct _LIBSSH2_SESSION
     long api_timeout;
 
     /* Server's public key */
-    const LIBSSH2_HOSTKEY_METHOD *hostkey;
+    const struct hostkey_method *hostkey;
     void *server_hostkey_abstract;
 
     /* Either set with libssh2_session_hostkey() (for server mode)
@@ -1002,8 +1001,7 @@ struct kex_method {
     long flags;
 };
 
-struct _LIBSSH2_HOSTKEY_METHOD
-{
+struct hostkey_method {
     const char *name;
     size_t hash_len;
 
@@ -1217,7 +1215,7 @@ unsigned char *_libssh2_kex_agree_instr(unsigned char *haystack,
 
 /* Let crypt.c/hostkey.c expose their method structs */
 const LIBSSH2_CRYPT_METHOD **libssh2_crypt_methods(void);
-const LIBSSH2_HOSTKEY_METHOD **libssh2_hostkey_methods(void);
+const struct hostkey_method **libssh2_hostkey_methods(void);
 
 int _libssh2_bcrypt_pbkdf(const char *pass,
                           size_t passlen,

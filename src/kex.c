@@ -3870,7 +3870,7 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session,
                              size_t kex_flags,
                              unsigned char *hostkey, size_t hostkey_len)
 {
-    const LIBSSH2_HOSTKEY_METHOD **hostkeyp = libssh2_hostkey_methods();
+    const struct hostkey_method **hostkeyp = libssh2_hostkey_methods();
     unsigned char *s;
 
     if(session->hostkey_prefs) {
@@ -3880,8 +3880,8 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session,
             unsigned char *p = (unsigned char *)strchr((char *)s, ',');
             size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
             if(_libssh2_kex_agree_instr(hostkey, hostkey_len, s, method_len)) {
-                const LIBSSH2_HOSTKEY_METHOD *method =
-                    (const LIBSSH2_HOSTKEY_METHOD *)
+                const struct hostkey_method *method =
+                    (const struct hostkey_method *)
                     kex_get_method_by_name((char *)s, method_len,
                                            (const struct common_method **)
                                            hostkeyp);
