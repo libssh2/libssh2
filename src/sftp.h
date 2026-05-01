@@ -68,15 +68,12 @@ struct sftp_zombie_requests {
     uint32_t request_id;
 };
 
-struct _LIBSSH2_SFTP_PACKET
-{
+struct sftp_packet {
     struct list_node node;   /* linked list header */
     uint32_t request_id;
     unsigned char *data;
     size_t data_len;              /* payload size */
 };
-
-typedef struct _LIBSSH2_SFTP_PACKET LIBSSH2_SFTP_PACKET;
 
 /* Increasing from 256 to 4092 since OpenSSH doesn't honor it. */
 #define SFTP_HANDLE_MAXLEN 4092 /* according to spec, this should be 256! */
