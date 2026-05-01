@@ -216,7 +216,7 @@
 
 #define LIBSSH2_DH_MAX_MODULUS_BITS 16384
 
-#define _libssh2_dh_ctx struct gcry_mpi *
+#define libssh2_dh_ctx struct gcry_mpi *
 #define libssh2_dh_init(dhctx) _libssh2_dh_init(dhctx)
 #define libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
     _libssh2_dh_key_pair(dhctx, public, g, p, group_order)
@@ -224,12 +224,12 @@
     _libssh2_dh_secret(dhctx, secret, f, p)
 #define libssh2_dh_dtor(dhctx) _libssh2_dh_dtor(dhctx)
 extern void _libssh2_init_aes_ctr(void);
-extern void _libssh2_dh_init(_libssh2_dh_ctx *dhctx);
-extern int _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
+extern void _libssh2_dh_init(libssh2_dh_ctx *dhctx);
+extern int _libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, _libssh2_bn *public,
                                 _libssh2_bn *g, _libssh2_bn *p,
                                 int group_order);
-extern int _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
+extern int _libssh2_dh_secret(libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
                               _libssh2_bn *f, _libssh2_bn *p);
-extern void _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx);
+extern void _libssh2_dh_dtor(libssh2_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_LIBGCRYPT_H */

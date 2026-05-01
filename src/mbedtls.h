@@ -409,7 +409,7 @@ typedef enum {
 
 #define LIBSSH2_DH_MAX_MODULUS_BITS 16384
 
-#define _libssh2_dh_ctx mbedtls_mpi *
+#define libssh2_dh_ctx mbedtls_mpi *
 #define libssh2_dh_init(dhctx) _libssh2_dh_init(dhctx)
 #define libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
     _libssh2_dh_key_pair(dhctx, public, g, p, group_order)
@@ -467,14 +467,14 @@ _libssh2_mbedtls_ecdsa_free(libssh2_ecdsa_ctx *ctx);
 extern void
 _libssh2_init_aes_ctr(void);
 extern void
-_libssh2_dh_init(_libssh2_dh_ctx *dhctx);
+_libssh2_dh_init(libssh2_dh_ctx *dhctx);
 extern int
-_libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
+_libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, _libssh2_bn *public,
                      _libssh2_bn *g, _libssh2_bn *p, int group_order);
 extern int
-_libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
+_libssh2_dh_secret(libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
                    _libssh2_bn *f, _libssh2_bn *p);
 extern void
-_libssh2_dh_dtor(_libssh2_dh_ctx *dhctx);
+_libssh2_dh_dtor(libssh2_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_MBEDTLS_H */
