@@ -50,16 +50,15 @@
 #define LIBSSH2_PUBLICKEY_RESPONSE_VERSION      1
 #define LIBSSH2_PUBLICKEY_RESPONSE_PUBLICKEY    2
 
-typedef struct _LIBSSH2_PUBLICKEY_CODE_LIST
-{
+struct publickey_code_list {
     const char *name;
     int name_len;
     int code;
-} LIBSSH2_PUBLICKEY_CODE_LIST;
+};
 
 #define STRLEN(s) s, sizeof(s) - 1
 
-static const LIBSSH2_PUBLICKEY_CODE_LIST publickey_response_codes[] =
+static const struct publickey_code_list publickey_response_codes[] =
 {
     {STRLEN("status"), LIBSSH2_PUBLICKEY_RESPONSE_STATUS},
     {STRLEN("version"), LIBSSH2_PUBLICKEY_RESPONSE_VERSION},
@@ -80,7 +79,7 @@ static const LIBSSH2_PUBLICKEY_CODE_LIST publickey_response_codes[] =
 
 #define LIBSSH2_PUBLICKEY_STATUS_CODE_MAX       8
 
-static const LIBSSH2_PUBLICKEY_CODE_LIST publickey_status_codes[] = {
+static const struct publickey_code_list publickey_status_codes[] = {
     {STRLEN("success"), LIBSSH2_PUBLICKEY_SUCCESS},
     {STRLEN("access denied"), LIBSSH2_PUBLICKEY_ACCESS_DENIED},
     {STRLEN("storage exceeded"), LIBSSH2_PUBLICKEY_STORAGE_EXCEEDED},
@@ -195,7 +194,7 @@ publickey_response_id(unsigned char **pdata, size_t data_len)
 {
     size_t response_len;
     unsigned char *data = *pdata;
-    const LIBSSH2_PUBLICKEY_CODE_LIST *codes = publickey_response_codes;
+    const struct publickey_code_list *codes = publickey_response_codes;
 
     if(data_len < 4) {
         /* Malformed response */
