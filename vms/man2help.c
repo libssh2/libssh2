@@ -46,7 +46,7 @@ static int fnamepart(char *inputfile, char *part, int whatpart)
 {
     struct pf_fabnam *pf;
     int status;
-    char ipart[6][256], *i, *p;
+    char ipart[6][256], *src, *dst;
 
     part[0] = '\0';
 
@@ -95,15 +95,15 @@ static int fnamepart(char *inputfile, char *part, int whatpart)
     fpcopy(ipart[5], pf->dnam.naml$l_long_ver,
                      pf->dnam.naml$l_long_ver_size);
 
-    for(i = ipart[whatpart], p = part; *i; ++i, ++p) {
-        if(p == part) {
-            *p = toupper(*i);
+    for(src = ipart[whatpart], dst = part; *src; ++src, ++dst) {
+        if(dst == part) {
+            *dst = toupper(*src);
         }
         else {
-            *p = tolower(*i);
+            *dst = tolower(*src);
         }
     }
-    *p = 0;
+    *dst = '\0';
 
     free(pf);
     return 1;
@@ -217,7 +217,7 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
                       int add_parentheses)
 {
     FILE *man;
-    char *in, *uit;
+    char *in, *out;
     char *m, *h;
     size_t len, thislen, maxlen = 50000;
     int bol, mode, return_status = 1;
@@ -227,8 +227,8 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
     if(!in)
         return 2;
 
-    uit = calloc(1, maxlen + 1);
-    if(!uit) {
+    out = calloc(1, maxlen + 1);
+    if(!out) {
         free(in);
         return 2;
     }
@@ -236,7 +236,7 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
     man = fopen(filespec, "r");
     if(!man) {
         free(in);
-        free(uit);
+        free(out);
         return vaxc$errno;
     }
 
@@ -247,7 +247,7 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
     fclose(man);
 
     m = in;
-    h = uit;
+    h = out;
 
     *(m + len) = 0;
 
@@ -297,7 +297,7 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
                 /* remove preceding eol */
                 if(*(m + 1) != 'P') {
                     --h;
-                    while((*h == '\n' || *h == '\r') && h > uit)
+                    while((*h == '\n' || *h == '\r') && h > out)
                         --h;
                     ++h;
                 }
@@ -418,12 +418,12 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
     *h = 0;
 
     if(return_status & 2) {
-        fprintf(hlp, "%s\n\n", uit);
+        fprintf(hlp, "%s\n\n", out);
     }
     else {
         fnamepart(filespec, subjectname, 3);
         if(*subjectname) {
-            fprintf(hlp, "%d %s\n\n%s\n\n", base_level, subjectname, uit);
+            fprintf(hlp, "%d %s\n\n%s\n\n", base_level, subjectname, out);
         }
         else {
             /* No filename (as is the case with a logical),
@@ -436,17 +436,17 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
                 *s = *n;
             *s = 0;
 
-            fprintf(hlp, "%d %s\n\n%s\n\n", base_level, subjectname, uit);
+            fprintf(hlp, "%d %s\n\n%s\n\n", base_level, subjectname, out);
         }
     }
 
 #if 0
     printf("read %d from %s, written %d to helpfile, return_status = %d\n",
-           len, filespec, strlen(uit), return_status);
+           len, filespec, strlen(out), return_status);
 #endif
 
     free(in);
-    free(uit);
+    free(out);
 
     return 1;
 }
