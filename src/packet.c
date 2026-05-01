@@ -1674,7 +1674,7 @@ _libssh2_packet_requirev(LIBSSH2_SESSION *session,
                          unsigned char **data, size_t *data_len,
                          int match_ofs,
                          const unsigned char *match_buf, size_t match_len,
-                         packet_requirev_state_t *state)
+                         struct packet_requirev_state *state)
 {
     if(_libssh2_packet_askv(session, packet_types, data, data_len, match_ofs,
                             match_buf, match_len) == 0) {

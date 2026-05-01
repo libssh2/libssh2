@@ -315,10 +315,9 @@ struct packet_require_state {
     time_t start;
 };
 
-typedef struct packet_requirev_state_t
-{
+struct packet_requirev_state {
     time_t start;
-} packet_requirev_state_t;
+};
 
 typedef struct kmdhgGPshakex_state_t
 {
@@ -479,7 +478,7 @@ struct _LIBSSH2_CHANNEL
     unsigned char *setenv_packet;
     size_t setenv_packet_len;
     unsigned char setenv_local_channel[4];
-    packet_requirev_state_t setenv_packet_requirev_state;
+    struct packet_requirev_state setenv_packet_requirev_state;
 
     /* State variables used in libssh2_channel_request_pty_ex()
        libssh2_channel_request_pty_size_ex() */
@@ -487,21 +486,21 @@ struct _LIBSSH2_CHANNEL
     unsigned char reqPTY_packet[41 + 256];
     size_t reqPTY_packet_len;
     unsigned char reqPTY_local_channel[4];
-    packet_requirev_state_t reqPTY_packet_requirev_state;
+    struct packet_requirev_state reqPTY_packet_requirev_state;
 
     /* State variables used in libssh2_channel_x11_req_ex() */
     libssh2_nonblocking_states reqX11_state;
     unsigned char *reqX11_packet;
     size_t reqX11_packet_len;
     unsigned char reqX11_local_channel[4];
-    packet_requirev_state_t reqX11_packet_requirev_state;
+    struct packet_requirev_state reqX11_packet_requirev_state;
 
     /* State variables used in libssh2_channel_process_startup() */
     libssh2_nonblocking_states process_state;
     unsigned char *process_packet;
     size_t process_packet_len;
     unsigned char process_local_channel[4];
-    packet_requirev_state_t process_packet_requirev_state;
+    struct packet_requirev_state process_packet_requirev_state;
 
     /* State variables used in libssh2_channel_flush_ex() */
     libssh2_nonblocking_states flush_state;
@@ -546,7 +545,7 @@ struct _LIBSSH2_CHANNEL
     unsigned char req_auth_agent_packet[36];
     size_t req_auth_agent_packet_len;
     unsigned char req_auth_agent_local_channel[4];
-    packet_requirev_state_t req_auth_agent_requirev_state;
+    struct packet_requirev_state req_auth_agent_requirev_state;
 
     /* State variables used in libssh2_channel_signal_ex() */
     libssh2_nonblocking_states sendsignal_state;
@@ -818,7 +817,7 @@ struct _LIBSSH2_SESSION
     unsigned char *userauth_list_data;
     size_t userauth_list_data_len;
     char *userauth_banner;
-    packet_requirev_state_t userauth_list_packet_requirev_state;
+    struct packet_requirev_state userauth_list_packet_requirev_state;
 
     /* State variables used in libssh2_userauth_password_ex() */
     libssh2_nonblocking_states userauth_pswd_state;
@@ -827,7 +826,7 @@ struct _LIBSSH2_SESSION
     size_t userauth_pswd_data_len;
     char *userauth_pswd_newpw;
     int userauth_pswd_newpw_len;
-    packet_requirev_state_t userauth_pswd_packet_requirev_state;
+    struct packet_requirev_state userauth_pswd_packet_requirev_state;
 
     /* State variables used in libssh2_userauth_hostbased_fromfile_ex() */
     libssh2_nonblocking_states userauth_host_state;
@@ -838,7 +837,7 @@ struct _LIBSSH2_SESSION
     unsigned char *userauth_host_method;
     size_t userauth_host_method_len;
     unsigned char *userauth_host_s;
-    packet_requirev_state_t userauth_host_packet_requirev_state;
+    struct packet_requirev_state userauth_host_packet_requirev_state;
 
     /* State variables used in libssh2_userauth_publickey_fromfile_ex() */
     libssh2_nonblocking_states userauth_pblc_state;
@@ -850,7 +849,7 @@ struct _LIBSSH2_SESSION
     size_t userauth_pblc_method_len;
     unsigned char *userauth_pblc_s;
     unsigned char *userauth_pblc_b;
-    packet_requirev_state_t userauth_pblc_packet_requirev_state;
+    struct packet_requirev_state userauth_pblc_packet_requirev_state;
 
     /* State variables used in libssh2_userauth_keyboard_interactive_ex() */
     libssh2_nonblocking_states userauth_kybd_state;
@@ -866,11 +865,11 @@ struct _LIBSSH2_SESSION
     int userauth_kybd_auth_failure;
     LIBSSH2_USERAUTH_KBDINT_PROMPT *userauth_kybd_prompts;
     LIBSSH2_USERAUTH_KBDINT_RESPONSE *userauth_kybd_responses;
-    packet_requirev_state_t userauth_kybd_packet_requirev_state;
+    struct packet_requirev_state userauth_kybd_packet_requirev_state;
 
     /* State variables used in libssh2_channel_open_ex() */
     libssh2_nonblocking_states open_state;
-    packet_requirev_state_t open_packet_requirev_state;
+    struct packet_requirev_state open_packet_requirev_state;
     LIBSSH2_CHANNEL *open_channel;
     unsigned char *open_packet;
     size_t open_packet_len;
@@ -890,7 +889,7 @@ struct _LIBSSH2_SESSION
     unsigned char *fwdLstn_packet;
     uint32_t fwdLstn_host_len;
     uint32_t fwdLstn_packet_len;
-    packet_requirev_state_t fwdLstn_packet_requirev_state;
+    struct packet_requirev_state fwdLstn_packet_requirev_state;
 
     /* State variables used in libssh2_publickey_init() */
     libssh2_nonblocking_states pkeyInit_state;
