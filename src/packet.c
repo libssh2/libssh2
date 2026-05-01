@@ -480,7 +480,7 @@ x11_exit:
 static inline int
 packet_authagent_open(LIBSSH2_SESSION *session,
                       unsigned char *data, size_t datalen,
-                      packet_authagent_state_t *authagent_state)
+                      struct packet_authagent_state *authagent_state)
 {
     uint32_t failure_code = SSH_OPEN_CONNECT_FAILED;
     /* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */

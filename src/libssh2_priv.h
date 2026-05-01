@@ -411,15 +411,14 @@ struct packet_x11_open_state {
 
 #define AuthAgentUnavail "Auth Agent unavailable"
 
-typedef struct packet_authagent_state_t
-{
+struct packet_authagent_state {
     libssh2_nonblocking_states state;
     unsigned char packet[17 + (sizeof(AuthAgentUnavail) - 1)];
     uint32_t sender_channel;
     uint32_t initial_window_size;
     uint32_t packet_size;
     LIBSSH2_CHANNEL *channel;
-} packet_authagent_state_t;
+};
 
 struct packet {
     struct list_node node; /* linked list header */
@@ -902,7 +901,7 @@ struct _LIBSSH2_SESSION
                                           states */
     struct packet_queue_listener_state packAdd_Qlstn_state;
     struct packet_x11_open_state packAdd_x11open_state;
-    packet_authagent_state_t packAdd_authagent_state;
+    struct packet_authagent_state packAdd_authagent_state;
 
     /* State variables used in fullpacket() */
     libssh2_nonblocking_states fullpacket_state;
