@@ -95,137 +95,16 @@
 
 /*******************************************************************/
 /*
- * Windows CNG backend: Missing definitions (for MinGW[-w64])
+ * Windows CNG backend: Missing definitions (for mingw-w64 and MS SDK)
  */
-#ifndef BCRYPT_SUCCESS
-#define BCRYPT_SUCCESS(Status) (((NTSTATUS)(Status)) >= 0)
-#endif
-
-#ifndef BCRYPT_RNG_ALGORITHM
-#define BCRYPT_RNG_ALGORITHM L"RNG"
-#endif
-
-#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#ifndef BCRYPT_MD5_ALGORITHM
-#define BCRYPT_MD5_ALGORITHM L"MD5"
-#endif
-#endif
-
-#ifndef BCRYPT_SHA1_ALGORITHM
-#define BCRYPT_SHA1_ALGORITHM L"SHA1"
-#endif
-
-#ifndef BCRYPT_SHA256_ALGORITHM
-#define BCRYPT_SHA256_ALGORITHM L"SHA256"
-#endif
-
-#ifndef BCRYPT_SHA384_ALGORITHM
-#define BCRYPT_SHA384_ALGORITHM L"SHA384"
-#endif
-
-#ifndef BCRYPT_SHA512_ALGORITHM
-#define BCRYPT_SHA512_ALGORITHM L"SHA512"
-#endif
-
-#ifndef BCRYPT_RSA_ALGORITHM
-#define BCRYPT_RSA_ALGORITHM L"RSA"
-#endif
-
-#ifndef BCRYPT_DSA_ALGORITHM
-#define BCRYPT_DSA_ALGORITHM L"DSA"
-#endif
-
-#ifndef BCRYPT_AES_ALGORITHM
-#define BCRYPT_AES_ALGORITHM L"AES"
-#endif
-
-#ifndef BCRYPT_RC4_ALGORITHM
-#define BCRYPT_RC4_ALGORITHM L"RC4"
-#endif
-
-#ifndef BCRYPT_3DES_ALGORITHM
-#define BCRYPT_3DES_ALGORITHM L"3DES"
-#endif
-
-#ifndef BCRYPT_DH_ALGORITHM
-#define BCRYPT_DH_ALGORITHM L"DH"
-#endif
 
 /* BCRYPT_KDF_RAW_SECRET is available from Windows 8.1 and onwards */
-#ifndef BCRYPT_KDF_RAW_SECRET
+#ifndef BCRYPT_KDF_RAW_SECRET /* supported by mingw-w64 9.0+ and VS2017+ */
 #define BCRYPT_KDF_RAW_SECRET L"TRUNCATE"
 #endif
 
-#ifndef BCRYPT_ALG_HANDLE_HMAC_FLAG
-#define BCRYPT_ALG_HANDLE_HMAC_FLAG 0x00000008
-#endif
-
-#ifndef BCRYPT_DSA_PUBLIC_BLOB
-#define BCRYPT_DSA_PUBLIC_BLOB L"DSAPUBLICBLOB"
-#endif
-
-#ifndef BCRYPT_DSA_PUBLIC_MAGIC
-#define BCRYPT_DSA_PUBLIC_MAGIC 0x42505344 /* DSPB */
-#endif
-
-#ifndef BCRYPT_DSA_PRIVATE_BLOB
-#define BCRYPT_DSA_PRIVATE_BLOB L"DSAPRIVATEBLOB"
-#endif
-
-#ifndef BCRYPT_DSA_PRIVATE_MAGIC
-#define BCRYPT_DSA_PRIVATE_MAGIC 0x56505344 /* DSPV */
-#endif
-
-#ifndef BCRYPT_RSAPUBLIC_BLOB
-#define BCRYPT_RSAPUBLIC_BLOB L"RSAPUBLICBLOB"
-#endif
-
-#ifndef BCRYPT_RSAPUBLIC_MAGIC
-#define BCRYPT_RSAPUBLIC_MAGIC 0x31415352 /* RSA1 */
-#endif
-
-#ifndef BCRYPT_RSAFULLPRIVATE_BLOB
-#define BCRYPT_RSAFULLPRIVATE_BLOB L"RSAFULLPRIVATEBLOB"
-#endif
-
-#ifndef BCRYPT_RSAFULLPRIVATE_MAGIC
-#define BCRYPT_RSAFULLPRIVATE_MAGIC 0x33415352 /* RSA3 */
-#endif
-
-#ifndef BCRYPT_KEY_DATA_BLOB
-#define BCRYPT_KEY_DATA_BLOB L"KeyDataBlob"
-#endif
-
-#ifndef BCRYPT_MESSAGE_BLOCK_LENGTH
+#ifndef BCRYPT_MESSAGE_BLOCK_LENGTH /* supported by mingw-w64 and VS2017+ */
 #define BCRYPT_MESSAGE_BLOCK_LENGTH L"MessageBlockLength"
-#endif
-
-#ifndef BCRYPT_NO_KEY_VALIDATION
-#define BCRYPT_NO_KEY_VALIDATION 0x00000008
-#endif
-
-#ifndef BCRYPT_BLOCK_PADDING
-#define BCRYPT_BLOCK_PADDING 0x00000001
-#endif
-
-#ifndef BCRYPT_PAD_NONE
-#define BCRYPT_PAD_NONE 0x00000001
-#endif
-
-#ifndef BCRYPT_PAD_PKCS1
-#define BCRYPT_PAD_PKCS1 0x00000002
-#endif
-
-#ifndef BCRYPT_PAD_OAEP
-#define BCRYPT_PAD_OAEP 0x00000004
-#endif
-
-#ifndef BCRYPT_PAD_PSS
-#define BCRYPT_PAD_PSS 0x00000008
-#endif
-
-#ifndef LEGACY_RSAPRIVATE_BLOB
-#define LEGACY_RSAPRIVATE_BLOB L"CAPIPRIVATEBLOB"
 #endif
 
 #if defined(_MSC_VER) && _MSC_VER < 1700
