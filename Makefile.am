@@ -45,7 +45,7 @@ SCRIPTSFILES = \
   scripts/spellcheck.sh \
   scripts/codespell-ignore.words
 
-EXTRA_DIST = $(WIN32FILES) get_ver.awk \
+EXTRA_DIST = $(WIN32FILES) \
   maketgz RELEASE-NOTES libssh2.pc.in $(VMSFILES) config.rpath \
   CMakeLists.txt cmake git2news.pl libssh2-style.el README.md $(OS400FILES) \
   $(SCRIPTSFILES)
