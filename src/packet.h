@@ -59,7 +59,7 @@ int _libssh2_packet_require(LIBSSH2_SESSION *session,
                             size_t *data_len, int match_ofs,
                             const unsigned char *match_buf,
                             size_t match_len,
-                            packet_require_state_t *state);
+                            struct packet_require_state *state);
 int _libssh2_packet_requirev(LIBSSH2_SESSION *session,
                              const unsigned char *packet_types,
                              unsigned char **data, size_t *data_len,

@@ -684,7 +684,8 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                                                    p */
 
         /* Zero the whole thing out */
-        memset(&exchange_state->req_state, 0, sizeof(packet_require_state_t));
+        memset(&exchange_state->req_state, 0,
+               sizeof(exchange_state->req_state));
 
         /* Generate x and e */
         if(_libssh2_bn_bits(p) > LIBSSH2_DH_MAX_MODULUS_BITS) {

@@ -1547,7 +1547,7 @@ _libssh2_packet_require(LIBSSH2_SESSION *session, unsigned char packet_type,
                         int match_ofs,
                         const unsigned char *match_buf,
                         size_t match_len,
-                        packet_require_state_t *state)
+                        struct packet_require_state *state)
 {
     if(state->start == 0) {
         if(_libssh2_packet_ask(session, packet_type, data, data_len,
