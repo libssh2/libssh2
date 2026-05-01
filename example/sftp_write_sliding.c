@@ -90,8 +90,8 @@ int main(int argc, char *argv[])
     const char *fingerprint;
     int rc;
     LIBSSH2_SESSION *session = NULL;
-    LIBSSH2_SFTP *sftp_session;
-    LIBSSH2_SFTP_HANDLE *sftp_handle;
+    LIBSSH2_SFTP *sftp_session = NULL;
+    LIBSSH2_SFTP_HANDLE *sftp_handle = NULL;
     FILE *local;
     char mem[1024 * 1000];
     size_t nread;
@@ -174,7 +174,8 @@ int main(int argc, char *argv[])
      * and setup crypto, compression, and MAC layers
      */
     while((rc = libssh2_session_handshake(session, sock)) ==
-          LIBSSH2_ERROR_EAGAIN);
+          LIBSSH2_ERROR_EAGAIN)
+          waitsocket(sock, session);
     if(rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
         goto shutdown;
@@ -195,7 +196,8 @@ int main(int argc, char *argv[])
     if(auth_pw) {
         /* We could authenticate via password */
         while((rc = libssh2_userauth_password(session, username, password)) ==
-              LIBSSH2_ERROR_EAGAIN);
+              LIBSSH2_ERROR_EAGAIN)
+              waitsocket(sock, session);
         if(rc) {
             fprintf(stderr, "Authentication by password failed.\n");
             goto shutdown;
@@ -206,7 +208,8 @@ int main(int argc, char *argv[])
         while((rc = libssh2_userauth_publickey_fromfile(session, username,
                                                         pubkey, privkey,
                                                         password)) ==
-              LIBSSH2_ERROR_EAGAIN);
+              LIBSSH2_ERROR_EAGAIN)
+              waitsocket(sock, session);
         if(rc) {
             fprintf(stderr, "Authentication by public key failed.\n");
             goto shutdown;
@@ -217,10 +220,15 @@ int main(int argc, char *argv[])
     do {
         sftp_session = libssh2_sftp_init(session);
 
-        if(!sftp_session &&
-           libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
-            fprintf(stderr, "Unable to init SFTP session\n");
-            goto shutdown;
+        if(!sftp_session) {
+            if(libssh2_session_last_errno(session) == LIBSSH2_ERROR_EAGAIN) {
+                fprintf(stderr, "non-blocking init\n");
+                waitsocket(sock, session); /* now we wait */
+            }
+            else {
+                fprintf(stderr, "Unable to init SFTP session\n");
+                goto shutdown;
+            }
         }
     } while(!sftp_session);
 
@@ -235,11 +243,15 @@ int main(int argc, char *argv[])
                                         LIBSSH2_SFTP_S_IWUSR |
                                         LIBSSH2_SFTP_S_IRGRP |
                                         LIBSSH2_SFTP_S_IROTH);
-        if(!sftp_handle &&
-           libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
-            fprintf(stderr, "Unable to open file with SFTP: %ld\n",
-                    libssh2_sftp_last_error(sftp_session));
-            goto shutdown;
+        if(!sftp_session) {
+            if(libssh2_session_last_errno(session) == LIBSSH2_ERROR_EAGAIN) {
+                fprintf(stderr, "non-blocking init\n");
+                waitsocket(sock, session); /* now we wait */
+            }
+            else {
+                fprintf(stderr, "Unable to init SFTP session\n");
+                goto shutdown;
+            }
         }
     } while(!sftp_handle);
 
@@ -283,17 +295,23 @@ int main(int argc, char *argv[])
     fprintf(stderr, "%ld bytes in %d seconds makes %.1f bytes/sec\n",
             (long)total, duration, (double)total / duration);
 
-    libssh2_sftp_close(sftp_handle);
-    libssh2_sftp_shutdown(sftp_session);
-
 shutdown:
+
+    if(sftp_handle)
+        while(libssh2_sftp_close(sftp_handle) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
+    if(sftp_session)
+        while(libssh2_sftp_shutdown(sftp_session) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
 
     fclose(local);
 
     if(session) {
         while(libssh2_session_disconnect(session, "Normal Shutdown") ==
-              LIBSSH2_ERROR_EAGAIN);
-        libssh2_session_free(session);
+              LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
+        while(libssh2_session_free(session) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
     }
 
     if(sock != LIBSSH2_INVALID_SOCKET) {

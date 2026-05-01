@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
     const char *fingerprint;
     int rc;
     LIBSSH2_SESSION *session = NULL;
-    LIBSSH2_CHANNEL *channel;
+    LIBSSH2_CHANNEL *channel = NULL;
     int exitcode = 0;
     size_t len;
     LIBSSH2_KNOWNHOSTS *nh;
@@ -154,7 +154,8 @@ int main(int argc, char *argv[])
      * and setup crypto, compression, and MAC layers
      */
     while((rc = libssh2_session_handshake(session, sock)) ==
-          LIBSSH2_ERROR_EAGAIN);
+          LIBSSH2_ERROR_EAGAIN)
+          waitsocket(sock, session);
     if(rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
         goto shutdown;
@@ -201,7 +202,8 @@ int main(int argc, char *argv[])
     if(strlen(password) != 0) {
         /* We could authenticate via password */
         while((rc = libssh2_userauth_password(session, username, password)) ==
-              LIBSSH2_ERROR_EAGAIN);
+              LIBSSH2_ERROR_EAGAIN)
+              waitsocket(sock, session);
         if(rc) {
             fprintf(stderr, "Authentication by password failed.\n");
             return 1;
@@ -369,8 +371,11 @@ int main(int argc, char *argv[])
 shutdown:
 
     if(session) {
-        libssh2_session_disconnect(session, "Normal Shutdown");
-        libssh2_session_free(session);
+        while(libssh2_session_disconnect(session, "Normal Shutdown") ==
+              LIBSSH2_ERROR_EAGAIN)
+                waitsocket(sock, session);
+        while(libssh2_session_free(session) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
     }
 
     if(sock != LIBSSH2_INVALID_SOCKET) {

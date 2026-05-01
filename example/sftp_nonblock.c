@@ -100,8 +100,8 @@ int main(int argc, char *argv[])
     const char *fingerprint;
     int rc;
     LIBSSH2_SESSION *session = NULL;
-    LIBSSH2_SFTP *sftp_session;
-    LIBSSH2_SFTP_HANDLE *sftp_handle;
+    LIBSSH2_SFTP *sftp_session = NULL;
+    LIBSSH2_SFTP_HANDLE *sftp_handle = NULL;
 #ifdef HAVE_GETTIMEOFDAY
     struct timeval start;
     struct timeval end;
@@ -178,7 +178,8 @@ int main(int argc, char *argv[])
      * and setup crypto, compression, and MAC layers
      */
     while((rc = libssh2_session_handshake(session, sock)) ==
-          LIBSSH2_ERROR_EAGAIN);
+          LIBSSH2_ERROR_EAGAIN)
+          waitsocket(sock, session);
     if(rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
         goto shutdown;
@@ -199,7 +200,8 @@ int main(int argc, char *argv[])
     if(auth_pw) {
         /* We could authenticate via password */
         while((rc = libssh2_userauth_password(session, username, password)) ==
-              LIBSSH2_ERROR_EAGAIN);
+              LIBSSH2_ERROR_EAGAIN)
+              waitsocket(sock, session);
         if(rc) {
             fprintf(stderr, "Authentication by password failed.\n");
             goto shutdown;
@@ -207,11 +209,11 @@ int main(int argc, char *argv[])
     }
     else {
         /* Or by public key */
-        while((rc =
-              libssh2_userauth_publickey_fromfile(session, username,
-                                                  pubkey, privkey,
-                                                  password)) ==
-              LIBSSH2_ERROR_EAGAIN);
+        while((rc = libssh2_userauth_publickey_fromfile(session, username,
+                                                        pubkey, privkey,
+                                                        password)) ==
+              LIBSSH2_ERROR_EAGAIN)
+              waitsocket(sock, session);
         if(rc) {
             fprintf(stderr, "Authentication by public key failed.\n");
             goto shutdown;
@@ -284,16 +286,22 @@ int main(int argc, char *argv[])
     fprintf(stderr, "Got %ld bytes spin: %d\n", (long)total, spin);
 #endif
 
-    libssh2_sftp_close(sftp_handle);
-    libssh2_sftp_shutdown(sftp_session);
+ shutdown:
 
-shutdown:
+    if(sftp_handle)
+        while(libssh2_sftp_closedir(sftp_handle) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
+
+    if(sftp_session)
+        while(libssh2_sftp_shutdown(sftp_session) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
 
     if(session) {
-        fprintf(stderr, "libssh2_session_disconnect\n");
         while(libssh2_session_disconnect(session, "Normal Shutdown") ==
-              LIBSSH2_ERROR_EAGAIN);
-        libssh2_session_free(session);
+              LIBSSH2_ERROR_EAGAIN)
+                waitsocket(sock, session);
+        while(libssh2_session_free(session) == LIBSSH2_ERROR_EAGAIN)
+            waitsocket(sock, session);
     }
 
     if(sock != LIBSSH2_INVALID_SOCKET) {
