@@ -68,9 +68,9 @@
    would break backwards compatibility.
 */
 #ifdef HAVE_POLL
-# include <poll.h>
+#include <poll.h>
 #elif defined(HAVE_SELECT) && defined(HAVE_SYS_SELECT_H)
-# include <sys/select.h>
+#include <sys/select.h>
 #endif
 
 /* Needed for struct iovec on some platforms */
@@ -102,14 +102,14 @@
 #ifdef _WIN32
 /* Detect Windows App environment which has a restricted access
    to the Win32 APIs. */
-# if (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)) || \
+#  if (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)) || \
   defined(WINAPI_FAMILY)
-#  include <winapifamily.h>
-#  if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) && \
-     !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-#    define LIBSSH2_WINDOWS_UWP
+#    include <winapifamily.h>
+#    if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) && \
+       !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+#      define LIBSSH2_WINDOWS_UWP
+#    endif
 #  endif
-# endif
 #endif
 
 #ifndef FALSE
