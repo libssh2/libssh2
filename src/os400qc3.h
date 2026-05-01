@@ -223,13 +223,13 @@ struct os400qc3_bn {    /* Big number. */
 
 #define _libssh2_bn struct os400qc3_bn
 
-typedef struct {        /* Algorithm description. */
+struct os400qc3_cipher {  /* Algorithm description. */
     char *                  fmt;            /* Format of Qc3 structure. */
     int                     algo;           /* Algorithm identifier. */
     unsigned char           size;           /* Block length. */
     unsigned char           mode;           /* Block mode. */
     int                     keylen;         /* Key length. */
-}       _libssh2_os400qc3_cipher_t;
+};
 
 typedef struct {        /* Diffie-Hellman context. */
     char                    token[8];       /* Context token. */
@@ -299,7 +299,7 @@ typedef struct {        /* Diffie-Hellman context. */
 #define _libssh2_bn_init_from_bin() _libssh2_bn_init()
 #define _libssh2_bn_bytes(bn)   ((bn)->length)
 
-#define _libssh2_cipher_type(name)  _libssh2_os400qc3_cipher_t name
+#define _libssh2_cipher_type(name)  struct os400qc3_cipher name
 #define _libssh2_cipher_aes128 {Qc3_Alg_Block_Cipher, Qc3_AES, 16,          \
                                 Qc3_CBC, 16}
 #define _libssh2_cipher_aes192 {Qc3_Alg_Block_Cipher, Qc3_AES, 16,          \
