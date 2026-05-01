@@ -279,7 +279,7 @@ packet_queue_listener(LIBSSH2_SESSION *session, unsigned char *data,
 static inline int
 packet_x11_open(LIBSSH2_SESSION *session, unsigned char *data,
                 size_t datalen,
-                packet_x11_open_state_t *x11open_state)
+                struct packet_x11_open_state *x11open_state)
 {
     uint32_t failure_code = SSH_OPEN_CONNECT_FAILED;
     /* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */

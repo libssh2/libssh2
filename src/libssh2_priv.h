@@ -397,8 +397,7 @@ struct packet_queue_listener_state {
 
 #define X11FwdUnAvil "X11 Forward Unavailable"
 
-typedef struct packet_x11_open_state_t
-{
+struct packet_x11_open_state {
     libssh2_nonblocking_states state;
     unsigned char packet[17 + (sizeof(X11FwdUnAvil) - 1)];
     unsigned char *shost;
@@ -408,7 +407,7 @@ typedef struct packet_x11_open_state_t
     uint32_t sport;
     uint32_t shost_len;
     LIBSSH2_CHANNEL *channel;
-} packet_x11_open_state_t;
+};
 
 #define AuthAgentUnavail "Auth Agent unavailable"
 
@@ -902,7 +901,7 @@ struct _LIBSSH2_SESSION
     LIBSSH2_CHANNEL *packAdd_channelp; /* keeper of the channel during EAGAIN
                                           states */
     struct packet_queue_listener_state packAdd_Qlstn_state;
-    packet_x11_open_state_t packAdd_x11open_state;
+    struct packet_x11_open_state packAdd_x11open_state;
     packet_authagent_state_t packAdd_authagent_state;
 
     /* State variables used in fullpacket() */
