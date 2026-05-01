@@ -232,7 +232,7 @@ jobs:
       matrix:
         compiler: [gcc, clang, clang-tidy]
         arch: [amd64]
-        crypto: [OpenSSL, Libgcrypt, mbedTLS-prev, wolfSSL]
+        crypto: [Libgcrypt, mbedTLS-prev, OpenSSL, wolfSSL]
         build: [cmake]
         zlib: ['OFF', 'ON']
         exclude:
