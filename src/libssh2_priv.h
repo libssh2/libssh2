@@ -440,8 +440,7 @@ struct packet {
     size_t data_head;
 };
 
-typedef struct _libssh2_channel_data
-{
+struct channel_data {
     /* Identifier */
     uint32_t id;
 
@@ -450,7 +449,7 @@ typedef struct _libssh2_channel_data
 
     /* Set to 1 when CHANNEL_CLOSE / CHANNEL_EOF sent/received */
     char close, eof, extended_data_ignore_mode;
-} libssh2_channel_data;
+};
 
 struct _LIBSSH2_CHANNEL
 {
@@ -465,7 +464,7 @@ struct _LIBSSH2_CHANNEL
     /* channel's program exit signal (without the SIG prefix) */
     char *exit_signal;
 
-    libssh2_channel_data local, remote;
+    struct channel_data local, remote;
     /* Amount of bytes to be refunded to receive window (but not yet sent) */
     uint32_t adjust_queue;
     /* Data immediately available for reading */
