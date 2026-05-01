@@ -12,7 +12,7 @@ use Cwd 'abs_path';
 
 my @options = (
     "-i4", "-m79",
-    "-AFIXME", "-AERRNOVAR", "-ATYPEDEFSTRUCT",
+    "-AFIXME", "-AERRNOVAR",
     "-aaccept",
     "-aatoi",
     "-acalloc",
