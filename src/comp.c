@@ -127,7 +127,7 @@ comp_method_zlib_alloc(voidpf opaque, uInt items, uInt size)
     if(items && (SIZE_MAX / (size_t)items) < (size_t)size)
         return NULL;
 
-    return (voidpf)LIBSSH2_ALLOC(session, items * size);
+    return (voidpf)LIBSSH2_ALLOC(session, items * (size_t)size);
 }
 
 static void
