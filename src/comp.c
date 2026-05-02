@@ -124,7 +124,7 @@ comp_method_zlib_alloc(voidpf opaque, uInt items, uInt size)
     LIBSSH2_SESSION *session = (LIBSSH2_SESSION *)opaque;
 
     /* Make sure (items * size) does not overflow */
-    if(items && (SIZE_MAX / items) < size)
+    if(items && (SIZE_MAX / (size_t)items) < (size_t)size)
         return NULL;
 
     return (voidpf)LIBSSH2_ALLOC(session, items * size);
