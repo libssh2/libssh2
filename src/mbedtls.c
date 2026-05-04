@@ -63,7 +63,7 @@ static mbedtls_ctr_drbg_context _libssh2_mbedtls_ctr_drbg;
  * using a union to optimize memory usage.
  */
 
-typedef struct {
+struct _libssh2_mbedtls_cipher_ctx {
     mbedtls_cipher_type_t algo;
     int encrypt;
     union {
@@ -75,7 +75,7 @@ typedef struct {
         } gcm;
 #endif
     } ctx;
-} _libssh2_mbedtls_cipher_ctx;
+};
 
 /*******************************************************************/
 /*
@@ -131,15 +131,15 @@ _libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *h,
                              unsigned char *secret,
                              int encrypt)
 {
-    _libssh2_mbedtls_cipher_ctx *cctx;
+    struct _libssh2_mbedtls_cipher_ctx *cctx;
     int ret;
 
     if(!h)
         return -1;
 
     /* Allocate unified context structure */
-    cctx = (_libssh2_mbedtls_cipher_ctx *)
-           mbedtls_calloc(1, sizeof(_libssh2_mbedtls_cipher_ctx));
+    cctx = (struct _libssh2_mbedtls_cipher_ctx *)
+           mbedtls_calloc(1, sizeof(struct _libssh2_mbedtls_cipher_ctx));
     if(!cctx)
         return -1;
 
@@ -242,10 +242,10 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
                               unsigned char *block,
                               size_t blocksize, int firstlast)
 {
-    _libssh2_mbedtls_cipher_ctx *cctx;
+    struct _libssh2_mbedtls_cipher_ctx *cctx;
     int ret;
 
-    cctx = *(_libssh2_mbedtls_cipher_ctx **)ctx;
+    cctx = *(struct _libssh2_mbedtls_cipher_ctx **)ctx;
     if(!cctx)
         return -1;
 
@@ -379,7 +379,7 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
 void
 _libssh2_mbedtls_cipher_dtor(_libssh2_cipher_ctx *ctx)
 {
-    _libssh2_mbedtls_cipher_ctx *cctx = *(_libssh2_mbedtls_cipher_ctx **)ctx;
+    struct _libssh2_mbedtls_cipher_ctx *cctx = *(struct _libssh2_mbedtls_cipher_ctx **)ctx;
 
     if(!cctx)
         return;
