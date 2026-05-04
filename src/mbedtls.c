@@ -365,6 +365,7 @@ _libssh2_mbedtls_cipher_dtor(_libssh2_cipher_ctx *ctx)
        cctx->algo == MBEDTLS_CIPHER_AES_256_GCM) {
         mbedtls_gcm_free(&cctx->ctx.gcm.gcm_ctx);
         mbedtls_free(cctx);
+        *ctx = NULL;
         return;
     }
 #endif
@@ -372,6 +373,7 @@ _libssh2_mbedtls_cipher_dtor(_libssh2_cipher_ctx *ctx)
     /* Regular cipher context */
     mbedtls_cipher_free(&cctx->ctx.cipher_ctx);
     mbedtls_free(cctx);
+    *ctx = NULL;
 }
 
 int
