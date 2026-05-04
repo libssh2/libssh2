@@ -379,7 +379,8 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
 void
 _libssh2_mbedtls_cipher_dtor(_libssh2_cipher_ctx *ctx)
 {
-    struct _libssh2_mbedtls_cipher_ctx *cctx = *(struct _libssh2_mbedtls_cipher_ctx **)ctx;
+    struct _libssh2_mbedtls_cipher_ctx *cctx =
+        *(struct _libssh2_mbedtls_cipher_ctx **)ctx;
 
     if(!cctx)
         return;
