@@ -324,7 +324,8 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
                 memcpy(block + blocksize - authlen, tag, authlen);
             }
             else {
-                if(memcmp(tag, block + blocksize - authlen, authlen) != 0)
+                if(_libssh2_timingsafe_bcmp(tag, block + blocksize - authlen,
+                                            authlen) != 0)
                     return MBEDTLS_ERR_GCM_AUTH_FAILED;
             }
 
