@@ -47,6 +47,7 @@
 #include <mbedtls/rsa.h>
 #include <mbedtls/bignum.h>
 #include <mbedtls/cipher.h>
+#include <mbedtls/gcm.h>
 #ifdef MBEDTLS_ECDH_C
 # include <mbedtls/ecdh.h>
 #endif
@@ -67,7 +68,7 @@
 
 #define LIBSSH2_AES_CBC         1
 #define LIBSSH2_AES_CTR         1
-#define LIBSSH2_AES_GCM         0
+#define LIBSSH2_AES_GCM         1
 #ifdef MBEDTLS_CIPHER_BLOWFISH_CBC
 # define LIBSSH2_BLOWFISH       1
 #else
@@ -373,6 +374,8 @@ struct _libssh2_mbedtls_cipher_ctx {
 #define _libssh2_cipher_arcfour   MBEDTLS_CIPHER_ARC4_128
 #endif
 #define _libssh2_cipher_3des      MBEDTLS_CIPHER_DES_EDE3_CBC
+#define _libssh2_cipher_aes128gcm MBEDTLS_CIPHER_AES_128_GCM
+#define _libssh2_cipher_aes256gcm MBEDTLS_CIPHER_AES_256_GCM
 #define _libssh2_cipher_chacha20  MBEDTLS_CIPHER_CHACHA20_POLY1305
 
 /*******************************************************************/
