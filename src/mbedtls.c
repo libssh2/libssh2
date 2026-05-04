@@ -57,28 +57,6 @@ static mbedtls_ctr_drbg_context _libssh2_mbedtls_ctr_drbg;
 
 /*******************************************************************/
 /*
- * mbedTLS backend: Unified cipher context structure
- *
- * This structure handles both regular ciphers and AEAD ciphers (GCM)
- * using a union to optimize memory usage.
- */
-
-struct _libssh2_mbedtls_cipher_ctx {
-    mbedtls_cipher_type_t algo;
-    int encrypt;
-    union {
-        mbedtls_cipher_context_t cipher_ctx;
-#if LIBSSH2_AES_GCM
-        struct {
-            mbedtls_gcm_context gcm_ctx;
-            unsigned char iv[12];
-        } gcm;
-#endif
-    } ctx;
-};
-
-/*******************************************************************/
-/*
  * mbedTLS backend: Generic functions
  */
 
@@ -177,8 +155,8 @@ _libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *h,
             return -1;
         }
 
-            /* Store the context pointer */
-        *(void **)h = cctx;
+        /* Store the context pointer */
+        *h = cctx;
         return 0;
     }
 #endif
@@ -230,7 +208,7 @@ _libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *h,
         }
 
         /* Store the context pointer */
-        *(void **)h = cctx;
+        *h = cctx;
         return 0;
     }
 }
@@ -245,7 +223,7 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
     struct _libssh2_mbedtls_cipher_ctx *cctx;
     int ret;
 
-    cctx = *(struct _libssh2_mbedtls_cipher_ctx **)ctx;
+    cctx = *ctx;
     if(!cctx)
         return -1;
 
@@ -377,8 +355,7 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
 void
 _libssh2_mbedtls_cipher_dtor(_libssh2_cipher_ctx *ctx)
 {
-    struct _libssh2_mbedtls_cipher_ctx *cctx =
-        *(struct _libssh2_mbedtls_cipher_ctx **)ctx;
+    struct _libssh2_mbedtls_cipher_ctx *cctx = *ctx;
 
     if(!cctx)
         return;

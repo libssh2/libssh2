@@ -337,7 +337,26 @@ typedef enum {
  * mbedTLS backend: Cipher Context structure
  */
 
-#define _libssh2_cipher_ctx         mbedtls_cipher_context_t
+/*
+ * Unified cipher context structure.
+ * Handles both regular ciphers and AEAD ciphers (GCM)
+ * using a union to optimize memory usage.
+ */
+struct _libssh2_mbedtls_cipher_ctx {
+    mbedtls_cipher_type_t algo;
+    int encrypt;
+    union {
+        mbedtls_cipher_context_t cipher_ctx;
+#if LIBSSH2_AES_GCM
+        struct {
+            mbedtls_gcm_context gcm_ctx;
+            unsigned char iv[12];
+        } gcm;
+#endif
+    } ctx;
+};
+
+#define _libssh2_cipher_ctx         struct _libssh2_mbedtls_cipher_ctx *
 
 #define _libssh2_cipher_type(algo)  mbedtls_cipher_type_t algo
 
