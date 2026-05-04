@@ -277,8 +277,7 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
                                                      MBEDTLS_GCM_DECRYPT,
                                      cctx->ctx.gcm.iv, 12);
             if(ret) {
-                if(buf)
-                    mbedtls_free(buf);
+                _libssh2_mbedtls_safe_free(buf, cryptlen);
                 return -1;
             }
 
@@ -287,8 +286,7 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
                 ret = mbedtls_gcm_update_ad(&cctx->ctx.gcm.gcm_ctx,
                                             block, aadlen);
                 if(ret) {
-                    if(buf)
-                        mbedtls_free(buf);
+                    _libssh2_mbedtls_safe_free(buf, cryptlen);
                     return -1;
                 }
             }
@@ -301,11 +299,11 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
                                      block + aadlen, cryptlen,
                                      buf, cryptlen, &olen);
             if(ret) {
-                mbedtls_free(buf);
+                _libssh2_mbedtls_safe_free(buf, cryptlen);
                 return -1;
             }
             memcpy(block + aadlen, buf, olen);
-            mbedtls_free(buf);
+            _libssh2_mbedtls_safe_free(buf, cryptlen);
         }
 
         /* Last block: finalize and handle authentication tag */
