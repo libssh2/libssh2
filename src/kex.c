@@ -272,10 +272,10 @@ process_host_key(LIBSSH2_SESSION *session,
     }
 #ifdef LIBSSH2DEBUG
     {
-        char fingerprint[MD5_DIGEST_LENGTH * 3 + 1]
+        char fingerprint[MD5_DIGEST_LENGTH * 3 + 1];
         char* fprint = fingerprint;
         int i;
-        for (i = 0; i < MD5_DIGEST_LENGTH; i++, fprint += 3) {
+        for(i = 0; i < MD5_DIGEST_LENGTH; i++, fprint += 3) {
             snprintf(fprint, 4, "%02x:", session->server_hostkey_md5[i]);
         }
         *(--fprint) = '\0';
@@ -301,10 +301,10 @@ process_host_key(LIBSSH2_SESSION *session,
     }
 #ifdef LIBSSH2DEBUG
     {
-        char fingerprint[SHA1_DIGEST_LENGTH * 3 + 1]
+        char fingerprint[SHA1_DIGEST_LENGTH * 3 + 1];
         char *fprint = fingerprint;
         int i;
-        for (i = 0; i < SHA1_DIGEST_LENGTH; i++, fprint += 3) {
+        for(i = 0; i < SHA1_DIGEST_LENGTH; i++, fprint += 3) {
             snprintf(fprint, 4, "%02x:", session->server_hostkey_sha1[i]);
         }
         *(--fprint) = '\0';
