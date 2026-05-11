@@ -1093,7 +1093,7 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
             session->userauth_host_method = NULL;
             LIBSSH2_FREE(session, pubkeydata);
             return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
-                                  "username length too large");
+                                  "Input parameter length too large");
         }
 
         /*
@@ -1592,8 +1592,7 @@ retry_auth:
         if(username_len > MAX_INPUT_LEN ||
            pubkeydata_len > MAX_INPUT_LEN)
             return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
-                                  "input length exceeds maximum "
-                                  "allowed size");
+                                  "Username or public key length too large");
 
         /* Zero the whole thing out */
         memset(&session->userauth_pblc_packet_requirev_state, 0,
@@ -2185,7 +2184,7 @@ userauth_keyboard_interactive(LIBSSH2_SESSION *session,
 
         if(username_len > MAX_INPUT_LEN) {
             return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
-                                  "username length too large");
+                                  "Username too long");
         }
 
         session->userauth_kybd_packet_len =
