@@ -4014,11 +4014,10 @@ fail:
     return rc;
 }
 
-static int
-_libssh2_ecdsa_new_openssh_private(libssh2_ecdsa_ctx **ec_ctx,
-                                   LIBSSH2_SESSION *session,
-                                   const char *filename,
-                                   const unsigned char *passphrase)
+static int ecdsa_new_openssh_private(libssh2_ecdsa_ctx **ec_ctx,
+                                     LIBSSH2_SESSION *session,
+                                     const char *filename,
+                                     const unsigned char *passphrase)
 {
     FILE *fp;
     int rc;
@@ -4161,8 +4160,8 @@ _libssh2_ecdsa_new_private(libssh2_ecdsa_ctx **ec_ctx,
                                     filename, passphrase);
 
     if(rc) {
-        return _libssh2_ecdsa_new_openssh_private(ec_ctx, session,
-                                                  filename, passphrase);
+        return ecdsa_new_openssh_private(ec_ctx, session,
+                                         filename, passphrase);
     }
 
     return rc;
