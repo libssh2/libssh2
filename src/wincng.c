@@ -2131,12 +2131,11 @@ cleanup:
 /*
  * Create a CNG private key from an ECC point.
  */
-static int
-_libssh2_wincng_privatekey_from_point(IN wincng_ecc_keytype keytype,
-                                      IN struct ecdsa_point *q,
-                                      IN unsigned char *d,
-                                      IN size_t d_len,
-                                      OUT BCRYPT_KEY_HANDLE *key)
+static int wincng_privatekey_from_point(IN wincng_ecc_keytype keytype,
+                                        IN struct ecdsa_point *q,
+                                        IN unsigned char *d,
+                                        IN size_t d_len,
+                                        OUT BCRYPT_KEY_HANDLE *key)
 {
     int result = LIBSSH2_ERROR_NONE;
     NTSTATUS status;
@@ -2888,7 +2887,7 @@ static int wincng_parse_ecdsa_privatekey(OUT struct wincng_ecdsa_ctx **key,
     /* Ignore the rest (comment, etc) */
 
     /* Use Q and d to create a key handle */
-    result = _libssh2_wincng_privatekey_from_point(
+    result = wincng_privatekey_from_point(
         WINCNG_ECC_KEYTYPE_ECDSA,
         &q,
         d,
