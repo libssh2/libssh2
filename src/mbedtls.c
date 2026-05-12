@@ -1170,12 +1170,11 @@ failed:
     return -1;
 }
 
-static int
-_libssh2_mbedtls_parse_openssh_key(libssh2_ecdsa_ctx **ctx,
-                                   LIBSSH2_SESSION *session,
-                                   const unsigned char *data,
-                                   size_t data_len,
-                                   const unsigned char *pwd)
+static int mbed_parse_openssh_key(libssh2_ecdsa_ctx **ctx,
+                                  LIBSSH2_SESSION *session,
+                                  const unsigned char *data,
+                                  size_t data_len,
+                                  const unsigned char *pwd)
 {
     libssh2_curve_type type;
     unsigned char *name = NULL;
@@ -1287,8 +1286,8 @@ _libssh2_mbedtls_ecdsa_new_private(libssh2_ecdsa_ctx **ec_ctx,
                         data, data_len, passphrase) == 0)
         goto cleanup;
 
-    _libssh2_mbedtls_parse_openssh_key(ec_ctx, session, data, data_len,
-                                       passphrase);
+    mbed_parse_openssh_key(ec_ctx, session, data, data_len,
+                           passphrase);
 
 cleanup:
 
@@ -1332,8 +1331,8 @@ _libssh2_mbedtls_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx **ec_ctx,
                         ntdata, filedata_len + 1, passphrase) == 0)
         goto cleanup;
 
-    _libssh2_mbedtls_parse_openssh_key(ec_ctx, session,
-                                       ntdata, filedata_len + 1, passphrase);
+    mbed_parse_openssh_key(ec_ctx, session,
+                           ntdata, filedata_len + 1, passphrase);
 
 cleanup:
 
