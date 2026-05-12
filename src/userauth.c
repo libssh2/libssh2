@@ -1403,9 +1403,9 @@ static int is_version_less_than_78(const char *version)
  * @param key_method_len length of the key method buffer
  * @result error code or zero on success
  */
-static int _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
-                                       unsigned char **key_method,
-                                       size_t *key_method_len)
+static int key_sign_algorithm(LIBSSH2_SESSION *session,
+                              unsigned char **key_method,
+                              size_t *key_method_len)
 {
     const char *s = NULL;
     const char *a = NULL;
@@ -1637,9 +1637,9 @@ retry_auth:
          * it is our first auth attempt, otherwise fallback to
          * the key default algo */
         if(auth_attempts == 1) {
-            rc = _libssh2_key_sign_algorithm(session,
-                                           &session->userauth_pblc_method,
-                                           &session->userauth_pblc_method_len);
+            rc = key_sign_algorithm(session,
+                                    &session->userauth_pblc_method,
+                                    &session->userauth_pblc_method_len);
 
             if(rc)
                 return rc;
