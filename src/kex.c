@@ -187,12 +187,11 @@ static int sha_algo_ctx_final(int sha_algo, void *ctx,
     return 0;
 }
 
-static void _libssh2_sha_algo_value_hash(
-    int sha_algo,
-    LIBSSH2_SESSION *session,
-    struct kmdhgGPshakex_state *exchange_state,
-    unsigned char **data, size_t data_len,
-    const unsigned char *version)
+static void sha_algo_value_hash(int sha_algo,
+                                LIBSSH2_SESSION *session,
+                                struct kmdhgGPshakex_state *exchange_state,
+                                unsigned char **data, size_t data_len,
+                                 const unsigned char *version)
 {
     if(sha_algo == 512) {
         LIBSSH2_KEX_METHOD_SHA_VALUE_HASH(512, *data, data_len, version);
@@ -409,18 +408,18 @@ static int finish_kex(LIBSSH2_SESSION *session,
         unsigned char *iv = NULL, *secret = NULL;
         int free_iv = 0, free_secret = 0;
 
-        _libssh2_sha_algo_value_hash(sha_algo_value, session,
-                                     exchange_state, &iv,
-                                     session->local.crypt->iv_len,
-                                     (const unsigned char *)"A");
+        sha_algo_value_hash(sha_algo_value, session,
+                            exchange_state, &iv,
+                            session->local.crypt->iv_len,
+                            (const unsigned char *)"A");
 
         if(!iv) {
             return -1;
         }
-        _libssh2_sha_algo_value_hash(sha_algo_value, session,
-                                     exchange_state, &secret,
-                                     session->local.crypt->secret_len,
-                                     (const unsigned char *)"C");
+        sha_algo_value_hash(sha_algo_value, session,
+                            exchange_state, &secret,
+                            session->local.crypt->secret_len,
+                            (const unsigned char *)"C");
 
         if(!secret) {
             LIBSSH2_FREE(session, iv);
@@ -458,17 +457,17 @@ static int finish_kex(LIBSSH2_SESSION *session,
         unsigned char *iv = NULL, *secret = NULL;
         int free_iv = 0, free_secret = 0;
 
-        _libssh2_sha_algo_value_hash(sha_algo_value, session,
-                                     exchange_state, &iv,
-                                     session->remote.crypt->iv_len,
-                                     (const unsigned char *)"B");
+        sha_algo_value_hash(sha_algo_value, session,
+                            exchange_state, &iv,
+                            session->remote.crypt->iv_len,
+                            (const unsigned char *)"B");
         if(!iv) {
             return LIBSSH2_ERROR_KEX_FAILURE;
         }
-        _libssh2_sha_algo_value_hash(sha_algo_value, session,
-                                     exchange_state, &secret,
-                                     session->remote.crypt->secret_len,
-                                     (const unsigned char *)"D");
+        sha_algo_value_hash(sha_algo_value, session,
+                            exchange_state, &secret,
+                            session->remote.crypt->secret_len,
+                            (const unsigned char *)"D");
         if(!secret) {
             LIBSSH2_FREE(session, iv);
             return LIBSSH2_ERROR_KEX_FAILURE;
@@ -503,10 +502,10 @@ static int finish_kex(LIBSSH2_SESSION *session,
         unsigned char *key = NULL;
         int free_key = 0;
 
-        _libssh2_sha_algo_value_hash(sha_algo_value, session,
-                                     exchange_state, &key,
-                                     session->local.mac->key_len,
-                                     (const unsigned char *)"E");
+        sha_algo_value_hash(sha_algo_value, session,
+                            exchange_state, &key,
+                            session->local.mac->key_len,
+                            (const unsigned char *)"E");
         if(!key) {
             return LIBSSH2_ERROR_KEX_FAILURE;
         }
@@ -529,10 +528,10 @@ static int finish_kex(LIBSSH2_SESSION *session,
         unsigned char *key = NULL;
         int free_key = 0;
 
-        _libssh2_sha_algo_value_hash(sha_algo_value, session,
-                                     exchange_state, &key,
-                                     session->remote.mac->key_len,
-                                     (const unsigned char *)"F");
+        sha_algo_value_hash(sha_algo_value, session,
+                            exchange_state, &key,
+                            session->remote.mac->key_len,
+                            (const unsigned char *)"F");
         if(!key) {
             return LIBSSH2_ERROR_KEX_FAILURE;
         }
