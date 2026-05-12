@@ -130,10 +130,8 @@
   Note: this function could possible be used elsewhere within libssh2, but
   until then it is kept static and in this source file.
 */
-
-static size_t
-shell_quotearg(const char *path, unsigned char *buf,
-               size_t bufsize)
+static size_t shell_quotearg(const char *path,
+                             unsigned char *buf, size_t bufsize)
 {
     const char *src;
     unsigned char *dst, *endp;
@@ -271,13 +269,10 @@ shell_quotearg(const char *path, unsigned char *buf,
 }
 
 /*
- * scp_recv
- *
  * Open a channel and request a remote file via SCP
- *
  */
-static LIBSSH2_CHANNEL *
-scp_recv(LIBSSH2_SESSION *session, const char *path, libssh2_struct_stat *sb)
+static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
+                                 const char *path, libssh2_struct_stat *sb)
 {
     size_t cmd_len;
     int rc;
@@ -799,15 +794,15 @@ scp_recv_error:
 
 #ifndef LIBSSH2_NO_DEPRECATED
 /*
- * libssh2_scp_recv (DEPRECATED, DO NOT USE!)
+ * DEPRECATED, DO NOT USE!
  *
  * Open a channel and request a remote file via SCP.  This receives files
  * larger than 2 GB, but is unable to report the proper size on platforms
  * where the st_size member of struct stat is limited to 2 GB (e.g. windows).
- *
  */
-LIBSSH2_API LIBSSH2_CHANNEL *
-libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path, struct stat *sb)
+LIBSSH2_API
+LIBSSH2_CHANNEL *libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path,
+                                  struct stat *sb)
 {
     LIBSSH2_CHANNEL *ptr;
 
@@ -835,15 +830,12 @@ libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path, struct stat *sb)
 #endif
 
 /*
- * libssh2_scp_recv2
- *
  * Open a channel and request a remote file via SCP.  This supports files > 2GB
  * on platforms that support it.
- *
  */
-LIBSSH2_API LIBSSH2_CHANNEL *
-libssh2_scp_recv2(LIBSSH2_SESSION *session, const char *path,
-                  libssh2_struct_stat *sb)
+LIBSSH2_API
+LIBSSH2_CHANNEL *libssh2_scp_recv2(LIBSSH2_SESSION *session, const char *path,
+                                   libssh2_struct_stat *sb)
 {
     LIBSSH2_CHANNEL *ptr;
     BLOCK_ADJUST_ERRNO(ptr, session, scp_recv(session, path, sb));
@@ -851,14 +843,12 @@ libssh2_scp_recv2(LIBSSH2_SESSION *session, const char *path,
 }
 
 /*
- * scp_send
- *
  * Send a file using SCP
- *
  */
-static LIBSSH2_CHANNEL *
-scp_send(LIBSSH2_SESSION *session, const char *path, int mode,
-         libssh2_int64_t size, time_t mtime, time_t atime)
+static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
+                                 const char *path, int mode,
+                                 libssh2_int64_t size,
+                                 time_t mtime, time_t atime)
 {
     size_t cmd_len;
     int rc;
@@ -1163,13 +1153,15 @@ scp_send_error:
 
 #ifndef LIBSSH2_NO_DEPRECATED
 /*
- * libssh2_scp_send_ex (DEPRECATED, DO NOT USE!)
+ * DEPRECATED, DO NOT USE!
  *
  * Send a file using SCP. Old API.
  */
-LIBSSH2_API LIBSSH2_CHANNEL *
-libssh2_scp_send_ex(LIBSSH2_SESSION *session, const char *path, int mode,
-                    size_t size, long mtime, long atime)
+LIBSSH2_API
+LIBSSH2_CHANNEL *libssh2_scp_send_ex(LIBSSH2_SESSION *session,
+                                     const char *path, int mode,
+                                     size_t size,
+                                     long mtime, long atime)
 {
     LIBSSH2_CHANNEL *ptr;
     BLOCK_ADJUST_ERRNO(ptr, session,
@@ -1180,13 +1172,13 @@ libssh2_scp_send_ex(LIBSSH2_SESSION *session, const char *path, int mode,
 #endif
 
 /*
- * libssh2_scp_send64
- *
  * Send a file using SCP
  */
-LIBSSH2_API LIBSSH2_CHANNEL *
-libssh2_scp_send64(LIBSSH2_SESSION *session, const char *path, int mode,
-                   libssh2_int64_t size, time_t mtime, time_t atime)
+LIBSSH2_API
+LIBSSH2_CHANNEL *libssh2_scp_send64(LIBSSH2_SESSION *session,
+                                    const char *path, int mode,
+                                    libssh2_int64_t size,
+                                    time_t mtime, time_t atime)
 {
     LIBSSH2_CHANNEL *ptr;
     BLOCK_ADJUST_ERRNO(ptr, session,

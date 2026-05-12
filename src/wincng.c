@@ -2326,8 +2326,6 @@ _libssh2_wincng_ecdsa_free(IN struct wincng_ecdsa_ctx *key)
 }
 
 /*
- * _libssh2_ecdsa_create_key
- *
  * Creates a local private ECDH key based on input curve
  * and returns the public key in uncompressed point encoding.
  */
@@ -2418,8 +2416,6 @@ cleanup:
 }
 
 /*
- * _libssh2_ecdsa_curve_name_with_octal_new
- *
  * Creates an ECDSA public key from an uncompressed point.
  */
 int
@@ -2476,8 +2472,6 @@ cleanup:
 }
 
 /*
- * _libssh2_ecdh_gen_k
- *
  * Computes the shared secret K given a local private key,
  * remote public key and length
  */
@@ -2595,10 +2589,6 @@ cleanup:
     return result;
 }
 
-/*
- * _libssh2_ecdsa_curve_type_from_name
- *
- */
 static int wincng_ecdsa_curve_type_from_name(IN const char *name,
                                              OUT libssh2_curve_type *out_curve)
 {
@@ -2620,10 +2610,7 @@ static int wincng_ecdsa_curve_type_from_name(IN const char *name,
 }
 
 /*
- * _libssh2_ecdsa_verify
- *
  * Verifies the ECDSA signature of a hashed message
- *
  */
 int
 _libssh2_wincng_ecdsa_verify(IN struct wincng_ecdsa_ctx *key,
@@ -2722,10 +2709,7 @@ cleanup:
 }
 
 /*
- *_libssh2_ecdsa_new_private
- *
  * Creates a new private key given a file path and password
- *
  */
 int
 _libssh2_wincng_ecdsa_new_private(OUT struct wincng_ecdsa_ctx **key,
@@ -2916,8 +2900,6 @@ cleanup:
 }
 
 /*
- * _libssh2_ecdsa_new_private
- *
  * Creates a new private key given a file data and password.
  * ECDSA private key files use the decoding defined in PROTOCOL.key
  * in the OpenSSL source tree.
@@ -3023,10 +3005,7 @@ cleanup:
 }
 
 /*
- * _libssh2_ecdsa_sign
- *
  * Computes the ECDSA signature of a previously-hashed message
- *
  */
 int
 _libssh2_wincng_ecdsa_sign(IN LIBSSH2_SESSION *session,
@@ -3130,10 +3109,7 @@ cleanup:
 }
 
 /*
- * _libssh2_ecdsa_get_curve_type
- *
  * returns key curve type that maps to libssh2_curve_type
- *
  */
 libssh2_curve_type
 _libssh2_wincng_ecdsa_get_curve_type(IN struct wincng_ecdsa_ctx *key)
@@ -3955,12 +3931,9 @@ fb:
     return wincng_bignum_mod_exp(secret, f, dhctx->dh_privbn, p);
 }
 
-/* _libssh2_supported_key_sign_algorithms
- *
+/*
  * Return supported key hash algo upgrades, see crypto.h
- *
  */
-
 const char *
 _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
                                        unsigned char *key_method,

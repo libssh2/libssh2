@@ -104,7 +104,7 @@ do {                                                                          \
         }                                                                     \
 } while(0)
 
-/*!
+/*
  * @note The following are wrapper functions used by diffie_hellman_sha_algo().
  * TODO: Switch backend SHA macros to functions to allow function pointers
  * @discussion Ideally these would be function pointers but the backend macros
@@ -581,8 +581,7 @@ static int finish_kex(LIBSSH2_SESSION *session,
 }
 
 static void diffie_hellman_state_cleanup(
-    LIBSSH2_SESSION *session,
-    struct kmdhgGPshakex_state *exchange_state)
+    LIBSSH2_SESSION *session, struct kmdhgGPshakex_state *exchange_state)
 {
     libssh2_dh_dtor(&exchange_state->x);
     _libssh2_bn_free(exchange_state->e);
@@ -613,8 +612,7 @@ static void diffie_hellman_state_cleanup(
 }
 
 static void kex_diffie_hellman_cleanup(
-    LIBSSH2_SESSION *session,
-    struct key_exchange_state_low *key_state)
+    LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
     if(key_state->state != libssh2_NB_state_idle) {
         _libssh2_bn_free(key_state->p);
@@ -634,8 +632,7 @@ static void kex_diffie_hellman_cleanup(
     }
 }
 
-/*!
- * @function diffie_hellman_sha_algo
+/*
  * @abstract Diffie Hellman Key Exchange, Group Agnostic,
  * SHA Algorithm Agnostic
  * @result 0 on success, error code on failure
@@ -1020,12 +1017,11 @@ clean_exit:
     return ret;
 }
 
-/* kex_method_diffie_hellman_group1_sha1_key_exchange
+/*
  * Diffie-Hellman Group1 (Actually Group2) Key Exchange using SHA1
  */
 static int kex_method_diffie_hellman_group1_sha1_key_exchange(
-    LIBSSH2_SESSION *session,
-    struct key_exchange_state_low *key_state)
+    LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
     static const unsigned char p_value[128] = {
         0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -1087,7 +1083,7 @@ clean_exit:
     return ret;
 }
 
-/* kex_method_diffie_hellman_group14_key_exchange
+/*
  * Diffie-Hellman Group14 Key Exchange with hash function callback
  */
 typedef int (*diffie_hellman_hash_func_t)(
@@ -1104,8 +1100,7 @@ typedef int (*diffie_hellman_hash_func_t)(
     struct kmdhgGPshakex_state *exchange_state);
 
 static int kex_method_diffie_hellman_group14_key_exchange(
-    LIBSSH2_SESSION *session,
-    struct key_exchange_state_low *key_state,
+    LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state,
     int sha_algo_value,
     void *exchange_hash_ctx,
     diffie_hellman_hash_func_t hashfunc)
@@ -1183,12 +1178,11 @@ clean_exit:
     return ret;
 }
 
-/* kex_method_diffie_hellman_group14_sha1_key_exchange
+/*
  * Diffie-Hellman Group14 Key Exchange using SHA1
  */
 static int kex_method_diffie_hellman_group14_sha1_key_exchange(
-    LIBSSH2_SESSION *session,
-    struct key_exchange_state_low *key_state)
+    LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
     libssh2_sha1_ctx ctx;
     return kex_method_diffie_hellman_group14_key_exchange(session,
@@ -1197,12 +1191,11 @@ static int kex_method_diffie_hellman_group14_sha1_key_exchange(
                                                       diffie_hellman_sha_algo);
 }
 
-/* kex_method_diffie_hellman_group14_sha256_key_exchange
+/*
  * Diffie-Hellman Group14 Key Exchange using SHA256
  */
 static int kex_method_diffie_hellman_group14_sha256_key_exchange(
-    LIBSSH2_SESSION *session,
-    struct key_exchange_state_low *key_state)
+    LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
     libssh2_sha256_ctx ctx;
     return kex_method_diffie_hellman_group14_key_exchange(session,
@@ -1211,12 +1204,11 @@ static int kex_method_diffie_hellman_group14_sha256_key_exchange(
                                                       diffie_hellman_sha_algo);
 }
 
-/* kex_method_diffie_hellman_group16_sha512_key_exchange
+/*
  * Diffie-Hellman Group16 Key Exchange using SHA512
  */
 static int kex_method_diffie_hellman_group16_sha512_key_exchange(
-    LIBSSH2_SESSION *session,
-    struct key_exchange_state_low *key_state)
+    LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
     static const unsigned char p_value[512] = {
         0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xC9, 0x0F, 0xDA, 0xA2,
@@ -1304,12 +1296,11 @@ clean_exit:
     return ret;
 }
 
-/* kex_method_diffie_hellman_group18_sha512_key_exchange
+/*
  * Diffie-Hellman Group18 Key Exchange using SHA512
  */
 static int kex_method_diffie_hellman_group18_sha512_key_exchange(
-    LIBSSH2_SESSION *session,
-    struct key_exchange_state_low *key_state)
+    LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
     static const unsigned char p_value[1024] = {
         0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xC9, 0x0F, 0xDA, 0xA2,
@@ -1441,13 +1432,12 @@ clean_exit:
     return ret;
 }
 
-/* kex_method_diffie_hellman_group_exchange_sha1_key_exchange
+/*
  * Diffie-Hellman Group Exchange Key Exchange using SHA1
  * Negotiates random(ish) group for secret derivation
  */
 static int kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
-    LIBSSH2_SESSION *session,
-    struct key_exchange_state_low *key_state)
+    LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
     int ret = 0;
     int rc;
@@ -1568,13 +1558,12 @@ dh_gex_clean_exit:
     return ret;
 }
 
-/* kex_method_diffie_hellman_group_exchange_sha256_key_exchange
+/*
  * Diffie-Hellman Group Exchange Key Exchange using SHA256
  * Negotiates random(ish) group for secret derivation
  */
 static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
-    LIBSSH2_SESSION *session,
-    struct key_exchange_state_low *key_state)
+    LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
     int ret = 0;
     int rc;
@@ -1698,10 +1687,9 @@ dh_gex_clean_exit:
 
 #if (LIBSSH2_ECDSA || LIBSSH2_ED25519) && LIBSSH2_MLKEM
 
-/* kex_session_hybrid_curve_type
+/*
  * returns the EC curve type by name used in hybrid key exchange
  */
-
 static int kex_session_hybrid_curve_type(const char *name,
                                          libssh2_curve_type *out_type)
 {
@@ -1729,8 +1717,7 @@ static int kex_session_hybrid_curve_type(const char *name,
 
 #if LIBSSH2_ECDSA
 
-/* LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY
- *
+/*
  * Macro that create and verifies EC SHA hash with a given digest bytes
  *
  * Payload format:
@@ -1743,7 +1730,6 @@ static int kex_session_hybrid_curve_type(const char *name,
  * string   Q_C, client's ephemeral public key octet string
  * string   Q_S, server's ephemeral public key octet string
  * mpint    K,   shared secret
- *
  */
 #define LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(digest_type)            \
 do {                                                                         \
@@ -1844,8 +1830,7 @@ do {                                                                         \
 
 #if LIBSSH2_MLKEM
 
-/* LIBSSH2_KEX_METHOD_HYBRID_SHA_HASH_CREATE_VERIFY
- *
+/*
  * Macro that create and verifies HYBRID (EC+PQ) SHA hash with a given
  * digest bytes
  *
@@ -1859,7 +1844,6 @@ do {                                                                         \
  * string   Q_C, client's ephemeral public key octet string
  * string   Q_S, server's ephemeral public key octet string
  * mpint    K,   shared secret
- *
  */
 #define LIBSSH2_KEX_METHOD_HYBRID_SHA_HASH_CREATE_VERIFY(digest_type)        \
 do {                                                                         \
@@ -1963,10 +1947,9 @@ do {                                                                         \
 
 #endif
 
-/* kex_session_ecdh_curve_type
+/*
  * returns the EC curve type by name used in key exchange
  */
-
 static int kex_session_ecdh_curve_type(const char *name,
                                        libssh2_curve_type *out_type)
 {
@@ -1993,8 +1976,7 @@ static int kex_session_ecdh_curve_type(const char *name,
 }
 
 static void ecdh_exchange_state_cleanup(
-    LIBSSH2_SESSION *session,
-    struct kmdhgGPshakex_state *exchange_state)
+    LIBSSH2_SESSION *session, struct kmdhgGPshakex_state *exchange_state)
 {
     _libssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
@@ -2032,7 +2014,7 @@ static void kex_method_ecdh_cleanup(LIBSSH2_SESSION *session,
     }
 }
 
-/* ecdh_sha2_nistp
+/*
  * Elliptic Curve Diffie Hellman Key Exchange
  */
 static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
@@ -2200,15 +2182,12 @@ clean_exit:
     return ret;
 }
 
-/* kex_method_ecdh_key_exchange
- *
+/*
  * Elliptic Curve Diffie Hellman Key Exchange
  * supports SHA256/384/512 hashes based on negotiated ecdh method
- *
  */
 static int kex_method_ecdh_key_exchange(
-    LIBSSH2_SESSION *session,
-    struct key_exchange_state_low *key_state)
+    LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
     int ret = 0;
     int rc = 0;
@@ -2315,8 +2294,7 @@ ecdh_clean_exit:
 #if LIBSSH2_MLKEM
 
 static void mlkem_nistp_exchange_state_cleanup(
-    LIBSSH2_SESSION *session,
-    struct kmdhgGPshakex_state *exchange_state)
+    LIBSSH2_SESSION *session, struct kmdhgGPshakex_state *exchange_state)
 {
     _libssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
@@ -2330,8 +2308,7 @@ static void mlkem_nistp_exchange_state_cleanup(
 }
 
 static void kex_method_mlkem_nistp_cleanup(
-    LIBSSH2_SESSION *session,
-    struct key_exchange_state_low *key_state)
+    LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
     if(key_state->public_key_oct) {
         LIBSSH2_FREE(session, key_state->public_key_oct);
@@ -2605,8 +2582,7 @@ clean_exit:
 }
 
 static int kex_method_mlkem_nistp_key_exchange(
-    LIBSSH2_SESSION *session,
-    struct key_exchange_state_low *key_state)
+    LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
     int ret = 0;
     int rc = 0;
@@ -2737,8 +2713,7 @@ clean_exit:
 #if LIBSSH2_ED25519
 
 static void curve25519_exchange_state_cleanup(
-    LIBSSH2_SESSION *session,
-    struct kmdhgGPshakex_state *exchange_state)
+    LIBSSH2_SESSION *session, struct kmdhgGPshakex_state *exchange_state)
 {
     _libssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
@@ -2752,8 +2727,7 @@ static void curve25519_exchange_state_cleanup(
 }
 
 static void kex_method_curve25519_cleanup(
-    LIBSSH2_SESSION *session,
-    struct key_exchange_state_low *key_state)
+    LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
     if(key_state->curve25519_public_key) {
         _libssh2_explicit_zero(key_state->curve25519_public_key,
@@ -2781,7 +2755,7 @@ static void kex_method_curve25519_cleanup(
     }
 }
 
-/* curve25519_sha256
+/*
  * Elliptic Curve Key Exchange
  */
 static int curve25519_sha256(
@@ -2925,14 +2899,11 @@ clean_exit:
     return ret;
 }
 
-/* kex_method_curve25519_key_exchange
- *
+/*
  * Elliptic Curve X25519 Key Exchange with SHA256 hash
- *
  */
 static int kex_method_curve25519_key_exchange(
-    LIBSSH2_SESSION *session,
-    struct key_exchange_state_low *key_state)
+    LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
     int ret = 0;
     int rc = 0;
@@ -3031,8 +3002,7 @@ clean_exit:
 #if LIBSSH2_MLKEM
 
 static void mlkem768x25519_exchange_state_cleanup(
-    LIBSSH2_SESSION *session,
-    struct kmdhgGPshakex_state *exchange_state)
+    LIBSSH2_SESSION *session, struct kmdhgGPshakex_state *exchange_state)
 {
     _libssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
@@ -3046,8 +3016,7 @@ static void mlkem768x25519_exchange_state_cleanup(
 }
 
 static void kex_method_mlkem768x25519_cleanup(
-    LIBSSH2_SESSION *session,
-    struct key_exchange_state_low *key_state)
+    LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
     if(key_state->curve25519_public_key) {
         _libssh2_explicit_zero(key_state->curve25519_public_key,
@@ -3250,8 +3219,7 @@ clean_exit:
 }
 
 static int kex_method_mlkem768x25519_key_exchange(
-    LIBSSH2_SESSION *session,
-    struct key_exchange_state_low *key_state)
+    LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
     int ret = 0;
     int rc = 0;
@@ -3482,7 +3450,7 @@ kex_method_ssh_mlkem768_x25519_sha256 = {
 
 /* this kex method signals that client can receive extensions
  * as described in https://datatracker.ietf.org/doc/html/rfc8308
-*/
+ */
 
 static const struct kex_method
 kex_method_extension_negotiation = {
@@ -3535,15 +3503,13 @@ struct common_method {
     const char *name;
 };
 
-/* kex_method_strlen
- *
+/*
  * Calculate the length of a particular method list's resulting string
  * Includes SUM(strlen() of each individual method plus 1 (for coma)) - 1
  * (because the last coma isn't used)
  * Another sign of bad coding practices gone mad.  Pretend you don't see this.
  */
-static size_t
-kex_method_strlen(const struct common_method **method)
+static size_t kex_method_strlen(const struct common_method **method)
 {
     size_t len = 0;
 
@@ -3559,12 +3525,11 @@ kex_method_strlen(const struct common_method **method)
     return len - 1;
 }
 
-/* kex_method_list
+/*
  * Generate formatted preference list in buf
  */
-static uint32_t
-kex_method_list(unsigned char *buf, uint32_t list_strlen,
-                const struct common_method **method)
+static uint32_t kex_method_list(unsigned char *buf, uint32_t list_strlen,
+                                const struct common_method **method)
 {
     _libssh2_htonu32(buf, list_strlen);
     buf += 4;
@@ -3602,7 +3567,7 @@ kex_method_list(unsigned char *buf, uint32_t list_strlen,
         }                                                                    \
     } while(0)
 
-/* kexinit
+/*
  * Send SSH_MSG_KEXINIT packet
  */
 static int kexinit(LIBSSH2_SESSION *session)
@@ -3776,7 +3741,7 @@ static int kexinit(LIBSSH2_SESSION *session)
     return 0;
 }
 
-/* _libssh2_kex_agree_instr
+/*
  * Kex specific variant of strstr()
  * Needle must be preceded by BOL or ',', and followed by ',' or EOL
  */
@@ -3832,10 +3797,9 @@ _libssh2_kex_agree_instr(unsigned char *haystack, size_t haystack_len,
     return NULL;
 }
 
-/* kex_get_method_by_name */
-static const struct common_method *
-kex_get_method_by_name(const char *name, size_t name_len,
-                       const struct common_method **methodlist)
+static const struct common_method *kex_get_method_by_name(
+    const char *name, size_t name_len,
+    const struct common_method **methodlist)
 {
     while(*methodlist) {
         if((strlen((*methodlist)->name) == name_len) &&
@@ -3847,7 +3811,7 @@ kex_get_method_by_name(const char *name, size_t name_len,
     return NULL;
 }
 
-/* kex_agree_hostkey
+/*
  * Agree on a Hostkey which works with this kex
  */
 static int kex_agree_hostkey(LIBSSH2_SESSION *session,
@@ -3922,7 +3886,7 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session,
     return -1;
 }
 
-/* kex_agree_kex_hostkey
+/*
  * Agree on a Key Exchange method and a hostkey encoding type
  */
 static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
@@ -4002,7 +3966,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
     return -1;
 }
 
-/* kex_agree_crypt
+/*
  * Agree on a cipher algo
  */
 static int kex_agree_crypt(LIBSSH2_SESSION *session,
@@ -4057,7 +4021,7 @@ static int kex_agree_crypt(LIBSSH2_SESSION *session,
     return -1;
 }
 
-/* kex_agree_mac
+/*
  * Agree on a message authentication hash
  */
 static int kex_agree_mac(LIBSSH2_SESSION *session,
@@ -4118,7 +4082,7 @@ static int kex_agree_mac(LIBSSH2_SESSION *session,
     return -1;
 }
 
-/* kex_agree_comp
+/*
  * Agree on a compression scheme
  */
 static int kex_agree_comp(LIBSSH2_SESSION *session,
@@ -4175,7 +4139,7 @@ static int kex_agree_comp(LIBSSH2_SESSION *session,
  * The Client gets to make the final call on "agreed methods"
  */
 
-/* kex_agree_methods
+/*
  * Decide which specific method to use of the methods offered by each party
  */
 static int kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *data,
@@ -4431,9 +4395,9 @@ _libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
 /* libssh2_session_method_pref
  * Set preferred method
  */
-LIBSSH2_API int
-libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
-                            const char *prefs)
+LIBSSH2_API
+int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
+                                const char *prefs)
 {
     char **prefvar, *s, *newprefs;
     char *tmpprefs = NULL;
@@ -4580,9 +4544,10 @@ libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
  * a negative number on failure
  */
 
-LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
-                                               int method_type,
-                                               const char ***algs)
+LIBSSH2_API
+int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
+                                   int method_type,
+                                   const char ***algs)
 {
     unsigned int i;
     unsigned int j;

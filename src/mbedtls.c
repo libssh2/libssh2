@@ -941,11 +941,8 @@ _libssh2_dh_dtor(libssh2_dh_ctx *dhctx)
  */
 
 /*
- * _libssh2_ecdsa_create_key
- *
  * Creates a local private key based on input curve
  * and returns octal value and octal length
- *
  */
 int
 _libssh2_mbedtls_ecdsa_create_key(LIBSSH2_SESSION *session,
@@ -991,10 +988,8 @@ failed:
     return -1;
 }
 
-/* _libssh2_ecdsa_curve_name_with_octal_new
- *
+/*
  * Creates a new public key given an octal string, length and type
- *
  */
 int
 _libssh2_mbedtls_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx **ec_ctx,
@@ -1030,8 +1025,7 @@ failed:
     return -1;
 }
 
-/* _libssh2_ecdh_gen_k
- *
+/*
  * Computes the shared secret K given a local private key,
  * remote public key and length
  */
@@ -1087,10 +1081,8 @@ cleanup:
         }                                                                     \
     } while(0)
 
-/* _libssh2_ecdsa_verify
- *
+/*
  * Verifies the ECDSA signature of a hashed message
- *
  */
 int
 _libssh2_mbedtls_ecdsa_verify(libssh2_ecdsa_ctx *ec_ctx,
@@ -1244,10 +1236,8 @@ cleanup:
     return *ctx ? 0 : -1;
 }
 
-/* _libssh2_ecdsa_new_private
- *
+/*
  * Creates a new private key given a file path and password
- *
  */
 int
 _libssh2_mbedtls_ecdsa_new_private(libssh2_ecdsa_ctx **ec_ctx,
@@ -1303,10 +1293,8 @@ cleanup:
     return *ec_ctx ? 0 : -1;
 }
 
-/* _libssh2_ecdsa_new_private
- *
+/*
  * Creates a new private key given a file data and password
- *
  */
 int
 _libssh2_mbedtls_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx **ec_ctx,
@@ -1372,10 +1360,8 @@ done:
     return p + size;
 }
 
-/* _libssh2_ecdsa_sign
- *
+/*
  * Computes the ECDSA signature of a previously-hashed message
- *
  */
 int
 _libssh2_mbedtls_ecdsa_sign(LIBSSH2_SESSION *session,
@@ -1431,10 +1417,8 @@ cleanup:
     return *signature ? 0 : -1;
 }
 
-/* _libssh2_ecdsa_get_curve_type
- *
+/*
  * returns key curve type that maps to libssh2_curve_type
- *
  */
 libssh2_curve_type
 _libssh2_mbedtls_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ec_ctx)
@@ -1442,10 +1426,8 @@ _libssh2_mbedtls_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ec_ctx)
     return (libssh2_curve_type)ec_ctx->MBEDTLS_PRIVATE(grp).id;
 }
 
-/* _libssh2_ecdsa_curve_type_from_name
- *
+/*
  * returns 0 for success, key curve type that maps to libssh2_curve_type
- *
  */
 int
 _libssh2_mbedtls_ecdsa_curve_type_from_name(const char *name,
@@ -1482,10 +1464,8 @@ _libssh2_mbedtls_ecdsa_free(libssh2_ecdsa_ctx *ctx)
 }
 #endif /* LIBSSH2_ECDSA */
 
-/* _libssh2_supported_key_sign_algorithms
- *
+/*
  * Return supported key hash algo upgrades, see crypto.h
- *
  */
 const char *
 _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,

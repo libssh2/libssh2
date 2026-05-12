@@ -47,22 +47,19 @@
 
 #include "comp.h"
 
-/* ********
+/* ******
  * none *
- ******** */
+ ****** */
 
 /*
- * comp_method_none_comp
- *
  * Minimalist compression: Absolutely none
  */
-static int
-comp_method_none_comp(LIBSSH2_SESSION *session,
-                      unsigned char *dest,
-                      size_t *dest_len,
-                      const unsigned char *src,
-                      size_t src_len,
-                      void **abstract)
+static int comp_method_none_comp(LIBSSH2_SESSION *session,
+                                 unsigned char *dest,
+                                 size_t *dest_len,
+                                 const unsigned char *src,
+                                 size_t src_len,
+                                 void **abstract)
 {
     (void)session;
     (void)abstract;
@@ -75,17 +72,14 @@ comp_method_none_comp(LIBSSH2_SESSION *session,
 }
 
 /*
- * comp_method_none_decomp
- *
  * Minimalist decompression: Absolutely none
  */
-static int
-comp_method_none_decomp(LIBSSH2_SESSION *session,
-                        unsigned char **dest,
-                        size_t *dest_len,
-                        size_t payload_limit,
-                        const unsigned char *src,
-                        size_t src_len, void **abstract)
+static int comp_method_none_decomp(LIBSSH2_SESSION *session,
+                                   unsigned char **dest,
+                                   size_t *dest_len,
+                                   size_t payload_limit,
+                                   const unsigned char *src,
+                                   size_t src_len, void **abstract)
 {
     (void)session;
     (void)dest;
@@ -109,17 +103,16 @@ static const struct comp_method comp_method_none = {
 };
 
 #ifdef LIBSSH2_HAVE_ZLIB
-/* ********
+/* ******
  * zlib *
- ******** */
+ ****** */
 
 /* Memory management wrappers
  * Yes, I realize we're doing a callback to a callback,
  * Deal...
  */
 
-static voidpf
-comp_method_zlib_alloc(voidpf opaque, uInt items, uInt size)
+static voidpf comp_method_zlib_alloc(voidpf opaque, uInt items, uInt size)
 {
     LIBSSH2_SESSION *session = (LIBSSH2_SESSION *)opaque;
 
@@ -130,20 +123,18 @@ comp_method_zlib_alloc(voidpf opaque, uInt items, uInt size)
     return (voidpf)LIBSSH2_ALLOC(session, items * (size_t)size);
 }
 
-static void
-comp_method_zlib_free(voidpf opaque, voidpf address)
+static void comp_method_zlib_free(voidpf opaque, voidpf address)
 {
     LIBSSH2_SESSION *session = (LIBSSH2_SESSION *)opaque;
 
     LIBSSH2_FREE(session, address);
 }
 
-/* libssh2_comp_method_zlib_init
+/*
  * All your bandwidth are belong to us (so save some)
  */
-static int
-comp_method_zlib_init(LIBSSH2_SESSION *session, int compr,
-                      void **abstract)
+static int comp_method_zlib_init(LIBSSH2_SESSION *session, int compr,
+                                 void **abstract)
 {
     z_stream *strm;
     int status;
@@ -179,20 +170,17 @@ comp_method_zlib_init(LIBSSH2_SESSION *session, int compr,
 }
 
 /*
- * libssh2_comp_method_zlib_comp
- *
  * Compresses source to destination. Without allocation.
  */
-static int
-comp_method_zlib_comp(LIBSSH2_SESSION *session,
-                      unsigned char *dest,
-
-                      /* dest_len is a pointer to allow this function to
-                         update it with the final actual size used */
-                      size_t *dest_len,
-                      const unsigned char *src,
-                      size_t src_len,
-                      void **abstract)
+static int comp_method_zlib_comp(LIBSSH2_SESSION *session,
+                                 unsigned char *dest,
+                                 /* dest_len is a pointer to allow this
+                                    function to update it with the final
+                                    actual size used */
+                                 size_t *dest_len,
+                                 const unsigned char *src,
+                                 size_t src_len,
+                                 void **abstract)
 {
     z_stream *strm = *abstract;
     uInt out_maxlen = (uInt)*dest_len;
@@ -217,17 +205,14 @@ comp_method_zlib_comp(LIBSSH2_SESSION *session,
 }
 
 /*
- * libssh2_comp_method_zlib_decomp
- *
  * Decompresses source to destination. Allocates the output memory.
  */
-static int
-comp_method_zlib_decomp(LIBSSH2_SESSION *session,
-                        unsigned char **dest,
-                        size_t *dest_len,
-                        size_t payload_limit,
-                        const unsigned char *src,
-                        size_t src_len, void **abstract)
+static int comp_method_zlib_decomp(LIBSSH2_SESSION *session,
+                                   unsigned char **dest,
+                                   size_t *dest_len,
+                                   size_t payload_limit,
+                                   const unsigned char *src,
+                                   size_t src_len, void **abstract)
 {
     z_stream *strm = *abstract;
     /* A short-term alloc of a full data chunk is better than a series of
@@ -324,11 +309,11 @@ comp_method_zlib_decomp(LIBSSH2_SESSION *session,
     return 0;
 }
 
-/* libssh2_comp_method_zlib_dtor
+/*
  * All done, no more compression for you
  */
-static int
-comp_method_zlib_dtor(LIBSSH2_SESSION *session, int compr, void **abstract)
+static int comp_method_zlib_dtor(LIBSSH2_SESSION *session, int compr,
+                                 void **abstract)
 {
     z_stream *strm = *abstract;
 

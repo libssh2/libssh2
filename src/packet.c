@@ -58,14 +58,12 @@
 #include "packet.h"
 
 /*
- * libssh2_packet_queue_listener
- *
  * Queue a connection request for a listener
  */
-static inline int
-packet_queue_listener(LIBSSH2_SESSION *session, unsigned char *data,
-                      size_t datalen,
-                      struct packet_queue_listener_state *listen_state)
+static inline int packet_queue_listener(
+    LIBSSH2_SESSION *session,
+    unsigned char *data, size_t datalen,
+    struct packet_queue_listener_state *listen_state)
 {
     /*
      * Look for a matching listener
@@ -272,14 +270,12 @@ packet_queue_listener(LIBSSH2_SESSION *session, unsigned char *data,
 }
 
 /*
- * packet_x11_open
- *
  * Accept a forwarded X11 connection
  */
-static inline int
-packet_x11_open(LIBSSH2_SESSION *session, unsigned char *data,
-                size_t datalen,
-                struct packet_x11_open_state *x11open_state)
+static inline int packet_x11_open(
+    LIBSSH2_SESSION *session,
+    unsigned char *data, size_t datalen,
+    struct packet_x11_open_state *x11open_state)
 {
     uint32_t failure_code = SSH_OPEN_CONNECT_FAILED;
     /* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */
@@ -473,14 +469,12 @@ x11_exit:
 }
 
 /*
- * packet_authagent_open
- *
  * Open a connection to authentication agent
  */
-static inline int
-packet_authagent_open(LIBSSH2_SESSION *session,
-                      unsigned char *data, size_t datalen,
-                      struct packet_authagent_state *authagent_state)
+static inline int packet_authagent_open(
+    LIBSSH2_SESSION *session,
+    unsigned char *data, size_t datalen,
+    struct packet_authagent_state *authagent_state)
 {
     uint32_t failure_code = SSH_OPEN_CONNECT_FAILED;
     /* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */
@@ -637,8 +631,6 @@ authagent_exit:
 }
 
 /*
- * _libssh2_packet_add
- *
  * Create a new packet and attach it to the brigade. Called from the transport
  * layer when it has received a packet.
  *
@@ -1461,8 +1453,6 @@ libssh2_packet_add_jump_authagent:
 }
 
 /*
- * _libssh2_packet_ask
- *
  * Scan the brigade for a matching packet type, optionally poll the socket for
  * a packet first
  */
@@ -1508,8 +1498,6 @@ _libssh2_packet_ask(LIBSSH2_SESSION *session, unsigned char packet_type,
 }
 
 /*
- * libssh2_packet_askv
- *
  * Scan for any of a list of packet types in the brigade, optionally poll the
  * socket for a packet first
  */
@@ -1535,8 +1523,6 @@ _libssh2_packet_askv(LIBSSH2_SESSION *session,
 }
 
 /*
- * _libssh2_packet_require
- *
  * Loops _libssh2_transport_read() until the packet requested is available
  * SSH_DISCONNECT or a SOCKET_DISCONNECTED will cause a bailout
  *
@@ -1599,8 +1585,6 @@ _libssh2_packet_require(LIBSSH2_SESSION *session, unsigned char packet_type,
 }
 
 /*
- * _libssh2_packet_burn
- *
  * Loops _libssh2_transport_read() until any packet is available and promptly
  * discards it.
  * Used during KEX exchange to discard badly guessed KEX_INIT packets
@@ -1663,8 +1647,6 @@ _libssh2_packet_burn(LIBSSH2_SESSION *session,
 }
 
 /*
- * _libssh2_packet_requirev
- *
  * Loops _libssh2_transport_read() until one of a list of packet types
  * requested is available. SSH_DISCONNECT or a SOCKET_DISCONNECTED will cause
  * a bailout. packet_types is a null terminated list of packet_type numbers
