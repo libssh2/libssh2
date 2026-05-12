@@ -504,7 +504,7 @@ static const struct crypt_method
 
 /* These are the crypt methods that are available to be negotiated. Methods
    towards the start are chosen in preference to ones further down the list. */
-static const struct crypt_method *_libssh2_crypt_methods[] = {
+static const struct crypt_method *crypt_methods[] = {
     &crypt_method_chacha20_poly1305_openssh,
 #if LIBSSH2_AES_GCM
     &crypt_method_aes256_gcm,
@@ -541,8 +541,7 @@ static const struct crypt_method *_libssh2_crypt_methods[] = {
 };
 
 /* Expose to kex.c */
-const struct crypt_method **
-libssh2_crypt_methods(void)
+const struct crypt_method **libssh2_crypt_methods(void)
 {
-    return _libssh2_crypt_methods;
+    return crypt_methods;
 }
