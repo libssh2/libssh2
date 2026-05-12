@@ -2604,9 +2604,8 @@ cleanup:
  * _libssh2_ecdsa_curve_type_from_name
  *
  */
-static int
-_libssh2_wincng_ecdsa_curve_type_from_name(IN const char *name,
-                                           OUT libssh2_curve_type *out_curve)
+static int wincng_ecdsa_curve_type_from_name(IN const char *name,
+                                             OUT libssh2_curve_type *out_curve)
 {
     unsigned int curve;
 
@@ -2858,7 +2857,7 @@ static int wincng_parse_ecdsa_privatekey(OUT struct wincng_ecdsa_ctx **key,
         goto cleanup;
     }
 
-    result = _libssh2_wincng_ecdsa_curve_type_from_name(keytype, &curve_type);
+    result = wincng_ecdsa_curve_type_from_name(keytype, &curve_type);
     if(result < 0) {
         goto cleanup;
     }
