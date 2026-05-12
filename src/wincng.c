@@ -477,17 +477,6 @@ struct ecdsa_point {
     ULONG y_len;
 };
 
-/* Lookup libssh2_curve_type by name */
-static int
-_libssh2_wincng_ecdsa_curve_type_from_name(IN const char *name,
-                                           OUT libssh2_curve_type *out_curve);
-
-/* Parse an OpenSSL-formatted ECDSA private key */
-static int
-_libssh2_wincng_parse_ecdsa_privatekey(OUT struct wincng_ecdsa_ctx **key,
-                                       IN unsigned char *privatekey,
-                                       IN size_t privatekey_len);
-
 #endif
 
 /*******************************************************************/
@@ -2624,7 +2613,7 @@ cleanup:
  * _libssh2_ecdsa_curve_type_from_name
  *
  */
-int
+static int
 _libssh2_wincng_ecdsa_curve_type_from_name(IN const char *name,
                                            OUT libssh2_curve_type *out_curve)
 {
@@ -2821,7 +2810,7 @@ cleanup:
     return result;
 }
 
-int
+static int
 _libssh2_wincng_parse_ecdsa_privatekey(OUT struct wincng_ecdsa_ctx **key,
                                        IN unsigned char *privatekey,
                                        IN size_t privatekey_len)
