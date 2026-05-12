@@ -536,7 +536,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: 'autotools autoreconf'
+      - name: 'autoreconf'
         if: ${{ matrix.build == 'AM' }}
         run: autoreconf -fi
 
@@ -676,7 +676,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: 'autotools autoreconf'
+      - name: 'autoreconf'
         if: ${{ matrix.build == 'AM' }}
         run: autoreconf -fi
 
@@ -745,7 +745,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: 'autotools autoreconf'
+      - name: 'autoreconf'
         if: ${{ matrix.build == 'AM' }}
         run: autoreconf -fi
 
@@ -843,7 +843,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: 'autotools autoreconf'
+      - name: 'autoreconf'
         if: ${{ matrix.build == 'AM' }}
         run: autoreconf -fi
 
@@ -1032,7 +1032,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: 'autotools autoreconf'
+      - name: 'autoreconf'
         if: ${{ matrix.build == 'AM' }}
         run: autoreconf -fi
 
