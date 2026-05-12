@@ -2300,9 +2300,8 @@ cleanup:
     return result;
 }
 
-static void
-_libssh_wincng_reverse_bytes(IN PUCHAR buffer,
-                             IN size_t buffer_len)
+static void wincng_reverse_bytes(IN PUCHAR buffer,
+                                 IN size_t buffer_len)
 {
     PUCHAR start = buffer;
     PUCHAR end = buffer + buffer_len - 1;
@@ -2584,7 +2583,7 @@ _libssh2_wincng_ecdh_gen_k(OUT libssh2_bn **secret,
      * raw secret, so we need to swap it to big endian order.
      */
 
-    _libssh_wincng_reverse_bytes((*secret)->bignum, secret_len);
+    wincng_reverse_bytes((*secret)->bignum, secret_len);
 
     result = LIBSSH2_ERROR_NONE;
 
