@@ -353,8 +353,7 @@ static struct asn1Element lastbytebitcount = {
  *
  *******************************************************************/
 
-int
-_libssh2_random(unsigned char *buf, size_t len)
+int _libssh2_random(unsigned char *buf, size_t len)
 {
     Qus_EC_t errcode;
 
@@ -364,8 +363,7 @@ _libssh2_random(unsigned char *buf, size_t len)
     return errcode.Bytes_Available ? -1 : 0;
 }
 
-libssh2_bn *
-_libssh2_bn_init(void)
+libssh2_bn *_libssh2_bn_init(void)
 {
     libssh2_bn *bignum;
 
@@ -378,8 +376,7 @@ _libssh2_bn_init(void)
     return bignum;
 }
 
-void
-_libssh2_bn_free(libssh2_bn *bn)
+void _libssh2_bn_free(libssh2_bn *bn)
 {
     if(bn) {
         if(bn->bignum) {
@@ -393,8 +390,7 @@ _libssh2_bn_free(libssh2_bn *bn)
     }
 }
 
-static int
-_libssh2_bn_resize(libssh2_bn *bn, size_t newlen)
+static int _libssh2_bn_resize(libssh2_bn *bn, size_t newlen)
 {
     unsigned char *bignum;
 
@@ -429,8 +425,7 @@ _libssh2_bn_resize(libssh2_bn *bn, size_t newlen)
     return 0;
 }
 
-unsigned long
-_libssh2_bn_bits(libssh2_bn *bn)
+unsigned long _libssh2_bn_bits(libssh2_bn *bn)
 {
     unsigned int i;
     unsigned char b;
@@ -451,8 +446,7 @@ _libssh2_bn_bits(libssh2_bn *bn)
     return 0;
 }
 
-int
-_libssh2_bn_from_bin(libssh2_bn *bn, size_t len, const unsigned char *val)
+int _libssh2_bn_from_bin(libssh2_bn *bn, size_t len, const unsigned char *val)
 {
     size_t i;
 
@@ -471,15 +465,13 @@ _libssh2_bn_from_bin(libssh2_bn *bn, size_t len, const unsigned char *val)
     return 0;
 }
 
-int
-_libssh2_bn_set_word(libssh2_bn *bn, unsigned long val)
+int _libssh2_bn_set_word(libssh2_bn *bn, unsigned long val)
 {
     val = htonl(val);
     return _libssh2_bn_from_bin(bn, sizeof(val), (unsigned char *) &val);
 }
 
-int
-_libssh2_bn_to_bin(libssh2_bn *bn, unsigned char *val)
+int _libssh2_bn_to_bin(libssh2_bn *bn, unsigned char *val)
 {
     int i;
 
@@ -492,8 +484,7 @@ _libssh2_bn_to_bin(libssh2_bn *bn, unsigned char *val)
     return 0;
 }
 
-static int
-_libssh2_bn_from_bn(libssh2_bn *to, libssh2_bn *from)
+static int _libssh2_bn_from_bn(libssh2_bn *to, libssh2_bn *from)
 {
     int i;
 
@@ -515,8 +506,7 @@ _libssh2_bn_from_bn(libssh2_bn *to, libssh2_bn *from)
  *
  *******************************************************************/
 
-static char *
-getASN1Element(struct asn1Element *elem, char *beg, char *end)
+static char *getASN1Element(struct asn1Element *elem, char *beg, char *end)
 {
     unsigned char b;
     unsigned long len;
@@ -583,8 +573,7 @@ getASN1Element(struct asn1Element *elem, char *beg, char *end)
     return elem->end;
 }
 
-static struct asn1Element *
-asn1_new(unsigned int type, unsigned int length)
+static struct asn1Element *asn1_new(unsigned int type, unsigned int length)
 {
     struct asn1Element *e;
     unsigned int hdrl = 2;
@@ -628,8 +617,8 @@ asn1_new(unsigned int type, unsigned int length)
     return e;
 }
 
-static struct asn1Element *
-asn1_new_from_bytes(const unsigned char *data, unsigned int length)
+static struct asn1Element *asn1_new_from_bytes(const unsigned char *data,
+                                               unsigned int length)
 {
     struct asn1Element *e;
     struct asn1Element et;
@@ -644,8 +633,7 @@ asn1_new_from_bytes(const unsigned char *data, unsigned int length)
     return e;
 }
 
-static void
-asn1delete(struct asn1Element *e)
+static void asn1delete(struct asn1Element *e)
 {
     if(e) {
         if(e->header)
@@ -654,8 +642,7 @@ asn1delete(struct asn1Element *e)
     }
 }
 
-static struct asn1Element *
-asn1uint(libssh2_bn *bn)
+static struct asn1Element *asn1uint(libssh2_bn *bn)
 {
     struct asn1Element *e;
     int bits;
@@ -679,8 +666,8 @@ asn1uint(libssh2_bn *bn)
     return e;
 }
 
-static struct asn1Element *
-asn1containerv(unsigned int type, struct valiststr args)
+static struct asn1Element *asn1containerv(unsigned int type,
+                                          struct valiststr args)
 {
     struct valiststr va;
     struct asn1Element *e;
@@ -704,8 +691,7 @@ asn1containerv(unsigned int type, struct valiststr args)
 }
 
 /* VARARGS1 */
-static struct asn1Element *
-asn1container(unsigned int type, ...)
+static struct asn1Element *asn1container(unsigned int type, ...)
 {
     struct valiststr va;
     struct asn1Element *e;
@@ -716,8 +702,9 @@ asn1container(unsigned int type, ...)
     return e;
 }
 
-static struct asn1Element *
-asn1bytes(unsigned int type, const unsigned char *bytes, unsigned int length)
+static struct asn1Element *asn1bytes(unsigned int type,
+                                     const unsigned char *bytes,
+                                     unsigned int length)
 {
     struct asn1Element *e;
 
@@ -727,8 +714,7 @@ asn1bytes(unsigned int type, const unsigned char *bytes, unsigned int length)
     return e;
 }
 
-static struct asn1Element *
-rsapublickey(libssh2_bn *e, libssh2_bn *m)
+static struct asn1Element *rsapublickey(libssh2_bn *e, libssh2_bn *m)
 {
     struct asn1Element *publicexponent;
     struct asn1Element *modulus;
@@ -751,10 +737,14 @@ rsapublickey(libssh2_bn *e, libssh2_bn *m)
     return rsapubkey;
 }
 
-static struct asn1Element *
-rsaprivatekey(libssh2_bn *e, libssh2_bn *m, libssh2_bn *d,
-              libssh2_bn *p, libssh2_bn *q,
-              libssh2_bn *exp1, libssh2_bn *exp2, libssh2_bn *coeff)
+static struct asn1Element *rsaprivatekey(libssh2_bn *e,
+                                         libssh2_bn *m,
+                                         libssh2_bn *d,
+                                         libssh2_bn *p,
+                                         libssh2_bn *q,
+                                         libssh2_bn *exp1,
+                                         libssh2_bn *exp2,
+                                         libssh2_bn *coeff)
 {
     struct asn1Element *version;
     struct asn1Element *modulus;
@@ -799,9 +789,9 @@ rsaprivatekey(libssh2_bn *e, libssh2_bn *m, libssh2_bn *d,
     return rsaprivkey;
 }
 
-static struct asn1Element *
-subjectpublickeyinfo(struct asn1Element *pubkey, const unsigned char *algo,
-                     struct asn1Element *parameters)
+static struct asn1Element *subjectpublickeyinfo(struct asn1Element *pubkey,
+                                                const unsigned char *algo,
+                                                struct asn1Element *parameters)
 {
     struct asn1Element *subjpubkey;
     struct asn1Element *algorithm;
@@ -826,8 +816,7 @@ subjectpublickeyinfo(struct asn1Element *pubkey, const unsigned char *algo,
     return subjpubkeyinfo;
 }
 
-static struct asn1Element *
-rsasubjectpublickeyinfo(struct asn1Element *pubkey)
+static struct asn1Element *rsasubjectpublickeyinfo(struct asn1Element *pubkey)
 {
     struct asn1Element *parameters;
     struct asn1Element *subjpubkeyinfo;
@@ -843,9 +832,9 @@ rsasubjectpublickeyinfo(struct asn1Element *pubkey)
     return subjpubkeyinfo;
 }
 
-static struct asn1Element *
-privatekeyinfo(struct asn1Element *privkey, const unsigned char *algo,
-               struct asn1Element *parameters)
+static struct asn1Element *privatekeyinfo(struct asn1Element *privkey,
+                                          const unsigned char *algo,
+                                          struct asn1Element *parameters)
 {
     struct asn1Element *version;
     struct asn1Element *privatekey;
@@ -872,8 +861,7 @@ privatekeyinfo(struct asn1Element *privkey, const unsigned char *algo,
     return privkeyinfo;
 }
 
-static struct asn1Element *
-rsaprivatekeyinfo(struct asn1Element *privkey)
+static struct asn1Element *rsaprivatekeyinfo(struct asn1Element *privkey)
 {
     struct asn1Element *parameters;
     struct asn1Element *privkeyinfo;
@@ -894,8 +882,8 @@ rsaprivatekeyinfo(struct asn1Element *privkey)
  *
  *******************************************************************/
 
-static struct os400qc3_crypto_ctx *
-libssh2_init_crypto_ctx(struct os400qc3_crypto_ctx *ctx)
+static struct os400qc3_crypto_ctx *init_crypto_ctx(
+    struct os400qc3_crypto_ctx *ctx)
 {
     if(!ctx)
         ctx = (struct os400qc3_crypto_ctx *) malloc(sizeof(*ctx));
@@ -908,8 +896,7 @@ libssh2_init_crypto_ctx(struct os400qc3_crypto_ctx *ctx)
     return ctx;
 }
 
-static int
-null_token(const char *token)
+static int null_token(const char *token)
 {
     return !memcmp(token, nulltoken.Key_Context_Token,
                    sizeof(nulltoken.Key_Context_Token));
@@ -1005,9 +992,9 @@ _libssh2_os400qc3_hash(const unsigned char *message, unsigned long len,
     return 0;
 }
 
-static int
-libssh2_os400qc3_hmac_init(struct os400qc3_crypto_ctx *ctx,
-                           int algo, size_t minkeylen, void *key, int keylen)
+static int os400qc3_hmac_init(struct os400qc3_crypto_ctx *ctx,
+                              int algo, size_t minkeylen,
+                              void *key, int keylen)
 {
     Qus_EC_t errcode;
 
@@ -1041,34 +1028,34 @@ int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
 int _libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
                            void *key, size_t keylen)
 {
-    return libssh2_os400qc3_hmac_init(ctx, Qc3_MD5,                     \
-                                      MD5_DIGEST_LENGTH,                \
-                                      key, keylen);
+    return os400qc3_hmac_init(ctx, Qc3_MD5,                     \
+                              MD5_DIGEST_LENGTH,                \
+                              key, keylen);
 }
 #endif
 
 int _libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
                             void *key, size_t keylen)
 {
-    return libssh2_os400qc3_hmac_init(ctx, Qc3_SHA1,                    \
-                                      SHA_DIGEST_LENGTH,                \
-                                      key, keylen);
+    return os400qc3_hmac_init(ctx, Qc3_SHA1,                    \
+                              SHA_DIGEST_LENGTH,                \
+                              key, keylen);
 }
 
 int _libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
                               void *key, size_t keylen)
 {
-    return libssh2_os400qc3_hmac_init(ctx, Qc3_SHA256,                  \
-                                      SHA256_DIGEST_LENGTH,             \
-                                      key, keylen);
+    return os400qc3_hmac_init(ctx, Qc3_SHA256,                  \
+                              SHA256_DIGEST_LENGTH,             \
+                              key, keylen);
 }
 
 int _libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
                               void *key, size_t keylen)
 {
-    return libssh2_os400qc3_hmac_init(ctx, Qc3_SHA512,                  \
-                                      SHA512_DIGEST_LENGTH,             \
-                                      key, keylen);
+    return os400qc3_hmac_init(ctx, Qc3_SHA512,                  \
+                              SHA512_DIGEST_LENGTH,             \
+                              key, keylen);
 }
 
 int _libssh2_hmac_update(libssh2_hmac_ctx *ctx,
@@ -1122,7 +1109,7 @@ _libssh2_cipher_init(libssh2_cipher_ctx *h, LIBSSH2_CIPHER_T(algo),
     if(!h)
         return -1;
 
-    libssh2_init_crypto_ctx(h);
+    init_crypto_ctx(h);
     algd.Block_Cipher_Alg = algo.algo;
     algd.Block_Length = algo.size;
     algd.Mode = algo.mode;
@@ -1209,7 +1196,7 @@ _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
     int ret = 0;
     int i;
 
-    ctx = libssh2_init_crypto_ctx(NULL);
+    ctx = init_crypto_ctx(NULL);
     if(!ctx)
         ret = -1;
     if(!ret) {
@@ -1382,8 +1369,7 @@ _libssh2_os400qc3_dh_dtor(_libssh2_dh_ctx *dhctx)
  *
  *******************************************************************/
 
-static int
-oidcmp(const struct asn1Element *e, const unsigned char *oid)
+static int oidcmp(const struct asn1Element *e, const unsigned char *oid)
 {
     int i = e->end - e->beg - *oid++;
 
@@ -1394,8 +1380,7 @@ oidcmp(const struct asn1Element *e, const unsigned char *oid)
     return i;
 }
 
-static int
-asn1getword(struct asn1Element *e, unsigned long *v)
+static int asn1getword(struct asn1Element *e, unsigned long *v)
 {
     unsigned long a;
     const unsigned char *cp;
@@ -1412,9 +1397,9 @@ asn1getword(struct asn1Element *e, unsigned long *v)
     return 0;
 }
 
-static int
-pbkdf1(LIBSSH2_SESSION *session, char **dk, const unsigned char *passphrase,
-       struct pkcs5params *pkcs5)
+static int pbkdf1(LIBSSH2_SESSION *session, char **dk,
+                  const unsigned char *passphrase,
+                  struct pkcs5params *pkcs5)
 {
     int i;
     Qc3_Format_ALGD0100_T hctx;
@@ -1469,9 +1454,9 @@ pbkdf1(LIBSSH2_SESSION *session, char **dk, const unsigned char *passphrase,
     return 0;
 }
 
-static int
-pbkdf2(LIBSSH2_SESSION *session, char **dk, const unsigned char *passphrase,
-       struct pkcs5params *pkcs5)
+static int pbkdf2(LIBSSH2_SESSION *session, char **dk,
+                  const unsigned char *passphrase,
+                  struct pkcs5params *pkcs5)
 {
     size_t i;
     size_t k;
@@ -1493,8 +1478,8 @@ pbkdf2(LIBSSH2_SESSION *session, char **dk, const unsigned char *passphrase,
         return -1;
 
     /* Create an HMAC context for our computations. */
-    if(!libssh2_os400qc3_hmac_init(&hctx, pkcs5->hash, pkcs5->hashlen,
-                                   (void *) passphrase, strlen(passphrase)))
+    if(!os400qc3_hmac_init(&hctx, pkcs5->hash, pkcs5->hashlen,
+                           (void *) passphrase, strlen(passphrase)))
         return -1;
 
     /* Allocate the derived key buffer. */
@@ -1535,9 +1520,10 @@ pbkdf2(LIBSSH2_SESSION *session, char **dk, const unsigned char *passphrase,
     return 0;
 }
 
-static int
-parse_pkcs5_algorithm(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
-                      struct asn1Element *algid, struct pkcs5algo **algotable)
+static int parse_pkcs5_algorithm(LIBSSH2_SESSION *session,
+                                 struct pkcs5params *pkcs5,
+                                 struct asn1Element *algid,
+                                 struct pkcs5algo **algotable)
 {
     struct asn1Element oid;
     struct asn1Element param;
@@ -1558,9 +1544,8 @@ parse_pkcs5_algorithm(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
     return -1;
 }
 
-static int
-parse_pbes2(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
-            struct pkcs5algo *algo, struct asn1Element *param)
+static int parse_pbes2(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
+                       struct pkcs5algo *algo, struct asn1Element *param)
 {
     struct asn1Element keyDerivationFunc;
     struct asn1Element encryptionScheme;
@@ -1581,9 +1566,8 @@ parse_pbes2(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
     return 0;
 }
 
-static int
-parse_pbkdf2(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
-             struct pkcs5algo *algo, struct asn1Element *param)
+static int parse_pbkdf2(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
+                        struct pkcs5algo *algo, struct asn1Element *param)
 {
     struct asn1Element salt;
     struct asn1Element iterationCount;
@@ -1633,9 +1617,10 @@ parse_pbkdf2(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
     return 0;
 }
 
-static int
-parse_hmacWithSHA1(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
-                   struct pkcs5algo *algo, struct asn1Element *param)
+static int parse_hmacWithSHA1(LIBSSH2_SESSION *session,
+                              struct pkcs5params *pkcs5,
+                              struct pkcs5algo *algo,
+                              struct asn1Element *param)
 {
     if(!param || *param->header != ASN1_NULL)
         return -1;
@@ -1644,9 +1629,8 @@ parse_hmacWithSHA1(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
     return 0;
 }
 
-static int
-parse_iv(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
-         struct pkcs5algo *algo, struct asn1Element *param)
+static int parse_iv(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
+                    struct pkcs5algo *algo, struct asn1Element *param)
 {
     if(!param || *param->header != ASN1_OCTET_STRING ||
         param->end - param->beg != algo->ivlen)
@@ -1662,9 +1646,8 @@ parse_iv(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
     return 0;
 }
 
-static int
-parse_rc2(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
-          struct pkcs5algo *algo, struct asn1Element *param)
+static int parse_rc2(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
+                     struct pkcs5algo *algo, struct asn1Element *param)
 {
     struct asn1Element iv;
     unsigned long effkeysize;
@@ -1711,9 +1694,8 @@ parse_rc2(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
     return 0;
 }
 
-static int
-parse_pbes1(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
-            struct pkcs5algo *algo, struct asn1Element *param)
+static int parse_pbes1(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
+                       struct pkcs5algo *algo, struct asn1Element *param)
 {
     struct asn1Element salt;
     struct asn1Element iterationCount;
@@ -1749,10 +1731,10 @@ parse_pbes1(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
     return 0;
 }
 
-static int
-pkcs8kek(LIBSSH2_SESSION *session, struct os400qc3_crypto_ctx **ctx,
-         const unsigned char *data, unsigned int datalen,
-         const unsigned char *passphrase, struct asn1Element *privkeyinfo)
+static int pkcs8kek(LIBSSH2_SESSION *session, struct os400qc3_crypto_ctx **ctx,
+                    const unsigned char *data, unsigned int datalen,
+                    const unsigned char *passphrase,
+                    struct asn1Element *privkeyinfo)
 {
     struct asn1Element encprivkeyinfo;
     struct asn1Element pkcs5alg;
@@ -1822,12 +1804,12 @@ pkcs8kek(LIBSSH2_SESSION *session, struct os400qc3_crypto_ctx **ctx,
     memcpy(algd.Init_Vector, pkcs5.iv, pkcs5.ivlen);
 
     /* Create the key and algorithm context tokens. */
-    *ctx = libssh2_init_crypto_ctx(NULL);
+    *ctx = init_crypto_ctx(NULL);
     if(!*ctx) {
         LIBSSH2_FREE(session, dk);
         return -1;
     }
-    libssh2_init_crypto_ctx(*ctx);
+    init_crypto_ctx(*ctx);
     set_EC_length(errcode, sizeof(errcode));
     Qc3CreateKeyContext(dk, &pkcs5.dklen, binstring, &algd.Block_Cipher_Alg,
                         qc3clear, NULL, NULL, (*ctx)->key.Key_Context_Token,
@@ -1850,10 +1832,9 @@ pkcs8kek(LIBSSH2_SESSION *session, struct os400qc3_crypto_ctx **ctx,
     return 1;       /* Tell it's encrypted. */
 }
 
-static int
-rsapkcs8privkey(LIBSSH2_SESSION *session,
-                const unsigned char *data, unsigned int datalen,
-                const unsigned char *passphrase, void *loadkeydata)
+static int rsapkcs8privkey(LIBSSH2_SESSION *session,
+                           const unsigned char *data, unsigned int datalen,
+                           const unsigned char *passphrase, void *loadkeydata)
 {
     libssh2_rsa_ctx *ctx = (libssh2_rsa_ctx *) loadkeydata;
     char keyform = Qc3_Clear;
@@ -1889,8 +1870,7 @@ rsapkcs8privkey(LIBSSH2_SESSION *session,
     return 0;
 }
 
-static char *
-storewithlength(char *p, const char *data, int length)
+static char *storewithlength(char *p, const char *data, int length)
 {
     _libssh2_htonu32(p, length);
     if(length)
@@ -1898,10 +1878,9 @@ storewithlength(char *p, const char *data, int length)
     return p + 4 + length;
 }
 
-static int
-sshrsapubkey(LIBSSH2_SESSION *session, char **sshpubkey,
-             struct asn1Element *params, struct asn1Element *key,
-             const char *method)
+static int sshrsapubkey(LIBSSH2_SESSION *session, char **sshpubkey,
+                        struct asn1Element *params, struct asn1Element *key,
+                        const char *method)
 {
     int methlen = strlen(method);
     struct asn1Element keyseq;
@@ -1930,10 +1909,9 @@ sshrsapubkey(LIBSSH2_SESSION *session, char **sshpubkey,
     return len;
 }
 
-static int
-rsapkcs8pubkey(LIBSSH2_SESSION *session,
-               const unsigned char *data, unsigned int datalen,
-               const unsigned char *passphrase, void *loadkeydata)
+static int rsapkcs8pubkey(LIBSSH2_SESSION *session,
+                          const unsigned char *data, unsigned int datalen,
+                          const unsigned char *passphrase, void *loadkeydata)
 {
     struct loadpubkeydata *p = (struct loadpubkeydata *) loadkeydata;
     char *buf;
@@ -2002,10 +1980,9 @@ rsapkcs8pubkey(LIBSSH2_SESSION *session,
     return -1;                              /* Algorithm not supported. */
 }
 
-static int
-pkcs1topkcs8(LIBSSH2_SESSION *session,
-             const unsigned char **data8, unsigned int *datalen8,
-             const unsigned char *data1, unsigned int datalen1)
+static int pkcs1topkcs8(LIBSSH2_SESSION *session,
+                        const unsigned char **data8, unsigned int *datalen8,
+                        const unsigned char *data1, unsigned int datalen1)
 {
     struct asn1Element *prvk;
     struct asn1Element *pkcs8;
@@ -2039,10 +2016,9 @@ pkcs1topkcs8(LIBSSH2_SESSION *session,
     return 0;
 }
 
-static int
-rsapkcs1privkey(LIBSSH2_SESSION *session,
-                const unsigned char *data, unsigned int datalen,
-                const unsigned char *passphrase, void *loadkeydata)
+static int rsapkcs1privkey(LIBSSH2_SESSION *session,
+                           const unsigned char *data, unsigned int datalen,
+                           const unsigned char *passphrase, void *loadkeydata)
 {
     const unsigned char *data8;
     unsigned int datalen8;
@@ -2055,10 +2031,9 @@ rsapkcs1privkey(LIBSSH2_SESSION *session,
     return ret;
 }
 
-static int
-rsapkcs1pubkey(LIBSSH2_SESSION *session,
-               const unsigned char *data, unsigned int datalen,
-               const unsigned char *passphrase, void *loadkeydata)
+static int rsapkcs1pubkey(LIBSSH2_SESSION *session,
+                          const unsigned char *data, unsigned int datalen,
+                          const unsigned char *passphrase, void *loadkeydata)
 {
     const unsigned char *data8;
     unsigned int datalen8;
@@ -2071,11 +2046,10 @@ rsapkcs1pubkey(LIBSSH2_SESSION *session,
     return ret;
 }
 
-static int
-try_pem_load(LIBSSH2_SESSION *session, FILE *fp,
-             const unsigned char *passphrase,
-             const char *header, const char *trailer,
-             loadkeyproc proc, void *loadkeydata)
+static int try_pem_load(LIBSSH2_SESSION *session, FILE *fp,
+                        const unsigned char *passphrase,
+                        const char *header, const char *trailer,
+                        loadkeyproc proc, void *loadkeydata)
 {
     unsigned char *data = NULL;
     size_t datalen = 0;
@@ -2109,10 +2083,11 @@ try_pem_load(LIBSSH2_SESSION *session, FILE *fp,
     return -1;
 }
 
-static int
-load_rsa_private_file(LIBSSH2_SESSION *session, const char *filename,
-                      unsigned const char *passphrase,
-                      loadkeyproc proc1, loadkeyproc proc8, void *loadkeydata)
+static int load_rsa_private_file(LIBSSH2_SESSION *session,
+                                 const char *filename,
+                                 unsigned const char *passphrase,
+                                 loadkeyproc proc1, loadkeyproc proc8,
+                                 void *loadkeydata)
 {
     FILE *fp = fopen(filename, fopenrbmode);
     unsigned char *data = NULL;
@@ -2176,7 +2151,7 @@ int
 _libssh2_rsa_new_private(libssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
                          const char *filename, unsigned const char *passphrase)
 {
-    libssh2_rsa_ctx *ctx = libssh2_init_crypto_ctx(NULL);
+    libssh2_rsa_ctx *ctx = init_crypto_ctx(NULL);
     int ret;
 
     if(!ctx)
@@ -2240,7 +2215,7 @@ _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
                                     size_t filedata_len,
                                     unsigned const char *passphrase)
 {
-    libssh2_rsa_ctx *ctx = libssh2_init_crypto_ctx(NULL);
+    libssh2_rsa_ctx *ctx = init_crypto_ctx(NULL);
     unsigned char *data = NULL;
     size_t datalen = 0;
     int ret;
