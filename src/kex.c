@@ -191,7 +191,7 @@ static void sha_algo_value_hash(int sha_algo,
                                 LIBSSH2_SESSION *session,
                                 struct kmdhgGPshakex_state *exchange_state,
                                 unsigned char **data, size_t data_len,
-                                 const unsigned char *version)
+                                const unsigned char *version)
 {
     if(sha_algo == 512) {
         LIBSSH2_KEX_METHOD_SHA_VALUE_HASH(512, *data, data_len, version);
