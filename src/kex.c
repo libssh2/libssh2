@@ -111,7 +111,7 @@ do {                                                                          \
  * don't allow it so we have to wrap them up in helper functions
  */
 
-static int _libssh2_sha_algo_ctx_init(int sha_algo, void *ctx)
+static int sha_algo_ctx_init(int sha_algo, void *ctx)
 {
     if(sha_algo == 512) {
         return libssh2_sha512_init((libssh2_sha512_ctx*)ctx);
@@ -872,7 +872,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             }
         }
 
-        if(!_libssh2_sha_algo_ctx_init(sha_algo_value, exchange_hash_ctx)) {
+        if(!sha_algo_ctx_init(sha_algo_value, exchange_hash_ctx)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HASH_INIT,
                                  "Unable to initialize hash context");
             goto clean_exit;
