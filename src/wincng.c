@@ -2063,10 +2063,9 @@ static int wincng_p1363signature_from_point(IN const unsigned char *r,
 /*
  * Create a CNG public key from an ECC point.
  */
-static int
-_libssh2_wincng_publickey_from_point(IN wincng_ecc_keytype keytype,
-                                     IN struct ecdsa_point *point,
-                                     OUT BCRYPT_KEY_HANDLE *key)
+static int wincng_publickey_from_point(IN wincng_ecc_keytype keytype,
+                                       IN struct ecdsa_point *point,
+                                       OUT BCRYPT_KEY_HANDLE *key)
 {
     int result = LIBSSH2_ERROR_NONE;
     NTSTATUS status;
@@ -2454,7 +2453,7 @@ _libssh2_wincng_ecdsa_curve_name_with_octal_new(
         goto cleanup;
     }
 
-    result = _libssh2_wincng_publickey_from_point(
+    result = wincng_publickey_from_point(
         WINCNG_ECC_KEYTYPE_ECDSA,
         &publickey,
         &publickey_handle);
@@ -2512,7 +2511,7 @@ _libssh2_wincng_ecdh_gen_k(OUT libssh2_bn **secret,
         return result;
     }
 
-    result = _libssh2_wincng_publickey_from_point(
+    result = wincng_publickey_from_point(
         WINCNG_ECC_KEYTYPE_ECDH,
         &server_publickey,
         &publickey_handle);
