@@ -90,8 +90,7 @@ _libssh2_mbedtls_random(unsigned char *buf, size_t len)
     return ret == 0 ? 0 : -1;
 }
 
-static void
-_libssh2_mbedtls_safe_free(void *buf, size_t len)
+static void mbed_safe_free(void *buf, size_t len)
 {
     if(!buf)
         return;
@@ -182,7 +181,7 @@ _libssh2_mbedtls_cipher_crypt(libssh2_cipher_ctx *ctx,
             memcpy(block, output, olen);
         }
 
-        _libssh2_mbedtls_safe_free(output, osize);
+        mbed_safe_free(output, osize);
     }
     else
         ret = -1;
@@ -536,7 +535,7 @@ _libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
                                passphrase, pwd_len,
                                mbedtls_ctr_drbg_random,
                                &mbed_ctr_drbg);
-    _libssh2_mbedtls_safe_free(filedata_nullterm, filedata_len);
+    mbed_safe_free(filedata_nullterm, filedata_len);
 
     if(ret || mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_RSA) {
         mbedtls_pk_free(&pkey);
@@ -845,7 +844,7 @@ _libssh2_mbedtls_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                (const unsigned char *)passphrase, pwd_len,
                                mbedtls_ctr_drbg_random,
                                &mbed_ctr_drbg);
-    _libssh2_mbedtls_safe_free(privatekeydata_nullterm, privatekeydata_len);
+    mbed_safe_free(privatekeydata_nullterm, privatekeydata_len);
 
     if(ret) {
         mbedtls_strerror(ret, (char *)buf, sizeof(buf));
@@ -989,7 +988,7 @@ _libssh2_mbedtls_ecdsa_create_key(LIBSSH2_SESSION *session,
 failed:
 
     _libssh2_mbedtls_ecdsa_free(*out_private_key);
-    _libssh2_mbedtls_safe_free(*out_public_key_octal, plen);
+    mbed_safe_free(*out_public_key_octal, plen);
     *out_private_key = NULL;
 
     return -1;
@@ -1344,7 +1343,7 @@ cleanup:
 
     mbedtls_pk_free(&pkey);
 
-    _libssh2_mbedtls_safe_free(ntdata, filedata_len);
+    mbed_safe_free(ntdata, filedata_len);
 
     return *ec_ctx ? 0 : -1;
 }
@@ -1433,7 +1432,7 @@ cleanup:
     mbedtls_mpi_free(&pr);
     mbedtls_mpi_free(&ps);
 
-    _libssh2_mbedtls_safe_free(tmp_sign, tmp_sign_len);
+    mbed_safe_free(tmp_sign, tmp_sign_len);
 
     return *signature ? 0 : -1;
 }
