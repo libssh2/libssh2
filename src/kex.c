@@ -160,8 +160,8 @@ static int sha_algo_ctx_update(int sha_algo, void *ctx,
     return 0;
 }
 
-static int _libssh2_sha_algo_ctx_final(int sha_algo, void *ctx,
-                                       void *hash)
+static int sha_algo_ctx_final(int sha_algo, void *ctx,
+                              void *hash)
 {
     if(sha_algo == 512) {
         libssh2_sha512_ctx *_ctx = (libssh2_sha512_ctx*)ctx;
@@ -963,7 +963,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                                    exchange_state->k_value_len);
 
         if(!hok ||
-           !_libssh2_sha_algo_ctx_final(sha_algo_value, exchange_hash_ctx,
+           !sha_algo_ctx_final(sha_algo_value, exchange_hash_ctx,
                                exchange_state->h_sig_comp)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HASH_CALC,
                                  "kex: failed to calculate hash");
