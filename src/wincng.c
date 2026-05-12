@@ -1087,11 +1087,11 @@ static int wincng_load_private_memory(LIBSSH2_SESSION *session,
     return ret;
 }
 
-static int _libssh2_wincng_asn_decode(unsigned char *pbEncoded,
-                                      DWORD cbEncoded,
-                                      LPCSTR lpszStructType,
-                                      unsigned char **ppbDecoded,
-                                      DWORD *pcbDecoded)
+static int wincng_asn_decode(unsigned char *pbEncoded,
+                             DWORD cbEncoded,
+                             LPCSTR lpszStructType,
+                             unsigned char **ppbDecoded,
+                             DWORD *pcbDecoded)
 {
     unsigned char *pbDecoded = NULL;
     DWORD cbDecoded = 0;
@@ -1174,9 +1174,9 @@ _libssh2_wincng_asn_decode_bn(unsigned char *pbEncoded,
     DWORD cbDecoded = 0, cbInteger;
     int ret;
 
-    ret = _libssh2_wincng_asn_decode(pbEncoded, cbEncoded,
-                                     X509_MULTI_BYTE_UINT,
-                                     (void *)&pbInteger, &cbInteger);
+    ret = wincng_asn_decode(pbEncoded, cbEncoded,
+                            X509_MULTI_BYTE_UINT,
+                            (void *)&pbInteger, &cbInteger);
     if(!ret) {
         ret = _libssh2_wincng_bn_ltob(pbInteger->pbData,
                                       pbInteger->cbData,
@@ -1204,9 +1204,9 @@ _libssh2_wincng_asn_decode_bns(unsigned char *pbEncoded,
     DWORD cbDecoded, *rcbDecoded, index, length;
     int ret;
 
-    ret = _libssh2_wincng_asn_decode(pbEncoded, cbEncoded,
-                                     X509_SEQUENCE_OF_ANY,
-                                     (void *)&pbDecoded, &cbDecoded);
+    ret = wincng_asn_decode(pbEncoded, cbEncoded,
+                            X509_SEQUENCE_OF_ANY,
+                            (void *)&pbDecoded, &cbDecoded);
     if(!ret) {
         length = pbDecoded->cValue;
 
@@ -1437,9 +1437,9 @@ _libssh2_wincng_rsa_new_private_parse(libssh2_rsa_ctx **rsa,
 
     (void)session;
 
-    ret = _libssh2_wincng_asn_decode(pbEncoded, (DWORD)cbEncoded,
-                                     PKCS_RSA_PRIVATE_KEY,
-                                     &pbStructInfo, &cbStructInfo);
+    ret = wincng_asn_decode(pbEncoded, (DWORD)cbEncoded,
+                            PKCS_RSA_PRIVATE_KEY,
+                            &pbStructInfo, &cbStructInfo);
 
     wincng_safe_free(pbEncoded, cbEncoded);
 
