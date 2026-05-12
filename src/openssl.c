@@ -1385,7 +1385,7 @@ __alloc_error:
 }
 
 #ifndef USE_OPENSSL_3
-static int _libssh2_rsa_new_additional_parameters(libssh2_rsa_ctx *rsa)
+static int rsa_new_additional_parameters(libssh2_rsa_ctx *rsa)
 {
     BN_CTX *ctx = NULL;
     BIGNUM *aux = NULL;
@@ -1537,7 +1537,7 @@ gen_publickey_from_rsa_openssh_priv_data(LIBSSH2_SESSION *session,
 
 #ifndef USE_OPENSSL_3
     if(rsa)
-        rc = _libssh2_rsa_new_additional_parameters(rsa);
+        rc = rsa_new_additional_parameters(rsa);
 #endif
 
     if(rsa && pubkeydata && method) {
