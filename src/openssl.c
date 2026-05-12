@@ -1150,8 +1150,7 @@ void _libssh2_openssl_crypto_exit(void) {}
 /* TODO: Optionally call a passphrase callback specified by the
  * calling program
  */
-static int
-passphrase_cb(char *buf, int size, int rwflag, void *passphrase)
+static int passphrase_cb(char *buf, int size, int rwflag, void *passphrase)
 {
     int passphrase_len = (int)strlen(passphrase);
 
@@ -1174,12 +1173,11 @@ typedef void * (*pem_read_bio_func)(BIO *, void **, pem_password_cb *,
                                     void *u);
 #endif
 
-static int
-read_private_key_from_memory(void **key_ctx,
-                             pem_read_bio_func read_private_key,
-                             const char *filedata,
-                             size_t filedata_len,
-                             const unsigned char *passphrase)
+static int read_private_key_from_memory(void **key_ctx,
+                                        pem_read_bio_func read_private_key,
+                                        const char *filedata,
+                                        size_t filedata_len,
+                                        const unsigned char *passphrase)
 {
     BIO *bp;
 
@@ -1199,11 +1197,10 @@ read_private_key_from_memory(void **key_ctx,
 #endif
 
 #if LIBSSH2_RSA || LIBSSH2_DSA || LIBSSH2_ECDSA
-static int
-read_private_key_from_file(void **key_ctx,
-                           pem_read_bio_func read_private_key,
-                           const char *filename,
-                           const unsigned char *passphrase)
+static int read_private_key_from_file(void **key_ctx,
+                                      pem_read_bio_func read_private_key,
+                                      const char *filename,
+                                      const unsigned char *passphrase)
 {
     BIO *bp;
 
@@ -1257,9 +1254,9 @@ _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
     return rc;
 }
 
-static unsigned char *
-gen_publickey_from_rsa(LIBSSH2_SESSION *session, libssh2_rsa_ctx *rsa,
-                       size_t *key_len)
+static unsigned char *gen_publickey_from_rsa(LIBSSH2_SESSION *session,
+                                             libssh2_rsa_ctx *rsa,
+                                             size_t *key_len)
 {
     int            e_bytes, n_bytes;
     unsigned long  len;
@@ -1321,13 +1318,12 @@ fail:
     return key;
 }
 
-static int
-gen_publickey_from_rsa_evp(LIBSSH2_SESSION *session,
-                           unsigned char **method,
-                           size_t *method_len,
-                           unsigned char **pubkeydata,
-                           size_t *pubkeydata_len,
-                           EVP_PKEY *pk)
+static int gen_publickey_from_rsa_evp(LIBSSH2_SESSION *session,
+                                      unsigned char **method,
+                                      size_t *method_len,
+                                      unsigned char **pubkeydata,
+                                      size_t *pubkeydata_len,
+                                      EVP_PKEY *pk)
 {
     libssh2_rsa_ctx* rsa = NULL;
     unsigned char *key;
