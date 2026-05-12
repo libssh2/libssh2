@@ -718,7 +718,7 @@ jobs:
           fi
 
   build_cygwin:
-    name: 'cygwin (${{ matrix.build }}, ${{ matrix.platform }}, ${{ matrix.compiler }})'
+    name: 'cygwin'
     runs-on: windows-2022
     timeout-minutes: 10
     defaults:
