@@ -242,8 +242,7 @@ write_bn(unsigned char *buf, const BIGNUM *bn, int bn_bytes)
 #endif
 
 #ifdef USE_OPENSSL_3
-static inline void
-_libssh2_swap_bytes(unsigned char *buf, unsigned long len)
+static inline void swap_bytes(unsigned char *buf, unsigned long len)
 {
 #if !defined(WORDS_BIGENDIAN) || !WORDS_BIGENDIAN
     unsigned long i, j;
@@ -311,7 +310,7 @@ _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
 
         if(nbuf) {
             memcpy(nbuf, ndata, nlen);
-            _libssh2_swap_bytes(nbuf, nlen);
+            swap_bytes(nbuf, nlen);
             params[param_num++] =
                 OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_RSA_N, nbuf, nlen);
         }
@@ -321,7 +320,7 @@ _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
         ebuf = OPENSSL_malloc(elen);
         if(ebuf) {
             memcpy(ebuf, edata, elen);
-            _libssh2_swap_bytes(ebuf, elen);
+            swap_bytes(ebuf, elen);
             params[param_num++] =
                 OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_RSA_E, ebuf, elen);
         }
@@ -331,7 +330,7 @@ _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
         dbuf = OPENSSL_malloc(dlen);
         if(dbuf) {
             memcpy(dbuf, ddata, dlen);
-            _libssh2_swap_bytes(dbuf, dlen);
+            swap_bytes(dbuf, dlen);
             params[param_num++] =
                 OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_RSA_D, dbuf, dlen);
         }
@@ -544,7 +543,7 @@ _libssh2_dsa_new(libssh2_dsa_ctx **dsactx,
 
         if(p_buf) {
             memcpy(p_buf, p, p_len);
-            _libssh2_swap_bytes(p_buf, p_len);
+            swap_bytes(p_buf, p_len);
             params[param_num++] =
                 OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_FFC_P, p_buf, p_len);
         }
@@ -555,7 +554,7 @@ _libssh2_dsa_new(libssh2_dsa_ctx **dsactx,
 
         if(q_buf) {
             memcpy(q_buf, q, q_len);
-            _libssh2_swap_bytes(q_buf, q_len);
+            swap_bytes(q_buf, q_len);
             params[param_num++] =
                 OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_FFC_Q, q_buf, q_len);
         }
@@ -566,7 +565,7 @@ _libssh2_dsa_new(libssh2_dsa_ctx **dsactx,
 
         if(g_buf) {
             memcpy(g_buf, g, g_len);
-            _libssh2_swap_bytes(g_buf, g_len);
+            swap_bytes(g_buf, g_len);
             params[param_num++] =
                 OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_FFC_G, g_buf, g_len);
         }
@@ -577,7 +576,7 @@ _libssh2_dsa_new(libssh2_dsa_ctx **dsactx,
 
         if(y_buf) {
             memcpy(y_buf, y, y_len);
-            _libssh2_swap_bytes(y_buf, y_len);
+            swap_bytes(y_buf, y_len);
             params[param_num++] =
                 OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_PUB_KEY, y_buf, y_len);
         }
@@ -588,7 +587,7 @@ _libssh2_dsa_new(libssh2_dsa_ctx **dsactx,
 
         if(x_buf) {
             memcpy(x_buf, x, x_len);
-            _libssh2_swap_bytes(x_buf, x_len);
+            swap_bytes(x_buf, x_len);
             params[param_num++] =
                 OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_PRIV_KEY,
                                         x_buf, x_len);
@@ -3795,7 +3794,7 @@ gen_publickey_from_ecdsa_openssh_priv_data(LIBSSH2_SESSION *session,
 
     /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
     memcpy(group_name, n, strlen(n));
-    _libssh2_swap_bytes(exponent, (unsigned long)exponentlen);
+    swap_bytes(exponent, (unsigned long)exponentlen);
 
     params[0] = OSSL_PARAM_construct_utf8_string(OSSL_PKEY_PARAM_GROUP_NAME,
                                                  group_name, 0);
