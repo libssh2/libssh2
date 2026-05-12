@@ -884,7 +884,7 @@ _libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
                      libssh2_bn *g, libssh2_bn *p, int group_order)
 {
     /* Generate x and e */
-    gcry_mpi_randomize(*dhctx, group_order * 8 - 1, GCRY_WEAK_RANDOM);
+    gcry_mpi_randomize(*dhctx, group_order * 8 - 1, GCRY_VERY_STRONG_RANDOM);
     gcry_mpi_powm(public, g, *dhctx, p);
     return 0;
 }
