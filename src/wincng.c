@@ -1999,14 +1999,13 @@ static int wincng_ecdsa_decode_uncompressed_point(
  * The IEEE P-1363 format is defined as r || s,
  * where r and s are of the same length.
  */
-static int
-_libssh2_wincng_p1363signature_from_point(IN const unsigned char *r,
-                                          IN size_t r_len,
-                                          IN const unsigned char *s,
-                                          IN size_t s_len,
-                                          IN libssh2_curve_type curve,
-                                          OUT PUCHAR *signature,
-                                          OUT size_t *signature_length)
+static int wincng_p1363signature_from_point(IN const unsigned char *r,
+                                            IN size_t r_len,
+                                            IN const unsigned char *s,
+                                            IN size_t s_len,
+                                            IN libssh2_curve_type curve,
+                                            OUT PUCHAR *signature,
+                                            OUT size_t *signature_length)
 {
     const unsigned char *r_trimmed;
     const unsigned char *s_trimmed;
@@ -2648,7 +2647,7 @@ _libssh2_wincng_ecdsa_verify(IN struct wincng_ecdsa_ctx *key,
     BCRYPT_ALG_HANDLE hash_alg;
 
     /* CNG expects signatures in IEEE P-1363 format. */
-    result = _libssh2_wincng_p1363signature_from_point(
+    result = wincng_p1363signature_from_point(
         r,
         r_len,
         s,
