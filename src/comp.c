@@ -47,13 +47,11 @@
 
 #include "comp.h"
 
-/* ********
+/* ******
  * none *
- ******** */
+ ****** */
 
 /*
- * comp_method_none_comp
- *
  * Minimalist compression: Absolutely none
  */
 static int comp_method_none_comp(LIBSSH2_SESSION *session,
@@ -74,8 +72,6 @@ static int comp_method_none_comp(LIBSSH2_SESSION *session,
 }
 
 /*
- * comp_method_none_decomp
- *
  * Minimalist decompression: Absolutely none
  */
 static int comp_method_none_decomp(LIBSSH2_SESSION *session,
@@ -107,9 +103,9 @@ static const struct comp_method comp_method_none = {
 };
 
 #ifdef LIBSSH2_HAVE_ZLIB
-/* ********
+/* ******
  * zlib *
- ******** */
+ ****** */
 
 /* Memory management wrappers
  * Yes, I realize we're doing a callback to a callback,
@@ -134,7 +130,7 @@ static void comp_method_zlib_free(voidpf opaque, voidpf address)
     LIBSSH2_FREE(session, address);
 }
 
-/* libssh2_comp_method_zlib_init
+/*
  * All your bandwidth are belong to us (so save some)
  */
 static int comp_method_zlib_init(LIBSSH2_SESSION *session, int compr,
@@ -174,8 +170,6 @@ static int comp_method_zlib_init(LIBSSH2_SESSION *session, int compr,
 }
 
 /*
- * libssh2_comp_method_zlib_comp
- *
  * Compresses source to destination. Without allocation.
  */
 static int comp_method_zlib_comp(LIBSSH2_SESSION *session,
@@ -211,8 +205,6 @@ static int comp_method_zlib_comp(LIBSSH2_SESSION *session,
 }
 
 /*
- * libssh2_comp_method_zlib_decomp
- *
  * Decompresses source to destination. Allocates the output memory.
  */
 static int comp_method_zlib_decomp(LIBSSH2_SESSION *session,
@@ -317,7 +309,7 @@ static int comp_method_zlib_decomp(LIBSSH2_SESSION *session,
     return 0;
 }
 
-/* libssh2_comp_method_zlib_dtor
+/*
  * All done, no more compression for you
  */
 static int comp_method_zlib_dtor(LIBSSH2_SESSION *session, int compr,

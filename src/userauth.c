@@ -56,16 +56,15 @@
 #include <stdlib.h>  /* strtol() */
 
 /*
- *  Cap each userauth input field below the per-call transport
- *  limit. Bounds packet-size arithmetic to prevent size_t wrap
- *  and undersized allocations on 32-bit (or any) platforms.
- *  Packets with multiple near-cap fields may still exceed the
- *  transport limit and be rejected later with LIBSSH2_ERROR_INVAL.
+ * Cap each userauth input field below the per-call transport
+ * limit. Bounds packet-size arithmetic to prevent size_t wrap
+ * and undersized allocations on 32-bit (or any) platforms.
+ * Packets with multiple near-cap fields may still exceed the
+ * transport limit and be rejected later with LIBSSH2_ERROR_INVAL.
  */
 #define MAX_INPUT_LEN (MAX_SSH_PACKET_LEN - 0x100)
 
-/* userauth_list
- *
+/*
  * List authentication methods
  * Will yield successful login if "none" happens to be allowable for this user
  * Not a common configuration for any SSH server though
@@ -251,8 +250,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
     return (char *)session->userauth_list_data;
 }
 
-/* libssh2_userauth_list
- *
+/*
  * List authentication methods
  * Will yield successful login if "none" happens to be allowable for this user
  * Not a common configuration for any SSH server though
@@ -268,8 +266,7 @@ char *libssh2_userauth_list(LIBSSH2_SESSION *session,
     return ptr;
 }
 
-/* libssh2_userauth_banner
- *
+/*
  * Retrieve banner message from server, if available.
  * When no such message is sent by server or if no authentication attempt has
  * been made, this function returns LIBSSH2_ERROR_MISSING_USERAUTH_BANNER.
@@ -293,8 +290,6 @@ int libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner)
 }
 
 /*
- * libssh2_userauth_authenticated
- *
  * Returns: 0 if not yet authenticated
  *          1 if already authenticated
  */
@@ -304,7 +299,7 @@ int libssh2_userauth_authenticated(LIBSSH2_SESSION *session)
     return (session->state & LIBSSH2_STATE_AUTHENTICATED) ? 1 : 0;
 }
 
-/* userauth_password
+/*
  * Plain ol' login
  */
 static int userauth_password(LIBSSH2_SESSION *session,
@@ -570,11 +565,8 @@ password_response:
 }
 
 /*
- * libssh2_userauth_password_ex
- *
  * Plain ol' login
  */
-
 LIBSSH2_API
 int libssh2_userauth_password_ex(
     LIBSSH2_SESSION *session,
@@ -665,8 +657,6 @@ static int memory_read_publickey(LIBSSH2_SESSION *session,
 }
 
 /*
- * file_read_publickey
- *
  * Read a public key from an id_???.pub style file
  *
  * Returns an allocated string containing the decoded key in *pubkeydata
@@ -807,7 +797,7 @@ static int memory_read_privatekey(LIBSSH2_SESSION *session,
     return 0;
 }
 
-/* libssh2_file_read_privatekey
+/*
  * Read a PEM encoded private key from an id_??? style file
  */
 static int file_read_privatekey(LIBSSH2_SESSION *session,
@@ -1042,7 +1032,7 @@ libssh2_sign_sk(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     return rc;
 }
 
-/* userauth_hostbased_fromfile
+/*
  * Authenticate using a keypair found in the named files
  */
 static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
@@ -1288,7 +1278,7 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                           "username/public key combination");
 }
 
-/* libssh2_userauth_hostbased_fromfile_ex
+/*
  * Authenticate using a keypair found in the named files
  */
 LIBSSH2_API
@@ -1393,7 +1383,6 @@ static int is_version_less_than_78(const char *version)
 }
 
 /**
- * @function _libssh2_key_sign_algorithm
  * @abstract Upgrades the algorithm used for public key signing RFC 8332
  * @discussion Based on the incoming key_method value, this function
  * will upgrade the key method input based on user preferences,
@@ -1965,7 +1954,6 @@ retry_auth:
 }
 
 /*
- * userauth_publickey_frommemory
  * Authenticate using a keypair from memory
  */
 static int userauth_publickey_frommemory(LIBSSH2_SESSION *session,
@@ -2023,7 +2011,6 @@ static int userauth_publickey_frommemory(LIBSSH2_SESSION *session,
 }
 
 /*
- * userauth_publickey_fromfile
  * Authenticate using a keypair found in the named files
  */
 static int userauth_publickey_fromfile(LIBSSH2_SESSION *session,
@@ -2073,7 +2060,7 @@ static int userauth_publickey_fromfile(LIBSSH2_SESSION *session,
     return rc;
 }
 
-/* libssh2_userauth_publickey_frommemory
+/*
  * Authenticate using a keypair from memory
  */
 LIBSSH2_API
@@ -2104,7 +2091,7 @@ int libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
     return rc;
 }
 
-/* libssh2_userauth_publickey_fromfile_ex
+/*
  * Authenticate using a keypair found in the named files
  */
 LIBSSH2_API
@@ -2130,7 +2117,7 @@ int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
     return rc;
 }
 
-/* libssh2_userauth_publickey_ex
+/*
  * Authenticate using an external callback function
  */
 LIBSSH2_API
@@ -2155,8 +2142,6 @@ int libssh2_userauth_publickey(
 }
 
 /*
- * userauth_keyboard_interactive
- *
  * Authenticate using a challenge-response authentication
  */
 static int userauth_keyboard_interactive(
@@ -2432,8 +2417,6 @@ cleanup:
 }
 
 /*
- * libssh2_userauth_keyboard_interactive_ex
- *
  * Authenticate using a challenge-response authentication
  */
 LIBSSH2_API
@@ -2450,8 +2433,6 @@ int libssh2_userauth_keyboard_interactive_ex(
 }
 
 /*
- * libssh2_userauth_publickey_sk
- *
  * Authenticate using an external callback function
  */
 LIBSSH2_API

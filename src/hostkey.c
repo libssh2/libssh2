@@ -46,16 +46,14 @@
 #endif
 
 #if LIBSSH2_RSA
-/* ***********
+/* *********
  * ssh-rsa *
- *********** */
+ ********* */
 
 static int hostkey_method_ssh_rsa_dtor(LIBSSH2_SESSION *session,
                                        void **abstract);
 
 /*
- * hostkey_method_ssh_rsa_init
- *
  * Initialize the server hostkey working area with e/n pair
  */
 static int hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
@@ -132,8 +130,6 @@ static int hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
 }
 
 /*
- * hostkey_method_ssh_rsa_initPEM
- *
  * Load a Private Key from a PEM file
  */
 static int hostkey_method_ssh_rsa_initPEM(LIBSSH2_SESSION *session,
@@ -160,8 +156,6 @@ static int hostkey_method_ssh_rsa_initPEM(LIBSSH2_SESSION *session,
 }
 
 /*
- * hostkey_method_ssh_rsa_initPEMFromMemory
- *
  * Load a Private Key from a memory
  */
 static int hostkey_method_ssh_rsa_initPEMFromMemory(
@@ -193,8 +187,6 @@ static int hostkey_method_ssh_rsa_initPEMFromMemory(
 
 #if LIBSSH2_RSA_SHA1
 /*
- * hostkey_method_ssh_rsa_sign
- *
  * Verify signature created by remote
  */
 static int hostkey_method_ssh_rsa_sig_verify(LIBSSH2_SESSION *session,
@@ -216,8 +208,6 @@ static int hostkey_method_ssh_rsa_sig_verify(LIBSSH2_SESSION *session,
 }
 
 /*
- * hostkey_method_ssh_rsa_signv
- *
  * Construct a signature from an array of vectors
  */
 static int hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION *session,
@@ -263,8 +253,6 @@ static int hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION *session,
 #endif
 
 /*
- * hostkey_method_ssh_rsa_sha2_256_sig_verify
- *
  * Verify signature created by remote
  */
 #if LIBSSH2_RSA_SHA2
@@ -291,11 +279,8 @@ static int hostkey_method_ssh_rsa_sha2_256_sig_verify(
 }
 
 /*
- * hostkey_method_ssh_rsa_sha2_256_signv
- *
  * Construct a signature from an array of vectors
  */
-
 static int hostkey_method_ssh_rsa_sha2_256_signv(LIBSSH2_SESSION *session,
                                                  unsigned char **signature,
                                                  size_t *signature_len,
@@ -338,8 +323,6 @@ static int hostkey_method_ssh_rsa_sha2_256_signv(LIBSSH2_SESSION *session,
 }
 
 /*
- * hostkey_method_ssh_rsa_sha2_512_sig_verify
- *
  * Verify signature created by remote
  */
 static int hostkey_method_ssh_rsa_sha2_512_sig_verify(
@@ -364,8 +347,6 @@ static int hostkey_method_ssh_rsa_sha2_512_sig_verify(
 }
 
 /*
- * hostkey_method_ssh_rsa_sha2_512_signv
- *
  * Construct a signature from an array of vectors
  */
 static int hostkey_method_ssh_rsa_sha2_512_signv(LIBSSH2_SESSION *session,
@@ -412,8 +393,6 @@ static int hostkey_method_ssh_rsa_sha2_512_signv(LIBSSH2_SESSION *session,
 #endif /* LIBSSH2_RSA_SHA2 */
 
 /*
- * hostkey_method_ssh_rsa_dtor
- *
  * Shutdown the hostkey
  */
 static int hostkey_method_ssh_rsa_dtor(LIBSSH2_SESSION *session,
@@ -520,16 +499,14 @@ static const struct hostkey_method hostkey_method_ssh_rsa_sha2_512_cert = {
 #endif /* LIBSSH2_RSA */
 
 #if LIBSSH2_DSA
-/* ***********
+/* *********
  * ssh-dss *
- *********** */
+ ********* */
 
 static int hostkey_method_ssh_dss_dtor(LIBSSH2_SESSION *session,
                                        void **abstract);
 
 /*
- * hostkey_method_ssh_dss_init
- *
  * Initialize the server hostkey working area with p/q/g/y set
  */
 static int hostkey_method_ssh_dss_init(LIBSSH2_SESSION *session,
@@ -590,8 +567,6 @@ static int hostkey_method_ssh_dss_init(LIBSSH2_SESSION *session,
 }
 
 /*
- * hostkey_method_ssh_dss_initPEM
- *
  * Load a Private Key from a PEM file
  */
 static int hostkey_method_ssh_dss_initPEM(LIBSSH2_SESSION *session,
@@ -618,8 +593,6 @@ static int hostkey_method_ssh_dss_initPEM(LIBSSH2_SESSION *session,
 }
 
 /*
- * hostkey_method_ssh_dss_initPEMFromMemory
- *
  * Load a Private Key from memory
  */
 static int hostkey_method_ssh_dss_initPEMFromMemory(
@@ -650,8 +623,6 @@ static int hostkey_method_ssh_dss_initPEMFromMemory(
 }
 
 /*
- * libssh2_hostkey_method_ssh_dss_sign
- *
  * Verify signature created by remote
  */
 static int hostkey_method_ssh_dss_sig_verify(LIBSSH2_SESSION *session,
@@ -675,8 +646,6 @@ static int hostkey_method_ssh_dss_sig_verify(LIBSSH2_SESSION *session,
 }
 
 /*
- * hostkey_method_ssh_dss_signv
- *
  * Construct a signature from an array of vectors
  */
 static int hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session,
@@ -723,8 +692,6 @@ static int hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session,
 }
 
 /*
- * libssh2_hostkey_method_ssh_dss_dtor
- *
  * Shutdown the hostkey method
  */
 static int hostkey_method_ssh_dss_dtor(LIBSSH2_SESSION *session,
@@ -755,16 +722,14 @@ static const struct hostkey_method hostkey_method_ssh_dss = {
 
 #if LIBSSH2_ECDSA
 
-/* ***********
+/* *****************************
  * ecdsa-sha2-nistp256/384/521 *
- *********** */
+ ***************************** */
 
 static int hostkey_method_ssh_ecdsa_dtor(LIBSSH2_SESSION *session,
                                          void **abstract);
 
 /*
- * hostkey_method_ssh_ecdsa_init
- *
  * Initialize the server hostkey working area with e/n pair
  */
 static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
@@ -843,8 +808,6 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
 }
 
 /*
- * hostkey_method_ssh_ecdsa_initPEM
- *
  * Load a Private Key from a PEM file
  */
 static int hostkey_method_ssh_ecdsa_initPEM(LIBSSH2_SESSION *session,
@@ -870,8 +833,6 @@ static int hostkey_method_ssh_ecdsa_initPEM(LIBSSH2_SESSION *session,
 }
 
 /*
- * hostkey_method_ssh_ecdsa_initPEMFromMemory
- *
  * Load a Private Key from memory
  */
 static int hostkey_method_ssh_ecdsa_initPEMFromMemory(
@@ -904,8 +865,6 @@ static int hostkey_method_ssh_ecdsa_initPEMFromMemory(
 }
 
 /*
- * hostkey_method_ecdsa_sig_verify
- *
  * Verify signature created by remote
  */
 static int hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION *session,
@@ -976,8 +935,6 @@ static int hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION *session,
     } while(0)
 
 /*
- * hostkey_method_ecdsa_signv
- *
  * Construct a signature from an array of vectors
  */
 static int hostkey_method_ssh_ecdsa_signv(LIBSSH2_SESSION *session,
@@ -1008,8 +965,6 @@ static int hostkey_method_ssh_ecdsa_signv(LIBSSH2_SESSION *session,
 }
 
 /*
- * hostkey_method_ssh_ecdsa_dtor
- *
  * Shutdown the hostkey by freeing EC_KEY context
  */
 static int hostkey_method_ssh_ecdsa_dtor(LIBSSH2_SESSION *session,
@@ -1102,16 +1057,14 @@ static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp521_cert = {
 
 #if LIBSSH2_ED25519
 
-/* ***********
+/* *********
  * ed25519 *
- *********** */
+ ********* */
 
 static int hostkey_method_ssh_ed25519_dtor(LIBSSH2_SESSION *session,
                                            void **abstract);
 
 /*
- * hostkey_method_ssh_ed25519_init
- *
  * Initialize the server hostkey working area with e/n pair
  */
 static int hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION *session,
@@ -1159,8 +1112,6 @@ static int hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION *session,
 }
 
 /*
- * hostkey_method_ssh_ed25519_initPEM
- *
  * Load a Private Key from a PEM file
  */
 static int hostkey_method_ssh_ed25519_initPEM(
@@ -1189,8 +1140,6 @@ static int hostkey_method_ssh_ed25519_initPEM(
 }
 
 /*
- * hostkey_method_ssh_ed25519_initPEMFromMemory
- *
  * Load a Private Key from memory
  */
 static int hostkey_method_ssh_ed25519_initPEMFromMemory(
@@ -1223,8 +1172,6 @@ static int hostkey_method_ssh_ed25519_initPEMFromMemory(
 }
 
 /*
- * hostkey_method_ssh_ed25519_sig_verify
- *
  * Verify signature created by remote
  */
 static int hostkey_method_ssh_ed25519_sig_verify(LIBSSH2_SESSION *session,
@@ -1251,8 +1198,6 @@ static int hostkey_method_ssh_ed25519_sig_verify(LIBSSH2_SESSION *session,
 }
 
 /*
- * hostkey_method_ssh_ed25519_signv
- *
  * Construct a signature from an array of vectors
  */
 static int hostkey_method_ssh_ed25519_signv(LIBSSH2_SESSION *session,
@@ -1274,8 +1219,6 @@ static int hostkey_method_ssh_ed25519_signv(LIBSSH2_SESSION *session,
 }
 
 /*
- * hostkey_method_ssh_ed25519_dtor
- *
  * Shutdown the hostkey by freeing key context
  */
 static int hostkey_method_ssh_ed25519_dtor(LIBSSH2_SESSION *session,
@@ -1319,8 +1262,6 @@ static const struct hostkey_method hostkey_method_ssh_ed25519_cert = {
 #endif /* LIBSSH2_ED25519 */
 
 /*
- * hostkey_methods
- *
  * Host Key order matches OpenSSH for compatibility
  */
 static const struct hostkey_method *hostkey_methods[] = {
@@ -1368,8 +1309,6 @@ const struct hostkey_method **libssh2_hostkey_methods(void)
 }
 
 /*
- * libssh2_hostkey_hash
- *
  * Returns hash signature
  * Returned buffer should NOT be freed
  * Length of buffer is determined by hash type
@@ -1457,10 +1396,7 @@ static int hostkey_type(const unsigned char *hostkey, size_t len)
 }
 
 /*
- * libssh2_session_hostkey
- *
  * Returns the server key and length.
- *
  */
 LIBSSH2_API
 const char *libssh2_session_hostkey(LIBSSH2_SESSION *session, size_t *len,

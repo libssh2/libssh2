@@ -44,7 +44,7 @@
 #include <assert.h>
 
 #if defined(LIBSSH2DEBUG) && defined(LIBSSH2_CRYPT_NONE_INSECURE)
-/* crypt_none_crypt
+/*
  * Minimalist cipher: no encryption. DO NOT USE.
  *
  * The SSH2 Transport allows for unencrypted data transmission using

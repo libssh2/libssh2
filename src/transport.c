@@ -355,15 +355,11 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
 }
 
 /*
- * _libssh2_transport_read
- *
  * Collect a packet into the input queue.
  *
  * Returns packet type added to input queue (0 if nothing added), or a
  * negative error number.
- */
-
-/*
+ *
  * This function reads the binary stream as specified in chapter 6 of RFC4253
  * "The Secure Shell (SSH) Transport Layer Protocol"
  *
@@ -980,8 +976,6 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
 }
 
 /*
- * libssh2_transport_send
- *
  * Send a packet, encrypting it and adding a MAC code if necessary
  * Returns 0 on success, non-zero on failure.
  *

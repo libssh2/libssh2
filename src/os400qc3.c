@@ -2478,10 +2478,8 @@ _libssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session,
     return 0;
 }
 
-/* _libssh2_supported_key_sign_algorithms
- *
+/*
  * Return supported key hash algo upgrades, see crypto.h
- *
  */
 const char *
 _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,

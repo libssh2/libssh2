@@ -724,13 +724,10 @@ _libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
 
 #if LIBSSH2_ECDSA
 
-/* _libssh2_ecdsa_get_curve_type
- *
+/*
  * returns key curve type that maps to libssh2_curve_type
- *
  */
-libssh2_curve_type
-_libssh2_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ec_ctx)
+libssh2_curve_type _libssh2_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ec_ctx)
 {
 #ifdef USE_OPENSSL_3
     int bits = 0;
@@ -753,10 +750,8 @@ _libssh2_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ec_ctx)
 #endif
 }
 
-/* _libssh2_ecdsa_curve_type_from_name
- *
+/*
  * returns 0 for success, key curve type that maps to libssh2_curve_type
- *
  */
 int
 _libssh2_ecdsa_curve_type_from_name(const char *name,
@@ -784,15 +779,13 @@ _libssh2_ecdsa_curve_type_from_name(const char *name,
     return 0;
 }
 
-/* _libssh2_ecdsa_curve_name_with_octal_new
- *
+/*
  * Creates a new public key given an octal string, length and type
- *
  */
-int
-_libssh2_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx **ec_ctx,
-     const unsigned char *k,
-     size_t k_len, libssh2_curve_type curve)
+int _libssh2_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx **ec_ctx,
+                                             const unsigned char *k,
+                                             size_t k_len,
+                                             libssh2_curve_type curve)
 {
     int ret = 0;
 
@@ -4206,13 +4199,9 @@ _libssh2_ecdsa_new_private_sk(libssh2_ecdsa_ctx **ec_ctx,
 }
 
 /*
- * _libssh2_ecdsa_create_key
- *
  * Creates a local private key based on input curve
  * and returns octal value and octal length
- *
  */
-
 int
 _libssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
                           libssh2_ec_key **out_private_key,
@@ -4326,12 +4315,10 @@ clean_exit:
     return (ret == 1) ? 0 : -1;
 }
 
-/* _libssh2_ecdh_gen_k
- *
+/*
  * Computes the shared secret K given a local private key,
  * remote public key and length
  */
-
 int
 _libssh2_ecdh_gen_k(libssh2_bn **k, libssh2_ec_key *private_key,
                     const unsigned char *server_public_key,
@@ -5324,10 +5311,8 @@ _libssh2_bn_from_bin(libssh2_bn *bn, size_t len, const unsigned char *val)
     return 0;
 }
 
-/* _libssh2_supported_key_sign_algorithms
- *
+/*
  * Return supported key hash algo upgrades, see crypto.h
- *
  */
 const char *
 _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,

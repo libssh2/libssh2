@@ -104,7 +104,7 @@ do {                                                                          \
         }                                                                     \
 } while(0)
 
-/*!
+/*
  * @note The following are wrapper functions used by diffie_hellman_sha_algo().
  * TODO: Switch backend SHA macros to functions to allow function pointers
  * @discussion Ideally these would be function pointers but the backend macros
@@ -632,8 +632,7 @@ static void kex_diffie_hellman_cleanup(
     }
 }
 
-/*!
- * @function diffie_hellman_sha_algo
+/*
  * @abstract Diffie Hellman Key Exchange, Group Agnostic,
  * SHA Algorithm Agnostic
  * @result 0 on success, error code on failure
@@ -1018,7 +1017,7 @@ clean_exit:
     return ret;
 }
 
-/* kex_method_diffie_hellman_group1_sha1_key_exchange
+/*
  * Diffie-Hellman Group1 (Actually Group2) Key Exchange using SHA1
  */
 static int kex_method_diffie_hellman_group1_sha1_key_exchange(
@@ -1084,7 +1083,7 @@ clean_exit:
     return ret;
 }
 
-/* kex_method_diffie_hellman_group14_key_exchange
+/*
  * Diffie-Hellman Group14 Key Exchange with hash function callback
  */
 typedef int (*diffie_hellman_hash_func_t)(
@@ -1179,7 +1178,7 @@ clean_exit:
     return ret;
 }
 
-/* kex_method_diffie_hellman_group14_sha1_key_exchange
+/*
  * Diffie-Hellman Group14 Key Exchange using SHA1
  */
 static int kex_method_diffie_hellman_group14_sha1_key_exchange(
@@ -1192,7 +1191,7 @@ static int kex_method_diffie_hellman_group14_sha1_key_exchange(
                                                       diffie_hellman_sha_algo);
 }
 
-/* kex_method_diffie_hellman_group14_sha256_key_exchange
+/*
  * Diffie-Hellman Group14 Key Exchange using SHA256
  */
 static int kex_method_diffie_hellman_group14_sha256_key_exchange(
@@ -1205,7 +1204,7 @@ static int kex_method_diffie_hellman_group14_sha256_key_exchange(
                                                       diffie_hellman_sha_algo);
 }
 
-/* kex_method_diffie_hellman_group16_sha512_key_exchange
+/*
  * Diffie-Hellman Group16 Key Exchange using SHA512
  */
 static int kex_method_diffie_hellman_group16_sha512_key_exchange(
@@ -1297,7 +1296,7 @@ clean_exit:
     return ret;
 }
 
-/* kex_method_diffie_hellman_group18_sha512_key_exchange
+/*
  * Diffie-Hellman Group18 Key Exchange using SHA512
  */
 static int kex_method_diffie_hellman_group18_sha512_key_exchange(
@@ -1433,7 +1432,7 @@ clean_exit:
     return ret;
 }
 
-/* kex_method_diffie_hellman_group_exchange_sha1_key_exchange
+/*
  * Diffie-Hellman Group Exchange Key Exchange using SHA1
  * Negotiates random(ish) group for secret derivation
  */
@@ -1559,7 +1558,7 @@ dh_gex_clean_exit:
     return ret;
 }
 
-/* kex_method_diffie_hellman_group_exchange_sha256_key_exchange
+/*
  * Diffie-Hellman Group Exchange Key Exchange using SHA256
  * Negotiates random(ish) group for secret derivation
  */
@@ -1688,10 +1687,9 @@ dh_gex_clean_exit:
 
 #if (LIBSSH2_ECDSA || LIBSSH2_ED25519) && LIBSSH2_MLKEM
 
-/* kex_session_hybrid_curve_type
+/*
  * returns the EC curve type by name used in hybrid key exchange
  */
-
 static int kex_session_hybrid_curve_type(const char *name,
                                          libssh2_curve_type *out_type)
 {
@@ -1719,8 +1717,7 @@ static int kex_session_hybrid_curve_type(const char *name,
 
 #if LIBSSH2_ECDSA
 
-/* LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY
- *
+/*
  * Macro that create and verifies EC SHA hash with a given digest bytes
  *
  * Payload format:
@@ -1733,7 +1730,6 @@ static int kex_session_hybrid_curve_type(const char *name,
  * string   Q_C, client's ephemeral public key octet string
  * string   Q_S, server's ephemeral public key octet string
  * mpint    K,   shared secret
- *
  */
 #define LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(digest_type)            \
 do {                                                                         \
@@ -1834,8 +1830,7 @@ do {                                                                         \
 
 #if LIBSSH2_MLKEM
 
-/* LIBSSH2_KEX_METHOD_HYBRID_SHA_HASH_CREATE_VERIFY
- *
+/*
  * Macro that create and verifies HYBRID (EC+PQ) SHA hash with a given
  * digest bytes
  *
@@ -1849,7 +1844,6 @@ do {                                                                         \
  * string   Q_C, client's ephemeral public key octet string
  * string   Q_S, server's ephemeral public key octet string
  * mpint    K,   shared secret
- *
  */
 #define LIBSSH2_KEX_METHOD_HYBRID_SHA_HASH_CREATE_VERIFY(digest_type)        \
 do {                                                                         \
@@ -1953,10 +1947,9 @@ do {                                                                         \
 
 #endif
 
-/* kex_session_ecdh_curve_type
+/*
  * returns the EC curve type by name used in key exchange
  */
-
 static int kex_session_ecdh_curve_type(const char *name,
                                        libssh2_curve_type *out_type)
 {
@@ -2021,7 +2014,7 @@ static void kex_method_ecdh_cleanup(LIBSSH2_SESSION *session,
     }
 }
 
-/* ecdh_sha2_nistp
+/*
  * Elliptic Curve Diffie Hellman Key Exchange
  */
 static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
@@ -2189,11 +2182,9 @@ clean_exit:
     return ret;
 }
 
-/* kex_method_ecdh_key_exchange
- *
+/*
  * Elliptic Curve Diffie Hellman Key Exchange
  * supports SHA256/384/512 hashes based on negotiated ecdh method
- *
  */
 static int kex_method_ecdh_key_exchange(
     LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
@@ -2764,7 +2755,7 @@ static void kex_method_curve25519_cleanup(
     }
 }
 
-/* curve25519_sha256
+/*
  * Elliptic Curve Key Exchange
  */
 static int curve25519_sha256(
@@ -2908,10 +2899,8 @@ clean_exit:
     return ret;
 }
 
-/* kex_method_curve25519_key_exchange
- *
+/*
  * Elliptic Curve X25519 Key Exchange with SHA256 hash
- *
  */
 static int kex_method_curve25519_key_exchange(
     LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
@@ -3461,7 +3450,7 @@ kex_method_ssh_mlkem768_x25519_sha256 = {
 
 /* this kex method signals that client can receive extensions
  * as described in https://datatracker.ietf.org/doc/html/rfc8308
-*/
+ */
 
 static const struct kex_method
 kex_method_extension_negotiation = {
@@ -3514,8 +3503,7 @@ struct common_method {
     const char *name;
 };
 
-/* kex_method_strlen
- *
+/*
  * Calculate the length of a particular method list's resulting string
  * Includes SUM(strlen() of each individual method plus 1 (for coma)) - 1
  * (because the last coma isn't used)
@@ -3537,7 +3525,7 @@ static size_t kex_method_strlen(const struct common_method **method)
     return len - 1;
 }
 
-/* kex_method_list
+/*
  * Generate formatted preference list in buf
  */
 static uint32_t kex_method_list(unsigned char *buf, uint32_t list_strlen,
@@ -3579,7 +3567,7 @@ static uint32_t kex_method_list(unsigned char *buf, uint32_t list_strlen,
         }                                                                    \
     } while(0)
 
-/* kexinit
+/*
  * Send SSH_MSG_KEXINIT packet
  */
 static int kexinit(LIBSSH2_SESSION *session)
@@ -3753,7 +3741,7 @@ static int kexinit(LIBSSH2_SESSION *session)
     return 0;
 }
 
-/* _libssh2_kex_agree_instr
+/*
  * Kex specific variant of strstr()
  * Needle must be preceded by BOL or ',', and followed by ',' or EOL
  */
@@ -3809,7 +3797,6 @@ _libssh2_kex_agree_instr(unsigned char *haystack, size_t haystack_len,
     return NULL;
 }
 
-/* kex_get_method_by_name */
 static const struct common_method *kex_get_method_by_name(
     const char *name, size_t name_len,
     const struct common_method **methodlist)
@@ -3824,7 +3811,7 @@ static const struct common_method *kex_get_method_by_name(
     return NULL;
 }
 
-/* kex_agree_hostkey
+/*
  * Agree on a Hostkey which works with this kex
  */
 static int kex_agree_hostkey(LIBSSH2_SESSION *session,
@@ -3899,7 +3886,7 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session,
     return -1;
 }
 
-/* kex_agree_kex_hostkey
+/*
  * Agree on a Key Exchange method and a hostkey encoding type
  */
 static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
@@ -3979,7 +3966,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
     return -1;
 }
 
-/* kex_agree_crypt
+/*
  * Agree on a cipher algo
  */
 static int kex_agree_crypt(LIBSSH2_SESSION *session,
@@ -4034,7 +4021,7 @@ static int kex_agree_crypt(LIBSSH2_SESSION *session,
     return -1;
 }
 
-/* kex_agree_mac
+/*
  * Agree on a message authentication hash
  */
 static int kex_agree_mac(LIBSSH2_SESSION *session,
@@ -4095,7 +4082,7 @@ static int kex_agree_mac(LIBSSH2_SESSION *session,
     return -1;
 }
 
-/* kex_agree_comp
+/*
  * Agree on a compression scheme
  */
 static int kex_agree_comp(LIBSSH2_SESSION *session,
@@ -4152,7 +4139,7 @@ static int kex_agree_comp(LIBSSH2_SESSION *session,
  * The Client gets to make the final call on "agreed methods"
  */
 
-/* kex_agree_methods
+/*
  * Decide which specific method to use of the methods offered by each party
  */
 static int kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *data,

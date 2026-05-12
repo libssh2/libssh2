@@ -41,8 +41,7 @@
 #include "mac.h"
 
 #if defined(LIBSSH2DEBUG) && defined(LIBSSH2_MAC_NONE_INSECURE)
-/* mac_none_MAC
- *
+/*
  * Minimalist MAC: No MAC. DO NOT USE.
  *
  * The SSH2 Transport allows implementations to forego a message
@@ -53,7 +52,6 @@
  * Enabling this option will allow for "none" as a negotiable method,
  * however it still requires that the method be advertised by the remote
  * end and that no more-preferable methods are available.
- *
  */
 static int mac_none_MAC(LIBSSH2_SESSION *session,
                         unsigned char *buf, uint32_t seqno,
@@ -76,7 +74,7 @@ static const struct mac_method mac_method_none = {
 };
 #endif /* defined(LIBSSH2DEBUG) && defined(LIBSSH2_MAC_NONE_INSECURE) */
 
-/* mac_method_common_init
+/*
  * Initialize simple mac methods
  */
 static int mac_method_common_init(LIBSSH2_SESSION *session, unsigned char *key,
@@ -89,7 +87,7 @@ static int mac_method_common_init(LIBSSH2_SESSION *session, unsigned char *key,
     return 0;
 }
 
-/* mac_method_common_dtor
+/*
  * Cleanup simple mac methods
  */
 static int mac_method_common_dtor(LIBSSH2_SESSION *session, void **abstract)
@@ -103,7 +101,7 @@ static int mac_method_common_dtor(LIBSSH2_SESSION *session, void **abstract)
 }
 
 #if LIBSSH2_HMAC_SHA512
-/* mac_method_hmac_sha512_hash
+/*
  * Calculate hash using full sha512 value
  */
 static int mac_method_hmac_sha2_512_hash(LIBSSH2_SESSION *session,
@@ -157,7 +155,7 @@ static const struct mac_method mac_method_hmac_sha2_512_etm = {
 #endif
 
 #if LIBSSH2_HMAC_SHA256
-/* mac_method_hmac_sha256_hash
+/*
  * Calculate hash using full sha256 value
  */
 static int mac_method_hmac_sha2_256_hash(LIBSSH2_SESSION *session,
@@ -210,7 +208,7 @@ static const struct mac_method mac_method_hmac_sha2_256_etm = {
 
 #endif
 
-/* mac_method_hmac_sha1_hash
+/*
  * Calculate hash using full sha1 value
  */
 static int mac_method_hmac_sha1_hash(LIBSSH2_SESSION *session,
@@ -261,7 +259,7 @@ static const struct mac_method mac_method_hmac_sha1_etm = {
     1
 };
 
-/* mac_method_hmac_sha1_96_hash
+/*
  * Calculate hash using first 96 bits of sha1 value
  */
 static int mac_method_hmac_sha1_96_hash(LIBSSH2_SESSION *session,
@@ -292,7 +290,7 @@ static const struct mac_method mac_method_hmac_sha1_96 = {
 };
 
 #if LIBSSH2_MD5
-/* mac_method_hmac_md5_hash
+/*
  * Calculate hash using full md5 value
  */
 static int mac_method_hmac_md5_hash(LIBSSH2_SESSION *session,
@@ -333,7 +331,7 @@ static const struct mac_method mac_method_hmac_md5 = {
     0
 };
 
-/* mac_method_hmac_md5_96_hash
+/*
  * Calculate hash using first 96 bits of md5 value
  */
 static int mac_method_hmac_md5_96_hash(LIBSSH2_SESSION *session,
@@ -365,7 +363,7 @@ static const struct mac_method mac_method_hmac_md5_96 = {
 #endif /* LIBSSH2_MD5 */
 
 #if LIBSSH2_HMAC_RIPEMD
-/* mac_method_hmac_ripemd160_hash
+/*
  * Calculate hash using ripemd160 value
  */
 static int mac_method_hmac_ripemd160_hash(LIBSSH2_SESSION *session,
