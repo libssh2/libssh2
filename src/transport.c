@@ -53,9 +53,8 @@
 
 #ifdef LIBSSH2DEBUG
 #define UNPRINTABLE_CHAR '.'
-static void
-debugdump(LIBSSH2_SESSION *session,
-          const char *desc, const unsigned char *ptr, size_t size)
+static void debugdump(LIBSSH2_SESSION *session,
+                      const char *desc, const unsigned char *ptr, size_t size)
 {
     size_t i;
     size_t c;
@@ -122,9 +121,8 @@ debugdump(LIBSSH2_SESSION *session,
  *
  * returns 0 on success and negative on failure
  */
-static int
-decrypt(LIBSSH2_SESSION *session, unsigned char *source,
-        unsigned char *dest, ssize_t len, int firstlast)
+static int decrypt(LIBSSH2_SESSION *session, unsigned char *source,
+                   unsigned char *dest, ssize_t len, int firstlast)
 {
     struct transportpacket *p = &session->packet;
     int blocksize = session->remote.crypt->blocksize;
@@ -177,8 +175,7 @@ decrypt(LIBSSH2_SESSION *session, unsigned char *source,
  * fullpacket() gets called when a full packet has been received and properly
  * collected.
  */
-static int
-fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */ )
+static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
 {
     unsigned char macbuf[MAX_MACSIZE];
     struct transportpacket *p = &session->packet;
@@ -915,9 +912,8 @@ libssh2_transport_read_point1:
     return LIBSSH2_ERROR_SOCKET_RECV; /* we never reach this point */
 }
 
-static int
-send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
-              size_t data_len, ssize_t *ret)
+static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
+                         size_t data_len, ssize_t *ret)
 {
     ssize_t rc;
     ssize_t length;

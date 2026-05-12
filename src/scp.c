@@ -131,9 +131,8 @@
   until then it is kept static and in this source file.
 */
 
-static size_t
-shell_quotearg(const char *path, unsigned char *buf,
-               size_t bufsize)
+static size_t shell_quotearg(const char *path,
+                             unsigned char *buf, size_t bufsize)
 {
     const char *src;
     unsigned char *dst, *endp;
@@ -276,8 +275,8 @@ shell_quotearg(const char *path, unsigned char *buf,
  * Open a channel and request a remote file via SCP
  *
  */
-static LIBSSH2_CHANNEL *
-scp_recv(LIBSSH2_SESSION *session, const char *path, libssh2_struct_stat *sb)
+static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
+                                 const char *path, libssh2_struct_stat *sb)
 {
     size_t cmd_len;
     int rc;
@@ -857,9 +856,10 @@ LIBSSH2_CHANNEL *libssh2_scp_recv2(LIBSSH2_SESSION *session, const char *path,
  * Send a file using SCP
  *
  */
-static LIBSSH2_CHANNEL *
-scp_send(LIBSSH2_SESSION *session, const char *path, int mode,
-         libssh2_int64_t size, time_t mtime, time_t atime)
+static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
+                                 const char *path, int mode,
+                                 libssh2_int64_t size,
+                                 time_t mtime, time_t atime)
 {
     size_t cmd_len;
     int rc;

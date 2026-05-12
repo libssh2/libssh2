@@ -222,8 +222,8 @@ static int sk_pub_openssh_keyfilememory(LIBSSH2_SESSION *session,
                                         const unsigned char *passphrase);
 
 #if LIBSSH2_RSA || LIBSSH2_DSA || LIBSSH2_ECDSA
-static unsigned char *
-write_bn(unsigned char *buf, const BIGNUM *bn, int bn_bytes)
+static unsigned char *write_bn(unsigned char *buf, const BIGNUM *bn,
+                               int bn_bytes)
 {
     unsigned char *p = buf;
 
@@ -1458,14 +1458,14 @@ out:
 }
 #endif /* ndef USE_OPENSSL_3 */
 
-static int
-gen_publickey_from_rsa_openssh_priv_data(LIBSSH2_SESSION *session,
-                                         struct string_buf *decrypted,
-                                         unsigned char **method,
-                                         size_t *method_len,
-                                         unsigned char **pubkeydata,
-                                         size_t *pubkeydata_len,
-                                         libssh2_rsa_ctx **rsa_ctx)
+static int gen_publickey_from_rsa_openssh_priv_data(
+    LIBSSH2_SESSION *session,
+    struct string_buf *decrypted,
+    unsigned char **method,
+    size_t *method_len,
+    unsigned char **pubkeydata,
+    size_t *pubkeydata_len,
+    libssh2_rsa_ctx **rsa_ctx)
 {
     int rc = 0;
     size_t nlen, elen, dlen, plen, qlen, coefflen, commentlen;
@@ -1834,14 +1834,14 @@ __alloc_error:
                           "Unable to allocate memory for private key data");
 }
 
-static int
-gen_publickey_from_dsa_openssh_priv_data(LIBSSH2_SESSION *session,
-                                         struct string_buf *decrypted,
-                                         unsigned char **method,
-                                         size_t *method_len,
-                                         unsigned char **pubkeydata,
-                                         size_t *pubkeydata_len,
-                                         libssh2_dsa_ctx **dsa_ctx)
+static int gen_publickey_from_dsa_openssh_priv_data(
+    LIBSSH2_SESSION *session,
+    struct string_buf *decrypted,
+    unsigned char **method,
+    size_t *method_len,
+    unsigned char **pubkeydata,
+    size_t *pubkeydata_len,
+    libssh2_dsa_ctx **dsa_ctx)
 {
     int rc = 0;
     size_t plen, qlen, glen, pub_len, priv_len;
@@ -2215,14 +2215,14 @@ fail:
     return -1;
 }
 
-static int
-gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
-                                             struct string_buf *decrypted,
-                                             unsigned char **method,
-                                             size_t *method_len,
-                                             unsigned char **pubkeydata,
-                                             size_t *pubkeydata_len,
-                                             libssh2_ed25519_ctx **out_ctx)
+static int gen_publickey_from_ed25519_openssh_priv_data(
+    LIBSSH2_SESSION *session,
+    struct string_buf *decrypted,
+    unsigned char **method,
+    size_t *method_len,
+    unsigned char **pubkeydata,
+    size_t *pubkeydata_len,
+    libssh2_ed25519_ctx **out_ctx)
 {
     libssh2_ed25519_ctx *ctx = NULL;
     unsigned char *method_buf = NULL;
@@ -2358,18 +2358,18 @@ clean_exit:
     return -1;
 }
 
-static int
-gen_publickey_from_sk_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
-                                                struct string_buf *decrypted,
-                                                unsigned char **method,
-                                                size_t *method_len,
-                                                unsigned char **pubkeydata,
-                                                size_t *pubkeydata_len,
-                                                unsigned char *flags,
-                                                const char **application,
-                                              const unsigned char **key_handle,
-                                                size_t *handle_len,
-                                                libssh2_ed25519_ctx **out_ctx)
+static int gen_publickey_from_sk_ed25519_openssh_priv_data(
+    LIBSSH2_SESSION *session,
+    struct string_buf *decrypted,
+    unsigned char **method,
+    size_t *method_len,
+    unsigned char **pubkeydata,
+    size_t *pubkeydata_len,
+    unsigned char *flags,
+    const char **application,
+    const unsigned char **key_handle,
+    size_t *handle_len,
+    libssh2_ed25519_ctx **out_ctx)
 {
     const char *key_type = "sk-ssh-ed25519@openssh.com";
 
@@ -3722,15 +3722,15 @@ clean_exit:
     return -1;
 }
 
-static int
-gen_publickey_from_ecdsa_openssh_priv_data(LIBSSH2_SESSION *session,
-                                           libssh2_curve_type curve_type,
-                                           struct string_buf *decrypted,
-                                           unsigned char **method,
-                                           size_t *method_len,
-                                           unsigned char **pubkeydata,
-                                           size_t *pubkeydata_len,
-                                           libssh2_ecdsa_ctx **ec_ctx)
+static int gen_publickey_from_ecdsa_openssh_priv_data(
+    LIBSSH2_SESSION *session,
+    libssh2_curve_type curve_type,
+    struct string_buf *decrypted,
+    unsigned char **method,
+    size_t *method_len,
+    unsigned char **pubkeydata,
+    size_t *pubkeydata_len,
+    libssh2_ecdsa_ctx **ec_ctx)
 {
     int rc = 0;
     size_t curvelen, exponentlen, pointlen;
@@ -3871,18 +3871,18 @@ fail:
     return rc;
 }
 
-static int
-gen_publickey_from_sk_ecdsa_openssh_priv_data(LIBSSH2_SESSION *session,
-                                              struct string_buf *decrypted,
-                                              unsigned char **method,
-                                              size_t *method_len,
-                                              unsigned char **pubkeydata,
-                                              size_t *pubkeydata_len,
-                                              uint8_t *flags,
-                                              const char **application,
-                                              const unsigned char **key_handle,
-                                              size_t *handle_len,
-                                              libssh2_ecdsa_ctx **ec_ctx)
+static int gen_publickey_from_sk_ecdsa_openssh_priv_data(
+    LIBSSH2_SESSION *session,
+    struct string_buf *decrypted,
+    unsigned char **method,
+    size_t *method_len,
+    unsigned char **pubkeydata,
+    size_t *pubkeydata_len,
+    uint8_t *flags,
+    const char **application,
+    const unsigned char **key_handle,
+    size_t *handle_len,
+    libssh2_ecdsa_ctx **ec_ctx)
 {
     int rc = 0;
     size_t curvelen, pointlen, key_len, app_len;

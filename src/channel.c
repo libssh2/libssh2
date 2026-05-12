@@ -381,9 +381,9 @@ LIBSSH2_CHANNEL *libssh2_channel_open_ex(LIBSSH2_SESSION *session,
  *
  * Tunnel TCP/IP connect through the SSH session to direct host/port
  */
-static LIBSSH2_CHANNEL *
-channel_direct_tcpip(LIBSSH2_SESSION *session, const char *host,
-                     int port, const char *shost, int sport)
+static LIBSSH2_CHANNEL *channel_direct_tcpip(LIBSSH2_SESSION *session,
+                                             const char *host, int port,
+                                             const char *shost, int sport)
 {
     LIBSSH2_CHANNEL *channel;
     unsigned char *s;
@@ -463,9 +463,10 @@ LIBSSH2_CHANNEL *libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *session,
  *
  * Tunnel TCP/IP connect through the SSH session to direct UNIX socket
  */
-static LIBSSH2_CHANNEL *
-channel_direct_streamlocal(LIBSSH2_SESSION *session, const char *socket_path,
-                           const char *shost, int sport)
+static LIBSSH2_CHANNEL *channel_direct_streamlocal(
+    LIBSSH2_SESSION *session,
+    const char *socket_path,
+    const char *shost, int sport)
 {
     LIBSSH2_CHANNEL *channel;
     unsigned char *s;
@@ -542,9 +543,10 @@ LIBSSH2_CHANNEL *libssh2_channel_direct_streamlocal_ex(
  *
  * Bind a port on the remote host and listen for connections
  */
-static LIBSSH2_LISTENER *
-channel_forward_listen(LIBSSH2_SESSION *session, const char *host,
-                       int port, int *bound_port, int queue_maxsize)
+static LIBSSH2_LISTENER *channel_forward_listen(LIBSSH2_SESSION *session,
+                                                const char *host, int port,
+                                                int *bound_port,
+                                                int queue_maxsize)
 {
     unsigned char *s;
     static const unsigned char reply_codes[3] =
@@ -829,8 +831,7 @@ int libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
  *
  * Accept a connection
  */
-static LIBSSH2_CHANNEL *
-channel_forward_accept(LIBSSH2_LISTENER *listener)
+static LIBSSH2_CHANNEL *channel_forward_accept(LIBSSH2_LISTENER *listener)
 {
     int rc;
 
@@ -1292,9 +1293,8 @@ int libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel, const char *term,
     return rc;
 }
 
-static int
-channel_request_pty_size(LIBSSH2_CHANNEL *channel, int width,
-                         int height, int width_px, int height_px)
+static int channel_request_pty_size(LIBSSH2_CHANNEL *channel, int width,
+                                    int height, int width_px, int height_px)
 {
     LIBSSH2_SESSION *session = channel->session;
     unsigned char *s;
@@ -1373,10 +1373,9 @@ int libssh2_channel_request_pty_size_ex(LIBSSH2_CHANNEL *channel,
  * channel_x11_req
  * Request X11 forwarding
  */
-static int
-channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
-                const char *auth_proto, const char *auth_cookie,
-                int screen_number)
+static int channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
+                           const char *auth_proto, const char *auth_cookie,
+                           int screen_number)
 {
     LIBSSH2_SESSION *session = channel->session;
     unsigned char *s;

@@ -55,11 +55,12 @@
  * end and that no more-preferable methods are available.
  *
  */
-static int
-mac_none_MAC(LIBSSH2_SESSION *session, unsigned char *buf,
-             uint32_t seqno, const unsigned char *packet,
-             size_t packet_len, const unsigned char *addtl,
-             size_t addtl_len, void **abstract)
+static int mac_none_MAC(LIBSSH2_SESSION *session,
+                        unsigned char *buf, uint32_t seqno,
+                        const unsigned char *packet,
+                        size_t packet_len,
+                        const unsigned char *addtl,
+                        size_t addtl_len, void **abstract)
 {
     return 0;
 }
@@ -78,9 +79,8 @@ static const struct mac_method mac_method_none = {
 /* mac_method_common_init
  * Initialize simple mac methods
  */
-static int
-mac_method_common_init(LIBSSH2_SESSION *session, unsigned char *key,
-                       int *free_key, void **abstract)
+static int mac_method_common_init(LIBSSH2_SESSION *session, unsigned char *key,
+                                  int *free_key, void **abstract)
 {
     *abstract = key;
     *free_key = 0;
@@ -92,8 +92,7 @@ mac_method_common_init(LIBSSH2_SESSION *session, unsigned char *key,
 /* mac_method_common_dtor
  * Cleanup simple mac methods
  */
-static int
-mac_method_common_dtor(LIBSSH2_SESSION *session, void **abstract)
+static int mac_method_common_dtor(LIBSSH2_SESSION *session, void **abstract)
 {
     if(*abstract) {
         LIBSSH2_FREE(session, *abstract);
@@ -107,13 +106,12 @@ mac_method_common_dtor(LIBSSH2_SESSION *session, void **abstract)
 /* mac_method_hmac_sha512_hash
  * Calculate hash using full sha512 value
  */
-static int
-mac_method_hmac_sha2_512_hash(LIBSSH2_SESSION *session,
-                              unsigned char *buf, uint32_t seqno,
-                              const unsigned char *packet,
-                              size_t packet_len,
-                              const unsigned char *addtl,
-                              size_t addtl_len, void **abstract)
+static int mac_method_hmac_sha2_512_hash(LIBSSH2_SESSION *session,
+                                         unsigned char *buf, uint32_t seqno,
+                                         const unsigned char *packet,
+                                         size_t packet_len,
+                                         const unsigned char *addtl,
+                                         size_t addtl_len, void **abstract)
 {
     libssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
@@ -162,13 +160,12 @@ static const struct mac_method mac_method_hmac_sha2_512_etm = {
 /* mac_method_hmac_sha256_hash
  * Calculate hash using full sha256 value
  */
-static int
-mac_method_hmac_sha2_256_hash(LIBSSH2_SESSION *session,
-                              unsigned char *buf, uint32_t seqno,
-                              const unsigned char *packet,
-                              size_t packet_len,
-                              const unsigned char *addtl,
-                              size_t addtl_len, void **abstract)
+static int mac_method_hmac_sha2_256_hash(LIBSSH2_SESSION *session,
+                                         unsigned char *buf, uint32_t seqno,
+                                         const unsigned char *packet,
+                                         size_t packet_len,
+                                         const unsigned char *addtl,
+                                         size_t addtl_len, void **abstract)
 {
     libssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
@@ -216,13 +213,12 @@ static const struct mac_method mac_method_hmac_sha2_256_etm = {
 /* mac_method_hmac_sha1_hash
  * Calculate hash using full sha1 value
  */
-static int
-mac_method_hmac_sha1_hash(LIBSSH2_SESSION *session,
-                          unsigned char *buf, uint32_t seqno,
-                          const unsigned char *packet,
-                          size_t packet_len,
-                          const unsigned char *addtl,
-                          size_t addtl_len, void **abstract)
+static int mac_method_hmac_sha1_hash(LIBSSH2_SESSION *session,
+                                     unsigned char *buf, uint32_t seqno,
+                                     const unsigned char *packet,
+                                     size_t packet_len,
+                                     const unsigned char *addtl,
+                                     size_t addtl_len, void **abstract)
 {
     libssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
@@ -268,13 +264,12 @@ static const struct mac_method mac_method_hmac_sha1_etm = {
 /* mac_method_hmac_sha1_96_hash
  * Calculate hash using first 96 bits of sha1 value
  */
-static int
-mac_method_hmac_sha1_96_hash(LIBSSH2_SESSION *session,
-                             unsigned char *buf, uint32_t seqno,
-                             const unsigned char *packet,
-                             size_t packet_len,
-                             const unsigned char *addtl,
-                             size_t addtl_len, void **abstract)
+static int mac_method_hmac_sha1_96_hash(LIBSSH2_SESSION *session,
+                                        unsigned char *buf, uint32_t seqno,
+                                        const unsigned char *packet,
+                                        size_t packet_len,
+                                        const unsigned char *addtl,
+                                        size_t addtl_len, void **abstract)
 {
     unsigned char temp[SHA_DIGEST_LENGTH];
 
@@ -300,13 +295,12 @@ static const struct mac_method mac_method_hmac_sha1_96 = {
 /* mac_method_hmac_md5_hash
  * Calculate hash using full md5 value
  */
-static int
-mac_method_hmac_md5_hash(LIBSSH2_SESSION *session, unsigned char *buf,
-                         uint32_t seqno,
-                         const unsigned char *packet,
-                         size_t packet_len,
-                         const unsigned char *addtl,
-                         size_t addtl_len, void **abstract)
+static int mac_method_hmac_md5_hash(LIBSSH2_SESSION *session,
+                                    unsigned char *buf, uint32_t seqno,
+                                    const unsigned char *packet,
+                                    size_t packet_len,
+                                    const unsigned char *addtl,
+                                    size_t addtl_len, void **abstract)
 {
     libssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
@@ -342,13 +336,12 @@ static const struct mac_method mac_method_hmac_md5 = {
 /* mac_method_hmac_md5_96_hash
  * Calculate hash using first 96 bits of md5 value
  */
-static int
-mac_method_hmac_md5_96_hash(LIBSSH2_SESSION *session,
-                            unsigned char *buf, uint32_t seqno,
-                            const unsigned char *packet,
-                            size_t packet_len,
-                            const unsigned char *addtl,
-                            size_t addtl_len, void **abstract)
+static int mac_method_hmac_md5_96_hash(LIBSSH2_SESSION *session,
+                                       unsigned char *buf, uint32_t seqno,
+                                       const unsigned char *packet,
+                                       size_t packet_len,
+                                       const unsigned char *addtl,
+                                       size_t addtl_len, void **abstract)
 {
     unsigned char temp[MD5_DIGEST_LENGTH];
 
@@ -375,14 +368,12 @@ static const struct mac_method mac_method_hmac_md5_96 = {
 /* mac_method_hmac_ripemd160_hash
  * Calculate hash using ripemd160 value
  */
-static int
-mac_method_hmac_ripemd160_hash(LIBSSH2_SESSION *session,
-                               unsigned char *buf, uint32_t seqno,
-                               const unsigned char *packet,
-                               size_t packet_len,
-                               const unsigned char *addtl,
-                               size_t addtl_len,
-                               void **abstract)
+static int mac_method_hmac_ripemd160_hash(LIBSSH2_SESSION *session,
+                                          unsigned char *buf, uint32_t seqno,
+                                          const unsigned char *packet,
+                                          size_t packet_len,
+                                          const unsigned char *addtl,
+                                          size_t addtl_len, void **abstract)
 {
     libssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
@@ -459,9 +450,8 @@ _libssh2_mac_methods(void)
 }
 
 #if LIBSSH2_AES_GCM
-static int
-mac_method_none_init(LIBSSH2_SESSION *session, unsigned char *key,
-                     int *free_key, void **abstract)
+static int mac_method_none_init(LIBSSH2_SESSION *session, unsigned char *key,
+                                int *free_key, void **abstract)
 {
     (void)session;
     (void)key;
@@ -470,13 +460,12 @@ mac_method_none_init(LIBSSH2_SESSION *session, unsigned char *key,
     return 0;
 }
 
-static int
-mac_method_hmac_none_hash(LIBSSH2_SESSION *session,
-                          unsigned char *buf, uint32_t seqno,
-                          const unsigned char *packet,
-                          size_t packet_len,
-                          const unsigned char *addtl,
-                          size_t addtl_len, void **abstract)
+static int mac_method_hmac_none_hash(LIBSSH2_SESSION *session,
+                                     unsigned char *buf, uint32_t seqno,
+                                     const unsigned char *packet,
+                                     size_t packet_len,
+                                     const unsigned char *addtl,
+                                     size_t addtl_len, void **abstract)
 {
     (void)session;
     (void)buf;
@@ -489,8 +478,7 @@ mac_method_hmac_none_hash(LIBSSH2_SESSION *session,
     return 0;
 }
 
-static int
-mac_method_none_dtor(LIBSSH2_SESSION *session, void **abstract)
+static int mac_method_none_dtor(LIBSSH2_SESSION *session, void **abstract)
 {
     (void)session;
     (void)abstract;

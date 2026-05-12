@@ -62,10 +62,10 @@
  *
  * Queue a connection request for a listener
  */
-static inline int
-packet_queue_listener(LIBSSH2_SESSION *session, unsigned char *data,
-                      size_t datalen,
-                      struct packet_queue_listener_state *listen_state)
+static inline int packet_queue_listener(
+    LIBSSH2_SESSION *session,
+    unsigned char *data, size_t datalen,
+    struct packet_queue_listener_state *listen_state)
 {
     /*
      * Look for a matching listener
@@ -276,10 +276,10 @@ packet_queue_listener(LIBSSH2_SESSION *session, unsigned char *data,
  *
  * Accept a forwarded X11 connection
  */
-static inline int
-packet_x11_open(LIBSSH2_SESSION *session, unsigned char *data,
-                size_t datalen,
-                struct packet_x11_open_state *x11open_state)
+static inline int packet_x11_open(
+    LIBSSH2_SESSION *session,
+    unsigned char *data, size_t datalen,
+    struct packet_x11_open_state *x11open_state)
 {
     uint32_t failure_code = SSH_OPEN_CONNECT_FAILED;
     /* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */
@@ -477,10 +477,10 @@ x11_exit:
  *
  * Open a connection to authentication agent
  */
-static inline int
-packet_authagent_open(LIBSSH2_SESSION *session,
-                      unsigned char *data, size_t datalen,
-                      struct packet_authagent_state *authagent_state)
+static inline int packet_authagent_open(
+    LIBSSH2_SESSION *session,
+    unsigned char *data, size_t datalen,
+    struct packet_authagent_state *authagent_state)
 {
     uint32_t failure_code = SSH_OPEN_CONNECT_FAILED;
     /* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */

@@ -70,8 +70,7 @@
 
 /* libssh2_default_alloc
  */
-static
-LIBSSH2_ALLOC_FUNC(libssh2_default_alloc)
+static LIBSSH2_ALLOC_FUNC(libssh2_default_alloc)
 {
     (void)abstract;
     return malloc(count);
@@ -79,8 +78,7 @@ LIBSSH2_ALLOC_FUNC(libssh2_default_alloc)
 
 /* libssh2_default_free
  */
-static
-LIBSSH2_FREE_FUNC(libssh2_default_free)
+static LIBSSH2_FREE_FUNC(libssh2_default_free)
 {
     (void)abstract;
     free(ptr);
@@ -88,8 +86,7 @@ LIBSSH2_FREE_FUNC(libssh2_default_free)
 
 /* libssh2_default_realloc
  */
-static
-LIBSSH2_REALLOC_FUNC(libssh2_default_realloc)
+static LIBSSH2_REALLOC_FUNC(libssh2_default_realloc)
 {
     (void)abstract;
     return realloc(ptr, count);
@@ -103,8 +100,7 @@ LIBSSH2_REALLOC_FUNC(libssh2_default_realloc)
  * Returns: 0 on success, LIBSSH2_ERROR_EAGAIN if read would block, negative
  * on failure
  */
-static int
-banner_receive(LIBSSH2_SESSION *session)
+static int banner_receive(LIBSSH2_SESSION *session)
 {
     ssize_t ret;
     size_t banner_len;
@@ -209,8 +205,7 @@ banner_receive(LIBSSH2_SESSION *session)
  * be sent, and this function should then be called with the same argument set
  * (same data pointer and same data_len) until zero or failure is returned.
  */
-static int
-banner_send(LIBSSH2_SESSION *session)
+static int banner_send(LIBSSH2_SESSION *session)
 {
     const char *banner = LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF;
     size_t banner_len = sizeof(LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF) - 1;
@@ -289,9 +284,8 @@ banner_send(LIBSSH2_SESSION *session)
  * non-blocking mode based on the 'nonblock' boolean argument. This function
  * is copied from the libcurl sources with permission.
  */
-static int
-session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
-                 int nonblock /* TRUE or FALSE */ )
+static int session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
+                            int nonblock /* TRUE or FALSE */ )
 {
 #ifdef HAVE_O_NONBLOCK
     /* most recent unix versions */
@@ -332,9 +326,8 @@ session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
  *
  * gets the given blocking or non-blocking state of the socket.
  */
-static int
-get_socket_nonblocking(libssh2_socket_t sockfd)
-{                               /* operate on this */
+static int get_socket_nonblocking(libssh2_socket_t sockfd)
+{                                 /* operate on this */
 #ifdef HAVE_O_NONBLOCK
     /* most recent unix versions */
     int flags = fcntl(sockfd, F_GETFL, 0);
@@ -735,8 +728,7 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
     return 0; /* ready to try again */
 }
 
-static int
-session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
+static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 {
     int rc;
 
@@ -918,8 +910,7 @@ int libssh2_session_startup(LIBSSH2_SESSION *session, int sock)
  * Frees the memory allocated to the session
  * Also closes and frees any channels attached to this session
  */
-static int
-session_free(LIBSSH2_SESSION *session)
+static int session_free(LIBSSH2_SESSION *session)
 {
     int rc;
     struct packet *pkg;
@@ -1198,10 +1189,9 @@ int libssh2_session_free(LIBSSH2_SESSION *session)
 /*
  * session_disconnect
  */
-static int
-session_disconnect(LIBSSH2_SESSION *session, int reason,
-                   const char *description,
-                   const char *lang)
+static int session_disconnect(LIBSSH2_SESSION *session, int reason,
+                              const char *description,
+                              const char *lang)
 {
     unsigned char *s;
     size_t descr_len = 0, lang_len = 0;
@@ -1582,8 +1572,7 @@ int libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended)
  * Returns 0 if writing to channel would block,
  * non-0 if data can be written without blocking
  */
-static inline int
-poll_channel_write(LIBSSH2_CHANNEL *channel)
+static inline int poll_channel_write(LIBSSH2_CHANNEL *channel)
 {
     return channel->local.window_size ? 1 : 0;
 }
@@ -1593,8 +1582,7 @@ poll_channel_write(LIBSSH2_CHANNEL *channel)
  * Returns 0 if no connections are waiting to be accepted
  * non-0 if one or more connections are available
  */
-static inline int
-poll_listener_queued(LIBSSH2_LISTENER *listener)
+static inline int poll_listener_queued(LIBSSH2_LISTENER *listener)
 {
     return _libssh2_list_first(&listener->queue) ? 1 : 0;
 }

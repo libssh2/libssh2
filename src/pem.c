@@ -40,8 +40,7 @@
 
 #include "libssh2_priv.h"
 
-static int
-readline(char *line, int line_size, FILE *fp)
+static int readline(char *line, int line_size, FILE *fp)
 {
     size_t len;
 
@@ -69,10 +68,9 @@ readline(char *line, int line_size, FILE *fp)
     return 0;
 }
 
-static int
-readline_memory(char *line, size_t line_size,
-                const char *filedata, size_t filedata_len,
-                size_t *filedata_offset)
+static int readline_memory(char *line, size_t line_size,
+                           const char *filedata, size_t filedata_len,
+                           size_t *filedata_offset)
 {
     size_t off, len;
 
@@ -414,11 +412,11 @@ out:
 #define OPENSSH_HEADER_BEGIN "-----BEGIN OPENSSH PRIVATE KEY-----"
 #define OPENSSH_HEADER_END "-----END OPENSSH PRIVATE KEY-----"
 
-static int
-_libssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
-                                const unsigned char *passphrase,
-                                const char *b64data, size_t b64datalen,
-                                struct string_buf **decrypted_buf)
+static int _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
+                                           const unsigned char *passphrase,
+                                           const char *b64data,
+                                           size_t b64datalen,
+                                           struct string_buf **decrypted_buf)
 {
     const struct crypt_method *method = NULL;
     struct string_buf decoded, decrypted, kdf_buf;
@@ -898,9 +896,8 @@ out:
     return ret;
 }
 
-static int
-read_asn1_length(const unsigned char *data,
-                 size_t datalen, size_t *len)
+static int read_asn1_length(const unsigned char *data,
+                            size_t datalen, size_t *len)
 {
     unsigned int lenlen;
     int nextpos;

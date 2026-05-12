@@ -99,9 +99,9 @@ static const struct publickey_code_list publickey_status_codes[] = {
  *
  * Format an error message from a status code
  */
-static void
-publickey_status_error(const LIBSSH2_PUBLICKEY *pkey,
-                       LIBSSH2_SESSION *session, unsigned long status)
+static void publickey_status_error(const LIBSSH2_PUBLICKEY *pkey,
+                                   LIBSSH2_SESSION *session,
+                                   unsigned long status)
 {
     const char *msg;
 
@@ -125,9 +125,8 @@ publickey_status_error(const LIBSSH2_PUBLICKEY *pkey,
  *
  * Read a packet from the subsystem
  */
-static int
-publickey_packet_receive(LIBSSH2_PUBLICKEY *pkey,
-                         unsigned char **data, size_t *data_len)
+static int publickey_packet_receive(LIBSSH2_PUBLICKEY *pkey,
+                                    unsigned char **data, size_t *data_len)
 {
     LIBSSH2_CHANNEL *channel = pkey->channel;
     LIBSSH2_SESSION *session = channel->session;
@@ -189,8 +188,7 @@ publickey_packet_receive(LIBSSH2_PUBLICKEY *pkey,
  * Translate a string response name to a numeric code
  * Data will be incremented by 4 + response_len on success only
  */
-static int
-publickey_response_id(unsigned char **pdata, size_t data_len)
+static int publickey_response_id(unsigned char **pdata, size_t data_len)
 {
     size_t response_len;
     unsigned char *data = *pdata;
@@ -224,8 +222,7 @@ publickey_response_id(unsigned char **pdata, size_t data_len)
  *
  * Generic helper routine to wait for success response and nothing else
  */
-static int
-publickey_response_success(LIBSSH2_PUBLICKEY *pkey)
+static int publickey_response_success(LIBSSH2_PUBLICKEY *pkey)
 {
     LIBSSH2_SESSION *session = pkey->channel->session;
     unsigned char *data, *s;

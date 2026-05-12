@@ -248,8 +248,7 @@ struct _LIBSSH2_AGENT
 
 #define WIN32_OPENSSH_AGENT_SOCK "\\\\.\\pipe\\openssh-ssh-agent"
 
-static int
-agent_connect_openssh(LIBSSH2_AGENT *agent)
+static int agent_connect_openssh(LIBSSH2_AGENT *agent)
 {
     int ret = LIBSSH2_ERROR_NONE;
     const char *path;
@@ -362,16 +361,16 @@ cleanup:
     *(total) = 0;                                                      \
     return rc;
 
-static int
-win32_openssh_send_all(LIBSSH2_AGENT *agent, void *buffer, size_t length,
-                       size_t *send_recv_total)
+static int win32_openssh_send_all(LIBSSH2_AGENT *agent,
+                                  void *buffer, size_t length,
+                                  size_t *send_recv_total)
 {
     WIN32_RECV_SEND_ALL(WriteFile, agent, buffer, length, send_recv_total)
 }
 
-static int
-win32_openssh_recv_all(LIBSSH2_AGENT *agent, void *buffer, size_t length,
-                       size_t *send_recv_total)
+static int win32_openssh_recv_all(LIBSSH2_AGENT *agent,
+                                  void *buffer, size_t length,
+                                  size_t *send_recv_total)
 {
     WIN32_RECV_SEND_ALL(ReadFile, agent, buffer, length, send_recv_total)
 }
@@ -443,8 +442,7 @@ static int agent_transact_openssh(LIBSSH2_AGENT *agent,
     return LIBSSH2_ERROR_NONE;
 }
 
-static int
-agent_disconnect_openssh(LIBSSH2_AGENT *agent)
+static int agent_disconnect_openssh(LIBSSH2_AGENT *agent)
 {
     if(!CancelIo(agent->pipe))
         return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
@@ -474,8 +472,7 @@ static struct agent_ops agent_ops_openssh = {
 #endif /* HAVE_WIN32_AGENTS */
 
 #ifdef PF_UNIX
-static int
-agent_connect_unix(LIBSSH2_AGENT *agent)
+static int agent_connect_unix(LIBSSH2_AGENT *agent)
 {
     const char *path;
     struct sockaddr_un s_un;
@@ -618,8 +615,7 @@ static int agent_transact_unix(LIBSSH2_AGENT *agent,
     return 0;
 }
 
-static int
-agent_disconnect_unix(LIBSSH2_AGENT *agent)
+static int agent_disconnect_unix(LIBSSH2_AGENT *agent)
 {
     int ret;
     ret = close(agent->fd);
@@ -649,8 +645,7 @@ static struct agent_ops agent_ops_unix = {
 #define PAGEANT_COPYDATA_ID 0x804e50ba   /* random goop */
 #define PAGEANT_MAX_MSGLEN  8192
 
-static int
-agent_connect_pageant(LIBSSH2_AGENT *agent)
+static int agent_connect_pageant(LIBSSH2_AGENT *agent)
 {
     HWND hwnd;
     hwnd = FindWindowA("Pageant", "Pageant");
@@ -735,8 +730,7 @@ static int agent_transact_pageant(LIBSSH2_AGENT *agent,
     return 0;
 }
 
-static int
-agent_disconnect_pageant(LIBSSH2_AGENT *agent)
+static int agent_disconnect_pageant(LIBSSH2_AGENT *agent)
 {
     agent->fd = LIBSSH2_INVALID_SOCKET;
     return 0;
@@ -763,9 +757,10 @@ static struct {
     {NULL, NULL}
 };
 
-static int
-agent_sign(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
-           const unsigned char *data, size_t data_len, void **abstract)
+static int agent_sign(LIBSSH2_SESSION *session,
+                      unsigned char **sig, size_t *sig_len,
+                      const unsigned char *data, size_t data_len,
+                      void **abstract)
 {
     LIBSSH2_AGENT *agent = (LIBSSH2_AGENT *)(*abstract);
     struct agent_transaction_ctx *transctx = &agent->transctx;
@@ -925,8 +920,7 @@ error:
     return _libssh2_error(session, rc, "agent sign failure");
 }
 
-static int
-agent_list_identities(LIBSSH2_AGENT *agent)
+static int agent_list_identities(LIBSSH2_AGENT *agent)
 {
     struct agent_transaction_ctx *transctx = &agent->transctx;
     ssize_t len, num_identities;
@@ -1060,8 +1054,7 @@ error:
                           "agent list id failed");
 }
 
-static void
-agent_free_identities(LIBSSH2_AGENT *agent)
+static void agent_free_identities(LIBSSH2_AGENT *agent)
 {
     struct agent_publickey *node;
     struct agent_publickey *next;
@@ -1082,8 +1075,8 @@ agent_free_identities(LIBSSH2_AGENT *agent)
  * Copies data from the internal to the external representation struct.
  *
  */
-static struct libssh2_agent_publickey *
-agent_publickey_to_external(struct agent_publickey *node)
+static struct libssh2_agent_publickey *agent_publickey_to_external(
+    struct agent_publickey *node)
 {
     struct libssh2_agent_publickey *ext = &node->external;
 

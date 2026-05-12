@@ -108,8 +108,8 @@ static void sftp_packet_flush(LIBSSH2_SFTP *sftp);
  *
  * Returns NULL if ID not in list.
  */
-static struct sftp_zombie_requests *
-find_zombie_request(LIBSSH2_SFTP *sftp, uint32_t request_id)
+static struct sftp_zombie_requests *find_zombie_request(LIBSSH2_SFTP *sftp,
+                                                        uint32_t request_id)
 {
     struct sftp_zombie_requests *zombie =
         _libssh2_list_first(&sftp->zombie_requests);
@@ -124,8 +124,7 @@ find_zombie_request(LIBSSH2_SFTP *sftp, uint32_t request_id)
     return zombie;
 }
 
-static void
-remove_zombie_request(LIBSSH2_SFTP *sftp, uint32_t request_id)
+static void remove_zombie_request(LIBSSH2_SFTP *sftp, uint32_t request_id)
 {
     LIBSSH2_SESSION *session = sftp->channel->session;
 
@@ -142,8 +141,7 @@ remove_zombie_request(LIBSSH2_SFTP *sftp, uint32_t request_id)
     }
 }
 
-static int
-add_zombie_request(LIBSSH2_SFTP *sftp, uint32_t request_id)
+static int add_zombie_request(LIBSSH2_SFTP *sftp, uint32_t request_id)
 {
     LIBSSH2_SESSION *session = sftp->channel->session;
 
@@ -167,9 +165,8 @@ add_zombie_request(LIBSSH2_SFTP *sftp, uint32_t request_id)
 /* sftp_packet_add
  * Add a packet to the SFTP packet brigade
  */
-static int
-sftp_packet_add(LIBSSH2_SFTP *sftp, unsigned char *data,
-                size_t data_len)
+static int sftp_packet_add(LIBSSH2_SFTP *sftp,
+                           unsigned char *data, size_t data_len)
 {
     LIBSSH2_SESSION *session = sftp->channel->session;
     struct sftp_packet *packet;
@@ -261,8 +258,7 @@ sftp_packet_add(LIBSSH2_SFTP *sftp, unsigned char *data,
 /* sftp_packet_read
  * Frame an SFTP packet off the channel
  */
-static int
-sftp_packet_read(LIBSSH2_SFTP *sftp)
+static int sftp_packet_read(LIBSSH2_SFTP *sftp)
 {
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
@@ -457,10 +453,9 @@ static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
  *
  * Checks if there's a matching SFTP packet available.
  */
-static int
-sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
-                uint32_t request_id, unsigned char **data,
-                size_t *data_len)
+static int sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
+                           uint32_t request_id,
+                           unsigned char **data, size_t *data_len)
 {
     LIBSSH2_SESSION *session = sftp->channel->session;
     struct sftp_packet *packet = _libssh2_list_first(&sftp->packets);
@@ -494,10 +489,10 @@ sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
 /* sftp_packet_require
  * A la libssh2_packet_require
  */
-static int
-sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
-                    uint32_t request_id, unsigned char **data,
-                    size_t *data_len, size_t required_size)
+static int sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
+                               uint32_t request_id,
+                               unsigned char **data, size_t *data_len,
+                               size_t required_size)
 {
     LIBSSH2_SESSION *session = sftp->channel->session;
     int rc;
@@ -547,11 +542,11 @@ sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
 /* sftp_packet_requirev
  * Require one of N possible responses
  */
-static int
-sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
-                     const unsigned char *valid_responses,
-                     uint32_t request_id, unsigned char **data,
-                     size_t *data_len, size_t required_size)
+static int sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
+                                const unsigned char *valid_responses,
+                                uint32_t request_id,
+                                unsigned char **data, size_t *data_len,
+                                size_t required_size)
 {
     int i;
     int rc;
@@ -625,8 +620,8 @@ static int sftp_attrsize(unsigned long flags)
 /* sftp_attr2bin
  * Populate attributes into an SFTP block
  */
-static ssize_t
-sftp_attr2bin(unsigned char *p, const LIBSSH2_SFTP_ATTRIBUTES *attrs)
+static ssize_t sftp_attr2bin(unsigned char *p,
+                             const LIBSSH2_SFTP_ATTRIBUTES *attrs)
 {
     unsigned char *s = p;
     uint32_t flag_mask =
@@ -668,9 +663,8 @@ sftp_attr2bin(unsigned char *p, const LIBSSH2_SFTP_ATTRIBUTES *attrs)
 
 /* sftp_bin2attr
  */
-static ssize_t
-sftp_bin2attr(LIBSSH2_SFTP_ATTRIBUTES *attrs, const unsigned char *p,
-              size_t data_len)
+static ssize_t sftp_bin2attr(LIBSSH2_SFTP_ATTRIBUTES *attrs,
+                             const unsigned char *p, size_t data_len)
 {
     struct string_buf buf;
     uint32_t flags = 0;
@@ -1051,8 +1045,7 @@ LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session)
 /* sftp_shutdown
  * Shuts down the SFTP subsystem
  */
-static int
-sftp_shutdown(LIBSSH2_SFTP *sftp)
+static int sftp_shutdown(LIBSSH2_SFTP *sftp)
 {
     int rc;
     LIBSSH2_SESSION *session = sftp->channel->session;
@@ -2656,8 +2649,7 @@ static void sftp_packet_flush(LIBSSH2_SFTP *sftp)
  * the return value is LIBSSH2_ERROR_EAGAIN in which case this function
  * should be called again.
  */
-static int
-sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
+static int sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
 {
     LIBSSH2_SFTP *sftp = handle->sftp;
     LIBSSH2_CHANNEL *channel = sftp->channel;
