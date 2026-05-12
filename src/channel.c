@@ -353,11 +353,14 @@ channel_error:
  *
  * Establish a generic session channel
  */
-LIBSSH2_API LIBSSH2_CHANNEL *
-libssh2_channel_open_ex(LIBSSH2_SESSION *session, const char *channel_type,
-                        unsigned int channel_type_len,
-                        unsigned int window_size, unsigned int packet_size,
-                        const char *message, unsigned int message_len)
+LIBSSH2_API
+LIBSSH2_CHANNEL *libssh2_channel_open_ex(LIBSSH2_SESSION *session,
+                                         const char *channel_type,
+                                         unsigned int channel_type_len,
+                                         unsigned int window_size,
+                                         unsigned int packet_size,
+                                         const char *message,
+                                         unsigned int message_len)
 {
     LIBSSH2_CHANNEL *ptr;
 
@@ -439,9 +442,10 @@ channel_direct_tcpip(LIBSSH2_SESSION *session, const char *host,
  *
  * Tunnel TCP/IP connect through the SSH session to direct host/port
  */
-LIBSSH2_API LIBSSH2_CHANNEL *
-libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *session, const char *host,
-                                int port, const char *shost, int sport)
+LIBSSH2_API
+LIBSSH2_CHANNEL *libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *session,
+                                                 const char *host, int port,
+                                                 const char *shost, int sport)
 {
     LIBSSH2_CHANNEL *ptr;
 
@@ -517,10 +521,10 @@ channel_direct_streamlocal(LIBSSH2_SESSION *session, const char *socket_path,
  *
  * Tunnel TCP/IP connect through the SSH session to direct UNIX socket
  */
-LIBSSH2_API LIBSSH2_CHANNEL *
-libssh2_channel_direct_streamlocal_ex(LIBSSH2_SESSION *session,
-                                      const char *socket_path,
-                                      const char *shost, int sport)
+LIBSSH2_API
+LIBSSH2_CHANNEL *libssh2_channel_direct_streamlocal_ex(
+    LIBSSH2_SESSION *session,
+    const char *socket_path, const char *shost, int sport)
 {
     LIBSSH2_CHANNEL *ptr;
 
@@ -692,9 +696,11 @@ channel_forward_listen(LIBSSH2_SESSION *session, const char *host,
  *
  * Bind a port on the remote host and listen for connections
  */
-LIBSSH2_API LIBSSH2_LISTENER *
-libssh2_channel_forward_listen_ex(LIBSSH2_SESSION *session, const char *host,
-                                  int port, int *bound_port, int queue_maxsize)
+LIBSSH2_API
+LIBSSH2_LISTENER *libssh2_channel_forward_listen_ex(LIBSSH2_SESSION *session,
+                                                    const char *host,
+                                                    int port, int *bound_port,
+                                                    int queue_maxsize)
 {
     LIBSSH2_LISTENER *ptr;
 
@@ -805,8 +811,8 @@ int _libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
  *
  * Return 0 on success, LIBSSH2_ERROR_EAGAIN if would block, -1 on error
  */
-LIBSSH2_API int
-libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
+LIBSSH2_API
+int libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
 {
     int rc;
 
@@ -861,8 +867,8 @@ channel_forward_accept(LIBSSH2_LISTENER *listener)
  *
  * Accept a connection
  */
-LIBSSH2_API LIBSSH2_CHANNEL *
-libssh2_channel_forward_accept(LIBSSH2_LISTENER *listener)
+LIBSSH2_API
+LIBSSH2_CHANNEL *libssh2_channel_forward_accept(LIBSSH2_LISTENER *listener)
 {
     LIBSSH2_CHANNEL *ptr;
 
@@ -987,10 +993,10 @@ static int channel_setenv(LIBSSH2_CHANNEL *channel,
  *
  * Set an environment variable prior to requesting a shell/program/subsystem
  */
-LIBSSH2_API int
-libssh2_channel_setenv_ex(LIBSSH2_CHANNEL *channel,
-                          const char *varname, unsigned int varname_len,
-                          const char *value, unsigned int value_len)
+LIBSSH2_API
+int libssh2_channel_setenv_ex(LIBSSH2_CHANNEL *channel,
+                              const char *varname, unsigned int varname_len,
+                              const char *value, unsigned int value_len)
 {
     int rc;
 
@@ -1217,8 +1223,8 @@ static int channel_request_auth_agent(LIBSSH2_CHANNEL *channel,
  * listener on the remote side. Once the channel is closed, the agent
  * listener continues to exist.
  */
-LIBSSH2_API int
-libssh2_channel_request_auth_agent(LIBSSH2_CHANNEL *channel)
+LIBSSH2_API
+int libssh2_channel_request_auth_agent(LIBSSH2_CHANNEL *channel)
 {
     int rc;
 
@@ -1267,11 +1273,12 @@ libssh2_channel_request_auth_agent(LIBSSH2_CHANNEL *channel)
  * libssh2_channel_request_pty_ex
  * Duh... Request a PTY
  */
-LIBSSH2_API int
-libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel, const char *term,
-                               unsigned int term_len, const char *modes,
-                               unsigned int modes_len, int width, int height,
-                               int width_px, int height_px)
+LIBSSH2_API
+int libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel, const char *term,
+                                   unsigned int term_len, const char *modes,
+                                   unsigned int modes_len,
+                                   int width, int height,
+                                   int width_px, int height_px)
 {
     int rc;
 
@@ -1343,9 +1350,10 @@ channel_request_pty_size(LIBSSH2_CHANNEL *channel, int width,
     return retcode;
 }
 
-LIBSSH2_API int
-libssh2_channel_request_pty_size_ex(LIBSSH2_CHANNEL *channel, int width,
-                                    int height, int width_px, int height_px)
+LIBSSH2_API
+int libssh2_channel_request_pty_size_ex(LIBSSH2_CHANNEL *channel,
+                                        int width, int height,
+                                        int width_px, int height_px)
 {
     int rc;
 
@@ -1500,10 +1508,10 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
  * libssh2_channel_x11_req_ex
  * Request X11 forwarding
  */
-LIBSSH2_API int
-libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_connection,
-                           const char *auth_proto, const char *auth_cookie,
-                           int screen_number)
+LIBSSH2_API
+int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_connection,
+                               const char *auth_proto, const char *auth_cookie,
+                               int screen_number)
 {
     int rc;
 
@@ -1630,10 +1638,12 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
  *
  * Primitive for libssh2_channel_(shell|exec|subsystem)
  */
-LIBSSH2_API int
-libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
-                                const char *request, unsigned int request_len,
-                                const char *message, unsigned int message_len)
+LIBSSH2_API
+int libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
+                                    const char *request,
+                                    unsigned int request_len,
+                                    const char *message,
+                                    unsigned int message_len)
 {
     int rc;
 
@@ -1653,8 +1663,8 @@ libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
  * Set a channel's BEHAVIOR blocking on or off. The socket will remain non-
  * blocking.
  */
-LIBSSH2_API void
-libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel, int blocking)
+LIBSSH2_API
+void libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel, int blocking)
 {
     if(channel)
         (void)_libssh2_session_set_blocking(channel->session, blocking);
@@ -1763,8 +1773,8 @@ _libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid)
  * Flush data from one (or all) stream
  * Returns number of bytes flushed, or negative on failure
  */
-LIBSSH2_API int
-libssh2_channel_flush_ex(LIBSSH2_CHANNEL *channel, int streamid)
+LIBSSH2_API
+int libssh2_channel_flush_ex(LIBSSH2_CHANNEL *channel, int streamid)
 {
     int rc;
 
@@ -1784,8 +1794,8 @@ libssh2_channel_flush_ex(LIBSSH2_CHANNEL *channel, int streamid)
  * return error values in case of errors so we return a zero if channel is
  * NULL.
  */
-LIBSSH2_API int
-libssh2_channel_get_exit_status(LIBSSH2_CHANNEL *channel)
+LIBSSH2_API
+int libssh2_channel_get_exit_status(LIBSSH2_CHANNEL *channel)
 {
     if(!channel)
         return 0;
@@ -1803,14 +1813,14 @@ libssh2_channel_get_exit_status(LIBSSH2_CHANNEL *channel)
  * corresponding string parameter is NULL.  Returns LIBSSH2_ERROR_NONE
  * on success, or an API error code.
  */
-LIBSSH2_API int
-libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL *channel,
-                                char **exitsignal,
-                                size_t *exitsignal_len,
-                                char **errmsg,
-                                size_t *errmsg_len,
-                                char **langtag,
-                                size_t *langtag_len)
+LIBSSH2_API
+int libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL *channel,
+                                    char **exitsignal,
+                                    size_t *exitsignal_len,
+                                    char **errmsg,
+                                    size_t *errmsg_len,
+                                    char **langtag,
+                                    size_t *langtag_len)
 {
     size_t namelen = 0;
 
@@ -1946,10 +1956,10 @@ _libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
  * Note that it might return EAGAIN too which is highly stupid.
  *
  */
-LIBSSH2_API unsigned long
-libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
-                                      unsigned long adjustment,
-                                      unsigned char force)
+LIBSSH2_API
+unsigned long libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
+                                                    unsigned long adjustment,
+                                                    unsigned char force)
 {
     unsigned int window;
     int rc;
@@ -1979,11 +1989,11 @@ libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
  *
  * Returns the "normal" error code: 0 for success, negative for failure.
  */
-LIBSSH2_API int
-libssh2_channel_receive_window_adjust2(LIBSSH2_CHANNEL *channel,
-                                       unsigned long adjustment,
-                                       unsigned char force,
-                                       unsigned int *storewindow)
+LIBSSH2_API
+int libssh2_channel_receive_window_adjust2(LIBSSH2_CHANNEL *channel,
+                                           unsigned long adjustment,
+                                           unsigned char force,
+                                           unsigned int *storewindow)
 {
     int rc;
 
@@ -2028,9 +2038,9 @@ _libssh2_channel_extended_data(LIBSSH2_CHANNEL *channel, int ignore_mode)
  * libssh2_channel_handle_extended_data2
  *
  */
-LIBSSH2_API int
-libssh2_channel_handle_extended_data2(LIBSSH2_CHANNEL *channel,
-                                      int ignore_mode)
+LIBSSH2_API
+int libssh2_channel_handle_extended_data2(LIBSSH2_CHANNEL *channel,
+                                          int ignore_mode)
 {
     int rc;
 
@@ -2051,9 +2061,9 @@ libssh2_channel_handle_extended_data2(LIBSSH2_CHANNEL *channel,
  * standard data? [everything via _read()]? (MERGE) Ignore it entirely [toss
  * out packets as they come in]? (IGNORE)
  */
-LIBSSH2_API void
-libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel,
-                                     int ignore_mode)
+LIBSSH2_API
+void libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel,
+                                          int ignore_mode)
 {
     (void)libssh2_channel_handle_extended_data2(channel, ignore_mode);
 }
@@ -2241,9 +2251,9 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
  * receive a full buffer's wort of contents. An application may choose to
  * adjust the receive window more to increase transfer performance.
  */
-LIBSSH2_API ssize_t
-libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id, char *buf,
-                        size_t buflen)
+LIBSSH2_API
+ssize_t libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id,
+                                char *buf, size_t buflen)
 {
     ssize_t rc;
     unsigned long recv_window;
@@ -2473,9 +2483,9 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
  *
  * Send data to a channel
  */
-LIBSSH2_API ssize_t
-libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel, int stream_id,
-                         const char *buf, size_t buflen)
+LIBSSH2_API
+ssize_t libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel, int stream_id,
+                                 const char *buf, size_t buflen)
 {
     ssize_t rc;
 
@@ -2524,8 +2534,8 @@ static int channel_send_eof(LIBSSH2_CHANNEL *channel)
  *
  * Send EOF on channel
  */
-LIBSSH2_API int
-libssh2_channel_send_eof(LIBSSH2_CHANNEL *channel)
+LIBSSH2_API
+int libssh2_channel_send_eof(LIBSSH2_CHANNEL *channel)
 {
     int rc;
 
@@ -2541,8 +2551,8 @@ libssh2_channel_send_eof(LIBSSH2_CHANNEL *channel)
  *
  * Read channel's eof status
  */
-LIBSSH2_API int
-libssh2_channel_eof(LIBSSH2_CHANNEL *channel)
+LIBSSH2_API
+int libssh2_channel_eof(LIBSSH2_CHANNEL *channel)
 {
     LIBSSH2_SESSION *session;
     struct packet *packet;
@@ -2632,8 +2642,8 @@ static int channel_wait_eof(LIBSSH2_CHANNEL *channel)
  *
  * Awaiting channel EOF
  */
-LIBSSH2_API int
-libssh2_channel_wait_eof(LIBSSH2_CHANNEL *channel)
+LIBSSH2_API
+int libssh2_channel_wait_eof(LIBSSH2_CHANNEL *channel)
 {
     int rc;
 
@@ -2730,8 +2740,8 @@ int _libssh2_channel_close(LIBSSH2_CHANNEL *channel)
  *
  * Close a channel
  */
-LIBSSH2_API int
-libssh2_channel_close(LIBSSH2_CHANNEL *channel)
+LIBSSH2_API
+int libssh2_channel_close(LIBSSH2_CHANNEL *channel)
 {
     int rc;
 
@@ -2791,8 +2801,8 @@ static int channel_wait_closed(LIBSSH2_CHANNEL *channel)
  *
  * Awaiting channel close after EOF
  */
-LIBSSH2_API int
-libssh2_channel_wait_closed(LIBSSH2_CHANNEL *channel)
+LIBSSH2_API
+int libssh2_channel_wait_closed(LIBSSH2_CHANNEL *channel)
 {
     int rc;
 
@@ -2938,8 +2948,8 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
  *
  * Returns 0 on success, negative on failure
  */
-LIBSSH2_API int
-libssh2_channel_free(LIBSSH2_CHANNEL *channel)
+LIBSSH2_API
+int libssh2_channel_free(LIBSSH2_CHANNEL *channel)
 {
     int rc;
 
@@ -2958,10 +2968,11 @@ libssh2_channel_free(LIBSSH2_CHANNEL *channel)
  * read window_size_initial (if passed) will be populated with the
  * window_size_initial as defined by the channel_open request
  */
-LIBSSH2_API unsigned long
-libssh2_channel_window_read_ex(LIBSSH2_CHANNEL *channel,
-        /* FIXME: -> size_t */ unsigned long *read_avail,
-                               unsigned long *window_size_initial)
+LIBSSH2_API
+unsigned long libssh2_channel_window_read_ex(
+    LIBSSH2_CHANNEL *channel,
+    unsigned long *read_avail, /* FIXME: -> size_t */
+    unsigned long *window_size_initial)
 {
     if(!channel)
         return 0; /* no channel, no window! */
@@ -3013,9 +3024,10 @@ libssh2_channel_window_read_ex(LIBSSH2_CHANNEL *channel,
  * passed) will be populated with the size of the initial window as defined by
  * the channel_open request
  */
-LIBSSH2_API unsigned long
-libssh2_channel_window_write_ex(LIBSSH2_CHANNEL *channel,
-                                unsigned long *window_size_initial)
+LIBSSH2_API
+unsigned long libssh2_channel_window_write_ex(
+    LIBSSH2_CHANNEL *channel,
+    unsigned long *window_size_initial)
 {
     if(!channel)
         return 0; /* no channel, no window! */
@@ -3098,10 +3110,9 @@ static int channel_signal(LIBSSH2_CHANNEL *channel,
     return retcode;
 }
 
-LIBSSH2_API int
-libssh2_channel_signal_ex(LIBSSH2_CHANNEL *channel,
-                          const char *signame,
-                          size_t signame_len)
+LIBSSH2_API
+int libssh2_channel_signal_ex(LIBSSH2_CHANNEL *channel,
+                              const char *signame, size_t signame_len)
 {
     int rc;
 

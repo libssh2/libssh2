@@ -258,9 +258,9 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
  * Not a common configuration for any SSH server though
  * username should be NULL, or a null terminated string
  */
-LIBSSH2_API char *
-libssh2_userauth_list(LIBSSH2_SESSION *session, const char *username,
-                      unsigned int username_len)
+LIBSSH2_API
+char *libssh2_userauth_list(LIBSSH2_SESSION *session,
+                            const char *username, unsigned int username_len)
 {
     char *ptr;
     BLOCK_ADJUST_ERRNO(ptr, session,
@@ -274,8 +274,8 @@ libssh2_userauth_list(LIBSSH2_SESSION *session, const char *username,
  * When no such message is sent by server or if no authentication attempt has
  * been made, this function returns LIBSSH2_ERROR_MISSING_USERAUTH_BANNER.
  */
-LIBSSH2_API int
-libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner)
+LIBSSH2_API
+int libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner)
 {
     if(!session)
         return LIBSSH2_ERROR_MISSING_USERAUTH_BANNER;
@@ -298,8 +298,8 @@ libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner)
  * Returns: 0 if not yet authenticated
  *          1 if already authenticated
  */
-LIBSSH2_API int
-libssh2_userauth_authenticated(LIBSSH2_SESSION *session)
+LIBSSH2_API
+int libssh2_userauth_authenticated(LIBSSH2_SESSION *session)
 {
     return (session->state & LIBSSH2_STATE_AUTHENTICATED) ? 1 : 0;
 }
@@ -574,11 +574,12 @@ password_response:
  * Plain ol' login
  */
 
-LIBSSH2_API int
-libssh2_userauth_password_ex(LIBSSH2_SESSION *session, const char *username,
-                             unsigned int username_len, const char *password,
-                             unsigned int password_len,
-                             LIBSSH2_PASSWD_CHANGEREQ_FUNC(*passwd_change_cb))
+LIBSSH2_API
+int libssh2_userauth_password_ex(
+    LIBSSH2_SESSION *session,
+    const char *username, unsigned int username_len,
+    const char *password, unsigned int password_len,
+    LIBSSH2_PASSWD_CHANGEREQ_FUNC(*passwd_change_cb))
 {
     int rc;
     BLOCK_ADJUST(rc, session,
@@ -1283,17 +1284,17 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
 /* libssh2_userauth_hostbased_fromfile_ex
  * Authenticate using a keypair found in the named files
  */
-LIBSSH2_API int
-libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
-                                       const char *username,
-                                       unsigned int username_len,
-                                       const char *publickey,
-                                       const char *privatekey,
-                                       const char *passphrase,
-                                       const char *hostname,
-                                       unsigned int hostname_len,
-                                       const char *local_username,
-                                       unsigned int local_username_len)
+LIBSSH2_API
+int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
+                                           const char *username,
+                                           unsigned int username_len,
+                                           const char *publickey,
+                                           const char *privatekey,
+                                           const char *passphrase,
+                                           const char *hostname,
+                                           unsigned int hostname_len,
+                                           const char *local_username,
+                                           unsigned int local_username_len)
 {
     int rc;
     BLOCK_ADJUST(rc, session,
@@ -2071,15 +2072,15 @@ userauth_publickey_fromfile(LIBSSH2_SESSION *session,
 /* libssh2_userauth_publickey_frommemory
  * Authenticate using a keypair from memory
  */
-LIBSSH2_API int
-libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
-                                      const char *username,
-                                      size_t username_len,
-                                      const char *publickeyfiledata,
-                                      size_t publickeyfiledata_len,
-                                      const char *privatekeyfiledata,
-                                      size_t privatekeyfiledata_len,
-                                      const char *passphrase)
+LIBSSH2_API
+int libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
+                                          const char *username,
+                                          size_t username_len,
+                                          const char *publickeyfiledata,
+                                          size_t publickeyfiledata_len,
+                                          const char *privatekeyfiledata,
+                                          size_t privatekeyfiledata_len,
+                                          const char *passphrase)
 {
     int rc;
 
@@ -2102,13 +2103,13 @@ libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
 /* libssh2_userauth_publickey_fromfile_ex
  * Authenticate using a keypair found in the named files
  */
-LIBSSH2_API int
-libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
-                                       const char *username,
-                                       unsigned int username_len,
-                                       const char *publickey,
-                                       const char *privatekey,
-                                       const char *passphrase)
+LIBSSH2_API
+int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
+                                           const char *username,
+                                           unsigned int username_len,
+                                           const char *publickey,
+                                           const char *privatekey,
+                                           const char *passphrase)
 {
     int rc;
 
@@ -2128,13 +2129,13 @@ libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 /* libssh2_userauth_publickey_ex
  * Authenticate using an external callback function
  */
-LIBSSH2_API int
-libssh2_userauth_publickey(LIBSSH2_SESSION *session,
-                           const char *username,
-                           const unsigned char *pubkeydata,
-                           size_t pubkeydata_len,
-                          LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC(*sign_callback),
-                           void **abstract)
+LIBSSH2_API
+int libssh2_userauth_publickey(
+    LIBSSH2_SESSION *session,
+    const char *username,
+    const unsigned char *pubkeydata, size_t pubkeydata_len,
+    LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC(*sign_callback),
+    void **abstract)
 {
     int rc;
 
@@ -2432,11 +2433,11 @@ cleanup:
  *
  * Authenticate using a challenge-response authentication
  */
-LIBSSH2_API int
-libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION *session,
-                                         const char *username,
-                                         unsigned int username_len,
-                     LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(*response_callback))
+LIBSSH2_API
+int libssh2_userauth_keyboard_interactive_ex(
+    LIBSSH2_SESSION *session,
+    const char *username, unsigned int username_len,
+    LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(*response_callback))
 {
     int rc;
     BLOCK_ADJUST(rc, session,
@@ -2450,17 +2451,15 @@ libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION *session,
  *
  * Authenticate using an external callback function
  */
-LIBSSH2_API int
-libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
-                              const char *username,
-                              size_t username_len,
-                              const unsigned char *publickeydata,
-                              size_t publickeydata_len,
-                              const char *privatekeydata,
-                              size_t privatekeydata_len,
-                              const char *passphrase,
-                              LIBSSH2_USERAUTH_SK_SIGN_FUNC(*sign_callback),
-                              void **abstract)
+LIBSSH2_API
+int libssh2_userauth_publickey_sk(
+    LIBSSH2_SESSION *session,
+    const char *username, size_t username_len,
+    const unsigned char *publickeydata, size_t publickeydata_len,
+    const char *privatekeydata, size_t privatekeydata_len,
+    const char *passphrase,
+    LIBSSH2_USERAUTH_SK_SIGN_FUNC(*sign_callback),
+    void **abstract)
 {
     int rc = LIBSSH2_ERROR_NONE;
 

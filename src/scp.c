@@ -806,8 +806,9 @@ scp_recv_error:
  * where the st_size member of struct stat is limited to 2 GB (e.g. windows).
  *
  */
-LIBSSH2_API LIBSSH2_CHANNEL *
-libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path, struct stat *sb)
+LIBSSH2_API
+LIBSSH2_CHANNEL *libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path,
+                                  struct stat *sb)
 {
     LIBSSH2_CHANNEL *ptr;
 
@@ -841,9 +842,9 @@ libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path, struct stat *sb)
  * on platforms that support it.
  *
  */
-LIBSSH2_API LIBSSH2_CHANNEL *
-libssh2_scp_recv2(LIBSSH2_SESSION *session, const char *path,
-                  libssh2_struct_stat *sb)
+LIBSSH2_API
+LIBSSH2_CHANNEL *libssh2_scp_recv2(LIBSSH2_SESSION *session, const char *path,
+                                   libssh2_struct_stat *sb)
 {
     LIBSSH2_CHANNEL *ptr;
     BLOCK_ADJUST_ERRNO(ptr, session, scp_recv(session, path, sb));
@@ -1167,9 +1168,11 @@ scp_send_error:
  *
  * Send a file using SCP. Old API.
  */
-LIBSSH2_API LIBSSH2_CHANNEL *
-libssh2_scp_send_ex(LIBSSH2_SESSION *session, const char *path, int mode,
-                    size_t size, long mtime, long atime)
+LIBSSH2_API
+LIBSSH2_CHANNEL *libssh2_scp_send_ex(LIBSSH2_SESSION *session,
+                                     const char *path, int mode,
+                                     size_t size,
+                                     long mtime, long atime)
 {
     LIBSSH2_CHANNEL *ptr;
     BLOCK_ADJUST_ERRNO(ptr, session,
@@ -1184,9 +1187,11 @@ libssh2_scp_send_ex(LIBSSH2_SESSION *session, const char *path, int mode,
  *
  * Send a file using SCP
  */
-LIBSSH2_API LIBSSH2_CHANNEL *
-libssh2_scp_send64(LIBSSH2_SESSION *session, const char *path, int mode,
-                   libssh2_int64_t size, time_t mtime, time_t atime)
+LIBSSH2_API
+LIBSSH2_CHANNEL *libssh2_scp_send64(LIBSSH2_SESSION *session,
+                                    const char *path, int mode,
+                                    libssh2_int64_t size,
+                                    time_t mtime, time_t atime)
 {
     LIBSSH2_CHANNEL *ptr;
     BLOCK_ADJUST_ERRNO(ptr, session,

@@ -564,8 +564,8 @@ err_exit:
  *
  * Startup the publickey subsystem
  */
-LIBSSH2_API LIBSSH2_PUBLICKEY *
-libssh2_publickey_init(LIBSSH2_SESSION *session)
+LIBSSH2_API
+LIBSSH2_PUBLICKEY *libssh2_publickey_init(LIBSSH2_SESSION *session)
 {
     LIBSSH2_PUBLICKEY *ptr;
 
@@ -579,12 +579,13 @@ libssh2_publickey_init(LIBSSH2_SESSION *session)
  *
  * Add a new public key entry
  */
-LIBSSH2_API int
-libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey, const unsigned char *name,
-                         unsigned long name_len, const unsigned char *blob,
-                         unsigned long blob_len, char overwrite,
-                         unsigned long num_attrs,
-                         const libssh2_publickey_attribute attrs[])
+LIBSSH2_API
+int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
+                             const unsigned char *name, unsigned long name_len,
+                             const unsigned char *blob, unsigned long blob_len,
+                             char overwrite,
+                             unsigned long num_attrs,
+                             const libssh2_publickey_attribute attrs[])
 {
     LIBSSH2_CHANNEL *channel;
     LIBSSH2_SESSION *session;
@@ -727,10 +728,12 @@ libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey, const unsigned char *name,
  * Remove an existing publickey so that authentication can no longer be
  * performed using it
  */
-LIBSSH2_API int
-libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
-                            const unsigned char *name, unsigned long name_len,
-                            const unsigned char *blob, unsigned long blob_len)
+LIBSSH2_API
+int libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
+                                const unsigned char *name,
+                                unsigned long name_len,
+                                const unsigned char *blob,
+                                unsigned long blob_len)
 {
     LIBSSH2_CHANNEL *channel;
     LIBSSH2_SESSION *session;
@@ -812,9 +815,10 @@ libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
 /* libssh2_publickey_list_fetch
  * Fetch a list of supported public key from a server
  */
-LIBSSH2_API int
-libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey, unsigned long *num_keys,
-                             libssh2_publickey_list **pkey_list)
+LIBSSH2_API
+int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
+                                 unsigned long *num_keys,
+                                 libssh2_publickey_list **pkey_list)
 {
     LIBSSH2_CHANNEL *channel;
     LIBSSH2_SESSION *session;
@@ -1212,9 +1216,9 @@ err_exit:
 /* libssh2_publickey_list_free
  * Free a previously fetched list of public keys
  */
-LIBSSH2_API void
-libssh2_publickey_list_free(LIBSSH2_PUBLICKEY *pkey,
-                            libssh2_publickey_list *pkey_list)
+LIBSSH2_API
+void libssh2_publickey_list_free(LIBSSH2_PUBLICKEY *pkey,
+                                 libssh2_publickey_list *pkey_list)
 {
     LIBSSH2_SESSION *session;
     libssh2_publickey_list *p = pkey_list;
@@ -1238,8 +1242,8 @@ libssh2_publickey_list_free(LIBSSH2_PUBLICKEY *pkey,
 /* libssh2_publickey_shutdown
  * Shutdown the publickey subsystem
  */
-LIBSSH2_API int
-libssh2_publickey_shutdown(LIBSSH2_PUBLICKEY *pkey)
+LIBSSH2_API
+int libssh2_publickey_shutdown(LIBSSH2_PUBLICKEY *pkey)
 {
     LIBSSH2_SESSION *session;
     int rc;

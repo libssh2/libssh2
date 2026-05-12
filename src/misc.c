@@ -379,10 +379,10 @@ static const short base64_reverse_table[256] = {
  *
  * Legacy public function.
  */
-LIBSSH2_API int
-libssh2_base64_decode(LIBSSH2_SESSION *session, char **dest,
-                      unsigned int *dest_len, const char *src,
-                      unsigned int src_len)
+LIBSSH2_API
+int libssh2_base64_decode(LIBSSH2_SESSION *session,
+                          char **dest, unsigned int *dest_len,
+                          const char *src, unsigned int src_len)
 {
     int rc;
     size_t dlen;
@@ -532,8 +532,8 @@ size_t _libssh2_base64_encode(LIBSSH2_SESSION *session,
 }
 /* ---- End of Base64 Encoding ---- */
 
-LIBSSH2_API void
-libssh2_free(LIBSSH2_SESSION *session, void *ptr)
+LIBSSH2_API
+void libssh2_free(LIBSSH2_SESSION *session, void *ptr)
 {
     LIBSSH2_FREE(session, ptr);
 }
@@ -541,16 +541,16 @@ libssh2_free(LIBSSH2_SESSION *session, void *ptr)
 #ifdef LIBSSH2DEBUG
 #include <stdarg.h>
 
-LIBSSH2_API int
-libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
+LIBSSH2_API
+int libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
 {
     session->showmask = bitmask;
     return 0;
 }
 
-LIBSSH2_API int
-libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *context,
-                         libssh2_trace_handler_func callback)
+LIBSSH2_API
+int libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *context,
+                             libssh2_trace_handler_func callback)
 {
     session->tracehandler = callback;
     session->tracehandler_context = context;
@@ -630,17 +630,17 @@ _libssh2_debug_low(LIBSSH2_SESSION *session, int context, const char *format,
 }
 
 #else
-LIBSSH2_API int
-libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
+LIBSSH2_API
+int libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
 {
     (void)session;
     (void)bitmask;
     return 0;
 }
 
-LIBSSH2_API int
-libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *context,
-                         libssh2_trace_handler_func callback)
+LIBSSH2_API
+int libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *context,
+                             libssh2_trace_handler_func callback)
 {
     (void)session;
     (void)context;

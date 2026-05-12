@@ -4431,9 +4431,9 @@ _libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
 /* libssh2_session_method_pref
  * Set preferred method
  */
-LIBSSH2_API int
-libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
-                            const char *prefs)
+LIBSSH2_API
+int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
+                                const char *prefs)
 {
     char **prefvar, *s, *newprefs;
     char *tmpprefs = NULL;
@@ -4580,9 +4580,10 @@ libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
  * a negative number on failure
  */
 
-LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
-                                               int method_type,
-                                               const char ***algs)
+LIBSSH2_API
+int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
+                                   int method_type,
+                                   const char ***algs)
 {
     unsigned int i;
     unsigned int j;
