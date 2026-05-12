@@ -718,7 +718,7 @@ jobs:
           fi
 
   build_cygwin:
-    name: 'cygwin'
+    name: 'cygwin (${{ matrix.build == 'cmake' && 'CM' || 'AM' }}, ${{ matrix.platform }}, ${{ matrix.compiler }})'
     runs-on: windows-2022
     timeout-minutes: 10
     defaults:
@@ -988,7 +988,7 @@ jobs:
         run: cd bld && ctest -VV -C Release --output-on-failure
 
   build_macos:
-    name: 'macOS (${{ matrix.build }}, ${{ matrix.crypto.name }})'
+    name: 'macOS (${{ matrix.build == 'cmake' && 'CM' || 'AM' }}, ${{ matrix.crypto.name }})'
     runs-on: macos-latest
     timeout-minutes: 10
     env:
@@ -1087,7 +1087,7 @@ jobs:
           fi
 
   build_netbsd:
-    name: 'NetBSD (cmake, openssl, clang)'
+    name: 'NetBSD (CM, openssl, clang)'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
@@ -1119,7 +1119,7 @@ jobs:
             cmake --build bld
 
   build_openbsd:
-    name: 'OpenBSD (cmake, libressl, clang)'
+    name: 'OpenBSD (CM, libressl, clang)'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
@@ -1152,7 +1152,7 @@ jobs:
             cmake --build bld
 
   build_freebsd:
-    name: 'FreeBSD (autotools, openssl, clang)'
+    name: 'FreeBSD (AM, openssl, clang)'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
