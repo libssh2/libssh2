@@ -245,7 +245,7 @@ static int wincng_bignum_mod_exp(libssh2_bn *r,
     if(!rsakey)
         return -1;
 
-    /* https://msdn.microsoft.com/library/windows/desktop/aa375531.aspx */
+    /* https://learn.microsoft.com/windows/win32/api/bcrypt/ns-bcrypt-bcrypt_rsakey_blob */
     rsakey->Magic = BCRYPT_RSAPUBLIC_MAGIC;
     rsakey->BitLength = m->length * 8;
     rsakey->cbPublicExp = p->length;
@@ -1323,7 +1323,7 @@ _libssh2_wincng_rsa_new(libssh2_rsa_ctx **rsa,
 
     memset(rsakey, 0, keylen);
 
-    /* https://msdn.microsoft.com/library/windows/desktop/aa375531.aspx */
+    /* https://learn.microsoft.com/windows/win32/api/bcrypt/ns-bcrypt-bcrypt_rsakey_blob */
     rsakey->BitLength = mlen * 8;
     rsakey->cbPublicExp = elen;
     rsakey->cbModulus = mlen;
@@ -1699,7 +1699,7 @@ _libssh2_wincng_dsa_new(libssh2_dsa_ctx **dsa,
 
     memset(dsakey, 0, keylen);
 
-    /* https://msdn.microsoft.com/library/windows/desktop/aa833126.aspx */
+    /* https://learn.microsoft.com/windows/win32/api/bcrypt/ns-bcrypt-bcrypt_dsa_key_blob */
     dsakey->cbKey = length;
 
     memset(dsakey->Count, -1, sizeof(dsakey->Count));
@@ -3335,8 +3335,7 @@ _libssh2_wincng_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
 
     ret = wincng_load_private_memory(session, privatekeydata,
                                      privatekeydata_len,
-                                     (const unsigned char *)
-                                         passphrase,
+                                     (const unsigned char *)passphrase,
                                      &pbEncoded, &cbEncoded, 1, 1);
     if(ret) {
         return -1;
@@ -3355,8 +3354,8 @@ _libssh2_wincng_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     (void)passphrase;
 
     return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                    "Unable to extract public key from private key in memory: "
-                    "Method unsupported in Windows CNG backend");
+                          "Unable to extract public key from private key in "
+                          "memory: Method unsupported in Windows CNG backend");
 #endif /* HAVE_LIBCRYPT32 */
 }
 
@@ -3389,8 +3388,8 @@ _libssh2_wincng_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
     (void)passphrase;
 
     return _libssh2_error(session, LIBSSH2_ERROR_FILE,
-                    "Unable to extract public SK key from private key file: "
-                    "Method unimplemented in Windows CNG backend");
+                          "Unable to extract public SK key from private key "
+                          "file: Method unimplemented in Windows CNG backend");
 }
 
 /*******************************************************************/
