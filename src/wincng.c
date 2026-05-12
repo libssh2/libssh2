@@ -3177,14 +3177,13 @@ static DWORD wincng_pub_priv_write(unsigned char *key,
     return offset;
 }
 
-static int
-_libssh2_wincng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
-                                       unsigned char **method,
-                                       size_t *method_len,
-                                       unsigned char **pubkeydata,
-                                       size_t *pubkeydata_len,
-                                       unsigned char *pbEncoded,
-                                       size_t cbEncoded)
+static int wincng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
+                                         unsigned char **method,
+                                         size_t *method_len,
+                                         unsigned char **pubkeydata,
+                                         size_t *pubkeydata_len,
+                                         unsigned char *pbEncoded,
+                                         size_t cbEncoded)
 {
     unsigned char **rpbDecoded = NULL;
     DWORD *rcbDecoded = NULL;
@@ -3316,9 +3315,9 @@ _libssh2_wincng_pub_priv_keyfile(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    return _libssh2_wincng_pub_priv_keyfile_parse(session, method, method_len,
-                                                  pubkeydata, pubkeydata_len,
-                                                  pbEncoded, cbEncoded);
+    return wincng_pub_priv_keyfile_parse(session, method, method_len,
+                                         pubkeydata, pubkeydata_len,
+                                         pbEncoded, cbEncoded);
 #else
     (void)method;
     (void)method_len;
@@ -3357,9 +3356,9 @@ _libssh2_wincng_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    return _libssh2_wincng_pub_priv_keyfile_parse(session, method, method_len,
-                                                  pubkeydata, pubkeydata_len,
-                                                  pbEncoded, cbEncoded);
+    return wincng_pub_priv_keyfile_parse(session, method, method_len,
+                                         pubkeydata, pubkeydata_len,
+                                         pbEncoded, cbEncoded);
 #else
     (void)method;
     (void)method_len;
