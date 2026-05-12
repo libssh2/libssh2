@@ -1020,12 +1020,12 @@ static int wincng_load_pem(LIBSSH2_SESSION *session,
     return ret;
 }
 
-static int _libssh2_wincng_load_private(LIBSSH2_SESSION *session,
-                                        const char *filename,
-                                        const unsigned char *passphrase,
-                                        unsigned char **ppbEncoded,
-                                        size_t *pcbEncoded,
-                                        int tryLoadRSA, int tryLoadDSA)
+static int wincng_load_private(LIBSSH2_SESSION *session,
+                               const char *filename,
+                               const unsigned char *passphrase,
+                               unsigned char **ppbEncoded,
+                               size_t *pcbEncoded,
+                               int tryLoadRSA, int tryLoadDSA)
 {
     unsigned char *data = NULL;
     size_t datalen = 0;
@@ -1481,8 +1481,8 @@ _libssh2_wincng_rsa_new_private(libssh2_rsa_ctx **rsa,
     size_t cbEncoded;
     int ret;
 
-    ret = _libssh2_wincng_load_private(session, filename, passphrase,
-                                       &pbEncoded, &cbEncoded, 1, 0);
+    ret = wincng_load_private(session, filename, passphrase,
+                              &pbEncoded, &cbEncoded, 1, 0);
     if(ret) {
         return -1;
     }
@@ -1834,8 +1834,8 @@ _libssh2_wincng_dsa_new_private(libssh2_dsa_ctx **dsa,
     size_t cbEncoded;
     int ret;
 
-    ret = _libssh2_wincng_load_private(session, filename, passphrase,
-                                       &pbEncoded, &cbEncoded, 0, 1);
+    ret = wincng_load_private(session, filename, passphrase,
+                              &pbEncoded, &cbEncoded, 0, 1);
     if(ret) {
         return -1;
     }
@@ -3313,9 +3313,9 @@ _libssh2_wincng_pub_priv_keyfile(LIBSSH2_SESSION *session,
     size_t cbEncoded;
     int ret;
 
-    ret = _libssh2_wincng_load_private(session, privatekey,
-                                       (const unsigned char *)passphrase,
-                                       &pbEncoded, &cbEncoded, 1, 1);
+    ret = wincng_load_private(session, privatekey,
+                              (const unsigned char *)passphrase,
+                              &pbEncoded, &cbEncoded, 1, 1);
     if(ret) {
         return -1;
     }
