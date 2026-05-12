@@ -1702,8 +1702,8 @@ dh_gex_clean_exit:
  * returns the EC curve type by name used in hybrid key exchange
  */
 
-static int
-kex_session_hybrid_curve_type(const char *name, libssh2_curve_type *out_type)
+static int kex_session_hybrid_curve_type(const char *name,
+                                         libssh2_curve_type *out_type)
 {
     libssh2_curve_type type;
 
@@ -1967,8 +1967,8 @@ do {                                                                         \
  * returns the EC curve type by name used in key exchange
  */
 
-static int
-kex_session_ecdh_curve_type(const char *name, libssh2_curve_type *out_type)
+static int kex_session_ecdh_curve_type(const char *name,
+                                       libssh2_curve_type *out_type)
 {
     libssh2_curve_type type;
 
