@@ -829,14 +829,14 @@ jobs:
         if: ${{ matrix.sys == 'msys' }}
         with:
           msystem: ${{ matrix.sys }}
-          install: gcc ${{ matrix.build }} ${{ matrix.build == 'AM' && 'make' || 'ninja' }} openssl-devel zlib-devel
+          install: gcc ${{ matrix.build == 'AM' && 'autotools make' || 'cmake ninja' }} openssl-devel zlib-devel
       - uses: msys2/setup-msys2@e9898307ac31d1a803454791be09ab9973336e1c # v2.31.1
         if: ${{ matrix.sys != 'msys' }}
         with:
           msystem: ${{ matrix.sys }}
           install: >-
             mingw-w64-${{ matrix.env }}-cc
-            mingw-w64-${{ matrix.env }}-${{ matrix.build }} ${{ matrix.build == 'AM' && 'make' || '' }}
+            mingw-w64-${{ matrix.env }}-${{ matrix.build == 'AM' && 'autotools' || 'cmake' }} ${{ matrix.build == 'AM' && 'make' || '' }}
             mingw-w64-${{ matrix.env }}-openssl
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
