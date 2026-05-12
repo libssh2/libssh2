@@ -233,7 +233,7 @@ jobs:
         compiler: [gcc, clang, clang-tidy]
         arch: [amd64]
         crypto: [Libgcrypt, mbedTLS-prev, OpenSSL, wolfSSL]
-        build: [CM]
+        build: ['CM']
         zlib: ['OFF', 'ON']
         exclude:
           - { compiler: clang-tidy, zlib: 'OFF' }
@@ -241,64 +241,64 @@ jobs:
           - compiler: gcc
             arch: amd64
             crypto: AWS-LC
-            build: CM
+            build: 'CM'
             zlib: 'ON'
           - compiler: gcc
             arch: amd64
             crypto: BoringSSL
-            build: CM
+            build: 'CM'
             zlib: 'ON'
           - compiler: gcc
             arch: amd64
             crypto: LibreSSL
-            build: CM
+            build: 'CM'
             zlib: 'ON'
           - compiler: gcc
             arch: i386
             crypto: mbedTLS-from-source
-            build: CM
+            build: 'CM'
             zlib: 'ON'
           - compiler: gcc
             arch: amd64
             crypto: OpenSSL
-            build: AM
+            build: 'AM'
             zlib: 'OFF'
           - compiler: clang
             arch: amd64
             crypto: OpenSSL
-            build: AM
+            build: 'AM'
             zlib: 'OFF'
           - compiler: clang
             arch: amd64
             crypto: OpenSSL
-            build: AM
+            build: 'AM'
             zlib: 'ON'
             target: 'distcheck'
           - compiler: clang
             arch: amd64
             crypto: OpenSSL
-            build: AM
+            build: 'AM'
             zlib: 'ON'
             target: 'maketgz'
           - compiler: gcc
             arch: amd64
             crypto: OpenSSL-3-no-deprecated
-            build: CM
+            build: 'CM'
             zlib: 'ON'
           - compiler: gcc
             arch: amd64
             crypto: OpenSSL-111-from-source
-            build: CM
+            build: 'CM'
             zlib: 'ON'
           - compiler: clang
             arch: amd64
             crypto: wolfSSL-from-source
-            build: CM
+            build: 'CM'
             zlib: 'ON'
           - compiler: clang
             arch: amd64
             crypto: wolfSSL-from-source-prev
-            build: CM
+            build: 'CM'
             zlib: 'ON'
     env:
       CC: ${{ matrix.compiler == 'clang-tidy' && 'clang' || matrix.compiler }}
@@ -997,7 +997,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build: [AM, CM]
+        build: ['AM', 'CM']
         crypto:
           - name: 'Libgcrypt'
             install: libgcrypt
