@@ -1344,10 +1344,9 @@ cleanup:
     return *ec_ctx ? 0 : -1;
 }
 
-static unsigned char *
-_libssh2_mbedtls_mpi_write_binary(unsigned char *buf,
-                                  const mbedtls_mpi *mpi,
-                                  size_t bytes)
+static unsigned char *mbed_mpi_write_binary(unsigned char *buf,
+                                            const mbedtls_mpi *mpi,
+                                            size_t bytes)
 {
     unsigned char *p = buf;
     uint32_t size = (uint32_t)bytes;
@@ -1411,8 +1410,8 @@ _libssh2_mbedtls_ecdsa_sign(LIBSSH2_SESSION *session,
         goto cleanup;
 
     sp = tmp_sign;
-    sp = _libssh2_mbedtls_mpi_write_binary(sp, &pr, r_len);
-    sp = _libssh2_mbedtls_mpi_write_binary(sp, &ps, s_len);
+    sp = mbed_mpi_write_binary(sp, &pr, r_len);
+    sp = mbed_mpi_write_binary(sp, &ps, s_len);
 
     *signature_len = (size_t)(sp - tmp_sign);
 
