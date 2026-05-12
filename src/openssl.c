@@ -4666,14 +4666,13 @@ clean_exit:
 
 #endif /* LIBSSH2_ED25519 */
 
-static int
-_libssh2_pub_priv_openssh_keyfile(LIBSSH2_SESSION *session,
-                                  unsigned char **method,
-                                  size_t *method_len,
-                                  unsigned char **pubkeydata,
-                                  size_t *pubkeydata_len,
-                                  const char *privatekey,
-                                  const char *passphrase)
+static int pub_priv_openssh_keyfile(LIBSSH2_SESSION *session,
+                                    unsigned char **method,
+                                    size_t *method_len,
+                                    unsigned char **pubkeydata,
+                                    size_t *pubkeydata_len,
+                                    const char *privatekey,
+                                    const char *passphrase)
 {
     FILE *fp;
     unsigned char *buf = NULL;
@@ -4811,11 +4810,11 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     if(!pk) {
 
         /* Try OpenSSH format */
-        rc = _libssh2_pub_priv_openssh_keyfile(session,
-                                               method,
-                                               method_len,
-                                               pubkeydata, pubkeydata_len,
-                                               privatekey, passphrase);
+        rc = pub_priv_openssh_keyfile(session,
+                                      method,
+                                      method_len,
+                                      pubkeydata, pubkeydata_len,
+                                      privatekey, passphrase);
         if(rc) {
             return _libssh2_error(session,
                                   LIBSSH2_ERROR_FILE,
