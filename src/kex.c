@@ -3500,7 +3500,7 @@ kex_method_strict_client_extension = {
     0,
 };
 
-static const struct kex_method *libssh2_kex_methods[] = {
+static const struct kex_method *kex_methods[] = {
 #if LIBSSH2_MLKEM
 #if LIBSSH2_ED25519
     &kex_method_ssh_mlkem768_x25519_sha256,
@@ -3621,7 +3621,7 @@ static int kexinit(LIBSSH2_SESSION *session)
         uint32_t lang_cs_len, lang_sc_len;
 
         kex_len =
-            LIBSSH2_METHOD_PREFS_LEN(session->kex_prefs, libssh2_kex_methods);
+            LIBSSH2_METHOD_PREFS_LEN(session->kex_prefs, kex_methods);
         hostkey_len =
             LIBSSH2_METHOD_PREFS_LEN(session->hostkey_prefs,
                                      libssh2_hostkey_methods());
@@ -3672,7 +3672,7 @@ static int kexinit(LIBSSH2_SESSION *session)
            inefficient from a CPU standpoint, but it saves multiple
            malloc/realloc calls */
         LIBSSH2_METHOD_PREFS_STR(s, kex_len, session->kex_prefs,
-                                 libssh2_kex_methods);
+                                 kex_methods);
         LIBSSH2_METHOD_PREFS_STR(s, hostkey_len, session->hostkey_prefs,
                                  libssh2_hostkey_methods());
         LIBSSH2_METHOD_PREFS_STR(s, crypt_cs_len, session->local.crypt_prefs,
@@ -3929,7 +3929,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
                                  size_t kex_len, unsigned char *hostkey,
                                  size_t hostkey_len)
 {
-    const struct kex_method **kexp = libssh2_kex_methods;
+    const struct kex_method **kexp = kex_methods;
     unsigned char *s;
     const unsigned char *strict =
         (const unsigned char *)"kex-strict-s-v00@openssh.com";
@@ -4443,7 +4443,7 @@ libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
     switch(method_type) {
     case LIBSSH2_METHOD_KEX:
         prefvar = &session->kex_prefs;
-        mlist = (const struct common_method **)libssh2_kex_methods;
+        mlist = (const struct common_method **)kex_methods;
         break;
 
     case LIBSSH2_METHOD_HOSTKEY:
@@ -4596,7 +4596,7 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
 
     switch(method_type) {
     case LIBSSH2_METHOD_KEX:
-        mlist = (const struct common_method **)libssh2_kex_methods;
+        mlist = (const struct common_method **)kex_methods;
         break;
 
     case LIBSSH2_METHOD_HOSTKEY:
