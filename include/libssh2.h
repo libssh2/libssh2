@@ -363,6 +363,11 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
 #define LIBSSH2_FLAG_SIGPIPE        1
 #define LIBSSH2_FLAG_COMPRESS       2
 #define LIBSSH2_FLAG_QUOTE_PATHS    3
+/* Enforce host key verification. When set, libssh2 will refuse to complete
+ * the handshake unless the application verifies the server host key using
+ * libssh2_knownhost_checkp() and confirms a LIBSSH2_KNOWNHOST_CHECK_MATCH.
+ * Strongly recommended to prevent man-in-the-middle attacks. */
+#define LIBSSH2_FLAG_HOST_VERIFY    4
 
 typedef struct _LIBSSH2_SESSION                     LIBSSH2_SESSION;
 typedef struct _LIBSSH2_CHANNEL                     LIBSSH2_CHANNEL;
