@@ -1254,8 +1254,7 @@ static int wincng_asn_decode_bns(unsigned char *pbEncoded,
 #endif /* HAVE_LIBCRYPT32 */
 
 #if LIBSSH2_RSA || LIBSSH2_DSA
-static ULONG
-_libssh2_wincng_bn_size(const unsigned char *bignum, ULONG length)
+static ULONG wincng_bn_size(const unsigned char *bignum, ULONG length)
 {
     ULONG offset;
 
@@ -1305,15 +1304,15 @@ _libssh2_wincng_rsa_new(libssh2_rsa_ctx **rsa,
     ULONG keylen, offset, mlen, p1len = 0, p2len = 0;
     int ret;
 
-    mlen = max(_libssh2_wincng_bn_size(ndata, nlen),
-               _libssh2_wincng_bn_size(ddata, dlen));
+    mlen = max(wincng_bn_size(ndata, nlen),
+               wincng_bn_size(ddata, dlen));
     offset = sizeof(BCRYPT_RSAKEY_BLOB);
     keylen = offset + elen + mlen;
     if(ddata && dlen > 0) {
-        p1len = max(_libssh2_wincng_bn_size(pdata, plen),
-                    _libssh2_wincng_bn_size(e1data, e1len));
-        p2len = max(_libssh2_wincng_bn_size(qdata, qlen),
-                    _libssh2_wincng_bn_size(e2data, e2len));
+        p1len = max(wincng_bn_size(pdata, plen),
+                    wincng_bn_size(e1data, e1len));
+        p2len = max(wincng_bn_size(qdata, qlen),
+                    wincng_bn_size(e2data, e2len));
         keylen += p1len * 3 + p2len * 2 + mlen;
     }
 
@@ -1687,9 +1686,9 @@ _libssh2_wincng_dsa_new(libssh2_dsa_ctx **dsa,
     ULONG keylen, offset, length;
     int ret;
 
-    length = max(max(_libssh2_wincng_bn_size(pdata, plen),
-                     _libssh2_wincng_bn_size(gdata, glen)),
-                 _libssh2_wincng_bn_size(ydata, ylen));
+    length = max(max(wincng_bn_size(pdata, plen),
+                     wincng_bn_size(gdata, glen)),
+                 wincng_bn_size(ydata, ylen));
     offset = sizeof(BCRYPT_DSA_KEY_BLOB);
     keylen = offset + length * 3;
     if(xdata && xlen > 0)
