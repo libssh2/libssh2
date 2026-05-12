@@ -158,7 +158,7 @@ knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
 
     entry->typemask = typemask;
 
-    switch(entry->typemask  & LIBSSH2_KNOWNHOST_TYPE_MASK) {
+    switch(entry->typemask & LIBSSH2_KNOWNHOST_TYPE_MASK) {
     case LIBSSH2_KNOWNHOST_TYPE_PLAIN:
     case LIBSSH2_KNOWNHOST_TYPE_CUSTOM:
         entry->name = LIBSSH2_ALLOC(hosts->session, hostlen + 1);
