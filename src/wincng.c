@@ -1125,11 +1125,10 @@ static int wincng_asn_decode(unsigned char *pbEncoded,
     return 0;
 }
 
-static int
-_libssh2_wincng_bn_ltob(unsigned char *pbInput,
-                        DWORD cbInput,
-                        unsigned char **ppbOutput,
-                        DWORD *pcbOutput)
+static int wincng_bn_ltob(unsigned char *pbInput,
+                          DWORD cbInput,
+                          unsigned char **ppbOutput,
+                          DWORD *pcbOutput)
 {
     unsigned char *pbOutput;
     DWORD cbOutput, index, offset, length;
@@ -1178,9 +1177,9 @@ _libssh2_wincng_asn_decode_bn(unsigned char *pbEncoded,
                             X509_MULTI_BYTE_UINT,
                             (void *)&pbInteger, &cbInteger);
     if(!ret) {
-        ret = _libssh2_wincng_bn_ltob(pbInteger->pbData,
-                                      pbInteger->cbData,
-                                      &pbDecoded, &cbDecoded);
+        ret = wincng_bn_ltob(pbInteger->pbData,
+                             pbInteger->cbData,
+                             &pbDecoded, &cbDecoded);
         if(!ret) {
             *ppbDecoded = pbDecoded;
             *pcbDecoded = cbDecoded;
