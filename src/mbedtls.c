@@ -678,10 +678,9 @@ _libssh2_mbedtls_rsa_free(libssh2_rsa_ctx *ctx)
     mbedtls_free(ctx);
 }
 
-static unsigned char *
-gen_publickey_from_rsa(LIBSSH2_SESSION *session,
-                       mbedtls_rsa_context *rsa,
-                       size_t *keylen)
+static unsigned char *gen_publickey_from_rsa(LIBSSH2_SESSION *session,
+                                             mbedtls_rsa_context *rsa,
+                                             size_t *keylen)
 {
     uint32_t e_bytes, n_bytes;
     uint32_t len;
@@ -722,13 +721,12 @@ gen_publickey_from_rsa(LIBSSH2_SESSION *session,
     return key;
 }
 
-static int
-_libssh2_mbedtls_pub_priv_key(LIBSSH2_SESSION *session,
-                              unsigned char **method,
-                              size_t *method_len,
-                              unsigned char **pubkeydata,
-                              size_t *pubkeydata_len,
-                              mbedtls_pk_context *pkey)
+static int mbed_pub_priv_key(LIBSSH2_SESSION *session,
+                             unsigned char **method,
+                             size_t *method_len,
+                             unsigned char **pubkeydata,
+                             size_t *pubkeydata_len,
+                             mbedtls_pk_context *pkey)
 {
     unsigned char *key = NULL, *mth = NULL;
     size_t keylen = 0, mthlen = 0;
@@ -800,8 +798,8 @@ _libssh2_mbedtls_pub_priv_keyfile(LIBSSH2_SESSION *session,
                                     LIBSSH2_ERR_FLAG_DUP);
     }
 
-    ret = _libssh2_mbedtls_pub_priv_key(session, method, method_len,
-                                        pubkeydata, pubkeydata_len, &pkey);
+    ret = mbed_pub_priv_key(session, method, method_len,
+                            pubkeydata, pubkeydata_len, &pkey);
 
     mbedtls_pk_free(&pkey);
 
@@ -852,8 +850,8 @@ _libssh2_mbedtls_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                     LIBSSH2_ERR_FLAG_DUP);
     }
 
-    ret = _libssh2_mbedtls_pub_priv_key(session, method, method_len,
-                                        pubkeydata, pubkeydata_len, &pkey);
+    ret = mbed_pub_priv_key(session, method, method_len,
+                            pubkeydata, pubkeydata_len, &pkey);
 
     mbedtls_pk_free(&pkey);
 
