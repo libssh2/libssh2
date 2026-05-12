@@ -2801,10 +2801,9 @@ cleanup:
     return result;
 }
 
-static int
-_libssh2_wincng_parse_ecdsa_privatekey(OUT struct wincng_ecdsa_ctx **key,
-                                       IN unsigned char *privatekey,
-                                       IN size_t privatekey_len)
+static int wincng_parse_ecdsa_privatekey(OUT struct wincng_ecdsa_ctx **key,
+                                         IN unsigned char *privatekey,
+                                         IN size_t privatekey_len)
 {
     char *keytype = NULL;
     size_t keytype_len;
@@ -3016,9 +3015,7 @@ _libssh2_wincng_ecdsa_new_private_frommemory(
         goto cleanup;
     }
 
-    result = _libssh2_wincng_parse_ecdsa_privatekey(key,
-                                                    privatekey,
-                                                    privatekey_len);
+    result = wincng_parse_ecdsa_privatekey(key, privatekey, privatekey_len);
 
 cleanup:
     if(result != LIBSSH2_ERROR_NONE) {
