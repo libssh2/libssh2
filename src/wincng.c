@@ -1189,12 +1189,11 @@ static int wincng_asn_decode_bn(unsigned char *pbEncoded,
     return ret;
 }
 
-static int
-_libssh2_wincng_asn_decode_bns(unsigned char *pbEncoded,
-                               DWORD cbEncoded,
-                               unsigned char ***prpbDecoded,
-                               DWORD **prcbDecoded,
-                               DWORD *pcbCount)
+static int wincng_asn_decode_bns(unsigned char *pbEncoded,
+                                 DWORD cbEncoded,
+                                 unsigned char ***prpbDecoded,
+                                 DWORD **prcbDecoded,
+                                 DWORD *pcbCount)
 {
     PCRYPT_DER_BLOB pBlob;
     unsigned char **rpbDecoded;
@@ -1787,8 +1786,8 @@ _libssh2_wincng_dsa_new_private_parse(libssh2_dsa_ctx **dsa,
 
     (void)session;
 
-    ret = _libssh2_wincng_asn_decode_bns(pbEncoded, (DWORD)cbEncoded,
-                                         &rpbDecoded, &rcbDecoded, &length);
+    ret = wincng_asn_decode_bns(pbEncoded, (DWORD)cbEncoded,
+                                &rpbDecoded, &rcbDecoded, &length);
 
     wincng_safe_free(pbEncoded, cbEncoded);
 
@@ -3194,8 +3193,8 @@ _libssh2_wincng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
     DWORD index, offset, length = 0;
     int ret;
 
-    ret = _libssh2_wincng_asn_decode_bns(pbEncoded, (DWORD)cbEncoded,
-                                         &rpbDecoded, &rcbDecoded, &length);
+    ret = wincng_asn_decode_bns(pbEncoded, (DWORD)cbEncoded,
+                                &rpbDecoded, &rcbDecoded, &length);
 
     wincng_safe_free(pbEncoded, cbEncoded);
 
