@@ -2206,8 +2206,7 @@ cleanup:
 /*
  * Get the uncompressed point encoding for a CNG key.
  */
-static int
-_libssh2_wincng_uncompressed_point_from_publickey(
+static int wincng_uncompressed_point_from_publickey(
     IN LIBSSH2_SESSION *session,
     IN libssh2_curve_type curve,
     IN BCRYPT_KEY_HANDLE key,
@@ -2386,7 +2385,7 @@ _libssh2_wincng_ecdh_create_key(IN LIBSSH2_SESSION *session,
         goto cleanup;
     }
 
-    result = _libssh2_wincng_uncompressed_point_from_publickey(
+    result = wincng_uncompressed_point_from_publickey(
         session,
         curve,
         key_handle,
