@@ -69,7 +69,7 @@ crypt_none_crypt(LIBSSH2_SESSION *session,
     return 0;
 }
 
-static const struct crypt_method libssh2_crypt_method_none = {
+static const struct crypt_method crypt_method_none = {
     "none",
     "DEK-Info: NONE",
     8,                /* blocksize (SSH2 defines minimum blocksize as 8) */
@@ -142,7 +142,7 @@ crypt_dtor(LIBSSH2_SESSION *session, void **abstract)
 }
 
 #if LIBSSH2_AES_GCM
-static const struct crypt_method libssh2_crypt_method_aes256_gcm = {
+static const struct crypt_method crypt_method_aes256_gcm = {
     "aes256-gcm@openssh.com",
     "",
     16,                         /* blocksize */
@@ -157,7 +157,7 @@ static const struct crypt_method libssh2_crypt_method_aes256_gcm = {
     libssh2_cipher_aes256gcm
 };
 
-static const struct crypt_method libssh2_crypt_method_aes128_gcm = {
+static const struct crypt_method crypt_method_aes128_gcm = {
     "aes128-gcm@openssh.com",
     "",
     16,                         /* blocksize */
@@ -174,7 +174,7 @@ static const struct crypt_method libssh2_crypt_method_aes128_gcm = {
 #endif
 
 #if LIBSSH2_AES_CTR
-static const struct crypt_method libssh2_crypt_method_aes128_ctr = {
+static const struct crypt_method crypt_method_aes128_ctr = {
     "aes128-ctr",
     "",
     16,                         /* blocksize */
@@ -189,7 +189,7 @@ static const struct crypt_method libssh2_crypt_method_aes128_ctr = {
     libssh2_cipher_aes128ctr
 };
 
-static const struct crypt_method libssh2_crypt_method_aes192_ctr = {
+static const struct crypt_method crypt_method_aes192_ctr = {
     "aes192-ctr",
     "",
     16,                         /* blocksize */
@@ -204,7 +204,7 @@ static const struct crypt_method libssh2_crypt_method_aes192_ctr = {
     libssh2_cipher_aes192ctr
 };
 
-static const struct crypt_method libssh2_crypt_method_aes256_ctr = {
+static const struct crypt_method crypt_method_aes256_ctr = {
     "aes256-ctr",
     "",
     16,                         /* blocksize */
@@ -221,7 +221,7 @@ static const struct crypt_method libssh2_crypt_method_aes256_ctr = {
 #endif
 
 #if LIBSSH2_AES_CBC
-static const struct crypt_method libssh2_crypt_method_aes128_cbc = {
+static const struct crypt_method crypt_method_aes128_cbc = {
     "aes128-cbc",
     "DEK-Info: AES-128-CBC",
     16,                         /* blocksize */
@@ -236,7 +236,7 @@ static const struct crypt_method libssh2_crypt_method_aes128_cbc = {
     libssh2_cipher_aes128
 };
 
-static const struct crypt_method libssh2_crypt_method_aes192_cbc = {
+static const struct crypt_method crypt_method_aes192_cbc = {
     "aes192-cbc",
     "DEK-Info: AES-192-CBC",
     16,                         /* blocksize */
@@ -251,7 +251,7 @@ static const struct crypt_method libssh2_crypt_method_aes192_cbc = {
     libssh2_cipher_aes192
 };
 
-static const struct crypt_method libssh2_crypt_method_aes256_cbc = {
+static const struct crypt_method crypt_method_aes256_cbc = {
     "aes256-cbc",
     "DEK-Info: AES-256-CBC",
     16,                         /* blocksize */
@@ -268,7 +268,7 @@ static const struct crypt_method libssh2_crypt_method_aes256_cbc = {
 
 /* rijndael-cbc@lysator.liu.se == aes256-cbc */
 static const struct crypt_method
-    libssh2_crypt_method_rijndael_cbc_lysator_liu_se = {
+    crypt_method_rijndael_cbc_lysator_liu_se = {
     "rijndael-cbc@lysator.liu.se",
     "DEK-Info: AES-256-CBC",
     16,                         /* blocksize */
@@ -285,7 +285,7 @@ static const struct crypt_method
 #endif /* LIBSSH2_AES_CBC */
 
 #if LIBSSH2_BLOWFISH
-static const struct crypt_method libssh2_crypt_method_blowfish_cbc = {
+static const struct crypt_method crypt_method_blowfish_cbc = {
     "blowfish-cbc",
     "",
     8,                          /* blocksize */
@@ -302,7 +302,7 @@ static const struct crypt_method libssh2_crypt_method_blowfish_cbc = {
 #endif /* LIBSSH2_BLOWFISH */
 
 #if LIBSSH2_RC4
-static const struct crypt_method libssh2_crypt_method_arcfour = {
+static const struct crypt_method crypt_method_arcfour = {
     "arcfour",
     "DEK-Info: RC4",
     8,                          /* blocksize */
@@ -341,7 +341,7 @@ crypt_init_arcfour128(LIBSSH2_SESSION *session,
     return rc;
 }
 
-static const struct crypt_method libssh2_crypt_method_arcfour128 = {
+static const struct crypt_method crypt_method_arcfour128 = {
     "arcfour128",
     "",
     8,                          /* blocksize */
@@ -358,7 +358,7 @@ static const struct crypt_method libssh2_crypt_method_arcfour128 = {
 #endif /* LIBSSH2_RC4 */
 
 #if LIBSSH2_CAST
-static const struct crypt_method libssh2_crypt_method_cast128_cbc = {
+static const struct crypt_method crypt_method_cast128_cbc = {
     "cast128-cbc",
     "",
     8,                          /* blocksize */
@@ -375,7 +375,7 @@ static const struct crypt_method libssh2_crypt_method_cast128_cbc = {
 #endif /* LIBSSH2_CAST */
 
 #if LIBSSH2_3DES
-static const struct crypt_method libssh2_crypt_method_3des_cbc = {
+static const struct crypt_method crypt_method_3des_cbc = {
     "3des-cbc",
     "DEK-Info: DES-EDE3-CBC",
     8,                          /* blocksize */
@@ -487,7 +487,7 @@ crypt_dtor_chacha20_poly(LIBSSH2_SESSION *session, void **abstract)
 }
 
 static const struct crypt_method
-    libssh2_crypt_method_chacha20_poly1305_openssh = {
+    crypt_method_chacha20_poly1305_openssh = {
     "chacha20-poly1305@openssh.com",
     "",
     8,                                          /* blocksize */
@@ -505,37 +505,37 @@ static const struct crypt_method
 /* These are the crypt methods that are available to be negotiated. Methods
    towards the start are chosen in preference to ones further down the list. */
 static const struct crypt_method *_libssh2_crypt_methods[] = {
-    &libssh2_crypt_method_chacha20_poly1305_openssh,
+    &crypt_method_chacha20_poly1305_openssh,
 #if LIBSSH2_AES_GCM
-    &libssh2_crypt_method_aes256_gcm,
-    &libssh2_crypt_method_aes128_gcm,
+    &crypt_method_aes256_gcm,
+    &crypt_method_aes128_gcm,
 #endif /* LIBSSH2_AES_GCM */
 #if LIBSSH2_AES_CTR
-    &libssh2_crypt_method_aes256_ctr,
-    &libssh2_crypt_method_aes192_ctr,
-    &libssh2_crypt_method_aes128_ctr,
+    &crypt_method_aes256_ctr,
+    &crypt_method_aes192_ctr,
+    &crypt_method_aes128_ctr,
 #endif /* LIBSSH2_AES_CTR */
 #if LIBSSH2_AES_CBC
-    &libssh2_crypt_method_aes256_cbc,
-    &libssh2_crypt_method_rijndael_cbc_lysator_liu_se,  /* == aes256-cbc */
-    &libssh2_crypt_method_aes192_cbc,
-    &libssh2_crypt_method_aes128_cbc,
+    &crypt_method_aes256_cbc,
+    &crypt_method_rijndael_cbc_lysator_liu_se,  /* == aes256-cbc */
+    &crypt_method_aes192_cbc,
+    &crypt_method_aes128_cbc,
 #endif /* LIBSSH2_AES_CBC */
 #if LIBSSH2_BLOWFISH
-    &libssh2_crypt_method_blowfish_cbc,
+    &crypt_method_blowfish_cbc,
 #endif /* LIBSSH2_BLOWFISH */
 #if LIBSSH2_RC4
-    &libssh2_crypt_method_arcfour128,
-    &libssh2_crypt_method_arcfour,
+    &crypt_method_arcfour128,
+    &crypt_method_arcfour,
 #endif /* LIBSSH2_RC4 */
 #if LIBSSH2_CAST
-    &libssh2_crypt_method_cast128_cbc,
+    &crypt_method_cast128_cbc,
 #endif /* LIBSSH2_CAST */
 #if LIBSSH2_3DES
-    &libssh2_crypt_method_3des_cbc,
+    &crypt_method_3des_cbc,
 #endif /*  LIBSSH2_DES */
 #if defined(LIBSSH2DEBUG) && defined(LIBSSH2_CRYPT_NONE_INSECURE)
-    &libssh2_crypt_method_none,
+    &crypt_method_none,
 #endif
     NULL
 };
