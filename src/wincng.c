@@ -1771,11 +1771,10 @@ _libssh2_wincng_dsa_new(libssh2_dsa_ctx **dsa,
 }
 
 #ifdef HAVE_LIBCRYPT32
-static int
-_libssh2_wincng_dsa_new_private_parse(libssh2_dsa_ctx **dsa,
-                                      LIBSSH2_SESSION *session,
-                                      unsigned char *pbEncoded,
-                                      size_t cbEncoded)
+static int wincng_dsa_new_private_parse(libssh2_dsa_ctx **dsa,
+                                        LIBSSH2_SESSION *session,
+                                        unsigned char *pbEncoded,
+                                        size_t cbEncoded)
 {
     unsigned char **rpbDecoded;
     DWORD *rcbDecoded, index, length;
@@ -1834,8 +1833,8 @@ _libssh2_wincng_dsa_new_private(libssh2_dsa_ctx **dsa,
         return -1;
     }
 
-    return _libssh2_wincng_dsa_new_private_parse(dsa, session,
-                                                 pbEncoded, cbEncoded);
+    return wincng_dsa_new_private_parse(dsa, session,
+                                        pbEncoded, cbEncoded);
 #else
     (void)dsa;
     (void)filename;
@@ -1866,8 +1865,8 @@ _libssh2_wincng_dsa_new_private_frommemory(libssh2_dsa_ctx **dsa,
         return -1;
     }
 
-    return _libssh2_wincng_dsa_new_private_parse(dsa, session,
-                                                 pbEncoded, cbEncoded);
+    return wincng_dsa_new_private_parse(dsa, session,
+                                        pbEncoded, cbEncoded);
 #else
     (void)dsa;
     (void)filedata;
