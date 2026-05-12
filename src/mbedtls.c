@@ -335,8 +335,7 @@ _libssh2_mbedtls_bignum_free(libssh2_bn *bn)
     }
 }
 
-static int
-_libssh2_mbedtls_bignum_random(libssh2_bn *bn, int bits, int top, int bottom)
+static int mbed_bignum_random(libssh2_bn *bn, int bits, int top, int bottom)
 {
     size_t len;
     int err;
@@ -915,7 +914,7 @@ _libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
                      libssh2_bn *g, libssh2_bn *p, int group_order)
 {
     /* Generate x and e */
-    _libssh2_mbedtls_bignum_random(*dhctx, group_order * 8 - 1, 0, -1);
+    mbed_bignum_random(*dhctx, group_order * 8 - 1, 0, -1);
     mbedtls_mpi_exp_mod(public, g, *dhctx, p, NULL);
     return 0;
 }
