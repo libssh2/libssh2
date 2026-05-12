@@ -912,13 +912,13 @@ void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
  * Windows CNG backend: Key functions
  */
 
-static int _libssh2_wincng_key_sha_verify(struct wincng_key_ctx *ctx,
-                                          ULONG hashlen,
-                                          const unsigned char *sig,
-                                          ULONG sig_len,
-                                          const unsigned char *m,
-                                          ULONG m_len,
-                                          ULONG flags)
+static int wincng_key_sha_verify(struct wincng_key_ctx *ctx,
+                                 ULONG hashlen,
+                                 const unsigned char *sig,
+                                 ULONG sig_len,
+                                 const unsigned char *m,
+                                 ULONG m_len,
+                                 ULONG flags)
 {
     BCRYPT_PKCS1_PADDING_INFO paddingInfoPKCS1;
     BCRYPT_ALG_HANDLE hAlgHash;
@@ -1541,10 +1541,10 @@ _libssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
                                 const unsigned char *m,
                                 size_t m_len)
 {
-    return _libssh2_wincng_key_sha_verify(rsactx, SHA_DIGEST_LENGTH,
-                                          sig, (ULONG)sig_len,
-                                          m, (ULONG)m_len,
-                                          BCRYPT_PAD_PKCS1);
+    return wincng_key_sha_verify(rsactx, SHA_DIGEST_LENGTH,
+                                 sig, (ULONG)sig_len,
+                                 m, (ULONG)m_len,
+                                 BCRYPT_PAD_PKCS1);
 }
 #endif
 
@@ -1557,10 +1557,10 @@ _libssh2_wincng_rsa_sha2_verify(libssh2_rsa_ctx *rsactx,
                                 const unsigned char *m,
                                 size_t m_len)
 {
-    return _libssh2_wincng_key_sha_verify(rsactx, (ULONG)hash_len,
-                                          sig, (ULONG)sig_len,
-                                          m, (ULONG)m_len,
-                                          BCRYPT_PAD_PKCS1);
+    return wincng_key_sha_verify(rsactx, (ULONG)hash_len,
+                                 sig, (ULONG)sig_len,
+                                 m, (ULONG)m_len,
+                                 BCRYPT_PAD_PKCS1);
 }
 #endif
 
@@ -1892,8 +1892,8 @@ _libssh2_wincng_dsa_sha1_verify(libssh2_dsa_ctx *dsa,
                                 const unsigned char *m,
                                 size_t m_len)
 {
-    return _libssh2_wincng_key_sha_verify(dsa, SHA_DIGEST_LENGTH, sig_fixed,
-                                          40, m, (ULONG)m_len, 0);
+    return wincng_key_sha_verify(dsa, SHA_DIGEST_LENGTH, sig_fixed,
+                                 40, m, (ULONG)m_len, 0);
 }
 
 int
