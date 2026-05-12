@@ -224,11 +224,10 @@ static int wincng_bignum_rand(libssh2_bn *rnd, int bits, int top, int bottom)
     return 0;
 }
 
-static int
-_libssh2_wincng_bignum_mod_exp(libssh2_bn *r,
-                               libssh2_bn *a,
-                               libssh2_bn *p,
-                               libssh2_bn *m)
+static int wincng_bignum_mod_exp(libssh2_bn *r,
+                                 libssh2_bn *a,
+                                 libssh2_bn *p,
+                                 libssh2_bn *m)
 {
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_RSAKEY_BLOB *rsakey;
@@ -3852,7 +3851,7 @@ _libssh2_dh_key_pair(struct wincng_dh_ctx *dhctx, libssh2_bn *public,
         return -1;
     if(wincng_bignum_rand(dhctx->dh_privbn, (group_order*8)-1, 0, -1))
         return -1;
-    if(_libssh2_wincng_bignum_mod_exp(public, g, dhctx->dh_privbn, p))
+    if(wincng_bignum_mod_exp(public, g, dhctx->dh_privbn, p))
         return -1;
 
     return 0;
@@ -3987,7 +3986,7 @@ out:
 
 fb:
     /* Compute the shared secret */
-    return _libssh2_wincng_bignum_mod_exp(secret, f, dhctx->dh_privbn, p);
+    return wincng_bignum_mod_exp(secret, f, dhctx->dh_privbn, p);
 }
 
 /* _libssh2_supported_key_sign_algorithms
