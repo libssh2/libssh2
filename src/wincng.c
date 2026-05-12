@@ -1559,13 +1559,12 @@ _libssh2_wincng_rsa_sha2_verify(libssh2_rsa_ctx *rsactx,
 }
 #endif
 
-static int
-_libssh2_wincng_rsa_sha_sign(LIBSSH2_SESSION *session,
-                             libssh2_rsa_ctx *rsa,
-                             const unsigned char *hash,
-                             size_t hash_len,
-                             unsigned char **signature,
-                             size_t *signature_len)
+static int wincng_rsa_sha_sign(LIBSSH2_SESSION *session,
+                               libssh2_rsa_ctx *rsa,
+                               const unsigned char *hash,
+                               size_t hash_len,
+                               unsigned char **signature,
+                               size_t *signature_len)
 {
     BCRYPT_PKCS1_PADDING_INFO paddingInfo;
     unsigned char *data, *sig;
@@ -1628,9 +1627,9 @@ _libssh2_wincng_rsa_sha1_sign(LIBSSH2_SESSION *session,
                               unsigned char **signature,
                               size_t *signature_len)
 {
-    return _libssh2_wincng_rsa_sha_sign(session, rsactx,
-                                        hash, hash_len,
-                                        signature, signature_len);
+    return wincng_rsa_sha_sign(session, rsactx,
+                               hash, hash_len,
+                               signature, signature_len);
 }
 
 int
@@ -1641,9 +1640,9 @@ _libssh2_wincng_rsa_sha2_sign(LIBSSH2_SESSION *session,
                               unsigned char **signature,
                               size_t *signature_len)
 {
-    return _libssh2_wincng_rsa_sha_sign(session, rsactx,
-                                        hash, hash_len,
-                                        signature, signature_len);
+    return wincng_rsa_sha_sign(session, rsactx,
+                               hash, hash_len,
+                               signature, signature_len);
 }
 
 void
