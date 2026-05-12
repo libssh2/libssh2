@@ -183,8 +183,7 @@ static int wincng_bignum_resize(libssh2_bn *bn, ULONG length)
     return 0;
 }
 
-static int
-_libssh2_wincng_bignum_rand(libssh2_bn *rnd, int bits, int top, int bottom)
+static int wincng_bignum_rand(libssh2_bn *rnd, int bits, int top, int bottom)
 {
     unsigned char *bignum;
     ULONG length;
@@ -3851,7 +3850,7 @@ _libssh2_dh_key_pair(struct wincng_dh_ctx *dhctx, libssh2_bn *public,
     dhctx->dh_privbn = _libssh2_wincng_bignum_init();
     if(!dhctx->dh_privbn)
         return -1;
-    if(_libssh2_wincng_bignum_rand(dhctx->dh_privbn, (group_order*8)-1, 0, -1))
+    if(wincng_bignum_rand(dhctx->dh_privbn, (group_order*8)-1, 0, -1))
         return -1;
     if(_libssh2_wincng_bignum_mod_exp(public, g, dhctx->dh_privbn, p))
         return -1;
