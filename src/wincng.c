@@ -3642,8 +3642,7 @@ _libssh2_dh_dtor(struct wincng_dh_ctx *dhctx)
     }
 }
 
-static int
-round_down(int number, int multiple)
+static int round_down(int number, int multiple)
 {
     return (number / multiple) * multiple;
 }
