@@ -995,13 +995,13 @@ static int wincng_key_sha_verify(struct wincng_key_ctx *ctx,
 }
 
 #ifdef HAVE_LIBCRYPT32
-static int _libssh2_wincng_load_pem(LIBSSH2_SESSION *session,
-                                    const char *filename,
-                                    const unsigned char *passphrase,
-                                    const char *headerbegin,
-                                    const char *headerend,
-                                    unsigned char **data,
-                                    size_t *datalen)
+static int wincng_load_pem(LIBSSH2_SESSION *session,
+                           const char *filename,
+                           const unsigned char *passphrase,
+                           const char *headerbegin,
+                           const char *headerend,
+                           unsigned char **data,
+                           size_t *datalen)
 {
     FILE *fp;
     int ret;
@@ -1032,15 +1032,15 @@ static int _libssh2_wincng_load_private(LIBSSH2_SESSION *session,
     int ret = -1;
 
     if(ret && tryLoadRSA) {
-        ret = _libssh2_wincng_load_pem(session, filename, passphrase,
-                                       PEM_RSA_HEADER, PEM_RSA_FOOTER,
-                                       &data, &datalen);
+        ret = wincng_load_pem(session, filename, passphrase,
+                              PEM_RSA_HEADER, PEM_RSA_FOOTER,
+                              &data, &datalen);
     }
 
     if(ret && tryLoadDSA) {
-        ret = _libssh2_wincng_load_pem(session, filename, passphrase,
-                                       PEM_DSA_HEADER, PEM_DSA_FOOTER,
-                                       &data, &datalen);
+        ret = wincng_load_pem(session, filename, passphrase,
+                              PEM_DSA_HEADER, PEM_DSA_FOOTER,
+                              &data, &datalen);
     }
 
     if(!ret) {
