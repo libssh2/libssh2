@@ -3511,8 +3511,7 @@ _libssh2_wincng_cipher_init(libssh2_cipher_ctx *h,
 
 /* Increments an AES CTR buffer to prepare it for use with the
    next AES block. */
-static void _libssh2_aes_ctr_increment(unsigned char *ctr,
-                                       size_t length)
+static void aes_ctr_increment(unsigned char *ctr, size_t length)
 {
     unsigned char *pc;
     unsigned int val, carry;
@@ -3575,7 +3574,7 @@ _libssh2_wincng_cipher_crypt(libssh2_cipher_ctx *ctx,
                 if(algo.ctrMode) {
                     /* NOLINTNEXTLINE(readability-suspicious-call-argument) */
                     _libssh2_xor_data(block, block, pbOutput, blocksize);
-                    _libssh2_aes_ctr_increment(ctx->pbCtr, ctx->dwCtrLength);
+                    aes_ctr_increment(ctx->pbCtr, ctx->dwCtrLength);
                 }
                 else {
                     memcpy(block, pbOutput, cbOutput);
