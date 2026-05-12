@@ -194,17 +194,16 @@ void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
 #endif
 }
 
-static int
-_libssh2_pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
-                                        void **key_ctx,
-                                        const char *key_type,
-                                        unsigned char **method,
-                                        size_t *method_len,
-                                        unsigned char **pubkeydata,
-                                        size_t *pubkeydata_len,
-                                        const char *privatekeydata,
-                                        size_t privatekeydata_len,
-                                        const unsigned char *passphrase);
+static int pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
+                                          void **key_ctx,
+                                          const char *key_type,
+                                          unsigned char **method,
+                                          size_t *method_len,
+                                          unsigned char **pubkeydata,
+                                          size_t *pubkeydata_len,
+                                          const char *privatekeydata,
+                                          size_t privatekeydata_len,
+                                          const unsigned char *passphrase);
 
 static int
 _libssh2_sk_pub_openssh_keyfilememory(LIBSSH2_SESSION *session,
@@ -1250,11 +1249,11 @@ _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
                                       passphrase);
 
     if(rc) {
-        rc = _libssh2_pub_priv_openssh_keyfilememory(session, (void **)rsa,
-                                                     "ssh-rsa",
-                                                     NULL, NULL, NULL, NULL,
-                                                     filedata, filedata_len,
-                                                     passphrase);
+        rc = pub_priv_openssh_keyfilememory(session, (void **)rsa,
+                                            "ssh-rsa",
+                                            NULL, NULL, NULL, NULL,
+                                            filedata, filedata_len,
+                                            passphrase);
     }
 
     return rc;
@@ -1692,11 +1691,11 @@ _libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx **dsa,
                                       passphrase);
 
     if(rc) {
-        rc = _libssh2_pub_priv_openssh_keyfilememory(session, (void **)dsa,
-                                                     "ssh-dsa",
-                                                     NULL, NULL, NULL, NULL,
-                                                     filedata, filedata_len,
-                                                     passphrase);
+        rc = pub_priv_openssh_keyfilememory(session, (void **)dsa,
+                                            "ssh-dsa",
+                                            NULL, NULL, NULL, NULL,
+                                            filedata, filedata_len,
+                                            passphrase);
     }
 
     return rc;
@@ -2049,11 +2048,11 @@ _libssh2_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx **ec_ctx,
                                       passphrase);
 
     if(rc) {
-        rc = _libssh2_pub_priv_openssh_keyfilememory(session, (void **)ec_ctx,
-                                                     "ssh-ecdsa",
-                                                     NULL, NULL, NULL, NULL,
-                                                     filedata, filedata_len,
-                                                     passphrase);
+        rc = pub_priv_openssh_keyfilememory(session, (void **)ec_ctx,
+                                            "ssh-ecdsa",
+                                            NULL, NULL, NULL, NULL,
+                                            filedata, filedata_len,
+                                            passphrase);
     }
 
     return rc;
@@ -2689,11 +2688,11 @@ _libssh2_ed25519_new_private_frommemory(libssh2_ed25519_ctx **ed_ctx,
         return 0;
     }
 
-    return _libssh2_pub_priv_openssh_keyfilememory(session, (void **)ed_ctx,
-                                                   "ssh-ed25519",
-                                                   NULL, NULL, NULL, NULL,
-                                                   filedata, filedata_len,
-                                                   passphrase);
+    return pub_priv_openssh_keyfilememory(session, (void **)ed_ctx,
+                                          "ssh-ed25519",
+                                          NULL, NULL, NULL, NULL,
+                                          filedata, filedata_len,
+                                          passphrase);
 }
 
 int
@@ -4886,17 +4885,16 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     return st;
 }
 
-static int
-_libssh2_pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
-                                        void **key_ctx,
-                                        const char *key_type,
-                                        unsigned char **method,
-                                        size_t *method_len,
-                                        unsigned char **pubkeydata,
-                                        size_t *pubkeydata_len,
-                                        const char *privatekeydata,
-                                        size_t privatekeydata_len,
-                                        const unsigned char *passphrase)
+static int pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
+                                          void **key_ctx,
+                                          const char *key_type,
+                                          unsigned char **method,
+                                          size_t *method_len,
+                                          unsigned char **pubkeydata,
+                                          size_t *pubkeydata_len,
+                                          const char *privatekeydata,
+                                          size_t privatekeydata_len,
+                                          const unsigned char *passphrase)
 {
     int rc;
     unsigned char *buf = NULL;
@@ -5174,7 +5172,7 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
 
     if(!pk) {
         /* Try OpenSSH format */
-        st = _libssh2_pub_priv_openssh_keyfilememory(session, NULL, NULL,
+        st = pub_priv_openssh_keyfilememory(session, NULL, NULL,
                                                      method,
                                                      method_len,
                                                      pubkeydata,
