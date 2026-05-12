@@ -1132,13 +1132,12 @@ cleanup:
     return (rc == 0) ? 0 : -1;
 }
 
-static int
-_libssh2_mbedtls_parse_eckey(libssh2_ecdsa_ctx **ctx,
-                             mbedtls_pk_context *pkey,
-                             LIBSSH2_SESSION *session,
-                             const unsigned char *data,
-                             size_t data_len,
-                             const unsigned char *pwd)
+static int mbed_parse_eckey(libssh2_ecdsa_ctx **ctx,
+                            mbedtls_pk_context *pkey,
+                            LIBSSH2_SESSION *session,
+                            const unsigned char *data,
+                            size_t data_len,
+                            const unsigned char *pwd)
 {
     size_t pwd_len;
 
@@ -1284,8 +1283,8 @@ _libssh2_mbedtls_ecdsa_new_private(libssh2_ecdsa_ctx **ec_ctx,
     if(fread(data, 1, data_len, fp) != data_len)
         goto cleanup;
 
-    if(_libssh2_mbedtls_parse_eckey(ec_ctx, &pkey, session,
-                                    data, data_len, passphrase) == 0)
+    if(mbed_parse_eckey(ec_ctx, &pkey, session,
+                        data, data_len, passphrase) == 0)
         goto cleanup;
 
     _libssh2_mbedtls_parse_openssh_key(ec_ctx, session, data, data_len,
@@ -1329,8 +1328,8 @@ _libssh2_mbedtls_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx **ec_ctx,
 
     memcpy(ntdata, filedata, filedata_len);
 
-    if(_libssh2_mbedtls_parse_eckey(ec_ctx, &pkey, session,
-                                    ntdata, filedata_len + 1, passphrase) == 0)
+    if(mbed_parse_eckey(ec_ctx, &pkey, session,
+                        ntdata, filedata_len + 1, passphrase) == 0)
         goto cleanup;
 
     _libssh2_mbedtls_parse_openssh_key(ec_ctx, session,
