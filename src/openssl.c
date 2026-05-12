@@ -1694,9 +1694,9 @@ _libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx **dsa,
     return rc;
 }
 
-static unsigned char *
-gen_publickey_from_dsa(LIBSSH2_SESSION* session, libssh2_dsa_ctx *dsa,
-                       size_t *key_len)
+static unsigned char *gen_publickey_from_dsa(LIBSSH2_SESSION* session,
+                                             libssh2_dsa_ctx *dsa,
+                                             size_t *key_len)
 {
     int            p_bytes, q_bytes, g_bytes, k_bytes;
     unsigned long  len;
@@ -1769,13 +1769,12 @@ fail:
     return key;
 }
 
-static int
-gen_publickey_from_dsa_evp(LIBSSH2_SESSION *session,
-                           unsigned char **method,
-                           size_t *method_len,
-                           unsigned char **pubkeydata,
-                           size_t *pubkeydata_len,
-                           EVP_PKEY *pk)
+static int gen_publickey_from_dsa_evp(LIBSSH2_SESSION *session,
+                                      unsigned char **method,
+                                      size_t *method_len,
+                                      unsigned char **pubkeydata,
+                                      size_t *pubkeydata_len,
+                                      EVP_PKEY *pk)
 {
     libssh2_dsa_ctx *dsa = NULL;
     unsigned char *key;
@@ -2149,13 +2148,12 @@ clean_exit:
     return rc;
 }
 
-static int
-gen_publickey_from_ed_evp(LIBSSH2_SESSION *session,
-                          unsigned char **method,
-                          size_t *method_len,
-                          unsigned char **pubkeydata,
-                          size_t *pubkeydata_len,
-                          EVP_PKEY *pk)
+static int gen_publickey_from_ed_evp(LIBSSH2_SESSION *session,
+                                     unsigned char **method,
+                                     size_t *method_len,
+                                     unsigned char **pubkeydata,
+                                     size_t *pubkeydata_len,
+                                     EVP_PKEY *pk)
 {
     const char methodName[] = "ssh-ed25519";
     unsigned char *methodBuf = NULL;
@@ -3556,14 +3554,13 @@ _libssh2_md5_final(libssh2_md5_ctx *ctx,
 
 #if LIBSSH2_ECDSA
 
-static int
-gen_publickey_from_ec_evp(LIBSSH2_SESSION *session,
-                          unsigned char **method,
-                          size_t *method_len,
-                          unsigned char **pubkeydata,
-                          size_t *pubkeydata_len,
-                          int is_sk,
-                          EVP_PKEY *pk)
+static int gen_publickey_from_ec_evp(LIBSSH2_SESSION *session,
+                                     unsigned char **method,
+                                     size_t *method_len,
+                                     unsigned char **pubkeydata,
+                                     size_t *pubkeydata_len,
+                                     int is_sk,
+                                     EVP_PKEY *pk)
 {
     int rc = 0;
     unsigned char *p;
