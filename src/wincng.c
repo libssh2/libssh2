@@ -785,9 +785,8 @@ int _libssh2_wincng_hash_init(struct wincng_hash_ctx *ctx,
     return 0;
 }
 
-int
-_libssh2_wincng_hash_update(struct wincng_hash_ctx *ctx,
-                            const void *data, ULONG datalen)
+int _libssh2_wincng_hash_update(struct wincng_hash_ctx *ctx,
+                                const void *data, ULONG datalen)
 {
     int ret;
 
