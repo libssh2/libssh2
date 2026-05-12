@@ -1420,11 +1420,10 @@ _libssh2_wincng_rsa_new(libssh2_rsa_ctx **rsa,
 }
 
 #ifdef HAVE_LIBCRYPT32
-static int
-_libssh2_wincng_rsa_new_private_parse(libssh2_rsa_ctx **rsa,
-                                      LIBSSH2_SESSION *session,
-                                      unsigned char *pbEncoded,
-                                      size_t cbEncoded)
+static int wincng_rsa_new_private_parse(libssh2_rsa_ctx **rsa,
+                                        LIBSSH2_SESSION *session,
+                                        unsigned char *pbEncoded,
+                                        size_t cbEncoded)
 {
     BCRYPT_KEY_HANDLE hKey;
     unsigned char *pbStructInfo;
@@ -1483,8 +1482,8 @@ _libssh2_wincng_rsa_new_private(libssh2_rsa_ctx **rsa,
         return -1;
     }
 
-    return _libssh2_wincng_rsa_new_private_parse(rsa, session,
-                                                 pbEncoded, cbEncoded);
+    return wincng_rsa_new_private_parse(rsa, session,
+                                        pbEncoded, cbEncoded);
 #else
     (void)rsa;
     (void)filename;
@@ -1515,8 +1514,8 @@ _libssh2_wincng_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
         return -1;
     }
 
-    return _libssh2_wincng_rsa_new_private_parse(rsa, session,
-                                                 pbEncoded, cbEncoded);
+    return wincng_rsa_new_private_parse(rsa, session,
+                                        pbEncoded, cbEncoded);
 #else
     (void)rsa;
     (void)filedata;
