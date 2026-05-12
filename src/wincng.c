@@ -3166,11 +3166,10 @@ _libssh2_wincng_ecdsa_get_curve_type(IN struct wincng_ecdsa_ctx *key)
  */
 
 #ifdef HAVE_LIBCRYPT32
-static DWORD
-_libssh2_wincng_pub_priv_write(unsigned char *key,
-                               DWORD offset,
-                               const unsigned char *bignum,
-                               const DWORD length)
+static DWORD wincng_pub_priv_write(unsigned char *key,
+                                   DWORD offset,
+                                   const unsigned char *bignum,
+                                   const DWORD length)
 {
     _libssh2_htonu32(key + offset, length);
     offset += 4;
@@ -3219,15 +3218,15 @@ _libssh2_wincng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
         keylen = 4 + mthlen + 4 + rcbDecoded[2] + 4 + rcbDecoded[1];
         key = LIBSSH2_ALLOC(session, keylen);
         if(key) {
-            offset = _libssh2_wincng_pub_priv_write(key, 0, mth, mthlen);
+            offset = wincng_pub_priv_write(key, 0, mth, mthlen);
 
-            offset = _libssh2_wincng_pub_priv_write(key, offset,
-                                                    rpbDecoded[2],
-                                                    rcbDecoded[2]);
+            offset = wincng_pub_priv_write(key, offset,
+                                           rpbDecoded[2],
+                                           rcbDecoded[2]);
 
-            _libssh2_wincng_pub_priv_write(key, offset,
-                                           rpbDecoded[1],
-                                           rcbDecoded[1]);
+            wincng_pub_priv_write(key, offset,
+                                  rpbDecoded[1],
+                                  rcbDecoded[1]);
         }
         else {
             ret = -1;
@@ -3247,23 +3246,23 @@ _libssh2_wincng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
                             + 4 + rcbDecoded[3] + 4 + rcbDecoded[4];
         key = LIBSSH2_ALLOC(session, keylen);
         if(key) {
-            offset = _libssh2_wincng_pub_priv_write(key, 0, mth, mthlen);
+            offset = wincng_pub_priv_write(key, 0, mth, mthlen);
 
-            offset = _libssh2_wincng_pub_priv_write(key, offset,
-                                                    rpbDecoded[1],
-                                                    rcbDecoded[1]);
+            offset = wincng_pub_priv_write(key, offset,
+                                           rpbDecoded[1],
+                                           rcbDecoded[1]);
 
-            offset = _libssh2_wincng_pub_priv_write(key, offset,
-                                                    rpbDecoded[2],
-                                                    rcbDecoded[2]);
+            offset = wincng_pub_priv_write(key, offset,
+                                           rpbDecoded[2],
+                                           rcbDecoded[2]);
 
-            offset = _libssh2_wincng_pub_priv_write(key, offset,
-                                                    rpbDecoded[3],
-                                                    rcbDecoded[3]);
+            offset = wincng_pub_priv_write(key, offset,
+                                           rpbDecoded[3],
+                                           rcbDecoded[3]);
 
-            _libssh2_wincng_pub_priv_write(key, offset,
-                                           rpbDecoded[4],
-                                           rcbDecoded[4]);
+            wincng_pub_priv_write(key, offset,
+                                  rpbDecoded[4],
+                                  rcbDecoded[4]);
         }
         else {
             ret = -1;
