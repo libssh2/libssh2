@@ -1958,8 +1958,7 @@ _libssh2_wincng_dsa_free(libssh2_dsa_ctx *dsa)
 /*
  * Decode an uncompressed point.
  */
-static int
-_libssh2_wincng_ecdsa_decode_uncompressed_point(
+static int wincng_ecdsa_decode_uncompressed_point(
     IN const unsigned char *encoded_point,
     IN size_t encoded_point_len,
     OUT struct ecdsa_point *point)
@@ -2451,7 +2450,7 @@ _libssh2_wincng_ecdsa_curve_name_with_octal_new(
 
     *key = NULL;
 
-    result = _libssh2_wincng_ecdsa_decode_uncompressed_point(
+    result = wincng_ecdsa_decode_uncompressed_point(
         publickey_encoded,
         publickey_encoded_len,
         &publickey);
@@ -2509,7 +2508,7 @@ _libssh2_wincng_ecdh_gen_k(OUT libssh2_bn **secret,
     *secret = NULL;
 
     /* Decode the public key */
-    result = _libssh2_wincng_ecdsa_decode_uncompressed_point(
+    result = wincng_ecdsa_decode_uncompressed_point(
         server_publickey_encoded,
         server_publickey_encoded_len,
         &server_publickey);
@@ -2877,7 +2876,7 @@ _libssh2_wincng_parse_ecdsa_privatekey(OUT struct wincng_ecdsa_ctx **key,
         goto cleanup;
     }
 
-    result = _libssh2_wincng_ecdsa_decode_uncompressed_point(
+    result = wincng_ecdsa_decode_uncompressed_point(
         publickey,
         publickey_len,
         &q);
