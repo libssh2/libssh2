@@ -1932,11 +1932,10 @@ fail:
                           "Unable to allocate memory for private key data");
 }
 
-static int
-_libssh2_dsa_new_openssh_private(libssh2_dsa_ctx **dsa,
-                                 LIBSSH2_SESSION *session,
-                                 const char *filename,
-                                 const unsigned char *passphrase)
+static int dsa_new_openssh_private(libssh2_dsa_ctx **dsa,
+                                   LIBSSH2_SESSION *session,
+                                   const char *filename,
+                                   const unsigned char *passphrase)
 {
     FILE *fp;
     int rc;
@@ -2009,8 +2008,8 @@ _libssh2_dsa_new_private(libssh2_dsa_ctx **dsa,
                                     filename, passphrase);
 
     if(rc) {
-        rc = _libssh2_dsa_new_openssh_private(dsa, session,
-                                              filename, passphrase);
+        rc = dsa_new_openssh_private(dsa, session,
+                                     filename, passphrase);
     }
 
     return rc;
