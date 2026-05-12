@@ -146,8 +146,7 @@ static void memcpy_with_be_padding(unsigned char *dest, ULONG dest_len,
  * Windows CNG backend: BigNumber functions
  */
 
-libssh2_bn *
-_libssh2_wincng_bignum_init(void)
+libssh2_bn *_libssh2_wincng_bignum_init(void)
 {
     libssh2_bn *bignum;
 
@@ -160,8 +159,7 @@ _libssh2_wincng_bignum_init(void)
     return bignum;
 }
 
-static int
-_libssh2_wincng_bignum_resize(libssh2_bn *bn, ULONG length)
+static int wincng_bignum_resize(libssh2_bn *bn, ULONG length)
 {
     unsigned char *bignum;
 
@@ -195,7 +193,7 @@ _libssh2_wincng_bignum_rand(libssh2_bn *rnd, int bits, int top, int bottom)
         return -1;
 
     length = (ULONG)(ceil(((double)bits) / 8.0) * sizeof(unsigned char));
-    if(_libssh2_wincng_bignum_resize(rnd, length))
+    if(wincng_bignum_resize(rnd, length))
         return -1;
 
     bignum = rnd->bignum;
@@ -270,7 +268,7 @@ _libssh2_wincng_bignum_mod_exp(libssh2_bn *r,
         ret = BCryptEncrypt(hKey, a->bignum, a->length, NULL, NULL, 0,
                             NULL, 0, &length, BCRYPT_PAD_NONE);
         if(BCRYPT_SUCCESS(ret)) {
-            if(!_libssh2_wincng_bignum_resize(r, length)) {
+            if(!wincng_bignum_resize(r, length)) {
                 length = max(a->length, length);
                 bignum = malloc(length);
                 if(bignum) {
@@ -284,7 +282,7 @@ _libssh2_wincng_bignum_mod_exp(libssh2_bn *r,
                     wincng_safe_free(bignum, length);
 
                     if(BCRYPT_SUCCESS(ret)) {
-                        _libssh2_wincng_bignum_resize(r, offset);
+                        wincng_bignum_resize(r, offset);
                     }
                 }
                 else
@@ -317,7 +315,7 @@ _libssh2_wincng_bignum_set_word(libssh2_bn *bn, ULONG word)
     bits++;
 
     length = (ULONG)(ceil(((double)bits) / 8.0) * sizeof(unsigned char));
-    if(_libssh2_wincng_bignum_resize(bn, length))
+    if(wincng_bignum_resize(bn, length))
         return -1;
 
     for(offset = 0; offset < length; offset++)
@@ -359,7 +357,7 @@ _libssh2_wincng_bignum_from_bin(libssh2_bn *bn, ULONG len,
     if(!bn || !bin || !len)
         return -1;
 
-    if(_libssh2_wincng_bignum_resize(bn, len))
+    if(wincng_bignum_resize(bn, len))
         return -1;
 
     memcpy(bn->bignum, bin, len);
@@ -2585,7 +2583,7 @@ _libssh2_wincng_ecdh_gen_k(OUT libssh2_bn **secret,
         goto cleanup;
     }
 
-    if(_libssh2_wincng_bignum_resize(*secret, secret_len)) {
+    if(wincng_bignum_resize(*secret, secret_len)) {
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
     }
@@ -3796,7 +3794,7 @@ _libssh2_dh_key_pair(struct wincng_dh_ctx *dhctx, libssh2_bn *public,
         /* BCRYPT_DH_PUBLIC_BLOB corresponds to a BCRYPT_DH_KEY_BLOB header
          * followed by the Modulus, Generator and Public data. Those components
          * each have equal size, specified by dh_key_blob->cbKey. */
-        if(_libssh2_wincng_bignum_resize(public, dh_key_blob->cbKey)) {
+        if(wincng_bignum_resize(public, dh_key_blob->cbKey)) {
             if(hasAlgDHwithKDF == 1) {
                 /* We have no private data, because raw KDF is supported */
                 free(dh_key_blob);
@@ -3820,8 +3818,8 @@ _libssh2_dh_key_pair(struct wincng_dh_ctx *dhctx, libssh2_bn *public,
                 wincng_safe_free(dh_key_blob, key_length_bytes);
                 return -1;
             }
-            if(_libssh2_wincng_bignum_resize(dhctx->dh_privbn,
-                                             dh_key_blob->cbKey)) {
+            if(wincng_bignum_resize(dhctx->dh_privbn,
+                                    dh_key_blob->cbKey)) {
                 wincng_safe_free(dh_key_blob, key_length_bytes);
                 return -1;
             }
@@ -3939,7 +3937,7 @@ _libssh2_dh_secret(struct wincng_dh_ctx *dhctx, libssh2_bn *secret,
 
         /* Expand the secret bignum to be ready to receive the derived secret
          * */
-        if(_libssh2_wincng_bignum_resize(secret, secret_len_bytes)) {
+        if(wincng_bignum_resize(secret, secret_len_bytes)) {
             status = (NTSTATUS)STATUS_NO_MEMORY;
             goto out;
         }
