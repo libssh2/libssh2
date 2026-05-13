@@ -53,13 +53,13 @@
  * connections
  */
 struct chan_X11_list {
-    LIBSSH2_CHANNEL  *chan;
-    libssh2_socket_t  sock;
+    LIBSSH2_CHANNEL *chan;
+    libssh2_socket_t sock;
     struct chan_X11_list *next;
 };
 
 static struct chan_X11_list *gp_x11_chan = NULL;
-static struct termios        _saved_tio;
+static struct termios _saved_tio;
 
 static int _raw_mode(void)
 {
@@ -70,11 +70,11 @@ static int _raw_mode(void)
     if(rc != -1) {
         _saved_tio = tio;
         /* do the equivalent of cfmakeraw() manually, to build on Solaris */
-        tio.c_iflag &= ~(tcflag_t)(IGNBRK|BRKINT|PARMRK|ISTRIP|
-                                   INLCR|IGNCR|ICRNL|IXON);
+        tio.c_iflag &= ~(tcflag_t)(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR |
+                                   IGNCR | ICRNL | IXON);
         tio.c_oflag &= ~(tcflag_t)OPOST;
-        tio.c_lflag &= ~(tcflag_t)(ECHO|ECHONL|ICANON|ISIG|IEXTEN);
-        tio.c_cflag &= ~(tcflag_t)(CSIZE|PARENB);
+        tio.c_lflag &= ~(tcflag_t)(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+        tio.c_cflag &= ~(tcflag_t)(CSIZE | PARENB);
         tio.c_cflag |= CS8;
         rc = tcsetattr(fileno(stdin), TCSADRAIN, &tio);
     }
@@ -109,8 +109,7 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
      */
     display = getenv("DISPLAY");
     if(display) {
-        if(strncmp(display, "unix:", 5) == 0 ||
-           display[0] == ':') {
+        if(strncmp(display, "unix:", 5) == 0 || display[0] == ':') {
             const char *ptr;
             char *temp_buff;
             int display_port;
@@ -279,7 +278,7 @@ int main(int argc, char *argv[])
     libssh2_socket_t sock = LIBSSH2_INVALID_SOCKET;
     struct sockaddr_in sin;
     LIBSSH2_SESSION *session = NULL;
-    LIBSSH2_CHANNEL* channel = NULL;
+    LIBSSH2_CHANNEL *channel = NULL;
     char *username = NULL;
     char *password = NULL;
     size_t bufsiz = 8193;
@@ -341,7 +340,7 @@ int main(int argc, char *argv[])
     sin.sin_port = htons((unsigned short)port);
     sin.sin_addr.s_addr = hostaddr;
 
-    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
+    if(connect(sock, (struct sockaddr *)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "Failed to establish connection.\n");
         return 1;
     }
@@ -500,7 +499,7 @@ int main(int argc, char *argv[])
         rc = select((int)(fileno(stdin) + 1), &set, NULL, NULL, &timeval_out);
         if(rc > 0) {
             ssize_t wr = 0;
-            nread = read(fileno(stdin), buf, 1);  /* Data in stdin */
+            nread = read(fileno(stdin), buf, 1); /* Data in stdin */
             while(wr < nread) {
                 ssize_t nwritten = libssh2_channel_write(channel, buf + wr,
                                                          (size_t)(nread - wr));

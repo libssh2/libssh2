@@ -85,7 +85,7 @@ static void kbd_callback(const char *name, int name_len,
     }
 
     fprintf(stderr,
-        "Done. Sending keyboard-interactive responses to server now.\n");
+            "Done. Sending keyboard-interactive responses to server now.\n");
 }
 
 int main(int argc, char *argv[])
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
+    if(connect(sock, (struct sockaddr *)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect.\n");
         goto shutdown;
     }
@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
         else if(auth_pw & 2) {
             /* Or via keyboard-interactive */
             if(libssh2_userauth_keyboard_interactive(session, username,
-                                                     &kbd_callback) ) {
+                                                     &kbd_callback)) {
                 fprintf(stderr,
                         "Authentication by keyboard-interactive failed.\n");
                 goto shutdown;

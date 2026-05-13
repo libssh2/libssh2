@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
+    if(connect(sock, (struct sockaddr *)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect.\n");
         goto shutdown;
     }
@@ -157,8 +157,8 @@ int main(int argc, char *argv[])
                              LIBSSH2_SFTP_S_IRGRP |
                              LIBSSH2_SFTP_S_IXGRP |
                              LIBSSH2_SFTP_S_IROTH |
-                             LIBSSH2_SFTP_S_IXOTH) ==
-          LIBSSH2_ERROR_EAGAIN);
+                             LIBSSH2_SFTP_S_IXOTH) == LIBSSH2_ERROR_EAGAIN)
+        ;
 
     libssh2_sftp_shutdown(sftp_session);
 

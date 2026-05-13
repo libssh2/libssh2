@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
+    if(connect(sock, (struct sockaddr *)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect.\n");
         goto shutdown;
     }
@@ -242,7 +242,7 @@ int main(int argc, char *argv[])
         /* loop until we block */
         do {
             char buffer[0x4000];
-            nread = libssh2_channel_read(channel, buffer, sizeof(buffer) );
+            nread = libssh2_channel_read(channel, buffer, sizeof(buffer));
             if(nread > 0) {
                 ssize_t i;
                 bytecount += nread;
