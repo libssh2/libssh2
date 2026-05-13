@@ -1221,7 +1221,7 @@ libssh2_packet_add_jump_point1:
                                                 channelp->remote.id));
                             }
                             else {
-                                rc = _libssh2_error(session, 
+                                rc = _libssh2_error(session,
                                                     LIBSSH2_ERROR_ALLOC,
                                                     "exit signal alloc error");
                             }
