@@ -1275,20 +1275,13 @@ static ULONG wincng_bn_size(const unsigned char *bignum, ULONG length)
  */
 
 int _libssh2_wincng_rsa_new(libssh2_rsa_ctx **rsa,
-                            const unsigned char *edata,
-                            unsigned long elen,
-                            const unsigned char *ndata,
-                            unsigned long nlen,
-                            const unsigned char *ddata,
-                            unsigned long dlen,
-                            const unsigned char *pdata,
-                            unsigned long plen,
-                            const unsigned char *qdata,
-                            unsigned long qlen,
-                            const unsigned char *e1data,
-                            unsigned long e1len,
-                            const unsigned char *e2data,
-                            unsigned long e2len,
+                            const unsigned char *edata, unsigned long elen,
+                            const unsigned char *ndata, unsigned long nlen,
+                            const unsigned char *ddata, unsigned long dlen,
+                            const unsigned char *pdata, unsigned long plen,
+                            const unsigned char *qdata, unsigned long qlen,
+                            const unsigned char *e1data, unsigned long e1len,
+                            const unsigned char *e2data, unsigned long e2len,
                             const unsigned char *coeffdata,
                             unsigned long coefflen)
 {
@@ -1651,16 +1644,11 @@ void _libssh2_wincng_rsa_free(libssh2_rsa_ctx *rsa)
 
 #if LIBSSH2_DSA
 int _libssh2_wincng_dsa_new(libssh2_dsa_ctx **dsa,
-                            const unsigned char *pdata,
-                            unsigned long plen,
-                            const unsigned char *qdata,
-                            unsigned long qlen,
-                            const unsigned char *gdata,
-                            unsigned long glen,
-                            const unsigned char *ydata,
-                            unsigned long ylen,
-                            const unsigned char *xdata,
-                            unsigned long xlen)
+                            const unsigned char *pdata, unsigned long plen,
+                            const unsigned char *qdata, unsigned long qlen,
+                            const unsigned char *gdata, unsigned long glen,
+                            const unsigned char *ydata, unsigned long ylen,
+                            const unsigned char *xdata, unsigned long xlen)
 {
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_DSA_KEY_BLOB *dsakey;
@@ -2234,9 +2222,8 @@ static int wincng_uncompressed_point_from_publickey(
     }
 
     if(!BCRYPT_SUCCESS(status)) {
-        result = _libssh2_error(session,
-            LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
-            "Decoding the ECC public key failed");
+        result = _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
+                                "Decoding the ECC public key failed");
         goto cleanup;
     }
 

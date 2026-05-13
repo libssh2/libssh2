@@ -49,8 +49,7 @@ int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
 }
 
 #if LIBSSH2_MD5
-int _libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
-                           void *key, size_t keylen)
+int _libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
     gcry_error_t err;
     err = gcry_md_open(ctx, GCRY_MD_MD5, GCRY_MD_FLAG_HMAC);
@@ -78,8 +77,7 @@ int _libssh2_hmac_ripemd160_init(libssh2_hmac_ctx *ctx,
 }
 #endif
 
-int _libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
-                            void *key, size_t keylen)
+int _libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
     gcry_error_t err;
     err = gcry_md_open(ctx, GCRY_MD_SHA1, GCRY_MD_FLAG_HMAC);
@@ -91,8 +89,7 @@ int _libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
     return 1;
 }
 
-int _libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
-                              void *key, size_t keylen)
+int _libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
     gcry_error_t err;
     err = gcry_md_open(ctx, GCRY_MD_SHA256, GCRY_MD_FLAG_HMAC);
@@ -104,8 +101,7 @@ int _libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
     return 1;
 }
 
-int _libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
-                              void *key, size_t keylen)
+int _libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
     gcry_error_t err;
     err = gcry_md_open(ctx, GCRY_MD_SHA512, GCRY_MD_FLAG_HMAC);
@@ -282,11 +278,11 @@ int _libssh2_dsa_new(libssh2_dsa_ctx **dsactx,
 #endif
 
 #if LIBSSH2_RSA
-int _libssh2_rsa_new_private_frommemory(
-    libssh2_rsa_ctx **rsa,
-    LIBSSH2_SESSION *session,
-    const char *filedata, size_t filedata_len,
-    const unsigned char *passphrase)
+int _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
+                                        LIBSSH2_SESSION *session,
+                                        const char *filedata,
+                                        size_t filedata_len,
+                                        const unsigned char *passphrase)
 {
     (void)rsa;
     (void)filedata;

@@ -505,7 +505,7 @@ static const struct crypt_method *crypt_methods[] = {
 #endif /* LIBSSH2_AES_CTR */
 #if LIBSSH2_AES_CBC
     &crypt_method_aes256_cbc,
-    &crypt_method_rijndael_cbc_lysator_liu_se,  /* == aes256-cbc */
+    &crypt_method_rijndael_cbc_lysator_liu_se, /* == aes256-cbc */
     &crypt_method_aes192_cbc,
     &crypt_method_aes128_cbc,
 #endif /* LIBSSH2_AES_CBC */

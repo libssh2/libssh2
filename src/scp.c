@@ -897,8 +897,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
             cmd_len += path_len;
         }
         else {
-            cmd_len += shell_quotearg(path,
-                                      &session->scpSend_command[cmd_len],
+            cmd_len += shell_quotearg(path, &session->scpSend_command[cmd_len],
                                       session->scpSend_command_len - cmd_len);
         }
 
@@ -1087,8 +1086,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
     if(session->scpSend_state == libssh2_NB_state_sent6) {
         /* Wait for ACK */
         rc = (int)_libssh2_channel_read(session->scpSend_channel, 0,
-                                        (char *)session->scpSend_response,
-                                        1);
+                                        (char *)session->scpSend_response, 1);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block waiting for response");
@@ -1120,9 +1118,8 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
                                             err_msg, err_len);
             if(rc > 0) {
                 err_msg[err_len] = 0;
-                _libssh2_debug((session, LIBSSH2_TRACE_SCP,
-                               "got %02x %s", session->scpSend_response[0],
-                               err_msg));
+                _libssh2_debug((session, LIBSSH2_TRACE_SCP, "got %02x %s",
+                                session->scpSend_response[0], err_msg));
             }
             LIBSSH2_FREE(session, err_msg);
             _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,

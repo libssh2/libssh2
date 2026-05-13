@@ -630,7 +630,7 @@ static struct agent_ops agent_ops_unix = {
     agent_transact_unix,
     agent_disconnect_unix
 };
-#endif  /* PF_UNIX */
+#endif /* PF_UNIX */
 
 #ifdef HAVE_WIN32_AGENTS
 /* Code to talk to Pageant was taken from PuTTY.
@@ -640,7 +640,7 @@ static struct agent_ops agent_ops_unix = {
  * Barry, Justin Bradford, Ben Harris, Malcolm Smith, Ahmad Khalifa,
  * Markus Kuhn, Colin Watson, and CORE SDI S.A.
  */
-#define PAGEANT_COPYDATA_ID 0x804e50ba   /* random goop */
+#define PAGEANT_COPYDATA_ID 0x804e50ba /* random goop */
 #define PAGEANT_MAX_MSGLEN  8192
 
 static int agent_connect_pageant(LIBSSH2_AGENT *agent)
@@ -650,7 +650,7 @@ static int agent_connect_pageant(LIBSSH2_AGENT *agent)
     if(!hwnd)
         return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                               "failed connecting agent");
-    agent->fd = 0;         /* Mark as the connection has been established */
+    agent->fd = 0; /* Mark as the connection has been established */
     return LIBSSH2_ERROR_NONE;
 }
 
@@ -873,8 +873,7 @@ static int agent_sign(LIBSSH2_SESSION *session,
     if(((size_t)method_len != session->userauth_pblc_method_len &&
         method_len != plain_len) ||
        memcmp(method_name, session->userauth_pblc_method, method_len)) {
-        _libssh2_debug((session,
-                       LIBSSH2_TRACE_KEX,
+        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                        "Agent sign method %.*s",
                        (int)method_len, method_name));
 

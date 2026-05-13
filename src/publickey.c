@@ -603,7 +603,7 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
             packet_len += 4 + comment_len;
         }
         else {
-            packet_len += 5;    /* overwrite(1) + attribute_count(4) */
+            packet_len += 5; /* overwrite(1) + attribute_count(4) */
             for(i = 0; i < num_attrs; i++) {
                 packet_len += 9 + attrs[i].name_len + attrs[i].value_len;
                 /* name_len(4) + value_len(4) + mandatory(1) */
@@ -915,7 +915,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
             }
 
             if(pkey->listFetch_s >
-                pkey->listFetch_data + pkey->listFetch_data_len) {
+               pkey->listFetch_data + pkey->listFetch_data_len) {
                 _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                                "Malformed publickey subsystem packet");
                 goto err_exit;

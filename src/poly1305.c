@@ -14,15 +14,15 @@
 
 #define mul32x32_64(a, b) ((uint64_t)(a) * (b))
 
-#define U8TO32_LE(p) \
-    (((uint32_t)((p)[0])) | \
+#define U8TO32_LE(p)              \
+    (((uint32_t)((p)[0])) |       \
      ((uint32_t)((p)[1]) <<  8) | \
      ((uint32_t)((p)[2]) << 16) | \
      ((uint32_t)((p)[3]) << 24))
 
-#define U32TO8_LE(p, v) \
-    do { \
-        (p)[0] = (uint8_t)((v)); \
+#define U32TO8_LE(p, v)                \
+    do {                               \
+        (p)[0] = (uint8_t)((v));       \
         (p)[1] = (uint8_t)((v) >>  8); \
         (p)[2] = (uint8_t)((v) >> 16); \
         (p)[3] = (uint8_t)((v) >> 24); \

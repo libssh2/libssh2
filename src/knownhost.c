@@ -679,7 +679,7 @@ static int hashed_hostline(LIBSSH2_KNOWNHOSTS *hosts,
     char hostbuf[256];
 
     const char *salt = &host[3]; /* skip the magic marker */
-    hostlen -= 3;    /* deduct the marker */
+    hostlen -= 3; /* deduct the marker */
 
     /* this is where the salt starts, find the end of it */
     for(p = salt; *p && (*p != '|'); p++)

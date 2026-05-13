@@ -562,7 +562,7 @@ static LIBSSH2_LISTENER *channel_forward_listen(LIBSSH2_SESSION *session,
 
         *(s++) = SSH_MSG_GLOBAL_REQUEST;
         _libssh2_store_str(&s, "tcpip-forward", sizeof("tcpip-forward") - 1);
-        *(s++) = 0x01;          /* want_reply */
+        *(s++) = 0x01; /* want_reply */
 
         _libssh2_store_str(&s, host, session->fwdLstn_host_len);
         _libssh2_store_u32(&s, port);
@@ -707,8 +707,7 @@ int _libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
     size_t host_len = strlen(listener->host);
     /* 14 = packet_type(1) + request_len(4) + want_replay(1) + host_len(4) +
        port(4) */
-    size_t packet_len =
-        host_len + 14 + sizeof("cancel-tcpip-forward") - 1;
+    size_t packet_len = host_len + 14 + sizeof("cancel-tcpip-forward") - 1;
     int rc;
     int retcode = 0;
 
@@ -727,7 +726,7 @@ int _libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
         *(s++) = SSH_MSG_GLOBAL_REQUEST;
         _libssh2_store_str(&s, "cancel-tcpip-forward",
                            sizeof("cancel-tcpip-forward") - 1);
-        *(s++) = 0x00;          /* want_reply */
+        *(s++) = 0x00; /* want_reply */
 
         _libssh2_store_str(&s, listener->host, host_len);
         _libssh2_store_u32(&s, listener->port);
@@ -741,8 +740,7 @@ int _libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
     if(listener->chanFwdCncl_state == libssh2_NB_state_created) {
         rc = _libssh2_transport_send(session, packet, packet_len, NULL, 0);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
-            _libssh2_error(session, rc,
-                           "Would block sending forward request");
+            _libssh2_error(session, rc, "Would block sending forward request");
             listener->chanFwdCncl_data = packet;
             return rc;
         }
@@ -1030,11 +1028,9 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
 
     if(channel->reqPTY_state == libssh2_NB_state_created) {
         rc = _libssh2_transport_send(session, channel->reqPTY_packet,
-                                     channel->reqPTY_packet_len,
-                                     NULL, 0);
+                                     channel->reqPTY_packet_len, NULL, 0);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
-            _libssh2_error(session, rc,
-                           "Would block sending pty request");
+            _libssh2_error(session, rc, "Would block sending pty request");
             return rc;
         }
         else if(rc) {
@@ -1291,8 +1287,7 @@ static int channel_request_pty_size(LIBSSH2_CHANNEL *channel, int width,
 
     if(channel->reqPTY_state == libssh2_NB_state_created) {
         rc = _libssh2_transport_send(session, channel->reqPTY_packet,
-                                     channel->reqPTY_packet_len,
-                                     NULL, 0);
+                                     channel->reqPTY_packet_len, NULL, 0);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, rc,
                            "Would block sending window-change request");
@@ -1328,7 +1323,7 @@ int libssh2_channel_request_pty_size_ex(LIBSSH2_CHANNEL *channel,
 }
 
 /* Keep this an even number */
-#define LIBSSH2_X11_RANDOM_COOKIE_LEN       32
+#define LIBSSH2_X11_RANDOM_COOKIE_LEN  32
 
 /*
  * Request X11 forwarding
@@ -2104,7 +2099,7 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
             (readpkt->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) &&
             (channel->local.id == channel->read_local_id) &&
             (channel->remote.extended_data_ignore_mode ==
-                LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE))) {
+             LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE))) {
 
             /* figure out much more data we want to read */
             bytes_want = buflen - bytes_read;
@@ -2248,8 +2243,8 @@ size_t _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL *channel,
            (!stream_id &&
             (read_packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) &&
             (channel->local.id == read_local_id) &&
-            (channel->remote.extended_data_ignore_mode
-                == LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE))) {
+            (channel->remote.extended_data_ignore_mode ==
+             LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE))) {
             return read_packet->data_len - read_packet->data_head;
         }
 
@@ -2424,7 +2419,7 @@ ssize_t libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel, int stream_id,
 static int channel_send_eof(LIBSSH2_CHANNEL *channel)
 {
     LIBSSH2_SESSION *session = channel->session;
-    unsigned char packet[5];    /* packet_type(1) + channelno(4) */
+    unsigned char packet[5]; /* packet_type(1) + channelno(4) */
     int rc;
 
     _libssh2_debug((session, LIBSSH2_TRACE_CONN,
@@ -2603,8 +2598,7 @@ int _libssh2_channel_close(LIBSSH2_CHANNEL *channel)
         rc = _libssh2_transport_send(session, channel->close_packet, 5,
                                      NULL, 0);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
-            _libssh2_error(session, rc,
-                           "Would block sending close-channel");
+            _libssh2_error(session, rc, "Would block sending close-channel");
             return rc;
         }
         else if(rc) {
@@ -2976,7 +2970,7 @@ static int channel_signal(LIBSSH2_CHANNEL *channel,
         *(s++) = SSH_MSG_CHANNEL_REQUEST;
         _libssh2_store_u32(&s, channel->remote.id);
         _libssh2_store_str(&s, "signal", sizeof("signal") - 1);
-        *(s++) = 0x00;  /* Don't reply */
+        *(s++) = 0x00; /* Don't reply */
         _libssh2_store_str(&s, signame, signame_len);
 
         channel->sendsignal_state = libssh2_NB_state_created;

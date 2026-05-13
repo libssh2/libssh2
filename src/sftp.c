@@ -330,8 +330,7 @@ static int sftp_packet_read(LIBSSH2_SFTP *sftp)
             }
 
             if(sftp->partial_len < 5)
-                return _libssh2_error(session,
-                                      LIBSSH2_ERROR_ALLOC,
+                return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                       "Invalid SFTP packet size");
 
             _libssh2_debug((session, LIBSSH2_TRACE_SFTP,

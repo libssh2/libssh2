@@ -160,8 +160,7 @@ static int sha_algo_ctx_update(int sha_algo, void *ctx,
     return 0;
 }
 
-static int sha_algo_ctx_final(int sha_algo, void *ctx,
-                              void *hash)
+static int sha_algo_ctx_final(int sha_algo, void *ctx, void *hash)
 {
     if(sha_algo == 512) {
         libssh2_sha512_ctx *_ctx = (libssh2_sha512_ctx *)ctx;
@@ -329,8 +328,7 @@ static int process_host_key(LIBSSH2_SESSION *session,
     {
         char *base64Fingerprint = NULL;
         _libssh2_base64_encode(session,
-                               (const char *)
-                               session->server_hostkey_sha256,
+                               (const char *)session->server_hostkey_sha256,
                                SHA256_DIGEST_LENGTH, &base64Fingerprint);
         if(base64Fingerprint) {
             _libssh2_debug((session, LIBSSH2_TRACE_KEX,
@@ -342,8 +340,7 @@ static int process_host_key(LIBSSH2_SESSION *session,
 #endif /* LIBSSH2DEBUG */
 
     if(!session->hostkey) {
-        return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                              "hostkey is NULL");
+        return _libssh2_error(session, LIBSSH2_ERROR_PROTO, "hostkey is NULL");
     }
     if(session->hostkey->init(session, session->server_hostkey,
                               session->server_hostkey_len,
@@ -368,15 +365,13 @@ static int finish_kex(LIBSSH2_SESSION *session,
         return rc;
     }
     if(rc) {
-        return _libssh2_error(session, rc,
-                             "Timed out waiting for NEWKEYS");
+        return _libssh2_error(session, rc, "Timed out waiting for NEWKEYS");
     }
 
     /* The first key exchange has been performed,
        switch to active crypt/comp/mac mode */
     session->state |= LIBSSH2_STATE_NEWKEYS;
-    _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-                   "Received NEWKEYS message"));
+    _libssh2_debug((session, LIBSSH2_TRACE_KEX, "Received NEWKEYS message"));
 
     /* This will actually end up being just packet_type(1)
        for this packet type anyway */
@@ -396,8 +391,7 @@ static int finish_kex(LIBSSH2_SESSION *session,
 
     /* Cleanup any existing cipher */
     if(session->local.crypt->dtor) {
-        session->local.crypt->dtor(session,
-                                   &session->local.crypt_abstract);
+        session->local.crypt->dtor(session, &session->local.crypt_abstract);
     }
 
     /* Calculate IV/Secret/Key for each direction */
@@ -736,8 +730,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
 
     if(exchange_state->state == libssh2_NB_state_created) {
         rc = _libssh2_transport_send(session, exchange_state->e_packet,
-                                     exchange_state->e_packet_len,
-                                     NULL, 0);
+                                     exchange_state->e_packet_len, NULL, 0);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         }
@@ -1041,7 +1034,7 @@ static int kex_method_diffie_hellman_group1_sha1_key_exchange(
         /* g == 2 */
         key_state->p = _libssh2_bn_init_from_bin(); /* SSH2 defined value
                                                        (p_value) */
-        key_state->g = _libssh2_bn_init();      /* SSH2 defined value (2) */
+        key_state->g = _libssh2_bn_init(); /* SSH2 defined value (2) */
 
         /* Initialize P and G */
         if(!key_state->g || _libssh2_bn_set_word(key_state->g, 2)) {
@@ -1136,7 +1129,7 @@ static int kex_method_diffie_hellman_group14_key_exchange(
     if(key_state->state == libssh2_NB_state_idle) {
         key_state->p = _libssh2_bn_init_from_bin(); /* SSH2 defined value
                                                        (p_value) */
-        key_state->g = _libssh2_bn_init();      /* SSH2 defined value (2) */
+        key_state->g = _libssh2_bn_init(); /* SSH2 defined value (2) */
 
         /* g == 2 */
         /* Initialize P and G */
@@ -1253,7 +1246,7 @@ static int kex_method_diffie_hellman_group16_sha512_key_exchange(
     if(key_state->state == libssh2_NB_state_idle) {
         key_state->p = _libssh2_bn_init_from_bin(); /* SSH2 defined value
                                                        (p_value) */
-        key_state->g = _libssh2_bn_init();      /* SSH2 defined value (2) */
+        key_state->g = _libssh2_bn_init(); /* SSH2 defined value (2) */
 
         /* g == 2 */
         /* Initialize P and G */
@@ -1388,7 +1381,7 @@ static int kex_method_diffie_hellman_group18_sha512_key_exchange(
     if(key_state->state == libssh2_NB_state_idle) {
         key_state->p = _libssh2_bn_init_from_bin(); /* SSH2 defined value
                                                        (p_value) */
-        key_state->g = _libssh2_bn_init();      /* SSH2 defined value (2) */
+        key_state->g = _libssh2_bn_init(); /* SSH2 defined value (2) */
 
         /* g == 2 */
         /* Initialize P and G */
@@ -3272,8 +3265,8 @@ static int kex_method_mlkem768x25519_key_exchange(
 
     if(key_state->state == libssh2_NB_state_sent1) {
         rc = _libssh2_packet_require(session, SSH2_MSG_KEX_ECDH_REPLY,
-                                     &key_state->data, &key_state->data_len,
-                                     0, NULL, 0, &key_state->req_state);
+                                     &key_state->data, &key_state->data_len, 0,
+                                     NULL, 0, &key_state->req_state);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         }
@@ -3311,8 +3304,8 @@ clean_exit:
 
 #endif /* LIBSSH2_ED25519 */
 
-#define LIBSSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY     0x0001
-#define LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY    0x0002
+#define LIBSSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY  0x0001
+#define LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY 0x0002
 
 static const struct kex_method kex_method_diffie_hellman_group1_sha1 = {
     "diffie-hellman-group1-sha1",
@@ -3635,7 +3628,7 @@ static int kexinit(LIBSSH2_SESSION *session)
 
 #ifdef LIBSSH2DEBUG
         {
-            unsigned char *p = data + 21;   /* type(1) + cookie(16) + len(4) */
+            unsigned char *p = data + 21; /* type(1) + cookie(16) + len(4) */
 
             _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                            "Sent KEX: %.*s", (int)kex_len, p));
@@ -3834,7 +3827,7 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session,
             /* So far so good, but does it suit our purposes? (Encrypting vs
                Signing) */
             if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0) ||
-                ((*hostkeyp)->encrypt)) {
+               ((*hostkeyp)->encrypt)) {
                 /* Either this hostkey can do encryption or this kex just
                    doesn't require it */
                 if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) ==
@@ -4552,7 +4545,7 @@ int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
     default:
         return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                               "Unknown method type");
-    }  /* switch */
+    } /* switch */
 
     /* weird situation */
     if(!mlist)

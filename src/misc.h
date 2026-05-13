@@ -40,10 +40,11 @@
  */
 
 #ifdef LIBSSH2_NO_CLEAR_MEMORY
-#define _libssh2_explicit_zero(buf, size) do { \
-                                              (void)(buf); \
-                                              (void)(size); \
-                                          } while(0)
+#define _libssh2_explicit_zero(buf, size) \
+    do {                                  \
+        (void)(buf);                      \
+        (void)(size);                     \
+    } while(0)
 #elif defined(_WIN32)
 #define _libssh2_explicit_zero(buf, size) SecureZeroMemory(buf, size)
 #elif defined(HAVE_EXPLICIT_BZERO)

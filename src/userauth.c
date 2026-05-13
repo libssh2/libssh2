@@ -73,9 +73,12 @@
 static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
                            unsigned int username_len)
 {
-    unsigned char reply_codes[4] =
-        { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE,
-          SSH_MSG_USERAUTH_BANNER, 0 };
+    unsigned char reply_codes[4] = {
+        SSH_MSG_USERAUTH_SUCCESS,
+        SSH_MSG_USERAUTH_FAILURE,
+        SSH_MSG_USERAUTH_BANNER,
+        0
+    };
     /* packet_type(1) + username_len(4) + service_len(4) +
        service(14)"ssh-connection" + method_len(4) = 27 */
     unsigned long methods_len;
@@ -981,8 +984,7 @@ int libssh2_sign_sk(LIBSSH2_SESSION *session,
                 _libssh2_store_u32(&x, (uint32_t)(*sig_len - 4));
             }
             else {
-                _libssh2_debug((session,
-                               LIBSSH2_ERROR_ALLOC,
+                _libssh2_debug((session, LIBSSH2_ERROR_ALLOC,
                                "Unable to allocate ecdsa-sk signature."));
                 rc = LIBSSH2_ERROR_ALLOC;
             }
@@ -1000,8 +1002,7 @@ int libssh2_sign_sk(LIBSSH2_SESSION *session,
                                    sig_info.sig_r_len);
             }
             else {
-                _libssh2_debug((session,
-                               LIBSSH2_ERROR_ALLOC,
+                _libssh2_debug((session, LIBSSH2_ERROR_ALLOC,
                                "Unable to allocate ed25519-sk signature."));
                 rc = LIBSSH2_ERROR_ALLOC;
             }
@@ -1022,8 +1023,7 @@ int libssh2_sign_sk(LIBSSH2_SESSION *session,
         }
     }
     else {
-        _libssh2_debug((session,
-                       LIBSSH2_ERROR_DECRYPT,
+        _libssh2_debug((session, LIBSSH2_ERROR_DECRYPT,
                        "sign_callback failed or returned invalid signature."));
         *sig_len = 0;
     }
@@ -1158,8 +1158,7 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         datavec[2].iov_len = session->userauth_host_packet_len;
 
         if(privkeyobj && privkeyobj->signv &&
-                         privkeyobj->signv(session, &sig, &sig_len, 3,
-                                           datavec, &abstract)) {
+           privkeyobj->signv(session, &sig, &sig_len, 3, datavec, &abstract)) {
             LIBSSH2_FREE(session, session->userauth_host_method);
             session->userauth_host_method = NULL;
             LIBSSH2_FREE(session, session->userauth_host_packet);
@@ -1239,8 +1238,11 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
     }
 
     if(session->userauth_host_state == libssh2_NB_state_sent) {
-        static const unsigned char reply_codes[3] =
-            { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, 0 };
+        static const unsigned char reply_codes[3] = {
+            SSH_MSG_USERAUTH_SUCCESS,
+            SSH_MSG_USERAUTH_FAILURE,
+            0
+        };
         size_t data_len;
         rc = _libssh2_packet_requirev(session, reply_codes,
                                       &session->userauth_host_data,
@@ -1635,8 +1637,7 @@ retry_auth:
 
         if(session->userauth_pblc_method_len &&
            session->userauth_pblc_method) {
-            _libssh2_debug((session,
-                           LIBSSH2_TRACE_KEX,
+            _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                            "Signing using %.*s",
                            (int)session->userauth_pblc_method_len,
                            session->userauth_pblc_method));

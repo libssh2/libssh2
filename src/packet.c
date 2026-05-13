@@ -885,8 +885,7 @@ int _libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                         break;
 
                     if(name && value) {
-                        _libssh2_debug((session,
-                                       LIBSSH2_TRACE_KEX,
+                        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                                        "Server to Client extension %.*s: %.*s",
                                        (int)name_len, name,
                                        (int)value_len, value));
@@ -933,8 +932,7 @@ int _libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                 len = _libssh2_ntohu32(data + 1);
                 if((len <= (UINT_MAX - 6)) && (datalen >= (6 + len))) {
                     want_reply = data[5 + len];
-                    _libssh2_debug((session,
-                                   LIBSSH2_TRACE_CONN,
+                    _libssh2_debug((session, LIBSSH2_TRACE_CONN,
                                    "Received global request type %.*s (wr %X)",
                                    (int)len, data + 5, want_reply));
                 }
@@ -1106,8 +1104,7 @@ libssh2_packet_add_jump_point1:
                 /* We may have freed already, just quietly ignore this... */
                 ;
             else {
-                _libssh2_debug((session,
-                               LIBSSH2_TRACE_CONN,
+                _libssh2_debug((session, LIBSSH2_TRACE_CONN,
                                "EOF received for channel %u/%u",
                                channelp->local.id,
                                channelp->remote.id));
@@ -1156,8 +1153,7 @@ libssh2_packet_add_jump_point1:
                     goto clean_exit;
                 }
 
-                _libssh2_debug((session,
-                               LIBSSH2_TRACE_CONN,
+                _libssh2_debug((session, LIBSSH2_TRACE_CONN,
                                "Channel %u received request type %.*s (wr %X)",
                                channel, (int)len, request, want_reply));
 
@@ -1172,8 +1168,7 @@ libssh2_packet_add_jump_point1:
 
                         uint32_t status = 0;
                         if(_libssh2_get_u32(&buf, &status)) {
-                            rc = _libssh2_error(session,
-                                                LIBSSH2_ERROR_PROTO,
+                            rc = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                                 "exit-signal status error");
                         }
 
@@ -1201,14 +1196,12 @@ libssh2_packet_add_jump_point1:
                         unsigned char *sig_name = NULL;
                         size_t sig_len = 0;
                         if(_libssh2_get_string(&buf, &sig_name, &sig_len)) {
-                            rc = _libssh2_error(session,
-                                                LIBSSH2_ERROR_PROTO,
+                            rc = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                                 "signal name protocol error");
                         }
 
                         if(sig_len > UINT32_MAX - 1) {
-                            rc = _libssh2_error(session,
-                                                LIBSSH2_ERROR_PROTO,
+                            rc = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                                 "signal name out of bounds");
                         }
                         else if(sig_len > 0) {
@@ -1228,7 +1221,7 @@ libssh2_packet_add_jump_point1:
                                                 channelp->remote.id));
                             }
                             else {
-                                rc = _libssh2_error(session,
+                                rc = _libssh2_error(session, 
                                                     LIBSSH2_ERROR_ALLOC,
                                                     "exit signal alloc error");
                             }
