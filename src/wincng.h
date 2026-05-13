@@ -320,8 +320,7 @@ struct wincng_ecdsa_ctx {
 #define libssh2_ec_key struct wincng_ecdsa_ctx
 #endif
 
-void
-_libssh2_wincng_ecdsa_free(libssh2_ecdsa_ctx* ctx);
+void _libssh2_wincng_ecdsa_free(libssh2_ecdsa_ctx* ctx);
 
 #define _libssh2_ecdsa_create_key(session, privkey, pubkey_octal, \
                                   pubkey_octal_len, curve) \
@@ -503,54 +502,38 @@ void _libssh2_wincng_init(void);
 void _libssh2_wincng_free(void);
 int _libssh2_wincng_random(void *buf, size_t len);
 
-int
-_libssh2_wincng_hash_init(struct wincng_hash_ctx *ctx,
-                          BCRYPT_ALG_HANDLE hAlg, ULONG hashlen,
-                          unsigned char *key, ULONG keylen);
-int
-_libssh2_wincng_hash_update(struct wincng_hash_ctx *ctx,
-                            const void *data, ULONG datalen);
-int
-_libssh2_wincng_hash_final(struct wincng_hash_ctx *ctx,
-                           unsigned char *hash);
-int
-_libssh2_wincng_hash(const unsigned char *data, ULONG datalen,
-                     BCRYPT_ALG_HANDLE hAlg,
-                     unsigned char *hash, ULONG hashlen);
+int _libssh2_wincng_hash_init(struct wincng_hash_ctx *ctx,
+                              BCRYPT_ALG_HANDLE hAlg, ULONG hashlen,
+                              unsigned char *key, ULONG keylen);
+int _libssh2_wincng_hash_update(struct wincng_hash_ctx *ctx,
+                                const void *data, ULONG datalen);
+int _libssh2_wincng_hash_final(struct wincng_hash_ctx *ctx,
+                               unsigned char *hash);
+int _libssh2_wincng_hash(const unsigned char *data, ULONG datalen,
+                         BCRYPT_ALG_HANDLE hAlg,
+                         unsigned char *hash, ULONG hashlen);
 
-void
-_libssh2_wincng_rsa_free(libssh2_rsa_ctx *rsa);
+void _libssh2_wincng_rsa_free(libssh2_rsa_ctx *rsa);
 
 #if LIBSSH2_DSA
-void
-_libssh2_wincng_dsa_free(libssh2_dsa_ctx *dsa);
+void _libssh2_wincng_dsa_free(libssh2_dsa_ctx *dsa);
 #endif
 
-void
-_libssh2_wincng_cipher_dtor(libssh2_cipher_ctx *ctx);
+void _libssh2_wincng_cipher_dtor(libssh2_cipher_ctx *ctx);
 
-libssh2_bn *
-_libssh2_wincng_bignum_init(void);
-int
-_libssh2_wincng_bignum_set_word(libssh2_bn *bn, ULONG word);
-ULONG
-_libssh2_wincng_bignum_bits(const libssh2_bn *bn);
-int
-_libssh2_wincng_bignum_from_bin(libssh2_bn *bn, ULONG len,
-                                const unsigned char *bin);
-int
-_libssh2_wincng_bignum_to_bin(const libssh2_bn *bn, unsigned char *bin);
-void
-_libssh2_wincng_bignum_free(libssh2_bn *bn);
-extern void
-_libssh2_dh_init(struct wincng_dh_ctx *dhctx);
-extern int
-_libssh2_dh_key_pair(struct wincng_dh_ctx *dhctx, libssh2_bn *public,
-                     libssh2_bn *g, libssh2_bn *p, int group_order);
-extern int
-_libssh2_dh_secret(struct wincng_dh_ctx *dhctx, libssh2_bn *secret,
-                   libssh2_bn *f, libssh2_bn *p);
-extern void
-_libssh2_dh_dtor(struct wincng_dh_ctx *dhctx);
+libssh2_bn *_libssh2_wincng_bignum_init(void);
+int _libssh2_wincng_bignum_set_word(libssh2_bn *bn, ULONG word);
+ULONG _libssh2_wincng_bignum_bits(const libssh2_bn *bn);
+int _libssh2_wincng_bignum_from_bin(libssh2_bn *bn, ULONG len,
+                                    const unsigned char *bin);
+int _libssh2_wincng_bignum_to_bin(const libssh2_bn *bn, unsigned char *bin);
+void _libssh2_wincng_bignum_free(libssh2_bn *bn);
+extern void _libssh2_dh_init(struct wincng_dh_ctx *dhctx);
+extern int _libssh2_dh_key_pair(struct wincng_dh_ctx *dhctx,
+                                libssh2_bn *public,
+                                libssh2_bn *g, libssh2_bn *p, int group_order);
+extern int _libssh2_dh_secret(struct wincng_dh_ctx *dhctx, libssh2_bn *secret,
+                              libssh2_bn *f, libssh2_bn *p);
+extern void _libssh2_dh_dtor(struct wincng_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_WINCNG_H */
