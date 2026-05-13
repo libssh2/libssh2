@@ -131,7 +131,7 @@ static int run_command_varg(char **output, const char *command, va_list args)
     buf[0] = 0;
     buf_len = 0;
     while(buf_len < (sizeof(buf) - 1) &&
-        fgets(&buf[buf_len], (int)(sizeof(buf) - buf_len), pipe)) {
+          fgets(&buf[buf_len], (int)(sizeof(buf) - buf_len), pipe)) {
         buf_len = strlen(buf);
     }
 
@@ -415,12 +415,12 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
     sin.sin_addr.s_addr = hostaddr;
 
     for(counter = 0; counter < 3; ++counter) {
-        if(connect(sock, (struct sockaddr*)(&sin),
+        if(connect(sock, (struct sockaddr *)(&sin),
                    sizeof(struct sockaddr_in))) {
             fprintf(stderr,
                     "Connection to %s:%s attempt #%d failed: retrying...\n",
                     ip_address, port_string, counter);
-            portable_sleep(1 + 2*counter);
+            portable_sleep(1 + 2 * counter);
         }
         else {
             ret = sock;
