@@ -422,46 +422,35 @@ typedef enum {
  * mbedTLS backend: forward declarations
  */
 
-void
-_libssh2_mbedtls_init(void);
+void _libssh2_mbedtls_init(void);
 
-void
-_libssh2_mbedtls_free(void);
+void _libssh2_mbedtls_free(void);
 
-int
-_libssh2_mbedtls_random(unsigned char *buf, size_t len);
+int _libssh2_mbedtls_random(unsigned char *buf, size_t len);
 
-void
-_libssh2_mbedtls_cipher_dtor(libssh2_cipher_ctx *ctx);
+void _libssh2_mbedtls_cipher_dtor(libssh2_cipher_ctx *ctx);
 
-int
-_libssh2_mbedtls_hash_init(mbedtls_md_context_t *ctx,
-                           mbedtls_md_type_t mdtype,
-                           const unsigned char *key, size_t keylen);
+int _libssh2_mbedtls_hash_init(mbedtls_md_context_t *ctx,
+                               mbedtls_md_type_t mdtype,
+                               const unsigned char *key, size_t keylen);
 
-int
-_libssh2_mbedtls_hash_final(mbedtls_md_context_t *ctx, unsigned char *hash);
-int
-_libssh2_mbedtls_hash(const unsigned char *data, size_t datalen,
-                      mbedtls_md_type_t mdtype, unsigned char *hash);
+int _libssh2_mbedtls_hash_final(mbedtls_md_context_t *ctx,
+                                unsigned char *hash);
+int _libssh2_mbedtls_hash(const unsigned char *data, size_t datalen,
+                          mbedtls_md_type_t mdtype, unsigned char *hash);
 
-libssh2_bn *
-_libssh2_mbedtls_bignum_init(void);
+libssh2_bn *_libssh2_mbedtls_bignum_init(void);
 
-void
-_libssh2_mbedtls_bignum_free(libssh2_bn *bn);
+void _libssh2_mbedtls_bignum_free(libssh2_bn *bn);
 
-void
-_libssh2_mbedtls_rsa_free(libssh2_rsa_ctx *ctx);
+void _libssh2_mbedtls_rsa_free(libssh2_rsa_ctx *ctx);
 
 #if LIBSSH2_ECDSA
-libssh2_curve_type
-_libssh2_mbedtls_ecdsa_key_get_curve_type(libssh2_ecdsa_ctx *ctx);
-int
-_libssh2_mbedtls_ecdsa_curve_type_from_name(const char *name,
-                                            libssh2_curve_type *out_type);
-void
-_libssh2_mbedtls_ecdsa_free(libssh2_ecdsa_ctx *ctx);
+libssh2_curve_type _libssh2_mbedtls_ecdsa_key_get_curve_type(
+    libssh2_ecdsa_ctx *ctx);
+int _libssh2_mbedtls_ecdsa_curve_type_from_name(const char *name,
+                                                libssh2_curve_type *out_type);
+void _libssh2_mbedtls_ecdsa_free(libssh2_ecdsa_ctx *ctx);
 #endif /* LIBSSH2_ECDSA */
 
 void _libssh2_init_aes_ctr(void);
