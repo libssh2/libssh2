@@ -13,10 +13,10 @@
 
 /* $OpenBSD: chacha.c,v 1.1 2013/11/21 00:45:44 djm Exp $ */
 
-#define U8C(v) (v##U)
+#define U8C(v)  (v##U)
 #define U32C(v) (v##U)
 
-#define U8V(v) ((u8)(v) & U8C(0xFF))
+#define U8V(v)  ((u8)(v) & U8C(0xFF))
 #define U32V(v) ((u32)(v) & U32C(0xFFFFFFFF))
 
 #define ROTL32(v, n) \
@@ -114,7 +114,8 @@ void chacha_encrypt_bytes(struct chacha_ctx *x, const u8 *m, u8 *c,
 
     for(;;) {
         if(bytes < 64) {
-            for(i = 0; i < bytes;++i) tmp[i] = m[i];
+            for(i = 0; i < bytes; ++i)
+                tmp[i] = m[i];
             m = tmp;
             ctarget = c;
             c = tmp;
@@ -204,7 +205,8 @@ void chacha_encrypt_bytes(struct chacha_ctx *x, const u8 *m, u8 *c,
 
         if(bytes <= 64) {
             if(bytes < 64) {
-                for(i = 0; i < bytes;++i) ctarget[i] = c[i];
+                for(i = 0; i < bytes; ++i)
+                    ctarget[i] = c[i];
             }
             x->input[12] = j12;
             x->input[13] = j13;

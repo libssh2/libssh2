@@ -278,8 +278,8 @@ _libssh2_dsa_new(libssh2_dsa_ctx **dsactx,
 
     if(x_len) {
         rc = gcry_sexp_build(dsactx, NULL,
-                 "(private-key(dsa(p%b)(q%b)(g%b)(y%b)(x%b)))",
-                  p_len, p, q_len, q, g_len, g, y_len, y, x_len, x);
+                             "(private-key(dsa(p%b)(q%b)(g%b)(y%b)(x%b)))",
+                             p_len, p, q_len, q, g_len, g, y_len, y, x_len, x);
     }
     else {
         rc = gcry_sexp_build(dsactx, NULL,
@@ -809,9 +809,8 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     (void)passphrase;
 
     return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                          "Unable to extract public key from private "
-                          "key in memory: "
-                          "Method unimplemented in libgcrypt backend");
+                          "Unable to extract public key from private key in "
+                          "memory: Method unimplemented in libgcrypt backend");
 }
 
 int
@@ -831,8 +830,8 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     (void)passphrase;
 
     return _libssh2_error(session, LIBSSH2_ERROR_FILE,
-                    "Unable to extract public key from private key file: "
-                    "Method unimplemented in libgcrypt backend");
+                          "Unable to extract public key from private key "
+                          "file: Method unimplemented in libgcrypt backend");
 }
 
 int
@@ -864,8 +863,8 @@ _libssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
     (void)passphrase;
 
     return _libssh2_error(session, LIBSSH2_ERROR_FILE,
-                    "Unable to extract public SK key from private key file: "
-                    "Method unimplemented in libgcrypt backend");
+                          "Unable to extract public SK key from private key "
+                          "file: Method unimplemented in libgcrypt backend");
 }
 
 void _libssh2_init_aes_ctr(void)
@@ -873,15 +872,13 @@ void _libssh2_init_aes_ctr(void)
     /* no implementation */
 }
 
-void
-_libssh2_dh_init(libssh2_dh_ctx *dhctx)
+void _libssh2_dh_init(libssh2_dh_ctx *dhctx)
 {
     *dhctx = gcry_mpi_new(0);                   /* Random from client */
 }
 
-int
-_libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
-                     libssh2_bn *g, libssh2_bn *p, int group_order)
+int _libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
+                         libssh2_bn *g, libssh2_bn *p, int group_order)
 {
     /* Generate x and e */
     gcry_mpi_randomize(*dhctx, group_order * 8 - 1, GCRY_VERY_STRONG_RANDOM);
@@ -889,17 +886,15 @@ _libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
     return 0;
 }
 
-int
-_libssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
-                   libssh2_bn *f, libssh2_bn *p)
+int _libssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
+                       libssh2_bn *f, libssh2_bn *p)
 {
     /* Compute the shared secret */
     gcry_mpi_powm(secret, f, *dhctx, p);
     return 0;
 }
 
-void
-_libssh2_dh_dtor(libssh2_dh_ctx *dhctx)
+void _libssh2_dh_dtor(libssh2_dh_ctx *dhctx)
 {
     gcry_mpi_release(*dhctx);
     *dhctx = NULL;
@@ -908,10 +903,9 @@ _libssh2_dh_dtor(libssh2_dh_ctx *dhctx)
 /*
  * Return supported key hash algo upgrades, see crypto.h
  */
-const char *
-_libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
-                                       unsigned char *key_method,
-                                       size_t key_method_len)
+const char *_libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
+                                                   unsigned char *key_method,
+                                                   size_t key_method_len)
 {
     (void)session;
 

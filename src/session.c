@@ -117,8 +117,7 @@ static int banner_receive(LIBSSH2_SESSION *session)
         /* no incoming block yet! */
         session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_INBOUND;
 
-        ret = LIBSSH2_RECV(session, &c, 1,
-                           LIBSSH2_SOCKET_RECV_FLAGS(session));
+        ret = LIBSSH2_RECV(session, &c, 1, LIBSSH2_SOCKET_RECV_FLAGS(session));
         if(ret < 0) {
             if(session->api_block_mode || (ret != -EAGAIN))
                 /* ignore EAGAIN when non-blocking */
@@ -254,8 +253,7 @@ static int banner_send(LIBSSH2_SESSION *session)
     if(ret != (ssize_t)(banner_len - session->banner_TxRx_total_send)) {
         if(ret >= 0 || ret == -EAGAIN) {
             /* the whole packet could not be sent, save the what was */
-            session->socket_block_directions =
-                LIBSSH2_SESSION_BLOCK_OUTBOUND;
+            session->socket_block_directions = LIBSSH2_SESSION_BLOCK_OUTBOUND;
             if(ret > 0)
                 session->banner_TxRx_total_send += ret;
             return LIBSSH2_ERROR_EAGAIN;
@@ -340,7 +338,7 @@ static int get_socket_nonblocking(libssh2_socket_t sockfd)
     /* VMS TCP/IP Services */
 
     size_t sockstat = 0;
-    int    callstat = 0;
+    int callstat = 0;
     size_t size = sizeof(int);
 
     callstat = getsockopt(sockfd, SOL_SOCKET, SO_STATE,
@@ -348,7 +346,7 @@ static int get_socket_nonblocking(libssh2_socket_t sockfd)
     if(callstat == -1) {
         return 0;
     }
-    if((sockstat&SS_NBIO) != 0) {
+    if((sockstat & SS_NBIO) != 0) {
         return 1;
     }
     return 0;
@@ -611,10 +609,9 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
     }
 
     if(session->api_timeout > 0 &&
-        (seconds_to_next == 0 ||
-         ms_to_next > session->api_timeout)) {
+       (seconds_to_next == 0 || ms_to_next > session->api_timeout)) {
         time_t now = time(NULL);
-        elapsed_ms = (long)(1000*difftime(now, start_time));
+        elapsed_ms = (long)(1000 * difftime(now, start_time));
         if(elapsed_ms > session->api_timeout) {
             return _libssh2_error(session, LIBSSH2_ERROR_TIMEOUT,
                                   "API timeout expired");
@@ -654,9 +651,9 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
 
         tv.tv_sec = ms_to_next / 1000;
 #ifdef libssh2_usec_t
-        tv.tv_usec = (libssh2_usec_t)((ms_to_next - tv.tv_sec*1000) * 1000);
+        tv.tv_usec = (libssh2_usec_t)((ms_to_next - tv.tv_sec * 1000) * 1000);
 #else
-        tv.tv_usec = (ms_to_next - tv.tv_sec*1000) * 1000;
+        tv.tv_usec = (ms_to_next - tv.tv_sec * 1000) * 1000;
 #endif
 
         if(dir & LIBSSH2_SESSION_BLOCK_INBOUND) {
@@ -718,8 +715,7 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
     int rc;
 
     if(!session) {
-        fprintf(stderr, "Session is NULL, error: %i\n",
-                LIBSSH2_ERROR_PROTO);
+        fprintf(stderr, "Session is NULL, error: %i\n", LIBSSH2_ERROR_PROTO);
         return LIBSSH2_ERROR_PROTO;
     }
 
@@ -754,8 +750,7 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return rc;
         else if(rc) {
-            return _libssh2_error(session, rc,
-                                  "Failed sending banner");
+            return _libssh2_error(session, rc, "Failed sending banner");
         }
         session->startup_state = libssh2_NB_state_sent;
         session->banner_TxRx_state = libssh2_NB_state_idle;
@@ -767,8 +762,7 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
             if(rc == LIBSSH2_ERROR_EAGAIN)
                 return rc;
             else if(rc)
-                return _libssh2_error(session, rc,
-                                      "Failed getting banner");
+                return _libssh2_error(session, rc, "Failed getting banner");
         } while(strncmp("SSH-", (const char *)session->remote.banner, 4));
 
         session->startup_state = libssh2_NB_state_sent1;
@@ -801,8 +795,7 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 
     if(session->startup_state == libssh2_NB_state_sent3) {
         rc = _libssh2_transport_send(session, session->startup_service,
-                                     sizeof("ssh-userauth") + 5 - 1,
-                                     NULL, 0);
+                                     sizeof("ssh-userauth") + 5 - 1, NULL, 0);
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return rc;
         else if(rc) {
@@ -1373,7 +1366,7 @@ int libssh2_session_last_errno(LIBSSH2_SESSION *session)
  * features while still relying on its error reporting mechanism.
  */
 LIBSSH2_API
-int libssh2_session_set_last_error(LIBSSH2_SESSION* session,
+int libssh2_session_set_last_error(LIBSSH2_SESSION *session,
                                    int errcode,
                                    const char *errmsg)
 {
@@ -1412,8 +1405,7 @@ int libssh2_session_flag(LIBSSH2_SESSION *session, int flag, int value)
  * this function is called. Note this function does not alter the state of the
  * actual socket involved.
  */
-int
-_libssh2_session_set_blocking(LIBSSH2_SESSION *session, int blocking)
+int _libssh2_session_set_blocking(LIBSSH2_SESSION *session, int blocking)
 {
     int bl = session->api_block_mode;
     _libssh2_debug((session, LIBSSH2_TRACE_CONN,
@@ -1507,8 +1499,8 @@ int libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended)
 
         if(channel->local.id == _libssh2_ntohu32(packet->data + 1)) {
             if(extended == 1 &&
-                (packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA ||
-                 packet->data[0] == SSH_MSG_CHANNEL_DATA)) {
+               (packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA ||
+                packet->data[0] == SSH_MSG_CHANNEL_DATA)) {
                 return 1;
             }
             else if(extended == 0 &&
@@ -1687,8 +1679,8 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                 switch(fds[i].type) {
                 case LIBSSH2_POLLFD_CHANNEL:
                     if((fds[i].events & LIBSSH2_POLLFD_POLLIN) &&
-                        /* Want to be ready for read */
-                        ((fds[i].revents & LIBSSH2_POLLFD_POLLIN) == 0)) {
+                       /* Want to be ready for read */
+                       ((fds[i].revents & LIBSSH2_POLLFD_POLLIN) == 0)) {
                         /* Not yet known to be ready for read */
                         fds[i].revents |=
                             libssh2_poll_channel_read(fds[i].fd.channel,
@@ -1696,8 +1688,8 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                             LIBSSH2_POLLFD_POLLIN : 0;
                     }
                     if((fds[i].events & LIBSSH2_POLLFD_POLLEXT) &&
-                        /* Want to be ready for extended read */
-                        ((fds[i].revents & LIBSSH2_POLLFD_POLLEXT) == 0)) {
+                       /* Want to be ready for extended read */
+                       ((fds[i].revents & LIBSSH2_POLLFD_POLLEXT) == 0)) {
                         /* Not yet known to be ready for extended read */
                         fds[i].revents |=
                             libssh2_poll_channel_read(fds[i].fd.channel,
@@ -1705,8 +1697,8 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                             LIBSSH2_POLLFD_POLLEXT : 0;
                     }
                     if((fds[i].events & LIBSSH2_POLLFD_POLLOUT) &&
-                        /* Want to be ready for write */
-                        ((fds[i].revents & LIBSSH2_POLLFD_POLLOUT) == 0)) {
+                       /* Want to be ready for write */
+                       ((fds[i].revents & LIBSSH2_POLLFD_POLLOUT) == 0)) {
                         /* Not yet known to be ready for write */
                         fds[i].revents |=
                             poll_channel_write(fds[i].fd. channel) ?
@@ -1717,7 +1709,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                         fds[i].revents |= LIBSSH2_POLLFD_CHANNEL_CLOSED;
                     }
                     if(fds[i].fd.channel->session->socket_state ==
-                        LIBSSH2_SOCKET_DISCONNECTED) {
+                       LIBSSH2_SOCKET_DISCONNECTED) {
                         fds[i].revents |=
                             LIBSSH2_POLLFD_CHANNEL_CLOSED |
                             LIBSSH2_POLLFD_SESSION_CLOSED;
@@ -1726,15 +1718,15 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
 
                 case LIBSSH2_POLLFD_LISTENER:
                     if((fds[i].events & LIBSSH2_POLLFD_POLLIN) &&
-                        /* Want a connection */
-                        ((fds[i].revents & LIBSSH2_POLLFD_POLLIN) == 0)) {
+                       /* Want a connection */
+                       ((fds[i].revents & LIBSSH2_POLLFD_POLLIN) == 0)) {
                         /* No connections known of yet */
                         fds[i].revents |=
                             poll_listener_queued(fds[i].fd. listener) ?
                             LIBSSH2_POLLFD_POLLIN : 0;
                     }
                     if(fds[i].fd.listener->session->socket_state ==
-                        LIBSSH2_SOCKET_DISCONNECTED) {
+                       LIBSSH2_SOCKET_DISCONNECTED) {
                         fds[i].revents |=
                             LIBSSH2_POLLFD_LISTENER_CLOSED |
                             LIBSSH2_POLLFD_SESSION_CLOSED;
@@ -1858,8 +1850,8 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                     break;
 
                 case LIBSSH2_POLLFD_LISTENER:
-                    if(FD_ISSET
-                        (fds[i].fd.listener->session->socket_fd, &rfds)) {
+                    if(FD_ISSET(fds[i].fd.listener->session->socket_fd,
+                                &rfds)) {
                         /* Spin session until no data available */
                         while(_libssh2_transport_read(fds[i].fd.
                                                       listener->session)

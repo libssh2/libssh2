@@ -75,9 +75,9 @@ struct string_buf {
     size_t len;
 };
 
-int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode,
+int _libssh2_error_flags(LIBSSH2_SESSION *session, int errcode,
                          const char *errmsg, int errflags);
-int _libssh2_error(LIBSSH2_SESSION* session, int errcode, const char *errmsg);
+int _libssh2_error(LIBSSH2_SESSION *session, int errcode, const char *errmsg);
 
 #ifdef _WIN32
 /* Convert Win32 WSAGetLastError to errno equivalent */
@@ -131,7 +131,7 @@ int _libssh2_get_u64(struct string_buf *buf, libssh2_uint64_t *out);
 int _libssh2_match_string(struct string_buf *buf, const char *match);
 int _libssh2_get_string(struct string_buf *buf, unsigned char **outbuf,
                         size_t *outlen);
-int _libssh2_copy_string(LIBSSH2_SESSION* session, struct string_buf *buf,
+int _libssh2_copy_string(LIBSSH2_SESSION *session, struct string_buf *buf,
                          unsigned char **outbuf, size_t *outlen);
 int _libssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf,
                               size_t *outlen);

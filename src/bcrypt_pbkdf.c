@@ -50,7 +50,7 @@
  * wise caller could do; we just do it for you.
  */
 
-#define BCRYPT_BLOCKS 8
+#define BCRYPT_BLOCKS   8
 #define BCRYPT_HASHSIZE (BCRYPT_BLOCKS * 4)
 
 static void bcrypt_hash(uint8_t *sha2pass, uint8_t *sha2salt, uint8_t *out)
@@ -77,8 +77,7 @@ static void bcrypt_hash(uint8_t *sha2pass, uint8_t *sha2salt, uint8_t *out)
     /* encryption */
     j = 0;
     for(i = 0; i < BCRYPT_BLOCKS; i++)
-        cdata[i] = Blowfish_stream2word(ciphertext, sizeof(ciphertext),
-                                        &j);
+        cdata[i] = Blowfish_stream2word(ciphertext, sizeof(ciphertext), &j);
     for(i = 0; i < 64; i++)
         blf_enc(&state, cdata, BCRYPT_BLOCKS / 2);
 

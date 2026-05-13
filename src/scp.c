@@ -143,7 +143,11 @@ static size_t shell_quotearg(const char *path,
      *  SQSTRING:       single-quoted-string: '... -- any character may follow
      *  QSTRING:        quoted string: "... -- only apostrophes may follow
      */
-    enum { UQSTRING, SQSTRING, QSTRING } state = UQSTRING;
+    enum {
+        UQSTRING,
+        SQSTRING,
+        QSTRING
+    } state = UQSTRING;
 
     endp = &buf[bufsize];
     src = path;
@@ -784,7 +788,8 @@ scp_recv_error:
     tmp_err_code = session->err_code;
     tmp_err_msg = session->err_msg;
     while(libssh2_channel_free(session->scpRecv_channel) ==
-          LIBSSH2_ERROR_EAGAIN);
+          LIBSSH2_ERROR_EAGAIN)
+        ;
     session->err_code = tmp_err_code;
     session->err_msg = tmp_err_msg;
     session->scpRecv_channel = NULL;
@@ -1143,7 +1148,8 @@ scp_send_error:
     tmp_err_code = session->err_code;
     tmp_err_msg = session->err_msg;
     while(libssh2_channel_free(session->scpSend_channel) ==
-          LIBSSH2_ERROR_EAGAIN);
+          LIBSSH2_ERROR_EAGAIN)
+        ;
     session->err_code = tmp_err_code;
     session->err_msg = tmp_err_msg;
     session->scpSend_channel = NULL;

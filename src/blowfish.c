@@ -58,7 +58,7 @@
  * of the key affect all cipherbits.
  */
 
-#define BLF_N   16                         /* Number of Subkeys */
+#define BLF_N           16                 /* Number of Subkeys */
 #define BLF_MAXKEYLEN   ((BLF_N - 2) * 4)  /* 448 bits */
 #define BLF_MAXUTILIZED ((BLF_N + 2) * 4)  /* 576 bits */
 
@@ -96,14 +96,22 @@ static void Blowfish_encipher(struct blf_ctx *c, uint32_t *xl, uint32_t *xr)
     Xr = *xr;
 
     Xl ^= p[0];
-    BLFRND(s, p, Xr, Xl, 1); BLFRND(s, p, Xl, Xr, 2);
-    BLFRND(s, p, Xr, Xl, 3); BLFRND(s, p, Xl, Xr, 4);
-    BLFRND(s, p, Xr, Xl, 5); BLFRND(s, p, Xl, Xr, 6);
-    BLFRND(s, p, Xr, Xl, 7); BLFRND(s, p, Xl, Xr, 8);
-    BLFRND(s, p, Xr, Xl, 9); BLFRND(s, p, Xl, Xr, 10);
-    BLFRND(s, p, Xr, Xl, 11); BLFRND(s, p, Xl, Xr, 12);
-    BLFRND(s, p, Xr, Xl, 13); BLFRND(s, p, Xl, Xr, 14);
-    BLFRND(s, p, Xr, Xl, 15); BLFRND(s, p, Xl, Xr, 16);
+    BLFRND(s, p, Xr, Xl, 1);
+    BLFRND(s, p, Xl, Xr, 2);
+    BLFRND(s, p, Xr, Xl, 3);
+    BLFRND(s, p, Xl, Xr, 4);
+    BLFRND(s, p, Xr, Xl, 5);
+    BLFRND(s, p, Xl, Xr, 6);
+    BLFRND(s, p, Xr, Xl, 7);
+    BLFRND(s, p, Xl, Xr, 8);
+    BLFRND(s, p, Xr, Xl, 9);
+    BLFRND(s, p, Xl, Xr, 10);
+    BLFRND(s, p, Xr, Xl, 11);
+    BLFRND(s, p, Xl, Xr, 12);
+    BLFRND(s, p, Xr, Xl, 13);
+    BLFRND(s, p, Xl, Xr, 14);
+    BLFRND(s, p, Xr, Xl, 15);
+    BLFRND(s, p, Xl, Xr, 16);
 
     *xl = Xr ^ p[17];
     *xr = Xl;
@@ -121,14 +129,22 @@ static void Blowfish_decipher(struct blf_ctx *c, uint32_t *xl, uint32_t *xr)
     Xr = *xr;
 
     Xl ^= p[17];
-    BLFRND(s, p, Xr, Xl, 16); BLFRND(s, p, Xl, Xr, 15);
-    BLFRND(s, p, Xr, Xl, 14); BLFRND(s, p, Xl, Xr, 13);
-    BLFRND(s, p, Xr, Xl, 12); BLFRND(s, p, Xl, Xr, 11);
-    BLFRND(s, p, Xr, Xl, 10); BLFRND(s, p, Xl, Xr, 9);
-    BLFRND(s, p, Xr, Xl, 8); BLFRND(s, p, Xl, Xr, 7);
-    BLFRND(s, p, Xr, Xl, 6); BLFRND(s, p, Xl, Xr, 5);
-    BLFRND(s, p, Xr, Xl, 4); BLFRND(s, p, Xl, Xr, 3);
-    BLFRND(s, p, Xr, Xl, 2); BLFRND(s, p, Xl, Xr, 1);
+    BLFRND(s, p, Xr, Xl, 16);
+    BLFRND(s, p, Xl, Xr, 15);
+    BLFRND(s, p, Xr, Xl, 14);
+    BLFRND(s, p, Xl, Xr, 13);
+    BLFRND(s, p, Xr, Xl, 12);
+    BLFRND(s, p, Xl, Xr, 11);
+    BLFRND(s, p, Xr, Xl, 10);
+    BLFRND(s, p, Xl, Xr, 9);
+    BLFRND(s, p, Xr, Xl, 8);
+    BLFRND(s, p, Xl, Xr, 7);
+    BLFRND(s, p, Xr, Xl, 6);
+    BLFRND(s, p, Xl, Xr, 5);
+    BLFRND(s, p, Xr, Xl, 4);
+    BLFRND(s, p, Xl, Xr, 3);
+    BLFRND(s, p, Xr, Xl, 2);
+    BLFRND(s, p, Xl, Xr, 1);
 
     *xl = Xr ^ p[0];
     *xr = Xl;
@@ -564,8 +580,7 @@ int main(void)
     char key2[] = "abcdefghijklmnopqrstuvwxyz";
 
     uint32_t data[10];
-    uint32_t data2[] =
-        {0x424c4f57l, 0x46495348l};
+    uint32_t data2[] = { 0x424c4f57l, 0x46495348l };
 
     uint16_t i;
 

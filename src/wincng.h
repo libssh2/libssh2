@@ -150,13 +150,10 @@ extern struct libssh2_wincng_ctx wincng_ctx;
  * Windows CNG backend: Generic functions
  */
 
-#define libssh2_crypto_init() \
-    _libssh2_wincng_init()
-#define libssh2_crypto_exit() \
-    _libssh2_wincng_free()
+#define libssh2_crypto_init() _libssh2_wincng_init()
+#define libssh2_crypto_exit() _libssh2_wincng_free()
 
-#define _libssh2_random(buf, len) \
-    _libssh2_wincng_random(buf, len)
+#define _libssh2_random(buf, len) _libssh2_wincng_random(buf, len)
 
 #define libssh2_prepare_iovec(vec, len)  /* Empty. */
 

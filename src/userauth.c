@@ -186,7 +186,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
                 return NULL;
             }
             memcpy(session->userauth_banner, session->userauth_list_data + 5,
-                    banner_len);
+                   banner_len);
             session->userauth_banner[banner_len] = '\0';
             _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
                            "Banner: %s",
@@ -335,7 +335,7 @@ static int userauth_password(LIBSSH2_SESSION *session,
         session->userauth_pswd_data_len = username_len + 40;
 
         session->userauth_pswd_data0 =
-            (unsigned char) ~SSH_MSG_USERAUTH_PASSWD_CHANGEREQ;
+            (unsigned char)~SSH_MSG_USERAUTH_PASSWD_CHANGEREQ;
 
         /* TODO: remove this alloc with a fixed buffer in the session
            struct */
@@ -444,13 +444,13 @@ password_response:
         }
 
         if((session->userauth_pswd_data[0] ==
-             SSH_MSG_USERAUTH_PASSWD_CHANGEREQ) ||
+            SSH_MSG_USERAUTH_PASSWD_CHANGEREQ) ||
            (session->userauth_pswd_data0 ==
-             SSH_MSG_USERAUTH_PASSWD_CHANGEREQ)) {
+            SSH_MSG_USERAUTH_PASSWD_CHANGEREQ)) {
             session->userauth_pswd_data0 = SSH_MSG_USERAUTH_PASSWD_CHANGEREQ;
 
             if((session->userauth_pswd_state == libssh2_NB_state_sent1) ||
-                (session->userauth_pswd_state == libssh2_NB_state_sent2)) {
+               (session->userauth_pswd_state == libssh2_NB_state_sent2)) {
                 if(session->userauth_pswd_state == libssh2_NB_state_sent1) {
                     _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
                                    "Password change required"));
@@ -636,8 +636,7 @@ static int memory_read_publickey(LIBSSH2_SESSION *session,
     }
 
     if(_libssh2_base64_decode(session, (char **)&tmp, &tmp_len,
-                              (const char *)sp1,
-                              sp2 - sp1)) {
+                              (const char *)sp1, sp2 - sp1)) {
         LIBSSH2_FREE(session, pubkey);
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                               "Invalid key data, not base64 encoded");
@@ -739,8 +738,7 @@ static int file_read_publickey(LIBSSH2_SESSION *session,
     }
 
     if(_libssh2_base64_decode(session, (char **)&tmp, &tmp_len,
-                              (const char *)sp1,
-                              sp2 - sp1)) {
+                              (const char *)sp1, sp2 - sp1)) {
         LIBSSH2_FREE(session, pubkey);
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                               "Invalid key data, not base64 encoded");
@@ -875,7 +873,7 @@ static int sign_frommemory(LIBSSH2_SESSION *session,
 
     libssh2_prepare_iovec(&datavec, 1);
     datavec.iov_base = (void *)LIBSSH2_UNCONST(data);
-    datavec.iov_len  = data_len;
+    datavec.iov_len = data_len;
 
     if(privkeyobj->signv(session, sig, sig_len, 1, &datavec,
                          &hostkey_abstract)) {
@@ -915,7 +913,7 @@ static int sign_fromfile(LIBSSH2_SESSION *session,
 
     libssh2_prepare_iovec(&datavec, 1);
     datavec.iov_base = (void *)LIBSSH2_UNCONST(data);
-    datavec.iov_len  = data_len;
+    datavec.iov_len = data_len;
 
     if(privkeyobj->signv(session, sig, sig_len, 1, &datavec,
                          &hostkey_abstract)) {

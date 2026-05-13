@@ -81,7 +81,7 @@ int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
 }
 #endif
 
-int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode,
+int _libssh2_error_flags(LIBSSH2_SESSION *session, int errcode,
                          const char *errmsg, int errflags)
 {
     if(!session) {
@@ -123,7 +123,7 @@ int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode,
     return errcode;
 }
 
-int _libssh2_error(LIBSSH2_SESSION* session, int errcode, const char *errmsg)
+int _libssh2_error(LIBSSH2_SESSION *session, int errcode, const char *errmsg)
 {
     return _libssh2_error_flags(session, errcode, errmsg, 0);
 }
@@ -317,7 +317,8 @@ int _libssh2_store_bignum2_bytes(unsigned char **buf,
     uint32_t extraByte;
     const unsigned char *p;
 
-    for(p = bytes; len > 0 && *p == 0; --len, ++p) {}
+    for(p = bytes; len > 0 && *p == 0; --len, ++p)
+        ;
 
     extraByte = (len > 0 && (p[0] & 0x80) != 0);
     len_stored = (uint32_t)len;
@@ -395,7 +396,7 @@ int _libssh2_base64_decode(LIBSSH2_SESSION *session,
 
     *datalen = 0;
     *data = LIBSSH2_ALLOC(session, src_len);
-    d = (unsigned char *) *data;
+    d = (unsigned char *)*data;
     if(!d) {
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate memory for base64 decoding");
@@ -436,7 +437,7 @@ int _libssh2_base64_decode(LIBSSH2_SESSION *session,
 }
 
 /* ---- Base64 Encoding/Decoding Table --- */
-static const char table64[]=
+static const char table64[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /*
@@ -541,16 +542,15 @@ int libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *context,
     return 0;
 }
 
-void
-_libssh2_debug_low(LIBSSH2_SESSION *session, int context, const char *format,
-                   ...)
+void _libssh2_debug_low(LIBSSH2_SESSION *session, int context,
+                        const char *format, ...)
 {
     char buffer[1536];
     int len, msglen, buflen = sizeof(buffer);
     va_list vargs;
     struct timeval now;
     static long firstsec;
-    static const char *const contexts[] = {
+    static const char * const contexts[] = {
         "Unknown",
         "Transport",
         "Key Ex",
@@ -572,7 +572,7 @@ _libssh2_debug_low(LIBSSH2_SESSION *session, int context, const char *format,
 
     /* Find the first matching context string for this message */
     for(contextindex = 0; contextindex < ARRAY_SIZE(contexts);
-         contextindex++) {
+        contextindex++) {
         if((context & (1 << contextindex)) != 0) {
             contexttext = contexts[contextindex];
             break;
@@ -770,7 +770,7 @@ int _libssh2_gettimeofday(struct timeval *tp, void *tzp)
 }
 #endif
 
-void *_libssh2_calloc(LIBSSH2_SESSION* session, size_t size)
+void *_libssh2_calloc(LIBSSH2_SESSION *session, size_t size)
 {
     void *p = LIBSSH2_ALLOC(session, size);
     if(p) {
@@ -793,7 +793,7 @@ void _libssh2_xor_data(unsigned char *output,
 }
 
 #ifdef LIBSSH2_MEMZERO
-static void * (* const volatile memset_libssh)(void *, int, size_t) = memset;
+static void *(* const volatile memset_libssh)(void *, int, size_t) = memset;
 
 void _libssh2_memzero(void *buf, size_t size)
 {
@@ -875,7 +875,7 @@ int _libssh2_match_string(struct string_buf *buf, const char *match)
     unsigned char *out;
     size_t len = 0;
     if(_libssh2_get_string(buf, &out, &len) || len != strlen(match) ||
-        strncmp((char *)out, match, strlen(match)) != 0) {
+       strncmp((char *)out, match, strlen(match)) != 0) {
         return -1;
     }
     return 0;

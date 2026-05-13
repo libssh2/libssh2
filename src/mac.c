@@ -441,8 +441,7 @@ static const struct mac_method *mac_methods[] = {
     NULL
 };
 
-const struct mac_method**
-_libssh2_mac_methods(void)
+const struct mac_method **_libssh2_mac_methods(void)
 {
     return mac_methods;
 }
