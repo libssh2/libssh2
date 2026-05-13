@@ -117,7 +117,7 @@ int _libssh2_error_flags(LIBSSH2_SESSION *session, int errcode,
            a debug output for this */
         return errcode;
     _libssh2_debug((session, LIBSSH2_TRACE_ERROR, "%d - %s", session->err_code,
-                   session->err_msg));
+                    session->err_msg));
 #endif
 
     return errcode;
@@ -222,22 +222,24 @@ ssize_t _libssh2_send(libssh2_socket_t socket,
 
 uint32_t _libssh2_ntohu32(const unsigned char *buf)
 {
-    return ((uint32_t)buf[0] << 24)
-         | ((uint32_t)buf[1] << 16)
-         | ((uint32_t)buf[2] << 8)
-         | ((uint32_t)buf[3]);
+    return
+        ((uint32_t)buf[0] << 24) |
+        ((uint32_t)buf[1] << 16) |
+        ((uint32_t)buf[2] << 8)  |
+        ((uint32_t)buf[3]);
 }
 
 libssh2_uint64_t _libssh2_ntohu64(const unsigned char *buf)
 {
-    return ((libssh2_uint64_t)buf[0] << 56)
-         | ((libssh2_uint64_t)buf[1] << 48)
-         | ((libssh2_uint64_t)buf[2] << 40)
-         | ((libssh2_uint64_t)buf[3] << 32)
-         | ((libssh2_uint64_t)buf[4] << 24)
-         | ((libssh2_uint64_t)buf[5] << 16)
-         | ((libssh2_uint64_t)buf[6] <<  8)
-         | ((libssh2_uint64_t)buf[7]);
+    return
+        ((libssh2_uint64_t)buf[0] << 56) |
+        ((libssh2_uint64_t)buf[1] << 48) |
+        ((libssh2_uint64_t)buf[2] << 40) |
+        ((libssh2_uint64_t)buf[3] << 32) |
+        ((libssh2_uint64_t)buf[4] << 24) |
+        ((libssh2_uint64_t)buf[5] << 16) |
+        ((libssh2_uint64_t)buf[6] <<  8) |
+        ((libssh2_uint64_t)buf[7]);
 }
 
 void _libssh2_htonu32(unsigned char *buf, uint32_t value)

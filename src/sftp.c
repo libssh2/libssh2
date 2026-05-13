@@ -132,9 +132,8 @@ static void remove_zombie_request(LIBSSH2_SFTP *sftp, uint32_t request_id)
                                                               request_id);
     if(zombie) {
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                       "Removing request ID %u from the list of "
-                       "zombie requests",
-                       request_id));
+                        "Removing request ID %u from the list of "
+                        "zombie requests", request_id));
 
         _libssh2_list_remove(&zombie->node);
         LIBSSH2_FREE(session, zombie);
@@ -148,7 +147,7 @@ static int add_zombie_request(LIBSSH2_SFTP *sftp, uint32_t request_id)
     struct sftp_zombie_requests *zombie;
 
     _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                   "Marking request ID %u as a zombie request", request_id));
+                    "Marking request ID %u as a zombie request", request_id));
 
     zombie = LIBSSH2_ALLOC(sftp->channel->session,
                            sizeof(struct sftp_zombie_requests));
@@ -177,8 +176,8 @@ static int sftp_packet_add(LIBSSH2_SFTP *sftp,
     }
 
     _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                   "Received packet type %u (len %lu)",
-                   (unsigned int)data[0], (unsigned long)data_len));
+                    "Received packet type %u (len %lu)",
+                    (unsigned int)data[0], (unsigned long)data_len));
 
     /*
      * Experience shows that if we mess up EAGAIN handling somewhere or
@@ -225,7 +224,7 @@ static int sftp_packet_add(LIBSSH2_SFTP *sftp,
     request_id = _libssh2_ntohu32(&data[1]);
 
     _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "Received packet id %d",
-                   request_id));
+                    request_id));
 
     /* Don't add the packet if it answers a request we've given up on. */
     if((data[0] == SSH_FXP_STATUS || data[0] == SSH_FXP_DATA) &&
@@ -283,10 +282,10 @@ static int sftp_packet_read(LIBSSH2_SFTP *sftp)
         packet = sftp->partial_packet;
 
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                       "partial read cont, len: %u", sftp->partial_len));
+                        "partial read cont, len: %u", sftp->partial_len));
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                       "partial read cont, already recvd: %lu",
-                       (unsigned long)sftp->partial_received));
+                        "partial read cont, already recvd: %lu",
+                        (unsigned long)sftp->partial_received));
         LIBSSH2_FALLTHROUGH();
     default:
         if(!packet) {
@@ -334,8 +333,8 @@ static int sftp_packet_read(LIBSSH2_SFTP *sftp)
                                       "Invalid SFTP packet size");
 
             _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                           "Data begin - Packet Length: %lu",
-                           (unsigned long)sftp->partial_len));
+                            "Data begin - Packet Length: %lu",
+                            (unsigned long)sftp->partial_len));
             packet = LIBSSH2_ALLOC(session, sftp->partial_len);
             if(!packet)
                 return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
@@ -498,12 +497,12 @@ static int sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
     }
 
     _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "Requiring packet %u id %u",
-                   (unsigned int)packet_type, request_id));
+                    (unsigned int)packet_type, request_id));
 
     if(sftp_packet_ask(sftp, packet_type, request_id, data, data_len) == 0) {
         /* The right packet was available in the packet brigade */
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "Got %u",
-                       (unsigned int)packet_type));
+                        (unsigned int)packet_type));
 
         if(*data_len < required_size) {
             return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
@@ -521,7 +520,7 @@ static int sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
         if(!sftp_packet_ask(sftp, packet_type, request_id, data, data_len)) {
             /* The right packet was available in the packet brigade */
             _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "Got %d",
-                           (unsigned int)packet_type));
+                            (unsigned int)packet_type));
 
             if(*data_len < required_size) {
                 return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
@@ -774,7 +773,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
 
     if(session->sftpInit_state == libssh2_NB_state_idle) {
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                       "Initializing SFTP subsystem"));
+                        "Initializing SFTP subsystem"));
 
         /*
          * The 'sftpInit_sftp' and 'sftpInit_channel' struct fields within the
@@ -861,9 +860,9 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
         session->sftpInit_sent = 0; /* nothing's sent yet */
 
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                       "Sending FXP_INIT packet advertising "
-                       "version %d support",
-                       (int)LIBSSH2_SFTP_VERSION));
+                        "Sending FXP_INIT packet advertising "
+                        "version %d support",
+                        (int)LIBSSH2_SFTP_VERSION));
 
         session->sftpInit_state = libssh2_NB_state_sent2;
     }
@@ -947,13 +946,13 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
 
     if(sftp_handle->version > LIBSSH2_SFTP_VERSION) {
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                       "Truncating remote SFTP version from %u",
-                       sftp_handle->version));
+                        "Truncating remote SFTP version from %u",
+                        sftp_handle->version));
         sftp_handle->version = LIBSSH2_SFTP_VERSION;
     }
     _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                   "Enabling SFTP version %u compatibility",
-                   sftp_handle->version));
+                    "Enabling SFTP version %u compatibility",
+                    sftp_handle->version));
     while(buf.dataptr < endp) {
         unsigned char *extname, *extdata;
         size_t extname_len, extdata_len;
@@ -1193,7 +1192,7 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
         }
 
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "Sending %s open request",
-                       open_file ? "file" : "directory"));
+                        open_file ? "file" : "directory"));
 
         sftp->open_state = libssh2_NB_state_created;
     }
@@ -1275,7 +1274,7 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
 
             if(LIBSSH2_FX_OK == sftp->last_errno) {
                 _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                               "got HANDLE FXOK"));
+                                "got HANDLE FXOK"));
 
                 LIBSSH2_FREE(session, data);
 
@@ -1305,8 +1304,8 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
                 _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                "Failed opening remote file");
                 _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                               "got FXP_STATUS %d",
-                               sftp->last_errno));
+                                "got FXP_STATUS %d",
+                                sftp->last_errno));
                 LIBSSH2_FREE(session, data);
                 return NULL;
             }
@@ -1351,7 +1350,7 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
         fp->u.file.offset_sent = 0;
 
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                       "Open command successful"));
+                        "Open command successful"));
         return fp;
     }
     return NULL;
@@ -1569,9 +1568,9 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                more packets */
             count -= LIBSSH2_MIN(size, count);
             _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                           "read request id %d sent (offset: %lu, size: %lu)",
-                           request_id, (unsigned long)chunk->offset,
-                           (unsigned long)chunk->len));
+                            "read request id %d sent (offset: %lu, size: %lu)",
+                            request_id, (unsigned long)chunk->offset,
+                            (unsigned long)chunk->len));
         }
         LIBSSH2_FALLTHROUGH();
     case libssh2_NB_state_sent:
@@ -1924,8 +1923,8 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
 
 end:
             _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                           "libssh2_sftp_readdir_ex() return %lu",
-                           (unsigned long)filename_len));
+                            "libssh2_sftp_readdir_ex() return %lu",
+                            (unsigned long)filename_len));
             return (ssize_t)filename_len;
         }
 
@@ -1948,7 +1947,7 @@ end:
 
     if(sftp->readdir_state == libssh2_NB_state_created) {
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                       "Reading entries from directory handle"));
+                        "Reading entries from directory handle"));
         retcode = _libssh2_channel_write(channel, 0, sftp->readdir_packet,
                                          packet_len);
         if(retcode == LIBSSH2_ERROR_EAGAIN) {
@@ -2006,7 +2005,7 @@ end:
 
     num_names = _libssh2_ntohu32(data + 5);
     _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "%u entries returned",
-                   num_names));
+                    num_names));
     if(!num_names) {
         LIBSSH2_FREE(session, data);
         return 0;
@@ -2426,7 +2425,7 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
         sftp->last_errno = LIBSSH2_FX_OK;
 
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "Issuing %s command",
-                       setstat ? "set-stat" : "stat"));
+                        setstat ? "set-stat" : "stat"));
         s = sftp->fstat_packet = LIBSSH2_ALLOC(session, packet_len);
         if(!sftp->fstat_packet) {
             return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
@@ -2788,7 +2787,7 @@ static int sftp_unlink(LIBSSH2_SFTP *sftp,
         sftp->last_errno = LIBSSH2_FX_OK;
 
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                       "Unlinking %s", filename));
+                        "Unlinking %s", filename));
         s = sftp->unlink_packet = LIBSSH2_ALLOC(session, packet_len);
         if(!sftp->unlink_packet) {
             return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
@@ -2916,7 +2915,7 @@ static int sftp_rename(LIBSSH2_SFTP *sftp,
         }
 
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "Renaming %s to %s",
-                       source_filename, dest_filename));
+                        source_filename, dest_filename));
         sftp->rename_s = sftp->rename_packet =
             LIBSSH2_ALLOC(session, packet_len);
         if(!sftp->rename_packet) {
@@ -3072,7 +3071,7 @@ static int sftp_posix_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
 
     if(sftp->posix_rename_state == libssh2_NB_state_idle) {
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                       "Issuing posix_rename command"));
+                        "Issuing posix_rename command"));
         s = packet = LIBSSH2_ALLOC(session, packet_len);
         if(!packet) {
             return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
@@ -3198,7 +3197,7 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
         sftp->last_errno = LIBSSH2_FX_OK;
 
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                       "Getting file system statistics"));
+                        "Getting file system statistics"));
         s = packet = LIBSSH2_ALLOC(session, packet_len);
         if(!packet) {
             return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
@@ -3345,7 +3344,7 @@ static int sftp_statvfs(LIBSSH2_SFTP *sftp,
         sftp->last_errno = LIBSSH2_FX_OK;
 
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                       "Getting file system statistics of %s", path));
+                        "Getting file system statistics of %s", path));
         s = packet = LIBSSH2_ALLOC(session, packet_len);
         if(!packet) {
             return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
@@ -3496,7 +3495,7 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp,
         sftp->last_errno = LIBSSH2_FX_OK;
 
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                       "Creating directory %s with mode 0%lo", path, mode));
+                        "Creating directory %s with mode 0%lo", path, mode));
         s = packet = LIBSSH2_ALLOC(session, packet_len);
         if(!packet) {
             return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
@@ -3610,7 +3609,7 @@ static int sftp_rmdir(LIBSSH2_SFTP *sftp, const char *path,
         sftp->last_errno = LIBSSH2_FX_OK;
 
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "Removing directory: %s",
-                       path));
+                        path));
         s = sftp->rmdir_packet = LIBSSH2_ALLOC(session, packet_len);
         if(!sftp->rmdir_packet) {
             return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
@@ -3723,9 +3722,10 @@ static int sftp_stat(LIBSSH2_SFTP *sftp,
         sftp->last_errno = LIBSSH2_FX_OK;
 
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "%s %s",
-                       (stat_type == LIBSSH2_SFTP_SETSTAT) ? "Set-statting" :
-                       (stat_type ==
-                        LIBSSH2_SFTP_LSTAT ? "LStatting" : "Statting"), path));
+                        (stat_type == LIBSSH2_SFTP_SETSTAT) ? "Set-statting" :
+                        (stat_type ==
+                         LIBSSH2_SFTP_LSTAT ? "LStatting" : "Statting"),
+                        path));
         s = sftp->stat_packet = LIBSSH2_ALLOC(session, packet_len);
         if(!sftp->stat_packet) {
             return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
@@ -3902,11 +3902,11 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp,
         }
 
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "%s %s on %s",
-                       (link_type ==
-                        LIBSSH2_SFTP_SYMLINK) ? "Creating" : "Reading",
-                       (link_type ==
-                        LIBSSH2_SFTP_REALPATH) ? "realpath" : "symlink",
-                       path));
+                        (link_type ==
+                         LIBSSH2_SFTP_SYMLINK) ? "Creating" : "Reading",
+                        (link_type ==
+                         LIBSSH2_SFTP_REALPATH) ? "realpath" : "symlink",
+                        path));
 
         _libssh2_store_u32(&s, packet_len - 4);
 

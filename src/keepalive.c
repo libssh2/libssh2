@@ -55,8 +55,7 @@ void libssh2_keepalive_config(LIBSSH2_SESSION *session,
 }
 
 LIBSSH2_API
-int libssh2_keepalive_send(LIBSSH2_SESSION *session,
-                           int *seconds_to_next)
+int libssh2_keepalive_send(LIBSSH2_SESSION *session, int *seconds_to_next)
 {
     time_t now;
 
