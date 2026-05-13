@@ -1130,11 +1130,10 @@ int _libssh2_cipher_init(libssh2_cipher_ctx *h, LIBSSH2_CIPHER_T(algo),
     return 0;
 }
 
-int
-_libssh2_cipher_crypt(libssh2_cipher_ctx *ctx,
-                      LIBSSH2_CIPHER_T(algo),
-                      int encrypt, unsigned char *block, size_t blocksize,
-                      int firstlast)
+int _libssh2_cipher_crypt(libssh2_cipher_ctx *ctx,
+                          LIBSSH2_CIPHER_T(algo),
+                          int encrypt, unsigned char *block, size_t blocksize,
+                          int firstlast)
 {
     Qus_EC_t errcode;
     int outlen;
@@ -1163,16 +1162,15 @@ _libssh2_cipher_crypt(libssh2_cipher_ctx *ctx,
  *
  *******************************************************************/
 
-int
-_libssh2_rsa_new(libssh2_rsa_ctx **rsa,
-                 const unsigned char *edata, unsigned long elen,
-                 const unsigned char *ndata, unsigned long nlen,
-                 const unsigned char *ddata, unsigned long dlen,
-                 const unsigned char *pdata, unsigned long plen,
-                 const unsigned char *qdata, unsigned long qlen,
-                 const unsigned char *e1data, unsigned long e1len,
-                 const unsigned char *e2data, unsigned long e2len,
-                 const unsigned char *coeffdata, unsigned long coefflen)
+int _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
+                     const unsigned char *edata, unsigned long elen,
+                     const unsigned char *ndata, unsigned long nlen,
+                     const unsigned char *ddata, unsigned long dlen,
+                     const unsigned char *pdata, unsigned long plen,
+                     const unsigned char *qdata, unsigned long qlen,
+                     const unsigned char *e1data, unsigned long e1len,
+                     const unsigned char *e2data, unsigned long e2len,
+                     const unsigned char *coeffdata, unsigned long coefflen)
 {
     libssh2_rsa_ctx *ctx;
     libssh2_bn *e = _libssh2_bn_init_from_bin();
@@ -1272,9 +1270,9 @@ void _libssh2_os400qc3_dh_init(_libssh2_dh_ctx *dhctx)
     memset((char *)dhctx, 0, sizeof(*dhctx));
 }
 
-int
-_libssh2_os400qc3_dh_key_pair(_libssh2_dh_ctx *dhctx, libssh2_bn *public,
-                              libssh2_bn *g, libssh2_bn *p, int group_order)
+int _libssh2_os400qc3_dh_key_pair(_libssh2_dh_ctx *dhctx, libssh2_bn *public,
+                                  libssh2_bn *g, libssh2_bn *p,
+                                  int group_order)
 {
     struct asn1Element *prime;
     struct asn1Element *base;
@@ -1320,9 +1318,8 @@ _libssh2_os400qc3_dh_key_pair(_libssh2_dh_ctx *dhctx, libssh2_bn *public,
     return _libssh2_bn_from_bin(public, pubkeylen, (unsigned char *)pubkey);
 }
 
-int
-_libssh2_os400qc3_dh_secret(_libssh2_dh_ctx *dhctx, libssh2_bn *secret,
-                            libssh2_bn *f, libssh2_bn *p)
+int _libssh2_os400qc3_dh_secret(_libssh2_dh_ctx *dhctx, libssh2_bn *secret,
+                                libssh2_bn *f, libssh2_bn *p)
 {
     char *pubkey;
     int pubkeysize;
@@ -2136,9 +2133,9 @@ static int load_rsa_private_file(LIBSSH2_SESSION *session,
     return ret;
 }
 
-int
-_libssh2_rsa_new_private(libssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
-                         const char *filename, unsigned const char *passphrase)
+int _libssh2_rsa_new_private(libssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
+                             const char *filename,
+                             unsigned const char *passphrase)
 {
     libssh2_rsa_ctx *ctx = init_crypto_ctx(NULL);
     int ret;
@@ -2364,20 +2361,19 @@ int _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     return ret;
 }
 
-int
-_libssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
-                              unsigned char **method,
-                              size_t *method_len,
-                              unsigned char **pubkeydata,
-                              size_t *pubkeydata_len,
-                              int *algorithm,
-                              unsigned char *flags,
-                              const char **application,
-                              const unsigned char **key_handle,
-                              size_t *handle_len,
-                              const char *privatekeydata,
-                              size_t privatekeydata_len,
-                              const char *passphrase)
+int _libssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
+                                  unsigned char **method,
+                                  size_t *method_len,
+                                  unsigned char **pubkeydata,
+                                  size_t *pubkeydata_len,
+                                  int *algorithm,
+                                  unsigned char *flags,
+                                  const char **application,
+                                  const unsigned char **key_handle,
+                                  size_t *handle_len,
+                                  const char *privatekeydata,
+                                  size_t privatekeydata_len,
+                                  const char *passphrase)
 {
     return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                           "Unable to extract public SK key from private key "
@@ -2418,23 +2414,21 @@ int _libssh2_rsa_sha2_verify(libssh2_rsa_ctx *rsactx, size_t hash_len,
     return errcode.Bytes_Available ? -1 : 0;
 }
 
-int
-_libssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
-                         const unsigned char *sig, size_t sig_len,
-                         const unsigned char *m, size_t m_len)
+int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
+                             const unsigned char *sig, size_t sig_len,
+                             const unsigned char *m, size_t m_len)
 {
     return _libssh2_rsa_sha2_verify(rsactx, SHA_DIGEST_LENGTH,
                                     sig, sig_len, m, m_len);
 }
 
-int
-_libssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session,
-                            int algo,
-                            unsigned char **signature,
-                            size_t *signature_len,
-                            int veccount,
-                            const struct iovec vector[],
-                            libssh2_rsa_ctx *ctx)
+int _libssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session,
+                                int algo,
+                                unsigned char **signature,
+                                size_t *signature_len,
+                                int veccount,
+                                const struct iovec vector[],
+                                libssh2_rsa_ctx *ctx)
 {
     Qus_EC_t errcode;
     Qc3_Format_ALGD0400_T algd;

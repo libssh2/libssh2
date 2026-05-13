@@ -1454,11 +1454,10 @@ libssh2_packet_add_jump_authagent:
  * Scan the brigade for a matching packet type, optionally poll the socket for
  * a packet first
  */
-int
-_libssh2_packet_ask(LIBSSH2_SESSION *session, unsigned char packet_type,
-                    unsigned char **data, size_t *data_len,
-                    int match_ofs, const unsigned char *match_buf,
-                    size_t match_len)
+int _libssh2_packet_ask(LIBSSH2_SESSION *session, unsigned char packet_type,
+                        unsigned char **data, size_t *data_len,
+                        int match_ofs, const unsigned char *match_buf,
+                        size_t match_len)
 {
     struct packet *packet = _libssh2_list_first(&session->packets);
 
@@ -1499,13 +1498,12 @@ _libssh2_packet_ask(LIBSSH2_SESSION *session, unsigned char packet_type,
  * Scan for any of a list of packet types in the brigade, optionally poll the
  * socket for a packet first
  */
-int
-_libssh2_packet_askv(LIBSSH2_SESSION *session,
-                     const unsigned char *packet_types,
-                     unsigned char **data, size_t *data_len,
-                     int match_ofs,
-                     const unsigned char *match_buf,
-                     size_t match_len)
+int _libssh2_packet_askv(LIBSSH2_SESSION *session,
+                         const unsigned char *packet_types,
+                         unsigned char **data, size_t *data_len,
+                         int match_ofs,
+                         const unsigned char *match_buf,
+                         size_t match_len)
 {
     size_t i, packet_types_len = strlen((const char *)packet_types);
 
@@ -1527,13 +1525,13 @@ _libssh2_packet_askv(LIBSSH2_SESSION *session,
  * Returns negative on error
  * Returns 0 when it has taken care of the requested packet.
  */
-int
-_libssh2_packet_require(LIBSSH2_SESSION *session, unsigned char packet_type,
-                        unsigned char **data, size_t *data_len,
-                        int match_ofs,
-                        const unsigned char *match_buf,
-                        size_t match_len,
-                        struct packet_require_state *state)
+int _libssh2_packet_require(LIBSSH2_SESSION *session,
+                            unsigned char packet_type,
+                            unsigned char **data, size_t *data_len,
+                            int match_ofs,
+                            const unsigned char *match_buf,
+                            size_t match_len,
+                            struct packet_require_state *state)
 {
     if(state->start == 0) {
         if(_libssh2_packet_ask(session, packet_type, data, data_len,
@@ -1647,14 +1645,12 @@ int _libssh2_packet_burn(LIBSSH2_SESSION *session,
  * requested is available. SSH_DISCONNECT or a SOCKET_DISCONNECTED will cause
  * a bailout. packet_types is a null terminated list of packet_type numbers
  */
-
-int
-_libssh2_packet_requirev(LIBSSH2_SESSION *session,
-                         const unsigned char *packet_types,
-                         unsigned char **data, size_t *data_len,
-                         int match_ofs,
-                         const unsigned char *match_buf, size_t match_len,
-                         struct packet_requirev_state *state)
+int _libssh2_packet_requirev(LIBSSH2_SESSION *session,
+                             const unsigned char *packet_types,
+                             unsigned char **data, size_t *data_len,
+                             int match_ofs,
+                             const unsigned char *match_buf, size_t match_len,
+                             struct packet_requirev_state *state)
 {
     if(_libssh2_packet_askv(session, packet_types, data, data_len, match_ofs,
                             match_buf, match_len) == 0) {

@@ -929,9 +929,10 @@ static int sign_fromfile(LIBSSH2_SESSION *session,
     return 0;
 }
 
-int
-libssh2_sign_sk(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
-                const unsigned char *data, size_t data_len, void **abstract)
+int libssh2_sign_sk(LIBSSH2_SESSION *session,
+                    unsigned char **sig, size_t *sig_len,
+                    const unsigned char *data, size_t data_len,
+                    void **abstract)
 {
     int rc = LIBSSH2_ERROR_DECRYPT;
     LIBSSH2_PRIVKEY_SK *sk_info = (LIBSSH2_PRIVKEY_SK *)(*abstract);
@@ -1546,14 +1547,14 @@ static int key_sign_algorithm(LIBSSH2_SESSION *session,
     return rc;
 }
 
-int
-_libssh2_userauth_publickey(LIBSSH2_SESSION *session,
-                            const char *username,
-                            size_t username_len,
-                            const unsigned char *pubkeydata,
-                            size_t pubkeydata_len,
-                          LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC(*sign_callback),
-                            void *abstract)
+int _libssh2_userauth_publickey(
+    LIBSSH2_SESSION *session,
+    const char *username,
+    size_t username_len,
+    const unsigned char *pubkeydata,
+    size_t pubkeydata_len,
+    LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC(*sign_callback),
+    void *abstract)
 {
     unsigned char reply_codes[4] = {
         SSH_MSG_USERAUTH_SUCCESS,

@@ -104,12 +104,11 @@ static unsigned char hex_decode(char digit)
         ((digit >= 'A') ? (0xA + (digit - 'A')) : (digit - '0'));
 }
 
-int
-_libssh2_pem_parse(LIBSSH2_SESSION *session,
-                   const char *headerbegin,
-                   const char *headerend,
-                   const unsigned char *passphrase,
-                   FILE *fp, unsigned char **data, size_t *datalen)
+int _libssh2_pem_parse(LIBSSH2_SESSION *session,
+                       const char *headerbegin,
+                       const char *headerend,
+                       const unsigned char *passphrase,
+                       FILE *fp, unsigned char **data, size_t *datalen)
 {
     int ret = -1;
     char *filedata = NULL;
@@ -167,13 +166,12 @@ out:
     return ret;
 }
 
-int
-_libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
-                          const char *headerbegin,
-                          const char *headerend,
-                          const unsigned char *passphrase,
-                          const char *filedata, size_t filedata_len,
-                          unsigned char **data, size_t *datalen)
+int _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
+                              const char *headerbegin,
+                              const char *headerend,
+                              const unsigned char *passphrase,
+                              const char *filedata, size_t filedata_len,
+                              unsigned char **data, size_t *datalen)
 {
     char line[LINE_SIZE];
     unsigned char iv[LINE_SIZE];
@@ -743,10 +741,9 @@ out:
     return ret;
 }
 
-int
-_libssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
-                           const unsigned char *passphrase,
-                           FILE *fp, struct string_buf **decrypted_buf)
+int _libssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
+                               const unsigned char *passphrase,
+                               FILE *fp, struct string_buf **decrypted_buf)
 {
     char line[LINE_SIZE];
     char *b64data = NULL;
@@ -813,11 +810,11 @@ out:
     return ret;
 }
 
-int
-_libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
-                                  const unsigned char *passphrase,
-                                  const char *filedata, size_t filedata_len,
-                                  struct string_buf **decrypted_buf)
+int _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
+                                      const unsigned char *passphrase,
+                                      const char *filedata,
+                                      size_t filedata_len,
+                                      struct string_buf **decrypted_buf)
 {
     char line[LINE_SIZE];
     char *b64data = NULL;
