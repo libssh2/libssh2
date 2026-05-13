@@ -65,8 +65,7 @@ int chachapoly_crypt(struct chachapoly_ctx *ctx, libssh2_uint64_t seqnr,
     ptr = &seqbuf[0];
     _libssh2_store_u64(&ptr, seqnr);
     chacha_ivsetup(&ctx->main_ctx, seqbuf, NULL);
-    chacha_encrypt_bytes(&ctx->main_ctx,
-                         poly_key, poly_key, sizeof(poly_key));
+    chacha_encrypt_bytes(&ctx->main_ctx, poly_key, poly_key, sizeof(poly_key));
 
     /* If decrypting, check tag before anything else */
     if(!do_encrypt) {
@@ -88,13 +87,11 @@ int chachapoly_crypt(struct chachapoly_ctx *ctx, libssh2_uint64_t seqnr,
 
     /* Set Chacha's block counter to 1 */
     chacha_ivsetup(&ctx->main_ctx, seqbuf, one);
-    chacha_encrypt_bytes(&ctx->main_ctx, src + aadlen,
-                         dest + aadlen, len);
+    chacha_encrypt_bytes(&ctx->main_ctx, src + aadlen, dest + aadlen, len);
 
     /* If encrypting, calculate and append tag */
     if(do_encrypt) {
-        poly1305_auth(dest + aadlen + len, dest, aadlen + len,
-                      poly_key);
+        poly1305_auth(dest + aadlen + len, dest, aadlen + len, poly_key);
     }
     r = 0;
 out:

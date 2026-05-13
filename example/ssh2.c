@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
     fprintf(stderr, "Connecting to %s:%d as user %s\n",
             inet_ntoa(sin.sin_addr), ntohs(sin.sin_port), username);
 
-    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
+    if(connect(sock, (struct sockaddr *)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect.\n");
         goto shutdown;
     }
@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
         else if(auth_pw & 2) {
             /* Or via keyboard-interactive */
             if(libssh2_userauth_keyboard_interactive(session, username,
-                                                     &kbd_callback) ) {
+                                                     &kbd_callback)) {
                 fprintf(stderr,
                         "Authentication by keyboard-interactive failed.\n");
                 goto shutdown;

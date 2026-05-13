@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
     sin.sin_port = htons(22);
-    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
+    if(connect(sock, (struct sockaddr *)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "Failed to connect to %s.\n", inet_ntoa(sin.sin_addr));
         goto shutdown;
     }
@@ -303,8 +303,7 @@ int main(int argc, char *argv[])
             if(LIBSSH2_ERROR_EAGAIN == len)
                 break;
             else if(len < 0) {
-                fprintf(stderr, "libssh2_channel_read: %ld",
-                        (long)len);
+                fprintf(stderr, "libssh2_channel_read: %ld", (long)len);
                 goto shutdown;
             }
             wr = 0;

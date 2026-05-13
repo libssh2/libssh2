@@ -83,7 +83,7 @@ static inline int packet_queue_listener(
         buf.dataptr = buf.data;
         buf.len = datalen;
 
-        if(datalen < offset + 12) {  /* 3 * 4-byte */
+        if(datalen < offset + 12) { /* 3 * 4-byte */
             return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                   "Unexpected packet size");
         }
@@ -136,16 +136,16 @@ static inline int packet_queue_listener(
     if(listen_state->state != libssh2_NB_state_sent) {
         while(listn) {
             if((listn->port == (int)listen_state->port) &&
-                (strlen(listn->host) == listen_state->host_len) &&
-                (memcmp(listn->host, listen_state->host,
-                        listen_state->host_len) == 0)) {
+               (strlen(listn->host) == listen_state->host_len) &&
+               (memcmp(listn->host, listen_state->host,
+                       listen_state->host_len) == 0)) {
                 /* This is our listener */
                 LIBSSH2_CHANNEL *channel = NULL;
                 listen_state->channel = NULL;
 
                 if(listen_state->state == libssh2_NB_state_allocated) {
                     if(listn->queue_maxsize &&
-                        (listn->queue_maxsize <= listn->queue_size)) {
+                       (listn->queue_maxsize <= listn->queue_size)) {
                         /* Queue is full */
                         failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
                         _libssh2_debug((session, LIBSSH2_TRACE_CONN,
@@ -294,7 +294,7 @@ static inline int packet_x11_open(
         buf.dataptr = buf.data;
         buf.len = datalen;
 
-        if(datalen < offset + 12) {  /* 3 * 4-byte */
+        if(datalen < offset + 12) { /* 3 * 4-byte */
             _libssh2_error(session, LIBSSH2_ERROR_INVAL,
                            "unexpected data length");
             failure_code = SSH_OPEN_CONNECT_FAILED;
@@ -489,7 +489,7 @@ static inline int packet_authagent_open(
     buf.dataptr = buf.data;
     buf.len = datalen;
 
-    if(datalen < offset + 12) {  /* 27-byte header + 3 * 4-byte */
+    if(datalen < offset + 12) { /* 27-byte header + 3 * 4-byte */
         return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                               "Unexpected packet size");
     }
@@ -639,9 +639,8 @@ authagent_exit:
  *
  * This function will always be called with 'datalen' greater than zero.
  */
-int
-_libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
-                    size_t datalen, int macstate, uint32_t seq)
+int _libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
+                        size_t datalen, int macstate, uint32_t seq)
 {
     int rc = 0;
     unsigned char *message = NULL;
@@ -663,8 +662,8 @@ _libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                        (unsigned int)msg, (long)datalen));
 
         if((macstate == LIBSSH2_MAC_INVALID) &&
-            (!session->macerror ||
-             LIBSSH2_MACERROR(session, (char *)data, datalen))) {
+           (!session->macerror ||
+            LIBSSH2_MACERROR(session, (char *)data, datalen))) {
             /* Bad MAC input, but no callback set or non-zero return from the
                callback */
 
@@ -741,7 +740,7 @@ _libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
         }
 
         if(session->kex_strict && session->fullpacket_required_type &&
-            session->fullpacket_required_type != msg) {
+           session->fullpacket_required_type != msg) {
             LIBSSH2_FREE(session, data);
             session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
             session->packAdd_state = libssh2_NB_state_idle;
@@ -837,9 +836,8 @@ _libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
 
                 if(session->ssh_msg_debug) {
                     LIBSSH2_DEBUG(session, always_display,
-                                  (const char *)message,
-                                  message_len, (const char *)language,
-                                  language_len);
+                                  (const char *)message, message_len,
+                                  (const char *)language, language_len);
                 }
             }
 
@@ -867,7 +865,7 @@ _libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                 buf.dataptr += 1; /* advance past type */
 
                 if(_libssh2_get_u32(&buf, &nr_extensions) != 0 ||
-                                    nr_extensions >= 1024) {
+                   nr_extensions >= 1024) {
                     rc = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                         "Invalid extension info received");
                 }
@@ -887,15 +885,14 @@ _libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                         break;
 
                     if(name && value) {
-                        _libssh2_debug((session,
-                                       LIBSSH2_TRACE_KEX,
+                        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                                        "Server to Client extension %.*s: %.*s",
                                        (int)name_len, name,
                                        (int)value_len, value));
                     }
 
                     if(name && name_len == 15 &&
-                        memcmp(name, "server-sig-algs", 15) == 0) {
+                       memcmp(name, "server-sig-algs", 15) == 0) {
                         if(session->server_sign_algorithms) {
                             LIBSSH2_FREE(session,
                                          session->server_sign_algorithms);
@@ -935,8 +932,7 @@ _libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                 len = _libssh2_ntohu32(data + 1);
                 if((len <= (UINT_MAX - 6)) && (datalen >= (6 + len))) {
                     want_reply = data[5 + len];
-                    _libssh2_debug((session,
-                                   LIBSSH2_TRACE_CONN,
+                    _libssh2_debug((session, LIBSSH2_TRACE_CONN,
                                    "Received global request type %.*s (wr %X)",
                                    (int)len, data + 5, want_reply));
                 }
@@ -1005,8 +1001,8 @@ libssh2_packet_add_jump_point5:
             }
 #endif
             if((channelp->remote.extended_data_ignore_mode ==
-                 LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE) &&
-                (msg == SSH_MSG_CHANNEL_EXTENDED_DATA)) {
+                LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE) &&
+               (msg == SSH_MSG_CHANNEL_EXTENDED_DATA)) {
                 /* Pretend we didn't receive this */
                 LIBSSH2_FREE(session, data);
 
@@ -1014,7 +1010,7 @@ libssh2_packet_add_jump_point5:
                               "Ignoring extended data and refunding %ld bytes",
                                (long)(datalen - 13)));
                 if(channelp->read_avail + datalen - data_head >=
-                    channelp->remote.window_size)
+                   channelp->remote.window_size)
                     datalen = channelp->remote.window_size -
                         channelp->read_avail + data_head;
 
@@ -1073,7 +1069,7 @@ libssh2_packet_add_jump_point1:
             channelp->remote.eof = 0;
 
             if(channelp->read_avail + datalen - data_head >
-                channelp->remote.window_size) {
+               channelp->remote.window_size) {
                 _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED,
                                "Remote sent more data than current "
                                "window allows, truncating");
@@ -1108,8 +1104,7 @@ libssh2_packet_add_jump_point1:
                 /* We may have freed already, just quietly ignore this... */
                 ;
             else {
-                _libssh2_debug((session,
-                               LIBSSH2_TRACE_CONN,
+                _libssh2_debug((session, LIBSSH2_TRACE_CONN,
                                "EOF received for channel %u/%u",
                                channelp->local.id,
                                channelp->remote.id));
@@ -1158,8 +1153,7 @@ libssh2_packet_add_jump_point1:
                     goto clean_exit;
                 }
 
-                _libssh2_debug((session,
-                               LIBSSH2_TRACE_CONN,
+                _libssh2_debug((session, LIBSSH2_TRACE_CONN,
                                "Channel %u received request type %.*s (wr %X)",
                                channel, (int)len, request, want_reply));
 
@@ -1174,8 +1168,7 @@ libssh2_packet_add_jump_point1:
 
                         uint32_t status = 0;
                         if(_libssh2_get_u32(&buf, &status)) {
-                            rc = _libssh2_error(session,
-                                                LIBSSH2_ERROR_PROTO,
+                            rc = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                                 "exit-signal status error");
                         }
 
@@ -1203,14 +1196,12 @@ libssh2_packet_add_jump_point1:
                         unsigned char *sig_name = NULL;
                         size_t sig_len = 0;
                         if(_libssh2_get_string(&buf, &sig_name, &sig_len)) {
-                            rc = _libssh2_error(session,
-                                                LIBSSH2_ERROR_PROTO,
+                            rc = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                                 "signal name protocol error");
                         }
 
                         if(sig_len > UINT32_MAX - 1) {
-                            rc = _libssh2_error(session,
-                                                LIBSSH2_ERROR_PROTO,
+                            rc = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                                 "signal name out of bounds");
                         }
                         else if(sig_len > 0) {
@@ -1314,8 +1305,8 @@ libssh2_packet_add_jump_point2:
                                            &session->packAdd_Qlstn_state);
             }
             else if((datalen >= (strlen("x11") + 5)) &&
-                     ((strlen("x11")) == _libssh2_ntohu32(data + 1)) &&
-                     (memcmp(data + 5, "x11", strlen("x11")) == 0)) {
+                    ((strlen("x11")) == _libssh2_ntohu32(data + 1)) &&
+                    (memcmp(data + 5, "x11", strlen("x11")) == 0)) {
 
                 /* init the state struct */
                 memset(&session->packAdd_x11open_state, 0,
@@ -1328,7 +1319,7 @@ libssh2_packet_add_jump_point3:
             }
             else if((datalen >= (strlen("auth-agent@openssh.com") + 5)) &&
                     (strlen("auth-agent@openssh.com") ==
-                      _libssh2_ntohu32(data + 1)) &&
+                     _libssh2_ntohu32(data + 1)) &&
                     (memcmp(data + 5, "auth-agent@openssh.com",
                             strlen("auth-agent@openssh.com")) == 0)) {
 
@@ -1411,7 +1402,7 @@ libssh2_packet_add_jump_authagent:
 
     if((msg == SSH_MSG_KEXINIT &&
         !(session->state & LIBSSH2_STATE_EXCHANGING_KEYS)) ||
-        (session->packAdd_state == libssh2_NB_state_sent2)) {
+       (session->packAdd_state == libssh2_NB_state_sent2)) {
 
         if(session->packAdd_state == libssh2_NB_state_sent1) {
             /*
@@ -1456,11 +1447,10 @@ libssh2_packet_add_jump_authagent:
  * Scan the brigade for a matching packet type, optionally poll the socket for
  * a packet first
  */
-int
-_libssh2_packet_ask(LIBSSH2_SESSION *session, unsigned char packet_type,
-                    unsigned char **data, size_t *data_len,
-                    int match_ofs, const unsigned char *match_buf,
-                    size_t match_len)
+int _libssh2_packet_ask(LIBSSH2_SESSION *session, unsigned char packet_type,
+                        unsigned char **data, size_t *data_len,
+                        int match_ofs, const unsigned char *match_buf,
+                        size_t match_len)
 {
     struct packet *packet = _libssh2_list_first(&session->packets);
 
@@ -1501,13 +1491,12 @@ _libssh2_packet_ask(LIBSSH2_SESSION *session, unsigned char packet_type,
  * Scan for any of a list of packet types in the brigade, optionally poll the
  * socket for a packet first
  */
-int
-_libssh2_packet_askv(LIBSSH2_SESSION *session,
-                     const unsigned char *packet_types,
-                     unsigned char **data, size_t *data_len,
-                     int match_ofs,
-                     const unsigned char *match_buf,
-                     size_t match_len)
+int _libssh2_packet_askv(LIBSSH2_SESSION *session,
+                         const unsigned char *packet_types,
+                         unsigned char **data, size_t *data_len,
+                         int match_ofs,
+                         const unsigned char *match_buf,
+                         size_t match_len)
 {
     size_t i, packet_types_len = strlen((const char *)packet_types);
 
@@ -1529,13 +1518,13 @@ _libssh2_packet_askv(LIBSSH2_SESSION *session,
  * Returns negative on error
  * Returns 0 when it has taken care of the requested packet.
  */
-int
-_libssh2_packet_require(LIBSSH2_SESSION *session, unsigned char packet_type,
-                        unsigned char **data, size_t *data_len,
-                        int match_ofs,
-                        const unsigned char *match_buf,
-                        size_t match_len,
-                        struct packet_require_state *state)
+int _libssh2_packet_require(LIBSSH2_SESSION *session,
+                            unsigned char packet_type,
+                            unsigned char **data, size_t *data_len,
+                            int match_ofs,
+                            const unsigned char *match_buf,
+                            size_t match_len,
+                            struct packet_require_state *state)
 {
     if(state->start == 0) {
         if(_libssh2_packet_ask(session, packet_type, data, data_len,
@@ -1589,9 +1578,8 @@ _libssh2_packet_require(LIBSSH2_SESSION *session, unsigned char packet_type,
  * discards it.
  * Used during KEX exchange to discard badly guessed KEX_INIT packets
  */
-int
-_libssh2_packet_burn(LIBSSH2_SESSION *session,
-                     libssh2_nonblocking_states *state)
+int _libssh2_packet_burn(LIBSSH2_SESSION *session,
+                         libssh2_nonblocking_states *state)
 {
     unsigned char *data;
     size_t data_len;
@@ -1632,9 +1620,8 @@ _libssh2_packet_burn(LIBSSH2_SESSION *session,
         }
 
         /* Be lazy, let packet_ask pull it out of the brigade */
-        if(0 ==
-            _libssh2_packet_ask(session, (unsigned char)ret,
-                                &data, &data_len, 0, NULL, 0)) {
+        if(_libssh2_packet_ask(session, (unsigned char)ret, &data, &data_len,
+                               0, NULL, 0) == 0) {
             /* Smoke 'em if you got 'em */
             LIBSSH2_FREE(session, data);
             *state = libssh2_NB_state_idle;
@@ -1651,14 +1638,12 @@ _libssh2_packet_burn(LIBSSH2_SESSION *session,
  * requested is available. SSH_DISCONNECT or a SOCKET_DISCONNECTED will cause
  * a bailout. packet_types is a null terminated list of packet_type numbers
  */
-
-int
-_libssh2_packet_requirev(LIBSSH2_SESSION *session,
-                         const unsigned char *packet_types,
-                         unsigned char **data, size_t *data_len,
-                         int match_ofs,
-                         const unsigned char *match_buf, size_t match_len,
-                         struct packet_requirev_state *state)
+int _libssh2_packet_requirev(LIBSSH2_SESSION *session,
+                             const unsigned char *packet_types,
+                             unsigned char **data, size_t *data_len,
+                             int match_ofs,
+                             const unsigned char *match_buf, size_t match_len,
+                             struct packet_requirev_state *state)
 {
     if(_libssh2_packet_askv(session, packet_types, data, data_len, match_ofs,
                             match_buf, match_len) == 0) {

@@ -88,8 +88,7 @@ int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
     }
 
     /* string    language tag (as defined in [RFC-3066]) */
-    if(_libssh2_get_string(&decoded, &language_tag,
-                           &language_tag_len) == -1) {
+    if(_libssh2_get_string(&decoded, &language_tag, &language_tag_len) == -1) {
         _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                        "Unable to decode "
                        "keyboard-interactive 'language tag' "

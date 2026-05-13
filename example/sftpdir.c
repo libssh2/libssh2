@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
+    if(connect(sock, (struct sockaddr *)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect.\n");
         goto shutdown;
     }
@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
         else if(auth_pw & 2) {
             /* Or via keyboard-interactive */
             if(libssh2_userauth_keyboard_interactive(session, username,
-                                                     &kbd_callback) ) {
+                                                     &kbd_callback)) {
                 fprintf(stderr,
                         "Authentication by keyboard-interactive failed.\n");
                 goto shutdown;
@@ -264,7 +264,7 @@ int main(int argc, char *argv[])
                 }
 
                 if(attrs.flags & LIBSSH2_SFTP_ATTR_UIDGID) {
-                    printf("%4d %4d ", (int) attrs.uid, (int) attrs.gid);
+                    printf("%4d %4d ", (int)attrs.uid, (int)attrs.gid);
                 }
                 else {
                     printf("   -    - ");

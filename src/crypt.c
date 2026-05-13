@@ -79,10 +79,9 @@ static const struct crypt_method crypt_method_none = {
     crypt_none_crypt,
     NULL
 };
-#endif /* defined(LIBSSH2DEBUG) && defined(LIBSSH2_CRYPT_NONE_INSECURE) */
+#endif /* LIBSSH2DEBUG && LIBSSH2_CRYPT_NONE_INSECURE */
 
-struct crypt_ctx
-{
+struct crypt_ctx {
     int encrypt;
     LIBSSH2_CIPHER_T(algo);
     libssh2_cipher_ctx h;
@@ -95,8 +94,7 @@ static int crypt_init(LIBSSH2_SESSION *session,
                       unsigned char *secret, int *free_secret,
                       int encrypt, void **abstract)
 {
-    struct crypt_ctx *ctx = LIBSSH2_ALLOC(session,
-                                          sizeof(struct crypt_ctx));
+    struct crypt_ctx *ctx = LIBSSH2_ALLOC(session, sizeof(struct crypt_ctx));
     if(!ctx)
         return LIBSSH2_ERROR_ALLOC;
 
@@ -263,8 +261,7 @@ static const struct crypt_method crypt_method_aes256_cbc = {
 };
 
 /* rijndael-cbc@lysator.liu.se == aes256-cbc */
-static const struct crypt_method
-    crypt_method_rijndael_cbc_lysator_liu_se = {
+static const struct crypt_method crypt_method_rijndael_cbc_lysator_liu_se = {
     "rijndael-cbc@lysator.liu.se",
     "DEK-Info: AES-256-CBC",
     16,                         /* blocksize */
@@ -392,8 +389,7 @@ static int crypt_init_chacha20_poly(LIBSSH2_SESSION *session,
                                     unsigned char *secret, int *free_secret,
                                     int encrypt, void **abstract)
 {
-    struct crypt_ctx *ctx = LIBSSH2_ALLOC(session,
-                                          sizeof(struct crypt_ctx));
+    struct crypt_ctx *ctx = LIBSSH2_ALLOC(session, sizeof(struct crypt_ctx));
 
     (void)iv;
 
@@ -479,8 +475,7 @@ static int crypt_dtor_chacha20_poly(LIBSSH2_SESSION *session, void **abstract)
     return 0;
 }
 
-static const struct crypt_method
-    crypt_method_chacha20_poly1305_openssh = {
+static const struct crypt_method crypt_method_chacha20_poly1305_openssh = {
     "chacha20-poly1305@openssh.com",
     "",
     8,                                          /* blocksize */
@@ -510,7 +505,7 @@ static const struct crypt_method *crypt_methods[] = {
 #endif /* LIBSSH2_AES_CTR */
 #if LIBSSH2_AES_CBC
     &crypt_method_aes256_cbc,
-    &crypt_method_rijndael_cbc_lysator_liu_se,  /* == aes256-cbc */
+    &crypt_method_rijndael_cbc_lysator_liu_se, /* == aes256-cbc */
     &crypt_method_aes192_cbc,
     &crypt_method_aes128_cbc,
 #endif /* LIBSSH2_AES_CBC */

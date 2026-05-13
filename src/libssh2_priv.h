@@ -287,8 +287,7 @@ struct iovec {
 #define LIBSSH2_RECV(session, buffer, length, flags) \
     LIBSSH2_RECV_FD(session, (session)->socket_fd, buffer, length, flags)
 
-typedef enum
-{
+typedef enum {
     libssh2_NB_state_idle = 0,
     libssh2_NB_state_allocated,
     libssh2_NB_state_created,
@@ -443,8 +442,7 @@ struct channel_data {
     char close, eof, extended_data_ignore_mode;
 };
 
-struct _LIBSSH2_CHANNEL
-{
+struct _LIBSSH2_CHANNEL {
     struct list_node node;
 
     unsigned char *channel_type;
@@ -547,8 +545,7 @@ struct _LIBSSH2_CHANNEL
     size_t sendsignal_packet_len;
 };
 
-struct _LIBSSH2_LISTENER
-{
+struct _LIBSSH2_LISTENER {
     struct list_node node; /* linked list header */
 
     LIBSSH2_SESSION *session;
@@ -593,8 +590,7 @@ struct endpoint_data {
 
 #define PACKETBUFSIZE MAX_SSH_PACKET_LEN
 
-struct transportpacket
-{
+struct transportpacket {
     /* ------------- for incoming data --------------- */
     unsigned char buf[PACKETBUFSIZE];
     unsigned char init[5];  /* first 5 bytes of the incoming data stream,
@@ -629,8 +625,7 @@ struct transportpacket
     size_t osent;           /* number of bytes already sent */
 };
 
-struct _LIBSSH2_PUBLICKEY
-{
+struct _LIBSSH2_PUBLICKEY {
     LIBSSH2_CHANNEL *channel;
     uint32_t version;
 
@@ -665,8 +660,7 @@ struct flags {
     int quote_paths; /* LIBSSH2_FLAG_QUOTE_PATHS */
 };
 
-struct _LIBSSH2_SESSION
-{
+struct _LIBSSH2_SESSION {
     /* Memory management callbacks */
     void *abstract;
 
@@ -949,22 +943,22 @@ struct _LIBSSH2_SESSION
 };
 
 /* session.state bits */
-#define LIBSSH2_STATE_INITIAL_KEX       0x00000001
-#define LIBSSH2_STATE_EXCHANGING_KEYS   0x00000002
-#define LIBSSH2_STATE_NEWKEYS           0x00000004
-#define LIBSSH2_STATE_AUTHENTICATED     0x00000008
-#define LIBSSH2_STATE_KEX_ACTIVE        0x00000010
+#define LIBSSH2_STATE_INITIAL_KEX     0x00000001
+#define LIBSSH2_STATE_EXCHANGING_KEYS 0x00000002
+#define LIBSSH2_STATE_NEWKEYS         0x00000004
+#define LIBSSH2_STATE_AUTHENTICATED   0x00000008
+#define LIBSSH2_STATE_KEX_ACTIVE      0x00000010
 
 /* session.flag helpers */
 #ifdef MSG_NOSIGNAL
-#define LIBSSH2_SOCKET_SEND_FLAGS(session) \
+#define LIBSSH2_SOCKET_SEND_FLAGS(session)         \
     (((session)->flag.sigpipe) ? 0 : MSG_NOSIGNAL)
-#define LIBSSH2_SOCKET_RECV_FLAGS(session) \
+#define LIBSSH2_SOCKET_RECV_FLAGS(session)         \
     (((session)->flag.sigpipe) ? 0 : MSG_NOSIGNAL)
 #else
 /* If MSG_NOSIGNAL isn't defined we're SOL on blocking SIGPIPE */
-#define LIBSSH2_SOCKET_SEND_FLAGS(session)      0
-#define LIBSSH2_SOCKET_RECV_FLAGS(session)      0
+#define LIBSSH2_SOCKET_SEND_FLAGS(session) 0
+#define LIBSSH2_SOCKET_RECV_FLAGS(session) 0
 #endif
 
 /* --------- */
@@ -1052,16 +1046,18 @@ struct crypt_method {
 
 /* Convenience macros for accessing crypt flags */
 /* Local crypto flags */
-#define CRYPT_FLAG_L(session, flag) ((session)->local.crypt && \
-    ((session)->local.crypt->flags & LIBSSH2_CRYPT_FLAG_##flag))
+#define CRYPT_FLAG_L(session, flag)                               \
+    ((session)->local.crypt &&                                    \
+     ((session)->local.crypt->flags & LIBSSH2_CRYPT_FLAG_##flag))
 /* Remote crypto flags */
-#define CRYPT_FLAG_R(session, flag) ((session)->remote.crypt && \
-    ((session)->remote.crypt->flags & LIBSSH2_CRYPT_FLAG_##flag))
+#define CRYPT_FLAG_R(session, flag)                                \
+    ((session)->remote.crypt &&                                    \
+     ((session)->remote.crypt->flags & LIBSSH2_CRYPT_FLAG_##flag))
 
 /* Values for firstlast */
-#define FIRST_BLOCK 1
+#define FIRST_BLOCK  1
 #define MIDDLE_BLOCK 0
-#define LAST_BLOCK 2
+#define LAST_BLOCK   2
 
 /* Convenience macros for accessing firstlast */
 #define IS_FIRST(firstlast) ((firstlast) & FIRST_BLOCK)
@@ -1089,9 +1085,8 @@ struct comp_method {
 };
 
 #ifdef LIBSSH2DEBUG
-void
-_libssh2_debug_low(LIBSSH2_SESSION *session, int context, const char *format,
-                   ...) LIBSSH2_PRINTF(3, 4);
+void _libssh2_debug_low(LIBSSH2_SESSION *session, int context,
+                        const char *format, ...) LIBSSH2_PRINTF(3, 4);
 #define _libssh2_debug(x) _libssh2_debug_low x
 #else
 #define _libssh2_debug(x) do {} while(0)
@@ -1220,16 +1215,15 @@ int _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
                               const unsigned char *passphrase,
                               const char *filedata, size_t filedata_len,
                               unsigned char **data, size_t *datalen);
- /* OpenSSL keys */
-int
-_libssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
-                           const unsigned char *passphrase,
-                           FILE *fp, struct string_buf **decrypted_buf);
-int
-_libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
-                                  const unsigned char *passphrase,
-                                  const char *filedata, size_t filedata_len,
-                                  struct string_buf **decrypted_buf);
+/* OpenSSL keys */
+int _libssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
+                               const unsigned char *passphrase,
+                               FILE *fp, struct string_buf **decrypted_buf);
+int _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
+                                      const unsigned char *passphrase,
+                                      const char *filedata,
+                                      size_t filedata_len,
+                                      struct string_buf **decrypted_buf);
 
 int _libssh2_pem_decode_sequence(unsigned char **data, size_t *datalen);
 int _libssh2_pem_decode_integer(unsigned char **data, size_t *datalen,

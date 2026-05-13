@@ -109,12 +109,12 @@ int main(int argc, char *argv[])
     sin.sin_addr.s_addr = hostaddr;
 
     for(counter = 0; counter < 3; ++counter) {
-        if(connect(sock, (struct sockaddr*)(&sin),
+        if(connect(sock, (struct sockaddr *)(&sin),
                    sizeof(struct sockaddr_in))) {
             fprintf(stderr,
                     "Connection to %s:%d attempt #%d failed: retrying...\n",
                     hostname, port_number, counter);
-            portable_sleep(1 + 2*counter);
+            portable_sleep(1 + 2 * counter);
         }
         else {
             connected = 1;
@@ -122,8 +122,7 @@ int main(int argc, char *argv[])
         }
     }
     if(!connected) {
-        fprintf(stderr, "Failed to connect to %s:%d\n",
-                hostname, port_number);
+        fprintf(stderr, "Failed to connect to %s:%d\n", hostname, port_number);
         goto shutdown;
     }
 

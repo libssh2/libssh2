@@ -62,46 +62,46 @@
 
 #if 0
 /* Requests from client to agent for protocol 1 key operations */
-#define SSH_AGENTC_REQUEST_RSA_IDENTITIES 1
-#define SSH_AGENTC_RSA_CHALLENGE 3
-#define SSH_AGENTC_ADD_RSA_IDENTITY 7
-#define SSH_AGENTC_REMOVE_RSA_IDENTITY 8
+#define SSH_AGENTC_REQUEST_RSA_IDENTITIES    1
+#define SSH_AGENTC_RSA_CHALLENGE             3
+#define SSH_AGENTC_ADD_RSA_IDENTITY          7
+#define SSH_AGENTC_REMOVE_RSA_IDENTITY       8
 #define SSH_AGENTC_REMOVE_ALL_RSA_IDENTITIES 9
-#define SSH_AGENTC_ADD_RSA_ID_CONSTRAINED 24
+#define SSH_AGENTC_ADD_RSA_ID_CONSTRAINED    24
 #endif
 
 /* Requests from client to agent for protocol 2 key operations */
 #define SSH2_AGENTC_REQUEST_IDENTITIES 11
-#define SSH2_AGENTC_SIGN_REQUEST 13
+#define SSH2_AGENTC_SIGN_REQUEST       13
 #if 0
-#define SSH2_AGENTC_ADD_IDENTITY 17
-#define SSH2_AGENTC_REMOVE_IDENTITY 18
-#define SSH2_AGENTC_REMOVE_ALL_IDENTITIES 19
-#define SSH2_AGENTC_ADD_ID_CONSTRAINED 25
+#define SSH2_AGENTC_ADD_IDENTITY                 17
+#define SSH2_AGENTC_REMOVE_IDENTITY              18
+#define SSH2_AGENTC_REMOVE_ALL_IDENTITIES        19
+#define SSH2_AGENTC_ADD_ID_CONSTRAINED           25
 
 /* Key-type independent requests from client to agent */
-#define SSH_AGENTC_ADD_SMARTCARD_KEY 20
-#define SSH_AGENTC_REMOVE_SMARTCARD_KEY 21
-#define SSH_AGENTC_LOCK 22
-#define SSH_AGENTC_UNLOCK 23
+#define SSH_AGENTC_ADD_SMARTCARD_KEY             20
+#define SSH_AGENTC_REMOVE_SMARTCARD_KEY          21
+#define SSH_AGENTC_LOCK                          22
+#define SSH_AGENTC_UNLOCK                        23
 #define SSH_AGENTC_ADD_SMARTCARD_KEY_CONSTRAINED 26
 
 /* Generic replies from agent to client */
-#define SSH_AGENT_FAILURE 5
-#define SSH_AGENT_SUCCESS 6
+#define SSH_AGENT_FAILURE                        5
+#define SSH_AGENT_SUCCESS                        6
 
 /* Replies from agent to client for protocol 1 key operations */
-#define SSH_AGENT_RSA_IDENTITIES_ANSWER 2
-#define SSH_AGENT_RSA_RESPONSE 4
+#define SSH_AGENT_RSA_IDENTITIES_ANSWER          2
+#define SSH_AGENT_RSA_RESPONSE                   4
 
 /* Key constraint identifiers */
-#define SSH_AGENT_CONSTRAIN_LIFETIME 1
-#define SSH_AGENT_CONSTRAIN_CONFIRM 2
+#define SSH_AGENT_CONSTRAIN_LIFETIME             1
+#define SSH_AGENT_CONSTRAIN_CONFIRM              2
 #endif
 
 /* Replies from agent to client for protocol 2 key operations */
 #define SSH2_AGENT_IDENTITIES_ANSWER 12
-#define SSH2_AGENT_SIGN_RESPONSE 14
+#define SSH2_AGENT_SIGN_RESPONSE     14
 
 /* Signature request methods */
 #define SSH_AGENT_RSA_SHA2_256 2
@@ -145,8 +145,7 @@ struct agent_ops {
     const agent_disconnect_func disconnect;
 };
 
-struct _LIBSSH2_AGENT
-{
+struct _LIBSSH2_AGENT {
     LIBSSH2_SESSION *session;  /* the session this "belongs to" */
 
     libssh2_socket_t fd;
@@ -502,7 +501,7 @@ static int agent_connect_unix(LIBSSH2_AGENT *agent)
     memcpy(s_un.sun_path, path, plen);
     s_un.sun_path[plen] = '\0';
 
-    if(connect(agent->fd, (struct sockaddr*)(&s_un), sizeof(s_un)) != 0) {
+    if(connect(agent->fd, (struct sockaddr *)(&s_un), sizeof(s_un)) != 0) {
         close(agent->fd);
         return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                               "failed connecting with agent");
@@ -541,8 +540,7 @@ static ssize_t _recv_all(LIBSSH2_RECV_FUNC(func), libssh2_socket_t socket,
                          void *buffer, size_t length,
                          int flags, void **abstract)
 {
-    RECV_SEND_ALL(func, socket, buffer, length,
-                  flags, abstract);
+    RECV_SEND_ALL(func, socket, buffer, length, flags, abstract);
 }
 
 static int agent_transact_unix(LIBSSH2_AGENT *agent,
@@ -632,7 +630,7 @@ static struct agent_ops agent_ops_unix = {
     agent_transact_unix,
     agent_disconnect_unix
 };
-#endif  /* PF_UNIX */
+#endif /* PF_UNIX */
 
 #ifdef HAVE_WIN32_AGENTS
 /* Code to talk to Pageant was taken from PuTTY.
@@ -642,7 +640,7 @@ static struct agent_ops agent_ops_unix = {
  * Barry, Justin Bradford, Ben Harris, Malcolm Smith, Ahmad Khalifa,
  * Markus Kuhn, Colin Watson, and CORE SDI S.A.
  */
-#define PAGEANT_COPYDATA_ID 0x804e50ba   /* random goop */
+#define PAGEANT_COPYDATA_ID 0x804e50ba /* random goop */
 #define PAGEANT_MAX_MSGLEN  8192
 
 static int agent_connect_pageant(LIBSSH2_AGENT *agent)
@@ -652,7 +650,7 @@ static int agent_connect_pageant(LIBSSH2_AGENT *agent)
     if(!hwnd)
         return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                               "failed connecting agent");
-    agent->fd = 0;         /* Mark as the connection has been established */
+    agent->fd = 0; /* Mark as the connection has been established */
     return LIBSSH2_ERROR_NONE;
 }
 
@@ -748,13 +746,13 @@ static struct {
     struct agent_ops *ops;
 } supported_backends[] = {
 #ifdef HAVE_WIN32_AGENTS
-    {"Pageant", &agent_ops_pageant},
-    {"OpenSSH", &agent_ops_openssh},
+    { "Pageant", &agent_ops_pageant },
+    { "OpenSSH", &agent_ops_openssh },
 #endif /* HAVE_WIN32_AGENTS */
 #ifdef PF_UNIX
-    {"Unix", &agent_ops_unix},
-#endif  /* PF_UNIX */
-    {NULL, NULL}
+    { "Unix", &agent_ops_unix },
+#endif /* PF_UNIX */
+    { NULL, NULL }
 };
 
 static int agent_sign(LIBSSH2_SESSION *session,
@@ -789,13 +787,14 @@ static int agent_sign(LIBSSH2_SESSION *session,
 
         /* flags */
         if(session->userauth_pblc_method_len > 0 &&
-            session->userauth_pblc_method) {
+           session->userauth_pblc_method) {
             if(session->userauth_pblc_method_len == 12 &&
-                !memcmp(session->userauth_pblc_method, "rsa-sha2-512", 12)) {
+               !memcmp(session->userauth_pblc_method, "rsa-sha2-512", 12)) {
                 sign_flags = SSH_AGENT_RSA_SHA2_512;
             }
             else if(session->userauth_pblc_method_len == 12 &&
-                !memcmp(session->userauth_pblc_method, "rsa-sha2-256", 12)) {
+                    !memcmp(session->userauth_pblc_method, "rsa-sha2-256",
+                            12)) {
                 sign_flags = SSH_AGENT_RSA_SHA2_256;
             }
         }
@@ -874,8 +873,7 @@ static int agent_sign(LIBSSH2_SESSION *session,
     if(((size_t)method_len != session->userauth_pblc_method_len &&
         method_len != plain_len) ||
        memcmp(method_name, session->userauth_pblc_method, method_len)) {
-        _libssh2_debug((session,
-                       LIBSSH2_TRACE_KEX,
+        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                        "Agent sign method %.*s",
                        (int)method_len, method_name));
 
@@ -1050,8 +1048,7 @@ error:
     LIBSSH2_FREE(agent->session, transctx->response);
     transctx->response = NULL;
 
-    return _libssh2_error(agent->session, rc,
-                          "agent list id failed");
+    return _libssh2_error(agent->session, rc, "agent list id failed");
 }
 
 static void agent_free_identities(LIBSSH2_AGENT *agent)

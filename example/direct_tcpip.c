@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
     sin.sin_port = htons(22);
-    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
+    if(connect(sock, (struct sockaddr *)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "Failed to connect to %s.\n", inet_ntoa(sin.sin_addr));
         goto shutdown;
     }

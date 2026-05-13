@@ -45,7 +45,7 @@
 # endif
 #endif
 
-#endif /* defined(HAVE_CONFIG_H) */
+#endif /* HAVE_CONFIG_H */
 
 /* Below applies to both auto-detected and hand-crafted configs */
 

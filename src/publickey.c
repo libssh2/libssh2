@@ -58,12 +58,11 @@ struct publickey_code_list {
 
 #define STRLEN(s) s, sizeof(s) - 1
 
-static const struct publickey_code_list publickey_response_codes[] =
-{
-    {STRLEN("status"), LIBSSH2_PUBLICKEY_RESPONSE_STATUS},
-    {STRLEN("version"), LIBSSH2_PUBLICKEY_RESPONSE_VERSION},
-    {STRLEN("publickey"), LIBSSH2_PUBLICKEY_RESPONSE_PUBLICKEY},
-    {NULL, 0, 0}
+static const struct publickey_code_list publickey_response_codes[] = {
+    { STRLEN("status"), LIBSSH2_PUBLICKEY_RESPONSE_STATUS },
+    { STRLEN("version"), LIBSSH2_PUBLICKEY_RESPONSE_VERSION },
+    { STRLEN("publickey"), LIBSSH2_PUBLICKEY_RESPONSE_PUBLICKEY },
+    { NULL, 0, 0 }
 };
 
 /* PUBLICKEY status codes -- IETF defined */
@@ -203,7 +202,7 @@ static int publickey_response_id(unsigned char **pdata, size_t data_len)
 
     while(codes->name) {
         if((unsigned long)codes->name_len == response_len &&
-            strncmp(codes->name, (char *)data, response_len) == 0) {
+           strncmp(codes->name, (char *)data, response_len) == 0) {
             *pdata = data + response_len;
             return codes->code;
         }
@@ -243,9 +242,8 @@ static int publickey_response_success(LIBSSH2_PUBLICKEY *pkey)
         response = publickey_response_id(&s, data_len);
 
         switch(response) {
-        case LIBSSH2_PUBLICKEY_RESPONSE_STATUS:
+        case LIBSSH2_PUBLICKEY_RESPONSE_STATUS: {
             /* Error, or processing complete */
-        {
             unsigned long status = 0;
 
             if(data_len < 8) {
@@ -440,9 +438,8 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
             }
 
             switch(response) {
-            case LIBSSH2_PUBLICKEY_RESPONSE_STATUS:
+            case LIBSSH2_PUBLICKEY_RESPONSE_STATUS: {
                 /* Error */
-            {
                 unsigned long status, descr_len, lang_len;
 
                 if(session->pkeyInit_data_len >= 8) {
@@ -498,7 +495,7 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                 /* What we want */
                 session->pkeyInit_pkey->version = _libssh2_ntohu32(s);
                 if(session->pkeyInit_pkey->version >
-                    LIBSSH2_PUBLICKEY_VERSION) {
+                   LIBSSH2_PUBLICKEY_VERSION) {
                     _libssh2_debug((session, LIBSSH2_TRACE_PUBLICKEY,
                                    "Truncate remote publickey version "
                                    "from %u",
@@ -556,8 +553,7 @@ LIBSSH2_PUBLICKEY *libssh2_publickey_init(LIBSSH2_SESSION *session)
 {
     LIBSSH2_PUBLICKEY *ptr;
 
-    BLOCK_ADJUST_ERRNO(ptr, session,
-                       publickey_init(session));
+    BLOCK_ADJUST_ERRNO(ptr, session, publickey_init(session));
     return ptr;
 }
 
@@ -597,8 +593,8 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
             for(i = 0; i < num_attrs; i++) {
                 /* Search for a comment attribute */
                 if(attrs[i].name_len == (sizeof("comment") - 1) &&
-                    strncmp(attrs[i].name, "comment",
-                            sizeof("comment") - 1) == 0) {
+                   strncmp(attrs[i].name, "comment",
+                           sizeof("comment") - 1) == 0) {
                     comment = (const unsigned char *)attrs[i].value;
                     comment_len = attrs[i].value_len;
                     break;
@@ -607,7 +603,7 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
             packet_len += 4 + comment_len;
         }
         else {
-            packet_len += 5;    /* overwrite(1) + attribute_count(4) */
+            packet_len += 5; /* overwrite(1) + attribute_count(4) */
             for(i = 0; i < num_attrs; i++) {
                 packet_len += 9 + attrs[i].name_len + attrs[i].value_len;
                 /* name_len(4) + value_len(4) + mandatory(1) */
@@ -877,9 +873,8 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
         }
 
         switch(response) {
-        case LIBSSH2_PUBLICKEY_RESPONSE_STATUS:
+        case LIBSSH2_PUBLICKEY_RESPONSE_STATUS: {
             /* Error, or processing complete */
-        {
             unsigned long status, descr_len, lang_len;
 
             if(pkey->listFetch_s + 8 <=
@@ -920,7 +915,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
             }
 
             if(pkey->listFetch_s >
-                pkey->listFetch_data + pkey->listFetch_data_len) {
+               pkey->listFetch_data + pkey->listFetch_data_len) {
                 _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                                "Malformed publickey subsystem packet");
                 goto err_exit;
@@ -995,7 +990,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 }
 
                 if(pkey->listFetch_s + 4 <=
-                    pkey->listFetch_data + pkey->listFetch_data_len) {
+                   pkey->listFetch_data + pkey->listFetch_data_len) {
                     list[keys].name_len = _libssh2_ntohu32(pkey->listFetch_s);
                     pkey->listFetch_s += 4;
                 }
@@ -1100,7 +1095,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                     list[keys].attrs =
                         LIBSSH2_ALLOC(session,
                                       list[keys].num_attrs *
-                                      sizeof(libssh2_publickey_attribute));
+                                          sizeof(libssh2_publickey_attribute));
                     if(!list[keys].attrs) {
                         _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                        "Unable to allocate memory for "
@@ -1147,8 +1142,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                             goto err_exit;
                         }
 
-                        if(pkey->listFetch_s +
-                           list[keys].attrs[i].value_len <=
+                        if(pkey->listFetch_s + list[keys].attrs[i].value_len <=
                            pkey->listFetch_data + pkey->listFetch_data_len) {
                             list[keys].attrs[i].value =
                                 (char *)pkey->listFetch_s;
@@ -1173,7 +1167,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
             list[keys].packet = pkey->listFetch_data;
             keys++;
 
-            list[keys].packet = NULL;   /* Terminate the list */
+            list[keys].packet = NULL; /* Terminate the list */
             pkey->listFetch_data = NULL;
             break;
         default:
