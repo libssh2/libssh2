@@ -684,7 +684,7 @@ static int file_read_publickey(LIBSSH2_SESSION *session,
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                               "Unable to open public key file");
     }
-    while(!feof(fd) && 1 == fread(&c, 1, 1, fd) && c != '\r' && c != '\n') {
+    while(!feof(fd) && fread(&c, 1, 1, fd) == 1 && c != '\r' && c != '\n') {
         pubkey_len++;
     }
     fseek(fd, 0L, SEEK_SET);
