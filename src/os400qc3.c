@@ -2445,7 +2445,7 @@ int _libssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session,
     Qc3CalculateSignature((char *)vector, &veccount, Qc3_Array,
                           (char *)&algd, Qc3_Alg_Public_Key,
                           (char *)&ctx->key, Qc3_Key_Token,
-                          anycsp, NULL, sigbuf, &sigbufsize,&siglen,
+                          anycsp, NULL, sigbuf, &sigbufsize, &siglen,
                           (char *)&errcode);
     if(errcode.Bytes_Available)
         return -1;

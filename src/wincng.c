@@ -3788,8 +3788,8 @@ int _libssh2_dh_secret(struct wincng_dh_ctx *dhctx, libssh2_bn *secret,
                                    src + dhctx->dh_params->cbKeyLength,
                                    dhctx->dh_params->cbKeyLength);
             /* Public from the peer */
-            memcpy_with_be_padding(dest + 2 * key_length_bytes, key_length_bytes,
-                                   f->bignum, f->length);
+            memcpy_with_be_padding(dest + 2 * key_length_bytes,
+                                   key_length_bytes, f->bignum, f->length);
         }
 
         /* Import the peer public key information */
