@@ -1313,17 +1313,17 @@ static int gen_publickey_from_rsa_evp(LIBSSH2_SESSION *session,
 #endif
     if(!rsa) {
         /* Assume memory allocation error... what else could it be ? */
-        goto __alloc_error;
+        goto alloc_error;
     }
 
     method_buf = LIBSSH2_ALLOC(session, 7); /* ssh-rsa. */
     if(!method_buf) {
-        goto __alloc_error;
+        goto alloc_error;
     }
 
     key = gen_publickey_from_rsa(session, rsa, &key_len);
     if(!key) {
-        goto __alloc_error;
+        goto alloc_error;
     }
 #ifndef USE_OPENSSL_3
     RSA_free(rsa);
@@ -1341,7 +1341,7 @@ static int gen_publickey_from_rsa_evp(LIBSSH2_SESSION *session,
     }
     return 0;
 
-__alloc_error:
+alloc_error:
 #ifndef USE_OPENSSL_3
     if(rsa) {
         RSA_free(rsa);
@@ -1755,17 +1755,17 @@ static int gen_publickey_from_dsa_evp(LIBSSH2_SESSION *session,
 #endif
     if(!dsa) {
         /* Assume memory allocation error... what else could it be ? */
-        goto __alloc_error;
+        goto alloc_error;
     }
 
     method_buf = LIBSSH2_ALLOC(session, 7); /* ssh-dss. */
     if(!method_buf) {
-        goto __alloc_error;
+        goto alloc_error;
     }
 
     key = gen_publickey_from_dsa(session, dsa, &key_len);
     if(!key) {
-        goto __alloc_error;
+        goto alloc_error;
     }
 #ifndef USE_OPENSSL_3
     DSA_free(dsa);
@@ -1782,7 +1782,7 @@ static int gen_publickey_from_dsa_evp(LIBSSH2_SESSION *session,
     }
     return 0;
 
-__alloc_error:
+alloc_error:
 #ifndef USE_OPENSSL_3
     if(dsa) {
         DSA_free(dsa);
