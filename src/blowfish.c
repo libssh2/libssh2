@@ -41,10 +41,6 @@
 
 #if defined(LIBSSH2_BCRYPT_PBKDF_C) || defined(DEBUG_BLOWFISH)
 
-#if !defined(HAVE_BCRYPT_PBKDF) && (!defined(HAVE_BLOWFISH_INITSTATE) || \
-                                    !defined(HAVE_BLOWFISH_EXPAND0STATE) || \
-                                    !defined(HAVE_BLF_ENC))
-
 #ifdef DEBUG_BLOWFISH
 #include <stdio.h>
 #include <string.h>
@@ -612,10 +608,5 @@ int main(void)
     return 0;
 }
 #endif
-
-#endif /* !HAVE_BCRYPT_PBKDF &&
-          (!HAVE_BLOWFISH_INITSTATE ||
-           !HAVE_BLOWFISH_EXPAND0STATE ||
-           !HAVE_BLF_ENC) */
 
 #endif /* LIBSSH2_BCRYPT_PBKDF_C || DEBUG_BLOWFISH */
