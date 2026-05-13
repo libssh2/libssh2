@@ -227,7 +227,7 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
                                         p->payload + p->total_num - mac_len,
                                         mac_len)) {
                 _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
-                               "Failed MAC check"));
+                                "Failed MAC check"));
                 session->fullpacket_macstate = LIBSSH2_MAC_INVALID;
             }
             else if(etm) {
@@ -409,7 +409,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
          * is done!
          */
         _libssh2_debug((session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
-                       " key re-exchange from _libssh2_transport_read"));
+                        " key re-exchange from _libssh2_transport_read"));
         rc = _libssh2_kex_exchange(session, 1, &session->startup_key_state);
         if(rc)
             return rc;
@@ -497,15 +497,15 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
                     return LIBSSH2_ERROR_EAGAIN;
                 }
                 _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
-                               "Error recving %ld bytes (got %ld)",
-                               (long)(PACKETBUFSIZE - remainbuf),
-                               (long)-nread));
+                                "Error recving %ld bytes (got %ld)",
+                                (long)(PACKETBUFSIZE - remainbuf),
+                                (long)-nread));
                 return LIBSSH2_ERROR_SOCKET_RECV;
             }
             _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
-                           "Recved %ld/%ld bytes to %p+%ld", (long)nread,
-                           (long)(PACKETBUFSIZE - remainbuf), (void *)p->buf,
-                           (long)remainbuf));
+                            "Recved %ld/%ld bytes to %p+%ld", (long)nread,
+                            (long)(PACKETBUFSIZE - remainbuf), (void *)p->buf,
+                            (long)remainbuf));
 
             debugdump(session, "libssh2_transport_read() raw",
                       &p->buf[remainbuf], nread);
@@ -559,7 +559,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
                                             &session->remote.crypt_abstract);
 
                 if(rc != LIBSSH2_ERROR_NONE) {
-                    p->total_num = 0;   /* no packet buffer available */
+                    p->total_num = 0; /* no packet buffer available */
                     if(p->payload)
                         LIBSSH2_FREE(session, p->payload);
                     p->payload = NULL;
@@ -927,7 +927,7 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
            make the caller really notice his/hers flaw, we return error for
            this case */
         _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
-                       "Address is different, returning EAGAIN"));
+                        "Address is different, returning EAGAIN"));
         return LIBSSH2_ERROR_EAGAIN;
     }
 
@@ -940,12 +940,12 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
                       LIBSSH2_SOCKET_SEND_FLAGS(session));
     if(rc < 0)
         _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
-                       "Error sending %ld bytes: %ld",
-                       (long)length, (long)-rc));
+                        "Error sending %ld bytes: %ld",
+                        (long)length, (long)-rc));
     else {
         _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
-                       "Sent %ld/%ld bytes at %p+%lu", (long)rc, (long)length,
-                       (void *)p->outbuf, (unsigned long)p->osent));
+                        "Sent %ld/%ld bytes at %p+%lu", (long)rc, (long)length,
+                        (void *)p->outbuf, (unsigned long)p->osent));
         debugdump(session, "libssh2_transport_write send()",
                   &p->outbuf[p->osent], rc);
     }
@@ -1028,7 +1028,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
         /* Don't write any new packets if we're still in the middle of a key
          * exchange. */
         _libssh2_debug((session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
-                       " key re-exchange from _libssh2_transport_send"));
+                        " key re-exchange from _libssh2_transport_send"));
         rc = _libssh2_kex_exchange(session, 1, &session->startup_key_state);
         if(rc)
             return rc;
@@ -1120,8 +1120,8 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
 
     /* Plain math: (4 + 1 + packet_length + padding_length) % blocksize == 0 */
 
-    packet_length = data_len + 1 + 4;   /* 1 is for padding_length field
-                                           4 for the packet_length field */
+    packet_length = data_len + 1 + 4; /* 1 is for padding_length field
+                                         4 for the packet_length field */
     /* subtract 4 bytes of the packet_length field when padding AES-GCM
        or with ETM */
     crypt_offset = (etm || auth_len ||
@@ -1281,12 +1281,12 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
                        LIBSSH2_SOCKET_SEND_FLAGS(session));
     if(ret < 0)
         _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
-                       "Error sending %ld bytes: %ld",
-                       (long)total_length, (long)-ret));
+                        "Error sending %ld bytes: %ld",
+                        (long)total_length, (long)-ret));
     else {
         _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
-                       "Sent %ld/%ld bytes at %p",
-                       (long)ret, (long)total_length, (void *)p->outbuf));
+                        "Sent %ld/%ld bytes at %p",
+                        (long)ret, (long)total_length, (void *)p->outbuf));
         debugdump(session, "libssh2_transport_write send()", p->outbuf, ret);
     }
 

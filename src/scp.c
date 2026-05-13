@@ -309,8 +309,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
         }
 
         snprintf((char *)session->scpRecv_command,
-                 session->scpRecv_command_len,
-                 "scp -%sf ", sb ? "p" : "");
+                 session->scpRecv_command_len, "scp -%sf ", sb ? "p" : "");
 
         cmd_len = strlen((char *)session->scpRecv_command);
 
@@ -333,7 +332,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
         session->scpRecv_command_len = cmd_len;
 
         _libssh2_debug((session, LIBSSH2_TRACE_SCP,
-                       "Opening channel for SCP receive"));
+                        "Opening channel for SCP receive"));
 
         session->scpRecv_state = libssh2_NB_state_created;
     }
@@ -462,9 +461,8 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                     /* zero terminate the error */
                     err_msg[err_len] = 0;
 
-                    _libssh2_debug((session, LIBSSH2_TRACE_SCP,
-                                   "got %02x %s", session->scpRecv_response[0],
-                                   err_msg));
+                    _libssh2_debug((session, LIBSSH2_TRACE_SCP, "got %02x %s",
+                                    session->scpRecv_response[0], err_msg));
 
                     _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                                    "Failed to recv file");
@@ -474,32 +472,26 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 }
 
                 if((session->scpRecv_response_len > 1) &&
-                    ((session->
-                      scpRecv_response[session->scpRecv_response_len - 1] <
-                      '0') ||
-                     (session->
-                      scpRecv_response[session->scpRecv_response_len - 1] >
-                      '9')) &&
-                    (session->
-                     scpRecv_response[session->scpRecv_response_len - 1] !=
-                     ' ') &&
-                    (session->
-                     scpRecv_response[session->scpRecv_response_len - 1] !=
-                     '\r') &&
-                    (session->
-                     scpRecv_response[session->scpRecv_response_len - 1] !=
-                     '\n')) {
+                   ((session->scpRecv_response[session->scpRecv_response_len -
+                                               1] < '0') ||
+                    (session->scpRecv_response[session->scpRecv_response_len -
+                                               1] > '9')) &&
+                   (session->scpRecv_response[session->scpRecv_response_len -
+                                              1] != ' ') &&
+                   (session->scpRecv_response[session->scpRecv_response_len -
+                                              1] != '\r') &&
+                   (session->scpRecv_response[session->scpRecv_response_len -
+                                              1] != '\n')) {
                     _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                                    "Invalid data in SCP response");
                     goto scp_recv_error;
                 }
 
                 if((session->scpRecv_response_len < 9) ||
-                   (session->
-                        scpRecv_response[session->scpRecv_response_len - 1] !=
-                        '\n')) {
+                   (session->scpRecv_response[session->scpRecv_response_len -
+                                              1] != '\n')) {
                     if(session->scpRecv_response_len ==
-                        LIBSSH2_SCP_RESPONSE_BUFLEN) {
+                       LIBSSH2_SCP_RESPONSE_BUFLEN) {
                         /* You had your chance */
                         _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                                        "Unterminated response from "
@@ -513,12 +505,11 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
 
                 /* We're guaranteed not to go under response_len == 0 by the
                    logic above */
-                while((session->
-                        scpRecv_response[session->scpRecv_response_len - 1] ==
-                        '\r') ||
-                       (session->
-                        scpRecv_response[session->scpRecv_response_len - 1] ==
-                        '\n'))
+                while(
+                    (session->scpRecv_response[session->scpRecv_response_len -
+                                               1] == '\r') ||
+                    (session->scpRecv_response[session->scpRecv_response_len -
+                                               1] == '\n'))
                     session->scpRecv_response_len--;
                 session->scpRecv_response[session->scpRecv_response_len] =
                     '\0';
@@ -589,9 +580,9 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 }
 
                 _libssh2_debug((session, LIBSSH2_TRACE_SCP,
-                               "mtime = %ld, atime = %ld",
-                               session->scpRecv_mtime,
-                               session->scpRecv_atime));
+                                "mtime = %ld, atime = %ld",
+                                session->scpRecv_mtime,
+                                session->scpRecv_atime));
 
                 /* We *should* check that atime.usec is valid, but why let
                    that stop use? */
@@ -641,26 +632,22 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 }
 
                 if((session->scpRecv_response_len > 1) &&
-                    (session->
-                     scpRecv_response[session->scpRecv_response_len - 1] !=
-                     '\r') &&
-                    (session->
-                     scpRecv_response[session->scpRecv_response_len - 1] !=
-                     '\n') &&
-                    (session->
-                     scpRecv_response[session->scpRecv_response_len - 1]
-                     < 32)) {
+                   (session->scpRecv_response[session->scpRecv_response_len -
+                                              1] != '\r') &&
+                   (session->scpRecv_response[session->scpRecv_response_len -
+                                              1] != '\n') &&
+                   (session->scpRecv_response[session->scpRecv_response_len -
+                                              1] < 32)) {
                     _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                                    "Invalid data in SCP response");
                     goto scp_recv_error;
                 }
 
                 if((session->scpRecv_response_len < 7) ||
-                   (session->
-                    scpRecv_response[session->scpRecv_response_len - 1] !=
-                    '\n')) {
+                   (session->scpRecv_response[session->scpRecv_response_len -
+                                              1] != '\n')) {
                     if(session->scpRecv_response_len ==
-                        LIBSSH2_SCP_RESPONSE_BUFLEN) {
+                       LIBSSH2_SCP_RESPONSE_BUFLEN) {
                         /* You had your chance */
                         _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                                        "Unterminated response "
@@ -674,12 +661,11 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
 
                 /* We're guaranteed not to go under response_len == 0 by the
                    logic above */
-                while((session->
-                        scpRecv_response[session->scpRecv_response_len - 1] ==
-                        '\r') ||
-                      (session->
-                       scpRecv_response[session->scpRecv_response_len - 1] ==
-                        '\n')) {
+                while(
+                    (session->scpRecv_response[session->scpRecv_response_len -
+                                               1] == '\r') ||
+                    (session->scpRecv_response[session->scpRecv_response_len -
+                                               1] == '\n')) {
                     session->scpRecv_response_len--;
                 }
                 session->scpRecv_response[session->scpRecv_response_len] =
@@ -751,8 +737,9 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                     goto scp_recv_error;
                 }
                 _libssh2_debug((session, LIBSSH2_TRACE_SCP,
-                               "mode = 0%lo size = %ld", session->scpRecv_mode,
-                               (long)session->scpRecv_size));
+                                "mode = 0%lo size = %ld",
+                                session->scpRecv_mode,
+                                (long)session->scpRecv_size));
 
                 /* We *should* check that basename is valid, but why let that
                    stop us? */
@@ -905,7 +892,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
         session->scpSend_command_len = cmd_len;
 
         _libssh2_debug((session, LIBSSH2_TRACE_SCP,
-                       "Opening channel for SCP send"));
+                        "Opening channel for SCP send"));
         /* Allocate a channel */
 
         session->scpSend_state = libssh2_NB_state_created;
@@ -988,7 +975,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
                          LIBSSH2_SCP_RESPONSE_BUFLEN, "T%ld 0 %ld 0\n",
                          (long)mtime, (long)atime);
             _libssh2_debug((session, LIBSSH2_TRACE_SCP, "Sent %s",
-                           session->scpSend_response));
+                            session->scpSend_response));
         }
 
         session->scpSend_state = libssh2_NB_state_sent2;
@@ -1060,7 +1047,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
                      LIBSSH2_INT64_T_FORMAT " %s\n", mode,
                      size, base);
         _libssh2_debug((session, LIBSSH2_TRACE_SCP, "Sent %s",
-                       session->scpSend_response));
+                        session->scpSend_response));
 
         session->scpSend_state = libssh2_NB_state_sent5;
     }

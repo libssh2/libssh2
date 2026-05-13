@@ -73,7 +73,7 @@ static int hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
 
     if(hostkey_data_len < 19) {
         _libssh2_debug((session, LIBSSH2_TRACE_ERROR,
-                       "host key length too short"));
+                        "host key length too short"));
         return -1;
     }
 
@@ -103,7 +103,7 @@ static int hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
 #endif
     {
         _libssh2_debug((session, LIBSSH2_TRACE_ERROR,
-                       "unexpected rsa type: %.*s", (int)type_len, type));
+                        "unexpected rsa type: %.*s", (int)type_len, type));
         return -1;
     }
 
@@ -418,7 +418,7 @@ static const struct hostkey_method hostkey_method_ssh_rsa = {
     hostkey_method_ssh_rsa_initPEMFromMemory,
     hostkey_method_ssh_rsa_sig_verify,
     hostkey_method_ssh_rsa_signv,
-    NULL,                       /* encrypt */
+    NULL, /* encrypt */
     hostkey_method_ssh_rsa_dtor,
 };
 
@@ -434,7 +434,7 @@ static const struct hostkey_method hostkey_method_ssh_rsa_sha2_256 = {
     hostkey_method_ssh_rsa_initPEMFromMemory,
     hostkey_method_ssh_rsa_sha2_256_sig_verify,
     hostkey_method_ssh_rsa_sha2_256_signv,
-    NULL,                       /* encrypt */
+    NULL, /* encrypt */
     hostkey_method_ssh_rsa_dtor,
 };
 
@@ -446,7 +446,7 @@ static const struct hostkey_method hostkey_method_ssh_rsa_sha2_512 = {
     hostkey_method_ssh_rsa_initPEMFromMemory,
     hostkey_method_ssh_rsa_sha2_512_sig_verify,
     hostkey_method_ssh_rsa_sha2_512_signv,
-    NULL,                       /* encrypt */
+    NULL, /* encrypt */
     hostkey_method_ssh_rsa_dtor,
 };
 
@@ -462,7 +462,7 @@ static const struct hostkey_method hostkey_method_ssh_rsa_cert = {
     hostkey_method_ssh_rsa_initPEMFromMemory,
     NULL,
     hostkey_method_ssh_rsa_signv,
-    NULL,                       /* encrypt */
+    NULL, /* encrypt */
     hostkey_method_ssh_rsa_dtor,
 };
 
@@ -478,7 +478,7 @@ static const struct hostkey_method hostkey_method_ssh_rsa_sha2_256_cert = {
     hostkey_method_ssh_rsa_initPEMFromMemory,
     NULL,
     hostkey_method_ssh_rsa_sha2_256_signv,
-    NULL,                       /* encrypt */
+    NULL, /* encrypt */
     hostkey_method_ssh_rsa_dtor,
 };
 
@@ -490,7 +490,7 @@ static const struct hostkey_method hostkey_method_ssh_rsa_sha2_512_cert = {
     hostkey_method_ssh_rsa_initPEMFromMemory,
     NULL,
     hostkey_method_ssh_rsa_sha2_512_signv,
-    NULL,                       /* encrypt */
+    NULL, /* encrypt */
     hostkey_method_ssh_rsa_dtor,
 };
 
@@ -526,7 +526,7 @@ static int hostkey_method_ssh_dss_init(LIBSSH2_SESSION *session,
 
     if(hostkey_data_len < 27) {
         _libssh2_debug((session, LIBSSH2_TRACE_ERROR,
-                       "host key length too short"));
+                        "host key length too short"));
         return -1;
     }
 
@@ -715,7 +715,7 @@ static const struct hostkey_method hostkey_method_ssh_dss = {
     hostkey_method_ssh_dss_initPEMFromMemory,
     hostkey_method_ssh_dss_sig_verify,
     hostkey_method_ssh_dss_signv,
-    NULL,                       /* encrypt */
+    NULL, /* encrypt */
     hostkey_method_ssh_dss_dtor,
 };
 #endif /* LIBSSH2_DSA */
@@ -750,7 +750,7 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
 
     if(hostkey_data_len < 39) {
         _libssh2_debug((session, LIBSSH2_TRACE_ERROR,
-                       "host key length too short"));
+                        "host key length too short"));
         return -1;
     }
 
@@ -989,7 +989,7 @@ static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp256 = {
     hostkey_method_ssh_ecdsa_initPEMFromMemory,
     hostkey_method_ssh_ecdsa_sig_verify,
     hostkey_method_ssh_ecdsa_signv,
-    NULL,                       /* encrypt */
+    NULL, /* encrypt */
     hostkey_method_ssh_ecdsa_dtor,
 };
 
@@ -1001,7 +1001,7 @@ static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp384 = {
     hostkey_method_ssh_ecdsa_initPEMFromMemory,
     hostkey_method_ssh_ecdsa_sig_verify,
     hostkey_method_ssh_ecdsa_signv,
-    NULL,                       /* encrypt */
+    NULL, /* encrypt */
     hostkey_method_ssh_ecdsa_dtor,
 };
 
@@ -1013,7 +1013,7 @@ static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp521 = {
     hostkey_method_ssh_ecdsa_initPEMFromMemory,
     hostkey_method_ssh_ecdsa_sig_verify,
     hostkey_method_ssh_ecdsa_signv,
-    NULL,                       /* encrypt */
+    NULL, /* encrypt */
     hostkey_method_ssh_ecdsa_dtor,
 };
 
@@ -1025,7 +1025,7 @@ static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp256_cert = {
     hostkey_method_ssh_ecdsa_initPEMFromMemory,
     NULL,
     hostkey_method_ssh_ecdsa_signv,
-    NULL,                       /* encrypt */
+    NULL, /* encrypt */
     hostkey_method_ssh_ecdsa_dtor,
 };
 
@@ -1037,7 +1037,7 @@ static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp384_cert = {
     hostkey_method_ssh_ecdsa_initPEMFromMemory,
     NULL,
     hostkey_method_ssh_ecdsa_signv,
-    NULL,                       /* encrypt */
+    NULL, /* encrypt */
     hostkey_method_ssh_ecdsa_dtor,
 };
 
@@ -1049,7 +1049,7 @@ static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp521_cert = {
     hostkey_method_ssh_ecdsa_initPEMFromMemory,
     NULL,
     hostkey_method_ssh_ecdsa_signv,
-    NULL,                       /* encrypt */
+    NULL, /* encrypt */
     hostkey_method_ssh_ecdsa_dtor,
 };
 
@@ -1084,7 +1084,7 @@ static int hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION *session,
 
     if(hostkey_data_len < 19) {
         _libssh2_debug((session, LIBSSH2_TRACE_ERROR,
-                       "host key length too short"));
+                        "host key length too short"));
         return -1;
     }
 
@@ -1224,7 +1224,7 @@ static int hostkey_method_ssh_ed25519_signv(LIBSSH2_SESSION *session,
 static int hostkey_method_ssh_ed25519_dtor(LIBSSH2_SESSION *session,
                                            void **abstract)
 {
-    libssh2_ed25519_ctx *keyctx = (libssh2_ed25519_ctx*)(*abstract);
+    libssh2_ed25519_ctx *keyctx = (libssh2_ed25519_ctx *)(*abstract);
     (void)session;
 
     if(keyctx)
@@ -1243,7 +1243,7 @@ static const struct hostkey_method hostkey_method_ssh_ed25519 = {
     hostkey_method_ssh_ed25519_initPEMFromMemory,
     hostkey_method_ssh_ed25519_sig_verify,
     hostkey_method_ssh_ed25519_signv,
-    NULL,                       /* encrypt */
+    NULL, /* encrypt */
     hostkey_method_ssh_ed25519_dtor,
 };
 
@@ -1255,7 +1255,7 @@ static const struct hostkey_method hostkey_method_ssh_ed25519_cert = {
     hostkey_method_ssh_ed25519_initPEMFromMemory,
     hostkey_method_ssh_ed25519_sig_verify,
     hostkey_method_ssh_ed25519_signv,
-    NULL,                       /* encrypt */
+    NULL, /* encrypt */
     hostkey_method_ssh_ed25519_dtor,
 };
 
