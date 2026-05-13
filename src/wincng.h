@@ -528,12 +528,11 @@ int _libssh2_wincng_bignum_from_bin(libssh2_bn *bn, ULONG len,
                                     const unsigned char *bin);
 int _libssh2_wincng_bignum_to_bin(const libssh2_bn *bn, unsigned char *bin);
 void _libssh2_wincng_bignum_free(libssh2_bn *bn);
-extern void _libssh2_dh_init(struct wincng_dh_ctx *dhctx);
-extern int _libssh2_dh_key_pair(struct wincng_dh_ctx *dhctx,
-                                libssh2_bn *public,
-                                libssh2_bn *g, libssh2_bn *p, int group_order);
-extern int _libssh2_dh_secret(struct wincng_dh_ctx *dhctx, libssh2_bn *secret,
-                              libssh2_bn *f, libssh2_bn *p);
-extern void _libssh2_dh_dtor(struct wincng_dh_ctx *dhctx);
+void _libssh2_dh_init(struct wincng_dh_ctx *dhctx);
+int _libssh2_dh_key_pair(struct wincng_dh_ctx *dhctx, libssh2_bn *public,
+                         libssh2_bn *g, libssh2_bn *p, int group_order);
+int _libssh2_dh_secret(struct wincng_dh_ctx *dhctx, libssh2_bn *secret,
+                       libssh2_bn *f, libssh2_bn *p);
+void _libssh2_dh_dtor(struct wincng_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_WINCNG_H */
