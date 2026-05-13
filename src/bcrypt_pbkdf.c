@@ -19,8 +19,6 @@
 
 #include "libssh2_priv.h"
 
-#ifndef HAVE_BCRYPT_PBKDF
-
 #include <stdlib.h>
 
 #define LIBSSH2_BCRYPT_PBKDF_C
@@ -187,7 +185,6 @@ static int bcrypt_pbkdf(const char *pass, size_t passlen,
 
     return 0;
 }
-#endif /* HAVE_BCRYPT_PBKDF */
 
 /* Wrapper */
 
