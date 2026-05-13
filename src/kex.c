@@ -3711,9 +3711,10 @@ static int kexinit(LIBSSH2_SESSION *session)
  * Kex specific variant of strstr()
  * Needle must be preceded by BOL or ',', and followed by ',' or EOL
  */
-unsigned char *
-_libssh2_kex_agree_instr(unsigned char *haystack, size_t haystack_len,
-                         const unsigned char *needle, size_t needle_len)
+unsigned char *_libssh2_kex_agree_instr(unsigned char *haystack,
+                                        size_t haystack_len,
+                                        const unsigned char *needle,
+                                        size_t needle_len)
 {
     unsigned char *s;
     unsigned char *end_haystack;
@@ -4213,15 +4214,14 @@ static int kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *data,
     return 0;
 }
 
-/* _libssh2_kex_exchange
+/*
  * Exchange keys
  * Returns 0 on success, non-zero on failure
  *
  * Returns some errors without _libssh2_error()
  */
-int
-_libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
-                      struct key_exchange_state *key_state)
+int _libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
+                          struct key_exchange_state *key_state)
 {
     int rc = 0;
     int retcode;
@@ -4355,7 +4355,7 @@ _libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
     return rc;
 }
 
-/* libssh2_session_method_pref
+/*
  * Set preferred method
  */
 LIBSSH2_API
@@ -4502,11 +4502,9 @@ int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
 }
 
 /*
- * libssh2_session_supported_algs
  * returns a number of returned algorithms (a positive number) on success,
  * a negative number on failure
  */
-
 LIBSSH2_API
 int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
                                    int method_type,

@@ -142,23 +142,15 @@ void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
 }
 
 #if LIBSSH2_RSA
-int
-_libssh2_rsa_new(libssh2_rsa_ctx **rsa,
-                 const unsigned char *edata,
-                 unsigned long elen,
-                 const unsigned char *ndata,
-                 unsigned long nlen,
-                 const unsigned char *ddata,
-                 unsigned long dlen,
-                 const unsigned char *pdata,
-                 unsigned long plen,
-                 const unsigned char *qdata,
-                 unsigned long qlen,
-                 const unsigned char *e1data,
-                 unsigned long e1len,
-                 const unsigned char *e2data,
-                 unsigned long e2len,
-                 const unsigned char *coeffdata, unsigned long coefflen)
+int _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
+                     const unsigned char *edata, unsigned long elen,
+                     const unsigned char *ndata, unsigned long nlen,
+                     const unsigned char *ddata, unsigned long dlen,
+                     const unsigned char *pdata, unsigned long plen,
+                     const unsigned char *qdata, unsigned long qlen,
+                     const unsigned char *e1data, unsigned long e1len,
+                     const unsigned char *e2data, unsigned long e2len,
+                     const unsigned char *coeffdata, unsigned long coefflen)
 {
     int rc;
 
@@ -185,12 +177,11 @@ _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
     return 0;
 }
 
-int
-_libssh2_rsa_sha2_verify(libssh2_rsa_ctx *rsactx,
-                         size_t hash_len,
-                         const unsigned char *sig,
-                         size_t sig_len,
-                         const unsigned char *m, size_t m_len)
+int _libssh2_rsa_sha2_verify(libssh2_rsa_ctx *rsactx,
+                             size_t hash_len,
+                             const unsigned char *sig,
+                             size_t sig_len,
+                             const unsigned char *m, size_t m_len)
 {
     unsigned char *hash;
     int ret;
@@ -249,11 +240,10 @@ out:
 }
 
 #if LIBSSH2_RSA_SHA1
-int
-_libssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
-                         const unsigned char *sig,
-                         size_t sig_len,
-                         const unsigned char *m, size_t m_len)
+int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
+                             const unsigned char *sig,
+                             size_t sig_len,
+                             const unsigned char *m, size_t m_len)
 {
     return _libssh2_rsa_sha2_verify(rsactx, SHA_DIGEST_LENGTH, sig, sig_len, m,
                                     m_len);
@@ -262,17 +252,12 @@ _libssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
 #endif
 
 #if LIBSSH2_DSA
-int
-_libssh2_dsa_new(libssh2_dsa_ctx **dsactx,
-                 const unsigned char *p,
-                 unsigned long p_len,
-                 const unsigned char *q,
-                 unsigned long q_len,
-                 const unsigned char *g,
-                 unsigned long g_len,
-                 const unsigned char *y,
-                 unsigned long y_len,
-                 const unsigned char *x, unsigned long x_len)
+int _libssh2_dsa_new(libssh2_dsa_ctx **dsactx,
+                     const unsigned char *p, unsigned long p_len,
+                     const unsigned char *q, unsigned long q_len,
+                     const unsigned char *g, unsigned long g_len,
+                     const unsigned char *y, unsigned long y_len,
+                     const unsigned char *x, unsigned long x_len)
 {
     int rc;
 
@@ -297,11 +282,11 @@ _libssh2_dsa_new(libssh2_dsa_ctx **dsactx,
 #endif
 
 #if LIBSSH2_RSA
-int
-_libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
-                                    LIBSSH2_SESSION *session,
-                                    const char *filedata, size_t filedata_len,
-                                    const unsigned char *passphrase)
+int _libssh2_rsa_new_private_frommemory(
+    libssh2_rsa_ctx **rsa,
+    LIBSSH2_SESSION *session,
+    const char *filedata, size_t filedata_len,
+    const unsigned char *passphrase)
 {
     (void)rsa;
     (void)filedata;
@@ -313,10 +298,10 @@ _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
                           "Method unimplemented in libgcrypt backend");
 }
 
-int
-_libssh2_rsa_new_private(libssh2_rsa_ctx **rsa,
-                         LIBSSH2_SESSION *session,
-                         const char *filename, const unsigned char *passphrase)
+int _libssh2_rsa_new_private(libssh2_rsa_ctx **rsa,
+                             LIBSSH2_SESSION *session,
+                             const char *filename,
+                             const unsigned char *passphrase)
 {
     FILE *fp;
     unsigned char *data, *save_data;
@@ -417,11 +402,11 @@ fail:
 #endif
 
 #if LIBSSH2_DSA
-int
-_libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx **dsa,
-                                    LIBSSH2_SESSION *session,
-                                    const char *filedata, size_t filedata_len,
-                                    const unsigned char *passphrase)
+int _libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx **dsa,
+                                        LIBSSH2_SESSION *session,
+                                        const char *filedata,
+                                        size_t filedata_len,
+                                        const unsigned char *passphrase)
 {
     (void)dsa;
     (void)filedata;
@@ -433,10 +418,10 @@ _libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx **dsa,
                           "Method unimplemented in libgcrypt backend");
 }
 
-int
-_libssh2_dsa_new_private(libssh2_dsa_ctx **dsa,
-                         LIBSSH2_SESSION *session,
-                         const char *filename, const unsigned char *passphrase)
+int _libssh2_dsa_new_private(libssh2_dsa_ctx **dsa,
+                             LIBSSH2_SESSION *session,
+                             const char *filename,
+                             const unsigned char *passphrase)
 {
     FILE *fp;
     unsigned char *data, *save_data;
@@ -523,13 +508,12 @@ fail:
 #endif
 
 #if LIBSSH2_RSA
-int
-_libssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
-                       libssh2_rsa_ctx *rsactx,
-                       const unsigned char *hash,
-                       size_t hash_len,
-                       unsigned char **signature,
-                       size_t *signature_len)
+int _libssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
+                           libssh2_rsa_ctx *rsactx,
+                           const unsigned char *hash,
+                           size_t hash_len,
+                           unsigned char **signature,
+                           size_t *signature_len)
 {
     const char *algo;
     gcry_sexp_t s_tmp = NULL;
@@ -594,13 +578,12 @@ out:
 }
 
 #if LIBSSH2_RSA_SHA1
-int
-_libssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
-                       libssh2_rsa_ctx *rsactx,
-                       const unsigned char *hash,
-                       size_t hash_len,
-                       unsigned char **signature,
-                       size_t *signature_len)
+int _libssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
+                           libssh2_rsa_ctx *rsactx,
+                           const unsigned char *hash,
+                           size_t hash_len,
+                           unsigned char **signature,
+                           size_t *signature_len)
 {
     return _libssh2_rsa_sha2_sign(session, rsactx, hash, hash_len,
                                   signature, signature_len);
@@ -609,10 +592,9 @@ _libssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
 #endif
 
 #if LIBSSH2_DSA
-int
-_libssh2_dsa_sha1_sign(libssh2_dsa_ctx *dsactx,
-                       const unsigned char *hash,
-                       size_t hash_len, unsigned char *sig)
+int _libssh2_dsa_sha1_sign(libssh2_dsa_ctx *dsactx,
+                           const unsigned char *hash,
+                           size_t hash_len, unsigned char *sig)
 {
     unsigned char zhash[SHA_DIGEST_LENGTH + 1];
     gcry_sexp_t sig_sexp;
@@ -699,10 +681,9 @@ out:
     return ret;
 }
 
-int
-_libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
-                         const unsigned char *sig,
-                         const unsigned char *m, size_t m_len)
+int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
+                             const unsigned char *sig,
+                             const unsigned char *m, size_t m_len)
 {
     unsigned char hash[SHA_DIGEST_LENGTH + 1];
     gcry_sexp_t s_sig, s_hash;
@@ -732,10 +713,9 @@ _libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
 }
 #endif
 
-int
-_libssh2_cipher_init(libssh2_cipher_ctx *h,
-                     LIBSSH2_CIPHER_T(algo),
-                     unsigned char *iv, unsigned char *secret, int encrypt)
+int _libssh2_cipher_init(libssh2_cipher_ctx *h,
+                         LIBSSH2_CIPHER_T(algo),
+                         unsigned char *iv, unsigned char *secret, int encrypt)
 {
     int ret;
     int cipher = _libssh2_gcry_cipher(algo);
@@ -770,11 +750,10 @@ _libssh2_cipher_init(libssh2_cipher_ctx *h,
     return 0;
 }
 
-int
-_libssh2_cipher_crypt(libssh2_cipher_ctx *ctx,
-                      LIBSSH2_CIPHER_T(algo),
-                      int encrypt, unsigned char *block, size_t blocksize,
-                      int firstlast)
+int _libssh2_cipher_crypt(libssh2_cipher_ctx *ctx,
+                          LIBSSH2_CIPHER_T(algo),
+                          int encrypt, unsigned char *block, size_t blocksize,
+                          int firstlast)
 {
     int ret;
 
@@ -790,15 +769,14 @@ _libssh2_cipher_crypt(libssh2_cipher_ctx *ctx,
     return ret;
 }
 
-int
-_libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                unsigned char **method,
-                                size_t *method_len,
-                                unsigned char **pubkeydata,
-                                size_t *pubkeydata_len,
-                                const char *privatekeydata,
-                                size_t privatekeydata_len,
-                                const char *passphrase)
+int _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
+                                    unsigned char **method,
+                                    size_t *method_len,
+                                    unsigned char **pubkeydata,
+                                    size_t *pubkeydata_len,
+                                    const char *privatekeydata,
+                                    size_t privatekeydata_len,
+                                    const char *passphrase)
 {
     (void)method;
     (void)method_len;
@@ -813,14 +791,13 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                           "memory: Method unimplemented in libgcrypt backend");
 }
 
-int
-_libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
-                          unsigned char **method,
-                          size_t *method_len,
-                          unsigned char **pubkeydata,
-                          size_t *pubkeydata_len,
-                          const char *privatekey,
-                          const char *passphrase)
+int _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
+                              unsigned char **method,
+                              size_t *method_len,
+                              unsigned char **pubkeydata,
+                              size_t *pubkeydata_len,
+                              const char *privatekey,
+                              const char *passphrase)
 {
     (void)method;
     (void)method_len;
@@ -834,20 +811,19 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                           "file: Method unimplemented in libgcrypt backend");
 }
 
-int
-_libssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
-                              unsigned char **method,
-                              size_t *method_len,
-                              unsigned char **pubkeydata,
-                              size_t *pubkeydata_len,
-                              int *algorithm,
-                              unsigned char *flags,
-                              const char **application,
-                              const unsigned char **key_handle,
-                              size_t *handle_len,
-                              const char *privatekeydata,
-                              size_t privatekeydata_len,
-                              const char *passphrase)
+int _libssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
+                                  unsigned char **method,
+                                  size_t *method_len,
+                                  unsigned char **pubkeydata,
+                                  size_t *pubkeydata_len,
+                                  int *algorithm,
+                                  unsigned char *flags,
+                                  const char **application,
+                                  const unsigned char **key_handle,
+                                  size_t *handle_len,
+                                  const char *privatekeydata,
+                                  size_t privatekeydata_len,
+                                  const char *passphrase)
 {
     (void)method;
     (void)method_len;

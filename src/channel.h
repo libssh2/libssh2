@@ -41,8 +41,6 @@
  */
 
 /*
- * _libssh2_channel_receive_window_adjust
- *
  * Adjust the receive window for a channel by adjustment bytes. If the amount
  * to be adjusted is less than LIBSSH2_CHANNEL_MINADJUST and force is 0 the
  * adjustment amount will be queued for a later packet.
@@ -55,16 +53,12 @@ int _libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
                                            unsigned int *store);
 
 /*
- * _libssh2_channel_flush
- *
  * Flush data from one (or all) stream
  * Returns number of bytes flushed, or negative on failure
  */
 int _libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid);
 
 /*
- * _libssh2_channel_free
- *
  * Make sure a channel is closed, then remove the channel from the session
  * and free its resource(s)
  *
@@ -72,43 +66,33 @@ int _libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid);
  */
 int _libssh2_channel_free(LIBSSH2_CHANNEL *channel);
 
-int
-_libssh2_channel_extended_data(LIBSSH2_CHANNEL *channel, int ignore_mode);
+int _libssh2_channel_extended_data(LIBSSH2_CHANNEL *channel, int ignore_mode);
 
 /*
- * _libssh2_channel_write
- *
  * Send data to a channel
  */
-ssize_t
-_libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
-                       const unsigned char *buf, size_t buflen);
+ssize_t _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
+                               const unsigned char *buf, size_t buflen);
 
 /*
- * _libssh2_channel_open
- *
  * Establish a generic session channel
  */
-LIBSSH2_CHANNEL *
-_libssh2_channel_open(LIBSSH2_SESSION *session, const char *channel_type,
-                      uint32_t channel_type_len,
-                      uint32_t window_size,
-                      uint32_t packet_size,
-                      const unsigned char *message, size_t message_len);
+LIBSSH2_CHANNEL *_libssh2_channel_open(LIBSSH2_SESSION *session,
+                                       const char *channel_type,
+                                       uint32_t channel_type_len,
+                                       uint32_t window_size,
+                                       uint32_t packet_size,
+                                       const unsigned char *message,
+                                       size_t message_len);
 
 /*
- * _libssh2_channel_process_startup
- *
  * Primitive for libssh2_channel_(shell|exec|subsystem)
  */
-int
-_libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
-                                 const char *request, size_t request_len,
-                                 const char *message, size_t message_len);
+int _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
+                                     const char *request, size_t request_len,
+                                     const char *message, size_t message_len);
 
 /*
- * _libssh2_channel_read
- *
  * Read data from a channel
  *
  * It is important to not return 0 until the currently read channel is
@@ -129,8 +113,6 @@ size_t _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL *channel,
 int _libssh2_channel_close(LIBSSH2_CHANNEL *channel);
 
 /*
- * _libssh2_channel_forward_cancel
- *
  * Stop listening on a remote port and free the listener
  * Toss out any pending (un-accept()ed) connections
  *

@@ -120,13 +120,13 @@ LIBSSH2_CHANNEL *_libssh2_channel_locate(LIBSSH2_SESSION *session,
 /*
  * Establish a generic session channel
  */
-LIBSSH2_CHANNEL *
-_libssh2_channel_open(LIBSSH2_SESSION *session, const char *channel_type,
-                      uint32_t channel_type_len,
-                      uint32_t window_size,
-                      uint32_t packet_size,
-                      const unsigned char *message,
-                      size_t message_len)
+LIBSSH2_CHANNEL *_libssh2_channel_open(LIBSSH2_SESSION *session,
+                                       const char *channel_type,
+                                       uint32_t channel_type_len,
+                                       uint32_t window_size,
+                                       uint32_t packet_size,
+                                       const unsigned char *message,
+                                       size_t message_len)
 {
     static const unsigned char reply_codes[3] = {
         SSH_MSG_CHANNEL_OPEN_CONFIRMATION,
@@ -1484,10 +1484,9 @@ int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_connection,
 /*
  * Primitive for libssh2_channel_(shell|exec|subsystem)
  */
-int
-_libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
-                                 const char *request, size_t request_len,
-                                 const char *message, size_t message_len)
+int _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
+                                     const char *request, size_t request_len,
+                                     const char *message, size_t message_len)
 {
     LIBSSH2_SESSION *session = channel->session;
     unsigned char *s;
@@ -1625,8 +1624,7 @@ void libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel, int blocking)
  * Flush data from one (or all) stream
  * Returns number of bytes flushed, or negative on failure
  */
-int
-_libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid)
+int _libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid)
 {
     if(channel->flush_state == libssh2_NB_state_idle) {
         struct packet *packet =
@@ -1816,11 +1814,10 @@ int libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL *channel,
  *
  * Calls _libssh2_error() !
  */
-int
-_libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
-                                       uint32_t adjustment,
-                                       unsigned char force,
-                                       unsigned int *store)
+int _libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
+                                           uint32_t adjustment,
+                                           unsigned char force,
+                                           unsigned int *store)
 {
     int rc;
 
@@ -1946,8 +1943,7 @@ int libssh2_channel_receive_window_adjust2(LIBSSH2_CHANNEL *channel,
     return rc;
 }
 
-int
-_libssh2_channel_extended_data(LIBSSH2_CHANNEL *channel, int ignore_mode)
+int _libssh2_channel_extended_data(LIBSSH2_CHANNEL *channel, int ignore_mode)
 {
     if(channel->extData2_state == libssh2_NB_state_idle) {
         _libssh2_debug((channel->session, LIBSSH2_TRACE_CONN,
@@ -2209,8 +2205,8 @@ ssize_t libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id,
  * Return the size of the data block of the current packet, or 0 if there
  * isn't a packet.
  */
-size_t
-_libssh2_channel_packet_data_len(LIBSSH2_CHANNEL *channel, int stream_id)
+size_t _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL *channel,
+                                        int stream_id)
 {
     LIBSSH2_SESSION *session = channel->session;
     struct packet *read_packet;
@@ -2270,9 +2266,8 @@ _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL *channel, int stream_id)
  * Returns: number of bytes sent, or if it returns a negative number, that is
  * the error code!
  */
-ssize_t
-_libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
-                       const unsigned char *buf, size_t buflen)
+ssize_t _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
+                               const unsigned char *buf, size_t buflen)
 {
     int rc = 0;
     LIBSSH2_SESSION *session = channel->session;
