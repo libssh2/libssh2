@@ -79,7 +79,7 @@ static const struct crypt_method crypt_method_none = {
     crypt_none_crypt,
     NULL
 };
-#endif /* defined(LIBSSH2DEBUG) && defined(LIBSSH2_CRYPT_NONE_INSECURE) */
+#endif /* LIBSSH2DEBUG && LIBSSH2_CRYPT_NONE_INSECURE */
 
 struct crypt_ctx {
     int encrypt;

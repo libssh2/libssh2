@@ -72,7 +72,7 @@ static const struct mac_method mac_method_none = {
     NULL,
     0
 };
-#endif /* defined(LIBSSH2DEBUG) && defined(LIBSSH2_MAC_NONE_INSECURE) */
+#endif /* LIBSSH2DEBUG && LIBSSH2_MAC_NONE_INSECURE */
 
 /*
  * Initialize simple mac methods
