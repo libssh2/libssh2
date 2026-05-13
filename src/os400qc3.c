@@ -1265,12 +1265,12 @@ int _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
  *
  *******************************************************************/
 
-void _libssh2_os400qc3_dh_init(_libssh2_dh_ctx *dhctx)
+void _libssh2_os400qc3_dh_init(libssh2_dh_ctx *dhctx)
 {
     memset((char *)dhctx, 0, sizeof(*dhctx));
 }
 
-int _libssh2_os400qc3_dh_key_pair(_libssh2_dh_ctx *dhctx, libssh2_bn *public,
+int _libssh2_os400qc3_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
                                   libssh2_bn *g, libssh2_bn *p,
                                   int group_order)
 {
@@ -1318,7 +1318,7 @@ int _libssh2_os400qc3_dh_key_pair(_libssh2_dh_ctx *dhctx, libssh2_bn *public,
     return _libssh2_bn_from_bin(public, pubkeylen, (unsigned char *)pubkey);
 }
 
-int _libssh2_os400qc3_dh_secret(_libssh2_dh_ctx *dhctx, libssh2_bn *secret,
+int _libssh2_os400qc3_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
                                 libssh2_bn *f, libssh2_bn *p)
 {
     char *pubkey;
@@ -1342,7 +1342,7 @@ int _libssh2_os400qc3_dh_secret(_libssh2_dh_ctx *dhctx, libssh2_bn *secret,
                                 secretbuflen, (unsigned char *)secretbuf);
 }
 
-void _libssh2_os400qc3_dh_dtor(_libssh2_dh_ctx *dhctx)
+void _libssh2_os400qc3_dh_dtor(libssh2_dh_ctx *dhctx)
 {
     if(!null_token(dhctx->token)) {
         Qc3DestroyAlgorithmContext(dhctx->token, (char *)&ecnull);
