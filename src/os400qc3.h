@@ -354,40 +354,40 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
  *
  *******************************************************************/
 
-extern libssh2_bn *    _libssh2_bn_init(void);
-extern void     _libssh2_bn_free(libssh2_bn *bn);
-extern unsigned long    _libssh2_bn_bits(libssh2_bn *bn);
-extern int      _libssh2_bn_from_bin(libssh2_bn *bn, size_t len,
-                                     const unsigned char *v);
-extern int      _libssh2_bn_set_word(libssh2_bn *bn, unsigned long val);
-extern int      _libssh2_bn_to_bin(libssh2_bn *bn, unsigned char *val);
-extern int      _libssh2_random(unsigned char *buf, size_t len);
-extern void     _libssh2_os400qc3_crypto_dtor(struct os400qc3_crypto_ctx *x);
-extern int      _libssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x,
-                                            unsigned int algo);
-extern int      _libssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
-                                              const unsigned char *data,
-                                              int len);
-extern int      _libssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx,
-                                             unsigned char *out);
-extern int      _libssh2_os400qc3_hash(const unsigned char *message,
-                                       unsigned long len, unsigned char *out,
-                                       unsigned int algo);
-extern int      _libssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session, int algo,
-                                            unsigned char **signature,
-                                            size_t *signature_len,
-                                            int veccount,
-                                            const struct iovec vector[],
-                                            libssh2_rsa_ctx *ctx);
-extern void     _libssh2_os400qc3_dh_init(libssh2_dh_ctx *dhctx);
-extern int      _libssh2_os400qc3_dh_key_pair(libssh2_dh_ctx *dhctx,
-                                              libssh2_bn *public,
-                                              libssh2_bn *g,
-                                              libssh2_bn *p, int group_order);
-extern int      _libssh2_os400qc3_dh_secret(libssh2_dh_ctx *dhctx,
-                                            libssh2_bn *secret,
-                                            libssh2_bn *f, libssh2_bn *p);
-extern void     _libssh2_os400qc3_dh_dtor(libssh2_dh_ctx *dhctx);
+libssh2_bn *_libssh2_bn_init(void);
+void_libssh2_bn_free(libssh2_bn *bn);
+unsigned long _libssh2_bn_bits(libssh2_bn *bn);
+int _libssh2_bn_from_bin(libssh2_bn *bn, size_t len,
+                         const unsigned char *v);
+int _libssh2_bn_set_word(libssh2_bn *bn, unsigned long val);
+int _libssh2_bn_to_bin(libssh2_bn *bn, unsigned char *val);
+int _libssh2_random(unsigned char *buf, size_t len);
+void _libssh2_os400qc3_crypto_dtor(struct os400qc3_crypto_ctx *x);
+int _libssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x,
+                                unsigned int algo);
+int _libssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
+                                  const unsigned char *data,
+                                  int len);
+int _libssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx,
+                                 unsigned char *out);
+int _libssh2_os400qc3_hash(const unsigned char *message,
+                           unsigned long len, unsigned char *out,
+                           unsigned int algo);
+int _libssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session, int algo,
+                                unsigned char **signature,
+                                size_t *signature_len,
+                                int veccount,
+                                const struct iovec vector[],
+                                libssh2_rsa_ctx *ctx);
+void _libssh2_os400qc3_dh_init(libssh2_dh_ctx *dhctx);
+int _libssh2_os400qc3_dh_key_pair(libssh2_dh_ctx *dhctx,
+                                  libssh2_bn *public,
+                                  libssh2_bn *g,
+                                  libssh2_bn *p, int group_order);
+int _libssh2_os400qc3_dh_secret(libssh2_dh_ctx *dhctx,
+                                libssh2_bn *secret,
+                                libssh2_bn *f, libssh2_bn *p);
+void _libssh2_os400qc3_dh_dtor(libssh2_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_OS400QC3_H */
 
