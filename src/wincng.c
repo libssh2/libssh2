@@ -3027,17 +3027,20 @@ int _libssh2_wincng_ecdsa_sign(IN LIBSSH2_SESSION *session,
     *signature = LIBSSH2_ALLOC(session, signature_maxlen);
     signature_ptr = *signature;
 
-    _libssh2_store_bignum2_bytes(
-        &signature_ptr,
-        cng_signature,
-        cng_signature_len / 2);
-
-    _libssh2_store_bignum2_bytes(
-        &signature_ptr,
-        cng_signature + (cng_signature_len / 2),
-        cng_signature_len / 2);
-
-    *signature_len = signature_ptr - *signature;
+    if(_libssh2_store_bignum2_bytes(&signature_ptr,
+                                    cng_signature,
+                                    cng_signature_len / 2) &&
+       _libssh2_store_bignum2_bytes(&signature_ptr,
+                                    cng_signature + (cng_signature_len / 2),
+                                    cng_signature_len / 2)) {
+        *signature_len = signature_ptr - *signature;
+    }
+    else {
+        _libssh2_debug((session, LIBSSH2_ERROR_STORE_OVERFLOW,
+                        "Too large write."));
+        result = LIBSSH2_ERROR_STORE_OVERFLOW;
+        goto cleanup;
+    }
 
 cleanup:
     if(cng_signature) {
