@@ -191,10 +191,13 @@ int main(int argc, char *argv[])
                 (check <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH) ?
                 host->key : "<none>");
 
-        /*****
-         * At this point, we could verify that 'check' tells us the key is
-         * fine or bail out.
-         *****/
+        if(check != LIBSSH2_KNOWNHOST_CHECK_MATCH) {
+            fprintf(stderr,
+                    "Host key verification failed (status %d). "
+                    "Refusing to connect.\n", check);
+            libssh2_knownhost_free(nh);
+            goto shutdown;
+        }
     }
     else {
         /* eeek, do cleanup here */

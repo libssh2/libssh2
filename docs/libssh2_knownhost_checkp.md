@@ -72,6 +72,14 @@ LIBSSH2_KNOWNHOST_CHECK_MATCH - hosts and keys match.
 
 LIBSSH2_KNOWNHOST_CHECK_MISMATCH - host was found, but the keys did not match!
 
+# SECURITY
+
+Applications should always act on the return value of this function.
+Continuing with a connection when the result is not
+LIBSSH2_KNOWNHOST_CHECK_MATCH leaves the session vulnerable to
+man-in-the-middle attacks. Best practice is to abort the connection on
+NOTFOUND, MISMATCH, or FAILURE and inform the user.
+
 # AVAILABILITY
 
 Added in libssh2 1.2.6

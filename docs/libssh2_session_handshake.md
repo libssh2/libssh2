@@ -54,6 +54,18 @@ the socket.
 
 *LIBSSH2_ERROR_EAGAIN* - Marked for non-blocking I/O but the call would block.
 
+# SECURITY
+
+After a successful handshake, applications should verify the server's host key
+before proceeding with authentication. Use libssh2_knownhost_init(3) to create
+a known-hosts collection, libssh2_knownhost_readfile(3) to load trusted keys,
+and libssh2_knownhost_checkp(3) to verify the server's key. If the check does
+not return LIBSSH2_KNOWNHOST_CHECK_MATCH, the connection should be aborted to
+prevent man-in-the-middle attacks.
+
+See the **ssh2_exec.c** example in the distribution for a complete
+demonstration.
+
 # AVAILABILITY
 
 Added in 1.2.8
