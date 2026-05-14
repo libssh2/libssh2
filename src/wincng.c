@@ -3043,6 +3043,12 @@ int _libssh2_wincng_ecdsa_sign(IN LIBSSH2_SESSION *session,
     }
 
 cleanup:
+    if(result != LIBSSH2_ERROR_NONE && *signature) {
+        LIBSSH2_FREE(session, *signature);
+        *signature = NULL;
+        *signature_len = 0;
+    }
+
     if(cng_signature) {
         free(cng_signature);
     }
