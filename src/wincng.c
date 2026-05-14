@@ -2012,14 +2012,10 @@ static int wincng_p1363signature_from_point(IN const unsigned char *r,
         return LIBSSH2_ERROR_ALLOC;
     }
 
-    memcpy(
-        *signature + (*signature_length / 2) - r_trimmed_len,
-        r_trimmed,
-        r_trimmed_len);
-    memcpy(
-        *signature + (*signature_length) - s_trimmed_len,
-        s_trimmed,
-        s_trimmed_len);
+    memcpy(*signature + (*signature_length / 2) - r_trimmed_len,
+           r_trimmed, r_trimmed_len);
+    memcpy(*signature + (*signature_length) - s_trimmed_len,
+           s_trimmed, s_trimmed_len);
 
     return LIBSSH2_ERROR_NONE;
 }
@@ -2060,14 +2056,10 @@ static int wincng_publickey_from_point(IN wincng_ecc_keytype keytype,
         wincng_ecdsa_algorithms[point->curve].public_import_magic[keytype];
 
     /** Copy x, y */
-    memcpy(
-        (PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB),
-        point->x,
-        point->x_len);
-    memcpy(
-        (PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB) + point->x_len,
-        point->y,
-        point->y_len);
+    memcpy((PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB),
+           point->x, point->x_len);
+    memcpy((PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB) + point->x_len,
+           point->y, point->y_len);
 
     status = BCryptImportKeyPair(
         keytype == WINCNG_ECC_KEYTYPE_ECDSA
@@ -2130,18 +2122,12 @@ static int wincng_privatekey_from_point(IN wincng_ecc_keytype keytype,
         wincng_ecdsa_algorithms[q->curve].private_import_magic[keytype];
 
     /* Copy x, y, d */
-    memcpy(
-        (PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB),
-        q->x,
-        q->x_len);
-    memcpy(
-        (PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB) + q->x_len,
-        q->y,
-        q->y_len);
-    memcpy(
-        (PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB) + q->x_len + q->y_len,
-        d,
-        d_len);
+    memcpy((PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB),
+           q->x, q->x_len);
+    memcpy((PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB) + q->x_len,
+           q->y, q->y_len);
+    memcpy((PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB) + q->x_len + q->y_len,
+           d, d_len);
 
     status = BCryptImportKeyPair(
         keytype == WINCNG_ECC_KEYTYPE_ECDSA
