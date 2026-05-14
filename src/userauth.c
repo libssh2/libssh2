@@ -984,6 +984,9 @@ int libssh2_sign_sk(LIBSSH2_SESSION *session,
                     _libssh2_debug((session, LIBSSH2_ERROR_STORE_OVERFLOW,
                                     "Too large write."));
                     rc = LIBSSH2_ERROR_STORE_OVERFLOW;
+                    LIBSSH2_FREE(session, *sig);
+                    *sig = NULL;
+                    *sig_len = 0;
                     p = NULL;
                 }
             }
