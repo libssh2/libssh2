@@ -925,9 +925,12 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
            that the caller doesn't try to send a new/different packet since
            we don't add this one up until the previous one has been sent. To
            make the caller really notice his/hers flaw, we return error for
-           this case */
+           this case. The previous packet is still pending on the write side,
+           so flag OUTBOUND so callers that consult
+           libssh2_session_block_directions() know what to wait on. */
         _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
                         "Address is different, returning EAGAIN"));
+        session->socket_block_directions |= LIBSSH2_SESSION_BLOCK_OUTBOUND;
         return LIBSSH2_ERROR_EAGAIN;
     }
 
