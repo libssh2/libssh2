@@ -30,3 +30,4 @@ test_hostkey_hash
 test_read
 test_simple
 test_ssh2
+test_transport_block_directions
