@@ -45,13 +45,15 @@ DOCKER_TESTS_STATIC = \
   test_hostkey
 
 STANDALONE_TESTS_STATIC = \
-  test_simple
+  test_simple \
+  test_transport_bd
 
 # Copy of the above for Makefile.am.
 # Is there a way to reuse the lists above?
 test_auth_keyboard_info_request_LDFLAGS = -static
 test_hostkey_LDFLAGS = -static
 test_simple_LDFLAGS = -static
+test_transport_bd_LDFLAGS = -static
 
 librunner_la_SOURCES = \
   runner.c runner.h \
