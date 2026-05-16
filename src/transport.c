@@ -974,7 +974,12 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
 
     p->osent += rc; /* we sent away this much data */
 
-    return rc < length ? LIBSSH2_ERROR_EAGAIN : LIBSSH2_ERROR_NONE;
+    if(rc < length) {
+        /* partial send: there are still bytes pending on the write side */
+        session->socket_block_directions |= LIBSSH2_SESSION_BLOCK_OUTBOUND;
+        return LIBSSH2_ERROR_EAGAIN;
+    }
+    return LIBSSH2_ERROR_NONE;
 }
 
 /*
