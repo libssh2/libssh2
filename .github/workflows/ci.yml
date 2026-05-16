@@ -45,6 +45,7 @@ jobs:
 
       - name: 'install prereqs'
         run: |
+          /home/linuxbrew/.linuxbrew/bin/brew update
           /home/linuxbrew/.linuxbrew/bin/brew install actionlint shellcheck zizmor
           python3 -m venv ~/venv
           ~/venv/bin/pip --disable-pip-version-check --no-input --no-cache-dir install --progress-bar off --prefer-binary -r .github/workflows/requirements.txt
@@ -143,6 +144,7 @@ jobs:
           elif [[ "${MATRIX_IMAGE}" = *'ubuntu'* ]]; then
             sudo sed -i 's/priority:1/priority:9/' /etc/apt/apt-mirrors.txt; cat /etc/apt/apt-mirrors.txt
             sudo apt-get -o Dpkg::Use-Pty=0 install libgcrypt-dev libssl-dev libwolfssl-dev
+            /home/linuxbrew/.linuxbrew/bin/brew update
             /home/linuxbrew/.linuxbrew/bin/brew install mbedtls@3
             cd ~
             curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 60 --retry 3 --retry-connrefused \
@@ -1028,6 +1030,7 @@ jobs:
         env:
           INSTALL_PACKAGES: ${{ matrix.build == 'AM' && 'automake libtool' || '' }}
         run: brew install ${INSTALL_PACKAGES} ${MATRIX_INSTALL}
+
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
