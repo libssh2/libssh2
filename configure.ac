@@ -199,7 +199,11 @@ Try --with-libz-prefix=PATH if you know that you have it."
     fi
   else
     AC_DEFINE(LIBSSH2_HAVE_ZLIB, 1, [Compile in zlib support])
-    LIBSSH2_PC_REQUIRES_PRIVATE="$LIBSSH2_PC_REQUIRES_PRIVATE${LIBSSH2_PC_REQUIRES_PRIVATE:+,}zlib"
+    case $host in
+      dnl Android does not provide zlib.pc
+      *-*-android*) ;;
+      *) LIBSSH2_PC_REQUIRES_PRIVATE="$LIBSSH2_PC_REQUIRES_PRIVATE${LIBSSH2_PC_REQUIRES_PRIVATE:+,}zlib";;
+    esac
     found_libz="yes"
   fi
 fi
