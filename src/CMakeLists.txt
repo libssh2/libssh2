@@ -291,6 +291,8 @@ if(NOT LIBSSH2_DISABLE_INSTALL)
           else()
             list(APPEND LIBSSH2_PC_LIBS_PRIVATE "${_lib}")
           endif()
+        elseif(_lib MATCHES "^-")  # '-option'
+          list(APPEND LIBSSH2_PC_LIBS_PRIVATE "${_lib}")
         else()
           list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-l${_lib}")
         endif()
