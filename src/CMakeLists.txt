@@ -258,7 +258,7 @@ if(NOT LIBSSH2_DISABLE_INSTALL)
       endif()
       if(_lib STREQUAL OpenSSL::Crypto AND NOT HAVE_BORINGSSL)  # BoringSSL does not provide libcrypto.pc
         set(_modules "libcrypto")
-      elseif(_lib STREQUAL ZLIB::ZLIB)
+      elseif(_lib STREQUAL ZLIB::ZLIB AND NOT ANDROID)  # Android does not provide zlib.pc
         set(_modules "zlib")
       else()
         get_target_property(_modules "${_lib}" INTERFACE_LIBSSH2_PC_MODULES)
