@@ -66,7 +66,7 @@ jobs:
           mkdir -m 0700 .ssh
           install -m 0600 /dev/null .ssh/config
           {
-            echo 'ServerAliveInterval 45'
+            echo 'ServerAliveInterval 15'
             echo "Host ${SSH_HOST}"
             # shellcheck disable=SC2001
             echo "${SSH_FORWARD}" | sed 's/,/\n/g' | sed 's/^/  RemoteForward /g'
