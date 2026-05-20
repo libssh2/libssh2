@@ -1128,39 +1128,38 @@ jobs:
       - name: 'install prereqs'
         run: |
           if [ "${MATRIX_OS}" = 'dragonflybsd' ]; then
-            # https://github.com/DragonFlyBSD/DPorts
-            cmd='pkg install -y autoconf automake libtool libgcrypt'
+            # shellcheck disable=SC2181
+            while [ $? = 0 ]; do
+              for i in 1 2 3; do
+                # https://github.com/DragonFlyBSD/DPorts
+                if sudo pkg install -y autoconf automake libtool libgcrypt; then
+                  break 2
+                else
+                  echo "Error: wait to try again: $i"
+                  sleep 10
+                fi
+              done
+              false Too many retries
+            done
           elif [ "${MATRIX_OS}" = 'freebsd' ]; then
             # https://ports.freebsd.org/
             if [ "${MATRIX_BUILD}" = 'cmake' ]; then
-              cmd='pkg install -y cmake-core ninja'
+              sudo pkg install -y cmake-core ninja
             else
-              cmd='pkg install -y autoconf automake gettext libtool'
+              sudo pkg install -y autoconf automake gettext libtool
             fi
           elif [ "${MATRIX_OS}" = 'midnightbsd' ]; then
             # https://app.midnightbsd.org/
             # https://man.midnightbsd.org/cgi-bin/man.cgi/mport
-            cmd="mport -q install cmake-core ninja | grep -E '(Downloading.+100|Installing)' || true"
+            sudo mport -q install cmake-core ninja | grep -E '(Downloading.+100|Installing)' || true
           elif [ "${MATRIX_OS}" = 'netbsd' ]; then
             # https://pkgsrc.se/
-            cmd='pkgin -y install cmake ninja-build'
+            sudo pkgin -y install cmake ninja-build
           elif [ "${MATRIX_OS}" = 'openbsd' ]; then
             # https://openbsd.app/
             # https://www.openbsd.org/faq/faq15.html
-            cmd='pkg_add cmake ninja'
+            sudo pkg_add cmake ninja
           fi
-          # shellcheck disable=SC2181
-          while [ $? = 0 ]; do
-            for i in 1 2 3; do
-              if sudo $cmd; then
-                break 2
-              else
-                echo "Error: wait to try again: $i"
-                sleep 10
-              fi
-            done
-            false Too many retries
-          done
 
       - name: 'autoreconf'
         if: ${{ matrix.build == 'autotools' }}
