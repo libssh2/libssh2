@@ -1103,7 +1103,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - { os: 'dragonflybsd', version: '6.4.2', build: 'autotools', arch: 'x86_64', cc: 'gcc'  , crypto: 'libgcrypt', desc: 'libgcrypt !runtests', options: '--with-crypto=/usr/local' }
+          - { os: 'dragonflybsd', version: '6.4.2', build: 'autotools', arch: 'x86_64', cc: 'gcc'  , crypto: 'libgcrypt', desc: 'libgcrypt !runtests', options: '--with-crypto-prefix=/usr/local' }
           - { os: 'freebsd'     , version: '15.0',  build: 'autotools', arch: 'x86_64', cc: 'clang', crypto: 'openssl', desc: 'openssl' }
           - { os: 'midnightbsd' , version: '4.0.4', build: 'cmake'    , arch: 'x86_64', cc: 'clang', crypto: 'OpenSSL', desc: 'gnutls !runtests' }
           - { os: 'netbsd'      , version: '10.1' , build: 'cmake'    , arch: 'x86_64', cc: 'gcc'  , crypto: 'OpenSSL', desc: 'openssl !runtests' }
