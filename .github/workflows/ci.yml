@@ -1112,7 +1112,7 @@ jobs:
               options: '-DCRYPTO_BACKEND=OpenSSL' }
           - { os: 'netbsd'      , version: '10.1' , build: 'cmake'    , arch: 'arm64' , cc: 'gcc'  , desc: 'openssl !runtests',
               options: '-DCRYPTO_BACKEND=OpenSSL' }
-          - { os: 'openbsd'     , version: '7.7'  , build: 'cmake'    , arch: 'x86_64', cc: 'clang', desc: 'libressl !runtests',
+          - { os: 'openbsd'     , version: '7.8'  , build: 'cmake'    , arch: 'x86_64', cc: 'clang', desc: 'libressl !runtests',
               options: '-DCRYPTO_BACKEND=OpenSSL' }
       fail-fast: false
     steps:
