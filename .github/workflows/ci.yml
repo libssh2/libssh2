@@ -1103,13 +1103,14 @@ jobs:
     strategy:
       matrix:
         include:
-         - { os: 'dragonflybsd', version: '6.4.2', build: 'autotools', arch: 'x86_64', cc: 'gcc'  , crypto: 'libgcrypt', desc: 'libgcrypt !runtests', 
+          - { os: 'dragonflybsd', version: '6.4.2', build: 'autotools', arch: 'x86_64', cc: 'gcc'  , crypto: 'libgcrypt', desc: 'libgcrypt !runtests',
               options: '--with-libgcrypt-prefix=/usr/local' }
-          - { os: 'freebsd'     , version: '15.0',  build: 'autotools', arch: 'x86_64', cc: 'clang', crypto: 'openssl', desc: 'openssl' }
-          - { os: 'midnightbsd' , version: '4.0.4', build: 'cmake'    , arch: 'x86_64', cc: 'clang', crypto: 'OpenSSL', desc: 'gnutls !runtests' }
-          - { os: 'netbsd'      , version: '10.1' , build: 'cmake'    , arch: 'x86_64', cc: 'gcc'  , crypto: 'OpenSSL', desc: 'openssl !runtests' }
-          - { os: 'netbsd'      , version: '10.1' , build: 'cmake'    , arch: 'arm64' , cc: 'gcc'  , crypto: 'OpenSSL', desc: 'openssl !runtests' }
-          - { os: 'openbsd'     , version: '7.7'  , build: 'cmake'    , arch: 'x86_64', cc: 'clang', crypto: 'OpenSSL', desc: 'libressl !runtests' }
+          - { os: 'freebsd'     , version: '15.0',  build: 'autotools', arch: 'x86_64', cc: 'clang', crypto: 'openssl'  , desc: 'openssl' }
+          - { os: 'freebsd'     , version: '14.3',  build: 'cmake'    , arch: 'arm64' , cc: 'clang', crypto: 'openssl'  , desc: 'openssl !runtests' }
+          - { os: 'midnightbsd' , version: '4.0.4', build: 'cmake'    , arch: 'x86_64', cc: 'clang', crypto: 'OpenSSL'  , desc: 'gnutls !runtests' }
+          - { os: 'netbsd'      , version: '10.1' , build: 'cmake'    , arch: 'x86_64', cc: 'gcc'  , crypto: 'OpenSSL'  , desc: 'openssl !runtests' }
+          - { os: 'netbsd'      , version: '10.1' , build: 'cmake'    , arch: 'arm64' , cc: 'gcc'  , crypto: 'OpenSSL'  , desc: 'openssl !runtests' }
+          - { os: 'openbsd'     , version: '7.7'  , build: 'cmake'    , arch: 'x86_64', cc: 'clang', crypto: 'OpenSSL'  , desc: 'libressl !runtests' }
       fail-fast: false
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -1127,38 +1128,39 @@ jobs:
       - name: 'install prereqs'
         run: |
           if [ "${MATRIX_OS}" = 'dragonflybsd' ]; then
-            # shellcheck disable=SC2181
-            while [ $? = 0 ]; do
-              for i in 1 2 3; do
-                # https://github.com/DragonFlyBSD/DPorts
-                if sudo pkg install -y autoconf automake libtool libgcrypt; then
-                  break 2
-                else
-                  echo "Error: wait to try again: $i"
-                  sleep 10
-                fi
-              done
-              false Too many retries
-            done
+            # https://github.com/DragonFlyBSD/DPorts
+            cmd='pkg install -y autoconf automake libtool libgcrypt'
           elif [ "${MATRIX_OS}" = 'freebsd' ]; then
             # https://ports.freebsd.org/
             if [ "${MATRIX_BUILD}" = 'cmake' ]; then
-              sudo pkg install -y cmake-core ninja
+              cmd='pkg install -y cmake-core ninja'
             else
-              sudo pkg install -y autoconf automake gettext libtool
+              cmd='pkg install -y autoconf automake gettext libtool'
             fi
           elif [ "${MATRIX_OS}" = 'midnightbsd' ]; then
             # https://app.midnightbsd.org/
             # https://man.midnightbsd.org/cgi-bin/man.cgi/mport
-            sudo mport -q install cmake-core ninja | grep -E '(Downloading.+100|Installing)' || true
+            cmd="mport -q install cmake-core ninja | grep -E '(Downloading.+100|Installing)' || true"
           elif [ "${MATRIX_OS}" = 'netbsd' ]; then
             # https://pkgsrc.se/
-            sudo pkgin -y install cmake ninja-build
+            cmd='pkgin -y install cmake ninja-build'
           elif [ "${MATRIX_OS}" = 'openbsd' ]; then
             # https://openbsd.app/
             # https://www.openbsd.org/faq/faq15.html
-            sudo pkg_add cmake ninja
+            cmd='pkg_add cmake ninja'
           fi
+          # shellcheck disable=SC2181
+          while [ $? = 0 ]; do
+            for i in 1 2 3; do
+              if sudo $cmd; then
+                break 2
+              else
+                echo "Error: wait to try again: $i"
+                sleep 10
+              fi
+            done
+            false Too many retries
+          done
 
       - name: 'autoreconf'
         if: ${{ matrix.build == 'autotools' }}
