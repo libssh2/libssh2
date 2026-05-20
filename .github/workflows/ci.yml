@@ -1125,7 +1125,7 @@ jobs:
         run: |
           if [ "${MATRIX_OS}" = 'dragonflybsd' ]; then
             # shellcheck disable=SC2181
-            while [[ $? == 0 ]]; do
+            while [ $? = 0 ]; do
               for i in 1 2 3; do
                 if sudo pkg install -y autoconf automake libtool; then
                   break 2
