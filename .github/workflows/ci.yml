@@ -1124,7 +1124,18 @@ jobs:
       - name: 'install prereqs'
         run: |
           if [ "${MATRIX_OS}" = 'dragonflybsd' ]; then
-            sudo pkg install -y autoconf automake libtool
+            # shellcheck disable=SC2181
+            while [[ $? == 0 ]]; do
+              for i in 1 2 3; do
+                if sudo pkg install -y autoconf automake libtool; then
+                  break 2
+                else
+                  echo "Error: wait to try again: $i"
+                  sleep 10
+                fi
+              done
+              false Too many retries
+            done
           elif [ "${MATRIX_OS}" = 'freebsd' ]; then
             # https://ports.freebsd.org/
             if [ "${MATRIX_BUILD}" = 'cmake' ]; then
