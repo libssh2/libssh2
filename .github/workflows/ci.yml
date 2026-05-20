@@ -1102,20 +1102,20 @@ jobs:
     strategy:
       matrix:
         include:
-          - { os: 'dragonflybsd', version: '6.4.2', build: 'autotools', arch: 'x86_64', cc: 'gcc',
-              desc: 'libgcrypt !runtests', options: '--with-crypto=libgcrypt --with-libgcrypt-prefix=/usr/local' }
-          - { os: 'freebsd'     , version: '15.0',  build: 'autotools', arch: 'x86_64', cc: 'clang',
-              desc: 'openssl'            , options: '--with-crypto=openssl' }
-          - { os: 'freebsd'     , version: '14.3',  build: 'cmake'    , arch: 'arm64' , cc: 'clang',
-              desc: 'openssl !runtests'  , options: '-DCRYPTO_BACKEND=OpenSSL' }
-          - { os: 'midnightbsd' , version: '4.0.4', build: 'cmake'    , arch: 'x86_64', cc: 'clang',
-              desc: 'gnutls !runtests'   , options: '-DCRYPTO_BACKEND=OpenSSL' }
-          - { os: 'netbsd'      , version: '10.1' , build: 'cmake'    , arch: 'x86_64', cc: 'gcc',
-              desc: 'openssl !runtests'  , options: '-DCRYPTO_BACKEND=OpenSSL' }
-          - { os: 'netbsd'      , version: '10.1' , build: 'cmake'    , arch: 'arm64' , cc: 'gcc',
-              desc: 'openssl !runtests'  , options: '-DCRYPTO_BACKEND=OpenSSL' }
-          - { os: 'openbsd'     , version: '7.7'  , build: 'cmake'    , arch: 'x86_64', cc: 'clang',
-              desc: 'libressl !runtests' , options: '-DCRYPTO_BACKEND=OpenSSL' }
+          - { os: 'dragonflybsd', version: '6.4.2', build: 'autotools', arch: 'x86_64', cc: 'gcc'  , desc: 'libgcrypt !runtests',
+              options: '--with-crypto=libgcrypt --with-libgcrypt-prefix=/usr/local' }
+          - { os: 'freebsd'     , version: '15.0',  build: 'autotools', arch: 'x86_64', cc: 'clang', desc: 'openssl',
+              options: '--with-crypto=openssl' }
+          - { os: 'freebsd'     , version: '14.3',  build: 'cmake'    , arch: 'arm64' , cc: 'clang', desc: 'openssl !runtests',
+              options: '-DCRYPTO_BACKEND=OpenSSL' }
+          - { os: 'midnightbsd' , version: '4.0.4', build: 'cmake'    , arch: 'x86_64', cc: 'clang', desc: 'gnutls !runtests',
+              options: '-DCRYPTO_BACKEND=OpenSSL' }
+          - { os: 'netbsd'      , version: '10.1' , build: 'cmake'    , arch: 'x86_64', cc: 'gcc'  , desc: 'openssl !runtests',
+              options: '-DCRYPTO_BACKEND=OpenSSL' }
+          - { os: 'netbsd'      , version: '10.1' , build: 'cmake'    , arch: 'arm64' , cc: 'gcc'  , desc: 'openssl !runtests',
+              options: '-DCRYPTO_BACKEND=OpenSSL' }
+          - { os: 'openbsd'     , version: '7.7'  , build: 'cmake'    , arch: 'x86_64', cc: 'clang', desc: 'libressl !runtests',
+              options: '-DCRYPTO_BACKEND=OpenSSL' }
       fail-fast: false
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
