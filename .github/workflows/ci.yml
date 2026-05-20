@@ -1128,11 +1128,10 @@ jobs:
           elif [ "${MATRIX_OS}" = 'freebsd' ]; then
             # https://ports.freebsd.org/
             if [ "${MATRIX_BUILD}" = 'cmake' ]; then
-              tools='cmake-core ninja'
+              sudo pkg install -y cmake-core ninja
             else
-              tools='autoconf automake gettext libtool'
+              sudo pkg install -y autoconf automake gettext libtool
             fi
-            sudo pkg install -y ${tools}
           elif [ "${MATRIX_OS}" = 'midnightbsd' ]; then
             # https://app.midnightbsd.org/
             # https://man.midnightbsd.org/cgi-bin/man.cgi/mport
