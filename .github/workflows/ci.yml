@@ -1097,7 +1097,6 @@ jobs:
       CC: '${{ matrix.cc }}'
       MAKEFLAGS: -j 3
       MATRIX_BUILD: '${{ matrix.build }}'
-      MATRIX_CRYPTO: '${{ matrix.crypto }}'
       MATRIX_OPTIONS: '${{ matrix.options }}'
       MATRIX_OS: '${{ matrix.os }}'
     strategy:
@@ -1126,7 +1125,7 @@ jobs:
       - name: 'setup VM'
         uses: cross-platform-actions/action@0c165ad7eb2d6a7e8552d6af5aad2bbedfc646b0 # v1.1.0
         with:
-          environment_variables: 'CC CURL_CI CURL_TEST_MIN DO_NOT_TRACK MAKEFLAGS MATRIX_BUILD MATRIX_CRYPTO MATRIX_OPTIONS MATRIX_OS'
+          environment_variables: 'CC CURL_CI CURL_TEST_MIN DO_NOT_TRACK MAKEFLAGS MATRIX_BUILD MATRIX_OPTIONS MATRIX_OS'
           operating_system: '${{ matrix.os }}'
           version: '${{ matrix.version }}'
           architecture: '${{ matrix.arch }}'
