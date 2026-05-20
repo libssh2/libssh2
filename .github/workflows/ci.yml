@@ -1097,16 +1097,17 @@ jobs:
       CC: '${{ matrix.cc }}'
       MAKEFLAGS: -j 3
       MATRIX_BUILD: '${{ matrix.build }}'
+      MATRIX_CRYPTO: '${{ matrix.crypto }}'
       MATRIX_OS: '${{ matrix.os }}'
     strategy:
       matrix:
         include:
-          - { os: 'dragonflybsd', version: '6.4.2', build: 'autotools', arch: 'x86_64', cc: 'gcc'  , desc: 'openssl !runtests' }
-          - { os: 'freebsd'     , version: '15.0',  build: 'autotools', arch: 'x86_64', cc: 'clang', desc: 'openssl' }
-          - { os: 'midnightbsd' , version: '4.0.4', build: 'cmake'    , arch: 'x86_64', cc: 'clang', desc: 'gnutls !runtests' }
-          - { os: 'netbsd'      , version: '10.1' , build: 'cmake'    , arch: 'x86_64', cc: 'gcc'  , desc: 'openssl !runtests' }
-          - { os: 'netbsd'      , version: '10.1' , build: 'cmake'    , arch: 'arm64' , cc: 'gcc'  , desc: 'openssl !runtests' }
-          - { os: 'openbsd'     , version: '7.7'  , build: 'cmake'    , arch: 'x86_64', cc: 'clang', desc: 'libressl !runtests' }
+          - { os: 'dragonflybsd', version: '6.4.2', build: 'autotools', arch: 'x86_64', cc: 'gcc'  , crypto: 'libgcrypt', desc: 'libgcrypt !runtests' }
+          - { os: 'freebsd'     , version: '15.0',  build: 'autotools', arch: 'x86_64', cc: 'clang', crypto: 'openssl', desc: 'openssl' }
+          - { os: 'midnightbsd' , version: '4.0.4', build: 'cmake'    , arch: 'x86_64', cc: 'clang', crypto: 'OpenSSL', desc: 'gnutls !runtests' }
+          - { os: 'netbsd'      , version: '10.1' , build: 'cmake'    , arch: 'x86_64', cc: 'gcc'  , crypto: 'OpenSSL', desc: 'openssl !runtests' }
+          - { os: 'netbsd'      , version: '10.1' , build: 'cmake'    , arch: 'arm64' , cc: 'gcc'  , crypto: 'OpenSSL', desc: 'openssl !runtests' }
+          - { os: 'openbsd'     , version: '7.7'  , build: 'cmake'    , arch: 'x86_64', cc: 'clang', crypto: 'OpenSSL', desc: 'libressl !runtests' }
       fail-fast: false
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -1116,7 +1117,7 @@ jobs:
       - name: 'setup VM'
         uses: cross-platform-actions/action@0c165ad7eb2d6a7e8552d6af5aad2bbedfc646b0 # v1.1.0
         with:
-          environment_variables: 'CC CURL_CI CURL_TEST_MIN DO_NOT_TRACK MAKEFLAGS MATRIX_BUILD MATRIX_OS'
+          environment_variables: 'CC CURL_CI CURL_TEST_MIN DO_NOT_TRACK MAKEFLAGS MATRIX_BUILD MATRIX_CRYPTO MATRIX_OS'
           operating_system: '${{ matrix.os }}'
           version: '${{ matrix.version }}'
           architecture: '${{ matrix.arch }}'
@@ -1127,7 +1128,7 @@ jobs:
             # shellcheck disable=SC2181
             while [ $? = 0 ]; do
               for i in 1 2 3; do
-                if sudo pkg install -y autoconf automake libtool; then
+                if sudo pkg install -y autoconf automake libtool libgcrypt; then
                   break 2
                 else
                   echo "Error: wait to try again: $i"
@@ -1167,14 +1168,14 @@ jobs:
               -DCMAKE_UNITY_BUILD=ON \
               -DENABLE_WERROR=ON \
               -DENABLE_DEBUG_LOGGING=ON \
-              -DCRYPTO_BACKEND=OpenSSL \
+              -DCRYPTO_BACKEND=${MATRIX_CRYPTO} \
               -DBUILD_STATIC_LIBS=OFF \
               -DRUN_DOCKER_TESTS=OFF \
               -DRUN_SSHD_TESTS=OFF
           else
             mkdir bld && cd bld
             ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
-              --with-crypto=openssl \
+              --with-crypto=${MATRIX_CRYPTO} \
               --disable-docker-tests \
               --disable-dependency-tracking
           fi
