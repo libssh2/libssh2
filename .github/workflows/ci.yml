@@ -1087,7 +1087,7 @@ jobs:
           fi
 
   build_netbsd:
-    name: 'NetBSD (CM, openssl, clang)'
+    name: 'NetBSD (CM, openssl, gcc)'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
