@@ -1129,6 +1129,7 @@ jobs:
             # shellcheck disable=SC2181
             while [ $? = 0 ]; do
               for i in 1 2 3; do
+                # https://github.com/DragonFlyBSD/DPorts
                 if sudo pkg install -y autoconf automake libtool libgcrypt; then
                   break 2
                 else
