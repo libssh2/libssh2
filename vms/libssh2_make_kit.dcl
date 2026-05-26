@@ -134,11 +134,11 @@ $ open/write pd 'productfilename'.PCSI$DESC
 $!
 $ write pd "product ''productname' full ;"
 $ write pd "    software DEC ''arch' VMS ;"
-$ write pd "    if (not <software DEC ''arch' VMS version minimum V8.3>) ;
+$ write pd "    if (not <software DEC ''arch' VMS version minimum v8.3>) ;
 $ write pd "        error NEED_VMS83 ;"
 $ write pd "    end if ;"
-$ write pd "    software HP ''arch' SSL version minimum V1.3;"
-$ write pd "    if (not <software HP ''arch' SSL version minimum V1.3>) ;
+$ write pd "    software HP ''arch' SSL version minimum v1.3;"
+$ write pd "    if (not <software HP ''arch' SSL version minimum v1.3>) ;
 $ write pd "        error NEED_SSL ;"
 $ write pd "    end if ;"
 $ write pd "    execute preconfigure (""set process/parse_type=extended"");"
