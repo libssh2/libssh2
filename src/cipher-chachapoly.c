@@ -29,7 +29,7 @@ int chachapoly_timingsafe_bcmp(const void *b1, const void *b2, size_t n);
 int chachapoly_init(struct chachapoly_ctx *ctx, const unsigned char *key,
                     size_t keylen)
 {
-    if(keylen != (32 + 32)) /* 2 x 256 bit keys */
+    if(keylen != (32 + 32)) /* 2 x 256-bit keys */
         return LIBSSH2_ERROR_INVAL;
     chacha_keysetup(&ctx->main_ctx, key, 256);
     chacha_keysetup(&ctx->header_ctx, key + 32, 256);

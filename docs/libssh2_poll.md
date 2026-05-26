@@ -22,7 +22,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout);
 
 # DESCRIPTION
 
-This function is deprecated. Do note use. We encourage users to instead use
+This function is deprecated. Do not use. We encourage users to instead use
 the *poll(3)* or *select(3)* functions to check for socket activity or
 when specific sockets are ready to get received from or send to.
 

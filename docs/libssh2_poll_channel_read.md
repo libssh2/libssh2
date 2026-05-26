@@ -22,7 +22,7 @@ int libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended);
 
 # DESCRIPTION
 
-This function is deprecated. Do note use.
+This function is deprecated. Do not use.
 
 *libssh2_poll_channel_read(3)* checks to see if data is available in the
 *channel*'s read buffer. No attempt is made with this method to see if

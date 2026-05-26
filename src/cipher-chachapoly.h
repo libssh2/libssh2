@@ -23,7 +23,7 @@
 #include "chacha.h"
 #include "poly1305.h"
 
-#define CHACHA_KEYLEN   32 /* Only 256 bit keys used here */
+#define CHACHA_KEYLEN   32 /* Only 256-bit keys used here */
 
 struct chachapoly_ctx {
     struct chacha_ctx main_ctx, header_ctx;

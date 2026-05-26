@@ -520,7 +520,7 @@ struct _LIBSSH2_CHANNEL {
     ssh2_NB_states close_state;
     unsigned char close_packet[5];
 
-    /* State variables used in libssh2_channel_wait_closedeof() */
+    /* State variables used in channel_wait_eof() */
     ssh2_NB_states wait_eof_state;
 
     /* State variables used in libssh2_channel_wait_closed() */
@@ -770,7 +770,7 @@ struct _LIBSSH2_SESSION {
     void *tracehandler_context; /* context for the trace handler */
 #endif
 
-    /* State variables used in libssh2_banner_send() */
+    /* State variables used in banner_receive()/banner_send() */
     ssh2_NB_states banner_TxRx_state;
     char banner_TxRx_banner[8192];
     ssize_t banner_TxRx_total_send;

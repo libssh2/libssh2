@@ -768,10 +768,10 @@ static int memory_read_privatekey(LIBSSH2_SESSION *session,
                         "No handler for specified private key");
     }
 
-    if((*hostkey_method)->
-        initPEMFromMemory(session, privkeyfiledata, privkeyfiledata_len,
-                          (const unsigned char *)passphrase,
-                          hostkey_abstract)) {
+    if((*hostkey_method)->initPEMFromMemory(session, privkeyfiledata,
+                                            privkeyfiledata_len,
+                                            (const unsigned char *)passphrase,
+                                            hostkey_abstract)) {
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
                         "Unable to initialize private key from memory");
     }
@@ -811,9 +811,9 @@ static int file_read_privatekey(LIBSSH2_SESSION *session,
                         "No handler for specified private key");
     }
 
-    if((*hostkey_method)->
-        initPEM(session, privkeyfile, (const unsigned char *)passphrase,
-                hostkey_abstract)) {
+    if((*hostkey_method)->initPEM(session, privkeyfile,
+                                  (const unsigned char *)passphrase,
+                                  hostkey_abstract)) {
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
                         "Unable to initialize private key from file");
     }
@@ -1009,8 +1009,7 @@ int libssh2_sign_sk(LIBSSH2_SESSION *session,
     }
     else {
         ssh2_deb((session, LIBSSH2_ERROR_DECRYPT,
-                  "sign_callback failed or "
-                  "returned invalid signature."));
+                  "sign_callback failed or returned invalid signature."));
         *sig_len = 0;
     }
 

@@ -323,7 +323,7 @@ This release includes the following enhancements and bugfixes:
 - packet: improve bounds checking in exit-signal sig name handling (590cdfe7 #1859)
 - packet: honor buffer length when passing to `_libssh2_debug()` (8c22b959 #1786)
 - packet: Fix possible heap overflow in SSH_MSG_CHANNEL_REQUEST #1815 (83072b0e #1816 #1815)
-- packet: create NULL-terminated string for shost in packet_queue_listener() (f66dfc4a #1761)
+- packet: create null-terminated string for shost in packet_queue_listener() (f66dfc4a #1761)
 - packet: move size check to before size manipulation (a93359ad #1704)
 - packet: authagent_open: fix failure packet length (31ec5a8b #1701)
 - packet: fix type mismatch in "reason code" (13a71451 #1706)
