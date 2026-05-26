@@ -450,9 +450,9 @@ const struct mac_method **_libssh2_mac_methods(void)
 static int mac_method_none_init(LIBSSH2_SESSION *session, unsigned char *key,
                                 int *free_key, void **abstract)
 {
+    *free_key = 1;
     (void)session;
     (void)key;
-    (void)free_key;
     (void)abstract;
     return 0;
 }
