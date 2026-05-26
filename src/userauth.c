@@ -1406,7 +1406,7 @@ static int key_sign_algorithm(LIBSSH2_SESSION *session,
     }
 
     /* Set "SSH_BUG_SIGTYPE" flag when the remote server version is OpenSSH 7.7
-       or lower and when the RSA key in question is a certificate to ignore
+       or less and when the RSA key in question is a certificate to ignore
        "server-sig-algs" and only offer ssh-rsa signature algorithm for
        RSA certs */
     remote_banner = libssh2_session_banner_get(session);
