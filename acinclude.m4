@@ -436,7 +436,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           tmp_CFLAGS="-wd279,269,981,1418,1419"
 
           if test "$compiler_num" -gt "600"; then
-             dnl icc 6.0 and lower does not have the -Wall flag
+             dnl icc 6.0 or less does not have the -Wall flag
              tmp_CFLAGS="-Wall $tmp_CFLAGS"
           fi
         else dnl $ICC = yes
