@@ -24,9 +24,9 @@ Prerequisites
   See the remarks at prerequisites for building the kit
 - TCP/IP stack, both TCP/IP services and Multinet should work.
   See the remarks at prerequisites for building the kit
-- HP OPENSSL V1.3 minimal.
+- HP OpenSSL v1.3 minimal.
   See the remarks at prerequisites for building the kit
-- JEM ZLIB V1.2-3E1 minimal.
+- JEM ZLIB v1.2-3E1 minimal.
   See the remarks at prerequisites for building the kit
 
 The first three dependencies are tested at installation time, and
