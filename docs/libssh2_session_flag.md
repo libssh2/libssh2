@@ -44,4 +44,4 @@ Returns regular libssh2 error code.
 # AVAILABILITY
 
 This function has existed since the age of dawn. LIBSSH2_FLAG_COMPRESS was
-added in version 1.2.8.
+added in libssh2 v1.2.8.
