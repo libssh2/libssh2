@@ -138,7 +138,7 @@ $ write pd "    if (not <software DEC ''arch' VMS v8.3 or greater>) ;
 $ write pd "        error NEED_VMS83 ;"
 $ write pd "    end if ;"
 $ write pd "    software HP ''arch' SSL v1.3 or greater;"
-$ write pd "    if (not <software HP ''arch' SSL version minimum v1.3>) ;
+$ write pd "    if (not <software HP ''arch' SSL v1.3 or greater>) ;
 $ write pd "        error NEED_SSL ;"
 $ write pd "    end if ;"
 $ write pd "    execute preconfigure (""set process/parse_type=extended"");"
