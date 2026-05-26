@@ -48,7 +48,7 @@ typedef unsigned int socklen_t; /* missing in headers on VMS */
  * socket. On VMS the bits are undocumented, but  SS_NBIO
  * works, I did not test the other bits. Below bitdefs are
  * from Berkely source socketvar.h at
- * http://ftp.fibranet.cat/UnixArchive/PDP-11/Trees/2.11BSD/sys/h/socketvar.h
+ * https://ftp.fibranet.cat/UnixArchive/PDP-11/Trees/2.11BSD/sys/h/socketvar.h
  *  Socket state bits.
  *  #define SS_NOFDREF          0x001    no file table ref any more
  *  #define SS_ISCONNECTED      0x002    socket connected to a peer
