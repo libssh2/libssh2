@@ -828,6 +828,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
         else if(ret) {
             _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_FAILURE,
                            "Unable to request SFTP subsystem");
+            session->sftpInit_state = libssh2_NB_state_error_closing;
             goto sftp_init_error;
         }
 
@@ -849,6 +850,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
         if(!sftp_handle) {
             _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                            "Unable to allocate a new SFTP structure");
+            session->sftpInit_state = libssh2_NB_state_error_closing;
             goto sftp_init_error;
         }
         sftp_handle->channel = session->sftpInit_channel;
@@ -881,6 +883,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
         else if(rc < 0) {
             _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                            "Unable to send SSH_FXP_INIT");
+            session->sftpInit_state = libssh2_NB_state_error_closing;
             goto sftp_init_error;
         }
         else {
@@ -896,19 +899,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
     }
 
     if(session->sftpInit_state == libssh2_NB_state_error_closing) {
-        rc = _libssh2_channel_free(session->sftpInit_channel);
-        if(rc == LIBSSH2_ERROR_EAGAIN) {
-            _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-                           "Would block closing channel");
-            return NULL;
-        }
-        session->sftpInit_channel = NULL;
-        if(session->sftpInit_sftp) {
-            LIBSSH2_FREE(session, session->sftpInit_sftp);
-            session->sftpInit_sftp = NULL;
-        }
-        session->sftpInit_state = libssh2_NB_state_idle;
-        return NULL;
+        goto sftp_init_error;
     }
 
     rc = sftp_packet_require(sftp_handle, SSH_FXP_VERSION,
@@ -924,11 +915,13 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
         }
         _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                        "Invalid SSH_FXP_VERSION response");
+        session->sftpInit_state = libssh2_NB_state_error_closing;
         goto sftp_init_error;
     }
     else if(rc) {
         _libssh2_error(session, (int)rc,
                        "Timeout waiting for response from SFTP subsystem");
+        session->sftpInit_state = libssh2_NB_state_error_closing;
         goto sftp_init_error;
     }
 
@@ -941,6 +934,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
         LIBSSH2_FREE(session, data);
         _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                        "Data too short when extracting version");
+        session->sftpInit_state = libssh2_NB_state_error_closing;
         goto sftp_init_error;
     }
 
@@ -979,6 +973,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
                 _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                "Unable to allocate memory for SSH_FXP_VERSION "
                                "packet");
+                session->sftpInit_state = libssh2_NB_state_error_closing;
                 goto sftp_init_error;
             }
             memcpy(extversion_str, extdata, extdata_len);
@@ -1009,7 +1004,25 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
     return sftp_handle;
 
 sftp_init_error:
-    session->sftpInit_state = libssh2_NB_state_error_closing;
+    rc = _libssh2_channel_free(session->sftpInit_channel);
+    if(rc == LIBSSH2_ERROR_EAGAIN) {
+        session->sftpInit_err_code = session->err_code;
+        _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+            "Would block closing channel");
+        return NULL;
+    }
+    session->sftpInit_channel = NULL;
+    if(session->sftpInit_sftp) {
+        LIBSSH2_FREE(session, session->sftpInit_sftp);
+        session->sftpInit_sftp = NULL;
+    }
+    session->sftpInit_state = libssh2_NB_state_idle;
+    if(session->sftpInit_err_code) {
+        _libssh2_error(session, session->sftpInit_err_code,
+            "Saved errorcode due to EAGAIN when "
+            "closing channel");
+    }
+
     return NULL;
 }
 
