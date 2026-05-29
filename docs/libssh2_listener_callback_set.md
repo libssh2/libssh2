@@ -26,14 +26,13 @@ libssh2_listener_callback_set(LIBSSH2_SESSION *session,
 # DESCRIPTION
 
 Sets a custom callback handler for a previously initialized session
-object. Callbacks are triggered by the receipt of special packets related to a channel layer. 
+object. Callbacks are triggered by the receipt of special packets related to a channel layer.
 To disable a callback, set it to NULL.
 
 # RETURN VALUE
 
 Pointer to previous callback handler. Returns NULL if no prior callback
 handler was set or the callback type was unknown.
-
 
 # CALLBACK TYPES
 
@@ -52,4 +51,3 @@ void listener_accept_callback(LIBSSH2_SESSION *session,    void**session_abstrac
                              , LIBSSH2_CHANNEL* channel) {
 }
 ~~~
-

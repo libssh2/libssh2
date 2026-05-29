@@ -16,7 +16,7 @@ libssh2_channel_abstract - get the current abstract value associated with a chan
 ~~~c
 #include <libssh2.h>
 
-void**
+void **
 libssh2_channel_abstract(LIBSSH2_CHANNEL *channel);
 ~~~
 
@@ -24,9 +24,7 @@ libssh2_channel_abstract(LIBSSH2_CHANNEL *channel);
 
 *channel* - active channel stream to get a reference of the abstract value.
 
-
 # RETURN VALUE
 
-Returns a reference address of the abstract of a channel; allowing potentially 
+Returns a reference address of the abstract of a channel; allowing potentially
 overriding the existing value with a new value.
-

@@ -473,7 +473,7 @@ struct _LIBSSH2_CHANNEL {
     LIBSSH2_SESSION *session;
 
     void *abstract;
- 
+
     LIBSSH2_CHANNEL_DATA_FUNC(*data_cb);
     LIBSSH2_CHANNEL_EOF_FUNC(*eof_cb);
     LIBSSH2_CHANNEL_CLOSE_FUNC(*close_cb);

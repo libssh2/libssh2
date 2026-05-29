@@ -25,9 +25,9 @@ libssh2_channel_callback_set(LIBSSH2_CHANNEL *channel,
 
 # DESCRIPTION
 
-Sets a custom callback handler for a previously initialized session
-object. Callbacks are triggered by the receipt of special packets related to a channel layer. 
-To disable a callback, set it to NULL.
+Sets a custom callback handler for a previously initialized session object.
+Callbacks are triggered by the receipt of special packets related to a
+channel layer. To disable a callback, set it to NULL.
 
 # RETURN VALUE
 
@@ -40,38 +40,35 @@ Symbols defined with LIBSSH2_CALLBACK_CHANNEL_ prefix:
 
 ## LIBSSH2_CALLBACK_CHANNEL_EOF
 
-Channel has process an end of file, the channel's stream is set to end of file before 
+Channel has process an end of file, the channel's stream is set to end of file before
 this is called.
 
 The prototype of the callback:
 
 ```c
-void eof_callback(LIBSSH2_SESSION *session, void **session_abstract, 
+void eof_callback(LIBSSH2_SESSION *session, void **session_abstract,
                   LIBSSH2_CHANNEL *channel, void **channel_abstract) {
 }
 ```
-
 ## LIBSSH2_CALLBACK_CHANNEL_CLOSE
 
 Channel has processed a close, and is no longer open by the time this callback is implemented.
 Do not use this channel after this event.
 
-
 The prototype of the callback:
 
 ```c
-void close_callback(LIBSSH2_SESSION *session, void **session_abstract, 
+void close_callback(LIBSSH2_SESSION *session, void **session_abstract,
                     LIBSSH2_CHANNEL *channel, void **channel_abstract) {
 }
 ```
-
 
 ## LIBSSH2_CALLBACK_CHANNEL_DATA
 
 Channel has received a data packet.  This is typically forwarded to the application layer to
 handle the channel data received.
 
-Stream is 0 or 1 for `stdout`/`stderr`, but depending on options, 
+Stream is 0 or 1 for `stdout`/`stderr`, but depending on options,
 `stderr` may be merged into `stdout`.
 
 The prototype of the callback:
@@ -84,4 +81,3 @@ void channel_data_callback(LIBSSH2_SESSION *session, void **session_abstract,
                            size_t length
                            );
 ```
-

@@ -16,7 +16,7 @@ libssh2_listener_abstract - get the current abstract value associated with a lis
 ~~~c
 #include <libssh2.h>
 
-void**
+void **
 libssh2_listener_abstract(LIBSSH2_LISTENER *listener);
 ~~~
 
@@ -24,9 +24,7 @@ libssh2_listener_abstract(LIBSSH2_LISTENER *listener);
 
 *listener* - active remote socket listener to get a reference of the abstract value.
 
-
 # RETURN VALUE
 
-Returns a reference address of the abstract of a listener; allowing potentially 
+Returns a reference address of the abstract of a listener; allowing potentially
 overriding the existing value with a new value.
-

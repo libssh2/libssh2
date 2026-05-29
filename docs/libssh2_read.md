@@ -22,7 +22,7 @@ libssh2_read(LIBSSH2_SESSION *session);
 
 # DESCRIPTION
 
-Collect a packet into the input queue.  When using event callbacks, this will trigger 
+Collect a packet into the input queue.  When using event callbacks, this will trigger
 any queued events, possibly just
 stepping internal states, which create more data to write at the libssh2 level, beyond
 what the application layer cares about.
@@ -31,4 +31,3 @@ what the application layer cares about.
 
 Returns packet type added to input queue (0 if nothing added), or a
 negative error number.
-
