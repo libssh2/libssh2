@@ -3027,15 +3027,17 @@ int libssh2_channel_signal_ex(LIBSSH2_CHANNEL *channel,
     return rc;
 }
 
-void** libssh2_channel_abstract(LIBSSH2_CHANNEL* channel) {
+void **
+libssh2_channel_abstract(LIBSSH2_CHANNEL *channel) {
     return &channel->abstract;
 }
 
-libssh2_cb_generic* libssh2_channel_callback_set(LIBSSH2_CHANNEL *channel,
-                                                 int cbtype,
-                                                 libssh2_cb_generic* callback)
+libssh2_cb_generic *
+libssh2_channel_callback_set(LIBSSH2_CHANNEL *channel,
+                             int cbtype,
+                             libssh2_cb_generic *callback)
 {
-    libssh2_cb_generic* oldcb;
+    libssh2_cb_generic *oldcb;
 
     if(!channel)
         return NULL;

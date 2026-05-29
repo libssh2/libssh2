@@ -278,7 +278,7 @@ struct iovec {
                       channel, &(channel)->abstract)
 #define LIBSSH2_CHANNEL_EOF(session, channel) \
     channel->eof_cb(session, &(session)->abstract, \
-                    channel, &(channel)->abstract) 
+                    channel, &(channel)->abstract)
 #define LIBSSH2_CHANNEL_DATA(session, channel, stream, buffer, length) \
     channel->data_cb(session, &(session)->abstract, \
                      channel, &(channel)->abstract, stream, buffer, length)
