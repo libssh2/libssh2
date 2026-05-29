@@ -974,10 +974,6 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
     return rc < length ? LIBSSH2_ERROR_EAGAIN : LIBSSH2_ERROR_NONE;
 }
 
-int libssh2_read( LIBSSH2_SESSION *session ) {
-    return _libssh2_transport_read( session );
-}
-
 /*
  * Send a packet, encrypting it and adding a MAC code if necessary
  * Returns 0 on success, non-zero on failure.

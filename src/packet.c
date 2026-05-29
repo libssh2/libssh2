@@ -231,17 +231,10 @@ static inline int packet_queue_listener(
                     }
 
                     /* Link the channel into the end of the queue list */
-                    if( listen_state->channel ) {
-                        if( listn->connect_cb ) {
-                            /* add channel to session's channel list */
-                            // with callback then channel_forward_accept() doesn't need to be called, so just do the work it did.
-                            _libssh2_list_add( &channel->session->channels, &channel->node );
-                            LIBSSH2_LISTENER_CONNECT( session, listn, channel );
-                        } else {
-                            _libssh2_list_add( &listn->queue,
-                                &listen_state->channel->node );
-                            listn->queue_size++;
-                        }
+                    if(listen_state->channel) {
+                        _libssh2_list_add(&listn->queue,
+                                          &listen_state->channel->node);
+                        listn->queue_size++;
                     }
 
                     listen_state->state = libssh2_NB_state_idle;
@@ -1118,8 +1111,6 @@ libssh2_packet_add_jump_point1:
                                 channelp->local.id,
                                 channelp->remote.id));
                 channelp->remote.eof = 1;
-                if( channelp->eof_cb )
-                    LIBSSH2_CHANNEL_EOF( session, channelp );
             }
             LIBSSH2_FREE(session, data);
             session->packAdd_state = libssh2_NB_state_idle;
@@ -1285,9 +1276,6 @@ clean_exit:
 
             channelp->remote.close = 1;
             channelp->remote.eof = 1;
-            if( channelp->close_cb ) {
-                LIBSSH2_CHANNEL_CLOSE( session, channelp );
-            }
 
             LIBSSH2_FREE(session, data);
             session->packAdd_state = libssh2_NB_state_idle;
@@ -1410,26 +1398,7 @@ libssh2_packet_add_jump_authagent:
         packetp->data_len = datalen;
         packetp->data_head = data_head;
 
-        int rc_cb = 0;
-        if( channelp && channelp->data_cb )
-            if( channelp->close_state == libssh2_NB_state_idle ) { // not closed...
-                if( ( data[0] == SSH_MSG_CHANNEL_DATA ) || ( data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA ) ) {
-                    if( ( data[0] == SSH_MSG_CHANNEL_DATA ) ) {
-                        LIBSSH2_CHANNEL_DATA( session, channelp, 0, data + data_head, datalen - data_head );
-                    } else if( ( data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA ) ) {
-                        uint32_t sid = _libssh2_ntohu32( data + 5 );
-                        if( ( sid == SSH_EXTENDED_DATA_STDERR ) ) {
-                            LIBSSH2_CHANNEL_DATA( session, channelp, 1, data + data_head, datalen - data_head );
-                        }  if( ( channelp->remote.extended_data_ignore_mode ==
-                            LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE ) ) {
-                            LIBSSH2_CHANNEL_DATA( session, channelp, sid, data + data_head, datalen - data_head );
-                        }
-                    }
-                }
-            }
-        if( !rc_cb )
-            _libssh2_list_add(&session->packets, &packetp->node);
-        else LIBSSH2_FREE( session, packetp );
+        _libssh2_list_add(&session->packets, &packetp->node);
 
         session->packAdd_state = libssh2_NB_state_sent1;
     }

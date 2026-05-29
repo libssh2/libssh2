@@ -276,16 +276,6 @@ struct iovec {
 #define LIBSSH2_CHANNEL_CLOSE(session, channel) \
     channel->close_cb(session, &(session)->abstract, \
                       channel, &(channel)->abstract)
-#define LIBSSH2_CHANNEL_EOF(session, channel) \
-    ((channel->eof_cb)?channel->eof_cb((session), &(session)->abstract, \
-                      (channel), &(channel)->abstract):(void)0)
-#define LIBSSH2_CHANNEL_DATA(session, channel, stream, buffer, length) \
-    ((channel->data_cb)?channel->data_cb((session), &(session)->abstract, \
-                      (channel), &(channel)->abstract, stream, buffer, length):(void)0)
-
-#define LIBSSH2_LISTENER_CONNECT(session, listener, channel) \
-	((listener->connect_cb)?listener->connect_cb((session), &(session)->abstract, \
-					  (listener), &(listener)->abstract, (channel)):(void)0)
 
 #define LIBSSH2_SEND_FD(session, fd, buffer, length, flags) \
     ((session)->send)(fd, buffer, length, flags, &(session)->abstract)
@@ -474,8 +464,6 @@ struct _LIBSSH2_CHANNEL {
 
     void *abstract;
     LIBSSH2_CHANNEL_CLOSE_FUNC(*close_cb);
-    LIBSSH2_CHANNEL_DATA_FUNC(*data_cb);
-    LIBSSH2_CHANNEL_EOF_FUNC(*eof_cb);
 
     /* State variables used in libssh2_channel_setenv_ex() */
     libssh2_nonblocking_states setenv_state;
@@ -575,9 +563,6 @@ struct _LIBSSH2_LISTENER {
     libssh2_nonblocking_states chanFwdCncl_state;
     unsigned char *chanFwdCncl_data;
     size_t chanFwdCncl_data_len;
-
-    void* abstract;
-    LIBSSH2_LISTERNER_CONNECT_FUNC((*connect_cb));
 };
 
 struct endpoint_data {

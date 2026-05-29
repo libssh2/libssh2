@@ -57,13 +57,10 @@ endif()
 option(ENABLE_ZLIB_COMPRESSION "Use zlib for compression" OFF)
 add_feature_info("Compression" ENABLE_ZLIB_COMPRESSION "using zlib for compression")
 if(ENABLE_ZLIB_COMPRESSION)
-  list(APPEND libssh2_INCLUDE_DIRS ../../zlib-1.3)
-  list(APPEND libssh2_DEFINITIONS "LIBSSH2_HAVE_ZLIB")
-  #find_package(ZLIB REQUIRED)
+  find_package(ZLIB REQUIRED)
 
-  #list(APPEND LIBSSH2_LIBS ZLIB::ZLIB)
-  #set_target_properties(ZLIB::ZLIB PROPERTIES INTERFACE_LIBSSH2_PC_MODULES "zlib")
-  #list(APPEND _libssh2_definitions "LIBSSH2_HAVE_ZLIB")
+  list(APPEND LIBSSH2_LIBS ZLIB::ZLIB)
+  list(APPEND _libssh2_definitions "LIBSSH2_HAVE_ZLIB")
 endif()
 
 list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
@@ -151,9 +148,7 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 add_library(${PROJECT_NAME}::${LIB_NAME} ALIAS ${LIB_SELECTED})
-if(NOT ${LIB_NAME} STREQUAL ${LIB_SELECTED} )
 add_library(${LIB_NAME} ALIAS ${LIB_SELECTED})
-endif()
 
 ## Installation
 
