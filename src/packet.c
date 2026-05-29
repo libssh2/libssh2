@@ -1403,6 +1403,7 @@ libssh2_packet_add_jump_authagent:
     }
 
     if(session->packAdd_state == libssh2_NB_state_sent) {
+        int rc_cb;
         struct packet *packetp =
             LIBSSH2_ALLOC(session, sizeof(struct packet));
         if(!packetp) {
@@ -1415,8 +1416,7 @@ libssh2_packet_add_jump_authagent:
         packetp->data = data;
         packetp->data_len = datalen;
         packetp->data_head = data_head;
-
-        int rc_cb = 0;
+        rc_cb = 0;
         if(channelp && channelp->data_cb)
             if(channelp->close_state ==
                libssh2_NB_state_idle) { /* not closed... */
