@@ -324,6 +324,22 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
     void (name)(LIBSSH2_SESSION *session, void **session_abstract, \
                 LIBSSH2_CHANNEL *channel, void **channel_abstract)
 
+#define LIBSSH2_LISTENER_CONNECT_FUNC(name) \
+    void (name)(LIBSSH2_SESSION *session, void**session_abstract, \
+                LIBSSH2_LISTENER *listener, void **listener_abstract, \
+                LIBSSH2_CHANNEL* channel )
+
+#define LIBSSH2_CHANNEL_EOF_FUNC(name) \
+    void (name)(LIBSSH2_SESSION *session, void **session_abstract, \
+                LIBSSH2_CHANNEL *channel, void **channel_abstract)
+              
+#define LIBSSH2_CHANNEL_DATA_FUNC(name) \
+    void (name)(LIBSSH2_SESSION*session, void **session_abstract, \
+                LIBSSH2_CHANNEL*channel, void **channel_abstract, \
+                int stream,              \
+                const uint8_t*buffer,       \
+                size_t length)
+
 /* I/O callbacks */
 #define LIBSSH2_RECV_FUNC(name)                                         \
     ssize_t (name)(libssh2_socket_t socket,                             \
@@ -363,6 +379,14 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
 #define LIBSSH2_FLAG_SIGPIPE        1
 #define LIBSSH2_FLAG_COMPRESS       2
 #define LIBSSH2_FLAG_QUOTE_PATHS    3
+
+/* libssh2_channel_callback_set() constant */
+#define LIBSSH2_CALLBACK_CHANNEL_EOF   0
+#define LIBSSH2_CALLBACK_CHANNEL_CLOSE 1
+#define LIBSSH2_CALLBACK_CHANNEL_DATA  2
+
+/* libssh2_listener_callback_set() constant */
+#define LIBSSH2_CALLBACK_LISTENER_ACCEPT 0
 
 typedef struct _LIBSSH2_SESSION                     LIBSSH2_SESSION;
 typedef struct _LIBSSH2_CHANNEL                     LIBSSH2_CHANNEL;
@@ -765,6 +789,9 @@ LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds,
                              long timeout);
 #endif
 
+/* External read of any pending transport queued messages */
+LIBSSH2_API int libssh2_read( LIBSSH2_SESSION *session );
+
 /* Channel API */
 #define LIBSSH2_CHANNEL_WINDOW_DEFAULT  (2*1024*1024)
 #define LIBSSH2_CHANNEL_PACKET_DEFAULT  32768
@@ -791,6 +818,18 @@ libssh2_channel_open_ex(LIBSSH2_SESSION *session, const char *channel_type,
                             LIBSSH2_CHANNEL_WINDOW_DEFAULT, \
                             LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL, 0)
 
+/* Set callback function on channels */
+LIBSSH2_API libssh2_cb_generic*
+libssh2_channel_callback_set( LIBSSH2_CHANNEL* channel,
+    int cbtype,
+    libssh2_cb_generic* callback );
+
+/*
+ * gets the reference to abstract user data pointer from a channel;
+ * This allows changing the abstract user data content.
+ */
+LIBSSH2_API void** libssh2_channel_abstract( LIBSSH2_CHANNEL* channel );
+
 LIBSSH2_API LIBSSH2_CHANNEL *
 libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *session, const char *host,
                                 int port, const char *shost, int sport);
@@ -808,6 +847,17 @@ libssh2_channel_forward_listen_ex(LIBSSH2_SESSION *session, const char *host,
                                   int queue_maxsize);
 #define libssh2_channel_forward_listen(session, port) \
     libssh2_channel_forward_listen_ex(session, NULL, port, NULL, 16)
+
+/* Set callback function on listener */
+LIBSSH2_API libssh2_cb_generic* libssh2_listener_callback_set( LIBSSH2_LISTENER* listener,
+	int cbtype,
+	libssh2_cb_generic* callback );
+
+/*
+ * gets the reference to abstract user data pointer from a listener;
+ * This allows changing the abstract user data content.
+ */
+LIBSSH2_API void** libssh2_listener_abstract( LIBSSH2_LISTENER* listener );
 
 LIBSSH2_API int libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener);
 
