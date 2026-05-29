@@ -1294,7 +1294,7 @@ clean_exit:
             channelp->remote.eof = 1;
             if(channelp->close_cb)
                 LIBSSH2_CHANNEL_CLOSE(session, channelp);
- 
+
             LIBSSH2_FREE(session, data);
             session->packAdd_state = libssh2_NB_state_idle;
             return 0;

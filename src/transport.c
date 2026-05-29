@@ -974,7 +974,8 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
     return rc < length ? LIBSSH2_ERROR_EAGAIN : LIBSSH2_ERROR_NONE;
 }
 
-int libssh2_read(LIBSSH2_SESSION *session) {
+int libssh2_read(LIBSSH2_SESSION *session)
+{
     return _libssh2_transport_read(session);
 }
 

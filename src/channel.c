@@ -692,7 +692,8 @@ LIBSSH2_LISTENER *libssh2_channel_forward_listen_ex(LIBSSH2_SESSION *session,
 }
 
 LIBSSH2_API void **
-libssh2_listener_abstract(LIBSSH2_LISTENER *listener) {
+libssh2_listener_abstract(LIBSSH2_LISTENER *listener)
+{
     return &listener->abstract;
 }
 
@@ -3029,7 +3030,8 @@ int libssh2_channel_signal_ex(LIBSSH2_CHANNEL *channel,
 }
 
 void **
-libssh2_channel_abstract(LIBSSH2_CHANNEL *channel) {
+libssh2_channel_abstract(LIBSSH2_CHANNEL *channel)
+{
     return &channel->abstract;
 }
 
