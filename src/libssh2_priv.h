@@ -577,7 +577,7 @@ struct _LIBSSH2_LISTENER {
     unsigned char *chanFwdCncl_data;
     size_t chanFwdCncl_data_len;
 
-    void* abstract;
+    void *abstract;
     LIBSSH2_LISTENER_CONNECT_FUNC((*connect_cb));
 };
 

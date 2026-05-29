@@ -242,7 +242,8 @@ static inline int packet_queue_listener(
                             _libssh2_list_add(&channel->session->channels,
                                               &channel->node);
                             LIBSSH2_LISTENER_CONNECT(session, listn, channel);
-                        } else {
+                        }
+                        else {
                             _libssh2_list_add(&listn->queue,
                                 &listen_state->channel->node);
                             listn->queue_size++;
@@ -1435,7 +1436,7 @@ libssh2_packet_add_jump_authagent:
                                              datalen - data_head);
                     else if(data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) {
                         uint32_t sid = _libssh2_ntohu32(data + 5);
-                        if (channelp->remote.extended_data_ignore_mode ==
+                        if(channelp->remote.extended_data_ignore_mode ==
                             LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE)
                             LIBSSH2_CHANNEL_DATA(session, channelp, sid,
                                                  data + data_head,
@@ -1451,7 +1452,7 @@ libssh2_packet_add_jump_authagent:
         /*
          * default action, post to packet queue,
          *    otherwise it was already consumed
-         */ 
+         */
         if(!rc_cb)
             _libssh2_list_add(&session->packets, &packetp->node);
         else LIBSSH2_FREE(session, packetp);
