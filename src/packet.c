@@ -239,9 +239,11 @@ static inline int packet_queue_listener(
                              * doesn't need to be called, so just do the
                              * work it did.
                              */
-                            _libssh2_list_add(&listen_state->channel->session->channels,
-                                              &listen_state->channel->node);
-                            LIBSSH2_LISTENER_CONNECT(session, listn, listen_state->channel);
+                            _libssh2_list_add(
+                                &listen_state->channel->session->channels,
+                                &listen_state->channel->node);
+                            LIBSSH2_LISTENER_CONNECT(session, listn,
+                                                     listen_state->channel);
                         }
                         else {
                             _libssh2_list_add(&listn->queue,
