@@ -691,6 +691,25 @@ LIBSSH2_LISTENER *libssh2_channel_forward_listen_ex(LIBSSH2_SESSION *session,
     return ptr;
 }
 
+LIBSSH2_API void** libssh2_listener_abstract(LIBSSH2_LISTENER* listener) {
+    return &listener->abstract;
+}
+
+LIBSSH2_API
+libssh2_cb_generic* libssh2_listener_callback_set(LIBSSH2_LISTENER* listener,
+                                                  int callback,
+                                                  libssh2_cb_generic* f)
+{
+    libssh2_cb_generic* oldFunc = NULL;
+    switch(callback) {
+    case LIBSSH2_CALLBACK_LISTENER_ACCEPT:
+        oldFunc = (libssh2_cb_generic*)listener->connect_cb;
+        listener->connect_cb = (LIBSSH2_LISTENER_CONNECT_FUNC((*)))f;
+        break;
+    }
+    return oldFunc;
+}
+
 /*
  * Stop listening on a remote port and free the listener
  * Toss out any pending (un-accept()ed) connections
@@ -3006,4 +3025,37 @@ int libssh2_channel_signal_ex(LIBSSH2_CHANNEL *channel,
     BLOCK_ADJUST(rc, channel->session,
                  channel_signal(channel, signame, signame_len));
     return rc;
+}
+
+void** libssh2_channel_abstract(LIBSSH2_CHANNEL* channel) {
+    return &channel->abstract;
+}
+
+libssh2_cb_generic* libssh2_channel_callback_set(LIBSSH2_CHANNEL *channel,
+                                                 int cbtype,
+                                                 libssh2_cb_generic* callback)
+{
+    libssh2_cb_generic* oldcb;
+
+    if(!channel)
+        return NULL;
+
+    switch(cbtype) {
+    case LIBSSH2_CALLBACK_CHANNEL_EOF:
+        oldcb = (libssh2_cb_generic*)channel->close_cb;
+        channel->eof_cb = (LIBSSH2_CHANNEL_EOF_FUNC((*)))callback;
+        break;
+    case LIBSSH2_CALLBACK_CHANNEL_CLOSE:
+        oldcb = (libssh2_cb_generic*)channel->close_cb;
+        channel->close_cb = (LIBSSH2_CHANNEL_CLOSE_FUNC((*)))callback;
+        break;
+    case LIBSSH2_CALLBACK_CHANNEL_DATA:
+        oldcb = (libssh2_cb_generic*)channel->data_cb;
+        channel->data_cb = (LIBSSH2_CHANNEL_DATA_FUNC((*)))callback;
+        break;
+    default:
+        return NULL;
+    }
+
+    return oldcb;
 }
