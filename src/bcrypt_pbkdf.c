@@ -19,8 +19,6 @@
 
 #include "libssh2_priv.h"
 
-#ifndef HAVE_BCRYPT_PBKDF
-
 #include <stdlib.h>
 
 #define LIBSSH2_BCRYPT_PBKDF_C
@@ -50,13 +48,12 @@
  * wise caller could do; we just do it for you.
  */
 
-#define BCRYPT_BLOCKS 8
+#define BCRYPT_BLOCKS   8
 #define BCRYPT_HASHSIZE (BCRYPT_BLOCKS * 4)
 
-static void
-bcrypt_hash(uint8_t *sha2pass, uint8_t *sha2salt, uint8_t *out)
+static void bcrypt_hash(uint8_t *sha2pass, uint8_t *sha2salt, uint8_t *out)
 {
-    blf_ctx state;
+    struct blf_ctx state;
     uint8_t ciphertext[BCRYPT_HASHSIZE] = {
         'O', 'x', 'y', 'c', 'h', 'r', 'o', 'm', 'a', 't', 'i', 'c',
         'B', 'l', 'o', 'w', 'f', 'i', 's', 'h',
@@ -78,8 +75,7 @@ bcrypt_hash(uint8_t *sha2pass, uint8_t *sha2salt, uint8_t *out)
     /* encryption */
     j = 0;
     for(i = 0; i < BCRYPT_BLOCKS; i++)
-        cdata[i] = Blowfish_stream2word(ciphertext, sizeof(ciphertext),
-                                        &j);
+        cdata[i] = Blowfish_stream2word(ciphertext, sizeof(ciphertext), &j);
     for(i = 0; i < 64; i++)
         blf_enc(&state, cdata, BCRYPT_BLOCKS / 2);
 
@@ -97,10 +93,9 @@ bcrypt_hash(uint8_t *sha2pass, uint8_t *sha2salt, uint8_t *out)
     _libssh2_explicit_zero(&state, sizeof(state));
 }
 
-static int
-bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt,
-             size_t saltlen,
-             uint8_t *key, size_t keylen, unsigned int rounds)
+static int bcrypt_pbkdf(const char *pass, size_t passlen,
+                        const uint8_t *salt, size_t saltlen,
+                        uint8_t *key, size_t keylen, unsigned int rounds)
 {
     uint8_t sha2pass[SHA512_DIGEST_LENGTH];
     uint8_t sha2salt[SHA512_DIGEST_LENGTH];
@@ -115,8 +110,10 @@ bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt,
     /* nothing crazy */
     if(rounds < 1)
         return -1;
-    if(passlen == 0 || saltlen == 0 || keylen == 0 ||
-       keylen > sizeof(out) * sizeof(out) || saltlen > 1 << 20)
+    if(passlen == 0 || saltlen == 0 || keylen == 0)
+        return -1;
+    /* NOLINTNEXTLINE(bugprone-sizeof-expression) */
+    if(keylen > sizeof(out) * sizeof(out) || saltlen > 1 << 20)
         return -1;
     countsalt = calloc(1, saltlen + 4);
     if(!countsalt)
@@ -188,7 +185,6 @@ bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt,
 
     return 0;
 }
-#endif /* HAVE_BCRYPT_PBKDF */
 
 /* Wrapper */
 

@@ -36,10 +36,10 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-cmake_minimum_required(VERSION 3.7...3.16 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.18)
 message(STATUS "Using CMake version ${CMAKE_VERSION}")
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include(CheckFunctionExists)
 include(CheckSymbolExists)
@@ -293,18 +293,19 @@ endif()
 
 option(LIBSSH2_CLANG_TIDY "Run the build through clang-tidy" OFF)
 if(LIBSSH2_CLANG_TIDY)
-  set(CMAKE_UNITY_BUILD OFF)
-  set(_tidy_checks "")
-  list(APPEND _tidy_checks "-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling")
-  string(REPLACE ";" "," _tidy_checks "${_tidy_checks}")
   find_program(CLANG_TIDY NAMES "clang-tidy" REQUIRED)
-  set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY}" "-checks=${_tidy_checks}" "-quiet")
-  unset(_tidy_checks)
+  set(CMAKE_UNITY_BUILD OFF)
+  if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
+    set(PICKY_COMPILER OFF)  # Do a best effort and skip passing non-clang warning options to clang-tidy.
+  endif()
+  set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY}")
+  list(APPEND CMAKE_C_CLANG_TIDY "--config-file=${PROJECT_SOURCE_DIR}/.clang-tidy.yml")
   if(ENABLE_WERROR)
     list(APPEND CMAKE_C_CLANG_TIDY "--warnings-as-errors=*")
   endif()
   if(LIBSSH2_CLANG_TIDYFLAGS)
-    list(APPEND CMAKE_C_CLANG_TIDY ${LIBSSH2_CLANG_TIDYFLAGS})
+    string(REPLACE " " ";" _tidy_flags_list "${LIBSSH2_CLANG_TIDYFLAGS}")
+    list(APPEND CMAKE_C_CLANG_TIDY ${_tidy_flags_list})
   endif()
 endif()
 
@@ -426,7 +427,7 @@ configure_file("src/libssh2_config_cmake.h.in"
 set(__runtime_dependencies "")
 
 set(CRYPTO_BACKEND "" CACHE
-  STRING "The backend to use for cryptography: OpenSSL, wolfSSL, Libgcrypt, WinCNG, mbedTLS, or empty to try any available")
+  STRING "The backend to use for cryptography: Libgcrypt, mbedTLS, OpenSSL, WinCNG, wolfSSL, or empty to try any available")
 
 # If the crypto backend was given, rather than searching for the first
 # we are able to find, the find_package commands must abort configuration
@@ -441,7 +442,13 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND AND NOT CRYPTO_NO_OPE
     set(CRYPTO_BACKEND "OpenSSL")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_OPENSSL")
     list(APPEND LIBSSH2_LIBS OpenSSL::Crypto)
-    set_target_properties(OpenSSL::Crypto PROPERTIES INTERFACE_LIBSSH2_PC_MODULES "libcrypto")
+
+    if(NOT DEFINED HAVE_BORINGSSL)
+      cmake_push_check_state()
+      list(APPEND CMAKE_REQUIRED_LIBRARIES OpenSSL::Crypto)
+      check_symbol_exists("OPENSSL_IS_BORINGSSL" "openssl/base.h" HAVE_BORINGSSL)
+      cmake_pop_check_state()
+    endif()
 
     if(WIN32)
       # Statically linking to OpenSSL requires crypt32 for some Windows APIs.
@@ -499,6 +506,9 @@ endif()
 if(CRYPTO_BACKEND STREQUAL "mbedTLS" )
   find_package(MbedTLS ${_specific_crypto_requirement})
   if(MBEDTLS_FOUND)
+    if(MBEDTLS_VERSION VERSION_LESS 3.1.0)
+      message(FATAL_ERROR "mbedTLS v3.1.0 or upper required.")
+    endif()
     set(CRYPTO_BACKEND "mbedTLS")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_MBEDTLS")
     list(APPEND LIBSSH2_LIBS libssh2::mbedcrypto)
@@ -567,8 +577,18 @@ if(LIBSSH2_BUILD_TESTING)
 endif()
 
 option(LINT "Check style while building" OFF)
+option(LIBSSH2_BUILD_DOCS "Build man pages" ON)
+
+if(LINT OR LIBSSH2_BUILD_DOCS)
+  find_package(Perl)
+endif()
+
 if(LINT)
-  add_custom_target(lint ALL "./ci/checksrc.sh" WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+  add_custom_target(lint ALL
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    COMMAND "${PERL_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/scripts/checksrc-all.pl"
+    DEPENDS "${PROJECT_SOURCE_DIR}/scripts/checksrc-all.pl" "${PROJECT_SOURCE_DIR}/scripts/checksrc.pl"
+  )
   if(BUILD_STATIC_LIBS)
     add_dependencies(${LIB_STATIC} lint)
   else()
@@ -576,10 +596,8 @@ if(LINT)
   endif()
 endif()
 
-option(LIBSSH2_BUILD_DOCS "Build man pages" ON)
 set(_build_docs FALSE)
 if(LIBSSH2_BUILD_DOCS)
-  find_package(Perl)
   if(PERL_FOUND)
     set(_build_docs TRUE)
     add_subdirectory(docs)

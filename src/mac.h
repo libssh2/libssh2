@@ -41,8 +41,7 @@
 
 #include "libssh2_priv.h"
 
-struct _LIBSSH2_MAC_METHOD
-{
+struct mac_method {
     const char *name;
 
     /* The length of a given MAC packet */
@@ -52,21 +51,19 @@ struct _LIBSSH2_MAC_METHOD
     int key_len;
 
     /* Message Authentication Code Hashing algo */
-    int (*init) (LIBSSH2_SESSION * session, unsigned char *key, int *free_key,
-                 void **abstract);
-    int (*hash) (LIBSSH2_SESSION * session, unsigned char *buf,
-                 uint32_t seqno, const unsigned char *packet,
-                 size_t packet_len, const unsigned char *addtl,
-                 size_t addtl_len, void **abstract);
-    int (*dtor) (LIBSSH2_SESSION * session, void **abstract);
+    int (*init)(LIBSSH2_SESSION *session, unsigned char *key, int *free_key,
+                void **abstract);
+    int (*hash)(LIBSSH2_SESSION *session, unsigned char *buf,
+                uint32_t seqno, const unsigned char *packet,
+                size_t packet_len, const unsigned char *addtl,
+                size_t addtl_len, void **abstract);
+    int (*dtor)(LIBSSH2_SESSION *session, void **abstract);
 
     int etm; /* encrypt-then-mac */
 };
 
-typedef struct _LIBSSH2_MAC_METHOD LIBSSH2_MAC_METHOD;
-
-const LIBSSH2_MAC_METHOD **_libssh2_mac_methods(void);
-const LIBSSH2_MAC_METHOD *_libssh2_mac_override(
-        const LIBSSH2_CRYPT_METHOD *crypt);
+const struct mac_method **_libssh2_mac_methods(void);
+const struct mac_method *_libssh2_mac_override(
+    const struct crypt_method *crypt);
 
 #endif /* LIBSSH2_MAC_H */

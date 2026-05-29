@@ -18,11 +18,14 @@ concurrency:
 
 permissions: {}
 
+env:
+  DO_NOT_TRACK: '1'
+
 jobs:
   Fuzzing:
     name: 'Fuzzing'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
     steps:
     - name: 'Build Fuzzers'
       id: build
@@ -39,7 +42,7 @@ jobs:
         dry-run: false
         language: c
     - name: 'Upload Crash'
-      uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       if: ${{ failure() && steps.build.outcome == 'success' }}
       with:
         name: artifacts

@@ -68,21 +68,17 @@ struct sftp_zombie_requests {
     uint32_t request_id;
 };
 
-struct _LIBSSH2_SFTP_PACKET
-{
+struct sftp_packet {
     struct list_node node;   /* linked list header */
     uint32_t request_id;
     unsigned char *data;
     size_t data_len;              /* payload size */
 };
 
-typedef struct _LIBSSH2_SFTP_PACKET LIBSSH2_SFTP_PACKET;
-
 /* Increasing from 256 to 4092 since OpenSSH doesn't honor it. */
 #define SFTP_HANDLE_MAXLEN 4092 /* according to spec, this should be 256! */
 
-struct _LIBSSH2_SFTP_HANDLE
-{
+struct _LIBSSH2_SFTP_HANDLE {
     struct list_node node;
 
     LIBSSH2_SFTP *sftp;
@@ -95,10 +91,8 @@ struct _LIBSSH2_SFTP_HANDLE
         LIBSSH2_SFTP_HANDLE_DIR
     } handle_type;
 
-    union _libssh2_sftp_handle_data
-    {
-        struct _libssh2_sftp_handle_file_data
-        {
+    union libssh2_sftp_handle_data {
+        struct libssh2_sftp_handle_file_data {
             libssh2_uint64_t offset;
             libssh2_uint64_t offset_sent;
             size_t acked; /* container for acked data that hasn't been
@@ -115,8 +109,7 @@ struct _LIBSSH2_SFTP_HANDLE
 
             char eof; /* we have read to the end */
         } file;
-        struct _libssh2_sftp_handle_dir_data
-        {
+        struct libssh2_sftp_handle_dir_data {
             uint32_t names_left;
             void *names_packet;
             char *next_name;
@@ -131,11 +124,9 @@ struct _LIBSSH2_SFTP_HANDLE
 
     /* list of outstanding packets sent to server */
     struct list_head packet_list;
-
 };
 
-struct _LIBSSH2_SFTP
-{
+struct _LIBSSH2_SFTP {
     LIBSSH2_CHANNEL *channel;
 
     uint32_t request_id, version, posix_rename_version;

@@ -9,7 +9,6 @@ SCRIPTDIR=$(dirname "${0}")
 . "${SCRIPTDIR}/initscript.sh"
 cd "${TOPDIR}/include" || exit 1
 
-
 #       Create the OS/400 source program file for the header files.
 
 SRCPF="${LIBIFSNAME}/H.FILE"
@@ -20,7 +19,6 @@ then    CMD="CRTSRCPF FILE(${TARGETLIB}/H) RCDLEN(112)"
         system "${CMD}"
 fi
 
-
 #       Create the IFS directory for the header files.
 
 IFSINCLUDE="${IFSDIR}/include"
@@ -28,7 +26,6 @@ IFSINCLUDE="${IFSDIR}/include"
 if action_needed "${IFSINCLUDE}"
 then    mkdir -p "${IFSINCLUDE}"
 fi
-
 
 copy_hfile()
 

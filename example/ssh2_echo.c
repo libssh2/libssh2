@@ -8,11 +8,20 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#define LIBSSH2_DISABLE_DEPRECATION  /* FIXME */
+
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
+#include <stdio.h>
+
+#ifndef LIBSSH2_NO_DEPRECATED
+
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
 #endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -23,8 +32,10 @@
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>  /* for timeval */
+#endif
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -70,8 +81,6 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
     return rc;
 }
 
-#define BUFSIZE 32000
-
 int main(int argc, char *argv[])
 {
     uint32_t hostaddr;
@@ -82,7 +91,6 @@ int main(int argc, char *argv[])
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
     int exitcode = 0;
-    char *exitsignal = NULL;
     size_t len;
     LIBSSH2_KNOWNHOSTS *nh;
     int type;
@@ -127,7 +135,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
+    if(connect(sock, (struct sockaddr *)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect.\n");
         goto shutdown;
     }
@@ -146,7 +154,8 @@ int main(int argc, char *argv[])
      * and setup crypto, compression, and MAC layers
      */
     while((rc = libssh2_session_handshake(session, sock)) ==
-          LIBSSH2_ERROR_EAGAIN);
+          LIBSSH2_ERROR_EAGAIN)
+        ;
     if(rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
         goto shutdown;
@@ -193,7 +202,8 @@ int main(int argc, char *argv[])
     if(strlen(password) != 0) {
         /* We could authenticate via password */
         while((rc = libssh2_userauth_password(session, username, password)) ==
-              LIBSSH2_ERROR_EAGAIN);
+              LIBSSH2_ERROR_EAGAIN)
+            ;
         if(rc) {
             fprintf(stderr, "Authentication by password failed.\n");
             return 1;
@@ -226,16 +236,17 @@ int main(int argc, char *argv[])
     else {
         LIBSSH2_POLLFD *fds = NULL;
         int running = 1;
-        size_t bufsize = BUFSIZE;
-        char buffer[BUFSIZE];
+        char buffer[32000];
+        size_t bufsize = sizeof(buffer);
         size_t totsize = 1500000;
         size_t totwritten = 0;
         size_t totread = 0;
         int rereads = 0;
         int rewrites = 0;
-        int i;
+        char *exitsignal = NULL;
+        size_t i;
 
-        for(i = 0; i < BUFSIZE; i++)
+        for(i = 0; i < sizeof(buffer); i++)
             buffer[i] = 'A';
 
         fds = malloc(sizeof(LIBSSH2_POLLFD));
@@ -379,3 +390,13 @@ shutdown:
 
     return exitcode;
 }
+
+#else
+
+int main(void)
+{
+    printf("Required deprecated libssh2 API not built in.\n");
+    return 1;
+}
+
+#endif /* !LIBSSH2_NO_DEPRECATED */

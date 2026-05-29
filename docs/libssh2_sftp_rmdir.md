@@ -19,7 +19,7 @@ libssh2_sftp_rmdir - convenience macro for *libssh2_sftp_rmdir_ex(3)*
 #include <libssh2_sftp.h>
 
 #define libssh2_sftp_rmdir(sftp, path) \
-    libssh2_sftp_rmdir_ex((sftp), (path), strlen(path))
+    libssh2_sftp_rmdir_ex(sftp, path, strlen(path))
 ~~~
 
 # DESCRIPTION

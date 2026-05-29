@@ -91,6 +91,7 @@
 # define LIBSSH2_ECDSA          0
 #endif
 #define LIBSSH2_ED25519         0
+#define LIBSSH2_MLKEM           0
 
 #include "crypto_config.h"
 
@@ -104,22 +105,17 @@
 
 #define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 
-
 /*******************************************************************/
 /*
  * mbedTLS backend: Generic functions
  */
 
-#define libssh2_crypto_init() \
-    _libssh2_mbedtls_init()
-#define libssh2_crypto_exit() \
-    _libssh2_mbedtls_free()
+#define libssh2_crypto_init() _libssh2_mbedtls_init()
+#define libssh2_crypto_exit() _libssh2_mbedtls_free()
 
-#define _libssh2_random(buf, len) \
-    _libssh2_mbedtls_random(buf, len)
+#define _libssh2_random(buf, len) _libssh2_mbedtls_random(buf, len)
 
 #define libssh2_prepare_iovec(vec, len)  /* Empty. */
-
 
 /*******************************************************************/
 /*
@@ -127,7 +123,6 @@
  */
 
 #define libssh2_hmac_ctx    mbedtls_md_context_t
-
 
 /*******************************************************************/
 /*
@@ -139,12 +134,11 @@
 #define libssh2_sha1_init(pctx) \
     _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA1, NULL, 0)
 #define libssh2_sha1_update(ctx, data, datalen) \
-    (mbedtls_md_update(&ctx, (const unsigned char *) data, datalen) == 0)
+    (mbedtls_md_update(&(ctx), (const unsigned char *)(data), datalen) == 0)
 #define libssh2_sha1_final(ctx, hash) \
-    _libssh2_mbedtls_hash_final(&ctx, hash)
+    _libssh2_mbedtls_hash_final(&(ctx), hash)
 #define libssh2_sha1(data, datalen, hash) \
     _libssh2_mbedtls_hash(data, datalen, MBEDTLS_MD_SHA1, hash)
-
 
 /*******************************************************************/
 /*
@@ -156,12 +150,11 @@
 #define libssh2_sha256_init(pctx) \
     _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA256, NULL, 0)
 #define libssh2_sha256_update(ctx, data, datalen) \
-    (mbedtls_md_update(&ctx, (const unsigned char *) data, datalen) == 0)
+    (mbedtls_md_update(&(ctx), (const unsigned char *)(data), datalen) == 0)
 #define libssh2_sha256_final(ctx, hash) \
-    _libssh2_mbedtls_hash_final(&ctx, hash)
+    _libssh2_mbedtls_hash_final(&(ctx), hash)
 #define libssh2_sha256(data, datalen, hash) \
     _libssh2_mbedtls_hash(data, datalen, MBEDTLS_MD_SHA256, hash)
-
 
 /*******************************************************************/
 /*
@@ -173,12 +166,11 @@
 #define libssh2_sha384_init(pctx) \
     _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA384, NULL, 0)
 #define libssh2_sha384_update(ctx, data, datalen) \
-    (mbedtls_md_update(&ctx, (const unsigned char *) data, datalen) == 0)
+    (mbedtls_md_update(&(ctx), (const unsigned char *)(data), datalen) == 0)
 #define libssh2_sha384_final(ctx, hash) \
-    _libssh2_mbedtls_hash_final(&ctx, hash)
+    _libssh2_mbedtls_hash_final(&(ctx), hash)
 #define libssh2_sha384(data, datalen, hash) \
     _libssh2_mbedtls_hash(data, datalen, MBEDTLS_MD_SHA384, hash)
-
 
 /*******************************************************************/
 /*
@@ -190,12 +182,11 @@
 #define libssh2_sha512_init(pctx) \
     _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA512, NULL, 0)
 #define libssh2_sha512_update(ctx, data, datalen) \
-    (mbedtls_md_update(&ctx, (const unsigned char *) data, datalen) == 0)
+    (mbedtls_md_update(&(ctx), (const unsigned char *)(data), datalen) == 0)
 #define libssh2_sha512_final(ctx, hash) \
-    _libssh2_mbedtls_hash_final(&ctx, hash)
+    _libssh2_mbedtls_hash_final(&(ctx), hash)
 #define libssh2_sha512(data, datalen, hash) \
     _libssh2_mbedtls_hash(data, datalen, MBEDTLS_MD_SHA512, hash)
-
 
 /*******************************************************************/
 /*
@@ -208,9 +199,9 @@
 #define libssh2_md5_init(pctx) \
     _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_MD5, NULL, 0)
 #define libssh2_md5_update(ctx, data, datalen) \
-    (mbedtls_md_update(&ctx, (const unsigned char *) data, datalen) == 0)
+    (mbedtls_md_update(&(ctx), (const unsigned char *)(data), datalen) == 0)
 #define libssh2_md5_final(ctx, hash) \
-    _libssh2_mbedtls_hash_final(&ctx, hash)
+    _libssh2_mbedtls_hash_final(&(ctx), hash)
 #endif
 
 /*******************************************************************/
@@ -241,7 +232,6 @@
 #define _libssh2_rsa_sha2_sign(s, rsactx, hash, hash_len, sig, sig_len) \
     _libssh2_mbedtls_rsa_sha2_sign(s, rsactx, hash, hash_len, sig, sig_len)
 
-
 #define _libssh2_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len) \
     _libssh2_mbedtls_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len)
 
@@ -250,7 +240,6 @@
 
 #define _libssh2_rsa_free(rsactx) \
     _libssh2_mbedtls_rsa_free(rsactx)
-
 
 /*******************************************************************/
 /*
@@ -277,11 +266,10 @@ typedef enum {
 #endif
 } libssh2_curve_type;
 
-# define _libssh2_ec_key mbedtls_ecp_keypair
+# define libssh2_ec_key mbedtls_ecp_keypair
 #else
-# define _libssh2_ec_key void
+# define libssh2_ec_key void
 #endif /* LIBSSH2_ECDSA */
-
 
 /*******************************************************************/
 /*
@@ -325,7 +313,6 @@ typedef enum {
 
 #endif /* LIBSSH2_ECDSA */
 
-
 /*******************************************************************/
 /*
  * mbedTLS backend: Key functions
@@ -342,31 +329,29 @@ typedef enum {
     _libssh2_mbedtls_sk_pub_keyfilememory(s, m, m_len, p, p_len, alg, app, \
                                           f, kh, kh_len, pk, pk_len, pw)
 
-
 /*******************************************************************/
 /*
  * mbedTLS backend: Cipher Context structure
  */
 
-#define _libssh2_cipher_ctx         mbedtls_cipher_context_t
+#define libssh2_cipher_ctx        mbedtls_cipher_context_t
 
-#define _libssh2_cipher_type(algo)  mbedtls_cipher_type_t algo
+#define LIBSSH2_CIPHER_T(algo)    mbedtls_cipher_type_t algo
 
-#define _libssh2_cipher_aes256ctr MBEDTLS_CIPHER_AES_256_CTR
-#define _libssh2_cipher_aes192ctr MBEDTLS_CIPHER_AES_192_CTR
-#define _libssh2_cipher_aes128ctr MBEDTLS_CIPHER_AES_128_CTR
-#define _libssh2_cipher_aes256    MBEDTLS_CIPHER_AES_256_CBC
-#define _libssh2_cipher_aes192    MBEDTLS_CIPHER_AES_192_CBC
-#define _libssh2_cipher_aes128    MBEDTLS_CIPHER_AES_128_CBC
+#define libssh2_cipher_aes256ctr  MBEDTLS_CIPHER_AES_256_CTR
+#define libssh2_cipher_aes192ctr  MBEDTLS_CIPHER_AES_192_CTR
+#define libssh2_cipher_aes128ctr  MBEDTLS_CIPHER_AES_128_CTR
+#define libssh2_cipher_aes256     MBEDTLS_CIPHER_AES_256_CBC
+#define libssh2_cipher_aes192     MBEDTLS_CIPHER_AES_192_CBC
+#define libssh2_cipher_aes128     MBEDTLS_CIPHER_AES_128_CBC
 #ifdef MBEDTLS_CIPHER_BLOWFISH_CBC
-#define _libssh2_cipher_blowfish  MBEDTLS_CIPHER_BLOWFISH_CBC
+#define libssh2_cipher_blowfish   MBEDTLS_CIPHER_BLOWFISH_CBC
 #endif
 #ifdef MBEDTLS_CIPHER_ARC4_128
-#define _libssh2_cipher_arcfour   MBEDTLS_CIPHER_ARC4_128
+#define libssh2_cipher_arcfour    MBEDTLS_CIPHER_ARC4_128
 #endif
-#define _libssh2_cipher_3des      MBEDTLS_CIPHER_DES_EDE3_CBC
-#define _libssh2_cipher_chacha20  MBEDTLS_CIPHER_CHACHA20_POLY1305
-
+#define libssh2_cipher_3des       MBEDTLS_CIPHER_DES_EDE3_CBC
+#define libssh2_cipher_chacha20   MBEDTLS_CIPHER_CHACHA20_POLY1305
 
 /*******************************************************************/
 /*
@@ -380,17 +365,16 @@ typedef enum {
 #define _libssh2_cipher_dtor(ctx) \
     _libssh2_mbedtls_cipher_dtor(ctx)
 
-
 /*******************************************************************/
 /*
  * mbedTLS backend: BigNumber Support
  */
 
-#define _libssh2_bn_ctx int /* not used */
+#define libssh2_bn_ctx int /* not used */
 #define _libssh2_bn_ctx_new() 0 /* not used */
 #define _libssh2_bn_ctx_free(bnctx) ((void)0) /* not used */
 
-#define _libssh2_bn mbedtls_mpi
+#define libssh2_bn mbedtls_mpi
 
 #define _libssh2_bn_init() \
     _libssh2_mbedtls_bignum_init()
@@ -409,7 +393,6 @@ typedef enum {
 #define _libssh2_bn_free(bn) \
     _libssh2_mbedtls_bignum_free(bn)
 
-
 /*******************************************************************/
 /*
  * mbedTLS backend: Diffie-Hellman support.
@@ -423,7 +406,7 @@ typedef enum {
 
 #define LIBSSH2_DH_MAX_MODULUS_BITS 16384
 
-#define _libssh2_dh_ctx mbedtls_mpi *
+#define libssh2_dh_ctx mbedtls_mpi *
 #define libssh2_dh_init(dhctx) _libssh2_dh_init(dhctx)
 #define libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
     _libssh2_dh_key_pair(dhctx, public, g, p, group_order)
@@ -431,65 +414,48 @@ typedef enum {
     _libssh2_dh_secret(dhctx, secret, f, p)
 #define libssh2_dh_dtor(dhctx) _libssh2_dh_dtor(dhctx)
 
-
 /*******************************************************************/
 /*
  * mbedTLS backend: forward declarations
  */
 
-void
-_libssh2_mbedtls_init(void);
+void _libssh2_mbedtls_init(void);
 
-void
-_libssh2_mbedtls_free(void);
+void _libssh2_mbedtls_free(void);
 
-int
-_libssh2_mbedtls_random(unsigned char *buf, size_t len);
+int _libssh2_mbedtls_random(unsigned char *buf, size_t len);
 
-void
-_libssh2_mbedtls_cipher_dtor(_libssh2_cipher_ctx *ctx);
+void _libssh2_mbedtls_cipher_dtor(libssh2_cipher_ctx *ctx);
 
-int
-_libssh2_mbedtls_hash_init(mbedtls_md_context_t *ctx,
-                           mbedtls_md_type_t mdtype,
-                           const unsigned char *key, size_t keylen);
+int _libssh2_mbedtls_hash_init(mbedtls_md_context_t *ctx,
+                               mbedtls_md_type_t mdtype,
+                               const unsigned char *key, size_t keylen);
 
-int
-_libssh2_mbedtls_hash_final(mbedtls_md_context_t *ctx, unsigned char *hash);
-int
-_libssh2_mbedtls_hash(const unsigned char *data, size_t datalen,
-                      mbedtls_md_type_t mdtype, unsigned char *hash);
+int _libssh2_mbedtls_hash_final(mbedtls_md_context_t *ctx,
+                                unsigned char *hash);
+int _libssh2_mbedtls_hash(const unsigned char *data, size_t datalen,
+                          mbedtls_md_type_t mdtype, unsigned char *hash);
 
-_libssh2_bn *
-_libssh2_mbedtls_bignum_init(void);
+libssh2_bn *_libssh2_mbedtls_bignum_init(void);
 
-void
-_libssh2_mbedtls_bignum_free(_libssh2_bn *bn);
+void _libssh2_mbedtls_bignum_free(libssh2_bn *bn);
 
-void
-_libssh2_mbedtls_rsa_free(libssh2_rsa_ctx *rsa);
+void _libssh2_mbedtls_rsa_free(libssh2_rsa_ctx *ctx);
 
 #if LIBSSH2_ECDSA
-libssh2_curve_type
-_libssh2_mbedtls_ecdsa_key_get_curve_type(libssh2_ecdsa_ctx *ctx);
-int
-_libssh2_mbedtls_ecdsa_curve_type_from_name(const char *name,
-                                            libssh2_curve_type *type);
-void
-_libssh2_mbedtls_ecdsa_free(libssh2_ecdsa_ctx *ctx);
+libssh2_curve_type _libssh2_mbedtls_ecdsa_key_get_curve_type(
+    libssh2_ecdsa_ctx *ctx);
+int _libssh2_mbedtls_ecdsa_curve_type_from_name(const char *name,
+                                                libssh2_curve_type *out_type);
+void _libssh2_mbedtls_ecdsa_free(libssh2_ecdsa_ctx *ctx);
 #endif /* LIBSSH2_ECDSA */
 
-extern void
-_libssh2_init_aes_ctr(void);
-extern void
-_libssh2_dh_init(_libssh2_dh_ctx *dhctx);
-extern int
-_libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
-                     _libssh2_bn *g, _libssh2_bn *p, int group_order);
-extern int
-_libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
-                   _libssh2_bn *f, _libssh2_bn *p);
-extern void
-_libssh2_dh_dtor(_libssh2_dh_ctx *dhctx);
+void _libssh2_init_aes_ctr(void);
+void _libssh2_dh_init(libssh2_dh_ctx *dhctx);
+int _libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
+                         libssh2_bn *g, libssh2_bn *p, int group_order);
+int _libssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
+                       libssh2_bn *f, libssh2_bn *p);
+void _libssh2_dh_dtor(libssh2_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_MBEDTLS_H */

@@ -41,7 +41,6 @@ $!
 $exit
 $endsubroutine
 
-
 $Make: subroutine
 $!
 $ set noon
@@ -64,7 +63,6 @@ $End:
 $ delete objdir:'what'.obj;*
 $exit
 $endsubroutine
-
 
 $Init:
 $!

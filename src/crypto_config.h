@@ -45,6 +45,11 @@
 #define LIBSSH2_ED25519 0
 #endif
 
+#ifdef LIBSSH2_NO_MLKEM
+#undef LIBSSH2_MLKEM
+#define LIBSSH2_MLKEM 0
+#endif
+
 #ifdef LIBSSH2_NO_AES_CTR
 #undef LIBSSH2_AES_CTR
 #define LIBSSH2_AES_CTR 0

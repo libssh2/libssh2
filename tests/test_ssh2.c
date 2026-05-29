@@ -34,7 +34,7 @@ static const char *password = "password";
 static void portable_sleep(unsigned int seconds)
 {
 #ifdef _WIN32
-    Sleep(seconds);
+    Sleep(seconds * 1000);
 #else
     sleep(seconds);
 #endif
@@ -45,6 +45,7 @@ int main(int argc, char *argv[])
     uint32_t hostaddr;
     libssh2_socket_t sock;
     int i, auth_pw = 0;
+    int connected = 0;
     struct sockaddr_in sin;
     const char *fingerprint;
     char *userauthlist;
@@ -66,11 +67,11 @@ int main(int argc, char *argv[])
     (void)argc;
     (void)argv;
 
-    #ifdef _WIN32
-    #define LIBSSH2_FALLBACK_USER_ENV "USERNAME"
-    #else
-    #define LIBSSH2_FALLBACK_USER_ENV "LOGNAME"
-    #endif
+#ifdef _WIN32
+#define LIBSSH2_FALLBACK_USER_ENV "USERNAME"
+#else
+#define LIBSSH2_FALLBACK_USER_ENV "LOGNAME"
+#endif
 
     if(getenv("USER"))
         username = getenv("USER");
@@ -108,20 +109,20 @@ int main(int argc, char *argv[])
     sin.sin_addr.s_addr = hostaddr;
 
     for(counter = 0; counter < 3; ++counter) {
-        if(connect(sock, (struct sockaddr*)(&sin),
+        if(connect(sock, (struct sockaddr *)(&sin),
                    sizeof(struct sockaddr_in))) {
             fprintf(stderr,
                     "Connection to %s:%d attempt #%d failed: retrying...\n",
                     hostname, port_number, counter);
-            portable_sleep(1 + 2*counter);
+            portable_sleep(1 + 2 * counter);
         }
         else {
+            connected = 1;
             break;
         }
     }
-    if(sock == LIBSSH2_INVALID_SOCKET) {
-        fprintf(stderr, "Failed to connect to %s:%d\n",
-                hostname, port_number);
+    if(!connected) {
+        fprintf(stderr, "Failed to connect to %s:%d\n", hostname, port_number);
         goto shutdown;
     }
 

@@ -85,10 +85,6 @@ if(WOLFSSL_FOUND)
     mark_as_advanced(MATH_LIBRARY)
   endif()
 
-  if(CMAKE_VERSION VERSION_LESS 3.13)
-    link_directories(${_wolfssl_LIBRARY_DIRS})
-  endif()
-
   if(NOT TARGET libssh2::wolfssl)
     add_library(libssh2::wolfssl INTERFACE IMPORTED)
     set_target_properties(libssh2::wolfssl PROPERTIES

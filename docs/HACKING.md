@@ -10,8 +10,8 @@ SPDX-License-Identifier: BSD-3-Clause
 - spaces-only (no tabs)
 - open braces on the if/for line:
 
-  ```
-  if (banana) {
+  ```c
+  if(banana) {
       go_nuts();
   }
   ```

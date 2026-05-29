@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
+    if(connect(sock, (struct sockaddr *)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect.\n");
         goto shutdown;
     }
@@ -117,7 +117,8 @@ int main(int argc, char *argv[])
      * and setup crypto, compression, and MAC layers
      */
     while((rc = libssh2_session_handshake(session, sock)) ==
-          LIBSSH2_ERROR_EAGAIN);
+          LIBSSH2_ERROR_EAGAIN)
+        ;
     if(rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
         goto shutdown;
@@ -138,7 +139,8 @@ int main(int argc, char *argv[])
     if(auth_pw) {
         /* We could authenticate via password */
         while((rc = libssh2_userauth_password(session, username, password)) ==
-              LIBSSH2_ERROR_EAGAIN);
+              LIBSSH2_ERROR_EAGAIN)
+            ;
         if(rc) {
             fprintf(stderr, "Authentication by password failed.\n");
             goto shutdown;
@@ -149,7 +151,8 @@ int main(int argc, char *argv[])
         while((rc = libssh2_userauth_publickey_fromfile(session, username,
                                                         pubkey, privkey,
                                                         password)) ==
-              LIBSSH2_ERROR_EAGAIN);
+              LIBSSH2_ERROR_EAGAIN)
+            ;
         if(rc) {
             fprintf(stderr, "Authentication by public key failed.\n");
             goto shutdown;
@@ -186,7 +189,8 @@ int main(int argc, char *argv[])
 
         /* loop until we fail */
         while((rc = libssh2_sftp_readdir(sftp_handle, mem, sizeof(mem),
-                                         &attrs)) == LIBSSH2_ERROR_EAGAIN);
+                                         &attrs)) == LIBSSH2_ERROR_EAGAIN)
+            ;
         if(rc > 0) {
             /* rc is the length of the file name in the mem
                buffer */
@@ -201,7 +205,7 @@ int main(int argc, char *argv[])
             }
 
             if(attrs.flags & LIBSSH2_SFTP_ATTR_UIDGID) {
-                printf("%4d %4d ", (int) attrs.uid, (int) attrs.gid);
+                printf("%4d %4d ", (int)attrs.uid, (int)attrs.gid);
             }
             else {
                 printf("   -    - ");

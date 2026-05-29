@@ -8,12 +8,15 @@
 
 #ifdef _WIN32
 #include <ws2tcpip.h>  /* for socklen_t */
-#define recv(s, b, l, f)  recv((s), (b), (int)(l), (f))
-#define send(s, b, l, f)  send((s), (b), (int)(l), (f))
+#define recv(s, b, l, f)  recv(s, b, (int)(l), f)
+#define send(s, b, l, f)  send(s, b, (int)(l), f)
 #endif
 
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
 #endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -23,6 +26,9 @@
 #endif
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
+#endif
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>  /* for timeval */
 #endif
 
 #include <stdio.h>
@@ -117,7 +123,7 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
     sin.sin_port = htons(22);
-    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
+    if(connect(sock, (struct sockaddr *)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "Failed to connect to %s.\n", inet_ntoa(sin.sin_addr));
         goto shutdown;
     }
@@ -297,8 +303,7 @@ int main(int argc, char *argv[])
             if(LIBSSH2_ERROR_EAGAIN == len)
                 break;
             else if(len < 0) {
-                fprintf(stderr, "libssh2_channel_read: %ld",
-                        (long)len);
+                fprintf(stderr, "libssh2_channel_read: %ld", (long)len);
                 goto shutdown;
             }
             wr = 0;

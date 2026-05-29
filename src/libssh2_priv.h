@@ -68,9 +68,9 @@
    would break backwards compatibility.
 */
 #ifdef HAVE_POLL
-# include <poll.h>
+#include <poll.h>
 #elif defined(HAVE_SELECT) && defined(HAVE_SYS_SELECT_H)
-# include <sys/select.h>
+#include <sys/select.h>
 #endif
 
 /* Needed for struct iovec on some platforms */
@@ -102,14 +102,14 @@
 #ifdef _WIN32
 /* Detect Windows App environment which has a restricted access
    to the Win32 APIs. */
-# if (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)) || \
+#  if (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)) || \
   defined(WINAPI_FAMILY)
-#  include <winapifamily.h>
-#  if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) && \
-     !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-#    define LIBSSH2_WINDOWS_UWP
+#    include <winapifamily.h>
+#    if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) && \
+       !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+#      define LIBSSH2_WINDOWS_UWP
+#    endif
 #  endif
-# endif
 #endif
 
 #ifndef FALSE
@@ -170,7 +170,7 @@ int _libssh2_gettimeofday(struct timeval *tp, void *tzp);
     (defined(__clang__) && __clang_major__ >= 10)
 #  define LIBSSH2_FALLTHROUGH()  __attribute__((fallthrough))
 #else
-#  define LIBSSH2_FALLTHROUGH()  do {} while (0)
+#  define LIBSSH2_FALLTHROUGH()  do {} while(0)
 #endif
 #endif
 
@@ -195,7 +195,7 @@ struct iovec {
 
 #ifdef __OS400__
 /* Force parameter type. */
-#define send(s, b, l, f)    send((s), (unsigned char *) (b), (l), (f))
+#define send(s, b, l, f)  send(s, (unsigned char *)(b), l, f)
 #endif
 
 #include "crypto.h"
@@ -229,53 +229,53 @@ struct iovec {
 #define MAX_SHA_DIGEST_LEN SHA512_DIGEST_LENGTH
 
 #define LIBSSH2_ALLOC(session, count) \
-    session->alloc((count), &(session)->abstract)
+    session->alloc(count, &(session)->abstract)
 #define LIBSSH2_CALLOC(session, count) _libssh2_calloc(session, count)
 #define LIBSSH2_REALLOC(session, ptr, count) \
-    ((ptr) ? session->realloc((ptr), (count), &(session)->abstract) : \
-             session->alloc((count), &(session)->abstract))
+    ((ptr) ? (session)->realloc(ptr, count, &(session)->abstract) : \
+             (session)->alloc(count, &(session)->abstract))
 #define LIBSSH2_FREE(session, ptr) \
-    session->free((ptr), &(session)->abstract)
+    session->free(ptr, &(session)->abstract)
 #define LIBSSH2_IGNORE(session, data, datalen) \
-    session->ssh_msg_ignore((session), (data), (int)(datalen), \
+    session->ssh_msg_ignore(session, data, (int)(datalen), \
                             &(session)->abstract)
 #define LIBSSH2_DEBUG(session, always_display, message, message_len, \
                       language, language_len) \
-    session->ssh_msg_debug((session), (always_display), \
-                           (message), (int)(message_len), \
-                           (language), (int)(language_len), \
+    session->ssh_msg_debug(session, always_display, \
+                           message, (int)(message_len), \
+                           language, (int)(language_len), \
                            &(session)->abstract)
 #define LIBSSH2_DISCONNECT(session, reason, message, message_len, \
                            language, language_len) \
-    session->ssh_msg_disconnect((session), (reason), \
-                                (message), (int)(message_len), \
-                                (language), (int)(language_len), \
+    session->ssh_msg_disconnect(session, reason, \
+                                message, (int)(message_len), \
+                                language, (int)(language_len), \
                                 &(session)->abstract)
 
 #define LIBSSH2_MACERROR(session, data, datalen) \
-    session->macerror((session), (data), (int)(datalen), &(session)->abstract)
+    session->macerror(session, data, (int)(datalen), &(session)->abstract)
 #define LIBSSH2_X11_OPEN(channel, shost, sport) \
-    channel->session->x11(((channel)->session), (channel), \
-                          (shost), (sport), (&(channel)->session->abstract))
+    channel->session->x11((channel)->session, channel, \
+                          shost, sport, &(channel)->session->abstract)
 
 #define LIBSSH2_AUTHAGENT(channel) \
-    channel->session->authagent(((channel)->session), (channel), \
-                                (&(channel)->session->abstract))
+    channel->session->authagent((channel)->session, channel, \
+                                &(channel)->session->abstract)
 
 #define LIBSSH2_ADD_IDENTITIES(session, buffer, agentPath) \
-    session->addLocalIdentities((session), (buffer), \
-                                (agentPath), (&(session->abstract)))
+    session->addLocalIdentities(session, buffer, \
+                                agentPath, &(session)->abstract)
 
 #define LIBSSH2_AUTHAGENT_SIGN(session, blob, blen, \
                                data, dlen, sig, sigLen, \
                                agentPath) \
-    session->agentSignCallback((session), (blob), (blen), \
-                               (data), (dlen), (sig), (sigLen), \
-                               (agentPath), (&(session->abstract)))
+    session->agentSignCallback(session, blob, blen, \
+                               data, dlen, sig, sigLen, \
+                               agentPath, &(session)->abstract)
 
 #define LIBSSH2_CHANNEL_CLOSE(session, channel) \
-    ((channel->close_cb)?channel->close_cb((session), &(session)->abstract, \
-                      (channel), &(channel)->abstract):(void)0)
+    channel->close_cb(session, &(session)->abstract, \
+                      channel, &(channel)->abstract)
 #define LIBSSH2_CHANNEL_EOF(session, channel) \
     ((channel->eof_cb)?channel->eof_cb((session), &(session)->abstract, \
                       (channel), &(channel)->abstract):(void)0)
@@ -288,24 +288,16 @@ struct iovec {
 					  (listener), &(listener)->abstract, (channel)):(void)0)
 
 #define LIBSSH2_SEND_FD(session, fd, buffer, length, flags) \
-    (session->send)(fd, buffer, length, flags, &session->abstract)
+    ((session)->send)(fd, buffer, length, flags, &(session)->abstract)
 #define LIBSSH2_RECV_FD(session, fd, buffer, length, flags) \
-    (session->recv)(fd, buffer, length, flags, &session->abstract)
+    ((session)->recv)(fd, buffer, length, flags, &(session)->abstract)
 
 #define LIBSSH2_SEND(session, buffer, length, flags) \
-    LIBSSH2_SEND_FD(session, session->socket_fd, buffer, length, flags)
+    LIBSSH2_SEND_FD(session, (session)->socket_fd, buffer, length, flags)
 #define LIBSSH2_RECV(session, buffer, length, flags) \
-    LIBSSH2_RECV_FD(session, session->socket_fd, buffer, length, flags)
+    LIBSSH2_RECV_FD(session, (session)->socket_fd, buffer, length, flags)
 
-typedef struct _LIBSSH2_KEX_METHOD LIBSSH2_KEX_METHOD;
-typedef struct _LIBSSH2_HOSTKEY_METHOD LIBSSH2_HOSTKEY_METHOD;
-typedef struct _LIBSSH2_CRYPT_METHOD LIBSSH2_CRYPT_METHOD;
-typedef struct _LIBSSH2_COMP_METHOD LIBSSH2_COMP_METHOD;
-
-typedef struct _LIBSSH2_PACKET LIBSSH2_PACKET;
-
-typedef enum
-{
+typedef enum {
     libssh2_NB_state_idle = 0,
     libssh2_NB_state_allocated,
     libssh2_NB_state_created,
@@ -327,19 +319,16 @@ typedef enum
     libssh2_NB_state_jumpauthagent
 } libssh2_nonblocking_states;
 
-typedef struct packet_require_state_t
-{
+struct packet_require_state {
     libssh2_nonblocking_states state;
     time_t start;
-} packet_require_state_t;
+};
 
-typedef struct packet_requirev_state_t
-{
+struct packet_requirev_state {
     time_t start;
-} packet_requirev_state_t;
+};
 
-typedef struct kmdhgGPshakex_state_t
-{
+struct kmdhgGPshakex_state {
     libssh2_nonblocking_states state;
     unsigned char *e_packet;
     unsigned char *s_packet;
@@ -349,33 +338,34 @@ typedef struct kmdhgGPshakex_state_t
     size_t e_packet_len;
     size_t s_packet_len;
     size_t tmp_len;
-    _libssh2_bn_ctx *ctx;
-    _libssh2_dh_ctx x;
-    _libssh2_bn *e;
-    _libssh2_bn *f;
-    _libssh2_bn *k;
+    libssh2_bn_ctx *ctx;
+    libssh2_dh_ctx x;
+    libssh2_bn *e;
+    libssh2_bn *f;
+    libssh2_bn *k;
     unsigned char *f_value;
     unsigned char *k_value;
     unsigned char *h_sig;
     size_t f_value_len;
     size_t k_value_len;
     size_t h_sig_len;
-    packet_require_state_t req_state;
+    struct packet_require_state req_state;
     libssh2_nonblocking_states burn_state;
-} kmdhgGPshakex_state_t;
+};
 
-typedef struct key_exchange_state_low_t
-{
+struct key_exchange_state_low {
     libssh2_nonblocking_states state;
-    packet_require_state_t req_state;
-    kmdhgGPshakex_state_t exchange_state;
-    _libssh2_bn *p;             /* SSH2 defined value (p_value) */
-    _libssh2_bn *g;             /* SSH2 defined value (2) */
-    unsigned char request[256]; /* Must fit EC_MAX_POINT_LEN + data */
+    struct packet_require_state req_state;
+    struct kmdhgGPshakex_state exchange_state;
+    libssh2_bn *p;             /* SSH2 defined value (p_value) */
+    libssh2_bn *g;             /* SSH2 defined value (2) */
+    /* Request must fit mlkem1024nistp384 keys + 5 bytes overhead */
+    unsigned char request[LIBSSH2_MLKEM_1024_PUBLIC_KEY_LEN +
+                          LIBSSH2_EC_P384_PUBLIC_KEY_LEN + 5];
     unsigned char *data;
     size_t request_len;
     size_t data_len;
-    _libssh2_ec_key *private_key;   /* SSH2 ecdh private key */
+    libssh2_ec_key *private_key;    /* SSH2 ecdh private key */
     unsigned char *public_key_oct;  /* SSH2 ecdh public key octal value */
     size_t public_key_oct_len;      /* SSH2 ecdh public key octal value
                                        length */
@@ -383,23 +373,23 @@ typedef struct key_exchange_state_low_t
                                              bytes */
     unsigned char *curve25519_private_key; /* curve25519 private key, 32
                                               bytes */
-} key_exchange_state_low_t;
+    unsigned char *mlkem_public_key; /* ML-KEM public key */
+    unsigned char *mlkem_private_key; /* ML-KEM private key */
+};
 
-typedef struct key_exchange_state_t
-{
+struct key_exchange_state {
     libssh2_nonblocking_states state;
-    packet_require_state_t req_state;
-    key_exchange_state_low_t key_state_low;
+    struct packet_require_state req_state;
+    struct key_exchange_state_low key_state_low;
     unsigned char *data;
     size_t data_len;
     unsigned char *oldlocal;
     size_t oldlocal_len;
-} key_exchange_state_t;
+};
 
 #define FwdNotReq "Forward not requested"
 
-typedef struct packet_queue_listener_state_t
-{
+struct packet_queue_listener_state {
     libssh2_nonblocking_states state;
     unsigned char packet[17 + (sizeof(FwdNotReq) - 1)];
     unsigned char *host;
@@ -412,12 +402,11 @@ typedef struct packet_queue_listener_state_t
     uint32_t host_len;
     uint32_t shost_len;
     LIBSSH2_CHANNEL *channel;
-} packet_queue_listener_state_t;
+};
 
 #define X11FwdUnAvil "X11 Forward Unavailable"
 
-typedef struct packet_x11_open_state_t
-{
+struct packet_x11_open_state {
     libssh2_nonblocking_states state;
     unsigned char packet[17 + (sizeof(X11FwdUnAvil) - 1)];
     unsigned char *shost;
@@ -427,22 +416,20 @@ typedef struct packet_x11_open_state_t
     uint32_t sport;
     uint32_t shost_len;
     LIBSSH2_CHANNEL *channel;
-} packet_x11_open_state_t;
+};
 
 #define AuthAgentUnavail "Auth Agent unavailable"
 
-typedef struct packet_authagent_state_t
-{
+struct packet_authagent_state {
     libssh2_nonblocking_states state;
     unsigned char packet[17 + (sizeof(AuthAgentUnavail) - 1)];
     uint32_t sender_channel;
     uint32_t initial_window_size;
     uint32_t packet_size;
     LIBSSH2_CHANNEL *channel;
-} packet_authagent_state_t;
+};
 
-struct _LIBSSH2_PACKET
-{
+struct packet {
     struct list_node node; /* linked list header */
 
     /* the raw unencrypted payload */
@@ -454,8 +441,7 @@ struct _LIBSSH2_PACKET
     size_t data_head;
 };
 
-typedef struct _libssh2_channel_data
-{
+struct channel_data {
     /* Identifier */
     uint32_t id;
 
@@ -464,10 +450,9 @@ typedef struct _libssh2_channel_data
 
     /* Set to 1 when CHANNEL_CLOSE / CHANNEL_EOF sent/received */
     char close, eof, extended_data_ignore_mode;
-} libssh2_channel_data;
+};
 
-struct _LIBSSH2_CHANNEL
-{
+struct _LIBSSH2_CHANNEL {
     struct list_node node;
 
     unsigned char *channel_type;
@@ -479,7 +464,7 @@ struct _LIBSSH2_CHANNEL
     /* channel's program exit signal (without the SIG prefix) */
     char *exit_signal;
 
-    libssh2_channel_data local, remote;
+    struct channel_data local, remote;
     /* Amount of bytes to be refunded to receive window (but not yet sent) */
     uint32_t adjust_queue;
     /* Data immediately available for reading */
@@ -488,17 +473,16 @@ struct _LIBSSH2_CHANNEL
     LIBSSH2_SESSION *session;
 
     void *abstract;
-    
-    LIBSSH2_CHANNEL_DATA_FUNC((*data_cb));
-    LIBSSH2_CHANNEL_EOF_FUNC((*eof_cb));
-    LIBSSH2_CHANNEL_CLOSE_FUNC((*close_cb));
+    LIBSSH2_CHANNEL_CLOSE_FUNC(*close_cb);
+    LIBSSH2_CHANNEL_DATA_FUNC(*data_cb);
+    LIBSSH2_CHANNEL_EOF_FUNC(*eof_cb);
 
     /* State variables used in libssh2_channel_setenv_ex() */
     libssh2_nonblocking_states setenv_state;
     unsigned char *setenv_packet;
     size_t setenv_packet_len;
     unsigned char setenv_local_channel[4];
-    packet_requirev_state_t setenv_packet_requirev_state;
+    struct packet_requirev_state setenv_packet_requirev_state;
 
     /* State variables used in libssh2_channel_request_pty_ex()
        libssh2_channel_request_pty_size_ex() */
@@ -506,21 +490,21 @@ struct _LIBSSH2_CHANNEL
     unsigned char reqPTY_packet[41 + 256];
     size_t reqPTY_packet_len;
     unsigned char reqPTY_local_channel[4];
-    packet_requirev_state_t reqPTY_packet_requirev_state;
+    struct packet_requirev_state reqPTY_packet_requirev_state;
 
     /* State variables used in libssh2_channel_x11_req_ex() */
     libssh2_nonblocking_states reqX11_state;
     unsigned char *reqX11_packet;
     size_t reqX11_packet_len;
     unsigned char reqX11_local_channel[4];
-    packet_requirev_state_t reqX11_packet_requirev_state;
+    struct packet_requirev_state reqX11_packet_requirev_state;
 
     /* State variables used in libssh2_channel_process_startup() */
     libssh2_nonblocking_states process_state;
     unsigned char *process_packet;
     size_t process_packet_len;
     unsigned char process_local_channel[4];
-    packet_requirev_state_t process_packet_requirev_state;
+    struct packet_requirev_state process_packet_requirev_state;
 
     /* State variables used in libssh2_channel_flush_ex() */
     libssh2_nonblocking_states flush_state;
@@ -565,7 +549,7 @@ struct _LIBSSH2_CHANNEL
     unsigned char req_auth_agent_packet[36];
     size_t req_auth_agent_packet_len;
     unsigned char req_auth_agent_local_channel[4];
-    packet_requirev_state_t req_auth_agent_requirev_state;
+    struct packet_requirev_state req_auth_agent_requirev_state;
 
     /* State variables used in libssh2_channel_signal_ex() */
     libssh2_nonblocking_states sendsignal_state;
@@ -573,8 +557,7 @@ struct _LIBSSH2_CHANNEL
     size_t sendsignal_packet_len;
 };
 
-struct _LIBSSH2_LISTENER
-{
+struct _LIBSSH2_LISTENER {
     struct list_node node; /* linked list header */
 
     LIBSSH2_SESSION *session;
@@ -597,21 +580,20 @@ struct _LIBSSH2_LISTENER
     LIBSSH2_LISTERNER_CONNECT_FUNC((*connect_cb));
 };
 
-typedef struct _libssh2_endpoint_data
-{
+struct endpoint_data {
     unsigned char *banner;
 
     unsigned char *kexinit;
     size_t kexinit_len;
 
-    const LIBSSH2_CRYPT_METHOD *crypt;
+    const struct crypt_method *crypt;
     void *crypt_abstract;
 
-    const struct _LIBSSH2_MAC_METHOD *mac;
+    const struct mac_method *mac;
     uint32_t seqno;
     void *mac_abstract;
 
-    const LIBSSH2_COMP_METHOD *comp;
+    const struct comp_method *comp;
     void *comp_abstract;
 
     /* Method Preferences -- NULL yields "load order" */
@@ -619,12 +601,11 @@ typedef struct _libssh2_endpoint_data
     char *mac_prefs;
     char *comp_prefs;
     char *lang_prefs;
-} libssh2_endpoint_data;
+};
 
 #define PACKETBUFSIZE MAX_SSH_PACKET_LEN
 
-struct transportpacket
-{
+struct transportpacket {
     /* ------------- for incoming data --------------- */
     unsigned char buf[PACKETBUFSIZE];
     unsigned char init[5];  /* first 5 bytes of the incoming data stream,
@@ -659,8 +640,7 @@ struct transportpacket
     size_t osent;           /* number of bytes already sent */
 };
 
-struct _LIBSSH2_PUBLICKEY
-{
+struct _LIBSSH2_PUBLICKEY {
     LIBSSH2_CHANNEL *channel;
     uint32_t version;
 
@@ -695,26 +675,25 @@ struct flags {
     int quote_paths; /* LIBSSH2_FLAG_QUOTE_PATHS */
 };
 
-struct _LIBSSH2_SESSION
-{
+struct _LIBSSH2_SESSION {
     /* Memory management callbacks */
     void *abstract;
 
-    LIBSSH2_ALLOC_FUNC((*alloc));
-    LIBSSH2_REALLOC_FUNC((*realloc));
-    LIBSSH2_FREE_FUNC((*free));
+    LIBSSH2_ALLOC_FUNC(*alloc);
+    LIBSSH2_REALLOC_FUNC(*realloc);
+    LIBSSH2_FREE_FUNC(*free);
 
     /* Other callbacks */
-    LIBSSH2_IGNORE_FUNC((*ssh_msg_ignore));
-    LIBSSH2_DEBUG_FUNC((*ssh_msg_debug));
-    LIBSSH2_DISCONNECT_FUNC((*ssh_msg_disconnect));
-    LIBSSH2_MACERROR_FUNC((*macerror));
-    LIBSSH2_X11_OPEN_FUNC((*x11));
-    LIBSSH2_AUTHAGENT_FUNC((*authagent));
-    LIBSSH2_ADD_IDENTITIES_FUNC((*addLocalIdentities));
-    LIBSSH2_AUTHAGENT_SIGN_FUNC((*agentSignCallback));
-    LIBSSH2_SEND_FUNC((*send));
-    LIBSSH2_RECV_FUNC((*recv));
+    LIBSSH2_IGNORE_FUNC(*ssh_msg_ignore);
+    LIBSSH2_DEBUG_FUNC(*ssh_msg_debug);
+    LIBSSH2_DISCONNECT_FUNC(*ssh_msg_disconnect);
+    LIBSSH2_MACERROR_FUNC(*macerror);
+    LIBSSH2_X11_OPEN_FUNC(*x11);
+    LIBSSH2_AUTHAGENT_FUNC(*authagent);
+    LIBSSH2_ADD_IDENTITIES_FUNC(*addLocalIdentities);
+    LIBSSH2_AUTHAGENT_SIGN_FUNC(*agentSignCallback);
+    LIBSSH2_SEND_FUNC(*send);
+    LIBSSH2_RECV_FUNC(*recv);
 
     /* Method preferences -- NULL yields "load order" */
     char *kex_prefs;
@@ -726,7 +705,7 @@ struct _LIBSSH2_SESSION
     struct flags flag;
 
     /* Agreed Key Exchange Method */
-    const LIBSSH2_KEX_METHOD *kex;
+    const struct kex_method *kex;
     unsigned int burn_optimistic_kexinit;
 
     unsigned char *session_id;
@@ -739,7 +718,7 @@ struct _LIBSSH2_SESSION
     long api_timeout;
 
     /* Server's public key */
-    const LIBSSH2_HOSTKEY_METHOD *hostkey;
+    const struct hostkey_method *hostkey;
     void *server_hostkey_abstract;
 
     /* Either set with libssh2_session_hostkey() (for server mode)
@@ -750,7 +729,7 @@ struct _LIBSSH2_SESSION
 #if LIBSSH2_MD5
     unsigned char server_hostkey_md5[MD5_DIGEST_LENGTH];
     int server_hostkey_md5_valid;
-#endif /* ! LIBSSH2_MD5 */
+#endif /* !LIBSSH2_MD5 */
     unsigned char server_hostkey_sha1[SHA_DIGEST_LENGTH];
     int server_hostkey_sha1_valid;
 
@@ -767,10 +746,10 @@ struct _LIBSSH2_SESSION
     int kex_strict;
 
     /* (remote as source of data -- packet_read ) */
-    libssh2_endpoint_data remote;
+    struct endpoint_data remote;
 
     /* (local as source of data -- packet_write ) */
-    libssh2_endpoint_data local;
+    struct endpoint_data local;
 
     /* Inbound Data linked list -- Sometimes the packet that comes in isn't the
        packet we're ready for */
@@ -821,8 +800,8 @@ struct _LIBSSH2_SESSION
     size_t startup_data_len;
     unsigned char startup_service[sizeof("ssh-userauth") + 5 - 1];
     size_t startup_service_length;
-    packet_require_state_t startup_req_state;
-    key_exchange_state_t startup_key_state;
+    struct packet_require_state startup_req_state;
+    struct key_exchange_state startup_key_state;
 
     /* State variables used in libssh2_session_free() */
     libssh2_nonblocking_states free_state;
@@ -841,7 +820,7 @@ struct _LIBSSH2_SESSION
     unsigned char *userauth_list_data;
     size_t userauth_list_data_len;
     char *userauth_banner;
-    packet_requirev_state_t userauth_list_packet_requirev_state;
+    struct packet_requirev_state userauth_list_packet_requirev_state;
 
     /* State variables used in libssh2_userauth_password_ex() */
     libssh2_nonblocking_states userauth_pswd_state;
@@ -850,7 +829,7 @@ struct _LIBSSH2_SESSION
     size_t userauth_pswd_data_len;
     char *userauth_pswd_newpw;
     int userauth_pswd_newpw_len;
-    packet_requirev_state_t userauth_pswd_packet_requirev_state;
+    struct packet_requirev_state userauth_pswd_packet_requirev_state;
 
     /* State variables used in libssh2_userauth_hostbased_fromfile_ex() */
     libssh2_nonblocking_states userauth_host_state;
@@ -861,7 +840,7 @@ struct _LIBSSH2_SESSION
     unsigned char *userauth_host_method;
     size_t userauth_host_method_len;
     unsigned char *userauth_host_s;
-    packet_requirev_state_t userauth_host_packet_requirev_state;
+    struct packet_requirev_state userauth_host_packet_requirev_state;
 
     /* State variables used in libssh2_userauth_publickey_fromfile_ex() */
     libssh2_nonblocking_states userauth_pblc_state;
@@ -873,7 +852,7 @@ struct _LIBSSH2_SESSION
     size_t userauth_pblc_method_len;
     unsigned char *userauth_pblc_s;
     unsigned char *userauth_pblc_b;
-    packet_requirev_state_t userauth_pblc_packet_requirev_state;
+    struct packet_requirev_state userauth_pblc_packet_requirev_state;
 
     /* State variables used in libssh2_userauth_keyboard_interactive_ex() */
     libssh2_nonblocking_states userauth_kybd_state;
@@ -889,11 +868,11 @@ struct _LIBSSH2_SESSION
     int userauth_kybd_auth_failure;
     LIBSSH2_USERAUTH_KBDINT_PROMPT *userauth_kybd_prompts;
     LIBSSH2_USERAUTH_KBDINT_RESPONSE *userauth_kybd_responses;
-    packet_requirev_state_t userauth_kybd_packet_requirev_state;
+    struct packet_requirev_state userauth_kybd_packet_requirev_state;
 
     /* State variables used in libssh2_channel_open_ex() */
     libssh2_nonblocking_states open_state;
-    packet_requirev_state_t open_packet_requirev_state;
+    struct packet_requirev_state open_packet_requirev_state;
     LIBSSH2_CHANNEL *open_channel;
     unsigned char *open_packet;
     size_t open_packet_len;
@@ -913,7 +892,7 @@ struct _LIBSSH2_SESSION
     unsigned char *fwdLstn_packet;
     uint32_t fwdLstn_host_len;
     uint32_t fwdLstn_packet_len;
-    packet_requirev_state_t fwdLstn_packet_requirev_state;
+    struct packet_requirev_state fwdLstn_packet_requirev_state;
 
     /* State variables used in libssh2_publickey_init() */
     libssh2_nonblocking_states pkeyInit_state;
@@ -929,9 +908,9 @@ struct _LIBSSH2_SESSION
     libssh2_nonblocking_states packAdd_state;
     LIBSSH2_CHANNEL *packAdd_channelp; /* keeper of the channel during EAGAIN
                                           states */
-    packet_queue_listener_state_t packAdd_Qlstn_state;
-    packet_x11_open_state_t packAdd_x11open_state;
-    packet_authagent_state_t packAdd_authagent_state;
+    struct packet_queue_listener_state packAdd_Qlstn_state;
+    struct packet_x11_open_state packAdd_x11open_state;
+    struct packet_authagent_state packAdd_authagent_state;
 
     /* State variables used in fullpacket() */
     libssh2_nonblocking_states fullpacket_state;
@@ -979,22 +958,22 @@ struct _LIBSSH2_SESSION
 };
 
 /* session.state bits */
-#define LIBSSH2_STATE_INITIAL_KEX       0x00000001
-#define LIBSSH2_STATE_EXCHANGING_KEYS   0x00000002
-#define LIBSSH2_STATE_NEWKEYS           0x00000004
-#define LIBSSH2_STATE_AUTHENTICATED     0x00000008
-#define LIBSSH2_STATE_KEX_ACTIVE        0x00000010
+#define LIBSSH2_STATE_INITIAL_KEX     0x00000001
+#define LIBSSH2_STATE_EXCHANGING_KEYS 0x00000002
+#define LIBSSH2_STATE_NEWKEYS         0x00000004
+#define LIBSSH2_STATE_AUTHENTICATED   0x00000008
+#define LIBSSH2_STATE_KEX_ACTIVE      0x00000010
 
 /* session.flag helpers */
 #ifdef MSG_NOSIGNAL
-#define LIBSSH2_SOCKET_SEND_FLAGS(session) \
-    (((session)->flag.sigpipe) ? 0 : MSG_NOSIGNAL)
-#define LIBSSH2_SOCKET_RECV_FLAGS(session) \
-    (((session)->flag.sigpipe) ? 0 : MSG_NOSIGNAL)
+#define LIBSSH2_SOCKET_SEND_FLAGS(session)         \
+    ((session)->flag.sigpipe ? 0 : MSG_NOSIGNAL)
+#define LIBSSH2_SOCKET_RECV_FLAGS(session)         \
+    ((session)->flag.sigpipe ? 0 : MSG_NOSIGNAL)
 #else
 /* If MSG_NOSIGNAL isn't defined we're SOL on blocking SIGPIPE */
-#define LIBSSH2_SOCKET_SEND_FLAGS(session)      0
-#define LIBSSH2_SOCKET_RECV_FLAGS(session)      0
+#define LIBSSH2_SOCKET_SEND_FLAGS(session) 0
+#define LIBSSH2_SOCKET_RECV_FLAGS(session) 0
 #endif
 
 /* --------- */
@@ -1002,49 +981,46 @@ struct _LIBSSH2_SESSION
 /* libssh2 extensible ssh api, ultimately I'd like to allow loading additional
    methods via .so/.dll */
 
-struct _LIBSSH2_KEX_METHOD
-{
+struct kex_method {
     const char *name;
 
     /* Key exchange, populates session->* and returns 0 on success, non-0 on
        error */
-    int (*exchange_keys) (LIBSSH2_SESSION * session,
-                          key_exchange_state_low_t * key_state);
+    int (*exchange_keys)(LIBSSH2_SESSION *session,
+                         struct key_exchange_state_low *key_state);
 
-    void (*cleanup) (LIBSSH2_SESSION * session,
-                     key_exchange_state_low_t * key_state);
+    void (*cleanup)(LIBSSH2_SESSION *session,
+                    struct key_exchange_state_low *key_state);
 
     long flags;
 };
 
-struct _LIBSSH2_HOSTKEY_METHOD
-{
+struct hostkey_method {
     const char *name;
     size_t hash_len;
 
-    int (*init) (LIBSSH2_SESSION * session, const unsigned char *hostkey_data,
-                 size_t hostkey_data_len, void **abstract);
-    int (*initPEM) (LIBSSH2_SESSION * session, const char *privkeyfile,
-                    const unsigned char *passphrase, void **abstract);
-    int (*initPEMFromMemory) (LIBSSH2_SESSION * session,
-                              const char *privkeyfiledata,
-                              size_t privkeyfiledata_len,
-                              const unsigned char *passphrase,
-                              void **abstract);
-    int (*sig_verify) (LIBSSH2_SESSION * session, const unsigned char *sig,
-                       size_t sig_len, const unsigned char *m,
-                       size_t m_len, void **abstract);
-    int (*signv) (LIBSSH2_SESSION * session, unsigned char **signature,
-                  size_t *signature_len, int veccount,
-                  const struct iovec datavec[], void **abstract);
-    int (*encrypt) (LIBSSH2_SESSION * session, unsigned char **dst,
-                    size_t *dst_len, const unsigned char *src,
-                    size_t src_len, void **abstract);
-    int (*dtor) (LIBSSH2_SESSION * session, void **abstract);
+    int (*init)(LIBSSH2_SESSION *session, const unsigned char *hostkey_data,
+                size_t hostkey_data_len, void **abstract);
+    int (*initPEM)(LIBSSH2_SESSION *session, const char *privkeyfile,
+                   const unsigned char *passphrase, void **abstract);
+    int (*initPEMFromMemory)(LIBSSH2_SESSION *session,
+                             const char *privkeyfiledata,
+                             size_t privkeyfiledata_len,
+                             const unsigned char *passphrase,
+                             void **abstract);
+    int (*sig_verify)(LIBSSH2_SESSION *session, const unsigned char *sig,
+                      size_t sig_len, const unsigned char *m,
+                      size_t m_len, void **abstract);
+    int (*signv)(LIBSSH2_SESSION *session, unsigned char **signature,
+                 size_t *signature_len, int veccount,
+                 const struct iovec datavec[], void **abstract);
+    int (*encrypt)(LIBSSH2_SESSION *session, unsigned char **dst,
+                   size_t *dst_len, const unsigned char *src,
+                   size_t src_len, void **abstract);
+    int (*dtor)(LIBSSH2_SESSION *session, void **abstract);
 };
 
-struct _LIBSSH2_CRYPT_METHOD
-{
+struct crypt_method {
     const char *name;
     const char *pem_annotation;
 
@@ -1059,22 +1035,22 @@ struct _LIBSSH2_CRYPT_METHOD
 
     long flags;
 
-    int (*init) (LIBSSH2_SESSION * session,
-                 const LIBSSH2_CRYPT_METHOD * method, unsigned char *iv,
-                 int *free_iv, unsigned char *secret, int *free_secret,
-                 int encrypt, void **abstract);
-    int (*get_len) (LIBSSH2_SESSION * session, unsigned int seqno,
-                    unsigned char *data, size_t data_size, unsigned int *len,
-                    void **abstract);
-    int (*crypt) (LIBSSH2_SESSION * session, unsigned int seqno,
-                  unsigned char *block, size_t blocksize, void **abstract,
-                  int firstlast);
-    int (*dtor) (LIBSSH2_SESSION * session, void **abstract);
+    int (*init)(LIBSSH2_SESSION *session,
+                const struct crypt_method *method, unsigned char *iv,
+                int *free_iv, unsigned char *secret, int *free_secret,
+                int encrypt, void **abstract);
+    int (*get_len)(LIBSSH2_SESSION *session, unsigned int seqno,
+                   unsigned char *data, size_t data_size, unsigned int *len,
+                   void **abstract);
+    int (*crypt)(LIBSSH2_SESSION *session, unsigned int seqno,
+                 unsigned char *block, size_t blocksize, void **abstract,
+                 int firstlast);
+    int (*dtor)(LIBSSH2_SESSION *session, void **abstract);
 
-    _libssh2_cipher_type(algo);
+    LIBSSH2_CIPHER_T(algo);
 };
 
-/* Bit flags for _LIBSSH2_CRYPT_METHOD */
+/* Bit flags for struct crypt_method */
 
 /* Crypto method has integrated message authentication */
 #define LIBSSH2_CRYPT_FLAG_INTEGRATED_MAC            1
@@ -1085,47 +1061,47 @@ struct _LIBSSH2_CRYPT_METHOD
 
 /* Convenience macros for accessing crypt flags */
 /* Local crypto flags */
-#define CRYPT_FLAG_L(session, flag) ((session)->local.crypt && \
-    ((session)->local.crypt->flags & LIBSSH2_CRYPT_FLAG_##flag))
+#define CRYPT_FLAG_L(session, flag)                               \
+    ((session)->local.crypt &&                                    \
+     ((session)->local.crypt->flags & LIBSSH2_CRYPT_FLAG_##flag))
 /* Remote crypto flags */
-#define CRYPT_FLAG_R(session, flag) ((session)->remote.crypt && \
-    ((session)->remote.crypt->flags & LIBSSH2_CRYPT_FLAG_##flag))
+#define CRYPT_FLAG_R(session, flag)                                \
+    ((session)->remote.crypt &&                                    \
+     ((session)->remote.crypt->flags & LIBSSH2_CRYPT_FLAG_##flag))
 
 /* Values for firstlast */
-#define FIRST_BLOCK 1
+#define FIRST_BLOCK  1
 #define MIDDLE_BLOCK 0
-#define LAST_BLOCK 2
+#define LAST_BLOCK   2
 
 /* Convenience macros for accessing firstlast */
-#define IS_FIRST(firstlast) (firstlast & FIRST_BLOCK)
-#define IS_LAST(firstlast) (firstlast & LAST_BLOCK)
+#define IS_FIRST(firstlast) ((firstlast) & FIRST_BLOCK)
+#define IS_LAST(firstlast)  ((firstlast) & LAST_BLOCK)
 
-struct _LIBSSH2_COMP_METHOD
-{
+struct comp_method {
     const char *name;
     int compress; /* 1 if it does compress, 0 if it doesn't */
     int use_in_auth; /* 1 if compression should be used in userauth */
-    int (*init) (LIBSSH2_SESSION *session, int compress, void **abstract);
-    int (*comp) (LIBSSH2_SESSION *session,
-                 unsigned char *dest,
-                 size_t *dest_len,
-                 const unsigned char *src,
-                 size_t src_len,
-                 void **abstract);
-    int (*decomp) (LIBSSH2_SESSION *session,
-                   unsigned char **dest,
-                   size_t *dest_len,
-                   size_t payload_limit,
-                   const unsigned char *src,
-                   size_t src_len,
-                   void **abstract);
-    int (*dtor) (LIBSSH2_SESSION * session, int compress, void **abstract);
+    int (*init)(LIBSSH2_SESSION *session, int compress, void **abstract);
+    int (*comp)(LIBSSH2_SESSION *session,
+                unsigned char *dest,
+                size_t *dest_len,
+                const unsigned char *src,
+                size_t src_len,
+                void **abstract);
+    int (*decomp)(LIBSSH2_SESSION *session,
+                  unsigned char **dest,
+                  size_t *dest_len,
+                  size_t payload_limit,
+                  const unsigned char *src,
+                  size_t src_len,
+                  void **abstract);
+    int (*dtor)(LIBSSH2_SESSION *session, int compress, void **abstract);
 };
 
 #ifdef LIBSSH2DEBUG
-void
-_libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
-                   ...) LIBSSH2_PRINTF(3, 4);
+void _libssh2_debug_low(LIBSSH2_SESSION *session, int context,
+                        const char *format, ...) LIBSSH2_PRINTF(3, 4);
 #define _libssh2_debug(x) _libssh2_debug_low x
 #else
 #define _libssh2_debug(x) do {} while(0)
@@ -1133,7 +1109,7 @@ _libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
 
 #define LIBSSH2_SOCKET_UNKNOWN                   1
 #define LIBSSH2_SOCKET_CONNECTED                 0
-#define LIBSSH2_SOCKET_DISCONNECTED             -1
+#define LIBSSH2_SOCKET_DISCONNECTED              (-1)
 
 /* Initial packet state, prior to MAC check */
 #define LIBSSH2_MAC_UNCONFIRMED                  1
@@ -1141,7 +1117,7 @@ _libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
    "confirmed" */
 #define LIBSSH2_MAC_CONFIRMED                    0
 /* Something very bad is going on */
-#define LIBSSH2_MAC_INVALID                     -1
+#define LIBSSH2_MAC_INVALID                      (-1)
 
 /* Flags for _libssh2_error_flags */
 /* Error message is allocated on the heap */
@@ -1222,9 +1198,8 @@ ssize_t _libssh2_send(libssh2_socket_t socket, const void *buffer,
 #define LIBSSH2_DEFAULT_READ_TIMEOUT 60 /* generic timeout in seconds used when
                                            waiting for more data to arrive */
 
-
-int _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
-                          key_exchange_state_t * state);
+int _libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
+                          struct key_exchange_state *key_state);
 
 unsigned char *_libssh2_kex_agree_instr(unsigned char *haystack,
                                         size_t haystack_len,
@@ -1232,8 +1207,8 @@ unsigned char *_libssh2_kex_agree_instr(unsigned char *haystack,
                                         size_t needle_len);
 
 /* Let crypt.c/hostkey.c expose their method structs */
-const LIBSSH2_CRYPT_METHOD **libssh2_crypt_methods(void);
-const LIBSSH2_HOSTKEY_METHOD **libssh2_hostkey_methods(void);
+const struct crypt_method **libssh2_crypt_methods(void);
+const struct hostkey_method **libssh2_hostkey_methods(void);
 
 int _libssh2_bcrypt_pbkdf(const char *pass,
                           size_t passlen,
@@ -1244,26 +1219,26 @@ int _libssh2_bcrypt_pbkdf(const char *pass,
                           unsigned int rounds);
 
 /* pem.c */
-int _libssh2_pem_parse(LIBSSH2_SESSION * session,
+int _libssh2_pem_parse(LIBSSH2_SESSION *session,
                        const char *headerbegin,
                        const char *headerend,
                        const unsigned char *passphrase,
-                       FILE * fp, unsigned char **data, size_t *datalen);
-int _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
+                       FILE *fp, unsigned char **data, size_t *datalen);
+int _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
                               const char *headerbegin,
                               const char *headerend,
+                              const unsigned char *passphrase,
                               const char *filedata, size_t filedata_len,
                               unsigned char **data, size_t *datalen);
- /* OpenSSL keys */
-int
-_libssh2_openssh_pem_parse(LIBSSH2_SESSION * session,
-                           const unsigned char *passphrase,
-                           FILE * fp, struct string_buf **decrypted_buf);
-int
-_libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
-                                  const unsigned char *passphrase,
-                                  const char *filedata, size_t filedata_len,
-                                  struct string_buf **decrypted_buf);
+/* OpenSSL keys */
+int _libssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
+                               const unsigned char *passphrase,
+                               FILE *fp, struct string_buf **decrypted_buf);
+int _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
+                                      const unsigned char *passphrase,
+                                      const char *filedata,
+                                      size_t filedata_len,
+                                      struct string_buf **decrypted_buf);
 
 int _libssh2_pem_decode_sequence(unsigned char **data, size_t *datalen);
 int _libssh2_pem_decode_integer(unsigned char **data, size_t *datalen,
@@ -1275,7 +1250,7 @@ void _libssh2_init_if_needed(void);
 /* Utility function for certificate auth */
 size_t plain_method(char *method, size_t method_len);
 
-#define ARRAY_SIZE(a) (sizeof ((a)) / sizeof ((a)[0]))
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
 /* define to output the libssh2_int64_t type in a *printf() */
 #if defined(__MINGW32__) || (defined(_MSC_VER) && (_MSC_VER >= 1800))
@@ -1292,7 +1267,6 @@ size_t plain_method(char *method, size_t method_len);
 #if defined(_WIN32) || defined(MSDOS)
 #define FOPEN_READTEXT "rt"
 #define FOPEN_WRITETEXT "wt"
-#define FOPEN_APPENDTEXT "at"
 #elif defined(__CYGWIN__)
 /* Cygwin has specific behavior we need to address when _WIN32 is not defined.
      https://cygwin.com/cygwin-ug-net/using-textbinary.html
@@ -1302,11 +1276,9 @@ size_t plain_method(char *method, size_t method_len);
  */
 #define FOPEN_READTEXT "rt"
 #define FOPEN_WRITETEXT "w"
-#define FOPEN_APPENDTEXT "a"
 #else
 #define FOPEN_READTEXT "r"
 #define FOPEN_WRITETEXT "w"
-#define FOPEN_APPENDTEXT "a"
 #endif
 
 #endif /* LIBSSH2_PRIV_H */

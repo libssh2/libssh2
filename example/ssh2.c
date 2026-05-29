@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
     fprintf(stderr, "Connecting to %s:%d as user %s\n",
             inet_ntoa(sin.sin_addr), ntohs(sin.sin_port), username);
 
-    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
+    if(connect(sock, (struct sockaddr *)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect.\n");
         goto shutdown;
     }
@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
         else if(auth_pw & 2) {
             /* Or via keyboard-interactive */
             if(libssh2_userauth_keyboard_interactive(session, username,
-                                                     &kbd_callback) ) {
+                                                     &kbd_callback)) {
                 fprintf(stderr,
                         "Authentication by keyboard-interactive failed.\n");
                 goto shutdown;
@@ -271,11 +271,11 @@ int main(int argc, char *argv[])
      * See /etc/termcap for more options. This is useful when opening
      * an interactive shell.
      */
-    #if 0
+#if 0
     if(libssh2_channel_request_pty(channel, "vanilla")) {
         fprintf(stderr, "Failed requesting pty\n");
     }
-    #endif
+#endif
 
     if(argc > 5) {
         if(libssh2_channel_exec(channel, argv[5])) {
@@ -285,12 +285,12 @@ int main(int argc, char *argv[])
         /* Instead of just running a single command with libssh2_channel_exec,
          * a shell can be opened on the channel instead, for interactive use.
          * You usually want a pty allocated first in that case (see above). */
-        #if 0
+#if 0
         if(libssh2_channel_shell(channel)) {
             fprintf(stderr, "Unable to request shell on allocated pty\n");
             goto shutdown;
         }
-        #endif
+#endif
 
         /* At this point the shell can be interacted with using
          * libssh2_channel_read()

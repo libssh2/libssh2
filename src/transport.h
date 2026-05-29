@@ -82,6 +82,6 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
  * This function reads the binary stream as specified in chapter 6 of RFC4253
  * "The Secure Shell (SSH) Transport Layer Protocol"
  */
-int _libssh2_transport_read(LIBSSH2_SESSION * session);
+int _libssh2_transport_read(LIBSSH2_SESSION *session);
 
 #endif /* LIBSSH2_TRANSPORT_H */

@@ -19,6 +19,9 @@
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -27,6 +30,9 @@
 #endif
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
+#endif
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>  /* for timeval */
 #endif
 
 #include <stdio.h>
@@ -129,7 +135,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
+    if(connect(sock, (struct sockaddr *)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect.\n");
         goto shutdown;
     }
@@ -236,7 +242,7 @@ int main(int argc, char *argv[])
         /* loop until we block */
         do {
             char buffer[0x4000];
-            nread = libssh2_channel_read(channel, buffer, sizeof(buffer) );
+            nread = libssh2_channel_read(channel, buffer, sizeof(buffer));
             if(nread > 0) {
                 ssize_t i;
                 bytecount += nread;
@@ -245,11 +251,10 @@ int main(int argc, char *argv[])
                     fputc(buffer[i], stderr);
                 fprintf(stderr, "\n");
             }
-            else {
-                if(nread != LIBSSH2_ERROR_EAGAIN)
-                    /* no need to output this for the EAGAIN case */
-                    fprintf(stderr, "libssh2_channel_read returned %ld\n",
-                            (long)nread);
+            else if(nread < 0 && nread != LIBSSH2_ERROR_EAGAIN) {
+                /* no need to output this for the EAGAIN case */
+                fprintf(stderr, "libssh2_channel_read returned %ld\n",
+                        (long)nread);
             }
         } while(nread > 0);
 

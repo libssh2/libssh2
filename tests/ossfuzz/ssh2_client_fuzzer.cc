@@ -13,19 +13,18 @@
 #include <libssh2.h>
 #include "testinput.h"
 
-#define FUZZ_ASSERT(COND)                                                     \
-    do {                                                                      \
-        if(!(COND))                                                           \
-        {                                                                     \
-            fprintf(stderr, "Assertion failed: " #COND "\n%s",                \
-                    strerror(errno));                                         \
-            assert((COND));                                                   \
-        }                                                                     \
+#define FUZZ_ASSERT(COND)                                      \
+    do {                                                       \
+        if(!(COND)) {                                          \
+            fprintf(stderr, "Assertion failed: " #COND "\n%s", \
+                    strerror(errno));                          \
+            goto EXIT_LABEL;                                   \
+        }                                                      \
     } while(0)
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
-    int socket_fds[2] = {-1, -1};
+    int socket_fds[2] = { -1, -1 };
     ssize_t written;
     int rc;
     LIBSSH2_SESSION *session = NULL;

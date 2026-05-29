@@ -23,12 +23,12 @@ libssh2_userauth_password_ex(LIBSSH2_SESSION *session,
                              unsigned int username_len,
                              const char *password,
                              unsigned int password_len,
-                           LIBSSH2_PASSWD_CHANGEREQ_FUNC((*passwd_change_cb)));
+                             LIBSSH2_PASSWD_CHANGEREQ_FUNC(*passwd_change_cb));
 
 #define libssh2_userauth_password(session, username, password) \
-     libssh2_userauth_password_ex((session), (username), \
-                                  strlen(username), \
-                                  (password), strlen(password), NULL)
+     libssh2_userauth_password_ex(session, \
+                                  username, strlen(username), \
+                                  password, strlen(password), NULL)
 ~~~
 
 # DESCRIPTION

@@ -40,10 +40,11 @@
  */
 
 #ifdef LIBSSH2_NO_CLEAR_MEMORY
-#define _libssh2_explicit_zero(buf, size) do { \
-                                              (void)(buf); \
-                                              (void)(size); \
-                                          } while(0)
+#define _libssh2_explicit_zero(buf, size) \
+    do {                                  \
+        (void)(buf);                      \
+        (void)(size);                     \
+    } while(0)
 #elif defined(_WIN32)
 #define _libssh2_explicit_zero(buf, size) SecureZeroMemory(buf, size)
 #elif defined(HAVE_EXPLICIT_BZERO)
@@ -75,9 +76,9 @@ struct string_buf {
     size_t len;
 };
 
-int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode,
+int _libssh2_error_flags(LIBSSH2_SESSION *session, int errcode,
                          const char *errmsg, int errflags);
-int _libssh2_error(LIBSSH2_SESSION* session, int errcode, const char *errmsg);
+int _libssh2_error(LIBSSH2_SESSION *session, int errcode, const char *errmsg);
 
 #ifdef _WIN32
 /* Convert Win32 WSAGetLastError to errno equivalent */
@@ -110,10 +111,12 @@ size_t _libssh2_base64_encode(LIBSSH2_SESSION *session,
 
 uint32_t _libssh2_ntohu32(const unsigned char *buf);
 libssh2_uint64_t _libssh2_ntohu64(const unsigned char *buf);
-void _libssh2_htonu32(unsigned char *buf, uint32_t val);
+void _libssh2_htonu32(unsigned char *buf, uint32_t value);
 void _libssh2_store_u32(unsigned char **buf, uint32_t value);
 void _libssh2_store_u64(unsigned char **buf, libssh2_uint64_t value);
 int _libssh2_store_str(unsigned char **buf, const char *str, size_t len);
+int _libssh2_store_hybrid_str(unsigned char **buf, const char *str_1,
+                              size_t len_1, const char *str_2, size_t len_2);
 int _libssh2_store_bignum2_bytes(unsigned char **buf,
                                  const unsigned char *bytes,
                                  size_t len);
@@ -129,7 +132,7 @@ int _libssh2_get_u64(struct string_buf *buf, libssh2_uint64_t *out);
 int _libssh2_match_string(struct string_buf *buf, const char *match);
 int _libssh2_get_string(struct string_buf *buf, unsigned char **outbuf,
                         size_t *outlen);
-int _libssh2_copy_string(LIBSSH2_SESSION* session, struct string_buf *buf,
+int _libssh2_copy_string(LIBSSH2_SESSION *session, struct string_buf *buf,
                          unsigned char **outbuf, size_t *outlen);
 int _libssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf,
                               size_t *outlen);
@@ -140,5 +143,7 @@ void _libssh2_xor_data(unsigned char *output,
                        const unsigned char *input1,
                        const unsigned char *input2,
                        size_t length);
+
+int _libssh2_timingsafe_bcmp(const void *b1, const void *b2, size_t n);
 
 #endif /* LIBSSH2_MISC_H */
