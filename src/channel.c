@@ -699,14 +699,14 @@ libssh2_listener_abstract(LIBSSH2_LISTENER *listener)
 
 LIBSSH2_API
 libssh2_cb_generic *libssh2_listener_callback_set(LIBSSH2_LISTENER *listener,
-                                                  int callback,
-                                                  libssh2_cb_generic *f)
+                                                  int cbtype,
+                                                  libssh2_cb_generic *callback)
 {
     libssh2_cb_generic *oldFunc = NULL;
-    switch(callback) {
+    switch(cbtype) {
     case LIBSSH2_CALLBACK_LISTENER_ACCEPT:
         oldFunc = (libssh2_cb_generic*)listener->connect_cb;
-        listener->connect_cb = (LIBSSH2_LISTENER_CONNECT_FUNC((*)))f;
+        listener->connect_cb = (LIBSSH2_LISTENER_CONNECT_FUNC((*)))callback;
         break;
     }
     return oldFunc;
