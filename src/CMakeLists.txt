@@ -57,13 +57,10 @@ endif()
 option(ENABLE_ZLIB_COMPRESSION "Use zlib for compression" OFF)
 add_feature_info("Compression" ENABLE_ZLIB_COMPRESSION "using zlib for compression")
 if(ENABLE_ZLIB_COMPRESSION)
-  list(APPEND libssh2_INCLUDE_DIRS ../../zlib-1.3)
-  list(APPEND libssh2_DEFINITIONS "LIBSSH2_HAVE_ZLIB")
-  #find_package(ZLIB REQUIRED)
+  find_package(ZLIB REQUIRED)
 
-  #list(APPEND LIBSSH2_LIBS ZLIB::ZLIB)
-  #set_target_properties(ZLIB::ZLIB PROPERTIES INTERFACE_LIBSSH2_PC_MODULES "zlib")
-  #list(APPEND _libssh2_definitions "LIBSSH2_HAVE_ZLIB")
+  list(APPEND LIBSSH2_LIBS ZLIB::ZLIB)
+  list(APPEND _libssh2_definitions "LIBSSH2_HAVE_ZLIB")
 endif()
 
 list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
@@ -71,11 +68,7 @@ list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 if(MSVC)
   set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS "$<$<CONFIG:Debug>:-Zi>")
   set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS "$<$<CONFIG:Debug>:-Od>")
-  if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.13)
-    set_property(DIRECTORY APPEND PROPERTY LINK_OPTIONS "$<$<CONFIG:Debug>:-DEBUG>")
-  else()
-    set_property(DIRECTORY APPEND PROPERTY LINK_FLAGS "$<$<CONFIG:Debug>:-DEBUG>")
-  endif()
+  set_property(DIRECTORY APPEND PROPERTY LINK_OPTIONS "$<$<CONFIG:Debug>:-DEBUG>")
 endif()
 
 ## Sources
@@ -129,27 +122,6 @@ if(BUILD_STATIC_LIBS OR BUILD_STATIC_FOR_TESTS)
     PUBLIC
       "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
       "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
-
-  # CMake before CMP0099 (CMake 3.17 2020-03-20) did not propagate libdirs to
-  # targets. It expected libs to have an absolute filename. As a workaround,
-  # manually apply dependency libdirs, for CMake consumers without this policy.
-  if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.17)
-    cmake_policy(GET CMP0099 _has_CMP0099)  # https://cmake.org/cmake/help/latest/policy/CMP0099.html
-  endif()
-  if(NOT _has_CMP0099 AND CMAKE_VERSION VERSION_GREATER_EQUAL 3.13 AND LIBSSH2_LIBS)
-    set(_libdirs "")
-    foreach(_lib IN LISTS LIBSSH2_LIBS)
-      if(TARGET "${_lib}")
-        get_target_property(_libdir "${_lib}" INTERFACE_LINK_DIRECTORIES)
-        if(_libdir)
-          list(APPEND _libdirs "${_libdir}")
-        endif()
-      endif()
-    endforeach()
-    if(_libdirs)
-      target_link_directories(${LIB_STATIC} INTERFACE ${_libdirs})
-    endif()
-  endif()
 endif()
 if(BUILD_SHARED_LIBS)
   list(APPEND _libssh2_export ${LIB_SHARED})
@@ -176,9 +148,7 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 add_library(${PROJECT_NAME}::${LIB_NAME} ALIAS ${LIB_SELECTED})
-if(NOT ${LIB_NAME} STREQUAL ${LIB_SELECTED} )
 add_library(${LIB_NAME} ALIAS ${LIB_SELECTED})
-endif()
 
 ## Installation
 
@@ -232,9 +202,8 @@ if(NOT LIBSSH2_DISABLE_INSTALL)
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
   # Calculate variables for pkg-config
-  set(LIBSSH2_PC_LIBS_PRIVATE "")
-
   set(_ldflags "")
+  set(LIBSSH2_PC_LIBS_PRIVATE "")
 
   # Avoid getting unnecessary -L options for known system directories.
   set(_sys_libdirs "${CMAKE_C_IMPLICIT_LINK_DIRECTORIES}")
@@ -287,7 +256,13 @@ if(NOT LIBSSH2_DISABLE_INSTALL)
       if(NOT _libname AND NOT _libs AND NOT _libdirs)
         message(WARNING "Bad lib in library list: ${_lib}")
       endif()
-      get_target_property(_modules "${_lib}" INTERFACE_LIBSSH2_PC_MODULES)
+      if(_lib STREQUAL OpenSSL::Crypto AND NOT HAVE_BORINGSSL)  # BoringSSL does not provide libcrypto.pc
+        set(_modules "libcrypto")
+      elseif(_lib STREQUAL ZLIB::ZLIB AND NOT ANDROID)  # Android does not provide zlib.pc
+        set(_modules "zlib")
+      else()
+        get_target_property(_modules "${_lib}" INTERFACE_LIBSSH2_PC_MODULES)
+      endif()
       if(_modules)
         list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE "${_modules}")
       endif()
@@ -316,6 +291,8 @@ if(NOT LIBSSH2_DISABLE_INSTALL)
           else()
             list(APPEND LIBSSH2_PC_LIBS_PRIVATE "${_lib}")
           endif()
+        elseif(_lib MATCHES "^-")  # '-option'
+          list(APPEND LIBSSH2_PC_LIBS_PRIVATE "${_lib}")
         else()
           list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-l${_lib}")
         endif()

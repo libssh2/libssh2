@@ -36,10 +36,10 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-cmake_minimum_required(VERSION 3.7...3.16 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.18)
 message(STATUS "Using CMake version ${CMAKE_VERSION}")
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include(CheckFunctionExists)
 include(CheckSymbolExists)
@@ -172,26 +172,14 @@ if(NOT LIBSSH2_VERSION OR
   message(FATAL_ERROR "Unable to parse version from ${PROJECT_SOURCE_DIR}/include/libssh2.h")
 endif()
 
-option(LIBSSH2_BUILD_EXAMPLES "Build libssh2 examples" ON)
-option(LIBSSH2_BUILD_TESTING "Build libssh2 test suite" ON)
-option(LIBSSH2_BUILD_DOCS "Build libssh2 test suite" ON)
-option(LIBSSH2_BUILD_STATIC_LIBS "Build libssh2 static libraries(default if not set)" ${BUILD_STATIC_LIBS})
-option(LIBSSH2_BUILD_SHARED_LIBS "Build libssh2 shared libraries" ${BUILD_SHARED_LIBS})
-option(LIBSSH2_BUILD_OBJECT_LIBRARY "Build static library as an object library instead of static library" OFF)
-
-option(CRYPTO_NO_OPENSSL "OpenSSL Should not be used, even if somewhat auto found" ON )
-
 option(LIBSSH2_DISABLE_INSTALL "Disable installation targets" OFF)
-
-if(NOT LIBSSH2_DISABLE_INSTALL OR NOT LIBSSH2_SKIP_INSTALL )
+if(NOT LIBSSH2_DISABLE_INSTALL)
   include(GNUInstallDirs)
-if( LIBSSH2_BUILD_DOCS)
   install(
     FILES
       COPYING NEWS README RELEASE-NOTES
       docs/AUTHORS docs/BINDINGS.md docs/HACKING.md
     DESTINATION ${CMAKE_INSTALL_DOCDIR})
-endif() 
 endif()
 
 include(PickyWarnings)
@@ -213,7 +201,7 @@ else()
   endif()
 endif()
 
-if(LIBSSH2_BUILD_TESTING AND NOT LIBSSH2_BUILD_STATIC_LIBS)
+if(BUILD_TESTING AND NOT BUILD_STATIC_LIBS)
   # Build static for tests only, but do not install it.
   set(BUILD_STATIC_FOR_TESTS ON)
 endif()
@@ -222,21 +210,16 @@ option(BUILD_EXAMPLES "Build libssh2 examples" ON)
 option(BUILD_TESTING "Build libssh2 test suite" ON)
 option(BUILD_OSSFUZZ "Build libssh2 OSS-Fuzz" OFF)
 
-if((NOT LIBSSH2_BUILD_STATIC_LIBS AND NOT LIBSSH2_BUILD_SHARED_LIBS) OR BUILD_OSSFUZZ)
-  set(LIBSSH2_BUILD_STATIC_LIBS ON)
+if((NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS) OR BUILD_OSSFUZZ)
+  set(BUILD_STATIC_LIBS ON)
 endif()
 
 set(LIB_NAME "libssh2")
-if( LIBSSH2_BUILD_STATIC_LIBS AND LIBSSH2_BUILD_SHARED_LIBS )
 set(LIB_STATIC "${LIB_NAME}_static")
 set(LIB_SHARED "${LIB_NAME}_shared")
-else()
-set(LIB_STATIC "${LIB_NAME}")
-set(LIB_SHARED "${LIB_NAME}")
-endif()
 
 # lib flavour selected for example and test programs.
-if(LIBSSH2_BUILD_SHARED_LIBS)
+if(BUILD_SHARED_LIBS)
   set(LIB_SELECTED ${LIB_SHARED})
 else()
   set(LIB_SELECTED ${LIB_STATIC})
@@ -293,18 +276,19 @@ endif()
 
 option(LIBSSH2_CLANG_TIDY "Run the build through clang-tidy" OFF)
 if(LIBSSH2_CLANG_TIDY)
-  set(CMAKE_UNITY_BUILD OFF)
-  set(_tidy_checks "")
-  list(APPEND _tidy_checks "-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling")
-  string(REPLACE ";" "," _tidy_checks "${_tidy_checks}")
   find_program(CLANG_TIDY NAMES "clang-tidy" REQUIRED)
-  set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY}" "-checks=${_tidy_checks}" "-quiet")
-  unset(_tidy_checks)
+  set(CMAKE_UNITY_BUILD OFF)
+  if(NOT CMAKE_C_COMPILER_ID MATCHES "Clang")
+    set(PICKY_COMPILER OFF)  # Do a best effort and skip passing non-clang warning options to clang-tidy.
+  endif()
+  set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY}")
+  list(APPEND CMAKE_C_CLANG_TIDY "--config-file=${PROJECT_SOURCE_DIR}/.clang-tidy.yml")
   if(ENABLE_WERROR)
     list(APPEND CMAKE_C_CLANG_TIDY "--warnings-as-errors=*")
   endif()
   if(LIBSSH2_CLANG_TIDYFLAGS)
-    list(APPEND CMAKE_C_CLANG_TIDY ${LIBSSH2_CLANG_TIDYFLAGS})
+    string(REPLACE " " ";" _tidy_flags_list "${LIBSSH2_CLANG_TIDYFLAGS}")
+    list(APPEND CMAKE_C_CLANG_TIDY ${_tidy_flags_list})
   endif()
 endif()
 
@@ -426,7 +410,7 @@ configure_file("src/libssh2_config_cmake.h.in"
 set(__runtime_dependencies "")
 
 set(CRYPTO_BACKEND "" CACHE
-  STRING "The backend to use for cryptography: OpenSSL, wolfSSL, Libgcrypt, WinCNG, mbedTLS, or empty to try any available")
+  STRING "The backend to use for cryptography: Libgcrypt, mbedTLS, OpenSSL, WinCNG, wolfSSL, or empty to try any available")
 
 # If the crypto backend was given, rather than searching for the first
 # we are able to find, the find_package commands must abort configuration
@@ -435,13 +419,19 @@ if(CRYPTO_BACKEND)
   set(_specific_crypto_requirement "REQUIRED")
 endif()
 
-if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND AND NOT CRYPTO_NO_OPENSSL )
-  find_package(OpenSSL ${SPECIFIC_CRYPTO_REQUIREMENT} COMPONENTS Crypto)
+if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
+  find_package(OpenSSL ${_specific_crypto_requirement} COMPONENTS Crypto)
   if(OPENSSL_FOUND)
     set(CRYPTO_BACKEND "OpenSSL")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_OPENSSL")
     list(APPEND LIBSSH2_LIBS OpenSSL::Crypto)
-    set_target_properties(OpenSSL::Crypto PROPERTIES INTERFACE_LIBSSH2_PC_MODULES "libcrypto")
+
+    if(NOT DEFINED HAVE_BORINGSSL)
+      cmake_push_check_state()
+      list(APPEND CMAKE_REQUIRED_LIBRARIES OpenSSL::Crypto)
+      check_symbol_exists("OPENSSL_IS_BORINGSSL" "openssl/base.h" HAVE_BORINGSSL)
+      cmake_pop_check_state()
+    endif()
 
     if(WIN32)
       # Statically linking to OpenSSL requires crypt32 for some Windows APIs.
@@ -473,7 +463,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND AND NOT CRYPTO_NO_OPE
   endif()
 endif()
 
-if(CRYPTO_BACKEND STREQUAL "wolfSSL" )
+if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
   find_package(WolfSSL ${_specific_crypto_requirement})
   if(WOLFSSL_FOUND)
     set(CRYPTO_BACKEND "wolfSSL")
@@ -487,7 +477,7 @@ if(CRYPTO_BACKEND STREQUAL "wolfSSL" )
   endif()
 endif()
 
-if(CRYPTO_BACKEND STREQUAL "Libgcrypt" )
+if(CRYPTO_BACKEND STREQUAL "Libgcrypt" OR NOT CRYPTO_BACKEND)
   find_package(Libgcrypt ${_specific_crypto_requirement})
   if(LIBGCRYPT_FOUND)
     set(CRYPTO_BACKEND "Libgcrypt")
@@ -496,9 +486,12 @@ if(CRYPTO_BACKEND STREQUAL "Libgcrypt" )
   endif()
 endif()
 
-if(CRYPTO_BACKEND STREQUAL "mbedTLS" )
+if(CRYPTO_BACKEND STREQUAL "mbedTLS" OR NOT CRYPTO_BACKEND)
   find_package(MbedTLS ${_specific_crypto_requirement})
   if(MBEDTLS_FOUND)
+    if(MBEDTLS_VERSION VERSION_LESS 3.1.0)
+      message(FATAL_ERROR "mbedTLS v3.1.0 or upper required.")
+    endif()
     set(CRYPTO_BACKEND "mbedTLS")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_MBEDTLS")
     list(APPEND LIBSSH2_LIBS libssh2::mbedcrypto)
@@ -507,7 +500,7 @@ endif()
 
 # Detect platform-specific crypto-backends last:
 
-if(CRYPTO_BACKEND STREQUAL "WinCNG" )
+if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
   if(WIN32)
     set(CRYPTO_BACKEND "WinCNG")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_WINCNG")
@@ -528,18 +521,6 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" )
   endif()
 endif()
 
-# default fallback
-if( NOT CRYPTO_BACKEND )
-    set(CRYPTO_BACKEND "LibreSSL")
-    set(CRYPTO_BACKEND_DEFINE "LIBSSH2_OPENSSL")
-    set(CRYPTO_BACKEND_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../libressl/4.1.0/include)
-	include_directories( ${CRYPTO_BACKEND_INCLUDE_DIR} )
-	INCLUDE_DIRECTORIES( "${CMAKE_CURRENT_SOURCE_DIR}/../zlib-1.3" )
-    list(APPEND LIBRARIES ssl crypto tls )
-endif()
-
-
-
 # Global functions
 
 # Convert GNU Make assignments into CMake ones.
@@ -557,18 +538,28 @@ endfunction()
 
 add_subdirectory(src)
 
-if(LIBSSH2_BUILD_EXAMPLES)
+if(BUILD_EXAMPLES)
   add_subdirectory(example)
 endif()
 
-if(LIBSSH2_BUILD_TESTING)
+if(BUILD_TESTING)
   enable_testing()
   add_subdirectory(tests)
 endif()
 
 option(LINT "Check style while building" OFF)
+option(LIBSSH2_BUILD_DOCS "Build man pages" ON)
+
+if(LINT OR LIBSSH2_BUILD_DOCS)
+  find_package(Perl)
+endif()
+
 if(LINT)
-  add_custom_target(lint ALL "./ci/checksrc.sh" WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+  add_custom_target(lint ALL
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    COMMAND "${PERL_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/scripts/checksrc-all.pl"
+    DEPENDS "${PROJECT_SOURCE_DIR}/scripts/checksrc-all.pl" "${PROJECT_SOURCE_DIR}/scripts/checksrc.pl"
+  )
   if(BUILD_STATIC_LIBS)
     add_dependencies(${LIB_STATIC} lint)
   else()
@@ -576,10 +567,8 @@ if(LINT)
   endif()
 endif()
 
-option(LIBSSH2_BUILD_DOCS "Build man pages" ON)
 set(_build_docs FALSE)
 if(LIBSSH2_BUILD_DOCS)
-  find_package(Perl)
   if(PERL_FOUND)
     set(_build_docs TRUE)
     add_subdirectory(docs)
@@ -591,10 +580,8 @@ add_feature_info("Docs" _build_docs "build docs")
 
 feature_summary(WHAT ALL)
 
-if( NOT LIBSSH2_SKIP_INSTALL )
-  set(CPACK_PACKAGE_VERSION_MAJOR ${LIBSSH2_VERSION_MAJOR})
-  set(CPACK_PACKAGE_VERSION_MINOR ${LIBSSH2_VERSION_MINOR})
-  set(CPACK_PACKAGE_VERSION_PATCH ${LIBSSH2_VERSION_PATCH})
-  set(CPACK_PACKAGE_VERSION ${LIBSSH2_VERSION})
-  include(CPack)
-endif()
+set(CPACK_PACKAGE_VERSION_MAJOR ${LIBSSH2_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${LIBSSH2_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${LIBSSH2_VERSION_PATCH})
+set(CPACK_PACKAGE_VERSION ${LIBSSH2_VERSION})
+include(CPack)
