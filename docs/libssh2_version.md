@@ -24,7 +24,7 @@ libssh2_version(int required_version);
 
 If *required_version* is lower than or equal to the version number of the
 libssh2 in use, the version number of libssh2 is returned as a pointer to a
-zero terminated string.
+null-terminated string.
 
 The *required_version* should be the version number as constructed by the
 LIBSSH2_VERSION_NUM define in the libssh2.h public header file, which is a 24
@@ -33,7 +33,7 @@ number.
 
 # RETURN VALUE
 
-The version number of libssh2 is returned as a pointer to a zero terminated
+The version number of libssh2 is returned as a pointer to a null-terminated
 string or NULL if the *required_version* is not fulfilled.
 
 # EXAMPLE
