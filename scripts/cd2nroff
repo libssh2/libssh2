@@ -401,7 +401,7 @@ sub single {
         $d =~ s/\\([<>])/$1/g;
 
         # mentions of curl symbols with man pages use italics by default
-        $d =~ s/((lib|)curl([^ ]*\(3\)))/\\fI$1\\fP/gi;
+        $d =~ s/(libssh2([^ ]*\(3\)))/\\fI$1\\fP/gi;
 
         # backticked becomes italics
         $d =~ s/\`(.*?)\`/\\fI$1\\fP/g;
