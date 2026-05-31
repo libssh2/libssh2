@@ -2,7 +2,7 @@
  *
  * Sample showing how to use libssh2 to execute a command remotely.
  *
- * The sample code has fixed values for host name, user name, password
+ * The sample code has fixed values for host name, username, password
  * and command to run.
  *
  * $ ./ssh2_exec 127.0.0.1 user password "uptime"

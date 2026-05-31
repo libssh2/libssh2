@@ -2185,7 +2185,7 @@ static int userauth_keyboard_interactive(
 
         session->userauth_kybd_packet_len =
             1                   /* byte    SSH_MSG_USERAUTH_REQUEST */
-            + 4 + username_len  /* string  user name (ISO-10646 UTF-8, as
+            + 4 + username_len  /* string  username (ISO-10646 UTF-8, as
                                    defined in [RFC-3629]) */
             + 4 + 14            /* string  service name (US-ASCII) */
             + 4 + 20            /* string  "keyboard-interactive" (US-ASCII) */
@@ -2204,7 +2204,7 @@ static int userauth_keyboard_interactive(
 
         *s++ = SSH_MSG_USERAUTH_REQUEST;
 
-        /* user name */
+        /* username */
         _libssh2_store_str(&s, username, username_len);
 
         /* service name */

@@ -2,7 +2,7 @@
  *
  * Sample doing an SFTP directory listing.
  *
- * The sample code has default values for host name, user name, password and
+ * The sample code has default values for host name, username, password and
  * path, but you can specify them on the command line like:
  *
  * $ ./sftpdir_nonblock 192.168.0.1 user password /tmp/secretdir

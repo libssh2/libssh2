@@ -31,7 +31,7 @@ libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 *session* - Session instance as returned by
 **libssh2_session_init_ex(3)**
 
-*username* - Pointer to user name to authenticate as.
+*username* - Pointer to username to authenticate as.
 
 *username_len* - Length of *username*.
 
