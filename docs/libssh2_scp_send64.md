@@ -34,7 +34,7 @@ file name.
 
 *size* - Size of file being transmitted (Must be known ahead of
 time). Note that this needs to be passed on as variable type
-libssh2_uint64_t. This type is 64 bit on modern operating systems and
+libssh2_uint64_t. This type is 64-bit on modern operating systems and
 compilers.
 
 *mtime* - mtime to assign to file being created
