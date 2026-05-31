@@ -219,7 +219,7 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
             }
 
             /* Compare the calculated hash with the MAC we just read from
-             * the network. The read one is at the very end of the payload
+             * the network. The read one is at the end of the payload
              * buffer. Note that 'payload_len' here is the packet_length
              * field which includes the padding but not the MAC.
              */
@@ -417,7 +417,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
 
     /*
      * =============================== NOTE ===============================
-     * I know this is very ugly and not a really good use of "goto", but
+     * I know this is ugly and not a really good use of "goto", but
      * this case statement would be even uglier to do it any other way
      */
     if(session->readPack_state == libssh2_NB_state_jump1) {

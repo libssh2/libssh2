@@ -551,7 +551,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
             case "$flag" in
              -I*)
                dnl Include path, provide a -isystem option for the same dir
-               dnl to prevent warnings in those dirs. The -isystem was not very
+               dnl to prevent warnings in those dirs. The -isystem was not
                dnl reliable on earlier gcc versions.
                add=`echo $flag | sed 's/^-I/-isystem /g'`
                tmp_CFLAGS="$tmp_CFLAGS $add"

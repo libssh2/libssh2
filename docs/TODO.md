@@ -109,7 +109,7 @@ slow. (The original API had the `libssh2_poll_channel_read()` and
 much the same problems plus a few others.)
 
 Traffic in the other direction is similarly limited: the app has to try
-sending to all channels, even though some of them may very well not accept any
+sending to all channels, even though some of them may well not accept any
 data at that point.
 
 A SOLUTION

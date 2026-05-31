@@ -105,7 +105,7 @@ int _libssh2_error_flags(LIBSSH2_SESSION *session, int errcode,
             session->err_msg = copy;
         }
         else
-            /* Out of memory: this code path is very unlikely */
+            /* Out of memory: this code path is unlikely */
             session->err_msg = "former error forgotten (OOM)";
     }
     else

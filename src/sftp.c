@@ -1483,7 +1483,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                 max_read_ahead = LIBSSH2_CHANNEL_WINDOW_DEFAULT * 4;
 
             /* if the buffer_size passed in now is smaller than what has
-               already been sent, we risk getting count become a very large
+               already been sent, we risk getting count become a large
                number */
             if(max_read_ahead > already)
                 count = max_read_ahead - already;
@@ -1495,7 +1495,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                list. Some of those read requests may not actually have been
                sent off successfully yet.
 
-               If 'already' is very large it should be perfectly fine to have
+               If 'already' is large it should be perfectly fine to have
                count set to 0 as then we don't have to ask for more data
                (right now).
 
@@ -1504,7 +1504,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                away multiple read requests guessing that the client will read
                more than only this 'buffer_size' amount of memory. So we ask
                for maximum buffer_size*4 amount of data so that we can return
-               them very fast in subsequent calls.
+               them fast in subsequent calls.
             */
 
             recv_window = libssh2_channel_window_read_ex(sftp->channel,
@@ -2043,7 +2043,7 @@ int libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle,
  * Write data to an SFTP handle. Returns the number of bytes written, or
  * a negative error code.
  *
- * We recommend sending very large data buffers to this function!
+ * We recommend sending large data buffers to this function!
  *
  * Concept:
  *
@@ -2118,8 +2118,8 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
 
         sftp->write_state = libssh2_NB_state_idle;
         while(count) {
-            /* TODO: Possibly this should have some logic to prevent a very
-               very small fraction to be left but lets ignore that for now */
+            /* TODO: Possibly this should have some logic to prevent a tiny
+               fraction to be left but lets ignore that for now */
             uint32_t size =
                 (uint32_t)(LIBSSH2_MIN(MAX_SFTP_OUTGOING_SIZE, count));
             uint32_t request_id;
@@ -2571,7 +2571,7 @@ size_t libssh2_sftp_tell(LIBSSH2_SFTP_HANDLE *handle)
     if(!handle)
         return 0; /* no handle, no size */
 
-    /* NOTE: this may very well truncate the size if it is larger than what
+    /* NOTE: this may well truncate the size if it is larger than what
        size_t can hold, so libssh2_sftp_tell64() is really the function you
        should use */
     return (size_t)(handle->u.file.offset);

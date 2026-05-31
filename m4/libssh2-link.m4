@@ -458,7 +458,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
                       dnl We cannot use $acl_hardcode_runpath_var and LD_RUN_PATH
                       dnl here, because this doesn't fit in flags passed to the
                       dnl compiler. So give up. No hardcoding. This affects only
-                      dnl very old systems.
+                      dnl old systems.
                       dnl FIXME: Not sure whether we should use
                       dnl "-L$found_dir -l$name" or "-L$found_dir $found_so"
                       dnl here.

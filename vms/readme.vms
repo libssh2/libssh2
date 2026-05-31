@@ -138,7 +138,7 @@ Building gnv$libssh2
 ====================
 
 You can build gnv$libssh2 yourself, which may have advantages, as the library is
-in full development, very regularly new features are added.
+in full development, regularly new features are added.
 
 For production use, it is probably advisable to use a stable version, and
 link against that. To check out new features, statically linking against
@@ -191,7 +191,7 @@ Downloading libssh2
 -------------------
 
 At the website of libssh2, you can find stable and daily gzipped
-tarballs. if you have a computer connected to internet you can
+tarballs. if you have a computer connected to Internet you can
 download a daily build yourself by a procedure that looks a lot like
 this ( fill out your own proxy user/password, set up right symbols to
 gunzip, vmstar and curl and set up the libssh2 build version):

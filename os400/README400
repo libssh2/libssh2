@@ -21,7 +21,7 @@ Crypto API is provided by the IBM QC3 API library. It supports RSA and EC,
 but not DSA.
 
   Standard compilation environment does support neither autotools nor make;
-in fact, very few common utilities are available. As a consequence, the
+in fact, few common utilities are available. As a consequence, the
 libssh2_config.h has been coded manually and the compilation scripts are
 a set of shell scripts stored in subdirectory os400.
 

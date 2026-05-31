@@ -1101,14 +1101,14 @@ void _libssh2_debug_low(LIBSSH2_SESSION *session, int context,
 /* When MAC type is "none" (proto initiation phase) all packets are deemed
    "confirmed" */
 #define LIBSSH2_MAC_CONFIRMED                    0
-/* Something very bad is going on */
+/* Something bad is going on */
 #define LIBSSH2_MAC_INVALID                      (-1)
 
 /* Flags for _libssh2_error_flags */
 /* Error message is allocated on the heap */
 #define LIBSSH2_ERR_FLAG_DUP                     1
 
-/* SSH Packet Types -- Defined by internet draft */
+/* SSH Packet Types -- Defined by Internet draft */
 /* Transport Layer */
 #define SSH_MSG_DISCONNECT                          1
 #define SSH_MSG_IGNORE                              2
