@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 # This file describes the licensing and copyright situation for files that
-# cannot be annotated directly, for example because of being simply
-# uncommentable. Unless this is the case, a file should be annotated directly.
+# cannot be annotated directly, for example because of being uncommentable.
+# Unless this is the case, a file should be annotated directly.
 #
 # This follows the REUSE specification: https://reuse.software/spec-3.2/#reusetoml
 
