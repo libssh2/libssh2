@@ -1732,7 +1732,7 @@ static int pkcs8kek(LIBSSH2_SESSION *session, struct os400qc3_crypto_ctx **ctx,
     Qc3_Format_ALGD0200_T algd;
     Qus_EC_t errcode;
 
-    /* Determine if the PKCS#8 data is encrypted and, if so, set-up a
+    /* Determine if the PKCS#8 data is encrypted and, if so, setup a
        key encryption key and algorithm in context.
        Return 1 if encrypted, 0, if not, -1 if error. */
 
