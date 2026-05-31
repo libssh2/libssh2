@@ -292,7 +292,7 @@ endif()
 if(CMAKE_C_STANDARD STREQUAL 90)
   if((CMAKE_C_COMPILER_ID STREQUAL "Clang"      AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 3.9) OR
      (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 8.1))
-    list(APPEND _picky "-Wno-comma")  # Just silly
+    list(APPEND _picky "-Wno-comma")  # Silly
   endif()
 endif()
 

@@ -340,7 +340,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           case "$CFLAGS" in
             *-std=c89*|*-std=c90*|*-std=gnu89*|*-std=gnu90*)
               if test "$compiler_num" -ge "309"; then
-                tmp_CFLAGS="$tmp_CFLAGS -Wno-comma"  # Just silly
+                tmp_CFLAGS="$tmp_CFLAGS -Wno-comma"  # Silly
               fi
               ;;
           esac

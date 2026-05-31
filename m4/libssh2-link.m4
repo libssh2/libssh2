@@ -274,7 +274,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
             test -z "$value" || LTLIB[]NAME="${LTLIB[]NAME}${LTLIB[]NAME:+ }$value"
           else
             dnl An earlier call to LIBSSH2_HAVE_LINKFLAGS has determined
-            dnl that this library doesn't exist. So just drop it.
+            dnl that this library doesn't exist. So drop it.
             :
           fi
         else
