@@ -429,9 +429,6 @@ sub single {
             if($word eq "PROTOCOLS") {
                 print STDERR "$f:$line:1:WARN: PROTOCOLS section in source file\n";
             }
-            elsif($word eq "AVAILABILITY") {
-                print STDERR "$f:$line:1:WARN: AVAILABILITY section in source file\n";
-            }
             elsif($word eq "%PROTOCOLS%") {
                 # insert the generated PROTOCOLS section
                 push @desc, outprotocols(@proto);
