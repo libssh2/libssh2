@@ -292,7 +292,7 @@ static int sftp_packet_read(LIBSSH2_SFTP *sftp)
             /* only do this if there's not already a packet buffer allocated
                to use */
 
-            /* each packet starts with a 32 bit length field */
+            /* each packet starts with a 32-bit length field */
             rc = _libssh2_channel_read(channel, 0,
                                        (char *)&sftp->packet_header[
                                            sftp->packet_header_len],

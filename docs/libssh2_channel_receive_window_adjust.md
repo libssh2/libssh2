@@ -36,7 +36,7 @@ adjustment amount will be queued for a later packet.
 
 Returns the new size of the receive window (as understood by remote end). Note
 that the window value sent over the wire is strictly 32bit, but this API is
-made to return a 'long' which may not be 32 bit on all platforms.
+made to return a 'long' which may not be 32-bit on all platforms.
 
 # ERRORS
 
