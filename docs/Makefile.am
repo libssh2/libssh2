@@ -12,10 +12,10 @@ CLEANFILES = $(man_MANS)
 SUFFIXES = .3 .md
 
 .md.3:
-	$(srcdir)/cd2nroff $< >$@
+	$(top_srcdir)/scripts/cd2nroff $< >$@
 
 endif
 
-EXTRA_DIST = $(MANPAGES) template.md cd2nroff AUTHORS BINDINGS.md HACKING.md \
+EXTRA_DIST = $(MANPAGES) template.md AUTHORS BINDINGS.md HACKING.md \
   HACKING-CRYPTO INSTALL-AUTOTOOLS.md INSTALL-CMAKE.md REQUIREMENTS.md \
   SECURITY.md TODO.md CMakeLists.txt
