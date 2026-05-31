@@ -1499,7 +1499,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                count set to 0 as then we don't have to ask for more data
                (right now).
 
-               buffer_size*4 is just picked more or less out of the air. The
+               buffer_size*4 is picked more or less out of the air. The
                idea is that when reading SFTP from a remote server, we send
                away multiple read requests guessing that the client will read
                more than only this 'buffer_size' amount of memory. So we ask
@@ -1633,7 +1633,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
 
             if(chunk->lefttosend) {
                 /* if the chunk still has data left to send, we shouldn't wait
-                   for an ACK for it just yet */
+                   for an ACK for it yet */
                 if(bytes_in_buffer > 0) {
                     return bytes_in_buffer;
                 }
@@ -1671,7 +1671,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
 
             switch(data[0]) {
             case SSH_FXP_STATUS:
-                /* remove the chunk we just processed */
+                /* remove the chunk we processed */
 
                 _libssh2_list_remove(&chunk->node);
                 LIBSSH2_FREE(session, chunk);
@@ -1750,7 +1750,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                     /* free the allocated data if not stored to keep */
                     LIBSSH2_FREE(session, data);
 
-                /* remove the chunk we just processed keeping track of the
+                /* remove the chunk we processed keeping track of the
                  * next one in case we need it */
                 next = _libssh2_list_next(&chunk->node);
                 _libssh2_list_remove(&chunk->node);
@@ -2197,7 +2197,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
         while(chunk) {
             if(chunk->lefttosend)
                 /* if the chunk still has data left to send, we shouldn't wait
-                   for an ACK for it just yet */
+                   for an ACK for it yet */
                 break;
 
             else if(acked)

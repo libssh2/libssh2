@@ -645,7 +645,7 @@ static int memory_read_publickey(LIBSSH2_SESSION *session,
     }
 
     /* Wasting some bytes here (okay, more than some), but since it's likely
-     * to be freed soon anyway, we'll just avoid the extra free/alloc and call
+     * to be freed soon anyway, we'll avoid the extra free/alloc and call
      * it a wash
      */
     *method = pubkey;
@@ -747,7 +747,7 @@ static int file_read_publickey(LIBSSH2_SESSION *session,
     }
 
     /* Wasting some bytes here (okay, more than some), but since it's likely
-     * to be freed soon anyway, we'll just avoid the extra free/alloc and call
+     * to be freed soon anyway, we'll avoid the extra free/alloc and call
      * it a wash */
     *method = pubkey;
     *method_len = sp1 - pubkey - 1;

@@ -602,7 +602,7 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
     if(!dir) {
         _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
                         "Nothing to wait for in wait_socket"));
-        /* To avoid that we hang below just because there's nothing set to
+        /* To avoid that we hang below because there's nothing set to
            wait for, we timeout on 1 second to also avoid busy-looping
            during this condition */
         ms_to_next = 1000;
@@ -841,7 +841,7 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
         return 0;
     }
 
-    /* just for safety return some error */
+    /* for safety return some error */
     return LIBSSH2_ERROR_INVAL;
 }
 

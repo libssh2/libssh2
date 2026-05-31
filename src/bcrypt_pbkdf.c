@@ -45,7 +45,7 @@
  * attacker can merely run once through the outer loop below, but the user
  * always runs it twice. Shuffling output bytes requires computing the
  * entirety of the key material to assemble any subkey. This is something a
- * wise caller could do; we just do it for you.
+ * wise caller could do; we do it for you.
  */
 
 #define BCRYPT_BLOCKS   8

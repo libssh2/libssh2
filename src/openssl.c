@@ -3389,7 +3389,7 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx)
     /* MD5 digest is not supported in OpenSSL FIPS mode
      * Trying to init it will result in a latent OpenSSL error:
      * "digital envelope routines:FIPS_DIGESTINIT:disabled for fips"
-     * So, just return 0 in FIPS mode
+     * Thus, return 0 in FIPS mode
      */
 #if !defined(USE_OPENSSL_3) && \
     !defined(LIBRESSL_VERSION_NUMBER) && \

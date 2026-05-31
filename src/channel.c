@@ -1834,7 +1834,7 @@ int _libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
         adjustment += channel->adjust_queue;
         channel->adjust_queue = 0;
 
-        /* Adjust the window based on the block we just freed */
+        /* Adjust the window based on the block we freed */
         channel->adjust_adjust[0] = SSH_MSG_CHANNEL_WINDOW_ADJUST;
         _libssh2_htonu32(&channel->adjust_adjust[1], channel->remote.id);
         _libssh2_htonu32(&channel->adjust_adjust[5], adjustment);
@@ -1902,7 +1902,7 @@ unsigned long libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
                                                         (uint32_t)adjustment,
                                                         force, &window));
 
-    /* stupid - but this is how it was made to work before and this is just
+    /* stupid - but this is how it was made to work before and this is
        kept for backwards compatibility */
     return rc ? (unsigned long)rc : window;
 }
@@ -2750,7 +2750,7 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
     /*
      * channel->remote.close *might* not be set yet, Well...
      * We've sent the close packet, what more do you want?
-     * Just let packet_add ignore it when it finally arrives
+     * Let packet_add ignore it when it finally arrives
      */
 
     /* Clear out packets meant for this channel */

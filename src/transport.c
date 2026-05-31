@@ -218,7 +218,7 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
                                  &session->remote.mac_abstract);
             }
 
-            /* Compare the calculated hash with the MAC we just read from
+            /* Compare the calculated hash with the MAC we read from
              * the network. The read one is at the end of the payload
              * buffer. Note that 'payload_len' here is the packet_length
              * field which includes the padding but not the MAC.
@@ -455,7 +455,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
         /* read/use a whole big chunk into a temporary area stored in
            the LIBSSH2_SESSION struct. We will decrypt data from that
            buffer into the packet buffer so this temp one doesn't have
-           to be able to keep a whole SSH packet, just be large enough
+           to be able to keep a whole SSH packet, be large enough
            so that we can read big chunks from the network layer. */
 
         /* how much data there is remaining in the buffer to deal with
@@ -480,7 +480,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
                 p->writeidx = remainbuf;
             }
             else {
-                /* nothing to move, just zero the indexes */
+                /* nothing to move, zero the indexes */
                 p->readidx = p->writeidx = 0;
             }
 
@@ -587,7 +587,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
                     memcpy(p->init, block, 5);
                 }
                 else {
-                    /* the data is plain, just copy it verbatim to
+                    /* the data is plain, copy it verbatim to
                        the working block buffer */
                     memcpy(block, &p->buf[p->readidx], blocksize);
                 }

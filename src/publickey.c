@@ -45,7 +45,7 @@
 
 #define LIBSSH2_PUBLICKEY_VERSION 2
 
-/* Numericised response codes -- Not IETF, just local representation */
+/* Numericised response codes -- Not IETF, but local representation */
 #define LIBSSH2_PUBLICKEY_RESPONSE_STATUS    0
 #define LIBSSH2_PUBLICKEY_RESPONSE_VERSION   1
 #define LIBSSH2_PUBLICKEY_RESPONSE_PUBLICKEY 2

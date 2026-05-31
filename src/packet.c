@@ -1027,7 +1027,7 @@ libssh2_packet_add_jump_point5:
 
                 session->packAdd_channelp = channelp;
 
-                /* Adjust the window based on the block we just freed */
+                /* Adjust the window based on the block we freed */
 libssh2_packet_add_jump_point1:
                 session->packAdd_state = libssh2_NB_state_jump1;
                 rc = _libssh2_channel_receive_window_adjust(session->
@@ -1103,7 +1103,7 @@ libssh2_packet_add_jump_point1:
                     _libssh2_channel_locate(session,
                                             _libssh2_ntohu32(data + 1));
             if(!channelp)
-                /* We may have freed already, just quietly ignore this... */
+                /* We may have freed already, quietly ignore this... */
                 ;
             else {
                 _libssh2_debug((session, LIBSSH2_TRACE_CONN,
@@ -1264,7 +1264,7 @@ clean_exit:
                     _libssh2_channel_locate(session,
                                             _libssh2_ntohu32(data + 1));
             if(!channelp) {
-                /* We may have freed already, just quietly ignore this... */
+                /* We may have freed already, quietly ignore this... */
                 LIBSSH2_FREE(session, data);
                 session->packAdd_state = libssh2_NB_state_idle;
                 return 0;
@@ -1411,7 +1411,7 @@ libssh2_packet_add_jump_authagent:
             /*
              * Remote wants new keys
              * Well, it's already in the brigade,
-             * let's just call back into ourselves
+             * let's call back into ourselves
              */
             _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
                             "Renegotiating Keys"));
@@ -1434,7 +1434,7 @@ libssh2_packet_add_jump_authagent:
                sizeof(session->startup_key_state));
 
         /*
-         * If there was a key reexchange failure, let's just hope we didn't
+         * If there was a key reexchange failure, let's hope we didn't
          * send NEWKEYS yet, otherwise remote will drop us like a rock
          */
         rc = _libssh2_kex_exchange(session, 1, &session->startup_key_state);
@@ -1549,7 +1549,7 @@ int _libssh2_packet_require(LIBSSH2_SESSION *session,
             return ret;
         else if(ret < 0) {
             state->start = 0;
-            /* an error which is not just because of blocking */
+            /* an error which is not because of blocking */
             return ret;
         }
         else if(ret == packet_type) {

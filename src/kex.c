@@ -375,7 +375,7 @@ static int finish_kex(LIBSSH2_SESSION *session,
     session->state |= LIBSSH2_STATE_NEWKEYS;
     _libssh2_debug((session, LIBSSH2_TRACE_KEX, "Received NEWKEYS message"));
 
-    /* This will actually end up being just packet_type(1)
+    /* This will actually end up being packet_type(1)
        for this packet type anyway */
     LIBSSH2_FREE(session, exchange_state->tmp);
 
@@ -3802,11 +3802,11 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session,
                    vs Signing) */
                 if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) ==
                      0) || (method->encrypt)) {
-                    /* Either this hostkey can do encryption or this kex just
+                    /* Either this hostkey can do encryption or this kex
                        doesn't require it */
                     if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY)
                          == 0) || (method->sig_verify)) {
-                        /* Either this hostkey can do signing or this kex just
+                        /* Either this hostkey can do signing or this kex
                            doesn't require it */
                         session->hostkey = method;
                         return 0;
@@ -3828,11 +3828,11 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session,
                Signing) */
             if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0) ||
                ((*hostkeyp)->encrypt)) {
-                /* Either this hostkey can do encryption or this kex just
+                /* Either this hostkey can do encryption or this kex
                    doesn't require it */
                 if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) ==
                      0) || ((*hostkeyp)->sig_verify)) {
-                    /* Either this hostkey can do signing or this kex just
+                    /* Either this hostkey can do signing or this kex
                        doesn't require it */
                     session->hostkey = *hostkeyp;
                     return 0;
