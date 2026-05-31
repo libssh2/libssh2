@@ -38,6 +38,9 @@ OS400FILES = os400/README400 os400/initscript.sh os400/make.sh \
   os400/rpg-examples/SFTPXMPLE
 
 SCRIPTSFILES = \
+  scripts/badwords \
+  scripts/badwords-all \
+  scripts/badwords.txt \
   scripts/cd2nroff \
   scripts/checksrc-all.pl \
   scripts/checksrc.pl \
