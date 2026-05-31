@@ -44,7 +44,7 @@
 
 #define LIBSSH2_COPYRIGHT "The libssh2 project and its contributors."
 
-/* We use underscore instead of dash when appending DEV in dev versions just
+/* We use underscore instead of dash when appending DEV in dev versions
    to make the BANNER define (used by src/session.c) be a valid SSH
    banner. Release versions have no appended strings and may of course not
    have dashes either. The release version (without "_DEV") is not stored in

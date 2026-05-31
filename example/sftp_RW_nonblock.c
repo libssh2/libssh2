@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
 
     tempstorage = fopen(storage, "rb");
     if(!tempstorage) {
-        /* weird, we cannot read the file we just wrote to... */
+        /* weird, we cannot read the file we wrote to... */
         fprintf(stderr, "Cannot open %s for reading\n", storage);
         goto shutdown;
     }

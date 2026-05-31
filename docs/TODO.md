@@ -139,8 +139,8 @@ out.
 VOLUNTARY
 
 I wanted to mention that these two helper functions would not be mandatory in
-any way. They would just be there for those who want them, and existing
-programs can remain using the old functions only if they prefer to.
+any way. They would be there for those who want them, and existing programs
+can remain using the old functions only if they prefer to.
 
 ## New SFTP API
 

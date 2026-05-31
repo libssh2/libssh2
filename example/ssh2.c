@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Unable to request command on channel\n");
             goto shutdown;
         }
-        /* Instead of just running a single command with libssh2_channel_exec,
+        /* Instead of running a single command with libssh2_channel_exec,
          * a shell can be opened on the channel instead, for interactive use.
          * You usually want a pty allocated first in that case (see above). */
 #if 0
