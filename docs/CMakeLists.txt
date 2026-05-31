@@ -22,8 +22,8 @@ function(libssh2_add_manual_pages _listname)
     if(_file_count GREATER_EQUAL _files_per_batch OR _file STREQUAL "_EOL_")
       add_custom_command(OUTPUT ${_rofffiles}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        COMMAND "${PERL_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/cd2nroff" -k -d "${CMAKE_CURRENT_BINARY_DIR}" ${_mdfiles}
-        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/cd2nroff" ${_mdfiles}
+        COMMAND "${PERL_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/scripts/cd2nroff" -k -d "${CMAKE_CURRENT_BINARY_DIR}" ${_mdfiles}
+        DEPENDS "${PROJECT_SOURCE_DIR}/scripts/cd2nroff" ${_mdfiles}
         VERBATIM
       )
       set(_file_count 0)
