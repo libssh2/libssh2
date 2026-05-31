@@ -1256,8 +1256,8 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
             return NULL;
         }
 
-        /* OPEN can basically get STATUS or HANDLE back, where HANDLE implies
-           a fine response while STATUS means error. It seems though that at
+        /* OPEN can get STATUS or HANDLE back, where HANDLE implies a fine
+           response while STATUS means error. It seems though that at
            times we get an SSH_FX_OK back in a STATUS, followed the "real"
            HANDLE so we need to properly deal with that. */
         if(data[0] == SSH_FXP_STATUS) {
