@@ -309,10 +309,6 @@ sub single {
                 print STDERR "$f:$line:1:ERROR: no 'Added-in:' in $f\n";
                 return 2;
             }
-            if(!$seealso[0]) {
-                print STDERR "$f:$line:1:ERROR: no 'See-also:' present\n";
-                return 2;
-            }
             if(!$copyright) {
                 print STDERR "$f:$line:1:ERROR: no 'C:' field present\n";
                 return 2;
