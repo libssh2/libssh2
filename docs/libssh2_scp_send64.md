@@ -28,13 +28,13 @@ libssh2_scp_send64(LIBSSH2_SESSION *session, const char *path, int mode,
 *session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *path* - Full path and filename of file to transfer to. That is the remote
-file name.
+filename.
 
 *mode* - File access mode to create file with
 
 *size* - Size of file being transmitted (Must be known ahead of
 time). Note that this needs to be passed on as variable type
-libssh2_uint64_t. This type is 64 bit on modern operating systems and
+libssh2_uint64_t. This type is 64-bit on modern operating systems and
 compilers.
 
 *mtime* - mtime to assign to file being created

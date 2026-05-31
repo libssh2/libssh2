@@ -26,12 +26,12 @@ libssh2_channel_request_auth_agent(LIBSSH2_CHANNEL *channel);
 
 Request that agent forwarding be enabled for this SSH session. This sends the
 request over this specific channel, which causes the agent listener to be
-started on the remote side upon success. This agent listener will then run
+started on the remote side upon success. This agent listener is then run
 for the duration of the SSH session.
 
 To use agent forwarding, libssh2_session_callback_set2(3)
 must first be called to set **LIBSSH2_CALLBACK_AUTHAGENT**.
-This callback will be invoked when the remote host opens a connection to the
+This callback is invoked when the remote host opens a connection to the
 local agent.
 
 *channel* - Previously opened channel instance such as returned by

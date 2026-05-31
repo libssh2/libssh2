@@ -44,11 +44,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     written = send(socket_fds[1], data, size, 0);
 
     if(written != (ssize_t)size) {
-        /* Handle whatever error case we're in. */
+        /* Handle whatever error case we are in. */
         fprintf(stderr, "send() of %zu bytes returned %zu (%d)\n",
-                size,
-                written,
-                errno);
+                size, written, errno);
         goto EXIT_LABEL;
     }
 

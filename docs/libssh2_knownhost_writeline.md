@@ -38,7 +38,7 @@ the 'type' output format.
 
 *buflen* is the size of the *buffer*. See RETURN VALUE about the size.
 
-*outlen* must be a pointer to a size_t variable that will get the output
+*outlen* must be a pointer to a size_t variable that gets the output
 length of the stored data chunk. The number does not included the trailing
 zero!
 
@@ -52,9 +52,9 @@ Returns a regular libssh2 error code, where negative values are error codes
 and 0 indicates success.
 
 If the provided buffer is deemed too small to fit the data libssh2 wants to
-store in it, LIBSSH2_ERROR_BUFFER_TOO_SMALL will be returned. The application
+store in it, LIBSSH2_ERROR_BUFFER_TOO_SMALL is returned. The application
 is then advised to call the function again with a larger buffer. The
-*outlen* size will then hold the requested size.
+*outlen* size then holds the requested size.
 
 # AVAILABILITY
 

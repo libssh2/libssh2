@@ -38,8 +38,8 @@ future release.
 Adds a known host to the collection of known hosts identified by the 'hosts'
 handle.
 
-*host* is a pointer the host name in plain text or hashed. If hashed, it
-must be provided base64 encoded. The host name can be the IP numerical address
+*host* is a pointer the hostname in plain text or hashed. If hashed, it
+must be provided base64 encoded. The hostname can be the IP numerical address
 of the host or the full name.
 
 *saltP is a pointer to the salt used for the host hashing, if the host is
@@ -52,10 +52,10 @@ The salt has to be provided base64 encoded with a trailing zero byte.
 argument
 
 *typemask* is a bitmask that specifies format and info about the data
-passed to this function. Specifically, it details what format the host name is,
+passed to this function. Specifically, it details what format the hostname is,
 what format the key is and what key type it is.
 
-The host name is given as one of the following types:
+The hostname is given as one of the following types:
 LIBSSH2_KNOWNHOST_TYPE_PLAIN, LIBSSH2_KNOWNHOST_TYPE_SHA1 or
 LIBSSH2_KNOWNHOST_TYPE_CUSTOM.
 

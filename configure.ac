@@ -119,7 +119,7 @@ AS_HELP_STRING([--disable-docs],[Disable documentation]),
     BUILD_DOCS=1
 )
 if test -z "$PERL" -a "x$BUILD_DOCS" != "x0"; then
-  AC_MSG_WARN([perl was not found. Will not build documentation.])
+  AC_MSG_WARN([perl was not found. Cannot build documentation.])
   BUILD_DOCS=0
 fi
 

@@ -48,17 +48,16 @@ stat operation to perform:
 metadata from or into depending on the value of stat_type.
 
 Get or Set statbuf type data on a remote filesystem object. When getting
-statbuf data, libssh2_sftp_stat(3)
-will follow all symlinks, while libssh2_sftp_lstat(3)
-will return data about the object encountered, even if that object
-happens to be a symlink.
+statbuf data, libssh2_sftp_stat(3) follows all symlinks, while
+libssh2_sftp_lstat(3) returns data about the object encountered, even if
+that object happens to be a symlink.
 
 The LIBSSH2_SFTP_ATTRIBUTES struct looks like this:
 
 ~~~c
 struct LIBSSH2_SFTP_ATTRIBUTES {
-    /* If flags & ATTR_* bit is set, then the value in this struct will be
-     * meaningful Otherwise it should be ignored
+    /* If flags & ATTR_* bit is set, then the value in this struct is
+     * meaningful otherwise it should be ignored
      */
     unsigned long flags;
 

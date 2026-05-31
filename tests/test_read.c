@@ -107,7 +107,7 @@ int test(LIBSSH2_SESSION *session)
             for(i = 0; i < (unsigned long)err; ++i) {
                 if(buf[i]) {
                     fprintf(stderr, "Bad data received\n");
-                    /* Test will fail below due to bad data length */
+                    /* Test fails below due to bad data length */
                     break;
                 }
             }

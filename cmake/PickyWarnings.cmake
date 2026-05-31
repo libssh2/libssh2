@@ -98,7 +98,7 @@ if(PICKY_COMPILER)
       -Wsign-conversion                    # clang  2.9  gcc  4.3
         -Wno-error=sign-conversion                                              # FIXME
       -Wstrict-prototypes                  # clang  1.0  gcc  3.3
-    # -Wswitch-enum                        # clang  2.7  gcc  4.1               # Not used: It basically disallows default case
+    # -Wswitch-enum                        # clang  2.7  gcc  4.1               # Not used: It makes default case unusable
       -Wtype-limits                        # clang  2.7  gcc  4.3
       -Wunreachable-code                   # clang  2.7  gcc  4.1
       -Wunused-macros                      # clang  2.7  gcc  4.1
@@ -266,7 +266,7 @@ if(PICKY_COMPILER)
     list(APPEND _picky "-wd4774")  # 'snprintf': format string expected in argument 3 is not a string literal
     list(APPEND _picky "-wd4820")  # 'A': 'N' bytes padding added after data member 'B'
     if(MSVC_VERSION GREATER_EQUAL 1900)
-      list(APPEND _picky "-wd5045")  # Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
+      list(APPEND _picky "-wd5045")  # Compiler inserts Spectre mitigation for memory load if /Qspectre switch specified
     endif()
   endif()
 endif()
@@ -292,7 +292,7 @@ endif()
 if(CMAKE_C_STANDARD STREQUAL 90)
   if((CMAKE_C_COMPILER_ID STREQUAL "Clang"      AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 3.9) OR
      (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 8.1))
-    list(APPEND _picky "-Wno-comma")  # Just silly
+    list(APPEND _picky "-Wno-comma")  # Silly
   endif()
 endif()
 

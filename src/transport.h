@@ -74,7 +74,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
  * to wait for a packet to start.
  *
  * Returns packet type added to input brigade (PACKET_NONE if nothing added),
- * or PACKET_FAIL on failure and PACKET_EAGAIN if it couldn't process a full
+ * or PACKET_FAIL on failure and PACKET_EAGAIN if it could not process a full
  * packet.
  */
 

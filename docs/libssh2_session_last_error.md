@@ -32,15 +32,15 @@ libssh2_session_last_error(LIBSSH2_SESSION *session,
 readable form of the most recent error message.
 
 *errmsg_len* - If not NULL, is populated by reference with the length
-of errmsg. (The string is NUL-terminated, so the length is only useful as
+of errmsg. (The string is null-terminated, so the length is only useful as
 an optimization, to avoid calling strlen.)
 
 *want_buf* - If set to a non-zero value, "ownership" of the errmsg
-buffer will be given to the calling scope. If necessary, the errmsg buffer
-will be duplicated.
+buffer is given to the calling scope. If necessary, the errmsg buffer
+is duplicated.
 
 Determine the most recent error condition and its cause.
 
 # RETURN VALUE
 
-Numeric error code corresponding to the the Error Code constants.
+Numeric error code corresponding to the Error Code constants.

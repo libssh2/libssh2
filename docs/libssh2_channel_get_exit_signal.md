@@ -30,23 +30,23 @@ libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL *channel,
 *exitsignal* - If not NULL, is populated by reference with the exit signal
 (without leading "SIG"). Note that the string is stored in a newly allocated
 buffer. If the remote program exited cleanly, the referenced string pointer
-will be set to NULL.
+is set to NULL.
 
 *exitsignal_len* - If not NULL, is populated by reference with the length
 of exitsignal.
 
 *errmsg* - If not NULL, is populated by reference with the error message
-(if provided by remote server, if not it will be set to NULL). Note that the
+(if provided by remote server, if not it is set to NULL). Note that the
 string is stored in a newly allocated buffer.
 
 *errmsg_len* - If not NULL, is populated by reference with the length of errmsg.
 
 *langtag* - If not NULL, is populated by reference with the language tag
-(if provided by remote server, if not it will be set to NULL). Note that the
+(if provided by remote server, if not it is set to NULL). Note that the
 string is stored in a newly allocated buffer.
 
 *langtag_len* - If not NULL, is populated by reference with the length of langtag.
 
 # RETURN VALUE
 
-Numeric error code corresponding to the the Error Code constants.
+Numeric error code corresponding to the Error Code constants.

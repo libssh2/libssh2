@@ -64,7 +64,7 @@
 
 /* Want safe, 'n += snprintf(b + n ...)' like function. If cp_max_len is 1
 * then assume cp is pointing to a null char and do nothing. Returns number
-* number of chars placed in cp excluding the trailing null char. So for
+* number of chars placed in cp excluding the trailing null char. For
 * cp_max_len > 0 the return value is always < cp_max_len; for cp_max_len
 * <= 0 the return value is 0 (and no chars are written to cp). */
 int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
@@ -105,7 +105,7 @@ int _libssh2_error_flags(LIBSSH2_SESSION *session, int errcode,
             session->err_msg = copy;
         }
         else
-            /* Out of memory: this code path is very unlikely */
+            /* Out of memory: this code path is unlikely */
             session->err_msg = "former error forgotten (OOM)";
     }
     else
@@ -113,7 +113,7 @@ int _libssh2_error_flags(LIBSSH2_SESSION *session, int errcode,
 
 #ifdef LIBSSH2DEBUG
     if((errcode == LIBSSH2_ERROR_EAGAIN) && !session->api_block_mode)
-        /* if this is EAGAIN and we're in non-blocking mode, don't generate
+        /* if this is EAGAIN and we are in non-blocking mode, do not generate
            a debug output for this */
         return errcode;
     _libssh2_debug((session, LIBSSH2_TRACE_ERROR, "%d - %s", session->err_code,
@@ -143,8 +143,7 @@ int _libssh2_wsa2errno(void)
 
     default:
         /* It is most important to ensure errno does not stay at EAGAIN
-         * when a different error occurs so just set errno to a generic
-         * error */
+         * when a different error occurs so set errno to a generic error */
         return EIO;
     }
 }
@@ -740,7 +739,7 @@ void _libssh2_list_insert(struct list_node *after, /* insert before this */
  * This source code is offered for use in the public domain. You may
  * use, modify or distribute it freely.
  *
- * This code is distributed in the hope that it will be useful but
+ * This code is distributed in the hope that it is useful but
  * WITHOUT ANY WARRANTY. ALL WARRANTIES, EXPRESS OR IMPLIED ARE HEREBY
  * DISCLAIMED. This includes but is not limited to warranties of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.

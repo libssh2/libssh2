@@ -2000,7 +2000,7 @@ static int wincng_p1363signature_from_point(IN const unsigned char *r,
         s_trimmed_len--;
     }
 
-    /* Validate r and s will fit into signature */
+    /* Validate r and s fits into signature */
     if(r_trimmed_len > *signature_length / 2 ||
        s_trimmed_len > *signature_length / 2) {
         return LIBSSH2_ERROR_INVAL;
@@ -2495,7 +2495,7 @@ int _libssh2_wincng_ecdh_gen_k(
         goto cleanup;
     }
 
-    /* And populate the secret bignum */
+    /* Populate the secret bignum */
     status = BCryptDeriveKey(
         agreed_secret_handle,
         BCRYPT_KDF_RAW_SECRET,
@@ -2878,13 +2878,13 @@ int _libssh2_wincng_ecdsa_new_private_frommemory(
     data_buffer.dataptr = data_buffer.data +
                           strlen(OPENSSL_PRIVATEKEY_AUTH_MAGIC) + 1;
 
-    /* Read ciphername, should be 'none' as we don't support passphrases */
+    /* Read ciphername, should be 'none' as we do not support passphrases */
     result = _libssh2_match_string(&data_buffer, "none");
     if(result != LIBSSH2_ERROR_NONE) {
         goto cleanup;
     }
 
-    /* Read kdfname, should be 'none' as we don't support passphrases */
+    /* Read kdfname, should be 'none' as we do not support passphrases */
     result = _libssh2_match_string(&data_buffer, "none");
     if(result != LIBSSH2_ERROR_NONE) {
         goto cleanup;
@@ -3523,7 +3523,7 @@ void _libssh2_dh_dtor(struct wincng_dh_ctx *dhctx)
     }
     if(dhctx->dh_params) {
         /* Since public dh_params are shared in clear text,
-         * we don't need to securely zero them out here */
+         * we do not need to securely zero them out here */
         free(dhctx->dh_params);
         dhctx->dh_params = NULL;
     }
@@ -3598,7 +3598,7 @@ int _libssh2_dh_key_pair(struct wincng_dh_ctx *dhctx, libssh2_bn *public,
             free(dh_params);
         }
         else {
-            /* Pass ownership to dhctx; these parameters will be freed when
+            /* Pass ownership to dhctx; these parameters are freed when
              * the context is destroyed. We need to keep the parameters more
              * easily available so that we have access to the `g` value when
              * _libssh2_dh_secret() is called later. */
@@ -3808,7 +3808,7 @@ int _libssh2_dh_secret(struct wincng_dh_ctx *dhctx, libssh2_bn *secret,
             goto out;
         }
 
-        /* And populate the secret bignum */
+        /* Populate the secret bignum */
         status = BCryptDeriveKey(agreement, BCRYPT_KDF_RAW_SECRET, NULL,
                                  secret->bignum, secret_len_bytes,
                                  &secret_len_bytes, 0);

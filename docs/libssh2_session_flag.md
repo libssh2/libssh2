@@ -29,13 +29,13 @@ Set options for the created session. *flag* is the option to set, while
 
 ## LIBSSH2_FLAG_SIGPIPE
 
-If set, libssh2 will not attempt to block SIGPIPEs but will let them trigger
+If set, libssh2 does not attempt to block SIGPIPEs but lets them trigger
 from the underlying socket layer.
 
 ## LIBSSH2_FLAG_COMPRESS
 
-If set - before the connection negotiation is performed - libssh2 will try to
-negotiate compression enabling for this connection. By default libssh2 will
+If set - before the connection negotiation is performed - libssh2 tries to
+negotiate compression enabling for this connection. By default libssh2 does
 not attempt to use compression.
 
 # RETURN VALUE

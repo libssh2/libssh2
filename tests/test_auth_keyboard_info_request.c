@@ -178,7 +178,7 @@ static const struct test_case test_cases[TEST_CASES_LEN] = {
         "\0\0\0\x0aPassword: \0"
         "\0\0\0\x07Token: \1", 44,
         { FAIL, -6, "Unable to decode keyboard-interactive prompt message" } },
-    /* overflow language on 32 bit platform */
+    /* overflow language on 32-bit platform */
     {
         "<"
         "\0\0\0\x19"

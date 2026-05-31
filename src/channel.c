@@ -72,9 +72,9 @@ uint32_t _libssh2_channel_nextid(LIBSSH2_SESSION *session)
         channel = _libssh2_list_next(&channel->node);
     }
 
-    /* This is a shortcut to avoid waiting for close packets on channels we've
-     * forgotten about, This *could* be a problem if we request and close 4
-     * billion or so channels in too rapid succession for the remote end to
+    /* This is a shortcut to avoid waiting for close packets on channels we
+     * have forgotten about, This *could* be a problem if we request and close
+     * 4 billion or so channels in too rapid succession for the remote end to
      * respond, but the worst case scenario is that some data meant for
      * another channel Gets picked up by the new one.... Pretty unlikely all
      * told...
@@ -101,7 +101,7 @@ LIBSSH2_CHANNEL *_libssh2_channel_locate(LIBSSH2_SESSION *session,
             return channel;
     }
 
-    /* We didn't find the channel in the session, let's then check its
+    /* We did not find the channel in the session, let us then check its
        listeners since each listener may have its own set of pending channels
     */
     for(l = _libssh2_list_first(&session->listeners); l;
@@ -746,7 +746,7 @@ int _libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
             _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                            "Unable to send global-request packet for forward "
                            "listen request");
-            /* set the state to something we don't check for, for the
+            /* set the state to something we do not check for, for the
                unfortunate situation where we get an EAGAIN further down
                when trying to bail out due to errors! */
             listener->chanFwdCncl_state = libssh2_NB_state_sent;
@@ -1189,7 +1189,7 @@ int libssh2_channel_request_auth_agent(LIBSSH2_CHANNEL *channel)
 
     rc = LIBSSH2_ERROR_CHANNEL_UNKNOWN;
 
-    /* The current RFC draft for agent forwarding says you're supposed to
+    /* The current RFC draft for agent forwarding says you are supposed to
      * send "auth-agent-req," but most SSH servers out there right now
      * actually expect "auth-agent-req@openssh.com", so we try that
      * first. */
@@ -1272,7 +1272,7 @@ static int channel_request_pty_size(LIBSSH2_CHANNEL *channel, int width,
         _libssh2_store_u32(&s, channel->remote.id);
         _libssh2_store_str(&s, (const char *)"window-change",
                            sizeof("window-change") - 1);
-        *(s++) = 0x00; /* Don't reply */
+        *(s++) = 0x00; /* Do not reply */
         _libssh2_store_u32(&s, width);
         _libssh2_store_u32(&s, height);
         _libssh2_store_u32(&s, width_px);
@@ -1381,8 +1381,8 @@ static int channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
         }
         else {
             int i;
-            /* note: the snprintf() loop will always write 3 bytes so the
-               last one will write the trailing zero after the
+            /* note: the snprintf() loop always writes 3 bytes so the
+               last one writes the trailing zero after the
                LIBSSH2_X11_RANDOM_COOKIE_LEN border in s, but s has extra
                4 bytes of size (for screen_number) */
             unsigned char buffer[LIBSSH2_X11_RANDOM_COOKIE_LEN / 2];
@@ -1600,7 +1600,7 @@ int libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
 }
 
 /*
- * Set a channel's BEHAVIOR blocking on or off. The socket will remain non-
+ * Set a channel's BEHAVIOR blocking on or off. The socket remains non-
  * blocking.
  */
 LIBSSH2_API
@@ -1639,7 +1639,7 @@ int _libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid)
                 (packet_type == SSH_MSG_CHANNEL_EXTENDED_DATA)) &&
                ((packet->data_len >= 5) &&
                 (_libssh2_ntohu32(packet->data + 1) == channel->local.id))) {
-                /* It's our channel at least */
+                /* It is our channel at least */
                 int packet_stream_id;
 
                 if(packet_type == SSH_MSG_CHANNEL_DATA) {
@@ -1670,7 +1670,7 @@ int _libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid)
                                     (long)bytes_to_flush, packet_stream_id,
                                     channel->local.id, channel->remote.id));
 
-                    /* It's one of the streams we wanted to flush */
+                    /* It is one of the streams we wanted to flush */
                     channel->flush_refund_bytes += packet->data_len - 13;
                     channel->flush_flush_bytes += bytes_to_flush;
 
@@ -1801,7 +1801,7 @@ int libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL *channel,
 /*
  * Adjust the receive window for a channel by adjustment bytes. If the amount
  * to be adjusted is less than LIBSSH2_CHANNEL_MINADJUST and force is 0 the
- * adjustment amount will be queued for a later packet.
+ * adjustment amount is queued for a later packet.
  *
  * Calls _libssh2_error() !
  */
@@ -1834,7 +1834,7 @@ int _libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
         adjustment += channel->adjust_queue;
         channel->adjust_queue = 0;
 
-        /* Adjust the window based on the block we just freed */
+        /* Adjust the window based on the block we freed */
         channel->adjust_adjust[0] = SSH_MSG_CHANNEL_WINDOW_ADJUST;
         _libssh2_htonu32(&channel->adjust_adjust[1], channel->remote.id);
         _libssh2_htonu32(&channel->adjust_adjust[5], adjustment);
@@ -1880,7 +1880,7 @@ int _libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
  *
  * Adjust the receive window for a channel by adjustment bytes. If the amount
  * to be adjusted is less than LIBSSH2_CHANNEL_MINADJUST and force is 0 the
- * adjustment amount will be queued for a later packet.
+ * adjustment amount is queued for a later packet.
  *
  * Returns the new size of the receive window (as understood by remote end).
  * Note that it might return EAGAIN too which is highly stupid.
@@ -1902,7 +1902,7 @@ unsigned long libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
                                                         (uint32_t)adjustment,
                                                         force, &window));
 
-    /* stupid - but this is how it was made to work before and this is just
+    /* stupid - but this is how it was made to work before and this is
        kept for backwards compatibility */
     return rc ? (unsigned long)rc : window;
 }
@@ -1911,7 +1911,7 @@ unsigned long libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
 /*
  * Adjust the receive window for a channel by adjustment bytes. If the amount
  * to be adjusted is less than LIBSSH2_CHANNEL_MINADJUST and force is 0 the
- * adjustment amount will be queued for a later packet.
+ * adjustment amount is queued for a later packet.
  *
  * Stores the new size of the receive window in the data 'window' points to.
  *
@@ -2165,7 +2165,7 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
  * was no payload data to fill in the buffer with, we MUST make sure to return
  * LIBSSH2_ERROR_EAGAIN.
  *
- * This function will first make sure there's a receive window enough to
+ * This function first makes sure there is a receive window enough to
  * receive a full buffer's wort of contents. An application may choose to
  * adjust the receive window more to increase transfer performance.
  */
@@ -2195,7 +2195,7 @@ ssize_t libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id,
 
 /*
  * Return the size of the data block of the current packet, or 0 if there
- * isn't a packet.
+ * is not a packet.
  */
 size_t _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL *channel,
                                         int stream_id)
@@ -2306,7 +2306,7 @@ ssize_t _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
         }
 
         if(channel->local.window_size <= 0) {
-            /* there's no room for data so we stop */
+            /* there is no room for data so we stop */
 
             /* Waiting on the socket to be writable would be wrong because we
              * would be back here immediately, but a readable socket might
@@ -2325,7 +2325,7 @@ ssize_t _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
         if(stream_id)
             _libssh2_store_u32(&s, stream_id);
 
-        /* Don't exceed the remote end's limits */
+        /* Do not exceed the remote end's limits */
         /* REMEMBER local means local as the SOURCE of the data */
         if(channel->write_bufwrite > channel->local.window_size) {
             _libssh2_debug((session, LIBSSH2_TRACE_CONN,
@@ -2377,10 +2377,9 @@ ssize_t _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
 
            We cannot move on to send the next piece of data that may
            already have been provided in this same function call, as we
-           risk getting EAGAIN for that and we can't return information
-           both about sent data as well as EAGAIN. So, by returning short
-           now, the caller will call this function again with new data to
-           send */
+           risk getting EAGAIN for that and we cannot return information
+           both about sent data as well as EAGAIN. By returning short now,
+           the caller calls this function again with new data to send */
 
         channel->write_state = libssh2_NB_state_idle;
 
@@ -2482,7 +2481,7 @@ int libssh2_channel_eof(LIBSSH2_CHANNEL *channel)
             (packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)) &&
            ((packet->data_len >= 5) &&
             (channel->local.id == _libssh2_ntohu32(packet->data + 1)))) {
-            /* There's data waiting to be read yet, mask the EOF status */
+            /* There is data waiting to be read yet, mask the EOF status */
             return 0;
         }
         packet = next_packet;
@@ -2509,7 +2508,7 @@ static int channel_wait_eof(LIBSSH2_CHANNEL *channel)
 
     /*
      * While channel is not eof, read more packets from the network.
-     * Either the EOF will be set or network timeout will occur.
+     * Either the EOF is set or network timeout occurs.
      */
     do {
         if(channel->remote.eof) {
@@ -2560,7 +2559,7 @@ int _libssh2_channel_close(LIBSSH2_CHANNEL *channel)
 
     if(channel->local.close) {
         /* Already closed, act like we sent another close,
-         * even though we didn't... shhhhhh */
+         * even though we did not... shhhhhh */
         channel->close_state = libssh2_NB_state_idle;
         return 0;
     }
@@ -2616,7 +2615,7 @@ int _libssh2_channel_close(LIBSSH2_CHANNEL *channel)
     }
 
     if(rc != LIBSSH2_ERROR_EAGAIN) {
-        /* set the local close state first when we're perfectly confirmed to
+        /* set the local close state first when we are perfectly confirmed to
            not do any more EAGAINs */
         channel->local.close = 1;
 
@@ -2672,7 +2671,7 @@ static int channel_wait_closed(LIBSSH2_CHANNEL *channel)
 
     /*
      * While channel is not closed, read more packets from the network.
-     * Either the channel will be closed or network timeout will occur.
+     * Either the channel is closed or network timeout occurs.
      */
     if(!channel->remote.close) {
         do {
@@ -2749,8 +2748,8 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
 
     /*
      * channel->remote.close *might* not be set yet, Well...
-     * We've sent the close packet, what more do you want?
-     * Just let packet_add ignore it when it finally arrives
+     * We have sent the close packet, what more do you want?
+     * Let packet_add ignore it when it finally arrives
      */
 
     /* Clear out packets meant for this channel */
@@ -2851,8 +2850,8 @@ int libssh2_channel_free(LIBSSH2_CHANNEL *channel)
 /*
  * Check the status of the read window. Returns the number of bytes which the
  * remote end may send without overflowing the window limit read_avail (if
- * passed) will be populated with the number of bytes actually available to be
- * read window_size_initial (if passed) will be populated with the
+ * passed) is populated with the number of bytes actually available to be
+ * read window_size_initial (if passed) is populated with the
  * window_size_initial as defined by the channel_open request
  */
 LIBSSH2_API
@@ -2906,7 +2905,7 @@ unsigned long libssh2_channel_window_read_ex(
 /*
  * Check the status of the write window Returns the number of bytes which may
  * be safely written on the channel without blocking window_size_initial (if
- * passed) will be populated with the size of the initial window as defined by
+ * passed) is populated with the size of the initial window as defined by
  * the channel_open request
  */
 LIBSSH2_API
@@ -2918,7 +2917,7 @@ unsigned long libssh2_channel_window_write_ex(
         return 0; /* no channel, no window! */
 
     if(window_size_initial) {
-        /* For locally initiated channels this is very often 0, so it's not
+        /* For locally initiated channels this is often 0, so it is not
          * *that* useful as information goes */
         *window_size_initial = channel->local.window_size_initial;
     }
@@ -2936,7 +2935,7 @@ unsigned long libssh2_channel_window_write_ex(
       boolean   FALSE
       string    signal name (without the "SIG" prefix)
 
-   'signal name' values will be encoded as discussed in the passage
+   'signal name' values are encoded as discussed in the passage
    describing SSH_MSG_CHANNEL_REQUEST messages using "exit-signal" in
    this section.
  */
@@ -2965,7 +2964,7 @@ static int channel_signal(LIBSSH2_CHANNEL *channel,
         *(s++) = SSH_MSG_CHANNEL_REQUEST;
         _libssh2_store_u32(&s, channel->remote.id);
         _libssh2_store_str(&s, "signal", sizeof("signal") - 1);
-        *(s++) = 0x00; /* Don't reply */
+        *(s++) = 0x00; /* Do not reply */
         _libssh2_store_str(&s, signame, signame_len);
 
         channel->sendsignal_state = libssh2_NB_state_created;

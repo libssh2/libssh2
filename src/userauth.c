@@ -66,9 +66,9 @@
 
 /*
  * List authentication methods
- * Will yield successful login if "none" happens to be allowable for this user
+ * Yields successful login if "none" happens to be allowable for this user
  * Not a common configuration for any SSH server though
- * username should be NULL, or a null terminated string
+ * username should be NULL, or a null-terminated string
  */
 static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
                            unsigned int username_len)
@@ -254,9 +254,9 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
 
 /*
  * List authentication methods
- * Will yield successful login if "none" happens to be allowable for this user
+ * Yields successful login if "none" happens to be allowable for this user
  * Not a common configuration for any SSH server though
- * username should be NULL, or a null terminated string
+ * username should be NULL, or a null-terminated string
  */
 LIBSSH2_API
 char *libssh2_userauth_list(LIBSSH2_SESSION *session,
@@ -633,7 +633,7 @@ static int memory_read_publickey(LIBSSH2_SESSION *session,
 
     sp2 = memchr(sp1, ' ', pubkey_len - (sp1 - pubkey));
     if(!sp2) {
-        /* Assume that the id string is missing, but that it's okay */
+        /* Assume that the id string is missing, but that it is okay */
         sp2 = pubkey + pubkey_len;
     }
 
@@ -644,8 +644,8 @@ static int memory_read_publickey(LIBSSH2_SESSION *session,
                               "Invalid key data, not base64 encoded");
     }
 
-    /* Wasting some bytes here (okay, more than some), but since it's likely
-     * to be freed soon anyway, we'll just avoid the extra free/alloc and call
+    /* Wasting some bytes here (okay, more than some), but since it is likely
+     * to be freed soon anyway, we avoid the extra free/alloc and call
      * it a wash
      */
     *method = pubkey;
@@ -735,7 +735,7 @@ static int file_read_publickey(LIBSSH2_SESSION *session,
     sp_len = sp1 > pubkey ? (sp1 - pubkey) : 0;
     sp2 = memchr(sp1, ' ', pubkey_len - sp_len);
     if(!sp2) {
-        /* Assume that the id string is missing, but that it's okay */
+        /* Assume that the id string is missing, but that it is okay */
         sp2 = pubkey + pubkey_len;
     }
 
@@ -746,8 +746,8 @@ static int file_read_publickey(LIBSSH2_SESSION *session,
                               "Invalid key data, not base64 encoded");
     }
 
-    /* Wasting some bytes here (okay, more than some), but since it's likely
-     * to be freed soon anyway, we'll just avoid the extra free/alloc and call
+    /* Wasting some bytes here (okay, more than some), but since it is likely
+     * to be freed soon anyway, we avoid the extra free/alloc and call
      * it a wash */
     *method = pubkey;
     *method_len = sp1 - pubkey - 1;
@@ -1112,8 +1112,8 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
             local_username_len + pubkeydata_len + 52;
 
         /*
-         * Preallocate space for an overall length,  method name again,
-         * and the signature, which won't be any larger than the size of
+         * Preallocate space for an overall length, method name again,
+         * and the signature, which is not any larger than the size of
          * the publickeydata itself
          */
         session->userauth_host_s = session->userauth_host_packet =
@@ -1271,7 +1271,7 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         if(session->userauth_host_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
             _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
                             "Hostbased authentication successful"));
-            /* We are us and we've proved it. */
+            /* We are us and we have proved it. */
             LIBSSH2_FREE(session, session->userauth_host_data);
             session->userauth_host_data = NULL;
             session->state |= LIBSSH2_STATE_AUTHENTICATED;
@@ -1394,7 +1394,7 @@ static int is_version_less_than_78(const char *version)
 /**
  * @abstract Upgrades the algorithm used for public key signing RFC 8332
  * @discussion Based on the incoming key_method value, this function
- * will upgrade the key method input based on user preferences,
+ * Upgrades the key method input based on user preferences,
  * server support algos and crypto backend support
  * @related _libssh2_supported_key_sign_algorithms()
  * @param key_method current key method, usually the default key sig method
@@ -1662,11 +1662,11 @@ retry_auth:
 
         /*
          * Preallocate space for an overall length, method name again, and the
-         * signature, which won't be any larger than the size of the
+         * signature, which is not any larger than the size of the
          * publickeydata itself.
          *
-         * Note that the 'pubkeydata_len' extra bytes allocated here will not
-         * be used in this first send, but will be used in the later one where
+         * Note that the 'pubkeydata_len' extra bytes allocated here are not
+         * used in this first send, but are used in the later one where
          * this same allocation is reused.
          */
         s = session->userauth_pblc_packet =
@@ -1834,7 +1834,7 @@ retry_auth:
 
         /*
          * If this function was restarted, pubkeydata_len might still be 0
-         * which will cause an unnecessary but harmless realloc here.
+         * which causes an unnecessary but harmless realloc here.
          */
         if(sig_len > pubkeydata_len) {
             unsigned char *newpacket;
@@ -1943,7 +1943,7 @@ retry_auth:
     if(session->userauth_pblc_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
         _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
                         "Publickey authentication successful"));
-        /* We are us and we've proved it. */
+        /* We are us and we have proved it. */
         LIBSSH2_FREE(session, session->userauth_pblc_data);
         session->userauth_pblc_data = NULL;
         session->state |= LIBSSH2_STATE_AUTHENTICATED;
@@ -2185,7 +2185,7 @@ static int userauth_keyboard_interactive(
 
         session->userauth_kybd_packet_len =
             1                   /* byte    SSH_MSG_USERAUTH_REQUEST */
-            + 4 + username_len  /* string  user name (ISO-10646 UTF-8, as
+            + 4 + username_len  /* string  username (ISO-10646 UTF-8, as
                                    defined in [RFC-3629]) */
             + 4 + 14            /* string  service name (US-ASCII) */
             + 4 + 20            /* string  "keyboard-interactive" (US-ASCII) */
@@ -2204,7 +2204,7 @@ static int userauth_keyboard_interactive(
 
         *s++ = SSH_MSG_USERAUTH_REQUEST;
 
-        /* user name */
+        /* username */
         _libssh2_store_str(&s, username, username_len);
 
         /* service name */
@@ -2375,7 +2375,7 @@ static int userauth_keyboard_interactive(
 
 cleanup:
         /*
-         * It's safe to clean all the data here, because unallocated pointers
+         * It is safe to clean all the data here, because unallocated pointers
          * are filled by zeroes
          */
 

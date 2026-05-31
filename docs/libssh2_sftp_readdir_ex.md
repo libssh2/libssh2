@@ -37,7 +37,7 @@ information for the next entry, if any.
 *buffer_maxlen* bytes to read data into.
 
 *buffer_maxlen* - is the length of buffer in bytes. If the length of the
-filename is longer than the space provided by buffer_maxlen it will be
+filename is longer than the space provided by buffer_maxlen it is
 truncated to fit.
 
 *longentry* - is a pointer to a pre-allocated buffer of at least
@@ -48,7 +48,7 @@ a directory listing command is to display this data).
 
 *longentry_maxlen* - is the length of longentry in bytes. If the length of
 the full directory entry is longer than the space provided by
-*longentry_maxlen* it will be truncated to fit.
+*longentry_maxlen* it is truncated to fit.
 
 *attrs* - is a pointer to LIBSSH2_SFTP_ATTRIBUTES storage to populate
 statbuf style data into.

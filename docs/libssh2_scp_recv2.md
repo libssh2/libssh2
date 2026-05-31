@@ -27,7 +27,7 @@ libssh2_scp_recv2(LIBSSH2_SESSION *session, const char *path, struct_stat *sb);
 *session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *path* - Full path and filename of file to transfer. That is the remote
-file name.
+filename.
 
 *sb* - Populated with remote file's size, mode, mtime, and atime
 

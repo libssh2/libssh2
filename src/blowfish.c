@@ -65,9 +65,9 @@ struct blf_ctx {
 };
 
 /* Raw access to customized Blowfish
- *      blf_key is just:
- *      Blowfish_initstate( state )
- *      Blowfish_expand0state( state, key, keylen )
+ *      blf_key is:
+ *      Blowfish_initstate(state)
+ *      Blowfish_expand0state(state, key, keylen)
  */
 
 /* Standard Blowfish */

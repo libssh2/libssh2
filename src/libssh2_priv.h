@@ -183,7 +183,7 @@ int _libssh2_gettimeofday(struct timeval *tp, void *tzp);
 #define inline __inline
 #endif
 
-/* 3DS doesn't seem to have iovec */
+/* 3DS does not seem to have iovec */
 #if defined(_WIN32) || defined(_3DS)
 
 struct iovec {
@@ -427,7 +427,7 @@ struct packet {
     size_t data_len;
 
     /* Where to start reading data from,
-     * used for channel data that's been partially consumed */
+     * used for channel data that is been partially consumed */
     size_t data_head;
 };
 
@@ -736,8 +736,8 @@ struct _LIBSSH2_SESSION {
     /* (local as source of data -- packet_write ) */
     struct endpoint_data local;
 
-    /* Inbound Data linked list -- Sometimes the packet that comes in isn't the
-       packet we're ready for */
+    /* Inbound Data linked list -- Sometimes the packet that comes in is not
+       the packet we are ready for */
     struct list_head packets;
 
     /* Active connection channels */
@@ -956,15 +956,15 @@ struct _LIBSSH2_SESSION {
 #define LIBSSH2_SOCKET_RECV_FLAGS(session)         \
     ((session)->flag.sigpipe ? 0 : MSG_NOSIGNAL)
 #else
-/* If MSG_NOSIGNAL isn't defined we're SOL on blocking SIGPIPE */
+/* If MSG_NOSIGNAL is not defined we are SOL on blocking SIGPIPE */
 #define LIBSSH2_SOCKET_SEND_FLAGS(session) 0
 #define LIBSSH2_SOCKET_RECV_FLAGS(session) 0
 #endif
 
 /* --------- */
 
-/* libssh2 extensible ssh api, ultimately I'd like to allow loading additional
-   methods via .so/.dll */
+/* libssh2 extensible SSH API, ultimately I would like to allow loading
+   additional methods via .so/.dll */
 
 struct kex_method {
     const char *name;
@@ -1065,7 +1065,7 @@ struct crypt_method {
 
 struct comp_method {
     const char *name;
-    int compress; /* 1 if it does compress, 0 if it doesn't */
+    int compress; /* 1 if it does compress, 0 if it does not */
     int use_in_auth; /* 1 if compression should be used in userauth */
     int (*init)(LIBSSH2_SESSION *session, int compress, void **abstract);
     int (*comp)(LIBSSH2_SESSION *session,
@@ -1101,14 +1101,14 @@ void _libssh2_debug_low(LIBSSH2_SESSION *session, int context,
 /* When MAC type is "none" (proto initiation phase) all packets are deemed
    "confirmed" */
 #define LIBSSH2_MAC_CONFIRMED                    0
-/* Something very bad is going on */
+/* Something bad is going on */
 #define LIBSSH2_MAC_INVALID                      (-1)
 
 /* Flags for _libssh2_error_flags */
 /* Error message is allocated on the heap */
 #define LIBSSH2_ERR_FLAG_DUP                     1
 
-/* SSH Packet Types -- Defined by internet draft */
+/* SSH Packet Types -- Defined by Internet draft */
 /* Transport Layer */
 #define SSH_MSG_DISCONNECT                          1
 #define SSH_MSG_IGNORE                              2

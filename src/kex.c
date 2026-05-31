@@ -110,7 +110,7 @@
  * @note The following are wrapper functions used by diffie_hellman_sha_algo().
  * TODO: Switch backend SHA macros to functions to allow function pointers
  * @discussion Ideally these would be function pointers but the backend macros
- * don't allow it so we have to wrap them up in helper functions
+ * do not allow it so we have to wrap them up in helper functions
  */
 
 static int sha_algo_ctx_init(int sha_algo, void *ctx)
@@ -375,7 +375,7 @@ static int finish_kex(LIBSSH2_SESSION *session,
     session->state |= LIBSSH2_STATE_NEWKEYS;
     _libssh2_debug((session, LIBSSH2_TRACE_KEX, "Received NEWKEYS message"));
 
-    /* This will actually end up being just packet_type(1)
+    /* This actually ends up being packet_type(1)
        for this packet type anyway */
     LIBSSH2_FREE(session, exchange_state->tmp);
 
@@ -711,7 +711,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             if(_libssh2_bn_to_bin(exchange_state->e,
                                   exchange_state->e_packet + 5)) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                     "Can't write exchange_state->e");
+                                     "Cannot write exchange_state->e");
                 goto clean_exit;
             }
         }
@@ -720,7 +720,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             if(_libssh2_bn_to_bin(exchange_state->e,
                                   exchange_state->e_packet + 6)) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                     "Can't write exchange_state->e");
+                                     "Cannot write exchange_state->e");
                 goto clean_exit;
             }
         }
@@ -746,7 +746,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
 
     if(exchange_state->state == libssh2_NB_state_sent) {
         if(session->burn_optimistic_kexinit) {
-            /* The first KEX packet to come along will be the guess initially
+            /* The first KEX packet to come along is the guess initially
              * sent by the server.  That guess turned out to be wrong so we
              * need to silently ignore it */
             int burn_type;
@@ -825,7 +825,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                           exchange_state->f, p, exchange_state->ctx);
         exchange_state->k_value_len = _libssh2_bn_bytes(exchange_state->k) + 5;
         if(_libssh2_bn_bits(exchange_state->k) % 8) {
-            /* don't need leading 00 */
+            /* do not need leading 00 */
             exchange_state->k_value_len--;
         }
         exchange_state->k_value =
@@ -841,7 +841,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             if(_libssh2_bn_to_bin(exchange_state->k,
                                   exchange_state->k_value + 4)) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                     "Can't write exchange_state->k");
+                                     "Cannot write exchange_state->k");
                 goto clean_exit;
             }
         }
@@ -850,7 +850,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             if(_libssh2_bn_to_bin(exchange_state->k,
                                   exchange_state->k_value + 5)) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                     "Can't write exchange_state->k");
+                                     "Cannot write exchange_state->k");
                 goto clean_exit;
             }
         }
@@ -2065,7 +2065,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
 
         exchange_state->k_value_len = _libssh2_bn_bytes(exchange_state->k) + 5;
         if(_libssh2_bn_bits(exchange_state->k) % 8) {
-            /* don't need leading 00 */
+            /* do not need leading 00 */
             exchange_state->k_value_len--;
         }
         exchange_state->k_value =
@@ -2081,7 +2081,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
             if(_libssh2_bn_to_bin(exchange_state->k,
                                   exchange_state->k_value + 4)) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                     "Can't write exchange_state->k");
+                                     "Cannot write exchange_state->k");
                 goto clean_exit;
             }
         }
@@ -2090,7 +2090,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
             if(_libssh2_bn_to_bin(exchange_state->k,
                                   exchange_state->k_value + 5)) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                     "Can't write exchange_state->k");
+                                     "Cannot write exchange_state->k");
                 goto clean_exit;
             }
         }
@@ -2462,7 +2462,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
                               shared_secret +
                                   LIBSSH2_MLKEM_SHARED_SECRET_LEN)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                 "Can't write shared secret");
+                                 "Cannot write shared secret");
             goto clean_exit;
         }
 
@@ -2809,7 +2809,7 @@ static int curve25519_sha256(
 
         exchange_state->k_value_len = _libssh2_bn_bytes(exchange_state->k) + 5;
         if(_libssh2_bn_bits(exchange_state->k) % 8) {
-            /* don't need leading 00 */
+            /* do not need leading 00 */
             exchange_state->k_value_len--;
         }
         exchange_state->k_value =
@@ -2825,7 +2825,7 @@ static int curve25519_sha256(
             if(_libssh2_bn_to_bin(exchange_state->k,
                                   exchange_state->k_value + 4)) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                     "Can't write exchange_state->k");
+                                     "Cannot write exchange_state->k");
                 goto clean_exit;
             }
         }
@@ -2834,7 +2834,7 @@ static int curve25519_sha256(
             if(_libssh2_bn_to_bin(exchange_state->k,
                                   exchange_state->k_value + 5)) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                     "Can't write exchange_state->k");
+                                     "Cannot write exchange_state->k");
                 goto clean_exit;
             }
         }
@@ -3131,7 +3131,7 @@ static int mlkem768x25519_sha256(
                               shared_secret +
                                   LIBSSH2_MLKEM_SHARED_SECRET_LEN)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                 "Can't write shared secret");
+                                 "Cannot write shared secret");
             goto clean_exit;
         }
 
@@ -3474,8 +3474,8 @@ struct common_method {
 /*
  * Calculate the length of a particular method list's resulting string
  * Includes SUM(strlen() of each individual method plus 1 (for coma)) - 1
- * (because the last coma isn't used)
- * Another sign of bad coding practices gone mad.  Pretend you don't see this.
+ * (because the last coma is not used)
+ * Another sign of bad coding practices gone mad. Pretend you do not see this.
  */
 static size_t kex_method_strlen(const struct common_method **method)
 {
@@ -3798,16 +3798,16 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session,
                     return -1;
                 }
 
-                /* So far so good, but does it suit our purposes? (Encrypting
+                /* OK so far, but does it suit our purposes? (Encrypting
                    vs Signing) */
                 if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) ==
                      0) || (method->encrypt)) {
-                    /* Either this hostkey can do encryption or this kex just
-                       doesn't require it */
+                    /* Either this hostkey can do encryption or this kex
+                       does not require it */
                     if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY)
                          == 0) || (method->sig_verify)) {
-                        /* Either this hostkey can do signing or this kex just
-                           doesn't require it */
+                        /* Either this hostkey can do signing or this kex
+                           does not require it */
                         session->hostkey = method;
                         return 0;
                     }
@@ -3824,16 +3824,16 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session,
                                      (const unsigned char *)(*hostkeyp)->name,
                                      strlen((*hostkeyp)->name));
         if(s) {
-            /* So far so good, but does it suit our purposes? (Encrypting vs
+            /* OK so far, but does it suit our purposes? (Encrypting vs
                Signing) */
             if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0) ||
                ((*hostkeyp)->encrypt)) {
-                /* Either this hostkey can do encryption or this kex just
-                   doesn't require it */
+                /* Either this hostkey can do encryption or this kex
+                   does not require it */
                 if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) ==
                      0) || ((*hostkeyp)->sig_verify)) {
-                    /* Either this hostkey can do signing or this kex just
-                       doesn't require it */
+                    /* Either this hostkey can do signing or this kex
+                       does not require it */
                     session->hostkey = *hostkeyp;
                     return 0;
                 }
@@ -3879,7 +3879,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
                     return -1;
                 }
 
-                /* We've agreed on a key exchange method,
+                /* We have agreed on a key exchange method,
                  * Can we agree on a hostkey that works with this kex?
                  */
                 if(kex_agree_hostkey(session, method->flags, hostkey,
@@ -3905,7 +3905,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
                                      (const unsigned char *)(*kexp)->name,
                                      strlen((*kexp)->name));
         if(s) {
-            /* We've agreed on a key exchange method,
+            /* We have agreed on a key exchange method,
              * Can we agree on a hostkey that works with this kex?
              */
             if(kex_agree_hostkey(session, (*kexp)->flags, hostkey,
@@ -4116,7 +4116,7 @@ static int kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *data,
     buf.dataptr = buf.data;
     buf.dataptr++; /* advance past packet type */
 
-    /* Skip cookie, don't worry, it's preserved in the kexinit field */
+    /* Skip cookie, do not worry, it is preserved in the kexinit field */
     buf.dataptr += 16;
 
     /* Locate each string */
@@ -4139,7 +4139,7 @@ static int kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *data,
 
     /* If the server sent an optimistic packet, assume that it guessed wrong.
      * If the guess is determined to be right (by kex_agree_kex_hostkey)
-     * This flag will be reset to zero so that it's not ignored */
+     * This flag is reset to zero so that it is not ignored */
     if(_libssh2_check_length(&buf, 1)) {
         session->burn_optimistic_kexinit = *(buf.dataptr++);
     }
@@ -4556,12 +4556,13 @@ int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
       mlist is looped through twice. The first time to find the number od
       supported algorithms (needed to allocate the proper size of array) and
       the second time to actually copy the pointers.  Typically this function
-      will not be called often (typically at the beginning of a session) and
-      the number of algorithms (i.e. number of iterations in one loop) will
-      not be high (typically it will not exceed 20) for quite a long time.
+      it not called often (typically at the beginning of a session) and
+      the number of algorithms (i.e. number of iterations in one loop) are
+      not expected to become high (typically it does not exceed 20) for quite
+      a long time.
 
-      So double looping really shouldn't be an issue and it is definitely a
-      better solution than reallocation several times.
+      Thus double looping really should not be an issue and it is definitely
+      a better solution than reallocation several times.
     */
 
     /* count the number of supported algorithms */

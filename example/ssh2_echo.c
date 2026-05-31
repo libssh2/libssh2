@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
     /* tell libssh2 we want it all done non-blocking */
     libssh2_session_set_blocking(session, 0);
 
-    /* ... start it up. This will trade welcome banners, exchange keys,
+    /* ... start it up. This trades welcome banners, exchange keys,
      * and setup crypto, compression, and MAC layers
      */
     while((rc = libssh2_session_handshake(session, sock)) ==
@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
 
                 if(n == LIBSSH2_ERROR_EAGAIN) {
                     rereads++;
-                    fprintf(stderr, "will read again\n");
+                    fprintf(stderr, "read again\n");
                 }
                 else if(n < 0) {
                     fprintf(stderr, "read failed\n");
@@ -298,7 +298,7 @@ int main(int argc, char *argv[])
 
                     if(n == LIBSSH2_ERROR_EAGAIN) {
                         rewrites++;
-                        fprintf(stderr, "will write again\n");
+                        fprintf(stderr, "write again\n");
                     }
                     else if(n < 0) {
                         fprintf(stderr, "write failed\n");
@@ -319,7 +319,7 @@ int main(int argc, char *argv[])
                     rc = libssh2_channel_send_eof(channel);
 
                     if(rc == LIBSSH2_ERROR_EAGAIN) {
-                        fprintf(stderr, "will send eof again\n");
+                        fprintf(stderr, "send eof again\n");
                     }
                     else if(rc < 0) {
                         fprintf(stderr, "send eof failed\n");
@@ -327,7 +327,8 @@ int main(int argc, char *argv[])
                     }
                     else {
                         fprintf(stderr, "sent eof\n");
-                        /* we're done writing, stop listening for OUT events */
+                        /* we are done writing, stop listening for OUT
+                           events */
                         fds[0].events &=
                             ~(unsigned long)LIBSSH2_POLLFD_POLLOUT;
                     }
@@ -335,7 +336,7 @@ int main(int argc, char *argv[])
             }
 
             if(fds[0].revents & LIBSSH2_POLLFD_CHANNEL_CLOSED) {
-                if(!act) /* don't leave loop until we have read all data */
+                if(!act) /* do not leave loop until we have read all data */
                     running = 0;
             }
         } while(running);

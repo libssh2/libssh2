@@ -104,8 +104,8 @@
      d LIBSSH2_SFTP_ATTRIBUTES...
      d                 ds                  based(######typedef######)
      d                                     align qualified
-      * If flags & ATTR_* bit is set, then the value in this struct will be
-      * meaningful Otherwise it should be ignored.
+      * If flags & ATTR_* bit is set, then the value in this struct is
+      * meaningful otherwise it should be ignored.
      d  flags                              like(libssh2_Culong)
      d  filesize                           like(libssh2_uint64_t)
      d  uid                                like(libssh2_Culong)
@@ -244,7 +244,7 @@
      d  permissions                        value like(libssh2_Culong)
 
       * SFTP File Transfer Flags -- (e.g. flags parameter to sftp_open())
-      * Danger will robinson... APPEND doesn't have any effect on OpenSSH
+      * Danger Will Robinson... APPEND does not have any effect on OpenSSH
       * servers.
      d LIBSSH2_FXF_READ...
      d                 c                   X'00000001'

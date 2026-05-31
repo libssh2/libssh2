@@ -58,7 +58,7 @@
 
 /*
   This function quotes a string in a way suitable to be used with a
-  shell, e.g. the file name
+  shell, e.g. the filename
   one two
   becomes
   'one two'
@@ -318,7 +318,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
 
             path_len = strlen(path);
 
-            /* no NUL-termination needed, so memcpy will do */
+            /* no null-termination needed, so use memcpy */
             memcpy(&session->scpRecv_command[cmd_len], path, path_len);
             cmd_len += path_len;
         }
@@ -328,7 +328,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                                       session->scpRecv_command_len - cmd_len);
         }
 
-        /* the command to exec should _not_ be NUL-terminated */
+        /* the command to exec should _not_ be null-terminated */
         session->scpRecv_command_len = cmd_len;
 
         _libssh2_debug((session, LIBSSH2_TRACE_SCP,
@@ -458,7 +458,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                                                 err_msg, err_len);
                     /* If it failed for any reason, we ignore it anyway. */
 
-                    /* zero terminate the error */
+                    /* null-terminate the error */
                     err_msg[err_len] = 0;
 
                     _libssh2_debug((session, LIBSSH2_TRACE_SCP, "got %02x %s",
@@ -503,7 +503,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                     continue;
                 }
 
-                /* We're guaranteed not to go under response_len == 0 by the
+                /* We are guaranteed not to go under response_len == 0 by the
                    logic above */
                 while(
                     (session->scpRecv_response[session->scpRecv_response_len -
@@ -534,7 +534,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 }
 
                 *(p++) = '\0';
-                /* Make sure we don't get fooled by leftover values */
+                /* Make sure we do not get fooled by leftover values */
                 session->scpRecv_mtime = strtol((char *)s, NULL, 10);
 
                 s = (unsigned char *)strchr((char *)p, ' ');
@@ -558,7 +558,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 }
 
                 *p = '\0';
-                /* Make sure we don't get fooled by leftover values */
+                /* Make sure we do not get fooled by leftover values */
                 session->scpRecv_atime = strtol((char *)s, NULL, 10);
 
                 /* SCP ACK */
@@ -659,7 +659,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                     continue;
                 }
 
-                /* We're guaranteed not to go under response_len == 0 by the
+                /* We are guaranteed not to go under response_len == 0 by the
                    logic above */
                 while(
                     (session->scpRecv_response[session->scpRecv_response_len -
@@ -691,7 +691,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 }
 
                 *(p++) = '\0';
-                /* Make sure we don't get fooled by leftover values */
+                /* Make sure we do not get fooled by leftover values */
                 session->scpRecv_mode = strtol(s, &e, 8);
                 if(e && *e) {
                     _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
@@ -710,7 +710,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 }
 
                 *s = '\0';
-                /* Make sure we don't get fooled by leftover values */
+                /* Make sure we do not get fooled by leftover values */
                 session->scpRecv_size = scpsize_strtol(p, &e, 10);
                 if(e && *e) {
                     _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
@@ -879,7 +879,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
 
             path_len = strlen(path);
 
-            /* no NUL-termination needed, so memcpy will do */
+            /* no null-termination needed, so use memcpy */
             memcpy(&session->scpSend_command[cmd_len], path, path_len);
             cmd_len += path_len;
         }
@@ -888,7 +888,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
                                       session->scpSend_command_len - cmd_len);
         }
 
-        /* the command to exec should _not_ be NUL-terminated */
+        /* the command to exec should _not_ be null-terminated */
         session->scpSend_command_len = cmd_len;
 
         _libssh2_debug((session, LIBSSH2_TRACE_SCP,

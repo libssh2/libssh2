@@ -29,7 +29,7 @@ libssh2_agent_userauth(LIBSSH2_AGENT *agent,
 
 *agent* - ssh-agent handle as returned by libssh2_agent_init(3)
 
-*username* - Remote user name to authenticate as.
+*username* - Remote username to authenticate as.
 
 *identity* - Public key to authenticate with, as returned by
 libssh2_agent_get_identity(3)

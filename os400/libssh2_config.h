@@ -140,7 +140,7 @@
    _libssh2_os400_snprintf */
 #define HAVE_SNPRINTF 1
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
+/* Define to the subdirectory in which libtool stores uninstalled libraries.
 */
 #define LT_OBJDIR ".libs/"
 
@@ -169,7 +169,7 @@
 #define PACKAGE_VERSION "-"
 
 /* If using the C implementation of alloca, define if you know the
-   direction of stack growth for your system; otherwise it will be
+   direction of stack growth for your system; otherwise it is
    automatically deduced at runtime.
      STACK_DIRECTION > 0 => grows toward higher addresses
      STACK_DIRECTION < 0 => grows toward lower addresses
@@ -195,8 +195,8 @@
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const
 
-/* Define to `__inline__' or `__inline' if that's what the C compiler
-   calls it, or to nothing if 'inline' is not supported under any name.  */
+/* Define to `__inline__' or `__inline' if that is what the C compiler
+   calls it, or to nothing if 'inline' is not supported under any name. */
 #ifndef __cplusplus
 #define inline
 #endif

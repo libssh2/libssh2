@@ -148,7 +148,7 @@ their locations.
 ## Specifying the System Type
 
 There may be some features `configure` cannot figure out automatically, but
-needs to determine by the type of machine the package will run on. Usually,
+needs to determine by the type of machine the package runs on. Usually,
 assuming the package is built to be run on the _same_ architectures,
 `configure` can figure that out, but if it prints a message saying it cannot
 guess the machine type, give it the `--build=TYPE` option. TYPE can either be
@@ -170,12 +170,12 @@ See the file `config.sub` for the possible values of each field. If
 to know the machine type.
 
 If you are _building_ compiler tools for cross-compiling, you should use the
-option `--target=TYPE` to select the type of system they will produce code
+option `--target=TYPE` to select the type of system they produce code
 for.
 
 If you want to _use_ a cross compiler, that generates code for a platform
 different from the build platform, you should specify the "host" platform
-(i.e., that on which the generated programs will eventually be run) with
+(i.e., that on which the generated programs eventually runs) with
 `--host=TYPE`.
 
 ## Sharing Defaults
@@ -236,7 +236,7 @@ configuration-related scripts to be executed by `/bin/bash`.
  * `--quiet`, `--silent`, `-q`
 
    Do not print messages saying which checks are being made. To suppress all
-   normal output, redirect it to `/dev/null` (any error messages will still be
+   normal output, redirect it to `/dev/null` (any error messages are still
    shown).
 
  * `--srcdir=DIR`
@@ -258,7 +258,7 @@ Some `./configure` options deserve additional comments:
   libssh2 can use the [Libgcrypt](https://www.gnupg.org/) library for
   cryptographic operations. One of the cryptographic libraries is required.
 
-  Configure will attempt to locate Libgcrypt automatically.
+  Configure attempts to locate Libgcrypt automatically.
 
   If your installation of Libgcrypt is in another location, specify it using
   `--with-libgcrypt-prefix`.
@@ -270,7 +270,7 @@ Some `./configure` options deserve additional comments:
   libssh2 can use the [OpenSSL library](https://www.openssl-library.org/) for
   cryptographic operations. One of the cryptographic libraries is required.
 
-  Configure will attempt to locate OpenSSL in the default location.
+  Configure attempts to locate OpenSSL in the default location.
 
   If your installation of OpenSSL is in another location, specify it using
   `--with-libssl-prefix`.
@@ -283,7 +283,7 @@ Some `./configure` options deserve additional comments:
   [mbedTLS library](https://www.trustedfirmware.org/projects/mbed-tls/) for
   cryptographic operations. One of the cryptographic libraries is required.
 
-  Configure will attempt to locate mbedTLS in the default location.
+  Configure attempts to locate mbedTLS in the default location.
 
   If your installation of mbedTLS is in another location, specify it using
   `--with-libmbedcrypto-prefix`.
@@ -292,7 +292,7 @@ Some `./configure` options deserve additional comments:
 * `--without-libz`
 * `--with-libz-prefix=[DIR]`
 
-  If present, libssh2 will attempt to use the [zlib](https://zlib.net/) for
+  If present, libssh2 attempts to use the [zlib](https://zlib.net/) for
   payload compression, however zlib is not required.
 
   If your installation of Libz is in another location, specify it using
@@ -300,5 +300,5 @@ Some `./configure` options deserve additional comments:
 
 * `--enable-debug`
 
-  Will make the build use more pedantic and strict compiler options as well
+  Makes the build use more pedantic and strict compiler options as well
   as enable the `libssh2_trace()` function (for showing debug traces).

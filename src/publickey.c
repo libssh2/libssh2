@@ -45,7 +45,7 @@
 
 #define LIBSSH2_PUBLICKEY_VERSION 2
 
-/* Numericised response codes -- Not IETF, just local representation */
+/* Numericised response codes -- Not IETF, but local representation */
 #define LIBSSH2_PUBLICKEY_RESPONSE_STATUS    0
 #define LIBSSH2_PUBLICKEY_RESPONSE_VERSION   1
 #define LIBSSH2_PUBLICKEY_RESPONSE_PUBLICKEY 2
@@ -180,7 +180,7 @@ static int publickey_packet_receive(LIBSSH2_PUBLICKEY *pkey,
 
 /*
  * Translate a string response name to a numeric code
- * Data will be incremented by 4 + response_len on success only
+ * Data is incremented by 4 + response_len on success only
  */
 static int publickey_response_id(unsigned char **pdata, size_t data_len)
 {

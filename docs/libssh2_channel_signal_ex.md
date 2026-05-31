@@ -27,7 +27,7 @@ libssh2_channel_signal_ex(LIBSSH2_CHANNEL *channel,
 # DESCRIPTION
 
 A signal can be delivered to the remote process/service. Some servers or
-systems may not implement signals, in which case they will probably ignore this
+systems may not implement signals, in which case they probably ignore this
 message.
 
 *channel* - Previously opened channel instance such as returned by libssh2_channel_open_ex(3).

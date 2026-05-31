@@ -28,8 +28,8 @@ libssh2_channel_window_read_ex(LIBSSH2_CHANNEL *channel,
 
 Check the status of the read window. Returns the number of bytes which the
 remote end may send without overflowing the window limit read_avail (if
-passed) will be populated with the number of bytes actually available to be
-read window_size_initial (if passed) will be populated with the
+passed) is populated with the number of bytes actually available to be
+read window_size_initial (if passed) is populated with the
 window_size_initial as defined by the channel_open request
 
 # RETURN VALUE

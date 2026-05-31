@@ -21,7 +21,7 @@ Crypto API is provided by the IBM QC3 API library. It supports RSA and EC,
 but not DSA.
 
   Standard compilation environment does support neither autotools nor make;
-in fact, very few common utilities are available. As a consequence, the
+in fact, few common utilities are available. As a consequence, the
 libssh2_config.h has been coded manually and the compilation scripts are
 a set of shell scripts stored in subdirectory os400.
 
@@ -30,7 +30,7 @@ a set of shell scripts stored in subdirectory os400.
 Compiling on OS/400:
 
   These instructions target people who knows about OS/400, compiling, IFS and
-archive extraction. Do not ask questions about these subjects if you're not
+archive extraction. Do not ask questions about these subjects if you are not
 familiar with.
 
 _ As a prerequisite, QADRT development environment >= 20211112 must be
@@ -56,16 +56,16 @@ _ Copy any file in the current directory to makelog (i.e.:
 _ Enter the command "sh make.sh > makelog 2>&1'
 _ Examine the makelog file to check for compilation errors.
 
-  Without configuration parameters override, this will produce the following
+  Without configuration parameters override, this produces the following
 OS/400 objects:
-_ Library LIBSSH2. All other objects will be stored in this library.
+_ Library LIBSSH2. All other objects are stored in this library.
 _ Modules for all libssh2 units.
 _ Binding directory LIBSSH2_A, to be used at calling program link time for
   statically binding the modules (specify BNDSRVPGM(QADRTTS) when creating a
   program using LIBSSH2_A. Also give access to the zlib BNDDIR/SRVPGM if
   libssh2 is compiled with zlib).
 _ Service program LIBSSH2.<soname>, where <soname> is extracted from the
-  src/Makefile.am VERSION variable. To be used at calling program run-time
+  src/Makefile.am VERSION variable. To be used at calling program runtime
   when this program has dynamically bound libssh2 at link time.
 _ Binding directory LIBSSH2. To be used to dynamically bind libssh2 when
   linking a calling program.
@@ -132,7 +132,7 @@ where:
     string       is the string to convert.
     inlen        is the source string length in bytes: set to -1 if
                  null-terminated.
-    outlen       if not NULL, is the address of a variable that will receive
+    outlen       if not NULL, is the address of a variable that receives
                  the transcoded string length upon return.
 
   libssh2_from_ccsid() transcodes the string from the given CCSID to libssh2

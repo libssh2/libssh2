@@ -35,7 +35,7 @@ reading
 
 **LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE**: Treat extended data and ordinary
 data the same. Merge all substreams such that calls to libssh2_channel_read(3)
-will pull from all substreams on a first-in/first-out basis.
+pulls from all substreams on a first-in/first-out basis.
 
 **LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE**: Discard all extended data as it
 arrives.

@@ -2,7 +2,7 @@
  *
  * Sample doing an SFTP directory listing.
  *
- * The sample code has default values for host name, user name, password and
+ * The sample code has default values for hostname, username, password and
  * path, but you can specify them on the command line like:
  *
  * $ ./sftpdir_nonblock 192.168.0.1 user password /tmp/secretdir
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
     /* Since we have set non-blocking, tell libssh2 we are non-blocking */
     libssh2_session_set_blocking(session, 0);
 
-    /* ... start it up. This will trade welcome banners, exchange keys,
+    /* ... start it up. This trades welcome banners, exchange keys,
      * and setup crypto, compression, and MAC layers
      */
     while((rc = libssh2_session_handshake(session, sock)) ==
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
     /* At this point we have not yet authenticated.  The first thing to do
      * is check the hostkey's fingerprint against our known hosts Your app
      * may have it hard coded, may go to a file, may present it to the
-     * user, that's your call
+     * user, that is your call
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
@@ -192,8 +192,7 @@ int main(int argc, char *argv[])
                                          &attrs)) == LIBSSH2_ERROR_EAGAIN)
             ;
         if(rc > 0) {
-            /* rc is the length of the file name in the mem
-               buffer */
+            /* rc is the length of the filename in the mem buffer */
 
             if(attrs.flags & LIBSSH2_SFTP_ATTR_PERMISSIONS) {
                 /* this should check what permissions it

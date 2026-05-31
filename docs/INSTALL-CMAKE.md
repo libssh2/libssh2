@@ -31,8 +31,8 @@ cmake -B bld
 cmake --build bld
 ```
 
-libssh2 will be built as a static library and will use any cryptography
-library available. The library binary will be put in `bld/src`, with the
+libssh2 is built as a static library and uses any cryptography library
+available. The library binary is put in `bld/src`, with the
 examples in `bld/example` and the tests in `bld/tests`.
 
 ## Customising the build
@@ -69,7 +69,7 @@ The following options are available:
     [`mbedTLS`](https://www.trustedfirmware.org/projects/mbed-tls/) or blank
     to use any library available.
 
-    CMake will attempt to locate the libraries automatically. For more
+    CMake attempts to locate the libraries automatically. For more
     information, visit:
     <https://cmake.org/cmake/help/v3.18/manual/cmake-packages.7.html>
 
@@ -140,7 +140,7 @@ project.
 ## How can I use libssh2 in my project if it also uses CMake?
 
 If your own project also uses CMake, you do not need to worry about setting it
-up with libssh2's location. Add the following lines and CMake will find
+up with libssh2's location. Add the following lines and CMake finds
 libssh2 on your system, set up the necessary paths and link the library with
 your binary.
 
@@ -151,9 +151,9 @@ target_link_libraries(my_project_target libssh2::libssh2)
 
 You still have to make libssh2 available on your system first. You can install
 it in the traditional way shown above, but you do not have to. Instead you can
-build it, which will export its location to the user
+build it, which exports its location to the user
 [package registry](https://cmake.org/cmake/help/v3.18/manual/cmake-packages.7.html#package-registry)
-where `find_package` will find it.
+where `find_package` finds it.
 
 You can even combine the two steps using a so-called
 ['superbuild' project](https://www.kitware.com/main/wp-content/uploads/2016/01/kitware_quarterly1009.pdf)

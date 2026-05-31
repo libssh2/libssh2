@@ -43,11 +43,11 @@ Callbacks for implementing a reallocator callback. Pass a value of NULL to
 use the default system reallocator.
 
 *abstract* - Arbitrary pointer to application specific callback data.
-This value will be passed to any callback function associated with the named
+This value is passed to any callback function associated with the named
 session instance.
 
 Initializes an SSH session object. By default system memory allocators
-(malloc(), free(), realloc()) will be used for any dynamically allocated memory
+(malloc(), free(), realloc()) are used for any dynamically allocated memory
 blocks. Alternate memory allocation functions may be specified using the
 extended version of this API call, and/or optional application specific data
 may be attached to the session object.

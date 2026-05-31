@@ -95,7 +95,7 @@ static int comp_method_none_decomp(LIBSSH2_SESSION *session,
 static const struct comp_method comp_method_none = {
     "none",
     0, /* not really compressing */
-    0, /* isn't used in userauth, go figure */
+    0, /* is not used in userauth, go figure */
     NULL,
     comp_method_none_comp,
     comp_method_none_decomp,
@@ -108,7 +108,7 @@ static const struct comp_method comp_method_none = {
  ****** */
 
 /* Memory management wrappers
- * Yes, I realize we're doing a callback to a callback,
+ * Yes, I realize we are doing a callback to a callback,
  * Deal...
  */
 
@@ -246,7 +246,7 @@ static int comp_method_zlib_decomp(LIBSSH2_SESSION *session,
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate decompression buffer");
 
-    /* Loop until it's all inflated or hit error */
+    /* Loop until it is all inflated or hit error */
     for(;;) {
         int status;
         size_t out_ofs;
@@ -257,7 +257,7 @@ static int comp_method_zlib_decomp(LIBSSH2_SESSION *session,
         if(status == Z_OK) {
             if(strm->avail_out > 0)
                 /* status is OK and the output buffer has not been exhausted
-                   so we're done */
+                   so we are done */
                 break;
         }
         else if(status == Z_BUF_ERROR) {
@@ -342,7 +342,7 @@ static const struct comp_method comp_method_zlib = {
 static const struct comp_method comp_method_zlib_openssh = {
     "zlib@openssh.com",
     1, /* yes, this compresses */
-    0, /* don't use compression during userauth */
+    0, /* do not use compression during userauth */
     comp_method_zlib_init,
     comp_method_zlib_comp,
     comp_method_zlib_decomp,

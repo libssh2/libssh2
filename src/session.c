@@ -205,7 +205,7 @@ static int banner_send(LIBSSH2_SESSION *session)
 
     if(session->banner_TxRx_state == libssh2_NB_state_idle) {
         if(session->local.banner) {
-            /* setopt_string will have given us our \r\n characters */
+            /* setopt_string has given us our \r\n characters */
             banner_len = strlen((char *)session->local.banner);
             banner = (char *)session->local.banner;
         }
@@ -390,7 +390,7 @@ int libssh2_session_banner_set(LIBSSH2_SESSION *session, const char *banner)
 
     memcpy(session->local.banner, banner, banner_len);
 
-    /* first zero terminate like this so that the debug output is nice */
+    /* first null-terminate like this so that the debug output is nice */
     session->local.banner[banner_len] = '\0';
     _libssh2_debug((session, LIBSSH2_TRACE_TRANS, "Setting local Banner: %s",
                     session->local.banner));
@@ -414,7 +414,7 @@ int libssh2_banner_set(LIBSSH2_SESSION *session, const char *banner)
 
 /*
  * Allocate and initialize a libssh2 session structure. Allows for malloc
- * callbacks in case the calling program has its own memory manager It's
+ * callbacks in case the calling program has its own memory manager. It is
  * allowable (but unadvisable) to define some but not all of the malloc
  * callbacks An additional pointer value may be optionally passed to be sent
  * to the callbacks (so they know who's asking)
@@ -546,7 +546,7 @@ libssh2_cb_generic *libssh2_session_callback_set2(LIBSSH2_SESSION *session,
  * Returns the prior address
  *
  * ALERT: this function relies on that we can typecast function pointers
- * to void pointers, which isn't allowed in ISO C!
+ * to void pointers, which is not allowed in ISO C!
  */
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -602,7 +602,7 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
     if(!dir) {
         _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
                         "Nothing to wait for in wait_socket"));
-        /* To avoid that we hang below just because there's nothing set to
+        /* To avoid that we hang below because there is nothing set to
            wait for, we timeout on 1 second to also avoid busy-looping
            during this condition */
         ms_to_next = 1000;
@@ -841,7 +841,7 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
         return 0;
     }
 
-    /* just for safety return some error */
+    /* for safety return some error */
     return LIBSSH2_ERROR_INVAL;
 }
 
@@ -1740,7 +1740,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
         }
 
         if(active_fds) {
-            /* Don't block on the sockets if we have channels/listeners which
+            /* Do not block on the sockets if we have channels/listeners which
                are ready */
             timeout_remaining = 0;
         }
@@ -1862,7 +1862,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
             }
         }
 #endif /* !HAVE_POLL && !HAVE_SELECT -- timeout (and by extension
-        * timeout_remaining) will be equal to 0 */
+        * timeout_remaining) is equal to 0 */
     } while((timeout_remaining > 0) && !active_fds);
 
     return active_fds;

@@ -4,7 +4,7 @@ dnl CURL_CPP_P
 dnl
 dnl Check if $cpp -P should be used for extract define values due to gcc 5
 dnl splitting up strings and defines between line outputs. gcc by default
-dnl (without -P) will show TEST EINVAL TEST as
+dnl (without -P) shows TEST EINVAL TEST as
 dnl
 dnl # 13 "conftest.c"
 dnl TEST
@@ -51,11 +51,11 @@ TEST EINVAL TEST
 dnl CURL_CHECK_DEF (SYMBOL, [INCLUDES], [SILENT])
 dnl -------------------------------------------------
 dnl Use the C preprocessor to find out if the given object-style symbol
-dnl is defined and get its expansion. This macro will not use default
-dnl includes even if no INCLUDES argument is given. This macro will run
+dnl is defined and get its expansion. This macro does not use default
+dnl includes even if no INCLUDES argument is given. This macro runs
 dnl silently when invoked with three arguments. If the expansion would
-dnl result in a set of double-quoted strings the returned expansion will
-dnl actually be a single double-quoted string concatenating all them.
+dnl result in a set of double-quoted strings the returned expansion is
+dnl actually a single double-quoted string concatenating all them.
 
 AC_DEFUN([CURL_CHECK_DEF], [
   AC_REQUIRE([CURL_CPP_P])
@@ -199,7 +199,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           clangvlo=`echo $clangver | cut -d . -f2`
           compiler_num=`(expr $clangvhi "*" 100 + $clangvlo) 2>/dev/null`
           if test "$appleclang" = '1' && test "$oldapple" = '0'; then
-            dnl Starting with Xcode 7 / clang 3.7, Apple clang won't tell its upstream version
+            dnl Starting with Xcode 7 / clang 3.7, Apple clang does not tell its upstream version
             if   test "$compiler_num" -ge '1700'; then compiler_num='1901'
             elif test "$compiler_num" -ge '1600'; then compiler_num='1700'
             elif test "$compiler_num" -ge '1500'; then compiler_num='1600'
@@ -256,7 +256,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [missing-noreturn])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [old-style-definition])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [redundant-decls])
-          # CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [switch-enum])       # Not used because this basically disallows default case
+          # CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [switch-enum])       # Not used: It makes default case unusable
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [type-limits])
             if test "x$have_windows_h" != "xyes"; then
               CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [unused-macros])  # Seen to clash with libtool-generated stub code
@@ -275,7 +275,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [sign-conversion])
             tmp_CFLAGS="$tmp_CFLAGS -Wno-error=sign-conversion"           # FIXME
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [shift-sign-overflow])
-          # CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [padded])  # Not used because we cannot change public structs
+          # CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [padded])  # Not used: We cannot change public structs
           fi
 
           dnl Only clang 3.0 or later
@@ -340,7 +340,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           case "$CFLAGS" in
             *-std=c89*|*-std=c90*|*-std=gnu89*|*-std=gnu90*)
               if test "$compiler_num" -ge "309"; then
-                tmp_CFLAGS="$tmp_CFLAGS -Wno-comma"  # Just silly
+                tmp_CFLAGS="$tmp_CFLAGS -Wno-comma"  # Silly
               fi
               ;;
           esac
@@ -381,7 +381,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           tmp_CFLAGS="-wd279,269,981,1418,1419"
 
           if test "$compiler_num" -gt "600"; then
-             dnl icc 6.0 and older doesn't have the -Wall flag
+             dnl icc 6.0 and older does not have the -Wall flag
              tmp_CFLAGS="-Wall $tmp_CFLAGS"
           fi
         else dnl $ICC = yes
@@ -452,10 +452,10 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [missing-field-initializers])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [missing-noreturn])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [unreachable-code unused-parameter])
-          # CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [padded])           # Not used because we cannot change public structs
+          # CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [padded])           # Not used: We cannot change public structs
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [pragmas])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [redundant-decls])
-          # CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [switch-enum])      # Not used because this basically disallows default case
+          # CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [switch-enum])      # Not used: It makes default case unusable
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [unused-macros])
           fi
 
@@ -551,7 +551,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
             case "$flag" in
              -I*)
                dnl Include path, provide a -isystem option for the same dir
-               dnl to prevent warnings in those dirs. The -isystem was not very
+               dnl to prevent warnings in those dirs. The -isystem was not
                dnl reliable on earlier gcc versions.
                add=`echo $flag | sed 's/^-I/-isystem /g'`
                tmp_CFLAGS="$tmp_CFLAGS $add"
@@ -776,10 +776,10 @@ AC_DEFUN([CURL_CHECK_NEED_REENTRANT_SYSTEM], [
 dnl CURL_CONFIGURE_FROM_NOW_ON_WITH_REENTRANT
 dnl -------------------------------------------------
 dnl This macro ensures that configuration tests done
-dnl after this will execute with preprocessor symbol
+dnl after this execute with preprocessor symbol
 dnl _REENTRANT defined. This macro also ensures that
 dnl the generated config file defines NEED_REENTRANT
-dnl and that in turn setup.h will define _REENTRANT.
+dnl and that in turn setup.h defines _REENTRANT.
 dnl Internal macro for CURL_CONFIGURE_REENTRANT.
 
 AC_DEFUN([CURL_CONFIGURE_FROM_NOW_ON_WITH_REENTRANT], [
@@ -795,7 +795,7 @@ _EOF
 dnl CURL_CONFIGURE_REENTRANT
 dnl -------------------------------------------------
 dnl This first checks if the preprocessor _REENTRANT
-dnl symbol is already defined. If it isn't currently
+dnl symbol is already defined. If it is not currently
 dnl defined a set of checks are performed to verify
 dnl if its definition is required to make visible to
 dnl the compiler a set of *_r functions. Finally, if
@@ -851,7 +851,7 @@ dnl --------------------------
 dnl Wrapper around LIBSSH2_HAVE_LINKFLAGS to also check $prefix/lib, if set.
 dnl
 dnl autoconf only checks $prefix/lib64 if gcc -print-search-dirs output
-dnl includes a directory named lib64. So, to find libraries in $prefix/lib
+dnl includes a directory named lib64. To find libraries in $prefix/lib
 dnl we append -L$prefix/lib to LDFLAGS before checking.
 dnl
 dnl For convenience, $4 is expanded if [lib]$1 is found.

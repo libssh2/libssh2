@@ -25,8 +25,8 @@ libssh2_session_hostkey(LIBSSH2_SESSION *session,
 
 # DESCRIPTION
 
-Returns a pointer to the current host key, the value *len* points to will
-get the length of the key.
+Returns a pointer to the current host key, the value *len* points to
+gets the length of the key.
 
 The value *type* points to the type of hostkey which is one of:
 LIBSSH2_HOSTKEY_TYPE_RSA, LIBSSH2_HOSTKEY_TYPE_DSS (deprecated), or

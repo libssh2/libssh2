@@ -567,7 +567,7 @@ static char *getASN1Element(struct asn1Element *elem, char *beg, char *end)
         len = 0;
         do {
             if(len & 0xFF000000L)
-                return NULL; /* Lengths > 32 bits are not supported. */
+                return NULL; /* Lengths > 32-bit are not supported. */
             len = (len << 8) | (unsigned char)*beg++;
         } while(--b);
     }
@@ -1732,7 +1732,7 @@ static int pkcs8kek(LIBSSH2_SESSION *session, struct os400qc3_crypto_ctx **ctx,
     Qc3_Format_ALGD0200_T algd;
     Qus_EC_t errcode;
 
-    /* Determine if the PKCS#8 data is encrypted and, if so, set-up a
+    /* Determine if the PKCS#8 data is encrypted and, if so, setup a
        key encryption key and algorithm in context.
        Return 1 if encrypted, 0, if not, -1 if error. */
 
@@ -1814,7 +1814,7 @@ static int pkcs8kek(LIBSSH2_SESSION *session, struct os400qc3_crypto_ctx **ctx,
         *ctx = NULL;
         return -1;
     }
-    return 1; /* Tell it's encrypted. */
+    return 1; /* Tell it is encrypted. */
 }
 
 static int rsapkcs8privkey(LIBSSH2_SESSION *session,

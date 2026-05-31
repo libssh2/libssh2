@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
-    /* Create a session instance and start it up. This will trade welcome
+    /* Create a session instance and start it up. This trades welcome
      * banners, exchange keys, and setup crypto, compression, and MAC layers
      */
     session = libssh2_session_init();
@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
     /* At this point we have not yet authenticated.  The first thing to do
      * is check the hostkey's fingerprint against our known hosts Your app
      * may have it hard coded, may go to a file, may present it to the
-     * user, that's your call
+     * user, that is your call
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
     }
 
     /* Some environment variables may be set,
-     * It's up to the server which ones it'll allow though
+     * It is up to the server which ones it allows though
      */
     libssh2_channel_setenv(channel, "FOO", "bar");
 

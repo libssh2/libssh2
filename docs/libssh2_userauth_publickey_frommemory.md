@@ -32,7 +32,7 @@ libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
 
 *session* - Session instance as returned by libssh2_session_init_ex(3)
 
-*username* - Remote user name to authenticate as.
+*username* - Remote username to authenticate as.
 
 *username_len* - Length of username.
 

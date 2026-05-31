@@ -51,8 +51,8 @@ Force all writes to append data at the end of the file.
 
 ## LIBSSH2_FXF_CREAT,
 
-If this flag is specified, then a new file will be created if one does not
-already exist (if LIBSSH2_FXF_TRUNC is specified, the new file will be
+If this flag is specified, then a new file is created if one does not
+already exist (if LIBSSH2_FXF_TRUNC is specified, the new file is
 truncated to zero length if it previously exists)
 
 ## LIBSSH2_FXF_TRUNC

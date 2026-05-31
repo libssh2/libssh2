@@ -29,16 +29,16 @@ libssh2_channel_forward_listen(LIBSSH2_SESSION *session, int port);
 # DESCRIPTION
 
 Instruct the remote SSH server to begin listening for inbound TCP/IP
-connections. New connections will be queued by the library until accepted by
+connections. New connections are queued by the library until accepted by
 *libssh2_channel_forward_accept(3)*.
 
 *session* - instance as returned by libssh2_session_init().
 
 *host* - specific address to bind to on the remote host. Binding to
-0.0.0.0 (default when NULL is passed) will bind to all available addresses.
+0.0.0.0 (default when NULL is passed) binds to all available addresses.
 
 *port* - port to bind to on the remote host. When 0 is passed, the remote
-host will select the first available dynamic port.
+host selects the first available dynamic port.
 
 *bound_port* - Populated with the actual port bound on the remote
 host. Useful when requesting dynamic port numbers.

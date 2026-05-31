@@ -122,7 +122,7 @@ int _libssh2_mbedtls_cipher_init(libssh2_cipher_ctx *h,
     /* libssh2 computes and adds SSH packet padding itself, so for CBC
      * tell mbedTLS to expect no padding on the cipher layer. Only call
      * set_padding_mode for CBC ciphers since other modes (CTR, stream)
-     * are not applicable and will cause an error. */
+     * are not applicable and causes an error. */
     if(!ret) {
         if(algo == MBEDTLS_CIPHER_AES_128_CBC ||
            algo == MBEDTLS_CIPHER_AES_192_CBC ||
@@ -345,8 +345,8 @@ static int mbed_bignum_random(libssh2_bn *bn, int bits, int top, int bottom)
     /* If `top` is -1, the most significant bit of the random number can be
        zero.  If top is 0, the most significant bit of the random number is
        set to 1, and if top is 1, the two most significant bits of the number
-       will be set to 1, so that the product of two such random numbers will
-       always have 2*bits length.
+       is set to 1, so that the product of two such random numbers always
+       have 2 * bits length.
     */
     if(top >= 0) {
         for(i = 0; i <= (size_t)top; ++i) {
@@ -491,7 +491,7 @@ int _libssh2_mbedtls_rsa_new_private_frommemory(
 
     /*
     mbedtls checks in "mbedtls/pkparse.c:1184" if "key[keylen - 1] != '\0'"
-    private-key from memory will fail if the last byte is not a null byte
+    private-key from memory fails if the last byte is not a null byte
     */
     filedata_nullterm = mbedtls_calloc(filedata_len + 1, 1);
     if(!filedata_nullterm) {
@@ -790,7 +790,7 @@ int _libssh2_mbedtls_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
 
     /*
     mbedtls checks in "mbedtls/pkparse.c:1184" if "key[keylen - 1] != '\0'"
-    private-key from memory will fail if the last byte is not a null byte
+    private-key from memory fails if the last byte is not a null byte
     */
     privatekeydata_nullterm = mbedtls_calloc(privatekeydata_len + 1, 1);
     if(!privatekeydata_nullterm) {

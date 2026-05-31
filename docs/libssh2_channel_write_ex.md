@@ -42,7 +42,7 @@ defines a stream ID of 1 to be the stderr substream.
 *libssh2_channel_write(3)* and *libssh2_channel_write_stderr(3)* are
 convenience macros for this function.
 
-*libssh2_channel_write_ex(3)* will use as much as possible of the buffer
+*libssh2_channel_write_ex(3)* uses as much as possible of the buffer
 and put it into a single SSH protocol packet. This means that to get maximum
 performance when sending larger files, you should try to always pass in at
 least 32K of data to this function.

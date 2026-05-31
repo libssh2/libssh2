@@ -248,7 +248,7 @@ static inline int packet_queue_listener(
         listen_state->state = libssh2_NB_state_sent;
     }
 
-    /* We're not listening to you */
+    /* We are not listening to you */
     p = listen_state->packet;
     *(p++) = SSH_MSG_CHANNEL_OPEN_FAILURE;
     _libssh2_store_u32(&p, listen_state->sender_channel);
@@ -591,7 +591,7 @@ static inline int packet_authagent_open(
             /* Link the channel into the session */
             _libssh2_list_add(&session->channels, &channel->node);
 
-            /* mess with stuff so we don't keep reading the same packet
+            /* mess with stuff so we do not keep reading the same packet
                over and over */
             session->packet.total_num = 0;
             session->fullpacket_state = libssh2_NB_state_idle;
@@ -634,10 +634,10 @@ authagent_exit:
  * Create a new packet and attach it to the brigade. Called from the transport
  * layer when it has received a packet.
  *
- * The input pointer 'data' is pointing to allocated data that this function
- * will be freed unless return the code is LIBSSH2_ERROR_EAGAIN.
+ * The input pointer 'data' is pointing to allocated data that in this function
+ * is freed unless return the code is LIBSSH2_ERROR_EAGAIN.
  *
- * This function will always be called with 'datalen' greater than zero.
+ * This function is always called with 'datalen' greater than zero.
  */
 int _libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                         size_t datalen, int macstate, uint32_t seq)
@@ -1005,7 +1005,7 @@ libssh2_packet_add_jump_point5:
             if((channelp->remote.extended_data_ignore_mode ==
                 LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE) &&
                (msg == SSH_MSG_CHANNEL_EXTENDED_DATA)) {
-                /* Pretend we didn't receive this */
+                /* Pretend we did not receive this */
                 LIBSSH2_FREE(session, data);
 
                 _libssh2_debug((session, LIBSSH2_TRACE_CONN,
@@ -1027,7 +1027,7 @@ libssh2_packet_add_jump_point5:
 
                 session->packAdd_channelp = channelp;
 
-                /* Adjust the window based on the block we just freed */
+                /* Adjust the window based on the block we freed */
 libssh2_packet_add_jump_point1:
                 session->packAdd_state = libssh2_NB_state_jump1;
                 rc = _libssh2_channel_receive_window_adjust(session->
@@ -1079,7 +1079,7 @@ libssh2_packet_add_jump_point1:
                     channelp->read_avail + data_head;
             }
 
-            /* Update the read_avail counter. The window size will be
+            /* Update the read_avail counter. The window size is
              * updated once the data is actually read from the queue
              * from an upper layer */
             channelp->read_avail += datalen - data_head;
@@ -1103,7 +1103,7 @@ libssh2_packet_add_jump_point1:
                     _libssh2_channel_locate(session,
                                             _libssh2_ntohu32(data + 1));
             if(!channelp)
-                /* We may have freed already, just quietly ignore this... */
+                /* We may have freed already, quietly ignore this... */
                 ;
             else {
                 _libssh2_debug((session, LIBSSH2_TRACE_CONN,
@@ -1163,7 +1163,8 @@ libssh2_packet_add_jump_point1:
                 if(len == strlen("exit-status") &&
                    !memcmp("exit-status", request, strlen("exit-status"))) {
 
-                    /* we've got "exit-status" packet. Set the session value */
+                    /* we have got "exit-status" packet. Set the session value.
+                     */
                     if(datalen >= 20)
                         channelp = _libssh2_channel_locate(session, channel);
 
@@ -1264,7 +1265,7 @@ clean_exit:
                     _libssh2_channel_locate(session,
                                             _libssh2_ntohu32(data + 1));
             if(!channelp) {
-                /* We may have freed already, just quietly ignore this... */
+                /* We may have freed already, quietly ignore this... */
                 LIBSSH2_FREE(session, data);
                 session->packAdd_state = libssh2_NB_state_idle;
                 return 0;
@@ -1409,9 +1410,9 @@ libssh2_packet_add_jump_authagent:
 
         if(session->packAdd_state == libssh2_NB_state_sent1) {
             /*
-             * Remote wants new keys
-             * Well, it's already in the brigade,
-             * let's just call back into ourselves
+             * Remote wants new keys.
+             * It is already in the brigade,
+             * let's call back into ourselves
              */
             _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
                             "Renegotiating Keys"));
@@ -1434,8 +1435,8 @@ libssh2_packet_add_jump_authagent:
                sizeof(session->startup_key_state));
 
         /*
-         * If there was a key reexchange failure, let's just hope we didn't
-         * send NEWKEYS yet, otherwise remote will drop us like a rock
+         * If there was a key reexchange failure, let's hope we did not
+         * send NEWKEYS yet, otherwise remote drops us like a rock
          */
         rc = _libssh2_kex_exchange(session, 1, &session->startup_key_state);
         if(rc == LIBSSH2_ERROR_EAGAIN)
@@ -1516,7 +1517,7 @@ int _libssh2_packet_askv(LIBSSH2_SESSION *session,
 
 /*
  * Loops _libssh2_transport_read() until the packet requested is available
- * SSH_DISCONNECT or a SOCKET_DISCONNECTED will cause a bailout
+ * SSH_DISCONNECT or a SOCKET_DISCONNECTED causes a bailout
  *
  * Returns negative on error
  * Returns 0 when it has taken care of the requested packet.
@@ -1549,7 +1550,7 @@ int _libssh2_packet_require(LIBSSH2_SESSION *session,
             return ret;
         else if(ret < 0) {
             state->start = 0;
-            /* an error which is not just because of blocking */
+            /* an error which is not because of blocking */
             return ret;
         }
         else if(ret == packet_type) {
@@ -1638,8 +1639,8 @@ int _libssh2_packet_burn(LIBSSH2_SESSION *session,
 
 /*
  * Loops _libssh2_transport_read() until one of a list of packet types
- * requested is available. SSH_DISCONNECT or a SOCKET_DISCONNECTED will cause
- * a bailout. packet_types is a null terminated list of packet_type numbers
+ * requested is available. SSH_DISCONNECT or a SOCKET_DISCONNECTED causes
+ * a bailout. packet_types is a null-terminated list of packet_type numbers
  */
 int _libssh2_packet_requirev(LIBSSH2_SESSION *session,
                              const unsigned char *packet_types,

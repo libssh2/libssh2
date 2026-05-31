@@ -43,11 +43,11 @@ filesystem entry
 This function implements the posix-rename@openssh.com extension, which is
 useful when, for example, moving files across filesystems on a remote server.
 SSH_FXP_RENAME does not specify a specific implementation, but many servers
-will attempt to user hard links when moving files using SSH_FXP_RENAME.
+attempt to user hard links when moving files using SSH_FXP_RENAME.
 
-If the server does not support posix-rename@openssh.com, this function will
-return LIBSSH2_FX_OP_UNSUPPORTED and you can call libssh2_sftp_rename_ex (3) as
-a backup.
+If the server does not support posix-rename@openssh.com, this function
+returns LIBSSH2_FX_OP_UNSUPPORTED and you can call libssh2_sftp_rename_ex (3)
+as a backup.
 
 # RETURN VALUE
 

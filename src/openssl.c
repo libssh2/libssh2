@@ -223,7 +223,7 @@ static unsigned char *write_bn(unsigned char *buf, const BIGNUM *bn,
 {
     unsigned char *p = buf;
 
-    /* Left space for bn size which will be written below. */
+    /* Left space for bn size which is written below. */
     p += 4;
 
     *p = 0;
@@ -1093,7 +1093,7 @@ int _libssh2_cipher_crypt(libssh2_cipher_ctx *ctx,
             }
         }
         /* Copy en/decrypted data back to the caller.
-           The first aadlen should not be touched because they weren't
+           The first aadlen should not be touched because they were not
            encrypted and are unmodified. */
         memcpy(block + aadlen, buf + aadlen, cryptlen);
         rc = !ret;
@@ -3387,9 +3387,9 @@ int _libssh2_sha512(const unsigned char *message, size_t len,
 int _libssh2_md5_init(libssh2_md5_ctx *ctx)
 {
     /* MD5 digest is not supported in OpenSSL FIPS mode
-     * Trying to init it will result in a latent OpenSSL error:
+     * Trying to init it results in a latent OpenSSL error:
      * "digital envelope routines:FIPS_DIGESTINIT:disabled for fips"
-     * So, just return 0 in FIPS mode
+     * Thus, return 0 in FIPS mode
      */
 #if !defined(USE_OPENSSL_3) && \
     !defined(LIBRESSL_VERSION_NUMBER) && \

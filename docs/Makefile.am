@@ -7,7 +7,7 @@ if BUILD_DOCS
 # Get man_MANS variable
 include Makefile.inc
 
-MANPAGES = $(man_MANS:.3=.md)
+MAN_PAGESS = $(man_MANS:.3=.md)
 CLEANFILES = $(man_MANS)
 SUFFIXES = .3 .md
 
@@ -16,6 +16,6 @@ SUFFIXES = .3 .md
 
 endif
 
-EXTRA_DIST = $(MANPAGES) template.md AUTHORS BINDINGS.md HACKING.md \
+EXTRA_DIST = $(MAN_PAGESS) template.md AUTHORS BINDINGS.md HACKING.md \
   HACKING-CRYPTO INSTALL-AUTOTOOLS.md INSTALL-CMAKE.md REQUIREMENTS.md \
   SECURITY.md TODO.md CMakeLists.txt

@@ -114,7 +114,7 @@ int libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
                            const void *key,
                            int keylen);
 Setup the HMAC computation context ctx for an HMAC-SHA-1 computation using the
-keylen-byte key. Is invoked just after libssh2_hmac_ctx_init().
+keylen-byte key. Is invoked right after libssh2_hmac_ctx_init().
 Returns 1 for success and 0 for failure.
 
 3.2) SHA-256
@@ -162,7 +162,7 @@ int libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
                              const void *key,
                              int keylen);
 Setup the HMAC computation context ctx for an HMAC-256 computation using the
-keylen-byte key. Is invoked just after libssh2_hmac_ctx_init().
+keylen-byte key. Is invoked right after libssh2_hmac_ctx_init().
 Returns 1 for success and 0 for failure.
 
 3.3) SHA-384
@@ -246,7 +246,7 @@ int libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
                              const void *key,
                              int keylen);
 Setup the HMAC computation context ctx for an HMAC-512 computation using the
-keylen-byte key. Is invoked just after libssh2_hmac_ctx_init().
+keylen-byte key. Is invoked right after libssh2_hmac_ctx_init().
 Returns 1 for success and 0 for failure.
 
 3.5) MD5
@@ -285,7 +285,7 @@ int libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
                           const void *key,
                           int keylen);
 Setup the HMAC computation context ctx for an HMAC-MD5 computation using the
-keylen-byte key. Is invoked just after libssh2_hmac_ctx_init().
+keylen-byte key. Is invoked right after libssh2_hmac_ctx_init().
 Returns 1 for success and 0 for failure.
 
 3.6) RIPEMD-160
@@ -297,7 +297,7 @@ int libssh2_hmac_ripemd160_init(libssh2_hmac_ctx *ctx,
                                 const void *key,
                                 int keylen);
 Setup the HMAC computation context ctx for an HMAC-RIPEMD-160 computation using
-the keylen-byte key. Is invoked just after libssh2_hmac_ctx_init().
+the keylen-byte key. Is invoked right after libssh2_hmac_ctx_init().
 Returns 1 for success and 0 for failure.
 
 4) Bidirectional key ciphers.
@@ -968,7 +968,7 @@ const char *_libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
 
 This function is for implementing key hash upgrading as defined in RFC 8332.
 
-Based on the incoming key_method value, this function will return a
+Based on the incoming key_method value, this function returns a
 list of supported algorithms that can upgrade the original key method algorithm
 as a comma separated list, if there is no upgrade option this function should
 return NULL.

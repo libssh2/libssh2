@@ -156,7 +156,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         entry->name = LIBSSH2_ALLOC(hosts->session, hostlen + 1);
         if(!entry->name) {
             rc = _libssh2_error(hosts->session, LIBSSH2_ERROR_ALLOC,
-                                "Unable to allocate memory for host name");
+                                "Unable to allocate memory for hostname");
             goto error;
         }
         memcpy(entry->name, host, hostlen + 1);
@@ -201,7 +201,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         break;
     default:
         rc = _libssh2_error(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                            "Unknown host name type");
+                            "Unknown hostname type");
         goto error;
     }
 
@@ -309,9 +309,9 @@ int libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
  * Add a host and its associated key to the collection of known hosts.
  *
  * Takes a comment argument that may be NULL.  A NULL comment indicates
- * there is no comment and the entry will end directly after the key
- * when written out to a file.  An empty string "" comment will indicate an
- * empty comment which will cause a single space to be written after the key.
+ * there is no comment and the entry ends directly after the key
+ * when written out to a file.  An empty string "" comment indicates an
+ * empty comment which causes a single space to be written after the key.
  *
  * The 'type' argument specifies on what format the given host and keys are:
  *
@@ -343,7 +343,7 @@ int libssh2_knownhost_addc(LIBSSH2_KNOWNHOSTS *hosts,
 /*
  * Check a host and its associated key against the collection of known hosts.
  *
- * The typemask is the type/format of the given host name and key
+ * The typemask is the type/format of the given hostname and key
  *
  * plain  - ascii "hostname.domain.tld"
  * sha1   - NOT SUPPORTED AS INPUT
@@ -367,13 +367,13 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
     int type = typemask & LIBSSH2_KNOWNHOST_TYPE_MASK;
     char *keyalloc = NULL;
     int rc = LIBSSH2_KNOWNHOST_CHECK_NOTFOUND;
-    char hostbuff[270]; /* most host names can't be longer than like 256 */
+    char hostbuff[270]; /* most hostnames cannot be longer than like 256 */
     const char *host;
     int numcheck; /* number of host combos to check */
     int match = 0;
 
     if(type == LIBSSH2_KNOWNHOST_TYPE_SHA1)
-        /* we can't work with a sha1 as given input */
+        /* we cannot work with a sha1 as given input */
         return LIBSSH2_KNOWNHOST_CHECK_MISMATCH;
 
     /* if a port number is given, check for a '[host]:port' first before the
@@ -433,7 +433,7 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
 
                     if(SHA_DIGEST_LENGTH != node->name_len) {
                         /* the name hash length must be the sha1 size or
-                           we can't match it */
+                           we cannot match it */
                         break;
                     }
                     if(!_libssh2_hmac_sha1_init(&ctx,
@@ -447,7 +447,7 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                     _libssh2_hmac_cleanup(&ctx);
 
                     if(!memcmp(hash, node->name, SHA_DIGEST_LENGTH))
-                        /* this is a node we're interested in */
+                        /* this is a node we are interested in */
                         match = 1;
                 }
                 break;
@@ -466,7 +466,7 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                 if(host_key_type != LIBSSH2_KNOWNHOST_KEY_UNKNOWN &&
                    (host_key_type == 0 ||
                     host_key_type == known_key_type)) {
-                    /* host name and key type match, now compare the keys */
+                    /* hostname and key type match, now compare the keys */
                     if(!strcmp(key, node->key)) {
                         /* they match! */
                         if(store)
@@ -483,7 +483,7 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                             badkey = node;
                     }
                 }
-                match = 0; /* don't count this as a match anymore */
+                match = 0; /* do not count this as a match anymore */
             }
             node = _libssh2_list_next(&node->node);
         }
@@ -506,7 +506,7 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
 /*
  * Check a host and its associated key against the collection of known hosts.
  *
- * The typemask is the type/format of the given host name and key
+ * The typemask is the type/format of the given hostname and key
  *
  * plain  - ascii "hostname.domain.tld"
  * sha1   - NOT SUPPORTED AS INPUT
@@ -533,10 +533,10 @@ int libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
  * hosts.
  *
  * Note that if 'port' is specified as greater than zero, the check function
- * will be able to check for a dedicated key for this particular host+port
+ * is able to check for a dedicated key for this particular host+port
  * combo, and if 'port' is negative it only checks for the generic host key.
  *
- * The typemask is the type/format of the given host name and key
+ * The typemask is the type/format of the given hostname and key
  *
  * plain  - ascii "hostname.domain.tld"
  * sha1   - NOT SUPPORTED AS INPUT
@@ -624,26 +624,26 @@ static int oldstyle_hostline(LIBSSH2_KNOWNHOSTS *hosts,
         return _libssh2_error(hosts->session,
                               LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                               "Failed to parse known_hosts line "
-                              "(no host names)");
+                              "(no hostnames)");
 
     while(name > host) {
         --name;
         ++namelen;
 
-        /* when we get the the start or see a comma coming up, add the host
+        /* when we get to the start or see a comma coming up, add the host
            name to the collection */
         if((name == host) || (*(name - 1) == ',')) {
 
             char hostbuf[256];
 
-            /* make sure we don't overflow the buffer */
+            /* make sure we do not overflow the buffer */
             if(namelen >= sizeof(hostbuf) - 1)
                 return _libssh2_error(hosts->session,
                                       LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                                       "Failed to parse known_hosts line "
                                       "(unexpected length)");
 
-            /* copy host name to the temp buffer and zero terminate */
+            /* copy hostname to the temp buffer and null-terminate */
             memcpy(hostbuf, name, namelen);
             hostbuf[namelen] = 0;
 
@@ -694,7 +694,7 @@ static int hashed_hostline(LIBSSH2_KNOWNHOSTS *hosts,
                                   "(unexpectedly long salt)");
 
         memcpy(saltbuf, salt, saltlen);
-        saltbuf[saltlen] = 0; /* zero terminate */
+        saltbuf[saltlen] = 0; /* null-terminate */
         salt = saltbuf; /* point to the stack based buffer */
 
         hash = p + 1; /* the host hash is after the separator */
@@ -721,14 +721,14 @@ static int hashed_hostline(LIBSSH2_KNOWNHOSTS *hosts,
                              LIBSSH2_KNOWNHOST_KEYENC_BASE64, NULL);
     }
     else
-        return 0; /* XXX: This should be an error, shouldn't it? */
+        return 0; /* XXX: This should be an error, should not it? */
 }
 
 /*
  * Parse a single known_host line pre-split into host and key.
  *
- * The key part may include an optional comment which will be parsed here
- * for ssh-rsa and ssh-dsa keys.  Comments in other key types aren't handled.
+ * The key part may include an optional comment which is parsed here
+ * for ssh-rsa and ssh-dsa keys.  Comments in other key types are not handled.
  *
  * The function assumes new-lines have already been removed from the arguments.
  */
@@ -762,7 +762,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
     case '9':
         key_type = LIBSSH2_KNOWNHOST_KEY_RSA1;
 
-        /* Note that the old-style keys (RSA1) aren't truly base64, but we
+        /* Note that the old-style keys (RSA1) are not truly base64, but we
          * claim it is for now since we can get away with strcmp()ing the
          * entire anything anyway! We need to check and fix these to make them
          * work properly.
@@ -931,9 +931,9 @@ int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
         len--;
     }
 
-    /* zero terminate where the newline is */
+    /* null-terminate where the newline is */
     if(*cp == '\n')
-        keylen--; /* don't include this in the count */
+        keylen--; /* do not include this in the count */
 
     /* deal with this one host+key line */
     rc = hostline(hosts, hostp, hostlen, keyp, keylen);
@@ -986,7 +986,7 @@ int libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
  *
  * Note that this function returns LIBSSH2_ERROR_BUFFER_TOO_SMALL if the given
  * output buffer is too small to hold the desired output. The 'outlen' field
- * will then contain the size libssh2 wanted to store, which then is the
+ * then contains the size libssh2 wanted to store, which then is the
  * smallest sufficient buffer it would require.
  */
 static int knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
@@ -1068,7 +1068,7 @@ static int knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
        ("%s %s\n", host, key)
 
        Even if the buffer is too small, we have to set outlen to the number of
-       characters the complete line would have taken.  We also don't write
+       characters the complete line would have taken. We also do not write
        anything to the buffer unless we are sure we can write everything to the
        buffer. */
 
@@ -1091,7 +1091,7 @@ static int knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
         if(!name_base64_len)
             return _libssh2_error(hosts->session, LIBSSH2_ERROR_ALLOC,
                                   "Unable to allocate memory for "
-                                  "base64-encoded host name");
+                                  "base64-encoded hostname");
 
         salt_base64_len = _libssh2_base64_encode(hosts->session,
                                                  node->salt, node->salt_len,

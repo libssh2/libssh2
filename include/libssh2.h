@@ -44,7 +44,7 @@
 
 #define LIBSSH2_COPYRIGHT "The libssh2 project and its contributors."
 
-/* We use underscore instead of dash when appending DEV in dev versions just
+/* We use underscore instead of dash when appending DEV in dev versions
    to make the BANNER define (used by src/session.c) be a valid SSH
    banner. Release versions have no appended strings and may of course not
    have dashes either. The release version (without "_DEV") is not stored in
@@ -59,8 +59,8 @@
 #define LIBSSH2_VERSION_PATCH                       1
 
 /* This is the numeric version of the libssh2 version number, meant for easier
-   parsing and comparisons by programs. The LIBSSH2_VERSION_NUM define will
-   always follow this syntax:
+   parsing and comparisons by programs. The LIBSSH2_VERSION_NUM define
+   always follows this syntax:
 
          0xXXYYZZ
 
@@ -172,7 +172,7 @@ typedef struct _stati64 libssh2_struct_stat;
 typedef __int64 libssh2_struct_stat_size;
 #else
 #  ifdef __VMS
-/* We have to roll our own format here because %z is a C99-ism we don't
+/* We have to roll our own format here because %z is a C99-ism we do not
    have. */
 #    if __USE_OFF64_T || __USING_STD_STAT
 #      define LIBSSH2_STRUCT_STAT_SIZE_FORMAT      "%Ld"
@@ -410,7 +410,7 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_POLLFD_CHANNEL      2
 #define LIBSSH2_POLLFD_LISTENER     3
 
-/* Note: Win32 Doesn't actually have a poll() implementation, so some of these
+/* Note: Win32 does not actually have a poll() implementation, so some of these
    values are faked with select() data */
 /* Poll FD events/revents -- Match sys/poll.h where possible */
 #define LIBSSH2_POLLFD_POLLIN           0x0001 /* Data available to be read or
@@ -547,7 +547,7 @@ typedef struct _LIBSSH2_POLLFD {
  * libssh2_init()
  *
  * Initialize the libssh2 functions.  This typically initializes the
- * crypto library.  It uses a global state, and is not thread safe --
+ * crypto library.  It uses a global state, and is not thread-safe --
  * you must make sure this function is not called concurrently.
  *
  * Flags can be:
@@ -732,7 +732,7 @@ libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
 /*
  * response_callback is provided with filled by library prompts array,
  * but client must allocate and fill individual responses. Responses
- * array is already allocated. Responses data will be freed by libssh2
+ * array is already allocated. Responses data is freed by libssh2
  * after callback return, but before subsequent callback invocation.
  */
 LIBSSH2_API int
@@ -958,7 +958,7 @@ LIBSSH2_API int libssh2_channel_handle_extended_data2(LIBSSH2_CHANNEL *channel,
  * 0.1
  *
  * Future uses should use libssh2_channel_handle_extended_data() directly if
- * LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE is passed, extended data will be read
+ * LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE is passed, extended data is read
  * (FIFO) from the standard data channel
  */
 /* DEPRECATED since 0.3.0. Use libssh2_channel_handle_extended_data2(). */
@@ -1044,7 +1044,7 @@ libssh2_crypto_engine_t libssh2_crypto_engine(void);
 struct libssh2_knownhost {
     unsigned int magic;  /* magic stored by the library */
     void *node; /* handle to the internal representation of this host */
-    char *name; /* this is NULL if no plain text host name exists */
+    char *name; /* this is NULL if no plain text hostname exists */
     char *key;  /* key in base64/printable format */
     int typemask;
 };
@@ -1116,9 +1116,9 @@ libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
  * Add a host and its associated key to the collection of known hosts.
  *
  * Takes a comment argument that may be NULL.  A NULL comment indicates
- * there is no comment and the entry will end directly after the key
- * when written out to a file.  An empty string "" comment will indicate an
- * empty comment which will cause a single space to be written after the key.
+ * there is no comment and the entry ends directly after the key
+ * when written out to a file.  An empty string "" comment indicates an
+ * empty comment which causes a single space to be written after the key.
  *
  * The 'type' argument specifies on what format the given host and keys are:
  *
@@ -1150,13 +1150,13 @@ libssh2_knownhost_addc(LIBSSH2_KNOWNHOSTS *hosts,
  *
  * Check a host and its associated key against the collection of known hosts.
  *
- * The type is the type/format of the given host name.
+ * The type is the type/format of the given hostname.
  *
  * plain  - ascii "hostname.domain.tld"
  * custom - prehashed base64 encoded. Note that this cannot use any salts.
  *
  *
- * 'knownhost' may be set to NULL if you don't care about that info.
+ * 'knownhost' may be set to NULL if you do not care about that info.
  *
  * Returns:
  *
@@ -1413,7 +1413,7 @@ libssh2_agent_get_identity_path(LIBSSH2_AGENT *agent);
  * from the server.  INTERVAL is number of seconds that can pass
  * without any I/O, use 0 (the default) to disable keepalives.  To
  * avoid some busy-loop corner-cases, if you specify an interval of 1
- * it will be treated as 2.
+ * it is treated as 2.
  *
  * Note that non-blocking applications are responsible for sending the
  * keepalive messages using libssh2_keepalive_send().
@@ -1434,7 +1434,7 @@ LIBSSH2_API int libssh2_keepalive_send(LIBSSH2_SESSION *session,
                                        int *seconds_to_next);
 
 /* NOTE NOTE NOTE
-   libssh2_trace() has no function in builds that aren't built with debug
+   libssh2_trace() has no function in builds that are not built with debug
    enabled
  */
 LIBSSH2_API int libssh2_trace(LIBSSH2_SESSION *session, int bitmask);

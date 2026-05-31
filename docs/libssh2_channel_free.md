@@ -26,7 +26,7 @@ libssh2_channel_free(LIBSSH2_CHANNEL *channel);
 *channel* - Channel stream to free.
 
 Release all resources associated with a channel stream. If the channel has
-not yet been closed with libssh2_channel_close(3) it will be called
+not yet been closed with libssh2_channel_close(3) it is called
 automatically so that the remote end may know that it can safely free its
 own resources.
 
