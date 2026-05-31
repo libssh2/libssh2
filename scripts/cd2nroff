@@ -450,7 +450,7 @@ sub single {
                 if($addedin ne "n/a") {
                     # insert the generated AVAILABILITY section
                     push @desc, ".SH AVAILABILITY\n";
-                    push @desc, "Added in curl $addedin\n";
+                    push @desc, "Added in libssh2 $addedin\n";
                 }
                 $header = 1;
                 next;
