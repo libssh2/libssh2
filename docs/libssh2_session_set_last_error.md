@@ -41,7 +41,7 @@ mechanism.
 
 # RETURN VALUE
 
-Numeric error code corresponding to the the Error Code constants.
+Numeric error code corresponding to the Error Code constants.
 
 # AVAILABILITY
 

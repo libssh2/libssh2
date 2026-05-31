@@ -31,4 +31,4 @@ Determine the most recent error condition.
 
 # RETURN VALUE
 
-Numeric error code corresponding to the the Error Code constants.
+Numeric error code corresponding to the Error Code constants.
