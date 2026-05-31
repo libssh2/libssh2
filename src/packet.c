@@ -1639,7 +1639,7 @@ int _libssh2_packet_burn(LIBSSH2_SESSION *session,
 /*
  * Loops _libssh2_transport_read() until one of a list of packet types
  * requested is available. SSH_DISCONNECT or a SOCKET_DISCONNECTED will cause
- * a bailout. packet_types is a null terminated list of packet_type numbers
+ * a bailout. packet_types is a null-terminated list of packet_type numbers
  */
 int _libssh2_packet_requirev(LIBSSH2_SESSION *session,
                              const unsigned char *packet_types,

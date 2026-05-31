@@ -68,7 +68,7 @@
  * List authentication methods
  * Will yield successful login if "none" happens to be allowable for this user
  * Not a common configuration for any SSH server though
- * username should be NULL, or a null terminated string
+ * username should be NULL, or a null-terminated string
  */
 static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
                            unsigned int username_len)
@@ -256,7 +256,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
  * List authentication methods
  * Will yield successful login if "none" happens to be allowable for this user
  * Not a common configuration for any SSH server though
- * username should be NULL, or a null terminated string
+ * username should be NULL, or a null-terminated string
  */
 LIBSSH2_API
 char *libssh2_userauth_list(LIBSSH2_SESSION *session,
