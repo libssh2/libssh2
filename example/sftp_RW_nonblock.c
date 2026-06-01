@@ -2,8 +2,8 @@
  *
  * Sample showing how to do SFTP transfers in a non-blocking manner.
  *
- * It will first download a given source file, store it locally and then
- * upload the file again to a given destination file.
+ * It first downloads a given source file, stores it locally and then
+ * uploads the file again to a given destination file.
  *
  * Using the SFTP server running on 127.0.0.1
  *

@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
     }
 
     /* Some environment variables may be set,
-     * It is up to the server which ones it will allow though
+     * It is up to the server which ones it allows though
      */
     libssh2_channel_setenv(channel, "FOO", "bar");
 
@@ -300,14 +300,14 @@ int main(int argc, char *argv[])
          *
          * Blocking mode may be (en|dis)abled with:
          *    libssh2_channel_set_blocking()
-         * If the server send EOF, libssh2_channel_eof() will return non-0
+         * If the server send EOF, libssh2_channel_eof() returns non-0
          * To send EOF to the server use: libssh2_channel_send_eof()
          * A channel can be closed with: libssh2_channel_close()
          * A channel can be freed with: libssh2_channel_free()
          */
 
         /* Read and display all the data received on stdout (ignoring stderr)
-         * until the channel closes. This will eventually block if the command
+         * until the channel closes. This eventually blocks if the command
          * produces too much data on stderr; the loop must be rewritten to use
          * non-blocking mode and include interspersed calls to
          * libssh2_channel_read_stderr() to avoid this. See ssh2_echo.c for

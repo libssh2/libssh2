@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
 
                 if(n == LIBSSH2_ERROR_EAGAIN) {
                     rereads++;
-                    fprintf(stderr, "will read again\n");
+                    fprintf(stderr, "read again\n");
                 }
                 else if(n < 0) {
                     fprintf(stderr, "read failed\n");
@@ -298,7 +298,7 @@ int main(int argc, char *argv[])
 
                     if(n == LIBSSH2_ERROR_EAGAIN) {
                         rewrites++;
-                        fprintf(stderr, "will write again\n");
+                        fprintf(stderr, "write again\n");
                     }
                     else if(n < 0) {
                         fprintf(stderr, "write failed\n");
@@ -319,7 +319,7 @@ int main(int argc, char *argv[])
                     rc = libssh2_channel_send_eof(channel);
 
                     if(rc == LIBSSH2_ERROR_EAGAIN) {
-                        fprintf(stderr, "will send eof again\n");
+                        fprintf(stderr, "send eof again\n");
                     }
                     else if(rc < 0) {
                         fprintf(stderr, "send eof failed\n");

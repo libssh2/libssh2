@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
     }
 
     /* Some environment variables may be set,
-     * It is up to the server which ones it will allow though
+     * It is up to the server which ones it allows though
      */
     libssh2_channel_setenv(channel, "FOO", "bar");
 
@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
      * libssh2_channel_write_stderr()
      *
      * Blocking mode may be (en|dis)abled with: libssh2_channel_set_blocking()
-     * If the server send EOF, libssh2_channel_eof() will return non-0
+     * If the server send EOF, libssh2_channel_eof() returns non-0
      * To send EOF to the server use: libssh2_channel_send_eof()
      * A channel can be closed with: libssh2_channel_close()
      * A channel can be freed with: libssh2_channel_free()
