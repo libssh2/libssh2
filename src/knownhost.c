@@ -367,13 +367,13 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
     int type = typemask & LIBSSH2_KNOWNHOST_TYPE_MASK;
     char *keyalloc = NULL;
     int rc = LIBSSH2_KNOWNHOST_CHECK_NOTFOUND;
-    char hostbuff[270]; /* most hostnames can't be longer than like 256 */
+    char hostbuff[270]; /* most hostnames cannot be longer than like 256 */
     const char *host;
     int numcheck; /* number of host combos to check */
     int match = 0;
 
     if(type == LIBSSH2_KNOWNHOST_TYPE_SHA1)
-        /* we can't work with a sha1 as given input */
+        /* we cannot work with a sha1 as given input */
         return LIBSSH2_KNOWNHOST_CHECK_MISMATCH;
 
     /* if a port number is given, check for a '[host]:port' first before the
@@ -433,7 +433,7 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
 
                     if(SHA_DIGEST_LENGTH != node->name_len) {
                         /* the name hash length must be the sha1 size or
-                           we can't match it */
+                           we cannot match it */
                         break;
                     }
                     if(!_libssh2_hmac_sha1_init(&ctx,

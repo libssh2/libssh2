@@ -1447,7 +1447,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
 
         /* Some data may already have been read from the server in the
            previous call but didn't fit in the buffer at the time.  If so, we
-           return that now as we can't risk being interrupted later with data
+           return that now as we cannot risk being interrupted later with data
            partially written to the buffer. */
         if(filep->data_left) {
             size_t copy = LIBSSH2_MIN(buffer_size, filep->data_left);

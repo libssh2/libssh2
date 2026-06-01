@@ -711,7 +711,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             if(_libssh2_bn_to_bin(exchange_state->e,
                                   exchange_state->e_packet + 5)) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                     "Can't write exchange_state->e");
+                                     "Cannot write exchange_state->e");
                 goto clean_exit;
             }
         }
@@ -720,7 +720,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             if(_libssh2_bn_to_bin(exchange_state->e,
                                   exchange_state->e_packet + 6)) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                     "Can't write exchange_state->e");
+                                     "Cannot write exchange_state->e");
                 goto clean_exit;
             }
         }
@@ -841,7 +841,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             if(_libssh2_bn_to_bin(exchange_state->k,
                                   exchange_state->k_value + 4)) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                     "Can't write exchange_state->k");
+                                     "Cannot write exchange_state->k");
                 goto clean_exit;
             }
         }
@@ -850,7 +850,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             if(_libssh2_bn_to_bin(exchange_state->k,
                                   exchange_state->k_value + 5)) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                     "Can't write exchange_state->k");
+                                     "Cannot write exchange_state->k");
                 goto clean_exit;
             }
         }
@@ -2081,7 +2081,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
             if(_libssh2_bn_to_bin(exchange_state->k,
                                   exchange_state->k_value + 4)) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                     "Can't write exchange_state->k");
+                                     "Cannot write exchange_state->k");
                 goto clean_exit;
             }
         }
@@ -2090,7 +2090,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
             if(_libssh2_bn_to_bin(exchange_state->k,
                                   exchange_state->k_value + 5)) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                     "Can't write exchange_state->k");
+                                     "Cannot write exchange_state->k");
                 goto clean_exit;
             }
         }
@@ -2462,7 +2462,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
                               shared_secret +
                                   LIBSSH2_MLKEM_SHARED_SECRET_LEN)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                 "Can't write shared secret");
+                                 "Cannot write shared secret");
             goto clean_exit;
         }
 
@@ -2825,7 +2825,7 @@ static int curve25519_sha256(
             if(_libssh2_bn_to_bin(exchange_state->k,
                                   exchange_state->k_value + 4)) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                     "Can't write exchange_state->k");
+                                     "Cannot write exchange_state->k");
                 goto clean_exit;
             }
         }
@@ -2834,7 +2834,7 @@ static int curve25519_sha256(
             if(_libssh2_bn_to_bin(exchange_state->k,
                                   exchange_state->k_value + 5)) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                     "Can't write exchange_state->k");
+                                     "Cannot write exchange_state->k");
                 goto clean_exit;
             }
         }
@@ -3131,7 +3131,7 @@ static int mlkem768x25519_sha256(
                               shared_secret +
                                   LIBSSH2_MLKEM_SHARED_SECRET_LEN)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                 "Can't write shared secret");
+                                 "Cannot write shared secret");
             goto clean_exit;
         }
 
