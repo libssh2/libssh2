@@ -2,7 +2,7 @@
  *
  * Sample showing how to do SSH2 connect using ssh-agent.
  *
- * The sample code has default values for host name, username:
+ * The sample code has default values for hostname, username:
  *
  * $ ./ssh2_agent host user
  *

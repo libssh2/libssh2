@@ -1607,7 +1607,7 @@
       * Check a host and its associated key against the collection of known
       * hosts.
       *
-      * The type is the type/format of the given host name.
+      * The type is the type/format of the given hostname.
       *
       * plain  - ascii "hostname.domain.tld"
       * custom - prehashed base64 encoded. Note that this cannot use any salts.

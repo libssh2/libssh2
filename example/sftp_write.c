@@ -2,7 +2,7 @@
  *
  * Sample showing how to do SFTP write transfers.
  *
- * The sample code has default values for host name, username, password
+ * The sample code has default values for hostname, username, password
  * and path to copy, but you can specify them on the command line like:
  *
  * $ ./sftp_write 192.168.0.1 user password sftp_write.c /tmp/secrets

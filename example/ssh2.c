@@ -2,7 +2,7 @@
  *
  * Sample showing how to do SSH2 connect.
  *
- * The sample code has default values for host name, username, password
+ * The sample code has default values for hostname, username, password
  * and path to copy, but you can specify them on the command line like:
  *
  * $ ./ssh2 hostip user password [[-p|-i|-k] [command]]

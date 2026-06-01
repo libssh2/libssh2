@@ -156,7 +156,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         entry->name = LIBSSH2_ALLOC(hosts->session, hostlen + 1);
         if(!entry->name) {
             rc = _libssh2_error(hosts->session, LIBSSH2_ERROR_ALLOC,
-                                "Unable to allocate memory for host name");
+                                "Unable to allocate memory for hostname");
             goto error;
         }
         memcpy(entry->name, host, hostlen + 1);
@@ -201,7 +201,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         break;
     default:
         rc = _libssh2_error(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                            "Unknown host name type");
+                            "Unknown hostname type");
         goto error;
     }
 
@@ -343,7 +343,7 @@ int libssh2_knownhost_addc(LIBSSH2_KNOWNHOSTS *hosts,
 /*
  * Check a host and its associated key against the collection of known hosts.
  *
- * The typemask is the type/format of the given host name and key
+ * The typemask is the type/format of the given hostname and key
  *
  * plain  - ascii "hostname.domain.tld"
  * sha1   - NOT SUPPORTED AS INPUT
@@ -367,7 +367,7 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
     int type = typemask & LIBSSH2_KNOWNHOST_TYPE_MASK;
     char *keyalloc = NULL;
     int rc = LIBSSH2_KNOWNHOST_CHECK_NOTFOUND;
-    char hostbuff[270]; /* most host names can't be longer than like 256 */
+    char hostbuff[270]; /* most hostnames can't be longer than like 256 */
     const char *host;
     int numcheck; /* number of host combos to check */
     int match = 0;
@@ -466,7 +466,7 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                 if(host_key_type != LIBSSH2_KNOWNHOST_KEY_UNKNOWN &&
                    (host_key_type == 0 ||
                     host_key_type == known_key_type)) {
-                    /* host name and key type match, now compare the keys */
+                    /* hostname and key type match, now compare the keys */
                     if(!strcmp(key, node->key)) {
                         /* they match! */
                         if(store)
@@ -506,7 +506,7 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
 /*
  * Check a host and its associated key against the collection of known hosts.
  *
- * The typemask is the type/format of the given host name and key
+ * The typemask is the type/format of the given hostname and key
  *
  * plain  - ascii "hostname.domain.tld"
  * sha1   - NOT SUPPORTED AS INPUT
@@ -536,7 +536,7 @@ int libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
  * will be able to check for a dedicated key for this particular host+port
  * combo, and if 'port' is negative it only checks for the generic host key.
  *
- * The typemask is the type/format of the given host name and key
+ * The typemask is the type/format of the given hostname and key
  *
  * plain  - ascii "hostname.domain.tld"
  * sha1   - NOT SUPPORTED AS INPUT
@@ -624,7 +624,7 @@ static int oldstyle_hostline(LIBSSH2_KNOWNHOSTS *hosts,
         return _libssh2_error(hosts->session,
                               LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                               "Failed to parse known_hosts line "
-                              "(no host names)");
+                              "(no hostnames)");
 
     while(name > host) {
         --name;
@@ -643,7 +643,7 @@ static int oldstyle_hostline(LIBSSH2_KNOWNHOSTS *hosts,
                                       "Failed to parse known_hosts line "
                                       "(unexpected length)");
 
-            /* copy host name to the temp buffer and zero terminate */
+            /* copy hostname to the temp buffer and zero terminate */
             memcpy(hostbuf, name, namelen);
             hostbuf[namelen] = 0;
 
@@ -1091,7 +1091,7 @@ static int knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
         if(!name_base64_len)
             return _libssh2_error(hosts->session, LIBSSH2_ERROR_ALLOC,
                                   "Unable to allocate memory for "
-                                  "base64-encoded host name");
+                                  "base64-encoded hostname");
 
         salt_base64_len = _libssh2_base64_encode(hosts->session,
                                                  node->salt, node->salt_len,

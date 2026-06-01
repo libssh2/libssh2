@@ -1044,7 +1044,7 @@ libssh2_crypto_engine_t libssh2_crypto_engine(void);
 struct libssh2_knownhost {
     unsigned int magic;  /* magic stored by the library */
     void *node; /* handle to the internal representation of this host */
-    char *name; /* this is NULL if no plain text host name exists */
+    char *name; /* this is NULL if no plain text hostname exists */
     char *key;  /* key in base64/printable format */
     int typemask;
 };
@@ -1150,7 +1150,7 @@ libssh2_knownhost_addc(LIBSSH2_KNOWNHOSTS *hosts,
  *
  * Check a host and its associated key against the collection of known hosts.
  *
- * The type is the type/format of the given host name.
+ * The type is the type/format of the given hostname.
  *
  * plain  - ascii "hostname.domain.tld"
  * custom - prehashed base64 encoded. Note that this cannot use any salts.
