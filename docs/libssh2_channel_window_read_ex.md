@@ -18,10 +18,10 @@ libssh2_channel_window_read_ex - Check the status of the read window
 ~~~c
 #include <libssh2.h>
 
-unsigned long
-libssh2_channel_window_read_ex(LIBSSH2_CHANNEL *channel,
-                               unsigned long *read_avail,
-                               unsigned long *window_size_initial)
+unsigned long libssh2_channel_window_read_ex(
+    LIBSSH2_CHANNEL *channel,
+    unsigned long *read_avail,
+    unsigned long *window_size_initial)
 ~~~
 
 # DESCRIPTION

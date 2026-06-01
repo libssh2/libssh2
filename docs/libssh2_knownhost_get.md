@@ -19,10 +19,9 @@ libssh2_knownhost_get - get a known host off the collection of known hosts
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_knownhost_get(LIBSSH2_KNOWNHOSTS *hosts,
-                      struct libssh2_knownhost **store,
-                      struct libssh2_knownhost *prev):
+int libssh2_knownhost_get(LIBSSH2_KNOWNHOSTS *hosts,
+                          struct libssh2_knownhost **store,
+                          struct libssh2_knownhost *prev):
 ~~~
 
 # DESCRIPTION

@@ -16,14 +16,11 @@ libssh2_channel_flush_ex - flush a channel
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_flush_ex(LIBSSH2_CHANNEL *channel, int streamid);
+int libssh2_channel_flush_ex(LIBSSH2_CHANNEL *channel, int streamid);
 
-int
-libssh2_channel_flush(LIBSSH2_CHANNEL *channel);
+int libssh2_channel_flush(LIBSSH2_CHANNEL *channel);
 
-int
-libssh2_channel_flush_stderr(LIBSSH2_CHANNEL *channel);
+int libssh2_channel_flush_stderr(LIBSSH2_CHANNEL *channel);
 ~~~
 
 # DESCRIPTION

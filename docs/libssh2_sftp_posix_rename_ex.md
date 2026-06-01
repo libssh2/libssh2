@@ -18,12 +18,11 @@ libssh2_sftp_posix_rename_ex - rename an SFTP file using POSIX semantics
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int
-libssh2_sftp_posix_rename_ex(LIBSSH2_SFTP *sftp,
-                             const char *source_filename,
-                             size_t source_filename_len,
-                             const char *dest_filename,
-                             size_t dest_filename_len);
+int libssh2_sftp_posix_rename_ex(LIBSSH2_SFTP *sftp,
+                                 const char *source_filename,
+                                 size_t source_filename_len,
+                                 const char *dest_filename,
+                                 size_t dest_filename_len);
 ~~~
 
 # DESCRIPTION

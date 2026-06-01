@@ -21,10 +21,9 @@ libssh2_sftp_symlink_ex - read or set a symbolic link
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int
-libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp, const char *path,
-                        unsigned int path_len, char *target,
-                        unsigned int target_len, int link_type);
+int libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp, const char *path,
+                            unsigned int path_len, char *target,
+                            unsigned int target_len, int link_type);
 ~~~
 
 # DESCRIPTION

@@ -17,8 +17,7 @@ libssh2_hostkey_hash - return a hash of the remote host's key
 ~~~c
 #include <libssh2.h>
 
-const char *
-libssh2_hostkey_hash(LIBSSH2_SESSION *session, int hash_type);
+const char *libssh2_hostkey_hash(LIBSSH2_SESSION *session, int hash_type);
 ~~~
 
 # DESCRIPTION

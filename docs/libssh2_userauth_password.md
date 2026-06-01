@@ -17,10 +17,9 @@ libssh2_userauth_password - convenience macro for *libssh2_userauth_password_ex(
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_userauth_password(LIBSSH2_SESSION *session,
-                          const char *username,
-                          const char *password);
+int libssh2_userauth_password(LIBSSH2_SESSION *session,
+                              const char *username,
+                              const char *password);
 ~~~
 
 # DESCRIPTION

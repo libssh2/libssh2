@@ -17,8 +17,7 @@ libssh2_channel_exec - convenience macro for *libssh2_channel_process_startup(3)
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_exec(LIBSSH2_CHANNEL *channel, const char *command);
+int libssh2_channel_exec(LIBSSH2_CHANNEL *channel, const char *command);
 ~~~
 
 # DESCRIPTION

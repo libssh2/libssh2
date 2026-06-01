@@ -18,8 +18,7 @@ libssh2_sftp_last_error - return the last SFTP-specific error code
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-unsigned long
-libssh2_sftp_last_error(LIBSSH2_SFTP *sftp);
+unsigned long libssh2_sftp_last_error(LIBSSH2_SFTP *sftp);
 ~~~
 
 # DESCRIPTION

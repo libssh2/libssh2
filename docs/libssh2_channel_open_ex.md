@@ -20,15 +20,15 @@ libssh2_channel_open_ex - establish a generic session channel
 ~~~c
 #include <libssh2.h>
 
-LIBSSH2_CHANNEL *
-libssh2_channel_open_ex(LIBSSH2_SESSION *session, const char *channel_type,
-                        unsigned int channel_type_len,
-                        unsigned int window_size,
-                        unsigned int packet_size,
-                        const char *message, unsigned int message_len);
+LIBSSH2_CHANNEL *libssh2_channel_open_ex(LIBSSH2_SESSION *session,
+                                         const char *channel_type,
+                                         unsigned int channel_type_len,
+                                         unsigned int window_size,
+                                         unsigned int packet_size,
+                                         const char *message,
+                                         unsigned int message_len);
 
-LIBSSH2_CHANNEL *
-libssh2_channel_open_session(session);
+LIBSSH2_CHANNEL *libssh2_channel_open_session(session);
 ~~~
 
 # DESCRIPTION

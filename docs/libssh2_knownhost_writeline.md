@@ -19,12 +19,11 @@ libssh2_knownhost_writeline - convert a known host to a line for storage
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
-                            struct libssh2_knownhost *known,
-                            char *buffer, size_t buflen,
-                            size_t *outlen,
-                            int type);
+int libssh2_knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
+                                struct libssh2_knownhost *known,
+                                char *buffer, size_t buflen,
+                                size_t *outlen,
+                                int type);
 ~~~
 
 # DESCRIPTION

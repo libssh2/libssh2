@@ -18,8 +18,7 @@ libssh2_agent_free - free an ssh-agent handle
 ~~~c
 #include <libssh2.h>
 
-void
-libssh2_agent_free(LIBSSH2_AGENT *agent);
+void libssh2_agent_free(LIBSSH2_AGENT *agent);
 ~~~
 
 # DESCRIPTION

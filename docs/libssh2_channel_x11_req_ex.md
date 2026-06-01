@@ -18,14 +18,12 @@ libssh2_channel_x11_req_ex - request an X11 forwarding channel
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_connection,
-                           const char *auth_proto, const char *auth_cookie,
-                           int screen_number);
+int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_connection,
+                               const char *auth_proto, const char *auth_cookie,
+                               int screen_number);
 
-int
-libssh2_channel_x11_req(LIBSSH2_CHANNEL *channel,
-                        int screen_number);
+int libssh2_channel_x11_req(LIBSSH2_CHANNEL *channel,
+                            int screen_number);
 ~~~
 
 # DESCRIPTION

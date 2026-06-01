@@ -17,8 +17,7 @@ libssh2_channel_eof - check a channel's EOF status
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_eof(LIBSSH2_CHANNEL *channel);
+int libssh2_channel_eof(LIBSSH2_CHANNEL *channel);
 ~~~
 
 # DESCRIPTION

@@ -17,8 +17,7 @@ libssh2_session_get_blocking - evaluate blocking mode on session
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_session_get_blocking(LIBSSH2_SESSION *session);
+int libssh2_session_get_blocking(LIBSSH2_SESSION *session);
 ~~~
 
 # DESCRIPTION

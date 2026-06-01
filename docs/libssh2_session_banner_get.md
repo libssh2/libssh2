@@ -19,8 +19,7 @@ libssh2_session_banner_get - get the remote banner
 ~~~c
 #include <libssh2.h>
 
-const char *
-libssh2_session_banner_get(oLIBSSH2_SESSION *session);
+const char *libssh2_session_banner_get(oLIBSSH2_SESSION *session);
 ~~~
 
 # DESCRIPTION

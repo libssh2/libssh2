@@ -18,8 +18,7 @@ libssh2_channel_send_eof - send EOF to remote server
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_send_eof(LIBSSH2_CHANNEL *channel);
+int libssh2_channel_send_eof(LIBSSH2_CHANNEL *channel);
 ~~~
 
 # DESCRIPTION

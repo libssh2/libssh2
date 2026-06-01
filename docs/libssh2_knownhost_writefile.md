@@ -18,9 +18,8 @@ libssh2_knownhost_writefile - write a collection of known hosts to a file
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
-                            const char *filename, int type);
+int libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
+                                const char *filename, int type);
 ~~~
 
 # DESCRIPTION

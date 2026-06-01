@@ -18,8 +18,7 @@ libssh2_agent_get_identity_path - gets the custom ssh-agent socket path
 ~~~c
 #include <libssh2.h>
 
-const char *
-libssh2_agent_get_identity_path(LIBSSH2_AGENT *agent);
+const char *libssh2_agent_get_identity_path(LIBSSH2_AGENT *agent);
 ~~~
 
 # DESCRIPTION

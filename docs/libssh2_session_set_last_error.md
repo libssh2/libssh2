@@ -19,9 +19,8 @@ libssh2_session_set_last_error - sets the internal error state
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_session_set_last_error(LIBSSH2_SESSION *session,
-                               int errcode, const char *errmsg)
+int libssh2_session_set_last_error(LIBSSH2_SESSION *session,
+                                   int errcode, const char *errmsg)
 ~~~
 
 # DESCRIPTION

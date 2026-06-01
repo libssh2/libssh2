@@ -17,10 +17,9 @@ libssh2_publickey_remove - convenience macro for *libssh2_publickey_remove_ex(3)
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_publickey_remove(LIBSSH2_PUBLICKEY *pkey,
-                         const unsigned char *name, unsigned long name_len,
-                         const unsigned char *blob, unsigned long blob_len);
+int libssh2_publickey_remove(LIBSSH2_PUBLICKEY *pkey,
+                             const unsigned char *name, unsigned long name_len,
+                             const unsigned char *blob, unsigned long blob_len);
 ~~~
 
 # DESCRIPTION

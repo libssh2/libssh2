@@ -17,8 +17,7 @@ libssh2_session_abstract - return a pointer to a session's abstract pointer
 ~~~c
 #include <libssh2.h>
 
-void **
-libssh2_session_abstract(LIBSSH2_SESSION *session);
+void **libssh2_session_abstract(LIBSSH2_SESSION *session);
 ~~~
 
 # DESCRIPTION

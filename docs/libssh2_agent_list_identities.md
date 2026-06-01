@@ -18,8 +18,7 @@ libssh2_agent_list_identities - request an ssh-agent to list of public keys.
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_agent_list_identities(LIBSSH2_AGENT *agent);
+int libssh2_agent_list_identities(LIBSSH2_AGENT *agent);
 ~~~
 
 # DESCRIPTION

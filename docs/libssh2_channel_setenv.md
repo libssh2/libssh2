@@ -17,9 +17,8 @@ libssh2_channel_setenv - convenience macro for *libssh2_channel_setenv_ex(3)* ca
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_setenv(LIBSSH2_CHANNEL *channel,
-                       const char *varname, const char *value);
+int libssh2_channel_setenv(LIBSSH2_CHANNEL *channel,
+                           const char *varname, const char *value);
 ~~~
 
 # DESCRIPTION

@@ -18,8 +18,7 @@ libssh2_session_startup - begin transport layer
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_session_startup(LIBSSH2_SESSION *session, int socket);
+int libssh2_session_startup(LIBSSH2_SESSION *session, int socket);
 ~~~
 
 # DESCRIPTION

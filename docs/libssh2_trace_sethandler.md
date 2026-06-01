@@ -21,10 +21,9 @@ typedef void (*libssh2_trace_handler_func)(LIBSSH2_SESSION *session,
                                            const char *data,
                                            size_t length);
 
-int
-libssh2_trace_sethandler(LIBSSH2_SESSION *session,
-                         void *context,
-                         libssh2_trace_handler_func callback);
+int libssh2_trace_sethandler(LIBSSH2_SESSION *session,
+                             void *context,
+                             libssh2_trace_handler_func callback);
 ~~~
 
 # DESCRIPTION

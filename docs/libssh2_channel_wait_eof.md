@@ -18,8 +18,7 @@ libssh2_channel_wait_eof - wait for the remote to reply to an EOF request
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_wait_eof(LIBSSH2_CHANNEL *channel);
+int libssh2_channel_wait_eof(LIBSSH2_CHANNEL *channel);
 ~~~
 
 # DESCRIPTION

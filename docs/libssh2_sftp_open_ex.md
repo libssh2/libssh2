@@ -18,12 +18,12 @@ libssh2_sftp_open_ex - open filehandle for file on SFTP.
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-LIBSSH2_SFTP_HANDLE *
-libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp, const char *filename,
-                     unsigned int filename_len,
-                     unsigned long flags,
-                     long mode,
-                     int open_type);
+LIBSSH2_SFTP_HANDLE *libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp,
+                                          const char *filename,
+                                          unsigned int filename_len,
+                                          unsigned long flags,
+                                          long mode,
+                                          int open_type);
 ~~~
 
 # DESCRIPTION

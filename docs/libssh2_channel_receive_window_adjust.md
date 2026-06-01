@@ -17,10 +17,9 @@ libssh2_channel_receive_window_adjust - adjust the channel window
 ~~~c
 #include <libssh2.h>
 
-unsigned long
-libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL * channel,
-                                      unsigned long adjustment,
-                                      unsigned char force);
+unsigned long libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL * channel,
+                                                    unsigned long adjustment,
+                                                    unsigned char force);
 ~~~
 
 # DESCRIPTION

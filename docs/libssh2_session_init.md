@@ -17,8 +17,7 @@ libssh2_session_init - convenience macro for *libssh2_session_init_ex(3)* calls
 ~~~c
 #include <libssh2.h>
 
-LIBSSH2_SESSION *
-libssh2_session_init(void);
+LIBSSH2_SESSION *libssh2_session_init(void);
 ~~~
 
 # DESCRIPTION

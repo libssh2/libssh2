@@ -16,12 +16,11 @@ libssh2_publickey_add_ex - Add a public key entry
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
-                         const unsigned char *name, unsigned long name_len,
-                         const unsigned char *blob, unsigned long blob_len,
-                         char overwrite, unsigned long num_attrs,
-                         const libssh2_publickey_attribute attrs[])
+int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
+                             const unsigned char *name, unsigned long name_len,
+                             const unsigned char *blob, unsigned long blob_len,
+                             char overwrite, unsigned long num_attrs,
+                             const libssh2_publickey_attribute attrs[])
 ~~~
 
 # DESCRIPTION

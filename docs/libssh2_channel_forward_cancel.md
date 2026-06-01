@@ -17,8 +17,7 @@ libssh2_channel_forward_cancel - cancel a forwarded TCP port
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener);
+int libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener);
 ~~~
 
 # DESCRIPTION

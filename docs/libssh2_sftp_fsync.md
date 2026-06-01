@@ -19,8 +19,7 @@ libssh2_sftp_fsync - synchronize file to disk
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int
-libssh2_sftp_fsync(LIBSSH2_SFTP_HANDLE *handle)
+int libssh2_sftp_fsync(LIBSSH2_SFTP_HANDLE *handle)
 ~~~
 
 # DESCRIPTION

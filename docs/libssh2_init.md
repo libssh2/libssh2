@@ -19,8 +19,7 @@ libssh2_init - global library initialization
 
 #define LIBSSH2_INIT_NO_CRYPTO 0x0001
 
-int
-libssh2_init(int flags);
+int libssh2_init(int flags);
 ~~~
 
 # DESCRIPTION

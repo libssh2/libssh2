@@ -18,11 +18,11 @@ keyboard-interactive authentication
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION *session,
-                                         const char *username,
-                                         unsigned int username_len,
-                   LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(*response_callback));
+int libssh2_userauth_keyboard_interactive_ex(
+    LIBSSH2_SESSION *session,
+    const char *username,
+    unsigned int username_len,
+    LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(*response_callback));
 ~~~
 
 # DESCRIPTION

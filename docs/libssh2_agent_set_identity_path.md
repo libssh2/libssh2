@@ -18,8 +18,7 @@ libssh2_agent_set_identity_path - set an ssh-agent socket path on disk
 ~~~c
 #include <libssh2.h>
 
-void
-libssh2_agent_set_identity_path(LIBSSH2_AGENT *agent, const char *path);
+void libssh2_agent_set_identity_path(LIBSSH2_AGENT *agent, const char *path);
 ~~~
 
 # DESCRIPTION

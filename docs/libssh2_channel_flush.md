@@ -17,8 +17,7 @@ libssh2_channel_flush - convenience macro for *libssh2_channel_flush_ex(3)* call
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_flush(LIBSSH2_CHANNEL *channel);
+int libssh2_channel_flush(LIBSSH2_CHANNEL *channel);
 ~~~
 
 # DESCRIPTION

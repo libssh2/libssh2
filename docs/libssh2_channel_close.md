@@ -18,8 +18,7 @@ libssh2_channel_close - close a channel
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_close(LIBSSH2_CHANNEL *channel);
+int libssh2_channel_close(LIBSSH2_CHANNEL *channel);
 ~~~
 
 # DESCRIPTION

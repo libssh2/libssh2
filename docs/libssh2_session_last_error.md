@@ -19,9 +19,8 @@ libssh2_session_last_error - get the most recent error
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_session_last_error(LIBSSH2_SESSION *session,
-                           char **errmsg, int *errmsg_len, int want_buf);
+int libssh2_session_last_error(LIBSSH2_SESSION *session,
+                               char **errmsg, int *errmsg_len, int want_buf);
 ~~~
 
 # DESCRIPTION

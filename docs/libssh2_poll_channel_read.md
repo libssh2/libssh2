@@ -17,8 +17,7 @@ libssh2_poll_channel_read - check if data is available
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended);
+int libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended);
 ~~~
 
 # DESCRIPTION

@@ -18,10 +18,9 @@ libssh2_sftp_write - write SFTP data
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-ssize_t
-libssh2_sftp_write(LIBSSH2_SFTP_HANDLE *handle,
-                   const char *buffer,
-                   size_t count);
+ssize_t libssh2_sftp_write(LIBSSH2_SFTP_HANDLE *handle,
+                           const char *buffer,
+                           size_t count);
 ~~~
 
 # DESCRIPTION

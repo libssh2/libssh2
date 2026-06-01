@@ -20,12 +20,11 @@ libssh2_knownhost_add - add a known host
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
-                      char *host, char *salt,
-                      char *key, size_t keylen,
-                      int typemask,
-                      struct libssh2_knownhost **store);
+int libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
+                          char *host, char *salt,
+                          char *key, size_t keylen,
+                          int typemask,
+                          struct libssh2_knownhost **store);
 ~~~
 
 # DESCRIPTION

@@ -17,13 +17,12 @@ libssh2_userauth_publickey - authenticate using a callback function
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_userauth_publickey(LIBSSH2_SESSION *session,
-                           const char *user,
-                           const unsigned char *pubkeydata,
-                           size_t pubkeydata_len,
-                           sign_callback,
-                           void **abstract);
+int libssh2_userauth_publickey(LIBSSH2_SESSION *session,
+                               const char *user,
+                               const unsigned char *pubkeydata,
+                               size_t pubkeydata_len,
+                               sign_callback,
+                               void **abstract);
 ~~~
 
 # DESCRIPTION

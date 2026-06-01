@@ -17,9 +17,8 @@ libssh2_channel_write - convenience macro for *libssh2_channel_write_ex(3)*
 ~~~c
 #include <libssh2.h>
 
-ssize_t
-libssh2_channel_write(LIBSSH2_CHANNEL *channel,
-                      const char *buf, size_t buflen);
+ssize_t libssh2_channel_write(LIBSSH2_CHANNEL *channel,
+                              const char *buf, size_t buflen);
 ~~~
 
 # DESCRIPTION

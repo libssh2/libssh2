@@ -17,8 +17,8 @@ libssh2_session_methods - return the currently active algorithms
 ~~~c
 #include <libssh2.h>
 
-const char *
-libssh2_session_methods(LIBSSH2_SESSION *session, int method_type);
+const char *libssh2_session_methods(LIBSSH2_SESSION *session,
+                                    int method_type);
 ~~~
 
 # DESCRIPTION

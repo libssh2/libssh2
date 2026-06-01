@@ -18,14 +18,12 @@ libssh2_session_init_ex - initializes an SSH session object
 ~~~c
 #include <libssh2.h>
 
-LIBSSH2_SESSION *
-libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC(*myalloc),
-                        LIBSSH2_FREE_FUNC(*myfree),
-                        LIBSSH2_REALLOC_FUNC(*myrealloc),
-                        void *abstract);
+LIBSSH2_SESSION *libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC(*myalloc),
+                                         LIBSSH2_FREE_FUNC(*myfree),
+                                         LIBSSH2_REALLOC_FUNC(*myrealloc),
+                                         void *abstract);
 
-LIBSSH2_SESSION *
-libssh2_session_init(void);
+LIBSSH2_SESSION *libssh2_session_init(void);
 ~~~
 
 # DESCRIPTION

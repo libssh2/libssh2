@@ -18,8 +18,8 @@ libssh2_scp_recv2 - request a remote file via SCP
 ~~~c
 #include <libssh2.h>
 
-LIBSSH2_CHANNEL *
-libssh2_scp_recv2(LIBSSH2_SESSION *session, const char *path, struct_stat *sb);
+LIBSSH2_CHANNEL *libssh2_scp_recv2(LIBSSH2_SESSION *session, const char *path,
+                                   struct_stat *sb);
 ~~~
 
 # DESCRIPTION

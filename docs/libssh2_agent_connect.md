@@ -18,8 +18,7 @@ libssh2_agent_connect - connect to an ssh-agent
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_agent_connect(LIBSSH2_AGENT *agent);
+int libssh2_agent_connect(LIBSSH2_AGENT *agent);
 ~~~
 
 # DESCRIPTION

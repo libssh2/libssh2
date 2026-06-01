@@ -18,10 +18,9 @@ libssh2_channel_write_ex - write data to a channel stream blocking
 ~~~c
 #include <libssh2.h>
 
-ssize_t
-libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel,
-                         int stream_id, char *buf,
-                         size_t buflen);
+ssize_t libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel,
+                                 int stream_id, char *buf,
+                                 size_t buflen);
 ~~~
 
 # DESCRIPTION

@@ -19,9 +19,8 @@ libssh2_sftp_seek - set the read/write position indicator within a file
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-void
-libssh2_sftp_seek(LIBSSH2_SFTP_HANDLE *handle,
-                  size_t offset);
+void libssh2_sftp_seek(LIBSSH2_SFTP_HANDLE *handle,
+                       size_t offset);
 ~~~
 
 # DESCRIPTION

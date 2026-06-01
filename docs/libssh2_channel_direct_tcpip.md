@@ -17,9 +17,8 @@ libssh2_channel_direct_tcpip - convenience macro for *libssh2_channel_direct_tcp
 ~~~c
 #include <libssh2.h>
 
-LIBSSH2_CHANNEL *
-libssh2_channel_direct_tcpip(LIBSSH2_SESSION *session,
-                             const char *host, int port);
+LIBSSH2_CHANNEL *libssh2_channel_direct_tcpip(LIBSSH2_SESSION *session,
+                                              const char *host, int port);
 ~~~
 
 # DESCRIPTION

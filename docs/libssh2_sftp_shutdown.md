@@ -18,8 +18,7 @@ libssh2_sftp_shutdown - shut down an SFTP session
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int
-libssh2_sftp_shutdown(LIBSSH2_SFTP *sftp);
+int libssh2_sftp_shutdown(LIBSSH2_SFTP *sftp);
 ~~~
 
 # DESCRIPTION

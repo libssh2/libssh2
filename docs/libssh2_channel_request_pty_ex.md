@@ -17,12 +17,11 @@ libssh2_channel_request_pty_ex - short function description
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel, const char *term,
-                               unsigned int term_len,
-                               const char *modes, unsigned int modes_len,
-                               int width, int height,
-                               int width_px, int height_px);
+int libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel, const char *term,
+                                   unsigned int term_len,
+                                   const char *modes, unsigned int modes_len,
+                                   int width, int height,
+                                   int width_px, int height_px);
 
 int
 libssh2_channel_request_pty(LIBSSH2_CHANNEL *channel, const char *term);

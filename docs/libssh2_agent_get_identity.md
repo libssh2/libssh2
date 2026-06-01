@@ -18,10 +18,9 @@ libssh2_agent_get_identity - get a public key off the collection of public keys 
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_agent_get_identity(LIBSSH2_AGENT *agent,
-                           struct libssh2_agent_publickey **store,
-                           struct libssh2_agent_publickey *prev);
+int libssh2_agent_get_identity(LIBSSH2_AGENT *agent,
+                               struct libssh2_agent_publickey **store,
+                               struct libssh2_agent_publickey *prev);
 ~~~
 
 # DESCRIPTION

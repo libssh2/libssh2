@@ -17,12 +17,11 @@ libssh2_channel_process_startup - request a shell on a channel
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
-                                const char *request,
-                                unsigned int request_len,
-                                const char *message,
-                                unsigned int message_len);
+int libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
+                                    const char *request,
+                                    unsigned int request_len,
+                                    const char *message,
+                                    unsigned int message_len);
 ~~~
 
 # DESCRIPTION

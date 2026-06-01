@@ -18,9 +18,10 @@ libssh2_scp_send_ex - Send a file via SCP
 ~~~c
 #include <libssh2.h>
 
-LIBSSH2_CHANNEL *
-libssh2_scp_send_ex(LIBSSH2_SESSION *session, const char *path, int mode,
-                    size_t size, long mtime, long atime);
+LIBSSH2_CHANNEL *libssh2_scp_send_ex(LIBSSH2_SESSION *session, const char *path,
+                                     int mode,
+                                     size_t size,
+                                     long mtime, long atime);
 ~~~
 
 # DESCRIPTION

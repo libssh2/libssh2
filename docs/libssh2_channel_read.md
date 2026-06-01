@@ -17,9 +17,8 @@ libssh2_channel_read - convenience macro for *libssh2_channel_read_ex(3)* calls
 ~~~c
 #include <libssh2.h>
 
-ssize_t
-libssh2_channel_read(LIBSSH2_CHANNEL *channel,
-                     char *buf, size_t buflen);
+ssize_t libssh2_channel_read(LIBSSH2_CHANNEL *channel,
+                             char *buf, size_t buflen);
 ~~~
 
 # DESCRIPTION
