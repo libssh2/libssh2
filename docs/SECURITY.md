@@ -11,7 +11,7 @@ should be handled in the libssh2 project.
 
 ## Publishing Information
 
-All known and public libssh2 vulnerabilities will be listed on [the libssh2
+All known and public libssh2 vulnerabilities are listed on [the libssh2
 web site](https://libssh2.org/).
 
 Security vulnerabilities should not be entered in the project's public bug
@@ -24,7 +24,7 @@ The typical process for handling a new security vulnerability is as follows.
 
 No information should be made public about a vulnerability until it is
 formally announced at the end of this process. That means, for example that a
-bug tracker entry must NOT be created to track the issue since that will make
+bug tracker entry must NOT be created to track the issue since that makes
 the issue public and it should not be discussed on the project's public
 mailing list. Also messages associated with any commits should not make any
 reference to the security nature of the commit if done prior to the public
@@ -67,7 +67,7 @@ announcement.
   [distros@openwall](https://oss-security.openwall.org/wiki/mailing-lists/distros)
   when also informing and preparing them for the upcoming public security
   vulnerability announcement - attach the advisory draft for information. Note
-  that 'distros' will not accept an embargo longer than 14 days.
+  that 'distros' do not accept an embargo longer than 14 days.
 
 - Update the "security advisory" with the CVE number.
 
@@ -147,7 +147,7 @@ working. You must have been around for a good while and you should have no
 plans in vanishing in the near future.
 
 We do not make the list of participants public mostly because it tends to vary
-somewhat over time and a list somewhere will only risk getting outdated.
+somewhat over time and a list somewhere only risks getting outdated.
 
 # GitHub Private Vulnerability Reporting
 

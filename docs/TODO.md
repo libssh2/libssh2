@@ -15,7 +15,7 @@ SPDX-License-Identifier: BSD-3-Clause
   does not then use as much memory as today. Possibly by an app-controllable
   "Window mode"?
 
-* Decrease the number of mallocs. Everywhere. Will get easier once the
+* Decrease the number of mallocs. Everywhere. It gets easier once the
   buffering improvements have been done.
 
 * Use `SO_NOSIGPIPE` for macOS/BSD systems where `MSG_NOSIGNAL` does not
@@ -119,15 +119,15 @@ I suggest we introduce two new helper functions:
 - `libssh2_transport_read()`
 
   Read "a bunch" of data from the given socket and returns information to the
-  app about what channels that are now readable (ie they will not block when
-  read from). The function can be called over and over and it will repeatedly
-  return info about what channels that are readable at that moment.
+  app about what channels that are now readable (i.e. they do not block when
+  read from). The function can be called over and over and it repeatedly
+  returns info about what channels that are readable at that moment.
 
 - `libssh2_transport_write()`
 
   Returns information about what channels that are writable, in the sense
   that they have windows set from the remote side that allows data to get
-  sent. Writing to one of those channels will not block. Of course, the
+  sent. Writing to one of those channels does not block. Of course, the
   underlying socket may only accept a certain amount of data, so at the first
   short return, nothing more should be attempted to get sent until `select()`
   (or equivalent) has been used on the master socket again.
