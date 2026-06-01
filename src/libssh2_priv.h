@@ -736,8 +736,8 @@ struct _LIBSSH2_SESSION {
     /* (local as source of data -- packet_write ) */
     struct endpoint_data local;
 
-    /* Inbound Data linked list -- Sometimes the packet that comes in is not the
-       packet we are ready for */
+    /* Inbound Data linked list -- Sometimes the packet that comes in is not
+       the packet we are ready for */
     struct list_head packets;
 
     /* Active connection channels */

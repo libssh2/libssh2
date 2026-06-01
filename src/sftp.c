@@ -1696,9 +1696,9 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
             case SSH_FXP_DATA:
                 if(chunk->offset != filep->offset) {
                     /* This could happen if the server returns less bytes than
-                       requested, which should not happen for normal files. See:
-                       https://tools.ietf.org/html/draft-ietf-secsh-filexfer-02
-                       #section-6.4
+                       requested, which should not happen for normal files.
+                       See:
+                       https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-02#section-6.4
                      */
                     return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                           "Read Packet At Unexpected Offset");
