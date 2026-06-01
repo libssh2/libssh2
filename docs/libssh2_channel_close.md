@@ -28,7 +28,7 @@ libssh2_channel_close(LIBSSH2_CHANNEL *channel);
 
 Close an active data channel. In practice this means sending an SSH_MSG_CLOSE
 packet to the remote host which serves as instruction that no further data
-will be sent to it. The remote host may still send data back until it sends
+is sent to it. The remote host may still send data back until it sends
 its own close message in response. To wait for the remote end to close its
 connection as well, follow this command with libssh2_channel_wait_closed(3).
 
