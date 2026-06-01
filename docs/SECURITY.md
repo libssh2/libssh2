@@ -86,7 +86,7 @@ announcement.
   the same manner we always announce releases. It gets sent to the libssh2
   mailing list and the oss-security mailing list.
 
-- The security web page on the web site should get the new vulnerability
+- The security webpage on the web site should get the new vulnerability
   mentioned.
 
 # Not security issues
