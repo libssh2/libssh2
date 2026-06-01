@@ -25,7 +25,7 @@ libssh2_free(LIBSSH2_SESSION *session, void *ptr);
 
 Deallocate memory allocated by earlier call to libssh2 functions. It
 uses the memory allocation callbacks provided by the application, if any.
-Otherwise, this will call free().
+Otherwise, this calls free().
 
 This function is mostly useful under Windows when libssh2 is linked to
 one runtime library and the application to another.

@@ -29,7 +29,7 @@ libssh2_sftp_last_error(LIBSSH2_SFTP *sftp);
 Returns the last error code produced by the SFTP layer. Note that this only
 returns a sensible error code if libssh2 returned LIBSSH2_ERROR_SFTP_PROTOCOL
 in a previous call. Using **libssh2_sftp_last_error(3)** without a
-preceding SFTP protocol error, it will return an unspecified value.
+preceding SFTP protocol error, it returns an unspecified value.
 
 # RETURN VALUE
 

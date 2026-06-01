@@ -31,7 +31,7 @@ libssh2_session_method_pref(LIBSSH2_SESSION *session,
 
 *prefs* - Coma delimited list of preferred methods to use with
 the most preferred listed first and the least preferred listed last.
-If a method is listed which is not supported by libssh2 it will be
+If a method is listed which is not supported by libssh2 it is
 ignored and not sent to the remote host during protocol negotiation.
 
 Set preferred methods to be negotiated. These

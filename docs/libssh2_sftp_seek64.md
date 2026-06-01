@@ -36,7 +36,7 @@ operation. The localized file pointer is used as a convenience offset during
 read/write operations.
 
 You MUST NOT seek during writing or reading a file with SFTP, as the internals
-use outstanding packets and changing the "file position" during transit will
+use outstanding packets and changing the "file position" during transit
 results in badness.
 
 # AVAILABILITY

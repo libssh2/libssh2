@@ -27,23 +27,23 @@ libssh2_session_supported_algs(LIBSSH2_SESSION* session,
 
 # DESCRIPTION
 
-*session* - An instance of initialized LIBSSH2_SESSION (the function will
-use its pointer to the memory allocation function). *method_type* -
+*session* - An instance of initialized LIBSSH2_SESSION (the function
+uses its pointer to the memory allocation function). *method_type* -
 Method type. See *libssh2_session_method_pref(3)*. *algs* - Address
-of a pointer that will point to an array of returned algorithms
+of a pointer that points to an array of returned algorithms
 
 Get a list of supported algorithms for the given *method_type*. The
 method_type parameter is equivalent to method_type in
-*libssh2_session_method_pref(3)*. If successful, the function will
-allocate the appropriate amount of memory. When not needed anymore, it must be
+*libssh2_session_method_pref(3)*. If successful, the function allocates
+the appropriate amount of memory. When not needed anymore, it must be
 deallocated by calling *libssh2_free(3)*. When this function is
 unsuccessful, this must not be done.
 
 In order to get a list of all supported compression algorithms,
 libssh2_session_flag(session, LIBSSH2_FLAG_COMPRESS, 1) must be called before
-calling this function, otherwise only "none" will be returned.
+calling this function, otherwise only "none" is returned.
 
-If successful, the function will allocate and fill the array with supported
+If successful, the function allocates and fill the array with supported
 algorithms (the same names as defined in RFC 4253). The array is not NULL
 terminated.
 
@@ -78,7 +78,7 @@ else {
 
 # RETURN VALUE
 
-On success, a number of returned algorithms (i.e a positive number will be
+On success, a number of returned algorithms (i.e a positive number is
 returned). In case of a failure, an error code (a negative number, see below)
 is returned. 0 should never be returned.
 

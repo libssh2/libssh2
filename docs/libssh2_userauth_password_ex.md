@@ -44,9 +44,9 @@ libssh2_userauth_password_ex(LIBSSH2_SESSION *session,
 *password_len* - Length of password parameter.
 
 *passwd_change_cb* - If the host accepts authentication but
-requests that the password be changed, this callback will be issued.
+requests that the password be changed, this callback is issued.
 If no callback is defined, but server required password change,
-authentication will fail.
+authentication fails.
 
 Attempt basic password authentication. Note that many SSH servers
 which appear to support ordinary password authentication actually have

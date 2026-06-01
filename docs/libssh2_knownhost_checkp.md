@@ -36,8 +36,8 @@ and returns info back about the (partially) matched entry.
 IP numerical address of the host or the full name.
 
 *port* is the port number used by the host (or a negative number
-to check the generic host). If the port number is given, libssh2 will
-check the key for the specific host + port number combination in
+to check the generic host). If the port number is given, libssh2
+checks the key for the specific host + port number combination in
 addition to the plain hostname only check.
 
 *key* is a pointer to the key for the given host.

@@ -37,6 +37,6 @@ yet been attempted, returns **LIBSSH2_ERROR_MISSING_USERAUTH_BANNER**.
 # RETURN VALUE
 
 On success returns 0 and an UTF-8 null-terminated string is stored in the
-*banner*. This string is internally managed by libssh2 and will be
-deallocated upon session termination.
+*banner*. This string is internally managed by libssh2 and is deallocated
+upon session termination.
 On failure returns **LIBSSH2_ERROR_MISSING_USERAUTH_BANNER**.

@@ -36,8 +36,8 @@ of errmsg. (The string is null-terminated, so the length is only useful as
 an optimization, to avoid calling strlen.)
 
 *want_buf* - If set to a non-zero value, "ownership" of the errmsg
-buffer will be given to the calling scope. If necessary, the errmsg buffer
-will be duplicated.
+buffer is given to the calling scope. If necessary, the errmsg buffer
+is duplicated.
 
 Determine the most recent error condition and its cause.
 

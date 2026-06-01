@@ -53,7 +53,7 @@ Called when a SSH_MSG_DISCONNECT message is received
 ## LIBSSH2_CALLBACK_MACERROR
 
 Called when a mismatched MAC has been detected in the transport layer. If the
-function returns 0, the packet will be accepted nonetheless.
+function returns 0, the packet is accepted nonetheless.
 
 ## LIBSSH2_CALLBACK_X11
 
@@ -130,7 +130,7 @@ void identities(LIBSSH2_SESSION* session, void *buffer,
 this differently. For example, one client may pass in an unsigned char ** for
 this parameter, while another may pass in a pointer to a struct.
 
-Regardless of the type of buffer used, the client will need to send back a list
+Regardless of the type of buffer used, the client needs to send back a list
 of identities in the following format.
 
 uint32 buffer length

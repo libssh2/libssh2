@@ -33,7 +33,7 @@ libssh2_trace_sethandler installs a trace output handler for your application.
 By default, when tracing has been switched on via a call to libssh2_trace(),
 all output is written to stderr. By calling this method and passing a
 function pointer that matches the libssh2_trace_handler_func prototype,
-libssh2 will call back as it generates trace output. This can be used to
+libssh2 calls back as it generates trace output. This can be used to
 capture the trace output and put it into a log file or diagnostic window.
 This function has no effect unless libssh2 was built to support this option,
 and a typical "release build" might not.

@@ -31,8 +31,8 @@ the banner each server presents.
 
 # RETURN VALUE
 
-A pointer to a string or NULL if something failed. The data pointed to will be
-allocated and associated to the session handle and will be freed by libssh2
+A pointer to a string or NULL if something failed. The data pointed to is
+allocated and associated to the session handle and is freed by libssh2
 when *libssh2_session_free(3)* is used.
 
 # AVAILABILITY

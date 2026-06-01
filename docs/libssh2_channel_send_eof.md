@@ -24,7 +24,7 @@ libssh2_channel_send_eof(LIBSSH2_CHANNEL *channel);
 
 # DESCRIPTION
 
-Tell the remote host that no further data will be sent on the specified
+Tell the remote host that no further data is sent on the specified
 channel. Processes typically interpret this as a closed stdin descriptor.
 
 # RETURN VALUE

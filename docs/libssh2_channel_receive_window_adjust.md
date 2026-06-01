@@ -30,7 +30,7 @@ This function is **DEPRECATED** in 1.1.0. Use the
 
 Adjust the receive window for a channel by adjustment bytes. If the amount to
 be adjusted is less than LIBSSH2_CHANNEL_MINADJUST and force is 0 the
-adjustment amount will be queued for a later packet.
+adjustment amount is queued for a later packet.
 
 # RETURN VALUE
 

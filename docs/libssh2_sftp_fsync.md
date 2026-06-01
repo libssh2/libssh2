@@ -48,7 +48,7 @@ LIBSSH2_ERROR_EAGAIN is a negative number, it is not really a failure per se.
 was received on the socket, or an SFTP operation caused an errorcode
 to be returned by the server. In particular, this can be returned if
 the SSH server does not support the fsync operation: the SFTP subcode
-*LIBSSH2_FX_OP_UNSUPPORTED* will be returned in this case.
+*LIBSSH2_FX_OP_UNSUPPORTED* is returned in this case.
 
 # AVAILABILITY
 

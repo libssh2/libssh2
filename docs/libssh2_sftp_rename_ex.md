@@ -53,7 +53,7 @@ Rename a filesystem object on the remote filesystem. The semantics of
 this command typically include the ability to move a filesystem object
 between folders and/or filesystem mounts. If the LIBSSH2_SFTP_RENAME_OVERWRITE
 flag is not set and the destfile entry already exists, the operation
-will fail. Use of the other two flags indicate a preference (but not a
+fails. Use of the other two flags indicate a preference (but not a
 requirement) for the remote end to perform an atomic rename operation
 and/or using native system calls when possible.
 
