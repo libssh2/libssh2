@@ -2878,13 +2878,13 @@ int _libssh2_wincng_ecdsa_new_private_frommemory(
     data_buffer.dataptr = data_buffer.data +
                           strlen(OPENSSL_PRIVATEKEY_AUTH_MAGIC) + 1;
 
-    /* Read ciphername, should be 'none' as we don't support passphrases */
+    /* Read ciphername, should be 'none' as we do not support passphrases */
     result = _libssh2_match_string(&data_buffer, "none");
     if(result != LIBSSH2_ERROR_NONE) {
         goto cleanup;
     }
 
-    /* Read kdfname, should be 'none' as we don't support passphrases */
+    /* Read kdfname, should be 'none' as we do not support passphrases */
     result = _libssh2_match_string(&data_buffer, "none");
     if(result != LIBSSH2_ERROR_NONE) {
         goto cleanup;
@@ -3523,7 +3523,7 @@ void _libssh2_dh_dtor(struct wincng_dh_ctx *dhctx)
     }
     if(dhctx->dh_params) {
         /* Since public dh_params are shared in clear text,
-         * we don't need to securely zero them out here */
+         * we do not need to securely zero them out here */
         free(dhctx->dh_params);
         dhctx->dh_params = NULL;
     }

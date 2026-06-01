@@ -226,7 +226,7 @@ static int sftp_packet_add(LIBSSH2_SFTP *sftp,
     _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "Received packet id %d",
                     request_id));
 
-    /* Don't add the packet if it answers a request we've given up on. */
+    /* Do not add the packet if it answers a request we've given up on. */
     if((data[0] == SSH_FXP_STATUS || data[0] == SSH_FXP_DATA) &&
        find_zombie_request(sftp, request_id)) {
 
@@ -314,7 +314,7 @@ static int sftp_packet_read(LIBSSH2_SFTP *sftp)
             packet_type = sftp->packet_header[4];
             request_id = _libssh2_ntohu32(sftp->packet_header + 5);
 
-            /* make sure we don't proceed if the packet size is unreasonably
+            /* make sure we do not proceed if the packet size is unreasonably
                large */
             if(sftp->partial_len > LIBSSH2_SFTP_PACKET_MAXLEN &&
                /* exception: response to SSH_FXP_READDIR request */
@@ -1496,7 +1496,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                sent off successfully yet.
 
                If 'already' is large it should be perfectly fine to have
-               count set to 0 as then we don't have to ask for more data
+               count set to 0 as then we do not have to ask for more data
                (right now).
 
                buffer_size*4 is picked more or less out of the air. The
@@ -1578,7 +1578,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
         sftp->read_state = libssh2_NB_state_idle;
 
         /* move through the READ packets that haven't been sent and send as
-           many as possible - remember that we don't block */
+           many as possible - remember that we do not block */
         chunk = _libssh2_list_first(&handle->packet_list);
 
         while(chunk) {
@@ -1711,7 +1711,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
 
                 if(rc32 > chunk->len) {
                     /* A chunk larger than we requested was returned to us.
-                       This is a protocol violation and we don't know how to
+                       This is a protocol violation and we do not know how to
                        deal with it. Bail out! */
                     return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                           "FXP_READ response too big");
@@ -2159,7 +2159,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
         }
 
         /* move through the WRITE packets that haven't been sent and send as
-           many as possible - remember that we don't block */
+           many as possible - remember that we do not block */
         chunk = _libssh2_list_first(&handle->packet_list);
 
         while(chunk) {

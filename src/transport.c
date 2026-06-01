@@ -399,7 +399,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
      * status, and never come back to it. If LIBSSH2_STATE_EXCHANGING_KEYS is
      * active, then we must redirect to the key exchange. However, if
      * kex_exchange is active (as in it is the one that calls this execution
-     * of packet_read, then don't redirect, as that would be an infinite loop!
+     * of packet_read, then do not redirect, as that would be an infinite loop!
      */
 
     if(session->state & LIBSSH2_STATE_EXCHANGING_KEYS &&
@@ -610,7 +610,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
                 }
 
                 if(etm) {
-                    /* don't know what padding is until we decrypt the full
+                    /* do not know what padding is until we decrypt the full
                      packet */
                     p->padding_length = 0;
 
@@ -656,7 +656,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
                 total_num += p->packet_length +
                     (remote_mac ? remote_mac->mac_len : 0) + auth_len;
 
-                /* don't know what padding is until we decrypt the full
+                /* do not know what padding is until we decrypt the full
                    packet */
                 p->padding_length = 0;
             }
@@ -748,7 +748,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
 
         if(encrypted && !etm) {
             /* At the end of the incoming stream, there is a MAC,
-               and we don't want to decrypt that since we need it
+               and we do not want to decrypt that since we need it
                "raw". We MUST however decrypt the padding data
                since it is used for the hash later on. */
             int skip = (remote_mac ? remote_mac->mac_len : 0) + auth_len;
@@ -923,7 +923,7 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
     if((data != p->odata) || (data_len != p->olen)) {
         /* When we are about to complete the sending of a packet, it is vital
            that the caller does not try to send a new/different packet since
-           we don't add this one up until the previous one has been sent. To
+           we do not add this one up until the previous one has been sent. To
            make the caller really notice his/hers flaw, we return error for
            this case */
         _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
@@ -955,7 +955,7 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
         p->ototal_num = 0;
         p->olen = 0;
         /* we leave *ret set so that the parent returns as we MUST return back
-           a send success now, so that we don't risk sending EAGAIN later
+           a send success now, so that we do not risk sending EAGAIN later
            which then would confuse the parent function */
         return LIBSSH2_ERROR_NONE;
     }
@@ -1025,7 +1025,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
      */
     if(session->state & LIBSSH2_STATE_EXCHANGING_KEYS &&
        !(session->state & LIBSSH2_STATE_KEX_ACTIVE)) {
-        /* Don't write any new packets if we're still in the middle of a key
+        /* Do not write any new packets if we're still in the middle of a key
          * exchange. */
         _libssh2_debug((session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
                         " key re-exchange from _libssh2_transport_send"));
@@ -1069,8 +1069,8 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
 
     if(encrypted && compressed && session->local.comp_abstract) {
         /* the idea here is that these function must fail if the output gets
-           larger than what fits in the assigned buffer so thus they don't
-           check the input size as we don't know how much it compresses */
+           larger than what fits in the assigned buffer so thus they do not
+           check the input size as we do not know how much it compresses */
         size_t dest_len = MAX_SSH_PACKET_LEN - 5 - 256;
         size_t dest2_len = dest_len;
 

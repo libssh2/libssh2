@@ -327,7 +327,8 @@ int main(int argc, char *argv[])
                     }
                     else {
                         fprintf(stderr, "sent eof\n");
-                        /* we're done writing, stop listening for OUT events */
+                        /* we are done writing, stop listening for OUT
+                           events */
                         fds[0].events &=
                             ~(unsigned long)LIBSSH2_POLLFD_POLLOUT;
                     }
@@ -335,7 +336,7 @@ int main(int argc, char *argv[])
             }
 
             if(fds[0].revents & LIBSSH2_POLLFD_CHANNEL_CLOSED) {
-                if(!act) /* don't leave loop until we have read all data */
+                if(!act) /* do not leave loop until we have read all data */
                     running = 0;
             }
         } while(running);

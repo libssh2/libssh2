@@ -250,7 +250,7 @@ static int is_running_inside_a_container(void)
     int found = 0;
     f = fopen(cgroup_filename, "r");
     if(!f) {
-        /* Don't go further, we are not in a container */
+        /* Do not go further, we are not in a container */
         return 0;
     }
     while(fgets(line, sizeof(line), f)) {

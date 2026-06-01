@@ -342,7 +342,7 @@ static const struct comp_method comp_method_zlib = {
 static const struct comp_method comp_method_zlib_openssh = {
     "zlib@openssh.com",
     1, /* yes, this compresses */
-    0, /* don't use compression during userauth */
+    0, /* do not use compression during userauth */
     comp_method_zlib_init,
     comp_method_zlib_comp,
     comp_method_zlib_decomp,

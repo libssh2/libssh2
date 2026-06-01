@@ -483,7 +483,7 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                             badkey = node;
                     }
                 }
-                match = 0; /* don't count this as a match anymore */
+                match = 0; /* do not count this as a match anymore */
             }
             node = _libssh2_list_next(&node->node);
         }
@@ -636,7 +636,7 @@ static int oldstyle_hostline(LIBSSH2_KNOWNHOSTS *hosts,
 
             char hostbuf[256];
 
-            /* make sure we don't overflow the buffer */
+            /* make sure we do not overflow the buffer */
             if(namelen >= sizeof(hostbuf) - 1)
                 return _libssh2_error(hosts->session,
                                       LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
@@ -933,7 +933,7 @@ int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
 
     /* null-terminate where the newline is */
     if(*cp == '\n')
-        keylen--; /* don't include this in the count */
+        keylen--; /* do not include this in the count */
 
     /* deal with this one host+key line */
     rc = hostline(hosts, hostp, hostlen, keyp, keylen);
@@ -1068,7 +1068,7 @@ static int knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
        ("%s %s\n", host, key)
 
        Even if the buffer is too small, we have to set outlen to the number of
-       characters the complete line would have taken.  We also don't write
+       characters the complete line would have taken. We also do not write
        anything to the buffer unless we are sure we can write everything to the
        buffer. */
 

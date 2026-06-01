@@ -150,7 +150,7 @@ This release includes the following enhancements and bugfixes:
 - cmake: bump policy_max, add `FATAL_ERROR` for old cmake versions (717c0836 #1510)
 - cmake: fix cmake warnings (47258265 #1511)
 - cmake: tidy up `-j` make option in integration tests (389d70bf #1509)
-- cmake: build but don't install static lib in certain conditions (5d03b4f9 #1469 #1450)
+- cmake: build but do not install static lib in certain conditions (5d03b4f9 #1469 #1450)
 - cmake: add clang-cl support to PickyWarnings.cmake (bf9bb045 #1480)
 - cmake: tidy up variables names in PickyWarnings.cmake (ac00f6c4 #1478)
 - cmake: decorate comments in Find modules (efad5f90 #1477)

@@ -110,7 +110,7 @@
  * @note The following are wrapper functions used by diffie_hellman_sha_algo().
  * TODO: Switch backend SHA macros to functions to allow function pointers
  * @discussion Ideally these would be function pointers but the backend macros
- * don't allow it so we have to wrap them up in helper functions
+ * do not allow it so we have to wrap them up in helper functions
  */
 
 static int sha_algo_ctx_init(int sha_algo, void *ctx)
@@ -825,7 +825,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                           exchange_state->f, p, exchange_state->ctx);
         exchange_state->k_value_len = _libssh2_bn_bytes(exchange_state->k) + 5;
         if(_libssh2_bn_bits(exchange_state->k) % 8) {
-            /* don't need leading 00 */
+            /* do not need leading 00 */
             exchange_state->k_value_len--;
         }
         exchange_state->k_value =
@@ -2065,7 +2065,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
 
         exchange_state->k_value_len = _libssh2_bn_bytes(exchange_state->k) + 5;
         if(_libssh2_bn_bits(exchange_state->k) % 8) {
-            /* don't need leading 00 */
+            /* do not need leading 00 */
             exchange_state->k_value_len--;
         }
         exchange_state->k_value =
@@ -2809,7 +2809,7 @@ static int curve25519_sha256(
 
         exchange_state->k_value_len = _libssh2_bn_bytes(exchange_state->k) + 5;
         if(_libssh2_bn_bits(exchange_state->k) % 8) {
-            /* don't need leading 00 */
+            /* do not need leading 00 */
             exchange_state->k_value_len--;
         }
         exchange_state->k_value =
@@ -3475,7 +3475,7 @@ struct common_method {
  * Calculate the length of a particular method list's resulting string
  * Includes SUM(strlen() of each individual method plus 1 (for coma)) - 1
  * (because the last coma isn't used)
- * Another sign of bad coding practices gone mad.  Pretend you don't see this.
+ * Another sign of bad coding practices gone mad. Pretend you do not see this.
  */
 static size_t kex_method_strlen(const struct common_method **method)
 {
@@ -4116,7 +4116,7 @@ static int kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *data,
     buf.dataptr = buf.data;
     buf.dataptr++; /* advance past packet type */
 
-    /* Skip cookie, don't worry, it's preserved in the kexinit field */
+    /* Skip cookie, do not worry, it is preserved in the kexinit field */
     buf.dataptr += 16;
 
     /* Locate each string */

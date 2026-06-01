@@ -591,7 +591,7 @@ static inline int packet_authagent_open(
             /* Link the channel into the session */
             _libssh2_list_add(&session->channels, &channel->node);
 
-            /* mess with stuff so we don't keep reading the same packet
+            /* mess with stuff so we do not keep reading the same packet
                over and over */
             session->packet.total_num = 0;
             session->fullpacket_state = libssh2_NB_state_idle;

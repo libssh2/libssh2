@@ -746,7 +746,7 @@ int _libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
             _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                            "Unable to send global-request packet for forward "
                            "listen request");
-            /* set the state to something we don't check for, for the
+            /* set the state to something we do not check for, for the
                unfortunate situation where we get an EAGAIN further down
                when trying to bail out due to errors! */
             listener->chanFwdCncl_state = libssh2_NB_state_sent;
@@ -1272,7 +1272,7 @@ static int channel_request_pty_size(LIBSSH2_CHANNEL *channel, int width,
         _libssh2_store_u32(&s, channel->remote.id);
         _libssh2_store_str(&s, (const char *)"window-change",
                            sizeof("window-change") - 1);
-        *(s++) = 0x00; /* Don't reply */
+        *(s++) = 0x00; /* Do not reply */
         _libssh2_store_u32(&s, width);
         _libssh2_store_u32(&s, height);
         _libssh2_store_u32(&s, width_px);
@@ -2325,7 +2325,7 @@ ssize_t _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
         if(stream_id)
             _libssh2_store_u32(&s, stream_id);
 
-        /* Don't exceed the remote end's limits */
+        /* Do not exceed the remote end's limits */
         /* REMEMBER local means local as the SOURCE of the data */
         if(channel->write_bufwrite > channel->local.window_size) {
             _libssh2_debug((session, LIBSSH2_TRACE_CONN,
@@ -2965,7 +2965,7 @@ static int channel_signal(LIBSSH2_CHANNEL *channel,
         *(s++) = SSH_MSG_CHANNEL_REQUEST;
         _libssh2_store_u32(&s, channel->remote.id);
         _libssh2_store_str(&s, "signal", sizeof("signal") - 1);
-        *(s++) = 0x00; /* Don't reply */
+        *(s++) = 0x00; /* Do not reply */
         _libssh2_store_str(&s, signame, signame_len);
 
         channel->sendsignal_state = libssh2_NB_state_created;

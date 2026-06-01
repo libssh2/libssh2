@@ -154,7 +154,7 @@ AC_DEFUN([LIBSSH2_HAVE_LINKFLAGS],
     AC_MSG_RESULT([$LIB[]NAME])
   else
     HAVE_LIB[]NAME=no
-    dnl If $LIB[]NAME didn't lead to a usable library, we don't need
+    dnl If $LIB[]NAME didn't lead to a usable library, we do not need
     dnl $INC[]NAME either.
     CPPFLAGS="$ac_save_CPPFLAGS"
     LIB[]NAME=
@@ -223,7 +223,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
   ])
   AC_ARG_WITH([lib]N_A_M_E[-prefix],
 [  --with-lib]N_A_M_E[-prefix[=DIR]  search for lib$1 in DIR/include and DIR/lib
-  --without-lib]N_A_M_E[-prefix     don't search for lib$1 in includedir and libdir],
+  --without-lib]N_A_M_E[-prefix     do not search for lib$1 in includedir and libdir],
 [
     if test "X$withval" = "Xno"; then
       use_additional=no
@@ -436,7 +436,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
                     fi
                   else
                     dnl Rely on "-L$found_dir".
-                    dnl But don't add it if it's already contained in the LDFLAGS
+                    dnl But do not add it if it's already contained in the LDFLAGS
                     dnl or the already constructed $LIBNAME
                     haveit=
                     for x in $LDFLAGS $LIB[]NAME; do
@@ -488,10 +488,10 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
             esac
             if test "X$additional_includedir" != "X"; then
               dnl Potentially add $additional_includedir to $INCNAME.
-              dnl But don't add it
-              dnl   1. if it's the standard /usr/include,
-              dnl   2. if it's /usr/local/include and we are using GCC on Linux,
-              dnl   3. if it's already present in $CPPFLAGS or the already
+              dnl But do not add it
+              dnl   1. if it is the standard /usr/include,
+              dnl   2. if it is /usr/local/include and we are using GCC on Linux,
+              dnl   3. if it is already present in $CPPFLAGS or the already
               dnl      constructed $INCNAME,
               dnl   4. if it does not exist as a directory.
               if test "X$additional_includedir" != "X/usr/include"; then
@@ -537,10 +537,10 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
                   -L*)
                     additional_libdir=`echo "X$dep" | sed -e 's/^X-L//'`
                     dnl Potentially add $additional_libdir to $LIBNAME and $LTLIBNAME.
-                    dnl But don't add it
-                    dnl   1. if it's the standard /usr/lib,
-                    dnl   2. if it's /usr/local/lib and we are using GCC on Linux,
-                    dnl   3. if it's already present in $LDFLAGS or the already
+                    dnl But do not add it
+                    dnl   1. if it is the standard /usr/lib,
+                    dnl   2. if it is /usr/local/lib and we are using GCC on Linux,
+                    dnl   3. if it is already present in $LDFLAGS or the already
                     dnl      constructed $LIBNAME,
                     dnl   4. if it does not exist as a directory.
                     if test "X$additional_libdir" != "X/usr/$acl_libdirstem"; then

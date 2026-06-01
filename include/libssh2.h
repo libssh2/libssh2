@@ -172,7 +172,7 @@ typedef struct _stati64 libssh2_struct_stat;
 typedef __int64 libssh2_struct_stat_size;
 #else
 #  ifdef __VMS
-/* We have to roll our own format here because %z is a C99-ism we don't
+/* We have to roll our own format here because %z is a C99-ism we do not
    have. */
 #    if __USE_OFF64_T || __USING_STD_STAT
 #      define LIBSSH2_STRUCT_STAT_SIZE_FORMAT      "%Ld"
@@ -1156,7 +1156,7 @@ libssh2_knownhost_addc(LIBSSH2_KNOWNHOSTS *hosts,
  * custom - prehashed base64 encoded. Note that this cannot use any salts.
  *
  *
- * 'knownhost' may be set to NULL if you don't care about that info.
+ * 'knownhost' may be set to NULL if you do not care about that info.
  *
  * Returns:
  *

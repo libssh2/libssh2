@@ -534,7 +534,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 }
 
                 *(p++) = '\0';
-                /* Make sure we don't get fooled by leftover values */
+                /* Make sure we do not get fooled by leftover values */
                 session->scpRecv_mtime = strtol((char *)s, NULL, 10);
 
                 s = (unsigned char *)strchr((char *)p, ' ');
@@ -558,7 +558,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 }
 
                 *p = '\0';
-                /* Make sure we don't get fooled by leftover values */
+                /* Make sure we do not get fooled by leftover values */
                 session->scpRecv_atime = strtol((char *)s, NULL, 10);
 
                 /* SCP ACK */
@@ -691,7 +691,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 }
 
                 *(p++) = '\0';
-                /* Make sure we don't get fooled by leftover values */
+                /* Make sure we do not get fooled by leftover values */
                 session->scpRecv_mode = strtol(s, &e, 8);
                 if(e && *e) {
                     _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
@@ -710,7 +710,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 }
 
                 *s = '\0';
-                /* Make sure we don't get fooled by leftover values */
+                /* Make sure we do not get fooled by leftover values */
                 session->scpRecv_size = scpsize_strtol(p, &e, 10);
                 if(e && *e) {
                     _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,

@@ -1740,7 +1740,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
         }
 
         if(active_fds) {
-            /* Don't block on the sockets if we have channels/listeners which
+            /* Do not block on the sockets if we have channels/listeners which
                are ready */
             timeout_remaining = 0;
         }

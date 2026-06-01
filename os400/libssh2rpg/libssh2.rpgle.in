@@ -1613,7 +1613,7 @@
       * custom - prehashed base64 encoded. Note that this cannot use any salts.
       *
       *
-      * 'knownhost' may be set to NULL if you don't care about that info.
+      * 'knownhost' may be set to NULL if you do not care about that info.
       *
       * Returns:
       *

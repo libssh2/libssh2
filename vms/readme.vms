@@ -167,7 +167,7 @@ You will need to have the following available:
 - The HP OpenSSL product. Of course, with tweaking, you can probably link
   it against the OpenSSL library, but that is not what I have used.
 
-- A C compiler. I don't know any other working C compilers than
+- A C compiler. I do not know any other working C compilers than
   the DEC/Compac/HP-C compiler on VMS.
 
 - An ODS-5 disk. With tweaking you'll get it to work on an ODS-2

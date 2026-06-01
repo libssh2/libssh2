@@ -113,7 +113,7 @@ int _libssh2_error_flags(LIBSSH2_SESSION *session, int errcode,
 
 #ifdef LIBSSH2DEBUG
     if((errcode == LIBSSH2_ERROR_EAGAIN) && !session->api_block_mode)
-        /* if this is EAGAIN and we're in non-blocking mode, don't generate
+        /* if this is EAGAIN and we're in non-blocking mode, do not generate
            a debug output for this */
         return errcode;
     _libssh2_debug((session, LIBSSH2_TRACE_ERROR, "%d - %s", session->err_code,
