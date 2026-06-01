@@ -1425,10 +1425,10 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
        libssh2_NB_state_idle: The first phase is where we prepare multiple
        FXP_READ packets to do optimistic read-ahead.  We send off as many as
        possible in the second phase without waiting for a response to each
-       one; this is the key to fast reads. But we may have to adjust the
-       channel window size to do this which may interrupt this function while
-       waiting.  The state machine saves the phase as libssh2_NB_state_idle so
-       it returns here on the next call.
+       one; this is the key to fast reads. We may have to adjust the channel
+       window size to do this which may interrupt this function while waiting.
+       The state machine saves the phase as libssh2_NB_state_idle so it
+       returns here on the next call.
 
        libssh2_NB_state_sent: The second phase is where we send the FXP_READ
        packets.  Writing them to the channel can be interrupted with EAGAIN
@@ -1502,7 +1502,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                buffer_size*4 is picked more or less out of the air. The
                idea is that when reading SFTP from a remote server, we send
                away multiple read requests guessing that the client will read
-               more than only this 'buffer_size' amount of memory. So we ask
+               more than only this 'buffer_size' amount of memory. We thus ask
                for maximum buffer_size*4 amount of data so that we can return
                them fast in subsequent calls.
             */

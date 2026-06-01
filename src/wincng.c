@@ -2495,7 +2495,7 @@ int _libssh2_wincng_ecdh_gen_k(
         goto cleanup;
     }
 
-    /* And populate the secret bignum */
+    /* Populate the secret bignum */
     status = BCryptDeriveKey(
         agreed_secret_handle,
         BCRYPT_KDF_RAW_SECRET,
@@ -3808,7 +3808,7 @@ int _libssh2_dh_secret(struct wincng_dh_ctx *dhctx, libssh2_bn *secret,
             goto out;
         }
 
-        /* And populate the secret bignum */
+        /* Populate the secret bignum */
         status = BCryptDeriveKey(agreement, BCRYPT_KDF_RAW_SECRET, NULL,
                                  secret->bignum, secret_len_bytes,
                                  &secret_len_bytes, 0);

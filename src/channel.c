@@ -2378,9 +2378,8 @@ ssize_t _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
            We cannot move on to send the next piece of data that may
            already have been provided in this same function call, as we
            risk getting EAGAIN for that and we cannot return information
-           both about sent data as well as EAGAIN. So, by returning short
-           now, the caller will call this function again with new data to
-           send */
+           both about sent data as well as EAGAIN. By returning short now,
+           the caller will call this function again with new data to send */
 
         channel->write_state = libssh2_NB_state_idle;
 

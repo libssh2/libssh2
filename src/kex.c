@@ -3798,7 +3798,7 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session,
                     return -1;
                 }
 
-                /* So far so good, but does it suit our purposes? (Encrypting
+                /* OK so far, but does it suit our purposes? (Encrypting
                    vs Signing) */
                 if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) ==
                      0) || (method->encrypt)) {
@@ -3824,7 +3824,7 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session,
                                      (const unsigned char *)(*hostkeyp)->name,
                                      strlen((*hostkeyp)->name));
         if(s) {
-            /* So far so good, but does it suit our purposes? (Encrypting vs
+            /* OK so far, but does it suit our purposes? (Encrypting vs
                Signing) */
             if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0) ||
                ((*hostkeyp)->encrypt)) {
@@ -4560,8 +4560,8 @@ int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
       the number of algorithms (i.e. number of iterations in one loop) will
       not be high (typically it will not exceed 20) for quite a long time.
 
-      So double looping really should not be an issue and it is definitely a
-      better solution than reallocation several times.
+      Thus double looping really should not be an issue and it is definitely
+      a better solution than reallocation several times.
     */
 
     /* count the number of supported algorithms */

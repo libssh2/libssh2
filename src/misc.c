@@ -64,7 +64,7 @@
 
 /* Want safe, 'n += snprintf(b + n ...)' like function. If cp_max_len is 1
 * then assume cp is pointing to a null char and do nothing. Returns number
-* number of chars placed in cp excluding the trailing null char. So for
+* number of chars placed in cp excluding the trailing null char. For
 * cp_max_len > 0 the return value is always < cp_max_len; for cp_max_len
 * <= 0 the return value is 0 (and no chars are written to cp). */
 int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
