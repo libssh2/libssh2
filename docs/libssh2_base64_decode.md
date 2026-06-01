@@ -16,10 +16,9 @@ libssh2_base64_decode - decode a base64 encoded string
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_base64_decode(LIBSSH2_SESSION *session, char **dest,
-                      unsigned int *dest_len, const char *src,
-                      unsigned int src_len);
+int libssh2_base64_decode(LIBSSH2_SESSION *session, char **dest,
+                          unsigned int *dest_len, const char *src,
+                          unsigned int src_len);
 ~~~
 
 # DESCRIPTION

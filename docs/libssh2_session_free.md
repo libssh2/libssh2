@@ -19,8 +19,7 @@ libssh2_session_free - frees resources associated with a session instance
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_session_free(LIBSSH2_SESSION *session);
+int libssh2_session_free(LIBSSH2_SESSION *session);
 ~~~
 
 # DESCRIPTION

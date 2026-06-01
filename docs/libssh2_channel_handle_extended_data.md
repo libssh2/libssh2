@@ -18,9 +18,8 @@ libssh2_channel_handle_extended_data - set extended data handling mode
 ~~~c
 #include <libssh2.h>
 
-void
-libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel,
-                                     int ignore_mode);
+void libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel,
+                                          int ignore_mode);
 ~~~
 
 # DESCRIPTION

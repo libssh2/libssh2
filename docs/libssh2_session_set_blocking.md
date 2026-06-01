@@ -17,8 +17,7 @@ libssh2_session_set_blocking - set or clear blocking mode on session
 ~~~c
 #include <libssh2.h>
 
-void
-libssh2_session_set_blocking(LIBSSH2_SESSION *session, int blocking);
+void libssh2_session_set_blocking(LIBSSH2_SESSION *session, int blocking);
 ~~~
 
 # DESCRIPTION

@@ -17,8 +17,7 @@ libssh2_channel_open_session - convenience macro for *libssh2_channel_open_ex(3)
 ~~~c
 #include <libssh2.h>
 
-LIBSSH2_CHANNEL *
-libssh2_channel_open_session(LIBSSH2_SESSION *session);
+LIBSSH2_CHANNEL *libssh2_channel_open_session(LIBSSH2_SESSION *session);
 ~~~
 
 # DESCRIPTION

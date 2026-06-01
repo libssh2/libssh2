@@ -17,15 +17,14 @@ libssh2_userauth_publickey_frommemory - authenticate a session with a public key
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
-                                      const char *username,
-                                      size_t username_len,
-                                      const char *publickeydata,
-                                      size_t publickeydata_len,
-                                      const char *privatekeydata,
-                                      size_t privatekeydata_len,
-                                      const char *passphrase);
+int libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
+                                          const char *username,
+                                          size_t username_len,
+                                          const char *publickeydata,
+                                          size_t publickeydata_len,
+                                          const char *privatekeydata,
+                                          size_t privatekeydata_len,
+                                          const char *passphrase);
 ~~~
 
 # DESCRIPTION

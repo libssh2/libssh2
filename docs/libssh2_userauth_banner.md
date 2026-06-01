@@ -18,8 +18,7 @@ libssh2_userauth_banner - get the server's userauth banner message
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner);
+int libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner);
 ~~~
 
 # DESCRIPTION

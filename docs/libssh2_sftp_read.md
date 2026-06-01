@@ -20,9 +20,8 @@ libssh2_sftp_read - read data from an SFTP handle
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-ssize_t
-libssh2_sftp_read(LIBSSH2_SFTP_HANDLE *handle,
-                  char *buffer, size_t buffer_maxlen);
+ssize_t libssh2_sftp_read(LIBSSH2_SFTP_HANDLE *handle,
+                          char *buffer, size_t buffer_maxlen);
 ~~~
 
 # DESCRIPTION

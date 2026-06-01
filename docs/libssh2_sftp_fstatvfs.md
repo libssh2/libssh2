@@ -20,13 +20,11 @@ libssh2_sftp_statvfs, libssh2_sftp_fstatvfs - get file system statistics
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int
-libssh2_sftp_statvfs(LIBSSH2_SFTP *sftp, const char *path,
-                     size_t path_len, LIBSSH2_SFTP_STATVFS *st);
+int libssh2_sftp_statvfs(LIBSSH2_SFTP *sftp, const char *path,
+                         size_t path_len, LIBSSH2_SFTP_STATVFS *st);
 
-int
-libssh2_sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle,
-                      LIBSSH2_SFTP_STATVFS *st)
+int libssh2_sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle,
+                          LIBSSH2_SFTP_STATVFS *st)
 ~~~
 
 # DESCRIPTION

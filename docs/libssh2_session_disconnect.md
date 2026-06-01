@@ -17,8 +17,8 @@ libssh2_session_disconnect - convenience macro for *libssh2_session_disconnect_e
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_session_disconnect(LIBSSH2_SESSION *session, const char *description);
+int libssh2_session_disconnect(LIBSSH2_SESSION *session,
+                               const char *description);
 ~~~
 
 # DESCRIPTION

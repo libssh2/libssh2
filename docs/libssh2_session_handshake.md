@@ -18,8 +18,8 @@ libssh2_session_handshake - perform the SSH handshake
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_session_handshake(LIBSSH2_SESSION *session, libssh2_socket_t socket);
+int libssh2_session_handshake(LIBSSH2_SESSION *session,
+                              libssh2_socket_t socket);
 ~~~
 
 # DESCRIPTION

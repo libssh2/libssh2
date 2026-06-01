@@ -18,10 +18,9 @@ libssh2_channel_signal_ex -- Send a signal to process previously opened on chann
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_signal_ex(LIBSSH2_CHANNEL *channel,
-                          const char *signame,
-                          size_t signame_len)
+int libssh2_channel_signal_ex(LIBSSH2_CHANNEL *channel,
+                              const char *signame,
+                              size_t signame_len)
 ~~~
 
 # DESCRIPTION

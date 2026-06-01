@@ -18,8 +18,7 @@ libssh2_channel_request_auth_agent - request agent forwarding for a session
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_request_auth_agent(LIBSSH2_CHANNEL *channel);
+int libssh2_channel_request_auth_agent(LIBSSH2_CHANNEL *channel);
 ~~~
 
 # DESCRIPTION

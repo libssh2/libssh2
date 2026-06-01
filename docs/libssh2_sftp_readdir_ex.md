@@ -19,11 +19,10 @@ libssh2_sftp_readdir_ex - read directory data from an SFTP handle
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int
-libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle,
-                        char *buffer, size_t buffer_maxlen,
-                        char *longentry, size_t longentry_maxlen,
-                        LIBSSH2_SFTP_ATTRIBUTES *attrs);
+int libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle,
+                            char *buffer, size_t buffer_maxlen,
+                            char *longentry, size_t longentry_maxlen,
+                            LIBSSH2_SFTP_ATTRIBUTES *attrs);
 ~~~
 
 # DESCRIPTION

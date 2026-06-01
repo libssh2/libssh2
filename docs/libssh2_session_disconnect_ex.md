@@ -19,14 +19,12 @@ libssh2_session_disconnect_ex - terminate transport layer
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reason,
-                              const char *description,
-                              const char *lang);
+int libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reason,
+                                  const char *description,
+                                  const char *lang);
 
-int
-libssh2_session_disconnect(LIBSSH2_SESSION *session,
-                           const char *description);
+int libssh2_session_disconnect(LIBSSH2_SESSION *session,
+                               const char *description);
 ~~~
 
 # DESCRIPTION

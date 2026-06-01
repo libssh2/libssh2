@@ -20,15 +20,14 @@ libssh2_agent_sign - sign data, with the help of ssh-agent
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_agent_sign(LIBSSH2_AGENT *agent,
-                   struct libssh2_agent_publickey *identity,
-                   unsigned char **sig,
-                   size_t *s_len,
-                   const unsigned char *data,
-                   size_t d_len,
-                   const char *method,
-                   unsigned int method_len);
+int libssh2_agent_sign(LIBSSH2_AGENT *agent,
+                       struct libssh2_agent_publickey *identity,
+                       unsigned char **sig,
+                       size_t *s_len,
+                       const unsigned char *data,
+                       size_t d_len,
+                       const char *method,
+                       unsigned int method_len);
 ~~~
 
 # DESCRIPTION

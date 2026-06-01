@@ -18,8 +18,7 @@ libssh2_banner_set - set the SSH protocol banner for the local client
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_banner_set(LIBSSH2_SESSION *session, const char *banner);
+int libssh2_banner_set(LIBSSH2_SESSION *session, const char *banner);
 ~~~
 
 # DESCRIPTION

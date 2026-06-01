@@ -17,8 +17,7 @@ libssh2_channel_x11_req - convenience macro for *libssh2_channel_x11_req_ex(3)* 
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_x11_req(LIBSSH2_CHANNEL *channel, int screen_number);
+int libssh2_channel_x11_req(LIBSSH2_CHANNEL *channel, int screen_number);
 ~~~
 
 # DESCRIPTION

@@ -18,9 +18,8 @@ libssh2_sftp_seek64 - set the read/write position within a file
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-void
-libssh2_sftp_seek64(LIBSSH2_SFTP_HANDLE *handle,
-                    libssh2_uint64_t offset);
+void libssh2_sftp_seek64(LIBSSH2_SFTP_HANDLE *handle,
+                         libssh2_uint64_t offset);
 ~~~
 
 # DESCRIPTION

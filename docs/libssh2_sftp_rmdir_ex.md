@@ -18,9 +18,8 @@ libssh2_sftp_rmdir_ex - remove an SFTP directory
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int
-libssh2_sftp_rmdir_ex(LIBSSH2_SFTP *sftp, const char *path,
-                      unsigned int path_len);
+int libssh2_sftp_rmdir_ex(LIBSSH2_SFTP *sftp, const char *path,
+                          unsigned int path_len);
 ~~~
 
 # DESCRIPTION

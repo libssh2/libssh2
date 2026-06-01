@@ -18,9 +18,9 @@ libssh2_channel_window_write_ex - Check the status of the write window
 ~~~c
 #include <libssh2.h>
 
-unsigned long
-libssh2_channel_window_write_ex(LIBSSH2_CHANNEL *channel,
-                                unsigned long *window_size_initial)
+unsigned long libssh2_channel_window_write_ex(
+    LIBSSH2_CHANNEL *channel,
+    unsigned long *window_size_initial)
 ~~~
 
 # DESCRIPTION

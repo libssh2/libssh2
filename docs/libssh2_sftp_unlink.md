@@ -18,8 +18,7 @@ libssh2_sftp_unlink - convenience macro for *libssh2_sftp_unlink_ex(3)* calls
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int
-libssh2_sftp_unlink(LIBSSH2_SFTP *sftp, const char *filename);
+int libssh2_sftp_unlink(LIBSSH2_SFTP *sftp, const char *filename);
 ~~~
 
 # DESCRIPTION

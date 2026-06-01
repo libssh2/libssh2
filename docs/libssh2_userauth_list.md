@@ -17,10 +17,9 @@ libssh2_userauth_list - list supported authentication methods
 ~~~c
 #include <libssh2.h>
 
-char *
-libssh2_userauth_list(LIBSSH2_SESSION *session,
-                      const char *username,
-                      unsigned int username_len);
+char *libssh2_userauth_list(LIBSSH2_SESSION *session,
+                            const char *username,
+                            unsigned int username_len);
 ~~~
 
 # DESCRIPTION

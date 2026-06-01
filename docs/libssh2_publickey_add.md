@@ -17,12 +17,11 @@ libssh2_publickey_add - convenience macro for *libssh2_publickey_add_ex(3)* call
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_publickey_add(LIBSSH2_PUBLICKEY *pkey,
-                      const unsigned char *name,
-                      const unsigned char *blob, unsigned long blob_len,
-                      char overwrite, unsigned long num_attrs,
-                      const libssh2_publickey_attribute attrs[]);
+int libssh2_publickey_add(LIBSSH2_PUBLICKEY *pkey,
+                          const unsigned char *name,
+                          const unsigned char *blob, unsigned long blob_len,
+                          char overwrite, unsigned long num_attrs,
+                          const libssh2_publickey_attribute attrs[]);
 ~~~
 
 # DESCRIPTION

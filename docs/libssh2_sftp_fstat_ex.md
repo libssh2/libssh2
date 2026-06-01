@@ -18,9 +18,8 @@ libssh2_sftp_fstat_ex - get or set attributes on an SFTP file handle
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int
-libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *handle,
-                      LIBSSH2_SFTP_ATTRIBUTES *attrs, int setstat)
+int libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *handle,
+                          LIBSSH2_SFTP_ATTRIBUTES *attrs, int setstat)
 
 #define libssh2_sftp_fstat(handle, attrs) \
     libssh2_sftp_fstat_ex(handle, attrs, 0)

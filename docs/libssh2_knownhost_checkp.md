@@ -19,12 +19,11 @@ libssh2_knownhost_checkp - check a host+key against the list of known hosts
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_knownhost_checkp(LIBSSH2_KNOWNHOSTS *hosts,
-                         const char *host, int port,
-                         const char *key, size_t keylen,
-                         int typemask,
-                         struct libssh2_knownhost **knownhost);
+int libssh2_knownhost_checkp(LIBSSH2_KNOWNHOSTS *hosts,
+                             const char *host, int port,
+                             const char *key, size_t keylen,
+                             int typemask,
+                             struct libssh2_knownhost **knownhost);
 ~~~
 
 # DESCRIPTION

@@ -17,9 +17,8 @@ libssh2_channel_request_pty_size - convenience macro for *libssh2_channel_reques
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_request_pty_size(LIBSSH2_CHANNEL *channel,
-                                 int width, int height);
+int libssh2_channel_request_pty_size(LIBSSH2_CHANNEL *channel,
+                                     int width, int height);
 ~~~
 
 # DESCRIPTION

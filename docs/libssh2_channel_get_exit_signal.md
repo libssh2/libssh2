@@ -16,11 +16,10 @@ libssh2_channel_get_exit_signal - get the remote exit signal
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL *channel,
-                                char **exitsignal, size_t *exitsignal_len,
-                                char **errmsg, size_t *errmsg_len,
-                                char **langtag, size_t *langtag_len);
+int libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL *channel,
+                                    char **exitsignal, size_t *exitsignal_len,
+                                    char **errmsg, size_t *errmsg_len,
+                                    char **langtag, size_t *langtag_len);
 ~~~
 
 # DESCRIPTION

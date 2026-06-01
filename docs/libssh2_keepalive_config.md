@@ -17,10 +17,9 @@ libssh2_keepalive_config - short function description
 ~~~c
 #include <libssh2.h>
 
-void
-libssh2_keepalive_config(LIBSSH2_SESSION *session,
-                         int want_reply,
-                         unsigned int interval);
+void libssh2_keepalive_config(LIBSSH2_SESSION *session,
+                              int want_reply,
+                              unsigned int interval);
 ~~~
 
 # DESCRIPTION

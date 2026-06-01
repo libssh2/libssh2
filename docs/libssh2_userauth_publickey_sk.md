@@ -17,17 +17,17 @@ libssh2_userauth_publickey_sk - authenticate a session with a FIDO2 authenticato
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
-                              const char *username,
-                              size_t username_len,
-                              const unsigned char *publickeydata,
-                              size_t publickeydata_len,
-                              const char *privatekeydata,
-                              size_t privatekeydata_len,
-                              const char *passphrase,
-                              LIBSSH2_USERAUTH_SK_SIGN_FUNC(*sign_callback),
-                              void **abstract);
+int libssh2_userauth_publickey_sk(
+    LIBSSH2_SESSION *session,
+    const char *username,
+    size_t username_len,
+    const unsigned char *publickeydata,
+    size_t publickeydata_len,
+    const char *privatekeydata,
+    size_t privatekeydata_len,
+    const char *passphrase,
+    LIBSSH2_USERAUTH_SK_SIGN_FUNC(*sign_callback),
+    void **abstract);
 ~~~
 
 # CALLBACK

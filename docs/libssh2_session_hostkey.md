@@ -18,9 +18,8 @@ libssh2_session_hostkey - get the remote key
 ~~~c
 #include <libssh2.h>
 
-const char *
-libssh2_session_hostkey(LIBSSH2_SESSION *session,
-                        size_t *len, int *type);
+const char *libssh2_session_hostkey(LIBSSH2_SESSION *session,
+                                    size_t *len, int *type);
 ~~~
 
 # DESCRIPTION

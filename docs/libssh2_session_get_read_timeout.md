@@ -17,8 +17,7 @@ libssh2_session_get_read_timeout - get the timeout for packet read functions
 ~~~c
 #include <libssh2.h>
 
-long
-libssh2_session_get_read_timeout(LIBSSH2_SESSION *session);
+long libssh2_session_get_read_timeout(LIBSSH2_SESSION *session);
 ~~~
 
 # DESCRIPTION

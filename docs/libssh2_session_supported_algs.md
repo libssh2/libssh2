@@ -19,10 +19,9 @@ libssh2_session_supported_algs - get list of supported algorithms
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_session_supported_algs(LIBSSH2_SESSION* session,
-                               int method_type,
-                               const char*** algs);
+int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
+                                   int method_type,
+                                   const char ***algs);
 ~~~
 
 # DESCRIPTION

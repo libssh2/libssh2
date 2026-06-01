@@ -17,8 +17,7 @@ libssh2_session_get_timeout - get the timeout for blocking functions
 ~~~c
 #include <libssh2.h>
 
-long
-libssh2_session_get_timeout(LIBSSH2_SESSION *session);
+long libssh2_session_get_timeout(LIBSSH2_SESSION *session);
 ~~~
 
 # DESCRIPTION

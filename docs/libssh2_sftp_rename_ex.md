@@ -18,18 +18,16 @@ libssh2_sftp_rename_ex - rename an SFTP file
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int
-libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp,
-                       const char *source_filename,
-                       unsigned int source_filename_len,
-                       const char *dest_filename,
-                       unsigned int dest_filename_len,
-                       long flags);
+int libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp,
+                           const char *source_filename,
+                           unsigned int source_filename_len,
+                           const char *dest_filename,
+                           unsigned int dest_filename_len,
+                           long flags);
 
-int
-libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp,
-                       const char *source_filename,
-                       const char *dest_filename);
+int libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp,
+                           const char *source_filename,
+                           const char *dest_filename);
 ~~~
 
 # DESCRIPTION

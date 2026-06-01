@@ -18,9 +18,8 @@ libssh2_scp_send - convenience macro for *libssh2_scp_send_ex(3)* calls
 ~~~c
 #include <libssh2.h>
 
-LIBSSH2_CHANNEL *
-libssh2_scp_send(LIBSSH2_SESSION *session, const char *path,
-                 int mode, size_t size);
+LIBSSH2_CHANNEL *libssh2_scp_send(LIBSSH2_SESSION *session, const char *path,
+                                  int mode, size_t size);
 ~~~
 
 # DESCRIPTION

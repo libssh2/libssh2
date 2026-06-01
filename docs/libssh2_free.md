@@ -17,8 +17,7 @@ libssh2_free - deallocate libssh2 memory
 ~~~c
 #include <libssh2.h>
 
-void
-libssh2_free(LIBSSH2_SESSION *session, void *ptr);
+void libssh2_free(LIBSSH2_SESSION *session, void *ptr);
 ~~~
 
 # DESCRIPTION

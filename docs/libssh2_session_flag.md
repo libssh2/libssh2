@@ -16,8 +16,7 @@ libssh2_session_flag - TODO
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_session_flag(LIBSSH2_SESSION *session, int flag, int value);
+int libssh2_session_flag(LIBSSH2_SESSION *session, int flag, int value);
 ~~~
 
 # DESCRIPTION

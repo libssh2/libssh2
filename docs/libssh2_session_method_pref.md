@@ -18,9 +18,8 @@ libssh2_session_method_pref - set preferred key exchange method
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_session_method_pref(LIBSSH2_SESSION *session,
-                            int method_type, const char *prefs);
+int libssh2_session_method_pref(LIBSSH2_SESSION *session,
+                                int method_type, const char *prefs);
 ~~~
 
 # DESCRIPTION

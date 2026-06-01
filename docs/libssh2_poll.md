@@ -17,8 +17,7 @@ libssh2_poll - poll for activity on a socket, channel or listener
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout);
+int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout);
 ~~~
 
 # DESCRIPTION

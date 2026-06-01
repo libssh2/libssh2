@@ -17,8 +17,7 @@ libssh2_channel_free - free all resources associated with a channel
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_free(LIBSSH2_CHANNEL *channel);
+int libssh2_channel_free(LIBSSH2_CHANNEL *channel);
 ~~~
 
 # DESCRIPTION

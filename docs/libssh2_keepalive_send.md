@@ -17,9 +17,8 @@ libssh2_keepalive_send - short function description
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_keepalive_send(LIBSSH2_SESSION *session,
-                       int *seconds_to_next);
+int libssh2_keepalive_send(LIBSSH2_SESSION *session,
+                           int *seconds_to_next);
 ~~~
 
 # DESCRIPTION

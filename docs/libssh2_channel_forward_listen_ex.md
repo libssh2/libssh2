@@ -17,13 +17,13 @@ libssh2_channel_forward_listen_ex - listen to inbound connections
 ~~~c
 #include <libssh2.h>
 
-LIBSSH2_LISTENER *
-libssh2_channel_forward_listen_ex(LIBSSH2_SESSION *session,
-                                  char *host, int port,
-                                  int *bound_port, int queue_maxsize);
+LIBSSH2_LISTENER *libssh2_channel_forward_listen_ex(LIBSSH2_SESSION *session,
+                                                    char *host, int port,
+                                                    int *bound_port,
+                                                    int queue_maxsize);
 
-LIBSSH2_LISTENER *
-libssh2_channel_forward_listen(LIBSSH2_SESSION *session, int port);
+LIBSSH2_LISTENER *libssh2_channel_forward_listen(LIBSSH2_SESSION *session,
+                                                 int port);
 ~~~
 
 # DESCRIPTION
