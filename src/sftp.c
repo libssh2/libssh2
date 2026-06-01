@@ -1446,7 +1446,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
         sftp->last_errno = LIBSSH2_FX_OK;
 
         /* Some data may already have been read from the server in the
-           previous call but didn't fit in the buffer at the time.  If so, we
+           previous call but did not fit in the buffer at the time. If so, we
            return that now as we cannot risk being interrupted later with data
            partially written to the buffer. */
         if(filep->data_left) {

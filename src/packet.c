@@ -1005,7 +1005,7 @@ libssh2_packet_add_jump_point5:
             if((channelp->remote.extended_data_ignore_mode ==
                 LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE) &&
                (msg == SSH_MSG_CHANNEL_EXTENDED_DATA)) {
-                /* Pretend we didn't receive this */
+                /* Pretend we did not receive this */
                 LIBSSH2_FREE(session, data);
 
                 _libssh2_debug((session, LIBSSH2_TRACE_CONN,
@@ -1435,7 +1435,7 @@ libssh2_packet_add_jump_authagent:
                sizeof(session->startup_key_state));
 
         /*
-         * If there was a key reexchange failure, let's hope we didn't
+         * If there was a key reexchange failure, let's hope we did not
          * send NEWKEYS yet, otherwise remote will drop us like a rock
          */
         rc = _libssh2_kex_exchange(session, 1, &session->startup_key_state);

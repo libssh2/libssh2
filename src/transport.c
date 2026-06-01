@@ -1136,7 +1136,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
     padding_length = blocksize - ((packet_length - crypt_offset) % blocksize);
 
     /* if the padding becomes too small we add another blocksize worth
-       of it (taken from the original libssh2 where it didn't have any
+       of it (taken from the original libssh2 where it did not have any
        real explanation) */
     if(padding_length < 4) {
         padding_length += blocksize;

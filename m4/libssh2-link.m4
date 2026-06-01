@@ -154,7 +154,7 @@ AC_DEFUN([LIBSSH2_HAVE_LINKFLAGS],
     AC_MSG_RESULT([$LIB[]NAME])
   else
     HAVE_LIB[]NAME=no
-    dnl If $LIB[]NAME didn't lead to a usable library, we do not need
+    dnl If $LIB[]NAME did not lead to a usable library, we do not need
     dnl $INC[]NAME either.
     CPPFLAGS="$ac_save_CPPFLAGS"
     LIB[]NAME=
@@ -632,7 +632,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
               done
             fi
           else
-            dnl Didn't find the library; assume it is in the system directories
+            dnl Did not find the library; assume it is in the system directories
             dnl known to the linker and runtime loader. (All the system
             dnl directories known to the linker should also be known to the
             dnl runtime loader, otherwise the system is severely misconfigured.)

@@ -2560,7 +2560,7 @@ int _libssh2_channel_close(LIBSSH2_CHANNEL *channel)
 
     if(channel->local.close) {
         /* Already closed, act like we sent another close,
-         * even though we didn't... shhhhhh */
+         * even though we did not... shhhhhh */
         channel->close_state = libssh2_NB_state_idle;
         return 0;
     }
