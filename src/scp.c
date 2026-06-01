@@ -318,7 +318,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
 
             path_len = strlen(path);
 
-            /* no NUL-termination needed, so use memcpy */
+            /* no null-termination needed, so use memcpy */
             memcpy(&session->scpRecv_command[cmd_len], path, path_len);
             cmd_len += path_len;
         }
@@ -328,7 +328,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                                       session->scpRecv_command_len - cmd_len);
         }
 
-        /* the command to exec should _not_ be NUL-terminated */
+        /* the command to exec should _not_ be null-terminated */
         session->scpRecv_command_len = cmd_len;
 
         _libssh2_debug((session, LIBSSH2_TRACE_SCP,
@@ -879,7 +879,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
 
             path_len = strlen(path);
 
-            /* no NUL-termination needed, so use memcpy */
+            /* no null-termination needed, so use memcpy */
             memcpy(&session->scpSend_command[cmd_len], path, path_len);
             cmd_len += path_len;
         }
@@ -888,7 +888,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
                                       session->scpSend_command_len - cmd_len);
         }
 
-        /* the command to exec should _not_ be NUL-terminated */
+        /* the command to exec should _not_ be null-terminated */
         session->scpSend_command_len = cmd_len;
 
         _libssh2_debug((session, LIBSSH2_TRACE_SCP,
