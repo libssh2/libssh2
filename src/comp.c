@@ -95,7 +95,7 @@ static int comp_method_none_decomp(LIBSSH2_SESSION *session,
 static const struct comp_method comp_method_none = {
     "none",
     0, /* not really compressing */
-    0, /* isn't used in userauth, go figure */
+    0, /* is not used in userauth, go figure */
     NULL,
     comp_method_none_comp,
     comp_method_none_decomp,

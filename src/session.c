@@ -546,7 +546,7 @@ libssh2_cb_generic *libssh2_session_callback_set2(LIBSSH2_SESSION *session,
  * Returns the prior address
  *
  * ALERT: this function relies on that we can typecast function pointers
- * to void pointers, which isn't allowed in ISO C!
+ * to void pointers, which is not allowed in ISO C!
  */
 #ifdef _MSC_VER
 #pragma warning(push)

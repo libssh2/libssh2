@@ -127,7 +127,7 @@ static int decrypt(LIBSSH2_SESSION *session, unsigned char *source,
     struct transportpacket *p = &session->packet;
     int blocksize = session->remote.crypt->blocksize;
 
-    /* if we get called with a len that isn't an even number of blocksizes
+    /* if we get called with a len that is not an even number of blocksizes
        we risk losing those extra bytes. AAD is an exception, since those first
        few bytes aren't encrypted so it throws off the rest of the count. */
     if(!CRYPT_FLAG_R(session, PKTLEN_AAD))
@@ -1219,7 +1219,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
                  ? LAST_BLOCK : MIDDLE_BLOCK);
                 /* In the AAD case, the last block would be only 4 bytes
                    because everything is offset by 4 since the initial
-                   packet_length isn't encrypted. In this case, combine that
+                   packet_length is not encrypted. In this case, combine that
                    last short packet with the previous one since AES-GCM
                    crypt() assumes that the entire MAC is available in that
                    packet so it can set that to the authentication tag. */

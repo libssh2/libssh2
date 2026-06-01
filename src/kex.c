@@ -3474,7 +3474,7 @@ struct common_method {
 /*
  * Calculate the length of a particular method list's resulting string
  * Includes SUM(strlen() of each individual method plus 1 (for coma)) - 1
- * (because the last coma isn't used)
+ * (because the last coma is not used)
  * Another sign of bad coding practices gone mad. Pretend you do not see this.
  */
 static size_t kex_method_strlen(const struct common_method **method)

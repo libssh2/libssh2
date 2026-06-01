@@ -2195,7 +2195,7 @@ ssize_t libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id,
 
 /*
  * Return the size of the data block of the current packet, or 0 if there
- * isn't a packet.
+ * is not a packet.
  */
 size_t _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL *channel,
                                         int stream_id)
