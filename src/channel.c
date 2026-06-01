@@ -1189,7 +1189,7 @@ int libssh2_channel_request_auth_agent(LIBSSH2_CHANNEL *channel)
 
     rc = LIBSSH2_ERROR_CHANNEL_UNKNOWN;
 
-    /* The current RFC draft for agent forwarding says you're supposed to
+    /* The current RFC draft for agent forwarding says you are supposed to
      * send "auth-agent-req," but most SSH servers out there right now
      * actually expect "auth-agent-req@openssh.com", so we try that
      * first. */

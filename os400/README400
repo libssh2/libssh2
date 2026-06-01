@@ -30,7 +30,7 @@ a set of shell scripts stored in subdirectory os400.
 Compiling on OS/400:
 
   These instructions target people who knows about OS/400, compiling, IFS and
-archive extraction. Do not ask questions about these subjects if you're not
+archive extraction. Do not ask questions about these subjects if you are not
 familiar with.
 
 _ As a prerequisite, QADRT development environment >= 20211112 must be
