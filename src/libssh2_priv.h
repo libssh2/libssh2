@@ -963,8 +963,8 @@ struct _LIBSSH2_SESSION {
 
 /* --------- */
 
-/* libssh2 extensible ssh api, ultimately I'd like to allow loading additional
-   methods via .so/.dll */
+/* libssh2 extensible SSH API, ultimately I would like to allow loading
+   additional methods via .so/.dll */
 
 struct kex_method {
     const char *name;
