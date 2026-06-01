@@ -4139,7 +4139,7 @@ static int kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *data,
 
     /* If the server sent an optimistic packet, assume that it guessed wrong.
      * If the guess is determined to be right (by kex_agree_kex_hostkey)
-     * This flag will be reset to zero so that it's not ignored */
+     * This flag will be reset to zero so that it is not ignored */
     if(_libssh2_check_length(&buf, 1)) {
         session->burn_optimistic_kexinit = *(buf.dataptr++);
     }
