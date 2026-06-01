@@ -51,10 +51,10 @@
 
 /* This release of libssh2 implements Version 5 with automatic downgrade
  * based on server's declaration
- *   https://www.ietf.org/archive/id/draft-ietf-secsh-filexfer-05.txt
+ *   https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-05
  *
  * Version 6:
- *   https://www.ietf.org/archive/id/draft-ietf-secsh-filexfer-13.txt
+ *   https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-13
  */
 
 /* SFTP packet types */
