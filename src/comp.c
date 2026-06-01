@@ -108,7 +108,7 @@ static const struct comp_method comp_method_none = {
  ****** */
 
 /* Memory management wrappers
- * Yes, I realize we're doing a callback to a callback,
+ * Yes, I realize we are doing a callback to a callback,
  * Deal...
  */
 
@@ -257,7 +257,7 @@ static int comp_method_zlib_decomp(LIBSSH2_SESSION *session,
         if(status == Z_OK) {
             if(strm->avail_out > 0)
                 /* status is OK and the output buffer has not been exhausted
-                   so we're done */
+                   so we are done */
                 break;
         }
         else if(status == Z_BUF_ERROR) {

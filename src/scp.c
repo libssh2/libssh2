@@ -503,7 +503,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                     continue;
                 }
 
-                /* We're guaranteed not to go under response_len == 0 by the
+                /* We are guaranteed not to go under response_len == 0 by the
                    logic above */
                 while(
                     (session->scpRecv_response[session->scpRecv_response_len -
@@ -659,7 +659,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                     continue;
                 }
 
-                /* We're guaranteed not to go under response_len == 0 by the
+                /* We are guaranteed not to go under response_len == 0 by the
                    logic above */
                 while(
                     (session->scpRecv_response[session->scpRecv_response_len -

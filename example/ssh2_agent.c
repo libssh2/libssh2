@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    /* We're authenticated now. */
+    /* We are authenticated now. */
 
     /* Request a shell */
     channel = libssh2_channel_open_session(session);

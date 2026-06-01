@@ -1025,7 +1025,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
      */
     if(session->state & LIBSSH2_STATE_EXCHANGING_KEYS &&
        !(session->state & LIBSSH2_STATE_KEX_ACTIVE)) {
-        /* Do not write any new packets if we're still in the middle of a key
+        /* Do not write any new packets if we are still in the middle of a key
          * exchange. */
         _libssh2_debug((session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
                         " key re-exchange from _libssh2_transport_send"));

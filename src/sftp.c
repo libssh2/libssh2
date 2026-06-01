@@ -1677,7 +1677,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                 LIBSSH2_FREE(session, chunk);
 
                 /* we must remove all outstanding READ requests, as either we
-                   got an error or we're at end of file */
+                   got an error or we are at end of file */
                 sftp_packetlist_flush(handle);
 
                 rc32 = _libssh2_ntohu32(data + 5);

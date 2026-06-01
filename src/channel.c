@@ -2616,7 +2616,7 @@ int _libssh2_channel_close(LIBSSH2_CHANNEL *channel)
     }
 
     if(rc != LIBSSH2_ERROR_EAGAIN) {
-        /* set the local close state first when we're perfectly confirmed to
+        /* set the local close state first when we are perfectly confirmed to
            not do any more EAGAINs */
         channel->local.close = 1;
 

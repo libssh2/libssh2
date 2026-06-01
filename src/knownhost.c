@@ -447,7 +447,7 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                     _libssh2_hmac_cleanup(&ctx);
 
                     if(!memcmp(hash, node->name, SHA_DIGEST_LENGTH))
-                        /* this is a node we're interested in */
+                        /* this is a node we are interested in */
                         match = 1;
                 }
                 break;

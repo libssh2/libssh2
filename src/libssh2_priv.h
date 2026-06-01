@@ -737,7 +737,7 @@ struct _LIBSSH2_SESSION {
     struct endpoint_data local;
 
     /* Inbound Data linked list -- Sometimes the packet that comes in is not the
-       packet we're ready for */
+       packet we are ready for */
     struct list_head packets;
 
     /* Active connection channels */
@@ -956,7 +956,7 @@ struct _LIBSSH2_SESSION {
 #define LIBSSH2_SOCKET_RECV_FLAGS(session)         \
     ((session)->flag.sigpipe ? 0 : MSG_NOSIGNAL)
 #else
-/* If MSG_NOSIGNAL is not defined we're SOL on blocking SIGPIPE */
+/* If MSG_NOSIGNAL is not defined we are SOL on blocking SIGPIPE */
 #define LIBSSH2_SOCKET_SEND_FLAGS(session) 0
 #define LIBSSH2_SOCKET_RECV_FLAGS(session) 0
 #endif

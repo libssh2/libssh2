@@ -291,7 +291,7 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
-    /* we're done downloading, now reverse the process and upload the
+    /* we are done downloading, now reverse the process and upload the
        temporarily stored data to the destination path */
     sftp_handle = libssh2_sftp_open(sftp_session, dest,
                                     LIBSSH2_FXF_WRITE |

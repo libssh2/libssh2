@@ -248,7 +248,7 @@ static inline int packet_queue_listener(
         listen_state->state = libssh2_NB_state_sent;
     }
 
-    /* We're not listening to you */
+    /* We are not listening to you */
     p = listen_state->packet;
     *(p++) = SSH_MSG_CHANNEL_OPEN_FAILURE;
     _libssh2_store_u32(&p, listen_state->sender_channel);
