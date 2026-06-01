@@ -414,7 +414,7 @@ int libssh2_banner_set(LIBSSH2_SESSION *session, const char *banner)
 
 /*
  * Allocate and initialize a libssh2 session structure. Allows for malloc
- * callbacks in case the calling program has its own memory manager It's
+ * callbacks in case the calling program has its own memory manager. It is
  * allowable (but unadvisable) to define some but not all of the malloc
  * callbacks An additional pointer value may be optionally passed to be sent
  * to the callbacks (so they know who's asking)

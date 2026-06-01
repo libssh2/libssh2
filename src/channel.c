@@ -1639,7 +1639,7 @@ int _libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid)
                 (packet_type == SSH_MSG_CHANNEL_EXTENDED_DATA)) &&
                ((packet->data_len >= 5) &&
                 (_libssh2_ntohu32(packet->data + 1) == channel->local.id))) {
-                /* It's our channel at least */
+                /* It is our channel at least */
                 int packet_stream_id;
 
                 if(packet_type == SSH_MSG_CHANNEL_DATA) {
@@ -1670,7 +1670,7 @@ int _libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid)
                                     (long)bytes_to_flush, packet_stream_id,
                                     channel->local.id, channel->remote.id));
 
-                    /* It's one of the streams we wanted to flush */
+                    /* It is one of the streams we wanted to flush */
                     channel->flush_refund_bytes += packet->data_len - 13;
                     channel->flush_flush_bytes += bytes_to_flush;
 

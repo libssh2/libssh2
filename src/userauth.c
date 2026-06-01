@@ -2375,7 +2375,7 @@ static int userauth_keyboard_interactive(
 
 cleanup:
         /*
-         * It's safe to clean all the data here, because unallocated pointers
+         * It is safe to clean all the data here, because unallocated pointers
          * are filled by zeroes
          */
 
