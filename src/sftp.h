@@ -95,11 +95,11 @@ struct _LIBSSH2_SFTP_HANDLE {
         struct libssh2_sftp_handle_file_data {
             libssh2_uint64_t offset;
             libssh2_uint64_t offset_sent;
-            size_t acked; /* container for acked data that hasn't been
+            size_t acked; /* container for acked data that has not been
                              returned to caller yet, used for sftp_write */
 
             /* 'data' is used by sftp_read() and is allocated data that has
-               been received already from the server but wasn't returned to
+               been received already from the server but was not returned to
                the caller yet. It is of size 'data_len' and 'data_left is the
                number of bytes not yet returned, counted from the end of the
                buffer. */

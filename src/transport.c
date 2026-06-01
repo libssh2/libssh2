@@ -160,7 +160,7 @@ static int decrypt(LIBSSH2_SESSION *session, unsigned char *source,
         }
 
         /* if the crypt() function would write to a given address it
-           wouldn't have to memcpy() and we could avoid this memcpy()
+           would not have to memcpy() and we could avoid this memcpy()
            too */
         memcpy(dest, source, decryptlen);
 
@@ -405,8 +405,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
     if(session->state & LIBSSH2_STATE_EXCHANGING_KEYS &&
        !(session->state & LIBSSH2_STATE_KEX_ACTIVE)) {
 
-        /* Whoever wants a packet won't get anything until the key re-exchange
-         * is done!
+        /* Whoever wants a packet does not get anything until the key
+         * re-exchange is done!
          */
         _libssh2_debug((session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
                         " key re-exchange from _libssh2_transport_read"));
@@ -621,7 +621,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
                 }
                 else {
                     /* padding_length has not been authenticated yet, but it
-                       won't actually be used (except for the sanity check
+                       is not actually used (except for the sanity check
                        immediately following) until after the entire packet is
                        authenticated, so this is safe. */
                     p->padding_length = block[4];

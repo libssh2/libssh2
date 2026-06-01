@@ -404,7 +404,7 @@ window_adjust:
             return packet_type;
         }
     }
-    /* WON'T REACH */
+    /* NOT REACHED */
 }
 
 /*
@@ -2265,7 +2265,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
         break;
     }
 
-    /* if there were acked data in a previous call that wasn't returned then,
+    /* if there were acked data in a previous call that was not returned then,
        add that up and try to return it all now. This can happen if the app
        first sends a huge buffer of data, and then in a second call it sends a
        smaller one. */

@@ -1112,8 +1112,8 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
             local_username_len + pubkeydata_len + 52;
 
         /*
-         * Preallocate space for an overall length,  method name again,
-         * and the signature, which won't be any larger than the size of
+         * Preallocate space for an overall length, method name again,
+         * and the signature, which is not any larger than the size of
          * the publickeydata itself
          */
         session->userauth_host_s = session->userauth_host_packet =
@@ -1662,7 +1662,7 @@ retry_auth:
 
         /*
          * Preallocate space for an overall length, method name again, and the
-         * signature, which won't be any larger than the size of the
+         * signature, which is not any larger than the size of the
          * publickeydata itself.
          *
          * Note that the 'pubkeydata_len' extra bytes allocated here will not
