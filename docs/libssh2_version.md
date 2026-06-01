@@ -56,4 +56,4 @@ printf(\&"libssh2 version: %s\&", libssh2_version(0));
 # AVAILABILITY
 
 This function was added in libssh2 1.1, in previous versions there way no way
-to extract this info in run-time.
+to extract this info in runtime.

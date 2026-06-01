@@ -28,7 +28,7 @@ uses the memory allocation callbacks provided by the application, if any.
 Otherwise, this will call free().
 
 This function is mostly useful under Windows when libssh2 is linked to
-one run-time library and the application to another.
+one runtime library and the application to another.
 
 # AVAILABILITY
 

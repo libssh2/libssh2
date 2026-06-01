@@ -65,7 +65,7 @@ _ Binding directory LIBSSH2_A, to be used at calling program link time for
   program using LIBSSH2_A. Also give access to the zlib BNDDIR/SRVPGM if
   libssh2 is compiled with zlib).
 _ Service program LIBSSH2.<soname>, where <soname> is extracted from the
-  src/Makefile.am VERSION variable. To be used at calling program run-time
+  src/Makefile.am VERSION variable. To be used at calling program runtime
   when this program has dynamically bound libssh2 at link time.
 _ Binding directory LIBSSH2. To be used to dynamically bind libssh2 when
   linking a calling program.
