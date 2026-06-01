@@ -59,8 +59,8 @@
 #define LIBSSH2_VERSION_PATCH                       1
 
 /* This is the numeric version of the libssh2 version number, meant for easier
-   parsing and comparisons by programs. The LIBSSH2_VERSION_NUM define will
-   always follow this syntax:
+   parsing and comparisons by programs. The LIBSSH2_VERSION_NUM define
+   always follows this syntax:
 
          0xXXYYZZ
 
@@ -732,7 +732,7 @@ libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
 /*
  * response_callback is provided with filled by library prompts array,
  * but client must allocate and fill individual responses. Responses
- * array is already allocated. Responses data will be freed by libssh2
+ * array is already allocated. Responses data is freed by libssh2
  * after callback return, but before subsequent callback invocation.
  */
 LIBSSH2_API int
@@ -958,7 +958,7 @@ LIBSSH2_API int libssh2_channel_handle_extended_data2(LIBSSH2_CHANNEL *channel,
  * 0.1
  *
  * Future uses should use libssh2_channel_handle_extended_data() directly if
- * LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE is passed, extended data will be read
+ * LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE is passed, extended data is read
  * (FIFO) from the standard data channel
  */
 /* DEPRECATED since 0.3.0. Use libssh2_channel_handle_extended_data2(). */
@@ -1116,9 +1116,9 @@ libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
  * Add a host and its associated key to the collection of known hosts.
  *
  * Takes a comment argument that may be NULL.  A NULL comment indicates
- * there is no comment and the entry will end directly after the key
- * when written out to a file.  An empty string "" comment will indicate an
- * empty comment which will cause a single space to be written after the key.
+ * there is no comment and the entry ends directly after the key
+ * when written out to a file.  An empty string "" comment indicates an
+ * empty comment which causes a single space to be written after the key.
  *
  * The 'type' argument specifies on what format the given host and keys are:
  *
@@ -1413,7 +1413,7 @@ libssh2_agent_get_identity_path(LIBSSH2_AGENT *agent);
  * from the server.  INTERVAL is number of seconds that can pass
  * without any I/O, use 0 (the default) to disable keepalives.  To
  * avoid some busy-loop corner-cases, if you specify an interval of 1
- * it will be treated as 2.
+ * it is treated as 2.
  *
  * Note that non-blocking applications are responsible for sending the
  * keepalive messages using libssh2_keepalive_send().

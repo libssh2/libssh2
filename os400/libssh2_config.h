@@ -169,7 +169,7 @@
 #define PACKAGE_VERSION "-"
 
 /* If using the C implementation of alloca, define if you know the
-   direction of stack growth for your system; otherwise it will be
+   direction of stack growth for your system; otherwise it is
    automatically deduced at runtime.
      STACK_DIRECTION > 0 => grows toward higher addresses
      STACK_DIRECTION < 0 => grows toward lower addresses

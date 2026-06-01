@@ -96,8 +96,8 @@ typedef struct _LIBSSH2_SFTP_STATVFS        LIBSSH2_SFTP_STATVFS;
 #define LIBSSH2_SFTP_ST_NOSUID              0x00000002
 
 struct _LIBSSH2_SFTP_ATTRIBUTES {
-    /* If flags & ATTR_* bit is set, then the value in this struct will be
-     * meaningful Otherwise it should be ignored
+    /* If flags & ATTR_* bit is set, then the value in this struct is
+     * meaningful otherwise it should be ignored
      */
     unsigned long flags;
 

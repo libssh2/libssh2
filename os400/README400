@@ -56,9 +56,9 @@ _ Copy any file in the current directory to makelog (i.e.:
 _ Enter the command "sh make.sh > makelog 2>&1'
 _ Examine the makelog file to check for compilation errors.
 
-  Without configuration parameters override, this will produce the following
+  Without configuration parameters override, this produces the following
 OS/400 objects:
-_ Library LIBSSH2. All other objects will be stored in this library.
+_ Library LIBSSH2. All other objects are stored in this library.
 _ Modules for all libssh2 units.
 _ Binding directory LIBSSH2_A, to be used at calling program link time for
   statically binding the modules (specify BNDSRVPGM(QADRTTS) when creating a
@@ -132,7 +132,7 @@ where:
     string       is the string to convert.
     inlen        is the source string length in bytes: set to -1 if
                  null-terminated.
-    outlen       if not NULL, is the address of a variable that will receive
+    outlen       if not NULL, is the address of a variable that receives
                  the transcoded string length upon return.
 
   libssh2_from_ccsid() transcodes the string from the given CCSID to libssh2

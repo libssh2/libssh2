@@ -104,8 +104,8 @@
      d LIBSSH2_SFTP_ATTRIBUTES...
      d                 ds                  based(######typedef######)
      d                                     align qualified
-      * If flags & ATTR_* bit is set, then the value in this struct will be
-      * meaningful Otherwise it should be ignored.
+      * If flags & ATTR_* bit is set, then the value in this struct is
+      * meaningful otherwise it should be ignored.
      d  flags                              like(libssh2_Culong)
      d  filesize                           like(libssh2_uint64_t)
      d  uid                                like(libssh2_Culong)
