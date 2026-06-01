@@ -427,7 +427,7 @@ struct packet {
     size_t data_len;
 
     /* Where to start reading data from,
-     * used for channel data that's been partially consumed */
+     * used for channel data that is been partially consumed */
     size_t data_head;
 };
 
