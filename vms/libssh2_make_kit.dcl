@@ -213,12 +213,12 @@ $ write pt "=prompt Release notes and the libssh2 help library are available in 
 $ write pt ""
 $ write pt "1 EXAMPLE"
 $ write pt "=prompt Do you want the libssh2 C programming examples ? "
-$ write pt "The libssh2 coding examples will be available in backup saveset "
+$ write pt "The libssh2 coding examples are available in backup saveset "
 $ write pt "[gnv.usr.share.doc.libssh2.examples]libssh2_examples_''versionname'.bck"
 $ write pt ""
 $ write pt "1 SOURCE"
 $ write pt "=prompt Do you want the complete libssh2 source tree ? "
-$ write pt "The libssh2 source tree will be available in backup saveset "
+$ write pt "The libssh2 source tree are available in backup saveset "
 $ write pt "[gnv.common_src]libssh2_''versionname'''datename'_src.bck"
 $close pt
 $exit
