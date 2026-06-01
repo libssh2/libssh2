@@ -472,7 +472,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
                 dnl Linking with a static library.
                 LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }$found_a"
               else
-                dnl We shouldn't come here, but anyway it's good to have a
+                dnl We should not come here, but anyway it's good to have a
                 dnl fallback.
                 LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }-L$found_dir -l$name"
               fi

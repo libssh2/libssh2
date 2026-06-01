@@ -4560,7 +4560,7 @@ int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
       the number of algorithms (i.e. number of iterations in one loop) will
       not be high (typically it will not exceed 20) for quite a long time.
 
-      So double looping really shouldn't be an issue and it is definitely a
+      So double looping really should not be an issue and it is definitely a
       better solution than reallocation several times.
     */
 

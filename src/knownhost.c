@@ -721,7 +721,7 @@ static int hashed_hostline(LIBSSH2_KNOWNHOSTS *hosts,
                              LIBSSH2_KNOWNHOST_KEYENC_BASE64, NULL);
     }
     else
-        return 0; /* XXX: This should be an error, shouldn't it? */
+        return 0; /* XXX: This should be an error, should not it? */
 }
 
 /*

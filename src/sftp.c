@@ -1632,7 +1632,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
             };
 
             if(chunk->lefttosend) {
-                /* if the chunk still has data left to send, we shouldn't wait
+                /* if the chunk still has data left to send, we should not wait
                    for an ACK for it yet */
                 if(bytes_in_buffer > 0) {
                     return bytes_in_buffer;
@@ -1696,7 +1696,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
             case SSH_FXP_DATA:
                 if(chunk->offset != filep->offset) {
                     /* This could happen if the server returns less bytes than
-                       requested, which shouldn't happen for normal files. See:
+                       requested, which should not happen for normal files. See:
                        https://tools.ietf.org/html/draft-ietf-secsh-filexfer-02
                        #section-6.4
                      */
@@ -2196,7 +2196,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
 
         while(chunk) {
             if(chunk->lefttosend)
-                /* if the chunk still has data left to send, we shouldn't wait
+                /* if the chunk still has data left to send, we should not wait
                    for an ACK for it yet */
                 break;
 
