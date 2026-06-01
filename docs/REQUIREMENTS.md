@@ -6,7 +6,7 @@ SPDX-License-Identifier: BSD-3-Clause
 
 ## Dependencies
 
-We aim to support these or greater versions.
+We aim to support these or greater/newer versions.
 
 - Libgcrypt      1.8 (2017-07-18)
 - LibreSSL       2.8.0 (2018-08-06), recommended: 3.6.0 (2022-10-05) for AES-GCM
