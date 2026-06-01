@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
-    /* Create a session instance and start it up. This will trade welcome
+    /* Create a session instance and start it up. This trades welcome
      * banners, exchange keys, and setup crypto, compression, and MAC layers
      */
     session = libssh2_session_init();
@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
     }
 
     /* Some environment variables may be set,
-     * It is up to the server which ones it will allow though
+     * It is up to the server which ones it allows though
      */
     libssh2_channel_setenv(channel, "FOO", "bar");
 
