@@ -201,6 +201,7 @@ my %warnings = (
     'TRAILINGSPACE'         => 'Trailing whitespace on the line',
     'TYPEDEFSTRUCT'         => 'typedefed struct',
     'UNUSEDIGNORE'          => 'a warning ignore was not used',
+    'USESAFEFREE'           => 'replace curlx_free() + NULL assignment with curlx_safefree()',
     );
 
 sub readskiplist {
@@ -532,6 +533,8 @@ sub scanfile {
     my $l = "";
     my $prep = 0;
     my $prevp = 0;
+    my $prevfreeindent = "";
+    my $prevfreevar = "";
 
     if($verbose) {
         printf "Checking file: $file\n";
@@ -751,7 +754,7 @@ sub scanfile {
             my $cond = $4;
             if($cond =~ / = /) {
                 checkwarn("ASSIGNWITHINCONDITION",
-                          $line, $pos+1, $file, $l,
+                          $line, $pos + 1, $file, $l,
                           "assignment within conditional expression");
             }
             my $temp = $cond;
@@ -971,6 +974,24 @@ sub scanfile {
         if($prevl !~ /\?\z/ && $l =~ /^ +([A-Za-z_][A-Za-z0-9_]*):$/ && $1 ne 'default') {
             checkwarn("SPACEBEFORELABEL",
                       $line, length($1), $file, $ol, "no space before label");
+        }
+
+        if($prevfreevar ne "") {
+            if(rindex($l, "$prevfreeindent$prevfreevar = NULL;", 0) == 0) {
+                checkwarn("USESAFEFREE",
+                          $line, length($prevfreeindent), $file, $ol,
+                          "replace curlx_free() + NULL assignment with curlx_safefree()");
+            }
+        }
+        if($l) {
+            if($l =~ /^( *)curlx_free\(([^)]+)\);/) {
+                $prevfreeindent = $1;
+                $prevfreevar = $2;
+            }
+            else {
+                $prevfreeindent = "";
+                $prevfreevar = "";
+            }
         }
 
         # scan for use of banned functions
@@ -1199,7 +1220,7 @@ sub scanfile {
         # A rather more interesting, and correct, check would be to not test
         # only locally committed files but inspect all files wrt the year of
         # their last commit. Removing the `git rev-list origin/master..HEAD`
-        # condition below will enforce copyright year checks against the year
+        # condition below enforces copyright year checks against the year
         # the file was last committed (and thus edited to some degree).
         my $commityear = undef;
         @copyright = sort {$$b{year} cmp $$a{year}} @copyright;
