@@ -1271,7 +1271,7 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         if(session->userauth_host_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
             _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
                             "Hostbased authentication successful"));
-            /* We are us and we've proved it. */
+            /* We are us and we have proved it. */
             LIBSSH2_FREE(session, session->userauth_host_data);
             session->userauth_host_data = NULL;
             session->state |= LIBSSH2_STATE_AUTHENTICATED;
@@ -1943,7 +1943,7 @@ retry_auth:
     if(session->userauth_pblc_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
         _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
                         "Publickey authentication successful"));
-        /* We are us and we've proved it. */
+        /* We are us and we have proved it. */
         LIBSSH2_FREE(session, session->userauth_pblc_data);
         session->userauth_pblc_data = NULL;
         session->state |= LIBSSH2_STATE_AUTHENTICATED;

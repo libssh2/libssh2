@@ -1163,7 +1163,8 @@ libssh2_packet_add_jump_point1:
                 if(len == strlen("exit-status") &&
                    !memcmp("exit-status", request, strlen("exit-status"))) {
 
-                    /* we've got "exit-status" packet. Set the session value */
+                    /* we have got "exit-status" packet. Set the session value.
+                     */
                     if(datalen >= 20)
                         channelp = _libssh2_channel_locate(session, channel);
 

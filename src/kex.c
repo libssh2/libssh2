@@ -3879,7 +3879,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
                     return -1;
                 }
 
-                /* We've agreed on a key exchange method,
+                /* We have agreed on a key exchange method,
                  * Can we agree on a hostkey that works with this kex?
                  */
                 if(kex_agree_hostkey(session, method->flags, hostkey,
@@ -3905,7 +3905,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
                                      (const unsigned char *)(*kexp)->name,
                                      strlen((*kexp)->name));
         if(s) {
-            /* We've agreed on a key exchange method,
+            /* We have agreed on a key exchange method,
              * Can we agree on a hostkey that works with this kex?
              */
             if(kex_agree_hostkey(session, (*kexp)->flags, hostkey,

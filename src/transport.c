@@ -813,8 +813,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
 
                 memcpy(p->wptr, &p->buf[p->readidx], numbytes);
 
-                /* advance read index past size field now that we've decrypted
-                   full packet */
+                /* advance read index past size field now that we have
+                   decrypted full packet */
                 p->readidx += 4;
 
                 /* include auth tag in bytes decrypted */

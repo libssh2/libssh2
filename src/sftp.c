@@ -226,7 +226,7 @@ static int sftp_packet_add(LIBSSH2_SFTP *sftp,
     _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "Received packet id %d",
                     request_id));
 
-    /* Do not add the packet if it answers a request we've given up on. */
+    /* Do not add the packet if it answers a request we have given up on. */
     if((data[0] == SSH_FXP_STATUS || data[0] == SSH_FXP_DATA) &&
        find_zombie_request(sftp, request_id)) {
 

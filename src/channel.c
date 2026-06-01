@@ -72,9 +72,9 @@ uint32_t _libssh2_channel_nextid(LIBSSH2_SESSION *session)
         channel = _libssh2_list_next(&channel->node);
     }
 
-    /* This is a shortcut to avoid waiting for close packets on channels we've
-     * forgotten about, This *could* be a problem if we request and close 4
-     * billion or so channels in too rapid succession for the remote end to
+    /* This is a shortcut to avoid waiting for close packets on channels we
+     * have forgotten about, This *could* be a problem if we request and close
+     * 4 billion or so channels in too rapid succession for the remote end to
      * respond, but the worst case scenario is that some data meant for
      * another channel Gets picked up by the new one.... Pretty unlikely all
      * told...
@@ -101,7 +101,7 @@ LIBSSH2_CHANNEL *_libssh2_channel_locate(LIBSSH2_SESSION *session,
             return channel;
     }
 
-    /* We didn't find the channel in the session, let's then check its
+    /* We did not find the channel in the session, let us then check its
        listeners since each listener may have its own set of pending channels
     */
     for(l = _libssh2_list_first(&session->listeners); l;
@@ -2749,7 +2749,7 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
 
     /*
      * channel->remote.close *might* not be set yet, Well...
-     * We've sent the close packet, what more do you want?
+     * We have sent the close packet, what more do you want?
      * Let packet_add ignore it when it finally arrives
      */
 
