@@ -183,7 +183,7 @@ int _libssh2_gettimeofday(struct timeval *tp, void *tzp);
 #define inline __inline
 #endif
 
-/* 3DS doesn't seem to have iovec */
+/* 3DS does not seem to have iovec */
 #if defined(_WIN32) || defined(_3DS)
 
 struct iovec {
@@ -1065,7 +1065,7 @@ struct crypt_method {
 
 struct comp_method {
     const char *name;
-    int compress; /* 1 if it does compress, 0 if it doesn't */
+    int compress; /* 1 if it does compress, 0 if it does not */
     int use_in_auth; /* 1 if compression should be used in userauth */
     int (*init)(LIBSSH2_SESSION *session, int compress, void **abstract);
     int (*comp)(LIBSSH2_SESSION *session,

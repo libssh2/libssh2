@@ -274,7 +274,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
             test -z "$value" || LTLIB[]NAME="${LTLIB[]NAME}${LTLIB[]NAME:+ }$value"
           else
             dnl An earlier call to LIBSSH2_HAVE_LINKFLAGS has determined
-            dnl that this library doesn't exist. So drop it.
+            dnl that this library does not exist. So drop it.
             :
           fi
         else
@@ -456,7 +456,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
                       LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }$found_so"
                     else
                       dnl We cannot use $acl_hardcode_runpath_var and LD_RUN_PATH
-                      dnl here, because this doesn't fit in flags passed to the
+                      dnl here, because this does not fit in flags passed to the
                       dnl compiler. So give up. No hardcoding. This affects only
                       dnl old systems.
                       dnl FIXME: Not sure whether we should use
@@ -493,7 +493,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
               dnl   2. if it's /usr/local/include and we are using GCC on Linux,
               dnl   3. if it's already present in $CPPFLAGS or the already
               dnl      constructed $INCNAME,
-              dnl   4. if it doesn't exist as a directory.
+              dnl   4. if it does not exist as a directory.
               if test "X$additional_includedir" != "X/usr/include"; then
                 haveit=
                 if test "X$additional_includedir" = "X/usr/local/include"; then
@@ -542,7 +542,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
                     dnl   2. if it's /usr/local/lib and we are using GCC on Linux,
                     dnl   3. if it's already present in $LDFLAGS or the already
                     dnl      constructed $LIBNAME,
-                    dnl   4. if it doesn't exist as a directory.
+                    dnl   4. if it does not exist as a directory.
                     if test "X$additional_libdir" != "X/usr/$acl_libdirstem"; then
                       haveit=
                       if test "X$additional_libdir" = "X/usr/local/$acl_libdirstem"; then

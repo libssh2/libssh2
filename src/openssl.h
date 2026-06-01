@@ -70,7 +70,7 @@
 #define OPENSSL_NO_DES
 #endif
 
-/* wolfSSL doesn't support Blowfish or CAST. */
+/* wolfSSL does not support Blowfish or CAST. */
 #define OPENSSL_NO_BF
 #define OPENSSL_NO_CAST
 

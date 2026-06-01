@@ -1330,7 +1330,7 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
 
         fp->handle_len = _libssh2_ntohu32(data + 5);
         if(fp->handle_len > SFTP_HANDLE_MAXLEN)
-            /* SFTP doesn't allow handles longer than 256 characters */
+            /* SFTP does not allow handles longer than 256 characters */
             fp->handle_len = SFTP_HANDLE_MAXLEN;
 
         if(fp->handle_len > (data_len - 9))

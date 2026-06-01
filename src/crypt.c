@@ -327,7 +327,7 @@ static int crypt_init_arcfour128(LIBSSH2_SESSION *session,
         for(; discard; discard -= 8)
             _libssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, block,
                                   method->blocksize, MIDDLE_BLOCK);
-                               /* Not all middle, but here it doesn't matter */
+                              /* Not all middle, but here it does not matter */
     }
 
     return rc;
@@ -436,7 +436,7 @@ static int crypt_encrypt_chacha20_poly_buffer(LIBSSH2_SESSION *session,
         }
         else {
             /* buf is full packet including size and auth tag but buf_len
-               doesn't include size */
+               does not include size */
             ret = chachapoly_crypt(&ctx->chachapoly_ctx, seqno, buf, buf,
                                    buf_len, 4, ctx->encrypt);
 

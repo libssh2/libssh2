@@ -270,9 +270,9 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
             OPEN_EXISTING,
             /* Non-blocking mode for agent connections is not implemented at
              * the point this was implemented. The code for Win32 OpenSSH
-             * should support non-blocking IO, but the code calling it doesn't
+             * should support non-blocking IO, but the code calling it does not
              * support it as of yet.
-             * When non-blocking IO is implemented for the surrounding code,
+             * When non-blocking I/O is implemented for the surrounding code,
              * uncomment the following line to enable support within the Win32
              * OpenSSH code.
              */

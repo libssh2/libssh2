@@ -293,7 +293,7 @@ This release includes the following enhancements and bugfixes:
 - libssh2_scp_send, libssh2_scp_send_ex: add deprecation warning (70276045)
 - libssh2_trace.3: Update prototype (7495084b #1518 #1517)
 - libssh2.h: merge two `#if` branches (cbdb0a8c #1869 #1793 #1578)
-- libssh2.h: _WINDLL being defined doesn't mean libssh2 was built as a DLL (35326015 #1793 #1578)
+- libssh2.h: _WINDLL being defined does not mean libssh2 was built as a DLL (35326015 #1793 #1578)
 - libssh2.h: drop stray bits of Windows CE support (1d464325 #1770)
 - libssh2.h: typo fixes (780bf13a #1496)
 - libssh2.h: add note about release versions to `LIBSSH2_VERSION` (83590ac7 #1475 #771 #1473)

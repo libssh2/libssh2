@@ -3803,11 +3803,11 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session,
                 if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) ==
                      0) || (method->encrypt)) {
                     /* Either this hostkey can do encryption or this kex
-                       doesn't require it */
+                       does not require it */
                     if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY)
                          == 0) || (method->sig_verify)) {
                         /* Either this hostkey can do signing or this kex
-                           doesn't require it */
+                           does not require it */
                         session->hostkey = method;
                         return 0;
                     }
@@ -3829,11 +3829,11 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session,
             if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0) ||
                ((*hostkeyp)->encrypt)) {
                 /* Either this hostkey can do encryption or this kex
-                   doesn't require it */
+                   does not require it */
                 if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) ==
                      0) || ((*hostkeyp)->sig_verify)) {
                     /* Either this hostkey can do signing or this kex
-                       doesn't require it */
+                       does not require it */
                     session->hostkey = *hostkeyp;
                     return 0;
                 }

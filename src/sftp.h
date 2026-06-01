@@ -75,7 +75,7 @@ struct sftp_packet {
     size_t data_len;              /* payload size */
 };
 
-/* Increasing from 256 to 4092 since OpenSSH doesn't honor it. */
+/* Increasing from 256 to 4092 since OpenSSH does not honor it. */
 #define SFTP_HANDLE_MAXLEN 4092 /* according to spec, this should be 256! */
 
 struct _LIBSSH2_SFTP_HANDLE {

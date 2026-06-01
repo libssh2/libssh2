@@ -244,7 +244,7 @@
      d  permissions                        value like(libssh2_Culong)
 
       * SFTP File Transfer Flags -- (e.g. flags parameter to sftp_open())
-      * Danger will robinson... APPEND doesn't have any effect on OpenSSH
+      * Danger Will Robinson... APPEND does not have any effect on OpenSSH
       * servers.
      d LIBSSH2_FXF_READ...
      d                 c                   X'00000001'

@@ -454,7 +454,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
 
         /* read/use a whole big chunk into a temporary area stored in
            the LIBSSH2_SESSION struct. We will decrypt data from that
-           buffer into the packet buffer so this temp one doesn't have
+           buffer into the packet buffer so this temp one does not have
            to be able to keep a whole SSH packet, be large enough
            so that we can read big chunks from the network layer. */
 
@@ -640,7 +640,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
                    length is not required for decryption */
 
                 /* add size field to be included in total packet size
-                 * calculation so it doesn't get dropped off on subsequent
+                 * calculation so it does not get dropped off on subsequent
                  * partial reads
                  */
                 total_num = 4;
@@ -922,7 +922,7 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
     /* send as much as possible of the existing packet */
     if((data != p->odata) || (data_len != p->olen)) {
         /* When we are about to complete the sending of a packet, it is vital
-           that the caller doesn't try to send a new/different packet since
+           that the caller does not try to send a new/different packet since
            we don't add this one up until the previous one has been sent. To
            make the caller really notice his/hers flaw, we return error for
            this case */

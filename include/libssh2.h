@@ -410,7 +410,7 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_POLLFD_CHANNEL      2
 #define LIBSSH2_POLLFD_LISTENER     3
 
-/* Note: Win32 Doesn't actually have a poll() implementation, so some of these
+/* Note: Win32 does not actually have a poll() implementation, so some of these
    values are faked with select() data */
 /* Poll FD events/revents -- Match sys/poll.h where possible */
 #define LIBSSH2_POLLFD_POLLIN           0x0001 /* Data available to be read or

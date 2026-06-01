@@ -182,7 +182,8 @@ struct _LIBSSH2_SFTP_STATVFS {
     (((m) & LIBSSH2_SFTP_S_IFMT) == LIBSSH2_SFTP_S_IFSOCK)
 
 /* SFTP File Transfer Flags -- (e.g. flags parameter to sftp_open())
- * Danger will robinson... APPEND doesn't have any effect on OpenSSH servers */
+ * Danger Will Robinson... APPEND does not have any effect on OpenSSH servers
+ */
 #define LIBSSH2_FXF_READ                        0x00000001
 #define LIBSSH2_FXF_WRITE                       0x00000002
 #define LIBSSH2_FXF_APPEND                      0x00000004
