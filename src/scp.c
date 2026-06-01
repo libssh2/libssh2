@@ -458,7 +458,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                                                 err_msg, err_len);
                     /* If it failed for any reason, we ignore it anyway. */
 
-                    /* zero terminate the error */
+                    /* null-terminate the error */
                     err_msg[err_len] = 0;
 
                     _libssh2_debug((session, LIBSSH2_TRACE_SCP, "got %02x %s",

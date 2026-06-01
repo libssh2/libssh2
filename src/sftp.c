@@ -1859,7 +1859,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
             if(buffer_maxlen >= filename_len && names_packet_len >=
                filename_len) {
                 memcpy(buffer, s, filename_len);
-                buffer[filename_len] = '\0';           /* zero terminate */
+                buffer[filename_len] = '\0';           /* null-terminate */
                 s += real_filename_len;
                 names_packet_len -= real_filename_len;
             }
@@ -1888,7 +1888,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                 }
 
                 memcpy(longentry, s, longentry_len);
-                longentry[longentry_len] = '\0'; /* zero terminate */
+                longentry[longentry_len] = '\0'; /* null-terminate */
             }
 
             if(real_longentry_len <= names_packet_len) {

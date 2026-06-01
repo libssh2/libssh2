@@ -643,7 +643,7 @@ static int oldstyle_hostline(LIBSSH2_KNOWNHOSTS *hosts,
                                       "Failed to parse known_hosts line "
                                       "(unexpected length)");
 
-            /* copy hostname to the temp buffer and zero terminate */
+            /* copy hostname to the temp buffer and null-terminate */
             memcpy(hostbuf, name, namelen);
             hostbuf[namelen] = 0;
 
@@ -694,7 +694,7 @@ static int hashed_hostline(LIBSSH2_KNOWNHOSTS *hosts,
                                   "(unexpectedly long salt)");
 
         memcpy(saltbuf, salt, saltlen);
-        saltbuf[saltlen] = 0; /* zero terminate */
+        saltbuf[saltlen] = 0; /* null-terminate */
         salt = saltbuf; /* point to the stack based buffer */
 
         hash = p + 1; /* the host hash is after the separator */
@@ -931,7 +931,7 @@ int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
         len--;
     }
 
-    /* zero terminate where the newline is */
+    /* null-terminate where the newline is */
     if(*cp == '\n')
         keylen--; /* don't include this in the count */
 

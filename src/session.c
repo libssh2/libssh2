@@ -390,7 +390,7 @@ int libssh2_session_banner_set(LIBSSH2_SESSION *session, const char *banner)
 
     memcpy(session->local.banner, banner, banner_len);
 
-    /* first zero terminate like this so that the debug output is nice */
+    /* first null-terminate like this so that the debug output is nice */
     session->local.banner[banner_len] = '\0';
     _libssh2_debug((session, LIBSSH2_TRACE_TRANS, "Setting local Banner: %s",
                     session->local.banner));
