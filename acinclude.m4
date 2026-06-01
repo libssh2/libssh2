@@ -4,7 +4,7 @@ dnl CURL_CPP_P
 dnl
 dnl Check if $cpp -P should be used for extract define values due to gcc 5
 dnl splitting up strings and defines between line outputs. gcc by default
-dnl (without -P) will show TEST EINVAL TEST as
+dnl (without -P) shows TEST EINVAL TEST as
 dnl
 dnl # 13 "conftest.c"
 dnl TEST
@@ -51,11 +51,11 @@ TEST EINVAL TEST
 dnl CURL_CHECK_DEF (SYMBOL, [INCLUDES], [SILENT])
 dnl -------------------------------------------------
 dnl Use the C preprocessor to find out if the given object-style symbol
-dnl is defined and get its expansion. This macro will not use default
-dnl includes even if no INCLUDES argument is given. This macro will run
+dnl is defined and get its expansion. This macro does not use default
+dnl includes even if no INCLUDES argument is given. This macro runs
 dnl silently when invoked with three arguments. If the expansion would
-dnl result in a set of double-quoted strings the returned expansion will
-dnl actually be a single double-quoted string concatenating all them.
+dnl result in a set of double-quoted strings the returned expansion is
+dnl actually a single double-quoted string concatenating all them.
 
 AC_DEFUN([CURL_CHECK_DEF], [
   AC_REQUIRE([CURL_CPP_P])
@@ -776,10 +776,10 @@ AC_DEFUN([CURL_CHECK_NEED_REENTRANT_SYSTEM], [
 dnl CURL_CONFIGURE_FROM_NOW_ON_WITH_REENTRANT
 dnl -------------------------------------------------
 dnl This macro ensures that configuration tests done
-dnl after this will execute with preprocessor symbol
+dnl after this execute with preprocessor symbol
 dnl _REENTRANT defined. This macro also ensures that
 dnl the generated config file defines NEED_REENTRANT
-dnl and that in turn setup.h will define _REENTRANT.
+dnl and that in turn setup.h defines _REENTRANT.
 dnl Internal macro for CURL_CONFIGURE_REENTRANT.
 
 AC_DEFUN([CURL_CONFIGURE_FROM_NOW_ON_WITH_REENTRANT], [
