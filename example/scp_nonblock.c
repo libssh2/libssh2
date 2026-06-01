@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
     gettimeofday(&start, NULL);
 #endif
 
-    /* ... start it up. This will trade welcome banners, exchange keys,
+    /* ... start it up. This trades welcome banners, exchange keys,
      * and setup crypto, compression, and MAC layers
      */
     while((rc = libssh2_session_handshake(session, sock)) ==

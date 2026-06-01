@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
-    /* Create a session instance and start it up. This will trade welcome
+    /* Create a session instance and start it up. This trades welcome
      * banners, exchange keys, and setup crypto, compression, and MAC layers
      */
     session = libssh2_session_init();
