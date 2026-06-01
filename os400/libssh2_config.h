@@ -140,7 +140,7 @@
    _libssh2_os400_snprintf */
 #define HAVE_SNPRINTF 1
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
+/* Define to the subdirectory in which libtool stores uninstalled libraries.
 */
 #define LT_OBJDIR ".libs/"
 
