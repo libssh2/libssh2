@@ -600,7 +600,7 @@ static int sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
 }
 
 /*
- * Size that attr with this flagset will occupy when turned into a bin struct
+ * Size that attr with this flagset occupies when turned into a bin struct
  */
 static int sftp_attrsize(unsigned long flags)
 {
@@ -1490,10 +1490,10 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
 
             /* 'count' is how much more data to ask for, and 'already' is how
                much data that already has been asked for but not yet returned.
-               Specifically, 'count' means how much data that have or will be
-               asked for by the nodes that are already added to the linked
-               list. Some of those read requests may not actually have been
-               sent off successfully yet.
+               Specifically, 'count' means how much data that have or is going
+               to be asked for by the nodes that are already added to the
+               linked list. Some of those read requests may not actually have
+               been sent off successfully yet.
 
                If 'already' is large it should be perfectly fine to have
                count set to 0 as then we do not have to ask for more data
@@ -1501,7 +1501,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
 
                buffer_size*4 is picked more or less out of the air. The
                idea is that when reading SFTP from a remote server, we send
-               away multiple read requests guessing that the client will read
+               away multiple read requests guessing that the client reads
                more than only this 'buffer_size' amount of memory. We thus ask
                for maximum buffer_size*4 amount of data so that we can return
                them fast in subsequent calls.
@@ -1510,13 +1510,13 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
             recv_window = libssh2_channel_window_read_ex(sftp->channel,
                                                          NULL, NULL);
             if(max_read_ahead > recv_window) {
-                /* more data will be asked for than what the window currently
+                /* more data is asked for than what the window currently
                    allows, expand it! */
 
                 rc = _libssh2_channel_receive_window_adjust(sftp->channel,
                                                (uint32_t)(max_read_ahead * 8),
                                                1, NULL);
-                /* if this returns EAGAIN, we will get back to this function
+                /* if this returns EAGAIN, we get back to this function
                    at next call */
                 assert(rc != LIBSSH2_ERROR_EAGAIN || !filep->data_left);
                 assert(rc != LIBSSH2_ERROR_EAGAIN || !filep->eof);
@@ -2072,7 +2072,7 @@ int libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle,
  *
  * TODO:
  *   Introduce an option that disables this sort of "speculative" ahead writing
- *   as there is a risk that it will do harm to some app.
+ *   as there is a risk that it does harm to some app.
  */
 
 static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
@@ -2098,10 +2098,10 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
         sftp->last_errno = LIBSSH2_FX_OK;
 
         /* Number of bytes sent off that have not been acked and therefore we
-           will get passed in here again.
+           get passed in here again.
 
            Also, add up the number of bytes that actually already have been
-           acked but we have not been able to return as such yet, so we will
+           acked but we have not been able to return as such yet, so we
            get that data as well passed in here again.
         */
         already = (size_t)(handle->u.file.offset_sent -
@@ -2243,7 +2243,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
                 /* flush all pending packets from the outgoing list */
                 sftp_packetlist_flush(handle);
 
-                /* since we return error now, the application will not get any
+                /* since we return error now, the application does not get any
                    outstanding data acked, so we need to rewind the offset to
                    where the application knows it has reached with acked
                    data */

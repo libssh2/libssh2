@@ -52,7 +52,7 @@
  * typically disabled on SSH2 implementations and is disabled in libssh2
  * by default as well.
  *
- * Enabling this option will allow for "none" as a negotiable method,
+ * Enabling this option allows for "none" as a negotiable method,
  * however it still requires that the method be advertised by the remote
  * end and that no more-preferable methods are available.
  *

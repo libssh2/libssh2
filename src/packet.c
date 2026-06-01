@@ -634,10 +634,10 @@ authagent_exit:
  * Create a new packet and attach it to the brigade. Called from the transport
  * layer when it has received a packet.
  *
- * The input pointer 'data' is pointing to allocated data that this function
- * will be freed unless return the code is LIBSSH2_ERROR_EAGAIN.
+ * The input pointer 'data' is pointing to allocated data that in this function
+ * is freed unless return the code is LIBSSH2_ERROR_EAGAIN.
  *
- * This function will always be called with 'datalen' greater than zero.
+ * This function is always called with 'datalen' greater than zero.
  */
 int _libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                         size_t datalen, int macstate, uint32_t seq)
@@ -1079,7 +1079,7 @@ libssh2_packet_add_jump_point1:
                     channelp->read_avail + data_head;
             }
 
-            /* Update the read_avail counter. The window size will be
+            /* Update the read_avail counter. The window size is
              * updated once the data is actually read from the queue
              * from an upper layer */
             channelp->read_avail += datalen - data_head;
@@ -1436,7 +1436,7 @@ libssh2_packet_add_jump_authagent:
 
         /*
          * If there was a key reexchange failure, let's hope we did not
-         * send NEWKEYS yet, otherwise remote will drop us like a rock
+         * send NEWKEYS yet, otherwise remote drops us like a rock
          */
         rc = _libssh2_kex_exchange(session, 1, &session->startup_key_state);
         if(rc == LIBSSH2_ERROR_EAGAIN)
@@ -1517,7 +1517,7 @@ int _libssh2_packet_askv(LIBSSH2_SESSION *session,
 
 /*
  * Loops _libssh2_transport_read() until the packet requested is available
- * SSH_DISCONNECT or a SOCKET_DISCONNECTED will cause a bailout
+ * SSH_DISCONNECT or a SOCKET_DISCONNECTED causes a bailout
  *
  * Returns negative on error
  * Returns 0 when it has taken care of the requested packet.
@@ -1639,7 +1639,7 @@ int _libssh2_packet_burn(LIBSSH2_SESSION *session,
 
 /*
  * Loops _libssh2_transport_read() until one of a list of packet types
- * requested is available. SSH_DISCONNECT or a SOCKET_DISCONNECTED will cause
+ * requested is available. SSH_DISCONNECT or a SOCKET_DISCONNECTED causes
  * a bailout. packet_types is a null-terminated list of packet_type numbers
  */
 int _libssh2_packet_requirev(LIBSSH2_SESSION *session,

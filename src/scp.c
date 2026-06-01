@@ -318,7 +318,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
 
             path_len = strlen(path);
 
-            /* no NUL-termination needed, so memcpy will do */
+            /* no NUL-termination needed, so use memcpy */
             memcpy(&session->scpRecv_command[cmd_len], path, path_len);
             cmd_len += path_len;
         }
@@ -879,7 +879,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
 
             path_len = strlen(path);
 
-            /* no NUL-termination needed, so memcpy will do */
+            /* no NUL-termination needed, so use memcpy */
             memcpy(&session->scpSend_command[cmd_len], path, path_len);
             cmd_len += path_len;
         }

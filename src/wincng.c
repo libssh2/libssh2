@@ -2000,7 +2000,7 @@ static int wincng_p1363signature_from_point(IN const unsigned char *r,
         s_trimmed_len--;
     }
 
-    /* Validate r and s will fit into signature */
+    /* Validate r and s fits into signature */
     if(r_trimmed_len > *signature_length / 2 ||
        s_trimmed_len > *signature_length / 2) {
         return LIBSSH2_ERROR_INVAL;
@@ -3598,7 +3598,7 @@ int _libssh2_dh_key_pair(struct wincng_dh_ctx *dhctx, libssh2_bn *public,
             free(dh_params);
         }
         else {
-            /* Pass ownership to dhctx; these parameters will be freed when
+            /* Pass ownership to dhctx; these parameters are freed when
              * the context is destroyed. We need to keep the parameters more
              * easily available so that we have access to the `g` value when
              * _libssh2_dh_secret() is called later. */

@@ -375,7 +375,7 @@ static int finish_kex(LIBSSH2_SESSION *session,
     session->state |= LIBSSH2_STATE_NEWKEYS;
     _libssh2_debug((session, LIBSSH2_TRACE_KEX, "Received NEWKEYS message"));
 
-    /* This will actually end up being packet_type(1)
+    /* This actually ends up being packet_type(1)
        for this packet type anyway */
     LIBSSH2_FREE(session, exchange_state->tmp);
 
@@ -746,7 +746,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
 
     if(exchange_state->state == libssh2_NB_state_sent) {
         if(session->burn_optimistic_kexinit) {
-            /* The first KEX packet to come along will be the guess initially
+            /* The first KEX packet to come along is the guess initially
              * sent by the server.  That guess turned out to be wrong so we
              * need to silently ignore it */
             int burn_type;
@@ -4139,7 +4139,7 @@ static int kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *data,
 
     /* If the server sent an optimistic packet, assume that it guessed wrong.
      * If the guess is determined to be right (by kex_agree_kex_hostkey)
-     * This flag will be reset to zero so that it is not ignored */
+     * This flag is reset to zero so that it is not ignored */
     if(_libssh2_check_length(&buf, 1)) {
         session->burn_optimistic_kexinit = *(buf.dataptr++);
     }
@@ -4556,9 +4556,10 @@ int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
       mlist is looped through twice. The first time to find the number od
       supported algorithms (needed to allocate the proper size of array) and
       the second time to actually copy the pointers.  Typically this function
-      will not be called often (typically at the beginning of a session) and
-      the number of algorithms (i.e. number of iterations in one loop) will
-      not be high (typically it will not exceed 20) for quite a long time.
+      it not called often (typically at the beginning of a session) and
+      the number of algorithms (i.e. number of iterations in one loop) are
+      not expected to become high (typically it does not exceed 20) for quite
+      a long time.
 
       Thus double looping really should not be an issue and it is definitely
       a better solution than reallocation several times.

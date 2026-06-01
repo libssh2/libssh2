@@ -205,7 +205,7 @@ static int banner_send(LIBSSH2_SESSION *session)
 
     if(session->banner_TxRx_state == libssh2_NB_state_idle) {
         if(session->local.banner) {
-            /* setopt_string will have given us our \r\n characters */
+            /* setopt_string has given us our \r\n characters */
             banner_len = strlen((char *)session->local.banner);
             banner = (char *)session->local.banner;
         }
@@ -1862,7 +1862,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
             }
         }
 #endif /* !HAVE_POLL && !HAVE_SELECT -- timeout (and by extension
-        * timeout_remaining) will be equal to 0 */
+        * timeout_remaining) is equal to 0 */
     } while((timeout_remaining > 0) && !active_fds);
 
     return active_fds;

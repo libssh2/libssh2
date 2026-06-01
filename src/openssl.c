@@ -223,7 +223,7 @@ static unsigned char *write_bn(unsigned char *buf, const BIGNUM *bn,
 {
     unsigned char *p = buf;
 
-    /* Left space for bn size which will be written below. */
+    /* Left space for bn size which is written below. */
     p += 4;
 
     *p = 0;
@@ -3387,7 +3387,7 @@ int _libssh2_sha512(const unsigned char *message, size_t len,
 int _libssh2_md5_init(libssh2_md5_ctx *ctx)
 {
     /* MD5 digest is not supported in OpenSSL FIPS mode
-     * Trying to init it will result in a latent OpenSSL error:
+     * Trying to init it results in a latent OpenSSL error:
      * "digital envelope routines:FIPS_DIGESTINIT:disabled for fips"
      * Thus, return 0 in FIPS mode
      */

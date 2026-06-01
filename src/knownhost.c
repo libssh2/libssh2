@@ -309,9 +309,9 @@ int libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
  * Add a host and its associated key to the collection of known hosts.
  *
  * Takes a comment argument that may be NULL.  A NULL comment indicates
- * there is no comment and the entry will end directly after the key
- * when written out to a file.  An empty string "" comment will indicate an
- * empty comment which will cause a single space to be written after the key.
+ * there is no comment and the entry ends directly after the key
+ * when written out to a file.  An empty string "" comment indicates an
+ * empty comment which causes a single space to be written after the key.
  *
  * The 'type' argument specifies on what format the given host and keys are:
  *
@@ -533,7 +533,7 @@ int libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
  * hosts.
  *
  * Note that if 'port' is specified as greater than zero, the check function
- * will be able to check for a dedicated key for this particular host+port
+ * is able to check for a dedicated key for this particular host+port
  * combo, and if 'port' is negative it only checks for the generic host key.
  *
  * The typemask is the type/format of the given hostname and key
@@ -727,7 +727,7 @@ static int hashed_hostline(LIBSSH2_KNOWNHOSTS *hosts,
 /*
  * Parse a single known_host line pre-split into host and key.
  *
- * The key part may include an optional comment which will be parsed here
+ * The key part may include an optional comment which is parsed here
  * for ssh-rsa and ssh-dsa keys.  Comments in other key types are not handled.
  *
  * The function assumes new-lines have already been removed from the arguments.
@@ -986,7 +986,7 @@ int libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
  *
  * Note that this function returns LIBSSH2_ERROR_BUFFER_TOO_SMALL if the given
  * output buffer is too small to hold the desired output. The 'outlen' field
- * will then contain the size libssh2 wanted to store, which then is the
+ * then contains the size libssh2 wanted to store, which then is the
  * smallest sufficient buffer it would require.
  */
 static int knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,

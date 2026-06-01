@@ -393,8 +393,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
     /*
      * All channels, systems, subsystems, etc eventually make it down here
      * when looking for more incoming data. If a key exchange is going on
-     * (LIBSSH2_STATE_EXCHANGING_KEYS bit is set) then the remote end will
-     * ONLY send key exchange related traffic. In non-blocking mode, there is
+     * (LIBSSH2_STATE_EXCHANGING_KEYS bit is set) then the remote end
+     * ONLY sends key exchange related traffic. In non-blocking mode, there is
      * a chance to break out of the kex_exchange function with an EAGAIN
      * status, and never come back to it. If LIBSSH2_STATE_EXCHANGING_KEYS is
      * active, then we must redirect to the key exchange. However, if
@@ -453,7 +453,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
         etm = encrypted && remote_mac ? remote_mac->etm : 0;
 
         /* read/use a whole big chunk into a temporary area stored in
-           the LIBSSH2_SESSION struct. We will decrypt data from that
+           the LIBSSH2_SESSION struct. We decrypt data from that
            buffer into the packet buffer so this temp one does not have
            to be able to keep a whole SSH packet, be large enough
            so that we can read big chunks from the network layer. */
@@ -1212,7 +1212,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
                 size_t bsize = LIBSSH2_MIN(session->local.crypt->blocksize,
                                            (int)(packet_length - i));
                 /* The INTEGRATED_MAC case always has an extra call below, so
-                   it will never be LAST_BLOCK up here. */
+                   it never is LAST_BLOCK up here. */
                 int firstlast = i == 0 ? FIRST_BLOCK :
                 (!CRYPT_FLAG_L(session, INTEGRATED_MAC) &&
                  (i == packet_length - session->local.crypt->blocksize)

@@ -1381,8 +1381,8 @@ static int channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
         }
         else {
             int i;
-            /* note: the snprintf() loop will always write 3 bytes so the
-               last one will write the trailing zero after the
+            /* note: the snprintf() loop always writes 3 bytes so the
+               last one writes the trailing zero after the
                LIBSSH2_X11_RANDOM_COOKIE_LEN border in s, but s has extra
                4 bytes of size (for screen_number) */
             unsigned char buffer[LIBSSH2_X11_RANDOM_COOKIE_LEN / 2];
@@ -1600,7 +1600,7 @@ int libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
 }
 
 /*
- * Set a channel's BEHAVIOR blocking on or off. The socket will remain non-
+ * Set a channel's BEHAVIOR blocking on or off. The socket remains non-
  * blocking.
  */
 LIBSSH2_API
@@ -1801,7 +1801,7 @@ int libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL *channel,
 /*
  * Adjust the receive window for a channel by adjustment bytes. If the amount
  * to be adjusted is less than LIBSSH2_CHANNEL_MINADJUST and force is 0 the
- * adjustment amount will be queued for a later packet.
+ * adjustment amount is queued for a later packet.
  *
  * Calls _libssh2_error() !
  */
@@ -1880,7 +1880,7 @@ int _libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
  *
  * Adjust the receive window for a channel by adjustment bytes. If the amount
  * to be adjusted is less than LIBSSH2_CHANNEL_MINADJUST and force is 0 the
- * adjustment amount will be queued for a later packet.
+ * adjustment amount is queued for a later packet.
  *
  * Returns the new size of the receive window (as understood by remote end).
  * Note that it might return EAGAIN too which is highly stupid.
@@ -1911,7 +1911,7 @@ unsigned long libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
 /*
  * Adjust the receive window for a channel by adjustment bytes. If the amount
  * to be adjusted is less than LIBSSH2_CHANNEL_MINADJUST and force is 0 the
- * adjustment amount will be queued for a later packet.
+ * adjustment amount is queued for a later packet.
  *
  * Stores the new size of the receive window in the data 'window' points to.
  *
@@ -2165,7 +2165,7 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
  * was no payload data to fill in the buffer with, we MUST make sure to return
  * LIBSSH2_ERROR_EAGAIN.
  *
- * This function will first make sure there is a receive window enough to
+ * This function first makes sure there is a receive window enough to
  * receive a full buffer's wort of contents. An application may choose to
  * adjust the receive window more to increase transfer performance.
  */
@@ -2379,7 +2379,7 @@ ssize_t _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
            already have been provided in this same function call, as we
            risk getting EAGAIN for that and we cannot return information
            both about sent data as well as EAGAIN. By returning short now,
-           the caller will call this function again with new data to send */
+           the caller calls this function again with new data to send */
 
         channel->write_state = libssh2_NB_state_idle;
 
@@ -2508,7 +2508,7 @@ static int channel_wait_eof(LIBSSH2_CHANNEL *channel)
 
     /*
      * While channel is not eof, read more packets from the network.
-     * Either the EOF will be set or network timeout will occur.
+     * Either the EOF is set or network timeout occurs.
      */
     do {
         if(channel->remote.eof) {
@@ -2671,7 +2671,7 @@ static int channel_wait_closed(LIBSSH2_CHANNEL *channel)
 
     /*
      * While channel is not closed, read more packets from the network.
-     * Either the channel will be closed or network timeout will occur.
+     * Either the channel is closed or network timeout occurs.
      */
     if(!channel->remote.close) {
         do {
@@ -2850,8 +2850,8 @@ int libssh2_channel_free(LIBSSH2_CHANNEL *channel)
 /*
  * Check the status of the read window. Returns the number of bytes which the
  * remote end may send without overflowing the window limit read_avail (if
- * passed) will be populated with the number of bytes actually available to be
- * read window_size_initial (if passed) will be populated with the
+ * passed) is populated with the number of bytes actually available to be
+ * read window_size_initial (if passed) is populated with the
  * window_size_initial as defined by the channel_open request
  */
 LIBSSH2_API
@@ -2905,7 +2905,7 @@ unsigned long libssh2_channel_window_read_ex(
 /*
  * Check the status of the write window Returns the number of bytes which may
  * be safely written on the channel without blocking window_size_initial (if
- * passed) will be populated with the size of the initial window as defined by
+ * passed) is populated with the size of the initial window as defined by
  * the channel_open request
  */
 LIBSSH2_API
@@ -2935,7 +2935,7 @@ unsigned long libssh2_channel_window_write_ex(
       boolean   FALSE
       string    signal name (without the "SIG" prefix)
 
-   'signal name' values will be encoded as discussed in the passage
+   'signal name' values are encoded as discussed in the passage
    describing SSH_MSG_CHANNEL_REQUEST messages using "exit-signal" in
    this section.
  */

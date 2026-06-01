@@ -66,7 +66,7 @@
 
 /*
  * List authentication methods
- * Will yield successful login if "none" happens to be allowable for this user
+ * Yields successful login if "none" happens to be allowable for this user
  * Not a common configuration for any SSH server though
  * username should be NULL, or a null-terminated string
  */
@@ -254,7 +254,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
 
 /*
  * List authentication methods
- * Will yield successful login if "none" happens to be allowable for this user
+ * Yields successful login if "none" happens to be allowable for this user
  * Not a common configuration for any SSH server though
  * username should be NULL, or a null-terminated string
  */
@@ -1394,7 +1394,7 @@ static int is_version_less_than_78(const char *version)
 /**
  * @abstract Upgrades the algorithm used for public key signing RFC 8332
  * @discussion Based on the incoming key_method value, this function
- * will upgrade the key method input based on user preferences,
+ * Upgrades the key method input based on user preferences,
  * server support algos and crypto backend support
  * @related _libssh2_supported_key_sign_algorithms()
  * @param key_method current key method, usually the default key sig method
@@ -1665,8 +1665,8 @@ retry_auth:
          * signature, which is not any larger than the size of the
          * publickeydata itself.
          *
-         * Note that the 'pubkeydata_len' extra bytes allocated here will not
-         * be used in this first send, but will be used in the later one where
+         * Note that the 'pubkeydata_len' extra bytes allocated here are not
+         * used in this first send, but are used in the later one where
          * this same allocation is reused.
          */
         s = session->userauth_pblc_packet =
@@ -1834,7 +1834,7 @@ retry_auth:
 
         /*
          * If this function was restarted, pubkeydata_len might still be 0
-         * which will cause an unnecessary but harmless realloc here.
+         * which causes an unnecessary but harmless realloc here.
          */
         if(sig_len > pubkeydata_len) {
             unsigned char *newpacket;

@@ -337,7 +337,7 @@ int _libssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
  * @abstract Returns supported algorithms used for upgrading public
  * key signing RFC 8332
  * @discussion Based on the incoming key_method value, this function
- * will return supported algorithms that can upgrade the key method
+ * returns supported algorithms that can upgrade the key method
  * @related _libssh2_key_sign_algorithm()
  * @param key_method current key method, usually the default key sig method
  * @param key_method_len length of the key method buffer
