@@ -129,7 +129,7 @@ static int decrypt(LIBSSH2_SESSION *session, unsigned char *source,
 
     /* if we get called with a len that is not an even number of blocksizes
        we risk losing those extra bytes. AAD is an exception, since those first
-       few bytes aren't encrypted so it throws off the rest of the count. */
+       few bytes are not encrypted so it throws off the rest of the count. */
     if(!CRYPT_FLAG_R(session, PKTLEN_AAD))
         assert((len % blocksize) == 0);
 
@@ -849,7 +849,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
             numbytes -= numdecrypt;
         }
 
-        /* if there are bytes to copy that aren't decrypted,
+        /* if there are bytes to copy that are not decrypted,
            copy them as-is to the target buffer */
         if(numbytes > 0) {
 

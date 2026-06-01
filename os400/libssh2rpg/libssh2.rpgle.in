@@ -1923,7 +1923,7 @@
      d                                     like(libssh2_Cint)
 
       * NOTE NOTE NOTE
-      * libssh2_trace() has no function in builds that aren't built with debug
+      * libssh2_trace() has no function in builds that are not built with debug
       * enabled.
 
      d libssh2_trace   pr                  extproc('libssh2_trace')

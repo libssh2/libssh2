@@ -728,7 +728,7 @@ static int hashed_hostline(LIBSSH2_KNOWNHOSTS *hosts,
  * Parse a single known_host line pre-split into host and key.
  *
  * The key part may include an optional comment which will be parsed here
- * for ssh-rsa and ssh-dsa keys.  Comments in other key types aren't handled.
+ * for ssh-rsa and ssh-dsa keys.  Comments in other key types are not handled.
  *
  * The function assumes new-lines have already been removed from the arguments.
  */
@@ -762,7 +762,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
     case '9':
         key_type = LIBSSH2_KNOWNHOST_KEY_RSA1;
 
-        /* Note that the old-style keys (RSA1) aren't truly base64, but we
+        /* Note that the old-style keys (RSA1) are not truly base64, but we
          * claim it is for now since we can get away with strcmp()ing the
          * entire anything anyway! We need to check and fix these to make them
          * work properly.

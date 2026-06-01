@@ -1434,7 +1434,7 @@ LIBSSH2_API int libssh2_keepalive_send(LIBSSH2_SESSION *session,
                                        int *seconds_to_next);
 
 /* NOTE NOTE NOTE
-   libssh2_trace() has no function in builds that aren't built with debug
+   libssh2_trace() has no function in builds that are not built with debug
    enabled
  */
 LIBSSH2_API int libssh2_trace(LIBSSH2_SESSION *session, int bitmask);
