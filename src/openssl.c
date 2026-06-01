@@ -1093,7 +1093,7 @@ int _libssh2_cipher_crypt(libssh2_cipher_ctx *ctx,
             }
         }
         /* Copy en/decrypted data back to the caller.
-           The first aadlen should not be touched because they weren't
+           The first aadlen should not be touched because they were not
            encrypted and are unmodified. */
         memcpy(block + aadlen, buf + aadlen, cryptlen);
         rc = !ret;
