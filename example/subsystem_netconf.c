@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
-    /* NETCONF: https://tools.ietf.org/html/draft-ietf-netconf-ssh-06 */
+    /* NETCONF: https://datatracker.ietf.org/doc/html/draft-ietf-netconf-ssh-06 */
 
     fprintf(stderr, "Sending NETCONF client <hello>\n");
     len = snprintf(buf, sizeof(buf),
