@@ -2165,7 +2165,7 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
  * was no payload data to fill in the buffer with, we MUST make sure to return
  * LIBSSH2_ERROR_EAGAIN.
  *
- * This function will first make sure there's a receive window enough to
+ * This function will first make sure there is a receive window enough to
  * receive a full buffer's wort of contents. An application may choose to
  * adjust the receive window more to increase transfer performance.
  */
@@ -2306,7 +2306,7 @@ ssize_t _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
         }
 
         if(channel->local.window_size <= 0) {
-            /* there's no room for data so we stop */
+            /* there is no room for data so we stop */
 
             /* Waiting on the socket to be writable would be wrong because we
              * would be back here immediately, but a readable socket might
@@ -2482,7 +2482,7 @@ int libssh2_channel_eof(LIBSSH2_CHANNEL *channel)
             (packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)) &&
            ((packet->data_len >= 5) &&
             (channel->local.id == _libssh2_ntohu32(packet->data + 1)))) {
-            /* There's data waiting to be read yet, mask the EOF status */
+            /* There is data waiting to be read yet, mask the EOF status */
             return 0;
         }
         packet = next_packet;

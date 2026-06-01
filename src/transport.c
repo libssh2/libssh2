@@ -138,7 +138,7 @@ static int decrypt(LIBSSH2_SESSION *session, unsigned char *source,
         ssize_t decryptlen = LIBSSH2_MIN(blocksize, len);
         /* The first block is special (since it needs to be decoded to get the
            length of the remainder of the block) and takes priority. When the
-           length finally gets to the last blocksize bytes, and there's no
+           length finally gets to the last blocksize bytes, and there is no
            more data to come, it's the end. */
         int lowerfirstlast = IS_FIRST(firstlast) ? FIRST_BLOCK :
             ((len <= blocksize) ? firstlast : MIDDLE_BLOCK);
@@ -871,7 +871,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
             p->data_num += numbytes;
         }
 
-        /* now check how much data there's left to read to finish the
+        /* now check how much data there is left to read to finish the
            current packet */
         remainpack = p->total_num - p->data_num;
 

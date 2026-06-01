@@ -289,7 +289,7 @@ static int sftp_packet_read(LIBSSH2_SFTP *sftp)
         LIBSSH2_FALLTHROUGH();
     default:
         if(!packet) {
-            /* only do this if there's not already a packet buffer allocated
+            /* only do this if there is not already a packet buffer allocated
                to use */
 
             /* each packet starts with a 32-bit length field */
@@ -446,7 +446,7 @@ static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
 }
 
 /*
- * Checks if there's a matching SFTP packet available.
+ * Checks if there is a matching SFTP packet available.
  */
 static int sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
                            uint32_t request_id,
@@ -2072,7 +2072,7 @@ int libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle,
  *
  * TODO:
  *   Introduce an option that disables this sort of "speculative" ahead writing
- *   as there's a risk that it will do harm to some app.
+ *   as there is a risk that it will do harm to some app.
  */
 
 static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
