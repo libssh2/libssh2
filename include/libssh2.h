@@ -336,9 +336,7 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
 #define LIBSSH2_CHANNEL_DATA_FUNC(name) \
     void (name)(LIBSSH2_SESSION *session, void **session_abstract, \
                 LIBSSH2_CHANNEL *channel, void **channel_abstract, \
-                int stream,              \
-                const uint8_t *buffer,       \
-                size_t length)
+                int stream, const unsigned char *buffer, size_t length)
 
 /* I/O callbacks */
 #define LIBSSH2_RECV_FUNC(name)                                         \
