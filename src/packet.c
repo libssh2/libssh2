@@ -1410,8 +1410,8 @@ libssh2_packet_add_jump_authagent:
 
         if(session->packAdd_state == libssh2_NB_state_sent1) {
             /*
-             * Remote wants new keys
-             * Well, it is already in the brigade,
+             * Remote wants new keys.
+             * It is already in the brigade,
              * let's call back into ourselves
              */
             _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
