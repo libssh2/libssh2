@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
     }
 
     /* Some environment variables may be set,
-     * It's up to the server which ones it'll allow though
+     * It's up to the server which ones it will allow though
      */
     libssh2_channel_setenv(channel, "FOO", "bar");
 
