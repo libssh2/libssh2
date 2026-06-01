@@ -11,7 +11,7 @@ dnl From Bruno Haible.
 AC_PREREQ([2.54])
 
 dnl LIBSSH2_WITH_FINAL_PREFIX([statement]) evaluates statement, with the
-dnl variables prefix and exec_prefix bound to the values they will have
+dnl variables prefix and exec_prefix bound to the values they have
 dnl at the end of the configure script.
 AC_DEFUN([LIBSSH2_WITH_FINAL_PREFIX],
 [
@@ -26,7 +26,7 @@ AC_DEFUN([LIBSSH2_WITH_FINAL_PREFIX],
 
 dnl LIBSSH2_PREPARE_PREFIX creates variables acl_final_prefix,
 dnl acl_final_exec_prefix, containing the values to which $prefix and
-dnl $exec_prefix will expand at the end of the configure script.
+dnl $exec_prefix expands at the end of the configure script.
 AC_DEFUN([LIBSSH2_PREPARE_PREFIX],
 [
   dnl Unfortunately, prefix and exec_prefix get only finally determined
@@ -401,7 +401,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
                 dnl Use an explicit option to hardcode DIR into the resulting
                 dnl binary.
                 dnl Potentially add DIR to ltrpathdirs.
-                dnl The ltrpathdirs will be appended to $LTLIBNAME at the end.
+                dnl The ltrpathdirs is appended to $LTLIBNAME at the end.
                 haveit=
                 for x in $ltrpathdirs; do
                   if test "X$x" = "X$found_dir"; then
@@ -423,7 +423,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
                     dnl binary.
                     LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }$found_so"
                     dnl Potentially add DIR to rpathdirs.
-                    dnl The rpathdirs will be appended to $LIBNAME at the end.
+                    dnl The rpathdirs is appended to $LIBNAME at the end.
                     haveit=
                     for x in $rpathdirs; do
                       if test "X$x" = "X$found_dir"; then
@@ -588,7 +588,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
                     dir=`echo "X$dep" | sed -e 's/^X-R//'`
                     if test "$enable_rpath" != no; then
                       dnl Potentially add DIR to rpathdirs.
-                      dnl The rpathdirs will be appended to $LIBNAME at the end.
+                      dnl The rpathdirs is appended to $LIBNAME at the end.
                       haveit=
                       for x in $rpathdirs; do
                         if test "X$x" = "X$dir"; then
@@ -600,7 +600,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
                         rpathdirs="$rpathdirs $dir"
                       fi
                       dnl Potentially add DIR to ltrpathdirs.
-                      dnl The ltrpathdirs will be appended to $LTLIBNAME at the end.
+                      dnl The ltrpathdirs is appended to $LTLIBNAME at the end.
                       haveit=
                       for x in $ltrpathdirs; do
                         if test "X$x" = "X$dir"; then
