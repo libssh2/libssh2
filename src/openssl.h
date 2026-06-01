@@ -118,7 +118,7 @@
 #if !defined(LIBRESSL_VERSION_NUMBER) || defined(LIBSSH2_WOLFSSL) || \
     (defined(LIBRESSL_VERSION_NUMBER) && \
     LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
-/* For wolfSSL, whether the structs are truly opaque or not, it's best to not
+/* For wolfSSL, whether the structs are truly opaque or not, it is best to not
  * rely on their internal data members being exposed publicly. */
 # define HAVE_OPAQUE_STRUCTS 1
 #endif

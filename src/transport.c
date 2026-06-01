@@ -139,7 +139,7 @@ static int decrypt(LIBSSH2_SESSION *session, unsigned char *source,
         /* The first block is special (since it needs to be decoded to get the
            length of the remainder of the block) and takes priority. When the
            length finally gets to the last blocksize bytes, and there is no
-           more data to come, it's the end. */
+           more data to come, it is the end. */
         int lowerfirstlast = IS_FIRST(firstlast) ? FIRST_BLOCK :
             ((len <= blocksize) ? firstlast : MIDDLE_BLOCK);
         /* If the last block would be less than a whole blocksize, combine it

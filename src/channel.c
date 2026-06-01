@@ -2918,7 +2918,7 @@ unsigned long libssh2_channel_window_write_ex(
         return 0; /* no channel, no window! */
 
     if(window_size_initial) {
-        /* For locally initiated channels this is often 0, so it's not
+        /* For locally initiated channels this is often 0, so it is not
          * *that* useful as information goes */
         *window_size_initial = channel->local.window_size_initial;
     }

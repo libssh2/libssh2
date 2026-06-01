@@ -392,7 +392,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
             LTLIB[]NAME="${LTLIB[]NAME}${LTLIB[]NAME:+ }-L$found_dir -l$name"
             if test "X$found_so" != "X"; then
               dnl Linking with a shared library. We attempt to hardcode its
-              dnl directory into the executable's runpath, unless it's the
+              dnl directory into the executable's runpath, unless it is the
               dnl standard /usr/lib.
               if test "$enable_rpath" = no || test "X$found_dir" = "X/usr/$acl_libdirstem"; then
                 dnl No hardcoding is needed.
@@ -436,7 +436,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
                     fi
                   else
                     dnl Rely on "-L$found_dir".
-                    dnl But do not add it if it's already contained in the LDFLAGS
+                    dnl But do not add it if it is already contained in the LDFLAGS
                     dnl or the already constructed $LIBNAME
                     haveit=
                     for x in $LDFLAGS $LIB[]NAME; do
@@ -472,7 +472,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
                 dnl Linking with a static library.
                 LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }$found_a"
               else
-                dnl We should not come here, but anyway it's good to have a
+                dnl We should not come here, but anyway it is good to have a
                 dnl fallback.
                 LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }-L$found_dir -l$name"
               fi

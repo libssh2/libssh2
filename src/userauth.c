@@ -633,7 +633,7 @@ static int memory_read_publickey(LIBSSH2_SESSION *session,
 
     sp2 = memchr(sp1, ' ', pubkey_len - (sp1 - pubkey));
     if(!sp2) {
-        /* Assume that the id string is missing, but that it's okay */
+        /* Assume that the id string is missing, but that it is okay */
         sp2 = pubkey + pubkey_len;
     }
 
@@ -735,7 +735,7 @@ static int file_read_publickey(LIBSSH2_SESSION *session,
     sp_len = sp1 > pubkey ? (sp1 - pubkey) : 0;
     sp2 = memchr(sp1, ' ', pubkey_len - sp_len);
     if(!sp2) {
-        /* Assume that the id string is missing, but that it's okay */
+        /* Assume that the id string is missing, but that it is okay */
         sp2 = pubkey + pubkey_len;
     }
 

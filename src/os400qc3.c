@@ -1814,7 +1814,7 @@ static int pkcs8kek(LIBSSH2_SESSION *session, struct os400qc3_crypto_ctx **ctx,
         *ctx = NULL;
         return -1;
     }
-    return 1; /* Tell it's encrypted. */
+    return 1; /* Tell it is encrypted. */
 }
 
 static int rsapkcs8privkey(LIBSSH2_SESSION *session,
