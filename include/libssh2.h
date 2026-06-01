@@ -547,7 +547,7 @@ typedef struct _LIBSSH2_POLLFD {
  * libssh2_init()
  *
  * Initialize the libssh2 functions.  This typically initializes the
- * crypto library.  It uses a global state, and is not thread safe --
+ * crypto library.  It uses a global state, and is not thread-safe --
  * you must make sure this function is not called concurrently.
  *
  * Flags can be:
