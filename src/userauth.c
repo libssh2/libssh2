@@ -644,8 +644,8 @@ static int memory_read_publickey(LIBSSH2_SESSION *session,
                               "Invalid key data, not base64 encoded");
     }
 
-    /* Wasting some bytes here (okay, more than some), but since it's likely
-     * to be freed soon anyway, we'll avoid the extra free/alloc and call
+    /* Wasting some bytes here (okay, more than some), but since it is likely
+     * to be freed soon anyway, we avoid the extra free/alloc and call
      * it a wash
      */
     *method = pubkey;
@@ -746,8 +746,8 @@ static int file_read_publickey(LIBSSH2_SESSION *session,
                               "Invalid key data, not base64 encoded");
     }
 
-    /* Wasting some bytes here (okay, more than some), but since it's likely
-     * to be freed soon anyway, we'll avoid the extra free/alloc and call
+    /* Wasting some bytes here (okay, more than some), but since it is likely
+     * to be freed soon anyway, we avoid the extra free/alloc and call
      * it a wash */
     *method = pubkey;
     *method_len = sp1 - pubkey - 1;

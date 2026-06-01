@@ -170,7 +170,7 @@ You will need to have the following available:
 - A C compiler. I do not know any other working C compilers than
   the DEC/Compac/HP-C compiler on VMS.
 
-- An ODS-5 disk. With tweaking you'll get it to work on an ODS-2
+- An ODS-5 disk. With tweaking you can get it to work on an ODS-2
   disk, but it is unpractical to do so.
 
 - A version of VMSTAR that understands ODS-5 disks and extended
