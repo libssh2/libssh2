@@ -63,7 +63,7 @@ have in your next function invoke will be detected or used.
 The reason for this funny behavior is that SFTP can only send 32K data in each
 packet and it gets all packets acked individually. This means we cannot use a
 simple serial approach if we want to reach high performance even on high
-latency connections. And we want that.
+latency connections, and we want that.
 
 # RETURN VALUE
 

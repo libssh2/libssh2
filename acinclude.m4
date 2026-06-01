@@ -851,7 +851,7 @@ dnl --------------------------
 dnl Wrapper around LIBSSH2_HAVE_LINKFLAGS to also check $prefix/lib, if set.
 dnl
 dnl autoconf only checks $prefix/lib64 if gcc -print-search-dirs output
-dnl includes a directory named lib64. So, to find libraries in $prefix/lib
+dnl includes a directory named lib64. To find libraries in $prefix/lib
 dnl we append -L$prefix/lib to LDFLAGS before checking.
 dnl
 dnl For convenience, $4 is expanded if [lib]$1 is found.

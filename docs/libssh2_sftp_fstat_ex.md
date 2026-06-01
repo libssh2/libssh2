@@ -76,7 +76,7 @@ most common ones are:
 To check for specific user permissions, the set of defines are in the
 pattern LIBSSH2_SFTP_S_I\<action\>\<who\> where \<action\> is R, W or X for
 read, write and executable and \<who\> is USR, GRP and OTH for user,
-group and other. So, you check for a user readable file, use the bit
+group and other. Thus, you check for a user readable file, use the bit
 *LIBSSH2_SFTP_S_IRUSR* while you want to see if it is executable
 for other, you use *LIBSSH2_SFTP_S_IXOTH* and so on.
 

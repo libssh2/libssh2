@@ -390,7 +390,7 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
     }
 
     /* 0.0.0.0 is returned by Docker for Windows, because the container
-       is reachable from anywhere. But we cannot connect to 0.0.0.0,
+       is reachable from anywhere. We cannot connect to 0.0.0.0,
        instead we assume localhost and try to connect to 127.0.0.1. */
     if(ip_address && strcmp(ip_address, "0.0.0.0") == 0) {
         free(ip_address);
