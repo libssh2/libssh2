@@ -1473,7 +1473,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
             /* We allow a number of bytes being requested at any given time
                without having been acked - until we reach EOF. */
 
-            /* Number of bytes asked for that haven't been acked yet */
+            /* Number of bytes asked for that have not been acked yet */
             size_t already = (size_t)(filep->offset_sent - filep->offset);
 
             size_t max_read_ahead = buffer_size * 4;
@@ -1577,7 +1577,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
 
         sftp->read_state = libssh2_NB_state_idle;
 
-        /* move through the READ packets that haven't been sent and send as
+        /* move through the READ packets that have not been sent and send as
            many as possible - remember that we do not block */
         chunk = _libssh2_list_first(&handle->packet_list);
 
@@ -2057,7 +2057,7 @@ int libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle,
  *
  * - Add all created outgoing packets to the linked list.
  *
- * - Walk through the list and send the chunks that haven't been sent,
+ * - Walk through the list and send the chunks that have not been sent,
  *   as many as possible until EAGAIN. Some of the chunks may have been put
  *   in the list in a previous invoke.
  *
@@ -2097,11 +2097,11 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
     case libssh2_NB_state_idle:
         sftp->last_errno = LIBSSH2_FX_OK;
 
-        /* Number of bytes sent off that haven't been acked and therefore we
+        /* Number of bytes sent off that have not been acked and therefore we
            will get passed in here again.
 
            Also, add up the number of bytes that actually already have been
-           acked but we haven't been able to return as such yet, so we will
+           acked but we have not been able to return as such yet, so we will
            get that data as well passed in here again.
         */
         already = (size_t)(handle->u.file.offset_sent -
@@ -2158,7 +2158,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
                               to create more packets */
         }
 
-        /* move through the WRITE packets that haven't been sent and send as
+        /* move through the WRITE packets that have not been sent and send as
            many as possible - remember that we do not block */
         chunk = _libssh2_list_first(&handle->packet_list);
 

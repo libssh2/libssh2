@@ -713,7 +713,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
                     numbytes -= blocksize;
             }
             else {
-                /* haven't started reading payload yet */
+                /* have not started reading payload yet */
                 p->data_num = 0;
 
                 /* we already dealt with packet size worth of data */
