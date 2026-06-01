@@ -247,8 +247,7 @@ int main(int argc, char *argv[])
         rc = libssh2_sftp_readdir_ex(sftp_handle, mem, sizeof(mem),
                                      longentry, sizeof(longentry), &attrs);
         if(rc > 0) {
-            /* rc is the length of the file name in the mem
-               buffer */
+            /* rc is the length of the filename in the mem buffer */
 
             if(longentry[0] != '\0') {
                 printf("%s\n", longentry);

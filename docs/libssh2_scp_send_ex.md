@@ -31,7 +31,7 @@ This function has been deemed deprecated since libssh2 1.2.6. See
 *session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *path* - Full path and filename of file to transfer to. That is the remote
-file name.
+filename.
 
 *mode* - File access mode to create file with
 

@@ -192,8 +192,7 @@ int main(int argc, char *argv[])
                                          &attrs)) == LIBSSH2_ERROR_EAGAIN)
             ;
         if(rc > 0) {
-            /* rc is the length of the file name in the mem
-               buffer */
+            /* rc is the length of the filename in the mem buffer */
 
             if(attrs.flags & LIBSSH2_SFTP_ATTR_PERMISSIONS) {
                 /* this should check what permissions it

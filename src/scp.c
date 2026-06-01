@@ -58,7 +58,7 @@
 
 /*
   This function quotes a string in a way suitable to be used with a
-  shell, e.g. the file name
+  shell, e.g. the filename
   one two
   becomes
   'one two'

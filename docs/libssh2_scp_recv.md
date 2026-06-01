@@ -30,7 +30,7 @@ This function is **DEPRECATED** in 1.7.0. Use the
 *session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *path* - Full path and filename of file to transfer. That is the remote
-file name.
+filename.
 
 *sb* - Populated with remote file's size, mode, mtime, and atime
 

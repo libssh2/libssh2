@@ -42,7 +42,7 @@ static const char *username = "username";
 static const char *password = "password";
 static const char *sftppath = "/tmp/TEST"; /* source path */
 static const char *dest = "/tmp/TEST2";    /* destination path */
-static const char *storage = "/tmp/sftp-storage"; /* local file name to store
+static const char *storage = "/tmp/sftp-storage"; /* local filename to store
                                                      the downloaded file in */
 
 static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
