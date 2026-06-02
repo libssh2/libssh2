@@ -43,12 +43,12 @@
 #include "channel.h"
 #include "session.h"
 
-#define LIBSSH2_PUBLICKEY_VERSION 2
+#define SSH2_PUBLICKEY_VERSION 2
 
 /* Numericised response codes -- Not IETF, but local representation */
-#define LIBSSH2_PUBLICKEY_RESPONSE_STATUS    0
-#define LIBSSH2_PUBLICKEY_RESPONSE_VERSION   1
-#define LIBSSH2_PUBLICKEY_RESPONSE_PUBLICKEY 2
+#define SSH2_PUBLICKEY_RESPONSE_STATUS    0
+#define SSH2_PUBLICKEY_RESPONSE_VERSION   1
+#define SSH2_PUBLICKEY_RESPONSE_PUBLICKEY 2
 
 struct publickey_code_list {
     const char *name;
@@ -59,36 +59,36 @@ struct publickey_code_list {
 #define STRLEN(s) s, sizeof(s) - 1
 
 static const struct publickey_code_list publickey_response_codes[] = {
-    { STRLEN("status"), LIBSSH2_PUBLICKEY_RESPONSE_STATUS },
-    { STRLEN("version"), LIBSSH2_PUBLICKEY_RESPONSE_VERSION },
-    { STRLEN("publickey"), LIBSSH2_PUBLICKEY_RESPONSE_PUBLICKEY },
+    { STRLEN("status"), SSH2_PUBLICKEY_RESPONSE_STATUS },
+    { STRLEN("version"), SSH2_PUBLICKEY_RESPONSE_VERSION },
+    { STRLEN("publickey"), SSH2_PUBLICKEY_RESPONSE_PUBLICKEY },
     { NULL, 0, 0 }
 };
 
 /* PUBLICKEY status codes -- IETF defined */
-#define LIBSSH2_PUBLICKEY_SUCCESS               0
-#define LIBSSH2_PUBLICKEY_ACCESS_DENIED         1
-#define LIBSSH2_PUBLICKEY_STORAGE_EXCEEDED      2
-#define LIBSSH2_PUBLICKEY_VERSION_NOT_SUPPORTED 3
-#define LIBSSH2_PUBLICKEY_KEY_NOT_FOUND         4
-#define LIBSSH2_PUBLICKEY_KEY_NOT_SUPPORTED     5
-#define LIBSSH2_PUBLICKEY_KEY_ALREADY_PRESENT   6
-#define LIBSSH2_PUBLICKEY_GENERAL_FAILURE       7
-#define LIBSSH2_PUBLICKEY_REQUEST_NOT_SUPPORTED 8
+#define SSH2_PUBLICKEY_SUCCESS               0
+#define SSH2_PUBLICKEY_ACCESS_DENIED         1
+#define SSH2_PUBLICKEY_STORAGE_EXCEEDED      2
+#define SSH2_PUBLICKEY_VERSION_NOT_SUPPORTED 3
+#define SSH2_PUBLICKEY_KEY_NOT_FOUND         4
+#define SSH2_PUBLICKEY_KEY_NOT_SUPPORTED     5
+#define SSH2_PUBLICKEY_KEY_ALREADY_PRESENT   6
+#define SSH2_PUBLICKEY_GENERAL_FAILURE       7
+#define SSH2_PUBLICKEY_REQUEST_NOT_SUPPORTED 8
 
-#define LIBSSH2_PUBLICKEY_STATUS_CODE_MAX       8
+#define SSH2_PUBLICKEY_STATUS_CODE_MAX       8
 
 static const struct publickey_code_list publickey_status_codes[] = {
-    {STRLEN("success"), LIBSSH2_PUBLICKEY_SUCCESS},
-    {STRLEN("access denied"), LIBSSH2_PUBLICKEY_ACCESS_DENIED},
-    {STRLEN("storage exceeded"), LIBSSH2_PUBLICKEY_STORAGE_EXCEEDED},
-    {STRLEN("version not supported"), LIBSSH2_PUBLICKEY_VERSION_NOT_SUPPORTED},
-    {STRLEN("key not found"), LIBSSH2_PUBLICKEY_KEY_NOT_FOUND},
-    {STRLEN("key not supported"), LIBSSH2_PUBLICKEY_KEY_NOT_SUPPORTED},
-    {STRLEN("key already present"), LIBSSH2_PUBLICKEY_KEY_ALREADY_PRESENT},
-    {STRLEN("general failure"), LIBSSH2_PUBLICKEY_GENERAL_FAILURE},
-    {STRLEN("request not supported"), LIBSSH2_PUBLICKEY_REQUEST_NOT_SUPPORTED},
-    {NULL, 0, 0}
+    { STRLEN("success"), SSH2_PUBLICKEY_SUCCESS },
+    { STRLEN("access denied"), SSH2_PUBLICKEY_ACCESS_DENIED },
+    { STRLEN("storage exceeded"), SSH2_PUBLICKEY_STORAGE_EXCEEDED },
+    { STRLEN("version not supported"), SSH2_PUBLICKEY_VERSION_NOT_SUPPORTED },
+    { STRLEN("key not found"), SSH2_PUBLICKEY_KEY_NOT_FOUND },
+    { STRLEN("key not supported"), SSH2_PUBLICKEY_KEY_NOT_SUPPORTED },
+    { STRLEN("key already present"), SSH2_PUBLICKEY_KEY_ALREADY_PRESENT },
+    { STRLEN("general failure"), SSH2_PUBLICKEY_GENERAL_FAILURE },
+    { STRLEN("request not supported"), SSH2_PUBLICKEY_REQUEST_NOT_SUPPORTED },
+    { NULL, 0, 0 }
 };
 
 #undef STRLEN
@@ -107,7 +107,7 @@ static void publickey_status_error(const LIBSSH2_PUBLICKEY *pkey,
         status = 7;
     }
 
-    if(status > LIBSSH2_PUBLICKEY_STATUS_CODE_MAX) {
+    if(status > SSH2_PUBLICKEY_STATUS_CODE_MAX) {
         msg = "unknown";
     }
     else {
@@ -241,7 +241,7 @@ static int publickey_response_success(LIBSSH2_PUBLICKEY *pkey)
         response = publickey_response_id(&s, data_len);
 
         switch(response) {
-        case LIBSSH2_PUBLICKEY_RESPONSE_STATUS: {
+        case SSH2_PUBLICKEY_RESPONSE_STATUS: {
             /* Error, or processing complete */
             unsigned long status = 0;
 
@@ -254,7 +254,7 @@ static int publickey_response_success(LIBSSH2_PUBLICKEY *pkey)
 
             SSH2_FREE(session, data);
 
-            if(status == LIBSSH2_PUBLICKEY_SUCCESS)
+            if(status == SSH2_PUBLICKEY_SUCCESS)
                 return 0;
 
             publickey_status_error(pkey, session, status);
@@ -364,13 +364,13 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
         s += 4;
         memcpy(s, "version", sizeof("version") - 1);
         s += sizeof("version") - 1;
-        ssh2_htonu32(s, LIBSSH2_PUBLICKEY_VERSION);
+        ssh2_htonu32(s, SSH2_PUBLICKEY_VERSION);
 
         session->pkeyInit_buffer_sent = 0;
 
         ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
                   "Sending publickey advertising version %d support",
-                  (int)LIBSSH2_PUBLICKEY_VERSION));
+                  (int)SSH2_PUBLICKEY_VERSION));
 
         session->pkeyInit_state = libssh2_NB_state_sent2;
     }
@@ -434,7 +434,7 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
             }
 
             switch(response) {
-            case LIBSSH2_PUBLICKEY_RESPONSE_STATUS: {
+            case SSH2_PUBLICKEY_RESPONSE_STATUS: {
                 /* Error */
                 unsigned long status, descr_len, lang_len;
 
@@ -485,16 +485,14 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                 goto err_exit;
             }
 
-            case LIBSSH2_PUBLICKEY_RESPONSE_VERSION:
+            case SSH2_PUBLICKEY_RESPONSE_VERSION:
                 /* What we want */
                 session->pkeyInit_pkey->version = ssh2_ntohu32(s);
-                if(session->pkeyInit_pkey->version >
-                   LIBSSH2_PUBLICKEY_VERSION) {
+                if(session->pkeyInit_pkey->version > SSH2_PUBLICKEY_VERSION) {
                     ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
                               "Truncate remote publickey version from %u",
                               session->pkeyInit_pkey->version));
-                    session->pkeyInit_pkey->version =
-                        LIBSSH2_PUBLICKEY_VERSION;
+                    session->pkeyInit_pkey->version = SSH2_PUBLICKEY_VERSION;
                 }
                 ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
                           "Enabling publickey subsystem version %u",
@@ -865,7 +863,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
         }
 
         switch(response) {
-        case LIBSSH2_PUBLICKEY_RESPONSE_STATUS: {
+        case SSH2_PUBLICKEY_RESPONSE_STATUS: {
             /* Error, or processing complete */
             unsigned long status, descr_len, lang_len;
 
@@ -913,7 +911,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 goto err_exit;
             }
 
-            if(status == LIBSSH2_PUBLICKEY_SUCCESS) {
+            if(status == SSH2_PUBLICKEY_SUCCESS) {
                 SSH2_FREE(session, pkey->listFetch_data);
                 pkey->listFetch_data = NULL;
                 *pkey_list = list;
@@ -925,7 +923,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
             publickey_status_error(pkey, session, status);
             goto err_exit;
         }
-        case LIBSSH2_PUBLICKEY_RESPONSE_PUBLICKEY:
+        case SSH2_PUBLICKEY_RESPONSE_PUBLICKEY:
             /* What we want */
             if(keys >= max_keys) {
                 libssh2_publickey_list *newlist;
