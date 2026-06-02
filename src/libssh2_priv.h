@@ -1104,7 +1104,7 @@ void _libssh2_debug_low(LIBSSH2_SESSION *session, int context,
 /* Something bad is going on */
 #define LIBSSH2_MAC_INVALID                      (-1)
 
-/* Flags for _libssh2_error_flags */
+/* Flags for ssh2_err_flags() */
 /* Error message is allocated on the heap */
 #define LIBSSH2_ERR_FLAG_DUP                     1
 

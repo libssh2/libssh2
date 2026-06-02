@@ -1367,11 +1367,9 @@ int libssh2_session_last_errno(LIBSSH2_SESSION *session)
  */
 LIBSSH2_API
 int libssh2_session_set_last_error(LIBSSH2_SESSION *session,
-                                   int errcode,
-                                   const char *errmsg)
+                                   int errcode, const char *errmsg)
 {
-    return _libssh2_error_flags(session, errcode, errmsg,
-                                LIBSSH2_ERR_FLAG_DUP);
+    return ssh2_err_flags(session, errcode, errmsg, LIBSSH2_ERR_FLAG_DUP);
 }
 
 /*

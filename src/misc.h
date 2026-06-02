@@ -76,8 +76,8 @@ struct string_buf {
     size_t len;
 };
 
-int _libssh2_error_flags(LIBSSH2_SESSION *session, int errcode,
-                         const char *errmsg, int errflags);
+int ssh2_err_flags(LIBSSH2_SESSION *session, int errcode,
+                   const char *errmsg, int errflags);
 int ssh2_err(LIBSSH2_SESSION *session, int errcode, const char *errmsg);
 
 #ifdef _WIN32

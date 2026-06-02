@@ -81,8 +81,8 @@ int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
 }
 #endif
 
-int _libssh2_error_flags(LIBSSH2_SESSION *session, int errcode,
-                         const char *errmsg, int errflags)
+int ssh2_err_flags(LIBSSH2_SESSION *session, int errcode,
+                   const char *errmsg, int errflags)
 {
     if(!session) {
         if(errmsg)
@@ -125,7 +125,7 @@ int _libssh2_error_flags(LIBSSH2_SESSION *session, int errcode,
 
 int ssh2_err(LIBSSH2_SESSION *session, int errcode, const char *errmsg)
 {
-    return _libssh2_error_flags(session, errcode, errmsg, 0);
+    return ssh2_err_flags(session, errcode, errmsg, 0);
 }
 
 #ifdef _WIN32

@@ -761,8 +761,8 @@ int _libssh2_mbedtls_pub_priv_keyfile(LIBSSH2_SESSION *session,
     if(ret) {
         mbedtls_strerror(ret, (char *)buf, sizeof(buf));
         mbedtls_pk_free(&pkey);
-        return _libssh2_error_flags(session, LIBSSH2_ERROR_FILE, buf,
-                                    LIBSSH2_ERR_FLAG_DUP);
+        return ssh2_err_flags(session, LIBSSH2_ERROR_FILE, buf,
+                              LIBSSH2_ERR_FLAG_DUP);
     }
 
     ret = mbed_pub_priv_key(session, method, method_len,
@@ -812,8 +812,8 @@ int _libssh2_mbedtls_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     if(ret) {
         mbedtls_strerror(ret, (char *)buf, sizeof(buf));
         mbedtls_pk_free(&pkey);
-        return _libssh2_error_flags(session, LIBSSH2_ERROR_FILE, buf,
-                                    LIBSSH2_ERR_FLAG_DUP);
+        return ssh2_err_flags(session, LIBSSH2_ERROR_FILE, buf,
+                              LIBSSH2_ERR_FLAG_DUP);
     }
 
     ret = mbed_pub_priv_key(session, method, method_len,
