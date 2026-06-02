@@ -643,9 +643,9 @@ void ssh2_mbedtls_rsa_free(libssh2_rsa_ctx *ctx)
     mbedtls_free(ctx);
 }
 
-static unsigned char *gen_publickey_from_rsa(LIBSSH2_SESSION *session,
-                                             mbedtls_rsa_context *rsa,
-                                             size_t *keylen)
+static unsigned char *mbed_gen_publickey_from_rsa(LIBSSH2_SESSION *session,
+                                                  mbedtls_rsa_context *rsa,
+                                                  size_t *keylen)
 {
     uint32_t e_bytes, n_bytes;
     uint32_t len;
@@ -716,7 +716,7 @@ static int mbed_pub_priv_key(LIBSSH2_SESSION *session,
     }
 
     rsa = mbedtls_pk_rsa(*pkey);
-    key = gen_publickey_from_rsa(session, rsa, &keylen);
+    key = mbed_gen_publickey_from_rsa(session, rsa, &keylen);
     if(!key) {
         ret = -1;
     }
