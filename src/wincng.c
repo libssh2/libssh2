@@ -132,8 +132,8 @@ static void wincng_safe_free(void *buf, size_t len)
 /* Copy a big endian set of bits from src to dest.
  * if the size of src is smaller than dest then pad the "left" (MSB)
  * end with zeroes and copy the bits into the "right" (LSB) end. */
-static void memcpy_with_be_padding(unsigned char *dest, ULONG dest_len,
-                                   unsigned char *src, ULONG src_len)
+static void wincng_memcpy_with_be_padding(unsigned char *dest, ULONG dest_len,
+                                          unsigned char *src, ULONG src_len)
 {
     if(dest_len > src_len) {
         memset(dest, 0, dest_len - src_len);
@@ -270,8 +270,8 @@ static int wincng_bignum_mod_exp(libssh2_bn *r,
                 length = max(a->length, length);
                 bignum = malloc(length);
                 if(bignum) {
-                    memcpy_with_be_padding(bignum, length,
-                                           a->bignum, a->length);
+                    wincng_memcpy_with_be_padding(bignum, length,
+                                                  a->bignum, a->length);
 
                     ret = BCryptEncrypt(hKey, bignum, length, NULL, NULL, 0,
                                         r->bignum, r->length, &offset,
@@ -3386,7 +3386,7 @@ int ssh2_wincng_cipher_init(libssh2_cipher_ctx *h,
 
 /* Increments an AES CTR buffer to prepare it for use with the
    next AES block. */
-static void aes_ctr_increment(unsigned char *ctr, size_t length)
+static void wincng_aes_ctr_increment(unsigned char *ctr, size_t length)
 {
     unsigned char *pc;
     unsigned int val, carry;
@@ -3448,7 +3448,7 @@ int ssh2_wincng_cipher_crypt(libssh2_cipher_ctx *ctx,
                 if(algo.ctrMode) {
                     /* NOLINTNEXTLINE(readability-suspicious-call-argument) */
                     ssh2_xor_data(block, block, pbOutput, blocksize);
-                    aes_ctr_increment(ctx->pbCtr, ctx->dwCtrLength);
+                    wincng_aes_ctr_increment(ctx->pbCtr, ctx->dwCtrLength);
                 }
                 else {
                     memcpy(block, pbOutput, cbOutput);
@@ -3513,7 +3513,7 @@ void ssh2_dh_dtor(struct wincng_dh_ctx *dhctx)
     }
 }
 
-static int round_down(int number, int multiple)
+static int wincng_round_down(int number, int multiple)
 {
     return (number / multiple) * multiple;
 }
@@ -3539,7 +3539,7 @@ int ssh2_dh_key_pair(struct wincng_dh_ctx *dhctx, libssh2_bn *public,
          * in length. At the time of writing a practical observed group_order
          * value is 257, so we need to round down to 8 bytes of length (64/8)
          * in order for kex to succeed */
-        ULONG key_length_bytes = max((ULONG)round_down(group_order, 8),
+        ULONG key_length_bytes = max((ULONG)wincng_round_down(group_order, 8),
                                      max(g->length, p->length));
         BCRYPT_DH_KEY_BLOB *dh_key_blob;
         LPCWSTR key_type;
@@ -3564,12 +3564,12 @@ int ssh2_dh_key_pair(struct wincng_dh_ctx *dhctx, libssh2_bn *public,
         dh_params->cbLength = dh_params_len;
         dh_params->dwMagic = BCRYPT_DH_PARAMETERS_MAGIC;
         dh_params->cbKeyLength = key_length_bytes;
-        memcpy_with_be_padding((unsigned char *)dh_params +
-                               sizeof(*dh_params),
-                               key_length_bytes, p->bignum, p->length);
-        memcpy_with_be_padding((unsigned char *)dh_params +
-                               sizeof(*dh_params) + key_length_bytes,
-                               key_length_bytes, g->bignum, g->length);
+        wincng_memcpy_with_be_padding((unsigned char *)dh_params +
+                                      sizeof(*dh_params),
+                                      key_length_bytes, p->bignum, p->length);
+        wincng_memcpy_with_be_padding((unsigned char *)dh_params +
+                                      sizeof(*dh_params) + key_length_bytes,
+                                      key_length_bytes, g->bignum, g->length);
 
         status = BCryptSetProperty(dhctx->dh_handle, BCRYPT_DH_PARAMETERS,
                                    (PUCHAR)dh_params, dh_params_len, 0);
@@ -3743,15 +3743,17 @@ int ssh2_dh_secret(struct wincng_dh_ctx *dhctx, libssh2_bn *secret,
             src = (unsigned char *)(dhctx->dh_params + 1);
 
             /* Modulus (the p-value from the first call) */
-            memcpy_with_be_padding(dest, key_length_bytes, src,
-                                   dhctx->dh_params->cbKeyLength);
+            wincng_memcpy_with_be_padding(dest, key_length_bytes,
+                                          src, dhctx->dh_params->cbKeyLength);
             /* Generator (the g-value from the first call) */
-            memcpy_with_be_padding(dest + key_length_bytes, key_length_bytes,
-                                   src + dhctx->dh_params->cbKeyLength,
-                                   dhctx->dh_params->cbKeyLength);
+            wincng_memcpy_with_be_padding(dest + key_length_bytes,
+                                          key_length_bytes,
+                                          src + dhctx->dh_params->cbKeyLength,
+                                          dhctx->dh_params->cbKeyLength);
             /* Public from the peer */
-            memcpy_with_be_padding(dest + 2 * key_length_bytes,
-                                   key_length_bytes, f->bignum, f->length);
+            wincng_memcpy_with_be_padding(dest + 2 * key_length_bytes,
+                                          key_length_bytes,
+                                          f->bignum, f->length);
         }
 
         /* Import the peer public key information */
