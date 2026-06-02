@@ -62,10 +62,10 @@ int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
     }
 
     /* byte      SSH_MSG_USERAUTH_INFO_REQUEST */
-    _libssh2_get_byte(&decoded, &packet_type);
+    ssh2_get_byte(&decoded, &packet_type);
 
     /* string    name (ISO-10646 UTF-8) */
-    if(_libssh2_copy_string(session, &decoded,
+    if(ssh2_copy_string(session, &decoded,
                             &session->userauth_kybd_auth_name,
                             &session->userauth_kybd_auth_name_len) == -1) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
@@ -76,7 +76,7 @@ int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
     }
 
     /* string    instruction (ISO-10646 UTF-8) */
-    if(_libssh2_copy_string(session, &decoded,
+    if(ssh2_copy_string(session, &decoded,
                             &session->userauth_kybd_auth_instruction,
                             &session->userauth_kybd_auth_instruction_len)
        == -1) {
@@ -88,7 +88,7 @@ int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
     }
 
     /* string    language tag (as defined in [RFC-3066]) */
-    if(_libssh2_get_string(&decoded, &language_tag, &language_tag_len) == -1) {
+    if(ssh2_get_string(&decoded, &language_tag, &language_tag_len) == -1) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                        "Unable to decode "
                        "keyboard-interactive 'language tag' "
@@ -97,7 +97,7 @@ int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
     }
 
     /* int       num-prompts */
-    if(_libssh2_get_u32(&decoded, &tmp_u32) == -1) {
+    if(ssh2_get_u32(&decoded, &tmp_u32) == -1) {
         ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                        "Unable to decode "
                        "keyboard-interactive number of keyboard prompts");
@@ -147,7 +147,7 @@ int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
 
     for(i = 0; i < session->userauth_kybd_num_prompts; i++) {
         /* string    prompt[1] (ISO-10646 UTF-8) */
-        if(_libssh2_copy_string(session, &decoded,
+        if(ssh2_copy_string(session, &decoded,
                                 &session->userauth_kybd_prompts[i].text,
                                 &session->userauth_kybd_prompts[i].length)
            == -1) {
@@ -158,7 +158,7 @@ int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
         }
 
         /* boolean   echo[1] */
-        if(_libssh2_get_boolean(&decoded,
+        if(ssh2_get_boolean(&decoded,
                                 &session->userauth_kybd_prompts[i].echo)
            == -1) {
             ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,

@@ -63,7 +63,7 @@ int chachapoly_crypt(struct chachapoly_ctx *ctx, libssh2_uint64_t seqnr,
      */
     memset(poly_key, 0, sizeof(poly_key));
     ptr = &seqbuf[0];
-    _libssh2_store_u64(&ptr, seqnr);
+    ssh2_store_u64(&ptr, seqnr);
     chacha_ivsetup(&ctx->main_ctx, seqbuf, NULL);
     chacha_encrypt_bytes(&ctx->main_ctx, poly_key, poly_key, sizeof(poly_key));
 
@@ -112,10 +112,10 @@ int chachapoly_get_length(struct chachapoly_ctx *ctx, unsigned int *plenp,
     if(len < 4)
         return -1;
     ptr = &seqbuf[0];
-    _libssh2_store_u64(&ptr, seqnr);
+    ssh2_store_u64(&ptr, seqnr);
     chacha_ivsetup(&ctx->header_ctx, seqbuf, NULL);
     chacha_encrypt_bytes(&ctx->header_ctx, cp, buf, 4);
-    *plenp = _libssh2_ntohu32(buf);
+    *plenp = ssh2_ntohu32(buf);
     return 0;
 }
 

@@ -62,8 +62,8 @@ struct mac_method {
     int etm; /* encrypt-then-mac */
 };
 
-const struct mac_method **_libssh2_mac_methods(void);
-const struct mac_method *_libssh2_mac_override(
+const struct mac_method **ssh2_mac_methods(void);
+const struct mac_method *ssh2_mac_override(
     const struct crypt_method *crypt);
 
 #endif /* LIBSSH2_MAC_H */

@@ -70,7 +70,7 @@ void libssh2_exit(void)
     }
 }
 
-void _libssh2_init_if_needed(void)
+void ssh2_init_if_needed(void)
 {
     if(s_initialized == 0)
         (void)libssh2_init(0);

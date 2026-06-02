@@ -100,7 +100,7 @@ static int crypt_init(LIBSSH2_SESSION *session,
 
     ctx->encrypt = encrypt;
     ctx->algo = method->algo;
-    if(_libssh2_cipher_init(&ctx->h, ctx->algo, iv, secret, encrypt)) {
+    if(ssh2_cipher_init(&ctx->h, ctx->algo, iv, secret, encrypt)) {
         SSH2_FREE(session, ctx);
         return -1;
     }
@@ -120,7 +120,7 @@ static int crypt_encrypt(LIBSSH2_SESSION *session,
     struct crypt_ctx *cctx = *(struct crypt_ctx **)abstract;
     (void)session;
     (void)seqno;
-    return _libssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, buf,
+    return ssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, buf,
                                  buf_len, firstlast);
 }
 
@@ -128,7 +128,7 @@ static int crypt_dtor(LIBSSH2_SESSION *session, void **abstract)
 {
     struct crypt_ctx **cctx = (struct crypt_ctx **)abstract;
     if(cctx && *cctx) {
-        _libssh2_cipher_dtor(&(*cctx)->h);
+        ssh2_cipher_dtor(&(*cctx)->h);
         SSH2_FREE(session, *cctx);
         *abstract = NULL;
     }
@@ -325,7 +325,7 @@ static int crypt_init_arcfour128(LIBSSH2_SESSION *session,
         unsigned char block[8];
         size_t discard = 1536;
         for(; discard; discard -= 8)
-            _libssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, block,
+            ssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, block,
                                   method->blocksize, MIDDLE_BLOCK);
                               /* Not all middle, but here it does not matter */
     }

@@ -223,7 +223,7 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
              * buffer. Note that 'payload_len' here is the packet_length
              * field which includes the padding but not the MAC.
              */
-            if(_libssh2_timingsafe_bcmp(macbuf,
+            if(ssh2_timingsafe_bcmp(macbuf,
                                         p->payload + p->total_num - mac_len,
                                         mac_len)) {
                 ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
@@ -333,7 +333,7 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
     }
 
     if(session->fullpacket_state == libssh2_NB_state_created) {
-        rc = _libssh2_packet_add(session, p->payload,
+        rc = ssh2_packet_add(session, p->payload,
                                  session->fullpacket_payload_len,
                                  session->fullpacket_macstate, seq);
         if(rc == LIBSSH2_ERROR_EAGAIN)
@@ -365,7 +365,7 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
  *
  * DOES NOT call ssh2_err() for ANY error case.
  */
-int _libssh2_transport_read(LIBSSH2_SESSION *session)
+int ssh2_transport_read(LIBSSH2_SESSION *session)
 {
     int rc;
     struct transportpacket *p = &session->packet;
@@ -410,7 +410,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
          */
         ssh2_deb((session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
                         " key re-exchange from _libssh2_transport_read"));
-        rc = _libssh2_kex_exchange(session, 1, &session->startup_key_state);
+        rc = ssh2_kex_exchange(session, 1, &session->startup_key_state);
         if(rc)
             return rc;
     }
@@ -568,10 +568,10 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
 
                 /* store size in buffers for use below */
                 ptr = &block[0];
-                _libssh2_store_u32(&ptr, len);
+                ssh2_store_u32(&ptr, len);
 
                 ptr = &p->init[0];
-                _libssh2_store_u32(&ptr, len);
+                ssh2_store_u32(&ptr, len);
             }
             else {
                 if(encrypted) {
@@ -598,7 +598,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
                 /* we now have the initial blocksize bytes decrypted,
                  * and we can extract packet and padding length from it
                  */
-                p->packet_length = _libssh2_ntohu32(block);
+                p->packet_length = ssh2_ntohu32(block);
             }
 
             if(!encrypted || !CRYPT_FLAG_R(session, REQUIRES_FULL_PACKET)) {
@@ -616,7 +616,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
 
                     /* we collect entire undecrypted packet including the
                        packet length field that we run MAC over */
-                    p->packet_length = _libssh2_ntohu32(block);
+                    p->packet_length = ssh2_ntohu32(block);
                     total_num = 4 + p->packet_length + remote_mac->mac_len;
                 }
                 else {
@@ -645,7 +645,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
                  */
                 total_num = 4;
 
-                p->packet_length = _libssh2_ntohu32(block);
+                p->packet_length = ssh2_ntohu32(block);
                 if(p->packet_length < 1)
                     return LIBSSH2_ERROR_DECRYPT;
 
@@ -990,7 +990,7 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
  *
  * This function DOES NOT call ssh2_err() on any errors.
  */
-int _libssh2_transport_send(LIBSSH2_SESSION *session,
+int ssh2_transport_send(LIBSSH2_SESSION *session,
                             const unsigned char *data, size_t data_len,
                             const unsigned char *data2, size_t data2_len)
 {
@@ -1029,7 +1029,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
          * exchange. */
         ssh2_deb((session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
                         " key re-exchange from _libssh2_transport_send"));
-        rc = _libssh2_kex_exchange(session, 1, &session->startup_key_state);
+        rc = ssh2_kex_exchange(session, 1, &session->startup_key_state);
         if(rc)
             return rc;
     }
@@ -1162,12 +1162,12 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
 
     /* store packet_length, which is the size of the whole packet except
        the MAC and the packet_length field itself */
-    _libssh2_htonu32(p->outbuf, (uint32_t)(packet_length - 4));
+    ssh2_htonu32(p->outbuf, (uint32_t)(packet_length - 4));
     /* store padding_length */
     p->outbuf[4] = (unsigned char)padding_length;
 
     /* fill the padding area with random junk */
-    if(_libssh2_random(p->outbuf + 5 + data_len, padding_length)) {
+    if(ssh2_random(p->outbuf + 5 + data_len, padding_length)) {
         return ssh2_err(session, LIBSSH2_ERROR_RANDGEN,
                               "Unable to get random bytes for packet padding");
     }

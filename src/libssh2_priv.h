@@ -151,7 +151,7 @@
 #undef snprintf
 #define snprintf _libssh2_snprintf
 #define LIBSSH2_SNPRINTF
-int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
+int ssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
     LIBSSH2_PRINTF(3, 4);
 #endif
 
@@ -160,7 +160,7 @@ int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
 #undef gettimeofday
 #define gettimeofday _libssh2_gettimeofday
 #define LIBSSH2_GETTIMEOFDAY
-int _libssh2_gettimeofday(struct timeval *tp, void *tzp);
+int ssh2_gettimeofday(struct timeval *tp, void *tzp);
 #elif defined(HAVE_SYS_TIME_H)
 #include <sys/time.h>
 #endif
@@ -230,7 +230,7 @@ struct iovec {
 
 #define SSH2_ALLOC(session, count) \
     session->alloc(count, &(session)->abstract)
-#define SSH2_CALLOC(session, count) _libssh2_calloc(session, count)
+#define SSH2_CALLOC(session, count) ssh2_calloc(session, count)
 #define SSH2_REALLOC(session, ptr, count) \
     ((ptr) ? (session)->realloc(ptr, count, &(session)->abstract) : \
              (session)->alloc(count, &(session)->abstract))
@@ -1175,18 +1175,18 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
 #define SSH_OPEN_UNKNOWN_CHANNELTYPE         3
 #define SSH_OPEN_RESOURCE_SHORTAGE           4
 
-ssize_t _libssh2_recv(libssh2_socket_t socket, void *buffer,
+ssize_t ssh2_recv(libssh2_socket_t socket, void *buffer,
                       size_t length, int flags, void **abstract);
-ssize_t _libssh2_send(libssh2_socket_t socket, const void *buffer,
+ssize_t ssh2_send(libssh2_socket_t socket, const void *buffer,
                       size_t length, int flags, void **abstract);
 
 #define LIBSSH2_DEFAULT_READ_TIMEOUT 60 /* generic timeout in seconds used when
                                            waiting for more data to arrive */
 
-int _libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
+int ssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
                           struct key_exchange_state *key_state);
 
-unsigned char *_libssh2_kex_agree_instr(unsigned char *haystack,
+unsigned char *ssh2_kex_agree_instr(unsigned char *haystack,
                                         size_t haystack_len,
                                         const unsigned char *needle,
                                         size_t needle_len);
@@ -1195,7 +1195,7 @@ unsigned char *_libssh2_kex_agree_instr(unsigned char *haystack,
 const struct crypt_method **libssh2_crypt_methods(void);
 const struct hostkey_method **libssh2_hostkey_methods(void);
 
-int _libssh2_bcrypt_pbkdf(const char *pass,
+int ssh2_bcrypt_pbkdf(const char *pass,
                           size_t passlen,
                           const uint8_t *salt,
                           size_t saltlen,
@@ -1204,33 +1204,33 @@ int _libssh2_bcrypt_pbkdf(const char *pass,
                           unsigned int rounds);
 
 /* pem.c */
-int _libssh2_pem_parse(LIBSSH2_SESSION *session,
+int ssh2_pem_parse(LIBSSH2_SESSION *session,
                        const char *headerbegin,
                        const char *headerend,
                        const unsigned char *passphrase,
                        FILE *fp, unsigned char **data, size_t *datalen);
-int _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
+int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
                               const char *headerbegin,
                               const char *headerend,
                               const unsigned char *passphrase,
                               const char *filedata, size_t filedata_len,
                               unsigned char **data, size_t *datalen);
 /* OpenSSL keys */
-int _libssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
+int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
                                const unsigned char *passphrase,
                                FILE *fp, struct string_buf **decrypted_buf);
-int _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
+int ssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
                                       const unsigned char *passphrase,
                                       const char *filedata,
                                       size_t filedata_len,
                                       struct string_buf **decrypted_buf);
 
-int _libssh2_pem_decode_sequence(unsigned char **data, size_t *datalen);
-int _libssh2_pem_decode_integer(unsigned char **data, size_t *datalen,
+int ssh2_pem_decode_sequence(unsigned char **data, size_t *datalen);
+int ssh2_pem_decode_integer(unsigned char **data, size_t *datalen,
                                 unsigned char **i, unsigned int *ilen);
 
 /* global.c */
-void _libssh2_init_if_needed(void);
+void ssh2_init_if_needed(void);
 
 /* Utility function for certificate auth */
 size_t plain_method(char *method, size_t method_len);

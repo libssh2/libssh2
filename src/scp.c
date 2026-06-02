@@ -54,7 +54,7 @@
 #endif
 
 /* Max. length of a quoted string after libssh2_shell_quotearg() processing */
-#define _libssh2_shell_quotedsize(s)     (3 * strlen(s) + 2)
+#define ssh2_shell_quotedsize(s)     (3 * strlen(s) + 2)
 
 /*
   This function quotes a string in a way suitable to be used with a
@@ -296,7 +296,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
         session->scpRecv_atime = 0;
 
         session->scpRecv_command_len =
-            _libssh2_shell_quotedsize(path) + sizeof("scp -f ") + (sb ? 1 : 0);
+            ssh2_shell_quotedsize(path) + sizeof("scp -f ") + (sb ? 1 : 0);
 
         session->scpRecv_command =
             SSH2_ALLOC(session, session->scpRecv_command_len);
@@ -340,7 +340,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
     if(session->scpRecv_state == libssh2_NB_state_created) {
         /* Allocate a channel */
         session->scpRecv_channel =
-            _libssh2_channel_open(session, "session",
+            ssh2_channel_open(session, "session",
                                   sizeof("session") - 1,
                                   LIBSSH2_CHANNEL_WINDOW_DEFAULT,
                                   LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL,
@@ -364,7 +364,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
 
     if(session->scpRecv_state == libssh2_NB_state_sent) {
         /* Request SCP for the desired file */
-        rc = _libssh2_channel_process_startup(session->scpRecv_channel, "exec",
+        rc = ssh2_channel_process_startup(session->scpRecv_channel, "exec",
                                               sizeof("exec") - 1,
                                               (char *)session->scpRecv_command,
                                               session->scpRecv_command_len);
@@ -389,7 +389,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
     }
 
     if(session->scpRecv_state == libssh2_NB_state_sent1) {
-        rc = (int)_libssh2_channel_write(session->scpRecv_channel, 0,
+        rc = (int)ssh2_channel_write(session->scpRecv_channel, 0,
                                          session->scpRecv_response, 1);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
@@ -413,7 +413,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
             unsigned char *s, *p;
 
             if(session->scpRecv_state == libssh2_NB_state_sent2) {
-                rc = (int)_libssh2_channel_read(session->scpRecv_channel, 0,
+                rc = (int)ssh2_channel_read(session->scpRecv_channel, 0,
                                                 (char *)session->
                                                 scpRecv_response +
                                                 session->scpRecv_response_len,
@@ -444,7 +444,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                        The following string MUST be newline terminated
                     */
                     err_len =
-                        _libssh2_channel_packet_data_len(session->
+                        ssh2_channel_packet_data_len(session->
                                                          scpRecv_channel, 0);
                     err_msg = SSH2_ALLOC(session, err_len + 1);
                     if(!err_msg) {
@@ -454,7 +454,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                     }
 
                     /* Read the remote error message */
-                    (void)_libssh2_channel_read(session->scpRecv_channel, 0,
+                    (void)ssh2_channel_read(session->scpRecv_channel, 0,
                                                 err_msg, err_len);
                     /* If it failed for any reason, we ignore it anyway. */
 
@@ -568,7 +568,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
             }
 
             if(session->scpRecv_state == libssh2_NB_state_sent3) {
-                rc = (int)_libssh2_channel_write(session->scpRecv_channel, 0,
+                rc = (int)ssh2_channel_write(session->scpRecv_channel, 0,
                                                  session->scpRecv_response, 1);
                 if(rc == LIBSSH2_ERROR_EAGAIN) {
                     ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
@@ -605,7 +605,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
             char *s, *p, *e = NULL;
 
             if(session->scpRecv_state == libssh2_NB_state_sent5) {
-                rc = (int)_libssh2_channel_read(session->scpRecv_channel, 0,
+                rc = (int)ssh2_channel_read(session->scpRecv_channel, 0,
                                                 (char *)session->
                                                 scpRecv_response +
                                                 session->scpRecv_response_len,
@@ -726,7 +726,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
             }
 
             if(session->scpRecv_state == libssh2_NB_state_sent6) {
-                rc = (int)_libssh2_channel_write(session->scpRecv_channel, 0,
+                rc = (int)ssh2_channel_write(session->scpRecv_channel, 0,
                                                  session->scpRecv_response, 1);
                 if(rc == LIBSSH2_ERROR_EAGAIN) {
                     ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
@@ -855,7 +855,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
 
     if(session->scpSend_state == libssh2_NB_state_idle) {
         session->scpSend_command_len =
-            _libssh2_shell_quotedsize(path) + sizeof("scp -t ") +
+            ssh2_shell_quotedsize(path) + sizeof("scp -t ") +
             ((mtime || atime) ? 1 : 0);
 
         session->scpSend_command =
@@ -900,7 +900,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
 
     if(session->scpSend_state == libssh2_NB_state_created) {
         session->scpSend_channel =
-            _libssh2_channel_open(session, "session", sizeof("session") - 1,
+            ssh2_channel_open(session, "session", sizeof("session") - 1,
                                   LIBSSH2_CHANNEL_WINDOW_DEFAULT,
                                   LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL, 0);
         if(!session->scpSend_channel) {
@@ -923,7 +923,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
 
     if(session->scpSend_state == libssh2_NB_state_sent) {
         /* Request SCP for the desired file */
-        rc = _libssh2_channel_process_startup(session->scpSend_channel, "exec",
+        rc = ssh2_channel_process_startup(session->scpSend_channel, "exec",
                                               sizeof("exec") - 1,
                                               (char *)session->scpSend_command,
                                               session->scpSend_command_len);
@@ -949,7 +949,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
 
     if(session->scpSend_state == libssh2_NB_state_sent1) {
         /* Wait for ACK */
-        rc = (int)_libssh2_channel_read(session->scpSend_channel, 0,
+        rc = (int)ssh2_channel_read(session->scpSend_channel, 0,
                                         (char *)session->scpSend_response, 1);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
@@ -984,7 +984,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
     /* Send mtime and atime to be used for file */
     if(mtime || atime) {
         if(session->scpSend_state == libssh2_NB_state_sent2) {
-            rc = (int)_libssh2_channel_write(session->scpSend_channel, 0,
+            rc = (int)ssh2_channel_write(session->scpSend_channel, 0,
                                              session->scpSend_response,
                                              session->scpSend_response_len);
             if(rc == LIBSSH2_ERROR_EAGAIN) {
@@ -1003,7 +1003,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
 
         if(session->scpSend_state == libssh2_NB_state_sent3) {
             /* Wait for ACK */
-            rc = (int)_libssh2_channel_read(session->scpSend_channel, 0,
+            rc = (int)ssh2_channel_read(session->scpSend_channel, 0,
                                             (char *)session->scpSend_response,
                                             1);
             if(rc == LIBSSH2_ERROR_EAGAIN) {
@@ -1053,7 +1053,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
     }
 
     if(session->scpSend_state == libssh2_NB_state_sent5) {
-        rc = (int)_libssh2_channel_write(session->scpSend_channel, 0,
+        rc = (int)ssh2_channel_write(session->scpSend_channel, 0,
                                          session->scpSend_response,
                                          session->scpSend_response_len);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
@@ -1072,7 +1072,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
 
     if(session->scpSend_state == libssh2_NB_state_sent6) {
         /* Wait for ACK */
-        rc = (int)_libssh2_channel_read(session->scpSend_channel, 0,
+        rc = (int)ssh2_channel_read(session->scpSend_channel, 0,
                                         (char *)session->scpSend_response, 1);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
@@ -1092,7 +1092,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
             char *err_msg;
 
             err_len =
-                _libssh2_channel_packet_data_len(session->scpSend_channel, 0);
+                ssh2_channel_packet_data_len(session->scpSend_channel, 0);
             err_msg = SSH2_ALLOC(session, err_len + 1);
             if(!err_msg) {
                 ssh2_err(session, LIBSSH2_ERROR_ALLOC,
@@ -1101,7 +1101,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
             }
 
             /* Read the remote error message */
-            rc = (int)_libssh2_channel_read(session->scpSend_channel, 0,
+            rc = (int)ssh2_channel_read(session->scpSend_channel, 0,
                                             err_msg, err_len);
             if(rc > 0) {
                 err_msg[err_len] = 0;

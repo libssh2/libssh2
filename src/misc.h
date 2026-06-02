@@ -40,23 +40,23 @@
  */
 
 #ifdef LIBSSH2_NO_CLEAR_MEMORY
-#define _libssh2_explicit_zero(buf, size) \
+#define ssh2_explicit_zero(buf, size) \
     do {                                  \
         (void)(buf);                      \
         (void)(size);                     \
     } while(0)
 #elif defined(_WIN32)
-#define _libssh2_explicit_zero(buf, size) SecureZeroMemory(buf, size)
+#define ssh2_explicit_zero(buf, size) SecureZeroMemory(buf, size)
 #elif defined(HAVE_EXPLICIT_BZERO)
-#define _libssh2_explicit_zero(buf, size) explicit_bzero(buf, size)
+#define ssh2_explicit_zero(buf, size) explicit_bzero(buf, size)
 #elif defined(HAVE_EXPLICIT_MEMSET)
-#define _libssh2_explicit_zero(buf, size) (void)explicit_memset(buf, 0, size)
+#define ssh2_explicit_zero(buf, size) (void)explicit_memset(buf, 0, size)
 #elif defined(HAVE_MEMSET_S)
-#define _libssh2_explicit_zero(buf, size) (void)memset_s(buf, size, 0, size)
+#define ssh2_explicit_zero(buf, size) (void)memset_s(buf, size, 0, size)
 #else
 #define LIBSSH2_MEMZERO
-void _libssh2_memzero(void *buf, size_t size);
-#define _libssh2_explicit_zero(buf, size) _libssh2_memzero(buf, size)
+void ssh2_memzero(void *buf, size_t size);
+#define ssh2_explicit_zero(buf, size) ssh2_memzero(buf, size)
 #endif
 
 struct list_head {
@@ -82,68 +82,68 @@ int ssh2_err(LIBSSH2_SESSION *session, int errcode, const char *errmsg);
 
 #ifdef _WIN32
 /* Convert Win32 WSAGetLastError to errno equivalent */
-int _libssh2_wsa2errno(void);
+int ssh2_wsa2errno(void);
 #endif
 
-void _libssh2_list_init(struct list_head *head);
+void ssh2_list_init(struct list_head *head);
 
 /* add a node last in the list */
-void _libssh2_list_add(struct list_head *head,
+void ssh2_list_add(struct list_head *head,
                        struct list_node *entry);
 
 /* return the "first" node in the list this head points to */
-void *_libssh2_list_first(struct list_head *head);
+void *ssh2_list_first(struct list_head *head);
 
 /* return the next node in the list */
-void *_libssh2_list_next(struct list_node *node);
+void *ssh2_list_next(struct list_node *node);
 
 /* return the prev node in the list */
-void *_libssh2_list_prev(struct list_node *node);
+void *ssh2_list_prev(struct list_node *node);
 
 /* remove this node from the list */
-void _libssh2_list_remove(struct list_node *entry);
+void ssh2_list_remove(struct list_node *entry);
 
-int _libssh2_base64_decode(LIBSSH2_SESSION *session,
+int ssh2_base64_decode(LIBSSH2_SESSION *session,
                            char **data, size_t *datalen,
                            const char *src, size_t src_len);
-size_t _libssh2_base64_encode(LIBSSH2_SESSION *session,
+size_t ssh2_base64_encode(LIBSSH2_SESSION *session,
                               const char *inp, size_t insize, char **outptr);
 
-uint32_t _libssh2_ntohu32(const unsigned char *buf);
-libssh2_uint64_t _libssh2_ntohu64(const unsigned char *buf);
-void _libssh2_htonu32(unsigned char *buf, uint32_t value);
-void _libssh2_store_u32(unsigned char **buf, uint32_t value);
-void _libssh2_store_u64(unsigned char **buf, libssh2_uint64_t value);
-int _libssh2_store_str(unsigned char **buf, const char *str, size_t len);
-int _libssh2_store_hybrid_str(unsigned char **buf, const char *str_1,
+uint32_t ssh2_ntohu32(const unsigned char *buf);
+libssh2_uint64_t ssh2_ntohu64(const unsigned char *buf);
+void ssh2_htonu32(unsigned char *buf, uint32_t value);
+void ssh2_store_u32(unsigned char **buf, uint32_t value);
+void ssh2_store_u64(unsigned char **buf, libssh2_uint64_t value);
+int ssh2_store_str(unsigned char **buf, const char *str, size_t len);
+int ssh2_store_hybrid_str(unsigned char **buf, const char *str_1,
                               size_t len_1, const char *str_2, size_t len_2);
-int _libssh2_store_bignum2_bytes(unsigned char **buf,
+int ssh2_store_bignum2_bytes(unsigned char **buf,
                                  const unsigned char *bytes,
                                  size_t len);
-void *_libssh2_calloc(LIBSSH2_SESSION *session, size_t size);
+void *ssh2_calloc(LIBSSH2_SESSION *session, size_t size);
 
-struct string_buf *_libssh2_string_buf_new(LIBSSH2_SESSION *session);
-void _libssh2_string_buf_free(LIBSSH2_SESSION *session,
+struct string_buf *ssh2_string_buf_new(LIBSSH2_SESSION *session);
+void ssh2_string_buf_free(LIBSSH2_SESSION *session,
                               struct string_buf *buf);
-int _libssh2_get_boolean(struct string_buf *buf, unsigned char *out);
-int _libssh2_get_byte(struct string_buf *buf, unsigned char *out);
-int _libssh2_get_u32(struct string_buf *buf, uint32_t *out);
-int _libssh2_get_u64(struct string_buf *buf, libssh2_uint64_t *out);
-int _libssh2_match_string(struct string_buf *buf, const char *match);
-int _libssh2_get_string(struct string_buf *buf, unsigned char **outbuf,
+int ssh2_get_boolean(struct string_buf *buf, unsigned char *out);
+int ssh2_get_byte(struct string_buf *buf, unsigned char *out);
+int ssh2_get_u32(struct string_buf *buf, uint32_t *out);
+int ssh2_get_u64(struct string_buf *buf, libssh2_uint64_t *out);
+int ssh2_match_string(struct string_buf *buf, const char *match);
+int ssh2_get_string(struct string_buf *buf, unsigned char **outbuf,
                         size_t *outlen);
-int _libssh2_copy_string(LIBSSH2_SESSION *session, struct string_buf *buf,
+int ssh2_copy_string(LIBSSH2_SESSION *session, struct string_buf *buf,
                          unsigned char **outbuf, size_t *outlen);
-int _libssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf,
+int ssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf,
                               size_t *outlen);
-int _libssh2_check_length(struct string_buf *buf, size_t requested_len);
-int _libssh2_eob(struct string_buf *buf);
+int ssh2_check_length(struct string_buf *buf, size_t requested_len);
+int ssh2_eob(struct string_buf *buf);
 
-void _libssh2_xor_data(unsigned char *output,
+void ssh2_xor_data(unsigned char *output,
                        const unsigned char *input1,
                        const unsigned char *input2,
                        size_t length);
 
-int _libssh2_timingsafe_bcmp(const void *b1, const void *b2, size_t n);
+int ssh2_timingsafe_bcmp(const void *b1, const void *b2, size_t n);
 
 #endif /* LIBSSH2_MISC_H */

@@ -62,7 +62,7 @@
             if(((rc) != LIBSSH2_ERROR_EAGAIN) || !(sess) ||          \
                !(sess)->api_block_mode)                              \
                 break;                                               \
-            (rc) = _libssh2_wait_socket(sess, entry_time);           \
+            (rc) = ssh2_wait_socket(sess, entry_time);           \
         } while(!(rc));                                              \
     } while(0)
 
@@ -81,13 +81,13 @@
             if(!(sess) || !(sess)->api_block_mode || (ptr) != NULL ||    \
                libssh2_session_last_errno(sess) != LIBSSH2_ERROR_EAGAIN) \
                 break;                                                   \
-            (rc) = _libssh2_wait_socket(sess, entry_time);               \
+            (rc) = ssh2_wait_socket(sess, entry_time);               \
         } while(!(rc));                                                  \
     } while(0)
 
-int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time);
+int ssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time);
 
 /* this is the lib-internal set blocking function */
-int _libssh2_session_set_blocking(LIBSSH2_SESSION *session, int blocking);
+int ssh2_session_set_blocking(LIBSSH2_SESSION *session, int blocking);
 
 #endif /* LIBSSH2_SESSION_H */

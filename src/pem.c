@@ -104,7 +104,7 @@ static unsigned char hex_decode(char digit)
         ((digit >= 'A') ? (0xA + (digit - 'A')) : (digit - '0'));
 }
 
-int _libssh2_pem_parse(LIBSSH2_SESSION *session,
+int ssh2_pem_parse(LIBSSH2_SESSION *session,
                        const char *headerbegin,
                        const char *headerend,
                        const unsigned char *passphrase,
@@ -155,7 +155,7 @@ int _libssh2_pem_parse(LIBSSH2_SESSION *session,
         goto out;
     }
 
-    ret = _libssh2_pem_parse_memory(session, headerbegin, headerend,
+    ret = ssh2_pem_parse_memory(session, headerbegin, headerend,
                                     passphrase, filedata, filedata_len,
                                     data, datalen);
 
@@ -166,7 +166,7 @@ out:
     return ret;
 }
 
-int _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
+int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
                               const char *headerbegin,
                               const char *headerend,
                               const unsigned char *passphrase,
@@ -271,7 +271,7 @@ int _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    if(_libssh2_base64_decode(session, (char **)data, datalen,
+    if(ssh2_base64_decode(session, (char **)data, datalen,
                               b64data, b64datalen)) {
         ret = -1;
         goto out;
@@ -320,22 +320,22 @@ int _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         /* Initialize the decryption */
         if(method->init(session, method, iv, &free_iv, secret, &free_secret, 0,
                         &abstract)) {
-            _libssh2_explicit_zero((char *)secret, sizeof(secret));
-            _libssh2_explicit_zero(*data, *datalen);
+            ssh2_explicit_zero((char *)secret, sizeof(secret));
+            ssh2_explicit_zero(*data, *datalen);
             SSH2_FREE(session, *data);
             ret = -1;
             goto out;
         }
 
         if(free_secret) {
-            _libssh2_explicit_zero((char *)secret, sizeof(secret));
+            ssh2_explicit_zero((char *)secret, sizeof(secret));
         }
 
         /* Do the actual decryption */
         if((*datalen % blocksize) != 0) {
-            _libssh2_explicit_zero((char *)secret, sizeof(secret));
+            ssh2_explicit_zero((char *)secret, sizeof(secret));
             method->dtor(session, &abstract);
-            _libssh2_explicit_zero(*data, *datalen);
+            ssh2_explicit_zero(*data, *datalen);
             SSH2_FREE(session, *data);
             ret = -1;
             goto out;
@@ -344,9 +344,9 @@ int _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         if(method->flags & LIBSSH2_CRYPT_FLAG_REQUIRES_FULL_PACKET) {
             if(method->crypt(session, 0, *data, *datalen, &abstract, 0)) {
                 ret = LIBSSH2_ERROR_DECRYPT;
-                _libssh2_explicit_zero((char *)secret, sizeof(secret));
+                ssh2_explicit_zero((char *)secret, sizeof(secret));
                 method->dtor(session, &abstract);
-                _libssh2_explicit_zero(*data, *datalen);
+                ssh2_explicit_zero(*data, *datalen);
                 SSH2_FREE(session, *data);
                 goto out;
             }
@@ -362,9 +362,9 @@ int _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
                                             ? LAST_BLOCK
                                             : MIDDLE_BLOCK))) {
                     ret = LIBSSH2_ERROR_DECRYPT;
-                    _libssh2_explicit_zero((char *)secret, sizeof(secret));
+                    ssh2_explicit_zero((char *)secret, sizeof(secret));
                     method->dtor(session, &abstract);
-                    _libssh2_explicit_zero(*data, *datalen);
+                    ssh2_explicit_zero(*data, *datalen);
                     SSH2_FREE(session, *data);
                     goto out;
                 }
@@ -378,7 +378,7 @@ int _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         if(padding > *datalen) {
             /* Invalid padding len */
             ret = LIBSSH2_ERROR_DECRYPT;
-            _libssh2_explicit_zero(*data, *datalen);
+            ssh2_explicit_zero(*data, *datalen);
             SSH2_FREE(session, *data);
             goto out;
         }
@@ -386,7 +386,7 @@ int _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         *datalen -= padding;
 
         /* Clean up */
-        _libssh2_explicit_zero((char *)secret, sizeof(secret));
+        ssh2_explicit_zero((char *)secret, sizeof(secret));
         method->dtor(session, &abstract);
 #else
         ssh2_err(session, LIBSSH2_ERROR_ALGO_UNSUPPORTED,
@@ -399,7 +399,7 @@ int _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
     ret = 0;
 out:
     if(b64data) {
-        _libssh2_explicit_zero(b64data, b64datalen);
+        ssh2_explicit_zero(b64data, b64datalen);
         SSH2_FREE(session, b64data);
     }
     return ret;
@@ -410,7 +410,7 @@ out:
 #define OPENSSH_HEADER_BEGIN "-----BEGIN OPENSSH PRIVATE KEY-----"
 #define OPENSSH_HEADER_END   "-----END OPENSSH PRIVATE KEY-----"
 
-static int _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
+static int ssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
                                            const unsigned char *passphrase,
                                            const char *b64data,
                                            size_t b64datalen,
@@ -437,7 +437,7 @@ static int _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
         *decrypted_buf = NULL;
 
     /* decode file */
-    if(_libssh2_base64_decode(session, (char **)&f, &f_len,
+    if(ssh2_base64_decode(session, (char **)&f, &f_len,
                               b64data, b64datalen)) {
         ret = -1;
         goto out;
@@ -462,21 +462,21 @@ static int _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
 
     decoded.dataptr += strlen(AUTH_MAGIC) + 1;
 
-    if(_libssh2_get_string(&decoded, &ciphername, &tmp_len) ||
+    if(ssh2_get_string(&decoded, &ciphername, &tmp_len) ||
        tmp_len == 0) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                              "ciphername is missing");
         goto out;
     }
 
-    if(_libssh2_get_string(&decoded, &kdfname, &tmp_len) ||
+    if(ssh2_get_string(&decoded, &kdfname, &tmp_len) ||
        tmp_len == 0) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                              "kdfname is missing");
         goto out;
     }
 
-    if(_libssh2_get_string(&decoded, &kdf, &kdf_len)) {
+    if(ssh2_get_string(&decoded, &kdf, &kdf_len)) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "kdf is missing");
         goto out;
     }
@@ -505,7 +505,7 @@ static int _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
         goto out;
     }
 
-    if(_libssh2_get_u32(&decoded, &nkeys) != 0 || nkeys != 1) {
+    if(ssh2_get_u32(&decoded, &nkeys) != 0 || nkeys != 1) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                              "Multiple keys are unsupported");
         goto out;
@@ -513,14 +513,14 @@ static int _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
 
     /* unencrypted public key */
 
-    if(_libssh2_get_string(&decoded, &buf, &tmp_len) || tmp_len == 0) {
+    if(ssh2_get_string(&decoded, &buf, &tmp_len) || tmp_len == 0) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                              "Invalid private key; "
                              "expect embedded public key");
         goto out;
     }
 
-    if(_libssh2_get_string(&decoded, &buf, &tmp_len) || tmp_len == 0) {
+    if(ssh2_get_string(&decoded, &buf, &tmp_len) || tmp_len == 0) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                              "Private key data not found");
         goto out;
@@ -569,14 +569,14 @@ static int _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
         }
 
         if(strcmp((const char *)kdfname, "bcrypt") == 0 && passphrase) {
-            if((_libssh2_get_string(&kdf_buf, &salt, &salt_len)) ||
-               (_libssh2_get_u32(&kdf_buf, &rounds) != 0)) {
+            if((ssh2_get_string(&kdf_buf, &salt, &salt_len)) ||
+               (ssh2_get_u32(&kdf_buf, &rounds) != 0)) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                      "kdf contains unexpected values");
                 goto out;
             }
 
-            if(_libssh2_bcrypt_pbkdf((const char *)passphrase,
+            if(ssh2_bcrypt_pbkdf((const char *)passphrase,
                                      strlen((const char *)passphrase),
                                      salt, salt_len, key,
                                      keylen + ivlen, rounds) < 0) {
@@ -662,7 +662,7 @@ static int _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
              * appended to the encrypted key */
             if(strcmp(method->name, "aes256-gcm@openssh.com") == 0 ||
                strcmp(method->name, "aes128-gcm@openssh.com") == 0) {
-                if(!_libssh2_check_length(&decoded, 16)) {
+                if(!ssh2_check_length(&decoded, 16)) {
                     ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                          "GCM auth tag missing");
                     method->dtor(session, &abstract);
@@ -684,8 +684,8 @@ static int _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
 
     /* Check random bytes match */
 
-    if(_libssh2_get_u32(&decrypted, &check1) != 0 ||
-       _libssh2_get_u32(&decrypted, &check2) != 0 ||
+    if(ssh2_get_u32(&decrypted, &check1) != 0 ||
+       ssh2_get_u32(&decrypted, &check2) != 0 ||
        check1 != check2) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
                        "Private key unpack failed (correct password?)");
@@ -695,7 +695,7 @@ static int _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
 
     if(decrypted_buf) {
         /* copy data to out-going buffer */
-        struct string_buf *out_buf = _libssh2_string_buf_new(session);
+        struct string_buf *out_buf = ssh2_string_buf_new(session);
         if(!out_buf) {
             ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Unable to allocate memory for "
@@ -708,7 +708,7 @@ static int _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
             ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Unable to allocate memory for "
                                  "decrypted struct");
-            _libssh2_string_buf_free(session, out_buf);
+            ssh2_string_buf_free(session, out_buf);
             goto out;
         }
         memcpy(out_buf->data, decrypted.data, decrypted.len);
@@ -723,26 +723,26 @@ out:
 
     /* Clean up */
     if(key) {
-        _libssh2_explicit_zero(key, total_len);
+        ssh2_explicit_zero(key, total_len);
         SSH2_FREE(session, key);
     }
     if(key_part) {
-        _libssh2_explicit_zero(key_part, keylen);
+        ssh2_explicit_zero(key_part, keylen);
         SSH2_FREE(session, key_part);
     }
     if(iv_part) {
-        _libssh2_explicit_zero(iv_part, ivlen);
+        ssh2_explicit_zero(iv_part, ivlen);
         SSH2_FREE(session, iv_part);
     }
     if(f) {
-        _libssh2_explicit_zero(f, f_len);
+        ssh2_explicit_zero(f, f_len);
         SSH2_FREE(session, f);
     }
 
     return ret;
 }
 
-int _libssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
+int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
                                const unsigned char *passphrase,
                                FILE *fp, struct string_buf **decrypted_buf)
 {
@@ -795,14 +795,14 @@ int _libssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    ret = _libssh2_openssh_pem_parse_data(session,
+    ret = ssh2_openssh_pem_parse_data(session,
                                           passphrase,
                                           (const char *)b64data,
                                           b64datalen,
                                           decrypted_buf);
 
     if(b64data) {
-        _libssh2_explicit_zero(b64data, b64datalen);
+        ssh2_explicit_zero(b64data, b64datalen);
         SSH2_FREE(session, b64data);
     }
 
@@ -811,7 +811,7 @@ out:
     return ret;
 }
 
-int _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
+int ssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
                                       const unsigned char *passphrase,
                                       const char *filedata,
                                       size_t filedata_len,
@@ -879,12 +879,12 @@ int _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
         return ssh2_err(session, LIBSSH2_ERROR_PROTO,
                               "Error parsing PEM: base 64 data missing");
 
-    ret = _libssh2_openssh_pem_parse_data(session, passphrase, b64data,
+    ret = ssh2_openssh_pem_parse_data(session, passphrase, b64data,
                                           b64datalen, decrypted_buf);
 
 out:
     if(b64data) {
-        _libssh2_explicit_zero(b64data, b64datalen);
+        ssh2_explicit_zero(b64data, b64datalen);
         SSH2_FREE(session, b64data);
     }
     return ret;
@@ -924,7 +924,7 @@ static int read_asn1_length(const unsigned char *data,
     return nextpos;
 }
 
-int _libssh2_pem_decode_sequence(unsigned char **data, size_t *datalen)
+int ssh2_pem_decode_sequence(unsigned char **data, size_t *datalen)
 {
     size_t len;
     int lenlen;
@@ -951,7 +951,7 @@ int _libssh2_pem_decode_sequence(unsigned char **data, size_t *datalen)
     return 0;
 }
 
-int _libssh2_pem_decode_integer(unsigned char **data, size_t *datalen,
+int ssh2_pem_decode_integer(unsigned char **data, size_t *datalen,
                                 unsigned char **i, unsigned int *ilen)
 {
     size_t len;
