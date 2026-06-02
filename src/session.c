@@ -446,8 +446,8 @@ LIBSSH2_SESSION *libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC(*my_alloc),
         session->alloc = local_alloc;
         session->free = local_free;
         session->realloc = local_realloc;
-        session->send = _libssh2_send;
-        session->recv = _libssh2_recv;
+        session->send = ssh2_send;
+        session->recv = ssh2_recv;
         session->abstract = abstract;
         session->api_timeout = 0; /* timeout-free API by default */
         session->api_block_mode = 1; /* blocking API by default */

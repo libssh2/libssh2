@@ -751,7 +751,7 @@ LIBSSH2_CHANNEL_CLOSE_FUNC(libssh2_sftp_dtor)
         SSH2_FREE(session, sftp->partial_packet);
     }
 
-    /* Free the packet storage for _libssh2_sftp_packet_readdir */
+    /* Free the packet storage for ssh2_sftp_packet_readdir() */
     if(sftp->readdir_packet) {
         SSH2_FREE(session, sftp->readdir_packet);
     }

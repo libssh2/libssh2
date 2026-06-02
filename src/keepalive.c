@@ -38,7 +38,7 @@
  */
 
 #include "libssh2_priv.h"
-#include "transport.h" /* _libssh2_transport_write */
+#include "transport.h" /* ssh2_transport_write() */
 
 /* Keep-alive stuff. */
 

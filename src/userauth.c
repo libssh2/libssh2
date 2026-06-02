@@ -1583,7 +1583,7 @@ retry_auth:
     if(session->userauth_pblc_state == libssh2_NB_state_idle) {
 
         /*
-         * The call to _libssh2_ntohu32 later relies on pubkeydata having at
+         * The call to ssh2_ntohu32() later relies on pubkeydata having at
          * least 4 valid bytes containing the length of the method name.
          */
         if(pubkeydata_len < 4)
@@ -2053,7 +2053,7 @@ static int userauth_publickey_fromfile(LIBSSH2_SESSION *session,
                                            &pubkeydata, &pubkeydata_len,
                                            privatekey, passphrase);
 
-            /* _libssh2_pub_priv_keyfile calls ssh2_err() */
+            /* ssh2_pub_priv_keyfile() calls ssh2_err() */
             if(rc)
                 return rc;
         }

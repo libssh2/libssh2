@@ -442,7 +442,7 @@ static const char table64[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /*
- * _libssh2_base64_encode
+ * ssh2_base64_encode()
  *
  * Returns the length of the newly created base64 string. The third argument
  * is a pointer to an allocated area holding the base64 data. If something
@@ -962,7 +962,7 @@ int ssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf,
     return 0;
 }
 
-/* Given the current location in buf, _libssh2_check_length ensures
+/* Given the current location in buf, ssh2_check_length() ensures
    callers can read the next len number of bytes out of the buffer
    before reading the buffer content */
 

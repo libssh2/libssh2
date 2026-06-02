@@ -149,7 +149,7 @@
 /* Use local implementation when not available */
 #ifndef HAVE_SNPRINTF
 #undef snprintf
-#define snprintf _libssh2_snprintf
+#define snprintf ssh2_snprintf
 #define LIBSSH2_SNPRINTF
 int ssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
     LIBSSH2_PRINTF(3, 4);
@@ -158,7 +158,7 @@ int ssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
 #ifndef HAVE_GETTIMEOFDAY
 #define HAVE_GETTIMEOFDAY
 #undef gettimeofday
-#define gettimeofday _libssh2_gettimeofday
+#define gettimeofday ssh2_gettimeofday
 #define LIBSSH2_GETTIMEOFDAY
 int ssh2_gettimeofday(struct timeval *tp, void *tzp);
 #elif defined(HAVE_SYS_TIME_H)

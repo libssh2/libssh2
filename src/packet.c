@@ -1422,8 +1422,8 @@ libssh2_packet_add_jump_authagent:
 
         /*
          * The KEXINIT message has been added to the queue.  The packAdd and
-         * readPack states need to be reset because _libssh2_kex_exchange
-         * (eventually) calls upon _libssh2_transport_read to read the rest of
+         * readPack states need to be reset because ssh2_kex_exchange()
+         * (eventually) calls upon ssh2_transport_read() to read the rest of
          * the key exchange conversation.
          */
         session->readPack_state = libssh2_NB_state_idle;

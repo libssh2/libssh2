@@ -219,7 +219,7 @@ static int hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION *session,
 {
     libssh2_rsa_ctx *rsactx = (libssh2_rsa_ctx *)(*abstract);
 
-#ifdef _libssh2_rsa_sha1_signv
+#ifdef ssh2_rsa_sha1_signv
     return ssh2_rsa_sha1_signv(session, signature, signature_len,
                                    veccount, datavec, rsactx);
 #else
@@ -290,7 +290,7 @@ static int hostkey_method_ssh_rsa_sha2_256_signv(LIBSSH2_SESSION *session,
 {
     libssh2_rsa_ctx *rsactx = (libssh2_rsa_ctx *)(*abstract);
 
-#ifdef _libssh2_rsa_sha2_256_signv
+#ifdef ssh2_rsa_sha2_256_signv
     return ssh2_rsa_sha2_256_signv(session, signature, signature_len,
                                        veccount, datavec, rsactx);
 #else
@@ -358,7 +358,7 @@ static int hostkey_method_ssh_rsa_sha2_512_signv(LIBSSH2_SESSION *session,
 {
     libssh2_rsa_ctx *rsactx = (libssh2_rsa_ctx *)(*abstract);
 
-#ifdef _libssh2_rsa_sha2_512_signv
+#ifdef ssh2_rsa_sha2_512_signv
     return ssh2_rsa_sha2_512_signv(session, signature, signature_len,
                                        veccount, datavec, rsactx);
 #else

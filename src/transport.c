@@ -409,7 +409,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
          * re-exchange is done!
          */
         ssh2_deb((session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
-                        " key re-exchange from _libssh2_transport_read"));
+                        " key re-exchange from ssh2_transport_read()"));
         rc = ssh2_kex_exchange(session, 1, &session->startup_key_state);
         if(rc)
             return rc;
@@ -1021,14 +1021,14 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
      * exchange, we must complete that key exchange before continuing to write
      * further data.
      *
-     * See the similar block in _libssh2_transport_read for more details.
+     * See the similar block in ssh2_transport_read() for more details.
      */
     if(session->state & LIBSSH2_STATE_EXCHANGING_KEYS &&
        !(session->state & LIBSSH2_STATE_KEX_ACTIVE)) {
         /* Do not write any new packets if we are still in the middle of a key
          * exchange. */
         ssh2_deb((session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
-                        " key re-exchange from _libssh2_transport_send"));
+                        " key re-exchange from ssh2_transport_send()"));
         rc = ssh2_kex_exchange(session, 1, &session->startup_key_state);
         if(rc)
             return rc;
