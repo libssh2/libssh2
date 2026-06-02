@@ -38,7 +38,7 @@
  */
 
 #include "libssh2_priv.h"
-#include "transport.h" /* _libssh2_transport_write */
+#include "transport.h" /* ssh2_transport_write() */
 
 /* Keep-alive stuff. */
 
@@ -77,12 +77,12 @@ int libssh2_keepalive_send(LIBSSH2_SESSION *session, int *seconds_to_next)
 
         keepalive_data[len - 1] = (unsigned char)session->keepalive_want_reply;
 
-        rc = _libssh2_transport_send(session, keepalive_data, len, NULL, 0);
+        rc = ssh2_transport_send(session, keepalive_data, len, NULL, 0);
         /* Silently ignore PACKET_EAGAIN here: if the write buffer is
            already full, sending another keepalive is not useful. */
         if(rc && rc != LIBSSH2_ERROR_EAGAIN) {
-            _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-                           "Unable to send keepalive message");
+            ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
+                     "Unable to send keepalive message");
             return rc;
         }
 

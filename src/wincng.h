@@ -40,7 +40,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#define LIBSSH2_CRYPTO_ENGINE libssh2_wincng
+#define SSH2_CRYPTO_ENGINE libssh2_wincng
 
 /* required for cross-compilation against the w64 mingw-runtime package */
 #if defined(_WIN32_WINNT) && (_WIN32_WINNT < 0x0600)
@@ -108,7 +108,7 @@
 
 #if LIBSSH2_ECDSA
 #else
-#define libssh2_ec_key void
+#define ssh2_ec_key void
 #endif
 
 /*******************************************************************/
@@ -116,7 +116,7 @@
  * Windows CNG backend: Global context handles
  */
 
-struct libssh2_wincng_ctx {
+struct wcng_ctx {
     BCRYPT_ALG_HANDLE hAlgRNG;
     BCRYPT_ALG_HANDLE hAlgHashMD5;
     BCRYPT_ALG_HANDLE hAlgHashSHA1;
@@ -137,32 +137,32 @@ struct libssh2_wincng_ctx {
     BCRYPT_ALG_HANDLE hAlgDH;
     BCRYPT_ALG_HANDLE hAlgChacha20;
 #if LIBSSH2_ECDSA
-    BCRYPT_ALG_HANDLE hAlgECDH[3];  /* indexed by libssh2_curve_type */
-    BCRYPT_ALG_HANDLE hAlgECDSA[3]; /* indexed by libssh2_curve_type */
+    BCRYPT_ALG_HANDLE hAlgECDH[3];  /* indexed by ssh2_curve_type */
+    BCRYPT_ALG_HANDLE hAlgECDSA[3]; /* indexed by ssh2_curve_type */
 #endif
     volatile int hasAlgDHwithKDF; /* -1=no, 0=maybe, 1=yes */
 };
 
-extern struct libssh2_wincng_ctx wincng_ctx;
+extern struct wcng_ctx ssh2_wcng;
 
 /*******************************************************************/
 /*
  * Windows CNG backend: Generic functions
  */
 
-#define libssh2_crypto_init() _libssh2_wincng_init()
-#define libssh2_crypto_exit() _libssh2_wincng_free()
+#define ssh2_crypto_init() ssh2_wcng_init()
+#define ssh2_crypto_exit() ssh2_wcng_free()
 
-#define _libssh2_random(buf, len) _libssh2_wincng_random(buf, len)
+#define ssh2_random(buf, len) ssh2_wcng_random(buf, len)
 
-#define libssh2_prepare_iovec(vec, len)  /* Empty. */
+#define ssh2_prepare_iovec(vec, len)  /* Empty. */
 
 /*******************************************************************/
 /*
  * Windows CNG backend: Hash structure
  */
 
-struct wincng_hash_ctx {
+struct wcng_hash_ctx {
     BCRYPT_HASH_HANDLE hHash;
     unsigned char *pbHashObject;
     ULONG dwHashObject;
@@ -173,77 +173,77 @@ struct wincng_hash_ctx {
  * Windows CNG backend: Hash functions
  */
 
-#define libssh2_sha1_ctx struct wincng_hash_ctx
-#define libssh2_sha1_init(ctx) \
-    (_libssh2_wincng_hash_init(ctx, wincng_ctx.hAlgHashSHA1, \
-                               SHA_DIGEST_LENGTH, NULL, 0) == 0)
-#define libssh2_sha1_update(ctx, data, datalen) \
-    (_libssh2_wincng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
-#define libssh2_sha1_final(ctx, hash) \
-    (_libssh2_wincng_hash_final(&(ctx), hash) == 0)
-#define libssh2_sha1(data, datalen, hash) \
-    _libssh2_wincng_hash(data, datalen, wincng_ctx.hAlgHashSHA1, \
-                         hash, SHA_DIGEST_LENGTH)
+#define ssh2_sha1_ctx struct wcng_hash_ctx
+#define ssh2_sha1_init(ctx) \
+    (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashSHA1, \
+                         SHA_DIGEST_LENGTH, NULL, 0) == 0)
+#define ssh2_sha1_update(ctx, data, datalen) \
+    (ssh2_wcng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
+#define ssh2_sha1_final(ctx, hash) \
+    (ssh2_wcng_hash_final(&(ctx), hash) == 0)
+#define ssh2_sha1(data, datalen, hash) \
+    ssh2_wcng_hash(data, datalen, ssh2_wcng.hAlgHashSHA1, \
+                   hash, SHA_DIGEST_LENGTH)
 
-#define libssh2_sha256_ctx struct wincng_hash_ctx
-#define libssh2_sha256_init(ctx) \
-    (_libssh2_wincng_hash_init(ctx, wincng_ctx.hAlgHashSHA256, \
-                               SHA256_DIGEST_LENGTH, NULL, 0) == 0)
-#define libssh2_sha256_update(ctx, data, datalen) \
-    (_libssh2_wincng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
-#define libssh2_sha256_final(ctx, hash) \
-    (_libssh2_wincng_hash_final(&(ctx), hash) == 0)
-#define libssh2_sha256(data, datalen, hash) \
-    _libssh2_wincng_hash(data, datalen, wincng_ctx.hAlgHashSHA256, \
-                         hash, SHA256_DIGEST_LENGTH)
+#define ssh2_sha256_ctx struct wcng_hash_ctx
+#define ssh2_sha256_init(ctx) \
+    (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashSHA256, \
+                         SHA256_DIGEST_LENGTH, NULL, 0) == 0)
+#define ssh2_sha256_update(ctx, data, datalen) \
+    (ssh2_wcng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
+#define ssh2_sha256_final(ctx, hash) \
+    (ssh2_wcng_hash_final(&(ctx), hash) == 0)
+#define ssh2_sha256(data, datalen, hash) \
+    ssh2_wcng_hash(data, datalen, ssh2_wcng.hAlgHashSHA256, \
+                   hash, SHA256_DIGEST_LENGTH)
 
-#define libssh2_sha384_ctx struct wincng_hash_ctx
-#define libssh2_sha384_init(ctx) \
-    (_libssh2_wincng_hash_init(ctx, wincng_ctx.hAlgHashSHA384, \
-                               SHA384_DIGEST_LENGTH, NULL, 0) == 0)
-#define libssh2_sha384_update(ctx, data, datalen) \
-    (_libssh2_wincng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
-#define libssh2_sha384_final(ctx, hash) \
-    (_libssh2_wincng_hash_final(&(ctx), hash) == 0)
-#define libssh2_sha384(data, datalen, hash) \
-    _libssh2_wincng_hash(data, datalen, wincng_ctx.hAlgHashSHA384, \
-                         hash, SHA384_DIGEST_LENGTH)
+#define ssh2_sha384_ctx struct wcng_hash_ctx
+#define ssh2_sha384_init(ctx) \
+    (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashSHA384, \
+                         SHA384_DIGEST_LENGTH, NULL, 0) == 0)
+#define ssh2_sha384_update(ctx, data, datalen) \
+    (ssh2_wcng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
+#define ssh2_sha384_final(ctx, hash) \
+    (ssh2_wcng_hash_final(&(ctx), hash) == 0)
+#define ssh2_sha384(data, datalen, hash) \
+    ssh2_wcng_hash(data, datalen, ssh2_wcng.hAlgHashSHA384, \
+                   hash, SHA384_DIGEST_LENGTH)
 
-#define libssh2_sha512_ctx struct wincng_hash_ctx
-#define libssh2_sha512_init(ctx) \
-    (_libssh2_wincng_hash_init(ctx, wincng_ctx.hAlgHashSHA512, \
-                               SHA512_DIGEST_LENGTH, NULL, 0) == 0)
-#define libssh2_sha512_update(ctx, data, datalen) \
-    (_libssh2_wincng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
-#define libssh2_sha512_final(ctx, hash) \
-    (_libssh2_wincng_hash_final(&(ctx), hash) == 0)
-#define libssh2_sha512(data, datalen, hash) \
-    _libssh2_wincng_hash(data, datalen, wincng_ctx.hAlgHashSHA512, \
-                         hash, SHA512_DIGEST_LENGTH)
+#define ssh2_sha512_ctx struct wcng_hash_ctx
+#define ssh2_sha512_init(ctx) \
+    (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashSHA512, \
+                         SHA512_DIGEST_LENGTH, NULL, 0) == 0)
+#define ssh2_sha512_update(ctx, data, datalen) \
+    (ssh2_wcng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
+#define ssh2_sha512_final(ctx, hash) \
+    (ssh2_wcng_hash_final(&(ctx), hash) == 0)
+#define ssh2_sha512(data, datalen, hash) \
+    ssh2_wcng_hash(data, datalen, ssh2_wcng.hAlgHashSHA512, \
+                   hash, SHA512_DIGEST_LENGTH)
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define libssh2_md5_ctx struct wincng_hash_ctx
-#define libssh2_md5_init(ctx) \
-    (_libssh2_wincng_hash_init(ctx, wincng_ctx.hAlgHashMD5, \
-                               MD5_DIGEST_LENGTH, NULL, 0) == 0)
-#define libssh2_md5_update(ctx, data, datalen) \
-    (_libssh2_wincng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
-#define libssh2_md5_final(ctx, hash) \
-    (_libssh2_wincng_hash_final(&(ctx), hash) == 0)
+#define ssh2_md5_ctx struct wcng_hash_ctx
+#define ssh2_md5_init(ctx) \
+    (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashMD5, \
+                         MD5_DIGEST_LENGTH, NULL, 0) == 0)
+#define ssh2_md5_update(ctx, data, datalen) \
+    (ssh2_wcng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
+#define ssh2_md5_final(ctx, hash) \
+    (ssh2_wcng_hash_final(&(ctx), hash) == 0)
 #endif
 
 /*
  * Windows CNG backend: HMAC functions
  */
 
-#define libssh2_hmac_ctx struct wincng_hash_ctx
+#define ssh2_hmac_ctx struct wcng_hash_ctx
 
 /*******************************************************************/
 /*
  * Windows CNG backend: Key Context structure
  */
 
-struct wincng_key_ctx {
+struct wcng_key_ctx {
     BCRYPT_KEY_HANDLE hKey;
     void *pbKeyObject;
     DWORD cbKeyObject;
@@ -253,127 +253,112 @@ struct wincng_key_ctx {
  * Windows CNG backend: RSA functions
  */
 
-#define libssh2_rsa_ctx struct wincng_key_ctx
-#define _libssh2_rsa_new(rsactx, e, e_len, n, n_len, \
-                         d, d_len, p, p_len, q, q_len, \
-                         e1, e1_len, e2, e2_len, c, c_len) \
-    _libssh2_wincng_rsa_new(rsactx, e, e_len, n, n_len, \
-                            d, d_len, p, p_len, q, q_len, \
-                            e1, e1_len, e2, e2_len, c, c_len)
-#define _libssh2_rsa_new_private(rsactx, s, filename, passphrase) \
-    _libssh2_wincng_rsa_new_private(rsactx, s, filename, passphrase)
-#define _libssh2_rsa_new_private_frommemory(rsactx, s, filedata, \
-                                            filedata_len, passphrase) \
-    _libssh2_wincng_rsa_new_private_frommemory(rsactx, s, filedata, \
-                                               filedata_len, passphrase)
-#define _libssh2_rsa_sha1_sign(s, rsactx, hash, hash_len, sig, sig_len) \
-    _libssh2_wincng_rsa_sha1_sign(s, rsactx, hash, hash_len, sig, sig_len)
-#define _libssh2_rsa_sha2_sign(s, rsactx, hash, hash_len, sig, sig_len) \
-    _libssh2_wincng_rsa_sha2_sign(s, rsactx, hash, hash_len, sig, sig_len)
-#define _libssh2_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len) \
-    _libssh2_wincng_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len)
-#define _libssh2_rsa_sha2_verify(rsactx, hash_len, sig, sig_len, m, m_len) \
-    _libssh2_wincng_rsa_sha2_verify(rsactx, hash_len, sig, sig_len, m, m_len)
-#define _libssh2_rsa_free(rsactx) \
-    _libssh2_wincng_rsa_free(rsactx)
+#define ssh2_rsa_ctx struct wcng_key_ctx
+#define ssh2_rsa_new(rsactx, e, e_len, n, n_len, d, d_len, p, p_len, \
+                     q, q_len, e1, e1_len, e2, e2_len, c, c_len) \
+    ssh2_wcng_rsa_new(rsactx, e, e_len, n, n_len, d, d_len, p, p_len, \
+                      q, q_len, e1, e1_len, e2, e2_len, c, c_len)
+#define ssh2_rsa_new_private(rsactx, s, filename, passphrase) \
+    ssh2_wcng_rsa_new_private(rsactx, s, filename, passphrase)
+#define ssh2_rsa_new_private_frommemory(rsactx, s, filedata, \
+                                        filedata_len, passphrase) \
+    ssh2_wcng_rsa_new_private_frommemory(rsactx, s, filedata, \
+                                         filedata_len, passphrase)
+#define ssh2_rsa_sha1_sign(s, rsactx, hash, hash_len, sig, sig_len) \
+    ssh2_wcng_rsa_sha1_sign(s, rsactx, hash, hash_len, sig, sig_len)
+#define ssh2_rsa_sha2_sign(s, rsactx, hash, hash_len, sig, sig_len) \
+    ssh2_wcng_rsa_sha2_sign(s, rsactx, hash, hash_len, sig, sig_len)
+#define ssh2_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len) \
+    ssh2_wcng_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len)
+#define ssh2_rsa_sha2_verify(rsactx, hash_len, sig, sig_len, m, m_len) \
+    ssh2_wcng_rsa_sha2_verify(rsactx, hash_len, sig, sig_len, m, m_len)
+#define ssh2_rsa_free(rsactx) \
+    ssh2_wcng_rsa_free(rsactx)
 
 /*
  * Windows CNG backend: DSA functions
  */
 
-#define libssh2_dsa_ctx struct wincng_key_ctx
-#define _libssh2_dsa_new(dsactx, p, p_len, q, q_len, \
-                         g, g_len, y, y_len, x, x_len) \
-    _libssh2_wincng_dsa_new(dsactx, p, p_len, q, q_len, \
-                            g, g_len, y, y_len, x, x_len)
-#define _libssh2_dsa_new_private(dsactx, s, filename, passphrase) \
-    _libssh2_wincng_dsa_new_private(dsactx, s, filename, passphrase)
-#define _libssh2_dsa_new_private_frommemory(dsactx, s, filedata, \
-                                            filedata_len, passphrase) \
-    _libssh2_wincng_dsa_new_private_frommemory(dsactx, s, filedata, \
-                                               filedata_len, passphrase)
-#define _libssh2_dsa_sha1_sign(dsactx, hash, hash_len, sig) \
-    _libssh2_wincng_dsa_sha1_sign(dsactx, hash, hash_len, sig)
-#define _libssh2_dsa_sha1_verify(dsactx, sig, m, m_len) \
-    _libssh2_wincng_dsa_sha1_verify(dsactx, sig, m, m_len)
-#define _libssh2_dsa_free(dsactx) \
-    _libssh2_wincng_dsa_free(dsactx)
+#define ssh2_dsa_ctx struct wcng_key_ctx
+#define ssh2_dsa_new(dsactx, p, p_len, q, q_len, g, g_len, y, y_len, \
+                     x, x_len) \
+    ssh2_wcng_dsa_new(dsactx, p, p_len, q, q_len, g, g_len, y, y_len, \
+                      x, x_len)
+#define ssh2_dsa_new_private(dsactx, s, filename, passphrase) \
+    ssh2_wcng_dsa_new_private(dsactx, s, filename, passphrase)
+#define ssh2_dsa_new_private_frommemory(dsactx, s, filedata, \
+                                        filedata_len, passphrase) \
+    ssh2_wcng_dsa_new_private_frommemory(dsactx, s, filedata, \
+                                         filedata_len, passphrase)
+#define ssh2_dsa_sha1_sign(dsactx, hash, hash_len, sig) \
+    ssh2_wcng_dsa_sha1_sign(dsactx, hash, hash_len, sig)
+#define ssh2_dsa_sha1_verify(dsactx, sig, m, m_len) \
+    ssh2_wcng_dsa_sha1_verify(dsactx, sig, m, m_len)
+#define ssh2_dsa_free(dsactx) \
+    ssh2_wcng_dsa_free(dsactx)
 
 /*
  * Windows CNG backend: ECDSA functions
  */
 
 typedef enum {
-    LIBSSH2_EC_CURVE_NISTP256 = 0,
-    LIBSSH2_EC_CURVE_NISTP384 = 1,
-    LIBSSH2_EC_CURVE_NISTP521 = 2,
-} libssh2_curve_type;
+    SSH2_EC_CURVE_NISTP256 = 0,
+    SSH2_EC_CURVE_NISTP384 = 1,
+    SSH2_EC_CURVE_NISTP521 = 2,
+} ssh2_curve_type;
 
-struct wincng_ecdsa_ctx {
+struct wcng_ecdsa_ctx {
     BCRYPT_KEY_HANDLE handle;
-    libssh2_curve_type curve;
+    ssh2_curve_type curve;
 };
 
-#define libssh2_ecdsa_ctx struct wincng_ecdsa_ctx
-
+#define ssh2_ecdsa_ctx struct wcng_ecdsa_ctx
 #if LIBSSH2_ECDSA
-#define libssh2_ec_key struct wincng_ecdsa_ctx
+#define ssh2_ec_key struct wcng_ecdsa_ctx
 #endif
-
-void _libssh2_wincng_ecdsa_free(libssh2_ecdsa_ctx* ctx);
-
-#define _libssh2_ecdsa_create_key(session, privkey, pubkey_octal, \
-                                  pubkey_octal_len, curve) \
-    _libssh2_wincng_ecdh_create_key(session, privkey, pubkey_octal, \
-                                    pubkey_octal_len, curve)
-
-#define _libssh2_ecdsa_curve_name_with_octal_new(ctx, k, k_len, curve) \
-    _libssh2_wincng_ecdsa_curve_name_with_octal_new(ctx, k, k_len, curve)
-
-#define _libssh2_ecdh_gen_k(k, privkey, server_pubkey, server_pubkey_len) \
-    _libssh2_wincng_ecdh_gen_k(k, privkey, server_pubkey, server_pubkey_len)
-
-#define _libssh2_ecdsa_verify(ctx, r, r_len, s, s_len, m, m_len) \
-    _libssh2_wincng_ecdsa_verify(ctx, r, r_len, s, s_len, m, m_len)
-
-#define _libssh2_ecdsa_new_private(ctx, session, filename, passphrase) \
-    _libssh2_wincng_ecdsa_new_private(ctx, session, filename, passphrase)
-
-#define _libssh2_ecdsa_new_private_frommemory(ctx, session, filedata, \
-                                              filedata_len, passphrase) \
-    _libssh2_wincng_ecdsa_new_private_frommemory(ctx, session, filedata, \
-                                                 filedata_len, passphrase)
-
-#define _libssh2_ecdsa_sign(session, ctx, hash, hash_len, sign, sign_len) \
-    _libssh2_wincng_ecdsa_sign(session, ctx, hash, hash_len, sign, sign_len)
-
-#define _libssh2_ecdsa_get_curve_type(ctx) \
-    _libssh2_wincng_ecdsa_get_curve_type(ctx)
-
-#define _libssh2_ecdsa_free(ecdsactx) \
-    _libssh2_wincng_ecdsa_free(ecdsactx)
+void ssh2_wcng_ecdsa_free(ssh2_ecdsa_ctx* ctx);
+#define ssh2_ecdsa_create_key(session, privkey, pubkey_octal, \
+                              pubkey_octal_len, curve) \
+    ssh2_wcng_ecdh_create_key(session, privkey, pubkey_octal, \
+                              pubkey_octal_len, curve)
+#define ssh2_ecdsa_curve_name_with_octal_new(ctx, k, k_len, curve) \
+    ssh2_wcng_ecdsa_curve_name_with_octal_new(ctx, k, k_len, curve)
+#define ssh2_ecdh_gen_k(k, privkey, server_pubkey, server_pubkey_len) \
+    ssh2_wcng_ecdh_gen_k(k, privkey, server_pubkey, server_pubkey_len)
+#define ssh2_ecdsa_verify(ctx, r, r_len, s, s_len, m, m_len) \
+    ssh2_wcng_ecdsa_verify(ctx, r, r_len, s, s_len, m, m_len)
+#define ssh2_ecdsa_new_private(ctx, session, filename, passphrase) \
+    ssh2_wcng_ecdsa_new_private(ctx, session, filename, passphrase)
+#define ssh2_ecdsa_new_private_frommemory(ctx, session, filedata, \
+                                          filedata_len, passphrase) \
+    ssh2_wcng_ecdsa_new_private_frommemory(ctx, session, filedata, \
+                                           filedata_len, passphrase)
+#define ssh2_ecdsa_sign(session, ctx, hash, hash_len, sign, sign_len) \
+    ssh2_wcng_ecdsa_sign(session, ctx, hash, hash_len, sign, sign_len)
+#define ssh2_ecdsa_get_curve_type(ctx) \
+    ssh2_wcng_ecdsa_get_curve_type(ctx)
+#define ssh2_ecdsa_free(ecdsactx) \
+    ssh2_wcng_ecdsa_free(ecdsactx)
 
 /*
  * Windows CNG backend: Key functions
  */
 
-#define _libssh2_pub_priv_keyfile(s, m, m_len, p, p_len, pk, pw) \
-    _libssh2_wincng_pub_priv_keyfile(s, m, m_len, p, p_len, pk, pw)
-#define _libssh2_pub_priv_keyfilememory(s, m, m_len, p, p_len, \
-                                        pk, pk_len, pw) \
-    _libssh2_wincng_pub_priv_keyfilememory(s, m, m_len, p, p_len, \
-                                           pk, pk_len, pw)
-#define _libssh2_sk_pub_keyfilememory(s, m, m_len, p, p_len, alg, app, \
-                                      f, kh, kh_len, pk, pk_len, pw) \
-    _libssh2_wincng_sk_pub_keyfilememory(s, m, m_len, p, p_len, alg, app, \
-                                         f, kh, kh_len, pk, pk_len, pw)
+#define ssh2_pub_priv_keyfile(s, m, m_len, p, p_len, pk, pw) \
+    ssh2_wcng_pub_priv_keyfile(s, m, m_len, p, p_len, pk, pw)
+#define ssh2_pub_priv_keyfilememory(s, m, m_len, p, p_len, pk, pk_len, pw) \
+    ssh2_wcng_pub_priv_keyfilememory(s, m, m_len, p, p_len, pk, pk_len, pw)
+#define ssh2_sk_pub_keyfilememory(s, m, m_len, p, p_len, alg, app, \
+                                  f, kh, kh_len, pk, pk_len, pw) \
+    ssh2_wcng_sk_pub_keyfilememory(s, m, m_len, p, p_len, alg, app, \
+                                   f, kh, kh_len, pk, pk_len, pw)
 
 /*******************************************************************/
 /*
  * Windows CNG backend: Cipher Context structure
  */
 
-struct libssh2_wincng_cipher_ctx {
+struct wcng_cipher_ctx {
     BCRYPT_KEY_HANDLE hKey;
     unsigned char *pbKeyObject;
     unsigned char *pbIV;
@@ -384,13 +369,13 @@ struct libssh2_wincng_cipher_ctx {
     ULONG dwCtrLength;
 };
 
-#define libssh2_cipher_ctx struct libssh2_wincng_cipher_ctx
+#define ssh2_cipher_ctx struct wcng_cipher_ctx
 
 /*
  * Windows CNG backend: Cipher Type structure
  */
 
-struct libssh2_wincng_cipher_type {
+struct wcng_cipher_t {
     BCRYPT_ALG_HANDLE *phAlg;
     ULONG dwKeyLength;
     int useIV;      /* TODO: Convert to bool when a C89-compatible bool type
@@ -398,69 +383,69 @@ struct libssh2_wincng_cipher_type {
     int ctrMode;
 };
 
-#define LIBSSH2_CIPHER_T(type) struct libssh2_wincng_cipher_type type
+#define SSH2_CIPHER_T(type) struct wcng_cipher_t type
 
-#define libssh2_cipher_aes256ctr { &wincng_ctx.hAlgAES_ECB, 32, 0, 1 }
-#define libssh2_cipher_aes192ctr { &wincng_ctx.hAlgAES_ECB, 24, 0, 1 }
-#define libssh2_cipher_aes128ctr { &wincng_ctx.hAlgAES_ECB, 16, 0, 1 }
-#define libssh2_cipher_aes256    { &wincng_ctx.hAlgAES_CBC, 32, 1, 0 }
-#define libssh2_cipher_aes192    { &wincng_ctx.hAlgAES_CBC, 24, 1, 0 }
-#define libssh2_cipher_aes128    { &wincng_ctx.hAlgAES_CBC, 16, 1, 0 }
-#define libssh2_cipher_arcfour   { &wincng_ctx.hAlgRC4_NA, 16, 0, 0 }
-#define libssh2_cipher_3des      { &wincng_ctx.hAlg3DES_CBC, 24, 1, 0 }
-#define libssh2_cipher_chacha20  { &wincng_ctx.hAlgChacha20, 24, 1, 0 }
+#define ssh2_cipher_aes256ctr { &ssh2_wcng.hAlgAES_ECB, 32, 0, 1 }
+#define ssh2_cipher_aes192ctr { &ssh2_wcng.hAlgAES_ECB, 24, 0, 1 }
+#define ssh2_cipher_aes128ctr { &ssh2_wcng.hAlgAES_ECB, 16, 0, 1 }
+#define ssh2_cipher_aes256    { &ssh2_wcng.hAlgAES_CBC, 32, 1, 0 }
+#define ssh2_cipher_aes192    { &ssh2_wcng.hAlgAES_CBC, 24, 1, 0 }
+#define ssh2_cipher_aes128    { &ssh2_wcng.hAlgAES_CBC, 16, 1, 0 }
+#define ssh2_cipher_arcfour   { &ssh2_wcng.hAlgRC4_NA, 16, 0, 0 }
+#define ssh2_cipher_3des      { &ssh2_wcng.hAlg3DES_CBC, 24, 1, 0 }
+#define ssh2_cipher_chacha20  { &ssh2_wcng.hAlgChacha20, 24, 1, 0 }
 
 /*
  * Windows CNG backend: Cipher functions
  */
 
-#define _libssh2_cipher_init(ctx, type, iv, secret, encrypt) \
-    _libssh2_wincng_cipher_init(ctx, type, iv, secret, encrypt)
-#define _libssh2_cipher_crypt(ctx, type, encrypt, block, blocklen, fl) \
-    _libssh2_wincng_cipher_crypt(ctx, type, encrypt, block, blocklen, fl)
-#define _libssh2_cipher_dtor(ctx) \
-    _libssh2_wincng_cipher_dtor(ctx)
+#define ssh2_cipher_init(ctx, type, iv, secret, encrypt) \
+    ssh2_wcng_cipher_init(ctx, type, iv, secret, encrypt)
+#define ssh2_cipher_crypt(ctx, type, encrypt, block, blocklen, fl) \
+    ssh2_wcng_cipher_crypt(ctx, type, encrypt, block, blocklen, fl)
+#define ssh2_cipher_dtor(ctx) \
+    ssh2_wcng_cipher_dtor(ctx)
 
 /*******************************************************************/
 /*
  * Windows CNG backend: BigNumber Context
  */
 
-#define libssh2_bn_ctx int /* not used */
-#define _libssh2_bn_ctx_new() 0 /* not used */
-#define _libssh2_bn_ctx_free(bnctx) ((void)0) /* not used */
+#define ssh2_bn_ctx int /* not used */
+#define ssh2_bn_ctx_new() 0 /* not used */
+#define ssh2_bn_ctx_free(bnctx) ((void)0) /* not used */
 
 /*******************************************************************/
 /*
  * Windows CNG backend: BigNumber structure
  */
 
-struct libssh2_wincng_bignum {
+struct wcng_bn {
     unsigned char *bignum;
     ULONG length;
 };
 
-#define libssh2_bn struct libssh2_wincng_bignum
+#define ssh2_bn struct wcng_bn
 
 /*
  * Windows CNG backend: BigNumber functions
  */
 
-#define _libssh2_bn_init() \
-    _libssh2_wincng_bignum_init()
-#define _libssh2_bn_init_from_bin() \
-    _libssh2_bn_init()
-#define _libssh2_bn_set_word(bn, word) \
-    _libssh2_wincng_bignum_set_word(bn, word)
-#define _libssh2_bn_from_bin(bn, len, bin) \
-    _libssh2_wincng_bignum_from_bin(bn, (ULONG)(len), bin)
-#define _libssh2_bn_to_bin(bn, bin) \
-    _libssh2_wincng_bignum_to_bin(bn, bin)
-#define _libssh2_bn_bytes(bn) bn->length
-#define _libssh2_bn_bits(bn) \
-    _libssh2_wincng_bignum_bits(bn)
-#define _libssh2_bn_free(bn) \
-    _libssh2_wincng_bignum_free(bn)
+#define ssh2_bn_init() \
+    ssh2_wcng_bn_init()
+#define ssh2_bn_init_from_bin() \
+    ssh2_bn_init()
+#define ssh2_bn_set_word(bn, word) \
+    ssh2_wcng_bn_set_word(bn, word)
+#define ssh2_bn_from_bin(bn, len, bin) \
+    ssh2_wcng_bn_from_bin(bn, (ULONG)(len), bin)
+#define ssh2_bn_to_bin(bn, bin) \
+    ssh2_wcng_bn_to_bin(bn, bin)
+#define ssh2_bn_bytes(bn) bn->length
+#define ssh2_bn_bits(bn) \
+    ssh2_wcng_bn_bits(bn)
+#define ssh2_bn_free(bn) \
+    ssh2_wcng_bn_free(bn)
 
 /*
  * Windows CNG backend: Diffie-Hellman support
@@ -468,13 +453,13 @@ struct libssh2_wincng_bignum {
 
 /* Default generate and safe prime sizes for
    diffie-hellman-group-exchange-sha1 */
-#define LIBSSH2_DH_GEX_MINGROUP     2048
-#define LIBSSH2_DH_GEX_OPTGROUP     4096
-#define LIBSSH2_DH_GEX_MAXGROUP     4096
+#define SSH2_DH_GEX_MINGROUP     2048
+#define SSH2_DH_GEX_OPTGROUP     4096
+#define SSH2_DH_GEX_MAXGROUP     4096
 
-#define LIBSSH2_DH_MAX_MODULUS_BITS 16384
+#define SSH2_DH_MAX_MODULUS_BITS 16384
 
-struct wincng_dh_ctx {
+struct wcng_dh_ctx {
     /* holds our private and public key components */
     BCRYPT_KEY_HANDLE dh_handle;
     /* records the parsed out modulus and generator
@@ -482,57 +467,56 @@ struct wincng_dh_ctx {
     BCRYPT_DH_PARAMETER_HEADER *dh_params;
     /* records the parsed out private key component for
      * fallback if the DH API raw KDF is not supported */
-    struct libssh2_wincng_bignum *dh_privbn;
+    struct wcng_bn *dh_privbn;
 };
 
-#define libssh2_dh_ctx struct wincng_dh_ctx
+#define ssh2_dh_ctx struct wcng_dh_ctx
 
-#define libssh2_dh_init(dhctx) _libssh2_dh_init(dhctx)
-#define libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
-    _libssh2_dh_key_pair(dhctx, public, g, p, group_order)
-#define libssh2_dh_secret(dhctx, secret, f, p, bnctx) \
-    _libssh2_dh_secret(dhctx, secret, f, p)
-#define libssh2_dh_dtor(dhctx) _libssh2_dh_dtor(dhctx)
+#define ssh2_dh_init(dhctx) ssh2_wcng_dh_init(dhctx)
+#define ssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
+    ssh2_wcng_dh_key_pair(dhctx, public, g, p, group_order)
+#define ssh2_dh_secret(dhctx, secret, f, p, bnctx) \
+    ssh2_wcng_dh_secret(dhctx, secret, f, p)
+#define ssh2_dh_dtor(dhctx) ssh2_wcng_dh_dtor(dhctx)
 
 /*******************************************************************/
 /*
  * Windows CNG backend: forward declarations
  */
-void _libssh2_wincng_init(void);
-void _libssh2_wincng_free(void);
-int _libssh2_wincng_random(void *buf, size_t len);
+void ssh2_wcng_init(void);
+void ssh2_wcng_free(void);
+int ssh2_wcng_random(void *buf, size_t len);
 
-int _libssh2_wincng_hash_init(struct wincng_hash_ctx *ctx,
-                              BCRYPT_ALG_HANDLE hAlg, ULONG hashlen,
-                              unsigned char *key, ULONG keylen);
-int _libssh2_wincng_hash_update(struct wincng_hash_ctx *ctx,
-                                const void *data, ULONG datalen);
-int _libssh2_wincng_hash_final(struct wincng_hash_ctx *ctx,
-                               unsigned char *hash);
-int _libssh2_wincng_hash(const unsigned char *data, ULONG datalen,
-                         BCRYPT_ALG_HANDLE hAlg,
-                         unsigned char *hash, ULONG hashlen);
+int ssh2_wcng_hash_init(struct wcng_hash_ctx *ctx,
+                        BCRYPT_ALG_HANDLE hAlg, ULONG hashlen,
+                        unsigned char *key, ULONG keylen);
+int ssh2_wcng_hash_update(struct wcng_hash_ctx *ctx,
+                          const void *data, ULONG datalen);
+int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx,
+                         unsigned char *hash);
+int ssh2_wcng_hash(const unsigned char *data, ULONG datalen,
+                   BCRYPT_ALG_HANDLE hAlg,
+                   unsigned char *hash, ULONG hashlen);
 
-void _libssh2_wincng_rsa_free(libssh2_rsa_ctx *rsa);
+void ssh2_wcng_rsa_free(ssh2_rsa_ctx *rsa);
 
 #if LIBSSH2_DSA
-void _libssh2_wincng_dsa_free(libssh2_dsa_ctx *dsa);
+void ssh2_wcng_dsa_free(ssh2_dsa_ctx *dsa);
 #endif
 
-void _libssh2_wincng_cipher_dtor(libssh2_cipher_ctx *ctx);
+void ssh2_wcng_cipher_dtor(ssh2_cipher_ctx *ctx);
 
-libssh2_bn *_libssh2_wincng_bignum_init(void);
-int _libssh2_wincng_bignum_set_word(libssh2_bn *bn, ULONG word);
-ULONG _libssh2_wincng_bignum_bits(const libssh2_bn *bn);
-int _libssh2_wincng_bignum_from_bin(libssh2_bn *bn, ULONG len,
-                                    const unsigned char *bin);
-int _libssh2_wincng_bignum_to_bin(const libssh2_bn *bn, unsigned char *bin);
-void _libssh2_wincng_bignum_free(libssh2_bn *bn);
-void _libssh2_dh_init(struct wincng_dh_ctx *dhctx);
-int _libssh2_dh_key_pair(struct wincng_dh_ctx *dhctx, libssh2_bn *public,
-                         libssh2_bn *g, libssh2_bn *p, int group_order);
-int _libssh2_dh_secret(struct wincng_dh_ctx *dhctx, libssh2_bn *secret,
-                       libssh2_bn *f, libssh2_bn *p);
-void _libssh2_dh_dtor(struct wincng_dh_ctx *dhctx);
+ssh2_bn *ssh2_wcng_bn_init(void);
+int ssh2_wcng_bn_set_word(ssh2_bn *bn, ULONG word);
+ULONG ssh2_wcng_bn_bits(const ssh2_bn *bn);
+int ssh2_wcng_bn_from_bin(ssh2_bn *bn, ULONG len, const unsigned char *bin);
+int ssh2_wcng_bn_to_bin(const ssh2_bn *bn, unsigned char *bin);
+void ssh2_wcng_bn_free(ssh2_bn *bn);
+void ssh2_wcng_dh_init(ssh2_dh_ctx *dhctx);
+int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
+                          ssh2_bn *g, ssh2_bn *p, int group_order);
+int ssh2_wcng_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
+                        ssh2_bn *f, ssh2_bn *p);
+void ssh2_wcng_dh_dtor(ssh2_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_WINCNG_H */
