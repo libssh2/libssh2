@@ -424,8 +424,7 @@ password_response:
                 session->userauth_pswd_data = NULL;
                 session->userauth_pswd_state = libssh2_NB_state_idle;
                 return ssh2_err(session, LIBSSH2_ERROR_AUTHENTICATION_FAILED,
-                                "Authentication failed "
-                                "(username/password)");
+                                "Authentication failed (username/password)");
             }
 
             session->userauth_pswd_newpw = NULL;
@@ -541,8 +540,7 @@ password_response:
             else {
                 session->userauth_pswd_state = libssh2_NB_state_idle;
                 return ssh2_err(session, LIBSSH2_ERROR_PASSWORD_EXPIRED,
-                                "Password Expired, and no callback "
-                                "specified");
+                                "Password Expired, and no callback specified");
             }
         }
     }
@@ -2211,8 +2209,7 @@ static int userauth_keyboard_interactive(
             session->userauth_kybd_data = NULL;
             session->userauth_kybd_state = libssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
-                            "Unable to send keyboard-interactive"
-                            " request");
+                            "Unable to send keyboard-interactive request");
         }
         SSH2_FREE(session, session->userauth_kybd_data);
         session->userauth_kybd_data = NULL;
@@ -2234,14 +2231,12 @@ static int userauth_keyboard_interactive(
             else if(rc || session->userauth_kybd_data_len < 1) {
                 session->userauth_kybd_state = libssh2_NB_state_idle;
                 return ssh2_err(session, LIBSSH2_ERROR_AUTHENTICATION_FAILED,
-                                "Waiting for keyboard "
-                                "USERAUTH response");
+                                "Waiting for keyboard USERAUTH response");
             }
 
             if(session->userauth_kybd_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
                 ssh2_deb((session, LIBSSH2_TRACE_AUTH,
-                          "Keyboard-interactive "
-                          "authentication successful"));
+                          "Keyboard-interactive authentication successful"));
                 SSH2_FREE(session, session->userauth_kybd_data);
                 session->userauth_kybd_data = NULL;
                 session->state |= LIBSSH2_STATE_AUTHENTICATED;
@@ -2451,8 +2446,7 @@ int libssh2_userauth_publickey_sk(
                                      privatekeydata, privatekeydata_len,
                                      passphrase)) {
             return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                            "Unable to extract public key "
-                            "from private key.");
+                            "Unable to extract public key from private key.");
         }
         else if(publickeydata_len == 0 || !publickeydata) {
             session->userauth_pblc_method = tmp_method;

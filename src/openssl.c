@@ -2891,7 +2891,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
                        hash, (unsigned int)hash_len, sig, &sig_len, rsactx);
     else {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                       "Unsupported hash digest length");
+                 "Unsupported hash digest length");
         ret = -1;
     }
 #endif
@@ -3677,8 +3677,7 @@ static int gen_publickey_from_ecdsa_openssh_priv_data(
                                               curve_type);
     if(rc) {
         rc = -1;
-        ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                       "ECDSA could not create key");
+        ssh2_err(session, LIBSSH2_ERROR_PROTO, "ECDSA could not create key");
         goto fail;
     }
 
@@ -3686,7 +3685,7 @@ static int gen_publickey_from_ecdsa_openssh_priv_data(
     if(!bn_exponent) {
         rc = -1;
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                       "Unable to allocate memory for private key data");
+                 "Unable to allocate memory for private key data");
         goto fail;
     }
 

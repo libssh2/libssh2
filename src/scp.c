@@ -644,8 +644,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                        LIBSSH2_SCP_RESPONSE_BUFLEN) {
                         /* You had your chance */
                         ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
-                                 "Unterminated response "
-                                 "from SCP server");
+                                 "Unterminated response from SCP server");
                         goto scp_recv_error;
                     }
                     /* Way too short to be an SCP response, or not done yet,
@@ -688,8 +687,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 session->scpRecv_mode = strtol(s, &e, 8);
                 if(e && *e) {
                     ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
-                             "Invalid response from SCP server, "
-                             "invalid mode");
+                             "Invalid response from SCP server, invalid mode");
                     goto scp_recv_error;
                 }
 
@@ -855,8 +853,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
 
         if(!session->scpSend_command) {
             ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                     "Unable to allocate a command buffer for "
-                     "SCP session");
+                     "Unable to allocate a command buffer for SCP session");
             return NULL;
         }
 

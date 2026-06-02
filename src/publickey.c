@@ -144,8 +144,7 @@ static int publickey_packet_receive(LIBSSH2_PUBLICKEY *pkey,
         pkey->receive_packet = SSH2_ALLOC(session, pkey->receive_packet_len);
         if(!pkey->receive_packet) {
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                            "Unable to allocate publickey response "
-                            "buffer");
+                            "Unable to allocate publickey response buffer");
         }
 
         pkey->receive_state = libssh2_NB_state_sent;
@@ -576,8 +575,8 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
     if(pkey->add_state == libssh2_NB_state_idle) {
         pkey->add_packet = NULL;
 
-        ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
-                  "Adding %s publickey", name));
+        ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY, "Adding %s publickey",
+                  name));
 
         if(pkey->version == 1) {
             for(i = 0; i < num_attrs; i++) {
@@ -747,8 +746,7 @@ int libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
 
         ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
                   "Sending publickey \"remove\" packet: "
-                  "type=%s blob_len=%ld",
-                  name, blob_len));
+                  "type=%s blob_len=%ld", name, blob_len));
 
         pkey->remove_state = libssh2_NB_state_created;
     }
@@ -848,8 +846,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
         }
         else if(rc) {
             ssh2_err(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
-                     "Timeout waiting for response from "
-                     "publickey subsystem");
+                     "Timeout waiting for response from publickey subsystem");
             goto err_exit;
         }
 
@@ -934,8 +931,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                                            sizeof(libssh2_publickey_list));
                 if(!newlist) {
                     ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                             "Unable to allocate memory for "
-                             "publickey list");
+                             "Unable to allocate memory for publickey list");
                     goto err_exit;
                 }
                 list = newlist;

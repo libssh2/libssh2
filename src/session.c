@@ -1110,8 +1110,8 @@ static int session_free(LIBSSH2_SESSION *session)
         SSH2_FREE(session, pkg);
     }
     (void)packets_left;
-    ssh2_deb((session, LIBSSH2_TRACE_TRANS,
-                    "Extra packets left %d", packets_left));
+    ssh2_deb((session, LIBSSH2_TRACE_TRANS, "Extra packets left %d",
+              packets_left));
 
     if(session->socket_prev_blockstate) {
         /* if the socket was previously blocking, put it back so */
@@ -1161,8 +1161,8 @@ static int session_disconnect(LIBSSH2_SESSION *session, int reason,
 
     if(session->disconnect_state == libssh2_NB_state_idle) {
         ssh2_deb((session, LIBSSH2_TRACE_TRANS,
-                  "Disconnecting: reason=%d, desc=%s, lang=%s", reason,
-                  description, lang));
+                  "Disconnecting: reason=%d, desc=%s, lang=%s",
+                  reason, description, lang));
         if(description)
             descr_len = strlen(description);
 

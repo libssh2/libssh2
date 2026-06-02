@@ -509,8 +509,7 @@ static int ssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
 
     if(ssh2_get_string(&decoded, &buf, &tmp_len) || tmp_len == 0) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                       "Invalid private key; "
-                       "expect embedded public key");
+                       "Invalid private key; expect embedded public key");
         goto out;
     }
 

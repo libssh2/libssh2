@@ -278,8 +278,8 @@ static int process_host_key(LIBSSH2_SESSION *session,
             snprintf(fprint, 4, "%02x:", session->server_hostkey_md5[i]);
         }
         *(--fprint) = '\0';
-        ssh2_deb((session, LIBSSH2_TRACE_KEX,
-                  "Server's MD5 Fingerprint: %s", fingerprint));
+        ssh2_deb((session, LIBSSH2_TRACE_KEX, "Server's MD5 Fingerprint: %s",
+                  fingerprint));
     }
 #endif /* LIBSSH2DEBUG */
 #endif /* ! LIBSSH2_MD5 */
@@ -306,8 +306,8 @@ static int process_host_key(LIBSSH2_SESSION *session,
             snprintf(fprint, 4, "%02x:", session->server_hostkey_sha1[i]);
         }
         *(--fprint) = '\0';
-        ssh2_deb((session, LIBSSH2_TRACE_KEX,
-                  "Server's SHA1 Fingerprint: %s", fingerprint));
+        ssh2_deb((session, LIBSSH2_TRACE_KEX, "Server's SHA1 Fingerprint: %s",
+                  fingerprint));
     }
 #endif /* LIBSSH2DEBUG */
 
@@ -649,7 +649,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         digest_len = SHA1_DIGEST_LENGTH;
     else {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                       "sha algo value is unimplemented");
+                       "SHA algo value is unimplemented");
         goto clean_exit;
     }
 
@@ -673,7 +673,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         /* Generate x and e */
         if(ssh2_bn_bits(p) > LIBSSH2_DH_MAX_MODULUS_BITS) {
             ret = ssh2_err(session, LIBSSH2_ERROR_INVAL,
-                           "dh modulus value is too large");
+                           "DH modulus value is too large");
             goto clean_exit;
         }
 
@@ -681,7 +681,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                                  group_order, exchange_state->ctx);
         if(rc) {
             ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
-                           "dh key pair generation failed");
+                           "DH key pair generation failed");
             goto clean_exit;
         }
 

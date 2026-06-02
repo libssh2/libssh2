@@ -160,8 +160,8 @@ static int comp_method_zlib_init(LIBSSH2_SESSION *session, int compr,
 
     if(status != Z_OK) {
         SSH2_FREE(session, strm);
-        ssh2_deb((session, LIBSSH2_TRACE_TRANS,
-                  "unhandled zlib error %d", status));
+        ssh2_deb((session, LIBSSH2_TRACE_TRANS, "unhandled zlib error %d",
+                  status));
         return LIBSSH2_ERROR_COMPRESS;
     }
     *abstract = strm;

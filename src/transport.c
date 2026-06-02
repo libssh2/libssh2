@@ -1025,7 +1025,7 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
         /* Do not write any new packets if we are still in the middle of a key
          * exchange. */
         ssh2_deb((session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
-                        " key re-exchange from ssh2_transport_send()"));
+                  " key re-exchange from ssh2_transport_send()"));
         rc = ssh2_kex_exchange(session, 1, &session->startup_key_state);
         if(rc)
             return rc;
@@ -1184,7 +1184,7 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
                                packet_length, NULL, 0,
                                &session->local.mac_abstract))
                 return ssh2_err(session, LIBSSH2_ERROR_MAC_FAILURE,
-                                      "Failed to calculate MAC");
+                                "Failed to calculate MAC");
         }
 
         if(CRYPT_FLAG_L(session, REQUIRES_FULL_PACKET)) {

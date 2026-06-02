@@ -2896,8 +2896,7 @@ static int sftp_rename(LIBSSH2_SFTP *sftp,
         sftp->rename_s = sftp->rename_packet = SSH2_ALLOC(session, packet_len);
         if(!sftp->rename_packet) {
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                            "Unable to allocate memory for FXP_RENAME "
-                            "packet");
+                            "Unable to allocate memory for FXP_RENAME packet");
         }
 
         ssh2_store_u32(&sftp->rename_s, packet_len - 4);
@@ -3018,8 +3017,7 @@ static int sftp_posix_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
 
     if(sftp->posix_rename_version != 1) {
         return ssh2_err(session, LIBSSH2_FX_OP_UNSUPPORTED,
-                        "Server does not support "
-                        "posix-rename@openssh.com");
+                        "Server does not support posix-rename@openssh.com");
     }
 
     /* 45 = packet_len(4) + packet_type(1) + request_id(4) +
@@ -3031,15 +3029,13 @@ static int sftp_posix_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
 
     if(packet_len + (uint32_t)source_filename_len < packet_len) {
         return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                        "Input too large "
-                        "posix-rename@openssh.com");
+                        "Input too large posix-rename@openssh.com");
     }
     packet_len += (uint32_t)source_filename_len;
 
     if(packet_len + (uint32_t)dest_filename_len < packet_len) {
         return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                        "Input too large (2) "
-                        "posix-rename@openssh.com");
+                        "Input too large (2) posix-rename@openssh.com");
     }
     packet_len += (uint32_t)dest_filename_len;
 
@@ -3971,8 +3967,7 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp,
     if(ssh2_get_u32(&buf, &tmp_u32) || tmp_u32 < 1) {
         SSH2_FREE(session, data);
         return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-                        "Invalid READLINK/REALPATH response, "
-                        "no name entries");
+                        "Invalid READLINK/REALPATH response, no name entries");
     }
 
     if(ssh2_get_string(&buf, &lk_target, &lk_len) == LIBSSH2_ERROR_NONE) {
