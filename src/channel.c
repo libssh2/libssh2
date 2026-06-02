@@ -147,8 +147,8 @@ LIBSSH2_CHANNEL *ssh2_channel_open(LIBSSH2_SESSION *session,
                sizeof(session->open_packet_requirev_state));
 
         ssh2_deb((session, LIBSSH2_TRACE_CONN,
-                  "Opening Channel - win %d pack %d", window_size,
-                  packet_size));
+                  "Opening Channel - win %d pack %d",
+                  window_size, packet_size));
         session->open_channel = SSH2_CALLOC(session, sizeof(LIBSSH2_CHANNEL));
         if(!session->open_channel) {
             ssh2_err(session, LIBSSH2_ERROR_ALLOC,
@@ -272,8 +272,7 @@ LIBSSH2_CHANNEL *ssh2_channel_open(LIBSSH2_SESSION *session,
             switch(reason_code) {
             case SSH_OPEN_ADMINISTRATIVELY_PROHIBITED:
                 ssh2_err(session, LIBSSH2_ERROR_CHANNEL_FAILURE,
-                         "Channel open failure "
-                         "(administratively prohibited)");
+                         "Channel open failure (administratively prohibited)");
                 break;
             case SSH_OPEN_CONNECT_FAILED:
                 ssh2_err(session, LIBSSH2_ERROR_CHANNEL_FAILURE,
@@ -381,8 +380,7 @@ static LIBSSH2_CHANNEL *channel_direct_tcpip(LIBSSH2_SESSION *session,
             SSH2_ALLOC(session, session->direct_message_len);
         if(!session->direct_message) {
             ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                     "Unable to allocate memory for "
-                     "direct-tcpip connection");
+                     "Unable to allocate memory for direct-tcpip connection");
             return NULL;
         }
         ssh2_store_str(&s, host, session->direct_host_len);
@@ -611,8 +609,7 @@ static LIBSSH2_LISTENER *channel_forward_listen(LIBSSH2_SESSION *session,
                     SSH2_ALLOC(session, session->fwdLstn_host_len + 1);
                 if(!listener->host) {
                     ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                             "Unable to allocate memory "
-                             "for listener queue");
+                             "Unable to allocate memory for listener queue");
                     SSH2_FREE(session, listener);
                     listener = NULL;
                 }
@@ -623,8 +620,8 @@ static LIBSSH2_LISTENER *channel_forward_listen(LIBSSH2_SESSION *session,
                     if(data_len >= 5 && !port) {
                         listener->port = ssh2_ntohu32(data + 1);
                         ssh2_deb((session, LIBSSH2_TRACE_CONN,
-                                  "Dynamic tcpip-forward port "
-                                  "allocated: %d", listener->port));
+                                  "Dynamic tcpip-forward port allocated: %d",
+                                  listener->port));
                     }
                     else
                         listener->port = port;
@@ -913,8 +910,7 @@ static int channel_setenv(LIBSSH2_CHANNEL *channel,
         if(rc) {
             channel->setenv_state = libssh2_NB_state_idle;
             return ssh2_err(session, rc,
-                            "Failed getting response for "
-                            "channel-setenv");
+                            "Failed getting response for channel-setenv");
         }
         else if(data_len < 1) {
             channel->setenv_state = libssh2_NB_state_idle;
@@ -1049,8 +1045,7 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
     }
 
     return ssh2_err(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
-                    "Unable to complete request for "
-                    "channel request-pty");
+                    "Unable to complete request for channel request-pty");
 }
 
 /*
@@ -2457,8 +2452,8 @@ static int channel_wait_eof(LIBSSH2_CHANNEL *channel)
 
     if(channel->wait_eof_state == libssh2_NB_state_idle) {
         ssh2_deb((session, LIBSSH2_TRACE_CONN,
-                  "Awaiting EOF for channel %u/%u", channel->local.id,
-                  channel->remote.id));
+                  "Awaiting EOF for channel %u/%u",
+                  channel->local.id, channel->remote.id));
 
         channel->wait_eof_state = libssh2_NB_state_created;
     }
