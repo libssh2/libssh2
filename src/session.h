@@ -62,7 +62,7 @@
             if(((rc) != LIBSSH2_ERROR_EAGAIN) || !(sess) ||          \
                !(sess)->api_block_mode)                              \
                 break;                                               \
-            (rc) = ssh2_wait_socket(sess, entry_time);           \
+            (rc) = ssh2_wait_socket(sess, entry_time);               \
         } while(!(rc));                                              \
     } while(0)
 
@@ -81,7 +81,7 @@
             if(!(sess) || !(sess)->api_block_mode || (ptr) != NULL ||    \
                libssh2_session_last_errno(sess) != LIBSSH2_ERROR_EAGAIN) \
                 break;                                                   \
-            (rc) = ssh2_wait_socket(sess, entry_time);               \
+            (rc) = ssh2_wait_socket(sess, entry_time);                   \
         } while(!(rc));                                                  \
     } while(0)
 

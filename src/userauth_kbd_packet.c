@@ -56,8 +56,8 @@ int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
 
     if(session->userauth_kybd_data_len < 17) {
         ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
-                       "userauth keyboard data buffer too small "
-                       "to get length");
+                 "userauth keyboard data buffer too small "
+                 "to get length");
         return -1;
     }
 
@@ -66,56 +66,55 @@ int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
 
     /* string    name (ISO-10646 UTF-8) */
     if(ssh2_copy_string(session, &decoded,
-                            &session->userauth_kybd_auth_name,
-                            &session->userauth_kybd_auth_name_len) == -1) {
+                        &session->userauth_kybd_auth_name,
+                        &session->userauth_kybd_auth_name_len) == -1) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                       "Unable to decode "
-                       "keyboard-interactive 'name' "
-                       "request field");
+                 "Unable to decode "
+                 "keyboard-interactive 'name' "
+                 "request field");
         return -1;
     }
 
     /* string    instruction (ISO-10646 UTF-8) */
     if(ssh2_copy_string(session, &decoded,
-                            &session->userauth_kybd_auth_instruction,
-                            &session->userauth_kybd_auth_instruction_len)
-       == -1) {
+                        &session->userauth_kybd_auth_instruction,
+                        &session->userauth_kybd_auth_instruction_len) == -1) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                       "Unable to decode "
-                       "keyboard-interactive 'instruction' "
-                       "request field");
+                 "Unable to decode "
+                 "keyboard-interactive 'instruction' "
+                 "request field");
         return -1;
     }
 
     /* string    language tag (as defined in [RFC-3066]) */
     if(ssh2_get_string(&decoded, &language_tag, &language_tag_len) == -1) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                       "Unable to decode "
-                       "keyboard-interactive 'language tag' "
-                       "request field");
+                 "Unable to decode "
+                 "keyboard-interactive 'language tag' "
+                 "request field");
         return -1;
     }
 
     /* int       num-prompts */
     if(ssh2_get_u32(&decoded, &tmp_u32) == -1) {
         ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
-                       "Unable to decode "
-                       "keyboard-interactive number of keyboard prompts");
+                 "Unable to decode "
+                 "keyboard-interactive number of keyboard prompts");
         return -1;
     }
 
     session->userauth_kybd_num_prompts = tmp_u32;
     if(session->userauth_kybd_num_prompts != tmp_u32) {
         ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                       "Unable to decode "
-                       "keyboard-interactive number of keyboard prompts");
+                 "Unable to decode "
+                 "keyboard-interactive number of keyboard prompts");
         return -1;
     }
 
     if(session->userauth_kybd_num_prompts > 100) {
         ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                       "Too many replies for "
-                       "keyboard-interactive prompts");
+                 "Too many replies for "
+                 "keyboard-interactive prompts");
         return -1;
     }
 
@@ -124,46 +123,40 @@ int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
     }
 
     session->userauth_kybd_prompts =
-        SSH2_CALLOC(session,
-                       sizeof(LIBSSH2_USERAUTH_KBDINT_PROMPT) *
-                       session->userauth_kybd_num_prompts);
+        SSH2_CALLOC(session, sizeof(LIBSSH2_USERAUTH_KBDINT_PROMPT) *
+                                 session->userauth_kybd_num_prompts);
     if(!session->userauth_kybd_prompts) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                       "Unable to allocate memory for "
-                       "keyboard-interactive prompts array");
+                 "Unable to allocate memory for "
+                 "keyboard-interactive prompts array");
         return -1;
     }
 
     session->userauth_kybd_responses =
-        SSH2_CALLOC(session,
-                       sizeof(LIBSSH2_USERAUTH_KBDINT_RESPONSE) *
-                       session->userauth_kybd_num_prompts);
+        SSH2_CALLOC(session, sizeof(LIBSSH2_USERAUTH_KBDINT_RESPONSE) *
+                                 session->userauth_kybd_num_prompts);
     if(!session->userauth_kybd_responses) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                       "Unable to allocate memory for "
-                       "keyboard-interactive responses array");
+                 "Unable to allocate memory for "
+                 "keyboard-interactive responses array");
         return -1;
     }
 
     for(i = 0; i < session->userauth_kybd_num_prompts; i++) {
         /* string    prompt[1] (ISO-10646 UTF-8) */
         if(ssh2_copy_string(session, &decoded,
-                                &session->userauth_kybd_prompts[i].text,
-                                &session->userauth_kybd_prompts[i].length)
-           == -1) {
+                            &session->userauth_kybd_prompts[i].text,
+                            &session->userauth_kybd_prompts[i].length) == -1) {
             ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                           "Unable to decode "
-                           "keyboard-interactive prompt message");
+                     "Unable to decode keyboard-interactive prompt message");
             return -1;
         }
 
         /* boolean   echo[1] */
         if(ssh2_get_boolean(&decoded,
-                                &session->userauth_kybd_prompts[i].echo)
-           == -1) {
+                            &session->userauth_kybd_prompts[i].echo) == -1) {
             ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
-                           "Unable to decode "
-                           "user auth keyboard prompt echo");
+                     "Unable to decode user auth keyboard prompt echo");
             return -1;
         }
     }

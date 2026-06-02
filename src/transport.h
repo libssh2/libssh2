@@ -64,8 +64,8 @@
  * This function DOES NOT call ssh2_err() on any errors.
  */
 int ssh2_transport_send(LIBSSH2_SESSION *session,
-                            const unsigned char *data, size_t data_len,
-                            const unsigned char *data2, size_t data2_len);
+                        const unsigned char *data, size_t data_len,
+                        const unsigned char *data2, size_t data2_len);
 
 /*
  * ssh2_transport_read()

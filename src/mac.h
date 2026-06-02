@@ -63,7 +63,6 @@ struct mac_method {
 };
 
 const struct mac_method **ssh2_mac_methods(void);
-const struct mac_method *ssh2_mac_override(
-    const struct crypt_method *crypt);
+const struct mac_method *ssh2_mac_override(const struct crypt_method *crypt);
 
 #endif /* LIBSSH2_MAC_H */

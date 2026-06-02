@@ -262,25 +262,19 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
     }
 
     for(;;) {
-        pipe = CreateFileA(
-            path,
-            GENERIC_READ | GENERIC_WRITE,
-            0,
-            NULL,
-            OPEN_EXISTING,
-            /* Non-blocking mode for agent connections is not implemented at
-             * the point this was implemented. The code for Win32 OpenSSH
-             * should support non-blocking IO, but the code calling it does not
-             * support it as of yet.
-             * When non-blocking I/O is implemented for the surrounding code,
-             * uncomment the following line to enable support within the Win32
-             * OpenSSH code.
-             */
-            /* FILE_FLAG_OVERLAPPED | */
-            SECURITY_SQOS_PRESENT |
-            SECURITY_IDENTIFICATION,
-            NULL
-        );
+        /* Non-blocking mode for agent connections is not implemented at
+         * the point this was implemented. The code for Win32 OpenSSH
+         * should support non-blocking IO, but the code calling it does not
+         * support it as of yet.
+         * When non-blocking I/O is implemented for the surrounding code,
+         * uncomment the following line to enable support within the Win32
+         * OpenSSH code.
+         */
+        pipe = CreateFileA(path, GENERIC_READ | GENERIC_WRITE, 0, NULL,
+                           OPEN_EXISTING,
+                           /* FILE_FLAG_OVERLAPPED | */
+                           SECURITY_SQOS_PRESENT | SECURITY_IDENTIFICATION,
+                           NULL);
 
         if(pipe != INVALID_HANDLE_VALUE)
             break;
@@ -775,13 +769,12 @@ static int agent_sign(LIBSSH2_SESSION *session,
     if(transctx->state == agent_NB_state_init) {
         s = transctx->request = SSH2_ALLOC(session, len);
         if(!transctx->request)
-            return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                            "out of memory");
+            return ssh2_err(session, LIBSSH2_ERROR_ALLOC, "out of memory");
 
         *s++ = SSH2_AGENTC_SIGN_REQUEST;
         /* key blob */
         ssh2_store_str(&s, (const char *)identity->external.blob,
-                           identity->external.blob_len);
+                       identity->external.blob_len);
         /* data */
         ssh2_store_str(&s, (const char *)data, data_len);
 
@@ -807,13 +800,11 @@ static int agent_sign(LIBSSH2_SESSION *session,
 
     /* Make sure to be re-called as a result of EAGAIN. */
     if(*transctx->request != SSH2_AGENTC_SIGN_REQUEST)
-        return ssh2_err(session, LIBSSH2_ERROR_BAD_USE,
-                        "illegal request");
+        return ssh2_err(session, LIBSSH2_ERROR_BAD_USE, "illegal request");
 
     if(!agent->ops)
         /* if no agent has been connected, bail out */
-        return ssh2_err(session, LIBSSH2_ERROR_BAD_USE,
-                        "agent not connected");
+        return ssh2_err(session, LIBSSH2_ERROR_BAD_USE, "agent not connected");
 
     rc = agent->ops->transact(agent, transctx);
     if(rc) {
@@ -874,7 +865,7 @@ static int agent_sign(LIBSSH2_SESSION *session,
         method_len != plain_len) ||
        memcmp(method_name, session->userauth_pblc_method, method_len)) {
         ssh2_deb((session, LIBSSH2_TRACE_KEX, "Agent sign method %.*s",
-                        (int)method_len, method_name));
+                  (int)method_len, method_name));
 
         rc = LIBSSH2_ERROR_ALGO_UNSUPPORTED;
         goto error;

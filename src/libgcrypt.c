@@ -63,8 +63,7 @@ int ssh2_hmac_md5_init(libssh2_hmac_ctx *ctx, void *key, size_t keylen)
 #endif
 
 #if LIBSSH2_HMAC_RIPEMD
-int ssh2_hmac_ripemd160_init(libssh2_hmac_ctx *ctx,
-                                 void *key, size_t keylen)
+int ssh2_hmac_ripemd160_init(libssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
     gcry_error_t err;
     err = gcry_md_open(ctx, GCRY_MD_RMD160, GCRY_MD_FLAG_HMAC);
@@ -113,8 +112,7 @@ int ssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx, void *key, size_t keylen)
     return 1;
 }
 
-int ssh2_hmac_update(libssh2_hmac_ctx *ctx,
-                         const void *data, size_t datalen)
+int ssh2_hmac_update(libssh2_hmac_ctx *ctx, const void *data, size_t datalen)
 {
     gcry_md_write(*ctx, data, datalen);
     return 1;
@@ -139,14 +137,14 @@ void ssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
 
 #if LIBSSH2_RSA
 int ssh2_rsa_new(libssh2_rsa_ctx **rsa,
-                     const unsigned char *edata, unsigned long elen,
-                     const unsigned char *ndata, unsigned long nlen,
-                     const unsigned char *ddata, unsigned long dlen,
-                     const unsigned char *pdata, unsigned long plen,
-                     const unsigned char *qdata, unsigned long qlen,
-                     const unsigned char *e1data, unsigned long e1len,
-                     const unsigned char *e2data, unsigned long e2len,
-                     const unsigned char *coeffdata, unsigned long coefflen)
+                 const unsigned char *edata, unsigned long elen,
+                 const unsigned char *ndata, unsigned long nlen,
+                 const unsigned char *ddata, unsigned long dlen,
+                 const unsigned char *pdata, unsigned long plen,
+                 const unsigned char *qdata, unsigned long qlen,
+                 const unsigned char *e1data, unsigned long e1len,
+                 const unsigned char *e2data, unsigned long e2len,
+                 const unsigned char *coeffdata, unsigned long coefflen)
 {
     int rc;
 
@@ -174,10 +172,10 @@ int ssh2_rsa_new(libssh2_rsa_ctx **rsa,
 }
 
 int ssh2_rsa_sha2_verify(libssh2_rsa_ctx *rsactx,
-                             size_t hash_len,
-                             const unsigned char *sig,
-                             size_t sig_len,
-                             const unsigned char *m, size_t m_len)
+                         size_t hash_len,
+                         const unsigned char *sig,
+                         size_t sig_len,
+                         const unsigned char *m, size_t m_len)
 {
     unsigned char *hash;
     int ret;
@@ -237,9 +235,9 @@ out:
 
 #if LIBSSH2_RSA_SHA1
 int ssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
-                             const unsigned char *sig,
-                             size_t sig_len,
-                             const unsigned char *m, size_t m_len)
+                         const unsigned char *sig,
+                         size_t sig_len,
+                         const unsigned char *m, size_t m_len)
 {
     return ssh2_rsa_sha2_verify(rsactx, SHA_DIGEST_LENGTH, sig, sig_len, m,
                                     m_len);
@@ -249,11 +247,11 @@ int ssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
 
 #if LIBSSH2_DSA
 int ssh2_dsa_new(libssh2_dsa_ctx **dsactx,
-                     const unsigned char *p, unsigned long p_len,
-                     const unsigned char *q, unsigned long q_len,
-                     const unsigned char *g, unsigned long g_len,
-                     const unsigned char *y, unsigned long y_len,
-                     const unsigned char *x, unsigned long x_len)
+                 const unsigned char *p, unsigned long p_len,
+                 const unsigned char *q, unsigned long q_len,
+                 const unsigned char *g, unsigned long g_len,
+                 const unsigned char *y, unsigned long y_len,
+                 const unsigned char *x, unsigned long x_len)
 {
     int rc;
 
@@ -279,10 +277,10 @@ int ssh2_dsa_new(libssh2_dsa_ctx **dsactx,
 
 #if LIBSSH2_RSA
 int ssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
-                                        LIBSSH2_SESSION *session,
-                                        const char *filedata,
-                                        size_t filedata_len,
-                                        const unsigned char *passphrase)
+                                    LIBSSH2_SESSION *session,
+                                    const char *filedata,
+                                    size_t filedata_len,
+                                    const unsigned char *passphrase)
 {
     (void)rsa;
     (void)filedata;
@@ -290,14 +288,14 @@ int ssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
     (void)passphrase;
 
     return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                          "Unable to extract private key from memory: "
-                          "Method unimplemented in libgcrypt backend");
+                    "Unable to extract private key from memory: "
+                    "Method unimplemented in libgcrypt backend");
 }
 
 int ssh2_rsa_new_private(libssh2_rsa_ctx **rsa,
-                             LIBSSH2_SESSION *session,
-                             const char *filename,
-                             const unsigned char *passphrase)
+                         LIBSSH2_SESSION *session,
+                         const char *filename,
+                         const unsigned char *passphrase)
 {
     FILE *fp;
     unsigned char *data, *save_data;
@@ -312,10 +310,9 @@ int ssh2_rsa_new_private(libssh2_rsa_ctx **rsa,
     }
 
     ret = ssh2_pem_parse(session,
-                             "-----BEGIN RSA PRIVATE KEY-----",
-                             "-----END RSA PRIVATE KEY-----",
-                             passphrase,
-                             fp, &data, &datalen);
+                         "-----BEGIN RSA PRIVATE KEY-----",
+                         "-----END RSA PRIVATE KEY-----",
+                         passphrase, fp, &data, &datalen);
     fclose(fp);
     if(ret) {
         return -1;
@@ -384,7 +381,7 @@ int ssh2_rsa_new_private(libssh2_rsa_ctx **rsa,
     }
 
     if(ssh2_rsa_new(rsa, e, elen, n, nlen, d, dlen, p, plen,
-                        q, qlen, e1, e1len, e2, e2len, coeff, coefflen)) {
+                    q, qlen, e1, e1len, e2, e2len, coeff, coefflen)) {
         ret = -1;
         goto fail;
     }
@@ -399,10 +396,10 @@ fail:
 
 #if LIBSSH2_DSA
 int ssh2_dsa_new_private_frommemory(libssh2_dsa_ctx **dsa,
-                                        LIBSSH2_SESSION *session,
-                                        const char *filedata,
-                                        size_t filedata_len,
-                                        const unsigned char *passphrase)
+                                    LIBSSH2_SESSION *session,
+                                    const char *filedata,
+                                    size_t filedata_len,
+                                    const unsigned char *passphrase)
 {
     (void)dsa;
     (void)filedata;
@@ -410,14 +407,14 @@ int ssh2_dsa_new_private_frommemory(libssh2_dsa_ctx **dsa,
     (void)passphrase;
 
     return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                          "Unable to extract private key from memory: "
-                          "Method unimplemented in libgcrypt backend");
+                    "Unable to extract private key from memory: "
+                    "Method unimplemented in libgcrypt backend");
 }
 
 int ssh2_dsa_new_private(libssh2_dsa_ctx **dsa,
-                             LIBSSH2_SESSION *session,
-                             const char *filename,
-                             const unsigned char *passphrase)
+                         LIBSSH2_SESSION *session,
+                         const char *filename,
+                         const unsigned char *passphrase)
 {
     FILE *fp;
     unsigned char *data, *save_data;
@@ -432,10 +429,9 @@ int ssh2_dsa_new_private(libssh2_dsa_ctx **dsa,
     }
 
     ret = ssh2_pem_parse(session,
-                             "-----BEGIN DSA PRIVATE KEY-----",
-                             "-----END DSA PRIVATE KEY-----",
-                             passphrase,
-                             fp, &data, &datalen);
+                         "-----BEGIN DSA PRIVATE KEY-----",
+                         "-----END DSA PRIVATE KEY-----",
+                         passphrase, fp, &data, &datalen);
     fclose(fp);
     if(ret) {
         return -1;
@@ -505,11 +501,11 @@ fail:
 
 #if LIBSSH2_RSA
 int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
-                           libssh2_rsa_ctx *rsactx,
-                           const unsigned char *hash,
-                           size_t hash_len,
-                           unsigned char **signature,
-                           size_t *signature_len)
+                       libssh2_rsa_ctx *rsactx,
+                       const unsigned char *hash,
+                       size_t hash_len,
+                       unsigned char **signature,
+                       size_t *signature_len)
 {
     const char *algo;
     gcry_sexp_t s_tmp = NULL;
@@ -528,7 +524,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
         algo = "sha512";
     else {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                       "Unsupported hash digest length");
+                 "Unsupported hash digest length");
         return -1;
     }
 
@@ -575,22 +571,22 @@ out:
 
 #if LIBSSH2_RSA_SHA1
 int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
-                           libssh2_rsa_ctx *rsactx,
-                           const unsigned char *hash,
-                           size_t hash_len,
-                           unsigned char **signature,
-                           size_t *signature_len)
+                       libssh2_rsa_ctx *rsactx,
+                       const unsigned char *hash,
+                       size_t hash_len,
+                       unsigned char **signature,
+                       size_t *signature_len)
 {
     return ssh2_rsa_sha2_sign(session, rsactx, hash, hash_len,
-                                  signature, signature_len);
+                              signature, signature_len);
 }
 #endif
 #endif
 
 #if LIBSSH2_DSA
 int ssh2_dsa_sha1_sign(libssh2_dsa_ctx *dsactx,
-                           const unsigned char *hash,
-                           size_t hash_len, unsigned char *sig)
+                       const unsigned char *hash,
+                       size_t hash_len, unsigned char *sig)
 {
     unsigned char zhash[SHA_DIGEST_LENGTH + 1];
     gcry_sexp_t sig_sexp;
@@ -678,8 +674,8 @@ out:
 }
 
 int ssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
-                             const unsigned char *sig,
-                             const unsigned char *m, size_t m_len)
+                         const unsigned char *sig,
+                         const unsigned char *m, size_t m_len)
 {
     unsigned char hash[SHA_DIGEST_LENGTH + 1];
     gcry_sexp_t s_sig, s_hash;
@@ -710,8 +706,8 @@ int ssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
 #endif
 
 int ssh2_cipher_init(libssh2_cipher_ctx *h,
-                         LIBSSH2_CIPHER_T(algo),
-                         unsigned char *iv, unsigned char *secret, int encrypt)
+                     LIBSSH2_CIPHER_T(algo),
+                     unsigned char *iv, unsigned char *secret, int encrypt)
 {
     int ret;
     int cipher = ssh2_gcry_cipher(algo);
@@ -747,9 +743,9 @@ int ssh2_cipher_init(libssh2_cipher_ctx *h,
 }
 
 int ssh2_cipher_crypt(libssh2_cipher_ctx *ctx,
-                          LIBSSH2_CIPHER_T(algo),
-                          int encrypt, unsigned char *block, size_t blocksize,
-                          int firstlast)
+                      LIBSSH2_CIPHER_T(algo),
+                      int encrypt, unsigned char *block, size_t blocksize,
+                      int firstlast)
 {
     int ret;
 
@@ -766,13 +762,13 @@ int ssh2_cipher_crypt(libssh2_cipher_ctx *ctx,
 }
 
 int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                    unsigned char **method,
-                                    size_t *method_len,
-                                    unsigned char **pubkeydata,
-                                    size_t *pubkeydata_len,
-                                    const char *privatekeydata,
-                                    size_t privatekeydata_len,
-                                    const char *passphrase)
+                                unsigned char **method,
+                                size_t *method_len,
+                                unsigned char **pubkeydata,
+                                size_t *pubkeydata_len,
+                                const char *privatekeydata,
+                                size_t privatekeydata_len,
+                                const char *passphrase)
 {
     (void)method;
     (void)method_len;
@@ -783,17 +779,17 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     (void)passphrase;
 
     return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                          "Unable to extract public key from private key in "
-                          "memory: Method unimplemented in libgcrypt backend");
+                    "Unable to extract public key from private key in "
+                    "memory: Method unimplemented in libgcrypt backend");
 }
 
 int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
-                              unsigned char **method,
-                              size_t *method_len,
-                              unsigned char **pubkeydata,
-                              size_t *pubkeydata_len,
-                              const char *privatekey,
-                              const char *passphrase)
+                          unsigned char **method,
+                          size_t *method_len,
+                          unsigned char **pubkeydata,
+                          size_t *pubkeydata_len,
+                          const char *privatekey,
+                          const char *passphrase)
 {
     (void)method;
     (void)method_len;
@@ -803,23 +799,23 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     (void)passphrase;
 
     return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                          "Unable to extract public key from private key "
-                          "file: Method unimplemented in libgcrypt backend");
+                    "Unable to extract public key from private key "
+                    "file: Method unimplemented in libgcrypt backend");
 }
 
 int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
-                                  unsigned char **method,
-                                  size_t *method_len,
-                                  unsigned char **pubkeydata,
-                                  size_t *pubkeydata_len,
-                                  int *algorithm,
-                                  unsigned char *flags,
-                                  const char **application,
-                                  const unsigned char **key_handle,
-                                  size_t *handle_len,
-                                  const char *privatekeydata,
-                                  size_t privatekeydata_len,
-                                  const char *passphrase)
+                              unsigned char **method,
+                              size_t *method_len,
+                              unsigned char **pubkeydata,
+                              size_t *pubkeydata_len,
+                              int *algorithm,
+                              unsigned char *flags,
+                              const char **application,
+                              const unsigned char **key_handle,
+                              size_t *handle_len,
+                              const char *privatekeydata,
+                              size_t privatekeydata_len,
+                              const char *passphrase)
 {
     (void)method;
     (void)method_len;
@@ -835,8 +831,8 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
     (void)passphrase;
 
     return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                          "Unable to extract public SK key from private key "
-                          "file: Method unimplemented in libgcrypt backend");
+                    "Unable to extract public SK key from private key "
+                    "file: Method unimplemented in libgcrypt backend");
 }
 
 void ssh2_init_aes_ctr(void)
@@ -850,7 +846,7 @@ void ssh2_dh_init(libssh2_dh_ctx *dhctx)
 }
 
 int ssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
-                         libssh2_bn *g, libssh2_bn *p, int group_order)
+                     libssh2_bn *g, libssh2_bn *p, int group_order)
 {
     /* Generate x and e */
     gcry_mpi_randomize(*dhctx, group_order * 8 - 1, GCRY_VERY_STRONG_RANDOM);
@@ -859,7 +855,7 @@ int ssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
 }
 
 int ssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
-                       libssh2_bn *f, libssh2_bn *p)
+                  libssh2_bn *f, libssh2_bn *p)
 {
     /* Compute the shared secret */
     gcry_mpi_powm(secret, f, *dhctx, p);
@@ -876,8 +872,8 @@ void ssh2_dh_dtor(libssh2_dh_ctx *dhctx)
  * Return supported key hash algo upgrades, see crypto.h
  */
 const char *ssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
-                                                   unsigned char *key_method,
-                                                   size_t key_method_len)
+                                               unsigned char *key_method,
+                                               size_t key_method_len)
 {
     (void)session;
 

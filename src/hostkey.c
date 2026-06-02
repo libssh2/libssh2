@@ -72,8 +72,7 @@ static int hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
     }
 
     if(hostkey_data_len < 19) {
-        ssh2_deb((session, LIBSSH2_TRACE_ERROR,
-                        "host key length too short"));
+        ssh2_deb((session, LIBSSH2_TRACE_ERROR, "host key length too short"));
         return -1;
     }
 
@@ -103,7 +102,7 @@ static int hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
 #endif
     {
         ssh2_deb((session, LIBSSH2_TRACE_ERROR,
-                        "unexpected rsa type: %.*s", (int)type_len, type));
+                  "unexpected rsa type: %.*s", (int)type_len, type));
         return -1;
     }
 
@@ -117,10 +116,10 @@ static int hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
         return -1;
 
     if(ssh2_rsa_new(&rsactx,
-                        e, (unsigned long)e_len,
-                        n, (unsigned long)n_len,
-                        NULL, 0, NULL, 0, NULL, 0,
-                        NULL, 0, NULL, 0, NULL, 0)) {
+                    e, (unsigned long)e_len,
+                    n, (unsigned long)n_len,
+                    NULL, 0, NULL, 0, NULL, 0,
+                    NULL, 0, NULL, 0, NULL, 0)) {
         return -1;
     }
 
@@ -174,8 +173,8 @@ static int hostkey_method_ssh_rsa_initPEMFromMemory(
     }
 
     ret = ssh2_rsa_new_private_frommemory(&rsactx, session,
-                                              privkeyfiledata,
-                                              privkeyfiledata_len, passphrase);
+                                          privkeyfiledata,
+                                          privkeyfiledata_len, passphrase);
     if(ret) {
         return -1;
     }
@@ -221,7 +220,7 @@ static int hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION *session,
 
 #ifdef ssh2_rsa_sha1_signv
     return ssh2_rsa_sha1_signv(session, signature, signature_len,
-                                   veccount, datavec, rsactx);
+                               veccount, datavec, rsactx);
 #else
     int ret;
     int i;
@@ -242,7 +241,7 @@ static int hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION *session,
     }
 
     ret = ssh2_rsa_sha1_sign(session, rsactx, hash, SHA_DIGEST_LENGTH,
-                                 signature, signature_len);
+                             signature, signature_len);
     if(ret) {
         return -1;
     }
@@ -275,7 +274,7 @@ static int hostkey_method_ssh_rsa_sha2_256_sig_verify(
     sig += 20;
     sig_len -= 20;
     return ssh2_rsa_sha2_verify(rsactx, SHA256_DIGEST_LENGTH, sig, sig_len,
-                                    m, m_len);
+                                m, m_len);
 }
 
 /*
@@ -292,7 +291,7 @@ static int hostkey_method_ssh_rsa_sha2_256_signv(LIBSSH2_SESSION *session,
 
 #ifdef ssh2_rsa_sha2_256_signv
     return ssh2_rsa_sha2_256_signv(session, signature, signature_len,
-                                       veccount, datavec, rsactx);
+                                   veccount, datavec, rsactx);
 #else
     int ret;
     int i;
@@ -313,7 +312,7 @@ static int hostkey_method_ssh_rsa_sha2_256_signv(LIBSSH2_SESSION *session,
     }
 
     ret = ssh2_rsa_sha2_sign(session, rsactx, hash, SHA256_DIGEST_LENGTH,
-                                 signature, signature_len);
+                             signature, signature_len);
     if(ret) {
         return -1;
     }
@@ -343,7 +342,7 @@ static int hostkey_method_ssh_rsa_sha2_512_sig_verify(
     sig += 20;
     sig_len -= 20;
     return ssh2_rsa_sha2_verify(rsactx, SHA512_DIGEST_LENGTH, sig,
-                                    sig_len, m, m_len);
+                                sig_len, m, m_len);
 }
 
 /*
@@ -360,7 +359,7 @@ static int hostkey_method_ssh_rsa_sha2_512_signv(LIBSSH2_SESSION *session,
 
 #ifdef ssh2_rsa_sha2_512_signv
     return ssh2_rsa_sha2_512_signv(session, signature, signature_len,
-                                       veccount, datavec, rsactx);
+                                   veccount, datavec, rsactx);
 #else
     int ret;
     int i;
@@ -381,7 +380,7 @@ static int hostkey_method_ssh_rsa_sha2_512_signv(LIBSSH2_SESSION *session,
     }
 
     ret = ssh2_rsa_sha2_sign(session, rsactx, hash, SHA512_DIGEST_LENGTH,
-                                 signature, signature_len);
+                             signature, signature_len);
     if(ret) {
         return -1;
     }
@@ -525,8 +524,7 @@ static int hostkey_method_ssh_dss_init(LIBSSH2_SESSION *session,
     }
 
     if(hostkey_data_len < 27) {
-        ssh2_deb((session, LIBSSH2_TRACE_ERROR,
-                        "host key length too short"));
+        ssh2_deb((session, LIBSSH2_TRACE_ERROR, "host key length too short"));
         return -1;
     }
 
@@ -553,11 +551,11 @@ static int hostkey_method_ssh_dss_init(LIBSSH2_SESSION *session,
         return -1;
 
     if(ssh2_dsa_new(&dsactx,
-                        p, (unsigned long)p_len,
-                        q, (unsigned long)q_len,
-                        g, (unsigned long)g_len,
-                        y, (unsigned long)y_len,
-                        NULL, 0)) {
+                    p, (unsigned long)p_len,
+                    q, (unsigned long)q_len,
+                    g, (unsigned long)g_len,
+                    y, (unsigned long)y_len,
+                    NULL, 0)) {
         return -1;
     }
 
@@ -611,8 +609,8 @@ static int hostkey_method_ssh_dss_initPEMFromMemory(
     }
 
     ret = ssh2_dsa_new_private_frommemory(&dsactx, session,
-                                              privkeyfiledata,
-                                              privkeyfiledata_len, passphrase);
+                                          privkeyfiledata,
+                                          privkeyfiledata_len, passphrase);
     if(ret) {
         return -1;
     }
@@ -749,8 +747,7 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
     }
 
     if(hostkey_data_len < 39) {
-        ssh2_deb((session, LIBSSH2_TRACE_ERROR,
-                        "host key length too short"));
+        ssh2_deb((session, LIBSSH2_TRACE_ERROR, "host key length too short"));
         return -1;
     }
 
@@ -798,7 +795,7 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
         return -1;
 
     if(ssh2_ecdsa_curve_name_with_octal_new(&ec_ctx, public_key,
-                                                key_len, type))
+                                            key_len, type))
         return -1;
 
     if(abstract)
@@ -823,8 +820,7 @@ static int hostkey_method_ssh_ecdsa_initPEM(LIBSSH2_SESSION *session,
         *abstract = NULL;
     }
 
-    ret = ssh2_ecdsa_new_private(&ec_ctx, session,
-                                     privkeyfile, passphrase);
+    ret = ssh2_ecdsa_new_private(&ec_ctx, session, privkeyfile, passphrase);
 
     if(abstract)
         *abstract = ec_ctx;
@@ -851,9 +847,9 @@ static int hostkey_method_ssh_ecdsa_initPEMFromMemory(
     }
 
     ret = ssh2_ecdsa_new_private_frommemory(&ec_ctx, session,
-                                                privkeyfiledata,
-                                                privkeyfiledata_len,
-                                                passphrase);
+                                            privkeyfiledata,
+                                            privkeyfiledata_len,
+                                            passphrase);
     if(ret) {
         return -1;
     }
@@ -1083,8 +1079,7 @@ static int hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION *session,
     }
 
     if(hostkey_data_len < 19) {
-        ssh2_deb((session, LIBSSH2_TRACE_ERROR,
-                        "host key length too short"));
+        ssh2_deb((session, LIBSSH2_TRACE_ERROR, "host key length too short"));
         return -1;
     }
 
@@ -1114,11 +1109,10 @@ static int hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION *session,
 /*
  * Load a Private Key from a PEM file
  */
-static int hostkey_method_ssh_ed25519_initPEM(
-    LIBSSH2_SESSION *session,
-    const char *privkeyfile,
-    const unsigned char *passphrase,
-    void **abstract)
+static int hostkey_method_ssh_ed25519_initPEM(LIBSSH2_SESSION *session,
+                                              const char *privkeyfile,
+                                              const unsigned char *passphrase,
+                                              void **abstract)
 {
     libssh2_ed25519_ctx *ec_ctx = NULL;
     int ret;
@@ -1128,8 +1122,7 @@ static int hostkey_method_ssh_ed25519_initPEM(
         *abstract = NULL;
     }
 
-    ret = ssh2_ed25519_new_private(&ec_ctx, session,
-                                       privkeyfile, passphrase);
+    ret = ssh2_ed25519_new_private(&ec_ctx, session, privkeyfile, passphrase);
     if(ret) {
         return -1;
     }
@@ -1158,9 +1151,9 @@ static int hostkey_method_ssh_ed25519_initPEMFromMemory(
     }
 
     ret = ssh2_ed25519_new_private_frommemory(&ed_ctx, session,
-                                                  privkeyfiledata,
-                                                  privkeyfiledata_len,
-                                                  passphrase);
+                                              privkeyfiledata,
+                                              privkeyfiledata_len,
+                                              passphrase);
     if(ret) {
         return -1;
     }
@@ -1214,8 +1207,8 @@ static int hostkey_method_ssh_ed25519_signv(LIBSSH2_SESSION *session,
     }
 
     return ssh2_ed25519_sign(ctx, session, signature, signature_len,
-                                 (const uint8_t *)datavec[0].iov_base,
-                                 datavec[0].iov_len);
+                             (const uint8_t *)datavec[0].iov_base,
+                             datavec[0].iov_len);
 }
 
 /*

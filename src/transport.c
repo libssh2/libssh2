@@ -224,10 +224,9 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
              * field which includes the padding but not the MAC.
              */
             if(ssh2_timingsafe_bcmp(macbuf,
-                                        p->payload + p->total_num - mac_len,
-                                        mac_len)) {
-                ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
-                                "Failed MAC check"));
+                                    p->payload + p->total_num - mac_len,
+                                    mac_len)) {
+                ssh2_deb((session, LIBSSH2_TRACE_SOCKET, "Failed MAC check"));
                 session->fullpacket_macstate = LIBSSH2_MAC_INVALID;
             }
             else if(etm) {
@@ -334,8 +333,8 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
 
     if(session->fullpacket_state == libssh2_NB_state_created) {
         rc = ssh2_packet_add(session, p->payload,
-                                 session->fullpacket_payload_len,
-                                 session->fullpacket_macstate, seq);
+                             session->fullpacket_payload_len,
+                             session->fullpacket_macstate, seq);
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return rc;
         if(rc) {
@@ -409,7 +408,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
          * re-exchange is done!
          */
         ssh2_deb((session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
-                        " key re-exchange from ssh2_transport_read()"));
+                  " key re-exchange from ssh2_transport_read()"));
         rc = ssh2_kex_exchange(session, 1, &session->startup_key_state);
         if(rc)
             return rc;
@@ -486,8 +485,8 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
 
             /* now read a big chunk from the network into the temp buffer */
             nread = SSH2_RECV(session, &p->buf[remainbuf],
-                                 PACKETBUFSIZE - remainbuf,
-                                 LIBSSH2_SOCKET_RECV_FLAGS(session));
+                              PACKETBUFSIZE - remainbuf,
+                              LIBSSH2_SOCKET_RECV_FLAGS(session));
             if(nread <= 0) {
                 /* check if this is due to EAGAIN and return the special
                    return code if so, error out normally otherwise */
@@ -497,15 +496,14 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                     return LIBSSH2_ERROR_EAGAIN;
                 }
                 ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
-                                "Error recving %ld bytes (got %ld)",
-                                (long)(PACKETBUFSIZE - remainbuf),
-                                (long)-nread));
+                          "Error recving %ld bytes (got %ld)",
+                          (long)(PACKETBUFSIZE - remainbuf), (long)-nread));
                 return LIBSSH2_ERROR_SOCKET_RECV;
             }
             ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
-                            "Recved %ld/%ld bytes to %p+%ld", (long)nread,
-                            (long)(PACKETBUFSIZE - remainbuf), (void *)p->buf,
-                            (long)remainbuf));
+                      "Recved %ld/%ld bytes to %p+%ld", (long)nread,
+                      (long)(PACKETBUFSIZE - remainbuf), (void *)p->buf,
+                      (long)remainbuf));
 
             debugdump(session, "libssh2_transport_read() raw",
                       &p->buf[remainbuf], nread);
@@ -927,7 +925,7 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
            make the caller really notice his/hers flaw, we return error for
            this case */
         ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
-                        "Address is different, returning EAGAIN"));
+                  "Address is different, returning EAGAIN"));
         return LIBSSH2_ERROR_EAGAIN;
     }
 
@@ -937,15 +935,14 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
     length = p->ototal_num - p->osent;
 
     rc = SSH2_SEND(session, &p->outbuf[p->osent], length,
-                      LIBSSH2_SOCKET_SEND_FLAGS(session));
+                   LIBSSH2_SOCKET_SEND_FLAGS(session));
     if(rc < 0)
         ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
-                        "Error sending %ld bytes: %ld",
-                        (long)length, (long)-rc));
+                  "Error sending %ld bytes: %ld", (long)length, (long)-rc));
     else {
         ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
-                        "Sent %ld/%ld bytes at %p+%lu", (long)rc, (long)length,
-                        (void *)p->outbuf, (unsigned long)p->osent));
+                  "Sent %ld/%ld bytes at %p+%lu", (long)rc, (long)length,
+                  (void *)p->outbuf, (unsigned long)p->osent));
         debugdump(session, "libssh2_transport_write send()",
                   &p->outbuf[p->osent], rc);
     }
@@ -991,8 +988,8 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
  * This function DOES NOT call ssh2_err() on any errors.
  */
 int ssh2_transport_send(LIBSSH2_SESSION *session,
-                            const unsigned char *data, size_t data_len,
-                            const unsigned char *data2, size_t data2_len)
+                        const unsigned char *data, size_t data_len,
+                        const unsigned char *data2, size_t data2_len)
 {
     int blocksize =
         (session->state & LIBSSH2_STATE_NEWKEYS) ?
@@ -1169,7 +1166,7 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
     /* fill the padding area with random junk */
     if(ssh2_random(p->outbuf + 5 + data_len, padding_length)) {
         return ssh2_err(session, LIBSSH2_ERROR_RANDGEN,
-                              "Unable to get random bytes for packet padding");
+                        "Unable to get random bytes for packet padding");
     }
 
     if(encrypted) {
@@ -1231,10 +1228,9 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
                         i += bsize - session->local.crypt->blocksize;
                     }
                 ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
-                                "crypting bytes %lu-%lu", (unsigned long)i,
-                                (unsigned long)(i + bsize - 1)));
-                if(session->local.crypt->crypt(session, 0, ptr,
-                                               bsize,
+                          "crypting bytes %lu-%lu", (unsigned long)i,
+                          (unsigned long)(i + bsize - 1)));
+                if(session->local.crypt->crypt(session, 0, ptr, bsize,
                                                &session->local.crypt_abstract,
                                                firstlast))
                     return LIBSSH2_ERROR_ENCRYPT; /* encryption failure */
@@ -1246,8 +1242,7 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
                 int authlen = local_mac ? local_mac->mac_len : 0;
                 assert((size_t)total_length <=
                        packet_length + session->local.crypt->blocksize);
-                if(session->local.crypt->crypt(session,
-                                               0,
+                if(session->local.crypt->crypt(session, 0,
                                                &p->outbuf[packet_length],
                                                authlen,
                                                &session->local.crypt_abstract,
@@ -1267,7 +1262,7 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
                                packet_length, NULL, 0,
                                &session->local.mac_abstract))
                 return ssh2_err(session, LIBSSH2_ERROR_MAC_FAILURE,
-                                      "Failed to calculate MAC");
+                                "Failed to calculate MAC");
         }
     }
 
@@ -1278,15 +1273,15 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
     }
 
     ret = SSH2_SEND(session, p->outbuf, total_length,
-                       LIBSSH2_SOCKET_SEND_FLAGS(session));
+                    LIBSSH2_SOCKET_SEND_FLAGS(session));
     if(ret < 0)
         ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
-                        "Error sending %ld bytes: %ld",
-                        (long)total_length, (long)-ret));
+                  "Error sending %ld bytes: %ld",
+                  (long)total_length, (long)-ret));
     else {
         ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
-                        "Sent %ld/%ld bytes at %p",
-                        (long)ret, (long)total_length, (void *)p->outbuf));
+                  "Sent %ld/%ld bytes at %p",
+                  (long)ret, (long)total_length, (void *)p->outbuf));
         debugdump(session, "libssh2_transport_write send()", p->outbuf, ret);
     }
 

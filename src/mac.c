@@ -498,8 +498,7 @@ static const struct mac_method mac_method_hmac_aesgcm = {
 
 /* See if the negotiated crypto method has its own authentication scheme that
  * obviates the need for a separate negotiated hmac method */
-const struct mac_method *ssh2_mac_override(
-    const struct crypt_method *crypt)
+const struct mac_method *ssh2_mac_override(const struct crypt_method *crypt)
 {
 #if LIBSSH2_AES_GCM
     if(!strcmp(crypt->name, "aes256-gcm@openssh.com") ||

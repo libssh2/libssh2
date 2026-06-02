@@ -203,8 +203,7 @@
 #define ssh2_bn_to_bin(bn, val) \
     gcry_mpi_print(GCRYMPI_FMT_USG, val, ssh2_bn_bytes(bn), NULL, bn)
 #define ssh2_bn_bytes(bn) \
-    (gcry_mpi_get_nbits(bn) / 8 + \
-         ((gcry_mpi_get_nbits(bn) % 8 == 0) ? 0 : 1))
+    (gcry_mpi_get_nbits(bn) / 8 + ((gcry_mpi_get_nbits(bn) % 8 == 0) ? 0 : 1))
 #define ssh2_bn_bits(bn) gcry_mpi_get_nbits(bn)
 #define ssh2_bn_free(bn) gcry_mpi_release(bn)
 
@@ -226,10 +225,10 @@
 void ssh2_init_aes_ctr(void);
 void ssh2_dh_init(libssh2_dh_ctx *dhctx);
 int ssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
-                         libssh2_bn *g, libssh2_bn *p,
-                         int group_order);
+                     libssh2_bn *g, libssh2_bn *p,
+                     int group_order);
 int ssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
-                       libssh2_bn *f, libssh2_bn *p);
+                   libssh2_bn *f, libssh2_bn *p);
 void ssh2_dh_dtor(libssh2_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_LIBGCRYPT_H */

@@ -48,9 +48,9 @@
  * Always non-blocking.
  */
 int ssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
-                                           uint32_t adjustment,
-                                           unsigned char force,
-                                           unsigned int *store);
+                                       uint32_t adjustment,
+                                       unsigned char force,
+                                       unsigned int *store);
 
 /*
  * Flush data from one (or all) stream
@@ -72,25 +72,25 @@ int ssh2_channel_extended_data(LIBSSH2_CHANNEL *channel, int ignore_mode);
  * Send data to a channel
  */
 ssize_t ssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
-                               const unsigned char *buf, size_t buflen);
+                           const unsigned char *buf, size_t buflen);
 
 /*
  * Establish a generic session channel
  */
 LIBSSH2_CHANNEL *ssh2_channel_open(LIBSSH2_SESSION *session,
-                                       const char *channel_type,
-                                       uint32_t channel_type_len,
-                                       uint32_t window_size,
-                                       uint32_t packet_size,
-                                       const unsigned char *message,
-                                       size_t message_len);
+                                   const char *channel_type,
+                                   uint32_t channel_type_len,
+                                   uint32_t window_size,
+                                   uint32_t packet_size,
+                                   const unsigned char *message,
+                                   size_t message_len);
 
 /*
  * Primitive for libssh2_channel_(shell|exec|subsystem)
  */
 int ssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
-                                     const char *request, size_t request_len,
-                                     const char *message, size_t message_len);
+                                 const char *request, size_t request_len,
+                                 const char *message, size_t message_len);
 
 /*
  * Read data from a channel
@@ -100,15 +100,15 @@ int ssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
  * in the buffer with, we MUST make sure to return PACKET_EAGAIN.
  */
 ssize_t ssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
-                              char *buf, size_t buflen);
+                          char *buf, size_t buflen);
 
 uint32_t ssh2_channel_nextid(LIBSSH2_SESSION *session);
 
 LIBSSH2_CHANNEL *ssh2_channel_locate(LIBSSH2_SESSION *session,
-                                         uint32_t channel_id);
+                                     uint32_t channel_id);
 
 size_t ssh2_channel_packet_data_len(LIBSSH2_CHANNEL *channel,
-                                        int stream_id);
+                                    int stream_id);
 
 int ssh2_channel_close(LIBSSH2_CHANNEL *channel);
 

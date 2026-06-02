@@ -194,8 +194,8 @@ static const struct pkcs5algo hmacWithSHA1 = {
 static const unsigned char OID_desCBC[] = {
     5, 40 + 3, 0x0E, 0x03, 0x02, 0x07
 };
-static int  parse_iv(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
-                     struct pkcs5algo *algo, struct asn1Element *param);
+static int parse_iv(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
+                    struct pkcs5algo *algo, struct asn1Element *param);
 static const struct pkcs5algo desCBC = {
     OID_desCBC, parse_iv,   Qc3_DES,    8,  Qc3_CBC,    Qc3_Pad_Counter,
     '\0',   8,   0,  0,  8,  8,  0
@@ -932,8 +932,7 @@ void ssh2_os400qc3_crypto_dtor(struct os400qc3_crypto_ctx *x)
  *
  *******************************************************************/
 
-int ssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x,
-                                unsigned int algorithm)
+int ssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x, unsigned int algorithm)
 {
     Qc3_Format_ALGD0500_T algd;
     Qus_EC_t errcode;
@@ -951,7 +950,7 @@ int ssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x,
 }
 
 int ssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
-                                  const unsigned char *data, int len)
+                              const unsigned char *data, int len)
 {
     char dummy[64];
     Qus_EC_t errcode;
@@ -963,8 +962,7 @@ int ssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
     return errcode.Bytes_Available ? 0 : 1;
 }
 
-int ssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx,
-                                 unsigned char *out)
+int ssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx, unsigned char *out)
 {
     char data;
     Qus_EC_t errcode;
@@ -979,7 +977,7 @@ int ssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx,
 }
 
 int ssh2_os400qc3_hash(const unsigned char *message, unsigned long len,
-                           unsigned char *out, unsigned int algo)
+                       unsigned char *out, unsigned int algo)
 {
     Qc3_Format_ALGD0100_T ctx;
 
@@ -1050,8 +1048,7 @@ int ssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx, void *key, size_t keylen)
                               key, keylen);
 }
 
-int ssh2_hmac_update(libssh2_hmac_ctx *ctx,
-                         const void *data, size_t datalen)
+int ssh2_hmac_update(libssh2_hmac_ctx *ctx, const void *data, size_t datalen)
 {
     char dummy[64];
     int len = (int)datalen;
@@ -1090,7 +1087,7 @@ void ssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
  *******************************************************************/
 
 int ssh2_cipher_init(libssh2_cipher_ctx *h, LIBSSH2_CIPHER_T(algo),
-                         unsigned char *iv, unsigned char *secret, int encrypt)
+                     unsigned char *iv, unsigned char *secret, int encrypt)
 {
     Qc3_Format_ALGD0200_T algd;
     Qus_EC_t errcode;
@@ -1129,9 +1126,9 @@ int ssh2_cipher_init(libssh2_cipher_ctx *h, LIBSSH2_CIPHER_T(algo),
 }
 
 int ssh2_cipher_crypt(libssh2_cipher_ctx *ctx,
-                          LIBSSH2_CIPHER_T(algo),
-                          int encrypt, unsigned char *block, size_t blocksize,
-                          int firstlast)
+                      LIBSSH2_CIPHER_T(algo),
+                      int encrypt, unsigned char *block, size_t blocksize,
+                      int firstlast)
 {
     Qus_EC_t errcode;
     int outlen;
@@ -1161,14 +1158,14 @@ int ssh2_cipher_crypt(libssh2_cipher_ctx *ctx,
  *******************************************************************/
 
 int ssh2_rsa_new(libssh2_rsa_ctx **rsa,
-                     const unsigned char *edata, unsigned long elen,
-                     const unsigned char *ndata, unsigned long nlen,
-                     const unsigned char *ddata, unsigned long dlen,
-                     const unsigned char *pdata, unsigned long plen,
-                     const unsigned char *qdata, unsigned long qlen,
-                     const unsigned char *e1data, unsigned long e1len,
-                     const unsigned char *e2data, unsigned long e2len,
-                     const unsigned char *coeffdata, unsigned long coefflen)
+                 const unsigned char *edata, unsigned long elen,
+                 const unsigned char *ndata, unsigned long nlen,
+                 const unsigned char *ddata, unsigned long dlen,
+                 const unsigned char *pdata, unsigned long plen,
+                 const unsigned char *qdata, unsigned long qlen,
+                 const unsigned char *e1data, unsigned long e1len,
+                 const unsigned char *e2data, unsigned long e2len,
+                 const unsigned char *coeffdata, unsigned long coefflen)
 {
     libssh2_rsa_ctx *ctx;
     libssh2_bn *e = ssh2_bn_init_from_bin();
@@ -1269,8 +1266,7 @@ void ssh2_os400qc3_dh_init(libssh2_dh_ctx *dhctx)
 }
 
 int ssh2_os400qc3_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
-                                  libssh2_bn *g, libssh2_bn *p,
-                                  int group_order)
+                              libssh2_bn *g, libssh2_bn *p, int group_order)
 {
     struct asn1Element *prime;
     struct asn1Element *base;
@@ -1317,7 +1313,7 @@ int ssh2_os400qc3_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
 }
 
 int ssh2_os400qc3_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
-                                libssh2_bn *f, libssh2_bn *p)
+                            libssh2_bn *f, libssh2_bn *p)
 {
     char *pubkey;
     int pubkeysize;
@@ -1336,8 +1332,7 @@ int ssh2_os400qc3_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
                             &secretbufsize, &secretbuflen, &errcode);
     if(errcode.Bytes_Available)
         return -1;
-    return ssh2_bn_from_bin(secret,
-                                secretbuflen, (unsigned char *)secretbuf);
+    return ssh2_bn_from_bin(secret, secretbuflen, (unsigned char *)secretbuf);
 }
 
 void ssh2_os400qc3_dh_dtor(libssh2_dh_ctx *dhctx)
@@ -1383,8 +1378,7 @@ static int asn1getword(struct asn1Element *e, unsigned long *v)
 }
 
 static int pbkdf1(LIBSSH2_SESSION *session, char **dk,
-                  const unsigned char *passphrase,
-                  struct pkcs5params *pkcs5)
+                  const unsigned char *passphrase, struct pkcs5params *pkcs5)
 {
     int i;
     Qc3_Format_ALGD0100_T hctx;
@@ -1406,8 +1400,7 @@ static int pbkdf1(LIBSSH2_SESSION *session, char **dk,
 
     /* Initial hash. */
     if(ssh2_os400qc3_hash_init(&hctx, pkcs5->hash)) {
-        if(ssh2_os400qc3_hash_update(&hctx,
-                                         passphrase, strlen(passphrase))) {
+        if(ssh2_os400qc3_hash_update(&hctx, passphrase, strlen(passphrase))) {
             hctx.Final_Op_Flag = Qc3_Final;
             Qc3CalculateHash((char *)pkcs5->salt, &len, Qc3_Data,
                              (char *)&hctx, Qc3_Alg_Token, anycsp, NULL, *dk,
@@ -1440,8 +1433,7 @@ static int pbkdf1(LIBSSH2_SESSION *session, char **dk,
 }
 
 static int pbkdf2(LIBSSH2_SESSION *session, char **dk,
-                  const unsigned char *passphrase,
-                  struct pkcs5params *pkcs5)
+                  const unsigned char *passphrase, struct pkcs5params *pkcs5)
 {
     size_t i;
     size_t k;
@@ -2043,8 +2035,7 @@ static int try_pem_load(LIBSSH2_SESSION *session, FILE *fp,
     fseek(fp, 0L, SEEK_SET);
     for(;;) {
         ret = ssh2_pem_parse(session, header, trailer,
-                                 passphrase,
-                                 fp, &data, &datalen);
+                             passphrase, fp, &data, &datalen);
 
         if(!ret) {
             ret = (*proc)(session, data, datalen, passphrase, loadkeydata);
@@ -2132,8 +2123,8 @@ static int load_rsa_private_file(LIBSSH2_SESSION *session,
 }
 
 int ssh2_rsa_new_private(libssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
-                             const char *filename,
-                             unsigned const char *passphrase)
+                         const char *filename,
+                         unsigned const char *passphrase)
 {
     libssh2_rsa_ctx *ctx = init_crypto_ctx(NULL);
     int ret;
@@ -2152,10 +2143,10 @@ int ssh2_rsa_new_private(libssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
 }
 
 int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
-                              unsigned char **method, size_t *method_len,
-                              unsigned char **pubkeydata,
-                              size_t *pubkeydata_len,
-                              const char *privatekey, const char *passphrase)
+                          unsigned char **method, size_t *method_len,
+                          unsigned char **pubkeydata,
+                          size_t *pubkeydata_len,
+                          const char *privatekey, const char *passphrase)
 {
     struct loadpubkeydata p;
     int ret;
@@ -2193,10 +2184,10 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
 }
 
 int ssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
-                                        LIBSSH2_SESSION *session,
-                                        const char *filedata,
-                                        size_t filedata_len,
-                                        unsigned const char *passphrase)
+                                    LIBSSH2_SESSION *session,
+                                    const char *filedata,
+                                    size_t filedata_len,
+                                    unsigned const char *passphrase)
 {
     libssh2_rsa_ctx *ctx = init_crypto_ctx(NULL);
     unsigned char *data = NULL;
@@ -2209,18 +2200,18 @@ int ssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
     /* Try with "ENCRYPTED PRIVATE KEY" PEM armor.
        --> PKCS#8 EncryptedPrivateKeyInfo */
     ret = ssh2_pem_parse_memory(session,
-                                    beginencprivkeyhdr, endencprivkeyhdr,
-                                    passphrase,
-                                    filedata, filedata_len, &data, &datalen);
+                                beginencprivkeyhdr, endencprivkeyhdr,
+                                passphrase,
+                                filedata, filedata_len, &data, &datalen);
 
     /* Try with "PRIVATE KEY" PEM armor.
        --> PKCS#8 PrivateKeyInfo or EncryptedPrivateKeyInfo */
     if(ret)
         ret = ssh2_pem_parse_memory(session,
-                                        beginprivkeyhdr, endprivkeyhdr,
-                                        passphrase,
-                                        filedata, filedata_len,
-                                        &data, &datalen);
+                                    beginprivkeyhdr, endprivkeyhdr,
+                                    passphrase,
+                                    filedata, filedata_len,
+                                    &data, &datalen);
 
     if(!ret) {
         /* Process PKCS#8. */
@@ -2231,10 +2222,10 @@ int ssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
         /* Try with "RSA PRIVATE KEY" PEM armor.
            --> PKCS#1 RSAPrivateKey */
         ret = ssh2_pem_parse_memory(session,
-                                        beginrsaprivkeyhdr, endrsaprivkeyhdr,
-                                        passphrase,
-                                        filedata, filedata_len,
-                                        &data, &datalen);
+                                    beginrsaprivkeyhdr, endrsaprivkeyhdr,
+                                    passphrase,
+                                    filedata, filedata_len,
+                                    &data, &datalen);
         if(!ret)
             ret = rsapkcs1privkey(session,
                                   data, datalen, passphrase, (void *)&ctx);
@@ -2266,12 +2257,12 @@ int ssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
 }
 
 int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                    unsigned char **method, size_t *method_len,
-                                    unsigned char **pubkeydata,
-                                    size_t *pubkeydata_len,
-                                    const char *privatekeydata,
-                                    size_t privatekeydata_len,
-                                    const char *passphrase)
+                                unsigned char **method, size_t *method_len,
+                                unsigned char **pubkeydata,
+                                size_t *pubkeydata_len,
+                                const char *privatekeydata,
+                                size_t privatekeydata_len,
+                                const char *passphrase)
 {
     struct loadpubkeydata p;
     unsigned char *data = NULL;
@@ -2287,33 +2278,32 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     /* Try with "ENCRYPTED PRIVATE KEY" PEM armor.
        --> PKCS#8 EncryptedPrivateKeyInfo */
     ret = ssh2_pem_parse_memory(session,
-                                    beginencprivkeyhdr, endencprivkeyhdr,
-                                    passphrase,
-                                    privatekeydata, privatekeydata_len,
-                                    &data, &datalen);
+                                beginencprivkeyhdr, endencprivkeyhdr,
+                                passphrase,
+                                privatekeydata, privatekeydata_len,
+                                &data, &datalen);
 
     /* Try with "PRIVATE KEY" PEM armor.
        --> PKCS#8 PrivateKeyInfo or EncryptedPrivateKeyInfo */
     if(ret)
         ret = ssh2_pem_parse_memory(session,
-                                        beginprivkeyhdr, endprivkeyhdr,
-                                        passphrase,
-                                        privatekeydata, privatekeydata_len,
-                                        &data, &datalen);
+                                    beginprivkeyhdr, endprivkeyhdr,
+                                    passphrase,
+                                    privatekeydata, privatekeydata_len,
+                                    &data, &datalen);
 
     if(!ret) {
         /* Process PKCS#8. */
-        ret = rsapkcs8pubkey(session,
-                             data, datalen, passphrase, (void *)&p);
+        ret = rsapkcs8pubkey(session, data, datalen, passphrase, (void *)&p);
     }
     else {
         /* Try with "RSA PRIVATE KEY" PEM armor.
            --> PKCS#1 RSAPrivateKey */
         ret = ssh2_pem_parse_memory(session,
-                                        beginrsaprivkeyhdr, endrsaprivkeyhdr,
-                                        passphrase,
-                                        privatekeydata, privatekeydata_len,
-                                        &data, &datalen);
+                                    beginrsaprivkeyhdr, endrsaprivkeyhdr,
+                                    passphrase,
+                                    privatekeydata, privatekeydata_len,
+                                    &data, &datalen);
         if(!ret)
             ret = rsapkcs1pubkey(session,
                                  data, datalen, passphrase, (void *)&p);
@@ -2360,27 +2350,27 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
 }
 
 int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
-                                  unsigned char **method,
-                                  size_t *method_len,
-                                  unsigned char **pubkeydata,
-                                  size_t *pubkeydata_len,
-                                  int *algorithm,
-                                  unsigned char *flags,
-                                  const char **application,
-                                  const unsigned char **key_handle,
-                                  size_t *handle_len,
-                                  const char *privatekeydata,
-                                  size_t privatekeydata_len,
-                                  const char *passphrase)
+                              unsigned char **method,
+                              size_t *method_len,
+                              unsigned char **pubkeydata,
+                              size_t *pubkeydata_len,
+                              int *algorithm,
+                              unsigned char *flags,
+                              const char **application,
+                              const unsigned char **key_handle,
+                              size_t *handle_len,
+                              const char *privatekeydata,
+                              size_t privatekeydata_len,
+                              const char *passphrase)
 {
     return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                          "Unable to extract public SK key from private key "
-                          "file: Method unimplemented in OS/400 QC3 backend");
+                    "Unable to extract public SK key from private key "
+                    "file: Method unimplemented in OS/400 QC3 backend");
 }
 
 int ssh2_rsa_sha2_verify(libssh2_rsa_ctx *rsactx, size_t hash_len,
-                             const unsigned char *sig, size_t sig_len,
-                             const unsigned char *m, size_t m_len)
+                         const unsigned char *sig, size_t sig_len,
+                         const unsigned char *m, size_t m_len)
 {
     Qus_EC_t errcode;
     Qc3_Format_ALGD0400_T algd;
@@ -2413,20 +2403,20 @@ int ssh2_rsa_sha2_verify(libssh2_rsa_ctx *rsactx, size_t hash_len,
 }
 
 int ssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
-                             const unsigned char *sig, size_t sig_len,
-                             const unsigned char *m, size_t m_len)
+                         const unsigned char *sig, size_t sig_len,
+                         const unsigned char *m, size_t m_len)
 {
     return ssh2_rsa_sha2_verify(rsactx, SHA_DIGEST_LENGTH,
-                                    sig, sig_len, m, m_len);
+                                sig, sig_len, m, m_len);
 }
 
 int ssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session,
-                                int algo,
-                                unsigned char **signature,
-                                size_t *signature_len,
-                                int veccount,
-                                const struct iovec vector[],
-                                libssh2_rsa_ctx *ctx)
+                            int algo,
+                            unsigned char **signature,
+                            size_t *signature_len,
+                            int veccount,
+                            const struct iovec vector[],
+                            libssh2_rsa_ctx *ctx)
 {
     Qus_EC_t errcode;
     Qc3_Format_ALGD0400_T algd;
@@ -2460,8 +2450,8 @@ int ssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session,
  * Return supported key hash algo upgrades, see crypto.h
  */
 const char *ssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
-                                                   unsigned char *key_method,
-                                                   size_t key_method_len)
+                                               unsigned char *key_method,
+                                               size_t key_method_len)
 {
     (void)session;
 

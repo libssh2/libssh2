@@ -142,8 +142,8 @@ static int comp_method_zlib_init(LIBSSH2_SESSION *session, int compr,
     strm = SSH2_CALLOC(session, sizeof(z_stream));
     if(!strm) {
         return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                              "Unable to allocate memory for "
-                              "zlib compression/decompression");
+                        "Unable to allocate memory for "
+                        "zlib compression/decompression");
     }
 
     strm->opaque = (voidpf)session;
@@ -161,7 +161,7 @@ static int comp_method_zlib_init(LIBSSH2_SESSION *session, int compr,
     if(status != Z_OK) {
         SSH2_FREE(session, strm);
         ssh2_deb((session, LIBSSH2_TRACE_TRANS,
-                        "unhandled zlib error %d", status));
+                  "unhandled zlib error %d", status));
         return LIBSSH2_ERROR_COMPRESS;
     }
     *abstract = strm;
@@ -199,8 +199,8 @@ static int comp_method_zlib_comp(LIBSSH2_SESSION *session,
     }
 
     ssh2_deb((session, LIBSSH2_TRACE_TRANS,
-                    "unhandled zlib compression error %d, avail_out %u",
-                    status, strm->avail_out));
+              "unhandled zlib compression error %d, avail_out %u",
+              status, strm->avail_out));
     return ssh2_err(session, LIBSSH2_ERROR_ZLIB, "compression failure");
 }
 
@@ -228,7 +228,7 @@ static int comp_method_zlib_decomp(LIBSSH2_SESSION *session,
     /* If strm is null, then we have not yet been initialized. */
     if(!strm)
         return ssh2_err(session, LIBSSH2_ERROR_COMPRESS,
-                              "decompression uninitialized");
+                        "decompression uninitialized");
 
     /* In practice they never come smaller than this */
     if(out_maxlen < 25)
@@ -244,7 +244,7 @@ static int comp_method_zlib_decomp(LIBSSH2_SESSION *session,
     strm->avail_out = (uInt)out_maxlen;
     if(!strm->next_out)
         return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                              "Unable to allocate decompression buffer");
+                        "Unable to allocate decompression buffer");
 
     /* Loop until it is all inflated or hit error */
     for(;;) {
@@ -267,9 +267,9 @@ static int comp_method_zlib_decomp(LIBSSH2_SESSION *session,
                 /* nothing was decompressed */
                 SSH2_FREE(session, out);
                 ssh2_deb((session, LIBSSH2_TRACE_TRANS,
-                                "zlib empty src error %d", status));
+                          "zlib empty src error %d", status));
                 return ssh2_err(session, LIBSSH2_ERROR_ZLIB,
-                                      "decompression failure");
+                                "decompression failure");
             }
 
             break;
@@ -277,16 +277,16 @@ static int comp_method_zlib_decomp(LIBSSH2_SESSION *session,
         else {
             /* error state */
             SSH2_FREE(session, out);
-            ssh2_deb((session, LIBSSH2_TRACE_TRANS,
-                            "unhandled zlib error %d", status));
+            ssh2_deb((session, LIBSSH2_TRACE_TRANS, "unhandled zlib error %d",
+                      status));
             return ssh2_err(session, LIBSSH2_ERROR_ZLIB,
-                                  "decompression failure");
+                            "decompression failure");
         }
 
         if(out_maxlen > payload_limit || out_maxlen > SIZE_MAX / 2) {
             SSH2_FREE(session, out);
             return ssh2_err(session, LIBSSH2_ERROR_ZLIB,
-                                  "Excessive growth in decompression phase");
+                            "Excessive growth in decompression phase");
         }
 
         /* If we get here we need to grow the output buffer and try again */
@@ -296,7 +296,7 @@ static int comp_method_zlib_decomp(LIBSSH2_SESSION *session,
         if(!newout) {
             SSH2_FREE(session, out);
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                                  "Unable to expand decompression buffer");
+                            "Unable to expand decompression buffer");
         }
         out = newout;
         strm->next_out = (Bytef *)out + out_ofs;

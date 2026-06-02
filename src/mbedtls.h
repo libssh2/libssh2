@@ -212,19 +212,19 @@
 #define libssh2_rsa_ctx  mbedtls_rsa_context
 
 #define ssh2_rsa_new(rsactx, e, e_len, n, n_len, \
-                         d, d_len, p, p_len, q, q_len, \
-                         e1, e1_len, e2, e2_len, c, c_len) \
+                     d, d_len, p, p_len, q, q_len, \
+                     e1, e1_len, e2, e2_len, c, c_len) \
     ssh2_mbedtls_rsa_new(rsactx, e, e_len, n, n_len, \
-                             d, d_len, p, p_len, q, q_len, \
-                             e1, e1_len, e2, e2_len, c, c_len)
+                         d, d_len, p, p_len, q, q_len, \
+                         e1, e1_len, e2, e2_len, c, c_len)
 
 #define ssh2_rsa_new_private(rsactx, s, filename, passphrase) \
     ssh2_mbedtls_rsa_new_private(rsactx, s, filename, passphrase)
 
 #define ssh2_rsa_new_private_frommemory(rsactx, s, filedata, \
-                                            filedata_len, passphrase) \
+                                        filedata_len, passphrase) \
     ssh2_mbedtls_rsa_new_private_frommemory(rsactx, s, filedata, \
-                                                filedata_len, passphrase)
+                                            filedata_len, passphrase)
 
 #define ssh2_rsa_sha1_sign(s, rsactx, hash, hash_len, sig, sig_len) \
     ssh2_mbedtls_rsa_sha1_sign(s, rsactx, hash, hash_len, sig, sig_len)
@@ -281,9 +281,9 @@ typedef enum {
 #define libssh2_ecdsa_ctx mbedtls_ecdsa_context
 
 #define ssh2_ecdsa_create_key(session, privkey, pubkey_octal, \
-                                  pubkey_octal_len, curve) \
+                              pubkey_octal_len, curve) \
     ssh2_mbedtls_ecdsa_create_key(session, privkey, pubkey_octal, \
-                                      pubkey_octal_len, curve)
+                                  pubkey_octal_len, curve)
 
 #define ssh2_ecdsa_curve_name_with_octal_new(ctx, k, k_len, curve) \
     ssh2_mbedtls_ecdsa_curve_name_with_octal_new(ctx, k, k_len, curve)
@@ -298,9 +298,9 @@ typedef enum {
     ssh2_mbedtls_ecdsa_new_private(ctx, session, filename, passphrase)
 
 #define ssh2_ecdsa_new_private_frommemory(ctx, session, filedata, \
-                                              filedata_len, passphrase) \
+                                          filedata_len, passphrase) \
     ssh2_mbedtls_ecdsa_new_private_frommemory(ctx, session, filedata, \
-                                                  filedata_len, passphrase)
+                                              filedata_len, passphrase)
 
 #define ssh2_ecdsa_sign(session, ctx, hash, hash_len, sign, sign_len) \
     ssh2_mbedtls_ecdsa_sign(session, ctx, hash, hash_len, sign, sign_len)
@@ -320,14 +320,12 @@ typedef enum {
 
 #define ssh2_pub_priv_keyfile(s, m, m_len, p, p_len, pk, pw) \
     ssh2_mbedtls_pub_priv_keyfile(s, m, m_len, p, p_len, pk, pw)
-#define ssh2_pub_priv_keyfilememory(s, m, m_len, p, p_len, \
-                                        pk, pk_len, pw) \
-    ssh2_mbedtls_pub_priv_keyfilememory(s, m, m_len, p, p_len, \
-                                            pk, pk_len, pw)
+#define ssh2_pub_priv_keyfilememory(s, m, m_len, p, p_len, pk, pk_len, pw) \
+    ssh2_mbedtls_pub_priv_keyfilememory(s, m, m_len, p, p_len, pk, pk_len, pw)
 #define ssh2_sk_pub_keyfilememory(s, m, m_len, p, p_len, alg, app, \
-                                      f, kh, kh_len, pk, pk_len, pw) \
+                                  f, kh, kh_len, pk, pk_len, pw) \
     ssh2_mbedtls_sk_pub_keyfilememory(s, m, m_len, p, p_len, alg, app, \
-                                          f, kh, kh_len, pk, pk_len, pw)
+                                      f, kh, kh_len, pk, pk_len, pw)
 
 /*******************************************************************/
 /*
@@ -428,13 +426,12 @@ int ssh2_mbedtls_random(unsigned char *buf, size_t len);
 void ssh2_mbedtls_cipher_dtor(libssh2_cipher_ctx *ctx);
 
 int ssh2_mbedtls_hash_init(mbedtls_md_context_t *ctx,
-                               mbedtls_md_type_t mdtype,
-                               const unsigned char *key, size_t keylen);
+                           mbedtls_md_type_t mdtype,
+                           const unsigned char *key, size_t keylen);
 
-int ssh2_mbedtls_hash_final(mbedtls_md_context_t *ctx,
-                                unsigned char *hash);
+int ssh2_mbedtls_hash_final(mbedtls_md_context_t *ctx, unsigned char *hash);
 int ssh2_mbedtls_hash(const unsigned char *data, size_t datalen,
-                          mbedtls_md_type_t mdtype, unsigned char *hash);
+                      mbedtls_md_type_t mdtype, unsigned char *hash);
 
 libssh2_bn *ssh2_mbedtls_bignum_init(void);
 
@@ -446,16 +443,16 @@ void ssh2_mbedtls_rsa_free(libssh2_rsa_ctx *ctx);
 libssh2_curve_type ssh2_mbedtls_ecdsa_key_get_curve_type(
     libssh2_ecdsa_ctx *ctx);
 int ssh2_mbedtls_ecdsa_curve_type_from_name(const char *name,
-                                                libssh2_curve_type *out_type);
+                                            libssh2_curve_type *out_type);
 void ssh2_mbedtls_ecdsa_free(libssh2_ecdsa_ctx *ctx);
 #endif /* LIBSSH2_ECDSA */
 
 void ssh2_init_aes_ctr(void);
 void ssh2_dh_init(libssh2_dh_ctx *dhctx);
 int ssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
-                         libssh2_bn *g, libssh2_bn *p, int group_order);
+                     libssh2_bn *g, libssh2_bn *p, int group_order);
 int ssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
-                       libssh2_bn *f, libssh2_bn *p);
+                   libssh2_bn *f, libssh2_bn *p);
 void ssh2_dh_dtor(libssh2_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_MBEDTLS_H */

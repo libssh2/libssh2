@@ -41,9 +41,9 @@
 
 #ifdef LIBSSH2_NO_CLEAR_MEMORY
 #define ssh2_explicit_zero(buf, size) \
-    do {                                  \
-        (void)(buf);                      \
-        (void)(size);                     \
+    do {                              \
+        (void)(buf);                  \
+        (void)(size);                 \
     } while(0)
 #elif defined(_WIN32)
 #define ssh2_explicit_zero(buf, size) SecureZeroMemory(buf, size)
@@ -88,8 +88,7 @@ int ssh2_wsa2errno(void);
 void ssh2_list_init(struct list_head *head);
 
 /* add a node last in the list */
-void ssh2_list_add(struct list_head *head,
-                       struct list_node *entry);
+void ssh2_list_add(struct list_head *head, struct list_node *entry);
 
 /* return the "first" node in the list this head points to */
 void *ssh2_list_first(struct list_head *head);
@@ -103,11 +102,10 @@ void *ssh2_list_prev(struct list_node *node);
 /* remove this node from the list */
 void ssh2_list_remove(struct list_node *entry);
 
-int ssh2_base64_decode(LIBSSH2_SESSION *session,
-                           char **data, size_t *datalen,
-                           const char *src, size_t src_len);
+int ssh2_base64_decode(LIBSSH2_SESSION *session, char **data, size_t *datalen,
+                       const char *src, size_t src_len);
 size_t ssh2_base64_encode(LIBSSH2_SESSION *session,
-                              const char *inp, size_t insize, char **outptr);
+                          const char *inp, size_t insize, char **outptr);
 
 uint32_t ssh2_ntohu32(const unsigned char *buf);
 libssh2_uint64_t ssh2_ntohu64(const unsigned char *buf);
@@ -116,33 +114,31 @@ void ssh2_store_u32(unsigned char **buf, uint32_t value);
 void ssh2_store_u64(unsigned char **buf, libssh2_uint64_t value);
 int ssh2_store_str(unsigned char **buf, const char *str, size_t len);
 int ssh2_store_hybrid_str(unsigned char **buf, const char *str_1,
-                              size_t len_1, const char *str_2, size_t len_2);
+                          size_t len_1, const char *str_2, size_t len_2);
 int ssh2_store_bignum2_bytes(unsigned char **buf,
-                                 const unsigned char *bytes,
-                                 size_t len);
+                             const unsigned char *bytes, size_t len);
 void *ssh2_calloc(LIBSSH2_SESSION *session, size_t size);
 
 struct string_buf *ssh2_string_buf_new(LIBSSH2_SESSION *session);
-void ssh2_string_buf_free(LIBSSH2_SESSION *session,
-                              struct string_buf *buf);
+void ssh2_string_buf_free(LIBSSH2_SESSION *session, struct string_buf *buf);
 int ssh2_get_boolean(struct string_buf *buf, unsigned char *out);
 int ssh2_get_byte(struct string_buf *buf, unsigned char *out);
 int ssh2_get_u32(struct string_buf *buf, uint32_t *out);
 int ssh2_get_u64(struct string_buf *buf, libssh2_uint64_t *out);
 int ssh2_match_string(struct string_buf *buf, const char *match);
 int ssh2_get_string(struct string_buf *buf, unsigned char **outbuf,
-                        size_t *outlen);
+                    size_t *outlen);
 int ssh2_copy_string(LIBSSH2_SESSION *session, struct string_buf *buf,
-                         unsigned char **outbuf, size_t *outlen);
+                     unsigned char **outbuf, size_t *outlen);
 int ssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf,
-                              size_t *outlen);
+                          size_t *outlen);
 int ssh2_check_length(struct string_buf *buf, size_t requested_len);
 int ssh2_eob(struct string_buf *buf);
 
 void ssh2_xor_data(unsigned char *output,
-                       const unsigned char *input1,
-                       const unsigned char *input2,
-                       size_t length);
+                   const unsigned char *input1,
+                   const unsigned char *input2,
+                   size_t length);
 
 int ssh2_timingsafe_bcmp(const void *b1, const void *b2, size_t n);
 
