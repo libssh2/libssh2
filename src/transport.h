@@ -61,7 +61,7 @@
  * then be called with the same argument set (same data pointer and same
  * data_len) until ERROR_NONE or failure is returned.
  *
- * This function DOES NOT call _libssh2_error() on any errors.
+ * This function DOES NOT call ssh2_err() on any errors.
  */
 int _libssh2_transport_send(LIBSSH2_SESSION *session,
                             const unsigned char *data, size_t data_len,

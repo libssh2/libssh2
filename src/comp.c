@@ -141,7 +141,7 @@ static int comp_method_zlib_init(LIBSSH2_SESSION *session, int compr,
 
     strm = LIBSSH2_CALLOC(session, sizeof(z_stream));
     if(!strm) {
-        return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+        return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate memory for "
                               "zlib compression/decompression");
     }
@@ -201,7 +201,7 @@ static int comp_method_zlib_comp(LIBSSH2_SESSION *session,
     _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
                     "unhandled zlib compression error %d, avail_out %u",
                     status, strm->avail_out));
-    return _libssh2_error(session, LIBSSH2_ERROR_ZLIB, "compression failure");
+    return ssh2_err(session, LIBSSH2_ERROR_ZLIB, "compression failure");
 }
 
 /*
@@ -227,7 +227,7 @@ static int comp_method_zlib_decomp(LIBSSH2_SESSION *session,
 
     /* If strm is null, then we have not yet been initialized. */
     if(!strm)
-        return _libssh2_error(session, LIBSSH2_ERROR_COMPRESS,
+        return ssh2_err(session, LIBSSH2_ERROR_COMPRESS,
                               "decompression uninitialized");
 
     /* In practice they never come smaller than this */
@@ -243,7 +243,7 @@ static int comp_method_zlib_decomp(LIBSSH2_SESSION *session,
     out = (char *)strm->next_out;
     strm->avail_out = (uInt)out_maxlen;
     if(!strm->next_out)
-        return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+        return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate decompression buffer");
 
     /* Loop until it is all inflated or hit error */
@@ -268,7 +268,7 @@ static int comp_method_zlib_decomp(LIBSSH2_SESSION *session,
                 LIBSSH2_FREE(session, out);
                 _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
                                 "zlib empty src error %d", status));
-                return _libssh2_error(session, LIBSSH2_ERROR_ZLIB,
+                return ssh2_err(session, LIBSSH2_ERROR_ZLIB,
                                       "decompression failure");
             }
 
@@ -279,13 +279,13 @@ static int comp_method_zlib_decomp(LIBSSH2_SESSION *session,
             LIBSSH2_FREE(session, out);
             _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
                             "unhandled zlib error %d", status));
-            return _libssh2_error(session, LIBSSH2_ERROR_ZLIB,
+            return ssh2_err(session, LIBSSH2_ERROR_ZLIB,
                                   "decompression failure");
         }
 
         if(out_maxlen > payload_limit || out_maxlen > SIZE_MAX / 2) {
             LIBSSH2_FREE(session, out);
-            return _libssh2_error(session, LIBSSH2_ERROR_ZLIB,
+            return ssh2_err(session, LIBSSH2_ERROR_ZLIB,
                                   "Excessive growth in decompression phase");
         }
 
@@ -295,7 +295,7 @@ static int comp_method_zlib_decomp(LIBSSH2_SESSION *session,
         newout = LIBSSH2_REALLOC(session, out, out_maxlen);
         if(!newout) {
             LIBSSH2_FREE(session, out);
-            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                   "Unable to expand decompression buffer");
         }
         out = newout;

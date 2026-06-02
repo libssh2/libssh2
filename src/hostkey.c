@@ -635,8 +635,8 @@ static int hostkey_method_ssh_dss_sig_verify(LIBSSH2_SESSION *session,
 
     /* Skip past keyname_len(4) + keyname(7){"ssh-dss"} + signature_len(4) */
     if(sig_len != 55) {
-        return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                              "Invalid DSS signature length");
+        return ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                        "Invalid DSS signature length");
     }
 
     sig += 15;

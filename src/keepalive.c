@@ -81,8 +81,8 @@ int libssh2_keepalive_send(LIBSSH2_SESSION *session, int *seconds_to_next)
         /* Silently ignore PACKET_EAGAIN here: if the write buffer is
            already full, sending another keepalive is not useful. */
         if(rc && rc != LIBSSH2_ERROR_EAGAIN) {
-            _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-                           "Unable to send keepalive message");
+            ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
+                     "Unable to send keepalive message");
             return rc;
         }
 

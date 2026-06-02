@@ -78,7 +78,7 @@ struct string_buf {
 
 int _libssh2_error_flags(LIBSSH2_SESSION *session, int errcode,
                          const char *errmsg, int errflags);
-int _libssh2_error(LIBSSH2_SESSION *session, int errcode, const char *errmsg);
+int ssh2_err(LIBSSH2_SESSION *session, int errcode, const char *errmsg);
 
 #ifdef _WIN32
 /* Convert Win32 WSAGetLastError to errno equivalent */

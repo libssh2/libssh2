@@ -1474,7 +1474,7 @@ int _libssh2_wincng_rsa_new_private(libssh2_rsa_ctx **rsa,
     (void)filename;
     (void)passphrase;
 
-    return _libssh2_error(session, LIBSSH2_ERROR_FILE,
+    return ssh2_err(session, LIBSSH2_ERROR_FILE,
                           "Unable to load RSA key from private key file: "
                           "Method unsupported in Windows CNG backend");
 #endif /* HAVE_LIBCRYPT32 */
@@ -1505,7 +1505,7 @@ int _libssh2_wincng_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
     (void)filedata_len;
     (void)passphrase;
 
-    return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
+    return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                           "Unable to extract private key from memory: "
                           "Method unsupported in Windows CNG backend");
 #endif /* HAVE_LIBCRYPT32 */
@@ -1561,7 +1561,7 @@ static int wincng_rsa_sha_sign(LIBSSH2_SESSION *session,
     else if(hash_len == SHA512_DIGEST_LENGTH)
         paddingInfo.pszAlgId = BCRYPT_SHA512_ALGORITHM;
     else {
-        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+        ssh2_err(session, LIBSSH2_ERROR_PROTO,
                        "Unsupported hash digest length");
         return -1;
     }
@@ -1810,7 +1810,7 @@ int _libssh2_wincng_dsa_new_private(libssh2_dsa_ctx **dsa,
     (void)filename;
     (void)passphrase;
 
-    return _libssh2_error(session, LIBSSH2_ERROR_FILE,
+    return ssh2_err(session, LIBSSH2_ERROR_FILE,
                           "Unable to load DSA key from private key file: "
                           "Method unsupported in Windows CNG backend");
 #endif /* HAVE_LIBCRYPT32 */
@@ -1840,7 +1840,7 @@ int _libssh2_wincng_dsa_new_private_frommemory(libssh2_dsa_ctx **dsa,
     (void)filedata_len;
     (void)passphrase;
 
-    return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
+    return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                           "Unable to extract private key from memory: "
                           "Method unsupported in Windows CNG backend");
 #endif /* HAVE_LIBCRYPT32 */
@@ -2208,7 +2208,7 @@ static int wincng_uncompressed_point_from_publickey(
     }
 
     if(!BCRYPT_SUCCESS(status)) {
-        result = _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
+        result = ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                                 "Decoding the ECC public key failed");
         goto cleanup;
     }
@@ -2312,14 +2312,14 @@ int _libssh2_wincng_ecdh_create_key(IN LIBSSH2_SESSION *session,
         wincng_ecdsa_algorithms[curve].key_length,
         0);
     if(!BCRYPT_SUCCESS(status)) {
-        result = _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
+        result = ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                                 "Creating ECC key pair failed");
         goto cleanup;
     }
 
     status = BCryptFinalizeKeyPair(key_handle, 0);
     if(!BCRYPT_SUCCESS(status)) {
-        result = _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
+        result = ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                                 "Creating ECDH key pair failed");
         goto cleanup;
     }
@@ -2331,7 +2331,7 @@ int _libssh2_wincng_ecdh_create_key(IN LIBSSH2_SESSION *session,
         encoded_publickey,
         encoded_publickey_len);
     if(result != LIBSSH2_ERROR_NONE) {
-        result = _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
+        result = ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                                 "Exporting ECDH key pair failed");
     }
 
@@ -2669,14 +2669,14 @@ int _libssh2_wincng_ecdsa_new_private(OUT struct wincng_ecdsa_ctx **key,
     *key = NULL;
 
     if(passphrase && strlen((const char *)passphrase) > 0) {
-        return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+        return ssh2_err(session, LIBSSH2_ERROR_INVAL,
                               "Passphrase-protected ECDSA private key "
                               "files are unsupported");
     }
 
     file_handle = fopen(filename, "rb");
     if(!file_handle) {
-        result = _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+        result = ssh2_err(session, LIBSSH2_ERROR_INVAL,
                                 "Opening the private key file failed");
         goto cleanup;
     }
@@ -2862,7 +2862,7 @@ int _libssh2_wincng_ecdsa_new_private_frommemory(
     *key = NULL;
 
     if(passphrase && strlen((const char *)passphrase) > 0) {
-        return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+        return ssh2_err(session, LIBSSH2_ERROR_INVAL,
                               "Passphrase-protected ECDSA private key "
                               "files are unsupported");
     }
@@ -2928,7 +2928,7 @@ int _libssh2_wincng_ecdsa_new_private_frommemory(
 
 cleanup:
     if(result != LIBSSH2_ERROR_NONE) {
-        return _libssh2_error(session, result, "The key is malformed");
+        return ssh2_err(session, result, "The key is malformed");
     }
 
     return result;
@@ -3225,7 +3225,7 @@ int _libssh2_wincng_pub_priv_keyfile(LIBSSH2_SESSION *session,
     (void)privatekey;
     (void)passphrase;
 
-    return _libssh2_error(session, LIBSSH2_ERROR_FILE,
+    return ssh2_err(session, LIBSSH2_ERROR_FILE,
                           "Unable to load public key from private key file: "
                           "Method unsupported in Windows CNG backend");
 #endif /* HAVE_LIBCRYPT32 */
@@ -3265,7 +3265,7 @@ int _libssh2_wincng_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     (void)privatekeydata_len;
     (void)passphrase;
 
-    return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
+    return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                           "Unable to extract public key from private key in "
                           "memory: Method unsupported in Windows CNG backend");
 #endif /* HAVE_LIBCRYPT32 */
@@ -3298,7 +3298,7 @@ int _libssh2_wincng_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
     (void)privatekeydata_len;
     (void)passphrase;
 
-    return _libssh2_error(session, LIBSSH2_ERROR_FILE,
+    return ssh2_err(session, LIBSSH2_ERROR_FILE,
                           "Unable to extract public SK key from private key "
                           "file: Method unimplemented in Windows CNG backend");
 }

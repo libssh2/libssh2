@@ -223,7 +223,7 @@ static int process_host_key(LIBSSH2_SESSION *session,
     /* Parse reply */
     if(data) {
         if(data_len < 5) {
-            return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+            return ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                   "Unexpected packet length");
         }
         buf->data = data;
@@ -231,7 +231,7 @@ static int process_host_key(LIBSSH2_SESSION *session,
     }
     else {
         if(exchange_state->s_packet_len < 5) {
-            return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+            return ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                   "Unexpected packet length");
         }
         buf->data = exchange_state->s_packet;
@@ -249,7 +249,7 @@ static int process_host_key(LIBSSH2_SESSION *session,
 
     if(_libssh2_copy_string(session, buf, &(session->server_hostkey),
                             &host_key_len)) {
-        return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+        return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                               "Could not copy host key");
     }
 
@@ -342,12 +342,12 @@ static int process_host_key(LIBSSH2_SESSION *session,
 #endif /* LIBSSH2DEBUG */
 
     if(!session->hostkey) {
-        return _libssh2_error(session, LIBSSH2_ERROR_PROTO, "hostkey is NULL");
+        return ssh2_err(session, LIBSSH2_ERROR_PROTO, "hostkey is NULL");
     }
     if(session->hostkey->init(session, session->server_hostkey,
                               session->server_hostkey_len,
                               &session->server_hostkey_abstract)) {
-        return _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+        return ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                               "Unable to initialize hostkey importer");
     }
 
@@ -367,7 +367,7 @@ static int finish_kex(LIBSSH2_SESSION *session,
         return rc;
     }
     if(rc) {
-        return _libssh2_error(session, rc, "Timed out waiting for NEWKEYS");
+        return ssh2_err(session, rc, "Timed out waiting for NEWKEYS");
     }
 
     /* The first key exchange has been performed,
@@ -382,7 +382,7 @@ static int finish_kex(LIBSSH2_SESSION *session,
     if(!session->session_id) {
         session->session_id = LIBSSH2_ALLOC(session, digest_len);
         if(!session->session_id) {
-            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                   "Unable to allocate buffer for "
                                   "SHA digest");
         }
@@ -651,7 +651,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
     else if(sha_algo_value == 1)
         digest_len = SHA1_DIGEST_LENGTH;
     else {
-        ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+        ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                              "sha algo value is unimplemented");
         goto clean_exit;
     }
@@ -675,7 +675,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
 
         /* Generate x and e */
         if(_libssh2_bn_bits(p) > LIBSSH2_DH_MAX_MODULUS_BITS) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+            ret = ssh2_err(session, LIBSSH2_ERROR_INVAL,
                                  "dh modulus value is too large");
             goto clean_exit;
         }
@@ -683,7 +683,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         rc = libssh2_dh_key_pair(&exchange_state->x, exchange_state->e, g, p,
                                  group_order, exchange_state->ctx);
         if(rc) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_KEX_FAILURE,
+            ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                                  "dh key pair generation failed");
             goto clean_exit;
         }
@@ -700,7 +700,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         exchange_state->e_packet =
             LIBSSH2_ALLOC(session, exchange_state->e_packet_len);
         if(!exchange_state->e_packet) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Out of memory error");
             goto clean_exit;
         }
@@ -710,7 +710,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         if(_libssh2_bn_bits(exchange_state->e) % 8) {
             if(_libssh2_bn_to_bin(exchange_state->e,
                                   exchange_state->e_packet + 5)) {
-                ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                ret = ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                      "Cannot write exchange_state->e");
                 goto clean_exit;
             }
@@ -719,7 +719,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             exchange_state->e_packet[5] = 0;
             if(_libssh2_bn_to_bin(exchange_state->e,
                                   exchange_state->e_packet + 6)) {
-                ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                ret = ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                      "Cannot write exchange_state->e");
                 goto clean_exit;
             }
@@ -737,7 +737,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             return rc;
         }
         else if(rc) {
-            ret = _libssh2_error(session, rc,
+            ret = ssh2_err(session, rc,
                                  "Unable to send KEX init message");
             goto clean_exit;
         }
@@ -788,7 +788,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             return rc;
         }
         if(rc) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_TIMEOUT,
+            ret = ssh2_err(session, LIBSSH2_ERROR_TIMEOUT,
                                  "Timed out waiting for KEX reply");
             goto clean_exit;
         }
@@ -800,7 +800,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
 
         if(_libssh2_get_string(&buf, &(exchange_state->f_value),
                                &(exchange_state->f_value_len))) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+            ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                                  "Unable to get DH-SHA f value");
             goto clean_exit;
         }
@@ -808,14 +808,14 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         if(_libssh2_bn_from_bin(exchange_state->f,
                                 exchange_state->f_value_len,
                                 exchange_state->f_value)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+            ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                                  "Invalid DH-SHA f value");
             goto clean_exit;
         }
 
         if(_libssh2_get_string(&buf, &(exchange_state->h_sig),
                                &(exchange_state->h_sig_len))) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+            ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                                  "Unable to get DH-SHA h sig");
             goto clean_exit;
         }
@@ -831,7 +831,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         exchange_state->k_value =
             LIBSSH2_ALLOC(session, exchange_state->k_value_len);
         if(!exchange_state->k_value) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Unable to allocate buffer for DH-SHA K");
             goto clean_exit;
         }
@@ -840,7 +840,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         if(_libssh2_bn_bits(exchange_state->k) % 8) {
             if(_libssh2_bn_to_bin(exchange_state->k,
                                   exchange_state->k_value + 4)) {
-                ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                ret = ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                      "Cannot write exchange_state->k");
                 goto clean_exit;
             }
@@ -849,14 +849,14 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             exchange_state->k_value[4] = 0;
             if(_libssh2_bn_to_bin(exchange_state->k,
                                   exchange_state->k_value + 5)) {
-                ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                ret = ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                      "Cannot write exchange_state->k");
                 goto clean_exit;
             }
         }
 
         if(!sha_algo_ctx_init(sha_algo_value, exchange_hash_ctx)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_HASH_INIT,
+            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
                                  "Unable to initialize hash context");
             goto clean_exit;
         }
@@ -948,7 +948,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         if(!hok ||
            !sha_algo_ctx_final(sha_algo_value, exchange_hash_ctx,
                                exchange_state->h_sig_comp)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_HASH_CALC,
+            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                                  "kex: failed to calculate hash");
             goto clean_exit;
         }
@@ -964,7 +964,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                             "Failed hostkey sig_verify(): %s: %d",
                             session->hostkey->name, err));
-            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
+            ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
                                  "Unable to verify hostkey signature "
                                  "DH-SHA");
             goto clean_exit;
@@ -983,7 +983,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             return rc;
         }
         else if(rc) {
-            ret = _libssh2_error(session, rc,
+            ret = ssh2_err(session, rc,
                                  "Unable to send NEWKEYS message DH-SHA");
             goto clean_exit;
         }
@@ -1040,12 +1040,12 @@ static int kex_method_diffie_hellman_group1_sha1_key_exchange(
 
         /* Initialize P and G */
         if(!key_state->g || _libssh2_bn_set_word(key_state->g, 2)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Failed to allocate key state g.");
             goto clean_exit;
         }
         if(!key_state->p || _libssh2_bn_from_bin(key_state->p, 128, p_value)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Failed to allocate key state p.");
             goto clean_exit;
         }
@@ -1136,13 +1136,13 @@ static int kex_method_diffie_hellman_group14_key_exchange(
         /* g == 2 */
         /* Initialize P and G */
         if(!key_state->g || _libssh2_bn_set_word(key_state->g, 2)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Failed to allocate key state g.");
             goto clean_exit;
         }
         else if(!key_state->p ||
                 _libssh2_bn_from_bin(key_state->p, 256, p_value)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Failed to allocate key state p.");
             goto clean_exit;
         }
@@ -1253,12 +1253,12 @@ static int kex_method_diffie_hellman_group16_sha512_key_exchange(
         /* g == 2 */
         /* Initialize P and G */
         if(!key_state->g || _libssh2_bn_set_word(key_state->g, 2)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Failed to allocate key state g.");
             goto clean_exit;
         }
         if(!key_state->p || _libssh2_bn_from_bin(key_state->p, 512, p_value)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Failed to allocate key state p.");
             goto clean_exit;
         }
@@ -1388,13 +1388,13 @@ static int kex_method_diffie_hellman_group18_sha512_key_exchange(
         /* g == 2 */
         /* Initialize P and G */
         if(!key_state->g || _libssh2_bn_set_word(key_state->g, 2)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Failed to allocate key state g.");
             goto clean_exit;
         }
         else if(!key_state->p ||
                 _libssh2_bn_from_bin(key_state->p, 1024, p_value)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Failed to allocate key state p.");
             goto clean_exit;
         }
@@ -1451,7 +1451,7 @@ static int kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
             return rc;
         }
         else if(rc) {
-            ret = _libssh2_error(session, rc,
+            ret = ssh2_err(session, rc,
                                  "Unable to send Group Exchange Request");
             goto dh_gex_clean_exit;
         }
@@ -1467,7 +1467,7 @@ static int kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
             return rc;
         }
         else if(rc) {
-            ret = _libssh2_error(session, rc,
+            ret = ssh2_err(session, rc,
                                  "Timeout waiting for GEX_GROUP reply");
             goto dh_gex_clean_exit;
         }
@@ -1483,7 +1483,7 @@ static int kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
         int bits;
 
         if(key_state->data_len < 9) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected key length DH-SHA1");
             goto dh_gex_clean_exit;
         }
@@ -1495,19 +1495,19 @@ static int kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
         buf.dataptr++; /* increment to big num */
 
         if(_libssh2_get_bignum_bytes(&buf, &p, &p_len)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected value DH-SHA1 p");
             goto dh_gex_clean_exit;
         }
 
         if(_libssh2_get_bignum_bytes(&buf, &g, &g_len)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected value DH-SHA1 g");
             goto dh_gex_clean_exit;
         }
 
         if(_libssh2_bn_from_bin(key_state->p, p_len, p)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                  "Invalid DH-SHA1 p");
             goto dh_gex_clean_exit;
         }
@@ -1515,13 +1515,13 @@ static int kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
         bits = (int)_libssh2_bn_bits(key_state->p);
         if(bits < LIBSSH2_DH_GEX_MINGROUP ||
            bits > LIBSSH2_DH_GEX_MAXGROUP) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                  "DH-SHA1 p out of range");
             goto dh_gex_clean_exit;
         }
 
         if(_libssh2_bn_from_bin(key_state->g, g_len, g)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                  "Invalid DH-SHA1 g");
             goto dh_gex_clean_exit;
         }
@@ -1577,7 +1577,7 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
             return rc;
         }
         else if(rc) {
-            ret = _libssh2_error(session, rc,
+            ret = ssh2_err(session, rc,
                                  "Unable to send "
                                  "Group Exchange Request SHA256");
             goto dh_gex_clean_exit;
@@ -1594,7 +1594,7 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
             return rc;
         }
         else if(rc) {
-            ret = _libssh2_error(session, rc,
+            ret = ssh2_err(session, rc,
                                  "Timeout waiting for GEX_GROUP reply SHA256");
             goto dh_gex_clean_exit;
         }
@@ -1610,7 +1610,7 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
         int bits;
 
         if(key_state->data_len < 9) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected key length DH-SHA256");
             goto dh_gex_clean_exit;
         }
@@ -1622,19 +1622,19 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
         buf.dataptr++; /* increment to big num */
 
         if(_libssh2_get_bignum_bytes(&buf, &p, &p_len)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected value DH-SHA256 p");
             goto dh_gex_clean_exit;
         }
 
         if(_libssh2_get_bignum_bytes(&buf, &g, &g_len)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected value DH-SHA256 g");
             goto dh_gex_clean_exit;
         }
 
         if(_libssh2_bn_from_bin(key_state->p, p_len, p)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                  "Invalid DH-SHA256 p");
             goto dh_gex_clean_exit;
         }
@@ -1642,13 +1642,13 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
         bits = (int)_libssh2_bn_bits(key_state->p);
         if(bits < LIBSSH2_DH_GEX_MINGROUP ||
            bits > LIBSSH2_DH_GEX_MAXGROUP) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                  "DH-SHA256 p out of range");
             goto dh_gex_clean_exit;
         }
 
         if(_libssh2_bn_from_bin(key_state->g, g_len, g)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                  "Invalid DH-SHA256 g");
             goto dh_gex_clean_exit;
         }
@@ -2028,7 +2028,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         struct string_buf buf;
 
         if(!data) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                  "Missing host key data");
             goto clean_exit;
         }
@@ -2041,7 +2041,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         /* server public key Q_S */
         if(_libssh2_get_string(&buf, &server_public_key,
                                &server_public_key_len)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected key length ECDH");
             goto clean_exit;
         }
@@ -2049,7 +2049,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         /* server signature */
         if(_libssh2_get_string(&buf, &exchange_state->h_sig,
                                &(exchange_state->h_sig_len))) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+            ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                                  "Unexpected ECDH server sig length");
             goto clean_exit;
         }
@@ -2058,7 +2058,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         rc = _libssh2_ecdh_gen_k(&exchange_state->k, private_key,
                                  server_public_key, server_public_key_len);
         if(rc) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_KEX_FAILURE,
+            ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                                  "Unable to create ECDH shared secret");
             goto clean_exit;
         }
@@ -2071,7 +2071,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         exchange_state->k_value =
             LIBSSH2_ALLOC(session, exchange_state->k_value_len);
         if(!exchange_state->k_value) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Unable to allocate buffer for ECDH K");
             goto clean_exit;
         }
@@ -2080,7 +2080,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         if(_libssh2_bn_bits(exchange_state->k) % 8) {
             if(_libssh2_bn_to_bin(exchange_state->k,
                                   exchange_state->k_value + 4)) {
-                ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                ret = ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                      "Cannot write exchange_state->k");
                 goto clean_exit;
             }
@@ -2089,7 +2089,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
             exchange_state->k_value[4] = 0;
             if(_libssh2_bn_to_bin(exchange_state->k,
                                   exchange_state->k_value + 5)) {
-                ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                ret = ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                      "Cannot write exchange_state->k");
                 goto clean_exit;
             }
@@ -2110,7 +2110,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         }
 
         if(rc) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
+            ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
                                  "Unable to verify hostkey signature "
                                  "ECDH");
             goto clean_exit;
@@ -2126,7 +2126,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
             return rc;
         }
         else if(rc) {
-            ret = _libssh2_error(session, rc,
+            ret = ssh2_err(session, rc,
                                  "Unable to send NEWKEYS message ECDH");
             goto clean_exit;
         }
@@ -2151,7 +2151,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
             sha_algo_value = 512;
         }
         else {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_KEX_FAILURE,
+            ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                                  "Unknown SHA digest for EC curve");
             goto clean_exit;
         }
@@ -2189,7 +2189,7 @@ static int kex_method_ecdh_key_exchange(
         rc = kex_session_ecdh_curve_type(session->kex->name, &type);
 
         if(rc) {
-            ret = _libssh2_error(session, -1, "Unknown KEX nistp curve type");
+            ret = ssh2_err(session, -1, "Unknown KEX nistp curve type");
             goto ecdh_clean_exit;
         }
 
@@ -2198,7 +2198,7 @@ static int kex_method_ecdh_key_exchange(
                                        &key_state->public_key_oct_len, type);
 
         if(rc) {
-            ret = _libssh2_error(session, rc, "Unable to create private key");
+            ret = ssh2_err(session, rc, "Unable to create private key");
             goto ecdh_clean_exit;
         }
 
@@ -2221,7 +2221,7 @@ static int kex_method_ecdh_key_exchange(
             return rc;
         }
         else if(rc) {
-            ret = _libssh2_error(session, rc, "Unable to send ECDH_INIT");
+            ret = ssh2_err(session, rc, "Unable to send ECDH_INIT");
             goto ecdh_clean_exit;
         }
 
@@ -2236,7 +2236,7 @@ static int kex_method_ecdh_key_exchange(
             return rc;
         }
         else if(rc) {
-            ret = _libssh2_error(session, rc,
+            ret = ssh2_err(session, rc,
                                  "Timeout waiting for ECDH_REPLY reply");
             goto ecdh_clean_exit;
         }
@@ -2249,7 +2249,7 @@ static int kex_method_ecdh_key_exchange(
         rc = kex_session_ecdh_curve_type(session->kex->name, &type);
 
         if(rc) {
-            ret = _libssh2_error(session, -1, "Unknown KEX nistp curve type");
+            ret = ssh2_err(session, -1, "Unknown KEX nistp curve type");
             goto ecdh_clean_exit;
         }
 
@@ -2343,7 +2343,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
     unsigned char *shared_secret = NULL;
 
     if(kex_session_hybrid_curve_type(session->kex->name, &type)) {
-        ret = _libssh2_error(session, -1,
+        ret = ssh2_err(session, -1,
                              "Unknown KEX hybrid nistp curve type");
         goto clean_exit;
     }
@@ -2364,7 +2364,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
         sha_algo_value = 384;
         break;
     default:
-        ret = _libssh2_error(session, -1,
+        ret = ssh2_err(session, -1,
                              "Unexpected KEX hybrid nistp curve type");
         goto clean_exit;
     }
@@ -2385,7 +2385,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
         struct string_buf buf;
 
         if(!data) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                  "Missing host key data");
             goto clean_exit;
         }
@@ -2398,13 +2398,13 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
         /* server public key Q_S */
         if(_libssh2_get_string(&buf, &server_public_key,
                                &server_public_key_len)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected mlkemnistp key length");
             goto clean_exit;
         }
 
         if(server_public_key_len <= ml_kem_cipher_len) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+            ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                                  "Unexpected mlkemnistp server "
                                  "public key length");
             goto clean_exit;
@@ -2413,7 +2413,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
         /* server signature */
         if(_libssh2_get_string(&buf, &exchange_state->h_sig,
                                &(exchange_state->h_sig_len))) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+            ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                                  "Unexpected mlkemnistp server sig length");
             goto clean_exit;
         }
@@ -2423,7 +2423,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
         exchange_state->k_value =
             LIBSSH2_ALLOC(session, exchange_state->k_value_len);
         if(!exchange_state->k_value) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Unable to allocate buffer for K");
             goto clean_exit;
         }
@@ -2434,7 +2434,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
                                  server_public_key + ml_kem_cipher_len,
                                  server_public_key_len - ml_kem_cipher_len);
         if(rc) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_KEX_FAILURE,
+            ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                                  "Unable to create ECDH shared secret");
             goto clean_exit;
         }
@@ -2443,7 +2443,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
                             _libssh2_bn_bytes(exchange_state->k);
         shared_secret = LIBSSH2_ALLOC(session, shared_secret_len);
         if(!shared_secret) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Unable to allocate buffer for "
                                  "mlkemnistp shared secret");
             goto clean_exit;
@@ -2453,7 +2453,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
         rc = _libssh2_mlkem_get_sk(shared_secret, ml_kem_size, private_pq_key,
                                    server_public_key);
         if(rc) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_KEX_FAILURE,
+            ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                                  "Unable to create mlkem shared secret");
             goto clean_exit;
         }
@@ -2461,7 +2461,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
         if(_libssh2_bn_to_bin(exchange_state->k,
                               shared_secret +
                                   LIBSSH2_MLKEM_SHARED_SECRET_LEN)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+            ret = ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                  "Cannot write shared secret");
             goto clean_exit;
         }
@@ -2471,20 +2471,20 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
         case LIBSSH2_EC_CURVE_NISTP256: {
             libssh2_sha256_ctx k_ctx;
             if(!libssh2_sha256_init(&k_ctx)) {
-                ret = _libssh2_error(session, LIBSSH2_ERROR_HASH_INIT,
+                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
                                      "kex: failed to initialize hash");
                 goto clean_exit;
             }
 
             if(!libssh2_sha256_update(k_ctx, shared_secret,
                                       shared_secret_len)) {
-                ret = _libssh2_error(session, LIBSSH2_ERROR_HASH_CALC,
+                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                                      "kex: failed to calculate hash");
                 goto clean_exit;
             }
 
             if(!libssh2_sha256_final(k_ctx, exchange_state->k_value + 4)) {
-                ret = _libssh2_error(session, LIBSSH2_ERROR_HASH_CALC,
+                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                                      "kex: failed to calculate hash");
                 goto clean_exit;
             }
@@ -2494,20 +2494,20 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
         case LIBSSH2_EC_CURVE_NISTP384: {
             libssh2_sha384_ctx k_ctx;
             if(!libssh2_sha384_init(&k_ctx)) {
-                ret = _libssh2_error(session, LIBSSH2_ERROR_HASH_INIT,
+                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
                                      "kex: failed to initialize hash");
                 goto clean_exit;
             }
 
             if(!libssh2_sha384_update(k_ctx, shared_secret,
                                       shared_secret_len)) {
-                ret = _libssh2_error(session, LIBSSH2_ERROR_HASH_CALC,
+                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                                      "kex: failed to calculate hash");
                 goto clean_exit;
             }
 
             if(!libssh2_sha384_final(k_ctx, exchange_state->k_value + 4)) {
-                ret = _libssh2_error(session, LIBSSH2_ERROR_HASH_CALC,
+                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                                      "kex: failed to calculate hash");
                 goto clean_exit;
             }
@@ -2515,13 +2515,13 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
             break;
         }
         default:
-            ret = _libssh2_error(session, -1,
+            ret = ssh2_err(session, -1,
                                  "Unexpected KEX hybrid nistp curve type");
             goto clean_exit;
         }
 
         if(rc) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
+            ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
                                  "Unable to verify hostkey signature "
                                  "mlkemnistp");
             goto clean_exit;
@@ -2537,7 +2537,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
             return rc;
         }
         else if(rc) {
-            ret = _libssh2_error(session, rc,
+            ret = ssh2_err(session, rc,
                                  "Unable to send NEWKEYS message mlkemnistp");
             goto clean_exit;
         }
@@ -2581,7 +2581,7 @@ static int kex_method_mlkem_nistp_key_exchange(
         unsigned char *s = NULL;
 
         if(kex_session_hybrid_curve_type(session->kex->name, &type)) {
-            ret = _libssh2_error(session, -1,
+            ret = ssh2_err(session, -1,
                                  "Unknown KEX hybrid nistp curve type");
             goto clean_exit;
         }
@@ -2596,7 +2596,7 @@ static int kex_method_mlkem_nistp_key_exchange(
             ml_kem_key_len = LIBSSH2_MLKEM_1024_PUBLIC_KEY_LEN;
             break;
         default:
-            ret = _libssh2_error(session, -1,
+            ret = ssh2_err(session, -1,
                                  "Unexpected KEX hybrid nistp curve type");
             goto clean_exit;
         }
@@ -2606,7 +2606,7 @@ static int kex_method_mlkem_nistp_key_exchange(
                                        &key_state->public_key_oct_len, type);
 
         if(rc) {
-            ret = _libssh2_error(session, rc,
+            ret = ssh2_err(session, rc,
                                  "Unable to create ecdh private key");
             goto clean_exit;
         }
@@ -2617,7 +2617,7 @@ static int kex_method_mlkem_nistp_key_exchange(
                                 &key_state->mlkem_private_key);
 
         if(rc) {
-            ret = _libssh2_error(session, rc,
+            ret = ssh2_err(session, rc,
                                  "Unable to create mlkem private key");
             goto clean_exit;
         }
@@ -2645,7 +2645,7 @@ static int kex_method_mlkem_nistp_key_exchange(
             return rc;
         }
         if(rc) {
-            ret = _libssh2_error(session, rc, "Unable to send ECDH_INIT");
+            ret = ssh2_err(session, rc, "Unable to send ECDH_INIT");
             goto clean_exit;
         }
 
@@ -2660,7 +2660,7 @@ static int kex_method_mlkem_nistp_key_exchange(
             return rc;
         }
         if(rc) {
-            ret = _libssh2_error(session, rc,
+            ret = ssh2_err(session, rc,
                                  "Timeout waiting for ECDH_REPLY reply");
             goto clean_exit;
         }
@@ -2765,7 +2765,7 @@ static int curve25519_sha256(
         struct string_buf buf;
 
         if(!data) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                  "Missing host key data");
             goto clean_exit;
         }
@@ -2778,13 +2778,13 @@ static int curve25519_sha256(
         /* server public key Q_S */
         if(_libssh2_get_string(&buf, &server_public_key,
                                &server_public_key_len)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected curve25519 key length");
             goto clean_exit;
         }
 
         if(server_public_key_len != LIBSSH2_ED25519_KEY_LEN) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+            ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                                  "Unexpected curve25519 server "
                                  "public key length");
             goto clean_exit;
@@ -2793,7 +2793,7 @@ static int curve25519_sha256(
         /* server signature */
         if(_libssh2_get_string(&buf, &exchange_state->h_sig,
                                &(exchange_state->h_sig_len))) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+            ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                                  "Unexpected curve25519 server sig length");
             goto clean_exit;
         }
@@ -2802,7 +2802,7 @@ static int curve25519_sha256(
         rc = _libssh2_curve25519_gen_k(&exchange_state->k, private_key,
                                        server_public_key);
         if(rc) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_KEX_FAILURE,
+            ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                                  "Unable to create curve25519 shared secret");
             goto clean_exit;
         }
@@ -2815,7 +2815,7 @@ static int curve25519_sha256(
         exchange_state->k_value =
             LIBSSH2_ALLOC(session, exchange_state->k_value_len);
         if(!exchange_state->k_value) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Unable to allocate buffer for K");
             goto clean_exit;
         }
@@ -2824,7 +2824,7 @@ static int curve25519_sha256(
         if(_libssh2_bn_bits(exchange_state->k) % 8) {
             if(_libssh2_bn_to_bin(exchange_state->k,
                                   exchange_state->k_value + 4)) {
-                ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                ret = ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                      "Cannot write exchange_state->k");
                 goto clean_exit;
             }
@@ -2833,7 +2833,7 @@ static int curve25519_sha256(
             exchange_state->k_value[4] = 0;
             if(_libssh2_bn_to_bin(exchange_state->k,
                                   exchange_state->k_value + 5)) {
-                ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                ret = ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                      "Cannot write exchange_state->k");
                 goto clean_exit;
             }
@@ -2843,7 +2843,7 @@ static int curve25519_sha256(
         LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(256);
 
         if(rc) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
+            ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
                                  "Unable to verify hostkey signature "
                                  "curve25519");
             goto clean_exit;
@@ -2859,7 +2859,7 @@ static int curve25519_sha256(
             return rc;
         }
         else if(rc) {
-            ret = _libssh2_error(session, rc,
+            ret = ssh2_err(session, rc,
                                  "Unable to send NEWKEYS message curve25519");
             goto clean_exit;
         }
@@ -2903,7 +2903,7 @@ static int kex_method_curve25519_key_exchange(
             rc = strcmp(session->kex->name, "curve25519-sha256");
 
         if(rc) {
-            ret = _libssh2_error(session, -1,
+            ret = ssh2_err(session, -1,
                                  "Unknown KEX curve25519 curve type");
             goto clean_exit;
         }
@@ -2913,7 +2913,7 @@ static int kex_method_curve25519_key_exchange(
                                      &key_state->curve25519_private_key);
 
         if(rc) {
-            ret = _libssh2_error(session, rc, "Unable to create private key");
+            ret = ssh2_err(session, rc, "Unable to create private key");
             goto clean_exit;
         }
 
@@ -2936,7 +2936,7 @@ static int kex_method_curve25519_key_exchange(
             return rc;
         }
         else if(rc) {
-            ret = _libssh2_error(session, rc, "Unable to send ECDH_INIT");
+            ret = ssh2_err(session, rc, "Unable to send ECDH_INIT");
             goto clean_exit;
         }
 
@@ -2951,7 +2951,7 @@ static int kex_method_curve25519_key_exchange(
             return rc;
         }
         else if(rc) {
-            ret = _libssh2_error(session, rc,
+            ret = ssh2_err(session, rc,
                                  "Timeout waiting for ECDH_REPLY reply");
             goto clean_exit;
         }
@@ -3075,14 +3075,14 @@ static int mlkem768x25519_sha256(
         /* server public key Q_S */
         if(_libssh2_get_string(&buf, &server_public_key,
                                &server_public_key_len)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected mlkem768x25519 key length");
             goto clean_exit;
         }
 
         if(server_public_key_len != LIBSSH2_MLKEM_768_CIPHERTEXT +
                                     LIBSSH2_ED25519_KEY_LEN) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+            ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                                  "Unexpected mlkem768x25519 server "
                                  "public key length");
             goto clean_exit;
@@ -3091,7 +3091,7 @@ static int mlkem768x25519_sha256(
         /* server signature */
         if(_libssh2_get_string(&buf, &exchange_state->h_sig,
                                &(exchange_state->h_sig_len))) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+            ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                                  "Unexpected mlkem768x25519 server "
                                  "sig length");
             goto clean_exit;
@@ -3102,7 +3102,7 @@ static int mlkem768x25519_sha256(
         exchange_state->k_value =
             LIBSSH2_ALLOC(session, exchange_state->k_value_len);
         if(!exchange_state->k_value) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Unable to allocate buffer for K");
             goto clean_exit;
         }
@@ -3112,7 +3112,7 @@ static int mlkem768x25519_sha256(
         rc = _libssh2_mlkem_get_sk(shared_secret, 768,
                                    private_pq_key, server_public_key);
         if(rc) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_KEX_FAILURE,
+            ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                                  "Unable to create mlkem shared secret");
             goto clean_exit;
         }
@@ -3122,7 +3122,7 @@ static int mlkem768x25519_sha256(
                                        server_public_key +
                                            LIBSSH2_MLKEM_768_CIPHERTEXT);
         if(rc) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_KEX_FAILURE,
+            ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                                  "Unable to create curve25519 shared secret");
             goto clean_exit;
         }
@@ -3130,13 +3130,13 @@ static int mlkem768x25519_sha256(
         if(_libssh2_bn_to_bin(exchange_state->k,
                               shared_secret +
                                   LIBSSH2_MLKEM_SHARED_SECRET_LEN)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+            ret = ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                  "Cannot write shared secret");
             goto clean_exit;
         }
 
         if(!libssh2_sha256_init(&k_ctx)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_HASH_INIT,
+            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
                                  "kex: failed to initialize hash");
             goto clean_exit;
         }
@@ -3144,13 +3144,13 @@ static int mlkem768x25519_sha256(
         if(!libssh2_sha256_update(k_ctx, shared_secret,
                                   LIBSSH2_MLKEM_SHARED_SECRET_LEN +
                                       LIBSSH2_ED25519_KEY_LEN)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_HASH_CALC,
+            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                                  "kex: failed to calculate hash");
             goto clean_exit;
         }
 
         if(!libssh2_sha256_final(k_ctx, exchange_state->k_value + 4)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_HASH_CALC,
+            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                                  "kex: failed to calculate hash");
             goto clean_exit;
         }
@@ -3159,7 +3159,7 @@ static int mlkem768x25519_sha256(
         LIBSSH2_KEX_METHOD_HYBRID_SHA_HASH_CREATE_VERIFY(256);
 
         if(rc) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
+            ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
                                  "Unable to verify hostkey signature "
                                  "mlkem768x25519");
             goto clean_exit;
@@ -3175,7 +3175,7 @@ static int mlkem768x25519_sha256(
             return rc;
         }
         else if(rc) {
-            ret = _libssh2_error(session, rc,
+            ret = ssh2_err(session, rc,
                                  "Unable to send NEWKEYS "
                                  "message mlkem768x25519");
             goto clean_exit;
@@ -3217,7 +3217,7 @@ static int kex_method_mlkem768x25519_key_exchange(
                                      &key_state->curve25519_private_key);
 
         if(rc) {
-            ret = _libssh2_error(session, rc,
+            ret = ssh2_err(session, rc,
                                  "Unable to create x25519 private key");
             goto clean_exit;
         }
@@ -3228,7 +3228,7 @@ static int kex_method_mlkem768x25519_key_exchange(
                                 &key_state->mlkem_private_key);
 
         if(rc) {
-            ret = _libssh2_error(session, rc,
+            ret = ssh2_err(session, rc,
                                  "Unable to create mlkem private key");
             goto clean_exit;
         }
@@ -3256,7 +3256,7 @@ static int kex_method_mlkem768x25519_key_exchange(
             return rc;
         }
         if(rc) {
-            ret = _libssh2_error(session, rc, "Unable to send ECDH_INIT");
+            ret = ssh2_err(session, rc, "Unable to send ECDH_INIT");
             goto clean_exit;
         }
 
@@ -3271,7 +3271,7 @@ static int kex_method_mlkem768x25519_key_exchange(
             return rc;
         }
         if(rc) {
-            ret = _libssh2_error(session, rc,
+            ret = ssh2_err(session, rc,
                                  "Timeout waiting for ECDH_REPLY reply");
             goto clean_exit;
         }
@@ -3579,7 +3579,7 @@ static int kexinit(LIBSSH2_SESSION *session)
 
         s = data = LIBSSH2_ALLOC(session, data_len);
         if(!data) {
-            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                   "Unable to allocate memory");
         }
 
@@ -3587,7 +3587,7 @@ static int kexinit(LIBSSH2_SESSION *session)
 
         if(_libssh2_random(s, 16)) {
             LIBSSH2_FREE(session, data);
-            return _libssh2_error(session, LIBSSH2_ERROR_RANDGEN,
+            return ssh2_err(session, LIBSSH2_ERROR_RANDGEN,
                                   "Unable to get random bytes "
                                   "for KEXINIT cookie");
         }
@@ -3684,7 +3684,7 @@ static int kexinit(LIBSSH2_SESSION *session)
     else if(rc) {
         LIBSSH2_FREE(session, data);
         session->kexinit_state = libssh2_NB_state_idle;
-        return _libssh2_error(session, rc,
+        return ssh2_err(session, rc,
                               "Unable to send KEXINIT packet to remote host");
     }
 
@@ -4211,7 +4211,7 @@ static int kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *data,
  * Exchange keys
  * Returns 0 on success, non-zero on failure
  *
- * Returns some errors without _libssh2_error()
+ * Returns some errors without ssh2_err()
  */
 int _libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
                           struct key_exchange_state *key_state)
@@ -4322,7 +4322,7 @@ int _libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
                 return retcode;
             }
             else if(retcode) {
-                rc = _libssh2_error(session,
+                rc = ssh2_err(session,
                                     LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE,
                                     "Unrecoverable error exchanging keys");
             }
@@ -4417,7 +4417,7 @@ int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
         break;
 
     default:
-        return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+        return ssh2_err(session, LIBSSH2_ERROR_INVAL,
                               "Invalid parameter specified for method_type");
     }
 
@@ -4426,7 +4426,7 @@ int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
         if(tmpprefs) {
             LIBSSH2_FREE(session, tmpprefs);
         }
-        return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+        return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                               "Error allocated space for method preferences");
     }
     memcpy(s, prefs, prefs_len + 1);
@@ -4460,7 +4460,7 @@ int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
 
     if(!*newprefs) {
         LIBSSH2_FREE(session, newprefs);
-        return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
+        return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                               "The requested method(s) are not currently "
                               "supported");
     }
@@ -4473,7 +4473,7 @@ int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
         size_t tmp_len = kex_extensions_len + strlen(newprefs);
         tmpprefs = LIBSSH2_ALLOC(session, tmp_len + 1);
         if(!tmpprefs) {
-            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                   "Error allocated space for kex method"
                                   " preferences");
         }
@@ -4510,7 +4510,7 @@ int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
 
     /* to prevent coredumps due to dereferencing of NULL */
     if(!algs)
-        return _libssh2_error(session, LIBSSH2_ERROR_BAD_USE,
+        return ssh2_err(session, LIBSSH2_ERROR_BAD_USE,
                               "algs must not be NULL");
 
     switch(method_type) {
@@ -4543,13 +4543,13 @@ int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
         break;
 
     default:
-        return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
+        return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                               "Unknown method type");
     } /* switch */
 
     /* weird situation */
     if(!mlist)
-        return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+        return ssh2_err(session, LIBSSH2_ERROR_INVAL,
                               "No algorithm found");
 
     /*
@@ -4574,13 +4574,13 @@ int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
 
     /* weird situation, no algorithm found */
     if(ialg == 0)
-        return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+        return ssh2_err(session, LIBSSH2_ERROR_INVAL,
                               "No algorithm found");
 
     /* allocate buffer */
     *algs = (const char **)LIBSSH2_ALLOC(session, ialg * sizeof(const char *));
     if(!*algs) {
-        return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+        return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                               "Memory allocation failed");
     }
     /* Past this point *algs must be deallocated in case of an error! */
@@ -4603,7 +4603,7 @@ int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
         LIBSSH2_FREE(session, (void *)*algs);
         *algs = NULL;
 
-        return _libssh2_error(session, LIBSSH2_ERROR_BAD_USE,
+        return ssh2_err(session, LIBSSH2_ERROR_BAD_USE,
                               "Internal error");
     }
 

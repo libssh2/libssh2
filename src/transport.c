@@ -363,7 +363,7 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
  * This function reads the binary stream as specified in chapter 6 of RFC4253
  * "The Secure Shell (SSH) Transport Layer Protocol"
  *
- * DOES NOT call _libssh2_error() for ANY error case.
+ * DOES NOT call ssh2_err() for ANY error case.
  */
 int _libssh2_transport_read(LIBSSH2_SESSION *session)
 {
@@ -988,7 +988,7 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
  * then be called with the same argument set (same data pointer and same
  * data_len) until ERROR_NONE or failure is returned.
  *
- * This function DOES NOT call _libssh2_error() on any errors.
+ * This function DOES NOT call ssh2_err() on any errors.
  */
 int _libssh2_transport_send(LIBSSH2_SESSION *session,
                             const unsigned char *data, size_t data_len,
@@ -1168,7 +1168,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
 
     /* fill the padding area with random junk */
     if(_libssh2_random(p->outbuf + 5 + data_len, padding_length)) {
-        return _libssh2_error(session, LIBSSH2_ERROR_RANDGEN,
+        return ssh2_err(session, LIBSSH2_ERROR_RANDGEN,
                               "Unable to get random bytes for packet padding");
     }
 
@@ -1186,7 +1186,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
                                session->local.seqno, p->outbuf,
                                packet_length, NULL, 0,
                                &session->local.mac_abstract))
-                return _libssh2_error(session, LIBSSH2_ERROR_MAC_FAILURE,
+                return ssh2_err(session, LIBSSH2_ERROR_MAC_FAILURE,
                                       "Failed to calculate MAC");
         }
 
@@ -1266,7 +1266,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
                                session->local.seqno, p->outbuf,
                                packet_length, NULL, 0,
                                &session->local.mac_abstract))
-                return _libssh2_error(session, LIBSSH2_ERROR_MAC_FAILURE,
+                return ssh2_err(session, LIBSSH2_ERROR_MAC_FAILURE,
                                       "Failed to calculate MAC");
         }
     }

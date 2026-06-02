@@ -293,21 +293,21 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
     }
 
     if(pipe == INVALID_HANDLE_VALUE) {
-        ret = _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
-                             "unable to connect to agent pipe");
+        ret = ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                       "unable to connect to agent pipe");
         goto cleanup;
     }
 
     if(SetHandleInformation(pipe, HANDLE_FLAG_INHERIT, 0) == FALSE) {
-        ret = _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
-                             "unable to set handle information of agent pipe");
+        ret = ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                       "unable to set handle information of agent pipe");
         goto cleanup;
     }
 
     event = CreateEventA(NULL, TRUE, FALSE, NULL);
     if(!event) {
-        ret = _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
-                             "unable to create async I/O event");
+        ret = ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                       "unable to create async I/O event");
         goto cleanup;
     }
 
@@ -388,8 +388,8 @@ static int agent_transact_openssh(LIBSSH2_AGENT *agent,
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return LIBSSH2_ERROR_EAGAIN;
         else if(rc < 0)
-            return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_SEND,
-                                  "agent send failed");
+            return ssh2_err(agent->session, LIBSSH2_ERROR_SOCKET_SEND,
+                            "agent send failed");
         transctx->state = agent_NB_state_request_length_sent;
     }
 
@@ -401,8 +401,8 @@ static int agent_transact_openssh(LIBSSH2_AGENT *agent,
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return LIBSSH2_ERROR_EAGAIN;
         else if(rc < 0)
-            return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_SEND,
-                                  "agent send failed");
+            return ssh2_err(agent->session, LIBSSH2_ERROR_SOCKET_SEND,
+                            "agent send failed");
         transctx->state = agent_NB_state_request_sent;
     }
 
@@ -413,8 +413,8 @@ static int agent_transact_openssh(LIBSSH2_AGENT *agent,
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return LIBSSH2_ERROR_EAGAIN;
         else if(rc < 0)
-            return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_RECV,
-                                  "agent recv failed");
+            return ssh2_err(agent->session, LIBSSH2_ERROR_SOCKET_RECV,
+                            "agent recv failed");
 
         transctx->response_len = _libssh2_ntohu32(buf);
         transctx->response = LIBSSH2_ALLOC(agent->session,
@@ -433,8 +433,8 @@ static int agent_transact_openssh(LIBSSH2_AGENT *agent,
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return LIBSSH2_ERROR_EAGAIN;
         else if(rc < 0)
-            return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_RECV,
-                                  "agent recv failed");
+            return ssh2_err(agent->session, LIBSSH2_ERROR_SOCKET_RECV,
+                            "agent recv failed");
         transctx->state = agent_NB_state_response_received;
     }
 
@@ -444,17 +444,17 @@ static int agent_transact_openssh(LIBSSH2_AGENT *agent,
 static int agent_disconnect_openssh(LIBSSH2_AGENT *agent)
 {
     if(!CancelIo(agent->pipe))
-        return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
-                              "failed to cancel pending IO of agent pipe");
+        return ssh2_err(agent->session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
+                        "failed to cancel pending IO of agent pipe");
     if(!CloseHandle(agent->overlapped.hEvent))
-        return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
-                              "failed to close handle to async I/O event");
+        return ssh2_err(agent->session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
+                        "failed to close handle to async I/O event");
     agent->overlapped.hEvent = NULL;
     /* let queued APCs (if any) drain */
     SleepEx(0, TRUE);
     if(!CloseHandle(agent->pipe))
-        return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
-                              "failed to close handle to agent pipe");
+        return ssh2_err(agent->session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
+                        "failed to close handle to agent pipe");
 
     agent->pipe = INVALID_HANDLE_VALUE;
     agent->fd = LIBSSH2_INVALID_SOCKET;
@@ -481,20 +481,20 @@ static int agent_connect_unix(LIBSSH2_AGENT *agent)
     if(!path) {
         path = getenv("SSH_AUTH_SOCK");
         if(!path)
-            return _libssh2_error(agent->session, LIBSSH2_ERROR_BAD_USE,
-                                  "no auth sock variable");
+            return ssh2_err(agent->session, LIBSSH2_ERROR_BAD_USE,
+                            "no auth sock variable");
     }
 
     agent->fd = socket(PF_UNIX, SOCK_STREAM, 0);
     if(agent->fd < 0)
-        return _libssh2_error(agent->session, LIBSSH2_ERROR_BAD_SOCKET,
-                              "failed creating socket");
+        return ssh2_err(agent->session, LIBSSH2_ERROR_BAD_SOCKET,
+                        "failed creating socket");
 
     plen = strlen(path);
     if(plen >= sizeof(s_un.sun_path)) {
         close(agent->fd);
-        return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
-                              "SSH_AUTH_SOCK path too long");
+        return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                        "SSH_AUTH_SOCK path too long");
     }
 
     s_un.sun_family = AF_UNIX;
@@ -503,8 +503,8 @@ static int agent_connect_unix(LIBSSH2_AGENT *agent)
 
     if(connect(agent->fd, (struct sockaddr *)(&s_un), sizeof(s_un)) != 0) {
         close(agent->fd);
-        return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
-                              "failed connecting with agent");
+        return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                        "failed connecting with agent");
     }
 
     return LIBSSH2_ERROR_NONE;
@@ -558,8 +558,8 @@ static int agent_transact_unix(LIBSSH2_AGENT *agent,
         if(rc == -EAGAIN)
             return LIBSSH2_ERROR_EAGAIN;
         else if(rc < 0)
-            return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_SEND,
-                                  "agent send failed");
+            return ssh2_err(agent->session, LIBSSH2_ERROR_SOCKET_SEND,
+                            "agent send failed");
         transctx->state = agent_NB_state_request_length_sent;
     }
 
@@ -571,8 +571,8 @@ static int agent_transact_unix(LIBSSH2_AGENT *agent,
         if(rc == -EAGAIN)
             return LIBSSH2_ERROR_EAGAIN;
         else if(rc < 0)
-            return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_SEND,
-                                  "agent send failed");
+            return ssh2_err(agent->session, LIBSSH2_ERROR_SOCKET_SEND,
+                            "agent send failed");
         transctx->state = agent_NB_state_request_sent;
     }
 
@@ -584,8 +584,8 @@ static int agent_transact_unix(LIBSSH2_AGENT *agent,
         if(rc < 0) {
             if(rc == -EAGAIN)
                 return LIBSSH2_ERROR_EAGAIN;
-            return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_RECV,
-                                  "agent recv failed");
+            return ssh2_err(agent->session, LIBSSH2_ERROR_SOCKET_RECV,
+                            "agent recv failed");
         }
         transctx->response_len = _libssh2_ntohu32(buf);
         transctx->response = LIBSSH2_ALLOC(agent->session,
@@ -604,8 +604,8 @@ static int agent_transact_unix(LIBSSH2_AGENT *agent,
         if(rc < 0) {
             if(rc == -EAGAIN)
                 return LIBSSH2_ERROR_EAGAIN;
-            return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_RECV,
-                                  "agent recv failed");
+            return ssh2_err(agent->session, LIBSSH2_ERROR_SOCKET_RECV,
+                            "agent recv failed");
         }
         transctx->state = agent_NB_state_response_received;
     }
@@ -620,8 +620,8 @@ static int agent_disconnect_unix(LIBSSH2_AGENT *agent)
     if(ret != -1)
         agent->fd = LIBSSH2_INVALID_SOCKET;
     else
-        return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
-                              "failed closing the agent socket");
+        return ssh2_err(agent->session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
+                        "failed closing the agent socket");
     return LIBSSH2_ERROR_NONE;
 }
 
@@ -648,8 +648,8 @@ static int agent_connect_pageant(LIBSSH2_AGENT *agent)
     HWND hwnd;
     hwnd = FindWindowA("Pageant", "Pageant");
     if(!hwnd)
-        return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
-                              "failed connecting agent");
+        return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                        "failed connecting agent");
     agent->fd = 0; /* Mark as the connection has been established */
     return LIBSSH2_ERROR_NONE;
 }
@@ -666,13 +666,13 @@ static int agent_transact_pageant(LIBSSH2_AGENT *agent,
     COPYDATASTRUCT cds;
 
     if(!transctx || 4 + transctx->request_len > PAGEANT_MAX_MSGLEN)
-        return _libssh2_error(agent->session, LIBSSH2_ERROR_INVAL,
-                              "illegal input");
+        return ssh2_err(agent->session, LIBSSH2_ERROR_INVAL,
+                        "illegal input");
 
     hwnd = FindWindowA("Pageant", "Pageant");
     if(!hwnd)
-        return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
-                              "found no pageant");
+        return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                        "found no pageant");
 
     snprintf(mapname, sizeof(mapname),
              "PageantRequest%08x", (unsigned)GetCurrentThreadId());
@@ -680,14 +680,14 @@ static int agent_transact_pageant(LIBSSH2_AGENT *agent,
                                  0, PAGEANT_MAX_MSGLEN, mapname);
 
     if(!filemap || filemap == INVALID_HANDLE_VALUE)
-        return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
-                              "failed setting up pageant filemap");
+        return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                        "failed setting up pageant filemap");
 
     p2 = p = MapViewOfFile(filemap, FILE_MAP_WRITE, 0, 0, 0);
     if(!p || !p2) {
         CloseHandle(filemap);
-        return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
-                              "failed to open pageant filemap for writing");
+        return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                        "failed to open pageant filemap for writing");
     }
 
     _libssh2_store_str(&p2, (const char *)transctx->request,
@@ -703,24 +703,24 @@ static int agent_transact_pageant(LIBSSH2_AGENT *agent,
         if(transctx->response_len > PAGEANT_MAX_MSGLEN - 4) {
             UnmapViewOfFile(p);
             CloseHandle(filemap);
-            return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
-                                  "agent setup fail");
+            return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                            "agent setup fail");
         }
         transctx->response = LIBSSH2_ALLOC(agent->session,
                                            transctx->response_len);
         if(!transctx->response) {
             UnmapViewOfFile(p);
             CloseHandle(filemap);
-            return _libssh2_error(agent->session, LIBSSH2_ERROR_ALLOC,
-                                  "agent malloc");
+            return ssh2_err(agent->session, LIBSSH2_ERROR_ALLOC,
+                            "agent malloc");
         }
         memcpy(transctx->response, p + 4, transctx->response_len);
     }
     else {
         UnmapViewOfFile(p);
         CloseHandle(filemap);
-        return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
-                              "pageant did not handle message");
+        return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                        "pageant did not handle message");
     }
 
     UnmapViewOfFile(p);
@@ -775,8 +775,8 @@ static int agent_sign(LIBSSH2_SESSION *session,
     if(transctx->state == agent_NB_state_init) {
         s = transctx->request = LIBSSH2_ALLOC(session, len);
         if(!transctx->request)
-            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                  "out of memory");
+            return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
+                            "out of memory");
 
         *s++ = SSH2_AGENTC_SIGN_REQUEST;
         /* key blob */
@@ -807,13 +807,13 @@ static int agent_sign(LIBSSH2_SESSION *session,
 
     /* Make sure to be re-called as a result of EAGAIN. */
     if(*transctx->request != SSH2_AGENTC_SIGN_REQUEST)
-        return _libssh2_error(session, LIBSSH2_ERROR_BAD_USE,
-                              "illegal request");
+        return ssh2_err(session, LIBSSH2_ERROR_BAD_USE,
+                        "illegal request");
 
     if(!agent->ops)
         /* if no agent has been connected, bail out */
-        return _libssh2_error(session, LIBSSH2_ERROR_BAD_USE,
-                              "agent not connected");
+        return ssh2_err(session, LIBSSH2_ERROR_BAD_USE,
+                        "agent not connected");
 
     rc = agent->ops->transact(agent, transctx);
     if(rc) {
@@ -914,7 +914,7 @@ error:
 
     transctx->state = agent_NB_state_init;
 
-    return _libssh2_error(session, rc, "agent sign failure");
+    return ssh2_err(session, rc, "agent sign failure");
 }
 
 static int agent_list_identities(LIBSSH2_AGENT *agent)
@@ -935,13 +935,13 @@ static int agent_list_identities(LIBSSH2_AGENT *agent)
 
     /* Make sure to be re-called as a result of EAGAIN. */
     if(*transctx->request != SSH2_AGENTC_REQUEST_IDENTITIES)
-        return _libssh2_error(agent->session, LIBSSH2_ERROR_BAD_USE,
-                              "illegal agent request");
+        return ssh2_err(agent->session, LIBSSH2_ERROR_BAD_USE,
+                        "illegal agent request");
 
     if(!agent->ops)
         /* if no agent has been connected, bail out */
-        return _libssh2_error(agent->session, LIBSSH2_ERROR_BAD_USE,
-                              "agent not connected");
+        return ssh2_err(agent->session, LIBSSH2_ERROR_BAD_USE,
+                        "agent not connected");
 
     rc = agent->ops->transact(agent, transctx);
     if(rc) {
@@ -1047,7 +1047,7 @@ error:
     LIBSSH2_FREE(agent->session, transctx->response);
     transctx->response = NULL;
 
-    return _libssh2_error(agent->session, rc, "agent list id failed");
+    return ssh2_err(agent->session, rc, "agent list id failed");
 }
 
 static void agent_free_identities(LIBSSH2_AGENT *agent)
@@ -1089,8 +1089,8 @@ LIBSSH2_AGENT *libssh2_agent_init(LIBSSH2_SESSION *session)
 
     agent = LIBSSH2_CALLOC(session, sizeof(*agent));
     if(!agent) {
-        _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                       "Unable to allocate space for agent connection");
+        ssh2_err(session, LIBSSH2_ERROR_ALLOC,
+                 "Unable to allocate space for agent connection");
         return NULL;
     }
     agent->fd = LIBSSH2_INVALID_SOCKET;

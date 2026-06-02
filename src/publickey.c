@@ -114,7 +114,7 @@ static void publickey_status_error(const LIBSSH2_PUBLICKEY *pkey,
         msg = publickey_status_codes[status].name;
     }
 
-    _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL, msg);
+    ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL, msg);
 }
 
 /*
@@ -136,7 +136,7 @@ static int publickey_packet_receive(LIBSSH2_PUBLICKEY *pkey,
             return (int)rc;
         }
         else if(rc != 4) {
-            return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
+            return ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                                   "Invalid response from publickey subsystem");
         }
 
@@ -144,7 +144,7 @@ static int publickey_packet_receive(LIBSSH2_PUBLICKEY *pkey,
         pkey->receive_packet =
             LIBSSH2_ALLOC(session, pkey->receive_packet_len);
         if(!pkey->receive_packet) {
-            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                   "Unable to allocate publickey response "
                                   "buffer");
         }
@@ -162,7 +162,7 @@ static int publickey_packet_receive(LIBSSH2_PUBLICKEY *pkey,
             LIBSSH2_FREE(session, pkey->receive_packet);
             pkey->receive_packet = NULL;
             pkey->receive_state = libssh2_NB_state_idle;
-            return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
+            return ssh2_err(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
                                   "Timeout waiting for publickey subsystem "
                                   "response packet");
         }
@@ -228,13 +228,13 @@ static int publickey_response_success(LIBSSH2_PUBLICKEY *pkey)
             return rc;
         }
         else if(rc) {
-            return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
+            return ssh2_err(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
                                   "Timeout waiting for response from "
                                   "publickey subsystem");
         }
 
         if(data_len < 4) {
-            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+            return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                   "Publickey response too small");
         }
 
@@ -247,7 +247,7 @@ static int publickey_response_success(LIBSSH2_PUBLICKEY *pkey)
             unsigned long status = 0;
 
             if(data_len < 8) {
-                return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                       "Publickey response too small");
             }
 
@@ -264,12 +264,12 @@ static int publickey_response_success(LIBSSH2_PUBLICKEY *pkey)
         default:
             LIBSSH2_FREE(session, data);
             if(response < 0) {
-                return _libssh2_error(session,
+                return ssh2_err(session,
                                       LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                                       "Invalid publickey subsystem response");
             }
             /* Unknown/Unexpected */
-            _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
+            ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                            "Unexpected publickey subsystem response");
             data = NULL;
         }
@@ -313,7 +313,7 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
             if(libssh2_session_last_errno(session) == LIBSSH2_ERROR_EAGAIN)
                 /* The error state is already set, so leave it */
                 return NULL;
-            _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_FAILURE,
+            ssh2_err(session, LIBSSH2_ERROR_CHANNEL_FAILURE,
                            "Unable to startup channel");
             goto err_exit;
         }
@@ -328,12 +328,12 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                                               "publickey",
                                               sizeof("publickey") - 1);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
-            _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+            ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block starting publickey subsystem");
             return NULL;
         }
         else if(rc) {
-            _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_FAILURE,
+            ssh2_err(session, LIBSSH2_ERROR_CHANNEL_FAILURE,
                            "Unable to request publickey subsystem");
             goto err_exit;
         }
@@ -346,7 +346,7 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
         rc = _libssh2_channel_extended_data(session->pkeyInit_channel,
                                          LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
-            _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+            ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block starting publickey subsystem");
             return NULL;
         }
@@ -354,7 +354,7 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
         session->pkeyInit_pkey =
             LIBSSH2_CALLOC(session, sizeof(LIBSSH2_PUBLICKEY));
         if(!session->pkeyInit_pkey) {
-            _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                            "Unable to allocate a new publickey structure");
             goto err_exit;
         }
@@ -385,18 +385,18 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                                           session->pkeyInit_buffer,
                                           19 - session->pkeyInit_buffer_sent);
         if(nwritten == LIBSSH2_ERROR_EAGAIN) {
-            _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+            ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block sending publickey version packet");
             return NULL;
         }
         else if(nwritten < 0) {
-            _libssh2_error(session, (int)nwritten,
+            ssh2_err(session, (int)nwritten,
                            "Unable to send publickey version packet");
             goto err_exit;
         }
         session->pkeyInit_buffer_sent += nwritten;
         if(session->pkeyInit_buffer_sent < 19) {
-            _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+            ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
                            "Need to be called again to complete this");
             return NULL;
         }
@@ -411,13 +411,13 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                                           &session->pkeyInit_data,
                                           &session->pkeyInit_data_len);
             if(rc == LIBSSH2_ERROR_EAGAIN) {
-                _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+                ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
                                "Would block waiting for response from "
                                "publickey subsystem");
                 return NULL;
             }
             else if(rc) {
-                _libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
+                ssh2_err(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
                                "Timeout waiting for response from "
                                "publickey subsystem");
                 goto err_exit;
@@ -426,13 +426,13 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
             s = session->pkeyInit_data;
             response = publickey_response_id(&s, session->pkeyInit_data_len);
             if(response < 0) {
-                _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
+                ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                                "Invalid publickey subsystem response code");
                 goto err_exit;
             }
 
             if(session->pkeyInit_data_len < 4) {
-                _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                "Public key init data too small");
                 goto err_exit;
             }
@@ -449,7 +449,7 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                     s += 4;
                 }
                 else {
-                    _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                    ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                    "Public key init data too small");
                     goto err_exit;
                 }
@@ -462,7 +462,7 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                     s += 4;
                 }
                 else {
-                    _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                    ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                    "Public key init data too small");
                     goto err_exit;
                 }
@@ -473,14 +473,14 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                     s += lang_len;
                 }
                 else {
-                    _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                    ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                    "Public key init data too small");
                     goto err_exit;
                 }
 
                 if(s >
                     session->pkeyInit_data + session->pkeyInit_data_len) {
-                    _libssh2_error(session,
+                    ssh2_err(session,
                                    LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                                    "Malformed publickey subsystem packet");
                     goto err_exit;
@@ -513,7 +513,7 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
 
             default:
                 /* Unknown/Unexpected */
-                _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
+                ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                                "Unexpected publickey subsystem response, "
                                "ignoring");
                 LIBSSH2_FREE(session, session->pkeyInit_data);
@@ -528,7 +528,7 @@ err_exit:
     if(session->pkeyInit_channel) {
         rc = _libssh2_channel_close(session->pkeyInit_channel);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
-            _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+            ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block closing channel");
             return NULL;
         }
@@ -612,7 +612,7 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
 
         pkey->add_packet = LIBSSH2_ALLOC(session, packet_len);
         if(!pkey->add_packet) {
-            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                   "Unable to allocate memory for "
                                   "publickey \"add\" packet");
         }
@@ -686,7 +686,7 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
         else if((pkey->add_s - pkey->add_packet) != nwritten) {
             LIBSSH2_FREE(session, pkey->add_packet);
             pkey->add_packet = NULL;
-            return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+            return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                                   "Unable to send publickey add packet");
         }
         LIBSSH2_FREE(session, pkey->add_packet);
@@ -734,7 +734,7 @@ int libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
 
         pkey->remove_packet = LIBSSH2_ALLOC(session, packet_len);
         if(!pkey->remove_packet) {
-            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                   "Unable to allocate memory for "
                                   "publickey \"remove\" packet");
         }
@@ -774,7 +774,7 @@ int libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
             LIBSSH2_FREE(session, pkey->remove_packet);
             pkey->remove_packet = NULL;
             pkey->remove_state = libssh2_NB_state_idle;
-            return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+            return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                                   "Unable to send publickey remove packet");
         }
         LIBSSH2_FREE(session, pkey->remove_packet);
@@ -843,7 +843,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
         }
         else if((pkey->listFetch_s - pkey->listFetch_buffer) != nwritten) {
             pkey->listFetch_state = libssh2_NB_state_idle;
-            return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+            return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                                   "Unable to send publickey list packet");
         }
 
@@ -857,7 +857,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
             return rc;
         }
         else if(rc) {
-            _libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
+            ssh2_err(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
                            "Timeout waiting for response from "
                            "publickey subsystem");
             goto err_exit;
@@ -867,7 +867,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
         response = publickey_response_id(&pkey->listFetch_s,
                                          pkey->listFetch_data_len);
         if(response < 0) {
-            _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
+            ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                            "Invalid publickey subsystem response code");
             goto err_exit;
         }
@@ -885,7 +885,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 pkey->listFetch_s += 4;
             }
             else {
-                _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                "ListFetch data too short");
                 goto err_exit;
             }
@@ -898,7 +898,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 pkey->listFetch_s += 4;
             }
             else {
-                _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                "ListFetch data too short");
                 goto err_exit;
             }
@@ -909,14 +909,14 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 pkey->listFetch_s += lang_len;
             }
             else {
-                _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                "ListFetch data too short");
                 goto err_exit;
             }
 
             if(pkey->listFetch_s >
                pkey->listFetch_data + pkey->listFetch_data_len) {
-                _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
+                ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                                "Malformed publickey subsystem packet");
                 goto err_exit;
             }
@@ -944,7 +944,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                                     (max_keys +
                                      1) * sizeof(libssh2_publickey_list));
                 if(!newlist) {
-                    _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                    ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                    "Unable to allocate memory for "
                                    "publickey list");
                     goto err_exit;
@@ -960,7 +960,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                     pkey->listFetch_s += 4;
                 }
                 else {
-                    _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                    ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                    "ListFetch data too short");
                     goto err_exit;
                 }
@@ -971,7 +971,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                         LIBSSH2_ALLOC(session,
                                       sizeof(libssh2_publickey_attribute));
                     if(!list[keys].attrs) {
-                        _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                        ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                        "Unable to allocate memory for "
                                        "publickey attributes");
                         goto err_exit;
@@ -995,7 +995,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                     pkey->listFetch_s += 4;
                 }
                 else {
-                    _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                    ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                    "ListFetch data too short");
                     goto err_exit;
                 }
@@ -1006,7 +1006,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                     pkey->listFetch_s += list[keys].name_len;
                 }
                 else {
-                    _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                    ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                    "ListFetch data too short");
                     goto err_exit;
                 }
@@ -1017,7 +1017,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                     pkey->listFetch_s += 4;
                 }
                 else {
-                    _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                    ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                    "ListFetch data too short");
                     goto err_exit;
                 }
@@ -1028,7 +1028,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                     pkey->listFetch_s += list[keys].blob_len;
                 }
                 else {
-                    _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                    ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                    "ListFetch data too short");
                     goto err_exit;
                 }
@@ -1042,7 +1042,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                     pkey->listFetch_s += 4;
                 }
                 else {
-                    _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                    ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                    "ListFetch data too short");
                     goto err_exit;
                 }
@@ -1053,7 +1053,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                     pkey->listFetch_s += list[keys].name_len;
                 }
                 else {
-                    _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                    ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                    "ListFetch data too short");
                     goto err_exit;
                 }
@@ -1064,7 +1064,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                     pkey->listFetch_s += 4;
                 }
                 else {
-                    _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                    ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                    "ListFetch data too short");
                     goto err_exit;
                 }
@@ -1075,7 +1075,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                     pkey->listFetch_s += list[keys].blob_len;
                 }
                 else {
-                    _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                    ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                    "ListFetch data too short");
                     goto err_exit;
                 }
@@ -1086,7 +1086,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                     pkey->listFetch_s += 4;
                 }
                 else {
-                    _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                    ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                    "ListFetch data too short");
                     goto err_exit;
                 }
@@ -1097,7 +1097,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                                       list[keys].num_attrs *
                                           sizeof(libssh2_publickey_attribute));
                     if(!list[keys].attrs) {
-                        _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                        ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                        "Unable to allocate memory for "
                                        "publickey attributes");
                         goto err_exit;
@@ -1110,7 +1110,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                             pkey->listFetch_s += 4;
                         }
                         else {
-                            _libssh2_error(session,
+                            ssh2_err(session,
                                            LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                            "ListFetch data too short");
                             goto err_exit;
@@ -1123,7 +1123,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                             pkey->listFetch_s += list[keys].attrs[i].name_len;
                         }
                         else {
-                            _libssh2_error(session,
+                            ssh2_err(session,
                                            LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                            "ListFetch data too short");
                             goto err_exit;
@@ -1136,7 +1136,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                             pkey->listFetch_s += 4;
                         }
                         else {
-                            _libssh2_error(session,
+                            ssh2_err(session,
                                            LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                            "ListFetch data too short");
                             goto err_exit;
@@ -1149,7 +1149,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                             pkey->listFetch_s += list[keys].attrs[i].value_len;
                         }
                         else {
-                            _libssh2_error(session,
+                            ssh2_err(session,
                                            LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                            "ListFetch data too short");
                             goto err_exit;
@@ -1172,7 +1172,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
             break;
         default:
             /* Unknown/Unexpected */
-            _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
+            ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                            "Unexpected publickey subsystem response");
             LIBSSH2_FREE(session, pkey->listFetch_data);
             pkey->listFetch_data = NULL;

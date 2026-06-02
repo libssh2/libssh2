@@ -123,7 +123,7 @@ int _libssh2_error_flags(LIBSSH2_SESSION *session, int errcode,
     return errcode;
 }
 
-int _libssh2_error(LIBSSH2_SESSION *session, int errcode, const char *errmsg)
+int ssh2_err(LIBSSH2_SESSION *session, int errcode, const char *errmsg)
 {
     return _libssh2_error_flags(session, errcode, errmsg, 0);
 }
@@ -399,7 +399,7 @@ int _libssh2_base64_decode(LIBSSH2_SESSION *session,
     *data = LIBSSH2_ALLOC(session, src_len);
     d = (unsigned char *)*data;
     if(!d) {
-        return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+        return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate memory for base64 decoding");
     }
 
@@ -430,7 +430,7 @@ int _libssh2_base64_decode(LIBSSH2_SESSION *session,
            octet */
         LIBSSH2_FREE(session, *data);
         *data = NULL;
-        return _libssh2_error(session, LIBSSH2_ERROR_INVAL, "Invalid base64");
+        return ssh2_err(session, LIBSSH2_ERROR_INVAL, "Invalid base64");
     }
 
     *datalen = len;

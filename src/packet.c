@@ -84,42 +84,42 @@ static inline int packet_queue_listener(
         buf.len = datalen;
 
         if(datalen < offset + 12) { /* 3 * 4-byte */
-            return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+            return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                   "Unexpected packet size");
         }
 
         buf.dataptr += offset;
 
         if(_libssh2_get_u32(&buf, &(listen_state->sender_channel))) {
-            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+            return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                   "Data too short extracting channel");
         }
         if(_libssh2_get_u32(&buf, &(listen_state->initial_window_size))) {
-            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+            return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                   "Data too short extracting window size");
         }
         if(_libssh2_get_u32(&buf, &(listen_state->packet_size))) {
-            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+            return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                   "Data too short extracting packet");
         }
         if(_libssh2_get_string(&buf, &(listen_state->host), &temp_len)) {
-            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+            return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                   "Data too short extracting host");
         }
         listen_state->host_len = (uint32_t)temp_len;
 
         if(_libssh2_get_u32(&buf, &(listen_state->port))) {
-            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+            return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                   "Data too short extracting port");
         }
         if(_libssh2_get_string(&buf, &(listen_state->shost), &temp_len)) {
-            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+            return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                   "Data too short extracting shost");
         }
         listen_state->shost_len = (uint32_t)temp_len;
 
         if(_libssh2_get_u32(&buf, &(listen_state->sport))) {
-            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+            return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                   "Data too short extracting sport");
         }
 
@@ -156,7 +156,7 @@ static inline int packet_queue_listener(
 
                     channel = LIBSSH2_CALLOC(session, sizeof(LIBSSH2_CHANNEL));
                     if(!channel) {
-                        _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                        ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                        "Unable to allocate a channel for "
                                        "new connection");
                         failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
@@ -172,7 +172,7 @@ static inline int packet_queue_listener(
                                                           channel_type_len +
                                                           1);
                     if(!channel->channel_type) {
-                        _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                        ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                        "Unable to allocate a channel for new"
                                        " connection");
                         LIBSSH2_FREE(session, channel);
@@ -225,7 +225,7 @@ static inline int packet_queue_listener(
                         return rc;
                     else if(rc) {
                         listen_state->state = libssh2_NB_state_idle;
-                        return _libssh2_error(session, rc,
+                        return ssh2_err(session, rc,
                                               "Unable to send channel "
                                               "open confirmation");
                     }
@@ -263,7 +263,7 @@ static inline int packet_queue_listener(
     }
     else if(rc) {
         listen_state->state = libssh2_NB_state_idle;
-        return _libssh2_error(session, rc, "Unable to send open failure");
+        return ssh2_err(session, rc, "Unable to send open failure");
     }
     listen_state->state = libssh2_NB_state_idle;
     return 0;
@@ -295,7 +295,7 @@ static inline int packet_x11_open(
         buf.len = datalen;
 
         if(datalen < offset + 12) { /* 3 * 4-byte */
-            _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+            ssh2_err(session, LIBSSH2_ERROR_INVAL,
                            "unexpected data length");
             failure_code = SSH_OPEN_CONNECT_FAILED;
             goto x11_exit;
@@ -304,26 +304,26 @@ static inline int packet_x11_open(
         buf.dataptr += offset;
 
         if(_libssh2_get_u32(&buf, &(x11open_state->sender_channel))) {
-            _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+            ssh2_err(session, LIBSSH2_ERROR_INVAL,
                            "unexpected sender channel size");
             failure_code = SSH_OPEN_CONNECT_FAILED;
             goto x11_exit;
         }
         if(_libssh2_get_u32(&buf, &(x11open_state->initial_window_size))) {
-            _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+            ssh2_err(session, LIBSSH2_ERROR_INVAL,
                            "unexpected window size");
             failure_code = SSH_OPEN_CONNECT_FAILED;
             goto x11_exit;
         }
         if(_libssh2_get_u32(&buf, &(x11open_state->packet_size))) {
-            _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+            ssh2_err(session, LIBSSH2_ERROR_INVAL,
                            "unexpected packet size");
             failure_code = SSH_OPEN_CONNECT_FAILED;
             goto x11_exit;
         }
 
         if(_libssh2_get_string(&buf, &temp_buf, &temp_len)) {
-            _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+            ssh2_err(session, LIBSSH2_ERROR_INVAL,
                            "unexpected host size");
             failure_code = SSH_OPEN_CONNECT_FAILED;
             goto x11_exit;
@@ -332,7 +332,7 @@ static inline int packet_x11_open(
         x11open_state->shost = LIBSSH2_ALLOC(session,
                                              x11open_state->shost_len + 1);
         if(!x11open_state->shost) {
-            _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                            "Unable to allocate memory for shost");
             failure_code = SSH_OPEN_CONNECT_FAILED;
             goto x11_exit;
@@ -341,7 +341,7 @@ static inline int packet_x11_open(
         x11open_state->shost[x11open_state->shost_len] = '\0';
 
         if(_libssh2_get_u32(&buf, &(x11open_state->sport))) {
-            _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+            ssh2_err(session, LIBSSH2_ERROR_INVAL,
                            "unexpected port size");
             failure_code = SSH_OPEN_CONNECT_FAILED;
             goto x11_exit;
@@ -359,7 +359,7 @@ static inline int packet_x11_open(
         if(x11open_state->state == libssh2_NB_state_allocated) {
             channel = LIBSSH2_CALLOC(session, sizeof(LIBSSH2_CHANNEL));
             if(!channel) {
-                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                "allocate a channel for new connection");
                 failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
                 goto x11_exit;
@@ -371,7 +371,7 @@ static inline int packet_x11_open(
                                                   channel->channel_type_len +
                                                   1);
             if(!channel->channel_type) {
-                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                "allocate a channel for new connection");
                 LIBSSH2_FREE(session, channel);
                 failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
@@ -420,7 +420,7 @@ static inline int packet_x11_open(
                 LIBSSH2_FREE(session, x11open_state->shost);
                 x11open_state->shost = NULL;
                 x11open_state->state = libssh2_NB_state_idle;
-                return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+                return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                                       "Unable to send channel open "
                                       "confirmation");
             }
@@ -462,7 +462,7 @@ x11_exit:
     }
     else if(rc) {
         x11open_state->state = libssh2_NB_state_idle;
-        return _libssh2_error(session, rc, "Unable to send open failure");
+        return ssh2_err(session, rc, "Unable to send open failure");
     }
     x11open_state->state = libssh2_NB_state_idle;
     return 0;
@@ -490,7 +490,7 @@ static inline int packet_authagent_open(
     buf.len = datalen;
 
     if(datalen < offset + 12) { /* 27-byte header + 3 * 4-byte */
-        return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+        return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                               "Unexpected packet size");
     }
 
@@ -498,15 +498,15 @@ static inline int packet_authagent_open(
 
     if(authagent_state->state == libssh2_NB_state_idle) {
         if(_libssh2_get_u32(&buf, &(authagent_state->sender_channel))) {
-            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+            return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                   "Data too short extracting channel");
         }
         if(_libssh2_get_u32(&buf, &(authagent_state->initial_window_size))) {
-            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+            return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                   "Data too short extracting window size");
         }
         if(_libssh2_get_u32(&buf, &(authagent_state->packet_size))) {
-            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+            return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                   "Data too short extracting packet");
         }
 
@@ -523,7 +523,7 @@ static inline int packet_authagent_open(
             authagent_state->channel = channel;
 
             if(!channel) {
-                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                "allocate a channel for new connection");
                 failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
                 goto authagent_exit;
@@ -535,7 +535,7 @@ static inline int packet_authagent_open(
                                                   channel->channel_type_len +
                                                   1);
             if(!channel->channel_type) {
-                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                "allocate a channel for new connection");
                 LIBSSH2_FREE(session, channel);
                 failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
@@ -583,7 +583,7 @@ static inline int packet_authagent_open(
             }
             else if(rc) {
                 authagent_state->state = libssh2_NB_state_idle;
-                return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+                return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                                       "Unable to send channel open "
                                       "confirmation");
             }
@@ -624,7 +624,7 @@ authagent_exit:
     }
     else if(rc) {
         authagent_state->state = libssh2_NB_state_idle;
-        return _libssh2_error(session, rc, "Unable to send open failure");
+        return ssh2_err(session, rc, "Unable to send open failure");
     }
     authagent_state->state = libssh2_NB_state_idle;
     return 0;
@@ -668,7 +668,7 @@ int _libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                callback */
 
             LIBSSH2_FREE(session, data);
-            return _libssh2_error(session, LIBSSH2_ERROR_INVALID_MAC,
+            return ssh2_err(session, LIBSSH2_ERROR_INVALID_MAC,
                                   "Invalid MAC received");
         }
         session->packAdd_state = libssh2_NB_state_allocated;
@@ -695,7 +695,7 @@ int _libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                 if(datalen < 17) {
                     LIBSSH2_FREE(session, data);
                     session->packAdd_state = libssh2_NB_state_idle;
-                    return _libssh2_error(session,
+                    return ssh2_err(session,
                                           LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                           "Data too short extracting kex");
                 }
@@ -714,7 +714,7 @@ int _libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                     if(_libssh2_get_string(&buf, &algs, &algs_len)) {
                         LIBSSH2_FREE(session, data);
                         session->packAdd_state = libssh2_NB_state_idle;
-                        return _libssh2_error(session,
+                        return ssh2_err(session,
                                               LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                               "Algs too short");
                     }
@@ -733,7 +733,7 @@ int _libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                 libssh2_session_disconnect(session, "strict KEX violation: "
                                            "KEXINIT was not the first packet");
 
-                return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
+                return ssh2_err(session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
                                       "strict KEX violation: "
                                       "KEXINIT was not the first packet");
             }
@@ -747,7 +747,7 @@ int _libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
             libssh2_session_disconnect(session, "strict KEX violation: "
                                        "unexpected packet type");
 
-            return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
+            return ssh2_err(session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
                                   "strict KEX violation: "
                                   "unexpected packet type");
         }
@@ -792,7 +792,7 @@ int _libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
             LIBSSH2_FREE(session, data);
             session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
             session->packAdd_state = libssh2_NB_state_idle;
-            return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
+            return ssh2_err(session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
                                   "socket disconnect");
             /*
               byte      SSH_MSG_IGNORE
@@ -866,7 +866,7 @@ int _libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
 
                 if(_libssh2_get_u32(&buf, &nr_extensions) != 0 ||
                    nr_extensions >= 1024) {
-                    rc = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                    rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                         "Invalid extension info received");
                 }
 
@@ -909,7 +909,7 @@ int _libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                             session->server_sign_algorithms[value_len] = '\0';
                         }
                         else {
-                            rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                            rc = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                                 "memory for server sign algo");
                         }
                     }
@@ -982,7 +982,7 @@ libssh2_packet_add_jump_point5:
                                             _libssh2_ntohu32(data + 1));
 
             if(!channelp) {
-                _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_UNKNOWN,
+                ssh2_err(session, LIBSSH2_ERROR_CHANNEL_UNKNOWN,
                                "Packet received for unknown channel");
                 LIBSSH2_FREE(session, data);
                 session->packAdd_state = libssh2_NB_state_idle;
@@ -1050,7 +1050,7 @@ libssh2_packet_add_jump_point1:
                  * Spec says we MAY ignore bytes sent beyond
                  * packet_size
                  */
-                _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED,
+                ssh2_err(session, LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED,
                                "Packet contains more data than we offered"
                                " to receive, truncating");
                 datalen = channelp->remote.packet_size + data_head;
@@ -1060,7 +1060,7 @@ libssh2_packet_add_jump_point1:
                  * Spec says we MAY ignore bytes sent beyond
                  * window_size
                  */
-                _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED,
+                ssh2_err(session, LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED,
                                "The current receive window is full,"
                                " data ignored");
                 LIBSSH2_FREE(session, data);
@@ -1072,7 +1072,7 @@ libssh2_packet_add_jump_point1:
 
             if(channelp->read_avail + datalen - data_head >
                channelp->remote.window_size) {
-                _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED,
+                ssh2_err(session, LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED,
                                "Remote sent more data than current "
                                "window allows, truncating");
                 datalen = channelp->remote.window_size -
@@ -1136,13 +1136,13 @@ libssh2_packet_add_jump_point1:
                 buf.dataptr++; /* Advance past packet type */
 
                 if(_libssh2_get_u32(&buf, &channel)) {
-                    rc = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                    rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                         "Unexpected channel value.");
                     goto clean_exit;
                 }
 
                 if(_libssh2_get_string(&buf, &request, &r_len)) {
-                    rc = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                    rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                         "Unexpected request value.");
                     goto clean_exit;
                 }
@@ -1150,7 +1150,7 @@ libssh2_packet_add_jump_point1:
                 len = (uint32_t)r_len;
 
                 if(_libssh2_get_byte(&buf, &want_reply)) {
-                    rc = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                    rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                         "Unexpected want reply value.");
                     goto clean_exit;
                 }
@@ -1172,7 +1172,7 @@ libssh2_packet_add_jump_point1:
 
                         uint32_t status = 0;
                         if(_libssh2_get_u32(&buf, &status)) {
-                            rc = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                            rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                                 "exit-signal status error");
                         }
 
@@ -1200,12 +1200,12 @@ libssh2_packet_add_jump_point1:
                         unsigned char *sig_name = NULL;
                         size_t sig_len = 0;
                         if(_libssh2_get_string(&buf, &sig_name, &sig_len)) {
-                            rc = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                            rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                                 "signal name protocol error");
                         }
 
                         if(sig_len > UINT32_MAX - 1) {
-                            rc = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                            rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                                 "signal name out of bounds");
                         }
                         else if(sig_len > 0) {
@@ -1225,7 +1225,7 @@ libssh2_packet_add_jump_point1:
                                                 channelp->remote.id));
                             }
                             else {
-                                rc = _libssh2_error(session,
+                                rc = ssh2_err(session,
                                                     LIBSSH2_ERROR_ALLOC,
                                                     "exit signal alloc error");
                             }
@@ -1358,7 +1358,7 @@ libssh2_packet_add_jump_authagent:
                                             _libssh2_ntohu32(data + 1));
                 if(channelp) {
                     if(bytestoadd > UINT32_MAX - channelp->local.window_size) {
-                        rc = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                        rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                             "Window adjust out of bounds");
                     }
                     else {
@@ -1482,7 +1482,7 @@ int _libssh2_packet_ask(LIBSSH2_SESSION *session, unsigned char packet_type,
             libssh2_session_disconnect(session, "strict KEX violation: "
                                        "unexpected packet type");
 
-            return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
+            return ssh2_err(session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
                                   "strict KEX violation: "
                                   "unexpected packet type");
         }

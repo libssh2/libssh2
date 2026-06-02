@@ -608,7 +608,7 @@ int _libssh2_mbedtls_rsa_sha2_sign(LIBSSH2_SESSION *session,
         md_type = MBEDTLS_MD_SHA512;
     }
     else {
-        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+        ssh2_err(session, LIBSSH2_ERROR_PROTO,
                        "Unsupported hash digest length");
         ret = -1;
     }
@@ -703,7 +703,7 @@ static int mbed_pub_priv_key(LIBSSH2_SESSION *session,
 
     if(mbedtls_pk_get_type(pkey) != MBEDTLS_PK_RSA) {
         mbedtls_pk_free(pkey);
-        return _libssh2_error(session, LIBSSH2_ERROR_FILE,
+        return ssh2_err(session, LIBSSH2_ERROR_FILE,
                               "Key type not supported");
     }
 
@@ -851,7 +851,7 @@ int _libssh2_mbedtls_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
     (void)privatekeydata_len;
     (void)passphrase;
 
-    return _libssh2_error(session, LIBSSH2_ERROR_FILE,
+    return ssh2_err(session, LIBSSH2_ERROR_FILE,
                           "Unable to extract public SK key from private key "
                           "file: Method unimplemented in mbedTLS backend");
 }

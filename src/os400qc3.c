@@ -2373,7 +2373,7 @@ int _libssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                                   size_t privatekeydata_len,
                                   const char *passphrase)
 {
-    return _libssh2_error(session, LIBSSH2_ERROR_FILE,
+    return ssh2_err(session, LIBSSH2_ERROR_FILE,
                           "Unable to extract public SK key from private key "
                           "file: Method unimplemented in OS/400 QC3 backend");
 }
