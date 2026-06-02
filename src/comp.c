@@ -160,7 +160,7 @@ static int comp_method_zlib_init(LIBSSH2_SESSION *session, int compr,
 
     if(status != Z_OK) {
         SSH2_FREE(session, strm);
-        _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
+        ssh2_deb((session, LIBSSH2_TRACE_TRANS,
                         "unhandled zlib error %d", status));
         return LIBSSH2_ERROR_COMPRESS;
     }
@@ -198,7 +198,7 @@ static int comp_method_zlib_comp(LIBSSH2_SESSION *session,
         return 0;
     }
 
-    _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
+    ssh2_deb((session, LIBSSH2_TRACE_TRANS,
                     "unhandled zlib compression error %d, avail_out %u",
                     status, strm->avail_out));
     return ssh2_err(session, LIBSSH2_ERROR_ZLIB, "compression failure");
@@ -266,7 +266,7 @@ static int comp_method_zlib_decomp(LIBSSH2_SESSION *session,
             if((out_maxlen - strm->avail_out) == 0) {
                 /* nothing was decompressed */
                 SSH2_FREE(session, out);
-                _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
+                ssh2_deb((session, LIBSSH2_TRACE_TRANS,
                                 "zlib empty src error %d", status));
                 return ssh2_err(session, LIBSSH2_ERROR_ZLIB,
                                       "decompression failure");
@@ -277,7 +277,7 @@ static int comp_method_zlib_decomp(LIBSSH2_SESSION *session,
         else {
             /* error state */
             SSH2_FREE(session, out);
-            _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
+            ssh2_deb((session, LIBSSH2_TRACE_TRANS,
                             "unhandled zlib error %d", status));
             return ssh2_err(session, LIBSSH2_ERROR_ZLIB,
                                   "decompression failure");

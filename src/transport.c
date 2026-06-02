@@ -226,7 +226,7 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
             if(_libssh2_timingsafe_bcmp(macbuf,
                                         p->payload + p->total_num - mac_len,
                                         mac_len)) {
-                _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
+                ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
                                 "Failed MAC check"));
                 session->fullpacket_macstate = LIBSSH2_MAC_INVALID;
             }
@@ -408,7 +408,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
         /* Whoever wants a packet does not get anything until the key
          * re-exchange is done!
          */
-        _libssh2_debug((session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
+        ssh2_deb((session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
                         " key re-exchange from _libssh2_transport_read"));
         rc = _libssh2_kex_exchange(session, 1, &session->startup_key_state);
         if(rc)
@@ -496,13 +496,13 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
                         LIBSSH2_SESSION_BLOCK_INBOUND;
                     return LIBSSH2_ERROR_EAGAIN;
                 }
-                _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
+                ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
                                 "Error recving %ld bytes (got %ld)",
                                 (long)(PACKETBUFSIZE - remainbuf),
                                 (long)-nread));
                 return LIBSSH2_ERROR_SOCKET_RECV;
             }
-            _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
+            ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
                             "Recved %ld/%ld bytes to %p+%ld", (long)nread,
                             (long)(PACKETBUFSIZE - remainbuf), (void *)p->buf,
                             (long)remainbuf));
@@ -926,7 +926,7 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
            we do not add this one up until the previous one has been sent. To
            make the caller really notice his/hers flaw, we return error for
            this case */
-        _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
+        ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
                         "Address is different, returning EAGAIN"));
         return LIBSSH2_ERROR_EAGAIN;
     }
@@ -939,11 +939,11 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
     rc = SSH2_SEND(session, &p->outbuf[p->osent], length,
                       LIBSSH2_SOCKET_SEND_FLAGS(session));
     if(rc < 0)
-        _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
+        ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
                         "Error sending %ld bytes: %ld",
                         (long)length, (long)-rc));
     else {
-        _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
+        ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
                         "Sent %ld/%ld bytes at %p+%lu", (long)rc, (long)length,
                         (void *)p->outbuf, (unsigned long)p->osent));
         debugdump(session, "libssh2_transport_write send()",
@@ -1027,7 +1027,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
        !(session->state & LIBSSH2_STATE_KEX_ACTIVE)) {
         /* Do not write any new packets if we are still in the middle of a key
          * exchange. */
-        _libssh2_debug((session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
+        ssh2_deb((session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
                         " key re-exchange from _libssh2_transport_send"));
         rc = _libssh2_kex_exchange(session, 1, &session->startup_key_state);
         if(rc)
@@ -1230,7 +1230,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
                         /* advance the loop counter by the extra amount */
                         i += bsize - session->local.crypt->blocksize;
                     }
-                _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
+                ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
                                 "crypting bytes %lu-%lu", (unsigned long)i,
                                 (unsigned long)(i + bsize - 1)));
                 if(session->local.crypt->crypt(session, 0, ptr,
@@ -1280,11 +1280,11 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
     ret = SSH2_SEND(session, p->outbuf, total_length,
                        LIBSSH2_SOCKET_SEND_FLAGS(session));
     if(ret < 0)
-        _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
+        ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
                         "Error sending %ld bytes: %ld",
                         (long)total_length, (long)-ret));
     else {
-        _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
+        ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
                         "Sent %ld/%ld bytes at %p",
                         (long)ret, (long)total_length, (void *)p->outbuf));
         debugdump(session, "libssh2_transport_write send()", p->outbuf, ret);

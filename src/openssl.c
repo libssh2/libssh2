@@ -1295,7 +1295,7 @@ static int gen_publickey_from_rsa_evp(LIBSSH2_SESSION *session,
     unsigned char *method_buf = NULL;
     size_t key_len;
 
-    _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                     "Computing public key from RSA private key envelope"));
 
 #ifdef USE_OPENSSL_3
@@ -1435,7 +1435,7 @@ static int gen_publickey_from_rsa_openssh_priv_data(
     unsigned char *n, *e, *d, *p, *q, *coeff, *comment;
     libssh2_rsa_ctx *rsa = NULL;
 
-    _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                     "Computing RSA keys from private key data"));
 
     /* public key data */
@@ -1484,7 +1484,7 @@ static int gen_publickey_from_rsa_openssh_priv_data(
                           NULL, 0, NULL, 0,
                           coeff, (unsigned long)coefflen);
     if(rc) {
-        _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+        ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                         "Could not create RSA private key"));
         goto fail;
     }
@@ -1731,7 +1731,7 @@ static int gen_publickey_from_dsa_evp(LIBSSH2_SESSION *session,
     unsigned char *method_buf = NULL;
     size_t key_len;
 
-    _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                     "Computing public key from DSA private key envelope"));
 
 #ifdef USE_OPENSSL_3
@@ -1796,7 +1796,7 @@ static int gen_publickey_from_dsa_openssh_priv_data(
     unsigned char *p, *q, *g, *pub_key, *priv_key;
     libssh2_dsa_ctx *dsa = NULL;
 
-    _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                     "Computing DSA keys from private key data"));
 
     if(_libssh2_get_bignum_bytes(decrypted, &p, &plen)) {
@@ -1831,7 +1831,7 @@ static int gen_publickey_from_dsa_openssh_priv_data(
                           pub_key, (unsigned long)pub_len,
                           priv_key, (unsigned long)priv_len);
     if(rc) {
-        _libssh2_debug((session, LIBSSH2_ERROR_PROTO,
+        ssh2_deb((session, LIBSSH2_ERROR_PROTO,
                         "Could not create DSA private key"));
         goto fail;
     }
@@ -2097,7 +2097,7 @@ static int gen_publickey_from_ed_evp(LIBSSH2_SESSION *session,
     size_t bufLen = 0;
     unsigned char *bufPos = NULL;
 
-    _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                     "Computing public key from ED private key envelope"));
 
     methodBuf = SSH2_ALLOC(session, sizeof(methodName) - 1);
@@ -2167,7 +2167,7 @@ static int gen_publickey_from_ed25519_openssh_priv_data(
     size_t key_len = 0, tmp_len = 0;
     unsigned char *p;
 
-    _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                     "Computing ED25519 keys from private key data"));
 
     if(_libssh2_get_string(decrypted, &pub_key, &tmp_len) ||
@@ -2203,7 +2203,7 @@ static int gen_publickey_from_ed25519_openssh_priv_data(
             /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
             memcpy(comment + tmp_len, "\0", 1);
 
-            _libssh2_debug((session, LIBSSH2_TRACE_AUTH, "Key comment: %s",
+            ssh2_deb((session, LIBSSH2_TRACE_AUTH, "Key comment: %s",
                             comment));
 
             SSH2_FREE(session, comment);
@@ -2222,7 +2222,7 @@ static int gen_publickey_from_ed25519_openssh_priv_data(
     }
 
     if(ret == 0) {
-        _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+        ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                         "Computing public key from ED25519 "
                         "private key envelope"));
 
@@ -2312,7 +2312,7 @@ static int gen_publickey_from_sk_ed25519_openssh_priv_data(
     size_t key_len = 0, app_len = 0, tmp_len = 0;
     unsigned char *p;
 
-    _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                     "Computing sk-ED25519 keys from private key data"));
 
     if(_libssh2_get_string(decrypted, &pub_key, &tmp_len) ||
@@ -2354,7 +2354,7 @@ static int gen_publickey_from_sk_ed25519_openssh_priv_data(
                                       LIBSSH2_ED25519_KEY_LEN);
 
     if(ret == 0) {
-        _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+        ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                         "Computing public key from ED25519 "
                         "private key envelope"));
 
@@ -3460,7 +3460,7 @@ static int gen_publickey_from_ec_evp(LIBSSH2_SESSION *session,
     libssh2_curve_type type;
 
 #ifdef USE_OPENSSL_3
-    _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                     "Computing public key from EC private key envelope"));
 
     type = _libssh2_ecdsa_get_curve_type(pk);
@@ -3470,7 +3470,7 @@ static int gen_publickey_from_ec_evp(LIBSSH2_SESSION *session,
     const EC_GROUP *group;
     BN_CTX *bn_ctx = NULL;
 
-    _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                     "Computing public key from EC private key envelope"));
 
     bn_ctx = BN_CTX_new();
@@ -3512,7 +3512,7 @@ static int gen_publickey_from_ec_evp(LIBSSH2_SESSION *session,
         memcpy(method_buf, "ecdsa-sha2-nistp521", method_buf_len);
     }
     else {
-        _libssh2_debug((session, LIBSSH2_TRACE_ERROR,
+        ssh2_deb((session, LIBSSH2_TRACE_ERROR,
                         "Unsupported EC private key type"));
         rc = -1;
         goto clean_exit;
@@ -3629,7 +3629,7 @@ static int gen_publickey_from_ecdsa_openssh_priv_data(
     BIGNUM *bn_exponent;
 #endif
 
-    _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                     "Computing ECDSA keys from private key data"));
 
     if(_libssh2_get_string(decrypted, &curve, &curvelen) ||
@@ -3769,7 +3769,7 @@ static int gen_publickey_from_sk_ecdsa_openssh_priv_data(
     unsigned char *curve, *point_buf, *p, *key, *app;
     libssh2_ecdsa_ctx *ec_key = NULL;
 
-    _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                     "Extracting ECDSA-SK public key"));
 
     if(_libssh2_get_string(decrypted, &curve, &curvelen) ||
@@ -4645,7 +4645,7 @@ int _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     int pktype;
     int rc;
 
-    _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                     "Computing public key from private key file: %s",
                     privatekey));
 
@@ -4993,7 +4993,7 @@ int _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     unsigned long sslError;
 #endif
 
-    _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                     "Computing public key from private key."));
 
     bp = BIO_new_mem_buf(privatekeydata, (int)privatekeydata_len);
@@ -5097,7 +5097,7 @@ int _libssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
     BIO *bp;
     EVP_PKEY *pk;
 
-    _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                     "Computing public key from private key."));
 
     bp = BIO_new_mem_buf(privatekeydata, (int)privatekeydata_len);

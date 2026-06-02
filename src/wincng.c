@@ -3022,7 +3022,7 @@ int _libssh2_wincng_ecdsa_sign(IN LIBSSH2_SESSION *session,
         *signature_len = signature_ptr - *signature;
     }
     else {
-        _libssh2_debug((session, LIBSSH2_ERROR_STORE_OVERFLOW,
+        ssh2_deb((session, LIBSSH2_ERROR_STORE_OVERFLOW,
                         "Too large write."));
         result = LIBSSH2_ERROR_STORE_OVERFLOW;
         goto cleanup;

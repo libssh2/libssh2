@@ -1085,11 +1085,11 @@ struct comp_method {
 };
 
 #ifdef LIBSSH2DEBUG
-void _libssh2_debug_low(LIBSSH2_SESSION *session, int context,
+void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
                         const char *format, ...) LIBSSH2_PRINTF(3, 4);
-#define _libssh2_debug(x) _libssh2_debug_low x
+#define ssh2_deb(x) ssh2_deb_low x
 #else
-#define _libssh2_debug(x) do {} while(0)
+#define ssh2_deb(x) do {} while(0)
 #endif
 
 #define LIBSSH2_SOCKET_UNKNOWN                   1

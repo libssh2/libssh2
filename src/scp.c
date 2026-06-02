@@ -331,7 +331,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
         /* the command to exec should _not_ be null-terminated */
         session->scpRecv_command_len = cmd_len;
 
-        _libssh2_debug((session, LIBSSH2_TRACE_SCP,
+        ssh2_deb((session, LIBSSH2_TRACE_SCP,
                         "Opening channel for SCP receive"));
 
         session->scpRecv_state = libssh2_NB_state_created;
@@ -381,7 +381,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
         SSH2_FREE(session, session->scpRecv_command);
         session->scpRecv_command = NULL;
 
-        _libssh2_debug((session, LIBSSH2_TRACE_SCP, "Sending initial wakeup"));
+        ssh2_deb((session, LIBSSH2_TRACE_SCP, "Sending initial wakeup"));
         /* SCP ACK */
         session->scpRecv_response[0] = '\0';
 
@@ -461,7 +461,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                     /* null-terminate the error */
                     err_msg[err_len] = 0;
 
-                    _libssh2_debug((session, LIBSSH2_TRACE_SCP, "got %02x %s",
+                    ssh2_deb((session, LIBSSH2_TRACE_SCP, "got %02x %s",
                                     session->scpRecv_response[0], err_msg));
 
                     ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
@@ -579,7 +579,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                     goto scp_recv_error;
                 }
 
-                _libssh2_debug((session, LIBSSH2_TRACE_SCP,
+                ssh2_deb((session, LIBSSH2_TRACE_SCP,
                                 "mtime = %ld, atime = %ld",
                                 session->scpRecv_mtime,
                                 session->scpRecv_atime));
@@ -736,7 +736,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 else if(rc != 1) {
                     goto scp_recv_error;
                 }
-                _libssh2_debug((session, LIBSSH2_TRACE_SCP,
+                ssh2_deb((session, LIBSSH2_TRACE_SCP,
                                 "mode = 0%lo size = %ld",
                                 session->scpRecv_mode,
                                 (long)session->scpRecv_size));
@@ -891,7 +891,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
         /* the command to exec should _not_ be null-terminated */
         session->scpSend_command_len = cmd_len;
 
-        _libssh2_debug((session, LIBSSH2_TRACE_SCP,
+        ssh2_deb((session, LIBSSH2_TRACE_SCP,
                         "Opening channel for SCP send"));
         /* Allocate a channel */
 
@@ -974,7 +974,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
                 snprintf((char *)session->scpSend_response,
                          LIBSSH2_SCP_RESPONSE_BUFLEN, "T%ld 0 %ld 0\n",
                          (long)mtime, (long)atime);
-            _libssh2_debug((session, LIBSSH2_TRACE_SCP, "Sent %s",
+            ssh2_deb((session, LIBSSH2_TRACE_SCP, "Sent %s",
                             session->scpSend_response));
         }
 
@@ -1046,7 +1046,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
                      LIBSSH2_SCP_RESPONSE_BUFLEN, "C0%o %"
                      LIBSSH2_INT64_T_FORMAT " %s\n", mode,
                      size, base);
-        _libssh2_debug((session, LIBSSH2_TRACE_SCP, "Sent %s",
+        ssh2_deb((session, LIBSSH2_TRACE_SCP, "Sent %s",
                         session->scpSend_response));
 
         session->scpSend_state = libssh2_NB_state_sent5;
@@ -1105,7 +1105,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
                                             err_msg, err_len);
             if(rc > 0) {
                 err_msg[err_len] = 0;
-                _libssh2_debug((session, LIBSSH2_TRACE_SCP, "got %02x %s",
+                ssh2_deb((session, LIBSSH2_TRACE_SCP, "got %02x %s",
                                 session->scpSend_response[0], err_msg));
             }
             SSH2_FREE(session, err_msg);

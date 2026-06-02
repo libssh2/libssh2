@@ -873,7 +873,7 @@ static int agent_sign(LIBSSH2_SESSION *session,
     if(((size_t)method_len != session->userauth_pblc_method_len &&
         method_len != plain_len) ||
        memcmp(method_name, session->userauth_pblc_method, method_len)) {
-        _libssh2_debug((session, LIBSSH2_TRACE_KEX, "Agent sign method %.*s",
+        ssh2_deb((session, LIBSSH2_TRACE_KEX, "Agent sign method %.*s",
                         (int)method_len, method_name));
 
         rc = LIBSSH2_ERROR_ALGO_UNSUPPORTED;

@@ -295,7 +295,7 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
         session->pkeyInit_pkey = NULL;
         session->pkeyInit_channel = NULL;
 
-        _libssh2_debug((session, LIBSSH2_TRACE_PUBLICKEY,
+        ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
                         "Initializing publickey subsystem"));
 
         session->pkeyInit_state = libssh2_NB_state_allocated;
@@ -372,7 +372,7 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
 
         session->pkeyInit_buffer_sent = 0;
 
-        _libssh2_debug((session, LIBSSH2_TRACE_PUBLICKEY,
+        ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
                         "Sending publickey advertising version %d support",
                         (int)LIBSSH2_PUBLICKEY_VERSION));
 
@@ -496,14 +496,14 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                 session->pkeyInit_pkey->version = _libssh2_ntohu32(s);
                 if(session->pkeyInit_pkey->version >
                    LIBSSH2_PUBLICKEY_VERSION) {
-                    _libssh2_debug((session, LIBSSH2_TRACE_PUBLICKEY,
+                    ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
                                     "Truncate remote publickey version "
                                     "from %u",
                                     session->pkeyInit_pkey->version));
                     session->pkeyInit_pkey->version =
                         LIBSSH2_PUBLICKEY_VERSION;
                 }
-                _libssh2_debug((session, LIBSSH2_TRACE_PUBLICKEY,
+                ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
                                 "Enabling publickey subsystem version %u",
                                 session->pkeyInit_pkey->version));
                 SSH2_FREE(session, session->pkeyInit_data);
@@ -586,7 +586,7 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
     if(pkey->add_state == libssh2_NB_state_idle) {
         pkey->add_packet = NULL;
 
-        _libssh2_debug((session, LIBSSH2_TRACE_PUBLICKEY,
+        ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
                         "Adding %s publickey", name));
 
         if(pkey->version == 1) {
@@ -668,7 +668,7 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
             }
         }
 
-        _libssh2_debug((session, LIBSSH2_TRACE_PUBLICKEY,
+        ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
                         "Sending publickey \"add\" packet: "
                         "type=%s blob_len=%ld num_attrs=%ld",
                         name, blob_len, num_attrs));
@@ -755,7 +755,7 @@ int libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
         memcpy(pkey->remove_s, blob, blob_len);
         pkey->remove_s += blob_len;
 
-        _libssh2_debug((session, LIBSSH2_TRACE_PUBLICKEY,
+        ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
                         "Sending publickey \"remove\" packet: "
                         "type=%s blob_len=%ld",
                         name, blob_len));
@@ -826,7 +826,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
         memcpy(pkey->listFetch_s, "list", sizeof("list") - 1);
         pkey->listFetch_s += sizeof("list") - 1;
 
-        _libssh2_debug((session, LIBSSH2_TRACE_PUBLICKEY,
+        ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
                         "Sending publickey \"list\" packet"));
 
         pkey->listFetch_state = libssh2_NB_state_created;

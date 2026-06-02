@@ -279,7 +279,7 @@ static int process_host_key(LIBSSH2_SESSION *session,
             snprintf(fprint, 4, "%02x:", session->server_hostkey_md5[i]);
         }
         *(--fprint) = '\0';
-        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
                         "Server's MD5 Fingerprint: %s", fingerprint));
     }
 #endif /* LIBSSH2DEBUG */
@@ -307,7 +307,7 @@ static int process_host_key(LIBSSH2_SESSION *session,
             snprintf(fprint, 4, "%02x:", session->server_hostkey_sha1[i]);
         }
         *(--fprint) = '\0';
-        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
                         "Server's SHA1 Fingerprint: %s", fingerprint));
     }
 #endif /* LIBSSH2DEBUG */
@@ -333,7 +333,7 @@ static int process_host_key(LIBSSH2_SESSION *session,
                                (const char *)session->server_hostkey_sha256,
                                SHA256_DIGEST_LENGTH, &base64Fingerprint);
         if(base64Fingerprint) {
-            _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+            ssh2_deb((session, LIBSSH2_TRACE_KEX,
                             "Server's SHA256 Fingerprint: %s",
                             base64Fingerprint));
             SSH2_FREE(session, base64Fingerprint);
@@ -373,7 +373,7 @@ static int finish_kex(LIBSSH2_SESSION *session,
     /* The first key exchange has been performed,
        switch to active crypt/comp/mac mode */
     session->state |= LIBSSH2_STATE_NEWKEYS;
-    _libssh2_debug((session, LIBSSH2_TRACE_KEX, "Received NEWKEYS message"));
+    ssh2_deb((session, LIBSSH2_TRACE_KEX, "Received NEWKEYS message"));
 
     /* This actually ends up being packet_type(1)
        for this packet type anyway */
@@ -388,7 +388,7 @@ static int finish_kex(LIBSSH2_SESSION *session,
         }
         memcpy(session->session_id, exchange_state->h_sig_comp, digest_len);
         session->session_id_len = digest_len;
-        _libssh2_debug((session, LIBSSH2_TRACE_KEX, "session_id calculated"));
+        ssh2_deb((session, LIBSSH2_TRACE_KEX, "session_id calculated"));
     }
 
     /* Cleanup any existing cipher */
@@ -436,7 +436,7 @@ static int finish_kex(LIBSSH2_SESSION *session,
             SSH2_FREE(session, secret);
         }
     }
-    _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+    ssh2_deb((session, LIBSSH2_TRACE_KEX,
                     "Client to Server IV and Key calculated"));
 
     if(session->remote.crypt->dtor) {
@@ -481,7 +481,7 @@ static int finish_kex(LIBSSH2_SESSION *session,
             SSH2_FREE(session, secret);
         }
     }
-    _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+    ssh2_deb((session, LIBSSH2_TRACE_KEX,
                     "Server to Client IV and Key calculated"));
 
     if(session->local.mac->dtor) {
@@ -507,7 +507,7 @@ static int finish_kex(LIBSSH2_SESSION *session,
             SSH2_FREE(session, key);
         }
     }
-    _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+    ssh2_deb((session, LIBSSH2_TRACE_KEX,
                     "Client to Server HMAC Key calculated"));
 
     if(session->remote.mac->dtor) {
@@ -533,7 +533,7 @@ static int finish_kex(LIBSSH2_SESSION *session,
             SSH2_FREE(session, key);
         }
     }
-    _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+    ssh2_deb((session, LIBSSH2_TRACE_KEX,
                     "Server to Client HMAC Key calculated"));
 
     /* Initialize compression for each direction */
@@ -549,7 +549,7 @@ static int finish_kex(LIBSSH2_SESSION *session,
             return LIBSSH2_ERROR_KEX_FAILURE;
         }
     }
-    _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+    ssh2_deb((session, LIBSSH2_TRACE_KEX,
                     "Client to Server compression initialized"));
 
     if(session->remote.comp && session->remote.comp->dtor) {
@@ -562,7 +562,7 @@ static int finish_kex(LIBSSH2_SESSION *session,
             return LIBSSH2_ERROR_KEX_FAILURE;
         }
     }
-    _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+    ssh2_deb((session, LIBSSH2_TRACE_KEX,
                     "Server to Client compression initialized"));
 
     return 0;
@@ -725,7 +725,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             }
         }
 
-        _libssh2_debug((session, LIBSSH2_TRACE_KEX, "Sending KEX packet %u",
+        ssh2_deb((session, LIBSSH2_TRACE_KEX, "Sending KEX packet %u",
                         (unsigned int)packet_type_init));
         exchange_state->state = libssh2_NB_state_created;
     }
@@ -751,7 +751,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
              * need to silently ignore it */
             int burn_type;
 
-            _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+            ssh2_deb((session, LIBSSH2_TRACE_KEX,
                             "Waiting for badly guessed KEX packet "
                             "(to be ignored)"));
             burn_type =
@@ -766,7 +766,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             }
             session->burn_optimistic_kexinit = 0;
 
-            _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+            ssh2_deb((session, LIBSSH2_TRACE_KEX,
                             "Burnt packet of type: %02x",
                             (unsigned int)burn_type));
         }
@@ -961,7 +961,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                                            &session->server_hostkey_abstract);
 
         if(err) {
-            _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+            ssh2_deb((session, LIBSSH2_TRACE_KEX,
                             "Failed hostkey sig_verify(): %s: %d",
                             session->hostkey->name, err));
             ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
@@ -970,7 +970,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
 
-        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
                         "Sending NEWKEYS message"));
         exchange_state->c = SSH_MSG_NEWKEYS;
 
@@ -1050,7 +1050,7 @@ static int kex_method_diffie_hellman_group1_sha1_key_exchange(
             goto clean_exit;
         }
 
-        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
                         "Initiating Diffie-Hellman Group1 Key Exchange"));
 
         key_state->state = libssh2_NB_state_created;
@@ -1147,7 +1147,7 @@ static int kex_method_diffie_hellman_group14_key_exchange(
             goto clean_exit;
         }
 
-        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
                         "Initiating Diffie-Hellman Group14 Key Exchange"));
 
         key_state->state = libssh2_NB_state_created;
@@ -1263,7 +1263,7 @@ static int kex_method_diffie_hellman_group16_sha512_key_exchange(
             goto clean_exit;
         }
 
-        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
                         "Initiating Diffie-Hellman Group16 Key Exchange"));
 
         key_state->state = libssh2_NB_state_created;
@@ -1399,7 +1399,7 @@ static int kex_method_diffie_hellman_group18_sha512_key_exchange(
             goto clean_exit;
         }
 
-        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
                         "Initiating Diffie-Hellman Group18 Key Exchange"));
 
         key_state->state = libssh2_NB_state_created;
@@ -1438,7 +1438,7 @@ static int kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
         _libssh2_htonu32(key_state->request + 5, LIBSSH2_DH_GEX_OPTGROUP);
         _libssh2_htonu32(key_state->request + 9, LIBSSH2_DH_GEX_MAXGROUP);
         key_state->request_len = 13;
-        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
                         "Initiating Diffie-Hellman Group-Exchange SHA1"));
 
         key_state->state = libssh2_NB_state_created;
@@ -1564,7 +1564,7 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
         _libssh2_htonu32(key_state->request + 5, LIBSSH2_DH_GEX_OPTGROUP);
         _libssh2_htonu32(key_state->request + 9, LIBSSH2_DH_GEX_MAXGROUP);
         key_state->request_len = 13;
-        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
                         "Initiating Diffie-Hellman Group-Exchange SHA256"));
 
         key_state->state = libssh2_NB_state_created;
@@ -2208,7 +2208,7 @@ static int kex_method_ecdh_key_exchange(
                            key_state->public_key_oct_len);
         key_state->request_len = key_state->public_key_oct_len + 5;
 
-        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
                         "Initiating ECDH SHA2 NISTP256"));
 
         key_state->state = libssh2_NB_state_sent;
@@ -2632,7 +2632,7 @@ static int kex_method_mlkem_nistp_key_exchange(
         key_state->request_len = ml_kem_key_len +
                                  key_state->public_key_oct_len + 5;
 
-        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
                         "Initiating mlkem-nistp hybrid SHA2"));
 
         key_state->state = libssh2_NB_state_sent;
@@ -2923,7 +2923,7 @@ static int kex_method_curve25519_key_exchange(
                            LIBSSH2_ED25519_KEY_LEN);
         key_state->request_len = LIBSSH2_ED25519_KEY_LEN + 5;
 
-        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
                         "Initiating curve25519 SHA2"));
 
         key_state->state = libssh2_NB_state_sent;
@@ -3243,7 +3243,7 @@ static int kex_method_mlkem768x25519_key_exchange(
         key_state->request_len = LIBSSH2_MLKEM_768_PUBLIC_KEY_LEN +
                                  LIBSSH2_ED25519_KEY_LEN + 5;
 
-        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
                         "Initiating mlkem768x25519 SHA2"));
 
         key_state->state = libssh2_NB_state_sent;
@@ -3630,37 +3630,37 @@ static int kexinit(LIBSSH2_SESSION *session)
         {
             unsigned char *p = data + 21; /* type(1) + cookie(16) + len(4) */
 
-            _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+            ssh2_deb((session, LIBSSH2_TRACE_KEX,
                             "Sent KEX: %.*s", (int)kex_len, p));
             p += kex_len + 4;
-            _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+            ssh2_deb((session, LIBSSH2_TRACE_KEX,
                             "Sent HOSTKEY: %.*s", (int)hostkey_len, p));
             p += hostkey_len + 4;
-            _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+            ssh2_deb((session, LIBSSH2_TRACE_KEX,
                             "Sent CRYPT_CS: %.*s", (int)crypt_cs_len, p));
             p += crypt_cs_len + 4;
-            _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+            ssh2_deb((session, LIBSSH2_TRACE_KEX,
                             "Sent CRYPT_SC: %.*s", (int)crypt_sc_len, p));
             p += crypt_sc_len + 4;
-            _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+            ssh2_deb((session, LIBSSH2_TRACE_KEX,
                             "Sent MAC_CS: %.*s", (int)mac_cs_len, p));
             p += mac_cs_len + 4;
-            _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+            ssh2_deb((session, LIBSSH2_TRACE_KEX,
                             "Sent MAC_SC: %.*s", (int)mac_sc_len, p));
             p += mac_sc_len + 4;
-            _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+            ssh2_deb((session, LIBSSH2_TRACE_KEX,
                             "Sent COMP_CS: %.*s", (int)comp_cs_len, p));
             p += comp_cs_len + 4;
-            _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+            ssh2_deb((session, LIBSSH2_TRACE_KEX,
                             "Sent COMP_SC: %.*s", (int)comp_sc_len, p));
             p += comp_sc_len + 4;
-            _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+            ssh2_deb((session, LIBSSH2_TRACE_KEX,
                             "Sent LANG_CS: %.*s", (int)lang_cs_len, p));
             p += lang_cs_len + 4;
-            _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+            ssh2_deb((session, LIBSSH2_TRACE_KEX,
                             "Sent LANG_SC: %.*s", (int)lang_sc_len, p));
             p += lang_sc_len;
-            _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+            ssh2_deb((session, LIBSSH2_TRACE_KEX,
                             "Sent first_kex_packet_follows: %02x", p[0]));
         }
 #endif /* LIBSSH2DEBUG */
@@ -4179,28 +4179,28 @@ static int kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *data,
     }
 #endif
 
-    _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+    ssh2_deb((session, LIBSSH2_TRACE_KEX,
                     "Agreed on KEX method: %s",
                     session->kex->name));
-    _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+    ssh2_deb((session, LIBSSH2_TRACE_KEX,
                     "Agreed on HOSTKEY method: %s",
                     session->hostkey->name));
-    _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+    ssh2_deb((session, LIBSSH2_TRACE_KEX,
                     "Agreed on CRYPT_CS method: %s",
                     session->local.crypt->name));
-    _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+    ssh2_deb((session, LIBSSH2_TRACE_KEX,
                     "Agreed on CRYPT_SC method: %s",
                     session->remote.crypt->name));
-    _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+    ssh2_deb((session, LIBSSH2_TRACE_KEX,
                     "Agreed on MAC_CS method: %s",
                     session->local.mac->name));
-    _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+    ssh2_deb((session, LIBSSH2_TRACE_KEX,
                     "Agreed on MAC_SC method: %s",
                     session->remote.mac->name));
-    _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+    ssh2_deb((session, LIBSSH2_TRACE_KEX,
                     "Agreed on COMP_CS method: %s",
                     session->local.comp->name));
-    _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+    ssh2_deb((session, LIBSSH2_TRACE_KEX,
                     "Agreed on COMP_SC method: %s",
                     session->remote.comp->name));
 
