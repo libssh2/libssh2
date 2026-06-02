@@ -1257,7 +1257,7 @@ static unsigned char *gen_publickey_from_rsa(LIBSSH2_SESSION *session,
     /* Key form is "ssh-rsa" + e + n. */
     len = 4 + 7 + 4 + e_bytes + 4 + n_bytes;
 
-    key = LIBSSH2_ALLOC(session, len);
+    key = SSH2_ALLOC(session, len);
     if(!key) {
         goto fail;
     }
@@ -1308,7 +1308,7 @@ static int gen_publickey_from_rsa_evp(LIBSSH2_SESSION *session,
         goto alloc_error;
     }
 
-    method_buf = LIBSSH2_ALLOC(session, 7); /* ssh-rsa. */
+    method_buf = SSH2_ALLOC(session, 7); /* ssh-rsa. */
     if(!method_buf) {
         goto alloc_error;
     }
@@ -1340,7 +1340,7 @@ alloc_error:
     }
 #endif
     if(method_buf) {
-        LIBSSH2_FREE(session, method_buf);
+        SSH2_FREE(session, method_buf);
     }
 
     return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
@@ -1690,7 +1690,7 @@ static unsigned char *gen_publickey_from_dsa(LIBSSH2_SESSION *session,
     /* Key form is "ssh-dss" + p + q + g + pub_key. */
     len = 4 + 7 + 4 + p_bytes + 4 + q_bytes + 4 + g_bytes + 4 + k_bytes;
 
-    key = LIBSSH2_ALLOC(session, len);
+    key = SSH2_ALLOC(session, len);
     if(!key) {
         goto fail;
     }
@@ -1744,7 +1744,7 @@ static int gen_publickey_from_dsa_evp(LIBSSH2_SESSION *session,
         goto alloc_error;
     }
 
-    method_buf = LIBSSH2_ALLOC(session, 7); /* ssh-dss. */
+    method_buf = SSH2_ALLOC(session, 7); /* ssh-dss. */
     if(!method_buf) {
         goto alloc_error;
     }
@@ -1775,7 +1775,7 @@ alloc_error:
     }
 #endif
     if(method_buf) {
-        LIBSSH2_FREE(session, method_buf);
+        SSH2_FREE(session, method_buf);
     }
 
     return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
@@ -2038,7 +2038,7 @@ int _libssh2_curve25519_new(LIBSSH2_SESSION *session,
 
     if(out_private_key) {
         privLen = LIBSSH2_ED25519_KEY_LEN;
-        priv = LIBSSH2_ALLOC(session, privLen);
+        priv = SSH2_ALLOC(session, privLen);
         if(!priv)
             goto clean_exit;
 
@@ -2053,7 +2053,7 @@ int _libssh2_curve25519_new(LIBSSH2_SESSION *session,
 
     if(out_public_key) {
         pubLen = LIBSSH2_ED25519_KEY_LEN;
-        pub = LIBSSH2_ALLOC(session, pubLen);
+        pub = SSH2_ALLOC(session, pubLen);
         if(!pub)
             goto clean_exit;
 
@@ -2076,9 +2076,9 @@ clean_exit:
     if(key)
         EVP_PKEY_free(key);
     if(priv)
-        LIBSSH2_FREE(session, priv);
+        SSH2_FREE(session, priv);
     if(pub)
-        LIBSSH2_FREE(session, pub);
+        SSH2_FREE(session, pub);
 
     return rc;
 }
@@ -2100,7 +2100,7 @@ static int gen_publickey_from_ed_evp(LIBSSH2_SESSION *session,
     _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
                     "Computing public key from ED private key envelope"));
 
-    methodBuf = LIBSSH2_ALLOC(session, sizeof(methodName) - 1);
+    methodBuf = SSH2_ALLOC(session, sizeof(methodName) - 1);
     if(!methodBuf) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                        "Unable to allocate memory for private key data");
@@ -2116,7 +2116,7 @@ static int gen_publickey_from_ed_evp(LIBSSH2_SESSION *session,
 
     /* Key form is: type_len(4) + type(11) + pub_key_len(4) + pub_key(32). */
     bufLen = 4 + sizeof(methodName) - 1 + 4 + rawKeyLen;
-    bufPos = keyBuf = LIBSSH2_ALLOC(session, bufLen);
+    bufPos = keyBuf = SSH2_ALLOC(session, bufLen);
     if(!keyBuf) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                        "Unable to allocate memory for private key data");
@@ -2144,9 +2144,9 @@ static int gen_publickey_from_ed_evp(LIBSSH2_SESSION *session,
 
 fail:
     if(methodBuf)
-        LIBSSH2_FREE(session, methodBuf);
+        SSH2_FREE(session, methodBuf);
     if(keyBuf)
-        LIBSSH2_FREE(session, keyBuf);
+        SSH2_FREE(session, keyBuf);
     return -1;
 }
 
@@ -2197,7 +2197,7 @@ static int gen_publickey_from_ed25519_openssh_priv_data(
     }
 
     if(tmp_len > 0) {
-        unsigned char *comment = LIBSSH2_CALLOC(session, tmp_len + 1);
+        unsigned char *comment = SSH2_CALLOC(session, tmp_len + 1);
         if(comment) {
             memcpy(comment, buf, tmp_len);
             /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
@@ -2206,7 +2206,7 @@ static int gen_publickey_from_ed25519_openssh_priv_data(
             _libssh2_debug((session, LIBSSH2_TRACE_AUTH, "Key comment: %s",
                             comment));
 
-            LIBSSH2_FREE(session, comment);
+            SSH2_FREE(session, comment);
         }
     }
 
@@ -2226,7 +2226,7 @@ static int gen_publickey_from_ed25519_openssh_priv_data(
                         "Computing public key from ED25519 "
                         "private key envelope"));
 
-        method_buf = LIBSSH2_ALLOC(session, 11); /* ssh-ed25519. */
+        method_buf = SSH2_ALLOC(session, 11); /* ssh-ed25519. */
         if(!method_buf) {
             ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                            "Unable to allocate memory for ED25519 key");
@@ -2236,7 +2236,7 @@ static int gen_publickey_from_ed25519_openssh_priv_data(
         /* Key form is: type_len(4) + type(11) + pub_key_len(4) +
            pub_key(32). */
         key_len = LIBSSH2_ED25519_KEY_LEN + 19;
-        key = LIBSSH2_CALLOC(session, key_len);
+        key = SSH2_CALLOC(session, key_len);
         if(!key) {
             ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                            "Unable to allocate memory for ED25519 key");
@@ -2254,7 +2254,7 @@ static int gen_publickey_from_ed25519_openssh_priv_data(
         if(method)
             *method = method_buf;
         else
-            LIBSSH2_FREE(session, method_buf);
+            SSH2_FREE(session, method_buf);
 
         if(method_len)
             *method_len = 11;
@@ -2262,7 +2262,7 @@ static int gen_publickey_from_ed25519_openssh_priv_data(
         if(pubkeydata)
             *pubkeydata = key;
         else
-            LIBSSH2_FREE(session, key);
+            SSH2_FREE(session, key);
 
         if(pubkeydata_len)
             *pubkeydata_len = key_len;
@@ -2281,10 +2281,10 @@ clean_exit:
         _libssh2_ed25519_free(ctx);
 
     if(method_buf)
-        LIBSSH2_FREE(session, method_buf);
+        SSH2_FREE(session, method_buf);
 
     if(key)
-        LIBSSH2_FREE(session, key);
+        SSH2_FREE(session, key);
 
     return -1;
 }
@@ -2340,7 +2340,7 @@ static int gen_publickey_from_sk_ed25519_openssh_priv_data(
         }
 
         if(*handle_len > 0) {
-            *key_handle = LIBSSH2_ALLOC(session, *handle_len);
+            *key_handle = SSH2_ALLOC(session, *handle_len);
 
             if(key_handle && *key_handle) {
                 memcpy((void *)LIBSSH2_UNCONST(*key_handle),
@@ -2359,7 +2359,7 @@ static int gen_publickey_from_sk_ed25519_openssh_priv_data(
                         "private key envelope"));
 
         /* sk-ssh-ed25519@openssh.com. */
-        method_buf = LIBSSH2_ALLOC(session, strlen(key_type));
+        method_buf = SSH2_ALLOC(session, strlen(key_type));
         if(!method_buf) {
             ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                            "Unable to allocate memory for ED25519 key");
@@ -2369,7 +2369,7 @@ static int gen_publickey_from_sk_ed25519_openssh_priv_data(
         /* Key form is: type_len(4) + type(26) + pub_key_len(4) +
            pub_key(32) + application_len(4) + application(X). */
         key_len = LIBSSH2_ED25519_KEY_LEN + 38 + app_len;
-        key = LIBSSH2_CALLOC(session, key_len);
+        key = SSH2_CALLOC(session, key_len);
         if(!key) {
             ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                            "Unable to allocate memory for ED25519 key");
@@ -2383,7 +2383,7 @@ static int gen_publickey_from_sk_ed25519_openssh_priv_data(
         _libssh2_store_str(&p, (const char *)app, app_len);
 
         if(application && app_len > 0) {
-            *application = LIBSSH2_ALLOC(session, app_len + 1);
+            *application = SSH2_ALLOC(session, app_len + 1);
             _libssh2_explicit_zero((void *)LIBSSH2_UNCONST(*application),
                                    app_len + 1);
             memcpy((void *)LIBSSH2_UNCONST(*application), app, app_len);
@@ -2395,7 +2395,7 @@ static int gen_publickey_from_sk_ed25519_openssh_priv_data(
         if(method)
             *method = method_buf;
         else
-            LIBSSH2_FREE(session, method_buf);
+            SSH2_FREE(session, method_buf);
 
         if(method_len)
             *method_len = strlen(key_type);
@@ -2403,7 +2403,7 @@ static int gen_publickey_from_sk_ed25519_openssh_priv_data(
         if(pubkeydata)
             *pubkeydata = key;
         else if(key)
-            LIBSSH2_FREE(session, key);
+            SSH2_FREE(session, key);
 
         if(pubkeydata_len)
             *pubkeydata_len = key_len;
@@ -2422,18 +2422,18 @@ clean_exit:
         _libssh2_ed25519_free(ctx);
 
     if(method_buf)
-        LIBSSH2_FREE(session, method_buf);
+        SSH2_FREE(session, method_buf);
 
     if(key)
-        LIBSSH2_FREE(session, key);
+        SSH2_FREE(session, key);
 
     if(application && *application) {
-        LIBSSH2_FREE(session, (void *)LIBSSH2_UNCONST(*application));
+        SSH2_FREE(session, (void *)LIBSSH2_UNCONST(*application));
         *application = NULL;
     }
 
     if(key_handle && *key_handle) {
-        LIBSSH2_FREE(session, (void *)LIBSSH2_UNCONST(*key_handle));
+        SSH2_FREE(session, (void *)LIBSSH2_UNCONST(*key_handle));
         *key_handle = NULL;
     }
 
@@ -2705,7 +2705,7 @@ int _libssh2_mlkem_new(LIBSSH2_SESSION *session,
     }
 
     if(out_private_key) {
-        priv = LIBSSH2_ALLOC(session, privLen);
+        priv = SSH2_ALLOC(session, privLen);
         actualPrivLen = privLen;
         if(!priv)
             goto clean_exit;
@@ -2719,7 +2719,7 @@ int _libssh2_mlkem_new(LIBSSH2_SESSION *session,
     }
 
     if(out_public_key) {
-        pub = LIBSSH2_ALLOC(session, pubLen);
+        pub = SSH2_ALLOC(session, pubLen);
         if(!pub)
             goto clean_exit;
 
@@ -2742,9 +2742,9 @@ clean_exit:
     if(key)
         EVP_PKEY_free(key);
     if(priv)
-        LIBSSH2_FREE(session, priv);
+        SSH2_FREE(session, priv);
     if(pub)
-        LIBSSH2_FREE(session, pub);
+        SSH2_FREE(session, pub);
 
     return rc;
 }
@@ -2848,12 +2848,12 @@ int _libssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
     }
 
     if(sig_len > 0)
-        sig = LIBSSH2_ALLOC(session, sig_len);
+        sig = SSH2_ALLOC(session, sig_len);
 #else
     unsigned int sig_len = 0;
 
     sig_len = RSA_size(rsactx);
-    sig = LIBSSH2_ALLOC(session, sig_len);
+    sig = SSH2_ALLOC(session, sig_len);
 #endif
 
     if(!sig) {
@@ -2903,7 +2903,7 @@ int _libssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
 #endif
 
     if(!ret) {
-        LIBSSH2_FREE(session, sig);
+        SSH2_FREE(session, sig);
         return -1;
     }
 
@@ -3073,7 +3073,7 @@ int _libssh2_ecdsa_sign(LIBSSH2_SESSION *session, libssh2_ecdsa_ctx *ec_ctx,
 
     out_buffer_len = (size_t)(sp - temp_buffer);
 
-    out_buffer = LIBSSH2_CALLOC(session, out_buffer_len);
+    out_buffer = SSH2_CALLOC(session, out_buffer_len);
     if(!out_buffer) {
         rc = -1;
         goto clean_exit;
@@ -3493,7 +3493,7 @@ static int gen_publickey_from_ec_evp(LIBSSH2_SESSION *session,
     else
         method_buf_len = 19;
 
-    method_buf = LIBSSH2_ALLOC(session, method_buf_len);
+    method_buf = SSH2_ALLOC(session, method_buf_len);
     if(!method_buf) {
         return ssh2_err(session, LIBSSH2_ERROR_ALLOC, "out of memory");
     }
@@ -3520,7 +3520,7 @@ static int gen_publickey_from_ec_evp(LIBSSH2_SESSION *session,
 
 #ifdef USE_OPENSSL_3
     octal_len = EC_MAX_POINT_LEN;
-    octal_value = LIBSSH2_ALLOC(session, octal_len);
+    octal_value = SSH2_ALLOC(session, octal_len);
     EVP_PKEY_get_octet_string_param(pk, OSSL_PKEY_PARAM_PUB_KEY,
                                     octal_value, octal_len, &octal_len);
 #else
@@ -3550,7 +3550,7 @@ static int gen_publickey_from_ec_evp(LIBSSH2_SESSION *session,
     /* Key form is: type_len(4) + type(method_buf_len) + domain_len(4)
        + domain(8) + pub_key_len(4) + pub_key(~65). */
     key_len = 4 + method_buf_len + 4 + 8 + 4 + octal_len;
-    key = LIBSSH2_ALLOC(session, key_len);
+    key = SSH2_ALLOC(session, key_len);
     if(!key) {
         rc = -1;
         goto clean_exit;
@@ -3600,7 +3600,7 @@ clean_exit:
         return 0;
 
     if(method_buf)
-        LIBSSH2_FREE(session, method_buf);
+        SSH2_FREE(session, method_buf);
 
     return -1;
 }
@@ -3811,7 +3811,7 @@ static int gen_publickey_from_sk_ecdsa_openssh_priv_data(
         }
 
         if(*handle_len > 0) {
-            *key_handle = LIBSSH2_ALLOC(session, *handle_len);
+            *key_handle = SSH2_ALLOC(session, *handle_len);
 
             if(*key_handle) {
                 memcpy((void *)LIBSSH2_UNCONST(*key_handle),
@@ -3840,7 +3840,7 @@ static int gen_publickey_from_sk_ecdsa_openssh_priv_data(
 
     if(rc == 0 && pubkeydata) {
         key_len = *pubkeydata_len + app_len + 4;
-        key = LIBSSH2_ALLOC(session, key_len);
+        key = SSH2_ALLOC(session, key_len);
 
         if(!key) {
             rc = -1;
@@ -3853,13 +3853,13 @@ static int gen_publickey_from_sk_ecdsa_openssh_priv_data(
         _libssh2_store_str(&p, (const char *)app, app_len);
 
         if(application && app_len > 0) {
-            *application = LIBSSH2_ALLOC(session, app_len + 1);
+            *application = SSH2_ALLOC(session, app_len + 1);
             _libssh2_explicit_zero((void *)LIBSSH2_UNCONST(*application),
                                    app_len + 1);
             memcpy((void *)LIBSSH2_UNCONST(*application), app, app_len);
         }
 
-        LIBSSH2_FREE(session, *pubkeydata);
+        SSH2_FREE(session, *pubkeydata);
         *pubkeydata_len = key_len;
         *pubkeydata = key;
     }
@@ -3876,12 +3876,12 @@ fail:
         _libssh2_ecdsa_free(ec_key);
 
     if(application && *application) {
-        LIBSSH2_FREE(session, (void *)application);
+        SSH2_FREE(session, (void *)application);
         *application = NULL;
     }
 
     if(key_handle && *key_handle) {
-        LIBSSH2_FREE(session, (void *)key_handle);
+        SSH2_FREE(session, (void *)key_handle);
         *key_handle = NULL;
     }
 
@@ -4114,7 +4114,7 @@ int _libssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
         goto clean_exit;
     }
 
-    *out_public_key_octal = LIBSSH2_ALLOC(session, octal_len);
+    *out_public_key_octal = SSH2_ALLOC(session, octal_len);
 
     if(!(*out_public_key_octal)) {
         ret = -1;
@@ -4167,7 +4167,7 @@ int _libssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
         *out_private_key = private_key;
 
     if(out_public_key_octal) {
-        *out_public_key_octal = LIBSSH2_ALLOC(session, octal_len);
+        *out_public_key_octal = SSH2_ALLOC(session, octal_len);
         if(!*out_public_key_octal) {
             ret = -1;
             goto clean_exit;
@@ -4399,7 +4399,7 @@ int _libssh2_ed25519_sign(libssh2_ed25519_ctx *ctx, LIBSSH2_SESSION *session,
         if(sig_len != LIBSSH2_ED25519_SIG_LEN)
             goto clean_exit;
 
-        sig = LIBSSH2_CALLOC(session, sig_len);
+        sig = SSH2_CALLOC(session, sig_len);
         if(!sig)
             goto clean_exit;
 
@@ -4413,7 +4413,7 @@ int _libssh2_ed25519_sign(libssh2_ed25519_ctx *ctx, LIBSSH2_SESSION *session,
     else {
         *out_sig_len = 0;
         *out_sig = NULL;
-        LIBSSH2_FREE(session, sig);
+        SSH2_FREE(session, sig);
     }
 
 clean_exit:

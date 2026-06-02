@@ -299,7 +299,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
             _libssh2_shell_quotedsize(path) + sizeof("scp -f ") + (sb ? 1 : 0);
 
         session->scpRecv_command =
-            LIBSSH2_ALLOC(session, session->scpRecv_command_len);
+            SSH2_ALLOC(session, session->scpRecv_command_len);
 
         if(!session->scpRecv_command) {
             ssh2_err(session, LIBSSH2_ERROR_ALLOC,
@@ -348,7 +348,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
         if(!session->scpRecv_channel) {
             if(libssh2_session_last_errno(session) !=
                 LIBSSH2_ERROR_EAGAIN) {
-                LIBSSH2_FREE(session, session->scpRecv_command);
+                SSH2_FREE(session, session->scpRecv_command);
                 session->scpRecv_command = NULL;
                 session->scpRecv_state = libssh2_NB_state_idle;
             }
@@ -374,11 +374,11 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
             return NULL;
         }
         else if(rc) {
-            LIBSSH2_FREE(session, session->scpRecv_command);
+            SSH2_FREE(session, session->scpRecv_command);
             session->scpRecv_command = NULL;
             goto scp_recv_error;
         }
-        LIBSSH2_FREE(session, session->scpRecv_command);
+        SSH2_FREE(session, session->scpRecv_command);
         session->scpRecv_command = NULL;
 
         _libssh2_debug((session, LIBSSH2_TRACE_SCP, "Sending initial wakeup"));
@@ -446,7 +446,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                     err_len =
                         _libssh2_channel_packet_data_len(session->
                                                          scpRecv_channel, 0);
-                    err_msg = LIBSSH2_ALLOC(session, err_len + 1);
+                    err_msg = SSH2_ALLOC(session, err_len + 1);
                     if(!err_msg) {
                         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                        "Failed to get memory ");
@@ -467,7 +467,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                     ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                                    "Failed to recv file");
 
-                    LIBSSH2_FREE(session, err_msg);
+                    SSH2_FREE(session, err_msg);
                     goto scp_recv_error;
                 }
 
@@ -859,7 +859,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
             ((mtime || atime) ? 1 : 0);
 
         session->scpSend_command =
-            LIBSSH2_ALLOC(session, session->scpSend_command_len);
+            SSH2_ALLOC(session, session->scpSend_command_len);
 
         if(!session->scpSend_command) {
             ssh2_err(session, LIBSSH2_ERROR_ALLOC,
@@ -907,7 +907,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
             if(libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
                 /* previous call set libssh2_session_last_error(), pass it
                    through */
-                LIBSSH2_FREE(session, session->scpSend_command);
+                SSH2_FREE(session, session->scpSend_command);
                 session->scpSend_command = NULL;
                 session->scpSend_state = libssh2_NB_state_idle;
             }
@@ -935,13 +935,13 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
         else if(rc) {
             /* previous call set libssh2_session_last_error(), pass it
                through */
-            LIBSSH2_FREE(session, session->scpSend_command);
+            SSH2_FREE(session, session->scpSend_command);
             session->scpSend_command = NULL;
             ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                            "Unknown error while getting error string");
             goto scp_send_error;
         }
-        LIBSSH2_FREE(session, session->scpSend_command);
+        SSH2_FREE(session, session->scpSend_command);
         session->scpSend_command = NULL;
 
         session->scpSend_state = libssh2_NB_state_sent1;
@@ -1093,7 +1093,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
 
             err_len =
                 _libssh2_channel_packet_data_len(session->scpSend_channel, 0);
-            err_msg = LIBSSH2_ALLOC(session, err_len + 1);
+            err_msg = SSH2_ALLOC(session, err_len + 1);
             if(!err_msg) {
                 ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                "failed to get memory");
@@ -1108,7 +1108,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
                 _libssh2_debug((session, LIBSSH2_TRACE_SCP, "got %02x %s",
                                 session->scpSend_response[0], err_msg));
             }
-            LIBSSH2_FREE(session, err_msg);
+            SSH2_FREE(session, err_msg);
             ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                            "failed to send file");
             goto scp_send_error;

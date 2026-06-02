@@ -154,7 +154,7 @@ static int decrypt(LIBSSH2_SESSION *session, unsigned char *source,
         if(session->remote.crypt->crypt(session, 0, source, decryptlen,
                                         &session->remote.crypt_abstract,
                                         lowerfirstlast)) {
-            LIBSSH2_FREE(session, p->payload);
+            SSH2_FREE(session, p->payload);
             p->payload = NULL;
             return LIBSSH2_ERROR_DECRYPT;
         }
@@ -250,7 +250,7 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
 
                 /* we need buffer for decrypt */
                 decrypt_size = p->total_num - mac_len - 4;
-                decrypt_buffer = LIBSSH2_ALLOC(session, decrypt_size);
+                decrypt_buffer = SSH2_ALLOC(session, decrypt_size);
                 if(!decrypt_buffer) {
                     return LIBSSH2_ERROR_ALLOC;
                 }
@@ -260,7 +260,7 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
                 p->padding_length = first_block[0];
 
                 if(p->padding_length > p->packet_length - 1) {
-                    LIBSSH2_FREE(session, decrypt_buffer);
+                    SSH2_FREE(session, decrypt_buffer);
                     return LIBSSH2_ERROR_PROTO;
                 }
 
@@ -274,13 +274,13 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
                                  decrypt_buffer + blocksize - 1,
                                  decrypt_size - blocksize, LAST_BLOCK);
                     if(rc) {
-                        LIBSSH2_FREE(session, decrypt_buffer);
+                        SSH2_FREE(session, decrypt_buffer);
                         return rc;
                     }
                 }
 
                 /* replace encrypted payload with plain text payload */
-                LIBSSH2_FREE(session, p->payload);
+                SSH2_FREE(session, p->payload);
                 p->payload = decrypt_buffer;
             }
         }
@@ -315,7 +315,7 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
                                               p->payload,
                                               session->fullpacket_payload_len,
                                               &session->remote.comp_abstract);
-            LIBSSH2_FREE(session, p->payload);
+            SSH2_FREE(session, p->payload);
             p->payload = NULL;
             if(rc)
                 return rc;
@@ -485,7 +485,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
             }
 
             /* now read a big chunk from the network into the temp buffer */
-            nread = LIBSSH2_RECV(session, &p->buf[remainbuf],
+            nread = SSH2_RECV(session, &p->buf[remainbuf],
                                  PACKETBUFSIZE - remainbuf,
                                  LIBSSH2_SOCKET_RECV_FLAGS(session));
             if(nread <= 0) {
@@ -561,7 +561,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
                 if(rc != LIBSSH2_ERROR_NONE) {
                     p->total_num = 0; /* no packet buffer available */
                     if(p->payload)
-                        LIBSSH2_FREE(session, p->payload);
+                        SSH2_FREE(session, p->payload);
                     p->payload = NULL;
                     return rc;
                 }
@@ -675,7 +675,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
 
             /* Get a packet handle put data into. We get one to
                hold all data, including padding and MAC. */
-            p->payload = LIBSSH2_ALLOC(session, total_num);
+            p->payload = SSH2_ALLOC(session, total_num);
             if(!p->payload) {
                 return LIBSSH2_ERROR_ALLOC;
             }
@@ -698,7 +698,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
                     }
                     else {
                         if(p->payload)
-                            LIBSSH2_FREE(session, p->payload);
+                            SSH2_FREE(session, p->payload);
                         p->payload = NULL;
                         return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
                     }
@@ -858,7 +858,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION *session)
             }
             else {
                 if(p->payload)
-                    LIBSSH2_FREE(session, p->payload);
+                    SSH2_FREE(session, p->payload);
                 p->payload = NULL;
                 return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
             }
@@ -936,7 +936,7 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
     /* number of bytes left to send */
     length = p->ototal_num - p->osent;
 
-    rc = LIBSSH2_SEND(session, &p->outbuf[p->osent], length,
+    rc = SSH2_SEND(session, &p->outbuf[p->osent], length,
                       LIBSSH2_SOCKET_SEND_FLAGS(session));
     if(rc < 0)
         _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
@@ -1277,7 +1277,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
         session->local.seqno = 0;
     }
 
-    ret = LIBSSH2_SEND(session, p->outbuf, total_length,
+    ret = SSH2_SEND(session, p->outbuf, total_length,
                        LIBSSH2_SOCKET_SEND_FLAGS(session));
     if(ret < 0)
         _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,

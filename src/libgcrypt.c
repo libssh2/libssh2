@@ -392,7 +392,7 @@ int _libssh2_rsa_new_private(libssh2_rsa_ctx **rsa,
     ret = 0;
 
 fail:
-    LIBSSH2_FREE(session, save_data);
+    SSH2_FREE(session, save_data);
     return ret;
 }
 #endif
@@ -498,7 +498,7 @@ int _libssh2_dsa_new_private(libssh2_dsa_ctx **dsa,
     ret = 0;
 
 fail:
-    LIBSSH2_FREE(session, save_data);
+    SSH2_FREE(session, save_data);
     return ret;
 }
 #endif
@@ -555,7 +555,7 @@ int _libssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
         --size;
     }
 
-    out_sig = LIBSSH2_ALLOC(session, size);
+    out_sig = SSH2_ALLOC(session, size);
     if(!out_sig)
         goto out;
     memcpy(out_sig, s, size);

@@ -143,7 +143,7 @@ int _libssh2_pem_parse(LIBSSH2_SESSION *session,
     }
 
     filedata_len = (size_t)file_size;
-    filedata = LIBSSH2_ALLOC(session, filedata_len);
+    filedata = SSH2_ALLOC(session, filedata_len);
     if(!filedata) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                        "Unable to allocate memory for PEM parsing");
@@ -161,7 +161,7 @@ int _libssh2_pem_parse(LIBSSH2_SESSION *session,
 
 out:
     if(filedata) {
-        LIBSSH2_FREE(session, filedata);
+        SSH2_FREE(session, filedata);
     }
     return ret;
 }
@@ -247,7 +247,7 @@ int _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
             size_t linelen;
 
             linelen = strlen(line);
-            tmp = LIBSSH2_REALLOC(session, b64data, b64datalen + linelen);
+            tmp = SSH2_REALLOC(session, b64data, b64datalen + linelen);
             if(!tmp) {
                 ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                "Unable to allocate memory for PEM parsing");
@@ -279,7 +279,7 @@ int _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
 
     if(*datalen == 0) {
         /* Invalid decode */
-        LIBSSH2_FREE(session, *data);
+        SSH2_FREE(session, *data);
         ret = -1;
         goto out;
     }
@@ -322,7 +322,7 @@ int _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
                         &abstract)) {
             _libssh2_explicit_zero((char *)secret, sizeof(secret));
             _libssh2_explicit_zero(*data, *datalen);
-            LIBSSH2_FREE(session, *data);
+            SSH2_FREE(session, *data);
             ret = -1;
             goto out;
         }
@@ -336,7 +336,7 @@ int _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
             _libssh2_explicit_zero((char *)secret, sizeof(secret));
             method->dtor(session, &abstract);
             _libssh2_explicit_zero(*data, *datalen);
-            LIBSSH2_FREE(session, *data);
+            SSH2_FREE(session, *data);
             ret = -1;
             goto out;
         }
@@ -347,7 +347,7 @@ int _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
                 _libssh2_explicit_zero((char *)secret, sizeof(secret));
                 method->dtor(session, &abstract);
                 _libssh2_explicit_zero(*data, *datalen);
-                LIBSSH2_FREE(session, *data);
+                SSH2_FREE(session, *data);
                 goto out;
             }
         }
@@ -365,7 +365,7 @@ int _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
                     _libssh2_explicit_zero((char *)secret, sizeof(secret));
                     method->dtor(session, &abstract);
                     _libssh2_explicit_zero(*data, *datalen);
-                    LIBSSH2_FREE(session, *data);
+                    SSH2_FREE(session, *data);
                     goto out;
                 }
 
@@ -379,7 +379,7 @@ int _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
             /* Invalid padding len */
             ret = LIBSSH2_ERROR_DECRYPT;
             _libssh2_explicit_zero(*data, *datalen);
-            LIBSSH2_FREE(session, *data);
+            SSH2_FREE(session, *data);
             goto out;
         }
         memset(&(*data)[*datalen - padding], 0, padding);
@@ -400,7 +400,7 @@ int _libssh2_pem_parse_memory(LIBSSH2_SESSION *session,
 out:
     if(b64data) {
         _libssh2_explicit_zero(b64data, b64datalen);
-        LIBSSH2_FREE(session, b64data);
+        SSH2_FREE(session, b64data);
     }
     return ret;
 }
@@ -561,7 +561,7 @@ static int _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
         ivlen = method->iv_len;
         total_len = keylen + ivlen;
 
-        key = LIBSSH2_CALLOC(session, total_len);
+        key = SSH2_CALLOC(session, total_len);
         if(!key) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                  "Could not alloc key");
@@ -594,14 +594,14 @@ static int _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
         /* Set up decryption */
         blocksize = method->blocksize;
 
-        key_part = LIBSSH2_CALLOC(session, keylen);
+        key_part = SSH2_CALLOC(session, keylen);
         if(!key_part) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                  "Could not alloc key part");
             goto out;
         }
 
-        iv_part = LIBSSH2_CALLOC(session, ivlen);
+        iv_part = SSH2_CALLOC(session, ivlen);
         if(!iv_part) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                  "Could not alloc iv part");
@@ -703,7 +703,7 @@ static int _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
             goto out;
         }
 
-        out_buf->data = LIBSSH2_CALLOC(session, decrypted.len);
+        out_buf->data = SSH2_CALLOC(session, decrypted.len);
         if(!out_buf->data) {
             ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Unable to allocate memory for "
@@ -724,19 +724,19 @@ out:
     /* Clean up */
     if(key) {
         _libssh2_explicit_zero(key, total_len);
-        LIBSSH2_FREE(session, key);
+        SSH2_FREE(session, key);
     }
     if(key_part) {
         _libssh2_explicit_zero(key_part, keylen);
-        LIBSSH2_FREE(session, key_part);
+        SSH2_FREE(session, key_part);
     }
     if(iv_part) {
         _libssh2_explicit_zero(iv_part, ivlen);
-        LIBSSH2_FREE(session, iv_part);
+        SSH2_FREE(session, iv_part);
     }
     if(f) {
         _libssh2_explicit_zero(f, f_len);
-        LIBSSH2_FREE(session, f);
+        SSH2_FREE(session, f);
     }
 
     return ret;
@@ -771,7 +771,7 @@ int _libssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
             size_t linelen;
 
             linelen = strlen(line);
-            tmp = LIBSSH2_REALLOC(session, b64data, b64datalen + linelen);
+            tmp = SSH2_REALLOC(session, b64data, b64datalen + linelen);
             if(!tmp) {
                 ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                "Unable to allocate memory for PEM parsing");
@@ -803,7 +803,7 @@ int _libssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
 
     if(b64data) {
         _libssh2_explicit_zero(b64data, b64datalen);
-        LIBSSH2_FREE(session, b64data);
+        SSH2_FREE(session, b64data);
     }
 
 out:
@@ -849,7 +849,7 @@ int _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
             size_t linelen;
 
             linelen = strlen(line);
-            tmp = LIBSSH2_REALLOC(session, b64data, b64datalen + linelen);
+            tmp = SSH2_REALLOC(session, b64data, b64datalen + linelen);
             if(!tmp) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                      "Unable to allocate memory for "
@@ -885,7 +885,7 @@ int _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
 out:
     if(b64data) {
         _libssh2_explicit_zero(b64data, b64datalen);
-        LIBSSH2_FREE(session, b64data);
+        SSH2_FREE(session, b64data);
     }
     return ret;
 }

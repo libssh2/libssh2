@@ -70,16 +70,16 @@ static void free_host(LIBSSH2_SESSION *session, struct known_host *entry)
 {
     if(entry) {
         if(entry->comment)
-            LIBSSH2_FREE(session, entry->comment);
+            SSH2_FREE(session, entry->comment);
         if(entry->key_type_name)
-            LIBSSH2_FREE(session, entry->key_type_name);
+            SSH2_FREE(session, entry->key_type_name);
         if(entry->key)
-            LIBSSH2_FREE(session, entry->key);
+            SSH2_FREE(session, entry->key);
         if(entry->salt)
-            LIBSSH2_FREE(session, entry->salt);
+            SSH2_FREE(session, entry->salt);
         if(entry->name)
-            LIBSSH2_FREE(session, entry->name);
-        LIBSSH2_FREE(session, entry);
+            SSH2_FREE(session, entry->name);
+        SSH2_FREE(session, entry);
     }
 }
 
@@ -90,7 +90,7 @@ LIBSSH2_API
 LIBSSH2_KNOWNHOSTS *libssh2_knownhost_init(LIBSSH2_SESSION *session)
 {
     LIBSSH2_KNOWNHOSTS *knh =
-        LIBSSH2_ALLOC(session, sizeof(struct _LIBSSH2_KNOWNHOSTS));
+        SSH2_ALLOC(session, sizeof(struct _LIBSSH2_KNOWNHOSTS));
 
     if(!knh) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
@@ -142,7 +142,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         return ssh2_err(hosts->session, LIBSSH2_ERROR_INVAL,
                               "No key type set");
 
-    entry = LIBSSH2_CALLOC(hosts->session, sizeof(struct known_host));
+    entry = SSH2_CALLOC(hosts->session, sizeof(struct known_host));
     if(!entry)
         return ssh2_err(hosts->session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate memory for known host "
@@ -153,7 +153,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
     switch(entry->typemask & LIBSSH2_KNOWNHOST_TYPE_MASK) {
     case LIBSSH2_KNOWNHOST_TYPE_PLAIN:
     case LIBSSH2_KNOWNHOST_TYPE_CUSTOM:
-        entry->name = LIBSSH2_ALLOC(hosts->session, hostlen + 1);
+        entry->name = SSH2_ALLOC(hosts->session, hostlen + 1);
         if(!entry->name) {
             rc = ssh2_err(hosts->session, LIBSSH2_ERROR_ALLOC,
                                 "Unable to allocate memory for hostname");
@@ -209,7 +209,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         /* the provided key is base64 encoded already */
         if(!keylen)
             keylen = strlen(key);
-        entry->key = LIBSSH2_ALLOC(hosts->session, keylen + 1);
+        entry->key = SSH2_ALLOC(hosts->session, keylen + 1);
         if(!entry->key) {
             rc = ssh2_err(hosts->session, LIBSSH2_ERROR_ALLOC,
                                 "Unable to allocate memory for key");
@@ -234,7 +234,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
 
     if(key_type_name && ((typemask & LIBSSH2_KNOWNHOST_KEY_MASK) ==
                          LIBSSH2_KNOWNHOST_KEY_UNKNOWN)) {
-        entry->key_type_name = LIBSSH2_ALLOC(hosts->session, key_type_len + 1);
+        entry->key_type_name = SSH2_ALLOC(hosts->session, key_type_len + 1);
         if(!entry->key_type_name) {
             rc = ssh2_err(hosts->session, LIBSSH2_ERROR_ALLOC,
                                 "Unable to allocate memory for key type");
@@ -246,7 +246,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
     }
 
     if(comment) {
-        entry->comment = LIBSSH2_ALLOC(hosts->session, commentlen + 1);
+        entry->comment = SSH2_ALLOC(hosts->session, commentlen + 1);
         if(!entry->comment) {
             rc = ssh2_err(hosts->session, LIBSSH2_ERROR_ALLOC,
                                 "Unable to allocate memory for comment");
@@ -498,7 +498,7 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
     }
 
     if(keyalloc)
-        LIBSSH2_FREE(hosts->session, keyalloc);
+        SSH2_FREE(hosts->session, keyalloc);
 
     return rc;
 }
@@ -602,7 +602,7 @@ void libssh2_knownhost_free(LIBSSH2_KNOWNHOSTS *hosts)
         next = _libssh2_list_next(&node->node);
         free_host(hosts->session, node);
     }
-    LIBSSH2_FREE(hosts->session, hosts);
+    SSH2_FREE(hosts->session, hosts);
 }
 
 /* old style plain text: [name]([,][name])*
@@ -1097,7 +1097,7 @@ static int knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
                                                  node->salt, node->salt_len,
                                                  &saltalloc);
         if(!salt_base64_len) {
-            LIBSSH2_FREE(hosts->session, namealloc);
+            SSH2_FREE(hosts->session, namealloc);
             return ssh2_err(hosts->session, LIBSSH2_ERROR_ALLOC,
                                   "Unable to allocate memory for "
                                   "base64-encoded salt");
@@ -1121,8 +1121,8 @@ static int knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
                          node->key);
         }
 
-        LIBSSH2_FREE(hosts->session, namealloc);
-        LIBSSH2_FREE(hosts->session, saltalloc);
+        SSH2_FREE(hosts->session, namealloc);
+        SSH2_FREE(hosts->session, saltalloc);
     }
     else {
         required_size += node->name_len + 3;

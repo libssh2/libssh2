@@ -61,7 +61,7 @@
         libssh2_sha##digest_type##_ctx hash;                                  \
         size_t len = 0;                                                       \
         if(!(value)) {                                                        \
-            (value) = LIBSSH2_ALLOC(session,                                  \
+            (value) = SSH2_ALLOC(session,                                  \
                                     (reqlen) +                                \
                                     SHA##digest_type##_DIGEST_LENGTH);        \
         }                                                                     \
@@ -74,14 +74,14 @@
                    !libssh2_sha##digest_type##_update(hash,                   \
                                          exchange_state->h_sig_comp,          \
                                          SHA##digest_type##_DIGEST_LENGTH)) { \
-                    LIBSSH2_FREE(session, value);                             \
+                    SSH2_FREE(session, value);                             \
                     (value) = NULL;                                           \
                     break;                                                    \
                 }                                                             \
                 if(len > 0) {                                                 \
                     if(!libssh2_sha##digest_type##_update(hash,               \
                                                           value, len)) {      \
-                        LIBSSH2_FREE(session, value);                         \
+                        SSH2_FREE(session, value);                         \
                         (value) = NULL;                                       \
                         break;                                                \
                     }                                                         \
@@ -92,13 +92,13 @@
                        !libssh2_sha##digest_type##_update(hash,               \
                                                   session->session_id,        \
                                                   session->session_id_len)) { \
-                        LIBSSH2_FREE(session, value);                         \
+                        SSH2_FREE(session, value);                         \
                         (value) = NULL;                                       \
                         break;                                                \
                     }                                                         \
                 }                                                             \
                 if(!libssh2_sha##digest_type##_final(hash, (value) + len)) {  \
-                    LIBSSH2_FREE(session, value);                             \
+                    SSH2_FREE(session, value);                             \
                     (value) = NULL;                                           \
                     break;                                                    \
                 }                                                             \
@@ -242,7 +242,7 @@ static int process_host_key(LIBSSH2_SESSION *session,
     buf->dataptr++; /* advance past type */
 
     if(session->server_hostkey) {
-        LIBSSH2_FREE(session, session->server_hostkey);
+        SSH2_FREE(session, session->server_hostkey);
         session->server_hostkey = NULL;
         session->server_hostkey_len = 0;
     }
@@ -336,7 +336,7 @@ static int process_host_key(LIBSSH2_SESSION *session,
             _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                             "Server's SHA256 Fingerprint: %s",
                             base64Fingerprint));
-            LIBSSH2_FREE(session, base64Fingerprint);
+            SSH2_FREE(session, base64Fingerprint);
         }
     }
 #endif /* LIBSSH2DEBUG */
@@ -377,10 +377,10 @@ static int finish_kex(LIBSSH2_SESSION *session,
 
     /* This actually ends up being packet_type(1)
        for this packet type anyway */
-    LIBSSH2_FREE(session, exchange_state->tmp);
+    SSH2_FREE(session, exchange_state->tmp);
 
     if(!session->session_id) {
-        session->session_id = LIBSSH2_ALLOC(session, digest_len);
+        session->session_id = SSH2_ALLOC(session, digest_len);
         if(!session->session_id) {
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                   "Unable to allocate buffer for "
@@ -415,25 +415,25 @@ static int finish_kex(LIBSSH2_SESSION *session,
                             (const unsigned char *)"C");
 
         if(!secret) {
-            LIBSSH2_FREE(session, iv);
+            SSH2_FREE(session, iv);
             return LIBSSH2_ERROR_KEX_FAILURE;
         }
         if(session->local.crypt->
             init(session, session->local.crypt, iv, &free_iv, secret,
                  &free_secret, 1, &session->local.crypt_abstract)) {
-            LIBSSH2_FREE(session, iv);
-            LIBSSH2_FREE(session, secret);
+            SSH2_FREE(session, iv);
+            SSH2_FREE(session, secret);
             return LIBSSH2_ERROR_KEX_FAILURE;
         }
 
         if(free_iv) {
             _libssh2_explicit_zero(iv, session->local.crypt->iv_len);
-            LIBSSH2_FREE(session, iv);
+            SSH2_FREE(session, iv);
         }
 
         if(free_secret) {
             _libssh2_explicit_zero(secret, session->local.crypt->secret_len);
-            LIBSSH2_FREE(session, secret);
+            SSH2_FREE(session, secret);
         }
     }
     _libssh2_debug((session, LIBSSH2_TRACE_KEX,
@@ -460,25 +460,25 @@ static int finish_kex(LIBSSH2_SESSION *session,
                             session->remote.crypt->secret_len,
                             (const unsigned char *)"D");
         if(!secret) {
-            LIBSSH2_FREE(session, iv);
+            SSH2_FREE(session, iv);
             return LIBSSH2_ERROR_KEX_FAILURE;
         }
         if(session->remote.crypt->
             init(session, session->remote.crypt, iv, &free_iv, secret,
                  &free_secret, 0, &session->remote.crypt_abstract)) {
-            LIBSSH2_FREE(session, iv);
-            LIBSSH2_FREE(session, secret);
+            SSH2_FREE(session, iv);
+            SSH2_FREE(session, secret);
             return LIBSSH2_ERROR_KEX_FAILURE;
         }
 
         if(free_iv) {
             _libssh2_explicit_zero(iv, session->remote.crypt->iv_len);
-            LIBSSH2_FREE(session, iv);
+            SSH2_FREE(session, iv);
         }
 
         if(free_secret) {
             _libssh2_explicit_zero(secret, session->remote.crypt->secret_len);
-            LIBSSH2_FREE(session, secret);
+            SSH2_FREE(session, secret);
         }
     }
     _libssh2_debug((session, LIBSSH2_TRACE_KEX,
@@ -504,7 +504,7 @@ static int finish_kex(LIBSSH2_SESSION *session,
 
         if(free_key) {
             _libssh2_explicit_zero(key, session->local.mac->key_len);
-            LIBSSH2_FREE(session, key);
+            SSH2_FREE(session, key);
         }
     }
     _libssh2_debug((session, LIBSSH2_TRACE_KEX,
@@ -530,7 +530,7 @@ static int finish_kex(LIBSSH2_SESSION *session,
 
         if(free_key) {
             _libssh2_explicit_zero(key, session->remote.mac->key_len);
-            LIBSSH2_FREE(session, key);
+            SSH2_FREE(session, key);
         }
     }
     _libssh2_debug((session, LIBSSH2_TRACE_KEX,
@@ -582,17 +582,17 @@ static void diffie_hellman_state_cleanup(
     exchange_state->ctx = NULL;
 
     if(exchange_state->e_packet) {
-        LIBSSH2_FREE(session, exchange_state->e_packet);
+        SSH2_FREE(session, exchange_state->e_packet);
         exchange_state->e_packet = NULL;
     }
 
     if(exchange_state->s_packet) {
-        LIBSSH2_FREE(session, exchange_state->s_packet);
+        SSH2_FREE(session, exchange_state->s_packet);
         exchange_state->s_packet = NULL;
     }
 
     if(exchange_state->k_value) {
-        LIBSSH2_FREE(session, exchange_state->k_value);
+        SSH2_FREE(session, exchange_state->k_value);
         exchange_state->k_value = NULL;
     }
 
@@ -609,7 +609,7 @@ static void kex_diffie_hellman_cleanup(
         key_state->g = NULL;
 
         if(key_state->data) {
-            LIBSSH2_FREE(session, key_state->data);
+            SSH2_FREE(session, key_state->data);
             key_state->data = NULL;
         }
         key_state->state = libssh2_NB_state_idle;
@@ -698,7 +698,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         }
 
         exchange_state->e_packet =
-            LIBSSH2_ALLOC(session, exchange_state->e_packet_len);
+            SSH2_ALLOC(session, exchange_state->e_packet_len);
         if(!exchange_state->e_packet) {
             ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Out of memory error");
@@ -829,7 +829,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             exchange_state->k_value_len--;
         }
         exchange_state->k_value =
-            LIBSSH2_ALLOC(session, exchange_state->k_value_len);
+            SSH2_ALLOC(session, exchange_state->k_value_len);
         if(!exchange_state->k_value) {
             ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Unable to allocate buffer for DH-SHA K");
@@ -1967,7 +1967,7 @@ static void ecdh_exchange_state_cleanup(
     exchange_state->k = NULL;
 
     if(exchange_state->k_value) {
-        LIBSSH2_FREE(session, exchange_state->k_value);
+        SSH2_FREE(session, exchange_state->k_value);
         exchange_state->k_value = NULL;
     }
 
@@ -1978,7 +1978,7 @@ static void kex_method_ecdh_cleanup(LIBSSH2_SESSION *session,
                                     struct key_exchange_state_low *key_state)
 {
     if(key_state->public_key_oct) {
-        LIBSSH2_FREE(session, key_state->public_key_oct);
+        SSH2_FREE(session, key_state->public_key_oct);
         key_state->public_key_oct = NULL;
     }
 
@@ -1988,7 +1988,7 @@ static void kex_method_ecdh_cleanup(LIBSSH2_SESSION *session,
     }
 
     if(key_state->data) {
-        LIBSSH2_FREE(session, key_state->data);
+        SSH2_FREE(session, key_state->data);
         key_state->data = NULL;
     }
 
@@ -2069,7 +2069,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
             exchange_state->k_value_len--;
         }
         exchange_state->k_value =
-            LIBSSH2_ALLOC(session, exchange_state->k_value_len);
+            SSH2_ALLOC(session, exchange_state->k_value_len);
         if(!exchange_state->k_value) {
             ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Unable to allocate buffer for ECDH K");
@@ -2281,7 +2281,7 @@ static void mlkem_nistp_exchange_state_cleanup(
     exchange_state->k = NULL;
 
     if(exchange_state->k_value) {
-        LIBSSH2_FREE(session, exchange_state->k_value);
+        SSH2_FREE(session, exchange_state->k_value);
         exchange_state->k_value = NULL;
     }
 
@@ -2292,31 +2292,31 @@ static void kex_method_mlkem_nistp_cleanup(
     LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
     if(key_state->public_key_oct) {
-        LIBSSH2_FREE(session, key_state->public_key_oct);
+        SSH2_FREE(session, key_state->public_key_oct);
         key_state->public_key_oct = NULL;
     }
 
     if(key_state->private_key) {
-        LIBSSH2_FREE(session, key_state->private_key);
+        SSH2_FREE(session, key_state->private_key);
         key_state->private_key = NULL;
     }
 
     if(key_state->mlkem_public_key) {
         _libssh2_explicit_zero(key_state->mlkem_public_key,
                                LIBSSH2_MLKEM_768_PUBLIC_KEY_LEN);
-        LIBSSH2_FREE(session, key_state->mlkem_public_key);
+        SSH2_FREE(session, key_state->mlkem_public_key);
         key_state->mlkem_public_key = NULL;
     }
 
     if(key_state->mlkem_private_key) {
         _libssh2_explicit_zero(key_state->mlkem_private_key,
                                LIBSSH2_MLKEM_768_PRIVATE_KEY_LEN);
-        LIBSSH2_FREE(session, key_state->mlkem_private_key);
+        SSH2_FREE(session, key_state->mlkem_private_key);
         key_state->mlkem_private_key = NULL;
     }
 
     if(key_state->data) {
-        LIBSSH2_FREE(session, key_state->data);
+        SSH2_FREE(session, key_state->data);
         key_state->data = NULL;
     }
 
@@ -2421,7 +2421,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
         exchange_state->k_value_len = digest_len + 4;
 
         exchange_state->k_value =
-            LIBSSH2_ALLOC(session, exchange_state->k_value_len);
+            SSH2_ALLOC(session, exchange_state->k_value_len);
         if(!exchange_state->k_value) {
             ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Unable to allocate buffer for K");
@@ -2441,7 +2441,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
 
         shared_secret_len = LIBSSH2_MLKEM_SHARED_SECRET_LEN +
                             _libssh2_bn_bytes(exchange_state->k);
-        shared_secret = LIBSSH2_ALLOC(session, shared_secret_len);
+        shared_secret = SSH2_ALLOC(session, shared_secret_len);
         if(!shared_secret) {
             ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Unable to allocate buffer for "
@@ -2557,7 +2557,7 @@ clean_exit:
     mlkem_nistp_exchange_state_cleanup(session, exchange_state);
 
     if(shared_secret) {
-        LIBSSH2_FREE(session, shared_secret);
+        SSH2_FREE(session, shared_secret);
     }
 
     return ret;
@@ -2700,7 +2700,7 @@ static void curve25519_exchange_state_cleanup(
     exchange_state->k = NULL;
 
     if(exchange_state->k_value) {
-        LIBSSH2_FREE(session, exchange_state->k_value);
+        SSH2_FREE(session, exchange_state->k_value);
         exchange_state->k_value = NULL;
     }
 
@@ -2713,19 +2713,19 @@ static void kex_method_curve25519_cleanup(
     if(key_state->curve25519_public_key) {
         _libssh2_explicit_zero(key_state->curve25519_public_key,
                                LIBSSH2_ED25519_KEY_LEN);
-        LIBSSH2_FREE(session, key_state->curve25519_public_key);
+        SSH2_FREE(session, key_state->curve25519_public_key);
         key_state->curve25519_public_key = NULL;
     }
 
     if(key_state->curve25519_private_key) {
         _libssh2_explicit_zero(key_state->curve25519_private_key,
                                LIBSSH2_ED25519_KEY_LEN);
-        LIBSSH2_FREE(session, key_state->curve25519_private_key);
+        SSH2_FREE(session, key_state->curve25519_private_key);
         key_state->curve25519_private_key = NULL;
     }
 
     if(key_state->data) {
-        LIBSSH2_FREE(session, key_state->data);
+        SSH2_FREE(session, key_state->data);
         key_state->data = NULL;
     }
 
@@ -2813,7 +2813,7 @@ static int curve25519_sha256(
             exchange_state->k_value_len--;
         }
         exchange_state->k_value =
-            LIBSSH2_ALLOC(session, exchange_state->k_value_len);
+            SSH2_ALLOC(session, exchange_state->k_value_len);
         if(!exchange_state->k_value) {
             ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Unable to allocate buffer for K");
@@ -2987,7 +2987,7 @@ static void mlkem768x25519_exchange_state_cleanup(
     exchange_state->k = NULL;
 
     if(exchange_state->k_value) {
-        LIBSSH2_FREE(session, exchange_state->k_value);
+        SSH2_FREE(session, exchange_state->k_value);
         exchange_state->k_value = NULL;
     }
 
@@ -3000,33 +3000,33 @@ static void kex_method_mlkem768x25519_cleanup(
     if(key_state->curve25519_public_key) {
         _libssh2_explicit_zero(key_state->curve25519_public_key,
                                LIBSSH2_ED25519_KEY_LEN);
-        LIBSSH2_FREE(session, key_state->curve25519_public_key);
+        SSH2_FREE(session, key_state->curve25519_public_key);
         key_state->curve25519_public_key = NULL;
     }
 
     if(key_state->curve25519_private_key) {
         _libssh2_explicit_zero(key_state->curve25519_private_key,
                                LIBSSH2_ED25519_KEY_LEN);
-        LIBSSH2_FREE(session, key_state->curve25519_private_key);
+        SSH2_FREE(session, key_state->curve25519_private_key);
         key_state->curve25519_private_key = NULL;
     }
 
     if(key_state->mlkem_public_key) {
         _libssh2_explicit_zero(key_state->mlkem_public_key,
                                LIBSSH2_MLKEM_768_PUBLIC_KEY_LEN);
-        LIBSSH2_FREE(session, key_state->mlkem_public_key);
+        SSH2_FREE(session, key_state->mlkem_public_key);
         key_state->mlkem_public_key = NULL;
     }
 
     if(key_state->mlkem_private_key) {
         _libssh2_explicit_zero(key_state->mlkem_private_key,
                                LIBSSH2_MLKEM_768_PRIVATE_KEY_LEN);
-        LIBSSH2_FREE(session, key_state->mlkem_private_key);
+        SSH2_FREE(session, key_state->mlkem_private_key);
         key_state->mlkem_private_key = NULL;
     }
 
     if(key_state->data) {
-        LIBSSH2_FREE(session, key_state->data);
+        SSH2_FREE(session, key_state->data);
         key_state->data = NULL;
     }
 
@@ -3100,7 +3100,7 @@ static int mlkem768x25519_sha256(
         exchange_state->k_value_len = SHA256_DIGEST_LENGTH + 4;
 
         exchange_state->k_value =
-            LIBSSH2_ALLOC(session, exchange_state->k_value_len);
+            SSH2_ALLOC(session, exchange_state->k_value_len);
         if(!exchange_state->k_value) {
             ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                  "Unable to allocate buffer for K");
@@ -3577,7 +3577,7 @@ static int kexinit(LIBSSH2_SESSION *session)
                     comp_cs_len + comp_sc_len + mac_cs_len + mac_sc_len +
                     lang_cs_len + lang_sc_len;
 
-        s = data = LIBSSH2_ALLOC(session, data_len);
+        s = data = SSH2_ALLOC(session, data_len);
         if(!data) {
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                   "Unable to allocate memory");
@@ -3586,7 +3586,7 @@ static int kexinit(LIBSSH2_SESSION *session)
         *(s++) = SSH_MSG_KEXINIT;
 
         if(_libssh2_random(s, 16)) {
-            LIBSSH2_FREE(session, data);
+            SSH2_FREE(session, data);
             return ssh2_err(session, LIBSSH2_ERROR_RANDGEN,
                                   "Unable to get random bytes "
                                   "for KEXINIT cookie");
@@ -3682,14 +3682,14 @@ static int kexinit(LIBSSH2_SESSION *session)
         return rc;
     }
     else if(rc) {
-        LIBSSH2_FREE(session, data);
+        SSH2_FREE(session, data);
         session->kexinit_state = libssh2_NB_state_idle;
         return ssh2_err(session, rc,
                               "Unable to send KEXINIT packet to remote host");
     }
 
     if(session->local.kexinit) {
-        LIBSSH2_FREE(session, session->local.kexinit);
+        SSH2_FREE(session, session->local.kexinit);
     }
 
     session->local.kexinit = data;
@@ -4284,7 +4284,7 @@ int _libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
             }
             else if(retcode) {
                 if(session->local.kexinit) {
-                    LIBSSH2_FREE(session, session->local.kexinit);
+                    SSH2_FREE(session, session->local.kexinit);
                 }
                 session->local.kexinit = key_state->oldlocal;
                 session->local.kexinit_len = key_state->oldlocal_len;
@@ -4296,7 +4296,7 @@ int _libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
             }
 
             if(session->remote.kexinit) {
-                LIBSSH2_FREE(session, session->remote.kexinit);
+                SSH2_FREE(session, session->remote.kexinit);
             }
             session->remote.kexinit = key_state->data;
             session->remote.kexinit_len = key_state->data_len;
@@ -4331,11 +4331,11 @@ int _libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
 
     /* Done with kexinit buffers */
     if(session->local.kexinit) {
-        LIBSSH2_FREE(session, session->local.kexinit);
+        SSH2_FREE(session, session->local.kexinit);
         session->local.kexinit = NULL;
     }
     if(session->remote.kexinit) {
-        LIBSSH2_FREE(session, session->remote.kexinit);
+        SSH2_FREE(session, session->remote.kexinit);
         session->remote.kexinit = NULL;
     }
 
@@ -4421,10 +4421,10 @@ int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
                               "Invalid parameter specified for method_type");
     }
 
-    s = newprefs = LIBSSH2_ALLOC(session, prefs_len + 1);
+    s = newprefs = SSH2_ALLOC(session, prefs_len + 1);
     if(!newprefs) {
         if(tmpprefs) {
-            LIBSSH2_FREE(session, tmpprefs);
+            SSH2_FREE(session, tmpprefs);
         }
         return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                               "Error allocated space for method preferences");
@@ -4455,11 +4455,11 @@ int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
     }
 
     if(tmpprefs) {
-        LIBSSH2_FREE(session, tmpprefs);
+        SSH2_FREE(session, tmpprefs);
     }
 
     if(!*newprefs) {
-        LIBSSH2_FREE(session, newprefs);
+        SSH2_FREE(session, newprefs);
         return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                               "The requested method(s) are not currently "
                               "supported");
@@ -4471,7 +4471,7 @@ int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
             "ext-info-c,kex-strict-c-v00@openssh.com,";
         size_t kex_extensions_len = strlen(kex_extensions);
         size_t tmp_len = kex_extensions_len + strlen(newprefs);
-        tmpprefs = LIBSSH2_ALLOC(session, tmp_len + 1);
+        tmpprefs = SSH2_ALLOC(session, tmp_len + 1);
         if(!tmpprefs) {
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                   "Error allocated space for kex method"
@@ -4482,12 +4482,12 @@ int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
         memcpy(tmpprefs + kex_extensions_len, newprefs, strlen(newprefs));
         tmpprefs[tmp_len] = '\0';
 
-        LIBSSH2_FREE(session, newprefs);
+        SSH2_FREE(session, newprefs);
         newprefs = tmpprefs;
     }
 
     if(*prefvar) {
-        LIBSSH2_FREE(session, *prefvar);
+        SSH2_FREE(session, *prefvar);
     }
     *prefvar = newprefs;
 
@@ -4578,7 +4578,7 @@ int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
                               "No algorithm found");
 
     /* allocate buffer */
-    *algs = (const char **)LIBSSH2_ALLOC(session, ialg * sizeof(const char *));
+    *algs = (const char **)SSH2_ALLOC(session, ialg * sizeof(const char *));
     if(!*algs) {
         return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                               "Memory allocation failed");
@@ -4600,7 +4600,7 @@ int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
     /* correct number of pointers copied? (test the code above) */
     if(j != ialg) {
         /* deallocate buffer */
-        LIBSSH2_FREE(session, (void *)*algs);
+        SSH2_FREE(session, (void *)*algs);
         *algs = NULL;
 
         return ssh2_err(session, LIBSSH2_ERROR_BAD_USE,

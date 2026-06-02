@@ -417,7 +417,7 @@ static int agent_transact_openssh(LIBSSH2_AGENT *agent,
                             "agent recv failed");
 
         transctx->response_len = _libssh2_ntohu32(buf);
-        transctx->response = LIBSSH2_ALLOC(agent->session,
+        transctx->response = SSH2_ALLOC(agent->session,
                                            transctx->response_len);
         if(!transctx->response)
             return LIBSSH2_ERROR_ALLOC;
@@ -588,7 +588,7 @@ static int agent_transact_unix(LIBSSH2_AGENT *agent,
                             "agent recv failed");
         }
         transctx->response_len = _libssh2_ntohu32(buf);
-        transctx->response = LIBSSH2_ALLOC(agent->session,
+        transctx->response = SSH2_ALLOC(agent->session,
                                            transctx->response_len);
         if(!transctx->response)
             return LIBSSH2_ERROR_ALLOC;
@@ -706,7 +706,7 @@ static int agent_transact_pageant(LIBSSH2_AGENT *agent,
             return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                             "agent setup fail");
         }
-        transctx->response = LIBSSH2_ALLOC(agent->session,
+        transctx->response = SSH2_ALLOC(agent->session,
                                            transctx->response_len);
         if(!transctx->response) {
             UnmapViewOfFile(p);
@@ -773,7 +773,7 @@ static int agent_sign(LIBSSH2_SESSION *session,
 
     /* Create a request to sign the data */
     if(transctx->state == agent_NB_state_init) {
-        s = transctx->request = LIBSSH2_ALLOC(session, len);
+        s = transctx->request = SSH2_ALLOC(session, len);
         if(!transctx->request)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "out of memory");
@@ -819,7 +819,7 @@ static int agent_sign(LIBSSH2_SESSION *session,
     if(rc) {
         goto error;
     }
-    LIBSSH2_FREE(session, transctx->request);
+    SSH2_FREE(session, transctx->request);
     transctx->request = NULL;
 
     len = transctx->response_len;
@@ -858,7 +858,7 @@ static int agent_sign(LIBSSH2_SESSION *session,
     }
 
     /* method name */
-    method_name = LIBSSH2_ALLOC(session, method_len);
+    method_name = SSH2_ALLOC(session, method_len);
     if(!method_name) {
         rc = LIBSSH2_ERROR_ALLOC;
         goto error;
@@ -894,7 +894,7 @@ static int agent_sign(LIBSSH2_SESSION *session,
         goto error;
     }
 
-    *sig = LIBSSH2_ALLOC(session, *sig_len);
+    *sig = SSH2_ALLOC(session, *sig_len);
     if(!*sig) {
         rc = LIBSSH2_ERROR_ALLOC;
         goto error;
@@ -904,12 +904,12 @@ static int agent_sign(LIBSSH2_SESSION *session,
 error:
 
     if(method_name)
-        LIBSSH2_FREE(session, method_name);
+        SSH2_FREE(session, method_name);
 
-    LIBSSH2_FREE(session, transctx->request);
+    SSH2_FREE(session, transctx->request);
     transctx->request = NULL;
 
-    LIBSSH2_FREE(session, transctx->response);
+    SSH2_FREE(session, transctx->response);
     transctx->response = NULL;
 
     transctx->state = agent_NB_state_init;
@@ -945,7 +945,7 @@ static int agent_list_identities(LIBSSH2_AGENT *agent)
 
     rc = agent->ops->transact(agent, transctx);
     if(rc) {
-        LIBSSH2_FREE(agent->session, transctx->response);
+        SSH2_FREE(agent->session, transctx->response);
         transctx->response = NULL;
         return rc;
     }
@@ -983,7 +983,7 @@ static int agent_list_identities(LIBSSH2_AGENT *agent)
             rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
             goto error;
         }
-        identity = LIBSSH2_ALLOC(agent->session, sizeof(*identity));
+        identity = SSH2_ALLOC(agent->session, sizeof(*identity));
         if(!identity) {
             rc = LIBSSH2_ERROR_ALLOC;
             goto error;
@@ -995,15 +995,15 @@ static int agent_list_identities(LIBSSH2_AGENT *agent)
         len -= identity->external.blob_len;
         if(len < 0) {
             rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
-            LIBSSH2_FREE(agent->session, identity);
+            SSH2_FREE(agent->session, identity);
             goto error;
         }
 
-        identity->external.blob = LIBSSH2_ALLOC(agent->session,
+        identity->external.blob = SSH2_ALLOC(agent->session,
                                                 identity->external.blob_len);
         if(!identity->external.blob) {
             rc = LIBSSH2_ERROR_ALLOC;
-            LIBSSH2_FREE(agent->session, identity);
+            SSH2_FREE(agent->session, identity);
             goto error;
         }
         memcpy(identity->external.blob, s, identity->external.blob_len);
@@ -1013,8 +1013,8 @@ static int agent_list_identities(LIBSSH2_AGENT *agent)
         len -= 4;
         if(len < 0) {
             rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
-            LIBSSH2_FREE(agent->session, identity->external.blob);
-            LIBSSH2_FREE(agent->session, identity);
+            SSH2_FREE(agent->session, identity->external.blob);
+            SSH2_FREE(agent->session, identity);
             goto error;
         }
         comment_len = _libssh2_ntohu32(s);
@@ -1022,19 +1022,19 @@ static int agent_list_identities(LIBSSH2_AGENT *agent)
 
         if(comment_len > (size_t)len) {
             rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
-            LIBSSH2_FREE(agent->session, identity->external.blob);
-            LIBSSH2_FREE(agent->session, identity);
+            SSH2_FREE(agent->session, identity->external.blob);
+            SSH2_FREE(agent->session, identity);
             goto error;
         }
         /* Read the comment */
         len -= comment_len;
 
-        identity->external.comment = LIBSSH2_ALLOC(agent->session,
+        identity->external.comment = SSH2_ALLOC(agent->session,
                                                    comment_len + 1);
         if(!identity->external.comment) {
             rc = LIBSSH2_ERROR_ALLOC;
-            LIBSSH2_FREE(agent->session, identity->external.blob);
-            LIBSSH2_FREE(agent->session, identity);
+            SSH2_FREE(agent->session, identity->external.blob);
+            SSH2_FREE(agent->session, identity);
             goto error;
         }
         identity->external.comment[comment_len] = '\0';
@@ -1044,7 +1044,7 @@ static int agent_list_identities(LIBSSH2_AGENT *agent)
         _libssh2_list_add(&agent->head, &identity->node);
     }
 error:
-    LIBSSH2_FREE(agent->session, transctx->response);
+    SSH2_FREE(agent->session, transctx->response);
     transctx->response = NULL;
 
     return ssh2_err(agent->session, rc, "agent list id failed");
@@ -1057,9 +1057,9 @@ static void agent_free_identities(LIBSSH2_AGENT *agent)
 
     for(node = _libssh2_list_first(&agent->head); node; node = next) {
         next = _libssh2_list_next(&node->node);
-        LIBSSH2_FREE(agent->session, node->external.blob);
-        LIBSSH2_FREE(agent->session, node->external.comment);
-        LIBSSH2_FREE(agent->session, node);
+        SSH2_FREE(agent->session, node->external.blob);
+        SSH2_FREE(agent->session, node->external.comment);
+        SSH2_FREE(agent->session, node);
     }
     _libssh2_list_init(&agent->head);
 }
@@ -1087,7 +1087,7 @@ LIBSSH2_AGENT *libssh2_agent_init(LIBSSH2_SESSION *session)
 {
     LIBSSH2_AGENT *agent;
 
-    agent = LIBSSH2_CALLOC(session, sizeof(*agent));
+    agent = SSH2_CALLOC(session, sizeof(*agent));
     if(!agent) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                  "Unable to allocate space for agent connection");
@@ -1237,14 +1237,14 @@ int libssh2_agent_sign(LIBSSH2_AGENT *agent,
     }
 
     agent->session->userauth_pblc_method_len = method_len;
-    agent->session->userauth_pblc_method = LIBSSH2_ALLOC(agent->session,
+    agent->session->userauth_pblc_method = SSH2_ALLOC(agent->session,
                                                          method_len);
 
     memcpy(agent->session->userauth_pblc_method, method, method_len);
 
     rc = agent_sign(agent->session, sig, s_len, data, d_len, &abstract);
 
-    LIBSSH2_FREE(agent->session, agent->session->userauth_pblc_method);
+    SSH2_FREE(agent->session, agent->session->userauth_pblc_method);
     agent->session->userauth_pblc_method = NULL;
     agent->session->userauth_pblc_method_len = 0;
 
@@ -1277,10 +1277,10 @@ void libssh2_agent_free(LIBSSH2_AGENT *agent)
     }
 
     if(agent->identity_agent_path)
-        LIBSSH2_FREE(agent->session, agent->identity_agent_path);
+        SSH2_FREE(agent->session, agent->identity_agent_path);
 
     agent_free_identities(agent);
-    LIBSSH2_FREE(agent->session, agent);
+    SSH2_FREE(agent->session, agent);
 }
 
 /*
@@ -1290,14 +1290,14 @@ LIBSSH2_API
 void libssh2_agent_set_identity_path(LIBSSH2_AGENT *agent, const char *path)
 {
     if(agent->identity_agent_path) {
-        LIBSSH2_FREE(agent->session, agent->identity_agent_path);
+        SSH2_FREE(agent->session, agent->identity_agent_path);
         agent->identity_agent_path = NULL;
     }
 
     if(path) {
         size_t path_len = strlen(path);
         if(path_len < SIZE_MAX - 1) {
-            char *path_buf = LIBSSH2_ALLOC(agent->session, path_len + 1);
+            char *path_buf = SSH2_ALLOC(agent->session, path_len + 1);
             memcpy(path_buf, path, path_len);
             path_buf[path_len] = '\0';
             agent->identity_agent_path = path_buf;

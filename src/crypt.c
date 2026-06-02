@@ -94,14 +94,14 @@ static int crypt_init(LIBSSH2_SESSION *session,
                       unsigned char *secret, int *free_secret,
                       int encrypt, void **abstract)
 {
-    struct crypt_ctx *ctx = LIBSSH2_ALLOC(session, sizeof(struct crypt_ctx));
+    struct crypt_ctx *ctx = SSH2_ALLOC(session, sizeof(struct crypt_ctx));
     if(!ctx)
         return LIBSSH2_ERROR_ALLOC;
 
     ctx->encrypt = encrypt;
     ctx->algo = method->algo;
     if(_libssh2_cipher_init(&ctx->h, ctx->algo, iv, secret, encrypt)) {
-        LIBSSH2_FREE(session, ctx);
+        SSH2_FREE(session, ctx);
         return -1;
     }
     *abstract = ctx;
@@ -129,7 +129,7 @@ static int crypt_dtor(LIBSSH2_SESSION *session, void **abstract)
     struct crypt_ctx **cctx = (struct crypt_ctx **)abstract;
     if(cctx && *cctx) {
         _libssh2_cipher_dtor(&(*cctx)->h);
-        LIBSSH2_FREE(session, *cctx);
+        SSH2_FREE(session, *cctx);
         *abstract = NULL;
     }
     return 0;
@@ -389,7 +389,7 @@ static int crypt_init_chacha20_poly(LIBSSH2_SESSION *session,
                                     unsigned char *secret, int *free_secret,
                                     int encrypt, void **abstract)
 {
-    struct crypt_ctx *ctx = LIBSSH2_ALLOC(session, sizeof(struct crypt_ctx));
+    struct crypt_ctx *ctx = SSH2_ALLOC(session, sizeof(struct crypt_ctx));
 
     (void)iv;
 
@@ -400,7 +400,7 @@ static int crypt_init_chacha20_poly(LIBSSH2_SESSION *session,
     ctx->algo = method->algo;
 
     if(chachapoly_init(&ctx->chachapoly_ctx, secret, method->secret_len)) {
-        LIBSSH2_FREE(session, ctx);
+        SSH2_FREE(session, ctx);
         return -1;
     }
 
@@ -469,7 +469,7 @@ static int crypt_dtor_chacha20_poly(LIBSSH2_SESSION *session, void **abstract)
 {
     struct crypt_ctx **cctx = (struct crypt_ctx **)abstract;
     if(cctx && *cctx) {
-        LIBSSH2_FREE(session, *cctx);
+        SSH2_FREE(session, *cctx);
         *abstract = NULL;
     }
     return 0;

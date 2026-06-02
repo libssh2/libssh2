@@ -91,14 +91,14 @@ int ssh2_err_flags(LIBSSH2_SESSION *session, int errcode,
     }
 
     if(session->err_flags & LIBSSH2_ERR_FLAG_DUP)
-        LIBSSH2_FREE(session, (char *)LIBSSH2_UNCONST(session->err_msg));
+        SSH2_FREE(session, (char *)LIBSSH2_UNCONST(session->err_msg));
 
     session->err_code = errcode;
     session->err_flags = 0;
 
     if(errmsg && ((errflags & LIBSSH2_ERR_FLAG_DUP) != 0)) {
         size_t len = strlen(errmsg);
-        char *copy = LIBSSH2_ALLOC(session, len + 1);
+        char *copy = SSH2_ALLOC(session, len + 1);
         if(copy) {
             memcpy(copy, errmsg, len + 1);
             session->err_flags = LIBSSH2_ERR_FLAG_DUP;
@@ -396,7 +396,7 @@ int _libssh2_base64_decode(LIBSSH2_SESSION *session,
     size_t i = 0, len = 0;
 
     *datalen = 0;
-    *data = LIBSSH2_ALLOC(session, src_len);
+    *data = SSH2_ALLOC(session, src_len);
     d = (unsigned char *)*data;
     if(!d) {
         return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
@@ -428,7 +428,7 @@ int _libssh2_base64_decode(LIBSSH2_SESSION *session,
     if((i % 4) == 1) {
         /* Invalid -- We have a byte which belongs exclusively to a partial
            octet */
-        LIBSSH2_FREE(session, *data);
+        SSH2_FREE(session, *data);
         *data = NULL;
         return ssh2_err(session, LIBSSH2_ERROR_INVAL, "Invalid base64");
     }
@@ -466,7 +466,7 @@ size_t _libssh2_base64_encode(LIBSSH2_SESSION *session,
     if(insize == 0)
         return 0; /* nothing to encode */
 
-    base64data = output = LIBSSH2_ALLOC(session, insize * 4 / 3 + 4);
+    base64data = output = SSH2_ALLOC(session, insize * 4 / 3 + 4);
     if(!output)
         return 0;
 
@@ -521,7 +521,7 @@ size_t _libssh2_base64_encode(LIBSSH2_SESSION *session,
 LIBSSH2_API
 void libssh2_free(LIBSSH2_SESSION *session, void *ptr)
 {
-    LIBSSH2_FREE(session, ptr);
+    SSH2_FREE(session, ptr);
 }
 
 #ifdef LIBSSH2DEBUG
@@ -773,7 +773,7 @@ int _libssh2_gettimeofday(struct timeval *tp, void *tzp)
 
 void *_libssh2_calloc(LIBSSH2_SESSION *session, size_t size)
 {
-    void *p = LIBSSH2_ALLOC(session, size);
+    void *p = SSH2_ALLOC(session, size);
     if(p) {
         memset(p, 0, size);
     }
@@ -821,9 +821,9 @@ void _libssh2_string_buf_free(LIBSSH2_SESSION *session, struct string_buf *buf)
         return;
 
     if(buf->data)
-        LIBSSH2_FREE(session, buf->data);
+        SSH2_FREE(session, buf->data);
 
-    LIBSSH2_FREE(session, buf);
+    SSH2_FREE(session, buf);
     buf = NULL;
 }
 
@@ -912,7 +912,7 @@ int _libssh2_copy_string(LIBSSH2_SESSION *session, struct string_buf *buf,
     }
 
     if(str_len) {
-        *outbuf = LIBSSH2_ALLOC(session, str_len);
+        *outbuf = SSH2_ALLOC(session, str_len);
         if(*outbuf) {
             memcpy(*outbuf, str, str_len);
         }

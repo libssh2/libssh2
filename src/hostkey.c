@@ -666,7 +666,7 @@ static int hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    *signature = LIBSSH2_CALLOC(session, 2 * SHA_DIGEST_LENGTH);
+    *signature = SSH2_CALLOC(session, 2 * SHA_DIGEST_LENGTH);
     if(!*signature) {
         return -1;
     }
@@ -684,7 +684,7 @@ static int hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session,
     }
 
     if(_libssh2_dsa_sha1_sign(dsactx, hash, SHA_DIGEST_LENGTH, *signature)) {
-        LIBSSH2_FREE(session, *signature);
+        SSH2_FREE(session, *signature);
         return -1;
     }
 

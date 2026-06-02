@@ -124,7 +124,7 @@ int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
     }
 
     session->userauth_kybd_prompts =
-        LIBSSH2_CALLOC(session,
+        SSH2_CALLOC(session,
                        sizeof(LIBSSH2_USERAUTH_KBDINT_PROMPT) *
                        session->userauth_kybd_num_prompts);
     if(!session->userauth_kybd_prompts) {
@@ -135,7 +135,7 @@ int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
     }
 
     session->userauth_kybd_responses =
-        LIBSSH2_CALLOC(session,
+        SSH2_CALLOC(session,
                        sizeof(LIBSSH2_USERAUTH_KBDINT_RESPONSE) *
                        session->userauth_kybd_num_prompts);
     if(!session->userauth_kybd_responses) {

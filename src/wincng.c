@@ -1578,7 +1578,7 @@ static int wincng_rsa_sha_sign(LIBSSH2_SESSION *session,
                          &cbData, BCRYPT_PAD_PKCS1);
     if(BCRYPT_SUCCESS(ret)) {
         siglen = cbData;
-        sig = LIBSSH2_ALLOC(session, siglen);
+        sig = SSH2_ALLOC(session, siglen);
         if(sig) {
             ret = BCryptSignHash(rsa->hKey, &paddingInfo,
                                  data, datalen, sig, siglen,
@@ -1588,7 +1588,7 @@ static int wincng_rsa_sha_sign(LIBSSH2_SESSION *session,
                 *signature = sig;
             }
             else {
-                LIBSSH2_FREE(session, sig);
+                SSH2_FREE(session, sig);
             }
         }
         else
@@ -2192,7 +2192,7 @@ static int wincng_uncompressed_point_from_publickey(
         &ecc_blob_len,
         0);
     if(BCRYPT_SUCCESS(status) && ecc_blob_len > 0) {
-        ecc_blob = LIBSSH2_ALLOC(session, ecc_blob_len);
+        ecc_blob = SSH2_ALLOC(session, ecc_blob_len);
         if(!ecc_blob) {
             result = LIBSSH2_ERROR_ALLOC;
             goto cleanup;
@@ -2227,7 +2227,7 @@ static int wincng_uncompressed_point_from_publickey(
      */
 
     *encoded_point_len = (size_t)ecc_blob->cbKey * 2 + 1;
-    *encoded_point = LIBSSH2_ALLOC(session, *encoded_point_len);
+    *encoded_point = SSH2_ALLOC(session, *encoded_point_len);
     if(!*encoded_point) {
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
@@ -2239,7 +2239,7 @@ static int wincng_uncompressed_point_from_publickey(
 
 cleanup:
     if(ecc_blob) {
-        LIBSSH2_FREE(session, ecc_blob);
+        SSH2_FREE(session, ecc_blob);
     }
 
     return result;
@@ -2708,7 +2708,7 @@ cleanup:
     }
 
     if(data) {
-        LIBSSH2_FREE(session, data);
+        SSH2_FREE(session, data);
     }
 
     return result;
@@ -3010,7 +3010,7 @@ int _libssh2_wincng_ecdsa_sign(IN LIBSSH2_SESSION *session,
         cng_signature_len / 2 + 5 + /* mpint(r) */
         cng_signature_len / 2 + 5;  /* mpint(s) */
 
-    *signature = LIBSSH2_ALLOC(session, signature_maxlen);
+    *signature = SSH2_ALLOC(session, signature_maxlen);
     signature_ptr = *signature;
 
     if(_libssh2_store_bignum2_bytes(&signature_ptr,
@@ -3030,7 +3030,7 @@ int _libssh2_wincng_ecdsa_sign(IN LIBSSH2_SESSION *session,
 
 cleanup:
     if(result != LIBSSH2_ERROR_NONE && *signature) {
-        LIBSSH2_FREE(session, *signature);
+        SSH2_FREE(session, *signature);
         *signature = NULL;
         *signature_len = 0;
     }
@@ -3103,7 +3103,7 @@ static int wincng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
 
     if(length == 9) { /* private RSA key */
         mthlen = 7;
-        mth = LIBSSH2_ALLOC(session, mthlen);
+        mth = SSH2_ALLOC(session, mthlen);
         if(mth) {
             memcpy(mth, "ssh-rsa", mthlen);
         }
@@ -3112,7 +3112,7 @@ static int wincng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
         }
 
         keylen = 4 + mthlen + 4 + rcbDecoded[2] + 4 + rcbDecoded[1];
-        key = LIBSSH2_ALLOC(session, keylen);
+        key = SSH2_ALLOC(session, keylen);
         if(key) {
             offset = wincng_pub_priv_write(key, 0, mth, mthlen);
 
@@ -3130,7 +3130,7 @@ static int wincng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
     }
     else if(length == 6) { /* private DSA key */
         mthlen = 7;
-        mth = LIBSSH2_ALLOC(session, mthlen);
+        mth = SSH2_ALLOC(session, mthlen);
         if(mth) {
             memcpy(mth, "ssh-dss", mthlen);
         }
@@ -3140,7 +3140,7 @@ static int wincng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
 
         keylen = 4 + mthlen + 4 + rcbDecoded[1] + 4 + rcbDecoded[2]
                             + 4 + rcbDecoded[3] + 4 + rcbDecoded[4];
-        key = LIBSSH2_ALLOC(session, keylen);
+        key = SSH2_ALLOC(session, keylen);
         if(key) {
             offset = wincng_pub_priv_write(key, 0, mth, mthlen);
 
@@ -3179,9 +3179,9 @@ static int wincng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
 
     if(ret) {
         if(mth)
-            LIBSSH2_FREE(session, mth);
+            SSH2_FREE(session, mth);
         if(key)
-            LIBSSH2_FREE(session, key);
+            SSH2_FREE(session, key);
     }
     else {
         *method = mth;

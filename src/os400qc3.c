@@ -1397,7 +1397,7 @@ static int pbkdf1(LIBSSH2_SESSION *session, char **dk,
         return -1;
 
     /* Allocate the derived key buffer. */
-    *dk = LIBSSH2_ALLOC(session, pkcs5->hashlen);
+    *dk = SSH2_ALLOC(session, pkcs5->hashlen);
     if(!*dk)
         return -1;
 
@@ -1425,7 +1425,7 @@ static int pbkdf1(LIBSSH2_SESSION *session, char **dk,
     }
 
     if(errcode.Bytes_Available) {
-        LIBSSH2_FREE(session, *dk);
+        SSH2_FREE(session, *dk);
         *dk = NULL;
         return -1;
     }
@@ -1469,7 +1469,7 @@ static int pbkdf2(LIBSSH2_SESSION *session, char **dk,
 
     /* Allocate the derived key buffer. */
     l = t;
-    buf = LIBSSH2_ALLOC(session, l * pkcs5->hashlen);
+    buf = SSH2_ALLOC(session, l * pkcs5->hashlen);
     if(!buf)
         return -1;
     *dk = buf;
@@ -1480,7 +1480,7 @@ static int pbkdf2(LIBSSH2_SESSION *session, char **dk,
         if(!_libssh2_hmac_update(&hctx, pkcs5->salt, pkcs5->saltlen) ||
            !_libssh2_hmac_update(&hctx, &ni, sizeof(ni)) ||
            !_libssh2_hmac_final(&hctx, mac)) {
-            LIBSSH2_FREE(session, buf);
+            SSH2_FREE(session, buf);
             *dk = NULL;
             _libssh2_os400qc3_crypto_dtor(&hctx);
             return -1;
@@ -1489,7 +1489,7 @@ static int pbkdf2(LIBSSH2_SESSION *session, char **dk,
         for(j = 1; j < pkcs5->itercount; j++) {
             if(!_libssh2_hmac_update(&hctx, mac, pkcs5->hashlen) ||
                !_libssh2_hmac_final(&hctx, mac)) {
-                LIBSSH2_FREE(session, buf);
+                SSH2_FREE(session, buf);
                 *dk = NULL;
                 _libssh2_os400qc3_crypto_dtor(&hctx);
                 return -1;
@@ -1791,7 +1791,7 @@ static int pkcs8kek(LIBSSH2_SESSION *session, struct os400qc3_crypto_ctx **ctx,
     /* Create the key and algorithm context tokens. */
     *ctx = init_crypto_ctx(NULL);
     if(!*ctx) {
-        LIBSSH2_FREE(session, dk);
+        SSH2_FREE(session, dk);
         return -1;
     }
     init_crypto_ctx(*ctx);
@@ -1799,7 +1799,7 @@ static int pkcs8kek(LIBSSH2_SESSION *session, struct os400qc3_crypto_ctx **ctx,
     Qc3CreateKeyContext(dk, &pkcs5.dklen, binstring, &algd.Block_Cipher_Alg,
                         qc3clear, NULL, NULL, (*ctx)->key.Key_Context_Token,
                         (char *)&errcode);
-    LIBSSH2_FREE(session, dk);
+    SSH2_FREE(session, dk);
     if(errcode.Bytes_Available) {
         free((char *)*ctx);
         *ctx = NULL;
@@ -1884,7 +1884,7 @@ static int sshrsapubkey(LIBSSH2_SESSION *session, char **sshpubkey,
        *e.header != ASN1_INTEGER)
         return -1;
     len = 4 + methlen + 4 + (e.end - e.beg) + 4 + (m.end - m.beg);
-    cp = LIBSSH2_ALLOC(session, len);
+    cp = SSH2_ALLOC(session, len);
     if(!cp)
         return -1;
     *sshpubkey = cp;
@@ -1988,7 +1988,7 @@ static int pkcs1topkcs8(LIBSSH2_SESSION *session,
     }
     if(!pkcs8)
         return -1;
-    data = (unsigned char *)LIBSSH2_ALLOC(session, pkcs8->end - pkcs8->header);
+    data = (unsigned char *)SSH2_ALLOC(session, pkcs8->end - pkcs8->header);
     if(!data) {
         asn1delete(pkcs8);
         return -1;
@@ -2011,7 +2011,7 @@ static int rsapkcs1privkey(LIBSSH2_SESSION *session,
     if(pkcs1topkcs8(session, &data8, &datalen8, data, datalen))
         return -1;
     ret = rsapkcs8privkey(session, data8, datalen8, passphrase, loadkeydata);
-    LIBSSH2_FREE(session, (char *)data8);
+    SSH2_FREE(session, (char *)data8);
     return ret;
 }
 
@@ -2026,7 +2026,7 @@ static int rsapkcs1pubkey(LIBSSH2_SESSION *session,
     if(pkcs1topkcs8(session, &data8, &datalen8, data, datalen))
         return -1;
     ret = rsapkcs8pubkey(session, data8, datalen8, passphrase, loadkeydata);
-    LIBSSH2_FREE(session, (char *)data8);
+    SSH2_FREE(session, (char *)data8);
     return ret;
 }
 
@@ -2053,7 +2053,7 @@ static int try_pem_load(LIBSSH2_SESSION *session, FILE *fp,
         }
 
         if(data) {
-            LIBSSH2_FREE(session, data);
+            SSH2_FREE(session, data);
             data = NULL;
         }
         c = getc(fp);
@@ -2169,7 +2169,7 @@ int _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                                 rsapkcs1pubkey, rsapkcs8pubkey, (void *)&p);
     if(!ret) {
         *method_len = strlen(p.method);
-        *method = LIBSSH2_ALLOC(session, *method_len);
+        *method = SSH2_ALLOC(session, *method_len);
         if(*method)
             memcpy((char *)*method, p.method, *method_len);
         else
@@ -2178,9 +2178,9 @@ int _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
 
     if(ret) {
         if(*method)
-            LIBSSH2_FREE(session, *method);
+            SSH2_FREE(session, *method);
         if(p.data)
-            LIBSSH2_FREE(session, (void *)p.data);
+            SSH2_FREE(session, (void *)p.data);
         *method = NULL;
         *method_len = 0;
     }
@@ -2254,7 +2254,7 @@ int _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
     }
 
     if(data)
-        LIBSSH2_FREE(session, data);
+        SSH2_FREE(session, data);
 
     if(ret) {
         _libssh2_os400qc3_crypto_dtor(ctx);
@@ -2333,11 +2333,11 @@ int _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     }
 
     if(data)
-        LIBSSH2_FREE(session, data);
+        SSH2_FREE(session, data);
 
     if(!ret) {
         *method_len = strlen(p.method);
-        *method = LIBSSH2_ALLOC(session, *method_len);
+        *method = SSH2_ALLOC(session, *method_len);
         if(*method)
             memcpy((char *)*method, p.method, *method_len);
         else
@@ -2345,9 +2345,9 @@ int _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     }
     if(ret) {
         if(*method)
-            LIBSSH2_FREE(session, *method);
+            SSH2_FREE(session, *method);
         if(p.data)
-            LIBSSH2_FREE(session, (void *)p.data);
+            SSH2_FREE(session, (void *)p.data);
         *method = NULL;
         *method_len = 0;
     }
@@ -2447,7 +2447,7 @@ int _libssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session,
                           (char *)&errcode);
     if(errcode.Bytes_Available)
         return -1;
-    sig = LIBSSH2_ALLOC(session, siglen);
+    sig = SSH2_ALLOC(session, siglen);
     if(!sig)
         return -1;
     memcpy((char *)sig, sigbuf, siglen);
