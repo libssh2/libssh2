@@ -4982,13 +4982,14 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
 
     if(!pk) {
         /* Try OpenSSH format */
-        st = pub_priv_openssh_keyfilememory(session, NULL, NULL,
-                                                     method,
-                                                     method_len,
-                                                     pubkeydata,
-                                                     pubkeydata_len,
-                                                     privatekeydata,
-                                                     privatekeydata_len,
+        st = pub_priv_openssh_keyfilememory(session,
+                                            NULL, NULL,
+                                            method,
+                                            method_len,
+                                            pubkeydata,
+                                            pubkeydata_len,
+                                            privatekeydata,
+                                            privatekeydata_len,
                                             (const unsigned char *)passphrase);
         if(st == 0)
             return 0;
