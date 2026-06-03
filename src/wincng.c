@@ -3487,7 +3487,7 @@ void ssh2_wincng_cipher_dtor(libssh2_cipher_ctx *ctx)
  * Windows CNG backend: Diffie-Hellman support.
  */
 
-void wincng_dh_init(struct wincng_dh_ctx *dhctx)
+void wcng_dh_init(struct wcng_dh_ctx *dhctx)
 {
     /* Random from client */
     dhctx->dh_handle = NULL;
@@ -3495,7 +3495,7 @@ void wincng_dh_init(struct wincng_dh_ctx *dhctx)
     dhctx->dh_privbn = NULL;
 }
 
-void wincng_dh_dtor(struct wincng_dh_ctx *dhctx)
+void wcng_dh_dtor(struct wcng_dh_ctx *dhctx)
 {
     if(dhctx->dh_handle) {
         BCryptDestroyKey(dhctx->dh_handle);
@@ -3523,8 +3523,8 @@ static int wincng_round_down(int number, int multiple)
  * private key is stored as opaque in the Diffie-Hellman context `*dhctx' and
  * the public key is returned in `public'.  0 is returned upon success, else
  * -1.  */
-int wincng_dh_key_pair(struct wincng_dh_ctx *dhctx, libssh2_bn *public,
-                       libssh2_bn *g, libssh2_bn *p, int group_order)
+int wcng_dh_key_pair(struct wcng_dh_ctx *dhctx, libssh2_bn *public,
+                     libssh2_bn *g, libssh2_bn *p, int group_order)
 {
     const int hasAlgDHwithKDF = wincng_ctx.hasAlgDHwithKDF;
 
@@ -3581,7 +3581,7 @@ int wincng_dh_key_pair(struct wincng_dh_ctx *dhctx, libssh2_bn *public,
             /* Pass ownership to dhctx; these parameters are freed when
              * the context is destroyed. We need to keep the parameters more
              * easily available so that we have access to the `g` value when
-             * wincng_dh_secret() is called later. */
+             * wcng_dh_secret() is called later. */
             dhctx->dh_params = dh_params;
         }
         dh_params = NULL;
@@ -3683,8 +3683,8 @@ int wincng_dh_key_pair(struct wincng_dh_ctx *dhctx, libssh2_bn *public,
             if(!(dhctx->dh_privbn->bignum[dhctx->dh_privbn->length - 1] % 2)) {
                 wincng_safe_free(dh_key_blob, key_length_bytes);
                 /* discard everything first, then try again */
-                wincng_dh_dtor(dhctx);
-                wincng_dh_init(dhctx);
+                wcng_dh_dtor(dhctx);
+                wcng_dh_init(dhctx);
                 continue;
             }
         }
@@ -3710,8 +3710,8 @@ int wincng_dh_key_pair(struct wincng_dh_ctx *dhctx, libssh2_bn *public,
  * `*dhctx', the public key `f' from the other party and the same prime `p'
  * used at context creation. The result is stored in `secret'.  0 is returned
  * upon success, else -1.  */
-int wincng_dh_secret(struct wincng_dh_ctx *dhctx, libssh2_bn *secret,
-                     libssh2_bn *f, libssh2_bn *p)
+int wcng_dh_secret(struct wcng_dh_ctx *dhctx, libssh2_bn *secret,
+                   libssh2_bn *f, libssh2_bn *p)
 {
     if(wincng_ctx.hAlgDH && wincng_ctx.hasAlgDHwithKDF != -1 &&
        dhctx->dh_handle && dhctx->dh_params && f) {
