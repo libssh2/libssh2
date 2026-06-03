@@ -1024,7 +1024,7 @@ static int knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
             break;
         }
         /* otherwise fallback to default and error */
-        LIBSSH2_FALLTHROUGH();
+        SSH2_FALLTHROUGH();
     default:
         return ssh2_err(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                         "Unsupported type of known-host entry");

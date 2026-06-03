@@ -947,7 +947,7 @@ ssh2_packet_add_jump_point5:
             /* streamid(4) */
             data_head += 4;
 
-            LIBSSH2_FALLTHROUGH();
+            SSH2_FALLTHROUGH();
 
             /*
               byte      SSH_MSG_CHANNEL_DATA
