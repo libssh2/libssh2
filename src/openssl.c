@@ -4758,7 +4758,7 @@ static int pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
                                                               method_len,
                                                               pubkeydata,
                                                               pubkeydata_len,
-                                             (ssh2_ed25519_ctx **)key_ctx);
+                                                 (ssh2_ed25519_ctx **)key_ctx);
         }
     }
 
@@ -4773,7 +4773,7 @@ static int pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
                                                                 pubkeydata_len,
                                                                  NULL, NULL,
                                                                  NULL, NULL,
-                                              (ssh2_ed25519_ctx **)key_ctx);
+                                                 (ssh2_ed25519_ctx **)key_ctx);
         }
     }
 #endif
@@ -4784,7 +4784,7 @@ static int pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
                                                           method, method_len,
                                                           pubkeydata,
                                                           pubkeydata_len,
-                                                  (ssh2_rsa_ctx **)key_ctx);
+                                                     (ssh2_rsa_ctx **)key_ctx);
         }
     }
 #endif
@@ -4795,7 +4795,7 @@ static int pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
                                                           method, method_len,
                                                           pubkeydata,
                                                           pubkeydata_len,
-                                                  (ssh2_dsa_ctx **)key_ctx);
+                                                     (ssh2_dsa_ctx **)key_ctx);
         }
     }
 #endif
@@ -4813,7 +4813,7 @@ static int pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
                                                                pubkeydata_len,
                                                                NULL, NULL,
                                                                NULL, NULL,
-                                                (ssh2_ecdsa_ctx **)key_ctx);
+                                                   (ssh2_ecdsa_ctx **)key_ctx);
         }
         else if(ssh2_ecdsa_curve_type_from_name((const char *)buf, &type)
                 == 0) {
@@ -4824,7 +4824,7 @@ static int pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
                                                                 method_len,
                                                                 pubkeydata,
                                                                 pubkeydata_len,
-                                                (ssh2_ecdsa_ctx **)key_ctx);
+                                                   (ssh2_ecdsa_ctx **)key_ctx);
             }
         }
     }
@@ -4914,7 +4914,7 @@ static int sk_pub_openssh_keyfilememory(LIBSSH2_SESSION *session,
                                                                  application,
                                                                  key_handle,
                                                                  handle_len,
-                                              (ssh2_ed25519_ctx **)key_ctx);
+                                                 (ssh2_ed25519_ctx **)key_ctx);
         }
     }
 #endif
@@ -4929,7 +4929,7 @@ static int sk_pub_openssh_keyfilememory(LIBSSH2_SESSION *session,
                                                            application,
                                                            key_handle,
                                                            handle_len,
-                                                (ssh2_ecdsa_ctx **)key_ctx);
+                                                   (ssh2_ecdsa_ctx **)key_ctx);
     }
 #endif
 
