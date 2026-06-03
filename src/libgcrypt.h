@@ -216,18 +216,18 @@
 #define LIBSSH2_DH_MAX_MODULUS_BITS 16384
 
 #define ssh2_dh_ctx struct gcry_mpi *
-#define ssh2_dh_init(dhctx) lgcr_dh_init(dhctx)
+#define ssh2_dh_init(dhctx) ssh2_lgcr_dh_init(dhctx)
 #define ssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
-    lgcr_dh_key_pair(dhctx, public, g, p, group_order)
+    ssh2_lgcr_dh_key_pair(dhctx, public, g, p, group_order)
 #define ssh2_dh_secret(dhctx, secret, f, p, bnctx) \
-    lgcr_dh_secret(dhctx, secret, f, p)
-#define ssh2_dh_dtor(dhctx) lgcr_dh_dtor(dhctx)
-void lgcr_dh_init(ssh2_dh_ctx *dhctx);
-int lgcr_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
-                     libssh2_bn *g, libssh2_bn *p,
-                     int group_order);
-int lgcr_dh_secret(ssh2_dh_ctx *dhctx, libssh2_bn *secret,
-                   libssh2_bn *f, libssh2_bn *p);
-void lgcr_dh_dtor(ssh2_dh_ctx *dhctx);
+    ssh2_lgcr_dh_secret(dhctx, secret, f, p)
+#define ssh2_dh_dtor(dhctx) ssh2_lgcr_dh_dtor(dhctx)
+void ssh2_lgcr_dh_init(ssh2_dh_ctx *dhctx);
+int ssh2_lgcr_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
+                          libssh2_bn *g, libssh2_bn *p,
+                          int group_order);
+int ssh2_lgcr_dh_secret(ssh2_dh_ctx *dhctx, libssh2_bn *secret,
+                        libssh2_bn *f, libssh2_bn *p);
+void ssh2_lgcr_dh_dtor(ssh2_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_LIBGCRYPT_H */

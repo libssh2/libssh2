@@ -857,13 +857,13 @@ int ssh2_mbedtls_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
  * mbedTLS backend: Diffie-Hellman functions
  */
 
-void mbed_dh_init(ssh2_dh_ctx *dhctx)
+void ssh2_mbed_dh_init(ssh2_dh_ctx *dhctx)
 {
     *dhctx = ssh2_mbedtls_bignum_init(); /* Random from client */
 }
 
-int mbed_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
-                     libssh2_bn *g, libssh2_bn *p, int group_order)
+int ssh2_mbed_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
+                          libssh2_bn *g, libssh2_bn *p, int group_order)
 {
     /* Generate x and e */
     mbed_bignum_random(*dhctx, group_order * 8 - 1, 0, -1);
@@ -871,15 +871,15 @@ int mbed_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
     return 0;
 }
 
-int mbed_dh_secret(ssh2_dh_ctx *dhctx, libssh2_bn *secret,
-                   libssh2_bn *f, libssh2_bn *p)
+int ssh2_mbed_dh_secret(ssh2_dh_ctx *dhctx, libssh2_bn *secret,
+                        libssh2_bn *f, libssh2_bn *p)
 {
     /* Compute the shared secret */
     mbedtls_mpi_exp_mod(secret, f, *dhctx, p, NULL);
     return 0;
 }
 
-void mbed_dh_dtor(ssh2_dh_ctx *dhctx)
+void ssh2_mbed_dh_dtor(ssh2_dh_ctx *dhctx)
 {
     ssh2_mbedtls_bignum_free(*dhctx);
     *dhctx = NULL;

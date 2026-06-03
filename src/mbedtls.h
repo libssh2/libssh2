@@ -405,12 +405,12 @@ typedef enum {
 #define LIBSSH2_DH_MAX_MODULUS_BITS 16384
 
 #define ssh2_dh_ctx mbedtls_mpi *
-#define ssh2_dh_init(dhctx) ossl_dh_init(dhctx)
+#define ssh2_dh_init(dhctx) ssh2_mbed_dh_init(dhctx)
 #define ssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
-    ossl_dh_key_pair(dhctx, public, g, p, group_order)
+    ssh2_mbed_dh_key_pair(dhctx, public, g, p, group_order)
 #define ssh2_dh_secret(dhctx, secret, f, p, bnctx) \
-    ossl_dh_secret(dhctx, secret, f, p)
-#define ssh2_dh_dtor(dhctx) ossl_dh_dtor(dhctx)
+    ssh2_mbed_dh_secret(dhctx, secret, f, p)
+#define ssh2_dh_dtor(dhctx) ssh2_mbed_dh_dtor(dhctx)
 
 /*******************************************************************/
 /*
@@ -447,11 +447,11 @@ int ssh2_mbedtls_ecdsa_curve_type_from_name(const char *name,
 void ssh2_mbedtls_ecdsa_free(libssh2_ecdsa_ctx *ctx);
 #endif /* LIBSSH2_ECDSA */
 
-void mbed_dh_init(ssh2_dh_ctx *dhctx);
-int mbed_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
-                     libssh2_bn *g, libssh2_bn *p, int group_order);
-int mbed_dh_secret(ssh2_dh_ctx *dhctx, libssh2_bn *secret,
-                   libssh2_bn *f, libssh2_bn *p);
-void mbed_dh_dtor(ssh2_dh_ctx *dhctx);
+void ssh2_mbed_dh_init(ssh2_dh_ctx *dhctx);
+int ssh2_mbed_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
+                          libssh2_bn *g, libssh2_bn *p, int group_order);
+int ssh2_mbed_dh_secret(ssh2_dh_ctx *dhctx, libssh2_bn *secret,
+                        libssh2_bn *f, libssh2_bn *p);
+void ssh2_mbed_dh_dtor(ssh2_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_MBEDTLS_H */

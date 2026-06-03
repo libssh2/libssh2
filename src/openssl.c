@@ -5101,14 +5101,14 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
     return st;
 }
 
-void ossl_dh_init(ssh2_dh_ctx *dhctx)
+void ssh2_ossl_dh_init(ssh2_dh_ctx *dhctx)
 {
     *dhctx = BN_new(); /* Random from client */
 }
 
-int ossl_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
-                     libssh2_bn *g, libssh2_bn *p, int group_order,
-                     libssh2_bn_ctx *bnctx)
+int ssh2_ossl_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
+                          libssh2_bn *g, libssh2_bn *p, int group_order,
+                          libssh2_bn_ctx *bnctx)
 {
     /* Generate x and e */
     BN_rand(*dhctx, group_order * 8 - 1, 0, -1);
@@ -5116,16 +5116,16 @@ int ossl_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
     return 0;
 }
 
-int ossl_dh_secret(ssh2_dh_ctx *dhctx, libssh2_bn *secret,
-                   libssh2_bn *f, libssh2_bn *p,
-                   libssh2_bn_ctx *bnctx)
+int ssh2_ossl_dh_secret(ssh2_dh_ctx *dhctx, libssh2_bn *secret,
+                        libssh2_bn *f, libssh2_bn *p,
+                        libssh2_bn_ctx *bnctx)
 {
     /* Compute the shared secret */
     BN_mod_exp(secret, f, *dhctx, p, bnctx);
     return 0;
 }
 
-void ossl_dh_dtor(ssh2_dh_ctx *dhctx)
+void ssh2_ossl_dh_dtor(ssh2_dh_ctx *dhctx)
 {
     BN_clear_free(*dhctx);
     *dhctx = NULL;

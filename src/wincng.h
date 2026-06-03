@@ -472,7 +472,7 @@ struct libssh2_wincng_bignum {
 
 #define LIBSSH2_DH_MAX_MODULUS_BITS 16384
 
-struct wcng_dh_ctx {
+struct ssh2_wcng_dh_ctx {
     /* holds our private and public key components */
     BCRYPT_KEY_HANDLE dh_handle;
     /* records the parsed out modulus and generator
@@ -483,14 +483,14 @@ struct wcng_dh_ctx {
     struct libssh2_wincng_bignum *dh_privbn;
 };
 
-#define ssh2_dh_ctx struct wcng_dh_ctx
+#define ssh2_dh_ctx struct ssh2_wcng_dh_ctx
 
-#define ssh2_dh_init(dhctx) wcng_dh_init(dhctx)
+#define ssh2_dh_init(dhctx) ssh2_wcng_dh_init(dhctx)
 #define ssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
-    wcng_dh_key_pair(dhctx, public, g, p, group_order)
+    ssh2_wcng_dh_key_pair(dhctx, public, g, p, group_order)
 #define ssh2_dh_secret(dhctx, secret, f, p, bnctx) \
-    wcng_dh_secret(dhctx, secret, f, p)
-#define ssh2_dh_dtor(dhctx) wcng_dh_dtor(dhctx)
+    ssh2_wcng_dh_secret(dhctx, secret, f, p)
+#define ssh2_dh_dtor(dhctx) ssh2_wcng_dh_dtor(dhctx)
 
 /*******************************************************************/
 /*
@@ -526,11 +526,11 @@ int ssh2_wincng_bignum_from_bin(libssh2_bn *bn, ULONG len,
                                 const unsigned char *bin);
 int ssh2_wincng_bignum_to_bin(const libssh2_bn *bn, unsigned char *bin);
 void ssh2_wincng_bignum_free(libssh2_bn *bn);
-void wcng_dh_init(struct wcng_dh_ctx *dhctx);
-int wcng_dh_key_pair(struct wcng_dh_ctx *dhctx, libssh2_bn *public,
-                     libssh2_bn *g, libssh2_bn *p, int group_order);
-int wcng_dh_secret(struct wcng_dh_ctx *dhctx, libssh2_bn *secret,
-                   libssh2_bn *f, libssh2_bn *p);
-void wcng_dh_dtor(struct wcng_dh_ctx *dhctx);
+void ssh2_wcng_dh_init(ssh2_dh_ctx *dhctx);
+int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
+                          libssh2_bn *g, libssh2_bn *p, int group_order);
+int ssh2_wcng_dh_secret(ssh2_dh_ctx *dhctx, libssh2_bn *secret,
+                        libssh2_bn *f, libssh2_bn *p);
+void ssh2_wcng_dh_dtor(ssh2_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_WINCNG_H */
