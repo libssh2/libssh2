@@ -3512,10 +3512,8 @@ static int kexinit(LIBSSH2_SESSION *session)
                                            ssh2_comp_methods(session));
         comp_sc_len = KEX_METHOD_PREFS_LEN(session->remote.comp_prefs,
                                            ssh2_comp_methods(session));
-        lang_cs_len =
-            KEX_METHOD_PREFS_LEN(session->local.lang_prefs, NULL);
-        lang_sc_len =
-            KEX_METHOD_PREFS_LEN(session->remote.lang_prefs, NULL);
+        lang_cs_len = KEX_METHOD_PREFS_LEN(session->local.lang_prefs, NULL);
+        lang_sc_len = KEX_METHOD_PREFS_LEN(session->remote.lang_prefs, NULL);
 
         data_len += kex_len + hostkey_len + crypt_cs_len + crypt_sc_len +
                     comp_cs_len + comp_sc_len + mac_cs_len + mac_sc_len +

@@ -1656,10 +1656,8 @@ int ssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid)
     channel->remote.window_size -= (uint32_t)channel->flush_flush_bytes;
 
     if(channel->flush_refund_bytes) {
-        int rc =
-            ssh2_channel_receive_window_adjust(channel,
-                                         (uint32_t)channel->flush_refund_bytes,
-                                         1, NULL);
+        int rc = ssh2_channel_receive_window_adjust(channel,
+            (uint32_t)channel->flush_refund_bytes, 1, NULL);
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return rc;
     }
