@@ -3554,10 +3554,8 @@ static int kexinit(LIBSSH2_SESSION *session)
                              ssh2_comp_methods(session));
         KEX_METHOD_PREFS_STR(s, comp_sc_len, session->remote.comp_prefs,
                              ssh2_comp_methods(session));
-        KEX_METHOD_PREFS_STR(s, lang_cs_len, session->local.lang_prefs,
-                             NULL);
-        KEX_METHOD_PREFS_STR(s, lang_sc_len, session->remote.lang_prefs,
-                             NULL);
+        KEX_METHOD_PREFS_STR(s, lang_cs_len, session->local.lang_prefs, NULL);
+        KEX_METHOD_PREFS_STR(s, lang_sc_len, session->remote.lang_prefs, NULL);
 
         /* No optimistic KEX packet follows */
         /* Deal with optimistic packets
