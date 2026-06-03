@@ -96,7 +96,7 @@
 
 /* This is the maximum packet length to accept, as larger than this indicate
    some kind of server problem. */
-#define LIBSSH2_SFTP_PACKET_MAXLEN  (256 * 1024)
+#define SFTP_PACKET_MAXLEN  (256 * 1024)
 
 static int sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
                            uint32_t request_id, unsigned char **data,
@@ -315,7 +315,7 @@ static int sftp_packet_read(LIBSSH2_SFTP *sftp)
 
             /* make sure we do not proceed if the packet size is unreasonably
                large */
-            if(sftp->partial_len > LIBSSH2_SFTP_PACKET_MAXLEN &&
+            if(sftp->partial_len > SFTP_PACKET_MAXLEN &&
                /* exception: response to SSH_FXP_READDIR request */
                !(sftp->readdir_state != ssh2_NB_state_idle &&
                  sftp->readdir_request_id == request_id &&
