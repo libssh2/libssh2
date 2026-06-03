@@ -340,7 +340,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
             goto out;
         }
 
-        if(method->flags & LIBSSH2_CRYPT_FLAG_REQUIRES_FULL_PACKET) {
+        if(method->flags & SSH2_CRYPT_FLAG_REQUIRES_FULL_PACKET) {
             if(method->crypt(session, 0, *data, *datalen, &abstract, 0)) {
                 ret = LIBSSH2_ERROR_DECRYPT;
                 ssh2_explicit_zero((char *)secret, sizeof(secret));
@@ -617,7 +617,7 @@ static int ssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
             goto out;
         }
 
-        if(method->flags & LIBSSH2_CRYPT_FLAG_REQUIRES_FULL_PACKET) {
+        if(method->flags & SSH2_CRYPT_FLAG_REQUIRES_FULL_PACKET) {
             if(method->crypt(session, 0, decrypted.data,
                              decrypted.len,
                              &abstract,

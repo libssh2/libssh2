@@ -143,7 +143,7 @@ static const struct crypt_method crypt_method_aes256_gcm = {
     12,                         /* initial value length */
     32,                         /* secret length -- 32*8 == 256bit */
     16,                         /* length of the authentication tag */
-    LIBSSH2_CRYPT_FLAG_INTEGRATED_MAC | LIBSSH2_CRYPT_FLAG_PKTLEN_AAD,
+    SSH2_CRYPT_FLAG_INTEGRATED_MAC | SSH2_CRYPT_FLAG_PKTLEN_AAD,
     &crypt_init,
     NULL,
     &crypt_encrypt,
@@ -158,7 +158,7 @@ static const struct crypt_method crypt_method_aes128_gcm = {
     12,                         /* initial value length */
     16,                         /* secret length -- 16*8 == 128bit */
     16,                         /* length of the authentication tag */
-    LIBSSH2_CRYPT_FLAG_INTEGRATED_MAC | LIBSSH2_CRYPT_FLAG_PKTLEN_AAD,
+    SSH2_CRYPT_FLAG_INTEGRATED_MAC | SSH2_CRYPT_FLAG_PKTLEN_AAD,
     &crypt_init,
     NULL,
     &crypt_encrypt,
@@ -482,7 +482,7 @@ static const struct crypt_method crypt_method_chacha20_poly1305_openssh = {
     0,                                          /* initial value length */
     64,                                         /* secret length */
     16,                                         /* length of the auth_tag */
-    LIBSSH2_CRYPT_FLAG_REQUIRES_FULL_PACKET,    /* flags */
+    SSH2_CRYPT_FLAG_REQUIRES_FULL_PACKET,       /* flags */
     &crypt_init_chacha20_poly,
     &crypt_get_length_chacha20_poly,
     &crypt_encrypt_chacha20_poly_buffer,
