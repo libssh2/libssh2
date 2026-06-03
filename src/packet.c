@@ -125,9 +125,9 @@ static SSH2_INLINE int packet_queue_listener(
 
         ssh2_deb((session, LIBSSH2_TRACE_CONN,
                   "Remote received connection from %.*s:%u to %.*s:%u",
-                  listen_state->shost_len, listen_state->shost,
+                  (int)listen_state->shost_len, listen_state->shost,
                   listen_state->sport,
-                  listen_state->host_len, listen_state->host,
+                  (int)listen_state->host_len, listen_state->host,
                   listen_state->port));
 
         listen_state->state = ssh2_NB_state_allocated;
