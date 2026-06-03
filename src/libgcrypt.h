@@ -190,8 +190,8 @@
 
 #define ssh2_cipher_dtor(ctx) gcry_cipher_close(*(ctx))
 
-#define libssh2_bn struct gcry_mpi
-#define libssh2_bn_ctx int
+#define ssh2_bn struct gcry_mpi
+#define ssh2_bn_ctx int
 #define ssh2_bn_ctx_new() 0
 #define ssh2_bn_ctx_free(bnctx) ((void)0)
 #define ssh2_bn_init() gcry_mpi_new(0)
@@ -223,11 +223,11 @@
     ssh2_lgcr_dh_secret(dhctx, secret, f, p)
 #define ssh2_dh_dtor(dhctx) ssh2_lgcr_dh_dtor(dhctx)
 void ssh2_lgcr_dh_init(ssh2_dh_ctx *dhctx);
-int ssh2_lgcr_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
-                          libssh2_bn *g, libssh2_bn *p,
+int ssh2_lgcr_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
+                          ssh2_bn *g, ssh2_bn *p,
                           int group_order);
-int ssh2_lgcr_dh_secret(ssh2_dh_ctx *dhctx, libssh2_bn *secret,
-                        libssh2_bn *f, libssh2_bn *p);
+int ssh2_lgcr_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
+                        ssh2_bn *f, ssh2_bn *p);
 void ssh2_lgcr_dh_dtor(ssh2_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_LIBGCRYPT_H */

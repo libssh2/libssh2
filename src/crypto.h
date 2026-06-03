@@ -187,7 +187,7 @@ int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
                           size_t *out_public_key_octal_len,
                           libssh2_curve_type curve_type);
 
-int ssh2_ecdh_gen_k(libssh2_bn **k, libssh2_ec_key *private_key,
+int ssh2_ecdh_gen_k(ssh2_bn **k, libssh2_ec_key *private_key,
                     const unsigned char *server_public_key,
                     size_t server_public_key_len);
 
@@ -224,7 +224,7 @@ int ssh2_curve25519_new(LIBSSH2_SESSION *session, uint8_t **out_public_key,
                         uint8_t **out_private_key);
 
 int ssh2_curve25519_gen_k(
-    libssh2_bn **k,
+    ssh2_bn **k,
     uint8_t private_key[LIBSSH2_ED25519_KEY_LEN],
     uint8_t server_public_key[LIBSSH2_ED25519_KEY_LEN]);
 

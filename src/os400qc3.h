@@ -220,7 +220,7 @@ struct os400qc3_bn {  /* Big number. */
     unsigned int length;                    /* Length of bignum (# bytes). */
 };
 
-#define libssh2_bn struct os400qc3_bn
+#define ssh2_bn struct os400qc3_bn
 
 struct os400qc3_cipher {  /* Algorithm description. */
     char *fmt;                              /* Format of Qc3 structure. */
@@ -291,7 +291,7 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
     ssh2_os400qc3_hash_final(&(ctx), out)
 #endif
 
-#define libssh2_bn_ctx         int                 /* Not used. */
+#define ssh2_bn_ctx         int                 /* Not used. */
 
 #define ssh2_bn_ctx_new()        0
 #define ssh2_bn_ctx_free(bnctx)  ((void)0)
@@ -356,12 +356,12 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
  *
  *******************************************************************/
 
-libssh2_bn *ssh2_bn_init(void);
-voidssh2_bn_free(libssh2_bn *bn);
-unsigned long ssh2_bn_bits(libssh2_bn *bn);
-int ssh2_bn_from_bin(libssh2_bn *bn, size_t len, const unsigned char *v);
-int ssh2_bn_set_word(libssh2_bn *bn, unsigned long val);
-int ssh2_bn_to_bin(libssh2_bn *bn, unsigned char *val);
+ssh2_bn *ssh2_bn_init(void);
+voidssh2_bn_free(ssh2_bn *bn);
+unsigned long ssh2_bn_bits(ssh2_bn *bn);
+int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *v);
+int ssh2_bn_set_word(ssh2_bn *bn, unsigned long val);
+int ssh2_bn_to_bin(ssh2_bn *bn, unsigned char *val);
 int ssh2_random(unsigned char *buf, size_t len);
 void ssh2_os400qc3_crypto_dtor(struct os400qc3_crypto_ctx *x);
 int ssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x, unsigned int algo);
@@ -379,12 +379,12 @@ int ssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session, int algo,
                             libssh2_rsa_ctx *ctx);
 void ssh2_os400qc3_dh_init(ssh2_dh_ctx *dhctx);
 int ssh2_os400qc3_dh_key_pair(ssh2_dh_ctx *dhctx,
-                              libssh2_bn *public,
-                              libssh2_bn *g,
-                              libssh2_bn *p, int group_order);
+                              ssh2_bn *public,
+                              ssh2_bn *g,
+                              ssh2_bn *p, int group_order);
 int ssh2_os400qc3_dh_secret(ssh2_dh_ctx *dhctx,
-                            libssh2_bn *secret,
-                            libssh2_bn *f, libssh2_bn *p);
+                            ssh2_bn *secret,
+                            ssh2_bn *f, ssh2_bn *p);
 void ssh2_os400qc3_dh_dtor(ssh2_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_OS400QC3_H */

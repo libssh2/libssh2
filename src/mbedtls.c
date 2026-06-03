@@ -298,11 +298,11 @@ void ssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
  * mbedTLS backend: BigNumber functions
  */
 
-libssh2_bn *ssh2_mbedtls_bignum_init(void)
+ssh2_bn *ssh2_mbedtls_bignum_init(void)
 {
-    libssh2_bn *bignum;
+    ssh2_bn *bignum;
 
-    bignum = (libssh2_bn *)mbedtls_calloc(1, sizeof(libssh2_bn));
+    bignum = (ssh2_bn *)mbedtls_calloc(1, sizeof(ssh2_bn));
     if(bignum) {
         mbedtls_mpi_init(bignum);
     }
@@ -310,7 +310,7 @@ libssh2_bn *ssh2_mbedtls_bignum_init(void)
     return bignum;
 }
 
-void ssh2_mbedtls_bignum_free(libssh2_bn *bn)
+void ssh2_mbedtls_bignum_free(ssh2_bn *bn)
 {
     if(bn) {
         mbedtls_mpi_free(bn);
@@ -318,7 +318,7 @@ void ssh2_mbedtls_bignum_free(libssh2_bn *bn)
     }
 }
 
-static int mbed_bignum_random(libssh2_bn *bn, int bits, int top, int bottom)
+static int mbed_bignum_random(ssh2_bn *bn, int bits, int top, int bottom)
 {
     size_t len;
     int err;
@@ -862,8 +862,8 @@ void ssh2_mbed_dh_init(ssh2_dh_ctx *dhctx)
     *dhctx = ssh2_mbedtls_bignum_init(); /* Random from client */
 }
 
-int ssh2_mbed_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
-                          libssh2_bn *g, libssh2_bn *p, int group_order)
+int ssh2_mbed_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
+                          ssh2_bn *g, ssh2_bn *p, int group_order)
 {
     /* Generate x and e */
     mbed_bignum_random(*dhctx, group_order * 8 - 1, 0, -1);
@@ -871,8 +871,8 @@ int ssh2_mbed_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
     return 0;
 }
 
-int ssh2_mbed_dh_secret(ssh2_dh_ctx *dhctx, libssh2_bn *secret,
-                        libssh2_bn *f, libssh2_bn *p)
+int ssh2_mbed_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
+                        ssh2_bn *f, ssh2_bn *p)
 {
     /* Compute the shared secret */
     mbedtls_mpi_exp_mod(secret, f, *dhctx, p, NULL);
@@ -977,7 +977,7 @@ failed:
  * Computes the shared secret K given a local private key,
  * remote public key and length
  */
-int ssh2_mbedtls_ecdh_gen_k(libssh2_bn **k,
+int ssh2_mbedtls_ecdh_gen_k(ssh2_bn **k,
                             libssh2_ec_key *private_key,
                             const unsigned char *server_public_key,
                             size_t server_public_key_len)

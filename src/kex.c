@@ -621,8 +621,8 @@ static void kex_diffie_hellman_cleanup(
  * @result 0 on success, error code on failure
  */
 static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
-                                   libssh2_bn *g,
-                                   libssh2_bn *p,
+                                   ssh2_bn *g,
+                                   ssh2_bn *p,
                                    int group_order,
                                    int sha_algo_value,
                                    void *exchange_hash_ctx,
@@ -1061,8 +1061,8 @@ clean_exit:
  */
 typedef int (*diffie_hellman_hash_func_t)(
     LIBSSH2_SESSION *session,
-    libssh2_bn *g,
-    libssh2_bn *p,
+    ssh2_bn *g,
+    ssh2_bn *p,
     int group_order,
     int sha_algo_value,
     void *exchange_hash_ctx,

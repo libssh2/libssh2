@@ -146,11 +146,11 @@ static void wincng_memcpy_with_be_padding(unsigned char *dest, ULONG dest_len,
  * Windows CNG backend: BigNumber functions
  */
 
-libssh2_bn *ssh2_wincng_bignum_init(void)
+ssh2_bn *ssh2_wincng_bignum_init(void)
 {
-    libssh2_bn *bignum;
+    ssh2_bn *bignum;
 
-    bignum = (libssh2_bn *)malloc(sizeof(libssh2_bn));
+    bignum = (ssh2_bn *)malloc(sizeof(ssh2_bn));
     if(bignum) {
         bignum->bignum = NULL;
         bignum->length = 0;
@@ -159,7 +159,7 @@ libssh2_bn *ssh2_wincng_bignum_init(void)
     return bignum;
 }
 
-static int wincng_bignum_resize(libssh2_bn *bn, ULONG length)
+static int wincng_bignum_resize(ssh2_bn *bn, ULONG length)
 {
     unsigned char *bignum;
 
@@ -183,7 +183,7 @@ static int wincng_bignum_resize(libssh2_bn *bn, ULONG length)
     return 0;
 }
 
-static int wincng_bignum_rand(libssh2_bn *rnd, int bits, int top, int bottom)
+static int wincng_bignum_rand(ssh2_bn *rnd, int bits, int top, int bottom)
 {
     unsigned char *bignum;
     ULONG length;
@@ -224,10 +224,10 @@ static int wincng_bignum_rand(libssh2_bn *rnd, int bits, int top, int bottom)
     return 0;
 }
 
-static int wincng_bignum_mod_exp(libssh2_bn *r,
-                                 libssh2_bn *a,
-                                 libssh2_bn *p,
-                                 libssh2_bn *m)
+static int wincng_bignum_mod_exp(ssh2_bn *r,
+                                 ssh2_bn *a,
+                                 ssh2_bn *p,
+                                 ssh2_bn *m)
 {
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_RSAKEY_BLOB *rsakey;
@@ -298,7 +298,7 @@ static int wincng_bignum_mod_exp(libssh2_bn *r,
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-int ssh2_wincng_bignum_set_word(libssh2_bn *bn, ULONG word)
+int ssh2_wincng_bignum_set_word(ssh2_bn *bn, ULONG word)
 {
     ULONG offset, number, bits, length;
 
@@ -321,7 +321,7 @@ int ssh2_wincng_bignum_set_word(libssh2_bn *bn, ULONG word)
     return 0;
 }
 
-ULONG ssh2_wincng_bignum_bits(const libssh2_bn *bn)
+ULONG ssh2_wincng_bignum_bits(const ssh2_bn *bn)
 {
     unsigned char number;
     ULONG offset, length, bits;
@@ -343,7 +343,7 @@ ULONG ssh2_wincng_bignum_bits(const libssh2_bn *bn)
     return bits;
 }
 
-int ssh2_wincng_bignum_from_bin(libssh2_bn *bn, ULONG len,
+int ssh2_wincng_bignum_from_bin(ssh2_bn *bn, ULONG len,
                                 const unsigned char *bin)
 {
     unsigned char *bignum;
@@ -379,7 +379,7 @@ int ssh2_wincng_bignum_from_bin(libssh2_bn *bn, ULONG len,
     return 0;
 }
 
-int ssh2_wincng_bignum_to_bin(const libssh2_bn *bn, unsigned char *bin)
+int ssh2_wincng_bignum_to_bin(const ssh2_bn *bn, unsigned char *bin)
 {
     if(bin && bn && bn->bignum && bn->length > 0) {
         memcpy(bin, bn->bignum, bn->length);
@@ -389,7 +389,7 @@ int ssh2_wincng_bignum_to_bin(const libssh2_bn *bn, unsigned char *bin)
     return -1;
 }
 
-void ssh2_wincng_bignum_free(libssh2_bn *bn)
+void ssh2_wincng_bignum_free(ssh2_bn *bn)
 {
     if(bn) {
         if(bn->bignum) {
@@ -397,7 +397,7 @@ void ssh2_wincng_bignum_free(libssh2_bn *bn)
             bn->bignum = NULL;
         }
         bn->length = 0;
-        wincng_safe_free(bn, sizeof(libssh2_bn));
+        wincng_safe_free(bn, sizeof(ssh2_bn));
     }
 }
 
@@ -2403,7 +2403,7 @@ cleanup:
  * Computes the shared secret K given a local private key,
  * remote public key and length
  */
-int ssh2_wincng_ecdh_gen_k(OUT libssh2_bn **secret,
+int ssh2_wincng_ecdh_gen_k(OUT ssh2_bn **secret,
                            IN struct wincng_ecdsa_ctx *privatekey,
                            IN const unsigned char *server_publickey_encoded,
                            IN size_t server_publickey_encoded_len)
@@ -3523,8 +3523,8 @@ static int wincng_round_down(int number, int multiple)
  * private key is stored as opaque in the Diffie-Hellman context `*dhctx' and
  * the public key is returned in `public'.  0 is returned upon success, else
  * -1.  */
-int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
-                          libssh2_bn *g, libssh2_bn *p, int group_order)
+int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
+                          ssh2_bn *g, ssh2_bn *p, int group_order)
 {
     const int hasAlgDHwithKDF = ssh2_wcng_ctx.hasAlgDHwithKDF;
 
@@ -3710,8 +3710,8 @@ int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
  * `*dhctx', the public key `f' from the other party and the same prime `p'
  * used at context creation. The result is stored in `secret'.  0 is returned
  * upon success, else -1.  */
-int ssh2_wcng_dh_secret(ssh2_dh_ctx *dhctx, libssh2_bn *secret,
-                        libssh2_bn *f, libssh2_bn *p)
+int ssh2_wcng_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
+                        ssh2_bn *f, ssh2_bn *p)
 {
     if(ssh2_wcng_ctx.hAlgDH && ssh2_wcng_ctx.hasAlgDHwithKDF != -1 &&
        dhctx->dh_handle && dhctx->dh_params && f) {

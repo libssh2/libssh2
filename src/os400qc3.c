@@ -368,11 +368,11 @@ int ssh2_random(unsigned char *buf, size_t len)
     return errcode.Bytes_Available ? -1 : 0;
 }
 
-libssh2_bn *ssh2_bn_init(void)
+ssh2_bn *ssh2_bn_init(void)
 {
-    libssh2_bn *bignum;
+    ssh2_bn *bignum;
 
-    bignum = (libssh2_bn *)malloc(sizeof(*bignum));
+    bignum = (ssh2_bn *)malloc(sizeof(*bignum));
     if(bignum) {
         bignum->bignum = NULL;
         bignum->length = 0;
@@ -381,7 +381,7 @@ libssh2_bn *ssh2_bn_init(void)
     return bignum;
 }
 
-void ssh2_bn_free(libssh2_bn *bn)
+void ssh2_bn_free(ssh2_bn *bn)
 {
     if(bn) {
         if(bn->bignum) {
@@ -395,7 +395,7 @@ void ssh2_bn_free(libssh2_bn *bn)
     }
 }
 
-static int ssh2_bn_resize(libssh2_bn *bn, size_t newlen)
+static int ssh2_bn_resize(ssh2_bn *bn, size_t newlen)
 {
     unsigned char *bignum;
 
@@ -430,7 +430,7 @@ static int ssh2_bn_resize(libssh2_bn *bn, size_t newlen)
     return 0;
 }
 
-unsigned long ssh2_bn_bits(libssh2_bn *bn)
+unsigned long ssh2_bn_bits(ssh2_bn *bn)
 {
     unsigned int i;
     unsigned char b;
@@ -451,7 +451,7 @@ unsigned long ssh2_bn_bits(libssh2_bn *bn)
     return 0;
 }
 
-int ssh2_bn_from_bin(libssh2_bn *bn, size_t len, const unsigned char *val)
+int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *val)
 {
     size_t i;
 
@@ -470,13 +470,13 @@ int ssh2_bn_from_bin(libssh2_bn *bn, size_t len, const unsigned char *val)
     return 0;
 }
 
-int ssh2_bn_set_word(libssh2_bn *bn, unsigned long val)
+int ssh2_bn_set_word(ssh2_bn *bn, unsigned long val)
 {
     val = htonl(val);
     return ssh2_bn_from_bin(bn, sizeof(val), (unsigned char *)&val);
 }
 
-int ssh2_bn_to_bin(libssh2_bn *bn, unsigned char *val)
+int ssh2_bn_to_bin(ssh2_bn *bn, unsigned char *val)
 {
     int i;
 
@@ -489,7 +489,7 @@ int ssh2_bn_to_bin(libssh2_bn *bn, unsigned char *val)
     return 0;
 }
 
-static int ssh2_bn_from_bn(libssh2_bn *to, libssh2_bn *from)
+static int ssh2_bn_from_bn(ssh2_bn *to, ssh2_bn *from)
 {
     int i;
 
@@ -646,7 +646,7 @@ static void asn1delete(struct asn1Element *e)
     }
 }
 
-static struct asn1Element *asn1uint(libssh2_bn *bn)
+static struct asn1Element *asn1uint(ssh2_bn *bn)
 {
     struct asn1Element *e;
     int bits;
@@ -718,7 +718,7 @@ static struct asn1Element *asn1bytes(unsigned int type,
     return e;
 }
 
-static struct asn1Element *rsapublickey(libssh2_bn *e, libssh2_bn *m)
+static struct asn1Element *rsapublickey(ssh2_bn *e, ssh2_bn *m)
 {
     struct asn1Element *publicexponent;
     struct asn1Element *modulus;
@@ -741,14 +741,14 @@ static struct asn1Element *rsapublickey(libssh2_bn *e, libssh2_bn *m)
     return rsapubkey;
 }
 
-static struct asn1Element *rsaprivatekey(libssh2_bn *e,
-                                         libssh2_bn *m,
-                                         libssh2_bn *d,
-                                         libssh2_bn *p,
-                                         libssh2_bn *q,
-                                         libssh2_bn *exp1,
-                                         libssh2_bn *exp2,
-                                         libssh2_bn *coeff)
+static struct asn1Element *rsaprivatekey(ssh2_bn *e,
+                                         ssh2_bn *m,
+                                         ssh2_bn *d,
+                                         ssh2_bn *p,
+                                         ssh2_bn *q,
+                                         ssh2_bn *exp1,
+                                         ssh2_bn *exp2,
+                                         ssh2_bn *coeff)
 {
     struct asn1Element *version;
     struct asn1Element *modulus;
@@ -1168,14 +1168,14 @@ int ssh2_rsa_new(libssh2_rsa_ctx **rsa,
                  const unsigned char *coeffdata, unsigned long coefflen)
 {
     libssh2_rsa_ctx *ctx;
-    libssh2_bn *e = ssh2_bn_init_from_bin();
-    libssh2_bn *n = ssh2_bn_init_from_bin();
-    libssh2_bn *d = NULL;
-    libssh2_bn *p = NULL;
-    libssh2_bn *q = NULL;
-    libssh2_bn *e1 = NULL;
-    libssh2_bn *e2 = NULL;
-    libssh2_bn *coeff = NULL;
+    ssh2_bn *e = ssh2_bn_init_from_bin();
+    ssh2_bn *n = ssh2_bn_init_from_bin();
+    ssh2_bn *d = NULL;
+    ssh2_bn *p = NULL;
+    ssh2_bn *q = NULL;
+    ssh2_bn *e1 = NULL;
+    ssh2_bn *e2 = NULL;
+    ssh2_bn *coeff = NULL;
     struct asn1Element *key = NULL;
     struct asn1Element *structkey = NULL;
     int keytype;
@@ -1265,8 +1265,8 @@ void ssh2_os400qc3_dh_init(ssh2_dh_ctx *dhctx)
     memset((char *)dhctx, 0, sizeof(*dhctx));
 }
 
-int ssh2_os400qc3_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
-                              libssh2_bn *g, libssh2_bn *p, int group_order)
+int ssh2_os400qc3_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
+                              ssh2_bn *g, ssh2_bn *p, int group_order)
 {
     struct asn1Element *prime;
     struct asn1Element *base;
@@ -1312,8 +1312,8 @@ int ssh2_os400qc3_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
     return ssh2_bn_from_bin(public, pubkeylen, (unsigned char *)pubkey);
 }
 
-int ssh2_os400qc3_dh_secret(ssh2_dh_ctx *dhctx, libssh2_bn *secret,
-                            libssh2_bn *f, libssh2_bn *p)
+int ssh2_os400qc3_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
+                            ssh2_bn *f, ssh2_bn *p)
 {
     char *pubkey;
     int pubkeysize;

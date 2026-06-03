@@ -411,14 +411,14 @@ typedef enum {
 #define ssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_cleanup(ctx)
 #endif
 
-#define libssh2_bn                BIGNUM
-#define libssh2_bn_ctx            BN_CTX
+#define ssh2_bn                   BIGNUM
+#define ssh2_bn_ctx               BN_CTX
 #define ssh2_bn_ctx_new()         BN_CTX_new()
 #define ssh2_bn_ctx_free(bnctx)   BN_CTX_free(bnctx)
 #define ssh2_bn_init()            BN_new()
 #define ssh2_bn_init_from_bin()   ssh2_bn_init()
 #define ssh2_bn_set_word(bn, val) !BN_set_word(bn, val)
-int ssh2_bn_from_bin(libssh2_bn *bn, size_t len, const unsigned char *val);
+int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *val);
 #define ssh2_bn_to_bin(bn, val)   (BN_bn2bin(bn, val) <= 0)
 #define ssh2_bn_bytes(bn)         BN_num_bytes(bn)
 #define ssh2_bn_bits(bn)          BN_num_bits(bn)
@@ -440,13 +440,13 @@ int ssh2_bn_from_bin(libssh2_bn *bn, size_t len, const unsigned char *val);
     ssh2_ossl_dh_secret(dhctx, secret, f, p, bnctx)
 #define ssh2_dh_dtor(dhctx) ssh2_ossl_dh_dtor(dhctx)
 void ssh2_ossl_dh_init(ssh2_dh_ctx *dhctx);
-int ssh2_ossl_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
-                          libssh2_bn *g, libssh2_bn *p,
+int ssh2_ossl_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
+                          ssh2_bn *g, ssh2_bn *p,
                           int group_order,
-                          libssh2_bn_ctx *bnctx);
-int ssh2_ossl_dh_secret(ssh2_dh_ctx *dhctx, libssh2_bn *secret,
-                        libssh2_bn *f, libssh2_bn *p,
-                        libssh2_bn_ctx *bnctx);
+                          ssh2_bn_ctx *bnctx);
+int ssh2_ossl_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
+                        ssh2_bn *f, ssh2_bn *p,
+                        ssh2_bn_ctx *bnctx);
 void ssh2_ossl_dh_dtor(ssh2_dh_ctx *dhctx);
 
 int ssh2_ossl_random(void *buf, size_t len);

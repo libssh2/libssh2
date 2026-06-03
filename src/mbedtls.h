@@ -368,11 +368,11 @@ typedef enum {
  * mbedTLS backend: BigNumber Support
  */
 
-#define libssh2_bn_ctx int /* not used */
+#define ssh2_bn_ctx int /* not used */
 #define ssh2_bn_ctx_new() 0 /* not used */
 #define ssh2_bn_ctx_free(bnctx) ((void)0) /* not used */
 
-#define libssh2_bn mbedtls_mpi
+#define ssh2_bn mbedtls_mpi
 
 #define ssh2_bn_init() \
     ssh2_mbedtls_bignum_init()
@@ -433,9 +433,9 @@ int ssh2_mbedtls_hash_final(mbedtls_md_context_t *ctx, unsigned char *hash);
 int ssh2_mbedtls_hash(const unsigned char *data, size_t datalen,
                       mbedtls_md_type_t mdtype, unsigned char *hash);
 
-libssh2_bn *ssh2_mbedtls_bignum_init(void);
+ssh2_bn *ssh2_mbedtls_bignum_init(void);
 
-void ssh2_mbedtls_bignum_free(libssh2_bn *bn);
+void ssh2_mbedtls_bignum_free(ssh2_bn *bn);
 
 void ssh2_mbedtls_rsa_free(libssh2_rsa_ctx *ctx);
 
@@ -448,10 +448,10 @@ void ssh2_mbedtls_ecdsa_free(libssh2_ecdsa_ctx *ctx);
 #endif /* LIBSSH2_ECDSA */
 
 void ssh2_mbed_dh_init(ssh2_dh_ctx *dhctx);
-int ssh2_mbed_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
-                          libssh2_bn *g, libssh2_bn *p, int group_order);
-int ssh2_mbed_dh_secret(ssh2_dh_ctx *dhctx, libssh2_bn *secret,
-                        libssh2_bn *f, libssh2_bn *p);
+int ssh2_mbed_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
+                          ssh2_bn *g, ssh2_bn *p, int group_order);
+int ssh2_mbed_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
+                        ssh2_bn *f, ssh2_bn *p);
 void ssh2_mbed_dh_dtor(ssh2_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_MBEDTLS_H */

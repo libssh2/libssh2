@@ -4180,7 +4180,7 @@ clean_exit:
  * Computes the shared secret K given a local private key,
  * remote public key and length
  */
-int ssh2_ecdh_gen_k(libssh2_bn **k, libssh2_ec_key *private_key,
+int ssh2_ecdh_gen_k(ssh2_bn **k, libssh2_ec_key *private_key,
                     const unsigned char *server_public_key,
                     size_t server_public_key_len)
 {
@@ -4408,7 +4408,7 @@ clean_exit:
     return (rc == 1) ? 0 : -1;
 }
 
-int ssh2_curve25519_gen_k(libssh2_bn **k,
+int ssh2_curve25519_gen_k(ssh2_bn **k,
                           uint8_t private_key[LIBSSH2_ED25519_KEY_LEN],
                           uint8_t server_public_key[LIBSSH2_ED25519_KEY_LEN])
 {
@@ -5110,9 +5110,9 @@ void ssh2_ossl_dh_init(ssh2_dh_ctx *dhctx)
     *dhctx = BN_new(); /* Random from client */
 }
 
-int ssh2_ossl_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
-                          libssh2_bn *g, libssh2_bn *p, int group_order,
-                          libssh2_bn_ctx *bnctx)
+int ssh2_ossl_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
+                          ssh2_bn *g, ssh2_bn *p, int group_order,
+                          ssh2_bn_ctx *bnctx)
 {
     /* Generate x and e */
     BN_rand(*dhctx, group_order * 8 - 1, 0, -1);
@@ -5120,9 +5120,9 @@ int ssh2_ossl_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
     return 0;
 }
 
-int ssh2_ossl_dh_secret(ssh2_dh_ctx *dhctx, libssh2_bn *secret,
-                        libssh2_bn *f, libssh2_bn *p,
-                        libssh2_bn_ctx *bnctx)
+int ssh2_ossl_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
+                        ssh2_bn *f, ssh2_bn *p,
+                        ssh2_bn_ctx *bnctx)
 {
     /* Compute the shared secret */
     BN_mod_exp(secret, f, *dhctx, p, bnctx);
@@ -5135,7 +5135,7 @@ void ssh2_ossl_dh_dtor(ssh2_dh_ctx *dhctx)
     *dhctx = NULL;
 }
 
-int ssh2_bn_from_bin(libssh2_bn *bn, size_t len, const unsigned char *val)
+int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *val)
 {
     if(!BN_bin2bn(val, (int)len, bn)) {
         return -1;

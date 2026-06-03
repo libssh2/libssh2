@@ -430,17 +430,17 @@ void libssh2_dh_init(libssh2_dh_ctx *dhctx);
 Initializes the Diffie-Hellman context at `dhctx'. No effective context
 creation needed here.
 
-int libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
-                        libssh2_bn *g, libssh2_bn *p, int group_order,
-                        libssh2_bn_ctx *bnctx);
+int libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, ssh2_bn *public,
+                        ssh2_bn *g, ssh2_bn *p, int group_order,
+                        ssh2_bn_ctx *bnctx);
 Generates a Diffie-Hellman key pair using base `g', prime `p' and the given
 `group_order'. Can use the given big number context `bnctx' if needed.
 The private key is stored as opaque in the Diffie-Hellman context `*dhctx' and
 the public key is returned in `public'.
 0 is returned upon success, else -1.
 
-int libssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
-                      libssh2_bn *f, libssh2_bn *p, libssh2_bn_ctx *bnctx)
+int libssh2_dh_secret(libssh2_dh_ctx *dhctx, ssh2_bn *secret,
+                      ssh2_bn *f, ssh2_bn *p, ssh2_bn_ctx *bnctx)
 Computes the Diffie-Hellman secret from the previously created context `*dhctx',
 the public key `f' from the other party and the same prime `p' used at
 context creation. The result is stored in `secret'.
@@ -456,52 +456,52 @@ Positive multi-byte integers support is sufficient.
 This has a real meaning if the big numbers computations need some context
 storage. If not, use a dummy type and functions (macros).
 
-libssh2_bn_ctx
+ssh2_bn_ctx
 Type of multiple precision computation context. May not be empty. if not used,
 #define as char, for example.
 
-libssh2_bn_ctx ssh2_bn_ctx_new(void);
+ssh2_bn_ctx ssh2_bn_ctx_new(void);
 Returns a new multiple precision computation context.
 
-void ssh2_bn_ctx_free(libssh2_bn_ctx ctx);
+void ssh2_bn_ctx_free(ssh2_bn_ctx ctx);
 Releases a multiple precision computation context.
 
 6.2) Computation support.
-libssh2_bn
+ssh2_bn
 Type of multiple precision numbers (aka bignumbers or huge integers) for the
 crypto library.
 
-libssh2_bn *ssh2_bn_init(void);
+ssh2_bn *ssh2_bn_init(void);
 Creates a multiple precision number (preset to zero).
 
-libssh2_bn *ssh2_bn_init_from_bin(void);
+ssh2_bn *ssh2_bn_init_from_bin(void);
 Create a multiple precision number intended to be set by the
 ssh2_bn_from_bin() function (see below). Unlike ssh2_bn_init(), this
 code may be a dummy initializer if the ssh2_bn_from_bin() actually
-allocates the number. Returns a value of type libssh2_bn *.
+allocates the number. Returns a value of type ssh2_bn *.
 
-void ssh2_bn_free(libssh2_bn *bn);
+void ssh2_bn_free(ssh2_bn *bn);
 Destroys the multiple precision number at bn.
 
-unsigned long ssh2_bn_bytes(libssh2_bn *bn);
+unsigned long ssh2_bn_bytes(ssh2_bn *bn);
 Get the number of bytes needed to store the bits of the multiple precision
 number at bn.
 
-unsigned long ssh2_bn_bits(libssh2_bn *bn);
+unsigned long ssh2_bn_bits(ssh2_bn *bn);
 Returns the number of bits of multiple precision number at bn.
 
-int ssh2_bn_set_word(libssh2_bn *bn, unsigned long val);
+int ssh2_bn_set_word(ssh2_bn *bn, unsigned long val);
 Sets the value of bn to val.
 Returns 1 on success, 0 otherwise.
 
-libssh2_bn *ssh2_bn_from_bin(libssh2_bn *bn, int len,
-                             const unsigned char *val);
+ssh2_bn *ssh2_bn_from_bin(ssh2_bn *bn, int len,
+                          const unsigned char *val);
 Converts the positive integer in big-endian form of length len at val
-into a libssh2_bn and place it in bn. If bn is NULL, a new libssh2_bn is
+into a ssh2_bn and place it in bn. If bn is NULL, a new ssh2_bn is
 created.
-Returns a pointer to target libssh2_bn or NULL if error.
+Returns a pointer to target ssh2_bn or NULL if error.
 
-int ssh2_bn_to_bin(libssh2_bn *bn, unsigned char *val);
+int ssh2_bn_to_bin(ssh2_bn *bn, unsigned char *val);
 Converts the absolute value of bn into big-endian form and store it at
 val. val must point to ssh2_bn_bytes(bn) bytes of memory.
 Returns the length of the big-endian number.
@@ -929,7 +929,7 @@ Verify (s, s_len) signature of (m, m_len) using the given ED25519 context.
 Return 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
 
-int ssh2_curve25519_gen_k(libssh2_bn **k,
+int ssh2_curve25519_gen_k(ssh2_bn **k,
                           uint8_t private_key[LIBSSH2_ED25519_KEY_LEN],
                           uint8_t srvr_public_key[LIBSSH2_ED25519_KEY_LEN]);
 Computes a shared ED25519 secret key from the given raw server public key and
