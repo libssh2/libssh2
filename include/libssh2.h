@@ -313,7 +313,7 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
                 const char *agent_path, void **abstract)
 
 #define LIBSSH2_AUTHAGENT_SIGN_FUNC(name) \
-    int (name)(LIBSSH2_SESSION* session, \
+    int (name)(LIBSSH2_SESSION *session, \
                unsigned char *blob, unsigned int blen, \
                const unsigned char *data, unsigned int dlen, \
                unsigned char **signature, unsigned int *sigLen, \
@@ -582,7 +582,7 @@ LIBSSH2_API void libssh2_free(LIBSSH2_SESSION *session, void *ptr);
  * NOTE: on success, algs must be deallocated (by calling libssh2_free) when
  * not needed anymore
  */
-LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
+LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
                                                int method_type,
                                                const char ***algs);
 
@@ -641,7 +641,7 @@ LIBSSH2_API int libssh2_session_last_error(LIBSSH2_SESSION *session,
                                            char **errmsg,
                                            int *errmsg_len, int want_buf);
 LIBSSH2_API int libssh2_session_last_errno(LIBSSH2_SESSION *session);
-LIBSSH2_API int libssh2_session_set_last_error(LIBSSH2_SESSION* session,
+LIBSSH2_API int libssh2_session_set_last_error(LIBSSH2_SESSION *session,
                                                int errcode,
                                                const char *errmsg);
 LIBSSH2_API int libssh2_session_block_directions(LIBSSH2_SESSION *session);
@@ -735,7 +735,7 @@ LIBSSH2_API int libssh2_userauth_publickey_frommemory(
  * after callback return, but before subsequent callback invocation.
  */
 LIBSSH2_API int libssh2_userauth_keyboard_interactive_ex(
-    LIBSSH2_SESSION* session,
+    LIBSSH2_SESSION *session,
     const char *username,
     unsigned int username_len,
     LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(*response_callback));
@@ -926,20 +926,20 @@ LIBSSH2_API unsigned long libssh2_channel_window_write_ex(
 #define libssh2_channel_window_write(channel) \
     libssh2_channel_window_write_ex(channel, NULL)
 
-LIBSSH2_API void libssh2_session_set_blocking(LIBSSH2_SESSION* session,
+LIBSSH2_API void libssh2_session_set_blocking(LIBSSH2_SESSION *session,
                                               int blocking);
-LIBSSH2_API int libssh2_session_get_blocking(LIBSSH2_SESSION* session);
+LIBSSH2_API int libssh2_session_get_blocking(LIBSSH2_SESSION *session);
 
 LIBSSH2_API void libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel,
                                               int blocking);
 
-LIBSSH2_API void libssh2_session_set_timeout(LIBSSH2_SESSION* session,
+LIBSSH2_API void libssh2_session_set_timeout(LIBSSH2_SESSION *session,
                                              long timeout);
-LIBSSH2_API long libssh2_session_get_timeout(LIBSSH2_SESSION* session);
+LIBSSH2_API long libssh2_session_get_timeout(LIBSSH2_SESSION *session);
 
-LIBSSH2_API void libssh2_session_set_read_timeout(LIBSSH2_SESSION* session,
+LIBSSH2_API void libssh2_session_set_read_timeout(LIBSSH2_SESSION *session,
                                                   long timeout);
-LIBSSH2_API long libssh2_session_get_read_timeout(LIBSSH2_SESSION* session);
+LIBSSH2_API long libssh2_session_get_read_timeout(LIBSSH2_SESSION *session);
 
 #ifndef LIBSSH2_NO_DEPRECATED
 LIBSSH2_DEPRECATED(1.1.0, "libssh2_channel_handle_extended_data2()")
@@ -972,8 +972,8 @@ LIBSSH2_API int libssh2_channel_flush_ex(LIBSSH2_CHANNEL *channel,
 #define libssh2_channel_flush_stderr(channel) \
     libssh2_channel_flush_ex(channel, SSH_EXTENDED_DATA_STDERR)
 
-LIBSSH2_API int libssh2_channel_get_exit_status(LIBSSH2_CHANNEL* channel);
-LIBSSH2_API int libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL* channel,
+LIBSSH2_API int libssh2_channel_get_exit_status(LIBSSH2_CHANNEL *channel);
+LIBSSH2_API int libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL *channel,
                                                 char **exitsignal,
                                                 size_t *exitsignal_len,
                                                 char **errmsg,
@@ -1430,10 +1430,10 @@ LIBSSH2_API int libssh2_trace(LIBSSH2_SESSION *session, int bitmask);
 #define LIBSSH2_TRACE_PUBLICKEY  (1<<8)
 #define LIBSSH2_TRACE_SOCKET     (1<<9)
 
-typedef void (*libssh2_trace_handler_func)(LIBSSH2_SESSION*,
-                                           void *,
-                                           const char *,
-                                           size_t);
+typedef void (*libssh2_trace_handler_func)(LIBSSH2_SESSION *session,
+                                           void *context,
+                                           const char *data,
+                                           size_t length);
 LIBSSH2_API int libssh2_trace_sethandler(LIBSSH2_SESSION *session,
                                          void *context,
                                          libssh2_trace_handler_func callback);
