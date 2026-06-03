@@ -192,7 +192,7 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
     }
 
     if(session->fullpacket_state == ssh2_NB_state_idle) {
-        session->fullpacket_macstate = LIBSSH2_MAC_CONFIRMED;
+        session->fullpacket_macstate = SSH2_MAC_CONFIRMED;
         session->fullpacket_payload_len = p->packet_length - 1;
 
         if(encrypted && remote_mac) {
@@ -227,7 +227,7 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
                                     p->payload + p->total_num - mac_len,
                                     mac_len)) {
                 ssh2_deb((session, LIBSSH2_TRACE_SOCKET, "Failed MAC check"));
-                session->fullpacket_macstate = LIBSSH2_MAC_INVALID;
+                session->fullpacket_macstate = SSH2_MAC_INVALID;
             }
             else if(etm) {
                 /* MAC was ok and we start by decrypting the first block that

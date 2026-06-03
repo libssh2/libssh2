@@ -1098,12 +1098,12 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
 #define SSH2_SOCKET_DISCONNECTED                 (-1)
 
 /* Initial packet state, prior to MAC check */
-#define LIBSSH2_MAC_UNCONFIRMED                  1
+#define SSH2_MAC_UNCONFIRMED                     1
 /* When MAC type is "none" (proto initiation phase) all packets are deemed
    "confirmed" */
-#define LIBSSH2_MAC_CONFIRMED                    0
+#define SSH2_MAC_CONFIRMED                       0
 /* Something bad is going on */
-#define LIBSSH2_MAC_INVALID                      (-1)
+#define SSH2_MAC_INVALID                         (-1)
 
 /* Flags for ssh2_err_flags() */
 /* Error message is allocated on the heap */

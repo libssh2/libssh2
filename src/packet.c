@@ -648,7 +648,7 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                   "Packet type %u received, length=%ld",
                   (unsigned int)msg, (long)datalen));
 
-        if((macstate == LIBSSH2_MAC_INVALID) &&
+        if((macstate == SSH2_MAC_INVALID) &&
            (!session->macerror ||
             SSH2_MACERROR(session, (char *)data, datalen))) {
             /* Bad MAC input, but no callback set or non-zero return from the
