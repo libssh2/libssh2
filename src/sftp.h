@@ -149,7 +149,7 @@ struct _LIBSSH2_SFTP {
     uint32_t partial_len;               /* Desired number of bytes */
     size_t partial_received;            /* Bytes received so far   */
 
-    /* Time that libssh2_sftp_packet_requirev() started reading */
+    /* Time that sftp_packet_requirev() started reading */
     time_t requirev_start;
 
     /* State variables used in libssh2_sftp_open_ex() */
