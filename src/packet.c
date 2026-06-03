@@ -1550,7 +1550,7 @@ int ssh2_packet_require(LIBSSH2_SESSION *session,
  * discards it.
  * Used during KEX exchange to discard badly guessed KEX_INIT packets
  */
-int ssh2_packet_burn(LIBSSH2_SESSION *session, ssh2_NB_states *state)
+int ssh2_packet_burn(LIBSSH2_SESSION *session, ssh2_nb_states *state)
 {
     unsigned char *data;
     size_t data_len;
