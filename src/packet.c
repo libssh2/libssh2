@@ -661,17 +661,17 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
         session->packAdd_state = libssh2_NB_state_allocated;
         break;
     case libssh2_NB_state_jump1:
-        goto libssh2_packet_add_jump_point1;
+        goto ssh2_packet_add_jump_point1;
     case libssh2_NB_state_jump2:
-        goto libssh2_packet_add_jump_point2;
+        goto ssh2_packet_add_jump_point2;
     case libssh2_NB_state_jump3:
-        goto libssh2_packet_add_jump_point3;
+        goto ssh2_packet_add_jump_point3;
     case libssh2_NB_state_jump4:
-        goto libssh2_packet_add_jump_point4;
+        goto ssh2_packet_add_jump_point4;
     case libssh2_NB_state_jump5:
-        goto libssh2_packet_add_jump_point5;
+        goto ssh2_packet_add_jump_point5;
     case libssh2_NB_state_jumpauthagent:
-        goto libssh2_packet_add_jump_authagent;
+        goto ssh2_packet_add_jump_authagent;
     default: /* nothing to do */
         break;
     }
@@ -925,7 +925,7 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                 if(want_reply) {
                     static const unsigned char packet =
                         SSH_MSG_REQUEST_FAILURE;
-libssh2_packet_add_jump_point5:
+ssh2_packet_add_jump_point5:
                     session->packAdd_state = libssh2_NB_state_jump5;
                     rc = ssh2_transport_send(session, &packet, 1, NULL, 0);
                     if(rc == LIBSSH2_ERROR_EAGAIN)
@@ -1010,7 +1010,7 @@ libssh2_packet_add_jump_point5:
                 session->packAdd_channelp = channelp;
 
                 /* Adjust the window based on the block we freed */
-libssh2_packet_add_jump_point1:
+ssh2_packet_add_jump_point1:
                 session->packAdd_state = libssh2_NB_state_jump1;
                 rc = ssh2_channel_receive_window_adjust(session->
                                                             packAdd_channelp,
@@ -1214,7 +1214,7 @@ libssh2_packet_add_jump_point1:
 
                 if(want_reply) {
                     unsigned char packet[5];
-libssh2_packet_add_jump_point4:
+ssh2_packet_add_jump_point4:
                     session->packAdd_state = libssh2_NB_state_jump4;
                     packet[0] = SSH_MSG_CHANNEL_FAILURE;
                     memcpy(&packet[1], data + 1, 4);
@@ -1277,7 +1277,7 @@ clean_exit:
                 memset(&session->packAdd_Qlstn_state, 0,
                        sizeof(session->packAdd_Qlstn_state));
 
-libssh2_packet_add_jump_point2:
+ssh2_packet_add_jump_point2:
                 session->packAdd_state = libssh2_NB_state_jump2;
                 rc = packet_queue_listener(session, data, datalen,
                                            &session->packAdd_Qlstn_state);
@@ -1290,7 +1290,7 @@ libssh2_packet_add_jump_point2:
                 memset(&session->packAdd_x11open_state, 0,
                        sizeof(session->packAdd_x11open_state));
 
-libssh2_packet_add_jump_point3:
+ssh2_packet_add_jump_point3:
                 session->packAdd_state = libssh2_NB_state_jump3;
                 rc = packet_x11_open(session, data, datalen,
                                      &session->packAdd_x11open_state);
@@ -1305,7 +1305,7 @@ libssh2_packet_add_jump_point3:
                 memset(&session->packAdd_authagent_state, 0,
                        sizeof(session->packAdd_authagent_state));
 
-libssh2_packet_add_jump_authagent:
+ssh2_packet_add_jump_authagent:
                 session->packAdd_state = libssh2_NB_state_jumpauthagent;
                 rc = packet_authagent_open(session, data, datalen,
                                            &session->packAdd_authagent_state);
