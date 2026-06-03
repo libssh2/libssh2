@@ -99,7 +99,7 @@ static void mbed_safe_free(void *buf, size_t len)
 }
 
 int ssh2_mbedtls_cipher_init(libssh2_cipher_ctx *h,
-                             LIBSSH2_CIPHER_T(algo),
+                             SSH2_CIPHER_T(algo),
                              unsigned char *iv,
                              unsigned char *secret,
                              int encrypt)
@@ -146,7 +146,7 @@ int ssh2_mbedtls_cipher_init(libssh2_cipher_ctx *h,
 }
 
 int ssh2_mbedtls_cipher_crypt(libssh2_cipher_ctx *ctx,
-                              LIBSSH2_CIPHER_T(algo),
+                              SSH2_CIPHER_T(algo),
                               int encrypt,
                               unsigned char *block,
                               size_t blocksize, int firstlast)

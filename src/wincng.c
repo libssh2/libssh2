@@ -3288,7 +3288,7 @@ int ssh2_wincng_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
  * Windows CNG backend: Cipher functions
  */
 int ssh2_wincng_cipher_init(libssh2_cipher_ctx *h,
-                            LIBSSH2_CIPHER_T(algo),
+                            SSH2_CIPHER_T(algo),
                             unsigned char *iv,
                             unsigned char *secret,
                             int encrypt)
@@ -3402,7 +3402,7 @@ static void wincng_aes_ctr_increment(unsigned char *ctr, size_t length)
 }
 
 int ssh2_wincng_cipher_crypt(libssh2_cipher_ctx *ctx,
-                             LIBSSH2_CIPHER_T(algo),
+                             SSH2_CIPHER_T(algo),
                              int encrypt,
                              unsigned char *block,
                              size_t blocksize, int firstlast)

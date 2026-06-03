@@ -383,7 +383,7 @@ typedef enum {
 #define ssh2_ed25519_free(ctx) EVP_PKEY_free(ctx)
 #endif /* LIBSSH2_ED25519 */
 
-#define LIBSSH2_CIPHER_T(name) const EVP_CIPHER *(*(name))(void)
+#define SSH2_CIPHER_T(name) const EVP_CIPHER *(*(name))(void)
 #ifdef HAVE_OPAQUE_STRUCTS
 #define libssh2_cipher_ctx EVP_CIPHER_CTX *
 #else

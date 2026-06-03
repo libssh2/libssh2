@@ -953,7 +953,7 @@ cleanup:
 #endif /* LIBSSH2_ECDSA */
 
 int ssh2_cipher_init(libssh2_cipher_ctx *h,
-                     LIBSSH2_CIPHER_T(algo),
+                     SSH2_CIPHER_T(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
@@ -987,7 +987,7 @@ int ssh2_cipher_init(libssh2_cipher_ctx *h,
 #endif
 
 int ssh2_cipher_crypt(libssh2_cipher_ctx *ctx,
-                      LIBSSH2_CIPHER_T(algo),
+                      SSH2_CIPHER_T(algo),
                       int encrypt, unsigned char *block, size_t blocksize,
                       int firstlast)
 {

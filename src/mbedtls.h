@@ -334,7 +334,7 @@ typedef enum {
 
 #define libssh2_cipher_ctx        mbedtls_cipher_context_t
 
-#define LIBSSH2_CIPHER_T(algo)    mbedtls_cipher_type_t algo
+#define SSH2_CIPHER_T(algo)       mbedtls_cipher_type_t algo
 
 #define libssh2_cipher_aes256ctr  MBEDTLS_CIPHER_AES_256_CTR
 #define libssh2_cipher_aes192ctr  MBEDTLS_CIPHER_AES_192_CTR

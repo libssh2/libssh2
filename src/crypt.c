@@ -83,7 +83,7 @@ static const struct crypt_method crypt_method_none = {
 
 struct crypt_ctx {
     int encrypt;
-    LIBSSH2_CIPHER_T(algo);
+    SSH2_CIPHER_T(algo);
     libssh2_cipher_ctx h;
     struct chachapoly_ctx chachapoly_ctx;
 };
