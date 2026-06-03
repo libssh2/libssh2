@@ -42,10 +42,10 @@ elif test "$found_crypto" = "newname"; then
 
 1) Crypto library initialization/termination.
 
-void libssh2_crypto_init(void);
+void ssh2_crypto_init(void);
 Initializes the crypto library. May be an empty macro if not needed.
 
-void libssh2_crypto_exit(void);
+void ssh2_crypto_exit(void);
 Terminates the crypto library use. May be an empty macro if not needed.
 
 1.1) Crypto runtime detection
@@ -108,9 +108,9 @@ Note: if the ctx parameter is modified by the underlying code,
 this procedure must be implemented as a macro to map ctx --> &ctx.
 Must return 1 for success and 0 for failure.
 
-int libssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx,
-                           const void *key,
-                           int keylen);
+int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx,
+                        const void *key,
+                        int keylen);
 Setup the HMAC computation context ctx for an HMAC-SHA-1 computation using the
 keylen-byte key. Is invoked right after ssh2_hmac_ctx_init().
 Returns 1 for success and 0 for failure.
@@ -156,9 +156,9 @@ LIBSSH2_HMAC_SHA256
 #define as 1 if the crypto library supports HMAC-SHA-256, else 0.
 If defined as 0, the rest of this section can be omitted.
 
-int libssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx,
-                             const void *key,
-                             int keylen);
+int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx,
+                          const void *key,
+                          int keylen);
 Setup the HMAC computation context ctx for an HMAC-256 computation using the
 keylen-byte key. Is invoked right after ssh2_hmac_ctx_init().
 Returns 1 for success and 0 for failure.
@@ -240,9 +240,9 @@ LIBSSH2_HMAC_SHA512
 #define as 1 if the crypto library supports HMAC-SHA-512, else 0.
 If defined as 0, the rest of this section can be omitted.
 
-int libssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx,
-                             const void *key,
-                             int keylen);
+int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx,
+                          const void *key,
+                          int keylen);
 Setup the HMAC computation context ctx for an HMAC-512 computation using the
 keylen-byte key. Is invoked right after ssh2_hmac_ctx_init().
 Returns 1 for success and 0 for failure.
@@ -279,9 +279,9 @@ Note: if the ctx parameter is modified by the underlying code,
 this procedure must be implemented as a macro to map ctx --> &ctx.
 Must return 1 for success and 0 for failure.
 
-int libssh2_hmac_md5_init(ssh2_hmac_ctx *ctx,
-                          const void *key,
-                          int keylen);
+int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx,
+                       const void *key,
+                       int keylen);
 Setup the HMAC computation context ctx for an HMAC-MD5 computation using the
 keylen-byte key. Is invoked right after ssh2_hmac_ctx_init().
 Returns 1 for success and 0 for failure.
@@ -291,9 +291,9 @@ LIBSSH2_HMAC_RIPEMD
 #define as 1 if the crypto library supports HMAC-RIPEMD-160, else 0.
 If defined as 0, the rest of this section can be omitted.
 
-int libssh2_hmac_ripemd160_init(ssh2_hmac_ctx *ctx,
-                                const void *key,
-                                int keylen);
+int ssh2_hmac_ripemd160_init(ssh2_hmac_ctx *ctx,
+                             const void *key,
+                             int keylen);
 Setup the HMAC computation context ctx for an HMAC-RIPEMD-160 computation using
 the keylen-byte key. Is invoked right after ssh2_hmac_ctx_init().
 Returns 1 for success and 0 for failure.
@@ -421,32 +421,32 @@ The maximum Diffie-Hellman modulus bit count accepted from the server. This
 value must be supported by the backend.  Usually 16384.
 
 5.1) Diffie-Hellman context.
-libssh2_dh_ctx
+ssh2_dh_ctx
 Type of a Diffie-Hellman computation context.
 Must always be defined.
 
 5.2) Diffie-Hellman computation procedures.
-void libssh2_dh_init(libssh2_dh_ctx *dhctx);
+void ssh2_dh_init(ssh2_dh_ctx *dhctx);
 Initializes the Diffie-Hellman context at `dhctx'. No effective context
 creation needed here.
 
-int libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, ssh2_bn *public,
-                        ssh2_bn *g, ssh2_bn *p, int group_order,
-                        ssh2_bn_ctx *bnctx);
+int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
+                     ssh2_bn *g, ssh2_bn *p, int group_order,
+                     ssh2_bn_ctx *bnctx);
 Generates a Diffie-Hellman key pair using base `g', prime `p' and the given
 `group_order'. Can use the given big number context `bnctx' if needed.
 The private key is stored as opaque in the Diffie-Hellman context `*dhctx' and
 the public key is returned in `public'.
 0 is returned upon success, else -1.
 
-int libssh2_dh_secret(libssh2_dh_ctx *dhctx, ssh2_bn *secret,
-                      ssh2_bn *f, ssh2_bn *p, ssh2_bn_ctx *bnctx)
+int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
+                   ssh2_bn *f, ssh2_bn *p, ssh2_bn_ctx *bnctx)
 Computes the Diffie-Hellman secret from the previously created context `*dhctx',
 the public key `f' from the other party and the same prime `p' used at
 context creation. The result is stored in `secret'.
 0 is returned upon success, else -1.
 
-void libssh2_dh_dtor(libssh2_dh_ctx *dhctx)
+void ssh2_dh_dtor(ssh2_dh_ctx *dhctx)
 Destroys Diffie-Hellman context at `dhctx' and resets its storage.
 
 6) Big numbers.
