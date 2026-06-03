@@ -1656,9 +1656,9 @@ dh_gex_clean_exit:
  * returns the EC curve type by name used in hybrid key exchange
  */
 static int kex_session_hybrid_curve_type(const char *name,
-                                         libssh2_curve_type *out_type)
+                                         ssh2_curve_type *out_type)
 {
-    libssh2_curve_type type;
+    ssh2_curve_type type;
 
     if(!name)
         return -1;
@@ -1912,9 +1912,9 @@ static int kex_session_hybrid_curve_type(const char *name,
  * returns the EC curve type by name used in key exchange
  */
 static int kex_session_ecdh_curve_type(const char *name,
-                                       libssh2_curve_type *out_type)
+                                       ssh2_curve_type *out_type)
 {
-    libssh2_curve_type type;
+    ssh2_curve_type type;
 
     if(!name)
         return -1;
@@ -1978,7 +1978,7 @@ static void kex_method_ecdh_cleanup(LIBSSH2_SESSION *session,
 /*
  * Elliptic Curve Diffie Hellman Key Exchange
  */
-static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
+static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
                            unsigned char *data, size_t data_len,
                            unsigned char *public_key,
                            size_t public_key_len, libssh2_ec_key *private_key,
@@ -2150,7 +2150,7 @@ static int kex_method_ecdh_key_exchange(
     int ret = 0;
     int rc = 0;
     unsigned char *s;
-    libssh2_curve_type type;
+    ssh2_curve_type type;
 
     if(key_state->state == libssh2_NB_state_idle) {
 
@@ -2311,7 +2311,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
 {
     int ret = 0;
     int rc, ml_kem_size, sha_algo_value;
-    libssh2_curve_type type;
+    ssh2_curve_type type;
     size_t digest_len, ml_kem_cipher_len, public_pq_key_len;
     unsigned char *shared_secret = NULL;
 
@@ -2533,7 +2533,7 @@ static int kex_method_mlkem_nistp_key_exchange(
 {
     int ret = 0;
     int rc = 0;
-    libssh2_curve_type type;
+    ssh2_curve_type type;
     int ml_kem_size;
     size_t ml_kem_key_len;
 

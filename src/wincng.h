@@ -137,8 +137,8 @@ struct wcng_ctx {
     BCRYPT_ALG_HANDLE hAlgDH;
     BCRYPT_ALG_HANDLE hAlgChacha20;
 #if LIBSSH2_ECDSA
-    BCRYPT_ALG_HANDLE hAlgECDH[3];  /* indexed by libssh2_curve_type */
-    BCRYPT_ALG_HANDLE hAlgECDSA[3]; /* indexed by libssh2_curve_type */
+    BCRYPT_ALG_HANDLE hAlgECDH[3];  /* indexed by ssh2_curve_type */
+    BCRYPT_ALG_HANDLE hAlgECDSA[3]; /* indexed by ssh2_curve_type */
 #endif
     volatile int hasAlgDHwithKDF; /* -1=no, 0=maybe, 1=yes */
 };
@@ -307,11 +307,11 @@ typedef enum {
     LIBSSH2_EC_CURVE_NISTP256 = 0,
     LIBSSH2_EC_CURVE_NISTP384 = 1,
     LIBSSH2_EC_CURVE_NISTP521 = 2,
-} libssh2_curve_type;
+} ssh2_curve_type;
 
 struct wincng_ecdsa_ctx {
     BCRYPT_KEY_HANDLE handle;
-    libssh2_curve_type curve;
+    ssh2_curve_type curve;
 };
 
 #define libssh2_ecdsa_ctx struct wincng_ecdsa_ctx

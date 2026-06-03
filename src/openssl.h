@@ -373,7 +373,7 @@ typedef enum {
     LIBSSH2_EC_CURVE_NISTP256 = NID_X9_62_prime256v1,
     LIBSSH2_EC_CURVE_NISTP384 = NID_secp384r1,
     LIBSSH2_EC_CURVE_NISTP521 = NID_secp521r1
-} libssh2_curve_type;
+} ssh2_curve_type;
 #else /* !LIBSSH2_ECDSA */
 #define libssh2_ec_key void
 #endif /* LIBSSH2_ECDSA */

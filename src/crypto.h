@@ -160,7 +160,7 @@ int ssh2_dsa_new_private_frommemory(libssh2_dsa_ctx **dsa,
 int ssh2_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx **ec_ctx,
                                          const unsigned char *k,
                                          size_t k_len,
-                                         libssh2_curve_type curve);
+                                         ssh2_curve_type curve);
 
 int ssh2_ecdsa_new_private(libssh2_ecdsa_ctx **ec_ctx,
                            LIBSSH2_SESSION *session,
@@ -185,7 +185,7 @@ int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
                           libssh2_ec_key **out_private_key,
                           unsigned char **out_public_key_octal,
                           size_t *out_public_key_octal_len,
-                          libssh2_curve_type curve_type);
+                          ssh2_curve_type curve_type);
 
 int ssh2_ecdh_gen_k(ssh2_bn **k, libssh2_ec_key *private_key,
                     const unsigned char *server_public_key,
@@ -211,10 +211,10 @@ int ssh2_ecdsa_new_private_frommemory_sk(libssh2_ecdsa_ctx **ec_ctx,
                                          size_t filedata_len,
                                          const unsigned char *passphrase);
 
-libssh2_curve_type ssh2_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ec_ctx);
+ssh2_curve_type ssh2_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ec_ctx);
 
 int ssh2_ecdsa_curve_type_from_name(const char *name,
-                                    libssh2_curve_type *out_type);
+                                    ssh2_curve_type *out_type);
 
 #endif /* LIBSSH2_ECDSA */
 

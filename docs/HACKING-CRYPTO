@@ -774,7 +774,7 @@ Type of an ECDSA computation context. Generally a struct.
 libssh2_ec_key
 Type of an elliptic curve key.
 
-libssh2_curve_type
+ssh2_curve_type
 An enum type defining curve types. Current supported identifiers are:
     LIBSSH2_EC_CURVE_NISTP256
     LIBSSH2_EC_CURVE_NISTP384
@@ -783,7 +783,7 @@ An enum type defining curve types. Current supported identifiers are:
 int ssh2_ecdsa_create_key(libssh2_ec_key **out_private_key,
                           unsigned char **out_public_key_octal,
                           size_t *out_public_key_octal_len,
-                          libssh2_curve_type curve_type);
+                          ssh2_curve_type curve_type);
 Create a new ECDSA private key of type curve_type and return it at
 out_private_key. If out_public_key_octal is not NULL, store an allocated
 pointer to the associated public key in "octal" form in it and its length
@@ -814,7 +814,7 @@ This procedure is already prototyped in crypto.h.
 int ssh2_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx **ecdsactx,
                                          const unsigned char *k,
                                          size_t k_len,
-                                         libssh2_curve_type type);
+                                         ssh2_curve_type type);
 Stores at ecdsactx a new ECDSA context associated with the given curve type
 and with "octal" form public key (k, k_len).
 Return 0 if OK, else -1.
@@ -849,12 +849,12 @@ using the hash algorithm configured in the ECDSA context ctx.
 Return 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
 
-libssh2_curve_type ssh2_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ecdsactx);
+ssh2_curve_type ssh2_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ecdsactx);
 Returns the curve type associated with given context.
 This procedure is already prototyped in crypto.h.
 
 int ssh2_ecdsa_curve_type_from_name(const char *name,
-                                    libssh2_curve_type *out_type);
+                                    ssh2_curve_type *out_type);
 Stores in out_type the curve type matching string name of the form
 "ecdsa-sha2-nistpxxx".
 Return 0 if OK, else -1.

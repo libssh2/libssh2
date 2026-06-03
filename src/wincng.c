@@ -433,7 +433,7 @@ struct ecdsa_algorithm {
     ULONG private_import_magic[2];
 };
 
-/* Supported algorithms, indexed by libssh2_curve_type */
+/* Supported algorithms, indexed by ssh2_curve_type */
 static const struct ecdsa_algorithm wincng_ecdsa_algorithms[] = {
     {
         "ecdsa-sha2-nistp256",
@@ -463,7 +463,7 @@ static const struct ecdsa_algorithm wincng_ecdsa_algorithms[] = {
 
 /* An encoded point */
 struct ecdsa_point {
-    libssh2_curve_type curve;
+    ssh2_curve_type curve;
 
     const unsigned char *x;
     ULONG x_len;
@@ -1955,7 +1955,7 @@ static int wincng_p1363signature_from_point(IN const unsigned char *r,
                                             IN size_t r_len,
                                             IN const unsigned char *s,
                                             IN size_t s_len,
-                                            IN libssh2_curve_type curve,
+                                            IN ssh2_curve_type curve,
                                             OUT PUCHAR *signature,
                                             OUT size_t *signature_length)
 {
@@ -2144,7 +2144,7 @@ cleanup:
  */
 static int wincng_uncompressed_point_from_publickey(
     IN LIBSSH2_SESSION *session,
-    IN libssh2_curve_type curve,
+    IN ssh2_curve_type curve,
     IN BCRYPT_KEY_HANDLE key,
     OUT PUCHAR *encoded_point,
     OUT size_t *encoded_point_len)
@@ -2269,7 +2269,7 @@ int ssh2_wincng_ecdh_create_key(IN LIBSSH2_SESSION *session,
                                 OUT struct wincng_ecdsa_ctx **privatekey,
                                 OUT unsigned char **encoded_publickey,
                                 OUT size_t *encoded_publickey_len,
-                                IN libssh2_curve_type curve)
+                                IN ssh2_curve_type curve)
 {
     int result = LIBSSH2_ERROR_NONE;
     NTSTATUS status;
@@ -2351,7 +2351,7 @@ int ssh2_wincng_ecdsa_curve_name_with_octal_new(
     OUT struct wincng_ecdsa_ctx **key,
     IN const unsigned char *publickey_encoded,
     IN size_t publickey_encoded_len,
-    IN libssh2_curve_type curve)
+    IN ssh2_curve_type curve)
 {
     int result = LIBSSH2_ERROR_NONE;
 
@@ -2517,7 +2517,7 @@ cleanup:
 }
 
 static int wincng_ecdsa_curve_type_from_name(IN const char *name,
-                                             OUT libssh2_curve_type *out_curve)
+                                             OUT ssh2_curve_type *out_curve)
 {
     unsigned int curve;
 
@@ -2709,7 +2709,7 @@ static int wincng_parse_ecdsa_privatekey(OUT struct wincng_ecdsa_ctx **key,
     unsigned char *publickey;
     size_t publickey_len;
 
-    libssh2_curve_type curve_type;
+    ssh2_curve_type curve_type;
     int result;
     uint32_t check1, check2;
     struct string_buf data_buffer;
@@ -3027,9 +3027,9 @@ cleanup:
 }
 
 /*
- * returns key curve type that maps to libssh2_curve_type
+ * returns key curve type that maps to ssh2_curve_type
  */
-libssh2_curve_type ssh2_wincng_ecdsa_get_curve_type(
+ssh2_curve_type ssh2_wincng_ecdsa_get_curve_type(
     IN struct wincng_ecdsa_ctx *key)
 {
     return key->curve;

@@ -264,7 +264,7 @@ typedef enum {
 #else
     LIBSSH2_EC_CURVE_NISTP521 = MBEDTLS_ECP_DP_NONE,
 #endif
-} libssh2_curve_type;
+} ssh2_curve_type;
 
 # define libssh2_ec_key mbedtls_ecp_keypair
 #else
@@ -440,10 +440,9 @@ void ssh2_mbedtls_bignum_free(ssh2_bn *bn);
 void ssh2_mbedtls_rsa_free(libssh2_rsa_ctx *ctx);
 
 #if LIBSSH2_ECDSA
-libssh2_curve_type ssh2_mbedtls_ecdsa_key_get_curve_type(
-    libssh2_ecdsa_ctx *ctx);
+ssh2_curve_type ssh2_mbedtls_ecdsa_key_get_curve_type(libssh2_ecdsa_ctx *ctx);
 int ssh2_mbedtls_ecdsa_curve_type_from_name(const char *name,
-                                            libssh2_curve_type *out_type);
+                                            ssh2_curve_type *out_type);
 void ssh2_mbedtls_ecdsa_free(libssh2_ecdsa_ctx *ctx);
 #endif /* LIBSSH2_ECDSA */
 

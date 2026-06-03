@@ -734,7 +734,7 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
     libssh2_ecdsa_ctx *ec_ctx = NULL;
     unsigned char *type_str, *domain, *public_key;
     size_t key_len, len;
-    libssh2_curve_type type;
+    ssh2_curve_type type;
     struct string_buf buf;
 
     if(abstract && *abstract) {
@@ -937,7 +937,7 @@ static int hostkey_method_ssh_ecdsa_signv(LIBSSH2_SESSION *session,
                                           void **abstract)
 {
     libssh2_ecdsa_ctx *ec_ctx = (libssh2_ecdsa_ctx *)(*abstract);
-    libssh2_curve_type type = ssh2_ecdsa_get_curve_type(ec_ctx);
+    ssh2_curve_type type = ssh2_ecdsa_get_curve_type(ec_ctx);
     int ret = 0;
 
     if(type == LIBSSH2_EC_CURVE_NISTP256) {

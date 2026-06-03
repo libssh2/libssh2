@@ -900,7 +900,7 @@ int ssh2_mbedtls_ecdsa_create_key(LIBSSH2_SESSION *session,
                                   libssh2_ec_key **out_private_key,
                                   unsigned char **out_public_key_octal,
                                   size_t *out_public_key_octal_len,
-                                  libssh2_curve_type curve_type)
+                                  ssh2_curve_type curve_type)
 {
     size_t plen = 0;
 
@@ -944,7 +944,7 @@ failed:
 int ssh2_mbedtls_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx **ec_ctx,
                                                  const unsigned char *k,
                                                  size_t k_len,
-                                                 libssh2_curve_type curve)
+                                                 ssh2_curve_type curve)
 {
     *ec_ctx = mbedtls_calloc(1, sizeof(mbedtls_ecp_keypair));
 
@@ -1113,7 +1113,7 @@ static int mbed_parse_openssh_key(libssh2_ecdsa_ctx **ctx,
                                   size_t data_len,
                                   const unsigned char *pwd)
 {
-    libssh2_curve_type type;
+    ssh2_curve_type type;
     unsigned char *name = NULL;
     struct string_buf *decrypted = NULL;
     size_t curvelen, exponentlen, pointlen;
@@ -1357,21 +1357,21 @@ cleanup:
 }
 
 /*
- * returns key curve type that maps to libssh2_curve_type
+ * returns key curve type that maps to ssh2_curve_type
  */
-libssh2_curve_type ssh2_mbedtls_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ec_ctx)
+ssh2_curve_type ssh2_mbedtls_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ec_ctx)
 {
-    return (libssh2_curve_type)ec_ctx->MBEDTLS_PRIVATE(grp).id;
+    return (ssh2_curve_type)ec_ctx->MBEDTLS_PRIVATE(grp).id;
 }
 
 /*
- * returns 0 for success, key curve type that maps to libssh2_curve_type
+ * returns 0 for success, key curve type that maps to ssh2_curve_type
  */
 int ssh2_mbedtls_ecdsa_curve_type_from_name(const char *name,
-                                            libssh2_curve_type *out_type)
+                                            ssh2_curve_type *out_type)
 {
     int ret = 0;
-    libssh2_curve_type type;
+    ssh2_curve_type type;
 
     if(!name || strlen(name) != 19)
         return -1;

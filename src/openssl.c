@@ -702,9 +702,9 @@ int ssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
 #if LIBSSH2_ECDSA
 
 /*
- * returns key curve type that maps to libssh2_curve_type
+ * returns key curve type that maps to ssh2_curve_type
  */
-libssh2_curve_type ssh2_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ec_ctx)
+ssh2_curve_type ssh2_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ec_ctx)
 {
 #ifdef USE_OPENSSL_3
     int bits = 0;
@@ -728,12 +728,12 @@ libssh2_curve_type ssh2_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ec_ctx)
 }
 
 /*
- * returns 0 for success, key curve type that maps to libssh2_curve_type
+ * returns 0 for success, key curve type that maps to ssh2_curve_type
  */
 int ssh2_ecdsa_curve_type_from_name(const char *name,
-                                    libssh2_curve_type *out_type)
+                                    ssh2_curve_type *out_type)
 {
-    libssh2_curve_type type;
+    ssh2_curve_type type;
 
     if(!name || strlen(name) != 19)
         return -1;
@@ -761,7 +761,7 @@ int ssh2_ecdsa_curve_type_from_name(const char *name,
 int ssh2_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx **ec_ctx,
                                          const unsigned char *k,
                                          size_t k_len,
-                                         libssh2_curve_type curve)
+                                         ssh2_curve_type curve)
 {
     int ret = 0;
 
@@ -876,7 +876,7 @@ int ssh2_ecdsa_verify(libssh2_ecdsa_ctx *ec_ctx,
                       const unsigned char *m, size_t m_len)
 {
     int ret = 0;
-    libssh2_curve_type type = ssh2_ecdsa_get_curve_type(ec_ctx);
+    ssh2_curve_type type = ssh2_ecdsa_get_curve_type(ec_ctx);
 
 #ifdef USE_OPENSSL_3
     EVP_PKEY_CTX *ctx = NULL;
@@ -3449,7 +3449,7 @@ static int gen_publickey_from_ec_evp(LIBSSH2_SESSION *session,
     size_t key_len = 0;
     unsigned char *octal_value = NULL;
     size_t octal_len;
-    libssh2_curve_type type;
+    ssh2_curve_type type;
 
 #ifdef USE_OPENSSL_3
     ssh2_deb((session, LIBSSH2_TRACE_AUTH,
@@ -3599,7 +3599,7 @@ clean_exit:
 
 static int gen_publickey_from_ecdsa_openssh_priv_data(
     LIBSSH2_SESSION *session,
-    libssh2_curve_type curve_type,
+    ssh2_curve_type curve_type,
     struct string_buf *decrypted,
     unsigned char **method,
     size_t *method_len,
@@ -3880,7 +3880,7 @@ static int ecdsa_new_openssh_private(libssh2_ecdsa_ctx **ec_ctx,
     FILE *fp;
     int rc;
     unsigned char *buf = NULL;
-    libssh2_curve_type type;
+    ssh2_curve_type type;
     struct string_buf *decrypted = NULL;
 
     if(!session) {
@@ -4068,7 +4068,7 @@ int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
                           libssh2_ec_key **out_private_key,
                           unsigned char **out_public_key_octal,
                           size_t *out_public_key_octal_len,
-                          libssh2_curve_type curve_type)
+                          ssh2_curve_type curve_type)
 {
     int ret = 1;
     size_t octal_len = 0;
@@ -4589,7 +4589,7 @@ static int pub_priv_openssh_keyfile(LIBSSH2_SESSION *session,
 #endif
 #if LIBSSH2_ECDSA
     {
-        libssh2_curve_type type;
+        ssh2_curve_type type;
 
         if(ssh2_ecdsa_curve_type_from_name((const char *)buf, &type) == 0) {
             rc = gen_publickey_from_ecdsa_openssh_priv_data(session, type,
@@ -4802,7 +4802,7 @@ static int pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
 #endif
 #if LIBSSH2_ECDSA
     {
-        libssh2_curve_type type;
+        ssh2_curve_type type;
 
         if(strcmp("sk-ecdsa-sha2-nistp256@openssh.com",
                   (const char *)buf) == 0) {
