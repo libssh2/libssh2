@@ -224,7 +224,6 @@ failed_malloc_test_cases[FAILED_MALLOC_TEST_CASES_LEN] = {
 static int alloc_count = 0;
 static int free_count = 0;
 
-/* libssh2_default_alloc */
 static LIBSSH2_ALLOC_FUNC(test_alloc)
 {
     int *threshold_int_ptr = *abstract;
@@ -236,7 +235,6 @@ static LIBSSH2_ALLOC_FUNC(test_alloc)
     return malloc(count);
 }
 
-/* libssh2_default_free */
 static LIBSSH2_FREE_FUNC(test_free)
 {
     (void)abstract;

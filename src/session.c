@@ -68,22 +68,22 @@
 #undef libssh2_usec_t
 #endif
 
-/* libssh2_default_alloc */
-static LIBSSH2_ALLOC_FUNC(libssh2_default_alloc)
+/* ssh2_default_alloc */
+static LIBSSH2_ALLOC_FUNC(ssh2_default_alloc)
 {
     (void)abstract;
     return malloc(count);
 }
 
-/* libssh2_default_free */
-static LIBSSH2_FREE_FUNC(libssh2_default_free)
+/* ssh2_default_free */
+static LIBSSH2_FREE_FUNC(ssh2_default_free)
 {
     (void)abstract;
     free(ptr);
 }
 
-/* libssh2_default_realloc */
-static LIBSSH2_REALLOC_FUNC(libssh2_default_realloc)
+/* ssh2_default_realloc */
+static LIBSSH2_REALLOC_FUNC(ssh2_default_realloc)
 {
     (void)abstract;
     return realloc(ptr, count);
@@ -424,9 +424,9 @@ LIBSSH2_SESSION *libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC(*my_alloc),
                                          LIBSSH2_REALLOC_FUNC(*my_realloc),
                                          void *abstract)
 {
-    LIBSSH2_ALLOC_FUNC(*local_alloc) = libssh2_default_alloc;
-    LIBSSH2_FREE_FUNC(*local_free) = libssh2_default_free;
-    LIBSSH2_REALLOC_FUNC(*local_realloc) = libssh2_default_realloc;
+    LIBSSH2_ALLOC_FUNC(*local_alloc) = ssh2_default_alloc;
+    LIBSSH2_FREE_FUNC(*local_free) = ssh2_default_free;
+    LIBSSH2_REALLOC_FUNC(*local_realloc) = ssh2_default_realloc;
     LIBSSH2_SESSION *session;
 
     if(my_alloc) {
