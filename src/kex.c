@@ -757,8 +757,8 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             }
             session->burn_optimistic_kexinit = 0;
 
-            ssh2_deb((session, LIBSSH2_TRACE_KEX,
-                      "Burnt packet of type: %02x", (unsigned int)burn_type));
+            ssh2_deb((session, LIBSSH2_TRACE_KEX, "Burnt packet of type: %02x",
+                      (unsigned int)burn_type));
         }
 
         exchange_state->state = ssh2_NB_state_sent1;
@@ -2571,8 +2571,7 @@ static int kex_method_mlkem_nistp_key_exchange(
             goto clean_exit;
         }
 
-        rc = ssh2_mlkem_new(session,
-                            ml_kem_size,
+        rc = ssh2_mlkem_new(session, ml_kem_size,
                             &key_state->mlkem_public_key,
                             &key_state->mlkem_private_key);
 
@@ -2698,12 +2697,11 @@ static void kex_method_curve25519_cleanup(
 /*
  * Elliptic Curve Key Exchange
  */
-static int curve25519_sha256(
-    LIBSSH2_SESSION *session, unsigned char *data,
-    size_t data_len,
-    unsigned char public_key[SSH2_ED25519_KEY_LEN],
-    unsigned char private_key[SSH2_ED25519_KEY_LEN],
-    struct kmdhgGPshakex_state *exchange_state)
+static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
+                             size_t data_len,
+                             unsigned char public_key[SSH2_ED25519_KEY_LEN],
+                             unsigned char private_key[SSH2_ED25519_KEY_LEN],
+                             struct kmdhgGPshakex_state *exchange_state)
 {
     int ret = 0;
     int rc;
@@ -2864,8 +2862,8 @@ static int kex_method_curve25519_key_exchange(
         }
 
         rc = ssh2_curve25519_new(session,
-                                     &key_state->curve25519_public_key,
-                                     &key_state->curve25519_private_key);
+                                 &key_state->curve25519_public_key,
+                                 &key_state->curve25519_private_key);
 
         if(rc) {
             ret = ssh2_err(session, rc, "Unable to create private key");
@@ -3094,7 +3092,7 @@ static int mlkem768x25519_sha256(
 
         if(!ssh2_sha256_update(k_ctx, shared_secret,
                                SSH2_MLKEM_SHARED_SECRET_LEN +
-                                       SSH2_ED25519_KEY_LEN)) {
+                                   SSH2_ED25519_KEY_LEN)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                            "kex: failed to calculate hash");
             goto clean_exit;
@@ -3171,8 +3169,7 @@ static int kex_method_mlkem768x25519_key_exchange(
             goto clean_exit;
         }
 
-        rc = ssh2_mlkem_new(session,
-                            768,
+        rc = ssh2_mlkem_new(session, 768,
                             &key_state->mlkem_public_key,
                             &key_state->mlkem_private_key);
 
