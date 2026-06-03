@@ -572,7 +572,7 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
     }
 
     /* Find the first matching context string for this message */
-    for(contextindex = 0; contextindex < ARRAY_SIZE(contexts);
+    for(contextindex = 0; contextindex < SSH2_ARRAYSIZE(contexts);
         contextindex++) {
         if((context & (1 << contextindex)) != 0) {
             contexttext = contexts[contextindex];
