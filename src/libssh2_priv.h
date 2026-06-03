@@ -952,14 +952,14 @@ struct _LIBSSH2_SESSION {
 
 /* session.flag helpers */
 #ifdef MSG_NOSIGNAL
-#define LIBSSH2_SOCKET_SEND_FLAGS(session)         \
+#define SSH2_SOCKET_SEND_FLAGS(session)          \
     ((session)->flag.sigpipe ? 0 : MSG_NOSIGNAL)
-#define LIBSSH2_SOCKET_RECV_FLAGS(session)         \
+#define SSH2_SOCKET_RECV_FLAGS(session)          \
     ((session)->flag.sigpipe ? 0 : MSG_NOSIGNAL)
 #else
 /* If MSG_NOSIGNAL is not defined we are SOL on blocking SIGPIPE */
-#define LIBSSH2_SOCKET_SEND_FLAGS(session) 0
-#define LIBSSH2_SOCKET_RECV_FLAGS(session) 0
+#define SSH2_SOCKET_SEND_FLAGS(session) 0
+#define SSH2_SOCKET_RECV_FLAGS(session) 0
 #endif
 
 /* --------- */
@@ -1093,9 +1093,9 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
 #define ssh2_deb(x) do {} while(0)
 #endif
 
-#define LIBSSH2_SOCKET_UNKNOWN                   1
-#define LIBSSH2_SOCKET_CONNECTED                 0
-#define LIBSSH2_SOCKET_DISCONNECTED              (-1)
+#define SSH2_SOCKET_UNKNOWN                      1
+#define SSH2_SOCKET_CONNECTED                    0
+#define SSH2_SOCKET_DISCONNECTED                 (-1)
 
 /* Initial packet state, prior to MAC check */
 #define LIBSSH2_MAC_UNCONFIRMED                  1

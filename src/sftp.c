@@ -507,7 +507,7 @@ static int sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
         return LIBSSH2_ERROR_NONE;
     }
 
-    while(session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
+    while(session->socket_state == SSH2_SOCKET_CONNECTED) {
         rc = sftp_packet_read(sftp);
         if(rc < 0)
             return rc;
@@ -550,7 +550,7 @@ static int sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
     if(sftp->requirev_start == 0)
         sftp->requirev_start = time(NULL);
 
-    while(sftp->channel->session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
+    while(sftp->channel->session->socket_state == SSH2_SOCKET_CONNECTED) {
         for(i = 0; i < num_valid_responses; i++) {
             if(sftp_packet_ask(sftp, valid_responses[i], request_id,
                                data, data_len) == 0) {

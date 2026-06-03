@@ -117,7 +117,7 @@ static int banner_receive(LIBSSH2_SESSION *session)
         /* no incoming block yet! */
         session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_INBOUND;
 
-        ret = SSH2_RECV(session, &c, 1, LIBSSH2_SOCKET_RECV_FLAGS(session));
+        ret = SSH2_RECV(session, &c, 1, SSH2_SOCKET_RECV_FLAGS(session));
         if(ret < 0) {
             if(session->api_block_mode || (ret != -EAGAIN))
                 /* ignore EAGAIN when non-blocking */
@@ -143,7 +143,7 @@ static int banner_receive(LIBSSH2_SESSION *session)
         }
 
         if(ret == 0) {
-            session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
+            session->socket_state = SSH2_SOCKET_DISCONNECTED;
             return LIBSSH2_ERROR_SOCKET_DISCONNECT;
         }
 
@@ -236,7 +236,7 @@ static int banner_send(LIBSSH2_SESSION *session)
 
     ret = SSH2_SEND(session, banner + session->banner_TxRx_total_send,
                     banner_len - session->banner_TxRx_total_send,
-                    LIBSSH2_SOCKET_SEND_FLAGS(session));
+                    SSH2_SOCKET_SEND_FLAGS(session));
     if(ret < 0)
         ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
                   "Error sending %ld bytes: %ld",
@@ -1701,7 +1701,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                         fds[i].revents |= LIBSSH2_POLLFD_CHANNEL_CLOSED;
                     }
                     if(fds[i].fd.channel->session->socket_state ==
-                       LIBSSH2_SOCKET_DISCONNECTED) {
+                       SSH2_SOCKET_DISCONNECTED) {
                         fds[i].revents |=
                             LIBSSH2_POLLFD_CHANNEL_CLOSED |
                             LIBSSH2_POLLFD_SESSION_CLOSED;
@@ -1718,7 +1718,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                             LIBSSH2_POLLFD_POLLIN : 0;
                     }
                     if(fds[i].fd.listener->session->socket_state ==
-                       LIBSSH2_SOCKET_DISCONNECTED) {
+                       SSH2_SOCKET_DISCONNECTED) {
                         fds[i].revents |=
                             LIBSSH2_POLLFD_LISTENER_CLOSED |
                             LIBSSH2_POLLFD_SESSION_CLOSED;
@@ -1863,8 +1863,8 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
 
 /*
  * Get blocked direction when a function returns LIBSSH2_ERROR_EAGAIN
- * Returns LIBSSH2_SOCKET_BLOCK_INBOUND if recv() blocked
- * or LIBSSH2_SOCKET_BLOCK_OUTBOUND if send() blocked
+ * Returns SSH2_SOCKET_BLOCK_INBOUND if recv() blocked
+ * or SSH2_SOCKET_BLOCK_OUTBOUND if send() blocked
  */
 LIBSSH2_API
 int libssh2_session_block_directions(LIBSSH2_SESSION *session)

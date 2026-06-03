@@ -2558,7 +2558,7 @@ int ssh2_channel_close(LIBSSH2_CHANNEL *channel)
         /* We must wait for the remote SSH_MSG_CHANNEL_CLOSE message */
 
         while(!channel->remote.close && !rc &&
-              (session->socket_state != LIBSSH2_SOCKET_DISCONNECTED))
+              (session->socket_state != SSH2_SOCKET_DISCONNECTED))
             rc = ssh2_transport_read(session);
     }
 
@@ -2678,7 +2678,7 @@ int ssh2_channel_free(LIBSSH2_CHANNEL *channel)
 
     /* Allow channel freeing even when the socket has lost its connection */
     if(!channel->local.close &&
-       (session->socket_state == LIBSSH2_SOCKET_CONNECTED)) {
+       (session->socket_state == SSH2_SOCKET_CONNECTED)) {
         rc = ssh2_channel_close(channel);
 
         if(rc == LIBSSH2_ERROR_EAGAIN)

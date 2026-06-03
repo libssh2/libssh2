@@ -715,7 +715,7 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
 
             if(session->kex_strict && seq) {
                 SSH2_FREE(session, data);
-                session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
+                session->socket_state = SSH2_SOCKET_DISCONNECTED;
                 session->packAdd_state = ssh2_NB_state_idle;
                 libssh2_session_disconnect(session, "strict KEX violation: "
                                            "KEXINIT was not the first packet");
@@ -729,7 +729,7 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
         if(session->kex_strict && session->fullpacket_required_type &&
            session->fullpacket_required_type != msg) {
             SSH2_FREE(session, data);
-            session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
+            session->socket_state = SSH2_SOCKET_DISCONNECTED;
             session->packAdd_state = ssh2_NB_state_idle;
             libssh2_session_disconnect(session, "strict KEX violation: "
                                        "unexpected packet type");
@@ -777,7 +777,7 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
             }
 
             SSH2_FREE(session, data);
-            session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
+            session->socket_state = SSH2_SOCKET_DISCONNECTED;
             session->packAdd_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
                             "socket disconnect");
@@ -1509,7 +1509,7 @@ int ssh2_packet_require(LIBSSH2_SESSION *session,
         state->start = time(NULL);
     }
 
-    while(session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
+    while(session->socket_state == SSH2_SOCKET_CONNECTED) {
         int ret;
         session->fullpacket_required_type = packet_type;
         ret = ssh2_transport_read(session);
@@ -1576,7 +1576,7 @@ int ssh2_packet_burn(LIBSSH2_SESSION *session, ssh2_NB_states *state)
         *state = ssh2_NB_state_created;
     }
 
-    while(session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
+    while(session->socket_state == SSH2_SOCKET_CONNECTED) {
         ret = ssh2_transport_read(session);
         if(ret == LIBSSH2_ERROR_EAGAIN) {
             return ret;
@@ -1627,7 +1627,7 @@ int ssh2_packet_requirev(LIBSSH2_SESSION *session,
         state->start = time(NULL);
     }
 
-    while(session->socket_state != LIBSSH2_SOCKET_DISCONNECTED) {
+    while(session->socket_state != SSH2_SOCKET_DISCONNECTED) {
         int ret = ssh2_transport_read(session);
         if((ret < 0) && (ret != LIBSSH2_ERROR_EAGAIN)) {
             state->start = 0;

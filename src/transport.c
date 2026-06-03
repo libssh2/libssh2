@@ -427,7 +427,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
 
     do {
         int etm;
-        if(session->socket_state == LIBSSH2_SOCKET_DISCONNECTED) {
+        if(session->socket_state == SSH2_SOCKET_DISCONNECTED) {
             return LIBSSH2_ERROR_SOCKET_DISCONNECT;
         }
 
@@ -486,7 +486,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
             /* now read a big chunk from the network into the temp buffer */
             nread = SSH2_RECV(session, &p->buf[remainbuf],
                               PACKETBUFSIZE - remainbuf,
-                              LIBSSH2_SOCKET_RECV_FLAGS(session));
+                              SSH2_SOCKET_RECV_FLAGS(session));
             if(nread <= 0) {
                 /* check if this is due to EAGAIN and return the special
                    return code if so, error out normally otherwise */
@@ -935,7 +935,7 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
     length = p->ototal_num - p->osent;
 
     rc = SSH2_SEND(session, &p->outbuf[p->osent], length,
-                   LIBSSH2_SOCKET_SEND_FLAGS(session));
+                   SSH2_SOCKET_SEND_FLAGS(session));
     if(rc < 0)
         ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
                   "Error sending %ld bytes: %ld", (long)length, (long)-rc));
@@ -1273,7 +1273,7 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
     }
 
     ret = SSH2_SEND(session, p->outbuf, total_length,
-                    LIBSSH2_SOCKET_SEND_FLAGS(session));
+                    SSH2_SOCKET_SEND_FLAGS(session));
     if(ret < 0)
         ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
                   "Error sending %ld bytes: %ld",
