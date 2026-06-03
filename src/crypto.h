@@ -182,12 +182,12 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
                       const unsigned char *m, size_t m_len);
 
 int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
-                          libssh2_ec_key **out_private_key,
+                          ssh2_ec_key **out_private_key,
                           unsigned char **out_public_key_octal,
                           size_t *out_public_key_octal_len,
                           ssh2_curve_type curve_type);
 
-int ssh2_ecdh_gen_k(ssh2_bn **k, libssh2_ec_key *private_key,
+int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
                     const unsigned char *server_public_key,
                     size_t server_public_key_len);
 

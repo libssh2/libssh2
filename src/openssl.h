@@ -362,11 +362,11 @@ void ssh2_ossl_exit(void);
 #ifdef USE_OPENSSL_3
 #define ssh2_ecdsa_ctx            EVP_PKEY
 #define ssh2_ecdsa_free(ecdsactx) EVP_PKEY_free(ecdsactx)
-#define libssh2_ec_key            EVP_PKEY
+#define ssh2_ec_key               EVP_PKEY
 #else
 #define ssh2_ecdsa_ctx            EC_KEY
 #define ssh2_ecdsa_free(ecdsactx) EC_KEY_free(ecdsactx)
-#define libssh2_ec_key            EC_KEY
+#define ssh2_ec_key               EC_KEY
 #endif
 
 typedef enum {
@@ -375,7 +375,7 @@ typedef enum {
     SSH2_EC_CURVE_NISTP521 = NID_secp521r1
 } ssh2_curve_type;
 #else /* !LIBSSH2_ECDSA */
-#define libssh2_ec_key void
+#define ssh2_ec_key void
 #endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519

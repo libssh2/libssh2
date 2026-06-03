@@ -758,7 +758,7 @@ Releases the DSA computation context at dsactx.
 7.3) ECDSA
 LIBSSH2_ECDSA
 #define as 1 if the crypto library supports ECDSA, else 0.
-If defined as 0, libssh2_ec_key should be defined as void and the rest of
+If defined as 0, ssh2_ec_key should be defined as void and the rest of
 this section can be omitted.
 
 EC_MAX_POINT_LEN
@@ -767,7 +767,7 @@ Maximum point length. Usually defined as ((528 * 2 / 8) + 1) (= 133).
 ssh2_ecdsa_ctx
 Type of an ECDSA computation context. Generally a struct.
 
-libssh2_ec_key
+ssh2_ec_key
 Type of an elliptic curve key.
 
 ssh2_curve_type
@@ -776,7 +776,7 @@ An enum type defining curve types. Current supported identifiers are:
     SSH2_EC_CURVE_NISTP384
     SSH2_EC_CURVE_NISTP521
 
-int ssh2_ecdsa_create_key(libssh2_ec_key **out_private_key,
+int ssh2_ecdsa_create_key(ssh2_ec_key **out_private_key,
                           unsigned char **out_public_key_octal,
                           size_t *out_public_key_octal_len,
                           ssh2_curve_type curve_type);

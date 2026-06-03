@@ -108,7 +108,7 @@
 
 #if LIBSSH2_ECDSA
 #else
-#define libssh2_ec_key void
+#define ssh2_ec_key void
 #endif
 
 /*******************************************************************/
@@ -317,7 +317,7 @@ struct wincng_ecdsa_ctx {
 #define ssh2_ecdsa_ctx struct wincng_ecdsa_ctx
 
 #if LIBSSH2_ECDSA
-#define libssh2_ec_key struct wincng_ecdsa_ctx
+#define ssh2_ec_key struct wincng_ecdsa_ctx
 #endif
 
 void ssh2_wincng_ecdsa_free(ssh2_ecdsa_ctx* ctx);

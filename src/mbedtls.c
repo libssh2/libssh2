@@ -897,7 +897,7 @@ void ssh2_mbed_dh_dtor(ssh2_dh_ctx *dhctx)
  * and returns octal value and octal length
  */
 int ssh2_mbedtls_ecdsa_create_key(LIBSSH2_SESSION *session,
-                                  libssh2_ec_key **out_private_key,
+                                  ssh2_ec_key **out_private_key,
                                   unsigned char **out_public_key_octal,
                                   size_t *out_public_key_octal_len,
                                   ssh2_curve_type curve_type)
@@ -978,7 +978,7 @@ failed:
  * remote public key and length
  */
 int ssh2_mbedtls_ecdh_gen_k(ssh2_bn **k,
-                            libssh2_ec_key *private_key,
+                            ssh2_ec_key *private_key,
                             const unsigned char *server_public_key,
                             size_t server_public_key_len)
 {

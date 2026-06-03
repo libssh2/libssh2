@@ -199,7 +199,7 @@
 
 #if LIBSSH2_ECDSA
 #else
-#define libssh2_ec_key void
+#define ssh2_ec_key void
 #endif
 
 /*******************************************************************
