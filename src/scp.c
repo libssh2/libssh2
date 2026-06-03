@@ -407,7 +407,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
     if((session->scpRecv_state == ssh2_NB_state_sent2) ||
        (session->scpRecv_state == ssh2_NB_state_sent3)) {
         while(sb && (session->scpRecv_response_len <
-                     LIBSSH2_SCP_RESPONSE_BUFLEN)) {
+                     SSH2_SCP_RESPONSE_BUFLEN)) {
             unsigned char *s, *p;
 
             if(session->scpRecv_state == ssh2_NB_state_sent2) {
@@ -487,8 +487,8 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 if((session->scpRecv_response_len < 9) ||
                    (session->scpRecv_response[session->scpRecv_response_len -
                                               1] != '\n')) {
-                    if(session->scpRecv_response_len ==
-                       LIBSSH2_SCP_RESPONSE_BUFLEN) {
+                    if(session->scpRecv_response_len == 
+                       SSH2_SCP_RESPONSE_BUFLEN) {
                         /* You had your chance */
                         ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                                  "Unterminated response from SCP server");
@@ -596,7 +596,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
 
     if((session->scpRecv_state == ssh2_NB_state_sent5) ||
        (session->scpRecv_state == ssh2_NB_state_sent6)) {
-        while(session->scpRecv_response_len < LIBSSH2_SCP_RESPONSE_BUFLEN) {
+        while(session->scpRecv_response_len < SSH2_SCP_RESPONSE_BUFLEN) {
             char *s, *p, *e = NULL;
 
             if(session->scpRecv_state == ssh2_NB_state_sent5) {
@@ -641,7 +641,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                    (session->scpRecv_response[session->scpRecv_response_len -
                                               1] != '\n')) {
                     if(session->scpRecv_response_len ==
-                       LIBSSH2_SCP_RESPONSE_BUFLEN) {
+                       SSH2_SCP_RESPONSE_BUFLEN) {
                         /* You had your chance */
                         ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                                  "Unterminated response from SCP server");
@@ -959,7 +959,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
             /* Send mtime and atime to be used for file */
             session->scpSend_response_len =
                 snprintf((char *)session->scpSend_response,
-                         LIBSSH2_SCP_RESPONSE_BUFLEN, "T%ld 0 %ld 0\n",
+                         SSH2_SCP_RESPONSE_BUFLEN, "T%ld 0 %ld 0\n",
                          (long)mtime, (long)atime);
             ssh2_deb((session, LIBSSH2_TRACE_SCP, "Sent %s",
                       session->scpSend_response));
@@ -1029,7 +1029,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
 
         session->scpSend_response_len =
             snprintf((char *)session->scpSend_response,
-                     LIBSSH2_SCP_RESPONSE_BUFLEN,
+                     SSH2_SCP_RESPONSE_BUFLEN,
                      "C0%o %" LIBSSH2_INT64_T_FORMAT " %s\n",
                      mode, size, base);
         ssh2_deb((session, LIBSSH2_TRACE_SCP, "Sent %s",

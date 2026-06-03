@@ -653,7 +653,7 @@ struct _LIBSSH2_PUBLICKEY {
     size_t listFetch_data_len;
 };
 
-#define LIBSSH2_SCP_RESPONSE_BUFLEN     256
+#define SSH2_SCP_RESPONSE_BUFLEN     256
 
 struct flags {
     int sigpipe;     /* LIBSSH2_FLAG_SIGPIPE */
@@ -918,7 +918,7 @@ struct _LIBSSH2_SESSION {
     ssh2_NB_states scpRecv_state;
     unsigned char *scpRecv_command;
     size_t scpRecv_command_len;
-    unsigned char scpRecv_response[LIBSSH2_SCP_RESPONSE_BUFLEN];
+    unsigned char scpRecv_response[SSH2_SCP_RESPONSE_BUFLEN];
     size_t scpRecv_response_len;
     long scpRecv_mode;
     libssh2_int64_t scpRecv_size;
@@ -930,7 +930,7 @@ struct _LIBSSH2_SESSION {
     ssh2_NB_states scpSend_state;
     unsigned char *scpSend_command;
     size_t scpSend_command_len;
-    unsigned char scpSend_response[LIBSSH2_SCP_RESPONSE_BUFLEN];
+    unsigned char scpSend_response[SSH2_SCP_RESPONSE_BUFLEN];
     size_t scpSend_response_len;
     LIBSSH2_CHANNEL *scpSend_channel;
 
