@@ -3136,7 +3136,8 @@ int ssh2_ossl_sha1_final(ssh2_sha1_ctx *ctx, unsigned char *out)
 #endif
 }
 
-int ssh2_ossl_sha1(const unsigned char *message, size_t len, unsigned char *out)
+int ssh2_ossl_sha1(const unsigned char *message, size_t len,
+                   unsigned char *out)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
@@ -3205,7 +3206,8 @@ int ssh2_ossl_sha256_final(ssh2_sha256_ctx *ctx, unsigned char *out)
 #endif
 }
 
-int ssh2_ossl_sha256(const unsigned char *message, size_t len, unsigned char *out)
+int ssh2_ossl_sha256(const unsigned char *message, size_t len,
+                     unsigned char *out)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
@@ -3274,7 +3276,8 @@ int ssh2_ossl_sha384_final(ssh2_sha384_ctx *ctx, unsigned char *out)
 #endif
 }
 
-int ssh2_ossl_sha384(const unsigned char *message, size_t len, unsigned char *out)
+int ssh2_ossl_sha384(const unsigned char *message, size_t len,
+                     unsigned char *out)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
@@ -3343,7 +3346,8 @@ int ssh2_ossl_sha512_final(ssh2_sha512_ctx *ctx, unsigned char *out)
 #endif
 }
 
-int ssh2_ossl_sha512(const unsigned char *message, size_t len, unsigned char *out)
+int ssh2_ossl_sha512(const unsigned char *message, size_t len,
+                     unsigned char *out)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
