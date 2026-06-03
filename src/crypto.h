@@ -87,7 +87,7 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx);
 #define LIBSSH2_MLKEM_1024_CIPHERTEXT      1568
 
 #if LIBSSH2_RSA
-int ssh2_rsa_new(libssh2_rsa_ctx **rsa,
+int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
                  const unsigned char *edata, unsigned long elen,
                  const unsigned char *ndata, unsigned long nlen,
                  const unsigned char *ddata, unsigned long dlen,
@@ -96,36 +96,36 @@ int ssh2_rsa_new(libssh2_rsa_ctx **rsa,
                  const unsigned char *e1data, unsigned long e1len,
                  const unsigned char *e2data, unsigned long e2len,
                  const unsigned char *coeffdata, unsigned long coefflen);
-int ssh2_rsa_new_private(libssh2_rsa_ctx **rsa,
+int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
                          LIBSSH2_SESSION *session,
                          const char *filename,
                          const unsigned char *passphrase);
 #if LIBSSH2_RSA_SHA1
 int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
-                       libssh2_rsa_ctx *rsactx,
+                       ssh2_rsa_ctx *rsactx,
                        const unsigned char *hash,
                        size_t hash_len,
                        unsigned char **signature,
                        size_t *signature_len);
-int ssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
                          const unsigned char *sig,
                          size_t sig_len,
                          const unsigned char *m, size_t m_len);
 #endif
 #if LIBSSH2_RSA_SHA2
 int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
-                       libssh2_rsa_ctx *rsactx,
+                       ssh2_rsa_ctx *rsactx,
                        const unsigned char *hash,
                        size_t hash_len,
                        unsigned char **signature,
                        size_t *signature_len);
-int ssh2_rsa_sha2_verify(libssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
                          size_t hash_len,
                          const unsigned char *sig,
                          size_t sig_len,
                          const unsigned char *m, size_t m_len);
 #endif
-int ssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
+int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                     LIBSSH2_SESSION *session,
                                     const char *filedata,
                                     size_t filedata_len,
@@ -133,23 +133,23 @@ int ssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
 #endif
 
 #if LIBSSH2_DSA
-int ssh2_dsa_new(libssh2_dsa_ctx **dsa,
+int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
                  const unsigned char *pdata, unsigned long plen,
                  const unsigned char *qdata, unsigned long qlen,
                  const unsigned char *gdata, unsigned long glen,
                  const unsigned char *ydata, unsigned long ylen,
                  const unsigned char *x, unsigned long x_len);
-int ssh2_dsa_new_private(libssh2_dsa_ctx **dsa,
+int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
                         LIBSSH2_SESSION *session,
                         const char *filename,
                         const unsigned char *passphrase);
-int ssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
+int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
                         const unsigned char *sig,
                         const unsigned char *m, size_t m_len);
-int ssh2_dsa_sha1_sign(libssh2_dsa_ctx *dsactx,
+int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
                        const unsigned char *hash,
                        size_t hash_len, unsigned char *sig);
-int ssh2_dsa_new_private_frommemory(libssh2_dsa_ctx **dsa,
+int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
                                     LIBSSH2_SESSION *session,
                                     const char *filedata,
                                     size_t filedata_len,
@@ -157,17 +157,17 @@ int ssh2_dsa_new_private_frommemory(libssh2_dsa_ctx **dsa,
 #endif
 
 #if LIBSSH2_ECDSA
-int ssh2_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx **ec_ctx,
+int ssh2_ecdsa_curve_name_with_octal_new(ssh2_ecdsa_ctx **ec_ctx,
                                          const unsigned char *k,
                                          size_t k_len,
                                          ssh2_curve_type curve);
 
-int ssh2_ecdsa_new_private(libssh2_ecdsa_ctx **ec_ctx,
+int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
                            LIBSSH2_SESSION *session,
                            const char *filename,
                            const unsigned char *passphrase);
 
-int ssh2_ecdsa_new_private_sk(libssh2_ecdsa_ctx **ec_ctx,
+int ssh2_ecdsa_new_private_sk(ssh2_ecdsa_ctx **ec_ctx,
                               unsigned char *flags,
                               const char **application,
                               const unsigned char **key_handle,
@@ -176,7 +176,7 @@ int ssh2_ecdsa_new_private_sk(libssh2_ecdsa_ctx **ec_ctx,
                               const char *filename,
                               const unsigned char *passphrase);
 
-int ssh2_ecdsa_verify(libssh2_ecdsa_ctx *ec_ctx,
+int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
                       const unsigned char *r, size_t r_len,
                       const unsigned char *s, size_t s_len,
                       const unsigned char *m, size_t m_len);
@@ -191,17 +191,17 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, libssh2_ec_key *private_key,
                     const unsigned char *server_public_key,
                     size_t server_public_key_len);
 
-int ssh2_ecdsa_sign(LIBSSH2_SESSION *session, libssh2_ecdsa_ctx *ec_ctx,
+int ssh2_ecdsa_sign(LIBSSH2_SESSION *session, ssh2_ecdsa_ctx *ec_ctx,
                     const unsigned char *hash, size_t hash_len,
                     unsigned char **signature, size_t *signature_len);
 
-int ssh2_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx **ec_ctx,
+int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
                                       LIBSSH2_SESSION *session,
                                       const char *filedata,
                                       size_t filedata_len,
                                       const unsigned char *passphrase);
 
-int ssh2_ecdsa_new_private_frommemory_sk(libssh2_ecdsa_ctx **ec_ctx,
+int ssh2_ecdsa_new_private_frommemory_sk(ssh2_ecdsa_ctx **ec_ctx,
                                          unsigned char *flags,
                                          const char **application,
                                          const unsigned char **key_handle,
@@ -211,7 +211,7 @@ int ssh2_ecdsa_new_private_frommemory_sk(libssh2_ecdsa_ctx **ec_ctx,
                                          size_t filedata_len,
                                          const unsigned char *passphrase);
 
-ssh2_curve_type ssh2_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ec_ctx);
+ssh2_curve_type ssh2_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ec_ctx);
 
 int ssh2_ecdsa_curve_type_from_name(const char *name,
                                     ssh2_curve_type *out_type);
@@ -228,15 +228,15 @@ int ssh2_curve25519_gen_k(
     uint8_t private_key[LIBSSH2_ED25519_KEY_LEN],
     uint8_t server_public_key[LIBSSH2_ED25519_KEY_LEN]);
 
-int ssh2_ed25519_verify(libssh2_ed25519_ctx *ctx, const uint8_t *s,
+int ssh2_ed25519_verify(ssh2_ed25519_ctx *ctx, const uint8_t *s,
                         size_t s_len, const uint8_t *m, size_t m_len);
 
-int ssh2_ed25519_new_private(libssh2_ed25519_ctx **ed_ctx,
+int ssh2_ed25519_new_private(ssh2_ed25519_ctx **ed_ctx,
                              LIBSSH2_SESSION *session,
                              const char *filename,
                              const uint8_t *passphrase);
 
-int ssh2_ed25519_new_private_sk(libssh2_ed25519_ctx **ed_ctx,
+int ssh2_ed25519_new_private_sk(ssh2_ed25519_ctx **ed_ctx,
                                 unsigned char *flags,
                                 const char **application,
                                 const unsigned char **key_handle,
@@ -245,23 +245,23 @@ int ssh2_ed25519_new_private_sk(libssh2_ed25519_ctx **ed_ctx,
                                 const char *filename,
                                 const uint8_t *passphrase);
 
-int ssh2_ed25519_new_public(libssh2_ed25519_ctx **ed_ctx,
+int ssh2_ed25519_new_public(ssh2_ed25519_ctx **ed_ctx,
                             LIBSSH2_SESSION *session,
                             const unsigned char *raw_pub_key,
                             const size_t key_len);
 
-int ssh2_ed25519_sign(libssh2_ed25519_ctx *ctx, LIBSSH2_SESSION *session,
+int ssh2_ed25519_sign(ssh2_ed25519_ctx *ctx, LIBSSH2_SESSION *session,
                       uint8_t **out_sig, size_t *out_sig_len,
                       const uint8_t *message, size_t message_len);
 
-int ssh2_ed25519_new_private_frommemory(libssh2_ed25519_ctx **ed_ctx,
+int ssh2_ed25519_new_private_frommemory(ssh2_ed25519_ctx **ed_ctx,
                                         LIBSSH2_SESSION *session,
                                         const char *filedata,
                                         size_t filedata_len,
                                         const unsigned char *passphrase);
 
 int ssh2_ed25519_new_private_frommemory_sk(
-    libssh2_ed25519_ctx **ed_ctx,
+    ssh2_ed25519_ctx **ed_ctx,
     unsigned char *flags,
     const char **application,
     const unsigned char **key_handle,

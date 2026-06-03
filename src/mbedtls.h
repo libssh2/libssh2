@@ -209,7 +209,7 @@
  * mbedTLS backend: RSA functions
  */
 
-#define libssh2_rsa_ctx mbedtls_rsa_context
+#define ssh2_rsa_ctx mbedtls_rsa_context
 
 #define ssh2_rsa_new(rsactx, e, e_len, n, n_len, \
                      d, d_len, p, p_len, q, q_len, \
@@ -278,7 +278,7 @@ typedef enum {
 
 #if LIBSSH2_ECDSA
 
-#define libssh2_ecdsa_ctx mbedtls_ecdsa_context
+#define ssh2_ecdsa_ctx mbedtls_ecdsa_context
 
 #define ssh2_ecdsa_create_key(session, privkey, pubkey_octal, \
                               pubkey_octal_len, curve) \
@@ -437,13 +437,13 @@ ssh2_bn *ssh2_mbedtls_bignum_init(void);
 
 void ssh2_mbedtls_bignum_free(ssh2_bn *bn);
 
-void ssh2_mbedtls_rsa_free(libssh2_rsa_ctx *ctx);
+void ssh2_mbedtls_rsa_free(ssh2_rsa_ctx *ctx);
 
 #if LIBSSH2_ECDSA
-ssh2_curve_type ssh2_mbedtls_ecdsa_key_get_curve_type(libssh2_ecdsa_ctx *ctx);
+ssh2_curve_type ssh2_mbedtls_ecdsa_key_get_curve_type(ssh2_ecdsa_ctx *ctx);
 int ssh2_mbedtls_ecdsa_curve_type_from_name(const char *name,
                                             ssh2_curve_type *out_type);
-void ssh2_mbedtls_ecdsa_free(libssh2_ecdsa_ctx *ctx);
+void ssh2_mbedtls_ecdsa_free(ssh2_ecdsa_ctx *ctx);
 #endif /* LIBSSH2_ECDSA */
 
 void ssh2_mbed_dh_init(ssh2_dh_ctx *dhctx);

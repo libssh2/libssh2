@@ -61,7 +61,7 @@ static int hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
                                        size_t hostkey_data_len,
                                        void **abstract)
 {
-    libssh2_rsa_ctx *rsactx;
+    ssh2_rsa_ctx *rsactx;
     unsigned char *e, *n, *type;
     size_t e_len, n_len, type_len;
     struct string_buf buf;
@@ -136,7 +136,7 @@ static int hostkey_method_ssh_rsa_initPEM(LIBSSH2_SESSION *session,
                                           const unsigned char *passphrase,
                                           void **abstract)
 {
-    libssh2_rsa_ctx *rsactx;
+    ssh2_rsa_ctx *rsactx;
     int ret;
 
     if(*abstract) {
@@ -164,7 +164,7 @@ static int hostkey_method_ssh_rsa_initPEMFromMemory(
     const unsigned char *passphrase,
     void **abstract)
 {
-    libssh2_rsa_ctx *rsactx;
+    ssh2_rsa_ctx *rsactx;
     int ret;
 
     if(*abstract) {
@@ -194,7 +194,7 @@ static int hostkey_method_ssh_rsa_sig_verify(LIBSSH2_SESSION *session,
                                              const unsigned char *m,
                                              size_t m_len, void **abstract)
 {
-    libssh2_rsa_ctx *rsactx = (libssh2_rsa_ctx *)(*abstract);
+    ssh2_rsa_ctx *rsactx = (ssh2_rsa_ctx *)(*abstract);
     (void)session;
 
     /* Skip past keyname_len(4) + keyname(7){"ssh-rsa"} + signature_len(4) */
@@ -216,7 +216,7 @@ static int hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION *session,
                                         const struct iovec datavec[],
                                         void **abstract)
 {
-    libssh2_rsa_ctx *rsactx = (libssh2_rsa_ctx *)(*abstract);
+    ssh2_rsa_ctx *rsactx = (ssh2_rsa_ctx *)(*abstract);
 
 #ifdef ssh2_rsa_sha1_signv
     return ssh2_rsa_sha1_signv(session, signature, signature_len,
@@ -262,7 +262,7 @@ static int hostkey_method_ssh_rsa_sha2_256_sig_verify(
     const unsigned char *m,
     size_t m_len, void **abstract)
 {
-    libssh2_rsa_ctx *rsactx = (libssh2_rsa_ctx *)(*abstract);
+    ssh2_rsa_ctx *rsactx = (ssh2_rsa_ctx *)(*abstract);
     (void)session;
 
     /* Skip past keyname_len(4) + keyname(12){"rsa-sha2-256"} +
@@ -286,7 +286,7 @@ static int hostkey_method_ssh_rsa_sha2_256_signv(LIBSSH2_SESSION *session,
                                                  const struct iovec datavec[],
                                                  void **abstract)
 {
-    libssh2_rsa_ctx *rsactx = (libssh2_rsa_ctx *)(*abstract);
+    ssh2_rsa_ctx *rsactx = (ssh2_rsa_ctx *)(*abstract);
 
 #ifdef ssh2_rsa_sha2_256_signv
     return ssh2_rsa_sha2_256_signv(session, signature, signature_len,
@@ -329,7 +329,7 @@ static int hostkey_method_ssh_rsa_sha2_512_sig_verify(
     const unsigned char *m,
     size_t m_len, void **abstract)
 {
-    libssh2_rsa_ctx *rsactx = (libssh2_rsa_ctx *)(*abstract);
+    ssh2_rsa_ctx *rsactx = (ssh2_rsa_ctx *)(*abstract);
     (void)session;
 
     /* Skip past keyname_len(4) + keyname(12){"rsa-sha2-512"} +
@@ -353,7 +353,7 @@ static int hostkey_method_ssh_rsa_sha2_512_signv(LIBSSH2_SESSION *session,
                                                  const struct iovec datavec[],
                                                  void **abstract)
 {
-    libssh2_rsa_ctx *rsactx = (libssh2_rsa_ctx *)(*abstract);
+    ssh2_rsa_ctx *rsactx = (ssh2_rsa_ctx *)(*abstract);
 
 #ifdef ssh2_rsa_sha2_512_signv
     return ssh2_rsa_sha2_512_signv(session, signature, signature_len,
@@ -394,7 +394,7 @@ static int hostkey_method_ssh_rsa_sha2_512_signv(LIBSSH2_SESSION *session,
 static int hostkey_method_ssh_rsa_dtor(LIBSSH2_SESSION *session,
                                        void **abstract)
 {
-    libssh2_rsa_ctx *rsactx = (libssh2_rsa_ctx *)(*abstract);
+    ssh2_rsa_ctx *rsactx = (ssh2_rsa_ctx *)(*abstract);
     (void)session;
 
     ssh2_rsa_free(rsactx);
@@ -510,7 +510,7 @@ static int hostkey_method_ssh_dss_init(LIBSSH2_SESSION *session,
                                        size_t hostkey_data_len,
                                        void **abstract)
 {
-    libssh2_dsa_ctx *dsactx;
+    ssh2_dsa_ctx *dsactx;
     unsigned char *p, *q, *g, *y;
     size_t p_len, q_len, g_len, y_len;
     struct string_buf buf;
@@ -569,7 +569,7 @@ static int hostkey_method_ssh_dss_initPEM(LIBSSH2_SESSION *session,
                                           const unsigned char *passphrase,
                                           void **abstract)
 {
-    libssh2_dsa_ctx *dsactx;
+    ssh2_dsa_ctx *dsactx;
     int ret;
 
     if(*abstract) {
@@ -597,7 +597,7 @@ static int hostkey_method_ssh_dss_initPEMFromMemory(
     const unsigned char *passphrase,
     void **abstract)
 {
-    libssh2_dsa_ctx *dsactx;
+    ssh2_dsa_ctx *dsactx;
     int ret;
 
     if(*abstract) {
@@ -626,7 +626,7 @@ static int hostkey_method_ssh_dss_sig_verify(LIBSSH2_SESSION *session,
                                              const unsigned char *m,
                                              size_t m_len, void **abstract)
 {
-    libssh2_dsa_ctx *dsactx = (libssh2_dsa_ctx *)(*abstract);
+    ssh2_dsa_ctx *dsactx = (ssh2_dsa_ctx *)(*abstract);
 
     /* Skip past keyname_len(4) + keyname(7){"ssh-dss"} + signature_len(4) */
     if(sig_len != 55) {
@@ -650,7 +650,7 @@ static int hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session,
                                         const struct iovec datavec[],
                                         void **abstract)
 {
-    libssh2_dsa_ctx *dsactx = (libssh2_dsa_ctx *)(*abstract);
+    ssh2_dsa_ctx *dsactx = (ssh2_dsa_ctx *)(*abstract);
     unsigned char hash[SHA_DIGEST_LENGTH];
     ssh2_sha1_ctx ctx;
     int i;
@@ -691,7 +691,7 @@ static int hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session,
 static int hostkey_method_ssh_dss_dtor(LIBSSH2_SESSION *session,
                                        void **abstract)
 {
-    libssh2_dsa_ctx *dsactx = (libssh2_dsa_ctx *)(*abstract);
+    ssh2_dsa_ctx *dsactx = (ssh2_dsa_ctx *)(*abstract);
     (void)session;
 
     ssh2_dsa_free(dsactx);
@@ -731,7 +731,7 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
                                          size_t hostkey_data_len,
                                          void **abstract)
 {
-    libssh2_ecdsa_ctx *ec_ctx = NULL;
+    ssh2_ecdsa_ctx *ec_ctx = NULL;
     unsigned char *type_str, *domain, *public_key;
     size_t key_len, len;
     ssh2_curve_type type;
@@ -808,7 +808,7 @@ static int hostkey_method_ssh_ecdsa_initPEM(LIBSSH2_SESSION *session,
                                             const unsigned char *passphrase,
                                             void **abstract)
 {
-    libssh2_ecdsa_ctx *ec_ctx = NULL;
+    ssh2_ecdsa_ctx *ec_ctx = NULL;
     int ret;
 
     if(abstract && *abstract) {
@@ -834,7 +834,7 @@ static int hostkey_method_ssh_ecdsa_initPEMFromMemory(
     const unsigned char *passphrase,
     void **abstract)
 {
-    libssh2_ecdsa_ctx *ec_ctx = NULL;
+    ssh2_ecdsa_ctx *ec_ctx = NULL;
     int ret;
 
     if(abstract && *abstract) {
@@ -869,7 +869,7 @@ static int hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION *session,
     size_t r_len, s_len, name_len;
     uint32_t len;
     struct string_buf buf;
-    libssh2_ecdsa_ctx *ctx = (libssh2_ecdsa_ctx *)(*abstract);
+    ssh2_ecdsa_ctx *ctx = (ssh2_ecdsa_ctx *)(*abstract);
 
     (void)session;
 
@@ -936,7 +936,7 @@ static int hostkey_method_ssh_ecdsa_signv(LIBSSH2_SESSION *session,
                                           const struct iovec datavec[],
                                           void **abstract)
 {
-    libssh2_ecdsa_ctx *ec_ctx = (libssh2_ecdsa_ctx *)(*abstract);
+    ssh2_ecdsa_ctx *ec_ctx = (ssh2_ecdsa_ctx *)(*abstract);
     ssh2_curve_type type = ssh2_ecdsa_get_curve_type(ec_ctx);
     int ret = 0;
 
@@ -962,7 +962,7 @@ static int hostkey_method_ssh_ecdsa_signv(LIBSSH2_SESSION *session,
 static int hostkey_method_ssh_ecdsa_dtor(LIBSSH2_SESSION *session,
                                          void **abstract)
 {
-    libssh2_ecdsa_ctx *keyctx = (libssh2_ecdsa_ctx *)(*abstract);
+    ssh2_ecdsa_ctx *keyctx = (ssh2_ecdsa_ctx *)(*abstract);
     (void)session;
 
     if(keyctx)
@@ -1066,7 +1066,7 @@ static int hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION *session,
 {
     size_t key_len;
     unsigned char *key;
-    libssh2_ed25519_ctx *ctx = NULL;
+    ssh2_ed25519_ctx *ctx = NULL;
     struct string_buf buf;
 
     if(*abstract) {
@@ -1110,7 +1110,7 @@ static int hostkey_method_ssh_ed25519_initPEM(LIBSSH2_SESSION *session,
                                               const unsigned char *passphrase,
                                               void **abstract)
 {
-    libssh2_ed25519_ctx *ec_ctx = NULL;
+    ssh2_ed25519_ctx *ec_ctx = NULL;
     int ret;
 
     if(*abstract) {
@@ -1138,7 +1138,7 @@ static int hostkey_method_ssh_ed25519_initPEMFromMemory(
     const unsigned char *passphrase,
     void **abstract)
 {
-    libssh2_ed25519_ctx *ed_ctx = NULL;
+    ssh2_ed25519_ctx *ed_ctx = NULL;
     int ret;
 
     if(abstract && *abstract) {
@@ -1169,7 +1169,7 @@ static int hostkey_method_ssh_ed25519_sig_verify(LIBSSH2_SESSION *session,
                                                  const unsigned char *m,
                                                  size_t m_len, void **abstract)
 {
-    libssh2_ed25519_ctx *ctx = (libssh2_ed25519_ctx *)(*abstract);
+    ssh2_ed25519_ctx *ctx = (ssh2_ed25519_ctx *)(*abstract);
     (void)session;
 
     if(sig_len < 19)
@@ -1196,7 +1196,7 @@ static int hostkey_method_ssh_ed25519_signv(LIBSSH2_SESSION *session,
                                             const struct iovec datavec[],
                                             void **abstract)
 {
-    libssh2_ed25519_ctx *ctx = (libssh2_ed25519_ctx *)(*abstract);
+    ssh2_ed25519_ctx *ctx = (ssh2_ed25519_ctx *)(*abstract);
 
     if(veccount != 1) {
         return -1;
@@ -1213,7 +1213,7 @@ static int hostkey_method_ssh_ed25519_signv(LIBSSH2_SESSION *session,
 static int hostkey_method_ssh_ed25519_dtor(LIBSSH2_SESSION *session,
                                            void **abstract)
 {
-    libssh2_ed25519_ctx *keyctx = (libssh2_ed25519_ctx *)(*abstract);
+    ssh2_ed25519_ctx *keyctx = (ssh2_ed25519_ctx *)(*abstract);
     (void)session;
 
     if(keyctx)

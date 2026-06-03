@@ -145,12 +145,10 @@
 #define ssh2_crypto_init() gcry_control(GCRYCTL_DISABLE_SECMEM)
 #define ssh2_crypto_exit()
 
-#define libssh2_rsa_ctx struct gcry_sexp
-
+#define ssh2_rsa_ctx struct    gcry_sexp
 #define ssh2_rsa_free(rsactx)  gcry_sexp_release(rsactx)
 
-#define libssh2_dsa_ctx struct gcry_sexp
-
+#define ssh2_dsa_ctx struct    gcry_sexp
 #define ssh2_dsa_free(dsactx)  gcry_sexp_release(dsactx)
 
 #if LIBSSH2_ECDSA

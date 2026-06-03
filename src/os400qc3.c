@@ -1157,7 +1157,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx,
  *
  *******************************************************************/
 
-int ssh2_rsa_new(libssh2_rsa_ctx **rsa,
+int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
                  const unsigned char *edata, unsigned long elen,
                  const unsigned char *ndata, unsigned long nlen,
                  const unsigned char *ddata, unsigned long dlen,
@@ -1167,7 +1167,7 @@ int ssh2_rsa_new(libssh2_rsa_ctx **rsa,
                  const unsigned char *e2data, unsigned long e2len,
                  const unsigned char *coeffdata, unsigned long coefflen)
 {
-    libssh2_rsa_ctx *ctx;
+    ssh2_rsa_ctx *ctx;
     ssh2_bn *e = ssh2_bn_init_from_bin();
     ssh2_bn *n = ssh2_bn_init_from_bin();
     ssh2_bn *d = NULL;
@@ -1813,7 +1813,7 @@ static int rsapkcs8privkey(LIBSSH2_SESSION *session,
                            const unsigned char *data, unsigned int datalen,
                            const unsigned char *passphrase, void *loadkeydata)
 {
-    libssh2_rsa_ctx *ctx = (libssh2_rsa_ctx *)loadkeydata;
+    ssh2_rsa_ctx *ctx = (ssh2_rsa_ctx *)loadkeydata;
     char keyform = Qc3_Clear;
     char *kek = NULL;
     char *kea = NULL;
@@ -2122,11 +2122,11 @@ static int load_rsa_private_file(LIBSSH2_SESSION *session,
     return ret;
 }
 
-int ssh2_rsa_new_private(libssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
+int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
                          const char *filename,
                          unsigned const char *passphrase)
 {
-    libssh2_rsa_ctx *ctx = init_crypto_ctx(NULL);
+    ssh2_rsa_ctx *ctx = init_crypto_ctx(NULL);
     int ret;
 
     if(!ctx)
@@ -2183,13 +2183,13 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     return ret;
 }
 
-int ssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
+int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                     LIBSSH2_SESSION *session,
                                     const char *filedata,
                                     size_t filedata_len,
                                     unsigned const char *passphrase)
 {
-    libssh2_rsa_ctx *ctx = init_crypto_ctx(NULL);
+    ssh2_rsa_ctx *ctx = init_crypto_ctx(NULL);
     unsigned char *data = NULL;
     size_t datalen = 0;
     int ret;
@@ -2368,7 +2368,7 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                     "file: Method unimplemented in OS/400 QC3 backend");
 }
 
-int ssh2_rsa_sha2_verify(libssh2_rsa_ctx *rsactx, size_t hash_len,
+int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
@@ -2402,7 +2402,7 @@ int ssh2_rsa_sha2_verify(libssh2_rsa_ctx *rsactx, size_t hash_len,
     return errcode.Bytes_Available ? -1 : 0;
 }
 
-int ssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
@@ -2416,7 +2416,7 @@ int ssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session,
                             size_t *signature_len,
                             int veccount,
                             const struct iovec vector[],
-                            libssh2_rsa_ctx *ctx)
+                            ssh2_rsa_ctx *ctx)
 {
     Qus_EC_t errcode;
     Qc3_Format_ALGD0400_T algd;

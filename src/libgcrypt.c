@@ -136,7 +136,7 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
 }
 
 #if LIBSSH2_RSA
-int ssh2_rsa_new(libssh2_rsa_ctx **rsa,
+int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
                  const unsigned char *edata, unsigned long elen,
                  const unsigned char *ndata, unsigned long nlen,
                  const unsigned char *ddata, unsigned long dlen,
@@ -171,7 +171,7 @@ int ssh2_rsa_new(libssh2_rsa_ctx **rsa,
     return 0;
 }
 
-int ssh2_rsa_sha2_verify(libssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
                          size_t hash_len,
                          const unsigned char *sig,
                          size_t sig_len,
@@ -234,7 +234,7 @@ out:
 }
 
 #if LIBSSH2_RSA_SHA1
-int ssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
                          const unsigned char *sig,
                          size_t sig_len,
                          const unsigned char *m, size_t m_len)
@@ -246,7 +246,7 @@ int ssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
 #endif
 
 #if LIBSSH2_DSA
-int ssh2_dsa_new(libssh2_dsa_ctx **dsactx,
+int ssh2_dsa_new(ssh2_dsa_ctx **dsactx,
                  const unsigned char *p, unsigned long p_len,
                  const unsigned char *q, unsigned long q_len,
                  const unsigned char *g, unsigned long g_len,
@@ -276,7 +276,7 @@ int ssh2_dsa_new(libssh2_dsa_ctx **dsactx,
 #endif
 
 #if LIBSSH2_RSA
-int ssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
+int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                     LIBSSH2_SESSION *session,
                                     const char *filedata,
                                     size_t filedata_len,
@@ -292,7 +292,7 @@ int ssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
                     "Method unimplemented in libgcrypt backend");
 }
 
-int ssh2_rsa_new_private(libssh2_rsa_ctx **rsa,
+int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
                          LIBSSH2_SESSION *session,
                          const char *filename,
                          const unsigned char *passphrase)
@@ -395,7 +395,7 @@ fail:
 #endif
 
 #if LIBSSH2_DSA
-int ssh2_dsa_new_private_frommemory(libssh2_dsa_ctx **dsa,
+int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
                                     LIBSSH2_SESSION *session,
                                     const char *filedata,
                                     size_t filedata_len,
@@ -411,7 +411,7 @@ int ssh2_dsa_new_private_frommemory(libssh2_dsa_ctx **dsa,
                     "Method unimplemented in libgcrypt backend");
 }
 
-int ssh2_dsa_new_private(libssh2_dsa_ctx **dsa,
+int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
                          LIBSSH2_SESSION *session,
                          const char *filename,
                          const unsigned char *passphrase)
@@ -501,7 +501,7 @@ fail:
 
 #if LIBSSH2_RSA
 int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
-                       libssh2_rsa_ctx *rsactx,
+                       ssh2_rsa_ctx *rsactx,
                        const unsigned char *hash,
                        size_t hash_len,
                        unsigned char **signature,
@@ -571,7 +571,7 @@ out:
 
 #if LIBSSH2_RSA_SHA1
 int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
-                       libssh2_rsa_ctx *rsactx,
+                       ssh2_rsa_ctx *rsactx,
                        const unsigned char *hash,
                        size_t hash_len,
                        unsigned char **signature,
@@ -584,7 +584,7 @@ int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
 #endif
 
 #if LIBSSH2_DSA
-int ssh2_dsa_sha1_sign(libssh2_dsa_ctx *dsactx,
+int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
                        const unsigned char *hash,
                        size_t hash_len, unsigned char *sig)
 {
@@ -673,7 +673,7 @@ out:
     return ret;
 }
 
-int ssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
+int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
                          const unsigned char *sig,
                          const unsigned char *m, size_t m_len)
 {

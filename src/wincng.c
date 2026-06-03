@@ -1262,7 +1262,7 @@ static ULONG wincng_bn_size(const unsigned char *bignum, ULONG length)
  * Windows CNG backend: RSA functions
  */
 
-int ssh2_wincng_rsa_new(libssh2_rsa_ctx **rsa,
+int ssh2_wincng_rsa_new(ssh2_rsa_ctx **rsa,
                         const unsigned char *edata, unsigned long elen,
                         const unsigned char *ndata, unsigned long nlen,
                         const unsigned char *ddata, unsigned long dlen,
@@ -1380,7 +1380,7 @@ int ssh2_wincng_rsa_new(libssh2_rsa_ctx **rsa,
         return -1;
     }
 
-    *rsa = malloc(sizeof(libssh2_rsa_ctx));
+    *rsa = malloc(sizeof(ssh2_rsa_ctx));
     if(!(*rsa)) {
         BCryptDestroyKey(hKey);
         wincng_safe_free(rsakey, keylen);
@@ -1395,7 +1395,7 @@ int ssh2_wincng_rsa_new(libssh2_rsa_ctx **rsa,
 }
 
 #ifdef HAVE_LIBCRYPT32
-static int wincng_rsa_new_private_parse(libssh2_rsa_ctx **rsa,
+static int wincng_rsa_new_private_parse(ssh2_rsa_ctx **rsa,
                                         LIBSSH2_SESSION *session,
                                         unsigned char *pbEncoded,
                                         size_t cbEncoded)
@@ -1425,7 +1425,7 @@ static int wincng_rsa_new_private_parse(libssh2_rsa_ctx **rsa,
         return -1;
     }
 
-    *rsa = malloc(sizeof(libssh2_rsa_ctx));
+    *rsa = malloc(sizeof(ssh2_rsa_ctx));
     if(!(*rsa)) {
         BCryptDestroyKey(hKey);
         wincng_safe_free(pbStructInfo, cbStructInfo);
@@ -1440,7 +1440,7 @@ static int wincng_rsa_new_private_parse(libssh2_rsa_ctx **rsa,
 }
 #endif /* HAVE_LIBCRYPT32 */
 
-int ssh2_wincng_rsa_new_private(libssh2_rsa_ctx **rsa,
+int ssh2_wincng_rsa_new_private(ssh2_rsa_ctx **rsa,
                                 LIBSSH2_SESSION *session,
                                 const char *filename,
                                 const unsigned char *passphrase)
@@ -1468,7 +1468,7 @@ int ssh2_wincng_rsa_new_private(libssh2_rsa_ctx **rsa,
 #endif /* HAVE_LIBCRYPT32 */
 }
 
-int ssh2_wincng_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
+int ssh2_wincng_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                            LIBSSH2_SESSION *session,
                                            const char *filedata,
                                            size_t filedata_len,
@@ -1500,7 +1500,7 @@ int ssh2_wincng_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
 }
 
 #if LIBSSH2_RSA_SHA1
-int ssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
+int ssh2_wincng_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
                                 const unsigned char *sig,
                                 size_t sig_len,
                                 const unsigned char *m,
@@ -1514,7 +1514,7 @@ int ssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
 #endif
 
 #if LIBSSH2_RSA_SHA2
-int ssh2_wincng_rsa_sha2_verify(libssh2_rsa_ctx *rsactx,
+int ssh2_wincng_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
                                 size_t hash_len,
                                 const unsigned char *sig,
                                 size_t sig_len,
@@ -1529,7 +1529,7 @@ int ssh2_wincng_rsa_sha2_verify(libssh2_rsa_ctx *rsactx,
 #endif
 
 static int wincng_rsa_sha_sign(LIBSSH2_SESSION *session,
-                               libssh2_rsa_ctx *rsa,
+                               ssh2_rsa_ctx *rsa,
                                const unsigned char *hash,
                                size_t hash_len,
                                unsigned char **signature,
@@ -1589,7 +1589,7 @@ static int wincng_rsa_sha_sign(LIBSSH2_SESSION *session,
 }
 
 int ssh2_wincng_rsa_sha1_sign(LIBSSH2_SESSION *session,
-                              libssh2_rsa_ctx *rsactx,
+                              ssh2_rsa_ctx *rsactx,
                               const unsigned char *hash,
                               size_t hash_len,
                               unsigned char **signature,
@@ -1601,7 +1601,7 @@ int ssh2_wincng_rsa_sha1_sign(LIBSSH2_SESSION *session,
 }
 
 int ssh2_wincng_rsa_sha2_sign(LIBSSH2_SESSION *session,
-                              libssh2_rsa_ctx *rsactx,
+                              ssh2_rsa_ctx *rsactx,
                               const unsigned char *hash,
                               size_t hash_len,
                               unsigned char **signature,
@@ -1612,7 +1612,7 @@ int ssh2_wincng_rsa_sha2_sign(LIBSSH2_SESSION *session,
                                signature, signature_len);
 }
 
-void ssh2_wincng_rsa_free(libssh2_rsa_ctx *rsa)
+void ssh2_wincng_rsa_free(ssh2_rsa_ctx *rsa)
 {
     if(!rsa)
         return;
@@ -1621,7 +1621,7 @@ void ssh2_wincng_rsa_free(libssh2_rsa_ctx *rsa)
     rsa->hKey = NULL;
 
     wincng_safe_free(rsa->pbKeyObject, rsa->cbKeyObject);
-    wincng_safe_free(rsa, sizeof(libssh2_rsa_ctx));
+    wincng_safe_free(rsa, sizeof(ssh2_rsa_ctx));
 }
 #endif
 
@@ -1631,7 +1631,7 @@ void ssh2_wincng_rsa_free(libssh2_rsa_ctx *rsa)
  */
 
 #if LIBSSH2_DSA
-int ssh2_wincng_dsa_new(libssh2_dsa_ctx **dsa,
+int ssh2_wincng_dsa_new(ssh2_dsa_ctx **dsa,
                         const unsigned char *pdata, unsigned long plen,
                         const unsigned char *qdata, unsigned long qlen,
                         const unsigned char *gdata, unsigned long glen,
@@ -1716,7 +1716,7 @@ int ssh2_wincng_dsa_new(libssh2_dsa_ctx **dsa,
         return -1;
     }
 
-    *dsa = malloc(sizeof(libssh2_dsa_ctx));
+    *dsa = malloc(sizeof(ssh2_dsa_ctx));
     if(!(*dsa)) {
         BCryptDestroyKey(hKey);
         wincng_safe_free(dsakey, keylen);
@@ -1731,7 +1731,7 @@ int ssh2_wincng_dsa_new(libssh2_dsa_ctx **dsa,
 }
 
 #ifdef HAVE_LIBCRYPT32
-static int wincng_dsa_new_private_parse(libssh2_dsa_ctx **dsa,
+static int wincng_dsa_new_private_parse(ssh2_dsa_ctx **dsa,
                                         LIBSSH2_SESSION *session,
                                         unsigned char *pbEncoded,
                                         size_t cbEncoded)
@@ -1776,7 +1776,7 @@ static int wincng_dsa_new_private_parse(libssh2_dsa_ctx **dsa,
 }
 #endif /* HAVE_LIBCRYPT32 */
 
-int ssh2_wincng_dsa_new_private(libssh2_dsa_ctx **dsa,
+int ssh2_wincng_dsa_new_private(ssh2_dsa_ctx **dsa,
                                 LIBSSH2_SESSION *session,
                                 const char *filename,
                                 const unsigned char *passphrase)
@@ -1804,7 +1804,7 @@ int ssh2_wincng_dsa_new_private(libssh2_dsa_ctx **dsa,
 #endif /* HAVE_LIBCRYPT32 */
 }
 
-int ssh2_wincng_dsa_new_private_frommemory(libssh2_dsa_ctx **dsa,
+int ssh2_wincng_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
                                            LIBSSH2_SESSION *session,
                                            const char *filedata,
                                            size_t filedata_len,
@@ -1834,7 +1834,7 @@ int ssh2_wincng_dsa_new_private_frommemory(libssh2_dsa_ctx **dsa,
 #endif /* HAVE_LIBCRYPT32 */
 }
 
-int ssh2_wincng_dsa_sha1_verify(libssh2_dsa_ctx *dsa,
+int ssh2_wincng_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
                                 const unsigned char *sig_fixed,
                                 const unsigned char *m,
                                 size_t m_len)
@@ -1843,7 +1843,7 @@ int ssh2_wincng_dsa_sha1_verify(libssh2_dsa_ctx *dsa,
                                  40, m, (ULONG)m_len, 0);
 }
 
-int ssh2_wincng_dsa_sha1_sign(libssh2_dsa_ctx *dsa,
+int ssh2_wincng_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
                               const unsigned char *hash,
                               size_t hash_len,
                               unsigned char *sig_fixed)
@@ -1887,7 +1887,7 @@ int ssh2_wincng_dsa_sha1_sign(libssh2_dsa_ctx *dsa,
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-void ssh2_wincng_dsa_free(libssh2_dsa_ctx *dsa)
+void ssh2_wincng_dsa_free(ssh2_dsa_ctx *dsa)
 {
     if(!dsa)
         return;
@@ -1896,7 +1896,7 @@ void ssh2_wincng_dsa_free(libssh2_dsa_ctx *dsa)
     dsa->hKey = NULL;
 
     wincng_safe_free(dsa->pbKeyObject, dsa->cbKeyObject);
-    wincng_safe_free(dsa, sizeof(libssh2_dsa_ctx));
+    wincng_safe_free(dsa, sizeof(ssh2_dsa_ctx));
 }
 #endif
 

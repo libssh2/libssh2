@@ -336,10 +336,10 @@ void ssh2_ossl_exit(void);
 #if LIBSSH2_RSA
 
 #ifdef USE_OPENSSL_3
-#define libssh2_rsa_ctx       EVP_PKEY
+#define ssh2_rsa_ctx          EVP_PKEY
 #define ssh2_rsa_free(rsactx) EVP_PKEY_free(rsactx)
 #else
-#define libssh2_rsa_ctx       RSA
+#define ssh2_rsa_ctx          RSA
 #define ssh2_rsa_free(rsactx) RSA_free(rsactx)
 #endif
 
@@ -348,10 +348,10 @@ void ssh2_ossl_exit(void);
 #if LIBSSH2_DSA
 
 #ifdef USE_OPENSSL_3
-#define libssh2_dsa_ctx       EVP_PKEY
+#define ssh2_dsa_ctx          EVP_PKEY
 #define ssh2_dsa_free(rsactx) EVP_PKEY_free(rsactx)
 #else
-#define libssh2_dsa_ctx       DSA
+#define ssh2_dsa_ctx          DSA
 #define ssh2_dsa_free(dsactx) DSA_free(dsactx)
 #endif
 
@@ -360,11 +360,11 @@ void ssh2_ossl_exit(void);
 #if LIBSSH2_ECDSA
 
 #ifdef USE_OPENSSL_3
-#define libssh2_ecdsa_ctx         EVP_PKEY
+#define ssh2_ecdsa_ctx            EVP_PKEY
 #define ssh2_ecdsa_free(ecdsactx) EVP_PKEY_free(ecdsactx)
 #define libssh2_ec_key            EVP_PKEY
 #else
-#define libssh2_ecdsa_ctx         EC_KEY
+#define ssh2_ecdsa_ctx            EC_KEY
 #define ssh2_ecdsa_free(ecdsactx) EC_KEY_free(ecdsactx)
 #define libssh2_ec_key            EC_KEY
 #endif
@@ -379,7 +379,7 @@ typedef enum {
 #endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519
-#define libssh2_ed25519_ctx    EVP_PKEY
+#define ssh2_ed25519_ctx       EVP_PKEY
 #define ssh2_ed25519_free(ctx) EVP_PKEY_free(ctx)
 #endif /* LIBSSH2_ED25519 */
 

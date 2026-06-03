@@ -253,7 +253,7 @@ struct wincng_key_ctx {
  * Windows CNG backend: RSA functions
  */
 
-#define libssh2_rsa_ctx struct wincng_key_ctx
+#define ssh2_rsa_ctx struct wincng_key_ctx
 #define ssh2_rsa_new(rsactx, e, e_len, n, n_len, \
                      d, d_len, p, p_len, q, q_len, \
                      e1, e1_len, e2, e2_len, c, c_len) \
@@ -281,7 +281,7 @@ struct wincng_key_ctx {
  * Windows CNG backend: DSA functions
  */
 
-#define libssh2_dsa_ctx struct wincng_key_ctx
+#define ssh2_dsa_ctx struct wincng_key_ctx
 #define ssh2_dsa_new(dsactx, p, p_len, q, q_len, \
                      g, g_len, y, y_len, x, x_len) \
     ssh2_wincng_dsa_new(dsactx, p, p_len, q, q_len, \
@@ -314,13 +314,13 @@ struct wincng_ecdsa_ctx {
     ssh2_curve_type curve;
 };
 
-#define libssh2_ecdsa_ctx struct wincng_ecdsa_ctx
+#define ssh2_ecdsa_ctx struct wincng_ecdsa_ctx
 
 #if LIBSSH2_ECDSA
 #define libssh2_ec_key struct wincng_ecdsa_ctx
 #endif
 
-void ssh2_wincng_ecdsa_free(libssh2_ecdsa_ctx* ctx);
+void ssh2_wincng_ecdsa_free(ssh2_ecdsa_ctx* ctx);
 
 #define ssh2_ecdsa_create_key(session, privkey, pubkey_octal, \
                               pubkey_octal_len, curve) \
@@ -511,10 +511,10 @@ int ssh2_wincng_hash(const unsigned char *data, ULONG datalen,
                      BCRYPT_ALG_HANDLE hAlg,
                      unsigned char *hash, ULONG hashlen);
 
-void ssh2_wincng_rsa_free(libssh2_rsa_ctx *rsa);
+void ssh2_wincng_rsa_free(ssh2_rsa_ctx *rsa);
 
 #if LIBSSH2_DSA
-void ssh2_wincng_dsa_free(libssh2_dsa_ctx *dsa);
+void ssh2_wincng_dsa_free(ssh2_dsa_ctx *dsa);
 #endif
 
 void ssh2_wincng_cipher_dtor(ssh2_cipher_ctx *ctx);
