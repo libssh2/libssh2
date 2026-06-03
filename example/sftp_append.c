@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
                                     LIBSSH2_SFTP_S_IRGRP |
                                     LIBSSH2_SFTP_S_IROTH);
     if(!sftp_handle) {
-        fprintf(stderr, "Unable to open file with SFTP: %ld\n",
+        fprintf(stderr, "Unable to open file with SFTP: %lu\n",
                 libssh2_sftp_last_error(sftp_session));
         goto shutdown;
     }
@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
 
     fprintf(stderr, "libssh2_sftp_open() a handle for APPEND\n");
     if(!sftp_handle) {
-        fprintf(stderr, "Unable to open file with SFTP: %ld\n",
+        fprintf(stderr, "Unable to open file with SFTP: %lu\n",
                 libssh2_sftp_last_error(sftp_session));
         goto shutdown;
     }
