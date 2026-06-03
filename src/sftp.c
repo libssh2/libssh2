@@ -87,9 +87,9 @@
 #define SSH_FXP_EXTENDED_REPLY                  201
 
 /* S_IFREG */
-#define LIBSSH2_SFTP_ATTR_PFILETYPE_FILE        0100000
+#define SSH2_SFTP_ATTR_PFILETYPE_FILE           0100000
 /* S_IFDIR */
-#define LIBSSH2_SFTP_ATTR_PFILETYPE_DIR         0040000
+#define SSH2_SFTP_ATTR_PFILETYPE_DIR            0040000
 
 #define SSH_FXE_STATVFS_ST_RDONLY               0x00000001
 #define SSH_FXE_STATVFS_ST_NOSUID               0x00000002
@@ -1168,8 +1168,8 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
         }
         /* Filetype in SFTP 3 and earlier */
         attrs.permissions = mode |
-            (open_file ? LIBSSH2_SFTP_ATTR_PFILETYPE_FILE :
-             LIBSSH2_SFTP_ATTR_PFILETYPE_DIR);
+            (open_file ? SSH2_SFTP_ATTR_PFILETYPE_FILE :
+             SSH2_SFTP_ATTR_PFILETYPE_DIR);
 
         ssh2_store_u32(&s, sftp->open_packet_len - 4);
         *(s++) = open_file ? SSH_FXP_OPEN : SSH_FXP_OPENDIR;
@@ -3446,7 +3446,7 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp,
     if(mode != LIBSSH2_SFTP_DEFAULT_MODE) {
         /* Filetype in SFTP 3 and earlier */
         attrs.flags = LIBSSH2_SFTP_ATTR_PERMISSIONS;
-        attrs.permissions = mode | LIBSSH2_SFTP_ATTR_PFILETYPE_DIR;
+        attrs.permissions = mode | SSH2_SFTP_ATTR_PFILETYPE_DIR;
     }
 
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + path_len(4) */
