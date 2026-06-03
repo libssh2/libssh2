@@ -487,7 +487,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 if((session->scpRecv_response_len < 9) ||
                    (session->scpRecv_response[session->scpRecv_response_len -
                                               1] != '\n')) {
-                    if(session->scpRecv_response_len == 
+                    if(session->scpRecv_response_len ==
                        SSH2_SCP_RESPONSE_BUFLEN) {
                         /* You had your chance */
                         ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,

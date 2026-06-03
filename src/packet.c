@@ -1013,9 +1013,9 @@ ssh2_packet_add_jump_point5:
 ssh2_packet_add_jump_point1:
                 session->packAdd_state = ssh2_NB_state_jump1;
                 rc = ssh2_channel_receive_window_adjust(session->
-                                                            packAdd_channelp,
-                                                    (uint32_t)(datalen - 13),
-                                                            1, NULL);
+                                                        packAdd_channelp,
+                                                      (uint32_t)(datalen - 13),
+                                                        1, NULL);
                 if(rc == LIBSSH2_ERROR_EAGAIN)
                     return rc;
 
