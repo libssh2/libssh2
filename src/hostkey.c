@@ -225,18 +225,17 @@ static int hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION *session,
     int ret;
     int i;
     unsigned char hash[SHA_DIGEST_LENGTH];
-    libssh2_sha1_ctx ctx;
+    ssh2_sha1_ctx ctx;
 
-    if(!libssh2_sha1_init(&ctx)) {
+    if(!ssh2_sha1_init(&ctx)) {
         return -1;
     }
     for(i = 0; i < veccount; i++) {
-        if(!libssh2_sha1_update(ctx,
-                                datavec[i].iov_base, datavec[i].iov_len)) {
+        if(!ssh2_sha1_update(ctx, datavec[i].iov_base, datavec[i].iov_len)) {
             return -1;
         }
     }
-    if(!libssh2_sha1_final(ctx, hash)) {
+    if(!ssh2_sha1_final(ctx, hash)) {
         return -1;
     }
 
@@ -296,18 +295,17 @@ static int hostkey_method_ssh_rsa_sha2_256_signv(LIBSSH2_SESSION *session,
     int ret;
     int i;
     unsigned char hash[SHA256_DIGEST_LENGTH];
-    libssh2_sha256_ctx ctx;
+    ssh2_sha256_ctx ctx;
 
-    if(!libssh2_sha256_init(&ctx)) {
+    if(!ssh2_sha256_init(&ctx)) {
         return -1;
     }
     for(i = 0; i < veccount; i++) {
-        if(!libssh2_sha256_update(ctx,
-                                  datavec[i].iov_base, datavec[i].iov_len)) {
+        if(!ssh2_sha256_update(ctx, datavec[i].iov_base, datavec[i].iov_len)) {
             return -1;
         }
     }
-    if(!libssh2_sha256_final(ctx, hash)) {
+    if(!ssh2_sha256_final(ctx, hash)) {
         return -1;
     }
 
@@ -364,18 +362,17 @@ static int hostkey_method_ssh_rsa_sha2_512_signv(LIBSSH2_SESSION *session,
     int ret;
     int i;
     unsigned char hash[SHA512_DIGEST_LENGTH];
-    libssh2_sha512_ctx ctx;
+    ssh2_sha512_ctx ctx;
 
-    if(!libssh2_sha512_init(&ctx)) {
+    if(!ssh2_sha512_init(&ctx)) {
         return -1;
     }
     for(i = 0; i < veccount; i++) {
-        if(!libssh2_sha512_update(ctx,
-                                  datavec[i].iov_base, datavec[i].iov_len)) {
+        if(!ssh2_sha512_update(ctx, datavec[i].iov_base, datavec[i].iov_len)) {
             return -1;
         }
     }
-    if(!libssh2_sha512_final(ctx, hash)) {
+    if(!ssh2_sha512_final(ctx, hash)) {
         return -1;
     }
 
@@ -655,10 +652,10 @@ static int hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session,
 {
     libssh2_dsa_ctx *dsactx = (libssh2_dsa_ctx *)(*abstract);
     unsigned char hash[SHA_DIGEST_LENGTH];
-    libssh2_sha1_ctx ctx;
+    ssh2_sha1_ctx ctx;
     int i;
 
-    if(!libssh2_sha1_init(&ctx)) {
+    if(!ssh2_sha1_init(&ctx)) {
         *signature = NULL;
         *signature_len = 0;
         return -1;
@@ -672,12 +669,11 @@ static int hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session,
     *signature_len = 2 * SHA_DIGEST_LENGTH;
 
     for(i = 0; i < veccount; i++) {
-        if(!libssh2_sha1_update(ctx,
-                                datavec[i].iov_base, datavec[i].iov_len)) {
+        if(!ssh2_sha1_update(ctx, datavec[i].iov_base, datavec[i].iov_len)) {
             return -1;
         }
     }
-    if(!libssh2_sha1_final(ctx, hash)) {
+    if(!ssh2_sha1_final(ctx, hash)) {
         return -1;
     }
 

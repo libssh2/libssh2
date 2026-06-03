@@ -116,16 +116,16 @@
 static int sha_algo_ctx_init(int sha_algo, void *ctx)
 {
     if(sha_algo == 512) {
-        return libssh2_sha512_init((libssh2_sha512_ctx *)ctx);
+        return ssh2_sha512_init((ssh2_sha512_ctx *)ctx);
     }
     else if(sha_algo == 384) {
-        return libssh2_sha384_init((libssh2_sha384_ctx *)ctx);
+        return ssh2_sha384_init((ssh2_sha384_ctx *)ctx);
     }
     else if(sha_algo == 256) {
-        return libssh2_sha256_init((libssh2_sha256_ctx *)ctx);
+        return ssh2_sha256_init((ssh2_sha256_ctx *)ctx);
     }
     else if(sha_algo == 1) {
-        return libssh2_sha1_init((libssh2_sha1_ctx *)ctx);
+        return ssh2_sha1_init((ssh2_sha1_ctx *)ctx);
     }
     else {
 #ifdef LIBSSH2DEBUG
@@ -139,20 +139,20 @@ static int sha_algo_ctx_update(int sha_algo, void *ctx,
                                const void *data, size_t len)
 {
     if(sha_algo == 512) {
-        libssh2_sha512_ctx *_ctx = (libssh2_sha512_ctx *)ctx;
-        return libssh2_sha512_update(*_ctx, data, len);
+        ssh2_sha512_ctx *_ctx = (ssh2_sha512_ctx *)ctx;
+        return ssh2_sha512_update(*_ctx, data, len);
     }
     else if(sha_algo == 384) {
-        libssh2_sha384_ctx *_ctx = (libssh2_sha384_ctx *)ctx;
-        return libssh2_sha384_update(*_ctx, data, len);
+        ssh2_sha384_ctx *_ctx = (ssh2_sha384_ctx *)ctx;
+        return ssh2_sha384_update(*_ctx, data, len);
     }
     else if(sha_algo == 256) {
-        libssh2_sha256_ctx *_ctx = (libssh2_sha256_ctx *)ctx;
-        return libssh2_sha256_update(*_ctx, data, len);
+        ssh2_sha256_ctx *_ctx = (ssh2_sha256_ctx *)ctx;
+        return ssh2_sha256_update(*_ctx, data, len);
     }
     else if(sha_algo == 1) {
-        libssh2_sha1_ctx *_ctx = (libssh2_sha1_ctx *)ctx;
-        return libssh2_sha1_update(*_ctx, data, len);
+        ssh2_sha1_ctx *_ctx = (ssh2_sha1_ctx *)ctx;
+        return ssh2_sha1_update(*_ctx, data, len);
     }
     else {
 #ifdef LIBSSH2DEBUG
@@ -165,20 +165,20 @@ static int sha_algo_ctx_update(int sha_algo, void *ctx,
 static int sha_algo_ctx_final(int sha_algo, void *ctx, void *hash)
 {
     if(sha_algo == 512) {
-        libssh2_sha512_ctx *_ctx = (libssh2_sha512_ctx *)ctx;
-        return libssh2_sha512_final(*_ctx, hash);
+        ssh2_sha512_ctx *_ctx = (ssh2_sha512_ctx *)ctx;
+        return ssh2_sha512_final(*_ctx, hash);
     }
     else if(sha_algo == 384) {
-        libssh2_sha384_ctx *_ctx = (libssh2_sha384_ctx *)ctx;
-        return libssh2_sha384_final(*_ctx, hash);
+        ssh2_sha384_ctx *_ctx = (ssh2_sha384_ctx *)ctx;
+        return ssh2_sha384_final(*_ctx, hash);
     }
     else if(sha_algo == 256) {
-        libssh2_sha256_ctx *_ctx = (libssh2_sha256_ctx *)ctx;
-        return libssh2_sha256_final(*_ctx, hash);
+        ssh2_sha256_ctx *_ctx = (ssh2_sha256_ctx *)ctx;
+        return ssh2_sha256_final(*_ctx, hash);
     }
     else if(sha_algo == 1) {
-        libssh2_sha1_ctx *_ctx = (libssh2_sha1_ctx *)ctx;
-        return libssh2_sha1_final(*_ctx, hash);
+        ssh2_sha1_ctx *_ctx = (ssh2_sha1_ctx *)ctx;
+        return ssh2_sha1_final(*_ctx, hash);
     }
     else {
 #ifdef LIBSSH2DEBUG
@@ -257,12 +257,12 @@ static int process_host_key(LIBSSH2_SESSION *session,
 
 #if LIBSSH2_MD5
     {
-        libssh2_md5_ctx fingerprint_ctx;
+        ssh2_md5_ctx fingerprint_ctx;
 
-        if(libssh2_md5_init(&fingerprint_ctx) &&
-           libssh2_md5_update(fingerprint_ctx, session->server_hostkey,
-                              session->server_hostkey_len) &&
-           libssh2_md5_final(fingerprint_ctx, session->server_hostkey_md5)) {
+        if(ssh2_md5_init(&fingerprint_ctx) &&
+           ssh2_md5_update(fingerprint_ctx, session->server_hostkey,
+                           session->server_hostkey_len) &&
+           ssh2_md5_final(fingerprint_ctx, session->server_hostkey_md5)) {
             session->server_hostkey_md5_valid = TRUE;
         }
         else {
@@ -285,12 +285,12 @@ static int process_host_key(LIBSSH2_SESSION *session,
 #endif /* ! LIBSSH2_MD5 */
 
     {
-        libssh2_sha1_ctx fingerprint_ctx;
+        ssh2_sha1_ctx fingerprint_ctx;
 
-        if(libssh2_sha1_init(&fingerprint_ctx) &&
-           libssh2_sha1_update(fingerprint_ctx, session->server_hostkey,
-                               session->server_hostkey_len) &&
-           libssh2_sha1_final(fingerprint_ctx, session->server_hostkey_sha1)) {
+        if(ssh2_sha1_init(&fingerprint_ctx) &&
+           ssh2_sha1_update(fingerprint_ctx, session->server_hostkey,
+                            session->server_hostkey_len) &&
+           ssh2_sha1_final(fingerprint_ctx, session->server_hostkey_sha1)) {
             session->server_hostkey_sha1_valid = TRUE;
         }
         else {
@@ -312,13 +312,13 @@ static int process_host_key(LIBSSH2_SESSION *session,
 #endif /* LIBSSH2DEBUG */
 
     {
-        libssh2_sha256_ctx fingerprint_ctx;
+        ssh2_sha256_ctx fingerprint_ctx;
 
-        if(libssh2_sha256_init(&fingerprint_ctx) &&
-           libssh2_sha256_update(fingerprint_ctx, session->server_hostkey,
-                                 session->server_hostkey_len) &&
-           libssh2_sha256_final(fingerprint_ctx,
-                                session->server_hostkey_sha256)) {
+        if(ssh2_sha256_init(&fingerprint_ctx) &&
+           ssh2_sha256_update(fingerprint_ctx, session->server_hostkey,
+                              session->server_hostkey_len) &&
+           ssh2_sha256_final(fingerprint_ctx,
+                             session->server_hostkey_sha256)) {
             session->server_hostkey_sha256_valid = TRUE;
         }
         else {
@@ -1018,7 +1018,7 @@ static int kex_method_diffie_hellman_group1_sha1_key_exchange(
     };
 
     int ret;
-    libssh2_sha1_ctx exchange_hash_ctx;
+    ssh2_sha1_ctx exchange_hash_ctx;
 
     if(key_state->state == libssh2_NB_state_idle) {
         /* g == 2 */
@@ -1159,7 +1159,7 @@ clean_exit:
 static int kex_method_diffie_hellman_group14_sha1_key_exchange(
     LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
-    libssh2_sha1_ctx ctx;
+    ssh2_sha1_ctx ctx;
     return kex_method_diffie_hellman_group14_key_exchange(
         session, key_state, 1, &ctx, diffie_hellman_sha_algo);
 }
@@ -1170,7 +1170,7 @@ static int kex_method_diffie_hellman_group14_sha1_key_exchange(
 static int kex_method_diffie_hellman_group14_sha256_key_exchange(
     LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
-    libssh2_sha256_ctx ctx;
+    ssh2_sha256_ctx ctx;
     return kex_method_diffie_hellman_group14_key_exchange(
         session, key_state, 256, &ctx, diffie_hellman_sha_algo);
 }
@@ -1227,7 +1227,7 @@ static int kex_method_diffie_hellman_group16_sha512_key_exchange(
         0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
     };
     int ret;
-    libssh2_sha512_ctx exchange_hash_ctx;
+    ssh2_sha512_ctx exchange_hash_ctx;
 
     if(key_state->state == libssh2_NB_state_idle) {
         key_state->p = ssh2_bn_init_from_bin(); /* SSH2 defined value
@@ -1362,7 +1362,7 @@ static int kex_method_diffie_hellman_group18_sha512_key_exchange(
         0xFF, 0xFF, 0xFF, 0xFF
     };
     int ret;
-    libssh2_sha512_ctx exchange_hash_ctx;
+    ssh2_sha512_ctx exchange_hash_ctx;
 
     if(key_state->state == libssh2_NB_state_idle) {
         key_state->p = ssh2_bn_init_from_bin(); /* SSH2 defined value
@@ -1462,7 +1462,7 @@ static int kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
         size_t p_len, g_len;
         unsigned char *p, *g;
         struct string_buf buf;
-        libssh2_sha1_ctx exchange_hash_ctx;
+        ssh2_sha1_ctx exchange_hash_ctx;
         int bits;
 
         if(key_state->data_len < 9) {
@@ -1586,7 +1586,7 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
         unsigned char *p, *g;
         size_t p_len, g_len;
         struct string_buf buf;
-        libssh2_sha256_ctx exchange_hash_ctx;
+        ssh2_sha256_ctx exchange_hash_ctx;
         int bits;
 
         if(key_state->data_len < 9) {
@@ -2441,21 +2441,20 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
         /*/ verify hash */
         switch(type) {
         case LIBSSH2_EC_CURVE_NISTP256: {
-            libssh2_sha256_ctx k_ctx;
-            if(!libssh2_sha256_init(&k_ctx)) {
+            ssh2_sha256_ctx k_ctx;
+            if(!ssh2_sha256_init(&k_ctx)) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
                                "kex: failed to initialize hash");
                 goto clean_exit;
             }
 
-            if(!libssh2_sha256_update(k_ctx, shared_secret,
-                                      shared_secret_len)) {
+            if(!ssh2_sha256_update(k_ctx, shared_secret, shared_secret_len)) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                                "kex: failed to calculate hash");
                 goto clean_exit;
             }
 
-            if(!libssh2_sha256_final(k_ctx, exchange_state->k_value + 4)) {
+            if(!ssh2_sha256_final(k_ctx, exchange_state->k_value + 4)) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                                "kex: failed to calculate hash");
                 goto clean_exit;
@@ -2464,21 +2463,20 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
             break;
         }
         case LIBSSH2_EC_CURVE_NISTP384: {
-            libssh2_sha384_ctx k_ctx;
-            if(!libssh2_sha384_init(&k_ctx)) {
+            ssh2_sha384_ctx k_ctx;
+            if(!ssh2_sha384_init(&k_ctx)) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
                                "kex: failed to initialize hash");
                 goto clean_exit;
             }
 
-            if(!libssh2_sha384_update(k_ctx, shared_secret,
-                                      shared_secret_len)) {
+            if(!ssh2_sha384_update(k_ctx, shared_secret, shared_secret_len)) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                                "kex: failed to calculate hash");
                 goto clean_exit;
             }
 
-            if(!libssh2_sha384_final(k_ctx, exchange_state->k_value + 4)) {
+            if(!ssh2_sha384_final(k_ctx, exchange_state->k_value + 4)) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                                "kex: failed to calculate hash");
                 goto clean_exit;
@@ -3028,7 +3026,7 @@ static int mlkem768x25519_sha256(
                                     LIBSSH2_ED25519_KEY_LEN];
         size_t server_public_key_len;
         struct string_buf buf;
-        libssh2_sha256_ctx k_ctx;
+        ssh2_sha256_ctx k_ctx;
 
         ret = process_host_key(session, &buf, exchange_state, data, data_len);
         if(ret) {
@@ -3095,21 +3093,21 @@ static int mlkem768x25519_sha256(
             goto clean_exit;
         }
 
-        if(!libssh2_sha256_init(&k_ctx)) {
+        if(!ssh2_sha256_init(&k_ctx)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
                            "kex: failed to initialize hash");
             goto clean_exit;
         }
 
-        if(!libssh2_sha256_update(k_ctx, shared_secret,
-                                  LIBSSH2_MLKEM_SHARED_SECRET_LEN +
-                                      LIBSSH2_ED25519_KEY_LEN)) {
+        if(!ssh2_sha256_update(k_ctx, shared_secret,
+                               LIBSSH2_MLKEM_SHARED_SECRET_LEN +
+                                       LIBSSH2_ED25519_KEY_LEN)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                            "kex: failed to calculate hash");
             goto clean_exit;
         }
 
-        if(!libssh2_sha256_final(k_ctx, exchange_state->k_value + 4)) {
+        if(!ssh2_sha256_final(k_ctx, exchange_state->k_value + 4)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                            "kex: failed to calculate hash");
             goto clean_exit;

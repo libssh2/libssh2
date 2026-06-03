@@ -243,51 +243,51 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define ssh2_crypto_init()
 #define ssh2_crypto_exit()
 
-#define libssh2_sha1_ctx        Qc3_Format_ALGD0100_T
-#define libssh2_sha256_ctx      Qc3_Format_ALGD0100_T
-#define libssh2_sha384_ctx      Qc3_Format_ALGD0100_T
-#define libssh2_sha512_ctx      Qc3_Format_ALGD0100_T
+#define ssh2_sha1_ctx        Qc3_Format_ALGD0100_T
+#define ssh2_sha256_ctx      Qc3_Format_ALGD0100_T
+#define ssh2_sha384_ctx      Qc3_Format_ALGD0100_T
+#define ssh2_sha512_ctx      Qc3_Format_ALGD0100_T
 #define libssh2_hmac_ctx        struct os400qc3_crypto_ctx
 #define libssh2_cipher_ctx      struct os400qc3_crypto_ctx
 
-#define libssh2_sha1_init(x)    ssh2_os400qc3_hash_init(x, Qc3_SHA1)
-#define libssh2_sha1_update(ctx, data, len)                                 \
+#define ssh2_sha1_init(x)    ssh2_os400qc3_hash_init(x, Qc3_SHA1)
+#define ssh2_sha1_update(ctx, data, len)                                 \
     ssh2_os400qc3_hash_update(&(ctx), data, len)
-#define libssh2_sha1_final(ctx, out)                                        \
+#define ssh2_sha1_final(ctx, out)                                        \
     ssh2_os400qc3_hash_final(&(ctx), out)
-#define libssh2_sha256_init(x)                                              \
+#define ssh2_sha256_init(x)                                              \
     ssh2_os400qc3_hash_init(x, Qc3_SHA256)
-#define libssh2_sha256_update(ctx, data, len)                               \
+#define ssh2_sha256_update(ctx, data, len)                               \
     ssh2_os400qc3_hash_update(&(ctx), data, len)
-#define libssh2_sha256_final(ctx, out)                                      \
+#define ssh2_sha256_final(ctx, out)                                      \
     ssh2_os400qc3_hash_final(&(ctx), out)
-#define libssh2_sha256(message, len, out)                                   \
+#define ssh2_sha256(message, len, out)                                   \
     ssh2_os400qc3_hash(message, len, out, Qc3_SHA256)
-#define libssh2_sha384_init(x)                                              \
+#define ssh2_sha384_init(x)                                              \
     ssh2_os400qc3_hash_init(x, Qc3_SHA384)
-#define libssh2_sha384_update(ctx, data, len)                               \
+#define ssh2_sha384_update(ctx, data, len)                               \
     ssh2_os400qc3_hash_update(&(ctx), data, len)
-#define libssh2_sha384_final(ctx, out)                                      \
+#define ssh2_sha384_final(ctx, out)                                      \
     ssh2_os400qc3_hash_final(&(ctx), out)
-#define libssh2_sha384(message, len, out)                                   \
+#define ssh2_sha384(message, len, out)                                   \
     ssh2_os400qc3_hash(message, len, out, Qc3_SHA384)
-#define libssh2_sha512_init(x)                                              \
+#define ssh2_sha512_init(x)                                              \
     ssh2_os400qc3_hash_init(x, Qc3_SHA512)
-#define libssh2_sha512_update(ctx, data, len)                               \
+#define ssh2_sha512_update(ctx, data, len)                               \
     ssh2_os400qc3_hash_update(&(ctx), data, len)
-#define libssh2_sha512_final(ctx, out)                                      \
+#define ssh2_sha512_final(ctx, out)                                      \
     ssh2_os400qc3_hash_final(&(ctx), out)
-#define libssh2_sha512(message, len, out)                                   \
+#define ssh2_sha512(message, len, out)                                   \
     ssh2_os400qc3_hash(message, len, out, Qc3_SHA512)
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #define MD5_DIGEST_LENGTH       16
-#define libssh2_md5_ctx         Qc3_Format_ALGD0100_T
-#define libssh2_md5_init(x)                                                 \
+#define ssh2_md5_ctx            Qc3_Format_ALGD0100_T
+#define ssh2_md5_init(x)                                                 \
     ssh2_os400qc3_hash_init(x, Qc3_MD5)
-#define libssh2_md5_update(ctx, data, len)                                  \
+#define ssh2_md5_update(ctx, data, len)                                  \
     ssh2_os400qc3_hash_update(&(ctx), data, len)
-#define libssh2_md5_final(ctx, out)                                         \
+#define ssh2_md5_final(ctx, out)                                         \
     ssh2_os400qc3_hash_final(&(ctx), out)
 #endif
 

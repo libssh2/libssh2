@@ -84,23 +84,23 @@ Must always be implemented.
 SHA_DIGEST_LENGTH
 #define to 20, the SHA-1 digest length.
 
-libssh2_sha1_ctx
+ssh2_sha1_ctx
 Type of an SHA-1 computation context. Generally a struct.
 
-int libssh2_sha1_init(libssh2_sha1_ctx *x);
+int ssh2_sha1_init(ssh2_sha1_ctx *x);
 Initializes the SHA-1 computation context at x.
 Returns 1 for success and 0 for failure
 
-int libssh2_sha1_update(libssh2_sha1_ctx ctx,
-                        const unsigned char *data,
-                        size_t len);
+int ssh2_sha1_update(ssh2_sha1_ctx ctx,
+                     const unsigned char *data,
+                     size_t len);
 Continue computation of SHA-1 on len bytes at data using context ctx.
 Note: if the ctx parameter is modified by the underlying code,
 this procedure must be implemented as a macro to map ctx --> &ctx.
 Must return 1 for success and 0 for failure.
 
-int libssh2_sha1_final(libssh2_sha1_ctx ctx,
-                       unsigned char output[SHA_DIGEST_LEN]);
+int ssh2_sha1_final(ssh2_sha1_ctx ctx,
+                    unsigned char output[SHA_DIGEST_LEN]);
 Get the computed SHA-1 signature from context ctx and store it into the
 output buffer.
 Release the context.
@@ -121,32 +121,32 @@ Must always be implemented.
 SHA256_DIGEST_LENGTH
 #define to 32, the SHA-256 digest length.
 
-libssh2_sha256_ctx
+ssh2_sha256_ctx
 Type of an SHA-256 computation context. Generally a struct.
 
-int libssh2_sha256_init(libssh2_sha256_ctx *x);
+int ssh2_sha256_init(ssh2_sha256_ctx *x);
 Initializes the SHA-256 computation context at x.
 Returns 1 for success and 0 for failure
 
-int libssh2_sha256_update(libssh2_sha256_ctx ctx,
-                          const unsigned char *data,
-                          size_t len);
+int ssh2_sha256_update(ssh2_sha256_ctx ctx,
+                       const unsigned char *data,
+                       size_t len);
 Continue computation of SHA-256 on len bytes at data using context ctx.
 Note: if the ctx parameter is modified by the underlying code,
 this procedure must be implemented as a macro to map ctx --> &ctx.
 Must return 1 for success and 0 for failure.
 
-int libssh2_sha256_final(libssh2_sha256_ctx ctx,
-                         unsigned char output[SHA256_DIGEST_LENGTH]);
+int ssh2_sha256_final(ssh2_sha256_ctx ctx,
+                      unsigned char output[SHA256_DIGEST_LENGTH]);
 Gets the computed SHA-256 signature from context ctx into the output buffer.
 Release the context.
 Note: if the ctx parameter is modified by the underlying code,
 this procedure must be implemented as a macro to map ctx --> &ctx.
 Must return 1 for success and 0 for failure.
 
-int libssh2_sha256(const unsigned char *message,
-                   size_t len,
-                   unsigned char output[SHA256_DIGEST_LENGTH]);
+int ssh2_sha256(const unsigned char *message,
+                size_t len,
+                unsigned char output[SHA256_DIGEST_LENGTH]);
 Computes the SHA-256 signature over the given message of length len and
 store the result into the output buffer.
 Return 1 if error, else 0.
@@ -169,32 +169,32 @@ Mandatory if ECDSA is implemented. Can be omitted otherwise.
 SHA384_DIGEST_LENGTH
 #define to 48, the SHA-384 digest length.
 
-libssh2_sha384_ctx
+ssh2_sha384_ctx
 Type of an SHA-384 computation context. Generally a struct.
 
-int libssh2_sha384_init(libssh2_sha384_ctx *x);
+int ssh2_sha384_init(ssh2_sha384_ctx *x);
 Initializes the SHA-384 computation context at x.
 Returns 1 for success and 0 for failure
 
-int libssh2_sha384_update(libssh2_sha384_ctx ctx,
-                          const unsigned char *data,
-                          size_t len);
+int ssh2_sha384_update(ssh2_sha384_ctx ctx,
+                       const unsigned char *data,
+                       size_t len);
 Continue computation of SHA-384 on len bytes at data using context ctx.
 Note: if the ctx parameter is modified by the underlying code,
 this procedure must be implemented as a macro to map ctx --> &ctx.
 Must return 1 for success and 0 for failure.
 
-int libssh2_sha384_final(libssh2_sha384_ctx ctx,
-                         unsigned char output[SHA384_DIGEST_LENGTH]);
+int ssh2_sha384_final(ssh2_sha384_ctx ctx,
+                      unsigned char output[SHA384_DIGEST_LENGTH]);
 Gets the computed SHA-384 signature from context ctx into the output buffer.
 Release the context.
 Note: if the ctx parameter is modified by the underlying code,
 this procedure must be implemented as a macro to map ctx --> &ctx.
 Must return 1 for success and 0 for failure.
 
-int libssh2_sha384(const unsigned char *message,
-                   size_t len,
-                   unsigned char output[SHA384_DIGEST_LENGTH]);
+int ssh2_sha384(const unsigned char *message,
+                size_t len,
+                unsigned char output[SHA384_DIGEST_LENGTH]);
 Computes the SHA-384 signature over the given message of length len and
 store the result into the output buffer.
 Return 1 if error, else 0.
@@ -205,32 +205,32 @@ Must always be implemented.
 SHA512_DIGEST_LENGTH
 #define to 64, the SHA-512 digest length.
 
-libssh2_sha512_ctx
+ssh2_sha512_ctx
 Type of an SHA-512 computation context. Generally a struct.
 
-int libssh2_sha512_init(libssh2_sha512_ctx *x);
+int ssh2_sha512_init(ssh2_sha512_ctx *x);
 Initializes the SHA-512 computation context at x.
 Returns 1 for success and 0 for failure
 
-int libssh2_sha512_update(libssh2_sha512_ctx ctx,
-                          const unsigned char *data,
-                          size_t len);
+int ssh2_sha512_update(ssh2_sha512_ctx ctx,
+                       const unsigned char *data,
+                       size_t len);
 Continue computation of SHA-512 on len bytes at data using context ctx.
 Note: if the ctx parameter is modified by the underlying code,
 this procedure must be implemented as a macro to map ctx --> &ctx.
 Must return 1 for success and 0 for failure.
 
-int libssh2_sha512_final(libssh2_sha512_ctx ctx,
-                         unsigned char output[SHA512_DIGEST_LENGTH]);
+int ssh2_sha512_final(ssh2_sha512_ctx ctx,
+                      unsigned char output[SHA512_DIGEST_LENGTH]);
 Gets the computed SHA-512 signature from context ctx into the output buffer.
 Release the context.
 Note: if the ctx parameter is modified by the underlying code,
 this procedure must be implemented as a macro to map ctx --> &ctx.
 Must return 1 for success and 0 for failure.
 
-int libssh2_sha512(const unsigned char *message,
-                   size_t len,
-                   unsigned char output[SHA512_DIGEST_LENGTH]);
+int ssh2_sha512(const unsigned char *message,
+                size_t len,
+                unsigned char output[SHA512_DIGEST_LENGTH]);
 Computes the SHA-512 signature over the given message of length len and
 store the result into the output buffer.
 Return 1 if error, else 0.
@@ -255,24 +255,24 @@ If defined as 0, the rest of this section can be omitted.
 MD5_DIGEST_LENGTH
 #define to 16, the MD5 digest length.
 
-libssh2_md5_ctx
+ssh2_md5_ctx
 Type of an MD5 computation context. Generally a struct.
 
-int libssh2_md5_init(libssh2_md5_ctx *x);
+int ssh2_md5_init(ssh2_md5_ctx *x);
 Initializes the MD5 computation context at x.
 Returns 1 for success and 0 for failure
 
-int libssh2_md5_update(libssh2_md5_ctx ctx,
-                       const unsigned char *data,
-                       size_t len);
+int ssh2_md5_update(ssh2_md5_ctx ctx,
+                    const unsigned char *data,
+                    size_t len);
 Continues computation of MD5 on len bytes at data using context ctx.
 Returns 1 for success and 0 for failure.
 Note: if the ctx parameter is modified by the underlying code,
 this procedure must be implemented as a macro to map ctx --> &ctx.
 Must return 1 for success and 0 for failure.
 
-int libssh2_md5_final(libssh2_md5_ctx ctx,
-                      unsigned char output[MD5_DIGEST_LENGTH]);
+int ssh2_md5_final(ssh2_md5_ctx ctx,
+                   unsigned char output[MD5_DIGEST_LENGTH]);
 Gets the computed MD5 signature from context ctx into the output buffer.
 Release the context.
 Note: if the ctx parameter is modified by the underlying code,

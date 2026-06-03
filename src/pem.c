@@ -291,26 +291,26 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         int blocksize = method->blocksize;
         void *abstract;
         unsigned char secret[2 * MD5_DIGEST_LENGTH];
-        libssh2_md5_ctx fingerprint_ctx;
+        ssh2_md5_ctx fingerprint_ctx;
 
         /* Perform key derivation (PBKDF1/MD5) */
-        if(!libssh2_md5_init(&fingerprint_ctx) ||
-           !libssh2_md5_update(fingerprint_ctx, passphrase,
-                               strlen((const char *)passphrase)) ||
-           !libssh2_md5_update(fingerprint_ctx, iv, 8) ||
-           !libssh2_md5_final(fingerprint_ctx, secret)) {
+        if(!ssh2_md5_init(&fingerprint_ctx) ||
+           !ssh2_md5_update(fingerprint_ctx, passphrase,
+                            strlen((const char *)passphrase)) ||
+           !ssh2_md5_update(fingerprint_ctx, iv, 8) ||
+           !ssh2_md5_final(fingerprint_ctx, secret)) {
             ret = -1;
             goto out;
         }
         if(method->secret_len > MD5_DIGEST_LENGTH) {
-            if(!libssh2_md5_init(&fingerprint_ctx) ||
-               !libssh2_md5_update(fingerprint_ctx, secret,
-                                   MD5_DIGEST_LENGTH) ||
-               !libssh2_md5_update(fingerprint_ctx, passphrase,
-                                   strlen((const char *)passphrase)) ||
-               !libssh2_md5_update(fingerprint_ctx, iv, 8) ||
-               !libssh2_md5_final(fingerprint_ctx,
-                                  secret + MD5_DIGEST_LENGTH)) {
+            if(!ssh2_md5_init(&fingerprint_ctx) ||
+               !ssh2_md5_update(fingerprint_ctx, secret,
+                                MD5_DIGEST_LENGTH) ||
+               !ssh2_md5_update(fingerprint_ctx, passphrase,
+                                strlen((const char *)passphrase)) ||
+               !ssh2_md5_update(fingerprint_ctx, iv, 8) ||
+               !ssh2_md5_final(fingerprint_ctx,
+                               secret + MD5_DIGEST_LENGTH)) {
                 ret = -1;
                 goto out;
             }
