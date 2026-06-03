@@ -250,7 +250,7 @@ static inline void swap_bytes(unsigned char *buf, unsigned long len)
 }
 #endif
 
-int ssh2_openssl_random(void *buf, size_t len)
+int ssh2_ossl_random(void *buf, size_t len)
 {
     if(len > INT_MAX) {
         return -1;
@@ -1102,14 +1102,14 @@ int ssh2_cipher_crypt(libssh2_cipher_ctx *ctx,
     return rc;
 }
 
-void ssh2_openssl_init(void)
+void ssh2_ossl_init(void)
 {
 #if defined(LIBSSH2_WOLFSSL) && defined(DEBUG_WOLFSSL)
     wolfSSL_Debugging_ON();
 #endif
 }
 
-void ssh2_openssl_exit(void) {}
+void ssh2_ossl_exit(void) {}
 
 #if LIBSSH2_RSA || LIBSSH2_DSA || LIBSSH2_ECDSA || LIBSSH2_ED25519
 /* TODO: Optionally call a passphrase callback specified by the
