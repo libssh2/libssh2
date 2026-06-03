@@ -4128,10 +4128,8 @@ static int kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *data,
     }
 
 #if 0
-    if(libssh2_kex_agree_lang(session, &session->local, lang_cs,
-                              lang_cs_len) ||
-       libssh2_kex_agree_lang(session, &session->remote, lang_sc,
-                                 lang_sc_len)) {
+    if(kex_agree_lang(session, &session->local, lang_cs, lang_cs_len) ||
+       kex_agree_lang(session, &session->remote, lang_sc, lang_sc_len)) {
         return -1;
     }
 #endif
