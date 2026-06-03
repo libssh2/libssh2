@@ -325,7 +325,7 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
 
         session->fullpacket_packet_type = p->payload[0];
 
-        debugdump(session, "libssh2_transport_read() plain",
+        debugdump(session, "ssh2_transport_read() plain",
                   p->payload, session->fullpacket_payload_len);
 
         session->fullpacket_state = libssh2_NB_state_created;
@@ -422,7 +422,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
     if(session->readPack_state == libssh2_NB_state_jump1) {
         session->readPack_state = libssh2_NB_state_idle;
         encrypted = session->readPack_encrypted;
-        goto libssh2_transport_read_point1;
+        goto ssh2_transport_read_point1;
     }
 
     do {
@@ -505,7 +505,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                       (long)(PACKETBUFSIZE - remainbuf), (void *)p->buf,
                       (long)remainbuf));
 
-            debugdump(session, "libssh2_transport_read() raw",
+            debugdump(session, "ssh2_transport_read() raw",
                       &p->buf[remainbuf], nread);
             /* advance write pointer */
             p->writeidx += nread;
@@ -875,7 +875,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
 
         if(!remainpack) {
             /* we have a full packet */
-libssh2_transport_read_point1:
+ssh2_transport_read_point1:
             rc = fullpacket(session, encrypted);
             if(rc == LIBSSH2_ERROR_EAGAIN) {
 
