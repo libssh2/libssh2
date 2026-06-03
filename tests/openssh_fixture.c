@@ -59,7 +59,7 @@
 #include <ctype.h>
 
 #if defined(_WIN32) && defined(_WIN64)
-#define LIBSSH2_SOCKET_MASK "%lld"
+#define LIBSSH2_SOCKET_MASK "%llu"
 #else
 #define LIBSSH2_SOCKET_MASK "%d"
 #endif
