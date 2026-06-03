@@ -897,7 +897,7 @@ static int hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION *session,
     return ssh2_ecdsa_verify(ctx, r, r_len, s, s_len, m, m_len);
 }
 
-#define LIBSSH2_HOSTKEY_METHOD_EC_SIGNV_HASH(digest_type)             \
+#define HOSTKEY_METHOD_EC_SIGNV_HASH(digest_type)                     \
     do {                                                              \
         unsigned char hash[SHA##digest_type##_DIGEST_LENGTH];         \
         ssh2_sha##digest_type##_ctx ctx;                              \
@@ -941,13 +941,13 @@ static int hostkey_method_ssh_ecdsa_signv(LIBSSH2_SESSION *session,
     int ret = 0;
 
     if(type == SSH2_EC_CURVE_NISTP256) {
-        LIBSSH2_HOSTKEY_METHOD_EC_SIGNV_HASH(256);
+        HOSTKEY_METHOD_EC_SIGNV_HASH(256);
     }
     else if(type == SSH2_EC_CURVE_NISTP384) {
-        LIBSSH2_HOSTKEY_METHOD_EC_SIGNV_HASH(384);
+        HOSTKEY_METHOD_EC_SIGNV_HASH(384);
     }
     else if(type == SSH2_EC_CURVE_NISTP521) {
-        LIBSSH2_HOSTKEY_METHOD_EC_SIGNV_HASH(512);
+        HOSTKEY_METHOD_EC_SIGNV_HASH(512);
     }
     else {
         return -1;
