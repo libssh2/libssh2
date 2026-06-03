@@ -1237,11 +1237,11 @@ size_t plain_method(char *method, size_t method_len);
 
 /* define to output the libssh2_int64_t type in a *printf() */
 #if defined(__MINGW32__) || (defined(_MSC_VER) && (_MSC_VER >= 1800))
-#define LIBSSH2_INT64_T_FORMAT PRId64
+#define SSH2_INT64_T_FORMAT PRId64
 #elif defined(_WIN32)
-#define LIBSSH2_INT64_T_FORMAT "I64d"
+#define SSH2_INT64_T_FORMAT "I64d"
 #else
-#define LIBSSH2_INT64_T_FORMAT "lld"
+#define SSH2_INT64_T_FORMAT "lld"
 #endif
 
 /* In Windows the default file mode is text but an application can override it.
