@@ -116,7 +116,7 @@
  * Windows CNG backend: Global context handles
  */
 
-struct libssh2_wincng_ctx {
+struct wcng_ctx {
     BCRYPT_ALG_HANDLE hAlgRNG;
     BCRYPT_ALG_HANDLE hAlgHashMD5;
     BCRYPT_ALG_HANDLE hAlgHashSHA1;
@@ -143,7 +143,7 @@ struct libssh2_wincng_ctx {
     volatile int hasAlgDHwithKDF; /* -1=no, 0=maybe, 1=yes */
 };
 
-extern struct libssh2_wincng_ctx wincng_ctx;
+extern struct wcng_ctx wincng_ctx;
 
 /*******************************************************************/
 /*

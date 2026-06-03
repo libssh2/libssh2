@@ -479,7 +479,7 @@ struct ecdsa_point {
  * Windows CNG backend: Generic functions
  */
 
-struct libssh2_wincng_ctx wincng_ctx;
+struct wcng_ctx wincng_ctx;
 
 void ssh2_wincng_init(void)
 {
