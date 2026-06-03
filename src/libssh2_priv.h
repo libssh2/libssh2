@@ -629,7 +629,7 @@ struct _LIBSSH2_PUBLICKEY {
     LIBSSH2_CHANNEL *channel;
     uint32_t version;
 
-    /* State variables used in libssh2_publickey_packet_receive() */
+    /* State variables used in publickey_packet_receive() */
     libssh2_nonblocking_states receive_state;
     unsigned char *receive_packet;
     size_t receive_packet_len;
