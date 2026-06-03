@@ -943,7 +943,7 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
         ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
                   "Sent %ld/%ld bytes at %p+%lu", (long)rc, (long)length,
                   (void *)p->outbuf, (unsigned long)p->osent));
-        debugdump(session, "libssh2_transport_write send()",
+        debugdump(session, "ssh2_transport_send()",
                   &p->outbuf[p->osent], rc);
     }
 
@@ -1031,9 +1031,9 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
             return rc;
     }
 
-    debugdump(session, "libssh2_transport_write plain", data, data_len);
+    debugdump(session, "ssh2_transport_send() plain", data, data_len);
     if(data2)
-        debugdump(session, "libssh2_transport_write plain2", data2, data2_len);
+        debugdump(session, "ssh2_transport_send() plain2", data2, data2_len);
 
     /* FIRST, check if we have a pending write to complete. send_existing
        only sanity-check data and data_len and not data2 and data2_len! */
@@ -1282,7 +1282,7 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
         ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
                   "Sent %ld/%ld bytes at %p",
                   (long)ret, (long)total_length, (void *)p->outbuf));
-        debugdump(session, "libssh2_transport_write send()", p->outbuf, ret);
+        debugdump(session, "ssh2_transport_send()", p->outbuf, ret);
     }
 
     if(ret != total_length) {
