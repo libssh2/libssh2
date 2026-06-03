@@ -80,7 +80,7 @@ int openssh_fixture_have_docker(void)
 }
 
 static int run_command_varg(char **output, const char *command, va_list args)
-    LIBSSH2_PRINTF(2, 0);
+    SSH2_PRINTF(2, 0);
 
 static int run_command_varg(char **output, const char *command, va_list args)
 {
@@ -155,7 +155,7 @@ static int run_command_varg(char **output, const char *command, va_list args)
 }
 
 static int run_command(char **output, const char *command, ...)
-    LIBSSH2_PRINTF(2, 3);
+    SSH2_PRINTF(2, 3);
 
 static int run_command(char **output, const char *command, ...)
 {

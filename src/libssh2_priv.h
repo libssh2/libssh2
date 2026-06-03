@@ -135,15 +135,15 @@
     defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) && \
     !defined(LIBSSH2_NO_FMT_CHECKS)
 #ifdef __MINGW_PRINTF_FORMAT
-#define LIBSSH2_PRINTF(fmt, arg) \
+#define SSH2_PRINTF(fmt, arg) \
     __attribute__((format(__MINGW_PRINTF_FORMAT, fmt, arg)))
 #elif !defined(__MINGW32__)
-#define LIBSSH2_PRINTF(fmt, arg) \
+#define SSH2_PRINTF(fmt, arg) \
     __attribute__((format(printf, fmt, arg)))
 #endif
 #endif
-#ifndef LIBSSH2_PRINTF
-#define LIBSSH2_PRINTF(fmt, arg)
+#ifndef SSH2_PRINTF
+#define SSH2_PRINTF(fmt, arg)
 #endif
 
 /* Use local implementation when not available */
@@ -152,7 +152,7 @@
 #define snprintf ssh2_snprintf
 #define LIBSSH2_SNPRINTF
 int ssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
-    LIBSSH2_PRINTF(3, 4);
+    SSH2_PRINTF(3, 4);
 #endif
 
 #ifndef HAVE_GETTIMEOFDAY
@@ -1087,7 +1087,7 @@ struct comp_method {
 
 #ifdef LIBSSH2DEBUG
 void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
-                        const char *format, ...) LIBSSH2_PRINTF(3, 4);
+                  const char *format, ...) SSH2_PRINTF(3, 4);
 #define ssh2_deb(x) ssh2_deb_low x
 #else
 #define ssh2_deb(x) do {} while(0)
