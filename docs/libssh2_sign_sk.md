@@ -95,3 +95,7 @@ pass in the PIN, or a function pointer to retrieve the PIN.
 # RETURN VALUE
 
 Return 0 on success or negative on failure.
+
+# AVAILABILITY
+
+Added in libssh2 1.11.0
