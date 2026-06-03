@@ -1152,7 +1152,7 @@ static int read_private_key_from_memory(void **key_ctx,
     }
 
     *key_ctx = read_private_key(bp, NULL, (pem_password_cb *)passphrase_cb,
-                                (void *)SSH2_UNCONST(passphrase));
+                                SSH2_UNCONST(passphrase));
 
     BIO_free(bp);
     return (*key_ctx) ? 0 : -1;
@@ -1175,7 +1175,7 @@ static int read_private_key_from_file(void **key_ctx,
     }
 
     *key_ctx = read_private_key(bp, NULL, (pem_password_cb *)passphrase_cb,
-                                (void *)SSH2_UNCONST(passphrase));
+                                SSH2_UNCONST(passphrase));
 
     BIO_free(bp);
     return (*key_ctx) ? 0 : -1;
@@ -2337,8 +2337,7 @@ static int gen_publickey_from_sk_ed25519_openssh_priv_data(
             *key_handle = SSH2_ALLOC(session, *handle_len);
 
             if(key_handle && *key_handle) {
-                memcpy((void *)SSH2_UNCONST(*key_handle),
-                       handle, *handle_len);
+                memcpy(SSH2_UNCONST(*key_handle), handle, *handle_len);
             }
         }
     }
@@ -2378,9 +2377,8 @@ static int gen_publickey_from_sk_ed25519_openssh_priv_data(
 
         if(application && app_len > 0) {
             *application = SSH2_ALLOC(session, app_len + 1);
-            ssh2_explicit_zero((void *)SSH2_UNCONST(*application),
-                               app_len + 1);
-            memcpy((void *)SSH2_UNCONST(*application), app, app_len);
+            ssh2_explicit_zero(SSH2_UNCONST(*application), app_len + 1);
+            memcpy(SSH2_UNCONST(*application), app, app_len);
         }
 
         /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
@@ -2422,12 +2420,12 @@ clean_exit:
         SSH2_FREE(session, key);
 
     if(application && *application) {
-        SSH2_FREE(session, (void *)SSH2_UNCONST(*application));
+        SSH2_FREE(session, SSH2_UNCONST(*application));
         *application = NULL;
     }
 
     if(key_handle && *key_handle) {
-        SSH2_FREE(session, (void *)SSH2_UNCONST(*key_handle));
+        SSH2_FREE(session, SSH2_UNCONST(*key_handle));
         *key_handle = NULL;
     }
 
@@ -3797,8 +3795,7 @@ static int gen_publickey_from_sk_ecdsa_openssh_priv_data(
             *key_handle = SSH2_ALLOC(session, *handle_len);
 
             if(*key_handle) {
-                memcpy((void *)SSH2_UNCONST(*key_handle),
-                       handle, *handle_len);
+                memcpy(SSH2_UNCONST(*key_handle), handle, *handle_len);
             }
         }
     }
@@ -3837,9 +3834,8 @@ static int gen_publickey_from_sk_ecdsa_openssh_priv_data(
 
         if(application && app_len > 0) {
             *application = SSH2_ALLOC(session, app_len + 1);
-            ssh2_explicit_zero((void *)SSH2_UNCONST(*application),
-                               app_len + 1);
-            memcpy((void *)SSH2_UNCONST(*application), app, app_len);
+            ssh2_explicit_zero(SSH2_UNCONST(*application), app_len + 1);
+            memcpy(SSH2_UNCONST(*application), app, app_len);
         }
 
         SSH2_FREE(session, *pubkeydata);
@@ -4636,8 +4632,7 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     }
 
     (void)BIO_reset(bp);
-    pk = PEM_read_bio_PrivateKey(bp, NULL, NULL,
-                                 (void *)SSH2_UNCONST(passphrase));
+    pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, SSH2_UNCONST(passphrase));
     BIO_free(bp);
 
     if(!pk) {
@@ -4975,8 +4970,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                         "Unable to allocate memory when"
                         "computing public key");
     (void)BIO_reset(bp);
-    pk = PEM_read_bio_PrivateKey(bp, NULL, NULL,
-                                 (void *)SSH2_UNCONST(passphrase));
+    pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, SSH2_UNCONST(passphrase));
 #ifdef HAVE_SSLERROR_BAD_DECRYPT
     sslError = ERR_get_error();
 #endif
@@ -5080,8 +5074,7 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                         "Unable to allocate memory when"
                         "computing public key");
     (void)BIO_reset(bp);
-    pk = PEM_read_bio_PrivateKey(bp, NULL, NULL,
-                                 (void *)SSH2_UNCONST(passphrase));
+    pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, SSH2_UNCONST(passphrase));
     BIO_free(bp);
 
     if(!pk) {

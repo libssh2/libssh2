@@ -860,7 +860,7 @@ static int sign_frommemory(LIBSSH2_SESSION *session,
         return -1;
 
     ssh2_prepare_iovec(&datavec, 1);
-    datavec.iov_base = (void *)SSH2_UNCONST(data);
+    datavec.iov_base = SSH2_UNCONST(data);
     datavec.iov_len = data_len;
 
     if(privkeyobj->signv(session, sig, sig_len, 1, &datavec,
@@ -900,7 +900,7 @@ static int sign_fromfile(LIBSSH2_SESSION *session,
         return -1;
 
     ssh2_prepare_iovec(&datavec, 1);
-    datavec.iov_base = (void *)SSH2_UNCONST(data);
+    datavec.iov_base = SSH2_UNCONST(data);
     datavec.iov_len = data_len;
 
     if(privkeyobj->signv(session, sig, sig_len, 1, &datavec,
@@ -2508,7 +2508,7 @@ int libssh2_userauth_publickey_sk(
         SSH2_FREE(session, tmp_publickeydata);
 
     if(sk_info.application) {
-        SSH2_FREE(session, (void *)SSH2_UNCONST(sk_info.application));
+        SSH2_FREE(session, SSH2_UNCONST(sk_info.application));
     }
 
     return rc;
