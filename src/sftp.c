@@ -478,7 +478,7 @@ static int sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
 }
 
 /*
- * A la libssh2_packet_require
+ * A la ssh2_packet_require()
  */
 static int sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
                                uint32_t request_id,
