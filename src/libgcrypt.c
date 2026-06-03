@@ -705,7 +705,7 @@ int ssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
 }
 #endif
 
-int ssh2_cipher_init(libssh2_cipher_ctx *h,
+int ssh2_cipher_init(ssh2_cipher_ctx *h,
                      SSH2_CIPHER_T(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
@@ -742,7 +742,7 @@ int ssh2_cipher_init(libssh2_cipher_ctx *h,
     return 0;
 }
 
-int ssh2_cipher_crypt(libssh2_cipher_ctx *ctx,
+int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx,
                       SSH2_CIPHER_T(algo),
                       int encrypt, unsigned char *block, size_t blocksize,
                       int firstlast)

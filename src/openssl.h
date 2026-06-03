@@ -385,25 +385,25 @@ typedef enum {
 
 #define SSH2_CIPHER_T(name) const EVP_CIPHER *(*(name))(void)
 #ifdef HAVE_OPAQUE_STRUCTS
-#define libssh2_cipher_ctx EVP_CIPHER_CTX *
+#define ssh2_cipher_ctx EVP_CIPHER_CTX *
 #else
-#define libssh2_cipher_ctx EVP_CIPHER_CTX
+#define ssh2_cipher_ctx EVP_CIPHER_CTX
 #endif
 
-#define libssh2_cipher_aes256gcm EVP_aes_256_gcm
-#define libssh2_cipher_aes128gcm EVP_aes_128_gcm
+#define ssh2_cipher_aes256gcm EVP_aes_256_gcm
+#define ssh2_cipher_aes128gcm EVP_aes_128_gcm
 
-#define libssh2_cipher_aes256    EVP_aes_256_cbc
-#define libssh2_cipher_aes192    EVP_aes_192_cbc
-#define libssh2_cipher_aes128    EVP_aes_128_cbc
-#define libssh2_cipher_aes128ctr EVP_aes_128_ctr
-#define libssh2_cipher_aes192ctr EVP_aes_192_ctr
-#define libssh2_cipher_aes256ctr EVP_aes_256_ctr
-#define libssh2_cipher_blowfish  EVP_bf_cbc
-#define libssh2_cipher_arcfour   EVP_rc4
-#define libssh2_cipher_cast5     EVP_cast5_cbc
-#define libssh2_cipher_3des      EVP_des_ede3_cbc
-#define libssh2_cipher_chacha20  NULL
+#define ssh2_cipher_aes256    EVP_aes_256_cbc
+#define ssh2_cipher_aes192    EVP_aes_192_cbc
+#define ssh2_cipher_aes128    EVP_aes_128_cbc
+#define ssh2_cipher_aes128ctr EVP_aes_128_ctr
+#define ssh2_cipher_aes192ctr EVP_aes_192_ctr
+#define ssh2_cipher_aes256ctr EVP_aes_256_ctr
+#define ssh2_cipher_blowfish  EVP_bf_cbc
+#define ssh2_cipher_arcfour   EVP_rc4
+#define ssh2_cipher_cast5     EVP_cast5_cbc
+#define ssh2_cipher_3des      EVP_des_ede3_cbc
+#define ssh2_cipher_chacha20  NULL
 
 #ifdef HAVE_OPAQUE_STRUCTS
 #define ssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_free(*(ctx))

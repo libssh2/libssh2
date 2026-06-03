@@ -98,7 +98,7 @@ static void mbed_safe_free(void *buf, size_t len)
     mbedtls_free(buf);
 }
 
-int ssh2_mbedtls_cipher_init(libssh2_cipher_ctx *h,
+int ssh2_mbedtls_cipher_init(ssh2_cipher_ctx *h,
                              SSH2_CIPHER_T(algo),
                              unsigned char *iv,
                              unsigned char *secret,
@@ -145,7 +145,7 @@ int ssh2_mbedtls_cipher_init(libssh2_cipher_ctx *h,
     return ret == 0 ? 0 : -1;
 }
 
-int ssh2_mbedtls_cipher_crypt(libssh2_cipher_ctx *ctx,
+int ssh2_mbedtls_cipher_crypt(ssh2_cipher_ctx *ctx,
                               SSH2_CIPHER_T(algo),
                               int encrypt,
                               unsigned char *block,
@@ -184,7 +184,7 @@ int ssh2_mbedtls_cipher_crypt(libssh2_cipher_ctx *ctx,
     return ret == 0 ? 0 : -1;
 }
 
-void ssh2_mbedtls_cipher_dtor(libssh2_cipher_ctx *ctx)
+void ssh2_mbedtls_cipher_dtor(ssh2_cipher_ctx *ctx)
 {
     mbedtls_cipher_free(ctx);
 }

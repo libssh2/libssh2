@@ -382,7 +382,7 @@ struct libssh2_wincng_cipher_ctx {
     ULONG dwCtrLength;
 };
 
-#define libssh2_cipher_ctx struct libssh2_wincng_cipher_ctx
+#define ssh2_cipher_ctx struct libssh2_wincng_cipher_ctx
 
 /*
  * Windows CNG backend: Cipher Type structure
@@ -398,15 +398,15 @@ struct libssh2_wincng_cipher_type {
 
 #define SSH2_CIPHER_T(type) struct libssh2_wincng_cipher_type type
 
-#define libssh2_cipher_aes256ctr { &ssh2_wcng_ctx.hAlgAES_ECB, 32, 0, 1 }
-#define libssh2_cipher_aes192ctr { &ssh2_wcng_ctx.hAlgAES_ECB, 24, 0, 1 }
-#define libssh2_cipher_aes128ctr { &ssh2_wcng_ctx.hAlgAES_ECB, 16, 0, 1 }
-#define libssh2_cipher_aes256    { &ssh2_wcng_ctx.hAlgAES_CBC, 32, 1, 0 }
-#define libssh2_cipher_aes192    { &ssh2_wcng_ctx.hAlgAES_CBC, 24, 1, 0 }
-#define libssh2_cipher_aes128    { &ssh2_wcng_ctx.hAlgAES_CBC, 16, 1, 0 }
-#define libssh2_cipher_arcfour   { &ssh2_wcng_ctx.hAlgRC4_NA, 16, 0, 0 }
-#define libssh2_cipher_3des      { &ssh2_wcng_ctx.hAlg3DES_CBC, 24, 1, 0 }
-#define libssh2_cipher_chacha20  { &ssh2_wcng_ctx.hAlgChacha20, 24, 1, 0 }
+#define ssh2_cipher_aes256ctr { &ssh2_wcng_ctx.hAlgAES_ECB, 32, 0, 1 }
+#define ssh2_cipher_aes192ctr { &ssh2_wcng_ctx.hAlgAES_ECB, 24, 0, 1 }
+#define ssh2_cipher_aes128ctr { &ssh2_wcng_ctx.hAlgAES_ECB, 16, 0, 1 }
+#define ssh2_cipher_aes256    { &ssh2_wcng_ctx.hAlgAES_CBC, 32, 1, 0 }
+#define ssh2_cipher_aes192    { &ssh2_wcng_ctx.hAlgAES_CBC, 24, 1, 0 }
+#define ssh2_cipher_aes128    { &ssh2_wcng_ctx.hAlgAES_CBC, 16, 1, 0 }
+#define ssh2_cipher_arcfour   { &ssh2_wcng_ctx.hAlgRC4_NA, 16, 0, 0 }
+#define ssh2_cipher_3des      { &ssh2_wcng_ctx.hAlg3DES_CBC, 24, 1, 0 }
+#define ssh2_cipher_chacha20  { &ssh2_wcng_ctx.hAlgChacha20, 24, 1, 0 }
 
 /*
  * Windows CNG backend: Cipher functions
@@ -517,7 +517,7 @@ void ssh2_wincng_rsa_free(libssh2_rsa_ctx *rsa);
 void ssh2_wincng_dsa_free(libssh2_dsa_ctx *dsa);
 #endif
 
-void ssh2_wincng_cipher_dtor(libssh2_cipher_ctx *ctx);
+void ssh2_wincng_cipher_dtor(ssh2_cipher_ctx *ctx);
 
 libssh2_bn *ssh2_wincng_bignum_init(void);
 int ssh2_wincng_bignum_set_word(libssh2_bn *bn, ULONG word);

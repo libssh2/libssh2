@@ -84,7 +84,7 @@ static const struct crypt_method crypt_method_none = {
 struct crypt_ctx {
     int encrypt;
     SSH2_CIPHER_T(algo);
-    libssh2_cipher_ctx h;
+    ssh2_cipher_ctx h;
     struct chachapoly_ctx chachapoly_ctx;
 };
 
@@ -148,7 +148,7 @@ static const struct crypt_method crypt_method_aes256_gcm = {
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_aes256gcm
+    ssh2_cipher_aes256gcm
 };
 
 static const struct crypt_method crypt_method_aes128_gcm = {
@@ -163,7 +163,7 @@ static const struct crypt_method crypt_method_aes128_gcm = {
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_aes128gcm
+    ssh2_cipher_aes128gcm
 };
 #endif
 
@@ -180,7 +180,7 @@ static const struct crypt_method crypt_method_aes128_ctr = {
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_aes128ctr
+    ssh2_cipher_aes128ctr
 };
 
 static const struct crypt_method crypt_method_aes192_ctr = {
@@ -195,7 +195,7 @@ static const struct crypt_method crypt_method_aes192_ctr = {
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_aes192ctr
+    ssh2_cipher_aes192ctr
 };
 
 static const struct crypt_method crypt_method_aes256_ctr = {
@@ -210,7 +210,7 @@ static const struct crypt_method crypt_method_aes256_ctr = {
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_aes256ctr
+    ssh2_cipher_aes256ctr
 };
 #endif
 
@@ -227,7 +227,7 @@ static const struct crypt_method crypt_method_aes128_cbc = {
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_aes128
+    ssh2_cipher_aes128
 };
 
 static const struct crypt_method crypt_method_aes192_cbc = {
@@ -242,7 +242,7 @@ static const struct crypt_method crypt_method_aes192_cbc = {
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_aes192
+    ssh2_cipher_aes192
 };
 
 static const struct crypt_method crypt_method_aes256_cbc = {
@@ -257,7 +257,7 @@ static const struct crypt_method crypt_method_aes256_cbc = {
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_aes256
+    ssh2_cipher_aes256
 };
 
 /* rijndael-cbc@lysator.liu.se == aes256-cbc */
@@ -273,7 +273,7 @@ static const struct crypt_method crypt_method_rijndael_cbc_lysator_liu_se = {
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_aes256
+    ssh2_cipher_aes256
 };
 #endif /* LIBSSH2_AES_CBC */
 
@@ -290,7 +290,7 @@ static const struct crypt_method crypt_method_blowfish_cbc = {
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_blowfish
+    ssh2_cipher_blowfish
 };
 #endif /* LIBSSH2_BLOWFISH */
 
@@ -307,7 +307,7 @@ static const struct crypt_method crypt_method_arcfour = {
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_arcfour
+    ssh2_cipher_arcfour
 };
 
 static int crypt_init_arcfour128(LIBSSH2_SESSION *session,
@@ -345,7 +345,7 @@ static const struct crypt_method crypt_method_arcfour128 = {
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_arcfour
+    ssh2_cipher_arcfour
 };
 #endif /* LIBSSH2_RC4 */
 
@@ -362,7 +362,7 @@ static const struct crypt_method crypt_method_cast128_cbc = {
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_cast5
+    ssh2_cipher_cast5
 };
 #endif /* LIBSSH2_CAST */
 
@@ -379,7 +379,7 @@ static const struct crypt_method crypt_method_3des_cbc = {
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_3des
+    ssh2_cipher_3des
 };
 #endif
 
@@ -487,7 +487,7 @@ static const struct crypt_method crypt_method_chacha20_poly1305_openssh = {
     &crypt_get_length_chacha20_poly,
     &crypt_encrypt_chacha20_poly_buffer,
     &crypt_dtor_chacha20_poly,
-    libssh2_cipher_chacha20                     /* not actually used */
+    ssh2_cipher_chacha20                        /* not actually used */
 };
 
 /* These are the crypt methods that are available to be negotiated. Methods

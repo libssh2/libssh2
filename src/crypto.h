@@ -286,12 +286,12 @@ int ssh2_mlkem_get_sk(unsigned char *out_shared_key,
 
 #endif /* LIBSSH2_MLKEM */
 
-int ssh2_cipher_init(libssh2_cipher_ctx *h,
+int ssh2_cipher_init(ssh2_cipher_ctx *h,
                      SSH2_CIPHER_T(algo),
                      unsigned char *iv,
                      unsigned char *secret, int encrypt);
 
-int ssh2_cipher_crypt(libssh2_cipher_ctx *ctx,
+int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx,
                       SSH2_CIPHER_T(algo),
                       int encrypt, unsigned char *block, size_t blocksize,
                       int firstlast);

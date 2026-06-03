@@ -248,7 +248,7 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define ssh2_sha384_ctx      Qc3_Format_ALGD0100_T
 #define ssh2_sha512_ctx      Qc3_Format_ALGD0100_T
 #define libssh2_hmac_ctx        struct os400qc3_crypto_ctx
-#define libssh2_cipher_ctx      struct os400qc3_crypto_ctx
+#define ssh2_cipher_ctx      struct os400qc3_crypto_ctx
 
 #define ssh2_sha1_init(x)    ssh2_os400qc3_hash_init(x, Qc3_SHA1)
 #define ssh2_sha1_update(ctx, data, len)                                 \
@@ -300,24 +300,24 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define ssh2_bn_bytes(bn)        ((bn)->length)
 
 #define SSH2_CIPHER_T(name)  struct os400qc3_cipher name
-#define libssh2_cipher_aes128 \
+#define ssh2_cipher_aes128 \
     { Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 16 }
-#define libssh2_cipher_aes192 \
+#define ssh2_cipher_aes192 \
     { Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 24 }
-#define libssh2_cipher_aes256 \
+#define ssh2_cipher_aes256 \
     { Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 32 }
-#define libssh2_cipher_aes128ctr \
+#define ssh2_cipher_aes128ctr \
     { Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CTR, 16 }
-#define libssh2_cipher_aes192ctr \
+#define ssh2_cipher_aes192ctr \
     { Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CTR, 24 }
-#define libssh2_cipher_aes256ctr \
+#define ssh2_cipher_aes256ctr \
     { Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CTR, 32 }
-#define libssh2_cipher_3des \
+#define ssh2_cipher_3des \
     { Qc3_Alg_Block_Cipher, Qc3_TDES, 8, Qc3_CBC, 24 }
 /* Nonsense values for chacha20-poly1305 */
-#define libssh2_cipher_chacha20 \
+#define ssh2_cipher_chacha20 \
     { Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16 }
-#define libssh2_cipher_arcfour \
+#define ssh2_cipher_arcfour \
     { Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16 }
 
 #define ssh2_cipher_dtor(ctx) ssh2_os400qc3_crypto_dtor(ctx)

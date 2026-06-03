@@ -332,24 +332,24 @@ typedef enum {
  * mbedTLS backend: Cipher Context structure
  */
 
-#define libssh2_cipher_ctx        mbedtls_cipher_context_t
+#define ssh2_cipher_ctx        mbedtls_cipher_context_t
 
-#define SSH2_CIPHER_T(algo)       mbedtls_cipher_type_t algo
+#define SSH2_CIPHER_T(algo)    mbedtls_cipher_type_t algo
 
-#define libssh2_cipher_aes256ctr  MBEDTLS_CIPHER_AES_256_CTR
-#define libssh2_cipher_aes192ctr  MBEDTLS_CIPHER_AES_192_CTR
-#define libssh2_cipher_aes128ctr  MBEDTLS_CIPHER_AES_128_CTR
-#define libssh2_cipher_aes256     MBEDTLS_CIPHER_AES_256_CBC
-#define libssh2_cipher_aes192     MBEDTLS_CIPHER_AES_192_CBC
-#define libssh2_cipher_aes128     MBEDTLS_CIPHER_AES_128_CBC
+#define ssh2_cipher_aes256ctr  MBEDTLS_CIPHER_AES_256_CTR
+#define ssh2_cipher_aes192ctr  MBEDTLS_CIPHER_AES_192_CTR
+#define ssh2_cipher_aes128ctr  MBEDTLS_CIPHER_AES_128_CTR
+#define ssh2_cipher_aes256     MBEDTLS_CIPHER_AES_256_CBC
+#define ssh2_cipher_aes192     MBEDTLS_CIPHER_AES_192_CBC
+#define ssh2_cipher_aes128     MBEDTLS_CIPHER_AES_128_CBC
 #ifdef MBEDTLS_CIPHER_BLOWFISH_CBC
-#define libssh2_cipher_blowfish   MBEDTLS_CIPHER_BLOWFISH_CBC
+#define ssh2_cipher_blowfish   MBEDTLS_CIPHER_BLOWFISH_CBC
 #endif
 #ifdef MBEDTLS_CIPHER_ARC4_128
-#define libssh2_cipher_arcfour    MBEDTLS_CIPHER_ARC4_128
+#define ssh2_cipher_arcfour    MBEDTLS_CIPHER_ARC4_128
 #endif
-#define libssh2_cipher_3des       MBEDTLS_CIPHER_DES_EDE3_CBC
-#define libssh2_cipher_chacha20   MBEDTLS_CIPHER_CHACHA20_POLY1305
+#define ssh2_cipher_3des       MBEDTLS_CIPHER_DES_EDE3_CBC
+#define ssh2_cipher_chacha20   MBEDTLS_CIPHER_CHACHA20_POLY1305
 
 /*******************************************************************/
 /*
@@ -423,7 +423,7 @@ void ssh2_mbedtls_free(void);
 
 int ssh2_mbedtls_random(unsigned char *buf, size_t len);
 
-void ssh2_mbedtls_cipher_dtor(libssh2_cipher_ctx *ctx);
+void ssh2_mbedtls_cipher_dtor(ssh2_cipher_ctx *ctx);
 
 int ssh2_mbedtls_hash_init(mbedtls_md_context_t *ctx,
                            mbedtls_md_type_t mdtype,
