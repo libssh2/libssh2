@@ -1017,7 +1017,7 @@ cleanup:
     return rc;
 }
 
-#define LIBSSH2_MBEDTLS_ECDSA_VERIFY(digest_type)                             \
+#define SSH2_MBED_ECDSA_VERIFY(digest_type)                                   \
     do {                                                                      \
         unsigned char hsh[SHA##digest_type##_DIGEST_LENGTH];                  \
                                                                               \
@@ -1050,13 +1050,13 @@ int ssh2_mbed_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
 
     switch(ssh2_ecdsa_get_curve_type(ec_ctx)) {
     case SSH2_EC_CURVE_NISTP256:
-        LIBSSH2_MBEDTLS_ECDSA_VERIFY(256);
+        SSH2_MBED_ECDSA_VERIFY(256);
         break;
     case SSH2_EC_CURVE_NISTP384:
-        LIBSSH2_MBEDTLS_ECDSA_VERIFY(384);
+        SSH2_MBED_ECDSA_VERIFY(384);
         break;
     case SSH2_EC_CURVE_NISTP521:
-        LIBSSH2_MBEDTLS_ECDSA_VERIFY(512);
+        SSH2_MBED_ECDSA_VERIFY(512);
         break;
     default:
         rc = -1;
