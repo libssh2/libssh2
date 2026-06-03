@@ -54,7 +54,7 @@
 #endif
 
 /* Max. length of a quoted string after shell_quotearg() processing */
-#define ssh2_shell_quotedsize(s)     (3 * strlen(s) + 2)
+#define shell_quotedsize(s)  (3 * strlen(s) + 2)
 
 /*
   This function quotes a string in a way suitable to be used with a
@@ -296,7 +296,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
         session->scpRecv_atime = 0;
 
         session->scpRecv_command_len =
-            ssh2_shell_quotedsize(path) + sizeof("scp -f ") + (sb ? 1 : 0);
+            shell_quotedsize(path) + sizeof("scp -f ") + (sb ? 1 : 0);
 
         session->scpRecv_command =
             SSH2_ALLOC(session, session->scpRecv_command_len);
@@ -844,7 +844,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
 
     if(session->scpSend_state == libssh2_NB_state_idle) {
         session->scpSend_command_len =
-            ssh2_shell_quotedsize(path) + sizeof("scp -t ") +
+            shell_quotedsize(path) + sizeof("scp -t ") +
             ((mtime || atime) ? 1 : 0);
 
         session->scpSend_command =
