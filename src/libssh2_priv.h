@@ -796,7 +796,7 @@ struct _LIBSSH2_SESSION {
     unsigned char disconnect_data[256 + 13];
     size_t disconnect_data_len;
 
-    /* State variables used in libssh2_packet_read() */
+    /* State variables used in ssh2_packet_add() */
     libssh2_nonblocking_states readPack_state;
     int readPack_encrypted;
 
