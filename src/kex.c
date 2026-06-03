@@ -3248,42 +3248,42 @@ clean_exit:
 
 #endif /* LIBSSH2_ED25519 */
 
-#define SSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY  0x0001
-#define SSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY 0x0002
+#define KEX_METHOD_FLAG_REQ_ENC_HOSTKEY  0x0001
+#define KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY 0x0002
 
 static const struct kex_method kex_method_diffie_hellman_group1_sha1 = {
     "diffie-hellman-group1-sha1",
     kex_method_diffie_hellman_group1_sha1_key_exchange,
     kex_diffie_hellman_cleanup,
-    SSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
+    KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
 static const struct kex_method kex_method_diffie_hellman_group14_sha1 = {
     "diffie-hellman-group14-sha1",
     kex_method_diffie_hellman_group14_sha1_key_exchange,
     kex_diffie_hellman_cleanup,
-    SSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
+    KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
 static const struct kex_method kex_method_diffie_hellman_group14_sha256 = {
     "diffie-hellman-group14-sha256",
     kex_method_diffie_hellman_group14_sha256_key_exchange,
     kex_diffie_hellman_cleanup,
-    SSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
+    KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
 static const struct kex_method kex_method_diffie_hellman_group16_sha512 = {
     "diffie-hellman-group16-sha512",
     kex_method_diffie_hellman_group16_sha512_key_exchange,
     kex_diffie_hellman_cleanup,
-    SSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
+    KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
 static const struct kex_method kex_method_diffie_hellman_group18_sha512 = {
     "diffie-hellman-group18-sha512",
     kex_method_diffie_hellman_group18_sha512_key_exchange,
     kex_diffie_hellman_cleanup,
-    SSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
+    KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
 static const struct kex_method
@@ -3291,7 +3291,7 @@ kex_method_diffie_hellman_group_exchange_sha1 = {
     "diffie-hellman-group-exchange-sha1",
     kex_method_diffie_hellman_group_exchange_sha1_key_exchange,
     kex_diffie_hellman_cleanup,
-    SSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
+    KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
 static const struct kex_method
@@ -3299,7 +3299,7 @@ kex_method_diffie_hellman_group_exchange_sha256 = {
     "diffie-hellman-group-exchange-sha256",
     kex_method_diffie_hellman_group_exchange_sha256_key_exchange,
     kex_diffie_hellman_cleanup,
-    SSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
+    KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
 #if LIBSSH2_ECDSA
@@ -3307,34 +3307,34 @@ static const struct kex_method kex_method_ecdh_sha2_nistp256 = {
     "ecdh-sha2-nistp256",
     kex_method_ecdh_key_exchange,
     kex_method_ecdh_cleanup,
-    SSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
+    KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
 static const struct kex_method kex_method_ecdh_sha2_nistp384 = {
     "ecdh-sha2-nistp384",
     kex_method_ecdh_key_exchange,
     kex_method_ecdh_cleanup,
-    SSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
+    KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
 static const struct kex_method kex_method_ecdh_sha2_nistp521 = {
     "ecdh-sha2-nistp521",
     kex_method_ecdh_key_exchange,
     kex_method_ecdh_cleanup,
-    SSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
+    KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 #if LIBSSH2_MLKEM
 static const struct kex_method kex_method_ssh_mlkem768_nistp256_sha256 = {
     "mlkem768nistp256-sha256",
     kex_method_mlkem_nistp_key_exchange,
     kex_method_mlkem_nistp_cleanup,
-    SSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
+    KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 static const struct kex_method kex_method_ssh_mlkem1024_nistp384_sha384 = {
     "mlkem1024nistp384-sha384",
     kex_method_mlkem_nistp_key_exchange,
     kex_method_mlkem_nistp_cleanup,
-    SSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
+    KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 #endif
 #endif
@@ -3344,20 +3344,20 @@ static const struct kex_method kex_method_ssh_curve25519_sha256_libssh = {
     "curve25519-sha256@libssh.org",
     kex_method_curve25519_key_exchange,
     kex_method_curve25519_cleanup,
-    SSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
+    KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 static const struct kex_method kex_method_ssh_curve25519_sha256 = {
     "curve25519-sha256",
     kex_method_curve25519_key_exchange,
     kex_method_curve25519_cleanup,
-    SSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
+    KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 #if LIBSSH2_MLKEM
 static const struct kex_method kex_method_ssh_mlkem768_x25519_sha256 = {
     "mlkem768x25519-sha256",
     kex_method_mlkem768x25519_key_exchange,
     kex_method_mlkem768x25519_cleanup,
-    SSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
+    KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 #endif
 #endif
@@ -3743,12 +3743,11 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session,
 
                 /* OK so far, but does it suit our purposes? (Encrypting
                    vs Signing) */
-                if(((kex_flags & SSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0) ||
+                if(((kex_flags & KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0) ||
                    method->encrypt) {
                     /* Either this hostkey can do encryption or this kex
                        does not require it */
-                    if(((kex_flags & SSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) ==
-                        0) ||
+                    if(((kex_flags & KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) == 0) ||
                        method->sig_verify) {
                         /* Either this hostkey can do signing or this kex
                            does not require it */
@@ -3770,12 +3769,12 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session,
         if(s) {
             /* OK so far, but does it suit our purposes? (Encrypting vs
                Signing) */
-            if(((kex_flags & SSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0) ||
+            if(((kex_flags & KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0) ||
                (*hostkeyp)->encrypt) {
                 /* Either this hostkey can do encryption or this kex
                    does not require it */
-                if(((kex_flags & SSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) ==
-                     0) || (*hostkeyp)->sig_verify) {
+                if(((kex_flags & KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) == 0) ||
+                   (*hostkeyp)->sig_verify) {
                     /* Either this hostkey can do signing or this kex
                        does not require it */
                     session->hostkey = *hostkeyp;
