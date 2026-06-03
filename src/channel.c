@@ -147,7 +147,7 @@ LIBSSH2_CHANNEL *ssh2_channel_open(LIBSSH2_SESSION *session,
                sizeof(session->open_packet_requirev_state));
 
         ssh2_deb((session, LIBSSH2_TRACE_CONN,
-                  "Opening Channel - win %d pack %d",
+                  "Opening Channel - win %u pack %u",
                   window_size, packet_size));
         session->open_channel = SSH2_CALLOC(session, sizeof(LIBSSH2_CHANNEL));
         if(!session->open_channel) {

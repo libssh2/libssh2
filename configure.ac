@@ -406,6 +406,8 @@ AC_C_CONST
 
 CURL_CHECK_NONBLOCKING_SOCKET
 
+CURL_CONVERT_INCLUDE_TO_ISYSTEM
+
 missing_required_deps=0
 
 if test "${libz_errors}" != ""; then

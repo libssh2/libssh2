@@ -57,11 +57,6 @@ extern "C" {
  */
 #define LIBSSH2_SFTP_VERSION        3
 
-typedef struct _LIBSSH2_SFTP                LIBSSH2_SFTP;
-typedef struct _LIBSSH2_SFTP_HANDLE         LIBSSH2_SFTP_HANDLE;
-typedef struct _LIBSSH2_SFTP_ATTRIBUTES     LIBSSH2_SFTP_ATTRIBUTES;
-typedef struct _LIBSSH2_SFTP_STATVFS        LIBSSH2_SFTP_STATVFS;
-
 /* Flags for open_ex() */
 #define LIBSSH2_SFTP_OPENFILE           0
 #define LIBSSH2_SFTP_OPENDIR            1
@@ -95,6 +90,15 @@ typedef struct _LIBSSH2_SFTP_STATVFS        LIBSSH2_SFTP_STATVFS;
 #define LIBSSH2_SFTP_ST_RDONLY              0x00000001
 #define LIBSSH2_SFTP_ST_NOSUID              0x00000002
 
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-identifier"
+#endif
+typedef struct _LIBSSH2_SFTP                LIBSSH2_SFTP;
+typedef struct _LIBSSH2_SFTP_HANDLE         LIBSSH2_SFTP_HANDLE;
+typedef struct _LIBSSH2_SFTP_ATTRIBUTES     LIBSSH2_SFTP_ATTRIBUTES;
+typedef struct _LIBSSH2_SFTP_STATVFS        LIBSSH2_SFTP_STATVFS;
+
 struct _LIBSSH2_SFTP_ATTRIBUTES {
     /* If flags & ATTR_* bit is set, then the value in this struct is
      * meaningful otherwise it should be ignored
@@ -120,6 +124,9 @@ struct _LIBSSH2_SFTP_STATVFS {
     libssh2_uint64_t  f_flag;     /* mount flags */
     libssh2_uint64_t  f_namemax;  /* maximum filename length */
 };
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic pop
+#endif
 
 /* SFTP filetypes */
 #define LIBSSH2_SFTP_TYPE_REGULAR           1

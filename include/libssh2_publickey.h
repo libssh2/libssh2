@@ -50,6 +50,10 @@
 
 #include "libssh2.h"
 
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-identifier"
+#endif
 typedef struct _LIBSSH2_PUBLICKEY               LIBSSH2_PUBLICKEY;
 
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
@@ -72,6 +76,9 @@ typedef struct _libssh2_publickey_list {
     unsigned long num_attrs;
     libssh2_publickey_attribute *attrs; /* free me */
 } libssh2_publickey_list;
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic pop
+#endif
 
 /* Generally use the first macro here, but if both name and value are string
    literals, you can use _fast() to take advantage of preprocessing */

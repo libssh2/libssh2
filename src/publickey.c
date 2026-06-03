@@ -657,7 +657,7 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
 
         ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
                   "Sending publickey \"add\" packet: "
-                  "type=%s blob_len=%ld num_attrs=%ld",
+                  "type=%s blob_len=%lu num_attrs=%lu",
                   name, blob_len, num_attrs));
 
         pkey->add_state = ssh2_NB_state_created;
@@ -743,7 +743,7 @@ int libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
 
         ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
                   "Sending publickey \"remove\" packet: "
-                  "type=%s blob_len=%ld", name, blob_len));
+                  "type=%s blob_len=%lu", name, blob_len));
 
         pkey->remove_state = ssh2_NB_state_created;
     }

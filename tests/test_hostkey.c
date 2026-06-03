@@ -50,7 +50,7 @@ int test(LIBSSH2_SESSION *session)
                                 strlen(EXPECTED_RSA_HOSTKEY));
     }
     else {
-        fprintf(stderr, "Unexpected type of hostkey: %i\n", type);
+        fprintf(stderr, "Unexpected type of hostkey: %d\n", type);
         return 1;
     }
 
@@ -60,7 +60,7 @@ int test(LIBSSH2_SESSION *session)
     }
 
     if(len != expected_len) {
-        fprintf(stderr, "Hostkey does not have the expected length %ld!=%ld\n",
+        fprintf(stderr, "Hostkey does not have the expected length %lu!=%lu\n",
                 (unsigned long)len, (unsigned long)expected_len);
         return 1;
     }

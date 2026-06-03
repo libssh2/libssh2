@@ -456,6 +456,10 @@ struct channel_data {
     char close, eof, extended_data_ignore_mode;
 };
 
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-identifier"
+#endif
 struct _LIBSSH2_CHANNEL {
     struct list_node node;
 
@@ -578,6 +582,9 @@ struct _LIBSSH2_LISTENER {
     unsigned char *chanFwdCncl_data;
     size_t chanFwdCncl_data_len;
 };
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic pop
+#endif
 
 struct endpoint_data {
     unsigned char *banner;
@@ -639,6 +646,10 @@ struct transportpacket {
     size_t osent;           /* number of bytes already sent */
 };
 
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-identifier"
+#endif
 struct _LIBSSH2_PUBLICKEY {
     LIBSSH2_CHANNEL *channel;
     uint32_t version;
@@ -665,6 +676,9 @@ struct _LIBSSH2_PUBLICKEY {
     unsigned char *listFetch_data;
     size_t listFetch_data_len;
 };
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic pop
+#endif
 
 #define SSH2_SCP_RESPONSE_BUFLEN     256
 
@@ -674,6 +688,10 @@ struct flags {
     int quote_paths; /* LIBSSH2_FLAG_QUOTE_PATHS */
 };
 
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-identifier"
+#endif
 struct _LIBSSH2_SESSION {
     /* Memory management callbacks */
     void *abstract;
@@ -955,6 +973,9 @@ struct _LIBSSH2_SESSION {
     /* Configurable timeout for packets. Replaces LIBSSH2_READ_TIMEOUT */
     long packet_read_timeout;
 };
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic pop
+#endif
 
 /* session.state bits */
 #define SSH2_STATE_INITIAL_KEX     0x00000001

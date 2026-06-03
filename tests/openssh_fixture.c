@@ -58,8 +58,10 @@
 #include <stdarg.h>
 #include <ctype.h>
 
-#if defined(_WIN32) && defined(_WIN64)
-#define LIBSSH2_SOCKET_MASK "%lld"
+#ifdef _WIN64
+#define LIBSSH2_SOCKET_MASK "%llu"
+#elif defined(_WIN32)
+#define LIBSSH2_SOCKET_MASK "%u"
 #else
 #define LIBSSH2_SOCKET_MASK "%d"
 #endif
@@ -418,7 +420,7 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
         if(connect(sock, (struct sockaddr *)(&sin),
                    sizeof(struct sockaddr_in))) {
             fprintf(stderr,
-                    "Connection to %s:%s attempt #%d failed: retrying...\n",
+                    "Connection to %s:%s attempt #%u failed: retrying...\n",
                     ip_address, port_string, counter);
             portable_sleep(1 + 2 * counter);
         }

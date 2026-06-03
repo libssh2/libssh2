@@ -48,6 +48,11 @@
 
 #ifdef USE_OPENSSL_3
 #define USE_PEM_READ_BIO_PRIVATEKEY
+#else
+#if defined(__clang__) && __clang_major__ >= 16
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-function-type-strict"
+#endif
 #endif
 
 int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
@@ -435,11 +440,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
         ret = ssh2_ossl_sha512(m, m_len, hash);
     }
     else {
-/* silence:
-   warning C4701: potentially uninitialized local variable 'nid_type' used */
-#ifdef _MSC_VER
         nid_type = 0;
-#endif
         ret = -1; /* unsupported digest */
     }
 
@@ -5096,12 +5097,12 @@ void ssh2_dh_init(ssh2_dh_ctx *dhctx)
     *dhctx = BN_new(); /* Random from client */
 }
 
-int ssh2_ossl_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public, ssh2_bn *g,
+int ssh2_ossl_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
                           ssh2_bn *p, int group_order, ssh2_bn_ctx *bnctx)
 {
     /* Generate x and e */
     BN_rand(*dhctx, group_order * 8 - 1, 0, -1);
-    BN_mod_exp(public, g, *dhctx, p, bnctx);
+    BN_mod_exp(pub, g, *dhctx, p, bnctx);
     return 0;
 }
 
@@ -5154,5 +5155,11 @@ const char *ssh2_supported_key_sign_algs(LIBSSH2_SESSION *session,
 
     return NULL;
 }
+
+#ifndef USE_OPENSSL_3
+#if defined(__clang__) && __clang_major__ >= 16
+#pragma clang diagnostic pop
+#endif
+#endif
 
 #endif /* LIBSSH2_OPENSSL || LIBSSH2_WOLFSSL */

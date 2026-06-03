@@ -224,6 +224,10 @@ typedef off_t libssh2_struct_stat_size;
 
 /* for pre-existing ones: !checksrc! disable TYPEDEFSTRUCT all */
 
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-identifier"
+#endif
 typedef struct _LIBSSH2_USERAUTH_KBDINT_PROMPT
 {
     unsigned char *text;
@@ -245,6 +249,9 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
     unsigned char *sig_s;
     size_t sig_s_len;
 } LIBSSH2_SK_SIG_INFO;
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic pop
+#endif
 
 /* 'publickey' authentication callback */
 #define LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC(name) \
@@ -364,13 +371,24 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
 #define LIBSSH2_FLAG_COMPRESS       2
 #define LIBSSH2_FLAG_QUOTE_PATHS    3
 
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-identifier"
+#endif
 typedef struct _LIBSSH2_SESSION                     LIBSSH2_SESSION;
 typedef struct _LIBSSH2_CHANNEL                     LIBSSH2_CHANNEL;
 typedef struct _LIBSSH2_LISTENER                    LIBSSH2_LISTENER;
 typedef struct _LIBSSH2_KNOWNHOSTS                  LIBSSH2_KNOWNHOSTS;
 typedef struct _LIBSSH2_AGENT                       LIBSSH2_AGENT;
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic pop
+#endif
 
 #ifndef LIBSSH2_NO_DEPRECATED
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-identifier"
+#endif
 typedef struct _LIBSSH2_POLLFD {
     unsigned char type; /* LIBSSH2_POLLFD_* below */
 
@@ -385,6 +403,9 @@ typedef struct _LIBSSH2_POLLFD {
     unsigned long events; /* Requested Events */
     unsigned long revents; /* Returned Events */
 } LIBSSH2_POLLFD;
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic pop
+#endif
 
 /* Poll FD Descriptor Types */
 #define LIBSSH2_POLLFD_SOCKET       1
@@ -742,6 +763,10 @@ LIBSSH2_API int libssh2_userauth_publickey_sk(
     LIBSSH2_USERAUTH_SK_SIGN_FUNC(*sign_callback),
     void **abstract);
 
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-identifier"
+#endif
 /* SK signature callback */
 typedef struct _LIBSSH2_PRIVKEY_SK {
     int algorithm;
@@ -752,6 +777,9 @@ typedef struct _LIBSSH2_PRIVKEY_SK {
     LIBSSH2_USERAUTH_SK_SIGN_FUNC(*sign_callback);
     void **orig_abstract;
 } LIBSSH2_PRIVKEY_SK;
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic pop
+#endif
 
 LIBSSH2_API int libssh2_sign_sk(LIBSSH2_SESSION *session,
                                 unsigned char **sig, size_t *sig_len,

@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
         if(connect(sock, (struct sockaddr *)(&sin),
                    sizeof(struct sockaddr_in))) {
             fprintf(stderr,
-                    "Connection to %s:%d attempt #%d failed: retrying...\n",
+                    "Connection to %s:%d attempt #%u failed: retrying...\n",
                     hostname, port_number, counter);
             portable_sleep(1 + 2 * counter);
         }

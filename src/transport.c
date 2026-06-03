@@ -78,7 +78,7 @@ static void debugdump(LIBSSH2_SESSION *session,
 
     for(i = 0; i < size; i += width) {
 
-        used = snprintf(buffer, sizeof(buffer), "%04lx: ", (long)i);
+        used = snprintf(buffer, sizeof(buffer), "%04lx: ", (unsigned long)i);
 
         /* hex not disabled, show it */
         for(c = 0; c < width; c++) {

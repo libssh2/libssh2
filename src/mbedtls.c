@@ -148,7 +148,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 {
     int ret;
     unsigned char *output;
-    size_t osize, olen, finish_olen;
+    size_t osize;
 
     (void)encrypt;
     (void)algo;
@@ -158,6 +158,8 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 
     output = (unsigned char *)mbedtls_calloc(osize, sizeof(char));
     if(output) {
+        size_t olen = 0, finish_olen = 0;
+
         ret = mbedtls_cipher_reset(ctx);
 
         if(!ret)
@@ -590,6 +592,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
     else {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
                  "Unsupported hash digest length");
+        md_type = 0;
         ret = -1;
     }
     if(ret == 0)
@@ -843,12 +846,12 @@ void ssh2_dh_init(ssh2_dh_ctx *dhctx)
     *dhctx = ssh2_mbed_bn_init(); /* Random from client */
 }
 
-int ssh2_mbed_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public, ssh2_bn *g,
+int ssh2_mbed_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
                           ssh2_bn *p, int group_order)
 {
     /* Generate x and e */
     mbed_bn_random(*dhctx, group_order * 8 - 1, 0, -1);
-    mbedtls_mpi_exp_mod(public, g, *dhctx, p, NULL);
+    mbedtls_mpi_exp_mod(pub, g, *dhctx, p, NULL);
     return 0;
 }
 
@@ -1101,7 +1104,6 @@ ssh2_curve_type ssh2_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ec_ctx)
 static int mbed_ecdsa_curve_type_from_name(const char *name,
                                            ssh2_curve_type *out_type)
 {
-    int ret = 0;
     ssh2_curve_type type;
 
     if(!name || strlen(name) != 19)
@@ -1114,14 +1116,14 @@ static int mbed_ecdsa_curve_type_from_name(const char *name,
     else if(strcmp(name, "ecdsa-sha2-nistp521") == 0)
         type = SSH2_EC_CURVE_NISTP521;
     else {
-        ret = -1;
+        return -1;
     }
 
-    if(ret == 0 && out_type) {
+    if(out_type) {
         *out_type = type;
     }
 
-    return ret;
+    return 0;
 }
 
 static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,

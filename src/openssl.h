@@ -434,12 +434,12 @@ int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *val);
 #define SSH2_DH_MAX_MODULUS_BITS 16384
 
 #define ssh2_dh_ctx BIGNUM *
-#define ssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
-    ssh2_ossl_dh_key_pair(dhctx, public, g, p, group_order, bnctx)
+#define ssh2_dh_key_pair(dhctx, pub, g, p, group_order, bnctx) \
+    ssh2_ossl_dh_key_pair(dhctx, pub, g, p, group_order, bnctx)
 #define ssh2_dh_secret(dhctx, secret, f, p, bnctx) \
     ssh2_ossl_dh_secret(dhctx, secret, f, p, bnctx)
 
-int ssh2_ossl_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public, ssh2_bn *g,
+int ssh2_ossl_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
                           ssh2_bn *p, int group_order, ssh2_bn_ctx *bnctx);
 int ssh2_ossl_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
                         ssh2_bn *p, ssh2_bn_ctx *bnctx);

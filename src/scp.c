@@ -725,7 +725,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                     goto scp_recv_error;
                 }
                 ssh2_deb((session, LIBSSH2_TRACE_SCP, "mode = 0%lo size = %ld",
-                          session->scpRecv_mode,
+                          (unsigned long)session->scpRecv_mode,
                           (long)session->scpRecv_size));
 
                 /* We *should* check that basename is valid, but why let that
@@ -1026,7 +1026,8 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
         session->scpSend_response_len =
             snprintf((char *)session->scpSend_response,
                      SSH2_SCP_RESPONSE_BUFLEN,
-                     "C0%o %" SSH2_INT64_T_FORMAT " %s\n", mode, size, base);
+                     "C0%o %" SSH2_INT64_T_FORMAT " %s\n",
+                     (unsigned int)mode, size, base);
         ssh2_deb((session, LIBSSH2_TRACE_SCP, "Sent %s",
                   session->scpSend_response));
 
