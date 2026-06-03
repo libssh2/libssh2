@@ -100,10 +100,10 @@ static int banner_receive(LIBSSH2_SESSION *session)
     ssize_t ret;
     size_t banner_len;
 
-    if(session->banner_TxRx_state == libssh2_NB_state_idle) {
+    if(session->banner_TxRx_state == ssh2_nb_state_idle) {
         banner_len = 0;
 
-        session->banner_TxRx_state = libssh2_NB_state_created;
+        session->banner_TxRx_state = ssh2_nb_state_created;
     }
     else {
         banner_len = session->banner_TxRx_total_send;
@@ -137,7 +137,7 @@ static int banner_receive(LIBSSH2_SESSION *session)
             }
 
             /* Some kinda error */
-            session->banner_TxRx_state = libssh2_NB_state_idle;
+            session->banner_TxRx_state = ssh2_nb_state_idle;
             session->banner_TxRx_total_send = 0;
             return LIBSSH2_ERROR_SOCKET_RECV;
         }
@@ -153,7 +153,7 @@ static int banner_receive(LIBSSH2_SESSION *session)
 
         if(c == '\0') {
             /* NULLs are not allowed in SSH banners */
-            session->banner_TxRx_state = libssh2_NB_state_idle;
+            session->banner_TxRx_state = ssh2_nb_state_idle;
             session->banner_TxRx_total_send = 0;
             return LIBSSH2_ERROR_BANNER_RECV;
         }
@@ -168,7 +168,7 @@ static int banner_receive(LIBSSH2_SESSION *session)
     }
 
     /* From this point on, we are done here */
-    session->banner_TxRx_state = libssh2_NB_state_idle;
+    session->banner_TxRx_state = ssh2_nb_state_idle;
     session->banner_TxRx_total_send = 0;
 
     if(!banner_len)
@@ -203,7 +203,7 @@ static int banner_send(LIBSSH2_SESSION *session)
     size_t banner_len = sizeof(LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF) - 1;
     ssize_t ret;
 
-    if(session->banner_TxRx_state == libssh2_NB_state_idle) {
+    if(session->banner_TxRx_state == ssh2_nb_state_idle) {
         if(session->local.banner) {
             /* setopt_string has given us our \r\n characters */
             banner_len = strlen((char *)session->local.banner);
@@ -228,7 +228,7 @@ static int banner_send(LIBSSH2_SESSION *session)
         }
 #endif
 
-        session->banner_TxRx_state = libssh2_NB_state_created;
+        session->banner_TxRx_state = ssh2_nb_state_created;
     }
 
     /* no outgoing block yet! */
@@ -257,13 +257,13 @@ static int banner_send(LIBSSH2_SESSION *session)
                 session->banner_TxRx_total_send += ret;
             return LIBSSH2_ERROR_EAGAIN;
         }
-        session->banner_TxRx_state = libssh2_NB_state_idle;
+        session->banner_TxRx_state = ssh2_nb_state_idle;
         session->banner_TxRx_total_send = 0;
         return LIBSSH2_ERROR_SOCKET_RECV;
     }
 
     /* Set the state back to idle */
-    session->banner_TxRx_state = libssh2_NB_state_idle;
+    session->banner_TxRx_state = ssh2_nb_state_idle;
     session->banner_TxRx_total_send = 0;
 
     return 0;
@@ -717,7 +717,7 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
         return LIBSSH2_ERROR_PROTO;
     }
 
-    if(session->startup_state == libssh2_NB_state_idle) {
+    if(session->startup_state == ssh2_nb_state_idle) {
         ssh2_deb((session, LIBSSH2_TRACE_TRANS,
                   "session_startup for socket %ld", (long)sock));
         if(LIBSSH2_INVALID_SOCKET == sock) {
@@ -740,21 +740,21 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
             }
         }
 
-        session->startup_state = libssh2_NB_state_created;
+        session->startup_state = ssh2_nb_state_created;
     }
 
-    if(session->startup_state == libssh2_NB_state_created) {
+    if(session->startup_state == ssh2_nb_state_created) {
         rc = banner_send(session);
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return rc;
         else if(rc) {
             return ssh2_err(session, rc, "Failed sending banner");
         }
-        session->startup_state = libssh2_NB_state_sent;
-        session->banner_TxRx_state = libssh2_NB_state_idle;
+        session->startup_state = ssh2_nb_state_sent;
+        session->banner_TxRx_state = ssh2_nb_state_idle;
     }
 
-    if(session->startup_state == libssh2_NB_state_sent) {
+    if(session->startup_state == ssh2_nb_state_sent) {
         do {
             rc = banner_receive(session);
             if(rc == LIBSSH2_ERROR_EAGAIN)
@@ -763,20 +763,20 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
                 return ssh2_err(session, rc, "Failed getting banner");
         } while(strncmp("SSH-", (const char *)session->remote.banner, 4));
 
-        session->startup_state = libssh2_NB_state_sent1;
+        session->startup_state = ssh2_nb_state_sent1;
     }
 
-    if(session->startup_state == libssh2_NB_state_sent1) {
+    if(session->startup_state == ssh2_nb_state_sent1) {
         rc = ssh2_kex_exchange(session, 0, &session->startup_key_state);
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return rc;
         else if(rc)
             return ssh2_err(session, rc, "Unable to exchange encryption keys");
 
-        session->startup_state = libssh2_NB_state_sent2;
+        session->startup_state = ssh2_nb_state_sent2;
     }
 
-    if(session->startup_state == libssh2_NB_state_sent2) {
+    if(session->startup_state == ssh2_nb_state_sent2) {
         ssh2_deb((session, LIBSSH2_TRACE_TRANS,
                   "Requesting userauth service"));
 
@@ -786,10 +786,10 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
         memcpy(session->startup_service + 5, "ssh-userauth",
                sizeof("ssh-userauth") - 1);
 
-        session->startup_state = libssh2_NB_state_sent3;
+        session->startup_state = ssh2_nb_state_sent3;
     }
 
-    if(session->startup_state == libssh2_NB_state_sent3) {
+    if(session->startup_state == ssh2_nb_state_sent3) {
         rc = ssh2_transport_send(session, session->startup_service,
                                  sizeof("ssh-userauth") + 5 - 1, NULL, 0);
         if(rc == LIBSSH2_ERROR_EAGAIN)
@@ -799,10 +799,10 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
                             "Unable to ask for ssh-userauth service");
         }
 
-        session->startup_state = libssh2_NB_state_sent4;
+        session->startup_state = ssh2_nb_state_sent4;
     }
 
-    if(session->startup_state == libssh2_NB_state_sent4) {
+    if(session->startup_state == ssh2_nb_state_sent4) {
         struct string_buf buf;
         rc = ssh2_packet_require(session, SSH_MSG_SERVICE_ACCEPT,
                                  &session->startup_data,
@@ -832,7 +832,7 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
         SSH2_FREE(session, session->startup_data);
         session->startup_data = NULL;
 
-        session->startup_state = libssh2_NB_state_idle;
+        session->startup_state = ssh2_nb_state_idle;
 
         return 0;
     }
@@ -886,14 +886,14 @@ static int session_free(LIBSSH2_SESSION *session)
     LIBSSH2_LISTENER *l;
     int packets_left = 0;
 
-    if(session->free_state == libssh2_NB_state_idle) {
+    if(session->free_state == ssh2_nb_state_idle) {
         ssh2_deb((session, LIBSSH2_TRACE_TRANS, "Freeing session resource %p",
                   (void *)session->remote.banner));
 
-        session->free_state = libssh2_NB_state_created;
+        session->free_state = ssh2_nb_state_created;
     }
 
-    if(session->free_state == libssh2_NB_state_created) {
+    if(session->free_state == ssh2_nb_state_created) {
         /* !checksrc! disable EQUALSNULL 1 */
         while((ch = ssh2_list_first(&session->channels)) != NULL) {
             rc = ssh2_channel_free(ch);
@@ -901,10 +901,10 @@ static int session_free(LIBSSH2_SESSION *session)
                 return rc;
         }
 
-        session->free_state = libssh2_NB_state_sent;
+        session->free_state = ssh2_nb_state_sent;
     }
 
-    if(session->free_state == libssh2_NB_state_sent) {
+    if(session->free_state == ssh2_nb_state_sent) {
         /* !checksrc! disable EQUALSNULL 1 */
         while((l = ssh2_list_first(&session->listeners)) != NULL) {
             rc = ssh2_channel_forward_cancel(l);
@@ -912,7 +912,7 @@ static int session_free(LIBSSH2_SESSION *session)
                 return rc;
         }
 
-        session->free_state = libssh2_NB_state_sent1;
+        session->free_state = ssh2_nb_state_sent1;
     }
 
     if(session->kex && session->kex->cleanup) {
@@ -1159,7 +1159,7 @@ static int session_disconnect(LIBSSH2_SESSION *session, int reason,
     size_t descr_len = 0, lang_len = 0;
     int rc;
 
-    if(session->disconnect_state == libssh2_NB_state_idle) {
+    if(session->disconnect_state == ssh2_nb_state_idle) {
         ssh2_deb((session, LIBSSH2_TRACE_TRANS,
                   "Disconnecting: reason=%d, desc=%s, lang=%s",
                   reason, description, lang));
@@ -1188,7 +1188,7 @@ static int session_disconnect(LIBSSH2_SESSION *session, int reason,
         /* store length only, lang is sent separately */
         ssh2_store_u32(&s, (uint32_t)lang_len);
 
-        session->disconnect_state = libssh2_NB_state_created;
+        session->disconnect_state = ssh2_nb_state_created;
     }
 
     rc = ssh2_transport_send(session, session->disconnect_data,
@@ -1197,7 +1197,7 @@ static int session_disconnect(LIBSSH2_SESSION *session, int reason,
     if(rc == LIBSSH2_ERROR_EAGAIN)
         return rc;
 
-    session->disconnect_state = libssh2_NB_state_idle;
+    session->disconnect_state = ssh2_nb_state_idle;
 
     return 0;
 }

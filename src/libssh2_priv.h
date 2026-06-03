@@ -289,25 +289,25 @@ struct iovec {
 
 /* non-blocking states */
 typedef enum {
-    libssh2_NB_state_idle = 0,
-    libssh2_NB_state_allocated,
-    libssh2_NB_state_created,
-    libssh2_NB_state_sent,
-    libssh2_NB_state_sent1,
-    libssh2_NB_state_sent2,
-    libssh2_NB_state_sent3,
-    libssh2_NB_state_sent4,
-    libssh2_NB_state_sent5,
-    libssh2_NB_state_sent6,
-    libssh2_NB_state_sent7,
-    libssh2_NB_state_jump1,
-    libssh2_NB_state_jump2,
-    libssh2_NB_state_jump3,
-    libssh2_NB_state_jump4,
-    libssh2_NB_state_jump5,
-    libssh2_NB_state_error_closing,
-    libssh2_NB_state_end,
-    libssh2_NB_state_jumpauthagent
+    ssh2_nb_state_idle = 0,
+    ssh2_nb_state_allocated,
+    ssh2_nb_state_created,
+    ssh2_nb_state_sent,
+    ssh2_nb_state_sent1,
+    ssh2_nb_state_sent2,
+    ssh2_nb_state_sent3,
+    ssh2_nb_state_sent4,
+    ssh2_nb_state_sent5,
+    ssh2_nb_state_sent6,
+    ssh2_nb_state_sent7,
+    ssh2_nb_state_jump1,
+    ssh2_nb_state_jump2,
+    ssh2_nb_state_jump3,
+    ssh2_nb_state_jump4,
+    ssh2_nb_state_jump5,
+    ssh2_nb_state_error_closing,
+    ssh2_nb_state_end,
+    ssh2_nb_state_jumpauthagent
 } ssh2_nb_states;
 
 struct packet_require_state {

@@ -1177,7 +1177,7 @@ int libssh2_agent_userauth(LIBSSH2_AGENT *agent,
     void *abstract = agent;
     int rc;
 
-    if(agent->session->userauth_pblc_state == libssh2_NB_state_idle) {
+    if(agent->session->userauth_pblc_state == ssh2_nb_state_idle) {
         memset(&agent->transctx, 0, sizeof(agent->transctx));
         agent->identity = identity->node;
     }
@@ -1211,7 +1211,7 @@ int libssh2_agent_sign(LIBSSH2_AGENT *agent,
     int rc;
     uint32_t key_kind_len;
 
-    if(agent->session->userauth_pblc_state == libssh2_NB_state_idle) {
+    if(agent->session->userauth_pblc_state == ssh2_nb_state_idle) {
         memset(&agent->transctx, 0, sizeof(agent->transctx));
         agent->identity = identity->node;
     }
