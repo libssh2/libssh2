@@ -336,11 +336,11 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 
 /* Default generate and safe prime sizes for diffie-hellman-group-exchange-sha1
    Qc3 is limited to a maximum 2048-bit modulus/key size. */
-#define LIBSSH2_DH_GEX_MINGROUP     1024
-#define LIBSSH2_DH_GEX_OPTGROUP     1536
-#define LIBSSH2_DH_GEX_MAXGROUP     2048
+#define SSH2_DH_GEX_MINGROUP     1024
+#define SSH2_DH_GEX_OPTGROUP     1536
+#define SSH2_DH_GEX_MAXGROUP     2048
 
-#define LIBSSH2_DH_MAX_MODULUS_BITS 2048
+#define SSH2_DH_MAX_MODULUS_BITS 2048
 
 #define ssh2_dh_ctx          struct os400qc3_dh_ctx
 #define ssh2_dh_init(dhctx)  ssh2_os400qc3_dh_init(dhctx)

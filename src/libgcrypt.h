@@ -207,11 +207,11 @@
 
 /* Default generate and safe prime sizes for
    diffie-hellman-group-exchange-sha1 */
-#define LIBSSH2_DH_GEX_MINGROUP     2048
-#define LIBSSH2_DH_GEX_OPTGROUP     4096
-#define LIBSSH2_DH_GEX_MAXGROUP     8192
+#define SSH2_DH_GEX_MINGROUP     2048
+#define SSH2_DH_GEX_OPTGROUP     4096
+#define SSH2_DH_GEX_MAXGROUP     8192
 
-#define LIBSSH2_DH_MAX_MODULUS_BITS 16384
+#define SSH2_DH_MAX_MODULUS_BITS 16384
 
 #define ssh2_dh_ctx struct gcry_mpi *
 #define ssh2_dh_init(dhctx) ssh2_lgcr_dh_init(dhctx)

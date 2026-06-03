@@ -669,7 +669,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                sizeof(exchange_state->req_state));
 
         /* Generate x and e */
-        if(ssh2_bn_bits(p) > LIBSSH2_DH_MAX_MODULUS_BITS) {
+        if(ssh2_bn_bits(p) > SSH2_DH_MAX_MODULUS_BITS) {
             ret = ssh2_err(session, LIBSSH2_ERROR_INVAL,
                            "DH modulus value is too large");
             goto clean_exit;
@@ -903,12 +903,9 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
 
         if(packet_type_init == SSH_MSG_KEX_DH_GEX_INIT) {
             /* diffie-hellman-group-exchange hashes additional fields */
-            ssh2_htonu32(exchange_state->h_sig_comp,
-                         LIBSSH2_DH_GEX_MINGROUP);
-            ssh2_htonu32(exchange_state->h_sig_comp + 4,
-                         LIBSSH2_DH_GEX_OPTGROUP);
-            ssh2_htonu32(exchange_state->h_sig_comp + 8,
-                         LIBSSH2_DH_GEX_MAXGROUP);
+            ssh2_htonu32(exchange_state->h_sig_comp, SSH2_DH_GEX_MINGROUP);
+            ssh2_htonu32(exchange_state->h_sig_comp + 4, SSH2_DH_GEX_OPTGROUP);
+            ssh2_htonu32(exchange_state->h_sig_comp + 8, SSH2_DH_GEX_MAXGROUP);
             hok &= sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
                                        exchange_state->h_sig_comp, 12);
         }
@@ -1416,9 +1413,9 @@ static int kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
         key_state->g = ssh2_bn_init_from_bin();
         /* Ask for a P and G pair */
         key_state->request[0] = SSH_MSG_KEX_DH_GEX_REQUEST;
-        ssh2_htonu32(key_state->request + 1, LIBSSH2_DH_GEX_MINGROUP);
-        ssh2_htonu32(key_state->request + 5, LIBSSH2_DH_GEX_OPTGROUP);
-        ssh2_htonu32(key_state->request + 9, LIBSSH2_DH_GEX_MAXGROUP);
+        ssh2_htonu32(key_state->request + 1, SSH2_DH_GEX_MINGROUP);
+        ssh2_htonu32(key_state->request + 5, SSH2_DH_GEX_OPTGROUP);
+        ssh2_htonu32(key_state->request + 9, SSH2_DH_GEX_MAXGROUP);
         key_state->request_len = 13;
         ssh2_deb((session, LIBSSH2_TRACE_KEX,
                   "Initiating Diffie-Hellman Group-Exchange SHA1"));
@@ -1493,8 +1490,8 @@ static int kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
         }
 
         bits = (int)ssh2_bn_bits(key_state->p);
-        if(bits < LIBSSH2_DH_GEX_MINGROUP ||
-           bits > LIBSSH2_DH_GEX_MAXGROUP) {
+        if(bits < SSH2_DH_GEX_MINGROUP ||
+           bits > SSH2_DH_GEX_MAXGROUP) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                            "DH-SHA1 p out of range");
             goto dh_gex_clean_exit;
@@ -1539,9 +1536,9 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
         key_state->g = ssh2_bn_init_from_bin();
         /* Ask for a P and G pair */
         key_state->request[0] = SSH_MSG_KEX_DH_GEX_REQUEST;
-        ssh2_htonu32(key_state->request + 1, LIBSSH2_DH_GEX_MINGROUP);
-        ssh2_htonu32(key_state->request + 5, LIBSSH2_DH_GEX_OPTGROUP);
-        ssh2_htonu32(key_state->request + 9, LIBSSH2_DH_GEX_MAXGROUP);
+        ssh2_htonu32(key_state->request + 1, SSH2_DH_GEX_MINGROUP);
+        ssh2_htonu32(key_state->request + 5, SSH2_DH_GEX_OPTGROUP);
+        ssh2_htonu32(key_state->request + 9, SSH2_DH_GEX_MAXGROUP);
         key_state->request_len = 13;
         ssh2_deb((session, LIBSSH2_TRACE_KEX,
                   "Initiating Diffie-Hellman Group-Exchange SHA256"));
@@ -1618,8 +1615,8 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
         }
 
         bits = (int)ssh2_bn_bits(key_state->p);
-        if(bits < LIBSSH2_DH_GEX_MINGROUP ||
-           bits > LIBSSH2_DH_GEX_MAXGROUP) {
+        if(bits < SSH2_DH_GEX_MINGROUP ||
+           bits > SSH2_DH_GEX_MAXGROUP) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                            "DH-SHA256 p out of range");
             goto dh_gex_clean_exit;
