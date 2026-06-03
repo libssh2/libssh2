@@ -1070,7 +1070,7 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                                        &pubkeydata, &pubkeydata_len,
                                        privatekey, passphrase);
             if(rc)
-                /* libssh2_pub_priv_keyfile() calls ssh2_err() */
+                /* ssh2_pub_priv_keyfile() calls ssh2_err() */
                 return rc;
         }
 
