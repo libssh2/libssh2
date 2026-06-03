@@ -5101,12 +5101,12 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
     return st;
 }
 
-void ssh2_dh_init(libssh2_dh_ctx *dhctx)
+void ossl_dh_init(libssh2_dh_ctx *dhctx)
 {
     *dhctx = BN_new(); /* Random from client */
 }
 
-int ssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
+int ossl_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
                      libssh2_bn *g, libssh2_bn *p, int group_order,
                      libssh2_bn_ctx *bnctx)
 {
@@ -5116,7 +5116,7 @@ int ssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
     return 0;
 }
 
-int ssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
+int ossl_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
                    libssh2_bn *f, libssh2_bn *p,
                    libssh2_bn_ctx *bnctx)
 {
@@ -5125,7 +5125,7 @@ int ssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
     return 0;
 }
 
-void ssh2_dh_dtor(libssh2_dh_ctx *dhctx)
+void ossl_dh_dtor(libssh2_dh_ctx *dhctx)
 {
     BN_clear_free(*dhctx);
     *dhctx = NULL;

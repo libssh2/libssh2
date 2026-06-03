@@ -835,13 +835,13 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                     "file: Method unimplemented in libgcrypt backend");
 }
 
-void ssh2_dh_init(libssh2_dh_ctx *dhctx)
+void gcr_dh_init(libssh2_dh_ctx *dhctx)
 {
     *dhctx = gcry_mpi_new(0);                   /* Random from client */
 }
 
-int ssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
-                     libssh2_bn *g, libssh2_bn *p, int group_order)
+int gcr_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
+                    libssh2_bn *g, libssh2_bn *p, int group_order)
 {
     /* Generate x and e */
     gcry_mpi_randomize(*dhctx, group_order * 8 - 1, GCRY_VERY_STRONG_RANDOM);
@@ -849,7 +849,7 @@ int ssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
     return 0;
 }
 
-int ssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
+int gcr_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
                   libssh2_bn *f, libssh2_bn *p)
 {
     /* Compute the shared secret */
@@ -857,7 +857,7 @@ int ssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
     return 0;
 }
 
-void ssh2_dh_dtor(libssh2_dh_ctx *dhctx)
+void gcr_dh_dtor(libssh2_dh_ctx *dhctx)
 {
     gcry_mpi_release(*dhctx);
     *dhctx = NULL;

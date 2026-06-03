@@ -485,12 +485,12 @@ struct wincng_dh_ctx {
 
 #define libssh2_dh_ctx struct wincng_dh_ctx
 
-#define libssh2_dh_init(dhctx) ssh2_dh_init(dhctx)
+#define libssh2_dh_init(dhctx) wincng_dh_init(dhctx)
 #define libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
-    ssh2_dh_key_pair(dhctx, public, g, p, group_order)
+    wincng_dh_key_pair(dhctx, public, g, p, group_order)
 #define libssh2_dh_secret(dhctx, secret, f, p, bnctx) \
-    ssh2_dh_secret(dhctx, secret, f, p)
-#define libssh2_dh_dtor(dhctx) ssh2_dh_dtor(dhctx)
+    wincng_dh_secret(dhctx, secret, f, p)
+#define libssh2_dh_dtor(dhctx) wincng_dh_dtor(dhctx)
 
 /*******************************************************************/
 /*
@@ -526,11 +526,11 @@ int ssh2_wincng_bignum_from_bin(libssh2_bn *bn, ULONG len,
                                 const unsigned char *bin);
 int ssh2_wincng_bignum_to_bin(const libssh2_bn *bn, unsigned char *bin);
 void ssh2_wincng_bignum_free(libssh2_bn *bn);
-void ssh2_dh_init(struct wincng_dh_ctx *dhctx);
-int ssh2_dh_key_pair(struct wincng_dh_ctx *dhctx, libssh2_bn *public,
-                     libssh2_bn *g, libssh2_bn *p, int group_order);
-int ssh2_dh_secret(struct wincng_dh_ctx *dhctx, libssh2_bn *secret,
-                   libssh2_bn *f, libssh2_bn *p);
-void ssh2_dh_dtor(struct wincng_dh_ctx *dhctx);
+void wincng_dh_init(struct wincng_dh_ctx *dhctx);
+int wincng_dh_key_pair(struct wincng_dh_ctx *dhctx, libssh2_bn *public,
+                       libssh2_bn *g, libssh2_bn *p, int group_order);
+int wincng_dh_secret(struct wincng_dh_ctx *dhctx, libssh2_bn *secret,
+                     libssh2_bn *f, libssh2_bn *p);
+void wincng_dh_dtor(struct wincng_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_WINCNG_H */

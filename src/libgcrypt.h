@@ -196,7 +196,7 @@
 #define ssh2_bn_ctx_free(bnctx) ((void)0)
 #define ssh2_bn_init() gcry_mpi_new(0)
 #define ssh2_bn_init_from_bin() NULL  /* because gcry_mpi_scan() creates a
-                                             new bignum */
+                                         new bignum */
 #define ssh2_bn_set_word(bn, val) gcry_mpi_set_ui(bn, val)
 #define ssh2_bn_from_bin(bn, len, val) \
     gcry_mpi_scan(&(bn), GCRYMPI_FMT_USG, val, len, NULL)
@@ -216,18 +216,18 @@
 #define LIBSSH2_DH_MAX_MODULUS_BITS 16384
 
 #define libssh2_dh_ctx struct gcry_mpi *
-#define libssh2_dh_init(dhctx) ssh2_dh_init(dhctx)
+#define libssh2_dh_init(dhctx) gcr_dh_init(dhctx)
 #define libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
-    ssh2_dh_key_pair(dhctx, public, g, p, group_order)
+    gcr_dh_key_pair(dhctx, public, g, p, group_order)
 #define libssh2_dh_secret(dhctx, secret, f, p, bnctx) \
-    ssh2_dh_secret(dhctx, secret, f, p)
-#define libssh2_dh_dtor(dhctx) ssh2_dh_dtor(dhctx)
-void ssh2_dh_init(libssh2_dh_ctx *dhctx);
-int ssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
-                     libssh2_bn *g, libssh2_bn *p,
-                     int group_order);
-int ssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
-                   libssh2_bn *f, libssh2_bn *p);
-void ssh2_dh_dtor(libssh2_dh_ctx *dhctx);
+    gcr_dh_secret(dhctx, secret, f, p)
+#define libssh2_dh_dtor(dhctx) gcr_dh_dtor(dhctx)
+void gcr_dh_init(libssh2_dh_ctx *dhctx);
+int gcr_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
+                    libssh2_bn *g, libssh2_bn *p,
+                    int group_order);
+int gcr_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
+                  libssh2_bn *f, libssh2_bn *p);
+void gcr_dh_dtor(libssh2_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_LIBGCRYPT_H */
