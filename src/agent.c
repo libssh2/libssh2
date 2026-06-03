@@ -673,7 +673,7 @@ static int agent_transact_pageant(LIBSSH2_AGENT *agent,
     }
 
     ssh2_store_str(&p2, (const char *)transctx->request,
-                       transctx->request_len);
+                   transctx->request_len);
 
     cds.dwData = PAGEANT_COPYDATA_ID;
     cds.cbData = (DWORD)(1 + strlen(mapname));
@@ -689,7 +689,7 @@ static int agent_transact_pageant(LIBSSH2_AGENT *agent,
                             "agent setup fail");
         }
         transctx->response = SSH2_ALLOC(agent->session,
-                                           transctx->response_len);
+                                        transctx->response_len);
         if(!transctx->response) {
             UnmapViewOfFile(p);
             CloseHandle(filemap);
@@ -979,7 +979,7 @@ static int agent_list_identities(LIBSSH2_AGENT *agent)
         }
 
         identity->external.blob = SSH2_ALLOC(agent->session,
-                                                identity->external.blob_len);
+                                             identity->external.blob_len);
         if(!identity->external.blob) {
             rc = LIBSSH2_ERROR_ALLOC;
             SSH2_FREE(agent->session, identity);
@@ -1009,7 +1009,7 @@ static int agent_list_identities(LIBSSH2_AGENT *agent)
         len -= comment_len;
 
         identity->external.comment = SSH2_ALLOC(agent->session,
-                                                   comment_len + 1);
+                                                comment_len + 1);
         if(!identity->external.comment) {
             rc = LIBSSH2_ERROR_ALLOC;
             SSH2_FREE(agent->session, identity->external.blob);
@@ -1173,11 +1173,11 @@ int libssh2_agent_userauth(LIBSSH2_AGENT *agent,
 
     BLOCK_ADJUST(rc, agent->session,
                  ssh2_userauth_publickey(agent->session, username,
-                                             strlen(username),
-                                             identity->blob,
-                                             identity->blob_len,
-                                             agent_sign,
-                                             &abstract));
+                                         strlen(username),
+                                         identity->blob,
+                                         identity->blob_len,
+                                         agent_sign,
+                                         &abstract));
     return rc;
 }
 
@@ -1217,7 +1217,7 @@ int libssh2_agent_sign(LIBSSH2_AGENT *agent,
 
     agent->session->userauth_pblc_method_len = method_len;
     agent->session->userauth_pblc_method = SSH2_ALLOC(agent->session,
-                                                         method_len);
+                                                      method_len);
 
     memcpy(agent->session->userauth_pblc_method, method, method_len);
 
