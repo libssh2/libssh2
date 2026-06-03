@@ -86,7 +86,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
     unsigned char *s;
     int rc;
 
-    if(session->userauth_list_state == ssh2_nb_state_idle) {
+    if(session->userauth_list_state == ssh2_NB_state_idle) {
         /* Zero the whole thing out */
         memset(&session->userauth_list_packet_requirev_state, 0,
                sizeof(session->userauth_list_packet_requirev_state));
@@ -116,10 +116,10 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
         ssh2_store_str(&s, "ssh-connection", 14);
         ssh2_store_u32(&s, 4); /* send "none" separately */
 
-        session->userauth_list_state = ssh2_nb_state_created;
+        session->userauth_list_state = ssh2_NB_state_created;
     }
 
-    if(session->userauth_list_state == ssh2_nb_state_created) {
+    if(session->userauth_list_state == ssh2_NB_state_created) {
         rc = ssh2_transport_send(session, session->userauth_list_data,
                                  session->userauth_list_data_len,
                                  (const unsigned char *)"none", 4);
@@ -135,14 +135,14 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
         if(rc) {
             ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                      "Unable to send userauth-none request");
-            session->userauth_list_state = ssh2_nb_state_idle;
+            session->userauth_list_state = ssh2_NB_state_idle;
             return NULL;
         }
 
-        session->userauth_list_state = ssh2_nb_state_sent;
+        session->userauth_list_state = ssh2_NB_state_sent;
     }
 
-    if(session->userauth_list_state == ssh2_nb_state_sent) {
+    if(session->userauth_list_state == ssh2_NB_state_sent) {
         rc = ssh2_packet_requirev(session, reply_codes,
                                   &session->userauth_list_data,
                                   &session->userauth_list_data_len, 0,
@@ -155,7 +155,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
         }
         else if(rc || (session->userauth_list_data_len < 1)) {
             ssh2_err(session, rc, "Failed getting response");
-            session->userauth_list_state = ssh2_nb_state_idle;
+            session->userauth_list_state = ssh2_NB_state_idle;
             return NULL;
         }
 
@@ -209,7 +209,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
             }
             else if(rc || (session->userauth_list_data_len < 1)) {
                 ssh2_err(session, rc, "Failed getting response");
-                session->userauth_list_state = ssh2_nb_state_idle;
+                session->userauth_list_state = ssh2_NB_state_idle;
                 return NULL;
             }
         }
@@ -220,7 +220,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
             SSH2_FREE(session, session->userauth_list_data);
             session->userauth_list_data = NULL;
             session->state |= LIBSSH2_STATE_AUTHENTICATED;
-            session->userauth_list_state = ssh2_nb_state_idle;
+            session->userauth_list_state = ssh2_NB_state_idle;
             return NULL;
         }
 
@@ -246,7 +246,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
                   session->userauth_list_data));
     }
 
-    session->userauth_list_state = ssh2_nb_state_idle;
+    session->userauth_list_state = ssh2_NB_state_idle;
     return (char *)session->userauth_list_data;
 }
 
@@ -317,7 +317,7 @@ static int userauth_password(LIBSSH2_SESSION *session,
     };
     int rc;
 
-    if(session->userauth_pswd_state == ssh2_nb_state_idle) {
+    if(session->userauth_pswd_state == ssh2_NB_state_idle) {
         /* Zero the whole thing out */
         memset(&session->userauth_pswd_packet_requirev_state, 0,
                sizeof(session->userauth_pswd_packet_requirev_state));
@@ -357,10 +357,10 @@ static int userauth_password(LIBSSH2_SESSION *session,
         ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                   "Attempting to login using password authentication"));
 
-        session->userauth_pswd_state = ssh2_nb_state_created;
+        session->userauth_pswd_state = ssh2_NB_state_created;
     }
 
-    if(session->userauth_pswd_state == ssh2_nb_state_created) {
+    if(session->userauth_pswd_state == ssh2_NB_state_created) {
         rc = ssh2_transport_send(session, session->userauth_pswd_data,
                                  session->userauth_pswd_data_len,
                                  password, password_len);
@@ -374,20 +374,20 @@ static int userauth_password(LIBSSH2_SESSION *session,
         session->userauth_pswd_data = NULL;
 
         if(rc) {
-            session->userauth_pswd_state = ssh2_nb_state_idle;
+            session->userauth_pswd_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             "Unable to send userauth-password request");
         }
 
-        session->userauth_pswd_state = ssh2_nb_state_sent;
+        session->userauth_pswd_state = ssh2_NB_state_sent;
     }
 
 password_response:
 
-    if((session->userauth_pswd_state == ssh2_nb_state_sent) ||
-       (session->userauth_pswd_state == ssh2_nb_state_sent1) ||
-       (session->userauth_pswd_state == ssh2_nb_state_sent2)) {
-        if(session->userauth_pswd_state == ssh2_nb_state_sent) {
+    if((session->userauth_pswd_state == ssh2_NB_state_sent) ||
+       (session->userauth_pswd_state == ssh2_NB_state_sent1) ||
+       (session->userauth_pswd_state == ssh2_NB_state_sent2)) {
+        if(session->userauth_pswd_state == ssh2_NB_state_sent) {
             rc = ssh2_packet_requirev(session, reply_codes,
                                       &session->userauth_pswd_data,
                                       &session->userauth_pswd_data_len,
@@ -397,12 +397,12 @@ password_response:
 
             if(rc) {
                 if(rc != LIBSSH2_ERROR_EAGAIN)
-                    session->userauth_pswd_state = ssh2_nb_state_idle;
+                    session->userauth_pswd_state = ssh2_NB_state_idle;
 
                 return ssh2_err(session, rc, "Waiting for password response");
             }
             else if(session->userauth_pswd_data_len < 1) {
-                session->userauth_pswd_state = ssh2_nb_state_idle;
+                session->userauth_pswd_state = ssh2_NB_state_idle;
                 return ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                 "Unexpected packet size");
             }
@@ -413,7 +413,7 @@ password_response:
                 SSH2_FREE(session, session->userauth_pswd_data);
                 session->userauth_pswd_data = NULL;
                 session->state |= LIBSSH2_STATE_AUTHENTICATED;
-                session->userauth_pswd_state = ssh2_nb_state_idle;
+                session->userauth_pswd_state = ssh2_NB_state_idle;
                 return 0;
             }
             else if(session->userauth_pswd_data[0] ==
@@ -422,7 +422,7 @@ password_response:
                           "Password authentication failed"));
                 SSH2_FREE(session, session->userauth_pswd_data);
                 session->userauth_pswd_data = NULL;
-                session->userauth_pswd_state = ssh2_nb_state_idle;
+                session->userauth_pswd_state = ssh2_NB_state_idle;
                 return ssh2_err(session, LIBSSH2_ERROR_AUTHENTICATION_FAILED,
                                 "Authentication failed (username/password)");
             }
@@ -430,11 +430,11 @@ password_response:
             session->userauth_pswd_newpw = NULL;
             session->userauth_pswd_newpw_len = 0;
 
-            session->userauth_pswd_state = ssh2_nb_state_sent1;
+            session->userauth_pswd_state = ssh2_NB_state_sent1;
         }
 
         if(session->userauth_pswd_data_len < 1) {
-            session->userauth_pswd_state = ssh2_nb_state_idle;
+            session->userauth_pswd_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_PROTO,
                             "Unexpected packet size");
         }
@@ -445,16 +445,16 @@ password_response:
             SSH_MSG_USERAUTH_PASSWD_CHANGEREQ)) {
             session->userauth_pswd_data0 = SSH_MSG_USERAUTH_PASSWD_CHANGEREQ;
 
-            if((session->userauth_pswd_state == ssh2_nb_state_sent1) ||
-               (session->userauth_pswd_state == ssh2_nb_state_sent2)) {
-                if(session->userauth_pswd_state == ssh2_nb_state_sent1) {
+            if((session->userauth_pswd_state == ssh2_NB_state_sent1) ||
+               (session->userauth_pswd_state == ssh2_NB_state_sent2)) {
+                if(session->userauth_pswd_state == ssh2_NB_state_sent1) {
                     ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                               "Password change required"));
                     SSH2_FREE(session, session->userauth_pswd_data);
                     session->userauth_pswd_data = NULL;
                 }
                 if(passwd_change_cb) {
-                    if(session->userauth_pswd_state == ssh2_nb_state_sent1) {
+                    if(session->userauth_pswd_state == ssh2_NB_state_sent1) {
                         passwd_change_cb(session,
                                          &session->userauth_pswd_newpw,
                                          &session->userauth_pswd_newpw_len,
@@ -499,10 +499,10 @@ password_response:
                         ssh2_store_u32(&s, session->userauth_pswd_newpw_len);
                         /* send session->userauth_pswd_newpw separately */
 
-                        session->userauth_pswd_state = ssh2_nb_state_sent2;
+                        session->userauth_pswd_state = ssh2_NB_state_sent2;
                     }
 
-                    if(session->userauth_pswd_state == ssh2_nb_state_sent2) {
+                    if(session->userauth_pswd_state == ssh2_NB_state_sent2) {
                         rc = ssh2_transport_send(session,
                                             session->userauth_pswd_data,
                                             session->userauth_pswd_data_len,
@@ -530,13 +530,13 @@ password_response:
                          * Ugliest use of goto ever.  Blame it on the
                          * askN => requirev migration.
                          */
-                        session->userauth_pswd_state = ssh2_nb_state_sent;
+                        session->userauth_pswd_state = ssh2_NB_state_sent;
                         goto password_response;
                     }
                 }
             }
             else {
-                session->userauth_pswd_state = ssh2_nb_state_idle;
+                session->userauth_pswd_state = ssh2_NB_state_idle;
                 return ssh2_err(session, LIBSSH2_ERROR_PASSWORD_EXPIRED,
                                 "Password Expired, and no callback specified");
             }
@@ -546,7 +546,7 @@ password_response:
     /* FAILURE */
     SSH2_FREE(session, session->userauth_pswd_data);
     session->userauth_pswd_data = NULL;
-    session->userauth_pswd_state = ssh2_nb_state_idle;
+    session->userauth_pswd_state = ssh2_NB_state_idle;
 
     return ssh2_err(session, LIBSSH2_ERROR_AUTHENTICATION_FAILED,
                     "Authentication failed");
@@ -1038,7 +1038,7 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
 {
     int rc;
 
-    if(session->userauth_host_state == ssh2_nb_state_idle) {
+    if(session->userauth_host_state == ssh2_NB_state_idle) {
         const struct hostkey_method *privkeyobj;
         unsigned char *pubkeydata = NULL;
         unsigned char *sig = NULL;
@@ -1201,10 +1201,10 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                   "Attempting hostbased authentication"));
 
-        session->userauth_host_state = ssh2_nb_state_created;
+        session->userauth_host_state = ssh2_NB_state_created;
     }
 
-    if(session->userauth_host_state == ssh2_nb_state_created) {
+    if(session->userauth_host_state == ssh2_NB_state_created) {
         rc = ssh2_transport_send(session, session->userauth_host_packet,
                                  session->userauth_host_s -
                                  session->userauth_host_packet,
@@ -1215,17 +1215,17 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         else if(rc) {
             SSH2_FREE(session, session->userauth_host_packet);
             session->userauth_host_packet = NULL;
-            session->userauth_host_state = ssh2_nb_state_idle;
+            session->userauth_host_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             "Unable to send userauth-hostbased request");
         }
         SSH2_FREE(session, session->userauth_host_packet);
         session->userauth_host_packet = NULL;
 
-        session->userauth_host_state = ssh2_nb_state_sent;
+        session->userauth_host_state = ssh2_NB_state_sent;
     }
 
-    if(session->userauth_host_state == ssh2_nb_state_sent) {
+    if(session->userauth_host_state == ssh2_NB_state_sent) {
         static const unsigned char reply_codes[3] = {
             SSH_MSG_USERAUTH_SUCCESS,
             SSH_MSG_USERAUTH_FAILURE,
@@ -1241,7 +1241,7 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
             return ssh2_err(session, LIBSSH2_ERROR_EAGAIN, "Would block");
         }
 
-        session->userauth_host_state = ssh2_nb_state_idle;
+        session->userauth_host_state = ssh2_NB_state_idle;
         if(rc || data_len < 1) {
             return ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
                             "Auth failed");
@@ -1558,7 +1558,7 @@ int ssh2_userauth_publickey(
 retry_auth:
     auth_attempts++;
 
-    if(session->userauth_pblc_state == ssh2_nb_state_idle) {
+    if(session->userauth_pblc_state == ssh2_NB_state_idle) {
 
         /*
          * The call to ssh2_ntohu32() later relies on pubkeydata having at
@@ -1674,10 +1674,10 @@ retry_auth:
         ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                   "Attempting publickey authentication"));
 
-        session->userauth_pblc_state = ssh2_nb_state_created;
+        session->userauth_pblc_state = ssh2_NB_state_created;
     }
 
-    if(session->userauth_pblc_state == ssh2_nb_state_created) {
+    if(session->userauth_pblc_state == ssh2_NB_state_created) {
         rc = ssh2_transport_send(session, session->userauth_pblc_packet,
                                  session->userauth_pblc_packet_len, NULL, 0);
         if(rc == LIBSSH2_ERROR_EAGAIN)
@@ -1687,15 +1687,15 @@ retry_auth:
             session->userauth_pblc_packet = NULL;
             SSH2_FREE(session, session->userauth_pblc_method);
             session->userauth_pblc_method = NULL;
-            session->userauth_pblc_state = ssh2_nb_state_idle;
+            session->userauth_pblc_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             "Unable to send userauth-publickey request");
         }
 
-        session->userauth_pblc_state = ssh2_nb_state_sent;
+        session->userauth_pblc_state = ssh2_NB_state_sent;
     }
 
-    if(session->userauth_pblc_state == ssh2_nb_state_sent) {
+    if(session->userauth_pblc_state == ssh2_NB_state_sent) {
         rc = ssh2_packet_requirev(session, reply_codes,
                                   &session->userauth_pblc_data,
                                   &session->userauth_pblc_data_len, 0,
@@ -1710,7 +1710,7 @@ retry_auth:
             session->userauth_pblc_packet = NULL;
             SSH2_FREE(session, session->userauth_pblc_method);
             session->userauth_pblc_method = NULL;
-            session->userauth_pblc_state = ssh2_nb_state_idle;
+            session->userauth_pblc_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
                             "Waiting for USERAUTH response");
         }
@@ -1729,7 +1729,7 @@ retry_auth:
             SSH2_FREE(session, session->userauth_pblc_method);
             session->userauth_pblc_method = NULL;
             session->state |= LIBSSH2_STATE_AUTHENTICATED;
-            session->userauth_pblc_state = ssh2_nb_state_idle;
+            session->userauth_pblc_state = ssh2_NB_state_idle;
             return 0;
         }
 
@@ -1741,7 +1741,7 @@ retry_auth:
             session->userauth_pblc_packet = NULL;
             SSH2_FREE(session, session->userauth_pblc_method);
             session->userauth_pblc_method = NULL;
-            session->userauth_pblc_state = ssh2_nb_state_idle;
+            session->userauth_pblc_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_AUTHENTICATION_FAILED,
                             "Username/PublicKey combination invalid");
         }
@@ -1751,10 +1751,10 @@ retry_auth:
         session->userauth_pblc_data = NULL;
 
         *session->userauth_pblc_b = 0x01;
-        session->userauth_pblc_state = ssh2_nb_state_sent1;
+        session->userauth_pblc_state = ssh2_NB_state_sent1;
     }
 
-    if(session->userauth_pblc_state == ssh2_nb_state_sent1) {
+    if(session->userauth_pblc_state == ssh2_NB_state_sent1) {
         unsigned char *buf;
         unsigned char *sig = NULL;
         size_t sig_len;
@@ -1786,7 +1786,7 @@ retry_auth:
             session->userauth_pblc_method = NULL;
             SSH2_FREE(session, session->userauth_pblc_packet);
             session->userauth_pblc_packet = NULL;
-            session->userauth_pblc_state = ssh2_nb_state_idle;
+            session->userauth_pblc_state = ssh2_NB_state_idle;
 
             goto retry_auth;
         }
@@ -1795,7 +1795,7 @@ retry_auth:
             session->userauth_pblc_method = NULL;
             SSH2_FREE(session, session->userauth_pblc_packet);
             session->userauth_pblc_packet = NULL;
-            session->userauth_pblc_state = ssh2_nb_state_idle;
+            session->userauth_pblc_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
                             "Callback returned error");
         }
@@ -1823,7 +1823,7 @@ retry_auth:
                 session->userauth_pblc_packet = NULL;
                 SSH2_FREE(session, session->userauth_pblc_method);
                 session->userauth_pblc_method = NULL;
-                session->userauth_pblc_state = ssh2_nb_state_idle;
+                session->userauth_pblc_state = ssh2_NB_state_idle;
                 return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                 "Failed allocating additional space for "
                                 "userauth-publickey packet");
@@ -1870,10 +1870,10 @@ retry_auth:
                   "Attempting publickey authentication -- phase 2"));
 
         session->userauth_pblc_s = s;
-        session->userauth_pblc_state = ssh2_nb_state_sent2;
+        session->userauth_pblc_state = ssh2_NB_state_sent2;
     }
 
-    if(session->userauth_pblc_state == ssh2_nb_state_sent2) {
+    if(session->userauth_pblc_state == ssh2_NB_state_sent2) {
         rc = ssh2_transport_send(session, session->userauth_pblc_packet,
                                  session->userauth_pblc_s -
                                  session->userauth_pblc_packet,
@@ -1884,14 +1884,14 @@ retry_auth:
         else if(rc) {
             SSH2_FREE(session, session->userauth_pblc_packet);
             session->userauth_pblc_packet = NULL;
-            session->userauth_pblc_state = ssh2_nb_state_idle;
+            session->userauth_pblc_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             "Unable to send userauth-publickey request");
         }
         SSH2_FREE(session, session->userauth_pblc_packet);
         session->userauth_pblc_packet = NULL;
 
-        session->userauth_pblc_state = ssh2_nb_state_sent3;
+        session->userauth_pblc_state = ssh2_NB_state_sent3;
     }
 
     /* PK_OK is no longer valid */
@@ -1907,7 +1907,7 @@ retry_auth:
                         "USERAUTH response");
     }
     else if(rc || session->userauth_pblc_data_len < 1) {
-        session->userauth_pblc_state = ssh2_nb_state_idle;
+        session->userauth_pblc_state = ssh2_NB_state_idle;
         return ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
                         "Waiting for publickey USERAUTH response");
     }
@@ -1919,14 +1919,14 @@ retry_auth:
         SSH2_FREE(session, session->userauth_pblc_data);
         session->userauth_pblc_data = NULL;
         session->state |= LIBSSH2_STATE_AUTHENTICATED;
-        session->userauth_pblc_state = ssh2_nb_state_idle;
+        session->userauth_pblc_state = ssh2_NB_state_idle;
         return 0;
     }
 
     /* This public key is not allowed for this user on this server */
     SSH2_FREE(session, session->userauth_pblc_data);
     session->userauth_pblc_data = NULL;
-    session->userauth_pblc_state = ssh2_nb_state_idle;
+    session->userauth_pblc_state = ssh2_NB_state_idle;
     return ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
                     "Invalid signature for supplied public key, or bad "
                     "username/public key combination");
@@ -1954,7 +1954,7 @@ static int userauth_publickey_frommemory(LIBSSH2_SESSION *session,
     privkey_mem.data_len = privatekeydata_len;
     privkey_mem.passphrase = passphrase;
 
-    if(session->userauth_pblc_state == ssh2_nb_state_idle) {
+    if(session->userauth_pblc_state == ssh2_NB_state_idle) {
         if(publickeydata_len && publickeydata) {
             rc = memory_read_publickey(session, &session->userauth_pblc_method,
                                        &session->userauth_pblc_method_len,
@@ -2008,7 +2008,7 @@ static int userauth_publickey_fromfile(LIBSSH2_SESSION *session,
     privkey_file.filename = privatekey;
     privkey_file.passphrase = passphrase;
 
-    if(session->userauth_pblc_state == ssh2_nb_state_idle) {
+    if(session->userauth_pblc_state == ssh2_NB_state_idle) {
         if(publickey) {
             rc = file_read_publickey(session, &session->userauth_pblc_method,
                                      &session->userauth_pblc_method_len,
@@ -2138,7 +2138,7 @@ static int userauth_keyboard_interactive(
     };
     unsigned int i;
 
-    if(session->userauth_kybd_state == ssh2_nb_state_idle) {
+    if(session->userauth_kybd_state == ssh2_NB_state_idle) {
         session->userauth_kybd_auth_name = NULL;
         session->userauth_kybd_auth_instruction = NULL;
         session->userauth_kybd_num_prompts = 0;
@@ -2193,10 +2193,10 @@ static int userauth_keyboard_interactive(
         ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                   "Attempting keyboard-interactive authentication"));
 
-        session->userauth_kybd_state = ssh2_nb_state_created;
+        session->userauth_kybd_state = ssh2_NB_state_created;
     }
 
-    if(session->userauth_kybd_state == ssh2_nb_state_created) {
+    if(session->userauth_kybd_state == ssh2_NB_state_created) {
         rc = ssh2_transport_send(session, session->userauth_kybd_data,
                                  session->userauth_kybd_packet_len, NULL, 0);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
@@ -2205,18 +2205,18 @@ static int userauth_keyboard_interactive(
         else if(rc) {
             SSH2_FREE(session, session->userauth_kybd_data);
             session->userauth_kybd_data = NULL;
-            session->userauth_kybd_state = ssh2_nb_state_idle;
+            session->userauth_kybd_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             "Unable to send keyboard-interactive request");
         }
         SSH2_FREE(session, session->userauth_kybd_data);
         session->userauth_kybd_data = NULL;
 
-        session->userauth_kybd_state = ssh2_nb_state_sent;
+        session->userauth_kybd_state = ssh2_NB_state_sent;
     }
 
     for(;;) {
-        if(session->userauth_kybd_state == ssh2_nb_state_sent) {
+        if(session->userauth_kybd_state == ssh2_NB_state_sent) {
             rc = ssh2_packet_requirev(session, reply_codes,
                                       &session->userauth_kybd_data,
                                       &session->userauth_kybd_data_len,
@@ -2227,7 +2227,7 @@ static int userauth_keyboard_interactive(
                 return ssh2_err(session, LIBSSH2_ERROR_EAGAIN, "Would block");
             }
             else if(rc || session->userauth_kybd_data_len < 1) {
-                session->userauth_kybd_state = ssh2_nb_state_idle;
+                session->userauth_kybd_state = ssh2_NB_state_idle;
                 return ssh2_err(session, LIBSSH2_ERROR_AUTHENTICATION_FAILED,
                                 "Waiting for keyboard USERAUTH response");
             }
@@ -2238,7 +2238,7 @@ static int userauth_keyboard_interactive(
                 SSH2_FREE(session, session->userauth_kybd_data);
                 session->userauth_kybd_data = NULL;
                 session->state |= LIBSSH2_STATE_AUTHENTICATED;
-                session->userauth_kybd_state = ssh2_nb_state_idle;
+                session->userauth_kybd_state = ssh2_NB_state_idle;
                 return 0;
             }
 
@@ -2247,7 +2247,7 @@ static int userauth_keyboard_interactive(
                           "Keyboard-interactive authentication failed"));
                 SSH2_FREE(session, session->userauth_kybd_data);
                 session->userauth_kybd_data = NULL;
-                session->userauth_kybd_state = ssh2_nb_state_idle;
+                session->userauth_kybd_state = ssh2_NB_state_idle;
                 return ssh2_err(session, LIBSSH2_ERROR_AUTHENTICATION_FAILED,
                                 "Authentication failed "
                                 "(keyboard-interactive)");
@@ -2315,10 +2315,10 @@ static int userauth_keyboard_interactive(
                                session->userauth_kybd_responses[i].length);
             }
 
-            session->userauth_kybd_state = ssh2_nb_state_sent1;
+            session->userauth_kybd_state = ssh2_NB_state_sent1;
         }
 
-        if(session->userauth_kybd_state == ssh2_nb_state_sent1) {
+        if(session->userauth_kybd_state == ssh2_NB_state_sent1) {
             rc = ssh2_transport_send(session, session->userauth_kybd_data,
                                      session->userauth_kybd_packet_len,
                                      NULL, 0);
@@ -2375,11 +2375,11 @@ cleanup:
         }
 
         if(session->userauth_kybd_auth_failure) {
-            session->userauth_kybd_state = ssh2_nb_state_idle;
+            session->userauth_kybd_state = ssh2_NB_state_idle;
             return -1;
         }
 
-        session->userauth_kybd_state = ssh2_nb_state_sent;
+        session->userauth_kybd_state = ssh2_NB_state_sent;
     }
 }
 

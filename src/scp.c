@@ -289,7 +289,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
         return NULL;
     }
 
-    if(session->scpRecv_state == ssh2_nb_state_idle) {
+    if(session->scpRecv_state == ssh2_NB_state_idle) {
         session->scpRecv_mode = 0;
         session->scpRecv_size = 0;
         session->scpRecv_mtime = 0;
@@ -333,10 +333,10 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
         ssh2_deb((session, LIBSSH2_TRACE_SCP,
                   "Opening channel for SCP receive"));
 
-        session->scpRecv_state = ssh2_nb_state_created;
+        session->scpRecv_state = ssh2_NB_state_created;
     }
 
-    if(session->scpRecv_state == ssh2_nb_state_created) {
+    if(session->scpRecv_state == ssh2_NB_state_created) {
         /* Allocate a channel */
         session->scpRecv_channel =
             ssh2_channel_open(session, "session",
@@ -348,7 +348,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 LIBSSH2_ERROR_EAGAIN) {
                 SSH2_FREE(session, session->scpRecv_command);
                 session->scpRecv_command = NULL;
-                session->scpRecv_state = ssh2_nb_state_idle;
+                session->scpRecv_state = ssh2_NB_state_idle;
             }
             else {
                 ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
@@ -357,10 +357,10 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
             return NULL;
         }
 
-        session->scpRecv_state = ssh2_nb_state_sent;
+        session->scpRecv_state = ssh2_NB_state_sent;
     }
 
-    if(session->scpRecv_state == ssh2_nb_state_sent) {
+    if(session->scpRecv_state == ssh2_NB_state_sent) {
         /* Request SCP for the desired file */
         rc = ssh2_channel_process_startup(session->scpRecv_channel, "exec",
                                           sizeof("exec") - 1,
@@ -383,10 +383,10 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
         /* SCP ACK */
         session->scpRecv_response[0] = '\0';
 
-        session->scpRecv_state = ssh2_nb_state_sent1;
+        session->scpRecv_state = ssh2_NB_state_sent1;
     }
 
-    if(session->scpRecv_state == ssh2_nb_state_sent1) {
+    if(session->scpRecv_state == ssh2_NB_state_sent1) {
         rc = (int)ssh2_channel_write(session->scpRecv_channel, 0,
                                      session->scpRecv_response, 1);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
@@ -401,16 +401,16 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
         /* Parse SCP response */
         session->scpRecv_response_len = 0;
 
-        session->scpRecv_state = ssh2_nb_state_sent2;
+        session->scpRecv_state = ssh2_NB_state_sent2;
     }
 
-    if((session->scpRecv_state == ssh2_nb_state_sent2) ||
-       (session->scpRecv_state == ssh2_nb_state_sent3)) {
+    if((session->scpRecv_state == ssh2_NB_state_sent2) ||
+       (session->scpRecv_state == ssh2_NB_state_sent3)) {
         while(sb && (session->scpRecv_response_len <
                      LIBSSH2_SCP_RESPONSE_BUFLEN)) {
             unsigned char *s, *p;
 
-            if(session->scpRecv_state == ssh2_nb_state_sent2) {
+            if(session->scpRecv_state == ssh2_NB_state_sent2) {
                 rc = (int)ssh2_channel_read(session->scpRecv_channel, 0,
                                             (char *)session->
                                             scpRecv_response +
@@ -559,10 +559,10 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 /* SCP ACK */
                 session->scpRecv_response[0] = '\0';
 
-                session->scpRecv_state = ssh2_nb_state_sent3;
+                session->scpRecv_state = ssh2_NB_state_sent3;
             }
 
-            if(session->scpRecv_state == ssh2_nb_state_sent3) {
+            if(session->scpRecv_state == ssh2_NB_state_sent3) {
                 rc = (int)ssh2_channel_write(session->scpRecv_channel, 0,
                                              session->scpRecv_response, 1);
                 if(rc == LIBSSH2_ERROR_EAGAIN) {
@@ -585,21 +585,21 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
             }
         }
 
-        session->scpRecv_state = ssh2_nb_state_sent4;
+        session->scpRecv_state = ssh2_NB_state_sent4;
     }
 
-    if(session->scpRecv_state == ssh2_nb_state_sent4) {
+    if(session->scpRecv_state == ssh2_NB_state_sent4) {
         session->scpRecv_response_len = 0;
 
-        session->scpRecv_state = ssh2_nb_state_sent5;
+        session->scpRecv_state = ssh2_NB_state_sent5;
     }
 
-    if((session->scpRecv_state == ssh2_nb_state_sent5) ||
-       (session->scpRecv_state == ssh2_nb_state_sent6)) {
+    if((session->scpRecv_state == ssh2_NB_state_sent5) ||
+       (session->scpRecv_state == ssh2_NB_state_sent6)) {
         while(session->scpRecv_response_len < LIBSSH2_SCP_RESPONSE_BUFLEN) {
             char *s, *p, *e = NULL;
 
-            if(session->scpRecv_state == ssh2_nb_state_sent5) {
+            if(session->scpRecv_state == ssh2_NB_state_sent5) {
                 rc = (int)ssh2_channel_read(session->scpRecv_channel, 0,
                                             (char *)session->
                                             scpRecv_response +
@@ -712,10 +712,10 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 /* SCP ACK */
                 session->scpRecv_response[0] = '\0';
 
-                session->scpRecv_state = ssh2_nb_state_sent6;
+                session->scpRecv_state = ssh2_NB_state_sent6;
             }
 
-            if(session->scpRecv_state == ssh2_nb_state_sent6) {
+            if(session->scpRecv_state == ssh2_NB_state_sent6) {
                 rc = (int)ssh2_channel_write(session->scpRecv_channel, 0,
                                              session->scpRecv_response, 1);
                 if(rc == LIBSSH2_ERROR_EAGAIN) {
@@ -736,7 +736,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
             }
         }
 
-        session->scpRecv_state = ssh2_nb_state_sent7;
+        session->scpRecv_state = ssh2_NB_state_sent7;
     }
 
     if(sb) {
@@ -748,7 +748,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
         sb->st_mode = (unsigned short)session->scpRecv_mode;
     }
 
-    session->scpRecv_state = ssh2_nb_state_idle;
+    session->scpRecv_state = ssh2_NB_state_idle;
     return session->scpRecv_channel;
 
 scp_recv_empty_channel:
@@ -769,7 +769,7 @@ scp_recv_error:
     session->err_code = tmp_err_code;
     session->err_msg = tmp_err_msg;
     session->scpRecv_channel = NULL;
-    session->scpRecv_state = ssh2_nb_state_idle;
+    session->scpRecv_state = ssh2_NB_state_idle;
     return NULL;
 }
 
@@ -842,7 +842,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
         return NULL;
     }
 
-    if(session->scpSend_state == ssh2_nb_state_idle) {
+    if(session->scpSend_state == ssh2_NB_state_idle) {
         session->scpSend_command_len =
             shell_quotedsize(path) + sizeof("scp -t ") +
             ((mtime || atime) ? 1 : 0);
@@ -882,10 +882,10 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
         ssh2_deb((session, LIBSSH2_TRACE_SCP, "Opening channel for SCP send"));
         /* Allocate a channel */
 
-        session->scpSend_state = ssh2_nb_state_created;
+        session->scpSend_state = ssh2_NB_state_created;
     }
 
-    if(session->scpSend_state == ssh2_nb_state_created) {
+    if(session->scpSend_state == ssh2_NB_state_created) {
         session->scpSend_channel =
             ssh2_channel_open(session, "session", sizeof("session") - 1,
                               LIBSSH2_CHANNEL_WINDOW_DEFAULT,
@@ -896,7 +896,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
                    through */
                 SSH2_FREE(session, session->scpSend_command);
                 session->scpSend_command = NULL;
-                session->scpSend_state = ssh2_nb_state_idle;
+                session->scpSend_state = ssh2_NB_state_idle;
             }
             else {
                 ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
@@ -905,10 +905,10 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
             return NULL;
         }
 
-        session->scpSend_state = ssh2_nb_state_sent;
+        session->scpSend_state = ssh2_NB_state_sent;
     }
 
-    if(session->scpSend_state == ssh2_nb_state_sent) {
+    if(session->scpSend_state == ssh2_NB_state_sent) {
         /* Request SCP for the desired file */
         rc = ssh2_channel_process_startup(session->scpSend_channel, "exec",
                                           sizeof("exec") - 1,
@@ -931,10 +931,10 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
         SSH2_FREE(session, session->scpSend_command);
         session->scpSend_command = NULL;
 
-        session->scpSend_state = ssh2_nb_state_sent1;
+        session->scpSend_state = ssh2_NB_state_sent1;
     }
 
-    if(session->scpSend_state == ssh2_nb_state_sent1) {
+    if(session->scpSend_state == ssh2_NB_state_sent1) {
         /* Wait for ACK */
         rc = (int)ssh2_channel_read(session->scpSend_channel, 0,
                                     (char *)session->scpSend_response, 1);
@@ -965,12 +965,12 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
                       session->scpSend_response));
         }
 
-        session->scpSend_state = ssh2_nb_state_sent2;
+        session->scpSend_state = ssh2_NB_state_sent2;
     }
 
     /* Send mtime and atime to be used for file */
     if(mtime || atime) {
-        if(session->scpSend_state == ssh2_nb_state_sent2) {
+        if(session->scpSend_state == ssh2_NB_state_sent2) {
             rc = (int)ssh2_channel_write(session->scpSend_channel, 0,
                                          session->scpSend_response,
                                          session->scpSend_response_len);
@@ -985,10 +985,10 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
                 goto scp_send_error;
             }
 
-            session->scpSend_state = ssh2_nb_state_sent3;
+            session->scpSend_state = ssh2_NB_state_sent3;
         }
 
-        if(session->scpSend_state == ssh2_nb_state_sent3) {
+        if(session->scpSend_state == ssh2_NB_state_sent3) {
             /* Wait for ACK */
             rc = (int)ssh2_channel_read(session->scpSend_channel, 0,
                                         (char *)session->scpSend_response, 1);
@@ -1010,16 +1010,16 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
                 goto scp_send_error;
             }
 
-            session->scpSend_state = ssh2_nb_state_sent4;
+            session->scpSend_state = ssh2_NB_state_sent4;
         }
     }
     else {
-        if(session->scpSend_state == ssh2_nb_state_sent2) {
-            session->scpSend_state = ssh2_nb_state_sent4;
+        if(session->scpSend_state == ssh2_NB_state_sent2) {
+            session->scpSend_state = ssh2_NB_state_sent4;
         }
     }
 
-    if(session->scpSend_state == ssh2_nb_state_sent4) {
+    if(session->scpSend_state == ssh2_NB_state_sent4) {
         /* Send mode, size, and basename */
         const char *base = strrchr(path, '/');
         if(base)
@@ -1035,10 +1035,10 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
         ssh2_deb((session, LIBSSH2_TRACE_SCP, "Sent %s",
                   session->scpSend_response));
 
-        session->scpSend_state = ssh2_nb_state_sent5;
+        session->scpSend_state = ssh2_NB_state_sent5;
     }
 
-    if(session->scpSend_state == ssh2_nb_state_sent5) {
+    if(session->scpSend_state == ssh2_NB_state_sent5) {
         rc = (int)ssh2_channel_write(session->scpSend_channel, 0,
                                      session->scpSend_response,
                                      session->scpSend_response_len);
@@ -1053,10 +1053,10 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
             goto scp_send_error;
         }
 
-        session->scpSend_state = ssh2_nb_state_sent6;
+        session->scpSend_state = ssh2_NB_state_sent6;
     }
 
-    if(session->scpSend_state == ssh2_nb_state_sent6) {
+    if(session->scpSend_state == ssh2_NB_state_sent6) {
         /* Wait for ACK */
         rc = (int)ssh2_channel_read(session->scpSend_channel, 0,
                                     (char *)session->scpSend_response, 1);
@@ -1100,7 +1100,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
         }
     }
 
-    session->scpSend_state = ssh2_nb_state_idle;
+    session->scpSend_state = ssh2_NB_state_idle;
     return session->scpSend_channel;
 
 scp_send_empty_channel:
@@ -1122,7 +1122,7 @@ scp_send_error:
     session->err_code = tmp_err_code;
     session->err_msg = tmp_err_msg;
     session->scpSend_channel = NULL;
-    session->scpSend_state = ssh2_nb_state_idle;
+    session->scpSend_state = ssh2_NB_state_idle;
     return NULL;
 }
 

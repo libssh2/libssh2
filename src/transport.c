@@ -191,7 +191,7 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
         remote_mac = session->remote.mac;
     }
 
-    if(session->fullpacket_state == ssh2_nb_state_idle) {
+    if(session->fullpacket_state == ssh2_NB_state_idle) {
         session->fullpacket_macstate = LIBSSH2_MAC_CONFIRMED;
         session->fullpacket_payload_len = p->packet_length - 1;
 
@@ -328,22 +328,22 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
         debugdump(session, "ssh2_transport_read() plain",
                   p->payload, session->fullpacket_payload_len);
 
-        session->fullpacket_state = ssh2_nb_state_created;
+        session->fullpacket_state = ssh2_NB_state_created;
     }
 
-    if(session->fullpacket_state == ssh2_nb_state_created) {
+    if(session->fullpacket_state == ssh2_NB_state_created) {
         rc = ssh2_packet_add(session, p->payload,
                              session->fullpacket_payload_len,
                              session->fullpacket_macstate, seq);
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return rc;
         if(rc) {
-            session->fullpacket_state = ssh2_nb_state_idle;
+            session->fullpacket_state = ssh2_NB_state_idle;
             return rc;
         }
     }
 
-    session->fullpacket_state = ssh2_nb_state_idle;
+    session->fullpacket_state = ssh2_NB_state_idle;
 
     if(session->kex_strict &&
        session->fullpacket_packet_type == SSH_MSG_NEWKEYS) {
@@ -419,8 +419,8 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
      * I know this is ugly and not a really good use of "goto", but
      * this case statement would be even uglier to do it any other way
      */
-    if(session->readPack_state == ssh2_nb_state_jump1) {
-        session->readPack_state = ssh2_nb_state_idle;
+    if(session->readPack_state == ssh2_NB_state_jump1) {
+        session->readPack_state = ssh2_NB_state_idle;
         encrypted = session->readPack_encrypted;
         goto ssh2_transport_read_point1;
     }
@@ -879,7 +879,7 @@ ssh2_transport_read_point1:
             rc = fullpacket(session, encrypted);
             if(rc == LIBSSH2_ERROR_EAGAIN) {
 
-                if(session->packAdd_state != ssh2_nb_state_idle) {
+                if(session->packAdd_state != ssh2_NB_state_idle) {
                     /* fullpacket only returns LIBSSH2_ERROR_EAGAIN if
                      * ssh2_packet_add() returns LIBSSH2_ERROR_EAGAIN. If
                      * that returns LIBSSH2_ERROR_EAGAIN but the packAdd_state
@@ -890,7 +890,7 @@ ssh2_transport_read_point1:
                      * in.
                      */
                     session->readPack_encrypted = encrypted;
-                    session->readPack_state = ssh2_nb_state_jump1;
+                    session->readPack_state = ssh2_NB_state_jump1;
                 }
 
                 return rc;
