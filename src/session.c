@@ -68,6 +68,9 @@
 #undef libssh2_usec_t
 #endif
 
+#define SSH2_DEFAULT_READ_TIMEOUT 60 /* generic timeout in seconds used when
+                                        waiting for more data to arrive */
+
 /* ssh2_default_alloc */
 static LIBSSH2_ALLOC_FUNC(ssh2_default_alloc)
 {
@@ -452,7 +455,7 @@ LIBSSH2_SESSION *libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC(*my_alloc),
         session->api_block_mode = 1; /* blocking API by default */
         session->state = LIBSSH2_STATE_INITIAL_KEX;
         session->fullpacket_required_type = 0;
-        session->packet_read_timeout = LIBSSH2_DEFAULT_READ_TIMEOUT;
+        session->packet_read_timeout = SSH2_DEFAULT_READ_TIMEOUT;
         session->flag.quote_paths = 1; /* default behavior is to quote paths
                                           for the scp subsystem */
         session->kex = NULL;
@@ -1453,7 +1456,7 @@ LIBSSH2_API
 void libssh2_session_set_read_timeout(LIBSSH2_SESSION *session, long timeout)
 {
     if(timeout <= 0) {
-        timeout = LIBSSH2_DEFAULT_READ_TIMEOUT;
+        timeout = SSH2_DEFAULT_READ_TIMEOUT;
     }
     session->packet_read_timeout = timeout;
 }
