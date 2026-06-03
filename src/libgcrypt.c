@@ -189,15 +189,15 @@ int ssh2_rsa_sha2_verify(libssh2_rsa_ctx *rsactx,
 
     if(hash_len == SHA_DIGEST_LENGTH) {
         algo = "sha1";
-        ret = libssh2_sha1(m, m_len, hash);
+        ret = ssh2_sha1(m, m_len, hash);
     }
     else if(hash_len == SHA256_DIGEST_LENGTH) {
         algo = "sha256";
-        ret = libssh2_sha256(m, m_len, hash);
+        ret = ssh2_sha256(m, m_len, hash);
     }
     else if(hash_len == SHA512_DIGEST_LENGTH) {
         algo = "sha512";
-        ret = libssh2_sha512(m, m_len, hash);
+        ret = ssh2_sha512(m, m_len, hash);
     }
     else {
         ret = 1;
@@ -681,7 +681,7 @@ int ssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
     gcry_sexp_t s_sig, s_hash;
     int rc = -1;
 
-    if(libssh2_sha1(m, m_len, hash + 1)) {
+    if(ssh2_sha1(m, m_len, hash + 1)) {
         return -1;
     }
     hash[0] = 0;
