@@ -90,18 +90,18 @@ int ssh2_err_flags(LIBSSH2_SESSION *session, int errcode,
         return errcode;
     }
 
-    if(session->err_flags & LIBSSH2_ERR_FLAG_DUP)
+    if(session->err_flags & SSH2_ERR_FLAG_DUP)
         SSH2_FREE(session, (char *)LIBSSH2_UNCONST(session->err_msg));
 
     session->err_code = errcode;
     session->err_flags = 0;
 
-    if(errmsg && ((errflags & LIBSSH2_ERR_FLAG_DUP) != 0)) {
+    if(errmsg && ((errflags & SSH2_ERR_FLAG_DUP) != 0)) {
         size_t len = strlen(errmsg);
         char *copy = SSH2_ALLOC(session, len + 1);
         if(copy) {
             memcpy(copy, errmsg, len + 1);
-            session->err_flags = LIBSSH2_ERR_FLAG_DUP;
+            session->err_flags = SSH2_ERR_FLAG_DUP;
             session->err_msg = copy;
         }
         else

@@ -1107,7 +1107,7 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
 
 /* Flags for ssh2_err_flags() */
 /* Error message is allocated on the heap */
-#define LIBSSH2_ERR_FLAG_DUP                     1
+#define SSH2_ERR_FLAG_DUP                        1
 
 /* SSH Packet Types -- Defined by Internet draft */
 /* Transport Layer */

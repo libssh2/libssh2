@@ -1128,7 +1128,7 @@ static int session_free(LIBSSH2_SESSION *session)
 
     /* error string */
     if(session->err_msg &&
-       ((session->err_flags & LIBSSH2_ERR_FLAG_DUP) != 0)) {
+       ((session->err_flags & SSH2_ERR_FLAG_DUP) != 0)) {
         SSH2_FREE(session, (char *)LIBSSH2_UNCONST(session->err_msg));
     }
 
@@ -1363,7 +1363,7 @@ LIBSSH2_API
 int libssh2_session_set_last_error(LIBSSH2_SESSION *session,
                                    int errcode, const char *errmsg)
 {
-    return ssh2_err_flags(session, errcode, errmsg, LIBSSH2_ERR_FLAG_DUP);
+    return ssh2_err_flags(session, errcode, errmsg, SSH2_ERR_FLAG_DUP);
 }
 
 /*
