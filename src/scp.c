@@ -53,7 +53,7 @@
 #define scpsize_strtol strtol
 #endif
 
-/* Max. length of a quoted string after libssh2_shell_quotearg() processing */
+/* Max. length of a quoted string after shell_quotearg() processing */
 #define ssh2_shell_quotedsize(s)     (3 * strlen(s) + 2)
 
 /*
