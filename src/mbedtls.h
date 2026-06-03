@@ -122,14 +122,14 @@
  * mbedTLS backend: HMAC functions
  */
 
-#define libssh2_hmac_ctx    mbedtls_md_context_t
+#define ssh2_hmac_ctx mbedtls_md_context_t
 
 /*******************************************************************/
 /*
  * mbedTLS backend: SHA1 functions
  */
 
-#define ssh2_sha1_ctx      mbedtls_md_context_t
+#define ssh2_sha1_ctx mbedtls_md_context_t
 
 #define ssh2_sha1_init(pctx) \
     ssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA1, NULL, 0)
@@ -145,7 +145,7 @@
  * mbedTLS backend: SHA256 functions
  */
 
-#define ssh2_sha256_ctx      mbedtls_md_context_t
+#define ssh2_sha256_ctx mbedtls_md_context_t
 
 #define ssh2_sha256_init(pctx) \
     ssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA256, NULL, 0)
@@ -161,7 +161,7 @@
  * mbedTLS backend: SHA384 functions
  */
 
-#define ssh2_sha384_ctx      mbedtls_md_context_t
+#define ssh2_sha384_ctx mbedtls_md_context_t
 
 #define ssh2_sha384_init(pctx) \
     ssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA384, NULL, 0)
@@ -177,7 +177,7 @@
  * mbedTLS backend: SHA512 functions
  */
 
-#define ssh2_sha512_ctx      mbedtls_md_context_t
+#define ssh2_sha512_ctx mbedtls_md_context_t
 
 #define ssh2_sha512_init(pctx) \
     ssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA512, NULL, 0)
@@ -194,7 +194,7 @@
  */
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define ssh2_md5_ctx      mbedtls_md_context_t
+#define ssh2_md5_ctx mbedtls_md_context_t
 
 #define ssh2_md5_init(pctx) \
     ssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_MD5, NULL, 0)
@@ -209,7 +209,7 @@
  * mbedTLS backend: RSA functions
  */
 
-#define libssh2_rsa_ctx  mbedtls_rsa_context
+#define libssh2_rsa_ctx mbedtls_rsa_context
 
 #define ssh2_rsa_new(rsactx, e, e_len, n, n_len, \
                      d, d_len, p, p_len, q, q_len, \

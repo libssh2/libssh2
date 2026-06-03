@@ -1015,40 +1015,40 @@ static int os400qc3_hmac_init(struct os400qc3_crypto_ctx *ctx,
     return errcode.Bytes_Available ? 0 : 1;
 }
 
-int ssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
+int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 {
-    memset((char *)ctx, 0, sizeof(libssh2_hmac_ctx));
+    memset((char *)ctx, 0, sizeof(ssh2_hmac_ctx));
     return 1;
 }
 
 #if LIBSSH2_MD5
-int ssh2_hmac_md5_init(libssh2_hmac_ctx *ctx, void *key, size_t keylen)
-                           void *key, size_t keylen)
+int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
+                       void *key, size_t keylen)
 {
     return os400qc3_hmac_init(ctx, Qc3_MD5, MD5_DIGEST_LENGTH,
                               key, keylen);
 }
 #endif
 
-int ssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx, void *key, size_t keylen)
+int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
     return os400qc3_hmac_init(ctx, Qc3_SHA1, SHA_DIGEST_LENGTH,
                               key, keylen);
 }
 
-int ssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx, void *key, size_t keylen)
+int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
     return os400qc3_hmac_init(ctx, Qc3_SHA256, SHA256_DIGEST_LENGTH,
                               key, keylen);
 }
 
-int ssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx, void *key, size_t keylen)
+int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
     return os400qc3_hmac_init(ctx, Qc3_SHA512, SHA512_DIGEST_LENGTH,
                               key, keylen);
 }
 
-int ssh2_hmac_update(libssh2_hmac_ctx *ctx, const void *data, size_t datalen)
+int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
 {
     char dummy[64];
     int len = (int)datalen;
@@ -1062,7 +1062,7 @@ int ssh2_hmac_update(libssh2_hmac_ctx *ctx, const void *data, size_t datalen)
     return errcode.Bytes_Available ? 0 : 1;
 }
 
-int ssh2_hmac_final(libssh2_hmac_ctx *ctx, void *out)
+int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *out)
 {
     char data;
     Qus_EC_t errcode;
@@ -1075,7 +1075,7 @@ int ssh2_hmac_final(libssh2_hmac_ctx *ctx, void *out)
     return errcode.Bytes_Available ? 0 : 1;
 }
 
-void ssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
+void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
 {
     ssh2_os400qc3_crypto_dtor(ctx);
 }

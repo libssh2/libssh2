@@ -236,7 +236,7 @@ struct wincng_hash_ctx {
  * Windows CNG backend: HMAC functions
  */
 
-#define libssh2_hmac_ctx struct wincng_hash_ctx
+#define ssh2_hmac_ctx struct wincng_hash_ctx
 
 /*******************************************************************/
 /*

@@ -247,7 +247,7 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define ssh2_sha256_ctx      Qc3_Format_ALGD0100_T
 #define ssh2_sha384_ctx      Qc3_Format_ALGD0100_T
 #define ssh2_sha512_ctx      Qc3_Format_ALGD0100_T
-#define libssh2_hmac_ctx        struct os400qc3_crypto_ctx
+#define ssh2_hmac_ctx        struct os400qc3_crypto_ctx
 #define ssh2_cipher_ctx      struct os400qc3_crypto_ctx
 
 #define ssh2_sha1_init(x)    ssh2_os400qc3_hash_init(x, Qc3_SHA1)

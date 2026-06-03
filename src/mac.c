@@ -111,7 +111,7 @@ static int mac_method_hmac_sha2_512_hash(LIBSSH2_SESSION *session,
                                          const unsigned char *addtl,
                                          size_t addtl_len, void **abstract)
 {
-    libssh2_hmac_ctx ctx;
+    ssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
     int res;
     (void)session;
@@ -165,7 +165,7 @@ static int mac_method_hmac_sha2_256_hash(LIBSSH2_SESSION *session,
                                          const unsigned char *addtl,
                                          size_t addtl_len, void **abstract)
 {
-    libssh2_hmac_ctx ctx;
+    ssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
     int res;
     (void)session;
@@ -218,7 +218,7 @@ static int mac_method_hmac_sha1_hash(LIBSSH2_SESSION *session,
                                      const unsigned char *addtl,
                                      size_t addtl_len, void **abstract)
 {
-    libssh2_hmac_ctx ctx;
+    ssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
     int res;
     (void)session;
@@ -300,7 +300,7 @@ static int mac_method_hmac_md5_hash(LIBSSH2_SESSION *session,
                                     const unsigned char *addtl,
                                     size_t addtl_len, void **abstract)
 {
-    libssh2_hmac_ctx ctx;
+    ssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
     int res;
     (void)session;
@@ -373,7 +373,7 @@ static int mac_method_hmac_ripemd160_hash(LIBSSH2_SESSION *session,
                                           const unsigned char *addtl,
                                           size_t addtl_len, void **abstract)
 {
-    libssh2_hmac_ctx ctx;
+    ssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
     int res;
     (void)session;

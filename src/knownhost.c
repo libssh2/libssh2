@@ -420,7 +420,7 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                        stored hash.
                     */
                     unsigned char hash[SHA_DIGEST_LENGTH];
-                    libssh2_hmac_ctx ctx;
+                    ssh2_hmac_ctx ctx;
                     if(!ssh2_hmac_ctx_init(&ctx))
                         break;
 

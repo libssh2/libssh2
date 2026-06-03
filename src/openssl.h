@@ -321,11 +321,11 @@ int ssh2_ossl_md5_final(ssh2_md5_ctx *ctx, unsigned char *out);
 #endif /* LIBSSH2_MD5 || LIBSSH2_MD5_PEM */
 
 #ifdef USE_OPENSSL_3
-#define libssh2_hmac_ctx EVP_MAC_CTX *
+#define ssh2_hmac_ctx EVP_MAC_CTX *
 #elif defined(HAVE_OPAQUE_STRUCTS)
-#define libssh2_hmac_ctx HMAC_CTX *
+#define ssh2_hmac_ctx HMAC_CTX *
 #else /* !HAVE_OPAQUE_STRUCTS */
-#define libssh2_hmac_ctx HMAC_CTX
+#define ssh2_hmac_ctx HMAC_CTX
 #endif /* USE_OPENSSL_3 */
 
 void ssh2_ossl_init(void);

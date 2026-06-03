@@ -140,7 +140,7 @@
      gcry_md_close(ctx), 1)
 #endif
 
-#define libssh2_hmac_ctx gcry_md_hd_t
+#define ssh2_hmac_ctx gcry_md_hd_t
 
 #define ssh2_crypto_init() gcry_control(GCRYCTL_DISABLE_SECMEM)
 #define ssh2_crypto_exit()
