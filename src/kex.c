@@ -3461,11 +3461,11 @@ static uint32_t kex_method_list(unsigned char *buf, uint32_t list_strlen,
     return list_strlen + 4;
 }
 
-#define LIBSSH2_METHOD_PREFS_LEN(prefvar, defaultvar)                   \
+#define KEX_METHOD_PREFS_LEN(prefvar, defaultvar)                       \
     (uint32_t)((prefvar) ? strlen(prefvar) :                            \
         kex_method_strlen((const struct common_method **)(defaultvar)))
 
-#define LIBSSH2_METHOD_PREFS_STR(buf, prefvarlen, prefvar, defaultvar)        \
+#define KEX_METHOD_PREFS_STR(buf, prefvarlen, prefvar, defaultvar)            \
     do {                                                                      \
         if(prefvar) {                                                         \
             ssh2_htonu32(buf, prefvarlen);                                    \
@@ -3497,25 +3497,25 @@ static int kexinit(LIBSSH2_SESSION *session)
         uint32_t mac_cs_len, mac_sc_len;
         uint32_t lang_cs_len, lang_sc_len;
 
-        kex_len = LIBSSH2_METHOD_PREFS_LEN(session->kex_prefs, kex_methods);
-        hostkey_len = LIBSSH2_METHOD_PREFS_LEN(session->hostkey_prefs,
-                                               ssh2_hostkey_methods());
-        crypt_cs_len = LIBSSH2_METHOD_PREFS_LEN(session->local.crypt_prefs,
-                                                ssh2_crypt_methods());
-        crypt_sc_len = LIBSSH2_METHOD_PREFS_LEN(session->remote.crypt_prefs,
-                                                ssh2_crypt_methods());
-        mac_cs_len = LIBSSH2_METHOD_PREFS_LEN(session->local.mac_prefs,
-                                              ssh2_mac_methods());
-        mac_sc_len = LIBSSH2_METHOD_PREFS_LEN(session->remote.mac_prefs,
-                                              ssh2_mac_methods());
-        comp_cs_len = LIBSSH2_METHOD_PREFS_LEN(session->local.comp_prefs,
-                                               ssh2_comp_methods(session));
-        comp_sc_len = LIBSSH2_METHOD_PREFS_LEN(session->remote.comp_prefs,
-                                               ssh2_comp_methods(session));
+        kex_len = KEX_METHOD_PREFS_LEN(session->kex_prefs, kex_methods);
+        hostkey_len = KEX_METHOD_PREFS_LEN(session->hostkey_prefs,
+                                           ssh2_hostkey_methods());
+        crypt_cs_len = KEX_METHOD_PREFS_LEN(session->local.crypt_prefs,
+                                            ssh2_crypt_methods());
+        crypt_sc_len = KEX_METHOD_PREFS_LEN(session->remote.crypt_prefs,
+                                            ssh2_crypt_methods());
+        mac_cs_len = KEX_METHOD_PREFS_LEN(session->local.mac_prefs,
+                                          ssh2_mac_methods());
+        mac_sc_len = KEX_METHOD_PREFS_LEN(session->remote.mac_prefs,
+                                          ssh2_mac_methods());
+        comp_cs_len = KEX_METHOD_PREFS_LEN(session->local.comp_prefs,
+                                           ssh2_comp_methods(session));
+        comp_sc_len = KEX_METHOD_PREFS_LEN(session->remote.comp_prefs,
+                                           ssh2_comp_methods(session));
         lang_cs_len =
-            LIBSSH2_METHOD_PREFS_LEN(session->local.lang_prefs, NULL);
+            KEX_METHOD_PREFS_LEN(session->local.lang_prefs, NULL);
         lang_sc_len =
-            LIBSSH2_METHOD_PREFS_LEN(session->remote.lang_prefs, NULL);
+            KEX_METHOD_PREFS_LEN(session->remote.lang_prefs, NULL);
 
         data_len += kex_len + hostkey_len + crypt_cs_len + crypt_sc_len +
                     comp_cs_len + comp_sc_len + mac_cs_len + mac_sc_len +
@@ -3539,25 +3539,25 @@ static int kexinit(LIBSSH2_SESSION *session)
         /* Ennumerating through these lists twice is probably (certainly?)
            inefficient from a CPU standpoint, but it saves multiple
            malloc/realloc calls */
-        LIBSSH2_METHOD_PREFS_STR(s, kex_len, session->kex_prefs, kex_methods);
-        LIBSSH2_METHOD_PREFS_STR(s, hostkey_len, session->hostkey_prefs,
-                                 ssh2_hostkey_methods());
-        LIBSSH2_METHOD_PREFS_STR(s, crypt_cs_len, session->local.crypt_prefs,
-                                 ssh2_crypt_methods());
-        LIBSSH2_METHOD_PREFS_STR(s, crypt_sc_len, session->remote.crypt_prefs,
-                                 ssh2_crypt_methods());
-        LIBSSH2_METHOD_PREFS_STR(s, mac_cs_len, session->local.mac_prefs,
-                                 ssh2_mac_methods());
-        LIBSSH2_METHOD_PREFS_STR(s, mac_sc_len, session->remote.mac_prefs,
-                                 ssh2_mac_methods());
-        LIBSSH2_METHOD_PREFS_STR(s, comp_cs_len, session->local.comp_prefs,
-                                 ssh2_comp_methods(session));
-        LIBSSH2_METHOD_PREFS_STR(s, comp_sc_len, session->remote.comp_prefs,
-                                 ssh2_comp_methods(session));
-        LIBSSH2_METHOD_PREFS_STR(s, lang_cs_len, session->local.lang_prefs,
-                                 NULL);
-        LIBSSH2_METHOD_PREFS_STR(s, lang_sc_len, session->remote.lang_prefs,
-                                 NULL);
+        KEX_METHOD_PREFS_STR(s, kex_len, session->kex_prefs, kex_methods);
+        KEX_METHOD_PREFS_STR(s, hostkey_len, session->hostkey_prefs,
+                             ssh2_hostkey_methods());
+        KEX_METHOD_PREFS_STR(s, crypt_cs_len, session->local.crypt_prefs,
+                             ssh2_crypt_methods());
+        KEX_METHOD_PREFS_STR(s, crypt_sc_len, session->remote.crypt_prefs,
+                             ssh2_crypt_methods());
+        KEX_METHOD_PREFS_STR(s, mac_cs_len, session->local.mac_prefs,
+                             ssh2_mac_methods());
+        KEX_METHOD_PREFS_STR(s, mac_sc_len, session->remote.mac_prefs,
+                             ssh2_mac_methods());
+        KEX_METHOD_PREFS_STR(s, comp_cs_len, session->local.comp_prefs,
+                             ssh2_comp_methods(session));
+        KEX_METHOD_PREFS_STR(s, comp_sc_len, session->remote.comp_prefs,
+                             ssh2_comp_methods(session));
+        KEX_METHOD_PREFS_STR(s, lang_cs_len, session->local.lang_prefs,
+                             NULL);
+        KEX_METHOD_PREFS_STR(s, lang_sc_len, session->remote.lang_prefs,
+                             NULL);
 
         /* No optimistic KEX packet follows */
         /* Deal with optimistic packets
