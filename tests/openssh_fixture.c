@@ -418,7 +418,7 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
         if(connect(sock, (struct sockaddr *)(&sin),
                    sizeof(struct sockaddr_in))) {
             fprintf(stderr,
-                    "Connection to %s:%s attempt #%d failed: retrying...\n",
+                    "Connection to %s:%s attempt #%u failed: retrying...\n",
                     ip_address, port_string, counter);
             portable_sleep(1 + 2 * counter);
         }
