@@ -368,7 +368,7 @@ static int finish_kex(LIBSSH2_SESSION *session,
 
     /* The first key exchange has been performed,
        switch to active crypt/comp/mac mode */
-    session->state |= LIBSSH2_STATE_NEWKEYS;
+    session->state |= SSH2_STATE_NEWKEYS;
     ssh2_deb((session, LIBSSH2_TRACE_KEX, "Received NEWKEYS message"));
 
     /* This actually ends up being packet_type(1)
@@ -4157,11 +4157,11 @@ int ssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
     int rc = 0;
     int retcode;
 
-    session->state |= LIBSSH2_STATE_KEX_ACTIVE;
+    session->state |= SSH2_STATE_KEX_ACTIVE;
 
     if(key_state->state == ssh2_NB_state_idle) {
         /* Prevent loop in packet_add() */
-        session->state |= LIBSSH2_STATE_EXCHANGING_KEYS;
+        session->state |= SSH2_STATE_EXCHANGING_KEYS;
 
         if(reexchange) {
             if(session->kex && session->kex->cleanup) {
@@ -4194,16 +4194,16 @@ int ssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
         if(key_state->state == ssh2_NB_state_sent) {
             retcode = kexinit(session);
             if(retcode == LIBSSH2_ERROR_EAGAIN) {
-                session->state &= ~LIBSSH2_STATE_KEX_ACTIVE;
+                session->state &= ~SSH2_STATE_KEX_ACTIVE;
                 return retcode;
             }
             else if(retcode) {
                 session->local.kexinit = key_state->oldlocal;
                 session->local.kexinit_len = key_state->oldlocal_len;
                 key_state->state = ssh2_NB_state_idle;
-                session->state &= ~LIBSSH2_STATE_INITIAL_KEX;
-                session->state &= ~LIBSSH2_STATE_KEX_ACTIVE;
-                session->state &= ~LIBSSH2_STATE_EXCHANGING_KEYS;
+                session->state &= ~SSH2_STATE_INITIAL_KEX;
+                session->state &= ~SSH2_STATE_KEX_ACTIVE;
+                session->state &= ~SSH2_STATE_EXCHANGING_KEYS;
                 return -1;
             }
 
@@ -4217,7 +4217,7 @@ int ssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
                                     &key_state->data_len, 0, NULL, 0,
                                     &key_state->req_state);
             if(retcode == LIBSSH2_ERROR_EAGAIN) {
-                session->state &= ~LIBSSH2_STATE_KEX_ACTIVE;
+                session->state &= ~SSH2_STATE_KEX_ACTIVE;
                 return retcode;
             }
             else if(retcode) {
@@ -4227,9 +4227,9 @@ int ssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
                 session->local.kexinit = key_state->oldlocal;
                 session->local.kexinit_len = key_state->oldlocal_len;
                 key_state->state = ssh2_NB_state_idle;
-                session->state &= ~LIBSSH2_STATE_INITIAL_KEX;
-                session->state &= ~LIBSSH2_STATE_KEX_ACTIVE;
-                session->state &= ~LIBSSH2_STATE_EXCHANGING_KEYS;
+                session->state &= ~SSH2_STATE_INITIAL_KEX;
+                session->state &= ~SSH2_STATE_KEX_ACTIVE;
+                session->state &= ~SSH2_STATE_EXCHANGING_KEYS;
                 return -1;
             }
 
@@ -4256,7 +4256,7 @@ int ssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
             retcode = session->kex->exchange_keys(session,
                                                   &key_state->key_state_low);
             if(retcode == LIBSSH2_ERROR_EAGAIN) {
-                session->state &= ~LIBSSH2_STATE_KEX_ACTIVE;
+                session->state &= ~SSH2_STATE_KEX_ACTIVE;
                 return retcode;
             }
             else if(retcode) {
@@ -4276,9 +4276,9 @@ int ssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
         session->remote.kexinit = NULL;
     }
 
-    session->state &= ~LIBSSH2_STATE_INITIAL_KEX;
-    session->state &= ~LIBSSH2_STATE_KEX_ACTIVE;
-    session->state &= ~LIBSSH2_STATE_EXCHANGING_KEYS;
+    session->state &= ~SSH2_STATE_INITIAL_KEX;
+    session->state &= ~SSH2_STATE_KEX_ACTIVE;
+    session->state &= ~SSH2_STATE_EXCHANGING_KEYS;
 
     key_state->state = ssh2_NB_state_idle;
 

@@ -1016,7 +1016,7 @@ LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session)
     if(!session)
         return NULL;
 
-    if(!(session->state & LIBSSH2_STATE_AUTHENTICATED)) {
+    if(!(session->state & SSH2_STATE_AUTHENTICATED)) {
         ssh2_err(session, LIBSSH2_ERROR_INVAL,
                  "session not authenticated yet");
         return NULL;

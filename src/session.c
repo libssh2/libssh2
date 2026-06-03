@@ -453,7 +453,7 @@ LIBSSH2_SESSION *libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC(*my_alloc),
         session->abstract = abstract;
         session->api_timeout = 0; /* timeout-free API by default */
         session->api_block_mode = 1; /* blocking API by default */
-        session->state = LIBSSH2_STATE_INITIAL_KEX;
+        session->state = SSH2_STATE_INITIAL_KEX;
         session->fullpacket_required_type = 0;
         session->packet_read_timeout = SSH2_DEFAULT_READ_TIMEOUT;
         session->flag.quote_paths = 1; /* default behavior is to quote paths
@@ -923,7 +923,7 @@ static int session_free(LIBSSH2_SESSION *session)
                               &session->startup_key_state.key_state_low);
     }
 
-    if(session->state & LIBSSH2_STATE_NEWKEYS) {
+    if(session->state & SSH2_STATE_NEWKEYS) {
         /* hostkey */
         if(session->hostkey && session->hostkey->dtor) {
             session->hostkey->dtor(session, &session->server_hostkey_abstract);
@@ -1210,8 +1210,8 @@ int libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reason,
                                   const char *description, const char *lang)
 {
     int rc;
-    session->state &= ~LIBSSH2_STATE_INITIAL_KEX;
-    session->state &= ~LIBSSH2_STATE_EXCHANGING_KEYS;
+    session->state &= ~SSH2_STATE_INITIAL_KEX;
+    session->state &= ~SSH2_STATE_EXCHANGING_KEYS;
     BLOCK_ADJUST(rc, session,
                  session_disconnect(session, reason, description, lang));
 

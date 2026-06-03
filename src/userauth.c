@@ -219,7 +219,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
             ssh2_err(session, LIBSSH2_ERROR_NONE, "No error");
             SSH2_FREE(session, session->userauth_list_data);
             session->userauth_list_data = NULL;
-            session->state |= LIBSSH2_STATE_AUTHENTICATED;
+            session->state |= SSH2_STATE_AUTHENTICATED;
             session->userauth_list_state = ssh2_NB_state_idle;
             return NULL;
         }
@@ -295,7 +295,7 @@ int libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner)
 LIBSSH2_API
 int libssh2_userauth_authenticated(LIBSSH2_SESSION *session)
 {
-    return (session->state & LIBSSH2_STATE_AUTHENTICATED) ? 1 : 0;
+    return (session->state & SSH2_STATE_AUTHENTICATED) ? 1 : 0;
 }
 
 /*
@@ -412,7 +412,7 @@ password_response:
                           "Password authentication successful"));
                 SSH2_FREE(session, session->userauth_pswd_data);
                 session->userauth_pswd_data = NULL;
-                session->state |= LIBSSH2_STATE_AUTHENTICATED;
+                session->state |= SSH2_STATE_AUTHENTICATED;
                 session->userauth_pswd_state = ssh2_NB_state_idle;
                 return 0;
             }
@@ -1253,7 +1253,7 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
             /* We are us and we have proved it. */
             SSH2_FREE(session, session->userauth_host_data);
             session->userauth_host_data = NULL;
-            session->state |= LIBSSH2_STATE_AUTHENTICATED;
+            session->state |= SSH2_STATE_AUTHENTICATED;
             return 0;
         }
     }
@@ -1728,7 +1728,7 @@ retry_auth:
             session->userauth_pblc_packet = NULL;
             SSH2_FREE(session, session->userauth_pblc_method);
             session->userauth_pblc_method = NULL;
-            session->state |= LIBSSH2_STATE_AUTHENTICATED;
+            session->state |= SSH2_STATE_AUTHENTICATED;
             session->userauth_pblc_state = ssh2_NB_state_idle;
             return 0;
         }
@@ -1918,7 +1918,7 @@ retry_auth:
         /* We are us and we have proved it. */
         SSH2_FREE(session, session->userauth_pblc_data);
         session->userauth_pblc_data = NULL;
-        session->state |= LIBSSH2_STATE_AUTHENTICATED;
+        session->state |= SSH2_STATE_AUTHENTICATED;
         session->userauth_pblc_state = ssh2_NB_state_idle;
         return 0;
     }
@@ -2237,7 +2237,7 @@ static int userauth_keyboard_interactive(
                           "Keyboard-interactive authentication successful"));
                 SSH2_FREE(session, session->userauth_kybd_data);
                 session->userauth_kybd_data = NULL;
-                session->state |= LIBSSH2_STATE_AUTHENTICATED;
+                session->state |= SSH2_STATE_AUTHENTICATED;
                 session->userauth_kybd_state = ssh2_NB_state_idle;
                 return 0;
             }

@@ -676,7 +676,7 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
         break;
     }
 
-    if(session->state & LIBSSH2_STATE_INITIAL_KEX) {
+    if(session->state & SSH2_STATE_INITIAL_KEX) {
         if(msg == SSH_MSG_KEXINIT) {
             if(!session->kex_strict) {
                 if(datalen < 17) {
@@ -1376,7 +1376,7 @@ ssh2_packet_add_jump_authagent:
     }
 
     if((msg == SSH_MSG_KEXINIT &&
-        !(session->state & LIBSSH2_STATE_EXCHANGING_KEYS)) ||
+        !(session->state & SSH2_STATE_EXCHANGING_KEYS)) ||
        (session->packAdd_state == ssh2_NB_state_sent2)) {
 
         if(session->packAdd_state == ssh2_NB_state_sent1) {
@@ -1447,7 +1447,7 @@ int ssh2_packet_ask(LIBSSH2_SESSION *session, unsigned char packet_type,
             return 0;
         }
         else if(session->kex_strict &&
-                (session->state & LIBSSH2_STATE_INITIAL_KEX)) {
+                (session->state & SSH2_STATE_INITIAL_KEX)) {
             libssh2_session_disconnect(session, "strict KEX violation: "
                                        "unexpected packet type");
 

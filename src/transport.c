@@ -296,7 +296,7 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
         /* Check for and deal with decompression */
         compressed = session->local.comp &&
                      session->local.comp->compress &&
-                     ((session->state & LIBSSH2_STATE_AUTHENTICATED) ||
+                     ((session->state & SSH2_STATE_AUTHENTICATED) ||
                       session->local.comp->use_in_auth);
 
         if(compressed && session->remote.comp_abstract) {
@@ -392,17 +392,17 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
     /*
      * All channels, systems, subsystems, etc eventually make it down here
      * when looking for more incoming data. If a key exchange is going on
-     * (LIBSSH2_STATE_EXCHANGING_KEYS bit is set) then the remote end
+     * (SSH2_STATE_EXCHANGING_KEYS bit is set) then the remote end
      * ONLY sends key exchange related traffic. In non-blocking mode, there is
      * a chance to break out of the kex_exchange function with an EAGAIN
-     * status, and never come back to it. If LIBSSH2_STATE_EXCHANGING_KEYS is
+     * status, and never come back to it. If SSH2_STATE_EXCHANGING_KEYS is
      * active, then we must redirect to the key exchange. However, if
      * kex_exchange is active (as in it is the one that calls this execution
      * of packet_read, then do not redirect, as that would be an infinite loop!
      */
 
-    if(session->state & LIBSSH2_STATE_EXCHANGING_KEYS &&
-       !(session->state & LIBSSH2_STATE_KEX_ACTIVE)) {
+    if(session->state & SSH2_STATE_EXCHANGING_KEYS &&
+       !(session->state & SSH2_STATE_KEX_ACTIVE)) {
 
         /* Whoever wants a packet does not get anything until the key
          * re-exchange is done!
@@ -431,7 +431,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
             return LIBSSH2_ERROR_SOCKET_DISCONNECT;
         }
 
-        if(session->state & LIBSSH2_STATE_NEWKEYS) {
+        if(session->state & SSH2_STATE_NEWKEYS) {
             blocksize = session->remote.crypt->blocksize;
         }
         else {
@@ -992,7 +992,7 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
                         const unsigned char *data2, size_t data2_len)
 {
     int blocksize =
-        (session->state & LIBSSH2_STATE_NEWKEYS) ?
+        (session->state & SSH2_STATE_NEWKEYS) ?
         session->local.crypt->blocksize : 8;
     ssize_t padding_length;
     size_t packet_length;
@@ -1020,8 +1020,8 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
      *
      * See the similar block in ssh2_transport_read() for more details.
      */
-    if(session->state & LIBSSH2_STATE_EXCHANGING_KEYS &&
-       !(session->state & LIBSSH2_STATE_KEX_ACTIVE)) {
+    if(session->state & SSH2_STATE_EXCHANGING_KEYS &&
+       !(session->state & SSH2_STATE_KEX_ACTIVE)) {
         /* Do not write any new packets if we are still in the middle of a key
          * exchange. */
         ssh2_deb((session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
@@ -1047,7 +1047,7 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
         /* set by send_existing if data was sent */
         return rc;
 
-    encrypted = (session->state & LIBSSH2_STATE_NEWKEYS) ? 1 : 0;
+    encrypted = (session->state & SSH2_STATE_NEWKEYS) ? 1 : 0;
 
     if(encrypted && session->local.crypt &&
        CRYPT_FLAG_L(session, REQUIRES_FULL_PACKET)) {
@@ -1061,7 +1061,7 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
 
     compressed = session->local.comp &&
                  session->local.comp->compress &&
-                 ((session->state & LIBSSH2_STATE_AUTHENTICATED) ||
+                 ((session->state & SSH2_STATE_AUTHENTICATED) ||
                   session->local.comp->use_in_auth);
 
     if(encrypted && compressed && session->local.comp_abstract) {
