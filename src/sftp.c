@@ -730,12 +730,12 @@ static ssize_t sftp_bin2attr(LIBSSH2_SFTP_ATTRIBUTES *attrs,
  * SFTP API *
  ********** */
 
-LIBSSH2_CHANNEL_CLOSE_FUNC(libssh2_sftp_dtor);
+LIBSSH2_CHANNEL_CLOSE_FUNC(sftp_dtor);
 
 /*
  * Shutdown an SFTP stream when the channel closes
  */
-LIBSSH2_CHANNEL_CLOSE_FUNC(libssh2_sftp_dtor)
+LIBSSH2_CHANNEL_CLOSE_FUNC(sftp_dtor)
 {
     LIBSSH2_SFTP *sftp = (LIBSSH2_SFTP *)(*channel_abstract);
 
@@ -988,7 +988,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
     /* Make sure that when the channel gets closed, the SFTP service is shut
        down too */
     sftp_handle->channel->abstract = sftp_handle;
-    sftp_handle->channel->close_cb = libssh2_sftp_dtor;
+    sftp_handle->channel->close_cb = sftp_dtor;
 
     session->sftpInit_state = libssh2_NB_state_idle;
 
