@@ -50,5 +50,5 @@ const char *libssh2_version(int req_version_num)
 LIBSSH2_API
 libssh2_crypto_engine_t libssh2_crypto_engine(void)
 {
-    return LIBSSH2_CRYPTO_ENGINE;
+    return SSH2_CRYPTO_ENGINE;
 }

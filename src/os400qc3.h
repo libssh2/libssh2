@@ -40,7 +40,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#define LIBSSH2_CRYPTO_ENGINE libssh2_os400qc3
+#define SSH2_CRYPTO_ENGINE libssh2_os400qc3
 
 #include <stdlib.h>
 #include <string.h>

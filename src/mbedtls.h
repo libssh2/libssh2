@@ -39,7 +39,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#define LIBSSH2_CRYPTO_ENGINE libssh2_mbedtls
+#define SSH2_CRYPTO_ENGINE libssh2_mbedtls
 
 #include <mbedtls/version.h>
 #include <mbedtls/platform.h>

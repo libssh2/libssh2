@@ -41,7 +41,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#define LIBSSH2_CRYPTO_ENGINE libssh2_gcrypt
+#define SSH2_CRYPTO_ENGINE libssh2_gcrypt
 
 #include <gcrypt.h>
 
