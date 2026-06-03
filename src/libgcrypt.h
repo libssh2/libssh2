@@ -222,7 +222,6 @@
 #define libssh2_dh_secret(dhctx, secret, f, p, bnctx) \
     ssh2_dh_secret(dhctx, secret, f, p)
 #define libssh2_dh_dtor(dhctx) ssh2_dh_dtor(dhctx)
-void ssh2_init_aes_ctr(void);
 void ssh2_dh_init(libssh2_dh_ctx *dhctx);
 int ssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
                      libssh2_bn *g, libssh2_bn *p,

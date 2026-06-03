@@ -835,11 +835,6 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                     "file: Method unimplemented in libgcrypt backend");
 }
 
-void ssh2_init_aes_ctr(void)
-{
-    /* no implementation */
-}
-
 void ssh2_dh_init(libssh2_dh_ctx *dhctx)
 {
     *dhctx = gcry_mpi_new(0);                   /* Random from client */

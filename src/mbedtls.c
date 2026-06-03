@@ -852,11 +852,6 @@ int ssh2_mbedtls_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                     "file: Method unimplemented in mbedTLS backend");
 }
 
-void ssh2_init_aes_ctr(void)
-{
-    /* no implementation */
-}
-
 /*******************************************************************/
 /*
  * mbedTLS backend: Diffie-Hellman functions

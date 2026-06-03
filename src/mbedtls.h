@@ -447,7 +447,6 @@ int ssh2_mbedtls_ecdsa_curve_type_from_name(const char *name,
 void ssh2_mbedtls_ecdsa_free(libssh2_ecdsa_ctx *ctx);
 #endif /* LIBSSH2_ECDSA */
 
-void ssh2_init_aes_ctr(void);
 void ssh2_dh_init(libssh2_dh_ctx *dhctx);
 int ssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
                      libssh2_bn *g, libssh2_bn *p, int group_order);
