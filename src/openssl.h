@@ -227,7 +227,7 @@
 
 #define ssh2_random(buf, len)  ssh2_openssl_random(buf, len)
 
-#define libssh2_prepare_iovec(vec, len)  /* Empty. */
+#define ssh2_prepare_iovec(vec, len)  /* Empty. */
 
 #ifdef HAVE_OPAQUE_STRUCTS
 #define libssh2_sha1_ctx EVP_MD_CTX *

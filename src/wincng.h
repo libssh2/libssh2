@@ -155,7 +155,7 @@ extern struct libssh2_wincng_ctx wincng_ctx;
 
 #define ssh2_random(buf, len) ssh2_wincng_random(buf, len)
 
-#define libssh2_prepare_iovec(vec, len)  /* Empty. */
+#define ssh2_prepare_iovec(vec, len)  /* Empty. */
 
 /*******************************************************************/
 /*

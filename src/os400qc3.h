@@ -325,7 +325,7 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define libssh2_rsa_ctx         struct os400qc3_crypto_ctx
 #define ssh2_rsa_free(ctx) \
     (ssh2_os400qc3_crypto_dtor(ctx), free((char *)ctx))
-#define libssh2_prepare_iovec(vec, len) \
+#define ssh2_prepare_iovec(vec, len) \
     memset((char *)(vec), 0, (len) * sizeof(struct iovec))
 #define ssh2_rsa_sha1_signv(session, sig, siglen, count, vector, ctx) \
     ssh2_os400qc3_rsa_signv(session, Qc3_SHA1, sig, siglen, count, vector, ctx)

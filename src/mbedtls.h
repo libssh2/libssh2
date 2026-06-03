@@ -115,7 +115,7 @@
 
 #define ssh2_random(buf, len) ssh2_mbedtls_random(buf, len)
 
-#define libssh2_prepare_iovec(vec, len)  /* Empty. */
+#define ssh2_prepare_iovec(vec, len)  /* Empty. */
 
 /*******************************************************************/
 /*
