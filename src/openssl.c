@@ -1184,10 +1184,10 @@ static int read_private_key_from_file(void **key_ctx,
 
 #if LIBSSH2_RSA
 int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
-                                   LIBSSH2_SESSION *session,
-                                   const char *filedata,
-                                   size_t filedata_len,
-                                   const unsigned char *passphrase)
+                                    LIBSSH2_SESSION *session,
+                                    const char *filedata,
+                                    size_t filedata_len,
+                                    const unsigned char *passphrase)
 {
     int rc;
 
