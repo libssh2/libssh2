@@ -3512,7 +3512,7 @@ static int kexinit(LIBSSH2_SESSION *session)
 
         kex_len = LIBSSH2_METHOD_PREFS_LEN(session->kex_prefs, kex_methods);
         hostkey_len = LIBSSH2_METHOD_PREFS_LEN(session->hostkey_prefs,
-                                               libssh2_hostkey_methods());
+                                               ssh2_hostkey_methods());
         crypt_cs_len = LIBSSH2_METHOD_PREFS_LEN(session->local.crypt_prefs,
                                                 libssh2_crypt_methods());
         crypt_sc_len = LIBSSH2_METHOD_PREFS_LEN(session->remote.crypt_prefs,
@@ -3554,7 +3554,7 @@ static int kexinit(LIBSSH2_SESSION *session)
            malloc/realloc calls */
         LIBSSH2_METHOD_PREFS_STR(s, kex_len, session->kex_prefs, kex_methods);
         LIBSSH2_METHOD_PREFS_STR(s, hostkey_len, session->hostkey_prefs,
-                                 libssh2_hostkey_methods());
+                                 ssh2_hostkey_methods());
         LIBSSH2_METHOD_PREFS_STR(s, crypt_cs_len, session->local.crypt_prefs,
                                  libssh2_crypt_methods());
         LIBSSH2_METHOD_PREFS_STR(s, crypt_sc_len, session->remote.crypt_prefs,
@@ -3734,7 +3734,7 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session,
                              size_t kex_flags,
                              unsigned char *hostkey, size_t hostkey_len)
 {
-    const struct hostkey_method **hostkeyp = libssh2_hostkey_methods();
+    const struct hostkey_method **hostkeyp = ssh2_hostkey_methods();
     unsigned char *s;
 
     if(session->hostkey_prefs) {
@@ -4314,7 +4314,7 @@ int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
 
     case LIBSSH2_METHOD_HOSTKEY:
         prefvar = &session->hostkey_prefs;
-        mlist = (const struct common_method **)libssh2_hostkey_methods();
+        mlist = (const struct common_method **)ssh2_hostkey_methods();
         break;
 
     case LIBSSH2_METHOD_CRYPT_CS:
@@ -4464,7 +4464,7 @@ int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
         break;
 
     case LIBSSH2_METHOD_HOSTKEY:
-        mlist = (const struct common_method **)libssh2_hostkey_methods();
+        mlist = (const struct common_method **)ssh2_hostkey_methods();
         break;
 
     case LIBSSH2_METHOD_CRYPT_CS:

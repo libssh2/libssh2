@@ -1193,7 +1193,7 @@ unsigned char *ssh2_kex_agree_instr(unsigned char *haystack,
 
 /* Let crypt.c/hostkey.c expose their method structs */
 const struct crypt_method **libssh2_crypt_methods(void);
-const struct hostkey_method **libssh2_hostkey_methods(void);
+const struct hostkey_method **ssh2_hostkey_methods(void);
 
 int ssh2_bcrypt_pbkdf(const char *pass,
                           size_t passlen,

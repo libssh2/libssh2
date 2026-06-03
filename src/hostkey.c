@@ -1296,7 +1296,7 @@ static const struct hostkey_method *hostkey_methods[] = {
     NULL
 };
 
-const struct hostkey_method **libssh2_hostkey_methods(void)
+const struct hostkey_method **ssh2_hostkey_methods(void)
 {
     return hostkey_methods;
 }

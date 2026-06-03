@@ -756,7 +756,7 @@ static int memory_read_privatekey(LIBSSH2_SESSION *session,
                                   const char *passphrase)
 {
     const struct hostkey_method **hostkey_methods_avail =
-        libssh2_hostkey_methods();
+        ssh2_hostkey_methods();
 
     *hostkey_method = NULL;
     *hostkey_abstract = NULL;
@@ -797,7 +797,7 @@ static int file_read_privatekey(LIBSSH2_SESSION *session,
                                 const char *passphrase)
 {
     const struct hostkey_method **hostkey_methods_avail =
-        libssh2_hostkey_methods();
+        ssh2_hostkey_methods();
 
     ssh2_deb((session, LIBSSH2_TRACE_AUTH, "Loading private key file: %s",
               privkeyfile));
