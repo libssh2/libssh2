@@ -752,10 +752,8 @@ typedef struct _LIBSSH2_PRIVKEY_SK {
 } LIBSSH2_PRIVKEY_SK;
 
 LIBSSH2_API int libssh2_sign_sk(LIBSSH2_SESSION *session,
-                                unsigned char **sig,
-                                size_t *sig_len,
-                                const unsigned char *data,
-                                size_t data_len,
+                                unsigned char **sig, size_t *sig_len,
+                                const unsigned char *data, size_t data_len,
                                 void **abstract);
 
 #ifndef LIBSSH2_NO_DEPRECATED
