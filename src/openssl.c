@@ -847,7 +847,7 @@ int ssh2_ecdsa_curve_name_with_octal_new(ssh2_ecdsa_ctx **ec_ctx,
 }
 
 #ifdef USE_OPENSSL_3
-#define LIBSSH2_ECDSA_VERIFY(digest_type)                                \
+#define SSH2_OSSL_ECDSA_VERIFY(digest_type)                              \
     do {                                                                 \
         unsigned char hash[SHA##digest_type##_DIGEST_LENGTH];            \
         if(ssh2_sha##digest_type(m, m_len, hash) == 0) {                 \
@@ -859,7 +859,7 @@ int ssh2_ecdsa_curve_name_with_octal_new(ssh2_ecdsa_ctx **ec_ctx,
         }                                                                \
     } while(0)
 #else
-#define LIBSSH2_ECDSA_VERIFY(digest_type)                                 \
+#define SSH2_OSSL_ECDSA_VERIFY(digest_type)                               \
     do {                                                                  \
         unsigned char hash[SHA##digest_type##_DIGEST_LENGTH];             \
         if(ssh2_sha##digest_type(m, m_len, hash) == 0) {                  \
@@ -917,13 +917,13 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
 #endif
 
     if(type == SSH2_EC_CURVE_NISTP256) {
-        LIBSSH2_ECDSA_VERIFY(256);
+        SSH2_OSSL_ECDSA_VERIFY(256);
     }
     else if(type == SSH2_EC_CURVE_NISTP384) {
-        LIBSSH2_ECDSA_VERIFY(384);
+        SSH2_OSSL_ECDSA_VERIFY(384);
     }
     else if(type == SSH2_EC_CURVE_NISTP521) {
-        LIBSSH2_ECDSA_VERIFY(512);
+        SSH2_OSSL_ECDSA_VERIFY(512);
     }
 
 #ifdef USE_OPENSSL_3
