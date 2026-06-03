@@ -371,7 +371,7 @@ void ssh2_wincng_ecdsa_free(libssh2_ecdsa_ctx* ctx);
  * Windows CNG backend: Cipher Context structure
  */
 
-struct libssh2_wincng_cipher_ctx {
+struct wcng_cipher_ctx {
     BCRYPT_KEY_HANDLE hKey;
     unsigned char *pbKeyObject;
     unsigned char *pbIV;
@@ -382,13 +382,13 @@ struct libssh2_wincng_cipher_ctx {
     ULONG dwCtrLength;
 };
 
-#define ssh2_cipher_ctx struct libssh2_wincng_cipher_ctx
+#define ssh2_cipher_ctx struct wcng_cipher_ctx
 
 /*
  * Windows CNG backend: Cipher Type structure
  */
 
-struct libssh2_wincng_cipher_type {
+struct wcng_cipher_t {
     BCRYPT_ALG_HANDLE *phAlg;
     ULONG dwKeyLength;
     int useIV;      /* TODO: Convert to bool when a C89-compatible bool type
@@ -396,7 +396,7 @@ struct libssh2_wincng_cipher_type {
     int ctrMode;
 };
 
-#define SSH2_CIPHER_T(type) struct libssh2_wincng_cipher_type type
+#define SSH2_CIPHER_T(type) struct wcng_cipher_t type
 
 #define ssh2_cipher_aes256ctr { &ssh2_wcng_ctx.hAlgAES_ECB, 32, 0, 1 }
 #define ssh2_cipher_aes192ctr { &ssh2_wcng_ctx.hAlgAES_ECB, 24, 0, 1 }
