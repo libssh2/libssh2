@@ -240,13 +240,13 @@ struct iovec {
     session->ssh_msg_ignore(session, data, (int)(datalen), \
                             &(session)->abstract)
 #define SSH2_DEBUG(session, always_display, message, message_len, \
-                      language, language_len) \
+                   language, language_len) \
     session->ssh_msg_debug(session, always_display, \
                            message, (int)(message_len), \
                            language, (int)(language_len), \
                            &(session)->abstract)
 #define SSH2_DISCONNECT(session, reason, message, message_len, \
-                           language, language_len) \
+                        language, language_len) \
     session->ssh_msg_disconnect(session, reason, \
                                 message, (int)(message_len), \
                                 language, (int)(language_len), \
@@ -267,8 +267,8 @@ struct iovec {
                                 agentPath, &(session)->abstract)
 
 #define SSH2_AUTHAGENT_SIGN(session, blob, blen, \
-                               data, dlen, sig, sigLen, \
-                               agentPath) \
+                            data, dlen, sig, sigLen, \
+                            agentPath) \
     session->agentSignCallback(session, blob, blen, \
                                data, dlen, sig, sigLen, \
                                agentPath, &(session)->abstract)
