@@ -370,9 +370,9 @@ void ssh2_ossl_exit(void);
 #endif
 
 typedef enum {
-    LIBSSH2_EC_CURVE_NISTP256 = NID_X9_62_prime256v1,
-    LIBSSH2_EC_CURVE_NISTP384 = NID_secp384r1,
-    LIBSSH2_EC_CURVE_NISTP521 = NID_secp521r1
+    SSH2_EC_CURVE_NISTP256 = NID_X9_62_prime256v1,
+    SSH2_EC_CURVE_NISTP384 = NID_secp384r1,
+    SSH2_EC_CURVE_NISTP521 = NID_secp521r1
 } ssh2_curve_type;
 #else /* !LIBSSH2_ECDSA */
 #define libssh2_ec_key void

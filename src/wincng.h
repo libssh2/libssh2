@@ -304,9 +304,9 @@ struct wincng_key_ctx {
  */
 
 typedef enum {
-    LIBSSH2_EC_CURVE_NISTP256 = 0,
-    LIBSSH2_EC_CURVE_NISTP384 = 1,
-    LIBSSH2_EC_CURVE_NISTP521 = 2,
+    SSH2_EC_CURVE_NISTP256 = 0,
+    SSH2_EC_CURVE_NISTP384 = 1,
+    SSH2_EC_CURVE_NISTP521 = 2,
 } ssh2_curve_type;
 
 struct wincng_ecdsa_ctx {

@@ -1664,9 +1664,9 @@ static int kex_session_hybrid_curve_type(const char *name,
         return -1;
 
     if(strcmp(name, "mlkem768nistp256-sha256") == 0)
-        type = LIBSSH2_EC_CURVE_NISTP256;
+        type = SSH2_EC_CURVE_NISTP256;
     else if(strcmp(name, "mlkem1024nistp384-sha384") == 0)
-        type = LIBSSH2_EC_CURVE_NISTP384;
+        type = SSH2_EC_CURVE_NISTP384;
     else {
         return -1;
     }
@@ -1920,11 +1920,11 @@ static int kex_session_ecdh_curve_type(const char *name,
         return -1;
 
     if(strcmp(name, "ecdh-sha2-nistp256") == 0)
-        type = LIBSSH2_EC_CURVE_NISTP256;
+        type = SSH2_EC_CURVE_NISTP256;
     else if(strcmp(name, "ecdh-sha2-nistp384") == 0)
-        type = LIBSSH2_EC_CURVE_NISTP384;
+        type = SSH2_EC_CURVE_NISTP384;
     else if(strcmp(name, "ecdh-sha2-nistp521") == 0)
-        type = LIBSSH2_EC_CURVE_NISTP521;
+        type = SSH2_EC_CURVE_NISTP521;
     else {
         return -1;
     }
@@ -2073,13 +2073,13 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
         /* verify hash */
 
         switch(type) {
-        case LIBSSH2_EC_CURVE_NISTP256:
+        case SSH2_EC_CURVE_NISTP256:
             LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(256);
             break;
-        case LIBSSH2_EC_CURVE_NISTP384:
+        case SSH2_EC_CURVE_NISTP384:
             LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(384);
             break;
-        case LIBSSH2_EC_CURVE_NISTP521:
+        case SSH2_EC_CURVE_NISTP521:
             LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(512);
             break;
         }
@@ -2111,15 +2111,15 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
         int digest_len = 0;
         int sha_algo_value = 0;
 
-        if(type == LIBSSH2_EC_CURVE_NISTP256) {
+        if(type == SSH2_EC_CURVE_NISTP256) {
             digest_len = SHA256_DIGEST_LENGTH;
             sha_algo_value = 256;
         }
-        else if(type == LIBSSH2_EC_CURVE_NISTP384) {
+        else if(type == SSH2_EC_CURVE_NISTP384) {
             digest_len = SHA384_DIGEST_LENGTH;
             sha_algo_value = 384;
         }
-        else if(type == LIBSSH2_EC_CURVE_NISTP521) {
+        else if(type == SSH2_EC_CURVE_NISTP521) {
             digest_len = SHA512_DIGEST_LENGTH;
             sha_algo_value = 512;
         }
@@ -2321,14 +2321,14 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
     }
 
     switch(type) {
-    case LIBSSH2_EC_CURVE_NISTP256:
+    case SSH2_EC_CURVE_NISTP256:
         digest_len = SHA256_DIGEST_LENGTH;
         ml_kem_cipher_len = LIBSSH2_MLKEM_768_CIPHERTEXT;
         ml_kem_size = 768;
         public_pq_key_len = LIBSSH2_MLKEM_768_PUBLIC_KEY_LEN;
         sha_algo_value = 256;
         break;
-    case LIBSSH2_EC_CURVE_NISTP384:
+    case SSH2_EC_CURVE_NISTP384:
         digest_len = SHA384_DIGEST_LENGTH;
         ml_kem_cipher_len = LIBSSH2_MLKEM_1024_CIPHERTEXT;
         ml_kem_size = 1024;
@@ -2436,7 +2436,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
 
         /*/ verify hash */
         switch(type) {
-        case LIBSSH2_EC_CURVE_NISTP256: {
+        case SSH2_EC_CURVE_NISTP256: {
             ssh2_sha256_ctx k_ctx;
             if(!ssh2_sha256_init(&k_ctx)) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
@@ -2458,7 +2458,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
             LIBSSH2_KEX_METHOD_HYBRID_SHA_HASH_CREATE_VERIFY(256);
             break;
         }
-        case LIBSSH2_EC_CURVE_NISTP384: {
+        case SSH2_EC_CURVE_NISTP384: {
             ssh2_sha384_ctx k_ctx;
             if(!ssh2_sha384_init(&k_ctx)) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
@@ -2551,11 +2551,11 @@ static int kex_method_mlkem_nistp_key_exchange(
         }
 
         switch(type) {
-        case LIBSSH2_EC_CURVE_NISTP256:
+        case SSH2_EC_CURVE_NISTP256:
             ml_kem_size = 768;
             ml_kem_key_len = LIBSSH2_MLKEM_768_PUBLIC_KEY_LEN;
             break;
-        case LIBSSH2_EC_CURVE_NISTP384:
+        case SSH2_EC_CURVE_NISTP384:
             ml_kem_size = 1024;
             ml_kem_key_len = LIBSSH2_MLKEM_1024_PUBLIC_KEY_LEN;
             break;

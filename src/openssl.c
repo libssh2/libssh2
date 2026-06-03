@@ -711,16 +711,16 @@ ssh2_curve_type ssh2_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ec_ctx)
     EVP_PKEY_get_int_param(ec_ctx, OSSL_PKEY_PARAM_BITS, &bits);
 
     if(bits == 256) {
-        return LIBSSH2_EC_CURVE_NISTP256;
+        return SSH2_EC_CURVE_NISTP256;
     }
     else if(bits == 384) {
-        return LIBSSH2_EC_CURVE_NISTP384;
+        return SSH2_EC_CURVE_NISTP384;
     }
     else if(bits == 521) {
-        return LIBSSH2_EC_CURVE_NISTP521;
+        return SSH2_EC_CURVE_NISTP521;
     }
 
-    return LIBSSH2_EC_CURVE_NISTP256;
+    return SSH2_EC_CURVE_NISTP256;
 #else
     const EC_GROUP *group = EC_KEY_get0_group(ec_ctx);
     return EC_GROUP_get_curve_name(group);
@@ -739,11 +739,11 @@ int ssh2_ecdsa_curve_type_from_name(const char *name,
         return -1;
 
     if(strcmp(name, "ecdsa-sha2-nistp256") == 0)
-        type = LIBSSH2_EC_CURVE_NISTP256;
+        type = SSH2_EC_CURVE_NISTP256;
     else if(strcmp(name, "ecdsa-sha2-nistp384") == 0)
-        type = LIBSSH2_EC_CURVE_NISTP384;
+        type = SSH2_EC_CURVE_NISTP384;
     else if(strcmp(name, "ecdsa-sha2-nistp521") == 0)
-        type = LIBSSH2_EC_CURVE_NISTP521;
+        type = SSH2_EC_CURVE_NISTP521;
     else {
         return -1;
     }
@@ -917,13 +917,13 @@ int ssh2_ecdsa_verify(libssh2_ecdsa_ctx *ec_ctx,
     }
 #endif
 
-    if(type == LIBSSH2_EC_CURVE_NISTP256) {
+    if(type == SSH2_EC_CURVE_NISTP256) {
         LIBSSH2_ECDSA_VERIFY(256);
     }
-    else if(type == LIBSSH2_EC_CURVE_NISTP384) {
+    else if(type == SSH2_EC_CURVE_NISTP384) {
         LIBSSH2_ECDSA_VERIFY(384);
     }
-    else if(type == LIBSSH2_EC_CURVE_NISTP521) {
+    else if(type == SSH2_EC_CURVE_NISTP521) {
         LIBSSH2_ECDSA_VERIFY(512);
     }
 
@@ -3494,13 +3494,13 @@ static int gen_publickey_from_ec_evp(LIBSSH2_SESSION *session,
         memcpy(method_buf, "sk-ecdsa-sha2-nistp256@openssh.com",
                method_buf_len);
     }
-    else if(type == LIBSSH2_EC_CURVE_NISTP256) {
+    else if(type == SSH2_EC_CURVE_NISTP256) {
         memcpy(method_buf, "ecdsa-sha2-nistp256", method_buf_len);
     }
-    else if(type == LIBSSH2_EC_CURVE_NISTP384) {
+    else if(type == SSH2_EC_CURVE_NISTP384) {
         memcpy(method_buf, "ecdsa-sha2-nistp384", method_buf_len);
     }
-    else if(type == LIBSSH2_EC_CURVE_NISTP521) {
+    else if(type == SSH2_EC_CURVE_NISTP521) {
         memcpy(method_buf, "ecdsa-sha2-nistp521", method_buf_len);
     }
     else {
@@ -3770,7 +3770,7 @@ static int gen_publickey_from_sk_ecdsa_openssh_priv_data(
     }
 
     rc = ssh2_ecdsa_curve_name_with_octal_new(&ec_key, point_buf, pointlen,
-                                              LIBSSH2_EC_CURVE_NISTP256);
+                                              SSH2_EC_CURVE_NISTP256);
     if(rc) {
         rc = -1;
         ssh2_err(session, LIBSSH2_ERROR_PROTO, "ECDSA could not create key");

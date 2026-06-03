@@ -2571,17 +2571,17 @@ int ssh2_wincng_ecdsa_verify(IN struct wincng_ecdsa_ctx *key,
 
     /* Create hash over m */
     switch(ssh2_wincng_ecdsa_get_curve_type(key)) {
-    case LIBSSH2_EC_CURVE_NISTP256:
+    case SSH2_EC_CURVE_NISTP256:
         hash_len = 256 / 8;
         hash_alg = ssh2_wcng_ctx.hAlgHashSHA256;
         break;
 
-    case LIBSSH2_EC_CURVE_NISTP384:
+    case SSH2_EC_CURVE_NISTP384:
         hash_len = 384 / 8;
         hash_alg = ssh2_wcng_ctx.hAlgHashSHA384;
         break;
 
-    case LIBSSH2_EC_CURVE_NISTP521:
+    case SSH2_EC_CURVE_NISTP521:
         hash_len = 512 / 8;
         hash_alg = ssh2_wcng_ctx.hAlgHashSHA512;
         break;

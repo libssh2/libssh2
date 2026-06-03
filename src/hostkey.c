@@ -755,13 +755,13 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
         return -1;
 
     if(strncmp((char *)type_str, "ecdsa-sha2-nistp256", 19) == 0) {
-        type = LIBSSH2_EC_CURVE_NISTP256;
+        type = SSH2_EC_CURVE_NISTP256;
     }
     else if(strncmp((char *)type_str, "ecdsa-sha2-nistp384", 19) == 0) {
-        type = LIBSSH2_EC_CURVE_NISTP384;
+        type = SSH2_EC_CURVE_NISTP384;
     }
     else if(strncmp((char *)type_str, "ecdsa-sha2-nistp521", 19) == 0) {
-        type = LIBSSH2_EC_CURVE_NISTP521;
+        type = SSH2_EC_CURVE_NISTP521;
     }
     else {
         return -1;
@@ -770,15 +770,15 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
     if(ssh2_get_string(&buf, &domain, &len) || len != 8)
         return -1;
 
-    if(type == LIBSSH2_EC_CURVE_NISTP256 &&
+    if(type == SSH2_EC_CURVE_NISTP256 &&
        strncmp((char *)domain, "nistp256", 8) != 0) {
         return -1;
     }
-    else if(type == LIBSSH2_EC_CURVE_NISTP384 &&
+    else if(type == SSH2_EC_CURVE_NISTP384 &&
             strncmp((char *)domain, "nistp384", 8) != 0) {
         return -1;
     }
-    else if(type == LIBSSH2_EC_CURVE_NISTP521 &&
+    else if(type == SSH2_EC_CURVE_NISTP521 &&
             strncmp((char *)domain, "nistp521", 8) != 0) {
         return -1;
     }
@@ -940,13 +940,13 @@ static int hostkey_method_ssh_ecdsa_signv(LIBSSH2_SESSION *session,
     ssh2_curve_type type = ssh2_ecdsa_get_curve_type(ec_ctx);
     int ret = 0;
 
-    if(type == LIBSSH2_EC_CURVE_NISTP256) {
+    if(type == SSH2_EC_CURVE_NISTP256) {
         LIBSSH2_HOSTKEY_METHOD_EC_SIGNV_HASH(256);
     }
-    else if(type == LIBSSH2_EC_CURVE_NISTP384) {
+    else if(type == SSH2_EC_CURVE_NISTP384) {
         LIBSSH2_HOSTKEY_METHOD_EC_SIGNV_HASH(384);
     }
-    else if(type == LIBSSH2_EC_CURVE_NISTP521) {
+    else if(type == SSH2_EC_CURVE_NISTP521) {
         LIBSSH2_HOSTKEY_METHOD_EC_SIGNV_HASH(512);
     }
     else {

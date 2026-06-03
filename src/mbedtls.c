@@ -1049,13 +1049,13 @@ int ssh2_mbedtls_ecdsa_verify(libssh2_ecdsa_ctx *ec_ctx,
         goto cleanup;
 
     switch(ssh2_ecdsa_get_curve_type(ec_ctx)) {
-    case LIBSSH2_EC_CURVE_NISTP256:
+    case SSH2_EC_CURVE_NISTP256:
         LIBSSH2_MBEDTLS_ECDSA_VERIFY(256);
         break;
-    case LIBSSH2_EC_CURVE_NISTP384:
+    case SSH2_EC_CURVE_NISTP384:
         LIBSSH2_MBEDTLS_ECDSA_VERIFY(384);
         break;
-    case LIBSSH2_EC_CURVE_NISTP521:
+    case SSH2_EC_CURVE_NISTP521:
         LIBSSH2_MBEDTLS_ECDSA_VERIFY(512);
         break;
     default:
@@ -1377,11 +1377,11 @@ int ssh2_mbedtls_ecdsa_curve_type_from_name(const char *name,
         return -1;
 
     if(strcmp(name, "ecdsa-sha2-nistp256") == 0)
-        type = LIBSSH2_EC_CURVE_NISTP256;
+        type = SSH2_EC_CURVE_NISTP256;
     else if(strcmp(name, "ecdsa-sha2-nistp384") == 0)
-        type = LIBSSH2_EC_CURVE_NISTP384;
+        type = SSH2_EC_CURVE_NISTP384;
     else if(strcmp(name, "ecdsa-sha2-nistp521") == 0)
-        type = LIBSSH2_EC_CURVE_NISTP521;
+        type = SSH2_EC_CURVE_NISTP521;
     else {
         ret = -1;
     }

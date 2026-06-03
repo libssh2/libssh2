@@ -776,9 +776,9 @@ Type of an elliptic curve key.
 
 ssh2_curve_type
 An enum type defining curve types. Current supported identifiers are:
-    LIBSSH2_EC_CURVE_NISTP256
-    LIBSSH2_EC_CURVE_NISTP384
-    LIBSSH2_EC_CURVE_NISTP521
+    SSH2_EC_CURVE_NISTP256
+    SSH2_EC_CURVE_NISTP384
+    SSH2_EC_CURVE_NISTP521
 
 int ssh2_ecdsa_create_key(libssh2_ec_key **out_private_key,
                           unsigned char **out_public_key_octal,
