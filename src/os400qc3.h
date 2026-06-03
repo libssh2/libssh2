@@ -250,48 +250,31 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define ssh2_hmac_ctx        struct os400qc3_crypto_ctx
 #define ssh2_cipher_ctx      struct os400qc3_crypto_ctx
 
-#define ssh2_sha1_init(x)    ssh2_os400qc3_hash_init(x, Qc3_SHA1)
-#define ssh2_sha1_update(ctx, data, len)                                 \
-    ssh2_os400qc3_hash_update(&(ctx), data, len)
-#define ssh2_sha1_final(ctx, out)                                        \
-    ssh2_os400qc3_hash_final(&(ctx), out)
-#define ssh2_sha256_init(x)                                              \
-    ssh2_os400qc3_hash_init(x, Qc3_SHA256)
-#define ssh2_sha256_update(ctx, data, len)                               \
-    ssh2_os400qc3_hash_update(&(ctx), data, len)
-#define ssh2_sha256_final(ctx, out)                                      \
-    ssh2_os400qc3_hash_final(&(ctx), out)
-#define ssh2_sha256(message, len, out)                                   \
-    ssh2_os400qc3_hash(message, len, out, Qc3_SHA256)
-#define ssh2_sha384_init(x)                                              \
-    ssh2_os400qc3_hash_init(x, Qc3_SHA384)
-#define ssh2_sha384_update(ctx, data, len)                               \
-    ssh2_os400qc3_hash_update(&(ctx), data, len)
-#define ssh2_sha384_final(ctx, out)                                      \
-    ssh2_os400qc3_hash_final(&(ctx), out)
-#define ssh2_sha384(message, len, out)                                   \
-    ssh2_os400qc3_hash(message, len, out, Qc3_SHA384)
-#define ssh2_sha512_init(x)                                              \
-    ssh2_os400qc3_hash_init(x, Qc3_SHA512)
-#define ssh2_sha512_update(ctx, data, len)                               \
-    ssh2_os400qc3_hash_update(&(ctx), data, len)
-#define ssh2_sha512_final(ctx, out)                                      \
-    ssh2_os400qc3_hash_final(&(ctx), out)
-#define ssh2_sha512(message, len, out)                                   \
-    ssh2_os400qc3_hash(message, len, out, Qc3_SHA512)
+#define ssh2_sha1_init(x)             ssh2_os400qc3_hash_init(x, Qc3_SHA1)
+#define ssh2_sha1_update(ctx, d, l)   ssh2_os400qc3_hash_update(&(ctx), d, l)
+#define ssh2_sha1_final(ctx, out)     ssh2_os400qc3_hash_final(&(ctx), out)
+#define ssh2_sha256_init(x)           ssh2_os400qc3_hash_init(x, Qc3_SHA256)
+#define ssh2_sha256_update(ctx, d, l) ssh2_os400qc3_hash_update(&(ctx), d, l)
+#define ssh2_sha256_final(ctx, out)   ssh2_os400qc3_hash_final(&(ctx), out)
+#define ssh2_sha256(d, l, out)        ssh2_os400qc3_hash(d, l, out, Qc3_SHA256)
+#define ssh2_sha384_init(x)           ssh2_os400qc3_hash_init(x, Qc3_SHA384)
+#define ssh2_sha384_update(ctx, d, l) ssh2_os400qc3_hash_update(&(ctx), d, l)
+#define ssh2_sha384_final(ctx, out)   ssh2_os400qc3_hash_final(&(ctx), out)
+#define ssh2_sha384(d, l, out)        ssh2_os400qc3_hash(d, l, out, Qc3_SHA384)
+#define ssh2_sha512_init(x)           ssh2_os400qc3_hash_init(x, Qc3_SHA512)
+#define ssh2_sha512_update(ctx, d, l) ssh2_os400qc3_hash_update(&(ctx), d, l)
+#define ssh2_sha512_final(ctx, out)   ssh2_os400qc3_hash_final(&(ctx), out)
+#define ssh2_sha512(d, l, out)        ssh2_os400qc3_hash(d, l, out, Qc3_SHA512)
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define MD5_DIGEST_LENGTH       16
-#define ssh2_md5_ctx            Qc3_Format_ALGD0100_T
-#define ssh2_md5_init(x)                                                 \
-    ssh2_os400qc3_hash_init(x, Qc3_MD5)
-#define ssh2_md5_update(ctx, data, len)                                  \
-    ssh2_os400qc3_hash_update(&(ctx), data, len)
-#define ssh2_md5_final(ctx, out)                                         \
-    ssh2_os400qc3_hash_final(&(ctx), out)
+#define MD5_DIGEST_LENGTH             16
+#define ssh2_md5_ctx                  Qc3_Format_ALGD0100_T
+#define ssh2_md5_init(x)              ssh2_os400qc3_hash_init(x, Qc3_MD5)
+#define ssh2_md5_update(ctx, d, l)    ssh2_os400qc3_hash_update(&(ctx), d, l)
+#define ssh2_md5_final(ctx, out)      ssh2_os400qc3_hash_final(&(ctx), out)
 #endif
 
-#define ssh2_bn_ctx         int                 /* Not used. */
+#define ssh2_bn_ctx              int  /* Not used. */
 
 #define ssh2_bn_ctx_new()        0
 #define ssh2_bn_ctx_free(bnctx)  ((void)0)
@@ -299,26 +282,17 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define ssh2_bn_init_from_bin()  ssh2_bn_init()
 #define ssh2_bn_bytes(bn)        ((bn)->length)
 
-#define SSH2_CIPHER_T(name)  struct os400qc3_cipher name
-#define ssh2_cipher_aes128 \
-    { Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 16 }
-#define ssh2_cipher_aes192 \
-    { Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 24 }
-#define ssh2_cipher_aes256 \
-    { Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 32 }
-#define ssh2_cipher_aes128ctr \
-    { Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CTR, 16 }
-#define ssh2_cipher_aes192ctr \
-    { Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CTR, 24 }
-#define ssh2_cipher_aes256ctr \
-    { Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CTR, 32 }
-#define ssh2_cipher_3des \
-    { Qc3_Alg_Block_Cipher, Qc3_TDES, 8, Qc3_CBC, 24 }
+#define SSH2_CIPHER_T(name)   struct os400qc3_cipher name
+#define ssh2_cipher_aes128    {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 16}
+#define ssh2_cipher_aes192    {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 24}
+#define ssh2_cipher_aes256    {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 32}
+#define ssh2_cipher_aes128ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CTR, 16}
+#define ssh2_cipher_aes192ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CTR, 24}
+#define ssh2_cipher_aes256ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CTR, 32}
+#define ssh2_cipher_3des      {Qc3_Alg_Block_Cipher, Qc3_TDES, 8, Qc3_CBC, 24}
 /* Nonsense values for chacha20-poly1305 */
-#define ssh2_cipher_chacha20 \
-    { Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16 }
-#define ssh2_cipher_arcfour \
-    { Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16 }
+#define ssh2_cipher_chacha20  {Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16}
+#define ssh2_cipher_arcfour   {Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16}
 
 #define ssh2_cipher_dtor(ctx) ssh2_os400qc3_crypto_dtor(ctx)
 
@@ -344,9 +318,9 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 
 #define ssh2_dh_ctx          struct os400qc3_dh_ctx
 #define ssh2_dh_init(dhctx)  ssh2_os400qc3_dh_init(dhctx)
-#define ssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx)        \
+#define ssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
     ssh2_os400qc3_dh_key_pair(dhctx, public, g, p, group_order)
-#define ssh2_dh_secret(dhctx, secret, f, p, bnctx)                       \
+#define ssh2_dh_secret(dhctx, secret, f, p, bnctx) \
     ssh2_os400qc3_dh_secret(dhctx, secret, f, p)
 #define ssh2_dh_dtor(dhctx)  ssh2_os400qc3_dh_dtor(dhctx)
 
