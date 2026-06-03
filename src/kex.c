@@ -3514,9 +3514,9 @@ static int kexinit(LIBSSH2_SESSION *session)
         hostkey_len = LIBSSH2_METHOD_PREFS_LEN(session->hostkey_prefs,
                                                ssh2_hostkey_methods());
         crypt_cs_len = LIBSSH2_METHOD_PREFS_LEN(session->local.crypt_prefs,
-                                                libssh2_crypt_methods());
+                                                ssh2_crypt_methods());
         crypt_sc_len = LIBSSH2_METHOD_PREFS_LEN(session->remote.crypt_prefs,
-                                                libssh2_crypt_methods());
+                                                ssh2_crypt_methods());
         mac_cs_len = LIBSSH2_METHOD_PREFS_LEN(session->local.mac_prefs,
                                               ssh2_mac_methods());
         mac_sc_len = LIBSSH2_METHOD_PREFS_LEN(session->remote.mac_prefs,
@@ -3556,9 +3556,9 @@ static int kexinit(LIBSSH2_SESSION *session)
         LIBSSH2_METHOD_PREFS_STR(s, hostkey_len, session->hostkey_prefs,
                                  ssh2_hostkey_methods());
         LIBSSH2_METHOD_PREFS_STR(s, crypt_cs_len, session->local.crypt_prefs,
-                                 libssh2_crypt_methods());
+                                 ssh2_crypt_methods());
         LIBSSH2_METHOD_PREFS_STR(s, crypt_sc_len, session->remote.crypt_prefs,
-                                 libssh2_crypt_methods());
+                                 ssh2_crypt_methods());
         LIBSSH2_METHOD_PREFS_STR(s, mac_cs_len, session->local.mac_prefs,
                                  ssh2_mac_methods());
         LIBSSH2_METHOD_PREFS_STR(s, mac_sc_len, session->remote.mac_prefs,
@@ -3890,7 +3890,7 @@ static int kex_agree_crypt(LIBSSH2_SESSION *session,
                            unsigned char *crypt,
                            size_t crypt_len)
 {
-    const struct crypt_method **cryptp = libssh2_crypt_methods();
+    const struct crypt_method **cryptp = ssh2_crypt_methods();
     unsigned char *s;
 
     (void)session;
@@ -4319,12 +4319,12 @@ int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
 
     case LIBSSH2_METHOD_CRYPT_CS:
         prefvar = &session->local.crypt_prefs;
-        mlist = (const struct common_method **)libssh2_crypt_methods();
+        mlist = (const struct common_method **)ssh2_crypt_methods();
         break;
 
     case LIBSSH2_METHOD_CRYPT_SC:
         prefvar = &session->remote.crypt_prefs;
-        mlist = (const struct common_method **)libssh2_crypt_methods();
+        mlist = (const struct common_method **)ssh2_crypt_methods();
         break;
 
     case LIBSSH2_METHOD_MAC_CS:
@@ -4469,7 +4469,7 @@ int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
 
     case LIBSSH2_METHOD_CRYPT_CS:
     case LIBSSH2_METHOD_CRYPT_SC:
-        mlist = (const struct common_method **)libssh2_crypt_methods();
+        mlist = (const struct common_method **)ssh2_crypt_methods();
         break;
 
     case LIBSSH2_METHOD_MAC_CS:

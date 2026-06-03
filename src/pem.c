@@ -205,7 +205,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
             goto out;
         }
 
-        all_methods = libssh2_crypt_methods();
+        all_methods = ssh2_crypt_methods();
         /* !checksrc! disable EQUALSNULL 1 */
         while((cur_method = *all_methods++) != NULL) {
             if(*cur_method->pem_annotation &&
@@ -526,7 +526,7 @@ static int ssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
     if(ciphername && strcmp((const char *)ciphername, "none") != 0) {
         const struct crypt_method **all_methods, *cur_method;
 
-        all_methods = libssh2_crypt_methods();
+        all_methods = ssh2_crypt_methods();
         /* !checksrc! disable EQUALSNULL 1 */
         while((cur_method = *all_methods++) != NULL) {
             if(*cur_method->name && memcmp(ciphername, cur_method->name,

@@ -529,7 +529,7 @@ static const struct crypt_method *crypt_methods[] = {
 };
 
 /* Expose to kex.c */
-const struct crypt_method **libssh2_crypt_methods(void)
+const struct crypt_method **ssh2_crypt_methods(void)
 {
     return crypt_methods;
 }
