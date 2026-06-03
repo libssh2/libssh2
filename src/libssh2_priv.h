@@ -520,7 +520,7 @@ struct _LIBSSH2_CHANNEL {
     ssh2_NB_states close_state;
     unsigned char close_packet[5];
 
-    /* State variables used in libssh2_channel_wait_closedeof() */
+    /* State variables used in channel_wait_eof() */
     ssh2_NB_states wait_eof_state;
 
     /* State variables used in libssh2_channel_wait_closed() */
