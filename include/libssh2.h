@@ -370,24 +370,6 @@ typedef struct _LIBSSH2_LISTENER                    LIBSSH2_LISTENER;
 typedef struct _LIBSSH2_KNOWNHOSTS                  LIBSSH2_KNOWNHOSTS;
 typedef struct _LIBSSH2_AGENT                       LIBSSH2_AGENT;
 
-/* SK signature callback */
-typedef struct _LIBSSH2_PRIVKEY_SK {
-    int algorithm;
-    uint8_t flags;
-    const char *application;
-    const unsigned char *key_handle;
-    size_t handle_len;
-    LIBSSH2_USERAUTH_SK_SIGN_FUNC(*sign_callback);
-    void **orig_abstract;
-} LIBSSH2_PRIVKEY_SK;
-
-int libssh2_sign_sk(LIBSSH2_SESSION *session,
-                    unsigned char **sig,
-                    size_t *sig_len,
-                    const unsigned char *data,
-                    size_t data_len,
-                    void **abstract);
-
 #ifndef LIBSSH2_NO_DEPRECATED
 typedef struct _LIBSSH2_POLLFD {
     unsigned char type; /* LIBSSH2_POLLFD_* below */
@@ -757,6 +739,24 @@ LIBSSH2_API int libssh2_userauth_publickey_sk(
     const char *passphrase,
     LIBSSH2_USERAUTH_SK_SIGN_FUNC(*sign_callback),
     void **abstract);
+
+/* SK signature callback */
+typedef struct _LIBSSH2_PRIVKEY_SK {
+    int algorithm;
+    uint8_t flags;
+    const char *application;
+    const unsigned char *key_handle;
+    size_t handle_len;
+    LIBSSH2_USERAUTH_SK_SIGN_FUNC(*sign_callback);
+    void **orig_abstract;
+} LIBSSH2_PRIVKEY_SK;
+
+LIBSSH2_API int libssh2_sign_sk(LIBSSH2_SESSION *session,
+                                unsigned char **sig,
+                                size_t *sig_len,
+                                const unsigned char *data,
+                                size_t data_len,
+                                void **abstract);
 
 #ifndef LIBSSH2_NO_DEPRECATED
 LIBSSH2_DEPRECATED(1.2.0, "Use system poll() or select()")
