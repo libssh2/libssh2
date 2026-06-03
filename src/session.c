@@ -1132,7 +1132,7 @@ static int session_free(LIBSSH2_SESSION *session)
     /* error string */
     if(session->err_msg &&
        ((session->err_flags & SSH2_ERR_FLAG_DUP) != 0)) {
-        SSH2_FREE(session, (char *)LIBSSH2_UNCONST(session->err_msg));
+        SSH2_FREE(session, (char *)SSH2_UNCONST(session->err_msg));
     }
 
     SSH2_FREE(session, session);
@@ -1313,7 +1313,7 @@ int libssh2_session_last_error(LIBSSH2_SESSION *session, char **errmsg,
                 }
             }
             else {
-                *errmsg = (char *)LIBSSH2_UNCONST("");
+                *errmsg = (char *)SSH2_UNCONST("");
             }
         }
         if(errmsg_len) {
@@ -1336,7 +1336,7 @@ int libssh2_session_last_error(LIBSSH2_SESSION *session, char **errmsg,
             }
         }
         else
-            *errmsg = (char *)LIBSSH2_UNCONST(error);
+            *errmsg = (char *)SSH2_UNCONST(error);
     }
 
     if(errmsg_len) {

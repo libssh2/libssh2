@@ -91,7 +91,7 @@ int ssh2_err_flags(LIBSSH2_SESSION *session, int errcode,
     }
 
     if(session->err_flags & SSH2_ERR_FLAG_DUP)
-        SSH2_FREE(session, (char *)LIBSSH2_UNCONST(session->err_msg));
+        SSH2_FREE(session, (char *)SSH2_UNCONST(session->err_msg));
 
     session->err_code = errcode;
     session->err_flags = 0;

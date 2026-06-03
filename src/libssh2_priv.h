@@ -124,11 +124,11 @@
 #endif
 
 #ifdef _WIN64
-#define LIBSSH2_UNCONST(p)  ((void *)(libssh2_uint64_t)(const void *)(p))
+#define SSH2_UNCONST(p)  ((void *)(libssh2_uint64_t)(const void *)(p))
 #elif defined(_MSC_VER)
-#define LIBSSH2_UNCONST(p)  ((void *)(unsigned int)(const void *)(p))
+#define SSH2_UNCONST(p)  ((void *)(unsigned int)(const void *)(p))
 #else
-#define LIBSSH2_UNCONST(p)  ((void *)(uintptr_t)(const void *)(p))
+#define SSH2_UNCONST(p)  ((void *)(uintptr_t)(const void *)(p))
 #endif
 
 #if (defined(__GNUC__) || defined(__clang__)) && \

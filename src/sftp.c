@@ -657,7 +657,7 @@ static ssize_t sftp_bin2attr(LIBSSH2_SFTP_ATTRIBUTES *attrs,
 {
     struct string_buf buf;
     uint32_t flags = 0;
-    buf.data = (unsigned char *)LIBSSH2_UNCONST(p);
+    buf.data = (unsigned char *)SSH2_UNCONST(p);
     buf.dataptr = buf.data;
     buf.len = data_len;
 
@@ -3927,7 +3927,7 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp,
 
     sftp->symlink_state = ssh2_NB_state_idle;
 
-    buf.data = (unsigned char *)LIBSSH2_UNCONST(data);
+    buf.data = (unsigned char *)SSH2_UNCONST(data);
     buf.dataptr = buf.data;
     buf.len = data_len;
 

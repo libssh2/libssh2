@@ -573,7 +573,7 @@ void ssh2_wcng_init(void)
     if(BCRYPT_SUCCESS(ret)) {
         ret = BCryptSetProperty(ssh2_wcng_ctx.hAlgAES_CBC,
                                 BCRYPT_CHAINING_MODE,
-                                (PBYTE)LIBSSH2_UNCONST(BCRYPT_CHAIN_MODE_CBC),
+                                (PBYTE)SSH2_UNCONST(BCRYPT_CHAIN_MODE_CBC),
                                 sizeof(BCRYPT_CHAIN_MODE_CBC), 0);
         if(!BCRYPT_SUCCESS(ret)) {
             ret = BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgAES_CBC, 0);
@@ -588,7 +588,7 @@ void ssh2_wcng_init(void)
     if(BCRYPT_SUCCESS(ret)) {
         ret = BCryptSetProperty(ssh2_wcng_ctx.hAlgAES_ECB,
                                 BCRYPT_CHAINING_MODE,
-                                (PBYTE)LIBSSH2_UNCONST(BCRYPT_CHAIN_MODE_ECB),
+                                (PBYTE)SSH2_UNCONST(BCRYPT_CHAIN_MODE_ECB),
                                 sizeof(BCRYPT_CHAIN_MODE_ECB), 0);
         if(!BCRYPT_SUCCESS(ret)) {
             ret = BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgAES_ECB, 0);
@@ -603,7 +603,7 @@ void ssh2_wcng_init(void)
     if(BCRYPT_SUCCESS(ret)) {
         ret = BCryptSetProperty(ssh2_wcng_ctx.hAlgRC4_NA,
                                 BCRYPT_CHAINING_MODE,
-                                (PBYTE)LIBSSH2_UNCONST(BCRYPT_CHAIN_MODE_NA),
+                                (PBYTE)SSH2_UNCONST(BCRYPT_CHAIN_MODE_NA),
                                 sizeof(BCRYPT_CHAIN_MODE_NA), 0);
         if(!BCRYPT_SUCCESS(ret)) {
             ret = BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgRC4_NA, 0);
@@ -618,7 +618,7 @@ void ssh2_wcng_init(void)
     if(BCRYPT_SUCCESS(ret)) {
         ret = BCryptSetProperty(ssh2_wcng_ctx.hAlg3DES_CBC,
                                 BCRYPT_CHAINING_MODE,
-                                (PBYTE)LIBSSH2_UNCONST(BCRYPT_CHAIN_MODE_CBC),
+                                (PBYTE)SSH2_UNCONST(BCRYPT_CHAIN_MODE_CBC),
                                 sizeof(BCRYPT_CHAIN_MODE_CBC), 0);
         if(!BCRYPT_SUCCESS(ret)) {
             ret = BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlg3DES_CBC, 0);
@@ -785,7 +785,7 @@ int ssh2_wcng_hash_update(struct wincng_hash_ctx *ctx,
     int ret;
 
     ret = BCryptHashData(ctx->hHash,
-                         (PUCHAR)LIBSSH2_UNCONST(data), datalen, 0);
+                         (PUCHAR)SSH2_UNCONST(data), datalen, 0);
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
@@ -2850,7 +2850,7 @@ int ssh2_wcng_ecdsa_new_private_frommemory(OUT struct wincng_ecdsa_ctx **key,
     }
 
     data_buffer.len = data_len;
-    data_buffer.data = (unsigned char *)LIBSSH2_UNCONST(data);
+    data_buffer.data = (unsigned char *)SSH2_UNCONST(data);
     data_buffer.dataptr = data_buffer.data +
                           strlen(OPENSSL_PRIVATEKEY_AUTH_MAGIC) + 1;
 

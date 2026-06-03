@@ -526,8 +526,7 @@ static ssize_t _send_all(LIBSSH2_SEND_FUNC(func), libssh2_socket_t socket,
                          const void *buffer, size_t length,
                          int flags, void **abstract)
 {
-    RECV_SEND_ALL(func, socket, LIBSSH2_UNCONST(buffer), length,
-                  flags, abstract);
+    RECV_SEND_ALL(func, socket, SSH2_UNCONST(buffer), length, flags, abstract);
 }
 
 static ssize_t _recv_all(LIBSSH2_RECV_FUNC(func), libssh2_socket_t socket,
@@ -917,7 +916,7 @@ static int agent_list_identities(LIBSSH2_AGENT *agent)
 
     /* Create a request to list identities */
     if(transctx->state == agent_NB_state_init) {
-        transctx->request = LIBSSH2_UNCONST(&c);
+        transctx->request = SSH2_UNCONST(&c);
         transctx->request_len = 1;
         transctx->send_recv_total = 0;
         transctx->state = agent_NB_state_request_created;
