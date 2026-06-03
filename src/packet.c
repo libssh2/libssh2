@@ -772,7 +772,7 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                 }
 
                 ssh2_deb((session, LIBSSH2_TRACE_TRANS,
-                          "Disconnect(%d): %.*s(%.*s)", reason,
+                          "Disconnect(%u): %.*s(%.*s)", reason,
                           (int)message_len, message, (int)language_len,
                           language));
             }

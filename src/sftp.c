@@ -222,7 +222,7 @@ static int sftp_packet_add(LIBSSH2_SFTP *sftp,
 
     request_id = ssh2_ntohu32(&data[1]);
 
-    ssh2_deb((session, LIBSSH2_TRACE_SFTP, "Received packet id %d",
+    ssh2_deb((session, LIBSSH2_TRACE_SFTP, "Received packet id %u",
               request_id));
 
     /* Do not add the packet if it answers a request we have given up on. */
@@ -515,7 +515,7 @@ static int sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
         /* data was read, check the queue again */
         if(!sftp_packet_ask(sftp, packet_type, request_id, data, data_len)) {
             /* The right packet was available in the packet brigade */
-            ssh2_deb((session, LIBSSH2_TRACE_SFTP, "Got %d",
+            ssh2_deb((session, LIBSSH2_TRACE_SFTP, "Got %u",
                       (unsigned int)packet_type));
 
             if(*data_len < required_size) {
@@ -1288,7 +1288,7 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
             if(badness) {
                 ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                          "Failed opening remote file");
-                ssh2_deb((session, LIBSSH2_TRACE_SFTP, "got FXP_STATUS %d",
+                ssh2_deb((session, LIBSSH2_TRACE_SFTP, "got FXP_STATUS %u",
                           sftp->last_errno));
                 SSH2_FREE(session, data);
                 return NULL;
@@ -1548,7 +1548,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                more packets */
             count -= SSH2_MIN(size, count);
             ssh2_deb((session, LIBSSH2_TRACE_SFTP,
-                      "read request id %d sent (offset: %lu, size: %lu)",
+                      "read request id %u sent (offset: %lu, size: %lu)",
                       request_id, (unsigned long)chunk->offset,
                       (unsigned long)chunk->len));
         }
@@ -3450,7 +3450,8 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp,
         sftp->last_errno = LIBSSH2_FX_OK;
 
         ssh2_deb((session, LIBSSH2_TRACE_SFTP,
-                  "Creating directory %s with mode 0%lo", path, mode));
+                  "Creating directory %s with mode 0%lo",
+                  path, (unsigned long)mode));
         s = packet = SSH2_ALLOC(session, packet_len);
         if(!packet) {
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,

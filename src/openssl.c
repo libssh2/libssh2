@@ -435,11 +435,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
         ret = ssh2_ossl_sha512(m, m_len, hash);
     }
     else {
-/* silence:
-   warning C4701: potentially uninitialized local variable 'nid_type' used */
-#ifdef _MSC_VER
         nid_type = 0;
-#endif
         ret = -1; /* unsupported digest */
     }
 
