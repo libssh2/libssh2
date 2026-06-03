@@ -472,7 +472,7 @@ struct wcng_bn {
 
 #define LIBSSH2_DH_MAX_MODULUS_BITS 16384
 
-struct ssh2_wcng_dh_ctx {
+struct wcng_dh_ctx {
     /* holds our private and public key components */
     BCRYPT_KEY_HANDLE dh_handle;
     /* records the parsed out modulus and generator
@@ -483,7 +483,7 @@ struct ssh2_wcng_dh_ctx {
     struct wcng_bn *dh_privbn;
 };
 
-#define ssh2_dh_ctx struct ssh2_wcng_dh_ctx
+#define ssh2_dh_ctx struct wcng_dh_ctx
 
 #define ssh2_dh_init(dhctx) ssh2_wcng_dh_init(dhctx)
 #define ssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
