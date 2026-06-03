@@ -7,11 +7,12 @@ Source: libssh2
 See-also:
   - libssh2_channel_get_exit_signal(3)
   - libssh2_channel_open_ex(3)
+  - libssh2_channel_signal(3)
 ---
 
 # NAME
 
-libssh2_channel_signal_ex -- Send a signal to process previously opened on channel.
+libssh2_channel_signal_ex - Send a signal to process previously opened on channel.
 
 # SYNOPSIS
 
@@ -41,3 +42,7 @@ There is also a macro *libssh2_channel_signal(channel, signame)* that supplies t
 
 Normal channel error codes.
 LIBSSH2_ERROR_EAGAIN when it would block.
+
+# AVAILABILITY
+
+Added in libssh2 1.11.0
