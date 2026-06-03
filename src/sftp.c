@@ -1136,8 +1136,7 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
 
     /* packet_len(4) + packet_type(1) + request_id(4) + filename_len(4) +
        flags(4) */
-    packet_len = (13 +
-                 (open_file ? (4 + sftp_attrsize(attrs.flags)) : 0));
+    packet_len = (13 + (open_file ? (4 + sftp_attrsize(attrs.flags)) : 0));
 
     if(packet_len + (uint32_t)filename_len < packet_len) {
         ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
@@ -1221,8 +1220,9 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
     if(sftp->open_state == ssh2_NB_state_sent) {
         size_t data_len = 0;
         unsigned char *data;
-        static const unsigned char fopen_responses[2] =
-            { SSH_FXP_HANDLE, SSH_FXP_STATUS };
+        static const unsigned char fopen_responses[2] = {
+            SSH_FXP_HANDLE, SSH_FXP_STATUS
+        };
         rc = sftp_packet_requirev(sftp, 2, fopen_responses,
                                   sftp->open_request_id, &data,
                                   &data_len, 1);
@@ -1499,9 +1499,8 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                 /* more data is asked for than what the window currently
                    allows, expand it! */
 
-                rc = ssh2_channel_receive_window_adjust(sftp->channel,
-                                               (uint32_t)(max_read_ahead * 8),
-                                               1, NULL);
+                rc = ssh2_channel_receive_window_adjust(
+                    sftp->channel, (uint32_t)(max_read_ahead * 8), 1, NULL);
                 /* if this returns EAGAIN, we get back to this function
                    at next call */
                 assert(rc != LIBSSH2_ERROR_EAGAIN || !filep->data_left);
@@ -1526,7 +1525,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                 size = MAX_SFTP_READ_SIZE;
 
             chunk = SSH2_ALLOC(session, packet_len +
-                                  sizeof(struct sftp_pipeline_chunk));
+                               sizeof(struct sftp_pipeline_chunk));
             if(!chunk)
                 return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                 "malloc fail for FXP_WRITE");
@@ -1806,7 +1805,8 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
     uint32_t packet_len = (uint32_t)(handle->handle_len + 13);
     unsigned char *s, *data;
     static const unsigned char read_responses[2] = {
-        SSH_FXP_NAME, SSH_FXP_STATUS };
+        SSH_FXP_NAME, SSH_FXP_STATUS
+    };
     ssize_t retcode;
 
     if(sftp->readdir_state == ssh2_NB_state_idle) {
@@ -1842,10 +1842,10 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                 goto end;
             }
 
-            if(buffer_maxlen >= filename_len && names_packet_len >=
-               filename_len) {
+            if(buffer_maxlen >= filename_len &&
+               names_packet_len >= filename_len) {
                 memcpy(buffer, s, filename_len);
-                buffer[filename_len] = '\0';           /* null-terminate */
+                buffer[filename_len] = '\0'; /* null-terminate */
                 s += real_filename_len;
                 names_packet_len -= real_filename_len;
             }
@@ -2114,7 +2114,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
             packet_len = (uint32_t)(handle->handle_len + size + 25);
 
             chunk = SSH2_ALLOC(session, packet_len +
-                                  sizeof(struct sftp_pipeline_chunk));
+                               sizeof(struct sftp_pipeline_chunk));
             if(!chunk)
                 return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                 "malloc fail for FXP_WRITE");
@@ -2400,8 +2400,9 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
     uint32_t packet_len = (uint32_t)(handle->handle_len + 13 +
                                  (setstat ? sftp_attrsize(attrs->flags) : 0));
     unsigned char *s, *data = NULL;
-    static const unsigned char fstat_responses[2] =
-        { SSH_FXP_ATTRS, SSH_FXP_STATUS };
+    static const unsigned char fstat_responses[2] = {
+        SSH_FXP_ATTRS, SSH_FXP_STATUS
+    };
     ssize_t rc;
 
     if(sftp->fstat_state == ssh2_NB_state_idle) {
@@ -3147,8 +3148,9 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
     unsigned char *packet, *s, *data = NULL;
     ssize_t rc;
     unsigned int flag;
-    static const unsigned char responses[2] =
-        { SSH_FXP_EXTENDED_REPLY, SSH_FXP_STATUS };
+    static const unsigned char responses[2] = {
+        SSH_FXP_EXTENDED_REPLY, SSH_FXP_STATUS
+    };
 
     /* 17 = packet_len(4) + packet_type(1) + request_id(4) + ext_len(4)
        + handle_len (4) */
@@ -3293,8 +3295,9 @@ static int sftp_statvfs(LIBSSH2_SFTP *sftp,
     unsigned char *packet, *s, *data = NULL;
     ssize_t rc;
     unsigned int flag;
-    static const unsigned char responses[2] =
-        { SSH_FXP_EXTENDED_REPLY, SSH_FXP_STATUS };
+    static const unsigned char responses[2] = {
+        SSH_FXP_EXTENDED_REPLY, SSH_FXP_STATUS
+    };
 
     /* 17 = packet_len(4) + packet_type(1) + request_id(4) + ext_len(4)
        + path_len (4) */
@@ -3670,8 +3673,9 @@ static int sftp_stat(LIBSSH2_SFTP *sftp,
                     ((stat_type ==
                     LIBSSH2_SFTP_SETSTAT) ? sftp_attrsize(attrs->flags) : 0);
     unsigned char *s, *data = NULL;
-    static const unsigned char stat_responses[2] =
-        { SSH_FXP_ATTRS, SSH_FXP_STATUS };
+    static const unsigned char stat_responses[2] = {
+        SSH_FXP_ATTRS, SSH_FXP_STATUS
+    };
     int rc;
 
     if(packet_len + (uint32_t)path_len < packet_len) {
@@ -3814,8 +3818,9 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp,
     uint32_t packet_len;
     unsigned char *s, *data = NULL;
     struct string_buf buf;
-    static const unsigned char link_responses[2] =
-        { SSH_FXP_NAME, SSH_FXP_STATUS };
+    static const unsigned char link_responses[2] = {
+        SSH_FXP_NAME, SSH_FXP_STATUS
+    };
     int retcode;
     unsigned char packet_type;
     uint32_t tmp_u32;

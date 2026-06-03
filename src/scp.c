@@ -344,8 +344,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                               LIBSSH2_CHANNEL_WINDOW_DEFAULT,
                               LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL, 0);
         if(!session->scpRecv_channel) {
-            if(libssh2_session_last_errno(session) !=
-                LIBSSH2_ERROR_EAGAIN) {
+            if(libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
                 SSH2_FREE(session, session->scpRecv_command);
                 session->scpRecv_command = NULL;
                 session->scpRecv_state = ssh2_NB_state_idle;
@@ -1030,8 +1029,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
         session->scpSend_response_len =
             snprintf((char *)session->scpSend_response,
                      SSH2_SCP_RESPONSE_BUFLEN,
-                     "C0%o %" SSH2_INT64_T_FORMAT " %s\n",
-                     mode, size, base);
+                     "C0%o %" SSH2_INT64_T_FORMAT " %s\n", mode, size, base);
         ssh2_deb((session, LIBSSH2_TRACE_SCP, "Sent %s",
                   session->scpSend_response));
 
