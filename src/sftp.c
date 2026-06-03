@@ -1436,7 +1436,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
            return that now as we cannot risk being interrupted later with data
            partially written to the buffer. */
         if(filep->data_left) {
-            size_t copy = LIBSSH2_MIN(buffer_size, filep->data_left);
+            size_t copy = SSH2_MIN(buffer_size, filep->data_left);
 
             memcpy(buffer, &filep->data[filep->data_len - filep->data_left],
                    copy);
@@ -1552,7 +1552,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
             ssh2_list_add(&handle->packet_list, &chunk->node);
             /* deduct the size we used, as we might have to create
                more packets */
-            count -= LIBSSH2_MIN(size, count);
+            count -= SSH2_MIN(size, count);
             ssh2_deb((session, LIBSSH2_TRACE_SFTP,
                       "read request id %d sent (offset: %lu, size: %lu)",
                       request_id, (unsigned long)chunk->offset,
@@ -2106,7 +2106,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
             /* TODO: Possibly this should have some logic to prevent a tiny
                fraction to be left but lets ignore that for now */
             uint32_t size =
-                (uint32_t)(LIBSSH2_MIN(MAX_SFTP_OUTGOING_SIZE, count));
+                (uint32_t)(SSH2_MIN(MAX_SFTP_OUTGOING_SIZE, count));
             uint32_t request_id;
 
             /* 25 = packet_len(4) + packet_type(1) + request_id(4) +
@@ -2257,7 +2257,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
     acked += handle->u.file.acked;
 
     if(acked) {
-        ssize_t ret = LIBSSH2_MIN(acked, org_count);
+        ssize_t ret = SSH2_MIN(acked, org_count);
         /* we got data acked so return that amount, but no more than what
            was asked to get sent! */
 

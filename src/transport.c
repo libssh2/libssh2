@@ -135,7 +135,7 @@ static int decrypt(LIBSSH2_SESSION *session, unsigned char *source,
 
     while(len > 0) {
         /* normally decrypt up to blocksize bytes at a time */
-        ssize_t decryptlen = LIBSSH2_MIN(blocksize, len);
+        ssize_t decryptlen = SSH2_MIN(blocksize, len);
         /* The first block is special (since it needs to be decoded to get the
            length of the remainder of the block) and takes priority. When the
            length finally gets to the last blocksize bytes, and there is no
@@ -761,7 +761,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                amount to decrypt even more */
             if((p->data_num + numbytes) >= (p->total_num - skip)) {
                 /* decrypt the entire rest of the package */
-                numdecrypt = LIBSSH2_MAX(0,
+                numdecrypt = SSH2_MAX(0,
                     (int)(p->total_num - skip) - (int)p->data_num);
                 firstlast = LAST_BLOCK;
             }
@@ -780,7 +780,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                 if(CRYPT_FLAG_R(session, INTEGRATED_MAC)) {
                     /* Make sure that we save enough bytes to make the last
                      * block large enough to hold the entire integrated MAC */
-                    numdecrypt = LIBSSH2_MIN(numdecrypt,
+                    numdecrypt = SSH2_MIN(numdecrypt,
                         (int)(p->total_num - skip - blocksize - p->data_num));
                     numbytes = 0;
                 }
@@ -1206,8 +1206,8 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
             for(i = etm_crypt_offset; i < packet_length;
                 i += session->local.crypt->blocksize) {
                 unsigned char *ptr = &p->outbuf[i];
-                size_t bsize = LIBSSH2_MIN(session->local.crypt->blocksize,
-                                           (int)(packet_length - i));
+                size_t bsize = SSH2_MIN(session->local.crypt->blocksize,
+                                        (int)(packet_length - i));
                 /* The INTEGRATED_MAC case always has an extra call below, so
                    it never is LAST_BLOCK up here. */
                 int firstlast = i == 0 ? FIRST_BLOCK :

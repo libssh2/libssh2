@@ -168,7 +168,7 @@ static int bcrypt_pbkdf(const char *pass, size_t passlen,
         /*
          * pbkdf2 deviation: output the key material non-linearly.
          */
-        amt = LIBSSH2_MIN(amt, keylen);
+        amt = SSH2_MIN(amt, keylen);
         for(i = 0; i < amt; i++) {
             size_t dest = i * stride + (count - 1);
             if(dest >= origkeylen) {
