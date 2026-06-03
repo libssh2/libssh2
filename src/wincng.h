@@ -433,12 +433,12 @@ struct libssh2_wincng_cipher_type {
  * Windows CNG backend: BigNumber structure
  */
 
-struct libssh2_wincng_bignum {
+struct wcng_bn {
     unsigned char *bignum;
     ULONG length;
 };
 
-#define ssh2_bn struct libssh2_wincng_bignum
+#define ssh2_bn struct wcng_bn
 
 /*
  * Windows CNG backend: BigNumber functions
@@ -480,7 +480,7 @@ struct ssh2_wcng_dh_ctx {
     BCRYPT_DH_PARAMETER_HEADER *dh_params;
     /* records the parsed out private key component for
      * fallback if the DH API raw KDF is not supported */
-    struct libssh2_wincng_bignum *dh_privbn;
+    struct wcng_bn *dh_privbn;
 };
 
 #define ssh2_dh_ctx struct ssh2_wcng_dh_ctx
