@@ -2034,13 +2034,13 @@ int ssh2_curve25519_new(LIBSSH2_SESSION *session,
     }
 
     if(out_private_key) {
-        privLen = LIBSSH2_ED25519_KEY_LEN;
+        privLen = SSH2_ED25519_KEY_LEN;
         priv = SSH2_ALLOC(session, privLen);
         if(!priv)
             goto clean_exit;
 
         if(EVP_PKEY_get_raw_private_key(key, priv, &privLen) != 1 ||
-           privLen != LIBSSH2_ED25519_KEY_LEN) {
+           privLen != SSH2_ED25519_KEY_LEN) {
             goto clean_exit;
         }
 
@@ -2049,13 +2049,13 @@ int ssh2_curve25519_new(LIBSSH2_SESSION *session,
     }
 
     if(out_public_key) {
-        pubLen = LIBSSH2_ED25519_KEY_LEN;
+        pubLen = SSH2_ED25519_KEY_LEN;
         pub = SSH2_ALLOC(session, pubLen);
         if(!pub)
             goto clean_exit;
 
         if(EVP_PKEY_get_raw_public_key(key, pub, &pubLen) != 1 ||
-           pubLen != LIBSSH2_ED25519_KEY_LEN) {
+           pubLen != SSH2_ED25519_KEY_LEN) {
             goto clean_exit;
         }
 
@@ -2168,13 +2168,13 @@ static int gen_publickey_from_ed25519_openssh_priv_data(
               "Computing ED25519 keys from private key data"));
 
     if(ssh2_get_string(decrypted, &pub_key, &tmp_len) ||
-       tmp_len != LIBSSH2_ED25519_KEY_LEN) {
+       tmp_len != SSH2_ED25519_KEY_LEN) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO, "Wrong public key length");
         return -1;
     }
 
     if(ssh2_get_string(decrypted, &priv_key, &tmp_len) ||
-       tmp_len != LIBSSH2_ED25519_PRIVATE_KEY_LEN) {
+       tmp_len != SSH2_ED25519_PRIVATE_KEY_LEN) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO, "Wrong private key length");
         goto clean_exit;
     }
@@ -2183,7 +2183,7 @@ static int gen_publickey_from_ed25519_openssh_priv_data(
        the public key */
     ctx = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL,
                                        (const unsigned char *)priv_key,
-                                       LIBSSH2_ED25519_KEY_LEN);
+                                       SSH2_ED25519_KEY_LEN);
 
     /* comment */
     if(ssh2_get_string(decrypted, &buf, &tmp_len)) {
@@ -2230,7 +2230,7 @@ static int gen_publickey_from_ed25519_openssh_priv_data(
 
         /* Key form is: type_len(4) + type(11) + pub_key_len(4) +
            pub_key(32). */
-        key_len = LIBSSH2_ED25519_KEY_LEN + 19;
+        key_len = SSH2_ED25519_KEY_LEN + 19;
         key = SSH2_CALLOC(session, key_len);
         if(!key) {
             ssh2_err(session, LIBSSH2_ERROR_ALLOC,
@@ -2241,7 +2241,7 @@ static int gen_publickey_from_ed25519_openssh_priv_data(
         p = key;
 
         ssh2_store_str(&p, "ssh-ed25519", 11);
-        ssh2_store_str(&p, (const char *)pub_key, LIBSSH2_ED25519_KEY_LEN);
+        ssh2_store_str(&p, (const char *)pub_key, SSH2_ED25519_KEY_LEN);
 
         /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
         memcpy(method_buf, "ssh-ed25519", 11);
@@ -2311,7 +2311,7 @@ static int gen_publickey_from_sk_ed25519_openssh_priv_data(
               "Computing sk-ED25519 keys from private key data"));
 
     if(ssh2_get_string(decrypted, &pub_key, &tmp_len) ||
-       tmp_len != LIBSSH2_ED25519_KEY_LEN) {
+       tmp_len != SSH2_ED25519_KEY_LEN) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO, "Wrong public key length");
         return -1;
     }
@@ -2344,7 +2344,7 @@ static int gen_publickey_from_sk_ed25519_openssh_priv_data(
 
     ctx = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, NULL,
                                       (const unsigned char *)pub_key,
-                                      LIBSSH2_ED25519_KEY_LEN);
+                                      SSH2_ED25519_KEY_LEN);
 
     if(ret == 0) {
         ssh2_deb((session, LIBSSH2_TRACE_AUTH,
@@ -2361,7 +2361,7 @@ static int gen_publickey_from_sk_ed25519_openssh_priv_data(
 
         /* Key form is: type_len(4) + type(26) + pub_key_len(4) +
            pub_key(32) + application_len(4) + application(X). */
-        key_len = LIBSSH2_ED25519_KEY_LEN + 38 + app_len;
+        key_len = SSH2_ED25519_KEY_LEN + 38 + app_len;
         key = SSH2_CALLOC(session, key_len);
         if(!key) {
             ssh2_err(session, LIBSSH2_ERROR_ALLOC,
@@ -2372,7 +2372,7 @@ static int gen_publickey_from_sk_ed25519_openssh_priv_data(
         p = key;
 
         ssh2_store_str(&p, key_type, strlen(key_type));
-        ssh2_store_str(&p, (const char *)pub_key, LIBSSH2_ED25519_KEY_LEN);
+        ssh2_store_str(&p, (const char *)pub_key, SSH2_ED25519_KEY_LEN);
         ssh2_store_str(&p, (const char *)app, app_len);
 
         if(application && app_len > 0) {
@@ -2669,18 +2669,18 @@ int ssh2_mlkem_new(LIBSSH2_SESSION *session,
     switch(ml_kem_size) {
     case 512:
         evp_name = "ML-KEM-512";
-        privLen = LIBSSH2_MLKEM_512_PRIVATE_KEY_LEN;
-        pubLen = LIBSSH2_MLKEM_512_PUBLIC_KEY_LEN;
+        privLen = SSH2_MLKEM_512_PRIVATE_KEY_LEN;
+        pubLen = SSH2_MLKEM_512_PUBLIC_KEY_LEN;
         break;
     case 768:
         evp_name = "ML-KEM-768";
-        privLen = LIBSSH2_MLKEM_768_PRIVATE_KEY_LEN;
-        pubLen = LIBSSH2_MLKEM_768_PUBLIC_KEY_LEN;
+        privLen = SSH2_MLKEM_768_PRIVATE_KEY_LEN;
+        pubLen = SSH2_MLKEM_768_PUBLIC_KEY_LEN;
         break;
     case 1024:
         evp_name = "ML-KEM-1024";
-        privLen = LIBSSH2_MLKEM_1024_PRIVATE_KEY_LEN;
-        pubLen = LIBSSH2_MLKEM_1024_PUBLIC_KEY_LEN;
+        privLen = SSH2_MLKEM_1024_PRIVATE_KEY_LEN;
+        pubLen = SSH2_MLKEM_1024_PUBLIC_KEY_LEN;
         break;
     default:
         goto clean_exit;
@@ -2755,18 +2755,18 @@ int ssh2_mlkem_get_sk(unsigned char *out_shared_key,
     switch(ml_kem_size) {
     case 512:
         evp_name = "ML-KEM-512";
-        privLen = LIBSSH2_MLKEM_512_PRIVATE_KEY_LEN;
-        ciphertextLen = LIBSSH2_MLKEM_512_CIPHERTEXT;
+        privLen = SSH2_MLKEM_512_PRIVATE_KEY_LEN;
+        ciphertextLen = SSH2_MLKEM_512_CIPHERTEXT;
         break;
     case 768:
         evp_name = "ML-KEM-768";
-        privLen = LIBSSH2_MLKEM_768_PRIVATE_KEY_LEN;
-        ciphertextLen = LIBSSH2_MLKEM_768_CIPHERTEXT;
+        privLen = SSH2_MLKEM_768_PRIVATE_KEY_LEN;
+        ciphertextLen = SSH2_MLKEM_768_CIPHERTEXT;
         break;
     case 1024:
         evp_name = "ML-KEM-1024";
-        privLen = LIBSSH2_MLKEM_1024_PRIVATE_KEY_LEN;
-        ciphertextLen = LIBSSH2_MLKEM_1024_CIPHERTEXT;
+        privLen = SSH2_MLKEM_1024_PRIVATE_KEY_LEN;
+        ciphertextLen = SSH2_MLKEM_1024_CIPHERTEXT;
         break;
     default:
         goto clean_exit;
@@ -2798,7 +2798,7 @@ int ssh2_mlkem_get_sk(unsigned char *out_shared_key,
         goto clean_exit;
     }
 
-    if(out_len != LIBSSH2_MLKEM_SHARED_SECRET_LEN) {
+    if(out_len != SSH2_MLKEM_SHARED_SECRET_LEN) {
         rc = -1;
         goto clean_exit;
     }
@@ -4375,7 +4375,7 @@ int ssh2_ed25519_sign(ssh2_ed25519_ctx *ctx, LIBSSH2_SESSION *session,
         if(EVP_DigestSign(md_ctx, NULL, &sig_len, message, message_len) != 1)
             goto clean_exit;
 
-        if(sig_len != LIBSSH2_ED25519_SIG_LEN)
+        if(sig_len != SSH2_ED25519_SIG_LEN)
             goto clean_exit;
 
         sig = SSH2_CALLOC(session, sig_len);
@@ -4404,11 +4404,11 @@ clean_exit:
 }
 
 int ssh2_curve25519_gen_k(ssh2_bn **k,
-                          uint8_t private_key[LIBSSH2_ED25519_KEY_LEN],
-                          uint8_t server_public_key[LIBSSH2_ED25519_KEY_LEN])
+                          uint8_t private_key[SSH2_ED25519_KEY_LEN],
+                          uint8_t server_public_key[SSH2_ED25519_KEY_LEN])
 {
     int rc = -1;
-    unsigned char out_shared_key[LIBSSH2_ED25519_KEY_LEN];
+    unsigned char out_shared_key[SSH2_ED25519_KEY_LEN];
     EVP_PKEY *peer_key = NULL, *server_key = NULL;
     EVP_PKEY_CTX *server_key_ctx = NULL;
     BN_CTX *bn_ctx = NULL;
@@ -4423,11 +4423,11 @@ int ssh2_curve25519_gen_k(ssh2_bn **k,
 
     peer_key = EVP_PKEY_new_raw_public_key(EVP_PKEY_X25519, NULL,
                                            server_public_key,
-                                           LIBSSH2_ED25519_KEY_LEN);
+                                           SSH2_ED25519_KEY_LEN);
 
     server_key = EVP_PKEY_new_raw_private_key(EVP_PKEY_X25519, NULL,
                                               private_key,
-                                              LIBSSH2_ED25519_KEY_LEN);
+                                              SSH2_ED25519_KEY_LEN);
 
     if(!peer_key || !server_key) {
         goto clean_exit;
@@ -4453,15 +4453,15 @@ int ssh2_curve25519_gen_k(ssh2_bn **k,
         goto clean_exit;
     }
 
-    if(out_len != LIBSSH2_ED25519_KEY_LEN) {
+    if(out_len != SSH2_ED25519_KEY_LEN) {
         rc = -1;
         goto clean_exit;
     }
 
     rc = EVP_PKEY_derive(server_key_ctx, out_shared_key, &out_len);
 
-    if(rc == 1 && out_len == LIBSSH2_ED25519_KEY_LEN) {
-        BN_bin2bn(out_shared_key, LIBSSH2_ED25519_KEY_LEN, *k);
+    if(rc == 1 && out_len == SSH2_ED25519_KEY_LEN) {
+        BN_bin2bn(out_shared_key, SSH2_ED25519_KEY_LEN, *k);
     }
     else {
         rc = -1;

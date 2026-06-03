@@ -70,21 +70,23 @@ int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen);
 int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *data);
 void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx);
 
-#define LIBSSH2_ED25519_KEY_LEN            32
-#define LIBSSH2_ED25519_PRIVATE_KEY_LEN    64
-#define LIBSSH2_ED25519_SIG_LEN            64
-#define LIBSSH2_EC_P256_PUBLIC_KEY_LEN     65
-#define LIBSSH2_EC_P384_PUBLIC_KEY_LEN     97
-#define LIBSSH2_MLKEM_SHARED_SECRET_LEN    32
-#define LIBSSH2_MLKEM_512_PRIVATE_KEY_LEN  1632
-#define LIBSSH2_MLKEM_512_PUBLIC_KEY_LEN   800
-#define LIBSSH2_MLKEM_512_CIPHERTEXT       768
-#define LIBSSH2_MLKEM_768_PRIVATE_KEY_LEN  2400
-#define LIBSSH2_MLKEM_768_PUBLIC_KEY_LEN   1184
-#define LIBSSH2_MLKEM_768_CIPHERTEXT       1088
-#define LIBSSH2_MLKEM_1024_PRIVATE_KEY_LEN 3168
-#define LIBSSH2_MLKEM_1024_PUBLIC_KEY_LEN  1568
-#define LIBSSH2_MLKEM_1024_CIPHERTEXT      1568
+#define SSH2_ED25519_KEY_LEN            32
+#define SSH2_ED25519_PRIVATE_KEY_LEN    64
+#define SSH2_ED25519_SIG_LEN            64
+
+#define SSH2_EC_P256_PUBLIC_KEY_LEN     65
+#define SSH2_EC_P384_PUBLIC_KEY_LEN     97
+
+#define SSH2_MLKEM_SHARED_SECRET_LEN    32
+#define SSH2_MLKEM_512_PRIVATE_KEY_LEN  1632
+#define SSH2_MLKEM_512_PUBLIC_KEY_LEN   800
+#define SSH2_MLKEM_512_CIPHERTEXT       768
+#define SSH2_MLKEM_768_PRIVATE_KEY_LEN  2400
+#define SSH2_MLKEM_768_PUBLIC_KEY_LEN   1184
+#define SSH2_MLKEM_768_CIPHERTEXT       1088
+#define SSH2_MLKEM_1024_PRIVATE_KEY_LEN 3168
+#define SSH2_MLKEM_1024_PUBLIC_KEY_LEN  1568
+#define SSH2_MLKEM_1024_CIPHERTEXT      1568
 
 #if LIBSSH2_RSA
 int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
@@ -225,8 +227,8 @@ int ssh2_curve25519_new(LIBSSH2_SESSION *session, uint8_t **out_public_key,
 
 int ssh2_curve25519_gen_k(
     ssh2_bn **k,
-    uint8_t private_key[LIBSSH2_ED25519_KEY_LEN],
-    uint8_t server_public_key[LIBSSH2_ED25519_KEY_LEN]);
+    uint8_t private_key[SSH2_ED25519_KEY_LEN],
+    uint8_t server_public_key[SSH2_ED25519_KEY_LEN]);
 
 int ssh2_ed25519_verify(ssh2_ed25519_ctx *ctx, const uint8_t *s,
                         size_t s_len, const uint8_t *m, size_t m_len);

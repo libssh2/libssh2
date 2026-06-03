@@ -1180,7 +1180,7 @@ static int hostkey_method_ssh_ed25519_sig_verify(LIBSSH2_SESSION *session,
     sig += 19;
     sig_len -= 19;
 
-    if(sig_len != LIBSSH2_ED25519_SIG_LEN)
+    if(sig_len != SSH2_ED25519_SIG_LEN)
         return -1;
 
     return ssh2_ed25519_verify(ctx, sig, sig_len, m, m_len);
