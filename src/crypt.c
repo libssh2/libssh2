@@ -121,7 +121,7 @@ static int crypt_encrypt(LIBSSH2_SESSION *session,
     (void)session;
     (void)seqno;
     return ssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, buf,
-                                 buf_len, firstlast);
+                             buf_len, firstlast);
 }
 
 static int crypt_dtor(LIBSSH2_SESSION *session, void **abstract)
@@ -326,7 +326,7 @@ static int crypt_init_arcfour128(LIBSSH2_SESSION *session,
         size_t discard = 1536;
         for(; discard; discard -= 8)
             ssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, block,
-                                  method->blocksize, MIDDLE_BLOCK);
+                              method->blocksize, MIDDLE_BLOCK);
                               /* Not all middle, but here it does not matter */
     }
 
