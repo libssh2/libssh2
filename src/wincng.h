@@ -483,14 +483,14 @@ struct wincng_dh_ctx {
     struct libssh2_wincng_bignum *dh_privbn;
 };
 
-#define libssh2_dh_ctx struct wincng_dh_ctx
+#define ssh2_dh_ctx struct wincng_dh_ctx
 
-#define libssh2_dh_init(dhctx) wincng_dh_init(dhctx)
-#define libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
+#define ssh2_dh_init(dhctx) wincng_dh_init(dhctx)
+#define ssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
     wincng_dh_key_pair(dhctx, public, g, p, group_order)
-#define libssh2_dh_secret(dhctx, secret, f, p, bnctx) \
+#define ssh2_dh_secret(dhctx, secret, f, p, bnctx) \
     wincng_dh_secret(dhctx, secret, f, p)
-#define libssh2_dh_dtor(dhctx) wincng_dh_dtor(dhctx)
+#define ssh2_dh_dtor(dhctx) wincng_dh_dtor(dhctx)
 
 /*******************************************************************/
 /*

@@ -1260,12 +1260,12 @@ int ssh2_rsa_new(libssh2_rsa_ctx **rsa,
  *
  *******************************************************************/
 
-void ssh2_os400qc3_dh_init(libssh2_dh_ctx *dhctx)
+void ssh2_os400qc3_dh_init(ssh2_dh_ctx *dhctx)
 {
     memset((char *)dhctx, 0, sizeof(*dhctx));
 }
 
-int ssh2_os400qc3_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
+int ssh2_os400qc3_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
                               libssh2_bn *g, libssh2_bn *p, int group_order)
 {
     struct asn1Element *prime;
@@ -1312,7 +1312,7 @@ int ssh2_os400qc3_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
     return ssh2_bn_from_bin(public, pubkeylen, (unsigned char *)pubkey);
 }
 
-int ssh2_os400qc3_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
+int ssh2_os400qc3_dh_secret(ssh2_dh_ctx *dhctx, libssh2_bn *secret,
                             libssh2_bn *f, libssh2_bn *p)
 {
     char *pubkey;
@@ -1335,7 +1335,7 @@ int ssh2_os400qc3_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
     return ssh2_bn_from_bin(secret, secretbuflen, (unsigned char *)secretbuf);
 }
 
-void ssh2_os400qc3_dh_dtor(libssh2_dh_ctx *dhctx)
+void ssh2_os400qc3_dh_dtor(ssh2_dh_ctx *dhctx)
 {
     if(!null_token(dhctx->token)) {
         Qc3DestroyAlgorithmContext(dhctx->token, (char *)&ecnull);

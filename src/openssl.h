@@ -424,22 +424,22 @@ int ssh2_bn_from_bin(libssh2_bn *bn, size_t len, const unsigned char *val);
 
 #define LIBSSH2_DH_MAX_MODULUS_BITS 16384
 
-#define libssh2_dh_ctx BIGNUM *
-#define libssh2_dh_init(dhctx) ossl_dh_init(dhctx)
-#define libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
+#define ssh2_dh_ctx BIGNUM *
+#define ssh2_dh_init(dhctx) ossl_dh_init(dhctx)
+#define ssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
     ossl_dh_key_pair(dhctx, public, g, p, group_order, bnctx)
-#define libssh2_dh_secret(dhctx, secret, f, p, bnctx) \
+#define ssh2_dh_secret(dhctx, secret, f, p, bnctx) \
     ossl_dh_secret(dhctx, secret, f, p, bnctx)
-#define libssh2_dh_dtor(dhctx) ossl_dh_dtor(dhctx)
-void ossl_dh_init(libssh2_dh_ctx *dhctx);
-int ossl_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
+#define ssh2_dh_dtor(dhctx) ossl_dh_dtor(dhctx)
+void ossl_dh_init(ssh2_dh_ctx *dhctx);
+int ossl_dh_key_pair(ssh2_dh_ctx *dhctx, libssh2_bn *public,
                      libssh2_bn *g, libssh2_bn *p,
                      int group_order,
                      libssh2_bn_ctx *bnctx);
-int ossl_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
+int ossl_dh_secret(ssh2_dh_ctx *dhctx, libssh2_bn *secret,
                    libssh2_bn *f, libssh2_bn *p,
                    libssh2_bn_ctx *bnctx);
-void ossl_dh_dtor(libssh2_dh_ctx *dhctx);
+void ossl_dh_dtor(ssh2_dh_ctx *dhctx);
 
 int ssh2_openssl_random(void *buf, size_t len);
 
