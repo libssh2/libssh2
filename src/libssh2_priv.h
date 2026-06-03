@@ -329,7 +329,7 @@ struct kmdhgGPshakex_state {
     size_t s_packet_len;
     size_t tmp_len;
     libssh2_bn_ctx *ctx;
-    libssh2_dh_ctx x;
+    ssh2_dh_ctx x;
     libssh2_bn *e;
     libssh2_bn *f;
     libssh2_bn *k;

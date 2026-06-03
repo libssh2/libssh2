@@ -566,7 +566,7 @@ static int finish_kex(LIBSSH2_SESSION *session,
 static void diffie_hellman_state_cleanup(
     LIBSSH2_SESSION *session, struct kmdhgGPshakex_state *exchange_state)
 {
-    libssh2_dh_dtor(&exchange_state->x);
+    ssh2_dh_dtor(&exchange_state->x);
     ssh2_bn_free(exchange_state->e);
     exchange_state->e = NULL;
     ssh2_bn_free(exchange_state->f);
@@ -657,7 +657,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         exchange_state->s_packet = NULL;
         exchange_state->k_value = NULL;
         exchange_state->ctx = ssh2_bn_ctx_new();
-        libssh2_dh_init(&exchange_state->x);
+        ssh2_dh_init(&exchange_state->x);
         exchange_state->e = ssh2_bn_init(); /* g^x mod p */
         exchange_state->f = ssh2_bn_init_from_bin(); /* g^(Random from
                                                             server) mod p */
@@ -675,8 +675,8 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
 
-        rc = libssh2_dh_key_pair(&exchange_state->x, exchange_state->e, g, p,
-                                 group_order, exchange_state->ctx);
+        rc = ssh2_dh_key_pair(&exchange_state->x, exchange_state->e, g, p,
+                              group_order, exchange_state->ctx);
         if(rc) {
             ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                            "DH key pair generation failed");
@@ -811,8 +811,8 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         }
 
         /* Compute the shared secret */
-        libssh2_dh_secret(&exchange_state->x, exchange_state->k,
-                          exchange_state->f, p, exchange_state->ctx);
+        ssh2_dh_secret(&exchange_state->x, exchange_state->k,
+                       exchange_state->f, p, exchange_state->ctx);
         exchange_state->k_value_len = ssh2_bn_bytes(exchange_state->k) + 5;
         if(ssh2_bn_bits(exchange_state->k) % 8) {
             /* do not need leading 00 */
