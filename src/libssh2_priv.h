@@ -889,7 +889,7 @@ struct _LIBSSH2_SESSION {
     unsigned char pkeyInit_buffer[19];
     size_t pkeyInit_buffer_sent; /* how much of buffer that has been sent */
 
-    /* State variables used in libssh2_packet_add() */
+    /* State variables used in ssh2_packet_add() */
     libssh2_nonblocking_states packAdd_state;
     LIBSSH2_CHANNEL *packAdd_channelp; /* keeper of the channel during EAGAIN
                                           states */
