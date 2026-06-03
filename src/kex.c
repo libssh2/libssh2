@@ -58,7 +58,7 @@
 #define LIBSSH2_KEX_METHOD_SHA_VALUE_HASH(digest_type, value,                 \
                                           reqlen, version)                    \
     do {                                                                      \
-        libssh2_sha##digest_type##_ctx hash;                                  \
+        ssh2_sha##digest_type##_ctx hash;                                     \
         size_t len = 0;                                                       \
         if(!(value)) {                                                        \
             (value) = SSH2_ALLOC(session,                                     \
@@ -67,11 +67,11 @@
         }                                                                     \
         if(value)                                                             \
             while(len < (size_t)(reqlen)) {                                   \
-                if(!libssh2_sha##digest_type##_init(&hash) ||                 \
-                   !libssh2_sha##digest_type##_update(hash,                   \
+                if(!ssh2_sha##digest_type##_init(&hash) ||                    \
+                   !ssh2_sha##digest_type##_update(hash,                      \
                                            exchange_state->k_value,           \
                                            exchange_state->k_value_len) ||    \
-                   !libssh2_sha##digest_type##_update(hash,                   \
+                   !ssh2_sha##digest_type##_update(hash,                      \
                                          exchange_state->h_sig_comp,          \
                                          SHA##digest_type##_DIGEST_LENGTH)) { \
                     SSH2_FREE(session, value);                                \
@@ -79,17 +79,15 @@
                     break;                                                    \
                 }                                                             \
                 if(len > 0) {                                                 \
-                    if(!libssh2_sha##digest_type##_update(hash,               \
-                                                          value, len)) {      \
+                    if(!ssh2_sha##digest_type##_update(hash, value, len)) {   \
                         SSH2_FREE(session, value);                            \
                         (value) = NULL;                                       \
                         break;                                                \
                     }                                                         \
                 }                                                             \
                 else {                                                        \
-                    if(!libssh2_sha##digest_type##_update(hash,               \
-                                                          version, 1) ||      \
-                       !libssh2_sha##digest_type##_update(hash,               \
+                    if(!ssh2_sha##digest_type##_update(hash, version, 1) ||   \
+                       !ssh2_sha##digest_type##_update(hash,                  \
                                                   session->session_id,        \
                                                   session->session_id_len)) { \
                         SSH2_FREE(session, value);                            \
@@ -97,7 +95,7 @@
                         break;                                                \
                     }                                                         \
                 }                                                             \
-                if(!libssh2_sha##digest_type##_final(hash, (value) + len)) {  \
+                if(!ssh2_sha##digest_type##_final(hash, (value) + len)) {     \
                     SSH2_FREE(session, value);                                \
                     (value) = NULL;                                           \
                     break;                                                    \
@@ -1700,9 +1698,9 @@ static int kex_session_hybrid_curve_type(const char *name,
  */
 #define LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(digest_type)             \
     do {                                                                      \
-        libssh2_sha##digest_type##_ctx ctx;                                   \
+        ssh2_sha##digest_type##_ctx ctx;                                      \
         int hok;                                                              \
-        if(!libssh2_sha##digest_type##_init(&ctx)) {                          \
+        if(!ssh2_sha##digest_type##_init(&ctx)) {                             \
             rc = -1;                                                          \
             break;                                                            \
         }                                                                     \
@@ -1710,77 +1708,76 @@ static int kex_session_hybrid_curve_type(const char *name,
         if(session->local.banner) {                                           \
             ssh2_htonu32(exchange_state->h_sig_comp,                          \
                      (uint32_t)(strlen((char *)session->local.banner) - 2));  \
-            hok &= libssh2_sha##digest_type##_update(ctx,                     \
+            hok &= ssh2_sha##digest_type##_update(ctx,                        \
                                               exchange_state->h_sig_comp, 4); \
-            hok &= libssh2_sha##digest_type##_update(ctx,                     \
+            hok &= ssh2_sha##digest_type##_update(ctx,                        \
                                   (char *)session->local.banner,              \
                                   strlen((char *)session->local.banner) - 2); \
         }                                                                     \
         else {                                                                \
             ssh2_htonu32(exchange_state->h_sig_comp,                          \
                          sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);             \
-            hok &= libssh2_sha##digest_type##_update(ctx,                     \
+            hok &= ssh2_sha##digest_type##_update(ctx,                        \
                                               exchange_state->h_sig_comp, 4); \
-            hok &= libssh2_sha##digest_type##_update(ctx,                     \
+            hok &= ssh2_sha##digest_type##_update(ctx,                        \
                                      LIBSSH2_SSH_DEFAULT_BANNER,              \
                                      sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1); \
         }                                                                     \
                                                                               \
         ssh2_htonu32(exchange_state->h_sig_comp,                              \
                      (uint32_t)strlen((char *)session->remote.banner));       \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
                                               exchange_state->h_sig_comp, 4); \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
                                      session->remote.banner,                  \
                                      strlen((char *)session->remote.banner)); \
                                                                               \
         ssh2_htonu32(exchange_state->h_sig_comp,                              \
                      (uint32_t)session->local.kexinit_len);                   \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
                                               exchange_state->h_sig_comp, 4); \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
-                                                 session->local.kexinit,      \
-                                                 session->local.kexinit_len); \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
+                                              session->local.kexinit,         \
+                                              session->local.kexinit_len);    \
                                                                               \
         ssh2_htonu32(exchange_state->h_sig_comp,                              \
                      (uint32_t)session->remote.kexinit_len);                  \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
                                               exchange_state->h_sig_comp, 4); \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
-                                                session->remote.kexinit,      \
-                                                session->remote.kexinit_len); \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
+                                              session->remote.kexinit,        \
+                                              session->remote.kexinit_len);   \
                                                                               \
         ssh2_htonu32(exchange_state->h_sig_comp,                              \
                      session->server_hostkey_len);                            \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
                                               exchange_state->h_sig_comp, 4); \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
-                                                session->server_hostkey,      \
-                                                session->server_hostkey_len); \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
+                                              session->server_hostkey,        \
+                                              session->server_hostkey_len);   \
                                                                               \
         ssh2_htonu32(exchange_state->h_sig_comp,                              \
                      (uint32_t)public_key_len);                               \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
                                               exchange_state->h_sig_comp, 4); \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
-                                                 public_key,                  \
-                                                 public_key_len);             \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
+                                              public_key,                     \
+                                              public_key_len);                \
                                                                               \
         ssh2_htonu32(exchange_state->h_sig_comp,                              \
                      (uint32_t)server_public_key_len);                        \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
                                               exchange_state->h_sig_comp, 4); \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
-                                                 server_public_key,           \
-                                                 server_public_key_len);      \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
+                                              server_public_key,              \
+                                              server_public_key_len);         \
                                                                               \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
-                                                exchange_state->k_value,      \
-                                                exchange_state->k_value_len); \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
+                                              exchange_state->k_value,        \
+                                              exchange_state->k_value_len);   \
                                                                               \
         if(!hok ||                                                            \
-           !libssh2_sha##digest_type##_final(ctx,                             \
-                                             exchange_state->h_sig_comp)) {   \
+           !ssh2_sha##digest_type##_final(ctx, exchange_state->h_sig_comp)) { \
             rc = -1;                                                          \
             break;                                                            \
         }                                                                     \
@@ -1813,9 +1810,9 @@ static int kex_session_hybrid_curve_type(const char *name,
  */
 #define LIBSSH2_KEX_METHOD_HYBRID_SHA_HASH_CREATE_VERIFY(digest_type)         \
     do {                                                                      \
-        libssh2_sha##digest_type##_ctx ctx;                                   \
+        ssh2_sha##digest_type##_ctx ctx;                                      \
         int hok;                                                              \
-        if(!libssh2_sha##digest_type##_init(&ctx)) {                          \
+        if(!ssh2_sha##digest_type##_init(&ctx)) {                             \
             rc = -1;                                                          \
             break;                                                            \
         }                                                                     \
@@ -1823,80 +1820,79 @@ static int kex_session_hybrid_curve_type(const char *name,
         if(session->local.banner) {                                           \
             ssh2_htonu32(exchange_state->h_sig_comp,                          \
                      (uint32_t)(strlen((char *)session->local.banner) - 2));  \
-            hok &= libssh2_sha##digest_type##_update(ctx,                     \
+            hok &= ssh2_sha##digest_type##_update(ctx,                        \
                                               exchange_state->h_sig_comp, 4); \
-            hok &= libssh2_sha##digest_type##_update(ctx,                     \
+            hok &= ssh2_sha##digest_type##_update(ctx,                        \
                                   (char *)session->local.banner,              \
                                   strlen((char *)session->local.banner) - 2); \
         }                                                                     \
         else {                                                                \
             ssh2_htonu32(exchange_state->h_sig_comp,                          \
                          sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);             \
-            hok &= libssh2_sha##digest_type##_update(ctx,                     \
+            hok &= ssh2_sha##digest_type##_update(ctx,                        \
                                               exchange_state->h_sig_comp, 4); \
-            hok &= libssh2_sha##digest_type##_update(ctx,                     \
+            hok &= ssh2_sha##digest_type##_update(ctx,                        \
                                      LIBSSH2_SSH_DEFAULT_BANNER,              \
                                      sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1); \
         }                                                                     \
                                                                               \
         ssh2_htonu32(exchange_state->h_sig_comp,                              \
                      (uint32_t)strlen((char *)session->remote.banner));       \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
                                               exchange_state->h_sig_comp, 4); \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
                                      session->remote.banner,                  \
                                      strlen((char *)session->remote.banner)); \
                                                                               \
         ssh2_htonu32(exchange_state->h_sig_comp,                              \
                      (uint32_t)session->local.kexinit_len);                   \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
                                               exchange_state->h_sig_comp, 4); \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
-                                                 session->local.kexinit,      \
-                                                 session->local.kexinit_len); \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
+                                              session->local.kexinit,         \
+                                              session->local.kexinit_len);    \
                                                                               \
         ssh2_htonu32(exchange_state->h_sig_comp,                              \
                      (uint32_t)session->remote.kexinit_len);                  \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
                                               exchange_state->h_sig_comp, 4); \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
-                                                session->remote.kexinit,      \
-                                                session->remote.kexinit_len); \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
+                                              session->remote.kexinit,        \
+                                              session->remote.kexinit_len);   \
                                                                               \
         ssh2_htonu32(exchange_state->h_sig_comp,                              \
                      session->server_hostkey_len);                            \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
                                               exchange_state->h_sig_comp, 4); \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
-                                                session->server_hostkey,      \
-                                                session->server_hostkey_len); \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
+                                              session->server_hostkey,        \
+                                              session->server_hostkey_len);   \
                                                                               \
         ssh2_htonu32(exchange_state->h_sig_comp,                              \
                      (uint32_t)(public_pq_key_len + public_t_key_len));       \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
                                               exchange_state->h_sig_comp, 4); \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
-                                                 public_pq_key,               \
-                                                 public_pq_key_len);          \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
-                                                 public_t_key,                \
-                                                 public_t_key_len);           \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
+                                              public_pq_key,                  \
+                                              public_pq_key_len);             \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
+                                              public_t_key,                   \
+                                              public_t_key_len);              \
                                                                               \
         ssh2_htonu32(exchange_state->h_sig_comp,                              \
                      (uint32_t)server_public_key_len);                        \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
                                               exchange_state->h_sig_comp, 4); \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
-                                                 server_public_key,           \
-                                                 server_public_key_len);      \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
+                                              server_public_key,              \
+                                              server_public_key_len);         \
                                                                               \
-        hok &= libssh2_sha##digest_type##_update(ctx,                         \
-                                                exchange_state->k_value,      \
-                                                exchange_state->k_value_len); \
+        hok &= ssh2_sha##digest_type##_update(ctx,                            \
+                                              exchange_state->k_value,        \
+                                              exchange_state->k_value_len);   \
                                                                               \
         if(!hok ||                                                            \
-           !libssh2_sha##digest_type##_final(ctx,                             \
-                                             exchange_state->h_sig_comp)) {   \
+           !ssh2_sha##digest_type##_final(ctx, exchange_state->h_sig_comp)) { \
             rc = -1;                                                          \
             break;                                                            \
         }                                                                     \

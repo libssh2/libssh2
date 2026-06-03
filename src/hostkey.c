@@ -897,33 +897,33 @@ static int hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION *session,
     return ssh2_ecdsa_verify(ctx, r, r_len, s, s_len, m, m_len);
 }
 
-#define LIBSSH2_HOSTKEY_METHOD_EC_SIGNV_HASH(digest_type)                \
-    do {                                                                 \
-        unsigned char hash[SHA##digest_type##_DIGEST_LENGTH];            \
-        libssh2_sha##digest_type##_ctx ctx;                              \
-        int i;                                                           \
-        if(!libssh2_sha##digest_type##_init(&ctx)) {                     \
-            ret = -1;                                                    \
-            break;                                                       \
-        }                                                                \
-        for(i = 0; i < veccount; i++) {                                  \
-            if(!libssh2_sha##digest_type##_update(ctx,                   \
-                                                  datavec[i].iov_base,   \
-                                                  datavec[i].iov_len)) { \
-                ret = -1;                                                \
-                break;                                                   \
-            }                                                            \
-        }                                                                \
-        if(ret == -1) {                                                  \
-            break;                                                       \
-        }                                                                \
-        if(!libssh2_sha##digest_type##_final(ctx, hash)) {               \
-            ret = -1;                                                    \
-            break;                                                       \
-        }                                                                \
-        ret = ssh2_ecdsa_sign(session, ec_ctx, hash,                 \
-                                  SHA##digest_type##_DIGEST_LENGTH,      \
-                                  signature, signature_len);             \
+#define LIBSSH2_HOSTKEY_METHOD_EC_SIGNV_HASH(digest_type)             \
+    do {                                                              \
+        unsigned char hash[SHA##digest_type##_DIGEST_LENGTH];         \
+        ssh2_sha##digest_type##_ctx ctx;                              \
+        int i;                                                        \
+        if(!ssh2_sha##digest_type##_init(&ctx)) {                     \
+            ret = -1;                                                 \
+            break;                                                    \
+        }                                                             \
+        for(i = 0; i < veccount; i++) {                               \
+            if(!ssh2_sha##digest_type##_update(ctx,                   \
+                                               datavec[i].iov_base,   \
+                                               datavec[i].iov_len)) { \
+                ret = -1;                                             \
+                break;                                                \
+            }                                                         \
+        }                                                             \
+        if(ret == -1) {                                               \
+            break;                                                    \
+        }                                                             \
+        if(!ssh2_sha##digest_type##_final(ctx, hash)) {               \
+            ret = -1;                                                 \
+            break;                                                    \
+        }                                                             \
+        ret = ssh2_ecdsa_sign(session, ec_ctx, hash,                  \
+                              SHA##digest_type##_DIGEST_LENGTH,       \
+                              signature, signature_len);              \
     } while(0)
 
 /*
