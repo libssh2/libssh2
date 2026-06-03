@@ -55,8 +55,7 @@
 /* Helper macro called from
    kex_method_diffie_hellman_group1_sha1_key_exchange */
 
-#define LIBSSH2_KEX_METHOD_SHA_VALUE_HASH(digest_type, value,                 \
-                                          reqlen, version)                    \
+#define KEX_METHOD_SHA_VALUE_HASH(digest_type, value, reqlen, version)        \
     do {                                                                      \
         ssh2_sha##digest_type##_ctx hash;                                     \
         size_t len = 0;                                                       \
@@ -193,16 +192,16 @@ static void sha_algo_value_hash(int sha_algo,
                                 const unsigned char *version)
 {
     if(sha_algo == 512) {
-        LIBSSH2_KEX_METHOD_SHA_VALUE_HASH(512, *data, data_len, version);
+        KEX_METHOD_SHA_VALUE_HASH(512, *data, data_len, version);
     }
     else if(sha_algo == 384) {
-        LIBSSH2_KEX_METHOD_SHA_VALUE_HASH(384, *data, data_len, version);
+        KEX_METHOD_SHA_VALUE_HASH(384, *data, data_len, version);
     }
     else if(sha_algo == 256) {
-        LIBSSH2_KEX_METHOD_SHA_VALUE_HASH(256, *data, data_len, version);
+        KEX_METHOD_SHA_VALUE_HASH(256, *data, data_len, version);
     }
     else if(sha_algo == 1) {
-        LIBSSH2_KEX_METHOD_SHA_VALUE_HASH(1, *data, data_len, version);
+        KEX_METHOD_SHA_VALUE_HASH(1, *data, data_len, version);
     }
     else {
 #ifdef LIBSSH2DEBUG
@@ -1693,7 +1692,7 @@ static int kex_session_hybrid_curve_type(const char *name,
  * string   Q_S, server's ephemeral public key octet string
  * mpint    K,   shared secret
  */
-#define LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(digest_type)             \
+#define KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(digest_type)                     \
     do {                                                                      \
         ssh2_sha##digest_type##_ctx ctx;                                      \
         int hok;                                                              \
@@ -1805,7 +1804,7 @@ static int kex_session_hybrid_curve_type(const char *name,
  * string   Q_S, server's ephemeral public key octet string
  * mpint    K,   shared secret
  */
-#define LIBSSH2_KEX_METHOD_HYBRID_SHA_HASH_CREATE_VERIFY(digest_type)         \
+#define KEX_METHOD_HYBRID_SHA_HASH_CREATE_VERIFY(digest_type)                 \
     do {                                                                      \
         ssh2_sha##digest_type##_ctx ctx;                                      \
         int hok;                                                              \
@@ -2071,13 +2070,13 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
 
         switch(type) {
         case SSH2_EC_CURVE_NISTP256:
-            LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(256);
+            KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(256);
             break;
         case SSH2_EC_CURVE_NISTP384:
-            LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(384);
+            KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(384);
             break;
         case SSH2_EC_CURVE_NISTP521:
-            LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(512);
+            KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(512);
             break;
         }
 
@@ -2452,7 +2451,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
                                "kex: failed to calculate hash");
                 goto clean_exit;
             }
-            LIBSSH2_KEX_METHOD_HYBRID_SHA_HASH_CREATE_VERIFY(256);
+            KEX_METHOD_HYBRID_SHA_HASH_CREATE_VERIFY(256);
             break;
         }
         case SSH2_EC_CURVE_NISTP384: {
@@ -2474,7 +2473,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
                                "kex: failed to calculate hash");
                 goto clean_exit;
             }
-            LIBSSH2_KEX_METHOD_HYBRID_SHA_HASH_CREATE_VERIFY(384);
+            KEX_METHOD_HYBRID_SHA_HASH_CREATE_VERIFY(384);
             break;
         }
         default:
@@ -2795,7 +2794,7 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         }
 
         /*/ verify hash */
-        LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(256);
+        KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(256);
 
         if(rc) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
@@ -3105,7 +3104,7 @@ static int mlkem768x25519_sha256(
         }
 
         /*/ verify hash */
-        LIBSSH2_KEX_METHOD_HYBRID_SHA_HASH_CREATE_VERIFY(256);
+        KEX_METHOD_HYBRID_SHA_HASH_CREATE_VERIFY(256);
 
         if(rc) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
