@@ -118,7 +118,7 @@ struct _LIBSSH2_SFTP_HANDLE {
     } u;
 
     /* State variables used in libssh2_sftp_close_handle() */
-    libssh2_nonblocking_states close_state;
+    ssh2_NB_states close_state;
     uint32_t close_request_id;
     unsigned char *close_packet;
 
@@ -153,79 +153,79 @@ struct _LIBSSH2_SFTP {
     time_t requirev_start;
 
     /* State variables used in libssh2_sftp_open_ex() */
-    libssh2_nonblocking_states open_state;
+    ssh2_NB_states open_state;
     unsigned char *open_packet;
     uint32_t open_packet_len; /* 32-bit on the wire */
     size_t open_packet_sent;
     uint32_t open_request_id;
 
     /* State variable used in sftp_read() */
-    libssh2_nonblocking_states read_state;
+    ssh2_NB_states read_state;
 
     /* State variable used in sftp_packet_read() */
-    libssh2_nonblocking_states packet_state;
+    ssh2_NB_states packet_state;
 
     /* State variable used in sftp_write() */
-    libssh2_nonblocking_states write_state;
+    ssh2_NB_states write_state;
 
     /* State variables used in sftp_fsync() */
-    libssh2_nonblocking_states fsync_state;
+    ssh2_NB_states fsync_state;
     unsigned char *fsync_packet;
     uint32_t fsync_request_id;
 
     /* State variables used in libssh2_sftp_readdir() */
-    libssh2_nonblocking_states readdir_state;
+    ssh2_NB_states readdir_state;
     unsigned char *readdir_packet;
     uint32_t readdir_request_id;
 
     /* State variables used in libssh2_sftp_fstat_ex() */
-    libssh2_nonblocking_states fstat_state;
+    ssh2_NB_states fstat_state;
     unsigned char *fstat_packet;
     uint32_t fstat_request_id;
 
     /* State variables used in libssh2_sftp_unlink_ex() */
-    libssh2_nonblocking_states unlink_state;
+    ssh2_NB_states unlink_state;
     unsigned char *unlink_packet;
     uint32_t unlink_request_id;
 
     /* State variables used in libssh2_sftp_rename_ex() */
-    libssh2_nonblocking_states rename_state;
+    ssh2_NB_states rename_state;
     unsigned char *rename_packet;
     unsigned char *rename_s;
     uint32_t rename_request_id;
 
     /* State variables used in libssh2_sftp_posix_rename_ex() */
-    libssh2_nonblocking_states posix_rename_state;
+    ssh2_NB_states posix_rename_state;
     unsigned char *posix_rename_packet;
     uint32_t posix_rename_request_id;
 
     /* State variables used in libssh2_sftp_fstatvfs() */
-    libssh2_nonblocking_states fstatvfs_state;
+    ssh2_NB_states fstatvfs_state;
     unsigned char *fstatvfs_packet;
     uint32_t fstatvfs_request_id;
 
     /* State variables used in libssh2_sftp_statvfs() */
-    libssh2_nonblocking_states statvfs_state;
+    ssh2_NB_states statvfs_state;
     unsigned char *statvfs_packet;
     uint32_t statvfs_request_id;
 
     /* State variables used in libssh2_sftp_mkdir() */
-    libssh2_nonblocking_states mkdir_state;
+    ssh2_NB_states mkdir_state;
     unsigned char *mkdir_packet;
     uint32_t mkdir_request_id;
 
     /* State variables used in libssh2_sftp_rmdir() */
-    libssh2_nonblocking_states rmdir_state;
+    ssh2_NB_states rmdir_state;
     unsigned char *rmdir_packet;
     uint32_t rmdir_request_id;
 
     /* State variables used in libssh2_sftp_stat() */
-    libssh2_nonblocking_states stat_state;
+    ssh2_NB_states stat_state;
     unsigned char *stat_packet;
     uint32_t stat_request_id;
 
     /* State variables used in libssh2_sftp_symlink() */
-    libssh2_nonblocking_states symlink_state;
+    ssh2_NB_states symlink_state;
     unsigned char *symlink_packet;
     uint32_t symlink_request_id;
 };

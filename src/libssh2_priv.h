@@ -287,6 +287,7 @@ struct iovec {
 #define SSH2_RECV(session, buffer, length, flags) \
     SSH2_RECV_FD(session, (session)->socket_fd, buffer, length, flags)
 
+/* non-blocking states */
 typedef enum {
     libssh2_NB_state_idle = 0,
     libssh2_NB_state_allocated,
@@ -307,10 +308,10 @@ typedef enum {
     libssh2_NB_state_error_closing,
     libssh2_NB_state_end,
     libssh2_NB_state_jumpauthagent
-} libssh2_nonblocking_states;
+} ssh2_NB_states;
 
 struct packet_require_state {
-    libssh2_nonblocking_states state;
+    ssh2_NB_states state;
     time_t start;
 };
 
@@ -319,7 +320,7 @@ struct packet_requirev_state {
 };
 
 struct kmdhgGPshakex_state {
-    libssh2_nonblocking_states state;
+    ssh2_NB_states state;
     unsigned char *e_packet;
     unsigned char *s_packet;
     unsigned char *tmp;
@@ -340,11 +341,11 @@ struct kmdhgGPshakex_state {
     size_t k_value_len;
     size_t h_sig_len;
     struct packet_require_state req_state;
-    libssh2_nonblocking_states burn_state;
+    ssh2_NB_states burn_state;
 };
 
 struct key_exchange_state_low {
-    libssh2_nonblocking_states state;
+    ssh2_NB_states state;
     struct packet_require_state req_state;
     struct kmdhgGPshakex_state exchange_state;
     ssh2_bn *p;             /* SSH2 defined value (p_value) */
@@ -368,7 +369,7 @@ struct key_exchange_state_low {
 };
 
 struct key_exchange_state {
-    libssh2_nonblocking_states state;
+    ssh2_NB_states state;
     struct packet_require_state req_state;
     struct key_exchange_state_low key_state_low;
     unsigned char *data;
@@ -380,7 +381,7 @@ struct key_exchange_state {
 #define FwdNotReq "Forward not requested"
 
 struct packet_queue_listener_state {
-    libssh2_nonblocking_states state;
+    ssh2_NB_states state;
     unsigned char packet[17 + (sizeof(FwdNotReq) - 1)];
     unsigned char *host;
     unsigned char *shost;
@@ -397,7 +398,7 @@ struct packet_queue_listener_state {
 #define X11FwdUnAvil "X11 Forward Unavailable"
 
 struct packet_x11_open_state {
-    libssh2_nonblocking_states state;
+    ssh2_NB_states state;
     unsigned char packet[17 + (sizeof(X11FwdUnAvil) - 1)];
     unsigned char *shost;
     uint32_t sender_channel;
@@ -411,7 +412,7 @@ struct packet_x11_open_state {
 #define AuthAgentUnavail "Auth Agent unavailable"
 
 struct packet_authagent_state {
-    libssh2_nonblocking_states state;
+    ssh2_NB_states state;
     unsigned char packet[17 + (sizeof(AuthAgentUnavail) - 1)];
     uint32_t sender_channel;
     uint32_t initial_window_size;
@@ -466,7 +467,7 @@ struct _LIBSSH2_CHANNEL {
     LIBSSH2_CHANNEL_CLOSE_FUNC(*close_cb);
 
     /* State variables used in libssh2_channel_setenv_ex() */
-    libssh2_nonblocking_states setenv_state;
+    ssh2_NB_states setenv_state;
     unsigned char *setenv_packet;
     size_t setenv_packet_len;
     unsigned char setenv_local_channel[4];
@@ -474,73 +475,73 @@ struct _LIBSSH2_CHANNEL {
 
     /* State variables used in libssh2_channel_request_pty_ex()
        libssh2_channel_request_pty_size_ex() */
-    libssh2_nonblocking_states reqPTY_state;
+    ssh2_NB_states reqPTY_state;
     unsigned char reqPTY_packet[41 + 256];
     size_t reqPTY_packet_len;
     unsigned char reqPTY_local_channel[4];
     struct packet_requirev_state reqPTY_packet_requirev_state;
 
     /* State variables used in libssh2_channel_x11_req_ex() */
-    libssh2_nonblocking_states reqX11_state;
+    ssh2_NB_states reqX11_state;
     unsigned char *reqX11_packet;
     size_t reqX11_packet_len;
     unsigned char reqX11_local_channel[4];
     struct packet_requirev_state reqX11_packet_requirev_state;
 
     /* State variables used in libssh2_channel_process_startup() */
-    libssh2_nonblocking_states process_state;
+    ssh2_NB_states process_state;
     unsigned char *process_packet;
     size_t process_packet_len;
     unsigned char process_local_channel[4];
     struct packet_requirev_state process_packet_requirev_state;
 
     /* State variables used in libssh2_channel_flush_ex() */
-    libssh2_nonblocking_states flush_state;
+    ssh2_NB_states flush_state;
     size_t flush_refund_bytes;
     size_t flush_flush_bytes;
 
     /* State variables used in libssh2_channel_receive_window_adjust2() */
-    libssh2_nonblocking_states adjust_state;
+    ssh2_NB_states adjust_state;
     unsigned char adjust_adjust[9];     /* packet_type(1) + channel(4) +
                                            adjustment(4) */
 
     /* State variables used in libssh2_channel_read_ex() */
-    libssh2_nonblocking_states read_state;
+    ssh2_NB_states read_state;
 
     uint32_t read_local_id;
 
     /* State variables used in libssh2_channel_write_ex() */
-    libssh2_nonblocking_states write_state;
+    ssh2_NB_states write_state;
     unsigned char write_packet[13];
     size_t write_packet_len;
     size_t write_bufwrite;
 
     /* State variables used in libssh2_channel_close() */
-    libssh2_nonblocking_states close_state;
+    ssh2_NB_states close_state;
     unsigned char close_packet[5];
 
     /* State variables used in libssh2_channel_wait_closedeof() */
-    libssh2_nonblocking_states wait_eof_state;
+    ssh2_NB_states wait_eof_state;
 
     /* State variables used in libssh2_channel_wait_closed() */
-    libssh2_nonblocking_states wait_closed_state;
+    ssh2_NB_states wait_closed_state;
 
     /* State variables used in libssh2_channel_free() */
-    libssh2_nonblocking_states free_state;
+    ssh2_NB_states free_state;
 
     /* State variables used in libssh2_channel_handle_extended_data2() */
-    libssh2_nonblocking_states extData2_state;
+    ssh2_NB_states extData2_state;
 
     /* State variables used in libssh2_channel_request_auth_agent() */
-    libssh2_nonblocking_states req_auth_agent_try_state;
-    libssh2_nonblocking_states req_auth_agent_state;
+    ssh2_NB_states req_auth_agent_try_state;
+    ssh2_NB_states req_auth_agent_state;
     unsigned char req_auth_agent_packet[36];
     size_t req_auth_agent_packet_len;
     unsigned char req_auth_agent_local_channel[4];
     struct packet_requirev_state req_auth_agent_requirev_state;
 
     /* State variables used in libssh2_channel_signal_ex() */
-    libssh2_nonblocking_states sendsignal_state;
+    ssh2_NB_states sendsignal_state;
     unsigned char *sendsignal_packet;
     size_t sendsignal_packet_len;
 };
@@ -560,7 +561,7 @@ struct _LIBSSH2_LISTENER {
     int queue_maxsize;
 
     /* State variables used in libssh2_channel_forward_cancel() */
-    libssh2_nonblocking_states chanFwdCncl_state;
+    ssh2_NB_states chanFwdCncl_state;
     unsigned char *chanFwdCncl_data;
     size_t chanFwdCncl_data_len;
 };
@@ -630,22 +631,22 @@ struct _LIBSSH2_PUBLICKEY {
     uint32_t version;
 
     /* State variables used in publickey_packet_receive() */
-    libssh2_nonblocking_states receive_state;
+    ssh2_NB_states receive_state;
     unsigned char *receive_packet;
     size_t receive_packet_len;
 
     /* State variables used in libssh2_publickey_add_ex() */
-    libssh2_nonblocking_states add_state;
+    ssh2_NB_states add_state;
     unsigned char *add_packet;
     unsigned char *add_s;
 
     /* State variables used in libssh2_publickey_remove_ex() */
-    libssh2_nonblocking_states remove_state;
+    ssh2_NB_states remove_state;
     unsigned char *remove_packet;
     unsigned char *remove_s;
 
     /* State variables used in libssh2_publickey_list_fetch() */
-    libssh2_nonblocking_states listFetch_state;
+    ssh2_NB_states listFetch_state;
     unsigned char *listFetch_s;
     unsigned char listFetch_buffer[12];
     unsigned char *listFetch_data;
@@ -770,17 +771,17 @@ struct _LIBSSH2_SESSION {
 #endif
 
     /* State variables used in libssh2_banner_send() */
-    libssh2_nonblocking_states banner_TxRx_state;
+    ssh2_NB_states banner_TxRx_state;
     char banner_TxRx_banner[8192];
     ssize_t banner_TxRx_total_send;
 
     /* State variables used in kexinit() */
-    libssh2_nonblocking_states kexinit_state;
+    ssh2_NB_states kexinit_state;
     unsigned char *kexinit_data;
     size_t kexinit_data_len;
 
     /* State variables used in libssh2_session_handshake() */
-    libssh2_nonblocking_states startup_state;
+    ssh2_NB_states startup_state;
     unsigned char *startup_data;
     size_t startup_data_len;
     unsigned char startup_service[sizeof("ssh-userauth") + 5 - 1];
@@ -789,26 +790,26 @@ struct _LIBSSH2_SESSION {
     struct key_exchange_state startup_key_state;
 
     /* State variables used in libssh2_session_free() */
-    libssh2_nonblocking_states free_state;
+    ssh2_NB_states free_state;
 
     /* State variables used in libssh2_session_disconnect_ex() */
-    libssh2_nonblocking_states disconnect_state;
+    ssh2_NB_states disconnect_state;
     unsigned char disconnect_data[256 + 13];
     size_t disconnect_data_len;
 
     /* State variables used in ssh2_packet_add() */
-    libssh2_nonblocking_states readPack_state;
+    ssh2_NB_states readPack_state;
     int readPack_encrypted;
 
     /* State variables used in libssh2_userauth_list() */
-    libssh2_nonblocking_states userauth_list_state;
+    ssh2_NB_states userauth_list_state;
     unsigned char *userauth_list_data;
     size_t userauth_list_data_len;
     char *userauth_banner;
     struct packet_requirev_state userauth_list_packet_requirev_state;
 
     /* State variables used in libssh2_userauth_password_ex() */
-    libssh2_nonblocking_states userauth_pswd_state;
+    ssh2_NB_states userauth_pswd_state;
     unsigned char *userauth_pswd_data;
     unsigned char userauth_pswd_data0;
     size_t userauth_pswd_data_len;
@@ -817,7 +818,7 @@ struct _LIBSSH2_SESSION {
     struct packet_requirev_state userauth_pswd_packet_requirev_state;
 
     /* State variables used in libssh2_userauth_hostbased_fromfile_ex() */
-    libssh2_nonblocking_states userauth_host_state;
+    ssh2_NB_states userauth_host_state;
     unsigned char *userauth_host_data;
     size_t userauth_host_data_len;
     unsigned char *userauth_host_packet;
@@ -828,7 +829,7 @@ struct _LIBSSH2_SESSION {
     struct packet_requirev_state userauth_host_packet_requirev_state;
 
     /* State variables used in libssh2_userauth_publickey_fromfile_ex() */
-    libssh2_nonblocking_states userauth_pblc_state;
+    ssh2_NB_states userauth_pblc_state;
     unsigned char *userauth_pblc_data;
     size_t userauth_pblc_data_len;
     unsigned char *userauth_pblc_packet;
@@ -840,7 +841,7 @@ struct _LIBSSH2_SESSION {
     struct packet_requirev_state userauth_pblc_packet_requirev_state;
 
     /* State variables used in libssh2_userauth_keyboard_interactive_ex() */
-    libssh2_nonblocking_states userauth_kybd_state;
+    ssh2_NB_states userauth_kybd_state;
     unsigned char *userauth_kybd_data;
     size_t userauth_kybd_data_len;
     unsigned char *userauth_kybd_packet;
@@ -856,7 +857,7 @@ struct _LIBSSH2_SESSION {
     struct packet_requirev_state userauth_kybd_packet_requirev_state;
 
     /* State variables used in libssh2_channel_open_ex() */
-    libssh2_nonblocking_states open_state;
+    ssh2_NB_states open_state;
     struct packet_requirev_state open_packet_requirev_state;
     LIBSSH2_CHANNEL *open_channel;
     unsigned char *open_packet;
@@ -866,21 +867,21 @@ struct _LIBSSH2_SESSION {
     uint32_t open_local_channel;
 
     /* State variables used in libssh2_channel_direct_tcpip_ex() */
-    libssh2_nonblocking_states direct_state;
+    ssh2_NB_states direct_state;
     unsigned char *direct_message;
     size_t direct_host_len;
     size_t direct_shost_len;
     size_t direct_message_len;
 
     /* State variables used in libssh2_channel_forward_listen_ex() */
-    libssh2_nonblocking_states fwdLstn_state;
+    ssh2_NB_states fwdLstn_state;
     unsigned char *fwdLstn_packet;
     uint32_t fwdLstn_host_len;
     uint32_t fwdLstn_packet_len;
     struct packet_requirev_state fwdLstn_packet_requirev_state;
 
     /* State variables used in libssh2_publickey_init() */
-    libssh2_nonblocking_states pkeyInit_state;
+    ssh2_NB_states pkeyInit_state;
     LIBSSH2_PUBLICKEY *pkeyInit_pkey;
     LIBSSH2_CHANNEL *pkeyInit_channel;
     unsigned char *pkeyInit_data;
@@ -890,7 +891,7 @@ struct _LIBSSH2_SESSION {
     size_t pkeyInit_buffer_sent; /* how much of buffer that has been sent */
 
     /* State variables used in ssh2_packet_add() */
-    libssh2_nonblocking_states packAdd_state;
+    ssh2_NB_states packAdd_state;
     LIBSSH2_CHANNEL *packAdd_channelp; /* keeper of the channel during EAGAIN
                                           states */
     struct packet_queue_listener_state packAdd_Qlstn_state;
@@ -898,14 +899,14 @@ struct _LIBSSH2_SESSION {
     struct packet_authagent_state packAdd_authagent_state;
 
     /* State variables used in fullpacket() */
-    libssh2_nonblocking_states fullpacket_state;
+    ssh2_NB_states fullpacket_state;
     int fullpacket_macstate;
     size_t fullpacket_payload_len;
     int fullpacket_packet_type;
     uint32_t fullpacket_required_type;
 
     /* State variables used in libssh2_sftp_init() */
-    libssh2_nonblocking_states sftpInit_state;
+    ssh2_NB_states sftpInit_state;
     LIBSSH2_SFTP *sftpInit_sftp;
     LIBSSH2_CHANNEL *sftpInit_channel;
     unsigned char sftpInit_buffer[9];   /* sftp_header(5){excludes request_id}
@@ -914,7 +915,7 @@ struct _LIBSSH2_SESSION {
                              sent */
 
     /* State variables used in libssh2_scp_recv2() */
-    libssh2_nonblocking_states scpRecv_state;
+    ssh2_NB_states scpRecv_state;
     unsigned char *scpRecv_command;
     size_t scpRecv_command_len;
     unsigned char scpRecv_response[LIBSSH2_SCP_RESPONSE_BUFLEN];
@@ -926,7 +927,7 @@ struct _LIBSSH2_SESSION {
     LIBSSH2_CHANNEL *scpRecv_channel;
 
     /* State variables used in libssh2_scp_send_ex() */
-    libssh2_nonblocking_states scpSend_state;
+    ssh2_NB_states scpSend_state;
     unsigned char *scpSend_command;
     size_t scpSend_command_len;
     unsigned char scpSend_response[LIBSSH2_SCP_RESPONSE_BUFLEN];
