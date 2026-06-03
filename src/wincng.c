@@ -3321,8 +3321,7 @@ int ssh2_wcng_cipher_init(ssh2_cipher_ctx *h,
         return -1;
     }
 
-    keylen = (ULONG)sizeof(BCRYPT_KEY_DATA_BLOB_HEADER) +
-             algo.dwKeyLength;
+    keylen = (ULONG)sizeof(BCRYPT_KEY_DATA_BLOB_HEADER) + algo.dwKeyLength;
     header = (BCRYPT_KEY_DATA_BLOB_HEADER *)malloc(keylen);
     if(!header) {
         free(pbKeyObject);
