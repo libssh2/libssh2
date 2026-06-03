@@ -320,10 +320,10 @@ int ssh2_md5_final(libssh2_md5_ctx *ctx, unsigned char *out);
 #define libssh2_hmac_ctx HMAC_CTX
 #endif /* USE_OPENSSL_3 */
 
-void ssh2_openssl_crypto_init(void);
-void ssh2_openssl_crypto_exit(void);
-#define ssh2_crypto_init() ssh2_openssl_crypto_init()
-#define ssh2_crypto_exit() ssh2_openssl_crypto_exit()
+void ssh2_openssl_init(void);
+void ssh2_openssl_exit(void);
+#define ssh2_crypto_init() ssh2_openssl_init()
+#define ssh2_crypto_exit() ssh2_openssl_exit()
 
 #if LIBSSH2_RSA
 
