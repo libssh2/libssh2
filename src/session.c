@@ -190,7 +190,7 @@ static int banner_receive(LIBSSH2_SESSION *session)
 }
 
 /*
- * Send the default banner, or the one set via libssh2_setopt_string
+ * Send the default banner, or the one set via libssh2_session_banner_set()
  *
  * Returns LIBSSH2_ERROR_EAGAIN if it would block - and if it does so, you
  * should call this function again as soon as it is likely that more data can
