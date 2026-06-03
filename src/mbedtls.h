@@ -110,8 +110,8 @@
  * mbedTLS backend: Generic functions
  */
 
-#define libssh2_crypto_init() ssh2_mbedtls_init()
-#define libssh2_crypto_exit() ssh2_mbedtls_free()
+#define ssh2_crypto_init() ssh2_mbedtls_init()
+#define ssh2_crypto_exit() ssh2_mbedtls_free()
 
 #define ssh2_random(buf, len) ssh2_mbedtls_random(buf, len)
 

@@ -150,8 +150,8 @@ extern struct libssh2_wincng_ctx wincng_ctx;
  * Windows CNG backend: Generic functions
  */
 
-#define libssh2_crypto_init() ssh2_wincng_init()
-#define libssh2_crypto_exit() ssh2_wincng_free()
+#define ssh2_crypto_init() ssh2_wincng_init()
+#define ssh2_crypto_exit() ssh2_wincng_free()
 
 #define ssh2_random(buf, len) ssh2_wincng_random(buf, len)
 

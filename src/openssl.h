@@ -322,8 +322,8 @@ int ssh2_md5_final(libssh2_md5_ctx *ctx, unsigned char *out);
 
 void ssh2_openssl_crypto_init(void);
 void ssh2_openssl_crypto_exit(void);
-#define libssh2_crypto_init() ssh2_openssl_crypto_init()
-#define libssh2_crypto_exit() ssh2_openssl_crypto_exit()
+#define ssh2_crypto_init() ssh2_openssl_crypto_init()
+#define ssh2_crypto_exit() ssh2_openssl_crypto_exit()
 
 #if LIBSSH2_RSA
 
