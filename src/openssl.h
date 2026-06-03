@@ -236,14 +236,16 @@
 #endif
 
 /* returns 0 in case of failure */
-int ossl_sha1_init(ssh2_sha1_ctx *ctx);
-int ossl_sha1_update(ssh2_sha1_ctx *ctx, const void *data, size_t len);
-int ossl_sha1_final(ssh2_sha1_ctx *ctx, unsigned char *out);
-int ossl_sha1(const unsigned char *message, size_t len, unsigned char *out);
-#define ssh2_sha1_init(x)                ossl_sha1_init(x)
-#define ssh2_sha1_update(ctx, data, len) ossl_sha1_update(&(ctx), data, len)
-#define ssh2_sha1_final(ctx, out)        ossl_sha1_final(&(ctx), out)
-#define ssh2_sha1(x, y, z)               ossl_sha1(x, y, z)
+int ssh2_ossl_sha1_init(ssh2_sha1_ctx *ctx);
+int ssh2_ossl_sha1_update(ssh2_sha1_ctx *ctx, const void *data, size_t len);
+int ssh2_ossl_sha1_final(ssh2_sha1_ctx *ctx, unsigned char *out);
+int ssh2_ossl_sha1(const unsigned char *message, size_t len,
+                   unsigned char *out);
+#define ssh2_sha1_init(x)                ssh2_ossl_sha1_init(x)
+#define ssh2_sha1_update(ctx, data, len) \
+    ssh2_ossl_sha1_update(&(ctx), data, len)
+#define ssh2_sha1_final(ctx, out)        ssh2_ossl_sha1_final(&(ctx), out)
+#define ssh2_sha1(x, y, z)               ssh2_ossl_sha1(x, y, z)
 
 #ifdef HAVE_OPAQUE_STRUCTS
 #define ssh2_sha256_ctx EVP_MD_CTX *
@@ -252,15 +254,17 @@ int ossl_sha1(const unsigned char *message, size_t len, unsigned char *out);
 #endif
 
 /* returns 0 in case of failure */
-int ossl_sha256_init(ssh2_sha256_ctx *ctx);
-int ossl_sha256_update(ssh2_sha256_ctx *ctx, const void *data, size_t len);
-int ossl_sha256_final(ssh2_sha256_ctx *ctx, unsigned char *out);
-int ossl_sha256(const unsigned char *message, size_t len, unsigned char *out);
-#define ssh2_sha256_init(x) ossl_sha256_init(x)
+int ssh2_ossl_sha256_init(ssh2_sha256_ctx *ctx);
+int ssh2_ossl_sha256_update(ssh2_sha256_ctx *ctx, const void *data,
+                            size_t len);
+int ssh2_ossl_sha256_final(ssh2_sha256_ctx *ctx, unsigned char *out);
+int ssh2_ossl_sha256(const unsigned char *message, size_t len,
+                     unsigned char *out);
+#define ssh2_sha256_init(x) ssh2_ossl_sha256_init(x)
 #define ssh2_sha256_update(ctx, data, len) \
-    ossl_sha256_update(&(ctx), data, len)
-#define ssh2_sha256_final(ctx, out) ossl_sha256_final(&(ctx), out)
-#define ssh2_sha256(x, y, z)        ossl_sha256(x, y, z)
+    ssh2_ossl_sha256_update(&(ctx), data, len)
+#define ssh2_sha256_final(ctx, out) ssh2_ossl_sha256_final(&(ctx), out)
+#define ssh2_sha256(x, y, z)        ssh2_ossl_sha256(x, y, z)
 
 #ifdef HAVE_OPAQUE_STRUCTS
 #define ssh2_sha384_ctx EVP_MD_CTX *
@@ -269,15 +273,17 @@ int ossl_sha256(const unsigned char *message, size_t len, unsigned char *out);
 #endif
 
 /* returns 0 in case of failure */
-int ossl_sha384_init(ssh2_sha384_ctx *ctx);
-int ossl_sha384_update(ssh2_sha384_ctx *ctx, const void *data, size_t len);
-int ossl_sha384_final(ssh2_sha384_ctx *ctx, unsigned char *out);
-int ossl_sha384(const unsigned char *message, size_t len, unsigned char *out);
-#define ssh2_sha384_init(x) ossl_sha384_init(x)
+int ssh2_ossl_sha384_init(ssh2_sha384_ctx *ctx);
+int ssh2_ossl_sha384_update(ssh2_sha384_ctx *ctx, const void *data,
+                            size_t len);
+int ssh2_ossl_sha384_final(ssh2_sha384_ctx *ctx, unsigned char *out);
+int ssh2_ossl_sha384(const unsigned char *message, size_t len,
+                     unsigned char *out);
+#define ssh2_sha384_init(x) ssh2_ossl_sha384_init(x)
 #define ssh2_sha384_update(ctx, data, len) \
-    ossl_sha384_update(&(ctx), data, len)
-#define ssh2_sha384_final(ctx, out) ossl_sha384_final(&(ctx), out)
-#define ssh2_sha384(x, y, z)        ossl_sha384(x, y, z)
+    ssh2_ossl_sha384_update(&(ctx), data, len)
+#define ssh2_sha384_final(ctx, out) ssh2_ossl_sha384_final(&(ctx), out)
+#define ssh2_sha384(x, y, z)        ssh2_ossl_sha384(x, y, z)
 
 #ifdef HAVE_OPAQUE_STRUCTS
 #define ssh2_sha512_ctx EVP_MD_CTX *
@@ -286,15 +292,17 @@ int ossl_sha384(const unsigned char *message, size_t len, unsigned char *out);
 #endif
 
 /* returns 0 in case of failure */
-int ossl_sha512_init(ssh2_sha512_ctx *ctx);
-int ossl_sha512_update(ssh2_sha512_ctx *ctx, const void *data, size_t len);
-int ossl_sha512_final(ssh2_sha512_ctx *ctx, unsigned char *out);
-int ossl_sha512(const unsigned char *message, size_t len, unsigned char *out);
-#define ssh2_sha512_init(x) ossl_sha512_init(x)
+int ssh2_ossl_sha512_init(ssh2_sha512_ctx *ctx);
+int ssh2_ossl_sha512_update(ssh2_sha512_ctx *ctx, const void *data,
+                            size_t len);
+int ssh2_ossl_sha512_final(ssh2_sha512_ctx *ctx, unsigned char *out);
+int ssh2_ossl_sha512(const unsigned char *message, size_t len,
+                     unsigned char *out);
+#define ssh2_sha512_init(x) ssh2_ossl_sha512_init(x)
 #define ssh2_sha512_update(ctx, data, len) \
-    ossl_sha512_update(&(ctx), data, len)
-#define ssh2_sha512_final(ctx, out) ossl_sha512_final(&(ctx), out)
-#define ssh2_sha512(x, y, z)        ossl_sha512(x, y, z)
+    ssh2_ossl_sha512_update(&(ctx), data, len)
+#define ssh2_sha512_final(ctx, out) ssh2_ossl_sha512_final(&(ctx), out)
+#define ssh2_sha512(x, y, z)        ssh2_ossl_sha512(x, y, z)
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #ifdef HAVE_OPAQUE_STRUCTS
@@ -304,12 +312,12 @@ int ossl_sha512(const unsigned char *message, size_t len, unsigned char *out);
 #endif
 
 /* returns 0 in case of failure */
-int ossl_md5_init(ssh2_md5_ctx *ctx);
-int ossl_md5_update(ssh2_md5_ctx *ctx, const void *data, size_t len);
-int ossl_md5_final(ssh2_md5_ctx *ctx, unsigned char *out);
-#define ssh2_md5_init(x)                ossl_md5_init(x)
-#define ssh2_md5_update(ctx, data, len) ossl_md5_update(&(ctx), data, len)
-#define ssh2_md5_final(ctx, out)        ossl_md5_final(&(ctx), out)
+int ssh2_ossl_md5_init(ssh2_md5_ctx *ctx);
+int ssh2_ossl_md5_update(ssh2_md5_ctx *ctx, const void *data, size_t len);
+int ssh2_ossl_md5_final(ssh2_md5_ctx *ctx, unsigned char *out);
+#define ssh2_md5_init(x)                ssh2_ossl_md5_init(x)
+#define ssh2_md5_update(ctx, data, len) ssh2_ossl_md5_update(&(ctx), data, len)
+#define ssh2_md5_final(ctx, out)        ssh2_ossl_md5_final(&(ctx), out)
 #endif /* LIBSSH2_MD5 || LIBSSH2_MD5_PEM */
 
 #ifdef USE_OPENSSL_3

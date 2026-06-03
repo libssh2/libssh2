@@ -424,15 +424,15 @@ int ssh2_rsa_sha2_verify(libssh2_rsa_ctx *rsactx,
 
     if(hash_len == SHA_DIGEST_LENGTH) {
         nid_type = NID_sha1;
-        ret = ossl_sha1(m, m_len, hash);
+        ret = ssh2_ossl_sha1(m, m_len, hash);
     }
     else if(hash_len == SHA256_DIGEST_LENGTH) {
         nid_type = NID_sha256;
-        ret = ossl_sha256(m, m_len, hash);
+        ret = ssh2_ossl_sha256(m, m_len, hash);
     }
     else if(hash_len == SHA512_DIGEST_LENGTH) {
         nid_type = NID_sha512;
-        ret = ossl_sha512(m, m_len, hash);
+        ret = ssh2_ossl_sha512(m, m_len, hash);
     }
     else {
 /* silence:
@@ -673,8 +673,8 @@ int ssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
     ctx = EVP_PKEY_CTX_new(dsactx, NULL);
     der_len = i2d_DSA_SIG(dsasig, &der);
 
-    if(ctx && !ossl_sha1(m, m_len, hash)) {
-        /* ossl_sha1() succeeded */
+    if(ctx && !ssh2_ossl_sha1(m, m_len, hash)) {
+        /* ssh2_ossl_sha1() succeeded */
         if(EVP_PKEY_verify_init(ctx) > 0) {
             ret = EVP_PKEY_verify(ctx, der, der_len, hash, SHA_DIGEST_LENGTH);
         }
@@ -688,8 +688,8 @@ int ssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
         OPENSSL_clear_free(der, der_len);
     }
 #else
-    if(!ossl_sha1(m, m_len, hash))
-        /* ossl_sha1() succeeded */
+    if(!ssh2_ossl_sha1(m, m_len, hash))
+        /* ssh2_ossl_sha1() succeeded */
         ret = DSA_do_verify(hash, SHA_DIGEST_LENGTH, dsasig, dsactx);
 #endif
 
@@ -3095,7 +3095,7 @@ clean_exit:
 }
 #endif /* LIBSSH2_ECDSA */
 
-int ossl_sha1_init(ssh2_sha1_ctx *ctx)
+int ssh2_ossl_sha1_init(ssh2_sha1_ctx *ctx)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     *ctx = EVP_MD_CTX_new();
@@ -3116,7 +3116,7 @@ int ossl_sha1_init(ssh2_sha1_ctx *ctx)
 #endif
 }
 
-int ossl_sha1_update(ssh2_sha1_ctx *ctx, const void *data, size_t len)
+int ssh2_ossl_sha1_update(ssh2_sha1_ctx *ctx, const void *data, size_t len)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     return EVP_DigestUpdate(*ctx, data, len);
@@ -3125,7 +3125,7 @@ int ossl_sha1_update(ssh2_sha1_ctx *ctx, const void *data, size_t len)
 #endif
 }
 
-int ossl_sha1_final(ssh2_sha1_ctx *ctx, unsigned char *out)
+int ssh2_ossl_sha1_final(ssh2_sha1_ctx *ctx, unsigned char *out)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     int ret = EVP_DigestFinal(*ctx, out, NULL);
@@ -3136,7 +3136,7 @@ int ossl_sha1_final(ssh2_sha1_ctx *ctx, unsigned char *out)
 #endif
 }
 
-int ossl_sha1(const unsigned char *message, size_t len, unsigned char *out)
+int ssh2_ossl_sha1(const unsigned char *message, size_t len, unsigned char *out)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
@@ -3164,7 +3164,7 @@ int ossl_sha1(const unsigned char *message, size_t len, unsigned char *out)
     return 1; /* error */
 }
 
-int ossl_sha256_init(ssh2_sha256_ctx *ctx)
+int ssh2_ossl_sha256_init(ssh2_sha256_ctx *ctx)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     *ctx = EVP_MD_CTX_new();
@@ -3185,7 +3185,7 @@ int ossl_sha256_init(ssh2_sha256_ctx *ctx)
 #endif
 }
 
-int ossl_sha256_update(ssh2_sha256_ctx *ctx, const void *data, size_t len)
+int ssh2_ossl_sha256_update(ssh2_sha256_ctx *ctx, const void *data, size_t len)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     return EVP_DigestUpdate(*ctx, data, len);
@@ -3194,7 +3194,7 @@ int ossl_sha256_update(ssh2_sha256_ctx *ctx, const void *data, size_t len)
 #endif
 }
 
-int ossl_sha256_final(ssh2_sha256_ctx *ctx, unsigned char *out)
+int ssh2_ossl_sha256_final(ssh2_sha256_ctx *ctx, unsigned char *out)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     int ret = EVP_DigestFinal(*ctx, out, NULL);
@@ -3205,7 +3205,7 @@ int ossl_sha256_final(ssh2_sha256_ctx *ctx, unsigned char *out)
 #endif
 }
 
-int ossl_sha256(const unsigned char *message, size_t len, unsigned char *out)
+int ssh2_ossl_sha256(const unsigned char *message, size_t len, unsigned char *out)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
@@ -3233,7 +3233,7 @@ int ossl_sha256(const unsigned char *message, size_t len, unsigned char *out)
     return 1; /* error */
 }
 
-int ossl_sha384_init(ssh2_sha384_ctx *ctx)
+int ssh2_ossl_sha384_init(ssh2_sha384_ctx *ctx)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     *ctx = EVP_MD_CTX_new();
@@ -3254,7 +3254,7 @@ int ossl_sha384_init(ssh2_sha384_ctx *ctx)
 #endif
 }
 
-int ossl_sha384_update(ssh2_sha384_ctx *ctx, const void *data, size_t len)
+int ssh2_ossl_sha384_update(ssh2_sha384_ctx *ctx, const void *data, size_t len)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     return EVP_DigestUpdate(*ctx, data, len);
@@ -3263,7 +3263,7 @@ int ossl_sha384_update(ssh2_sha384_ctx *ctx, const void *data, size_t len)
 #endif
 }
 
-int ossl_sha384_final(ssh2_sha384_ctx *ctx, unsigned char *out)
+int ssh2_ossl_sha384_final(ssh2_sha384_ctx *ctx, unsigned char *out)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     int ret = EVP_DigestFinal(*ctx, out, NULL);
@@ -3274,7 +3274,7 @@ int ossl_sha384_final(ssh2_sha384_ctx *ctx, unsigned char *out)
 #endif
 }
 
-int ossl_sha384(const unsigned char *message, size_t len, unsigned char *out)
+int ssh2_ossl_sha384(const unsigned char *message, size_t len, unsigned char *out)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
@@ -3302,7 +3302,7 @@ int ossl_sha384(const unsigned char *message, size_t len, unsigned char *out)
     return 1; /* error */
 }
 
-int ossl_sha512_init(ssh2_sha512_ctx *ctx)
+int ssh2_ossl_sha512_init(ssh2_sha512_ctx *ctx)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     *ctx = EVP_MD_CTX_new();
@@ -3323,7 +3323,7 @@ int ossl_sha512_init(ssh2_sha512_ctx *ctx)
 #endif
 }
 
-int ossl_sha512_update(ssh2_sha512_ctx *ctx, const void *data, size_t len)
+int ssh2_ossl_sha512_update(ssh2_sha512_ctx *ctx, const void *data, size_t len)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     return EVP_DigestUpdate(*ctx, data, len);
@@ -3332,7 +3332,7 @@ int ossl_sha512_update(ssh2_sha512_ctx *ctx, const void *data, size_t len)
 #endif
 }
 
-int ossl_sha512_final(ssh2_sha512_ctx *ctx, unsigned char *out)
+int ssh2_ossl_sha512_final(ssh2_sha512_ctx *ctx, unsigned char *out)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     int ret = EVP_DigestFinal(*ctx, out, NULL);
@@ -3343,7 +3343,7 @@ int ossl_sha512_final(ssh2_sha512_ctx *ctx, unsigned char *out)
 #endif
 }
 
-int ossl_sha512(const unsigned char *message, size_t len, unsigned char *out)
+int ssh2_ossl_sha512(const unsigned char *message, size_t len, unsigned char *out)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
@@ -3372,7 +3372,7 @@ int ossl_sha512(const unsigned char *message, size_t len, unsigned char *out)
 }
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-int ossl_md5_init(ssh2_md5_ctx *ctx)
+int ssh2_ossl_md5_init(ssh2_md5_ctx *ctx)
 {
     /* MD5 digest is not supported in OpenSSL FIPS mode
      * Trying to init it results in a latent OpenSSL error:
@@ -3406,7 +3406,7 @@ int ossl_md5_init(ssh2_md5_ctx *ctx)
 #endif
 }
 
-int ossl_md5_update(ssh2_md5_ctx *ctx, const void *data, size_t len)
+int ssh2_ossl_md5_update(ssh2_md5_ctx *ctx, const void *data, size_t len)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     return EVP_DigestUpdate(*ctx, data, len);
@@ -3415,7 +3415,7 @@ int ossl_md5_update(ssh2_md5_ctx *ctx, const void *data, size_t len)
 #endif
 }
 
-int ossl_md5_final(ssh2_md5_ctx *ctx, unsigned char *out)
+int ssh2_ossl_md5_final(ssh2_md5_ctx *ctx, unsigned char *out)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     int ret = EVP_DigestFinal(*ctx, out, NULL);
