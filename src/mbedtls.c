@@ -1021,7 +1021,7 @@ cleanup:
     do {                                                                      \
         unsigned char hsh[SHA##digest_type##_DIGEST_LENGTH];                  \
                                                                               \
-        if(libssh2_sha##digest_type(m, m_len, hsh) == 0) {                    \
+        if(ssh2_sha##digest_type(m, m_len, hsh) == 0) {                       \
             rc = mbedtls_ecdsa_verify(&ec_ctx->MBEDTLS_PRIVATE(grp), hsh,     \
                                       SHA##digest_type##_DIGEST_LENGTH,       \
                                       &ec_ctx->MBEDTLS_PRIVATE(Q), &pr, &ps); \
