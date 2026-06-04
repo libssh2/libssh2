@@ -250,7 +250,7 @@ static inline void swap_bytes(unsigned char *buf, unsigned long len)
 }
 #endif
 
-int ssh2_random(void *buf, size_t len)
+int ssh2_random(unsigned char *buf, size_t len)
 {
     if(len > INT_MAX) {
         return -1;

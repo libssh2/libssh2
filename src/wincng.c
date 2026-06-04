@@ -709,7 +709,7 @@ void ssh2_wcng_crypto_exit(void)
     memset(&ssh2_wcng, 0, sizeof(ssh2_wcng));
 }
 
-int ssh2_random(void *buf, size_t len)
+int ssh2_random(unsigned char *buf, size_t len)
 {
     int ret;
 
