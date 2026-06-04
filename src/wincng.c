@@ -3449,7 +3449,7 @@ void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx)
  * Windows CNG backend: Diffie-Hellman support.
  */
 
-void ssh2_wcng_dh_init(ssh2_dh_ctx *dhctx)
+void ssh2_dh_init(ssh2_dh_ctx *dhctx)
 {
     /* Random from client */
     dhctx->dh_handle = NULL;
@@ -3457,7 +3457,7 @@ void ssh2_wcng_dh_init(ssh2_dh_ctx *dhctx)
     dhctx->dh_privbn = NULL;
 }
 
-void ssh2_wcng_dh_dtor(ssh2_dh_ctx *dhctx)
+void ssh2_dh_dtor(ssh2_dh_ctx *dhctx)
 {
     if(dhctx->dh_handle) {
         BCryptDestroyKey(dhctx->dh_handle);
