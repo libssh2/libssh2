@@ -939,7 +939,7 @@ Releases the ED25519 computation context at ed25519ctx.
 
 8) Miscellaneous
 
-void libssh2_prepare_iovec(struct iovec *vector, unsigned int len);
+void ssh2_prepare_iovec(struct iovec *vector, unsigned int len);
 Prepare len consecutive iovec slots before using them.
 In example, this is needed to preset unused structure slacks on platforms
 requiring it.
