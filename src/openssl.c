@@ -2571,10 +2571,8 @@ int ssh2_ed25519_new_private_frommemory(ssh2_ed25519_ctx **ed_ctx,
     ssh2_init_if_needed();
 
     if(read_private_key_from_memory((void **)&ctx,
-                                    (pem_read_bio_func)
-                                    &PEM_read_bio_PrivateKey,
-                                    filedata, filedata_len,
-                                    passphrase) == 0) {
+                                   (pem_read_bio_func)&PEM_read_bio_PrivateKey,
+                                    filedata, filedata_len, passphrase) == 0) {
         if(EVP_PKEY_id(ctx) != EVP_PKEY_ED25519) {
             ssh2_ed25519_free(ctx);
             return ssh2_err(session, LIBSSH2_ERROR_PROTO,
