@@ -2233,7 +2233,7 @@ static void wcng_reverse_bytes(IN PUCHAR buffer, IN size_t buffer_len)
 /*
  * Windows CNG backend: ECDSA functions
  */
-void ssh2_wcng_ecdsa_free(IN struct wcng_ecdsa_ctx *key)
+void ssh2_ecdsa_free(IN ssh2_ecdsa_ctx *key)
 {
     if(!key) {
         return;
@@ -2329,8 +2329,8 @@ cleanup:
 /*
  * Creates an ECDSA public key from an uncompressed point.
  */
-int ssh2_wcng_ecdsa_curve_name_with_octal_new(
-    OUT struct wcng_ecdsa_ctx **key,
+int ssh2_ecdsa_curve_name_with_octal_new(
+    OUT ssh2_ecdsa_ctx **key,
     IN const unsigned char *publickey_encoded,
     IN size_t publickey_encoded_len,
     IN ssh2_curve_type curve)
@@ -2521,13 +2521,13 @@ static int wcng_ecdsa_curve_type_from_name(IN const char *name,
 /*
  * Verifies the ECDSA signature of a hashed message
  */
-int ssh2_wcng_ecdsa_verify(IN struct wcng_ecdsa_ctx *key,
-                           IN const unsigned char *r,
-                           IN size_t r_len,
-                           IN const unsigned char *s,
-                           IN size_t s_len,
-                           IN const unsigned char *m,
-                           IN size_t m_len)
+int ssh2_ecdsa_verify(IN ssh2_ecdsa_ctx *key,
+                      IN const unsigned char *r,
+                      IN size_t r_len,
+                      IN const unsigned char *s,
+                      IN size_t s_len,
+                      IN const unsigned char *m,
+                      IN size_t m_len)
 {
     int result = LIBSSH2_ERROR_NONE;
     NTSTATUS status;
@@ -2544,7 +2544,7 @@ int ssh2_wcng_ecdsa_verify(IN struct wcng_ecdsa_ctx *key,
         r_len,
         s,
         s_len,
-        ssh2_wcng_ecdsa_get_curve_type(key),
+        ssh2_ecdsa_get_curve_type(key),
         &signature_p1363,
         &signature_p1363_len);
     if(result != LIBSSH2_ERROR_NONE) {
@@ -2552,7 +2552,7 @@ int ssh2_wcng_ecdsa_verify(IN struct wcng_ecdsa_ctx *key,
     }
 
     /* Create hash over m */
-    switch(ssh2_wcng_ecdsa_get_curve_type(key)) {
+    switch(ssh2_ecdsa_get_curve_type(key)) {
     case SSH2_EC_CURVE_NISTP256:
         hash_len = 256 / 8;
         hash_alg = ssh2_wcng.hAlgHashSHA256;
@@ -2614,10 +2614,10 @@ cleanup:
 /*
  * Creates a new private key given a file path and password
  */
-int ssh2_wcng_ecdsa_new_private(OUT struct wcng_ecdsa_ctx **key,
-                                IN LIBSSH2_SESSION *session,
-                                IN const char *filename,
-                                IN const unsigned char *passphrase)
+int ssh2_ecdsa_new_private(OUT ssh2_ecdsa_ctx **key,
+                           IN LIBSSH2_SESSION *session,
+                           IN const char *filename,
+                           IN const unsigned char *passphrase)
 {
     int result;
 
@@ -2656,7 +2656,7 @@ int ssh2_wcng_ecdsa_new_private(OUT struct wcng_ecdsa_ctx **key,
         goto cleanup;
     }
 
-    result = ssh2_wcng_ecdsa_new_private_frommemory(
+    result = ssh2_ecdsa_new_private_frommemory(
         key,
         session,
         (const char *)data,
@@ -2802,11 +2802,11 @@ cleanup:
  * ECDSA private key files use the decoding defined in PROTOCOL.key
  * in the OpenSSL source tree.
  */
-int ssh2_wcng_ecdsa_new_private_frommemory(OUT struct wcng_ecdsa_ctx **key,
-                                           IN LIBSSH2_SESSION *session,
-                                           IN const char *data,
-                                           IN size_t data_len,
-                                           IN const unsigned char *passphrase)
+int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **key,
+                                      IN LIBSSH2_SESSION *session,
+                                      IN const char *data,
+                                      IN size_t data_len,
+                                      IN const unsigned char *passphrase)
 {
     int result;
 
@@ -2899,12 +2899,12 @@ cleanup:
 /*
  * Computes the ECDSA signature of a previously-hashed message
  */
-int ssh2_wcng_ecdsa_sign(IN LIBSSH2_SESSION *session,
-                         IN struct wcng_ecdsa_ctx *key,
-                         IN const unsigned char *hash,
-                         IN size_t hash_len,
-                         OUT unsigned char **signature,
-                         OUT size_t *signature_len)
+int ssh2_ecdsa_sign(IN LIBSSH2_SESSION *session,
+                    IN struct wcng_ecdsa_ctx *key,
+                    IN const unsigned char *hash,
+                    IN size_t hash_len,
+                    OUT unsigned char **signature,
+                    OUT size_t *signature_len)
 {
     NTSTATUS status;
     int result = LIBSSH2_ERROR_NONE;
@@ -3010,7 +3010,7 @@ cleanup:
 /*
  * returns key curve type that maps to ssh2_curve_type
  */
-ssh2_curve_type ssh2_wcng_ecdsa_get_curve_type(IN struct wcng_ecdsa_ctx *key)
+ssh2_curve_type ssh2_ecdsa_get_curve_type(IN ssh2_ecdsa_ctx *key)
 {
     return key->curve;
 }

@@ -316,29 +316,12 @@ struct wcng_ecdsa_ctx {
 #if LIBSSH2_ECDSA
 #define ssh2_ec_key struct wcng_ecdsa_ctx
 #endif
-void ssh2_wcng_ecdsa_free(ssh2_ecdsa_ctx* ctx);
 #define ssh2_ecdsa_create_key(session, privkey, pubkey_octal, \
                               pubkey_octal_len, curve) \
     ssh2_wcng_ecdh_create_key(session, privkey, pubkey_octal, \
                               pubkey_octal_len, curve)
-#define ssh2_ecdsa_curve_name_with_octal_new(ctx, k, k_len, curve) \
-    ssh2_wcng_ecdsa_curve_name_with_octal_new(ctx, k, k_len, curve)
 #define ssh2_ecdh_gen_k(k, privkey, server_pubkey, server_pubkey_len) \
     ssh2_wcng_ecdh_gen_k(k, privkey, server_pubkey, server_pubkey_len)
-#define ssh2_ecdsa_verify(ctx, r, r_len, s, s_len, m, m_len) \
-    ssh2_wcng_ecdsa_verify(ctx, r, r_len, s, s_len, m, m_len)
-#define ssh2_ecdsa_new_private(ctx, session, filename, passphrase) \
-    ssh2_wcng_ecdsa_new_private(ctx, session, filename, passphrase)
-#define ssh2_ecdsa_new_private_frommemory(ctx, session, filedata, \
-                                          filedata_len, passphrase) \
-    ssh2_wcng_ecdsa_new_private_frommemory(ctx, session, filedata, \
-                                           filedata_len, passphrase)
-#define ssh2_ecdsa_sign(session, ctx, hash, hash_len, sign, sign_len) \
-    ssh2_wcng_ecdsa_sign(session, ctx, hash, hash_len, sign, sign_len)
-#define ssh2_ecdsa_get_curve_type(ctx) \
-    ssh2_wcng_ecdsa_get_curve_type(ctx)
-#define ssh2_ecdsa_free(ecdsactx) \
-    ssh2_wcng_ecdsa_free(ecdsactx)
 
 /*******************************************************************/
 /*
