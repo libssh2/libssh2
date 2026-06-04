@@ -223,6 +223,11 @@
 
 #include "crypto_config.h"
 
+#define ssh2_crypto_init() ssh2_ossl_crypto_init()
+#define ssh2_crypto_exit()
+
+void ssh2_ossl_crypto_init(void);
+
 #define ssh2_prepare_iovec(vec, len)  /* Empty. */
 
 #ifdef HAVE_OPAQUE_STRUCTS
