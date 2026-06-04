@@ -58,8 +58,9 @@ SPDX-License-Identifier: BSD-3-Clause
 
 * Rename a few functions:
   ```
-  libssh2_hostkey_hash => libssh2_session_hostkey_hash
-  libssh2_banner_set => libssh2_session_banner_set
+  libssh2_hostkey_hash() => libssh2_session_hostkey_hash()
+  libssh2_banner_set() => libssh2_session_banner_set()
+  libssh2_sign_sk() => libssh2_userauth_sign_sk()
   ```
 
 * change `int` to `libssh2_socket_t` in the public API for sockets.
