@@ -148,9 +148,7 @@ static void wcng_memcpy_with_be_padding(unsigned char *dest, ULONG dest_len,
 
 ssh2_bn *ssh2_wcng_bn_init(void)
 {
-    ssh2_bn *bignum;
-
-    bignum = (ssh2_bn *)malloc(sizeof(ssh2_bn));
+    ssh2_bn *bignum = malloc(sizeof(ssh2_bn));
     if(bignum) {
         bignum->bignum = NULL;
         bignum->length = 0;
@@ -238,7 +236,7 @@ static int wcng_bn_mod_exp(ssh2_bn *r, ssh2_bn *a, ssh2_bn *p, ssh2_bn *m)
     offset = sizeof(BCRYPT_RSAKEY_BLOB);
     keylen = offset + p->length + m->length;
 
-    rsakey = (BCRYPT_RSAKEY_BLOB *)malloc(keylen);
+    rsakey = malloc(keylen);
     if(!rsakey)
         return -1;
 
@@ -1121,7 +1119,7 @@ static int wcng_bn_ltob(unsigned char *pbInput,
         cbOutput += offset;
     }
 
-    pbOutput = (unsigned char *)malloc(cbOutput);
+    pbOutput = malloc(cbOutput);
     if(!pbOutput) {
         return -1;
     }
@@ -1280,7 +1278,7 @@ int ssh2_wcng_rsa_new(ssh2_rsa_ctx **rsa,
         keylen += p1len * 3 + p2len * 2 + mlen;
     }
 
-    rsakey = (BCRYPT_RSAKEY_BLOB *)malloc(keylen);
+    rsakey = malloc(keylen);
     if(!rsakey) {
         return -1;
     }
@@ -1638,7 +1636,7 @@ int ssh2_wcng_dsa_new(ssh2_dsa_ctx **dsa,
     if(xdata && xlen > 0)
         keylen += 20;
 
-    dsakey = (BCRYPT_DSA_KEY_BLOB *)malloc(keylen);
+    dsakey = malloc(keylen);
     if(!dsakey) {
         return -1;
     }
@@ -3303,7 +3301,7 @@ int ssh2_wcng_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
     }
 
     keylen = (ULONG)sizeof(BCRYPT_KEY_DATA_BLOB_HEADER) + algo.dwKeyLength;
-    header = (BCRYPT_KEY_DATA_BLOB_HEADER *)malloc(keylen);
+    header = malloc(keylen);
     if(!header) {
         free(pbKeyObject);
         return -1;
@@ -3531,7 +3529,7 @@ int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
         }
 
         dh_params_len = (ULONG)sizeof(*dh_params) + 2 * key_length_bytes;
-        dh_params = (BCRYPT_DH_PARAMETER_HEADER *)malloc(dh_params_len);
+        dh_params = malloc(dh_params_len);
         if(!dh_params) {
             return -1;
         }
@@ -3591,7 +3589,7 @@ int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
             return -1;
         }
 
-        dh_key_blob = (BCRYPT_DH_KEY_BLOB *)malloc(key_length_bytes);
+        dh_key_blob = malloc(key_length_bytes);
         if(!dh_key_blob) {
             return -1;
         }
@@ -3709,7 +3707,7 @@ int ssh2_wcng_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
             unsigned char *dest;
             unsigned char *src;
 
-            public_blob = (BCRYPT_DH_KEY_BLOB *)malloc(public_blob_len);
+            public_blob = malloc(public_blob_len);
             if(!public_blob) {
                 return -1;
             }

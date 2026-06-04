@@ -372,7 +372,7 @@ ssh2_bn *ssh2_bn_init(void)
 {
     ssh2_bn *bignum;
 
-    bignum = (ssh2_bn *)malloc(sizeof(*bignum));
+    bignum = malloc(sizeof(*bignum));
     if(bignum) {
         bignum->bignum = NULL;
         bignum->length = 0;
@@ -405,7 +405,7 @@ static int bn_resize(ssh2_bn *bn, size_t newlen)
         return 0;
 
     if(!bn->bignum)
-        bignum = (unsigned char *)malloc(newlen);
+        bignum = malloc(newlen);
     else {
         if(newlen < bn->length)
             ssh2_explicit_zero(bn->bignum + newlen, bn->length - newlen);
@@ -416,7 +416,7 @@ static int bn_resize(ssh2_bn *bn, size_t newlen)
             bn->length = 0;
             return 0;
         }
-        bignum = (unsigned char *)realloc((char *)bn->bignum, newlen);
+        bignum = realloc((char *)bn->bignum, newlen);
     }
 
     if(!bignum)
@@ -569,14 +569,14 @@ static struct asn1Element *asn1_new(unsigned int type, unsigned int length)
     unsigned int i;
     unsigned char *buf;
 
-    e = (struct asn1Element *)malloc(sizeof(*e));
+    e = malloc(sizeof(*e));
 
     if(e) {
         if(length >= 0x80)
             for(i = length; i; i >>= 8)
                 hdrl++;
 
-        buf = (unsigned char *)malloc(hdrl + length);
+        buf = malloc(hdrl + length);
 
         if(buf) {
             e->header = buf;
@@ -874,7 +874,7 @@ static struct os400qc3_crypto_ctx *init_crypto_ctx(
     struct os400qc3_crypto_ctx *ctx)
 {
     if(!ctx)
-        ctx = (struct os400qc3_crypto_ctx *)malloc(sizeof(*ctx));
+        ctx = malloc(sizeof(*ctx));
 
     if(ctx) {
         memset((char *)ctx, 0, sizeof(*ctx));
@@ -1963,7 +1963,7 @@ static int pkcs1topkcs8(LIBSSH2_SESSION *session,
     }
     if(!pkcs8)
         return -1;
-    data = (unsigned char *)SSH2_ALLOC(session, pkcs8->end - pkcs8->header);
+    data = SSH2_ALLOC(session, pkcs8->end - pkcs8->header);
     if(!data) {
         asn1delete(pkcs8);
         return -1;

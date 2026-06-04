@@ -120,7 +120,7 @@ static voidpf comp_method_zlib_alloc(voidpf opaque, uInt items, uInt size)
     if(items && (SIZE_MAX / (size_t)items) < (size_t)size)
         return NULL;
 
-    return (voidpf)SSH2_ALLOC(session, items * (size_t)size);
+    return SSH2_ALLOC(session, items * (size_t)size);
 }
 
 static void comp_method_zlib_free(voidpf opaque, voidpf address)
@@ -239,7 +239,7 @@ static int comp_method_zlib_decomp(LIBSSH2_SESSION *session,
 
     strm->next_in = (z_const Bytef *)src;
     strm->avail_in = (uInt)src_len;
-    strm->next_out = (Bytef *)SSH2_ALLOC(session, (uInt)out_maxlen);
+    strm->next_out = SSH2_ALLOC(session, (uInt)out_maxlen);
     out = (char *)strm->next_out;
     strm->avail_out = (uInt)out_maxlen;
     if(!strm->next_out)

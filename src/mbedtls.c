@@ -436,7 +436,7 @@ int ssh2_mbed_rsa_new_private(ssh2_rsa_ctx **rsa,
     mbedtls_pk_context pkey;
     mbedtls_rsa_context *pk_rsa;
 
-    *rsa = (ssh2_rsa_ctx *)SSH2_ALLOC(session, sizeof(ssh2_rsa_ctx));
+    *rsa = SSH2_ALLOC(session, sizeof(ssh2_rsa_ctx));
     if(!*rsa)
         return -1;
 

@@ -965,8 +965,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
         }
 
         if(extdata_len > 0) {
-            char *extversion_str;
-            extversion_str = (char *)SSH2_ALLOC(session, extdata_len + 1);
+            char *extversion_str = SSH2_ALLOC(session, extdata_len + 1);
             if(!extversion_str) {
                 ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                          "Unable to allocate memory for SSH_FXP_VERSION "
