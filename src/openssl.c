@@ -5139,9 +5139,9 @@ int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *val)
 /*
  * Return supported key hash algo upgrades, see crypto.h
  */
-const char *ssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
-                                               unsigned char *key_method,
-                                               size_t key_method_len)
+const char *ssh2_supported_key_sign_algs(LIBSSH2_SESSION *session,
+                                         unsigned char *key_method,
+                                         size_t key_method_len)
 {
     (void)session;
 

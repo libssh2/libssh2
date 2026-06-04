@@ -1375,7 +1375,7 @@ static int is_version_less_than_78(const char *version)
  * @discussion Based on the incoming key_method value, this function
  * Upgrades the key method input based on user preferences,
  * server support algos and crypto backend support
- * @related ssh2_supported_key_sign_algorithms()
+ * @related ssh2_supported_key_sign_algs()
  * @param key_method current key method, usually the default key sig method
  * @param key_method_len length of the key method buffer
  * @result error code or zero on success
@@ -1403,8 +1403,7 @@ static int key_sign_algorithm(LIBSSH2_SESSION *session,
     const char * const remote_ver_pre = "OpenSSH_";
 
     const char *supported_algs =
-        ssh2_supported_key_sign_algorithms(session, *key_method,
-                                           *key_method_len);
+        ssh2_supported_key_sign_algs(session, *key_method, *key_method_len);
 
     if(!supported_algs || !session->server_sign_algorithms) {
         /* no upgrading key algorithm supported, do nothing */
