@@ -88,6 +88,8 @@ struct crypt_ctx {
     struct chachapoly_ctx chachapoly_ctx;
 };
 
+#if LIBSSH2_AES_GCM || LIBSSH2_AES_CTR || LIBSSH2_AES_CBC || \
+    LIBSSH2_BLOWFISH || LIBSSH2_RC4 || LIBSSH2_CAST || LIBSSH2_3DES
 static int crypt_init(LIBSSH2_SESSION *session,
                       const struct crypt_method *method,
                       unsigned char *iv, int *free_iv,
@@ -134,6 +136,7 @@ static int crypt_dtor(LIBSSH2_SESSION *session, void **abstract)
     }
     return 0;
 }
+#endif
 
 #if LIBSSH2_AES_GCM
 static const struct crypt_method crypt_method_aes256_gcm = {
