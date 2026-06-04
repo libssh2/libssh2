@@ -295,6 +295,8 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                       int encrypt, unsigned char *block, size_t blocksize,
                       int firstlast);
 
+void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx);
+
 int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                           unsigned char **method,
                           size_t *method_len,

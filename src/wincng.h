@@ -395,17 +395,6 @@ struct wcng_cipher_t {
 #define ssh2_cipher_3des      { &ssh2_wcng.hAlg3DES_CBC, 24, 1, 0 }
 #define ssh2_cipher_chacha20  { &ssh2_wcng.hAlgChacha20, 24, 1, 0 }
 
-/*
- * Windows CNG backend: Cipher functions
- */
-
-#define ssh2_cipher_init(ctx, type, iv, secret, encrypt) \
-    ssh2_wcng_cipher_init(ctx, type, iv, secret, encrypt)
-#define ssh2_cipher_crypt(ctx, type, encrypt, block, blocklen, fl) \
-    ssh2_wcng_cipher_crypt(ctx, type, encrypt, block, blocklen, fl)
-#define ssh2_cipher_dtor(ctx) \
-    ssh2_wcng_cipher_dtor(ctx)
-
 /*******************************************************************/
 /*
  * Windows CNG backend: BigNumber Context
