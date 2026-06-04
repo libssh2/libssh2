@@ -110,11 +110,6 @@
  * mbedTLS backend: Generic functions
  */
 
-#define ssh2_crypto_init() ssh2_mbed_init()
-#define ssh2_crypto_exit() ssh2_mbed_free()
-
-#define ssh2_random(buf, len) ssh2_mbed_random(buf, len)
-
 #define ssh2_prepare_iovec(vec, len)  /* Empty. */
 
 /*******************************************************************/
@@ -333,11 +328,6 @@ typedef enum {
 /*
  * mbedTLS backend: forward declarations
  */
-
-void ssh2_mbed_init(void);
-void ssh2_mbed_free(void);
-
-int ssh2_mbed_random(unsigned char *buf, size_t len);
 
 void ssh2_mbed_cipher_dtor(ssh2_cipher_ctx *ctx);
 
