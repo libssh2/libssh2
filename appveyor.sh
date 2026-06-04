@@ -28,13 +28,13 @@ echo "CMake job options: ${CMAKE_GENERATE:-}"
 # FIXME: First sshd test sometimes timeouts, subsequent ones almost always fail:
 #        'libssh2_session_handshake failed (-43): Failed getting banner'
 # shellcheck disable=SC2086
-cmake -B _builds \
+cmake -B _bld \
   -DCMAKE_UNITY_BUILD=ON -DENABLE_WERROR=ON \
   -DCMAKE_VS_GLOBALS=TrackFileAccess=false \
   -DRUN_SSHD_TESTS=OFF \
   ${CMAKE_GENERATE:-}
-echo 'libssh2_config.h'; grep -F '#define' _builds/src/libssh2_config.h | sort || true
-cmake --build _builds --config "${CMAKE_CONFIGURATION}" --parallel 2
+echo 'libssh2_config.h'; grep -F '#define' _bld/src/libssh2_config.h | sort || true
+cmake --build _bld --config "${CMAKE_CONFIGURATION}" --parallel 2
 
 # Install docker-cli for tests
 if [ "${SKIP_CTEST:-}" != 'yes' ]; then

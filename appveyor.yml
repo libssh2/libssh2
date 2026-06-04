@@ -141,14 +141,14 @@ test_script:
           $env:FIXTURE_TRACE_ALL_CONNECT = '1'
         }
         $env:OPENSSH_SERVER_IMAGE=[string] (& bash -c "echo ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)")
-        cd _builds; ctest -VV -C $($env:CMAKE_CONFIGURATION) --output-on-failure --timeout 900
+        cd _bld; ctest -VV -C $($env:CMAKE_CONFIGURATION) --output-on-failure --timeout 900
       }
 
 on_failure:
   - ps: |
-      if(Test-Path _builds/CMakeFiles/CMakeConfigureLog.yaml) { cat _builds/CMakeFiles/CMakeConfigureLog.yaml }
-      if(Test-Path _builds/CMakeFiles/CMakeOutput.log) { cat _builds/CMakeFiles/CMakeOutput.log }
-      if(Test-Path _builds/CMakeFiles/CMakeError.log) { cat _builds/CMakeFiles/CMakeError.log }
+      if(Test-Path _bld/CMakeFiles/CMakeConfigureLog.yaml) { cat _bld/CMakeFiles/CMakeConfigureLog.yaml }
+      if(Test-Path _bld/CMakeFiles/CMakeOutput.log) { cat _bld/CMakeFiles/CMakeOutput.log }
+      if(Test-Path _bld/CMakeFiles/CMakeError.log) { cat _bld/CMakeFiles/CMakeError.log }
 
 on_finish:
   - ps: |
