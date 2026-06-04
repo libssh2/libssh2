@@ -358,9 +358,9 @@ typedef enum {
 #define ssh2_bn mbedtls_mpi
 
 #define ssh2_bn_init() \
-    ssh2_mbed_bignum_init()
+    ssh2_mbed_bn_init()
 #define ssh2_bn_init_from_bin() \
-    ssh2_mbed_bignum_init()
+    ssh2_mbed_bn_init()
 #define ssh2_bn_set_word(bn, word) \
     mbedtls_mpi_lset(bn, word)
 #define ssh2_bn_from_bin(bn, len, bin) \
@@ -414,7 +414,7 @@ int ssh2_mbed_hash_final(mbedtls_md_context_t *ctx, unsigned char *hash);
 int ssh2_mbed_hash(const unsigned char *data, size_t datalen,
                    mbedtls_md_type_t mdtype, unsigned char *hash);
 
-ssh2_bn *ssh2_mbed_bignum_init(void);
+ssh2_bn *ssh2_mbed_bn_init(void);
 void ssh2_mbed_bn_free(ssh2_bn *bn);
 
 void ssh2_mbed_rsa_free(ssh2_rsa_ctx *ctx);
