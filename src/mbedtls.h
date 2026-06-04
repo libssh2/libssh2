@@ -197,6 +197,13 @@
     ssh2_mbed_hash_final(&(ctx), hash)
 #endif
 
+int ssh2_mbed_hash_init(mbedtls_md_context_t *ctx,
+                        mbedtls_md_type_t mdtype,
+                        const unsigned char *key, size_t keylen);
+int ssh2_mbed_hash_final(mbedtls_md_context_t *ctx, unsigned char *hash);
+int ssh2_mbed_hash(const unsigned char *data, size_t datalen,
+                   mbedtls_md_type_t mdtype, unsigned char *hash);
+
 /*******************************************************************/
 /*
  * mbedTLS backend: RSA functions
@@ -303,6 +310,9 @@ typedef enum {
 #define ssh2_bn_free(bn) \
     ssh2_mbed_bn_free(bn)
 
+ssh2_bn *ssh2_mbed_bn_init(void);
+void ssh2_mbed_bn_free(ssh2_bn *bn);
+
 /*******************************************************************/
 /*
  * mbedTLS backend: Diffie-Hellman support.
@@ -323,21 +333,6 @@ typedef enum {
 #define ssh2_dh_secret(dhctx, secret, f, p, bnctx) \
     ssh2_mbed_dh_secret(dhctx, secret, f, p)
 #define ssh2_dh_dtor(dhctx) ssh2_mbed_dh_dtor(dhctx)
-
-/*******************************************************************/
-/*
- * mbedTLS backend: forward declarations
- */
-
-int ssh2_mbed_hash_init(mbedtls_md_context_t *ctx,
-                        mbedtls_md_type_t mdtype,
-                        const unsigned char *key, size_t keylen);
-int ssh2_mbed_hash_final(mbedtls_md_context_t *ctx, unsigned char *hash);
-int ssh2_mbed_hash(const unsigned char *data, size_t datalen,
-                   mbedtls_md_type_t mdtype, unsigned char *hash);
-
-ssh2_bn *ssh2_mbed_bn_init(void);
-void ssh2_mbed_bn_free(ssh2_bn *bn);
 
 void ssh2_mbed_dh_init(ssh2_dh_ctx *dhctx);
 int ssh2_mbed_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
