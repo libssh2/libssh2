@@ -316,10 +316,6 @@ struct wcng_ecdsa_ctx {
 #if LIBSSH2_ECDSA
 #define ssh2_ec_key struct wcng_ecdsa_ctx
 #endif
-#define ssh2_ecdsa_create_key(session, privkey, pubkey_octal, \
-                              pubkey_octal_len, curve) \
-    ssh2_wcng_ecdh_create_key(session, privkey, pubkey_octal, \
-                              pubkey_octal_len, curve)
 
 /*******************************************************************/
 /*

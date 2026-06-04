@@ -2247,11 +2247,11 @@ void ssh2_ecdsa_free(IN ssh2_ecdsa_ctx *key)
  * Creates a local private ECDH key based on input curve
  * and returns the public key in uncompressed point encoding.
  */
-int ssh2_wcng_ecdh_create_key(IN LIBSSH2_SESSION *session,
-                              OUT struct wcng_ecdsa_ctx **privatekey,
-                              OUT unsigned char **encoded_publickey,
-                              OUT size_t *encoded_publickey_len,
-                              IN ssh2_curve_type curve)
+int ssh2_ecdsa_create_key(IN LIBSSH2_SESSION *session,
+                          OUT struct wcng_ecdsa_ctx **privatekey,
+                          OUT unsigned char **encoded_publickey,
+                          OUT size_t *encoded_publickey_len,
+                          IN ssh2_curve_type curve)
 {
     int result = LIBSSH2_ERROR_NONE;
     NTSTATUS status;
