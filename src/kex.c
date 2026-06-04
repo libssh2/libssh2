@@ -4279,7 +4279,6 @@ int ssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
 /*
  * Set preferred method
  */
-LIBSSH2_API
 int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
                                 const char *prefs)
 {
@@ -4425,7 +4424,6 @@ int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
  * returns a number of returned algorithms (a positive number) on success,
  * a negative number on failure
  */
-LIBSSH2_API
 int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
                                    int method_type,
                                    const char ***algs)

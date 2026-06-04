@@ -780,7 +780,6 @@ scp_recv_error:
  * larger than 2 GB, but is unable to report the proper size on platforms
  * where the st_size member of struct stat is limited to 2 GB (e.g. windows).
  */
-LIBSSH2_API
 LIBSSH2_CHANNEL *libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path,
                                   struct stat *sb)
 {
@@ -813,7 +812,6 @@ LIBSSH2_CHANNEL *libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path,
  * Open a channel and request a remote file via SCP.  This supports files > 2GB
  * on platforms that support it.
  */
-LIBSSH2_API
 LIBSSH2_CHANNEL *libssh2_scp_recv2(LIBSSH2_SESSION *session, const char *path,
                                    libssh2_struct_stat *sb)
 {
@@ -1130,7 +1128,6 @@ scp_send_error:
  *
  * Send a file using SCP. Old API.
  */
-LIBSSH2_API
 LIBSSH2_CHANNEL *libssh2_scp_send_ex(LIBSSH2_SESSION *session,
                                      const char *path, int mode,
                                      size_t size,
@@ -1147,7 +1144,6 @@ LIBSSH2_CHANNEL *libssh2_scp_send_ex(LIBSSH2_SESSION *session,
 /*
  * Send a file using SCP
  */
-LIBSSH2_API
 LIBSSH2_CHANNEL *libssh2_scp_send64(LIBSSH2_SESSION *session,
                                     const char *path, int mode,
                                     libssh2_int64_t size,

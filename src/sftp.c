@@ -1008,7 +1008,6 @@ sftp_init_error:
 /*
  * Startup an SFTP session
  */
-LIBSSH2_API
 LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session)
 {
     LIBSSH2_SFTP *ptr;
@@ -1102,7 +1101,6 @@ static int sftp_shutdown(LIBSSH2_SFTP *sftp)
 /*
  * Shuts down the SFTP subsystem
  */
-LIBSSH2_API
 int libssh2_sftp_shutdown(LIBSSH2_SFTP *sftp)
 {
     int rc;
@@ -1342,7 +1340,6 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
     return NULL;
 }
 
-LIBSSH2_API
 LIBSSH2_SFTP_HANDLE *libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp,
                                           const char *filename,
                                           unsigned int filename_len,
@@ -1360,7 +1357,6 @@ LIBSSH2_SFTP_HANDLE *libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp,
     return hnd;
 }
 
-LIBSSH2_API
 LIBSSH2_SFTP_HANDLE *libssh2_sftp_open_ex_r(LIBSSH2_SFTP *sftp,
                                             const char *filename,
                                             size_t filename_len,
@@ -1776,7 +1772,6 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
 /*
  * Read from an SFTP file handle
  */
-LIBSSH2_API
 ssize_t libssh2_sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                           char *buffer, size_t buffer_maxlen)
 {
@@ -2009,7 +2004,6 @@ end:
 /*
  * Read from an SFTP directory handle
  */
-LIBSSH2_API
 int libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle,
                             char *buffer, size_t buffer_maxlen,
                             char *longentry, size_t longentry_maxlen,
@@ -2274,7 +2268,6 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
 /*
  * Write data to a file handle
  */
-LIBSSH2_API
 ssize_t libssh2_sftp_write(LIBSSH2_SFTP_HANDLE *handle,
                            const char *buffer, size_t count)
 {
@@ -2376,7 +2369,6 @@ static int sftp_fsync(LIBSSH2_SFTP_HANDLE *handle)
 /*
  * Commit data on the handle to disk.
  */
-LIBSSH2_API
 int libssh2_sftp_fsync(LIBSSH2_SFTP_HANDLE *handle)
 {
     int rc;
@@ -2498,7 +2490,6 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
 /*
  * Get or Set stat on a file
  */
-LIBSSH2_API
 int libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *handle,
                           LIBSSH2_SFTP_ATTRIBUTES *attrs, int setstat)
 {
@@ -2513,7 +2504,6 @@ int libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *handle,
 /*
  * Set the read/write pointer to an arbitrary position within the file
  */
-LIBSSH2_API
 void libssh2_sftp_seek64(LIBSSH2_SFTP_HANDLE *handle, libssh2_uint64_t offset)
 {
     if(!handle)
@@ -2539,7 +2529,6 @@ void libssh2_sftp_seek64(LIBSSH2_SFTP_HANDLE *handle, libssh2_uint64_t offset)
 /*
  * Set the read/write pointer to an arbitrary position within the file
  */
-LIBSSH2_API
 void libssh2_sftp_seek(LIBSSH2_SFTP_HANDLE *handle, size_t offset)
 {
     libssh2_sftp_seek64(handle, (libssh2_uint64_t)offset);
@@ -2548,7 +2537,6 @@ void libssh2_sftp_seek(LIBSSH2_SFTP_HANDLE *handle, size_t offset)
 /*
  * Return the current read/write pointer's offset
  */
-LIBSSH2_API
 size_t libssh2_sftp_tell(LIBSSH2_SFTP_HANDLE *handle)
 {
     if(!handle)
@@ -2563,7 +2551,6 @@ size_t libssh2_sftp_tell(LIBSSH2_SFTP_HANDLE *handle)
 /*
  * Return the current read/write pointer's offset
  */
-LIBSSH2_API
 libssh2_uint64_t libssh2_sftp_tell64(LIBSSH2_SFTP_HANDLE *handle)
 {
     if(!handle)
@@ -2730,7 +2717,6 @@ static int sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
  * Close a file or directory handle
  * Also frees handle resource and unlinks it from the SFTP structure
  */
-LIBSSH2_API
 int libssh2_sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
 {
     int rc;
@@ -2838,7 +2824,6 @@ static int sftp_unlink(LIBSSH2_SFTP *sftp,
 /*
  * Delete a file from the remote server
  */
-LIBSSH2_API
 int libssh2_sftp_unlink_ex(LIBSSH2_SFTP *sftp,
                            const char *filename, unsigned int filename_len)
 {
@@ -2986,7 +2971,6 @@ static int sftp_rename(LIBSSH2_SFTP *sftp,
 /*
  * Rename a file on the remote server
  */
-LIBSSH2_API
 int libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp,
                            const char *source_filename,
                            unsigned int source_filename_len,
@@ -3119,7 +3103,6 @@ static int sftp_posix_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
  * Rename a file on the remote server using the posix-rename@openssh.com
  * extension.
  */
-LIBSSH2_API
 int libssh2_sftp_posix_rename_ex(LIBSSH2_SFTP *sftp,
                                  const char *source_filename,
                                  size_t source_filename_len,
@@ -3269,7 +3252,6 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
  * Get filesystem space and inode utilization (requires fstatvfs@openssh.com
  * support on the server)
  */
-LIBSSH2_API
 int libssh2_sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle,
                           LIBSSH2_SFTP_STATVFS *st)
 {
@@ -3415,7 +3397,6 @@ static int sftp_statvfs(LIBSSH2_SFTP *sftp,
  * Get filesystem space and inode utilization (requires statvfs@openssh.com
  * support on the server)
  */
-LIBSSH2_API
 int libssh2_sftp_statvfs(LIBSSH2_SFTP *sftp,
                          const char *path, size_t path_len,
                          LIBSSH2_SFTP_STATVFS *st)
@@ -3539,7 +3520,6 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp,
 /*
  * Create an SFTP directory
  */
-LIBSSH2_API
 int libssh2_sftp_mkdir_ex(LIBSSH2_SFTP *sftp,
                           const char *path, unsigned int path_len, long mode)
 {
@@ -3647,7 +3627,6 @@ static int sftp_rmdir(LIBSSH2_SFTP *sftp, const char *path,
 /*
  * Remove a directory
  */
-LIBSSH2_API
 int libssh2_sftp_rmdir_ex(LIBSSH2_SFTP *sftp,
                           const char *path, unsigned int path_len)
 {
@@ -3791,7 +3770,6 @@ static int sftp_stat(LIBSSH2_SFTP *sftp,
 /*
  * Stat a file or symbolic link
  */
-LIBSSH2_API
 int libssh2_sftp_stat_ex(LIBSSH2_SFTP *sftp,
                          const char *path, unsigned int path_len,
                          int stat_type, LIBSSH2_SFTP_ATTRIBUTES *attrs)
@@ -3998,7 +3976,6 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp,
 /*
  * Read or set a symlink
  */
-LIBSSH2_API
 int libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp,
                             const char *path, unsigned int path_len,
                             char *target, unsigned int target_len,
@@ -4016,7 +3993,6 @@ int libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp,
 /*
  * Returns the last error code reported by SFTP
  */
-LIBSSH2_API
 unsigned long libssh2_sftp_last_error(LIBSSH2_SFTP *sftp)
 {
     if(!sftp)
@@ -4028,7 +4004,6 @@ unsigned long libssh2_sftp_last_error(LIBSSH2_SFTP *sftp)
 /*
  * Return the channel of sftp, then caller can control the channel's behavior.
  */
-LIBSSH2_API
 LIBSSH2_CHANNEL *libssh2_sftp_get_channel(LIBSSH2_SFTP *sftp)
 {
     if(!sftp)

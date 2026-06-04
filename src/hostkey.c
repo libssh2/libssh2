@@ -1303,7 +1303,6 @@ const struct hostkey_method **ssh2_hostkey_methods(void)
  * Length of buffer is determined by hash type
  * i.e. MD5 == 16, SHA1 == 20, SHA256 == 32
  */
-LIBSSH2_API
 const char *libssh2_hostkey_hash(LIBSSH2_SESSION *session, int hash_type)
 {
     switch(hash_type) {
@@ -1384,7 +1383,6 @@ static int hostkey_type(const unsigned char *hostkey, size_t len)
 /*
  * Returns the server key and length.
  */
-LIBSSH2_API
 const char *libssh2_session_hostkey(LIBSSH2_SESSION *session, size_t *len,
                                     int *type)
 {
