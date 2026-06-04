@@ -4503,7 +4503,7 @@ int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
         return ssh2_err(session, LIBSSH2_ERROR_INVAL, "No algorithm found");
 
     /* allocate buffer */
-    *algs = (const char **)SSH2_ALLOC(session, ialg * sizeof(const char *));
+    *algs = SSH2_ALLOC(session, ialg * sizeof(const char *));
     if(!*algs) {
         return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                         "Memory allocation failed");

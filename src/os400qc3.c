@@ -1963,7 +1963,7 @@ static int pkcs1topkcs8(LIBSSH2_SESSION *session,
     }
     if(!pkcs8)
         return -1;
-    data = (unsigned char *)SSH2_ALLOC(session, pkcs8->end - pkcs8->header);
+    data = SSH2_ALLOC(session, pkcs8->end - pkcs8->header);
     if(!data) {
         asn1delete(pkcs8);
         return -1;
