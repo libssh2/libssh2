@@ -210,28 +210,6 @@
  */
 
 #define ssh2_rsa_ctx mbedtls_rsa_context
-#define ssh2_rsa_new(rsactx, e, e_len, n, n_len, \
-                     d, d_len, p, p_len, q, q_len, \
-                     e1, e1_len, e2, e2_len, c, c_len) \
-    ssh2_mbed_rsa_new(rsactx, e, e_len, n, n_len, \
-                      d, d_len, p, p_len, q, q_len, \
-                      e1, e1_len, e2, e2_len, c, c_len)
-#define ssh2_rsa_new_private(rsactx, s, filename, passphrase) \
-    ssh2_mbed_rsa_new_private(rsactx, s, filename, passphrase)
-#define ssh2_rsa_new_private_frommemory(rsactx, s, filedata, \
-                                        filedata_len, passphrase) \
-    ssh2_mbed_rsa_new_private_frommemory(rsactx, s, filedata, \
-                                         filedata_len, passphrase)
-#define ssh2_rsa_sha1_sign(s, rsactx, hash, hash_len, sig, sig_len) \
-    ssh2_mbed_rsa_sha1_sign(s, rsactx, hash, hash_len, sig, sig_len)
-#define ssh2_rsa_sha2_sign(s, rsactx, hash, hash_len, sig, sig_len) \
-    ssh2_mbed_rsa_sha2_sign(s, rsactx, hash, hash_len, sig, sig_len)
-#define ssh2_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len) \
-    ssh2_mbed_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len)
-#define ssh2_rsa_sha2_verify(rsactx, hash_len, sig, sig_len, m, m_len) \
-    ssh2_mbed_rsa_sha2_verify(rsactx, hash_len, sig, sig_len, m, m_len)
-#define ssh2_rsa_free(rsactx) \
-    ssh2_mbed_rsa_free(rsactx)
 
 /*******************************************************************/
 /*
@@ -396,8 +374,6 @@ int ssh2_mbed_hash(const unsigned char *data, size_t datalen,
 
 ssh2_bn *ssh2_mbed_bn_init(void);
 void ssh2_mbed_bn_free(ssh2_bn *bn);
-
-void ssh2_mbed_rsa_free(ssh2_rsa_ctx *ctx);
 
 #if LIBSSH2_ECDSA
 ssh2_curve_type ssh2_mbed_ecdsa_key_get_curve_type(ssh2_ecdsa_ctx *ctx);

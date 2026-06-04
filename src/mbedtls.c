@@ -359,16 +359,16 @@ static int mbed_bn_random(ssh2_bn *bn, int bits, int top, int bottom)
  * mbedTLS backend: RSA functions
  */
 
-int ssh2_mbed_rsa_new(ssh2_rsa_ctx **rsa,
-                      const unsigned char *edata, unsigned long elen,
-                      const unsigned char *ndata, unsigned long nlen,
-                      const unsigned char *ddata, unsigned long dlen,
-                      const unsigned char *pdata, unsigned long plen,
-                      const unsigned char *qdata, unsigned long qlen,
-                      const unsigned char *e1data, unsigned long e1len,
-                      const unsigned char *e2data, unsigned long e2len,
-                      const unsigned char *coeffdata,
-                      unsigned long coefflen)
+int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
+                 const unsigned char *edata, unsigned long elen,
+                 const unsigned char *ndata, unsigned long nlen,
+                 const unsigned char *ddata, unsigned long dlen,
+                 const unsigned char *pdata, unsigned long plen,
+                 const unsigned char *qdata, unsigned long qlen,
+                 const unsigned char *e1data, unsigned long e1len,
+                 const unsigned char *e2data, unsigned long e2len,
+                 const unsigned char *coeffdata,
+                 unsigned long coefflen)
 {
     int ret;
     ssh2_rsa_ctx *ctx;
@@ -414,17 +414,17 @@ int ssh2_mbed_rsa_new(ssh2_rsa_ctx **rsa,
     }
 
     if(ret && ctx) {
-        ssh2_mbed_rsa_free(ctx);
+        ssh2_rsa_free(ctx);
         ctx = NULL;
     }
     *rsa = ctx;
     return ret;
 }
 
-int ssh2_mbed_rsa_new_private(ssh2_rsa_ctx **rsa,
-                              LIBSSH2_SESSION *session,
-                              const char *filename,
-                              const unsigned char *passphrase)
+int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
+                         LIBSSH2_SESSION *session,
+                         const char *filename,
+                         const unsigned char *passphrase)
 {
     int ret;
     mbedtls_pk_context pkey;
@@ -454,11 +454,10 @@ int ssh2_mbed_rsa_new_private(ssh2_rsa_ctx **rsa,
     return 0;
 }
 
-int ssh2_mbed_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
-                                         LIBSSH2_SESSION *session,
-                                         const char *filedata,
-                                         size_t filedata_len,
-                                         const unsigned char *passphrase)
+int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
+                                    LIBSSH2_SESSION *session,
+                                    const char *filedata, size_t filedata_len,
+                                    const unsigned char *passphrase)
 {
     int ret;
     mbedtls_pk_context pkey;
@@ -511,12 +510,10 @@ int ssh2_mbed_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
     return 0;
 }
 
-int ssh2_mbed_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
-                              size_t hash_len,
-                              const unsigned char *sig,
-                              size_t sig_len,
-                              const unsigned char *m,
-                              size_t m_len)
+int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
+                         size_t hash_len,
+                         const unsigned char *sig, size_t sig_len,
+                         const unsigned char *m, size_t m_len)
 {
     int ret;
     int md_type;
@@ -557,22 +554,18 @@ int ssh2_mbed_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
     return (ret == 0) ? 0 : -1;
 }
 
-int ssh2_mbed_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
-                              const unsigned char *sig,
-                              size_t sig_len,
-                              const unsigned char *m,
-                              size_t m_len)
+int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
+                         const unsigned char *sig, size_t sig_len,
+                         const unsigned char *m, size_t m_len)
 {
-    return ssh2_mbed_rsa_sha2_verify(rsactx, SHA_DIGEST_LENGTH,
-                                     sig, sig_len, m, m_len);
+    return ssh2_rsa_sha2_verify(rsactx, SHA_DIGEST_LENGTH,
+                                sig, sig_len, m, m_len);
 }
 
-int ssh2_mbed_rsa_sha2_sign(LIBSSH2_SESSION *session,
-                            ssh2_rsa_ctx *rsactx,
-                            const unsigned char *hash,
-                            size_t hash_len,
-                            unsigned char **signature,
-                            size_t *signature_len)
+int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
+                       ssh2_rsa_ctx *rsactx,
+                       const unsigned char *hash, size_t hash_len,
+                       unsigned char **signature, size_t *signature_len)
 {
     int ret;
     unsigned char *sig;
@@ -616,18 +609,16 @@ int ssh2_mbed_rsa_sha2_sign(LIBSSH2_SESSION *session,
     return (ret == 0) ? 0 : -1;
 }
 
-int ssh2_mbed_rsa_sha1_sign(LIBSSH2_SESSION *session,
-                            ssh2_rsa_ctx *rsactx,
-                            const unsigned char *hash,
-                            size_t hash_len,
-                            unsigned char **signature,
-                            size_t *signature_len)
+int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
+                       ssh2_rsa_ctx *rsactx,
+                       const unsigned char *hash, size_t hash_len,
+                       unsigned char **signature, size_t *signature_len)
 {
-    return ssh2_mbed_rsa_sha2_sign(session, rsactx, hash, hash_len,
-                                   signature, signature_len);
+    return ssh2_rsa_sha2_sign(session, rsactx, hash, hash_len,
+                              signature, signature_len);
 }
 
-void ssh2_mbed_rsa_free(ssh2_rsa_ctx *ctx)
+void ssh2_rsa_free(ssh2_rsa_ctx *ctx)
 {
     mbedtls_rsa_free(ctx);
     mbedtls_free(ctx);
