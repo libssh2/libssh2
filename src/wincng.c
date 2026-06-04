@@ -2980,12 +2980,12 @@ int ssh2_wcng_ecdsa_sign(IN LIBSSH2_SESSION *session,
     *signature = SSH2_ALLOC(session, signature_maxlen);
     signature_ptr = *signature;
 
-    if(ssh2_store_bignum2_bytes(&signature_ptr,
-                                cng_signature,
-                                cng_signature_len / 2) &&
-       ssh2_store_bignum2_bytes(&signature_ptr,
-                                cng_signature + (cng_signature_len / 2),
-                                cng_signature_len / 2)) {
+    if(ssh2_store_bignum_bytes(&signature_ptr,
+                               cng_signature,
+                               cng_signature_len / 2) &&
+       ssh2_store_bignum_bytes(&signature_ptr,
+                               cng_signature + (cng_signature_len / 2),
+                               cng_signature_len / 2)) {
         *signature_len = signature_ptr - *signature;
     }
     else {

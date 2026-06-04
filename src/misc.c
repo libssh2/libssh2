@@ -310,9 +310,8 @@ int ssh2_store_hybrid_str(unsigned char **buf, const char *str_1,
     return len_stored == len_1 + len_2;
 }
 
-int ssh2_store_bignum2_bytes(unsigned char **buf,
-                             const unsigned char *bytes,
-                             size_t len)
+int ssh2_store_bignum_bytes(unsigned char **buf,
+                            const unsigned char *bytes, size_t len)
 {
     uint32_t len_stored;
     uint32_t extraByte;

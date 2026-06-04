@@ -115,8 +115,8 @@ void ssh2_store_u64(unsigned char **buf, libssh2_uint64_t value);
 int ssh2_store_str(unsigned char **buf, const char *str, size_t len);
 int ssh2_store_hybrid_str(unsigned char **buf, const char *str_1,
                           size_t len_1, const char *str_2, size_t len_2);
-int ssh2_store_bignum2_bytes(unsigned char **buf,
-                             const unsigned char *bytes, size_t len);
+int ssh2_store_bignum_bytes(unsigned char **buf,
+                            const unsigned char *bytes, size_t len);
 void *ssh2_calloc(LIBSSH2_SESSION *session, size_t size);
 
 struct string_buf *ssh2_string_buf_new(LIBSSH2_SESSION *session);

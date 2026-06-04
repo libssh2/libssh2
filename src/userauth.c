@@ -957,10 +957,10 @@ int libssh2_sign_sk(LIBSSH2_SESSION *session,
 
                 ssh2_store_u32(&p, 0);
 
-                if(ssh2_store_bignum2_bytes(&p, sig_info.sig_r,
-                                            sig_info.sig_r_len) &&
-                   ssh2_store_bignum2_bytes(&p, sig_info.sig_s,
-                                            sig_info.sig_s_len)) {
+                if(ssh2_store_bignum_bytes(&p, sig_info.sig_r,
+                                           sig_info.sig_r_len) &&
+                   ssh2_store_bignum_bytes(&p, sig_info.sig_s,
+                                           sig_info.sig_s_len)) {
                     *sig_len = p - *sig;
 
                     ssh2_store_u32(&x, (uint32_t)(*sig_len - 4));
