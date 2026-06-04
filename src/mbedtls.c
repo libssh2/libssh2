@@ -1103,6 +1103,43 @@ failed:
     return -1;
 }
 
+/*
+ * returns key curve type that maps to ssh2_curve_type
+ */
+ssh2_curve_type ssh2_mbed_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ec_ctx)
+{
+    return (ssh2_curve_type)ec_ctx->MBEDTLS_PRIVATE(grp).id;
+}
+
+/*
+ * returns 0 for success, key curve type that maps to ssh2_curve_type
+ */
+static int mbed_ecdsa_curve_type_from_name(const char *name,
+                                           ssh2_curve_type *out_type)
+{
+    int ret = 0;
+    ssh2_curve_type type;
+
+    if(!name || strlen(name) != 19)
+        return -1;
+
+    if(strcmp(name, "ecdsa-sha2-nistp256") == 0)
+        type = SSH2_EC_CURVE_NISTP256;
+    else if(strcmp(name, "ecdsa-sha2-nistp384") == 0)
+        type = SSH2_EC_CURVE_NISTP384;
+    else if(strcmp(name, "ecdsa-sha2-nistp521") == 0)
+        type = SSH2_EC_CURVE_NISTP521;
+    else {
+        ret = -1;
+    }
+
+    if(ret == 0 && out_type) {
+        *out_type = type;
+    }
+
+    return ret;
+}
+
 static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
                                   LIBSSH2_SESSION *session,
                                   const unsigned char *data,
@@ -1123,7 +1160,7 @@ static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
     if(ssh2_get_string(decrypted, &name, NULL))
         goto failed;
 
-    if(ssh2_mbed_ecdsa_curve_type_from_name((const char *)name, &type))
+    if(mbed_ecdsa_curve_type_from_name((const char *)name, &type))
         goto failed;
 
     if(ssh2_get_string(decrypted, &curve, &curvelen))
@@ -1350,43 +1387,6 @@ cleanup:
     mbed_safe_free(tmp_sign, tmp_sign_len);
 
     return *signature ? 0 : -1;
-}
-
-/*
- * returns key curve type that maps to ssh2_curve_type
- */
-ssh2_curve_type ssh2_mbed_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ec_ctx)
-{
-    return (ssh2_curve_type)ec_ctx->MBEDTLS_PRIVATE(grp).id;
-}
-
-/*
- * returns 0 for success, key curve type that maps to ssh2_curve_type
- */
-int ssh2_mbed_ecdsa_curve_type_from_name(const char *name,
-                                         ssh2_curve_type *out_type)
-{
-    int ret = 0;
-    ssh2_curve_type type;
-
-    if(!name || strlen(name) != 19)
-        return -1;
-
-    if(strcmp(name, "ecdsa-sha2-nistp256") == 0)
-        type = SSH2_EC_CURVE_NISTP256;
-    else if(strcmp(name, "ecdsa-sha2-nistp384") == 0)
-        type = SSH2_EC_CURVE_NISTP384;
-    else if(strcmp(name, "ecdsa-sha2-nistp521") == 0)
-        type = SSH2_EC_CURVE_NISTP521;
-    else {
-        ret = -1;
-    }
-
-    if(ret == 0 && out_type) {
-        *out_type = type;
-    }
-
-    return ret;
 }
 
 void ssh2_mbed_ecdsa_free(ssh2_ecdsa_ctx *ctx)
