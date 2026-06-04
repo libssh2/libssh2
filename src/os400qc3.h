@@ -348,12 +348,9 @@ int ssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session, int algo,
                             int veccount,
                             const struct iovec vector[],
                             ssh2_rsa_ctx *ctx);
-int ssh2_os400qc3_dh_key_pair(ssh2_dh_ctx *dhctx,
-                              ssh2_bn *public,
-                              ssh2_bn *g,
-                              ssh2_bn *p, int group_order);
-int ssh2_os400qc3_dh_secret(ssh2_dh_ctx *dhctx,
-                            ssh2_bn *secret,
+int ssh2_os400qc3_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
+                              ssh2_bn *g, ssh2_bn *p, int group_order);
+int ssh2_os400qc3_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
                             ssh2_bn *f, ssh2_bn *p);
 
 #endif /* LIBSSH2_OS400QC3_H */
