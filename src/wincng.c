@@ -183,7 +183,7 @@ static int wcng_bn_resize(ssh2_bn *bn, ULONG length)
     return 0;
 }
 
-static int wcng_bignum_rand(ssh2_bn *rnd, int bits, int top, int bottom)
+static int wcng_bn_random(ssh2_bn *rnd, int bits, int top, int bottom)
 {
     unsigned char *bignum;
     ULONG length;
@@ -3678,7 +3678,7 @@ int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
     dhctx->dh_privbn = ssh2_wcng_bn_init();
     if(!dhctx->dh_privbn)
         return -1;
-    if(wcng_bignum_rand(dhctx->dh_privbn, (group_order * 8) - 1, 0, -1))
+    if(wcng_bn_random(dhctx->dh_privbn, (group_order * 8) - 1, 0, -1))
         return -1;
     if(wcng_bignum_mod_exp(public, g, dhctx->dh_privbn, p))
         return -1;
