@@ -5093,7 +5093,7 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
     return st;
 }
 
-void ssh2_ossl_dh_init(ssh2_dh_ctx *dhctx)
+void ssh2_dh_init(ssh2_dh_ctx *dhctx)
 {
     *dhctx = BN_new(); /* Random from client */
 }
@@ -5117,7 +5117,7 @@ int ssh2_ossl_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
     return 0;
 }
 
-void ssh2_ossl_dh_dtor(ssh2_dh_ctx *dhctx)
+void ssh2_dh_dtor(ssh2_dh_ctx *dhctx)
 {
     BN_clear_free(*dhctx);
     *dhctx = NULL;
