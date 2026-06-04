@@ -33,6 +33,7 @@ cmake -B _builds \
   -DCMAKE_VS_GLOBALS=TrackFileAccess=false \
   -DRUN_SSHD_TESTS=OFF \
   ${CMAKE_GENERATE:-}
+echo 'libssh2_config.h'; grep -F '#define' _builds/src/libssh2_config.h | sort || true
 cmake --build _builds --config "${CMAKE_CONFIGURATION}" --parallel 2
 
 # Install docker-cli for tests
