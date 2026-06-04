@@ -314,7 +314,7 @@ void ssh2_mbed_bn_free(ssh2_bn *bn)
     }
 }
 
-static int mbed_bignum_random(ssh2_bn *bn, int bits, int top, int bottom)
+static int mbed_bn_random(ssh2_bn *bn, int bits, int top, int bottom)
 {
     size_t len;
     int err;
@@ -862,7 +862,7 @@ int ssh2_mbed_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
                           ssh2_bn *g, ssh2_bn *p, int group_order)
 {
     /* Generate x and e */
-    mbed_bignum_random(*dhctx, group_order * 8 - 1, 0, -1);
+    mbed_bn_random(*dhctx, group_order * 8 - 1, 0, -1);
     mbedtls_mpi_exp_mod(public, g, *dhctx, p, NULL);
     return 0;
 }
