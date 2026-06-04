@@ -59,49 +59,49 @@
 #include <mbedtls/error.h>
 
 /* Define which features are supported. */
-#define LIBSSH2_MD5             1
+#define LIBSSH2_MD5 1
 
-#define LIBSSH2_HMAC_RIPEMD     1
-#define LIBSSH2_HMAC_SHA256     1
-#define LIBSSH2_HMAC_SHA512     1
+#define LIBSSH2_HMAC_RIPEMD 1
+#define LIBSSH2_HMAC_SHA256 1
+#define LIBSSH2_HMAC_SHA512 1
 
-#define LIBSSH2_AES_CBC         1
-#define LIBSSH2_AES_CTR         1
-#define LIBSSH2_AES_GCM         0
+#define LIBSSH2_AES_CBC 1
+#define LIBSSH2_AES_CTR 1
+#define LIBSSH2_AES_GCM 0
 #ifdef MBEDTLS_CIPHER_BLOWFISH_CBC
-# define LIBSSH2_BLOWFISH       1
+# define LIBSSH2_BLOWFISH 1
 #else
-# define LIBSSH2_BLOWFISH       0
+# define LIBSSH2_BLOWFISH 0
 #endif
 #ifdef MBEDTLS_CIPHER_ARC4_128
-# define LIBSSH2_RC4            1
+# define LIBSSH2_RC4 1
 #else
-# define LIBSSH2_RC4            0
+# define LIBSSH2_RC4 0
 #endif
-#define LIBSSH2_CAST            0
-#define LIBSSH2_3DES            1
+#define LIBSSH2_CAST 0
+#define LIBSSH2_3DES 1
 
-#define LIBSSH2_RSA             1
-#define LIBSSH2_RSA_SHA1        1
-#define LIBSSH2_RSA_SHA2        1
-#define LIBSSH2_DSA             0
+#define LIBSSH2_RSA 1
+#define LIBSSH2_RSA_SHA1 1
+#define LIBSSH2_RSA_SHA2 1
+#define LIBSSH2_DSA 0
 #ifdef MBEDTLS_ECDSA_C
-# define LIBSSH2_ECDSA          1
+# define LIBSSH2_ECDSA 1
 #else
-# define LIBSSH2_ECDSA          0
+# define LIBSSH2_ECDSA 0
 #endif
-#define LIBSSH2_ED25519         0
-#define LIBSSH2_MLKEM           0
+#define LIBSSH2_ED25519 0
+#define LIBSSH2_MLKEM 0
 
 #include "crypto_config.h"
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define MD5_DIGEST_LENGTH      16
+#define MD5_DIGEST_LENGTH 16
 #endif
-#define SHA_DIGEST_LENGTH      20
-#define SHA256_DIGEST_LENGTH   32
-#define SHA384_DIGEST_LENGTH   48
-#define SHA512_DIGEST_LENGTH   64
+#define SHA_DIGEST_LENGTH    20
+#define SHA256_DIGEST_LENGTH 32
+#define SHA384_DIGEST_LENGTH 48
+#define SHA512_DIGEST_LENGTH 64
 
 /*******************************************************************/
 /*
