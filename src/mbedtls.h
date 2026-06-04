@@ -327,18 +327,14 @@ void ssh2_mbed_bn_free(ssh2_bn *bn);
 #define SSH2_DH_MAX_MODULUS_BITS 16384
 
 #define ssh2_dh_ctx mbedtls_mpi *
-#define ssh2_dh_init(dhctx) ssh2_mbed_dh_init(dhctx)
 #define ssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
     ssh2_mbed_dh_key_pair(dhctx, public, g, p, group_order)
 #define ssh2_dh_secret(dhctx, secret, f, p, bnctx) \
     ssh2_mbed_dh_secret(dhctx, secret, f, p)
-#define ssh2_dh_dtor(dhctx) ssh2_mbed_dh_dtor(dhctx)
 
-void ssh2_mbed_dh_init(ssh2_dh_ctx *dhctx);
 int ssh2_mbed_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
                           ssh2_bn *g, ssh2_bn *p, int group_order);
 int ssh2_mbed_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
                         ssh2_bn *f, ssh2_bn *p);
-void ssh2_mbed_dh_dtor(ssh2_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_MBEDTLS_H */
