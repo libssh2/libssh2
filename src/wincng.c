@@ -224,10 +224,7 @@ static int wcng_bn_random(ssh2_bn *rnd, int bits, int top, int bottom)
     return 0;
 }
 
-static int wcng_bignum_mod_exp(ssh2_bn *r,
-                               ssh2_bn *a,
-                               ssh2_bn *p,
-                               ssh2_bn *m)
+static int wcng_bn_mod_exp(ssh2_bn *r, ssh2_bn *a, ssh2_bn *p, ssh2_bn *m)
 {
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_RSAKEY_BLOB *rsakey;
@@ -3680,7 +3677,7 @@ int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
         return -1;
     if(wcng_bn_random(dhctx->dh_privbn, (group_order * 8) - 1, 0, -1))
         return -1;
-    if(wcng_bignum_mod_exp(public, g, dhctx->dh_privbn, p))
+    if(wcng_bn_mod_exp(public, g, dhctx->dh_privbn, p))
         return -1;
 
     return 0;
@@ -3815,7 +3812,7 @@ out:
 
 fb:
     /* Compute the shared secret */
-    return wcng_bignum_mod_exp(secret, f, dhctx->dh_privbn, p);
+    return wcng_bn_mod_exp(secret, f, dhctx->dh_privbn, p);
 }
 
 /*
