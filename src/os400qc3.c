@@ -1125,8 +1125,7 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
     return 0;
 }
 
-int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx,
-                      SSH2_CIPHER_T(algo),
+int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                       int encrypt, unsigned char *block, size_t blocksize,
                       int firstlast)
 {

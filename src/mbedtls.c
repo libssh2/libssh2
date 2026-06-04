@@ -98,10 +98,8 @@ static void mbed_safe_free(void *buf, size_t len)
     mbedtls_free(buf);
 }
 
-int ssh2_mbed_cipher_init(ssh2_cipher_ctx *h,
-                          SSH2_CIPHER_T(algo),
-                          unsigned char *iv,
-                          unsigned char *secret,
+int ssh2_mbed_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
+                          unsigned char *iv, unsigned char *secret,
                           int encrypt)
 {
     const mbedtls_cipher_info_t *cipher_info;
@@ -145,11 +143,9 @@ int ssh2_mbed_cipher_init(ssh2_cipher_ctx *h,
     return ret == 0 ? 0 : -1;
 }
 
-int ssh2_mbed_cipher_crypt(ssh2_cipher_ctx *ctx,
-                           SSH2_CIPHER_T(algo),
-                           int encrypt,
-                           unsigned char *block,
-                           size_t blocksize, int firstlast)
+int ssh2_mbed_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
+                           int encrypt, unsigned char *block, size_t blocksize,
+                           int firstlast)
 {
     int ret;
     unsigned char *output;

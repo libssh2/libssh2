@@ -951,8 +951,7 @@ cleanup:
 
 #endif /* LIBSSH2_ECDSA */
 
-int ssh2_cipher_init(ssh2_cipher_ctx *h,
-                     SSH2_CIPHER_T(algo),
+int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
@@ -985,8 +984,7 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h,
 #define EVP_MAX_BLOCK_LENGTH 32
 #endif
 
-int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx,
-                      SSH2_CIPHER_T(algo),
+int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                       int encrypt, unsigned char *block, size_t blocksize,
                       int firstlast)
 {
