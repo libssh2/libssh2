@@ -265,7 +265,10 @@ LIBSSH2_API int libssh2_sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle);
 #define libssh2_sftp_close(handle) libssh2_sftp_close_handle(handle)
 #define libssh2_sftp_closedir(handle) libssh2_sftp_close_handle(handle)
 
+#ifndef LIBSSH2_NO_DEPRECATED
+LIBSSH2_DEPRECATED(1.2.8, "Use libssh2_sftp_seek64()")
 LIBSSH2_API void libssh2_sftp_seek(LIBSSH2_SFTP_HANDLE *handle, size_t offset);
+#endif
 LIBSSH2_API void libssh2_sftp_seek64(LIBSSH2_SFTP_HANDLE *handle,
                                      libssh2_uint64_t offset);
 #define libssh2_sftp_rewind(handle) libssh2_sftp_seek64(handle, 0)

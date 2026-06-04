@@ -2525,13 +2525,17 @@ void libssh2_sftp_seek64(LIBSSH2_SFTP_HANDLE *handle, libssh2_uint64_t offset)
     handle->u.file.eof = FALSE;
 }
 
+#ifndef LIBSSH2_NO_DEPRECATED
 /*
+ * DEPRECATED, DO NOT USE!
+ *
  * Set the read/write pointer to an arbitrary position within the file
  */
 void libssh2_sftp_seek(LIBSSH2_SFTP_HANDLE *handle, size_t offset)
 {
     libssh2_sftp_seek64(handle, (libssh2_uint64_t)offset);
 }
+#endif
 
 /*
  * Return the current read/write pointer's offset
