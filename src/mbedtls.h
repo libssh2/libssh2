@@ -338,13 +338,7 @@ typedef enum {
 /*
  * mbedTLS backend: Cipher functions
  */
-
-#define ssh2_cipher_init(ctx, type, iv, secret, encrypt) \
-    ssh2_mbed_cipher_init(ctx, type, iv, secret, encrypt)
-#define ssh2_cipher_crypt(ctx, type, encrypt, block, blocklen, fl) \
-    ssh2_mbed_cipher_crypt(ctx, type, encrypt, block, blocklen, fl)
-#define ssh2_cipher_dtor(ctx) \
-    ssh2_mbed_cipher_dtor(ctx)
+#define ssh2_cipher_dtor(ctx)  mbedtls_cipher_free(ctx)
 
 /*******************************************************************/
 /*
