@@ -389,7 +389,7 @@ typedef enum {
 #define ssh2_bn_bits(bn) \
     mbedtls_mpi_bitlen(bn)
 #define ssh2_bn_free(bn) \
-    ssh2_mbed_bignum_free(bn)
+    ssh2_mbed_bn_free(bn)
 
 /*******************************************************************/
 /*
@@ -435,7 +435,7 @@ int ssh2_mbed_hash(const unsigned char *data, size_t datalen,
 
 ssh2_bn *ssh2_mbed_bignum_init(void);
 
-void ssh2_mbed_bignum_free(ssh2_bn *bn);
+void ssh2_mbed_bn_free(ssh2_bn *bn);
 
 void ssh2_mbed_rsa_free(ssh2_rsa_ctx *ctx);
 

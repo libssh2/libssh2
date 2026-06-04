@@ -306,7 +306,7 @@ ssh2_bn *ssh2_mbed_bignum_init(void)
     return bignum;
 }
 
-void ssh2_mbed_bignum_free(ssh2_bn *bn)
+void ssh2_mbed_bn_free(ssh2_bn *bn)
 {
     if(bn) {
         mbedtls_mpi_free(bn);
@@ -877,7 +877,7 @@ int ssh2_mbed_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
 
 void ssh2_mbed_dh_dtor(ssh2_dh_ctx *dhctx)
 {
-    ssh2_mbed_bignum_free(*dhctx);
+    ssh2_mbed_bn_free(*dhctx);
     *dhctx = NULL;
 }
 
