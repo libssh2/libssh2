@@ -1151,7 +1151,7 @@ static int read_private_key_from_memory(void **key_ctx,
                                 SSH2_UNCONST(passphrase));
 
     BIO_free(bp);
-    return (*key_ctx) ? 0 : -1;
+    return *key_ctx ? 0 : -1;
 }
 #endif
 
@@ -1174,7 +1174,7 @@ static int read_private_key_from_file(void **key_ctx,
                                 SSH2_UNCONST(passphrase));
 
     BIO_free(bp);
-    return (*key_ctx) ? 0 : -1;
+    return *key_ctx ? 0 : -1;
 }
 #endif
 
