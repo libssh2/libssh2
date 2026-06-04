@@ -834,7 +834,7 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                     "file: Method unimplemented in libgcrypt backend");
 }
 
-void ssh2_lgcr_dh_init(ssh2_dh_ctx *dhctx)
+void ssh2_dh_init(ssh2_dh_ctx *dhctx)
 {
     *dhctx = gcry_mpi_new(0);                   /* Random from client */
 }
@@ -856,7 +856,7 @@ int ssh2_lgcr_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
     return 0;
 }
 
-void ssh2_lgcr_dh_dtor(ssh2_dh_ctx *dhctx)
+void ssh2_dh_dtor(ssh2_dh_ctx *dhctx)
 {
     gcry_mpi_release(*dhctx);
     *dhctx = NULL;
