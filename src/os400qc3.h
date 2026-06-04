@@ -308,6 +308,13 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define ssh2_rsa_sha2_512_signv(session, sig, siglen, cnt, vector, ctx) \
     ssh2_os400qc3_rsa_signv(session, Qc3_SHA512, sig, siglen, cnt, vector, ctx)
 
+int ssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session, int algo,
+                            unsigned char **signature,
+                            size_t *signature_len,
+                            int veccount,
+                            const struct iovec vector[],
+                            ssh2_rsa_ctx *ctx);
+
 /* Default generate and safe prime sizes for diffie-hellman-group-exchange-sha1
    Qc3 is limited to a maximum 2048-bit modulus/key size. */
 #define SSH2_DH_GEX_MINGROUP     1024
@@ -347,12 +354,6 @@ int ssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx, unsigned char *out);
 int ssh2_os400qc3_hash(const unsigned char *message,
                        unsigned long len, unsigned char *out,
                        unsigned int algo);
-int ssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session, int algo,
-                            unsigned char **signature,
-                            size_t *signature_len,
-                            int veccount,
-                            const struct iovec vector[],
-                            ssh2_rsa_ctx *ctx);
 
 #endif /* LIBSSH2_OS400QC3_H */
 
