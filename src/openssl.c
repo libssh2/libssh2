@@ -1108,8 +1108,7 @@ void ssh2_crypto_init(void)
 }
 
 #if LIBSSH2_RSA || LIBSSH2_DSA || LIBSSH2_ECDSA || LIBSSH2_ED25519
-/* TODO: Optionally call a passphrase callback specified by the
- * calling program
+/* TODO: Optionally call a passphrase callback specified by the calling program
  */
 static int passphrase_cb(char *buf, int size, int rwflag, void *passphrase)
 {
