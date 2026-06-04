@@ -340,7 +340,7 @@ int ssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session, int algo,
 
 #define SSH2_DH_MAX_MODULUS_BITS 2048
 
-#define ssh2_dh_ctx          struct os400qc3_dh_ctx
+#define ssh2_dh_ctx struct os400qc3_dh_ctx
 #define ssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
     ssh2_os400qc3_dh_key_pair(dhctx, public, g, p, group_order)
 #define ssh2_dh_secret(dhctx, secret, f, p, bnctx) \

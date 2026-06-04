@@ -334,6 +334,8 @@ struct wcng_cipher_t {
 #define ssh2_cipher_3des      { &ssh2_wcng.hAlg3DES_CBC, 24, 1, 0 }
 #define ssh2_cipher_chacha20  { &ssh2_wcng.hAlgChacha20, 24, 1, 0 }
 
+void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx);
+
 /*******************************************************************/
 /*
  * Windows CNG backend: BigNumber Context
@@ -400,7 +402,6 @@ struct wcng_dh_ctx {
 };
 
 #define ssh2_dh_ctx struct wcng_dh_ctx
-
 #define ssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
     ssh2_wcng_dh_key_pair(dhctx, public, g, p, group_order)
 #define ssh2_dh_secret(dhctx, secret, f, p, bnctx) \
