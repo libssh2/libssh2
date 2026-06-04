@@ -444,8 +444,4 @@ int ssh2_ossl_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
                         ssh2_bn_ctx *bnctx);
 void ssh2_ossl_dh_dtor(ssh2_dh_ctx *dhctx);
 
-const EVP_CIPHER *ssh2_EVP_aes_128_ctr(void);
-const EVP_CIPHER *ssh2_EVP_aes_192_ctr(void);
-const EVP_CIPHER *ssh2_EVP_aes_256_ctr(void);
-
 #endif /* LIBSSH2_OPENSSL_H */
