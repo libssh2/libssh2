@@ -55,8 +55,6 @@
 #error "no cryptography backend selected"
 #endif
 
-int ssh2_random(unsigned char *buf, size_t len);
-
 /* return: success = 1, error = 0 */
 int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx);
 #if LIBSSH2_MD5
