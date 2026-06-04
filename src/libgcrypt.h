@@ -72,15 +72,12 @@
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #define MD5_DIGEST_LENGTH 16
 #endif
-#define SHA_DIGEST_LENGTH 20
+#define SHA_DIGEST_LENGTH    20
 #define SHA256_DIGEST_LENGTH 32
 #define SHA384_DIGEST_LENGTH 48
 #define SHA512_DIGEST_LENGTH 64
 
-#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
-
-#define ssh2_random(buf, len) \
-    (gcry_randomize(buf, len, GCRY_STRONG_RANDOM), 0)
+#define ssh2_random(buf, len) (gcry_randomize(buf, len, GCRY_STRONG_RANDOM), 0)
 
 #define ssh2_prepare_iovec(vec, len)  /* Empty. */
 
@@ -145,23 +142,24 @@
 #define ssh2_crypto_init() gcry_control(GCRYCTL_DISABLE_SECMEM)
 #define ssh2_crypto_exit()
 
-#define ssh2_rsa_ctx struct    gcry_sexp
-#define ssh2_rsa_free(rsactx)  gcry_sexp_release(rsactx)
+#define ssh2_rsa_ctx          struct gcry_sexp
+#define ssh2_rsa_free(rsactx) gcry_sexp_release(rsactx)
 
-#define ssh2_dsa_ctx struct    gcry_sexp
-#define ssh2_dsa_free(dsactx)  gcry_sexp_release(dsactx)
+#define ssh2_dsa_ctx          struct gcry_sexp
+#define ssh2_dsa_free(dsactx) gcry_sexp_release(dsactx)
 
 #if LIBSSH2_ECDSA
+#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 #else
 #define ssh2_ec_key void
 #endif
 
 #define SSH2_CIPHER_T(name) int name
-#define ssh2_cipher_ctx gcry_cipher_hd_t
+#define ssh2_cipher_ctx     gcry_cipher_hd_t
 
-#define ssh2_gcry_ciphermode(c,m) (((c) << 8) | (m))
-#define ssh2_gcry_cipher(c) ((c) >> 8)
-#define ssh2_gcry_mode(m) ((m) & 0xFF)
+#define ssh2_gcry_ciphermode(c, m) (((c) << 8) | (m))
+#define ssh2_gcry_cipher(c)        ((c) >> 8)
+#define ssh2_gcry_mode(m)          ((m) & 0xFF)
 
 #define ssh2_cipher_aes256ctr \
     ssh2_gcry_ciphermode(GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR)
@@ -188,22 +186,23 @@
 
 #define ssh2_cipher_dtor(ctx) gcry_cipher_close(*(ctx))
 
-#define ssh2_bn struct gcry_mpi
-#define ssh2_bn_ctx int
-#define ssh2_bn_ctx_new() 0
-#define ssh2_bn_ctx_free(bnctx) ((void)0)
-#define ssh2_bn_init() gcry_mpi_new(0)
-#define ssh2_bn_init_from_bin() NULL  /* because gcry_mpi_scan() creates a
-                                         new bignum */
-#define ssh2_bn_set_word(bn, val) gcry_mpi_set_ui(bn, val)
+#define ssh2_bn_ctx                    int /* not used */
+#define ssh2_bn_ctx_new()              0 /* not used */
+#define ssh2_bn_ctx_free(bnctx)        ((void)0) /* not used */
+
+#define ssh2_bn                        struct gcry_mpi
+#define ssh2_bn_init()                 gcry_mpi_new(0)
+#define ssh2_bn_init_from_bin()        NULL  /* because gcry_mpi_scan()
+                                                creates a new bignum */
+#define ssh2_bn_set_word(bn, val)      gcry_mpi_set_ui(bn, val)
 #define ssh2_bn_from_bin(bn, len, val) \
     gcry_mpi_scan(&(bn), GCRYMPI_FMT_USG, val, len, NULL)
 #define ssh2_bn_to_bin(bn, val) \
     gcry_mpi_print(GCRYMPI_FMT_USG, val, ssh2_bn_bytes(bn), NULL, bn)
 #define ssh2_bn_bytes(bn) \
     (gcry_mpi_get_nbits(bn) / 8 + ((gcry_mpi_get_nbits(bn) % 8 == 0) ? 0 : 1))
-#define ssh2_bn_bits(bn) gcry_mpi_get_nbits(bn)
-#define ssh2_bn_free(bn) gcry_mpi_release(bn)
+#define ssh2_bn_bits(bn)               gcry_mpi_get_nbits(bn)
+#define ssh2_bn_free(bn)               gcry_mpi_release(bn)
 
 /* Default generate and safe prime sizes for
    diffie-hellman-group-exchange-sha1 */
@@ -214,18 +213,14 @@
 #define SSH2_DH_MAX_MODULUS_BITS 16384
 
 #define ssh2_dh_ctx struct gcry_mpi *
-#define ssh2_dh_init(dhctx) ssh2_lgcr_dh_init(dhctx)
 #define ssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
     ssh2_lgcr_dh_key_pair(dhctx, public, g, p, group_order)
 #define ssh2_dh_secret(dhctx, secret, f, p, bnctx) \
     ssh2_lgcr_dh_secret(dhctx, secret, f, p)
-#define ssh2_dh_dtor(dhctx) ssh2_lgcr_dh_dtor(dhctx)
-void ssh2_lgcr_dh_init(ssh2_dh_ctx *dhctx);
-int ssh2_lgcr_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
-                          ssh2_bn *g, ssh2_bn *p,
-                          int group_order);
-int ssh2_lgcr_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
-                        ssh2_bn *f, ssh2_bn *p);
-void ssh2_lgcr_dh_dtor(ssh2_dh_ctx *dhctx);
+
+int ssh2_lgcr_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public, ssh2_bn *g,
+                          ssh2_bn *p, int group_order);
+int ssh2_lgcr_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
+                        ssh2_bn *p);
 
 #endif /* LIBSSH2_LIBGCRYPT_H */

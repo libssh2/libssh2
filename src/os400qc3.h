@@ -190,14 +190,13 @@
 
 #include "crypto_config.h"
 
-#define SHA_DIGEST_LENGTH       20
-#define SHA256_DIGEST_LENGTH    32
-#define SHA384_DIGEST_LENGTH    48
-#define SHA512_DIGEST_LENGTH    64
-
-#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
+#define SHA_DIGEST_LENGTH    20
+#define SHA256_DIGEST_LENGTH 32
+#define SHA384_DIGEST_LENGTH 48
+#define SHA512_DIGEST_LENGTH 64
 
 #if LIBSSH2_ECDSA
+#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 #else
 #define ssh2_ec_key void
 #endif
@@ -219,8 +218,6 @@ struct os400qc3_bn {  /* Big number. */
     unsigned char *bignum;                  /* Number bits, little-endian. */
     unsigned int length;                    /* Length of bignum (# bytes). */
 };
-
-#define ssh2_bn struct os400qc3_bn
 
 struct os400qc3_cipher {  /* Algorithm description. */
     char *fmt;                              /* Format of Qc3 structure. */
@@ -274,13 +271,32 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define ssh2_md5_final(ctx, out)      ssh2_os400qc3_hash_final(&(ctx), out)
 #endif
 
-#define ssh2_bn_ctx              int  /* Not used. */
+int ssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x, unsigned int algo);
+int ssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
+                              const unsigned char *data, int len);
+int ssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx, unsigned char *out);
+int ssh2_os400qc3_hash(const unsigned char *message,
+                       unsigned long len, unsigned char *out,
+                       unsigned int algo);
 
-#define ssh2_bn_ctx_new()        0
-#define ssh2_bn_ctx_free(bnctx)  ((void)0)
+/* Bignum */
 
+#define ssh2_bn_ctx              int /* not used */
+#define ssh2_bn_ctx_new()        0 /* not used */
+#define ssh2_bn_ctx_free(bnctx)  ((void)0) /* not used */
+
+#define ssh2_bn struct os400qc3_bn
+
+ssh2_bn *ssh2_bn_init(void);
 #define ssh2_bn_init_from_bin()  ssh2_bn_init()
+int ssh2_bn_set_word(ssh2_bn *bn, unsigned long val);
+int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *v);
+int ssh2_bn_to_bin(ssh2_bn *bn, unsigned char *val);
 #define ssh2_bn_bytes(bn)        ((bn)->length)
+unsigned long ssh2_bn_bits(ssh2_bn *bn);
+void ssh2_bn_free(ssh2_bn *bn);
+
+/* Cipher */
 
 #define SSH2_CIPHER_T(name)   struct os400qc3_cipher name
 #define ssh2_cipher_aes128    {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 16}
@@ -308,6 +324,13 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define ssh2_rsa_sha2_512_signv(session, sig, siglen, cnt, vector, ctx) \
     ssh2_os400qc3_rsa_signv(session, Qc3_SHA512, sig, siglen, cnt, vector, ctx)
 
+int ssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session, int algo,
+                            unsigned char **signature,
+                            size_t *signature_len,
+                            int veccount,
+                            const struct iovec vector[],
+                            ssh2_rsa_ctx *ctx);
+
 /* Default generate and safe prime sizes for diffie-hellman-group-exchange-sha1
    Qc3 is limited to a maximum 2048-bit modulus/key size. */
 #define SSH2_DH_GEX_MINGROUP     1024
@@ -316,13 +339,16 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 
 #define SSH2_DH_MAX_MODULUS_BITS 2048
 
-#define ssh2_dh_ctx          struct os400qc3_dh_ctx
-#define ssh2_dh_init(dhctx)  ssh2_os400qc3_dh_init(dhctx)
+#define ssh2_dh_ctx struct os400qc3_dh_ctx
 #define ssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
     ssh2_os400qc3_dh_key_pair(dhctx, public, g, p, group_order)
 #define ssh2_dh_secret(dhctx, secret, f, p, bnctx) \
     ssh2_os400qc3_dh_secret(dhctx, secret, f, p)
-#define ssh2_dh_dtor(dhctx)  ssh2_os400qc3_dh_dtor(dhctx)
+
+int ssh2_os400qc3_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
+                              ssh2_bn *g, ssh2_bn *p, int group_order);
+int ssh2_os400qc3_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
+                            ssh2_bn *f, ssh2_bn *p);
 
 /*******************************************************************
  *
@@ -330,36 +356,7 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
  *
  *******************************************************************/
 
-ssh2_bn *ssh2_bn_init(void);
-void ssh2_bn_free(ssh2_bn *bn);
-unsigned long ssh2_bn_bits(ssh2_bn *bn);
-int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *v);
-int ssh2_bn_set_word(ssh2_bn *bn, unsigned long val);
-int ssh2_bn_to_bin(ssh2_bn *bn, unsigned char *val);
-int ssh2_random(unsigned char *buf, size_t len);
 void ssh2_os400qc3_crypto_dtor(struct os400qc3_crypto_ctx *x);
-int ssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x, unsigned int algo);
-int ssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
-                              const unsigned char *data, int len);
-int ssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx, unsigned char *out);
-int ssh2_os400qc3_hash(const unsigned char *message,
-                       unsigned long len, unsigned char *out,
-                       unsigned int algo);
-int ssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session, int algo,
-                            unsigned char **signature,
-                            size_t *signature_len,
-                            int veccount,
-                            const struct iovec vector[],
-                            ssh2_rsa_ctx *ctx);
-void ssh2_os400qc3_dh_init(ssh2_dh_ctx *dhctx);
-int ssh2_os400qc3_dh_key_pair(ssh2_dh_ctx *dhctx,
-                              ssh2_bn *public,
-                              ssh2_bn *g,
-                              ssh2_bn *p, int group_order);
-int ssh2_os400qc3_dh_secret(ssh2_dh_ctx *dhctx,
-                            ssh2_bn *secret,
-                            ssh2_bn *f, ssh2_bn *p);
-void ssh2_os400qc3_dh_dtor(ssh2_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_OS400QC3_H */
 

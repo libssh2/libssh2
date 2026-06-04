@@ -250,7 +250,7 @@ static inline void swap_bytes(unsigned char *buf, unsigned long len)
 }
 #endif
 
-int ssh2_ossl_random(void *buf, size_t len)
+int ssh2_random(unsigned char *buf, size_t len)
 {
     if(len > INT_MAX) {
         return -1;
@@ -1099,14 +1099,12 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
     return rc;
 }
 
-void ssh2_ossl_init(void)
+void ssh2_crypto_init(void)
 {
 #if defined(LIBSSH2_WOLFSSL) && defined(DEBUG_WOLFSSL)
     wolfSSL_Debugging_ON();
 #endif
 }
-
-void ssh2_ossl_exit(void) {}
 
 #if LIBSSH2_RSA || LIBSSH2_DSA || LIBSSH2_ECDSA || LIBSSH2_ED25519
 /* TODO: Optionally call a passphrase callback specified by the
@@ -5095,14 +5093,13 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
     return st;
 }
 
-void ssh2_ossl_dh_init(ssh2_dh_ctx *dhctx)
+void ssh2_dh_init(ssh2_dh_ctx *dhctx)
 {
     *dhctx = BN_new(); /* Random from client */
 }
 
-int ssh2_ossl_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
-                          ssh2_bn *g, ssh2_bn *p, int group_order,
-                          ssh2_bn_ctx *bnctx)
+int ssh2_ossl_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public, ssh2_bn *g,
+                          ssh2_bn *p, int group_order, ssh2_bn_ctx *bnctx)
 {
     /* Generate x and e */
     BN_rand(*dhctx, group_order * 8 - 1, 0, -1);
@@ -5110,16 +5107,15 @@ int ssh2_ossl_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
     return 0;
 }
 
-int ssh2_ossl_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
-                        ssh2_bn *f, ssh2_bn *p,
-                        ssh2_bn_ctx *bnctx)
+int ssh2_ossl_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
+                        ssh2_bn *p, ssh2_bn_ctx *bnctx)
 {
     /* Compute the shared secret */
     BN_mod_exp(secret, f, *dhctx, p, bnctx);
     return 0;
 }
 
-void ssh2_ossl_dh_dtor(ssh2_dh_ctx *dhctx)
+void ssh2_dh_dtor(ssh2_dh_ctx *dhctx)
 {
     BN_clear_free(*dhctx);
     *dhctx = NULL;
