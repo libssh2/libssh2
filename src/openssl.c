@@ -4003,8 +4003,7 @@ int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
                                     filename, passphrase);
 
     if(rc) {
-        return ecdsa_new_openssh_private(ec_ctx, session,
-                                         filename, passphrase);
+        rc = ecdsa_new_openssh_private(ec_ctx, session, filename, passphrase);
     }
 
     return rc;
@@ -4035,14 +4034,9 @@ int ssh2_ecdsa_new_private_sk(ssh2_ecdsa_ctx **ec_ctx,
                                     filename, passphrase);
 
     if(rc) {
-        return ecdsa_new_openssh_private_sk(ec_ctx,
-                                            flags,
-                                            application,
-                                            key_handle,
-                                            handle_len,
-                                            session,
-                                            filename,
-                                            passphrase);
+        rc = ecdsa_new_openssh_private_sk(ec_ctx, flags, application,
+                                          key_handle, handle_len, session,
+                                          filename, passphrase);
     }
 
     return rc;
