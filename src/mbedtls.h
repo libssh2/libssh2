@@ -339,11 +339,6 @@ int ssh2_mbed_hash(const unsigned char *data, size_t datalen,
 ssh2_bn *ssh2_mbed_bn_init(void);
 void ssh2_mbed_bn_free(ssh2_bn *bn);
 
-#if LIBSSH2_ECDSA
-ssh2_curve_type ssh2_mbed_ecdsa_key_get_curve_type(ssh2_ecdsa_ctx *ctx);
-void ssh2_mbed_ecdsa_free(ssh2_ecdsa_ctx *ctx);
-#endif /* LIBSSH2_ECDSA */
-
 void ssh2_mbed_dh_init(ssh2_dh_ctx *dhctx);
 int ssh2_mbed_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
                           ssh2_bn *g, ssh2_bn *p, int group_order);
