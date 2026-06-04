@@ -405,18 +405,18 @@ TripleDES-CBC algorithm identifier initializer.
 
 5) Diffie-Hellman support.
 
-LIBSSH2_DH_GEX_MINGROUP
+SSH2_DH_GEX_MINGROUP
 The minimum Diffie-Hellman group length in bits supported by the backend.
 Usually defined as 2048.
 
-LIBSSH2_DH_GEX_OPTGROUP
+SSH2_DH_GEX_OPTGROUP
 The preferred Diffie-Hellman group length in bits. Usually defined as 4096.
 
-LIBSSH2_DH_GEX_MAXGROUP
+SSH2_DH_GEX_MAXGROUP
 The maximum Diffie-Hellman group length in bits supported by the backend.
 Usually defined as 8192.
 
-LIBSSH2_DH_MAX_MODULUS_BITS
+SSH2_DH_MAX_MODULUS_BITS
 The maximum Diffie-Hellman modulus bit count accepted from the server. This
 value must be supported by the backend.  Usually 16384.
 
@@ -542,7 +542,7 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
 Reads a private key from file privatekey and extract the public key -->
 (pubkeydata, pubkeydata_len). Store the associated method (ssh-rsa or ssh-dss)
 into (method, method_len).
-Both buffers have to be allocated using LIBSSH2_ALLOC().
+Both buffers have to be allocated using SSH2_ALLOC().
 Returns 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
 
@@ -557,7 +557,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
 Gets a private key from bytes at (privatekeydata, privatekeydata_len) and
 extract the public key --> (pubkeydata, pubkeydata_len). Store the associated
 method (ssh-rsa or ssh-dss) into (method, method_len).
-Both buffers have to be allocated using LIBSSH2_ALLOC().
+Both buffers have to be allocated using SSH2_ALLOC().
 Returns 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
 
@@ -876,7 +876,7 @@ and out_public_key respectively and stores at ctx a new ED25519 context for
 this key.
 Argument ctx, out_private_key and out_public key may be NULL to disable storing
 the corresponding value.
-Length of each key is LIBSSH2_ED25519_KEY_LEN (32 bytes).
+Length of each key is SSH2_ED25519_KEY_LEN (32 bytes).
 Key buffers are allocated and should be released by caller after use.
 Returns 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
@@ -926,8 +926,8 @@ Return 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
 
 int ssh2_curve25519_gen_k(ssh2_bn **k,
-                          uint8_t private_key[LIBSSH2_ED25519_KEY_LEN],
-                          uint8_t srvr_public_key[LIBSSH2_ED25519_KEY_LEN]);
+                          uint8_t private_key[SSH2_ED25519_KEY_LEN],
+                          uint8_t srvr_public_key[SSH2_ED25519_KEY_LEN]);
 Computes a shared ED25519 secret key from the given raw server public key and
 raw client public key and stores it as a big number in *k. Big number should
 have been initialized before calling this function.
