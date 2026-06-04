@@ -1134,7 +1134,8 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
 #define SSH_MSG_KEX_DH_GEX_INIT                     32
 #define SSH_MSG_KEX_DH_GEX_REPLY                    33
 
-/* ecdh */
+/* ECDH
+   https://datatracker.ietf.org/doc/html/rfc9941 */
 #define SSH2_MSG_KEX_ECDH_INIT                      30
 #define SSH2_MSG_KEX_ECDH_REPLY                     31
 
