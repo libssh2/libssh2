@@ -293,28 +293,20 @@ typedef enum {
  * mbedTLS backend: BigNumber Support
  */
 
-#define ssh2_bn_ctx int /* not used */
-#define ssh2_bn_ctx_new() 0 /* not used */
-#define ssh2_bn_ctx_free(bnctx) ((void)0) /* not used */
+#define ssh2_bn_ctx                    int /* not used */
+#define ssh2_bn_ctx_new()              0 /* not used */
+#define ssh2_bn_ctx_free(bnctx)        ((void)0) /* not used */
 
-#define ssh2_bn mbedtls_mpi
-
-#define ssh2_bn_init() \
-    ssh2_mbed_bn_init()
-#define ssh2_bn_init_from_bin() \
-    ssh2_mbed_bn_init()
-#define ssh2_bn_set_word(bn, word) \
-    mbedtls_mpi_lset(bn, word)
-#define ssh2_bn_from_bin(bn, len, bin) \
-    mbedtls_mpi_read_binary(bn, bin, len)
+#define ssh2_bn                        mbedtls_mpi
+#define ssh2_bn_init()                 ssh2_mbed_bn_init()
+#define ssh2_bn_init_from_bin()        ssh2_mbed_bn_init()
+#define ssh2_bn_set_word(bn, word)     mbedtls_mpi_lset(bn, word)
+#define ssh2_bn_from_bin(bn, len, bin) mbedtls_mpi_read_binary(bn, bin, len)
 #define ssh2_bn_to_bin(bn, bin) \
     mbedtls_mpi_write_binary(bn, bin, mbedtls_mpi_size(bn))
-#define ssh2_bn_bytes(bn) \
-    mbedtls_mpi_size(bn)
-#define ssh2_bn_bits(bn) \
-    mbedtls_mpi_bitlen(bn)
-#define ssh2_bn_free(bn) \
-    ssh2_mbed_bn_free(bn)
+#define ssh2_bn_bytes(bn)              mbedtls_mpi_size(bn)
+#define ssh2_bn_bits(bn)               mbedtls_mpi_bitlen(bn)
+#define ssh2_bn_free(bn)               ssh2_mbed_bn_free(bn)
 
 ssh2_bn *ssh2_mbed_bn_init(void);
 void ssh2_mbed_bn_free(ssh2_bn *bn);

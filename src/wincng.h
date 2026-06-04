@@ -99,7 +99,7 @@
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #define MD5_DIGEST_LENGTH 16
 #endif
-#define SHA_DIGEST_LENGTH 20
+#define SHA_DIGEST_LENGTH    20
 #define SHA256_DIGEST_LENGTH 32
 #define SHA384_DIGEST_LENGTH 48
 #define SHA512_DIGEST_LENGTH 64
@@ -285,7 +285,7 @@ struct wcng_ecdsa_ctx {
 };
 
 #define ssh2_ecdsa_ctx struct wcng_ecdsa_ctx
-#define ssh2_ec_key struct wcng_ecdsa_ctx
+#define ssh2_ec_key    struct wcng_ecdsa_ctx
 #else
 #define ssh2_ec_key void
 #endif
@@ -337,8 +337,8 @@ struct wcng_cipher_t {
  * Windows CNG backend: BigNumber Context
  */
 
-#define ssh2_bn_ctx int /* not used */
-#define ssh2_bn_ctx_new() 0 /* not used */
+#define ssh2_bn_ctx             int /* not used */
+#define ssh2_bn_ctx_new()       0 /* not used */
 #define ssh2_bn_ctx_free(bnctx) ((void)0) /* not used */
 
 /*******************************************************************/
@@ -357,21 +357,15 @@ struct wcng_bn {
  * Windows CNG backend: BigNumber functions
  */
 
-#define ssh2_bn_init() \
-    ssh2_wcng_bn_init()
-#define ssh2_bn_init_from_bin() \
-    ssh2_bn_init()
-#define ssh2_bn_set_word(bn, word) \
-    ssh2_wcng_bn_set_word(bn, word)
+#define ssh2_bn_init()                 ssh2_wcng_bn_init()
+#define ssh2_bn_init_from_bin()        ssh2_bn_init()
+#define ssh2_bn_set_word(bn, word)     ssh2_wcng_bn_set_word(bn, word)
 #define ssh2_bn_from_bin(bn, len, bin) \
     ssh2_wcng_bn_from_bin(bn, (ULONG)(len), bin)
-#define ssh2_bn_to_bin(bn, bin) \
-    ssh2_wcng_bn_to_bin(bn, bin)
-#define ssh2_bn_bytes(bn) bn->length
-#define ssh2_bn_bits(bn) \
-    ssh2_wcng_bn_bits(bn)
-#define ssh2_bn_free(bn) \
-    ssh2_wcng_bn_free(bn)
+#define ssh2_bn_to_bin(bn, bin)        ssh2_wcng_bn_to_bin(bn, bin)
+#define ssh2_bn_bytes(bn)              ((bn)->length)
+#define ssh2_bn_bits(bn)               ssh2_wcng_bn_bits(bn)
+#define ssh2_bn_free(bn)               ssh2_wcng_bn_free(bn)
 
 ssh2_bn *ssh2_wcng_bn_init(void);
 int ssh2_wcng_bn_set_word(ssh2_bn *bn, ULONG word);

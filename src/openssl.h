@@ -411,10 +411,11 @@ typedef enum {
 #define ssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_cleanup(ctx)
 #endif
 
-#define ssh2_bn                   BIGNUM
 #define ssh2_bn_ctx               BN_CTX
 #define ssh2_bn_ctx_new()         BN_CTX_new()
 #define ssh2_bn_ctx_free(bnctx)   BN_CTX_free(bnctx)
+
+#define ssh2_bn                   BIGNUM
 #define ssh2_bn_init()            BN_new()
 #define ssh2_bn_init_from_bin()   ssh2_bn_init()
 #define ssh2_bn_set_word(bn, val) !BN_set_word(bn, val)
