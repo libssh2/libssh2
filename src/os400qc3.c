@@ -395,7 +395,7 @@ void ssh2_bn_free(ssh2_bn *bn)
     }
 }
 
-static int ssh2_bn_resize(ssh2_bn *bn, size_t newlen)
+static int bn_resize(ssh2_bn *bn, size_t newlen)
 {
     unsigned char *bignum;
 
@@ -461,7 +461,7 @@ int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *val)
     for(; len && !*val; len--)
         val++;
 
-    if(ssh2_bn_resize(bn, len))
+    if(bn_resize(bn, len))
         return -1;
 
     for(i = len; i--;)
