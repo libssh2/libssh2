@@ -1099,7 +1099,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
     return rc;
 }
 
-void ssh2_ossl_crypto_init(void)
+void ssh2_crypto_init(void)
 {
 #if defined(LIBSSH2_WOLFSSL) && defined(DEBUG_WOLFSSL)
     wolfSSL_Debugging_ON();

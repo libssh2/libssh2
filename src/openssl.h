@@ -223,10 +223,8 @@
 
 #include "crypto_config.h"
 
-#define ssh2_crypto_init() ssh2_ossl_crypto_init()
+void ssh2_crypto_init(void);
 #define ssh2_crypto_exit()
-
-void ssh2_ossl_crypto_init(void);
 
 int ssh2_random(unsigned char *buf, size_t len);
 

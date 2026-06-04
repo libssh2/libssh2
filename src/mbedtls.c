@@ -60,7 +60,7 @@ static mbedtls_ctr_drbg_context mbed_ctr_drbg;
  * mbedTLS backend: Generic functions
  */
 
-void ssh2_mbed_crypto_init(void)
+void ssh2_crypto_init(void)
 {
     int ret;
 
@@ -74,7 +74,7 @@ void ssh2_mbed_crypto_init(void)
         mbedtls_ctr_drbg_free(&mbed_ctr_drbg);
 }
 
-void ssh2_mbed_crypto_exit(void)
+void ssh2_crypto_exit(void)
 {
     mbedtls_ctr_drbg_free(&mbed_ctr_drbg);
     mbedtls_entropy_free(&mbed_entropy);

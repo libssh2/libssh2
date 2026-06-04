@@ -108,11 +108,8 @@
  * mbedTLS backend: Generic functions
  */
 
-#define ssh2_crypto_init() ssh2_mbed_crypto_init()
-#define ssh2_crypto_exit() ssh2_mbed_crypto_exit()
-
-void ssh2_mbed_crypto_init(void);
-void ssh2_mbed_crypto_exit(void);
+void ssh2_crypto_init(void);
+void ssh2_crypto_exit(void);
 
 int ssh2_random(unsigned char *buf, size_t len);
 

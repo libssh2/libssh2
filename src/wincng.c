@@ -474,7 +474,7 @@ struct ecdsa_point {
 
 struct wcng_ctx ssh2_wcng;
 
-void ssh2_wcng_crypto_init(void)
+void ssh2_crypto_init(void)
 {
     int ret;
 
@@ -654,7 +654,7 @@ void ssh2_wcng_crypto_init(void)
 #endif
 }
 
-void ssh2_wcng_crypto_exit(void)
+void ssh2_crypto_exit(void)
 {
 #if LIBSSH2_ECDSA
     unsigned int curve;
