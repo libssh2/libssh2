@@ -223,8 +223,6 @@
 
 #include "crypto_config.h"
 
-#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
-
 #define ssh2_prepare_iovec(vec, len)  /* Empty. */
 
 #ifdef HAVE_OPAQUE_STRUCTS
@@ -353,6 +351,8 @@ int ssh2_ossl_md5_final(ssh2_md5_ctx *ctx, unsigned char *out);
 #endif /* LIBSSH2_DSA */
 
 #if LIBSSH2_ECDSA
+
+#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 
 #ifdef USE_OPENSSL_3
 #define ssh2_ecdsa_ctx            EVP_PKEY
