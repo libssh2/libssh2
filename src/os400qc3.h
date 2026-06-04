@@ -220,8 +220,6 @@ struct os400qc3_bn {  /* Big number. */
     unsigned int length;                    /* Length of bignum (# bytes). */
 };
 
-#define ssh2_bn struct os400qc3_bn
-
 struct os400qc3_cipher {  /* Algorithm description. */
     char *fmt;                              /* Format of Qc3 structure. */
     int algo;                               /* Algorithm identifier. */
@@ -282,13 +280,24 @@ int ssh2_os400qc3_hash(const unsigned char *message,
                        unsigned long len, unsigned char *out,
                        unsigned int algo);
 
-#define ssh2_bn_ctx              int  /* Not used. */
+/* Bignum */
 
+#define ssh2_bn_ctx              int  /* Not used. */
 #define ssh2_bn_ctx_new()        0
 #define ssh2_bn_ctx_free(bnctx)  ((void)0)
 
+#define ssh2_bn struct os400qc3_bn
+
+ssh2_bn *ssh2_bn_init(void);
 #define ssh2_bn_init_from_bin()  ssh2_bn_init()
+int ssh2_bn_set_word(ssh2_bn *bn, unsigned long val);
+int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *v);
+int ssh2_bn_to_bin(ssh2_bn *bn, unsigned char *val);
 #define ssh2_bn_bytes(bn)        ((bn)->length)
+unsigned long ssh2_bn_bits(ssh2_bn *bn);
+void ssh2_bn_free(ssh2_bn *bn);
+
+/* Cipher */
 
 #define SSH2_CIPHER_T(name)   struct os400qc3_cipher name
 #define ssh2_cipher_aes128    {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 16}
@@ -348,12 +357,6 @@ int ssh2_os400qc3_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
  *
  *******************************************************************/
 
-ssh2_bn *ssh2_bn_init(void);
-void ssh2_bn_free(ssh2_bn *bn);
-unsigned long ssh2_bn_bits(ssh2_bn *bn);
-int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *v);
-int ssh2_bn_set_word(ssh2_bn *bn, unsigned long val);
-int ssh2_bn_to_bin(ssh2_bn *bn, unsigned char *val);
 void ssh2_os400qc3_crypto_dtor(struct os400qc3_crypto_ctx *x);
 
 #endif /* LIBSSH2_OS400QC3_H */
