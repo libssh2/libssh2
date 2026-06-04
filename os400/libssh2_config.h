@@ -141,7 +141,7 @@
 #define HAVE_SNPRINTF 1
 
 /* Define to the subdirectory in which libtool stores uninstalled libraries.
-*/
+ */
 #define LT_OBJDIR ".libs/"
 
 /* Define to 1 if _REENTRANT preprocessor symbol must be defined. */
