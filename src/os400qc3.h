@@ -274,6 +274,14 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define ssh2_md5_final(ctx, out)      ssh2_os400qc3_hash_final(&(ctx), out)
 #endif
 
+int ssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x, unsigned int algo);
+int ssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
+                              const unsigned char *data, int len);
+int ssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx, unsigned char *out);
+int ssh2_os400qc3_hash(const unsigned char *message,
+                       unsigned long len, unsigned char *out,
+                       unsigned int algo);
+
 #define ssh2_bn_ctx              int  /* Not used. */
 
 #define ssh2_bn_ctx_new()        0
@@ -347,13 +355,6 @@ int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *v);
 int ssh2_bn_set_word(ssh2_bn *bn, unsigned long val);
 int ssh2_bn_to_bin(ssh2_bn *bn, unsigned char *val);
 void ssh2_os400qc3_crypto_dtor(struct os400qc3_crypto_ctx *x);
-int ssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x, unsigned int algo);
-int ssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
-                              const unsigned char *data, int len);
-int ssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx, unsigned char *out);
-int ssh2_os400qc3_hash(const unsigned char *message,
-                       unsigned long len, unsigned char *out,
-                       unsigned int algo);
 
 #endif /* LIBSSH2_OS400QC3_H */
 
