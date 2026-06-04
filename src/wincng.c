@@ -1615,12 +1615,12 @@ void ssh2_wcng_rsa_free(ssh2_rsa_ctx *rsa)
  */
 
 #if LIBSSH2_DSA
-int ssh2_wcng_dsa_new(ssh2_dsa_ctx **dsa,
-                      const unsigned char *pdata, unsigned long plen,
-                      const unsigned char *qdata, unsigned long qlen,
-                      const unsigned char *gdata, unsigned long glen,
-                      const unsigned char *ydata, unsigned long ylen,
-                      const unsigned char *xdata, unsigned long xlen)
+int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
+                 const unsigned char *pdata, unsigned long plen,
+                 const unsigned char *qdata, unsigned long qlen,
+                 const unsigned char *gdata, unsigned long glen,
+                 const unsigned char *ydata, unsigned long ylen,
+                 const unsigned char *xdata, unsigned long xlen)
 {
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_DSA_KEY_BLOB *dsakey;
@@ -1736,12 +1736,12 @@ static int wcng_dsa_new_private_parse(ssh2_dsa_ctx **dsa,
     }
 
     if(length == 6) {
-        ret = ssh2_wcng_dsa_new(dsa,
-                                rpbDecoded[1], rcbDecoded[1],
-                                rpbDecoded[2], rcbDecoded[2],
-                                rpbDecoded[3], rcbDecoded[3],
-                                rpbDecoded[4], rcbDecoded[4],
-                                rpbDecoded[5], rcbDecoded[5]);
+        ret = ssh2_dsa_new(dsa,
+                           rpbDecoded[1], rcbDecoded[1],
+                           rpbDecoded[2], rcbDecoded[2],
+                           rpbDecoded[3], rcbDecoded[3],
+                           rpbDecoded[4], rcbDecoded[4],
+                           rpbDecoded[5], rcbDecoded[5]);
     }
     else {
         ret = -1;
@@ -1760,10 +1760,10 @@ static int wcng_dsa_new_private_parse(ssh2_dsa_ctx **dsa,
 }
 #endif /* HAVE_LIBCRYPT32 */
 
-int ssh2_wcng_dsa_new_private(ssh2_dsa_ctx **dsa,
-                              LIBSSH2_SESSION *session,
-                              const char *filename,
-                              const unsigned char *passphrase)
+int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
+                         LIBSSH2_SESSION *session,
+                         const char *filename,
+                         const unsigned char *passphrase)
 {
 #ifdef HAVE_LIBCRYPT32
     unsigned char *pbEncoded;
@@ -1788,11 +1788,10 @@ int ssh2_wcng_dsa_new_private(ssh2_dsa_ctx **dsa,
 #endif /* HAVE_LIBCRYPT32 */
 }
 
-int ssh2_wcng_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
-                                         LIBSSH2_SESSION *session,
-                                         const char *filedata,
-                                         size_t filedata_len,
-                                         const unsigned char *passphrase)
+int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
+                                    LIBSSH2_SESSION *session,
+                                    const char *filedata, size_t filedata_len,
+                                    const unsigned char *passphrase)
 {
 #ifdef HAVE_LIBCRYPT32
     unsigned char *pbEncoded;
@@ -1818,19 +1817,17 @@ int ssh2_wcng_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
 #endif /* HAVE_LIBCRYPT32 */
 }
 
-int ssh2_wcng_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
-                              const unsigned char *sig_fixed,
-                              const unsigned char *m,
-                              size_t m_len)
+int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
+                         const unsigned char *sig_fixed,
+                         const unsigned char *m, size_t m_len)
 {
     return wcng_key_sha_verify(dsa, SHA_DIGEST_LENGTH, sig_fixed,
                                40, m, (ULONG)m_len, 0);
 }
 
-int ssh2_wcng_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
-                            const unsigned char *hash,
-                            size_t hash_len,
-                            unsigned char *sig_fixed)
+int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
+                       const unsigned char *hash, size_t hash_len,
+                       unsigned char *sig_fixed)
 {
     unsigned char *data, *sig;
     ULONG cbData, datalen, siglen;
@@ -1871,7 +1868,7 @@ int ssh2_wcng_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-void ssh2_wcng_dsa_free(ssh2_dsa_ctx *dsa)
+void ssh2_dsa_free(ssh2_dsa_ctx *dsa)
 {
     if(!dsa)
         return;

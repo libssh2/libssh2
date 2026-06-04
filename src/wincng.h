@@ -273,22 +273,6 @@ struct wcng_key_ctx {
  */
 
 #define ssh2_dsa_ctx struct wcng_key_ctx
-#define ssh2_dsa_new(dsactx, p, p_len, q, q_len, g, g_len, y, y_len, \
-                     x, x_len) \
-    ssh2_wcng_dsa_new(dsactx, p, p_len, q, q_len, g, g_len, y, y_len, \
-                      x, x_len)
-#define ssh2_dsa_new_private(dsactx, s, filename, passphrase) \
-    ssh2_wcng_dsa_new_private(dsactx, s, filename, passphrase)
-#define ssh2_dsa_new_private_frommemory(dsactx, s, filedata, \
-                                        filedata_len, passphrase) \
-    ssh2_wcng_dsa_new_private_frommemory(dsactx, s, filedata, \
-                                         filedata_len, passphrase)
-#define ssh2_dsa_sha1_sign(dsactx, hash, hash_len, sig) \
-    ssh2_wcng_dsa_sha1_sign(dsactx, hash, hash_len, sig)
-#define ssh2_dsa_sha1_verify(dsactx, sig, m, m_len) \
-    ssh2_wcng_dsa_sha1_verify(dsactx, sig, m, m_len)
-#define ssh2_dsa_free(dsactx) \
-    ssh2_wcng_dsa_free(dsactx)
 
 /*
  * Windows CNG backend: ECDSA functions
