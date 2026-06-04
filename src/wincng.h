@@ -418,8 +418,6 @@ void ssh2_wcng_rsa_free(ssh2_rsa_ctx *rsa);
 void ssh2_wcng_dsa_free(ssh2_dsa_ctx *dsa);
 #endif
 
-void ssh2_wcng_cipher_dtor(ssh2_cipher_ctx *ctx);
-
 ssh2_bn *ssh2_wcng_bn_init(void);
 int ssh2_wcng_bn_set_word(ssh2_bn *bn, ULONG word);
 ULONG ssh2_wcng_bn_bits(const ssh2_bn *bn);
