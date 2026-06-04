@@ -887,8 +887,11 @@ LIBSSH2_API ssize_t libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel,
     libssh2_channel_read_ex(channel, SSH_EXTENDED_DATA_STDERR, \
                             buf, buflen)
 
+#ifndef LIBSSH2_NO_DEPRECATED
+LIBSSH2_DEPRECATED(1.2.0, "")
 LIBSSH2_API int libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel,
                                           int extended);
+#endif
 
 LIBSSH2_API unsigned long libssh2_channel_window_read_ex(
     LIBSSH2_CHANNEL *channel,

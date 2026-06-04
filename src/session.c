@@ -1449,7 +1449,10 @@ long libssh2_session_get_read_timeout(LIBSSH2_SESSION *session)
     return session->packet_read_timeout;
 }
 
+#ifndef LIBSSH2_NO_DEPRECATED
 /*
+ * DEPRECATED, DO NOT USE!
+ *
  * Returns 0 if no data is waiting on channel,
  * non-0 if data is available
  */
@@ -1506,7 +1509,6 @@ static inline int poll_listener_queued(LIBSSH2_LISTENER *listener)
     return ssh2_list_first(&listener->queue) ? 1 : 0;
 }
 
-#ifndef LIBSSH2_NO_DEPRECATED
 /*
  * Poll sockets, channels, and listeners for activity
  */

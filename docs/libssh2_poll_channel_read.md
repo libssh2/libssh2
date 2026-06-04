@@ -29,6 +29,10 @@ This function is deprecated. Do note use.
 packets are available to be processed. For full polling support, use
 *libssh2_poll(3)*.
 
+# AVAILABILITY
+
+Marked as deprecated since 1.2.0
+
 # RETURN VALUE
 
 Returns 1 when data is available and 0 otherwise.
