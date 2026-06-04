@@ -228,6 +228,8 @@
 
 void ssh2_ossl_crypto_init(void);
 
+int ssh2_random(unsigned char *buf, size_t len);
+
 #define ssh2_prepare_iovec(vec, len)  /* Empty. */
 
 #ifdef HAVE_OPAQUE_STRUCTS

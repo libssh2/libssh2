@@ -114,6 +114,8 @@
 void ssh2_mbed_crypto_init(void);
 void ssh2_mbed_crypto_exit(void);
 
+int ssh2_random(unsigned char *buf, size_t len);
+
 #define ssh2_prepare_iovec(vec, len)  /* Empty. */
 
 /*******************************************************************/

@@ -149,6 +149,8 @@ extern struct wcng_ctx ssh2_wcng;
 void ssh2_wcng_crypto_init(void);
 void ssh2_wcng_crypto_exit(void);
 
+int ssh2_random(unsigned char *buf, size_t len);
+
 #define ssh2_prepare_iovec(vec, len)  /* Empty. */
 
 /*******************************************************************/
