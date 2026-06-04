@@ -122,7 +122,9 @@ struct wcng_ctx {
     BCRYPT_ALG_HANDLE hAlgHmacSHA384;
     BCRYPT_ALG_HANDLE hAlgHmacSHA512;
     BCRYPT_ALG_HANDLE hAlgRSA;
+#if LIBSSH2_DSA
     BCRYPT_ALG_HANDLE hAlgDSA;
+#endif
     BCRYPT_ALG_HANDLE hAlgAES_CBC;
     BCRYPT_ALG_HANDLE hAlgAES_ECB;
     BCRYPT_ALG_HANDLE hAlgRC4_NA;
@@ -265,9 +267,11 @@ void ssh2_rsa_free(ssh2_rsa_ctx *rsa);
  * Windows CNG backend: DSA functions
  */
 
+#if LIBSSH2_DSA
 #define ssh2_dsa_ctx struct wcng_key_ctx
 
 void ssh2_dsa_free(ssh2_dsa_ctx *dsa);
+#endif
 
 /*
  * Windows CNG backend: ECDSA functions
