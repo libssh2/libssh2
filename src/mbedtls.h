@@ -330,9 +330,9 @@ void ssh2_mbed_bn_free(ssh2_bn *bn);
 #define ssh2_dh_secret(dhctx, secret, f, p, bnctx) \
     ssh2_mbed_dh_secret(dhctx, secret, f, p)
 
-int ssh2_mbed_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
-                          ssh2_bn *g, ssh2_bn *p, int group_order);
-int ssh2_mbed_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
-                        ssh2_bn *f, ssh2_bn *p);
+int ssh2_mbed_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public, ssh2_bn *g,
+                          ssh2_bn *p, int group_order);
+int ssh2_mbed_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
+                        ssh2_bn *p);
 
 #endif /* LIBSSH2_MBEDTLS_H */
