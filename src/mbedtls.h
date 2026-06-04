@@ -248,19 +248,13 @@ typedef enum {
 #endif
 } ssh2_curve_type;
 
+#define ssh2_ecdsa_ctx mbedtls_ecdsa_context
 #define ssh2_ec_key mbedtls_ecp_keypair
+
+void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ctx);
 #else
 #define ssh2_ec_key void
 #endif /* LIBSSH2_ECDSA */
-
-/*******************************************************************/
-/*
- * mbedTLS backend: ECDSA functions
- */
-
-#if LIBSSH2_ECDSA
-#define ssh2_ecdsa_ctx mbedtls_ecdsa_context
-#endif
 
 /*******************************************************************/
 /*

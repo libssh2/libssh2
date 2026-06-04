@@ -2221,14 +2221,14 @@ static void wcng_reverse_bytes(IN PUCHAR buffer, IN size_t buffer_len)
 /*
  * Windows CNG backend: ECDSA functions
  */
-void ssh2_ecdsa_free(IN ssh2_ecdsa_ctx *key)
+void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ctx)
 {
-    if(!key) {
+    if(!ctx) {
         return;
     }
 
-    (void)BCryptDestroyKey(key->handle);
-    free(key);
+    (void)BCryptDestroyKey(ctx->handle);
+    free(ctx);
 }
 
 /*

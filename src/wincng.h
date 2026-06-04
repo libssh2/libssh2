@@ -292,6 +292,8 @@ struct wcng_ecdsa_ctx {
 
 #define ssh2_ecdsa_ctx struct wcng_ecdsa_ctx
 #define ssh2_ec_key    struct wcng_ecdsa_ctx
+
+void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ctx);
 #else
 #define ssh2_ec_key void
 #endif
