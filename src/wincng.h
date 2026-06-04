@@ -301,6 +301,7 @@ struct wcng_key_ctx {
  * Windows CNG backend: ECDSA functions
  */
 
+#if LIBSSH2_ECDSA
 typedef enum {
     SSH2_EC_CURVE_NISTP256 = 0,
     SSH2_EC_CURVE_NISTP384 = 1,
@@ -313,7 +314,6 @@ struct wcng_ecdsa_ctx {
 };
 
 #define ssh2_ecdsa_ctx struct wcng_ecdsa_ctx
-#if LIBSSH2_ECDSA
 #define ssh2_ec_key struct wcng_ecdsa_ctx
 #endif
 
