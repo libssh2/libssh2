@@ -198,7 +198,7 @@ static int wcng_bn_random(ssh2_bn *rnd, int bits, int top, int bottom)
     if(!bignum)
         return -1;
 
-    if(ssh2_wcng_random(bignum, length))
+    if(ssh2_random(bignum, length))
         return -1;
 
     /* calculate significant bits in most significant byte */
@@ -474,7 +474,7 @@ struct ecdsa_point {
 
 struct wcng_ctx ssh2_wcng;
 
-void ssh2_wcng_init(void)
+void ssh2_crypto_init(void)
 {
     int ret;
 
@@ -654,7 +654,7 @@ void ssh2_wcng_init(void)
 #endif
 }
 
-void ssh2_wcng_free(void)
+void ssh2_crypto_exit(void)
 {
 #if LIBSSH2_ECDSA
     unsigned int curve;
@@ -709,7 +709,7 @@ void ssh2_wcng_free(void)
     memset(&ssh2_wcng, 0, sizeof(ssh2_wcng));
 }
 
-int ssh2_wcng_random(void *buf, size_t len)
+int ssh2_random(void *buf, size_t len)
 {
     int ret;
 

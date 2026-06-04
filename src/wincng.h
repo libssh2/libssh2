@@ -143,11 +143,6 @@ extern struct wcng_ctx ssh2_wcng;
  * Windows CNG backend: Generic functions
  */
 
-#define ssh2_crypto_init() ssh2_wcng_init()
-#define ssh2_crypto_exit() ssh2_wcng_free()
-
-#define ssh2_random(buf, len) ssh2_wcng_random(buf, len)
-
 #define ssh2_prepare_iovec(vec, len)  /* Empty. */
 
 /*******************************************************************/
@@ -417,14 +412,5 @@ int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
 int ssh2_wcng_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
                         ssh2_bn *f, ssh2_bn *p);
 void ssh2_wcng_dh_dtor(ssh2_dh_ctx *dhctx);
-
-/*******************************************************************/
-/*
- * Windows CNG backend: forward declarations
- */
-void ssh2_wcng_init(void);
-void ssh2_wcng_free(void);
-
-int ssh2_wcng_random(void *buf, size_t len);
 
 #endif /* LIBSSH2_WINCNG_H */
