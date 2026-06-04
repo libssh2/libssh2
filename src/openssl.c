@@ -1126,17 +1126,17 @@ static int passphrase_cb(char *buf, int size, int rwflag, void *passphrase)
 }
 
 #if defined(LIBSSH2_WOLFSSL) || defined(LIBRESSL_VERSION_NUMBER)
-typedef EC_KEY *(*pem_read_bio_func)(BIO *, EC_KEY **, pem_password_cb *,
-                                     void *u);
+typedef EC_KEY *(*pem_read_bio_t)(BIO *, EC_KEY **, pem_password_cb *,
+                                  void *u);
 #elif defined(USE_PEM_READ_BIO_PRIVATEKEY)
-typedef EVP_PKEY *(*pem_read_bio_func)(BIO *, EVP_PKEY **, pem_password_cb *,
-                                       void *u);
+typedef EVP_PKEY *(*pem_read_bio_t)(BIO *, EVP_PKEY **, pem_password_cb *,
+                                    void *u);
 #else
-typedef void *(*pem_read_bio_func)(BIO *, void **, pem_password_cb *, void *u);
+typedef void *(*pem_read_bio_t)(BIO *, void **, pem_password_cb *, void *u);
 #endif
 
 static int read_private_key_from_memory(void **key_ctx,
-                                        pem_read_bio_func read_private_key,
+                                        pem_read_bio_t read_private_key,
                                         const char *filedata,
                                         size_t filedata_len,
                                         const unsigned char *passphrase)
@@ -1160,7 +1160,7 @@ static int read_private_key_from_memory(void **key_ctx,
 
 #if LIBSSH2_RSA || LIBSSH2_DSA || LIBSSH2_ECDSA
 static int read_private_key_from_file(void **key_ctx,
-                                      pem_read_bio_func read_private_key,
+                                      pem_read_bio_t read_private_key,
                                       const char *filename,
                                       const unsigned char *passphrase)
 {
@@ -1191,11 +1191,9 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
     int rc;
 
 #ifdef USE_PEM_READ_BIO_PRIVATEKEY
-    pem_read_bio_func read_rsa =
-        (pem_read_bio_func)&PEM_read_bio_PrivateKey;
+    pem_read_bio_t read_rsa = (pem_read_bio_t)&PEM_read_bio_PrivateKey;
 #else
-    pem_read_bio_func read_rsa =
-        (pem_read_bio_func)&PEM_read_bio_RSAPrivateKey;
+    pem_read_bio_t read_rsa = (pem_read_bio_t)&PEM_read_bio_RSAPrivateKey;
 #endif
 
     ssh2_init_if_needed();
@@ -1583,11 +1581,9 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
     int rc;
 
 #ifdef USE_PEM_READ_BIO_PRIVATEKEY
-    pem_read_bio_func read_rsa =
-        (pem_read_bio_func)&PEM_read_bio_PrivateKey;
+    pem_read_bio_t read_rsa = (pem_read_bio_t)&PEM_read_bio_PrivateKey;
 #else
-    pem_read_bio_func read_rsa =
-        (pem_read_bio_func)&PEM_read_bio_RSAPrivateKey;
+    pem_read_bio_t read_rsa = (pem_read_bio_t)&PEM_read_bio_RSAPrivateKey;
 #endif
 
     ssh2_init_if_needed();
@@ -1614,11 +1610,9 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
     int rc;
 
 #ifdef USE_PEM_READ_BIO_PRIVATEKEY
-    pem_read_bio_func read_dsa =
-        (pem_read_bio_func)&PEM_read_bio_PrivateKey;
+    pem_read_bio_t read_dsa = (pem_read_bio_t)&PEM_read_bio_PrivateKey;
 #else
-    pem_read_bio_func read_dsa =
-        (pem_read_bio_func)&PEM_read_bio_DSAPrivateKey;
+    pem_read_bio_t read_dsa = (pem_read_bio_t)&PEM_read_bio_DSAPrivateKey;
 #endif
 
     ssh2_init_if_needed();
@@ -1925,11 +1919,9 @@ int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
     int rc;
 
 #ifdef USE_PEM_READ_BIO_PRIVATEKEY
-    pem_read_bio_func read_dsa =
-        (pem_read_bio_func)&PEM_read_bio_PrivateKey;
+    pem_read_bio_t read_dsa = (pem_read_bio_t)&PEM_read_bio_PrivateKey;
 #else
-    pem_read_bio_func read_dsa =
-        (pem_read_bio_func)&PEM_read_bio_DSAPrivateKey;
+    pem_read_bio_t read_dsa = (pem_read_bio_t)&PEM_read_bio_DSAPrivateKey;
 #endif
 
     ssh2_init_if_needed();
@@ -1955,11 +1947,9 @@ int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
     int rc;
 
 #ifdef USE_PEM_READ_BIO_PRIVATEKEY
-    pem_read_bio_func read_ec =
-        (pem_read_bio_func)&PEM_read_bio_PrivateKey;
+    pem_read_bio_t read_ec = (pem_read_bio_t)&PEM_read_bio_PrivateKey;
 #else
-    pem_read_bio_func read_ec =
-        (pem_read_bio_func)&PEM_read_bio_ECPrivateKey;
+    pem_read_bio_t read_ec = (pem_read_bio_t)&PEM_read_bio_ECPrivateKey;
 #endif
 
     ssh2_init_if_needed();
@@ -2573,7 +2563,7 @@ int ssh2_ed25519_new_private_frommemory(ssh2_ed25519_ctx **ed_ctx,
     ssh2_init_if_needed();
 
     if(read_private_key_from_memory((void **)&ctx,
-                                   (pem_read_bio_func)&PEM_read_bio_PrivateKey,
+                                    (pem_read_bio_t)&PEM_read_bio_PrivateKey,
                                     filedata, filedata_len, passphrase) == 0) {
         if(EVP_PKEY_id(ctx) != EVP_PKEY_ED25519) {
             ssh2_ed25519_free(ctx);
@@ -3990,11 +3980,9 @@ int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
     int rc;
 
 #ifdef USE_PEM_READ_BIO_PRIVATEKEY
-    pem_read_bio_func read_ec =
-        (pem_read_bio_func)&PEM_read_bio_PrivateKey;
+    pem_read_bio_t read_ec = (pem_read_bio_t)&PEM_read_bio_PrivateKey;
 #else
-    pem_read_bio_func read_ec =
-        (pem_read_bio_func)&PEM_read_bio_ECPrivateKey;
+    pem_read_bio_t read_ec = (pem_read_bio_t)&PEM_read_bio_ECPrivateKey;
 #endif
 
     ssh2_init_if_needed();
@@ -4021,11 +4009,9 @@ int ssh2_ecdsa_new_private_sk(ssh2_ecdsa_ctx **ec_ctx,
     int rc;
 
 #ifdef USE_PEM_READ_BIO_PRIVATEKEY
-    pem_read_bio_func read_ec =
-        (pem_read_bio_func)&PEM_read_bio_PrivateKey;
+    pem_read_bio_t read_ec = (pem_read_bio_t)&PEM_read_bio_PrivateKey;
 #else
-    pem_read_bio_func read_ec =
-        (pem_read_bio_func)&PEM_read_bio_ECPrivateKey;
+    pem_read_bio_t read_ec = (pem_read_bio_t)&PEM_read_bio_ECPrivateKey;
 #endif
 
     ssh2_init_if_needed();
