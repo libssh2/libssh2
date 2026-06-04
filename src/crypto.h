@@ -341,4 +341,7 @@ const char *ssh2_supported_key_sign_algs(LIBSSH2_SESSION *session,
                                          unsigned char *key_method,
                                          size_t key_method_len);
 
+void ssh2_dh_init(ssh2_dh_ctx *ctx);
+void ssh2_dh_dtor(ssh2_dh_ctx *ctx);
+
 #endif /* LIBSSH2_CRYPTO_H */
