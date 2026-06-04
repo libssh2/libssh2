@@ -1243,7 +1243,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
  *
  *******************************************************************/
 
-void ssh2_os400qc3_dh_init(ssh2_dh_ctx *dhctx)
+void ssh2_dh_init(ssh2_dh_ctx *dhctx)
 {
     memset((char *)dhctx, 0, sizeof(*dhctx));
 }
@@ -1318,7 +1318,7 @@ int ssh2_os400qc3_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
     return ssh2_bn_from_bin(secret, secretbuflen, (unsigned char *)secretbuf);
 }
 
-void ssh2_os400qc3_dh_dtor(ssh2_dh_ctx *dhctx)
+void ssh2_dh_dtor(ssh2_dh_ctx *dhctx)
 {
     if(!null_token(dhctx->token)) {
         Qc3DestroyAlgorithmContext(dhctx->token, (char *)&ecnull);
