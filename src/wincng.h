@@ -254,12 +254,10 @@ struct wincng_key_ctx {
  */
 
 #define ssh2_rsa_ctx struct wincng_key_ctx
-#define ssh2_rsa_new(rsactx, e, e_len, n, n_len, \
-                     d, d_len, p, p_len, q, q_len, \
-                     e1, e1_len, e2, e2_len, c, c_len) \
-    ssh2_wcng_rsa_new(rsactx, e, e_len, n, n_len, \
-                      d, d_len, p, p_len, q, q_len, \
-                      e1, e1_len, e2, e2_len, c, c_len)
+#define ssh2_rsa_new(rsactx, e, e_len, n, n_len, d, d_len, p, p_len, \
+                     q, q_len, e1, e1_len, e2, e2_len, c, c_len) \
+    ssh2_wcng_rsa_new(rsactx, e, e_len, n, n_len, d, d_len, p, p_len, \
+                      q, q_len, e1, e1_len, e2, e2_len, c, c_len)
 #define ssh2_rsa_new_private(rsactx, s, filename, passphrase) \
     ssh2_wcng_rsa_new_private(rsactx, s, filename, passphrase)
 #define ssh2_rsa_new_private_frommemory(rsactx, s, filedata, \
@@ -282,10 +280,10 @@ struct wincng_key_ctx {
  */
 
 #define ssh2_dsa_ctx struct wincng_key_ctx
-#define ssh2_dsa_new(dsactx, p, p_len, q, q_len, \
-                     g, g_len, y, y_len, x, x_len) \
-    ssh2_wcng_dsa_new(dsactx, p, p_len, q, q_len, \
-                      g, g_len, y, y_len, x, x_len)
+#define ssh2_dsa_new(dsactx, p, p_len, q, q_len, g, g_len, y, y_len, \
+                     x, x_len) \
+    ssh2_wcng_dsa_new(dsactx, p, p_len, q, q_len, g, g_len, y, y_len, \
+                      x, x_len)
 #define ssh2_dsa_new_private(dsactx, s, filename, passphrase) \
     ssh2_wcng_dsa_new_private(dsactx, s, filename, passphrase)
 #define ssh2_dsa_new_private_frommemory(dsactx, s, filedata, \
