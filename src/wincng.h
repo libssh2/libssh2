@@ -247,26 +247,6 @@ struct wcng_key_ctx {
  */
 
 #define ssh2_rsa_ctx struct wcng_key_ctx
-#define ssh2_rsa_new(rsactx, e, e_len, n, n_len, d, d_len, p, p_len, \
-                     q, q_len, e1, e1_len, e2, e2_len, c, c_len) \
-    ssh2_wcng_rsa_new(rsactx, e, e_len, n, n_len, d, d_len, p, p_len, \
-                      q, q_len, e1, e1_len, e2, e2_len, c, c_len)
-#define ssh2_rsa_new_private(rsactx, s, filename, passphrase) \
-    ssh2_wcng_rsa_new_private(rsactx, s, filename, passphrase)
-#define ssh2_rsa_new_private_frommemory(rsactx, s, filedata, \
-                                        filedata_len, passphrase) \
-    ssh2_wcng_rsa_new_private_frommemory(rsactx, s, filedata, \
-                                         filedata_len, passphrase)
-#define ssh2_rsa_sha1_sign(s, rsactx, hash, hash_len, sig, sig_len) \
-    ssh2_wcng_rsa_sha1_sign(s, rsactx, hash, hash_len, sig, sig_len)
-#define ssh2_rsa_sha2_sign(s, rsactx, hash, hash_len, sig, sig_len) \
-    ssh2_wcng_rsa_sha2_sign(s, rsactx, hash, hash_len, sig, sig_len)
-#define ssh2_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len) \
-    ssh2_wcng_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len)
-#define ssh2_rsa_sha2_verify(rsactx, hash_len, sig, sig_len, m, m_len) \
-    ssh2_wcng_rsa_sha2_verify(rsactx, hash_len, sig, sig_len, m, m_len)
-#define ssh2_rsa_free(rsactx) \
-    ssh2_wcng_rsa_free(rsactx)
 
 /*
  * Windows CNG backend: DSA functions

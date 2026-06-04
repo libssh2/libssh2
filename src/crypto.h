@@ -132,6 +132,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                     const char *filedata,
                                     size_t filedata_len,
                                     const unsigned char *passphrase);
+void ssh2_rsa_free(ssh2_rsa_ctx *rsa);
 #endif
 
 #if LIBSSH2_DSA
