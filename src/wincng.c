@@ -259,9 +259,8 @@ static int wcng_bignum_mod_exp(ssh2_bn *r,
     memcpy((unsigned char *)rsakey + offset, m->bignum, m->length);
     offset = 0;
 
-    ret = BCryptImportKeyPair(ssh2_wcng_ctx.hAlgRSA, NULL,
-                              BCRYPT_RSAPUBLIC_BLOB, &hKey,
-                              (PUCHAR)rsakey, keylen, 0);
+    ret = BCryptImportKeyPair(ssh2_wcng.hAlgRSA, NULL, BCRYPT_RSAPUBLIC_BLOB,
+                              &hKey, (PUCHAR)rsakey, keylen, 0);
     if(BCRYPT_SUCCESS(ret)) {
         ret = BCryptEncrypt(hKey, a->bignum, a->length, NULL, NULL, 0,
                             NULL, 0, &length, BCRYPT_PAD_NONE);
@@ -478,7 +477,7 @@ struct ecdsa_point {
  * Windows CNG backend: Generic functions
  */
 
-struct wcng_ctx ssh2_wcng_ctx;
+struct wcng_ctx ssh2_wcng;
 
 void ssh2_wcng_init(void)
 {
@@ -488,150 +487,150 @@ void ssh2_wcng_init(void)
     unsigned int curve;
 #endif
 
-    memset(&ssh2_wcng_ctx, 0, sizeof(ssh2_wcng_ctx));
+    memset(&ssh2_wcng, 0, sizeof(ssh2_wcng));
 
-    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng_ctx.hAlgRNG,
+    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgRNG,
                                       BCRYPT_RNG_ALGORITHM, NULL, 0);
     if(!BCRYPT_SUCCESS(ret)) {
-        ssh2_wcng_ctx.hAlgRNG = NULL;
+        ssh2_wcng.hAlgRNG = NULL;
     }
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng_ctx.hAlgHashMD5,
+    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgHashMD5,
                                       BCRYPT_MD5_ALGORITHM, NULL, 0);
     if(!BCRYPT_SUCCESS(ret)) {
-        ssh2_wcng_ctx.hAlgHashMD5 = NULL;
+        ssh2_wcng.hAlgHashMD5 = NULL;
     }
 #endif
-    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng_ctx.hAlgHashSHA1,
+    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgHashSHA1,
                                       BCRYPT_SHA1_ALGORITHM, NULL, 0);
     if(!BCRYPT_SUCCESS(ret)) {
-        ssh2_wcng_ctx.hAlgHashSHA1 = NULL;
+        ssh2_wcng.hAlgHashSHA1 = NULL;
     }
-    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng_ctx.hAlgHashSHA256,
+    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgHashSHA256,
                                       BCRYPT_SHA256_ALGORITHM, NULL, 0);
     if(!BCRYPT_SUCCESS(ret)) {
-        ssh2_wcng_ctx.hAlgHashSHA256 = NULL;
+        ssh2_wcng.hAlgHashSHA256 = NULL;
     }
-    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng_ctx.hAlgHashSHA384,
+    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgHashSHA384,
                                       BCRYPT_SHA384_ALGORITHM, NULL, 0);
     if(!BCRYPT_SUCCESS(ret)) {
-        ssh2_wcng_ctx.hAlgHashSHA384 = NULL;
+        ssh2_wcng.hAlgHashSHA384 = NULL;
     }
-    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng_ctx.hAlgHashSHA512,
+    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgHashSHA512,
                                       BCRYPT_SHA512_ALGORITHM, NULL, 0);
     if(!BCRYPT_SUCCESS(ret)) {
-        ssh2_wcng_ctx.hAlgHashSHA512 = NULL;
+        ssh2_wcng.hAlgHashSHA512 = NULL;
     }
 
 #if LIBSSH2_MD5
-    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng_ctx.hAlgHmacMD5,
+    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgHmacMD5,
                                       BCRYPT_MD5_ALGORITHM, NULL,
                                       BCRYPT_ALG_HANDLE_HMAC_FLAG);
     if(!BCRYPT_SUCCESS(ret)) {
-        ssh2_wcng_ctx.hAlgHmacMD5 = NULL;
+        ssh2_wcng.hAlgHmacMD5 = NULL;
     }
 #endif
-    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng_ctx.hAlgHmacSHA1,
+    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgHmacSHA1,
                                       BCRYPT_SHA1_ALGORITHM, NULL,
                                       BCRYPT_ALG_HANDLE_HMAC_FLAG);
     if(!BCRYPT_SUCCESS(ret)) {
-        ssh2_wcng_ctx.hAlgHmacSHA1 = NULL;
+        ssh2_wcng.hAlgHmacSHA1 = NULL;
     }
-    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng_ctx.hAlgHmacSHA256,
+    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgHmacSHA256,
                                       BCRYPT_SHA256_ALGORITHM, NULL,
                                       BCRYPT_ALG_HANDLE_HMAC_FLAG);
     if(!BCRYPT_SUCCESS(ret)) {
-        ssh2_wcng_ctx.hAlgHmacSHA256 = NULL;
+        ssh2_wcng.hAlgHmacSHA256 = NULL;
     }
-    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng_ctx.hAlgHmacSHA384,
+    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgHmacSHA384,
                                       BCRYPT_SHA384_ALGORITHM, NULL,
                                       BCRYPT_ALG_HANDLE_HMAC_FLAG);
     if(!BCRYPT_SUCCESS(ret)) {
-        ssh2_wcng_ctx.hAlgHmacSHA384 = NULL;
+        ssh2_wcng.hAlgHmacSHA384 = NULL;
     }
-    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng_ctx.hAlgHmacSHA512,
+    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgHmacSHA512,
                                       BCRYPT_SHA512_ALGORITHM, NULL,
                                       BCRYPT_ALG_HANDLE_HMAC_FLAG);
     if(!BCRYPT_SUCCESS(ret)) {
-        ssh2_wcng_ctx.hAlgHmacSHA512 = NULL;
+        ssh2_wcng.hAlgHmacSHA512 = NULL;
     }
 
-    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng_ctx.hAlgRSA,
+    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgRSA,
                                       BCRYPT_RSA_ALGORITHM, NULL, 0);
     if(!BCRYPT_SUCCESS(ret)) {
-        ssh2_wcng_ctx.hAlgRSA = NULL;
+        ssh2_wcng.hAlgRSA = NULL;
     }
-    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng_ctx.hAlgDSA,
+    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgDSA,
                                       BCRYPT_DSA_ALGORITHM, NULL, 0);
     if(!BCRYPT_SUCCESS(ret)) {
-        ssh2_wcng_ctx.hAlgDSA = NULL;
+        ssh2_wcng.hAlgDSA = NULL;
     }
 
-    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng_ctx.hAlgAES_CBC,
+    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgAES_CBC,
                                       BCRYPT_AES_ALGORITHM, NULL, 0);
     if(BCRYPT_SUCCESS(ret)) {
-        ret = BCryptSetProperty(ssh2_wcng_ctx.hAlgAES_CBC,
+        ret = BCryptSetProperty(ssh2_wcng.hAlgAES_CBC,
                                 BCRYPT_CHAINING_MODE,
                                 (PBYTE)SSH2_UNCONST(BCRYPT_CHAIN_MODE_CBC),
                                 sizeof(BCRYPT_CHAIN_MODE_CBC), 0);
         if(!BCRYPT_SUCCESS(ret)) {
-            ret = BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgAES_CBC, 0);
+            ret = BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgAES_CBC, 0);
             if(BCRYPT_SUCCESS(ret)) {
-                ssh2_wcng_ctx.hAlgAES_CBC = NULL;
+                ssh2_wcng.hAlgAES_CBC = NULL;
             }
         }
     }
 
-    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng_ctx.hAlgAES_ECB,
+    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgAES_ECB,
                                       BCRYPT_AES_ALGORITHM, NULL, 0);
     if(BCRYPT_SUCCESS(ret)) {
-        ret = BCryptSetProperty(ssh2_wcng_ctx.hAlgAES_ECB,
+        ret = BCryptSetProperty(ssh2_wcng.hAlgAES_ECB,
                                 BCRYPT_CHAINING_MODE,
                                 (PBYTE)SSH2_UNCONST(BCRYPT_CHAIN_MODE_ECB),
                                 sizeof(BCRYPT_CHAIN_MODE_ECB), 0);
         if(!BCRYPT_SUCCESS(ret)) {
-            ret = BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgAES_ECB, 0);
+            ret = BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgAES_ECB, 0);
             if(BCRYPT_SUCCESS(ret)) {
-                ssh2_wcng_ctx.hAlgAES_ECB = NULL;
+                ssh2_wcng.hAlgAES_ECB = NULL;
             }
         }
     }
 
-    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng_ctx.hAlgRC4_NA,
+    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgRC4_NA,
                                       BCRYPT_RC4_ALGORITHM, NULL, 0);
     if(BCRYPT_SUCCESS(ret)) {
-        ret = BCryptSetProperty(ssh2_wcng_ctx.hAlgRC4_NA,
+        ret = BCryptSetProperty(ssh2_wcng.hAlgRC4_NA,
                                 BCRYPT_CHAINING_MODE,
                                 (PBYTE)SSH2_UNCONST(BCRYPT_CHAIN_MODE_NA),
                                 sizeof(BCRYPT_CHAIN_MODE_NA), 0);
         if(!BCRYPT_SUCCESS(ret)) {
-            ret = BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgRC4_NA, 0);
+            ret = BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgRC4_NA, 0);
             if(BCRYPT_SUCCESS(ret)) {
-                ssh2_wcng_ctx.hAlgRC4_NA = NULL;
+                ssh2_wcng.hAlgRC4_NA = NULL;
             }
         }
     }
 
-    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng_ctx.hAlg3DES_CBC,
+    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlg3DES_CBC,
                                       BCRYPT_3DES_ALGORITHM, NULL, 0);
     if(BCRYPT_SUCCESS(ret)) {
-        ret = BCryptSetProperty(ssh2_wcng_ctx.hAlg3DES_CBC,
+        ret = BCryptSetProperty(ssh2_wcng.hAlg3DES_CBC,
                                 BCRYPT_CHAINING_MODE,
                                 (PBYTE)SSH2_UNCONST(BCRYPT_CHAIN_MODE_CBC),
                                 sizeof(BCRYPT_CHAIN_MODE_CBC), 0);
         if(!BCRYPT_SUCCESS(ret)) {
-            ret = BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlg3DES_CBC, 0);
+            ret = BCryptCloseAlgorithmProvider(ssh2_wcng.hAlg3DES_CBC, 0);
             if(BCRYPT_SUCCESS(ret)) {
-                ssh2_wcng_ctx.hAlg3DES_CBC = NULL;
+                ssh2_wcng.hAlg3DES_CBC = NULL;
             }
         }
     }
 
-    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng_ctx.hAlgDH,
+    ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgDH,
                                       BCRYPT_DH_ALGORITHM, NULL, 0);
     if(!BCRYPT_SUCCESS(ret)) {
-        ssh2_wcng_ctx.hAlgDH = NULL;
+        ssh2_wcng.hAlgDH = NULL;
     }
 
 #if LIBSSH2_ECDSA
@@ -645,7 +644,7 @@ void ssh2_wcng_init(void)
             NULL,
             0);
         if(BCRYPT_SUCCESS(ret)) {
-            ssh2_wcng_ctx.hAlgECDSA[curve] = alg_handle_ecdsa;
+            ssh2_wcng.hAlgECDSA[curve] = alg_handle_ecdsa;
         }
 
         ret = BCryptOpenAlgorithmProvider(
@@ -654,7 +653,7 @@ void ssh2_wcng_init(void)
             NULL,
             0);
         if(BCRYPT_SUCCESS(ret)) {
-            ssh2_wcng_ctx.hAlgECDH[curve] = alg_handle_ecdh;
+            ssh2_wcng.hAlgECDH[curve] = alg_handle_ecdh;
         }
     }
 #endif
@@ -666,53 +665,53 @@ void ssh2_wcng_free(void)
     unsigned int curve;
 #endif
 
-    if(ssh2_wcng_ctx.hAlgRNG)
-        (void)BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgRNG, 0);
+    if(ssh2_wcng.hAlgRNG)
+        (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgRNG, 0);
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-    if(ssh2_wcng_ctx.hAlgHashMD5)
-        (void)BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgHashMD5, 0);
+    if(ssh2_wcng.hAlgHashMD5)
+        (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgHashMD5, 0);
 #endif
-    if(ssh2_wcng_ctx.hAlgHashSHA1)
-        (void)BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgHashSHA1, 0);
-    if(ssh2_wcng_ctx.hAlgHashSHA256)
-        (void)BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgHashSHA256, 0);
-    if(ssh2_wcng_ctx.hAlgHashSHA384)
-        (void)BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgHashSHA384, 0);
-    if(ssh2_wcng_ctx.hAlgHashSHA512)
-        (void)BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgHashSHA512, 0);
+    if(ssh2_wcng.hAlgHashSHA1)
+        (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgHashSHA1, 0);
+    if(ssh2_wcng.hAlgHashSHA256)
+        (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgHashSHA256, 0);
+    if(ssh2_wcng.hAlgHashSHA384)
+        (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgHashSHA384, 0);
+    if(ssh2_wcng.hAlgHashSHA512)
+        (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgHashSHA512, 0);
 #if LIBSSH2_MD5
-    if(ssh2_wcng_ctx.hAlgHmacMD5)
-        (void)BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgHmacMD5, 0);
+    if(ssh2_wcng.hAlgHmacMD5)
+        (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgHmacMD5, 0);
 #endif
-    if(ssh2_wcng_ctx.hAlgHmacSHA1)
-        (void)BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgHmacSHA1, 0);
-    if(ssh2_wcng_ctx.hAlgHmacSHA256)
-        (void)BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgHmacSHA256, 0);
-    if(ssh2_wcng_ctx.hAlgHmacSHA384)
-        (void)BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgHmacSHA384, 0);
-    if(ssh2_wcng_ctx.hAlgHmacSHA512)
-        (void)BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgHmacSHA512, 0);
-    if(ssh2_wcng_ctx.hAlgRSA)
-        (void)BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgRSA, 0);
-    if(ssh2_wcng_ctx.hAlgDSA)
-        (void)BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgDSA, 0);
-    if(ssh2_wcng_ctx.hAlgAES_CBC)
-        (void)BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgAES_CBC, 0);
-    if(ssh2_wcng_ctx.hAlgRC4_NA)
-        (void)BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgRC4_NA, 0);
-    if(ssh2_wcng_ctx.hAlg3DES_CBC)
-        (void)BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlg3DES_CBC, 0);
-    if(ssh2_wcng_ctx.hAlgDH)
-        (void)BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgDH, 0);
+    if(ssh2_wcng.hAlgHmacSHA1)
+        (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgHmacSHA1, 0);
+    if(ssh2_wcng.hAlgHmacSHA256)
+        (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgHmacSHA256, 0);
+    if(ssh2_wcng.hAlgHmacSHA384)
+        (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgHmacSHA384, 0);
+    if(ssh2_wcng.hAlgHmacSHA512)
+        (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgHmacSHA512, 0);
+    if(ssh2_wcng.hAlgRSA)
+        (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgRSA, 0);
+    if(ssh2_wcng.hAlgDSA)
+        (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgDSA, 0);
+    if(ssh2_wcng.hAlgAES_CBC)
+        (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgAES_CBC, 0);
+    if(ssh2_wcng.hAlgRC4_NA)
+        (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgRC4_NA, 0);
+    if(ssh2_wcng.hAlg3DES_CBC)
+        (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlg3DES_CBC, 0);
+    if(ssh2_wcng.hAlgDH)
+        (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgDH, 0);
 
 #if LIBSSH2_ECDSA
     for(curve = 0; curve < SSH2_ARRAYSIZE(wcng_ecdsa_algorithms); curve++) {
-        (void)BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgECDSA[curve], 0);
-        (void)BCryptCloseAlgorithmProvider(ssh2_wcng_ctx.hAlgECDH[curve], 0);
+        (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgECDSA[curve], 0);
+        (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgECDH[curve], 0);
     }
 #endif
 
-    memset(&ssh2_wcng_ctx, 0, sizeof(ssh2_wcng_ctx));
+    memset(&ssh2_wcng, 0, sizeof(ssh2_wcng));
 }
 
 int ssh2_wcng_random(void *buf, size_t len)
@@ -723,7 +722,7 @@ int ssh2_wcng_random(void *buf, size_t len)
         return -1;
     }
 
-    ret = BCryptGenRandom(ssh2_wcng_ctx.hAlgRNG, buf, (ULONG)len, 0);
+    ret = BCryptGenRandom(ssh2_wcng.hAlgRNG, buf, (ULONG)len, 0);
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
@@ -836,7 +835,7 @@ int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 #if LIBSSH2_MD5
 int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    int ret = ssh2_wcng_hash_init(ctx, ssh2_wcng_ctx.hAlgHmacMD5,
+    int ret = ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHmacMD5,
                                   MD5_DIGEST_LENGTH, key, (ULONG)keylen);
 
     return ret == 0 ? 1 : 0;
@@ -845,7 +844,7 @@ int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 
 int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    int ret = ssh2_wcng_hash_init(ctx, ssh2_wcng_ctx.hAlgHmacSHA1,
+    int ret = ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHmacSHA1,
                                   SHA_DIGEST_LENGTH, key, (ULONG)keylen);
 
     return ret == 0 ? 1 : 0;
@@ -853,7 +852,7 @@ int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 
 int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    int ret = ssh2_wcng_hash_init(ctx, ssh2_wcng_ctx.hAlgHmacSHA256,
+    int ret = ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHmacSHA256,
                                   SHA256_DIGEST_LENGTH, key, (ULONG)keylen);
 
     return ret == 0 ? 1 : 0;
@@ -861,7 +860,7 @@ int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 
 int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    int ret = ssh2_wcng_hash_init(ctx, ssh2_wcng_ctx.hAlgHmacSHA512,
+    int ret = ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHmacSHA512,
                                   SHA512_DIGEST_LENGTH, key, (ULONG)keylen);
 
     return ret == 0 ? 1 : 0;
@@ -912,19 +911,19 @@ static int wcng_key_sha_verify(struct wincng_key_ctx *ctx,
     int ret;
 
     if(hashlen == SHA_DIGEST_LENGTH) {
-        hAlgHash = ssh2_wcng_ctx.hAlgHashSHA1;
+        hAlgHash = ssh2_wcng.hAlgHashSHA1;
         paddingInfoPKCS1.pszAlgId = BCRYPT_SHA1_ALGORITHM;
     }
     else if(hashlen == SHA256_DIGEST_LENGTH) {
-        hAlgHash = ssh2_wcng_ctx.hAlgHashSHA256;
+        hAlgHash = ssh2_wcng.hAlgHashSHA256;
         paddingInfoPKCS1.pszAlgId = BCRYPT_SHA256_ALGORITHM;
     }
     else if(hashlen == SHA384_DIGEST_LENGTH) {
-        hAlgHash = ssh2_wcng_ctx.hAlgHashSHA384;
+        hAlgHash = ssh2_wcng.hAlgHashSHA384;
         paddingInfoPKCS1.pszAlgId = BCRYPT_SHA384_ALGORITHM;
     }
     else if(hashlen == SHA512_DIGEST_LENGTH) {
-        hAlgHash = ssh2_wcng_ctx.hAlgHashSHA512;
+        hAlgHash = ssh2_wcng.hAlgHashSHA512;
         paddingInfoPKCS1.pszAlgId = BCRYPT_SHA512_ALGORITHM;
     }
     else {
@@ -1069,11 +1068,9 @@ static int wcng_load_private_memory(LIBSSH2_SESSION *session,
     return ret;
 }
 
-static int wcng_asn_decode(unsigned char *pbEncoded,
-                           DWORD cbEncoded,
+static int wcng_asn_decode(unsigned char *pbEncoded, DWORD cbEncoded,
                            LPCSTR lpszStructType,
-                           unsigned char **ppbDecoded,
-                           DWORD *pcbDecoded)
+                           unsigned char **ppbDecoded, DWORD *pcbDecoded)
 {
     unsigned char *pbDecoded = NULL;
     DWORD cbDecoded = 0;
@@ -1144,18 +1141,15 @@ static int wcng_bn_ltob(unsigned char *pbInput,
     return 0;
 }
 
-static int wcng_asn_decode_bn(unsigned char *pbEncoded,
-                              DWORD cbEncoded,
-                              unsigned char **ppbDecoded,
-                              DWORD *pcbDecoded)
+static int wcng_asn_decode_bn(unsigned char *pbEncoded, DWORD cbEncoded,
+                              unsigned char **ppbDecoded, DWORD *pcbDecoded)
 {
     unsigned char *pbDecoded = NULL;
     PCRYPT_DATA_BLOB pbInteger;
     DWORD cbDecoded = 0, cbInteger;
     int ret;
 
-    ret = wcng_asn_decode(pbEncoded, cbEncoded,
-                          X509_MULTI_BYTE_UINT,
+    ret = wcng_asn_decode(pbEncoded, cbEncoded, X509_MULTI_BYTE_UINT,
                           (void *)&pbInteger, &cbInteger);
     if(!ret) {
         ret = wcng_bn_ltob(pbInteger->pbData,
@@ -1183,8 +1177,7 @@ static int wcng_asn_decode_bns(unsigned char *pbEncoded,
     DWORD cbDecoded, *rcbDecoded, index, length;
     int ret;
 
-    ret = wcng_asn_decode(pbEncoded, cbEncoded,
-                          X509_SEQUENCE_OF_ANY,
+    ret = wcng_asn_decode(pbEncoded, cbEncoded, X509_SEQUENCE_OF_ANY,
                           (void *)&pbDecoded, &cbDecoded);
     if(!ret) {
         length = pbDecoded->cValue;
@@ -1372,7 +1365,7 @@ int ssh2_wcng_rsa_new(ssh2_rsa_ctx **rsa,
         rsakey->cbPrime2 = 0;
     }
 
-    ret = BCryptImportKeyPair(ssh2_wcng_ctx.hAlgRSA, NULL, lpszBlobType,
+    ret = BCryptImportKeyPair(ssh2_wcng.hAlgRSA, NULL, lpszBlobType,
                               &hKey, (PUCHAR)rsakey, keylen, 0);
     if(!BCRYPT_SUCCESS(ret)) {
         wcng_safe_free(rsakey, keylen);
@@ -1406,8 +1399,7 @@ static int wcng_rsa_new_private_parse(ssh2_rsa_ctx **rsa,
 
     (void)session;
 
-    ret = wcng_asn_decode(pbEncoded, (DWORD)cbEncoded,
-                          PKCS_RSA_PRIVATE_KEY,
+    ret = wcng_asn_decode(pbEncoded, (DWORD)cbEncoded, PKCS_RSA_PRIVATE_KEY,
                           &pbStructInfo, &cbStructInfo);
 
     wcng_safe_free(pbEncoded, cbEncoded);
@@ -1416,9 +1408,8 @@ static int wcng_rsa_new_private_parse(ssh2_rsa_ctx **rsa,
         return -1;
     }
 
-    ret = BCryptImportKeyPair(ssh2_wcng_ctx.hAlgRSA, NULL,
-                              LEGACY_RSAPRIVATE_BLOB, &hKey,
-                              pbStructInfo, cbStructInfo, 0);
+    ret = BCryptImportKeyPair(ssh2_wcng.hAlgRSA, NULL, LEGACY_RSAPRIVATE_BLOB,
+                              &hKey, pbStructInfo, cbStructInfo, 0);
     if(!BCRYPT_SUCCESS(ret)) {
         wcng_safe_free(pbStructInfo, cbStructInfo);
         return -1;
@@ -1707,7 +1698,7 @@ int ssh2_wcng_dsa_new(ssh2_dsa_ctx **dsa,
         dsakey->dwMagic = BCRYPT_DSA_PUBLIC_MAGIC;
     }
 
-    ret = BCryptImportKeyPair(ssh2_wcng_ctx.hAlgDSA, NULL, lpszBlobType,
+    ret = BCryptImportKeyPair(ssh2_wcng.hAlgDSA, NULL, lpszBlobType,
                               &hKey, (PUCHAR)dsakey, keylen, 0);
     if(!BCRYPT_SUCCESS(ret)) {
         wcng_safe_free(dsakey, keylen);
@@ -2048,8 +2039,8 @@ static int wcng_publickey_from_point(IN wincng_ecc_keytype keytype,
 
     status = BCryptImportKeyPair(
         keytype == WINCNG_ECC_KEYTYPE_ECDSA
-            ? ssh2_wcng_ctx.hAlgECDSA[point->curve]
-            : ssh2_wcng_ctx.hAlgECDH[point->curve],
+            ? ssh2_wcng.hAlgECDSA[point->curve]
+            : ssh2_wcng.hAlgECDH[point->curve],
         NULL,
         BCRYPT_ECCPUBLIC_BLOB,
         key,
@@ -2116,8 +2107,8 @@ static int wcng_privatekey_from_point(IN wincng_ecc_keytype keytype,
 
     status = BCryptImportKeyPair(
         keytype == WINCNG_ECC_KEYTYPE_ECDSA
-            ? ssh2_wcng_ctx.hAlgECDSA[q->curve]
-            : ssh2_wcng_ctx.hAlgECDH[q->curve],
+            ? ssh2_wcng.hAlgECDSA[q->curve]
+            : ssh2_wcng.hAlgECDH[q->curve],
         NULL,
         BCRYPT_ECCPRIVATE_BLOB,
         key,
@@ -2277,7 +2268,7 @@ int ssh2_wcng_ecdh_create_key(IN LIBSSH2_SESSION *session,
         return LIBSSH2_ERROR_INVAL;
     }
 
-    if(!ssh2_wcng_ctx.hAlgECDH[curve]) {
+    if(!ssh2_wcng.hAlgECDH[curve]) {
         return LIBSSH2_ERROR_INVAL;
     }
 
@@ -2291,7 +2282,7 @@ int ssh2_wcng_ecdh_create_key(IN LIBSSH2_SESSION *session,
 
     /* Create an ECDH key pair using the requested curve */
     status = BCryptGenerateKeyPair(
-        ssh2_wcng_ctx.hAlgECDH[curve],
+        ssh2_wcng.hAlgECDH[curve],
         &key_handle,
         wcng_ecdsa_algorithms[curve].key_length,
         0);
@@ -2569,17 +2560,17 @@ int ssh2_wcng_ecdsa_verify(IN struct wincng_ecdsa_ctx *key,
     switch(ssh2_wcng_ecdsa_get_curve_type(key)) {
     case SSH2_EC_CURVE_NISTP256:
         hash_len = 256 / 8;
-        hash_alg = ssh2_wcng_ctx.hAlgHashSHA256;
+        hash_alg = ssh2_wcng.hAlgHashSHA256;
         break;
 
     case SSH2_EC_CURVE_NISTP384:
         hash_len = 384 / 8;
-        hash_alg = ssh2_wcng_ctx.hAlgHashSHA384;
+        hash_alg = ssh2_wcng.hAlgHashSHA384;
         break;
 
     case SSH2_EC_CURVE_NISTP521:
         hash_len = 512 / 8;
-        hash_alg = ssh2_wcng_ctx.hAlgHashSHA512;
+        hash_alg = ssh2_wcng.hAlgHashSHA512;
         break;
 
     default:
@@ -3519,12 +3510,12 @@ static int wcng_round_down(int number, int multiple)
 int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
                           ssh2_bn *g, ssh2_bn *p, int group_order)
 {
-    const int hasAlgDHwithKDF = ssh2_wcng_ctx.hasAlgDHwithKDF;
+    const int hasAlgDHwithKDF = ssh2_wcng.hasAlgDHwithKDF;
 
     if(group_order < 0)
         return -1;
 
-    while(ssh2_wcng_ctx.hAlgDH && hasAlgDHwithKDF != -1) {
+    while(ssh2_wcng.hAlgDH && hasAlgDHwithKDF != -1) {
         BCRYPT_DH_PARAMETER_HEADER *dh_params;
         ULONG dh_params_len;
         int status;
@@ -3539,7 +3530,7 @@ int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
 
         /* Prepare a key pair; pass the in the bit length of the key,
          * but the key is not ready for consumption until it is finalized. */
-        status = BCryptGenerateKeyPair(ssh2_wcng_ctx.hAlgDH,
+        status = BCryptGenerateKeyPair(ssh2_wcng.hAlgDH,
                                        &dhctx->dh_handle,
                                        key_length_bytes * 8, 0);
         if(!BCRYPT_SUCCESS(status)) {
@@ -3706,7 +3697,7 @@ int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
 int ssh2_wcng_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
                         ssh2_bn *f, ssh2_bn *p)
 {
-    if(ssh2_wcng_ctx.hAlgDH && ssh2_wcng_ctx.hasAlgDHwithKDF != -1 &&
+    if(ssh2_wcng.hAlgDH && ssh2_wcng.hasAlgDHwithKDF != -1 &&
        dhctx->dh_handle && dhctx->dh_params && f) {
         BCRYPT_KEY_HANDLE peer_public = NULL;
         BCRYPT_SECRET_HANDLE agreement = NULL;
@@ -3750,7 +3741,7 @@ int ssh2_wcng_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
         }
 
         /* Import the peer public key information */
-        status = BCryptImportKeyPair(ssh2_wcng_ctx.hAlgDH, NULL,
+        status = BCryptImportKeyPair(ssh2_wcng.hAlgDH, NULL,
                                      BCRYPT_DH_PUBLIC_BLOB, &peer_public,
                                      (PUCHAR)public_blob, public_blob_len, 0);
         if(!BCRYPT_SUCCESS(status)) {
@@ -3771,7 +3762,7 @@ int ssh2_wcng_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
                                  0, &secret_len_bytes, 0);
         if(!BCRYPT_SUCCESS(status)) {
             if(status == STATUS_NOT_SUPPORTED) {
-                ssh2_wcng_ctx.hasAlgDHwithKDF = -1;
+                ssh2_wcng.hasAlgDHwithKDF = -1;
             }
             goto out;
         }
@@ -3789,7 +3780,7 @@ int ssh2_wcng_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
                                  &secret_len_bytes, 0);
         if(!BCRYPT_SUCCESS(status)) {
             if(status == STATUS_NOT_SUPPORTED) {
-                ssh2_wcng_ctx.hasAlgDHwithKDF = -1;
+                ssh2_wcng.hasAlgDHwithKDF = -1;
             }
             goto out;
         }
@@ -3808,7 +3799,7 @@ int ssh2_wcng_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
         }
 
         status = 0;
-        ssh2_wcng_ctx.hasAlgDHwithKDF = 1;
+        ssh2_wcng.hasAlgDHwithKDF = 1;
 
 out:
         if(peer_public) {
@@ -3820,8 +3811,7 @@ out:
 
         free(public_blob);
 
-        if(status == STATUS_NOT_SUPPORTED &&
-           ssh2_wcng_ctx.hasAlgDHwithKDF == -1) {
+        if(status == STATUS_NOT_SUPPORTED && ssh2_wcng.hasAlgDHwithKDF == -1) {
             goto fb; /* fallback to RSA-based implementation */
         }
         return BCRYPT_SUCCESS(status) ? 0 : -1;
