@@ -103,8 +103,6 @@
 #define SHA384_DIGEST_LENGTH   48
 #define SHA512_DIGEST_LENGTH   64
 
-#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
-
 /*******************************************************************/
 /*
  * mbedTLS backend: Generic functions
@@ -212,6 +210,8 @@
  */
 
 #if LIBSSH2_ECDSA
+
+#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 
 typedef enum {
 #ifdef MBEDTLS_ECP_DP_SECP256R1_ENABLED
