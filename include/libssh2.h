@@ -428,7 +428,9 @@ typedef struct _LIBSSH2_POLLFD {
 /* Hostkey Types */
 #define LIBSSH2_HOSTKEY_TYPE_UNKNOWN            0
 #define LIBSSH2_HOSTKEY_TYPE_RSA                1
+#ifndef LIBSSH2_NO_DEPRECATED
 #define LIBSSH2_HOSTKEY_TYPE_DSS                2  /* deprecated */
+#endif
 #define LIBSSH2_HOSTKEY_TYPE_ECDSA_256          3
 #define LIBSSH2_HOSTKEY_TYPE_ECDSA_384          4
 #define LIBSSH2_HOSTKEY_TYPE_ECDSA_521          5
@@ -887,8 +889,11 @@ LIBSSH2_API ssize_t libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel,
     libssh2_channel_read_ex(channel, SSH_EXTENDED_DATA_STDERR, \
                             buf, buflen)
 
+#ifndef LIBSSH2_NO_DEPRECATED
+LIBSSH2_DEPRECATED(1.2.0, "")
 LIBSSH2_API int libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel,
                                           int extended);
+#endif
 
 LIBSSH2_API unsigned long libssh2_channel_window_read_ex(
     LIBSSH2_CHANNEL *channel,
@@ -1089,19 +1094,24 @@ LIBSSH2_API LIBSSH2_KNOWNHOSTS *libssh2_knownhost_init(
 #define LIBSSH2_KNOWNHOST_KEY_SHIFT        18
 #define LIBSSH2_KNOWNHOST_KEY_RSA1         (1<<18)
 #define LIBSSH2_KNOWNHOST_KEY_SSHRSA       (2<<18)
+#ifndef LIBSSH2_NO_DEPRECATED
 #define LIBSSH2_KNOWNHOST_KEY_SSHDSS       (3<<18)  /* deprecated */
+#endif
 #define LIBSSH2_KNOWNHOST_KEY_ECDSA_256    (4<<18)
 #define LIBSSH2_KNOWNHOST_KEY_ECDSA_384    (5<<18)
 #define LIBSSH2_KNOWNHOST_KEY_ECDSA_521    (6<<18)
 #define LIBSSH2_KNOWNHOST_KEY_ED25519      (7<<18)
 #define LIBSSH2_KNOWNHOST_KEY_UNKNOWN      (15<<18)
 
+#ifndef LIBSSH2_NO_DEPRECATED
+LIBSSH2_DEPRECATED(1.2.5, "Use libssh2_knownhost_addc()")
 LIBSSH2_API int libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
                                       const char *host,
                                       const char *salt,
                                       const char *key, size_t keylen,
                                       int typemask,
                                       struct libssh2_knownhost **store);
+#endif
 
 /*
  * libssh2_knownhost_addc()

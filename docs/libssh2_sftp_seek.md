@@ -36,3 +36,7 @@ Note that libssh2 implements file pointers as a localized concept to make
 file access appear more POSIX like. No packets are exchanged with the server
 during a seek operation. The localized file pointer is used as a convenience
 offset during read/write operations.
+
+# AVAILABILITY
+
+Marked as deprecated since 1.2.8

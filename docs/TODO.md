@@ -45,7 +45,7 @@ SPDX-License-Identifier: BSD-3-Clause
 * remove the following functions from the API/ABI:
   ```
   libssh2_base64_decode()
-  libssh2_session_flag()
+  libssh2_session_flag() (needs replacement for LIBSSH2_FLAG_COMPRESS support)
   libssh2_channel_handle_extended_data()
   libssh2_channel_receive_window_adjust()
   libssh2_poll()
@@ -58,8 +58,9 @@ SPDX-License-Identifier: BSD-3-Clause
 
 * Rename a few functions:
   ```
-  libssh2_hostkey_hash => libssh2_session_hostkey_hash
-  libssh2_banner_set => libssh2_session_banner_set
+  libssh2_hostkey_hash() => libssh2_session_hostkey_hash()
+  libssh2_banner_set() => libssh2_session_banner_set()
+  libssh2_sign_sk() => libssh2_userauth_sign_sk()
   ```
 
 * change `int` to `libssh2_socket_t` in the public API for sockets.

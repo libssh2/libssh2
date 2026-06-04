@@ -265,8 +265,9 @@ error:
     return rc;
 }
 
+#ifndef LIBSSH2_NO_DEPRECATED
 /*
- * libssh2_knownhost_add
+ * DEPRECATED, DO NOT USE!
  *
  * Add a host and its associated key to the collection of known hosts.
  *
@@ -294,10 +295,9 @@ int libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
     return knownhost_add(hosts, host, salt, NULL, 0, key, keylen, NULL,
                          0, typemask, store);
 }
+#endif
 
 /*
- * libssh2_knownhost_addc
- *
  * Add a host and its associated key to the collection of known hosts.
  *
  * Takes a comment argument that may be NULL.  A NULL comment indicates
@@ -766,7 +766,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
             key_type = LIBSSH2_KNOWNHOST_KEY_ECDSA_521;
         else if(!strncmp(key_type_name, "ssh-rsa", key_type_len))
             key_type = LIBSSH2_KNOWNHOST_KEY_SSHRSA;
-#if LIBSSH2_DSA
+#if LIBSSH2_DSA && !defined(LIBSSH2_NO_DEPRECATED)
         else if(!strncmp(key_type_name, "ssh-dss", key_type_len))
             key_type = LIBSSH2_KNOWNHOST_KEY_SSHDSS;
 #endif
@@ -986,7 +986,7 @@ static int knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
         key_type_name = "ssh-rsa";
         key_type_len = 7;
         break;
-#if LIBSSH2_DSA
+#if LIBSSH2_DSA && !defined(LIBSSH2_NO_DEPRECATED)
     case LIBSSH2_KNOWNHOST_KEY_SSHDSS:
         key_type_name = "ssh-dss";
         key_type_len = 7;
