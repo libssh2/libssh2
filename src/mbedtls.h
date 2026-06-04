@@ -298,20 +298,6 @@ typedef enum {
 
 /*******************************************************************/
 /*
- * mbedTLS backend: Key functions
- */
-
-#define ssh2_pub_priv_keyfile(s, m, m_len, p, p_len, pk, pw) \
-    ssh2_mbed_pub_priv_keyfile(s, m, m_len, p, p_len, pk, pw)
-#define ssh2_pub_priv_keyfilememory(s, m, m_len, p, p_len, pk, pk_len, pw) \
-    ssh2_mbed_pub_priv_keyfilememory(s, m, m_len, p, p_len, pk, pk_len, pw)
-#define ssh2_sk_pub_keyfilememory(s, m, m_len, p, p_len, alg, app, \
-                                  f, kh, kh_len, pk, pk_len, pw) \
-    ssh2_mbed_sk_pub_keyfilememory(s, m, m_len, p, p_len, alg, app, \
-                                   f, kh, kh_len, pk, pk_len, pw)
-
-/*******************************************************************/
-/*
  * mbedTLS backend: Cipher Context structure
  */
 

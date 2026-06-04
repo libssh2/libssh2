@@ -728,13 +728,13 @@ static int mbed_pub_priv_key(LIBSSH2_SESSION *session,
     return ret;
 }
 
-int ssh2_mbed_pub_priv_keyfile(LIBSSH2_SESSION *session,
-                               unsigned char **method,
-                               size_t *method_len,
-                               unsigned char **pubkeydata,
-                               size_t *pubkeydata_len,
-                               const char *privatekey,
-                               const char *passphrase)
+int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
+                          unsigned char **method,
+                          size_t *method_len,
+                          unsigned char **pubkeydata,
+                          size_t *pubkeydata_len,
+                          const char *privatekey,
+                          const char *passphrase)
 {
     mbedtls_pk_context pkey;
     char buf[1024];
@@ -759,14 +759,14 @@ int ssh2_mbed_pub_priv_keyfile(LIBSSH2_SESSION *session,
     return ret;
 }
 
-int ssh2_mbed_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                     unsigned char **method,
-                                     size_t *method_len,
-                                     unsigned char **pubkeydata,
-                                     size_t *pubkeydata_len,
-                                     const char *privatekeydata,
-                                     size_t privatekeydata_len,
-                                     const char *passphrase)
+int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
+                                unsigned char **method,
+                                size_t *method_len,
+                                unsigned char **pubkeydata,
+                                size_t *pubkeydata_len,
+                                const char *privatekeydata,
+                                size_t privatekeydata_len,
+                                const char *passphrase)
 {
     mbedtls_pk_context pkey;
     char buf[1024];
@@ -810,19 +810,19 @@ int ssh2_mbed_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     return ret;
 }
 
-int ssh2_mbed_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
-                                   unsigned char **method,
-                                   size_t *method_len,
-                                   unsigned char **pubkeydata,
-                                   size_t *pubkeydata_len,
-                                   int *algorithm,
-                                   unsigned char *flags,
-                                   const char **application,
-                                   const unsigned char **key_handle,
-                                   size_t *handle_len,
-                                   const char *privatekeydata,
-                                   size_t privatekeydata_len,
-                                   const char *passphrase)
+int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
+                              unsigned char **method,
+                              size_t *method_len,
+                              unsigned char **pubkeydata,
+                              size_t *pubkeydata_len,
+                              int *algorithm,
+                              unsigned char *flags,
+                              const char **application,
+                              const unsigned char **key_handle,
+                              size_t *handle_len,
+                              const char *privatekeydata,
+                              size_t privatekeydata_len,
+                              const char *passphrase)
 {
     (void)method;
     (void)method_len;
