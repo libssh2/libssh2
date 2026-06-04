@@ -3154,13 +3154,13 @@ static int wcng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
 }
 #endif /* HAVE_LIBCRYPT32 */
 
-int ssh2_wcng_pub_priv_keyfile(LIBSSH2_SESSION *session,
-                               unsigned char **method,
-                               size_t *method_len,
-                               unsigned char **pubkeydata,
-                               size_t *pubkeydata_len,
-                               const char *privatekey,
-                               const char *passphrase)
+int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
+                          unsigned char **method,
+                          size_t *method_len,
+                          unsigned char **pubkeydata,
+                          size_t *pubkeydata_len,
+                          const char *privatekey,
+                          const char *passphrase)
 {
 #ifdef HAVE_LIBCRYPT32
     unsigned char *pbEncoded;
@@ -3191,14 +3191,14 @@ int ssh2_wcng_pub_priv_keyfile(LIBSSH2_SESSION *session,
 #endif /* HAVE_LIBCRYPT32 */
 }
 
-int ssh2_wcng_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                     unsigned char **method,
-                                     size_t *method_len,
-                                     unsigned char **pubkeydata,
-                                     size_t *pubkeydata_len,
-                                     const char *privatekeydata,
-                                     size_t privatekeydata_len,
-                                     const char *passphrase)
+int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
+                                unsigned char **method,
+                                size_t *method_len,
+                                unsigned char **pubkeydata,
+                                size_t *pubkeydata_len,
+                                const char *privatekeydata,
+                                size_t privatekeydata_len,
+                                const char *passphrase)
 {
 #ifdef HAVE_LIBCRYPT32
     unsigned char *pbEncoded;
@@ -3231,19 +3231,19 @@ int ssh2_wcng_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
 #endif /* HAVE_LIBCRYPT32 */
 }
 
-int ssh2_wcng_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
-                                   unsigned char **method,
-                                   size_t *method_len,
-                                   unsigned char **pubkeydata,
-                                   size_t *pubkeydata_len,
-                                   int *algorithm,
-                                   unsigned char *flags,
-                                   const char **application,
-                                   const unsigned char **key_handle,
-                                   size_t *handle_len,
-                                   const char *privatekeydata,
-                                   size_t privatekeydata_len,
-                                   const char *passphrase)
+int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
+                              unsigned char **method,
+                              size_t *method_len,
+                              unsigned char **pubkeydata,
+                              size_t *pubkeydata_len,
+                              int *algorithm,
+                              unsigned char *flags,
+                              const char **application,
+                              const unsigned char **key_handle,
+                              size_t *handle_len,
+                              const char *privatekeydata,
+                              size_t privatekeydata_len,
+                              const char *passphrase)
 {
     (void)method;
     (void)method_len;

@@ -340,19 +340,6 @@ void ssh2_wcng_ecdsa_free(ssh2_ecdsa_ctx* ctx);
 #define ssh2_ecdsa_free(ecdsactx) \
     ssh2_wcng_ecdsa_free(ecdsactx)
 
-/*
- * Windows CNG backend: Key functions
- */
-
-#define ssh2_pub_priv_keyfile(s, m, m_len, p, p_len, pk, pw) \
-    ssh2_wcng_pub_priv_keyfile(s, m, m_len, p, p_len, pk, pw)
-#define ssh2_pub_priv_keyfilememory(s, m, m_len, p, p_len, pk, pk_len, pw) \
-    ssh2_wcng_pub_priv_keyfilememory(s, m, m_len, p, p_len, pk, pk_len, pw)
-#define ssh2_sk_pub_keyfilememory(s, m, m_len, p, p_len, alg, app, \
-                                  f, kh, kh_len, pk, pk_len, pw) \
-    ssh2_wcng_sk_pub_keyfilememory(s, m, m_len, p, p_len, alg, app, \
-                                   f, kh, kh_len, pk, pk_len, pw)
-
 /*******************************************************************/
 /*
  * Windows CNG backend: Cipher Context structure
