@@ -329,8 +329,6 @@ typedef enum {
  * mbedTLS backend: forward declarations
  */
 
-void ssh2_mbed_cipher_dtor(ssh2_cipher_ctx *ctx);
-
 int ssh2_mbed_hash_init(mbedtls_md_context_t *ctx,
                         mbedtls_md_type_t mdtype,
                         const unsigned char *key, size_t keylen);
