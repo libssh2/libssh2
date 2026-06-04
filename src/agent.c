@@ -1061,7 +1061,6 @@ static struct libssh2_agent_publickey *agent_publickey_to_external(
 /*
  * Init an ssh-agent handle. Returns the pointer to the handle.
  */
-LIBSSH2_API
 LIBSSH2_AGENT *libssh2_agent_init(LIBSSH2_SESSION *session)
 {
     LIBSSH2_AGENT *agent;
@@ -1091,7 +1090,6 @@ LIBSSH2_AGENT *libssh2_agent_init(LIBSSH2_SESSION *session)
  *
  * Returns 0 if succeeded, or a negative value for error.
  */
-LIBSSH2_API
 int libssh2_agent_connect(LIBSSH2_AGENT *agent)
 {
     int i, rc = -1;
@@ -1109,7 +1107,6 @@ int libssh2_agent_connect(LIBSSH2_AGENT *agent)
  *
  * Returns 0 if succeeded, or a negative value for error.
  */
-LIBSSH2_API
 int libssh2_agent_list_identities(LIBSSH2_AGENT *agent)
 {
     memset(&agent->transctx, 0, sizeof(agent->transctx));
@@ -1128,7 +1125,6 @@ int libssh2_agent_list_identities(LIBSSH2_AGENT *agent)
  * 1 if end of public keys
  * [negative] on errors
  */
-LIBSSH2_API
 int libssh2_agent_get_identity(LIBSSH2_AGENT *agent,
                                struct libssh2_agent_publickey **store,
                                struct libssh2_agent_publickey *prev)
@@ -1158,7 +1154,6 @@ int libssh2_agent_get_identity(LIBSSH2_AGENT *agent,
  *
  * Returns 0 if succeeded, or a negative value for error.
  */
-LIBSSH2_API
 int libssh2_agent_userauth(LIBSSH2_AGENT *agent,
                            const char *username,
                            struct libssh2_agent_publickey *identity)
@@ -1186,7 +1181,6 @@ int libssh2_agent_userauth(LIBSSH2_AGENT *agent,
  *
  * Returns 0 if succeeded, or a negative value for error.
  */
-LIBSSH2_API
 int libssh2_agent_sign(LIBSSH2_AGENT *agent,
                        struct libssh2_agent_publickey *identity,
                        unsigned char **sig,
@@ -1235,7 +1229,6 @@ int libssh2_agent_sign(LIBSSH2_AGENT *agent,
  *
  * Returns 0 if succeeded, or a negative value for error.
  */
-LIBSSH2_API
 int libssh2_agent_disconnect(LIBSSH2_AGENT *agent)
 {
     if(agent->ops && agent->fd != LIBSSH2_INVALID_SOCKET)
@@ -1247,7 +1240,6 @@ int libssh2_agent_disconnect(LIBSSH2_AGENT *agent)
  * Free an ssh-agent handle.  This function also frees the internal
  * collection of public keys.
  */
-LIBSSH2_API
 void libssh2_agent_free(LIBSSH2_AGENT *agent)
 {
     /* Allow connection freeing when the socket has lost its connection */
@@ -1265,7 +1257,6 @@ void libssh2_agent_free(LIBSSH2_AGENT *agent)
 /*
  * Allows a custom agent socket path beyond SSH_AUTH_SOCK env
  */
-LIBSSH2_API
 void libssh2_agent_set_identity_path(LIBSSH2_AGENT *agent, const char *path)
 {
     if(agent->identity_agent_path) {
@@ -1287,7 +1278,6 @@ void libssh2_agent_set_identity_path(LIBSSH2_AGENT *agent, const char *path)
 /*
  * Returns the custom agent socket path if set
  */
-LIBSSH2_API
 const char *libssh2_agent_get_identity_path(LIBSSH2_AGENT *agent)
 {
     return agent->identity_agent_path;

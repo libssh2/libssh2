@@ -256,7 +256,6 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
  * Not a common configuration for any SSH server though
  * username should be NULL, or a null-terminated string
  */
-LIBSSH2_API
 char *libssh2_userauth_list(LIBSSH2_SESSION *session,
                             const char *username, unsigned int username_len)
 {
@@ -271,7 +270,6 @@ char *libssh2_userauth_list(LIBSSH2_SESSION *session,
  * When no such message is sent by server or if no authentication attempt has
  * been made, this function returns LIBSSH2_ERROR_MISSING_USERAUTH_BANNER.
  */
-LIBSSH2_API
 int libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner)
 {
     if(!session)
@@ -292,7 +290,6 @@ int libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner)
  * Returns: 0 if not yet authenticated
  *          1 if already authenticated
  */
-LIBSSH2_API
 int libssh2_userauth_authenticated(LIBSSH2_SESSION *session)
 {
     return (session->state & SSH2_STATE_AUTHENTICATED) ? 1 : 0;
@@ -555,7 +552,6 @@ password_response:
 /*
  * Plain ol' login
  */
-LIBSSH2_API
 int libssh2_userauth_password_ex(
     LIBSSH2_SESSION *session,
     const char *username, unsigned int username_len,
@@ -917,7 +913,6 @@ static int sign_fromfile(LIBSSH2_SESSION *session,
     return 0;
 }
 
-LIBSSH2_API
 int libssh2_sign_sk(LIBSSH2_SESSION *session,
                     unsigned char **sig, size_t *sig_len,
                     const unsigned char *data, size_t data_len,
@@ -1269,7 +1264,6 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
 /*
  * Authenticate using a keypair found in the named files
  */
-LIBSSH2_API
 int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
                                            const char *username,
                                            unsigned int username_len,
@@ -2041,7 +2035,6 @@ static int userauth_publickey_fromfile(LIBSSH2_SESSION *session,
 /*
  * Authenticate using a keypair from memory
  */
-LIBSSH2_API
 int libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
                                           const char *username,
                                           size_t username_len,
@@ -2072,7 +2065,6 @@ int libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
 /*
  * Authenticate using a keypair found in the named files
  */
-LIBSSH2_API
 int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
                                            const char *username,
                                            unsigned int username_len,
@@ -2098,7 +2090,6 @@ int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 /*
  * Authenticate using an external callback function
  */
-LIBSSH2_API
 int libssh2_userauth_publickey(
     LIBSSH2_SESSION *session,
     const char *username,
@@ -2385,7 +2376,6 @@ cleanup:
 /*
  * Authenticate using a challenge-response authentication
  */
-LIBSSH2_API
 int libssh2_userauth_keyboard_interactive_ex(
     LIBSSH2_SESSION *session,
     const char *username, unsigned int username_len,
@@ -2401,7 +2391,6 @@ int libssh2_userauth_keyboard_interactive_ex(
 /*
  * Authenticate using an external callback function
  */
-LIBSSH2_API
 int libssh2_userauth_publickey_sk(
     LIBSSH2_SESSION *session,
     const char *username, size_t username_len,

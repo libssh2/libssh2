@@ -219,7 +219,6 @@ static char *convert_ccsid(LIBSSH2_SESSION *session,
     return outstring->string;
 }
 
-LIBSSH2_API
 char *libssh2_from_ccsid(LIBSSH2_SESSION *session,
                          libssh2_string_cache **cache, unsigned short ccsid,
                          const char *string, ssize_t inlen, size_t *outlen)
@@ -228,7 +227,6 @@ char *libssh2_from_ccsid(LIBSSH2_SESSION *session,
                          outlen);
 }
 
-LIBSSH2_API
 char *libssh2_to_ccsid(LIBSSH2_SESSION *session, libssh2_string_cache **cache,
                        unsigned short ccsid, const char *string, ssize_t inlen,
                        size_t *outlen)
@@ -237,7 +235,6 @@ char *libssh2_to_ccsid(LIBSSH2_SESSION *session, libssh2_string_cache **cache,
                          outlen);
 }
 
-LIBSSH2_API
 void libssh2_release_string_cache(LIBSSH2_SESSION *session,
                                   libssh2_string_cache **cache)
 {

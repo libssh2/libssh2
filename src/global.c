@@ -43,7 +43,6 @@
 static int s_initialized = 0;
 static int s_init_flags = 0;
 
-LIBSSH2_API
 int libssh2_init(int flags)
 {
     if(s_initialized == 0 && !(flags & LIBSSH2_INIT_NO_CRYPTO)) {
@@ -56,7 +55,6 @@ int libssh2_init(int flags)
     return 0;
 }
 
-LIBSSH2_API
 void libssh2_exit(void)
 {
     if(s_initialized == 0)

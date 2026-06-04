@@ -371,7 +371,6 @@ static int get_socket_nonblocking(libssh2_socket_t sockfd)
 /*
  * Set the local banner to use in the server handshake.
  */
-LIBSSH2_API
 int libssh2_session_banner_set(LIBSSH2_SESSION *session, const char *banner)
 {
     size_t banner_len = banner ? strlen(banner) : 0;
@@ -407,7 +406,6 @@ int libssh2_session_banner_set(LIBSSH2_SESSION *session, const char *banner)
 /*
  * Set the local banner. DEPRECATED VERSION
  */
-LIBSSH2_API
 int libssh2_banner_set(LIBSSH2_SESSION *session, const char *banner)
 {
     return libssh2_session_banner_set(session, banner);
@@ -421,7 +419,6 @@ int libssh2_banner_set(LIBSSH2_SESSION *session, const char *banner)
  * callbacks An additional pointer value may be optionally passed to be sent
  * to the callbacks (so they know who's asking)
  */
-LIBSSH2_API
 LIBSSH2_SESSION *libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC(*my_alloc),
                                          LIBSSH2_FREE_FUNC(*my_free),
                                          LIBSSH2_REALLOC_FUNC(*my_realloc),
@@ -474,7 +471,6 @@ LIBSSH2_SESSION *libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC(*my_alloc),
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wcast-function-type"
 #endif
-LIBSSH2_API
 libssh2_cb_generic *libssh2_session_callback_set2(LIBSSH2_SESSION *session,
                                                   int cbtype,
                                                   libssh2_cb_generic *callback)
@@ -559,7 +555,6 @@ libssh2_cb_generic *libssh2_session_callback_set2(LIBSSH2_SESSION *session,
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 #endif
-LIBSSH2_API
 void *libssh2_session_callback_set(LIBSSH2_SESSION *session,
                                    int cbtype, void *callback)
 {
@@ -850,7 +845,6 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
  *
  * Returns: 0 on success, or non-zero on failure
  */
-LIBSSH2_API
 int libssh2_session_handshake(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 {
     int rc;
@@ -870,7 +864,6 @@ int libssh2_session_handshake(LIBSSH2_SESSION *session, libssh2_socket_t sock)
  *
  * Returns: 0 on success, or non-zero on failure
  */
-LIBSSH2_API
 int libssh2_session_startup(LIBSSH2_SESSION *session, int sock)
 {
     return libssh2_session_handshake(session, (libssh2_socket_t)sock);
@@ -1144,7 +1137,6 @@ static int session_free(LIBSSH2_SESSION *session)
  * Frees the memory allocated to the session
  * Also closes and frees any channels attached to this session
  */
-LIBSSH2_API
 int libssh2_session_free(LIBSSH2_SESSION *session)
 {
     int rc;
@@ -1205,7 +1197,6 @@ static int session_disconnect(LIBSSH2_SESSION *session, int reason,
     return 0;
 }
 
-LIBSSH2_API
 int libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reason,
                                   const char *description, const char *lang)
 {
@@ -1224,7 +1215,6 @@ int libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reason,
  * NOTE: Currently lang_cs and lang_sc are ALWAYS set to empty string
  * regardless of actual negotiation Strings should NOT be freed
  */
-LIBSSH2_API
 const char *libssh2_session_methods(LIBSSH2_SESSION *session, int method_type)
 {
     /* All methods have char *name as their first element */
@@ -1286,7 +1276,6 @@ const char *libssh2_session_methods(LIBSSH2_SESSION *session, int method_type)
 /*
  * Retrieve a pointer to the abstract property
  */
-LIBSSH2_API
 void **libssh2_session_abstract(LIBSSH2_SESSION *session)
 {
     return &session->abstract;
@@ -1297,7 +1286,6 @@ void **libssh2_session_abstract(LIBSSH2_SESSION *session)
  * non-zero then the string placed into errmsg must be freed by the calling
  * program. Otherwise it is assumed to be owned by libssh2
  */
-LIBSSH2_API
 int libssh2_session_last_error(LIBSSH2_SESSION *session, char **errmsg,
                                int *errmsg_len, int want_buf)
 {
@@ -1349,7 +1337,6 @@ int libssh2_session_last_error(LIBSSH2_SESSION *session, char **errmsg,
 /*
  * Returns error code
  */
-LIBSSH2_API
 int libssh2_session_last_errno(LIBSSH2_SESSION *session)
 {
     return session->err_code;
@@ -1362,7 +1349,6 @@ int libssh2_session_last_errno(LIBSSH2_SESSION *session)
  * language wrappers (i.e. Python or Perl) that may extend the library
  * features while still relying on its error reporting mechanism.
  */
-LIBSSH2_API
 int libssh2_session_set_last_error(LIBSSH2_SESSION *session,
                                    int errcode, const char *errmsg)
 {
@@ -1374,7 +1360,6 @@ int libssh2_session_set_last_error(LIBSSH2_SESSION *session,
  *
  * Return error code.
  */
-LIBSSH2_API
 int libssh2_session_flag(LIBSSH2_SESSION *session, int flag, int value)
 {
     switch(flag) {
@@ -1414,7 +1399,6 @@ int ssh2_session_set_blocking(LIBSSH2_SESSION *session, int blocking)
  * Set a channel's blocking mode on or off, similar to a socket's
  * fcntl(fd, F_SETFL, O_NONBLOCK); type command
  */
-LIBSSH2_API
 void libssh2_session_set_blocking(LIBSSH2_SESSION *session, int blocking)
 {
     (void)ssh2_session_set_blocking(session, blocking);
@@ -1423,7 +1407,6 @@ void libssh2_session_set_blocking(LIBSSH2_SESSION *session, int blocking)
 /*
  * Returns a session's blocking mode on or off
  */
-LIBSSH2_API
 int libssh2_session_get_blocking(LIBSSH2_SESSION *session)
 {
     return session->api_block_mode;
@@ -1433,7 +1416,6 @@ int libssh2_session_get_blocking(LIBSSH2_SESSION *session)
  * Set a session's timeout (in msec) for blocking mode,
  * or 0 to disable timeouts.
  */
-LIBSSH2_API
 void libssh2_session_set_timeout(LIBSSH2_SESSION *session, long timeout)
 {
     session->api_timeout = timeout;
@@ -1442,7 +1424,6 @@ void libssh2_session_set_timeout(LIBSSH2_SESSION *session, long timeout)
 /*
  * Returns a session's timeout, or 0 if disabled
  */
-LIBSSH2_API
 long libssh2_session_get_timeout(LIBSSH2_SESSION *session)
 {
     return session->api_timeout;
@@ -1452,7 +1433,6 @@ long libssh2_session_get_timeout(LIBSSH2_SESSION *session)
  * Set a session's timeout (in sec) when reading packets,
  * or 0 to use default of 60 seconds.
  */
-LIBSSH2_API
 void libssh2_session_set_read_timeout(LIBSSH2_SESSION *session, long timeout)
 {
     if(timeout <= 0) {
@@ -1464,7 +1444,6 @@ void libssh2_session_set_read_timeout(LIBSSH2_SESSION *session, long timeout)
 /*
  * Returns a session's timeout. Default is 60 seconds.
  */
-LIBSSH2_API
 long libssh2_session_get_read_timeout(LIBSSH2_SESSION *session)
 {
     return session->packet_read_timeout;
@@ -1474,7 +1453,6 @@ long libssh2_session_get_read_timeout(LIBSSH2_SESSION *session)
  * Returns 0 if no data is waiting on channel,
  * non-0 if data is available
  */
-LIBSSH2_API
 int libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended)
 {
     LIBSSH2_SESSION *session;
@@ -1532,7 +1510,6 @@ static inline int poll_listener_queued(LIBSSH2_LISTENER *listener)
 /*
  * Poll sockets, channels, and listeners for activity
  */
-LIBSSH2_API
 int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
 {
     long timeout_remaining;
@@ -1869,7 +1846,6 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
  * Returns SSH2_SOCKET_BLOCK_INBOUND if recv() blocked
  * or SSH2_SOCKET_BLOCK_OUTBOUND if send() blocked
  */
-LIBSSH2_API
 int libssh2_session_block_directions(LIBSSH2_SESSION *session)
 {
     return session->socket_block_directions;
@@ -1878,7 +1854,6 @@ int libssh2_session_block_directions(LIBSSH2_SESSION *session)
 /*
  * Get the remote banner (server ID string)
  */
-LIBSSH2_API
 const char *libssh2_session_banner_get(LIBSSH2_SESSION *session)
 {
     /* to avoid a coredump when session is NULL */

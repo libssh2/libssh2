@@ -42,7 +42,6 @@
 
 /* Keep-alive stuff. */
 
-LIBSSH2_API
 void libssh2_keepalive_config(LIBSSH2_SESSION *session,
                               int want_reply,
                               unsigned int interval)
@@ -54,7 +53,6 @@ void libssh2_keepalive_config(LIBSSH2_SESSION *session,
     session->keepalive_want_reply = want_reply ? 1 : 0;
 }
 
-LIBSSH2_API
 int libssh2_keepalive_send(LIBSSH2_SESSION *session, int *seconds_to_next)
 {
     time_t now;

@@ -365,7 +365,6 @@ static const short base64_reverse_table[256] = {
 /*
  * Legacy public function. (DEPRECATED, DO NOT USE!)
  */
-LIBSSH2_API
 int libssh2_base64_decode(LIBSSH2_SESSION *session,
                           char **dest, unsigned int *dest_len,
                           const char *src, unsigned int src_len)
@@ -517,7 +516,6 @@ size_t ssh2_base64_encode(LIBSSH2_SESSION *session,
 }
 /* ---- End of Base64 Encoding ---- */
 
-LIBSSH2_API
 void libssh2_free(LIBSSH2_SESSION *session, void *ptr)
 {
     SSH2_FREE(session, ptr);
@@ -526,14 +524,12 @@ void libssh2_free(LIBSSH2_SESSION *session, void *ptr)
 #ifdef LIBSSH2DEBUG
 #include <stdarg.h>
 
-LIBSSH2_API
 int libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
 {
     session->showmask = bitmask;
     return 0;
 }
 
-LIBSSH2_API
 int libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *context,
                              libssh2_trace_handler_func callback)
 {
@@ -614,7 +610,6 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
 }
 
 #else
-LIBSSH2_API
 int libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
 {
     (void)session;
@@ -622,7 +617,6 @@ int libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
     return 0;
 }
 
-LIBSSH2_API
 int libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *context,
                              libssh2_trace_handler_func callback)
 {
