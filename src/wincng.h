@@ -225,6 +225,17 @@ struct wcng_hash_ctx {
     (ssh2_wcng_hash_final(&(ctx), hash) == 0)
 #endif
 
+int ssh2_wcng_hash_init(struct wcng_hash_ctx *ctx,
+                        BCRYPT_ALG_HANDLE hAlg, ULONG hashlen,
+                        unsigned char *key, ULONG keylen);
+int ssh2_wcng_hash_update(struct wcng_hash_ctx *ctx,
+                          const void *data, ULONG datalen);
+int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx,
+                         unsigned char *hash);
+int ssh2_wcng_hash(const unsigned char *data, ULONG datalen,
+                   BCRYPT_ALG_HANDLE hAlg,
+                   unsigned char *hash, ULONG hashlen);
+
 /*
  * Windows CNG backend: HMAC functions
  */
@@ -415,16 +426,5 @@ void ssh2_wcng_init(void);
 void ssh2_wcng_free(void);
 
 int ssh2_wcng_random(void *buf, size_t len);
-
-int ssh2_wcng_hash_init(struct wcng_hash_ctx *ctx,
-                        BCRYPT_ALG_HANDLE hAlg, ULONG hashlen,
-                        unsigned char *key, ULONG keylen);
-int ssh2_wcng_hash_update(struct wcng_hash_ctx *ctx,
-                          const void *data, ULONG datalen);
-int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx,
-                         unsigned char *hash);
-int ssh2_wcng_hash(const unsigned char *data, ULONG datalen,
-                   BCRYPT_ALG_HANDLE hAlg,
-                   unsigned char *hash, ULONG hashlen);
 
 #endif /* LIBSSH2_WINCNG_H */
