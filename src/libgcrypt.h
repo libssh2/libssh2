@@ -77,8 +77,6 @@
 #define SHA384_DIGEST_LENGTH 48
 #define SHA512_DIGEST_LENGTH 64
 
-#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
-
 #define ssh2_random(buf, len) \
     (gcry_randomize(buf, len, GCRY_STRONG_RANDOM), 0)
 
@@ -152,6 +150,7 @@
 #define ssh2_dsa_free(dsactx)  gcry_sexp_release(dsactx)
 
 #if LIBSSH2_ECDSA
+#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 #else
 #define ssh2_ec_key void
 #endif
