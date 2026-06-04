@@ -104,13 +104,6 @@
 #define SHA384_DIGEST_LENGTH 48
 #define SHA512_DIGEST_LENGTH 64
 
-#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
-
-#if LIBSSH2_ECDSA
-#else
-#define ssh2_ec_key void
-#endif
-
 /*******************************************************************/
 /*
  * Windows CNG backend: Global context handles
@@ -302,6 +295,8 @@ struct wcng_key_ctx {
  */
 
 #if LIBSSH2_ECDSA
+#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
+
 typedef enum {
     SSH2_EC_CURVE_NISTP256 = 0,
     SSH2_EC_CURVE_NISTP384 = 1,
@@ -315,6 +310,8 @@ struct wcng_ecdsa_ctx {
 
 #define ssh2_ecdsa_ctx struct wcng_ecdsa_ctx
 #define ssh2_ec_key struct wcng_ecdsa_ctx
+#else
+#define ssh2_ec_key void
 #endif
 
 /*******************************************************************/
