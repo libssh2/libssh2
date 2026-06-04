@@ -489,22 +489,6 @@ int ssh2_bn_to_bin(ssh2_bn *bn, unsigned char *val)
     return 0;
 }
 
-static int ssh2_bn_from_bn(ssh2_bn *to, ssh2_bn *from)
-{
-    int i;
-
-    if(!to || !from)
-        return -1;
-
-    if(ssh2_bn_resize(to, from->length))
-        return -1;
-
-    for(i = to->length; i--;)
-        to->bignum[i] = from->bignum[i];
-
-    return 0;
-}
-
 /*******************************************************************
  *
  * OS/400 QC3 crypto-library backend: ASN.1 support.
