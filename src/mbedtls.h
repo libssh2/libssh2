@@ -247,26 +247,8 @@ typedef enum {
  */
 
 #if LIBSSH2_ECDSA
-
 #define ssh2_ecdsa_ctx mbedtls_ecdsa_context
-#define ssh2_ecdh_gen_k(k, privkey, server_pubkey, server_pubkey_len) \
-    ssh2_mbed_ecdh_gen_k(k, privkey, server_pubkey, server_pubkey_len)
-#define ssh2_ecdsa_verify(ctx, r, r_len, s, s_len, m, m_len) \
-    ssh2_mbed_ecdsa_verify(ctx, r, r_len, s, s_len, m, m_len)
-#define ssh2_ecdsa_new_private(ctx, session, filename, passphrase) \
-    ssh2_mbed_ecdsa_new_private(ctx, session, filename, passphrase)
-#define ssh2_ecdsa_new_private_frommemory(ctx, session, filedata, \
-                                          filedata_len, passphrase) \
-    ssh2_mbed_ecdsa_new_private_frommemory(ctx, session, filedata, \
-                                           filedata_len, passphrase)
-#define ssh2_ecdsa_sign(session, ctx, hash, hash_len, sign, sign_len) \
-    ssh2_mbed_ecdsa_sign(session, ctx, hash, hash_len, sign, sign_len)
-#define ssh2_ecdsa_get_curve_type(ctx) \
-    ssh2_mbed_ecdsa_get_curve_type(ctx)
-#define ssh2_ecdsa_free(ctx) \
-    ssh2_mbed_ecdsa_free(ctx)
-
-#endif /* LIBSSH2_ECDSA */
+#endif
 
 /*******************************************************************/
 /*

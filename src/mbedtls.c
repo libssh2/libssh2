@@ -912,7 +912,7 @@ int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
 
 failed:
 
-    ssh2_mbed_ecdsa_free(*out_private_key);
+    ssh2_ecdsa_free(*out_private_key);
     mbed_safe_free(*out_public_key_octal, plen);
     *out_private_key = NULL;
 
@@ -947,7 +947,7 @@ int ssh2_ecdsa_curve_name_with_octal_new(ssh2_ecdsa_ctx **ec_ctx,
 
 failed:
 
-    ssh2_mbed_ecdsa_free(*ec_ctx);
+    ssh2_ecdsa_free(*ec_ctx);
     *ec_ctx = NULL;
 
     return -1;
@@ -957,10 +957,10 @@ failed:
  * Computes the shared secret K given a local private key,
  * remote public key and length
  */
-int ssh2_mbed_ecdh_gen_k(ssh2_bn **k,
-                         ssh2_ec_key *private_key,
-                         const unsigned char *server_public_key,
-                         size_t server_public_key_len)
+int ssh2_ecdh_gen_k(ssh2_bn **k,
+                    ssh2_ec_key *private_key,
+                    const unsigned char *server_public_key,
+                    size_t server_public_key_len)
 {
     mbedtls_ecp_point pubkey;
     int rc = 0;
@@ -1011,10 +1011,10 @@ cleanup:
 /*
  * Verifies the ECDSA signature of a hashed message
  */
-int ssh2_mbed_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
-                           const unsigned char *r, size_t r_len,
-                           const unsigned char *s, size_t s_len,
-                           const unsigned char *m, size_t m_len)
+int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
+                      const unsigned char *r, size_t r_len,
+                      const unsigned char *s, size_t s_len,
+                      const unsigned char *m, size_t m_len)
 {
     mbedtls_mpi pr, ps;
     int rc = -1;
@@ -1081,7 +1081,7 @@ static int mbed_parse_eckey(ssh2_ecdsa_ctx **ctx,
 
 failed:
 
-    ssh2_mbed_ecdsa_free(*ctx);
+    ssh2_ecdsa_free(*ctx);
     *ctx = NULL;
 
     return -1;
@@ -1090,7 +1090,7 @@ failed:
 /*
  * returns key curve type that maps to ssh2_curve_type
  */
-ssh2_curve_type ssh2_mbed_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ec_ctx)
+ssh2_curve_type ssh2_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ec_ctx)
 {
     return (ssh2_curve_type)ec_ctx->MBEDTLS_PRIVATE(grp).id;
 }
@@ -1184,7 +1184,7 @@ static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
 
 failed:
 
-    ssh2_mbed_ecdsa_free(*ctx);
+    ssh2_ecdsa_free(*ctx);
     *ctx = NULL;
 
 cleanup:
@@ -1199,10 +1199,10 @@ cleanup:
 /*
  * Creates a new private key given a file path and password
  */
-int ssh2_mbed_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
-                                LIBSSH2_SESSION *session,
-                                const char *filename,
-                                const unsigned char *passphrase)
+int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
+                           LIBSSH2_SESSION *session,
+                           const char *filename,
+                           const unsigned char *passphrase)
 {
     mbedtls_pk_context pkey;
     unsigned char *data = NULL;
@@ -1254,11 +1254,11 @@ cleanup:
 /*
  * Creates a new private key given a file data and password
  */
-int ssh2_mbed_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
-                                           LIBSSH2_SESSION *session,
-                                           const char *filedata,
-                                           size_t filedata_len,
-                                           const unsigned char *passphrase)
+int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
+                                      LIBSSH2_SESSION *session,
+                                      const char *filedata,
+                                      size_t filedata_len,
+                                      const unsigned char *passphrase)
 {
     unsigned char *ntdata;
     mbedtls_pk_context pkey;
@@ -1320,12 +1320,10 @@ done:
 /*
  * Computes the ECDSA signature of a previously-hashed message
  */
-int ssh2_mbed_ecdsa_sign(LIBSSH2_SESSION *session,
-                         ssh2_ecdsa_ctx *ec_ctx,
-                         const unsigned char *hash,
-                         size_t hash_len,
-                         unsigned char **signature,
-                         size_t *signature_len)
+int ssh2_ecdsa_sign(LIBSSH2_SESSION *session,
+                    ssh2_ecdsa_ctx *ec_ctx,
+                    const unsigned char *hash, size_t hash_len,
+                    unsigned char **signature, size_t *signature_len)
 {
     size_t r_len, s_len, tmp_sign_len = 0;
     unsigned char *sp, *tmp_sign = NULL;
@@ -1373,7 +1371,7 @@ cleanup:
     return *signature ? 0 : -1;
 }
 
-void ssh2_mbed_ecdsa_free(ssh2_ecdsa_ctx *ctx)
+void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ctx)
 {
     mbedtls_ecdsa_free(ctx);
     mbedtls_free(ctx);
