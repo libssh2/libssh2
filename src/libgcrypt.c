@@ -839,12 +839,12 @@ void ssh2_dh_init(ssh2_dh_ctx *dhctx)
     *dhctx = gcry_mpi_new(0);                   /* Random from client */
 }
 
-int ssh2_lgcr_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public, ssh2_bn *g,
+int ssh2_lgcr_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
                           ssh2_bn *p, int group_order)
 {
     /* Generate x and e */
     gcry_mpi_randomize(*dhctx, group_order * 8 - 1, GCRY_VERY_STRONG_RANDOM);
-    gcry_mpi_powm(public, g, *dhctx, p);
+    gcry_mpi_powm(pub, g, *dhctx, p);
     return 0;
 }
 

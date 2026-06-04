@@ -5092,12 +5092,12 @@ void ssh2_dh_init(ssh2_dh_ctx *dhctx)
     *dhctx = BN_new(); /* Random from client */
 }
 
-int ssh2_ossl_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public, ssh2_bn *g,
+int ssh2_ossl_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
                           ssh2_bn *p, int group_order, ssh2_bn_ctx *bnctx)
 {
     /* Generate x and e */
     BN_rand(*dhctx, group_order * 8 - 1, 0, -1);
-    BN_mod_exp(public, g, *dhctx, p, bnctx);
+    BN_mod_exp(pub, g, *dhctx, p, bnctx);
     return 0;
 }
 

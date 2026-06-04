@@ -3428,9 +3428,8 @@ static int wcng_round_down(int number, int multiple)
 /* Generates a Diffie-Hellman key pair using base `g', prime `p' and the given
  * `group_order'. Can use the given big number context `bnctx' if needed.  The
  * private key is stored as opaque in the Diffie-Hellman context `*dhctx' and
- * the public key is returned in `public'.  0 is returned upon success, else
- * -1.  */
-int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public, ssh2_bn *g,
+ * the public key is returned in `pub'. 0 is returned upon success, else -1. */
+int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
                           ssh2_bn *p, int group_order)
 {
     const int hasAlgDHwithKDF = ssh2_wcng.hasAlgDHwithKDF;
@@ -3505,7 +3504,7 @@ int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public, ssh2_bn *g,
         key_length_bytes = 0;
         if(hasAlgDHwithKDF == 1) {
             /* Now we need to extract the public portion of the key so that we
-             * set it in the `public` bignum to satisfy our caller.
+             * set it in the `pub` bignum to satisfy our caller.
              * First measure up the size of the required buffer. */
             key_type = BCRYPT_DH_PUBLIC_BLOB;
         }
@@ -3549,7 +3548,7 @@ int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public, ssh2_bn *g,
         /* BCRYPT_DH_PUBLIC_BLOB corresponds to a BCRYPT_DH_KEY_BLOB header
          * followed by the Modulus, Generator and Public data. Those components
          * each have equal size, specified by dh_key_blob->cbKey. */
-        if(wcng_bn_resize(public, dh_key_blob->cbKey)) {
+        if(wcng_bn_resize(pub, dh_key_blob->cbKey)) {
             if(hasAlgDHwithKDF == 1) {
                 /* We have no private data, because raw KDF is supported */
                 free(dh_key_blob);
@@ -3561,9 +3560,8 @@ int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public, ssh2_bn *g,
         }
 
         /* Copy the public key data into the public bignum data buffer */
-        memcpy(public->bignum, (unsigned char *)dh_key_blob +
-                               sizeof(*dh_key_blob) +
-                               2 * dh_key_blob->cbKey,
+        memcpy(pub->bignum, (unsigned char *)dh_key_blob +
+                            sizeof(*dh_key_blob) + 2 * dh_key_blob->cbKey,
                dh_key_blob->cbKey);
 
         if(dh_key_blob->dwMagic == BCRYPT_DH_PRIVATE_MAGIC) {
@@ -3607,7 +3605,7 @@ int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public, ssh2_bn *g,
         return -1;
     if(wcng_bn_random(dhctx->dh_privbn, (group_order * 8) - 1, 0, -1))
         return -1;
-    if(wcng_bn_mod_exp(public, g, dhctx->dh_privbn, p))
+    if(wcng_bn_mod_exp(pub, g, dhctx->dh_privbn, p))
         return -1;
 
     return 0;
