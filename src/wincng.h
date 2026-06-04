@@ -399,6 +399,7 @@ struct wcng_dh_ctx {
  */
 void ssh2_wcng_init(void);
 void ssh2_wcng_free(void);
+
 int ssh2_wcng_random(void *buf, size_t len);
 
 int ssh2_wcng_hash_init(struct wcng_hash_ctx *ctx,
@@ -424,6 +425,7 @@ ULONG ssh2_wcng_bn_bits(const ssh2_bn *bn);
 int ssh2_wcng_bn_from_bin(ssh2_bn *bn, ULONG len, const unsigned char *bin);
 int ssh2_wcng_bn_to_bin(const ssh2_bn *bn, unsigned char *bin);
 void ssh2_wcng_bn_free(ssh2_bn *bn);
+
 void ssh2_wcng_dh_init(ssh2_dh_ctx *dhctx);
 int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
                           ssh2_bn *g, ssh2_bn *p, int group_order);
