@@ -361,6 +361,13 @@ struct wcng_bn {
 #define ssh2_bn_free(bn) \
     ssh2_wcng_bn_free(bn)
 
+ssh2_bn *ssh2_wcng_bn_init(void);
+int ssh2_wcng_bn_set_word(ssh2_bn *bn, ULONG word);
+ULONG ssh2_wcng_bn_bits(const ssh2_bn *bn);
+int ssh2_wcng_bn_from_bin(ssh2_bn *bn, ULONG len, const unsigned char *bin);
+int ssh2_wcng_bn_to_bin(const ssh2_bn *bn, unsigned char *bin);
+void ssh2_wcng_bn_free(ssh2_bn *bn);
+
 /*
  * Windows CNG backend: Diffie-Hellman support
  */
@@ -393,6 +400,13 @@ struct wcng_dh_ctx {
     ssh2_wcng_dh_secret(dhctx, secret, f, p)
 #define ssh2_dh_dtor(dhctx) ssh2_wcng_dh_dtor(dhctx)
 
+void ssh2_wcng_dh_init(ssh2_dh_ctx *dhctx);
+int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
+                          ssh2_bn *g, ssh2_bn *p, int group_order);
+int ssh2_wcng_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
+                        ssh2_bn *f, ssh2_bn *p);
+void ssh2_wcng_dh_dtor(ssh2_dh_ctx *dhctx);
+
 /*******************************************************************/
 /*
  * Windows CNG backend: forward declarations
@@ -414,23 +428,8 @@ int ssh2_wcng_hash(const unsigned char *data, ULONG datalen,
                    unsigned char *hash, ULONG hashlen);
 
 void ssh2_wcng_rsa_free(ssh2_rsa_ctx *rsa);
-
 #if LIBSSH2_DSA
 void ssh2_wcng_dsa_free(ssh2_dsa_ctx *dsa);
 #endif
-
-ssh2_bn *ssh2_wcng_bn_init(void);
-int ssh2_wcng_bn_set_word(ssh2_bn *bn, ULONG word);
-ULONG ssh2_wcng_bn_bits(const ssh2_bn *bn);
-int ssh2_wcng_bn_from_bin(ssh2_bn *bn, ULONG len, const unsigned char *bin);
-int ssh2_wcng_bn_to_bin(const ssh2_bn *bn, unsigned char *bin);
-void ssh2_wcng_bn_free(ssh2_bn *bn);
-
-void ssh2_wcng_dh_init(ssh2_dh_ctx *dhctx);
-int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
-                          ssh2_bn *g, ssh2_bn *p, int group_order);
-int ssh2_wcng_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
-                        ssh2_bn *f, ssh2_bn *p);
-void ssh2_wcng_dh_dtor(ssh2_dh_ctx *dhctx);
 
 #endif /* LIBSSH2_WINCNG_H */
