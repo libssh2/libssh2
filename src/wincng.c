@@ -2385,10 +2385,10 @@ cleanup:
  * Computes the shared secret K given a local private key,
  * remote public key and length
  */
-int ssh2_wcng_ecdh_gen_k(OUT ssh2_bn **secret,
-                         IN struct wcng_ecdsa_ctx *privatekey,
-                         IN const unsigned char *server_publickey_encoded,
-                         IN size_t server_publickey_encoded_len)
+int ssh2_ecdh_gen_k(OUT ssh2_bn **secret,
+                    IN ssh2_ecdsa_ctx *privatekey,
+                    IN const unsigned char *server_publickey_encoded,
+                    IN size_t server_publickey_encoded_len)
 {
     int result = LIBSSH2_ERROR_NONE;
     NTSTATUS status;

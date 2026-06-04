@@ -320,8 +320,6 @@ struct wcng_ecdsa_ctx {
                               pubkey_octal_len, curve) \
     ssh2_wcng_ecdh_create_key(session, privkey, pubkey_octal, \
                               pubkey_octal_len, curve)
-#define ssh2_ecdh_gen_k(k, privkey, server_pubkey, server_pubkey_len) \
-    ssh2_wcng_ecdh_gen_k(k, privkey, server_pubkey, server_pubkey_len)
 
 /*******************************************************************/
 /*
