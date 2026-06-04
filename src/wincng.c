@@ -406,8 +406,8 @@ void ssh2_wcng_bn_free(ssh2_bn *bn)
 #if LIBSSH2_ECDSA
 
 typedef enum {
-    WINCNG_ECC_KEYTYPE_ECDSA = 0,
-    WINCNG_ECC_KEYTYPE_ECDH = 1,
+    WCNG_ECC_KEYTYPE_ECDSA = 0,
+    WCNG_ECC_KEYTYPE_ECDH = 1,
 } wcng_ecc_keytype;
 
 struct ecdsa_algorithm {
@@ -640,7 +640,7 @@ void ssh2_wcng_init(void)
 
         ret = BCryptOpenAlgorithmProvider(
             &alg_handle_ecdsa,
-            wcng_ecdsa_algorithms[curve].provider[WINCNG_ECC_KEYTYPE_ECDSA],
+            wcng_ecdsa_algorithms[curve].provider[WCNG_ECC_KEYTYPE_ECDSA],
             NULL,
             0);
         if(BCRYPT_SUCCESS(ret)) {
@@ -649,7 +649,7 @@ void ssh2_wcng_init(void)
 
         ret = BCryptOpenAlgorithmProvider(
             &alg_handle_ecdh,
-            wcng_ecdsa_algorithms[curve].provider[WINCNG_ECC_KEYTYPE_ECDH],
+            wcng_ecdsa_algorithms[curve].provider[WCNG_ECC_KEYTYPE_ECDH],
             NULL,
             0);
         if(BCRYPT_SUCCESS(ret)) {
@@ -2038,7 +2038,7 @@ static int wcng_publickey_from_point(IN wcng_ecc_keytype keytype,
            point->y, point->y_len);
 
     status = BCryptImportKeyPair(
-        keytype == WINCNG_ECC_KEYTYPE_ECDSA
+        keytype == WCNG_ECC_KEYTYPE_ECDSA
             ? ssh2_wcng.hAlgECDSA[point->curve]
             : ssh2_wcng.hAlgECDH[point->curve],
         NULL,
@@ -2106,7 +2106,7 @@ static int wcng_privatekey_from_point(IN wcng_ecc_keytype keytype,
            d, d_len);
 
     status = BCryptImportKeyPair(
-        keytype == WINCNG_ECC_KEYTYPE_ECDSA
+        keytype == WCNG_ECC_KEYTYPE_ECDSA
             ? ssh2_wcng.hAlgECDSA[q->curve]
             : ssh2_wcng.hAlgECDH[q->curve],
         NULL,
@@ -2365,7 +2365,7 @@ int ssh2_wcng_ecdsa_curve_name_with_octal_new(
     }
 
     result = wcng_publickey_from_point(
-        WINCNG_ECC_KEYTYPE_ECDSA,
+        WCNG_ECC_KEYTYPE_ECDSA,
         &publickey,
         &publickey_handle);
     if(result != LIBSSH2_ERROR_NONE) {
@@ -2420,7 +2420,7 @@ int ssh2_wcng_ecdh_gen_k(OUT ssh2_bn **secret,
     }
 
     result = wcng_publickey_from_point(
-        WINCNG_ECC_KEYTYPE_ECDH,
+        WCNG_ECC_KEYTYPE_ECDH,
         &server_publickey,
         &publickey_handle);
     if(result != LIBSSH2_ERROR_NONE) {
@@ -2774,7 +2774,7 @@ static int wcng_parse_ecdsa_privatekey(OUT struct wcng_ecdsa_ctx **key,
 
     /* Use Q and d to create a key handle */
     result = wcng_privatekey_from_point(
-        WINCNG_ECC_KEYTYPE_ECDSA,
+        WCNG_ECC_KEYTYPE_ECDSA,
         &q,
         d,
         d_len,
