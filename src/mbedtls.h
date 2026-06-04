@@ -249,12 +249,6 @@ typedef enum {
 #if LIBSSH2_ECDSA
 
 #define ssh2_ecdsa_ctx mbedtls_ecdsa_context
-#define ssh2_ecdsa_create_key(session, privkey, pubkey_octal, \
-                              pubkey_octal_len, curve) \
-    ssh2_mbed_ecdsa_create_key(session, privkey, pubkey_octal, \
-                               pubkey_octal_len, curve)
-#define ssh2_ecdsa_curve_name_with_octal_new(ctx, k, k_len, curve) \
-    ssh2_mbed_ecdsa_curve_name_with_octal_new(ctx, k, k_len, curve)
 #define ssh2_ecdh_gen_k(k, privkey, server_pubkey, server_pubkey_len) \
     ssh2_mbed_ecdh_gen_k(k, privkey, server_pubkey, server_pubkey_len)
 #define ssh2_ecdsa_verify(ctx, r, r_len, s, s_len, m, m_len) \

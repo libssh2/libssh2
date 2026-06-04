@@ -877,11 +877,11 @@ void ssh2_mbed_dh_dtor(ssh2_dh_ctx *dhctx)
  * Creates a local private key based on input curve
  * and returns octal value and octal length
  */
-int ssh2_mbed_ecdsa_create_key(LIBSSH2_SESSION *session,
-                               ssh2_ec_key **out_private_key,
-                               unsigned char **out_public_key_octal,
-                               size_t *out_public_key_octal_len,
-                               ssh2_curve_type curve_type)
+int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
+                          ssh2_ec_key **out_private_key,
+                          unsigned char **out_public_key_octal,
+                          size_t *out_public_key_octal_len,
+                          ssh2_curve_type curve_type)
 {
     size_t plen = 0;
 
@@ -922,10 +922,9 @@ failed:
 /*
  * Creates a new public key given an octal string, length and type
  */
-int ssh2_mbed_ecdsa_curve_name_with_octal_new(ssh2_ecdsa_ctx **ec_ctx,
-                                              const unsigned char *k,
-                                              size_t k_len,
-                                              ssh2_curve_type curve)
+int ssh2_ecdsa_curve_name_with_octal_new(ssh2_ecdsa_ctx **ec_ctx,
+                                         const unsigned char *k, size_t k_len,
+                                         ssh2_curve_type curve)
 {
     *ec_ctx = mbedtls_calloc(1, sizeof(mbedtls_ecp_keypair));
 
