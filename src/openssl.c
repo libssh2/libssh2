@@ -46,10 +46,6 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#ifdef USE_OPENSSL_3
-#define USE_PEM_READ_BIO_PRIVATEKEY
-#endif
-
 int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 {
 #ifdef USE_OPENSSL_3
@@ -1125,12 +1121,8 @@ static int passphrase_cb(char *buf, int size, int rwflag, void *passphrase)
     return passphrase_len;
 }
 
-#ifdef USE_PEM_READ_BIO_PRIVATEKEY
 typedef EVP_PKEY *(*pem_read_bio_func)(BIO *, EVP_PKEY **, pem_password_cb *,
                                        void *u);
-#else
-typedef void *(*pem_read_bio_func)(BIO *, void **, pem_password_cb *, void *u);
-#endif
 
 static int read_private_key_from_memory(void **key_ctx,
                                         pem_read_bio_func read_private_key,
@@ -1187,13 +1179,8 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
 {
     int rc;
 
-#ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_rsa =
         (pem_read_bio_func)&PEM_read_bio_PrivateKey;
-#else
-    pem_read_bio_func read_rsa =
-        (pem_read_bio_func)&PEM_read_bio_RSAPrivateKey;
-#endif
 
     ssh2_init_if_needed();
 
@@ -1581,13 +1568,8 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
 {
     int rc;
 
-#ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_rsa =
         (pem_read_bio_func)&PEM_read_bio_PrivateKey;
-#else
-    pem_read_bio_func read_rsa =
-        (pem_read_bio_func)&PEM_read_bio_RSAPrivateKey;
-#endif
 
     ssh2_init_if_needed();
 
@@ -1612,13 +1594,8 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
 {
     int rc;
 
-#ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_dsa =
         (pem_read_bio_func)&PEM_read_bio_PrivateKey;
-#else
-    pem_read_bio_func read_dsa =
-        (pem_read_bio_func)&PEM_read_bio_DSAPrivateKey;
-#endif
 
     ssh2_init_if_needed();
 
@@ -1923,13 +1900,8 @@ int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
 {
     int rc;
 
-#ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_dsa =
         (pem_read_bio_func)&PEM_read_bio_PrivateKey;
-#else
-    pem_read_bio_func read_dsa =
-        (pem_read_bio_func)&PEM_read_bio_DSAPrivateKey;
-#endif
 
     ssh2_init_if_needed();
 
@@ -1953,13 +1925,8 @@ int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
 {
     int rc;
 
-#ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_ec =
         (pem_read_bio_func)&PEM_read_bio_PrivateKey;
-#else
-    pem_read_bio_func read_ec =
-        (pem_read_bio_func)&PEM_read_bio_ECPrivateKey;
-#endif
 
     ssh2_init_if_needed();
 
@@ -3992,13 +3959,8 @@ int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
 {
     int rc;
 
-#ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_ec =
         (pem_read_bio_func)&PEM_read_bio_PrivateKey;
-#else
-    pem_read_bio_func read_ec =
-        (pem_read_bio_func)&PEM_read_bio_ECPrivateKey;
-#endif
 
     ssh2_init_if_needed();
 
@@ -4024,13 +3986,8 @@ int ssh2_ecdsa_new_private_sk(ssh2_ecdsa_ctx **ec_ctx,
 {
     int rc;
 
-#ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_ec =
         (pem_read_bio_func)&PEM_read_bio_PrivateKey;
-#else
-    pem_read_bio_func read_ec =
-        (pem_read_bio_func)&PEM_read_bio_ECPrivateKey;
-#endif
 
     ssh2_init_if_needed();
 
