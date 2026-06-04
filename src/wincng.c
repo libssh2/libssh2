@@ -3645,8 +3645,8 @@ int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public, ssh2_bn *g,
             if(!(dhctx->dh_privbn->bignum[dhctx->dh_privbn->length - 1] % 2)) {
                 wcng_safe_free(dh_key_blob, key_length_bytes);
                 /* discard everything first, then try again */
-                ssh2_wcng_dh_dtor(dhctx);
-                ssh2_wcng_dh_init(dhctx);
+                ssh2_dh_dtor(dhctx);
+                ssh2_dh_init(dhctx);
                 continue;
             }
         }
