@@ -84,11 +84,11 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    test_ssh2_base64_decode(session);
+    rc = test_ssh2_base64_decode(session);
 
     libssh2_session_free(session);
 
     libssh2_exit();
 
-    return 0;
+    return rc;
 }
