@@ -334,7 +334,6 @@ unsigned long ssh2_bn_bits(ssh2_bn *bn);
 int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *v);
 int ssh2_bn_set_word(ssh2_bn *bn, unsigned long val);
 int ssh2_bn_to_bin(ssh2_bn *bn, unsigned char *val);
-int ssh2_random(unsigned char *buf, size_t len);
 void ssh2_os400qc3_crypto_dtor(struct os400qc3_crypto_ctx *x);
 int ssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x, unsigned int algo);
 int ssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
