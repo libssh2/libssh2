@@ -73,9 +73,11 @@
 
 #define PEM_RSA_HEADER "-----BEGIN RSA PRIVATE KEY-----"
 #define PEM_RSA_FOOTER "-----END RSA PRIVATE KEY-----"
+#if LIBSSH2_DSA
 #define PEM_DSA_HEADER "-----BEGIN DSA PRIVATE KEY-----"
 #define PEM_DSA_FOOTER "-----END DSA PRIVATE KEY-----"
 #endif
+#endif /* HAVE_LIBCRYPT32 */
 #if LIBSSH2_ECDSA
 #define PEM_ECDSA_HEADER "-----BEGIN OPENSSH PRIVATE KEY-----"
 #define PEM_ECDSA_FOOTER "-----END OPENSSH PRIVATE KEY-----"
@@ -556,11 +558,13 @@ void ssh2_crypto_init(void)
     if(!BCRYPT_SUCCESS(ret)) {
         ssh2_wcng.hAlgRSA = NULL;
     }
+#if LIBSSH2_DSA
     ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgDSA,
                                       BCRYPT_DSA_ALGORITHM, NULL, 0);
     if(!BCRYPT_SUCCESS(ret)) {
         ssh2_wcng.hAlgDSA = NULL;
     }
+#endif
 
     ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgAES_CBC,
                                       BCRYPT_AES_ALGORITHM, NULL, 0);
@@ -688,8 +692,10 @@ void ssh2_crypto_exit(void)
         (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgHmacSHA512, 0);
     if(ssh2_wcng.hAlgRSA)
         (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgRSA, 0);
+#if LIBSSH2_DSA
     if(ssh2_wcng.hAlgDSA)
         (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgDSA, 0);
+#endif
     if(ssh2_wcng.hAlgAES_CBC)
         (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgAES_CBC, 0);
     if(ssh2_wcng.hAlgRC4_NA)
@@ -890,6 +896,7 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
  * Windows CNG backend: Key functions
  */
 
+#if LIBSSH2_RSA || LIBSSH2_DSA
 static int wcng_key_sha_verify(struct wcng_key_ctx *ctx,
                                ULONG hashlen,
                                const unsigned char *sig,
@@ -969,6 +976,7 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx,
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
+#endif
 
 #ifdef HAVE_LIBCRYPT32
 static int wcng_load_pem(LIBSSH2_SESSION *session,
@@ -1013,11 +1021,15 @@ static int wcng_load_private(LIBSSH2_SESSION *session,
                             &data, &datalen);
     }
 
+#if LIBSSH2_DSA
     if(ret && tryLoadDSA) {
         ret = wcng_load_pem(session, filename, passphrase,
                             PEM_DSA_HEADER, PEM_DSA_FOOTER,
                             &data, &datalen);
     }
+#else
+   (void)tryLoadDSA;
+#endif
 
     if(!ret) {
         *ppbEncoded = data;
@@ -1047,6 +1059,7 @@ static int wcng_load_private_memory(LIBSSH2_SESSION *session,
                                     &data, &datalen);
     }
 
+#if LIBSSH2_DSA
     if(ret && tryLoadDSA) {
         ret = ssh2_pem_parse_memory(session,
                                     PEM_DSA_HEADER, PEM_DSA_FOOTER,
@@ -1054,6 +1067,9 @@ static int wcng_load_private_memory(LIBSSH2_SESSION *session,
                                     privatekeydata, privatekeydata_len,
                                     &data, &datalen);
     }
+#else
+    (void)tryLoadDSA;
+#endif
 
     if(!ret) {
         *ppbEncoded = data;
