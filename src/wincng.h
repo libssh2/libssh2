@@ -427,9 +427,4 @@ int ssh2_wcng_hash(const unsigned char *data, ULONG datalen,
                    BCRYPT_ALG_HANDLE hAlg,
                    unsigned char *hash, ULONG hashlen);
 
-void ssh2_wcng_rsa_free(ssh2_rsa_ctx *rsa);
-#if LIBSSH2_DSA
-void ssh2_wcng_dsa_free(ssh2_dsa_ctx *dsa);
-#endif
-
 #endif /* LIBSSH2_WINCNG_H */
