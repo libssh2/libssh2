@@ -220,11 +220,9 @@ int ssh2_ecdsa_curve_type_from_name(const char *name,
                                     ssh2_curve_type *out_type);
 
 void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ec_ctx);
-
 #endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519
-
 int ssh2_curve25519_new(LIBSSH2_SESSION *session, uint8_t **out_public_key,
                         uint8_t **out_private_key);
 
@@ -275,7 +273,6 @@ int ssh2_ed25519_new_private_frommemory_sk(
     const char *filedata,
     size_t filedata_len,
     const unsigned char *passphrase);
-
 #endif /* LIBSSH2_ED25519 */
 
 #if LIBSSH2_MLKEM
@@ -288,7 +285,6 @@ int ssh2_mlkem_get_sk(unsigned char *out_shared_key,
                       int ml_kem_size,
                       uint8_t *private_key,
                       uint8_t *server_ciphertext);
-
 #endif /* LIBSSH2_MLKEM */
 
 int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
