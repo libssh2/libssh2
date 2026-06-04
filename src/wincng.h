@@ -162,7 +162,7 @@ extern struct wcng_ctx ssh2_wcng;
  * Windows CNG backend: Hash structure
  */
 
-struct wincng_hash_ctx {
+struct wcng_hash_ctx {
     BCRYPT_HASH_HANDLE hHash;
     unsigned char *pbHashObject;
     ULONG dwHashObject;
@@ -173,7 +173,7 @@ struct wincng_hash_ctx {
  * Windows CNG backend: Hash functions
  */
 
-#define ssh2_sha1_ctx struct wincng_hash_ctx
+#define ssh2_sha1_ctx struct wcng_hash_ctx
 #define ssh2_sha1_init(ctx) \
     (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashSHA1, \
                          SHA_DIGEST_LENGTH, NULL, 0) == 0)
@@ -185,7 +185,7 @@ struct wincng_hash_ctx {
     ssh2_wcng_hash(data, datalen, ssh2_wcng.hAlgHashSHA1, \
                    hash, SHA_DIGEST_LENGTH)
 
-#define ssh2_sha256_ctx struct wincng_hash_ctx
+#define ssh2_sha256_ctx struct wcng_hash_ctx
 #define ssh2_sha256_init(ctx) \
     (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashSHA256, \
                          SHA256_DIGEST_LENGTH, NULL, 0) == 0)
@@ -197,7 +197,7 @@ struct wincng_hash_ctx {
     ssh2_wcng_hash(data, datalen, ssh2_wcng.hAlgHashSHA256, \
                    hash, SHA256_DIGEST_LENGTH)
 
-#define ssh2_sha384_ctx struct wincng_hash_ctx
+#define ssh2_sha384_ctx struct wcng_hash_ctx
 #define ssh2_sha384_init(ctx) \
     (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashSHA384, \
                          SHA384_DIGEST_LENGTH, NULL, 0) == 0)
@@ -209,7 +209,7 @@ struct wincng_hash_ctx {
     ssh2_wcng_hash(data, datalen, ssh2_wcng.hAlgHashSHA384, \
                    hash, SHA384_DIGEST_LENGTH)
 
-#define ssh2_sha512_ctx struct wincng_hash_ctx
+#define ssh2_sha512_ctx struct wcng_hash_ctx
 #define ssh2_sha512_init(ctx) \
     (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashSHA512, \
                          SHA512_DIGEST_LENGTH, NULL, 0) == 0)
@@ -222,7 +222,7 @@ struct wincng_hash_ctx {
                    hash, SHA512_DIGEST_LENGTH)
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define ssh2_md5_ctx struct wincng_hash_ctx
+#define ssh2_md5_ctx struct wcng_hash_ctx
 #define ssh2_md5_init(ctx) \
     (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashMD5, \
                          MD5_DIGEST_LENGTH, NULL, 0) == 0)
@@ -236,7 +236,7 @@ struct wincng_hash_ctx {
  * Windows CNG backend: HMAC functions
  */
 
-#define ssh2_hmac_ctx struct wincng_hash_ctx
+#define ssh2_hmac_ctx struct wcng_hash_ctx
 
 /*******************************************************************/
 /*
@@ -498,12 +498,12 @@ void ssh2_wcng_init(void);
 void ssh2_wcng_free(void);
 int ssh2_wcng_random(void *buf, size_t len);
 
-int ssh2_wcng_hash_init(struct wincng_hash_ctx *ctx,
+int ssh2_wcng_hash_init(struct wcng_hash_ctx *ctx,
                         BCRYPT_ALG_HANDLE hAlg, ULONG hashlen,
                         unsigned char *key, ULONG keylen);
-int ssh2_wcng_hash_update(struct wincng_hash_ctx *ctx,
+int ssh2_wcng_hash_update(struct wcng_hash_ctx *ctx,
                           const void *data, ULONG datalen);
-int ssh2_wcng_hash_final(struct wincng_hash_ctx *ctx,
+int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx,
                          unsigned char *hash);
 int ssh2_wcng_hash(const unsigned char *data, ULONG datalen,
                    BCRYPT_ALG_HANDLE hAlg,

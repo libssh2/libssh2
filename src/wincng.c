@@ -732,7 +732,7 @@ int ssh2_wcng_random(void *buf, size_t len)
  * Windows CNG backend: Hash functions
  */
 
-int ssh2_wcng_hash_init(struct wincng_hash_ctx *ctx,
+int ssh2_wcng_hash_init(struct wcng_hash_ctx *ctx,
                         BCRYPT_ALG_HANDLE hAlg, ULONG hashlen,
                         unsigned char *key, ULONG keylen)
 {
@@ -778,7 +778,7 @@ int ssh2_wcng_hash_init(struct wincng_hash_ctx *ctx,
     return 0;
 }
 
-int ssh2_wcng_hash_update(struct wincng_hash_ctx *ctx,
+int ssh2_wcng_hash_update(struct wcng_hash_ctx *ctx,
                           const void *data, ULONG datalen)
 {
     int ret;
@@ -789,7 +789,7 @@ int ssh2_wcng_hash_update(struct wincng_hash_ctx *ctx,
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-int ssh2_wcng_hash_final(struct wincng_hash_ctx *ctx, unsigned char *hash)
+int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx, unsigned char *hash)
 {
     int ret;
 
@@ -809,7 +809,7 @@ int ssh2_wcng_hash(const unsigned char *data, ULONG datalen,
                    BCRYPT_ALG_HANDLE hAlg,
                    unsigned char *hash, ULONG hashlen)
 {
-    struct wincng_hash_ctx ctx;
+    struct wcng_hash_ctx ctx;
     int ret;
 
     ret = ssh2_wcng_hash_init(&ctx, hAlg, hashlen, NULL, 0);
