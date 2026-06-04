@@ -1874,7 +1874,7 @@ static int wcng_ecdsa_decode_uncompressed_point(
         if(wcng_ecdsa_algs[curve].point_length ==
            (encoded_point_len - 1) / 2) {
 
-            point->curve = curve;
+            point->curve = (ssh2_curve_type)curve;
 
             point->x = encoded_point + 1;
             point->x_len = wcng_ecdsa_algs[curve].point_length;
@@ -2470,7 +2470,7 @@ static int wcng_ecdsa_curve_type_from_name(IN const char *name,
 
     for(curve = 0; curve < SSH2_ARRAYSIZE(wcng_ecdsa_algs); curve++) {
         if(strcmp(name, wcng_ecdsa_algs[curve].name) == 0) {
-            *out_curve = curve;
+            *out_curve = (ssh2_curve_type)curve;
             return LIBSSH2_ERROR_NONE;
         }
     }
