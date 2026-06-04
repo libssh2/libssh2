@@ -243,7 +243,7 @@ struct wcng_hash_ctx {
  * Windows CNG backend: Key Context structure
  */
 
-struct wincng_key_ctx {
+struct wcng_key_ctx {
     BCRYPT_KEY_HANDLE hKey;
     void *pbKeyObject;
     DWORD cbKeyObject;
@@ -253,7 +253,7 @@ struct wincng_key_ctx {
  * Windows CNG backend: RSA functions
  */
 
-#define ssh2_rsa_ctx struct wincng_key_ctx
+#define ssh2_rsa_ctx struct wcng_key_ctx
 #define ssh2_rsa_new(rsactx, e, e_len, n, n_len, d, d_len, p, p_len, \
                      q, q_len, e1, e1_len, e2, e2_len, c, c_len) \
     ssh2_wcng_rsa_new(rsactx, e, e_len, n, n_len, d, d_len, p, p_len, \
@@ -279,7 +279,7 @@ struct wincng_key_ctx {
  * Windows CNG backend: DSA functions
  */
 
-#define ssh2_dsa_ctx struct wincng_key_ctx
+#define ssh2_dsa_ctx struct wcng_key_ctx
 #define ssh2_dsa_new(dsactx, p, p_len, q, q_len, g, g_len, y, y_len, \
                      x, x_len) \
     ssh2_wcng_dsa_new(dsactx, p, p_len, q, q_len, g, g_len, y, y_len, \
