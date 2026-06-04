@@ -599,7 +599,11 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
 
           dnl Only gcc 15 or later
           if test "$compiler_num" -ge "1500"; then
-            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [leading-whitespace=spaces])
+            dnl AC_FUNC_ALLOCA is incompatible with this option. It triggers
+            dnl detecting macro STACK_DIRECTION (which we do not use here).
+            dnl autoconf (as of v2.73) puts this macro into libssh2_config.h
+            dnl indented by tabs.
+          # CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [leading-whitespace=spaces])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [trailing-whitespace=any])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [unterminated-string-initialization])
           fi
