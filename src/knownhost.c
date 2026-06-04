@@ -265,8 +265,9 @@ error:
     return rc;
 }
 
+#ifndef LIBSSH2_NO_DEPRECATED
 /*
- * libssh2_knownhost_add
+ * DEPRECATED, DO NOT USE!
  *
  * Add a host and its associated key to the collection of known hosts.
  *
@@ -294,10 +295,9 @@ int libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
     return knownhost_add(hosts, host, salt, NULL, 0, key, keylen, NULL,
                          0, typemask, store);
 }
+#endif
 
 /*
- * libssh2_knownhost_addc
- *
  * Add a host and its associated key to the collection of known hosts.
  *
  * Takes a comment argument that may be NULL.  A NULL comment indicates

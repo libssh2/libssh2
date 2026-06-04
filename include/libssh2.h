@@ -1096,12 +1096,15 @@ LIBSSH2_API LIBSSH2_KNOWNHOSTS *libssh2_knownhost_init(
 #define LIBSSH2_KNOWNHOST_KEY_ED25519      (7<<18)
 #define LIBSSH2_KNOWNHOST_KEY_UNKNOWN      (15<<18)
 
+#ifndef LIBSSH2_NO_DEPRECATED
+LIBSSH2_DEPRECATED(1.2.5, "Use libssh2_knownhost_addc()")
 LIBSSH2_API int libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
                                       const char *host,
                                       const char *salt,
                                       const char *key, size_t keylen,
                                       int typemask,
                                       struct libssh2_knownhost **store);
+#endif
 
 /*
  * libssh2_knownhost_addc()
