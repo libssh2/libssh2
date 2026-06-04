@@ -262,11 +262,15 @@ struct wcng_key_ctx {
 
 #define ssh2_rsa_ctx struct wcng_key_ctx
 
+void ssh2_rsa_free(ssh2_rsa_ctx *rsa);
+
 /*
  * Windows CNG backend: DSA functions
  */
 
 #define ssh2_dsa_ctx struct wcng_key_ctx
+
+void ssh2_dsa_free(ssh2_dsa_ctx *dsa);
 
 /*
  * Windows CNG backend: ECDSA functions

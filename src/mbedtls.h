@@ -219,6 +219,8 @@ int ssh2_mbed_hash(const unsigned char *data, size_t datalen,
 
 #define ssh2_rsa_ctx mbedtls_rsa_context
 
+void ssh2_rsa_free(ssh2_rsa_ctx *rsa);
+
 /*******************************************************************/
 /*
  * mbedTLS backend: ECDSA structures
