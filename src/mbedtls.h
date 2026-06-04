@@ -421,8 +421,6 @@ void ssh2_mbed_rsa_free(ssh2_rsa_ctx *ctx);
 
 #if LIBSSH2_ECDSA
 ssh2_curve_type ssh2_mbed_ecdsa_key_get_curve_type(ssh2_ecdsa_ctx *ctx);
-int ssh2_mbed_ecdsa_curve_type_from_name(const char *name,
-                                         ssh2_curve_type *out_type);
 void ssh2_mbed_ecdsa_free(ssh2_ecdsa_ctx *ctx);
 #endif /* LIBSSH2_ECDSA */
 
