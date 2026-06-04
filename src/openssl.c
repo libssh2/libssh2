@@ -1125,10 +1125,7 @@ static int passphrase_cb(char *buf, int size, int rwflag, void *passphrase)
     return passphrase_len;
 }
 
-#if defined(LIBSSH2_WOLFSSL) || defined(LIBRESSL_VERSION_NUMBER)
-typedef EC_KEY *(*pem_read_bio_t)(BIO *, EC_KEY **, pem_password_cb *,
-                                  void *u);
-#elif defined(USE_PEM_READ_BIO_PRIVATEKEY)
+#ifdef USE_PEM_READ_BIO_PRIVATEKEY
 typedef EVP_PKEY *(*pem_read_bio_t)(BIO *, EVP_PKEY **, pem_password_cb *,
                                     void *u);
 #else
