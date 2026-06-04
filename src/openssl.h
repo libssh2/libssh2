@@ -225,8 +225,6 @@
 
 #define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 
-#define ssh2_random(buf, len)  ssh2_ossl_random(buf, len)
-
 #define ssh2_prepare_iovec(vec, len)  /* Empty. */
 
 #ifdef HAVE_OPAQUE_STRUCTS
@@ -328,10 +326,7 @@ int ssh2_ossl_md5_final(ssh2_md5_ctx *ctx, unsigned char *out);
 #define ssh2_hmac_ctx HMAC_CTX
 #endif /* USE_OPENSSL_3 */
 
-void ssh2_ossl_init(void);
-void ssh2_ossl_exit(void);
-#define ssh2_crypto_init() ssh2_ossl_init()
-#define ssh2_crypto_exit() ssh2_ossl_exit()
+#define ssh2_crypto_exit()
 
 #if LIBSSH2_RSA
 
@@ -448,8 +443,6 @@ int ssh2_ossl_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
                         ssh2_bn *f, ssh2_bn *p,
                         ssh2_bn_ctx *bnctx);
 void ssh2_ossl_dh_dtor(ssh2_dh_ctx *dhctx);
-
-int ssh2_ossl_random(void *buf, size_t len);
 
 const EVP_CIPHER *ssh2_EVP_aes_128_ctr(void);
 const EVP_CIPHER *ssh2_EVP_aes_192_ctr(void);
