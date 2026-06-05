@@ -736,8 +736,7 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                                        "unexpected packet type");
 
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
-                            "strict KEX violation: "
-                            "unexpected packet type");
+                            "strict KEX violation: unexpected packet type");
         }
     }
 

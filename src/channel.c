@@ -1529,8 +1529,7 @@ int ssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
     }
 
     return ssh2_err(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
-                    "Unable to complete request for "
-                    "channel-process-startup");
+                    "Unable to complete request for channel-process-startup");
 }
 
 /*
@@ -2826,8 +2825,7 @@ unsigned long libssh2_channel_window_read_ex(
  * the channel_open request
  */
 unsigned long libssh2_channel_window_write_ex(
-    LIBSSH2_CHANNEL *channel,
-    unsigned long *window_size_initial)
+    LIBSSH2_CHANNEL *channel, unsigned long *window_size_initial)
 {
     if(!channel)
         return 0; /* no channel, no window! */
@@ -2856,8 +2854,7 @@ unsigned long libssh2_channel_window_write_ex(
    this section.
  */
 static int channel_signal(LIBSSH2_CHANNEL *channel,
-                          const char *signame,
-                          size_t signame_len)
+                          const char *signame, size_t signame_len)
 {
     LIBSSH2_SESSION *session = channel->session;
     int retcode = LIBSSH2_ERROR_PROTO;

@@ -1895,8 +1895,7 @@ retry_auth:
                               &session->userauth_pblc_packet_requirev_state);
     if(rc == LIBSSH2_ERROR_EAGAIN) {
         return ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
-                        "Would block waiting for publickey "
-                        "USERAUTH response");
+                        "Would block waiting for publickey USERAUTH response");
     }
     else if(rc || session->userauth_pblc_data_len < 1) {
         session->userauth_pblc_state = ssh2_NB_state_idle;

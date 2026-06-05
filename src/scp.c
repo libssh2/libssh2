@@ -124,7 +124,7 @@
   https://www.grymoire.com/Unix/Csh.html#toc-uh-10
 
   Return value:
-  Length of the resulting string (not counting the terminating '\0'),
+  Length of the resulting string (not counting the null-terminator),
   or 0 in case of errors, e.g. result buffer too small
 
   Note: this function could possible be used elsewhere within libssh2, but

@@ -1,5 +1,6 @@
-# Copyright (C) The libssh2 project and its contributors.
-# SPDX-License-Identifier: BSD-3-Clause
+dnl Copyright (C) The libssh2 project and its contributors.
+dnl SPDX-License-Identifier: BSD-3-Clause
+
 dnl CURL_CPP_P
 dnl
 dnl Check if $cpp -P should be used for extract define values due to gcc 5
@@ -113,7 +114,7 @@ AC_DEFUN([CURL_CHECK_COMPILER_CLANG], [
     AC_MSG_RESULT([yes])
     AC_MSG_CHECKING([if compiler is xlclang])
     CURL_CHECK_DEF([__ibmxl__], [], [silent])
-    if test "$curl_cv_have_def___ibmxl__" = "yes" ; then
+    if test "$curl_cv_have_def___ibmxl__" = "yes"; then
       dnl IBM's almost-compatible clang version
       AC_MSG_RESULT([yes])
       compiler_id="XLCLANG"
@@ -830,9 +831,9 @@ dnl the code was bad, try a different program now, test 2
 #include <unistd.h>
 #include <stropts.h>
 ]], [[
-/* FIONBIO source test (old-style unix) */
- int socket;
- int flags = ioctl(socket, FIONBIO, &flags);
+  /* FIONBIO source test (old-style unix) */
+  int socket;
+  int flags = ioctl(socket, FIONBIO, &flags);
 ]])],[
 dnl FIONBIO test was good
 nonblock="FIONBIO"
@@ -845,9 +846,9 @@ dnl the code was bad, try a different program now, test 3
 /* headers for IoctlSocket test (Amiga?) */
 #include <sys/ioctl.h>
 ]], [[
-/* IoctlSocket source code */
- int socket;
- int flags = IoctlSocket(socket, FIONBIO, (long)1);
+  /* IoctlSocket source code */
+  int socket;
+  int flags = IoctlSocket(socket, FIONBIO, (long)1);
 ]])],[
 dnl ioctlsocket test was good
 nonblock="IoctlSocket"
@@ -855,8 +856,8 @@ AC_DEFINE(HAVE_IOCTLSOCKET_CASE, 1, [use Ioctlsocket() for non-blocking sockets]
 ],[
 dnl Ioctlsocket did not compile, do test 4!
   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-/* headers for SO_NONBLOCK test (BeOS) */
-#include <socket.h>
+    /* headers for SO_NONBLOCK test (BeOS) */
+    #include <socket.h>
 ]], [[
 /* SO_NONBLOCK source code */
  long b = 1;
@@ -943,7 +944,7 @@ AC_DEFUN([CURL_CONFIGURE_REENTRANT], [
     AC_LANG_PROGRAM([[
     ]],[[
       #ifdef _REENTRANT
-        int dummy=1;
+        int dummy = 1;
       #else
         force compilation error
       #endif

@@ -86,10 +86,8 @@
 #define SSH_FXP_EXTENDED                        200
 #define SSH_FXP_EXTENDED_REPLY                  201
 
-/* S_IFREG */
-#define SSH2_SFTP_ATTR_PFILETYPE_FILE           0100000
-/* S_IFDIR */
-#define SSH2_SFTP_ATTR_PFILETYPE_DIR            0040000
+#define SSH2_SFTP_ATTR_PFILETYPE_FILE           0100000  /* S_IFREG */
+#define SSH2_SFTP_ATTR_PFILETYPE_DIR            0040000  /* S_IFDIR */
 
 #define SSH_FXE_STATVFS_ST_RDONLY               0x00000001
 #define SSH_FXE_STATVFS_ST_NOSUID               0x00000002
@@ -132,8 +130,8 @@ static void remove_zombie_request(LIBSSH2_SFTP *sftp, uint32_t request_id)
                                                               request_id);
     if(zombie) {
         ssh2_deb((session, LIBSSH2_TRACE_SFTP,
-                  "Removing request ID %u from the list of "
-                  "zombie requests", request_id));
+                  "Removing request ID %u from the list of zombie requests",
+                  request_id));
 
         ssh2_list_remove(&zombie->node);
         SSH2_FREE(session, zombie);
@@ -854,8 +852,8 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
         session->sftpInit_sent = 0; /* nothing's sent yet */
 
         ssh2_deb((session, LIBSSH2_TRACE_SFTP,
-                  "Sending FXP_INIT packet advertising "
-                  "version %d support", (int)LIBSSH2_SFTP_VERSION));
+                  "Sending FXP_INIT packet advertising version %d support",
+                  (int)LIBSSH2_SFTP_VERSION));
 
         session->sftpInit_state = ssh2_NB_state_sent2;
     }
@@ -2052,7 +2050,6 @@ int libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle,
  *   Introduce an option that disables this sort of "speculative" ahead writing
  *   as there is a risk that it does harm to some app.
  */
-
 static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
                           size_t count)
 {
@@ -2441,8 +2438,7 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
     }
 
     rc = sftp_packet_requirev(sftp, 2, fstat_responses,
-                              sftp->fstat_request_id, &data,
-                              &data_len, 9);
+                              sftp->fstat_request_id, &data, &data_len, 9);
     if(rc == LIBSSH2_ERROR_EAGAIN)
         return (int)rc;
     else if(rc == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
@@ -2922,8 +2918,7 @@ static int sftp_rename(LIBSSH2_SFTP *sftp,
     }
 
     rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
-                             sftp->rename_request_id, &data,
-                             &data_len, 9);
+                             sftp->rename_request_id, &data, &data_len, 9);
     if(rc == LIBSSH2_ERROR_EAGAIN) {
         return (int)rc;
     }
@@ -3197,7 +3192,6 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
 
     rc = sftp_packet_requirev(sftp, 2, responses, sftp->fstatvfs_request_id,
                               &data, &data_len, 9);
-
     if(rc == LIBSSH2_ERROR_EAGAIN) {
         return (int)rc;
     }
@@ -3821,7 +3815,6 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp,
 
     if(link_type == LIBSSH2_SFTP_SYMLINK) {
 
-        /* FIXME: possible incorrect/impossible bounds checks: */
         if((target_len + 4) < target_len ||
            (packet_len + 4 + target_len) < packet_len) {
             return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,

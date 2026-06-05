@@ -137,9 +137,9 @@
      gcry_md_close(ctx), 1)
 #endif
 
-#define ssh2_hmac_ctx gcry_md_hd_t
+#define ssh2_hmac_ctx         gcry_md_hd_t
 
-#define ssh2_crypto_init() gcry_control(GCRYCTL_DISABLE_SECMEM)
+#define ssh2_crypto_init()    gcry_control(GCRYCTL_DISABLE_SECMEM)
 #define ssh2_crypto_exit()
 
 #define ssh2_rsa_ctx          struct gcry_sexp
@@ -154,8 +154,8 @@
 #define ssh2_ec_key void
 #endif
 
-#define SSH2_CIPHER_T(name) int name
-#define ssh2_cipher_ctx     gcry_cipher_hd_t
+#define SSH2_CIPHER_T(name)   int name
+#define ssh2_cipher_ctx       gcry_cipher_hd_t
 
 #define CM(c, m)              (((c) << 8) | (m)) /* ciphermode */
 #define LGCR_CIPHER(c)        ((c) >> 8)

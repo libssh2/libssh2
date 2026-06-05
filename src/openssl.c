@@ -1108,8 +1108,7 @@ void ssh2_crypto_init(void)
 }
 
 #if LIBSSH2_RSA || LIBSSH2_DSA || LIBSSH2_ECDSA || LIBSSH2_ED25519
-/* TODO: Optionally call a passphrase callback specified by the
- * calling program
+/* TODO: Optionally call a passphrase callback specified by the calling program
  */
 static int passphrase_cb(char *buf, int size, int rwflag, void *passphrase)
 {
@@ -2213,8 +2212,7 @@ static int gen_publickey_from_ed25519_openssh_priv_data(
 
     if(ret == 0) {
         ssh2_deb((session, LIBSSH2_TRACE_AUTH,
-                  "Computing public key from ED25519 "
-                  "private key envelope"));
+                  "Computing public key from ED25519 private key envelope"));
 
         method_buf = SSH2_ALLOC(session, 11); /* ssh-ed25519. */
         if(!method_buf) {
@@ -2343,8 +2341,7 @@ static int gen_publickey_from_sk_ed25519_openssh_priv_data(
 
     if(ret == 0) {
         ssh2_deb((session, LIBSSH2_TRACE_AUTH,
-                  "Computing public key from ED25519 "
-                  "private key envelope"));
+                  "Computing public key from ED25519 private key envelope"));
 
         /* sk-ssh-ed25519@openssh.com. */
         method_buf = SSH2_ALLOC(session, strlen(key_type));
@@ -2573,10 +2570,8 @@ int ssh2_ed25519_new_private_frommemory(ssh2_ed25519_ctx **ed_ctx,
     ssh2_init_if_needed();
 
     if(read_private_key_from_memory((void **)&ctx,
-                                    (pem_read_bio_func)
-                                    &PEM_read_bio_PrivateKey,
-                                    filedata, filedata_len,
-                                    passphrase) == 0) {
+                                   (pem_read_bio_func)&PEM_read_bio_PrivateKey,
+                                    filedata, filedata_len, passphrase) == 0) {
         if(EVP_PKEY_id(ctx) != EVP_PKEY_ED25519) {
             ssh2_ed25519_free(ctx);
             return ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -4926,8 +4921,7 @@ static int sk_pub_openssh_keyfilememory(LIBSSH2_SESSION *session,
     if(rc == LIBSSH2_ERROR_FILE)
         rc = ssh2_err(session, LIBSSH2_ERROR_FILE,
                       "Unable to extract public key from private key "
-                      "file: invalid/unrecognized private key "
-                      "file format");
+                      "file: invalid/unrecognized private key file format");
 
     if(decrypted)
         ssh2_string_buf_free(session, decrypted);
@@ -4962,8 +4956,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     bp = BIO_new_mem_buf(privatekeydata, (int)privatekeydata_len);
     if(!bp)
         return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                        "Unable to allocate memory when"
-                        "computing public key");
+                        "Unable to allocate memory when computing public key");
     (void)BIO_reset(bp);
     pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, SSH2_UNCONST(passphrase));
 #ifdef HAVE_SSLERROR_BAD_DECRYPT
@@ -4994,8 +4987,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                             "Wrong passphrase for private key");
 #endif
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                        "Unable to extract public key "
-                        "from private key file: "
+                        "Unable to extract public key from private key file: "
                         "Unsupported private key file format");
     }
 
@@ -5032,8 +5024,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
 #endif /* LIBSSH2_ECDSA */
     default:
         st = ssh2_err(session, LIBSSH2_ERROR_FILE,
-                      "Unable to extract public key "
-                      "from private key file: "
+                      "Unable to extract public key from private key file: "
                       "Unsupported private key file format");
         break;
     }
@@ -5066,8 +5057,7 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
     bp = BIO_new_mem_buf(privatekeydata, (int)privatekeydata_len);
     if(!bp)
         return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                        "Unable to allocate memory when"
-                        "computing public key");
+                        "Unable to allocate memory when computing public key");
     (void)BIO_reset(bp);
     pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, SSH2_UNCONST(passphrase));
     BIO_free(bp);

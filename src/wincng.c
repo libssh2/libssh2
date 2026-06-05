@@ -404,24 +404,15 @@ typedef enum {
 } wcng_ecc_keytype;
 
 struct ecdsa_algorithm {
-    /* Algorithm name */
-    const char *name;
-
-    /* Key length, in bits */
-    ULONG key_length;
-
-    /* Length of each point, in bytes */
-    ULONG point_length;
-
-    /* Name of CNG algorithm provider, */
-    /* indexed by wcng_ecc_keytype */
-    LPCWSTR provider[2];
-
-    /* Magic for public key import, indexed by wcng_ecc_keytype */
-    ULONG public_import_magic[2];
-
-    /* Magic for private key import, indexed by wcng_ecc_keytype */
-    ULONG private_import_magic[2];
+    const char *name;               /* Algorithm name */
+    ULONG key_length;               /* Key length, in bits */
+    ULONG point_length;             /* Length of each point, in bytes */
+    LPCWSTR provider[2];            /* Name of CNG algorithm provider,
+                                       indexed by wcng_ecc_keytype */
+    ULONG public_import_magic[2];   /* Magic for public key import,
+                                       indexed by wcng_ecc_keytype */
+    ULONG private_import_magic[2];  /* Magic for private key import,
+                                       indexed by wcng_ecc_keytype */
 };
 
 /* Supported algorithms, indexed by ssh2_curve_type */
@@ -1987,9 +1978,9 @@ static int wcng_publickey_from_point(IN wcng_ecc_keytype keytype,
         wcng_ecdsa_algs[point->curve].public_import_magic[keytype];
 
     /** Copy x, y */
-    memcpy((PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB),
+    memcpy((char *)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB),
            point->x, point->x_len);
-    memcpy((PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB) + point->x_len,
+    memcpy((char *)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB) + point->x_len,
            point->y, point->y_len);
 
     status = BCryptImportKeyPair(
@@ -2053,11 +2044,11 @@ static int wcng_privatekey_from_point(IN wcng_ecc_keytype keytype,
         wcng_ecdsa_algs[q->curve].private_import_magic[keytype];
 
     /* Copy x, y, d */
-    memcpy((PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB),
+    memcpy((char *)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB),
            q->x, q->x_len);
-    memcpy((PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB) + q->x_len,
+    memcpy((char *)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB) + q->x_len,
            q->y, q->y_len);
-    memcpy((PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB) + q->x_len + q->y_len,
+    memcpy((char *)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB) + q->x_len + q->y_len,
            d, d_len);
 
     status = BCryptImportKeyPair(
@@ -2482,12 +2473,9 @@ static int wcng_ecdsa_curve_type_from_name(IN const char *name,
  * Verifies the ECDSA signature of a hashed message
  */
 int ssh2_ecdsa_verify(IN ssh2_ecdsa_ctx *key,
-                      IN const unsigned char *r,
-                      IN size_t r_len,
-                      IN const unsigned char *s,
-                      IN size_t s_len,
-                      IN const unsigned char *m,
-                      IN size_t m_len)
+                      IN const unsigned char *r, IN size_t r_len,
+                      IN const unsigned char *s, IN size_t s_len,
+                      IN const unsigned char *m, IN size_t m_len)
 {
     int result = LIBSSH2_ERROR_NONE;
     NTSTATUS status;
