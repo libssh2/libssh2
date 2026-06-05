@@ -144,7 +144,7 @@ static const struct crypt_method crypt_method_aes256_gcm = {
     "",
     16,                         /* blocksize */
     12,                         /* initial value length */
-    32,                         /* secret length -- 32*8 == 256bit */
+    32,                         /* secret length -- 32*8 == 256-bit */
     16,                         /* length of the authentication tag */
     SSH2_CRYPT_FLAG_INTEGRATED_MAC | SSH2_CRYPT_FLAG_PKTLEN_AAD,
     &crypt_init,
@@ -159,7 +159,7 @@ static const struct crypt_method crypt_method_aes128_gcm = {
     "",
     16,                         /* blocksize */
     12,                         /* initial value length */
-    16,                         /* secret length -- 16*8 == 128bit */
+    16,                         /* secret length -- 16*8 == 128-bit */
     16,                         /* length of the authentication tag */
     SSH2_CRYPT_FLAG_INTEGRATED_MAC | SSH2_CRYPT_FLAG_PKTLEN_AAD,
     &crypt_init,
@@ -176,7 +176,7 @@ static const struct crypt_method crypt_method_aes128_ctr = {
     "",
     16,                         /* blocksize */
     16,                         /* initial value length */
-    16,                         /* secret length -- 16*8 == 128bit */
+    16,                         /* secret length -- 16*8 == 128-bit */
     0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
@@ -191,7 +191,7 @@ static const struct crypt_method crypt_method_aes192_ctr = {
     "",
     16,                         /* blocksize */
     16,                         /* initial value length */
-    24,                         /* secret length -- 24*8 == 192bit */
+    24,                         /* secret length -- 24*8 == 192-bit */
     0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
@@ -206,7 +206,7 @@ static const struct crypt_method crypt_method_aes256_ctr = {
     "",
     16,                         /* blocksize */
     16,                         /* initial value length */
-    32,                         /* secret length -- 32*8 == 256bit */
+    32,                         /* secret length -- 32*8 == 256-bit */
     0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
@@ -223,7 +223,7 @@ static const struct crypt_method crypt_method_aes128_cbc = {
     "DEK-Info: AES-128-CBC",
     16,                         /* blocksize */
     16,                         /* initial value length */
-    16,                         /* secret length -- 16*8 == 128bit */
+    16,                         /* secret length -- 16*8 == 128-bit */
     0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
@@ -238,7 +238,7 @@ static const struct crypt_method crypt_method_aes192_cbc = {
     "DEK-Info: AES-192-CBC",
     16,                         /* blocksize */
     16,                         /* initial value length */
-    24,                         /* secret length -- 24*8 == 192bit */
+    24,                         /* secret length -- 24*8 == 192-bit */
     0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
@@ -253,7 +253,7 @@ static const struct crypt_method crypt_method_aes256_cbc = {
     "DEK-Info: AES-256-CBC",
     16,                         /* blocksize */
     16,                         /* initial value length */
-    32,                         /* secret length -- 32*8 == 256bit */
+    32,                         /* secret length -- 32*8 == 256-bit */
     0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
@@ -269,7 +269,7 @@ static const struct crypt_method crypt_method_rijndael_cbc_lysator_liu_se = {
     "DEK-Info: AES-256-CBC",
     16,                         /* blocksize */
     16,                         /* initial value length */
-    32,                         /* secret length -- 32*8 == 256bit */
+    32,                         /* secret length -- 32*8 == 256-bit */
     0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
