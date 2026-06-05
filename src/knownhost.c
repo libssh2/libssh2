@@ -766,7 +766,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
             key_type = LIBSSH2_KNOWNHOST_KEY_ECDSA_521;
         else if(!strncmp(key_type_name, "ssh-rsa", key_type_len))
             key_type = LIBSSH2_KNOWNHOST_KEY_SSHRSA;
-#if LIBSSH2_DSA
+#if LIBSSH2_DSA && !defined(LIBSSH2_NO_DEPRECATED)
         else if(!strncmp(key_type_name, "ssh-dss", key_type_len))
             key_type = LIBSSH2_KNOWNHOST_KEY_SSHDSS;
 #endif
@@ -986,7 +986,7 @@ static int knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
         key_type_name = "ssh-rsa";
         key_type_len = 7;
         break;
-#if LIBSSH2_DSA
+#if LIBSSH2_DSA && !defined(LIBSSH2_NO_DEPRECATED)
     case LIBSSH2_KNOWNHOST_KEY_SSHDSS:
         key_type_name = "ssh-dss";
         key_type_len = 7;
