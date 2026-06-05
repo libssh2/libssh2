@@ -468,15 +468,15 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
 
                 if(session->scpRecv_response_len > 1 &&
                    (session->scpRecv_response[session->scpRecv_response_len -
-                                               1] < '0' ||
+                                              1] < '0' ||
                     session->scpRecv_response[session->scpRecv_response_len -
-                                               1] > '9') &&
+                                              1] > '9') &&
                    session->scpRecv_response[session->scpRecv_response_len -
-                                              1] != ' ' &&
+                                             1] != ' ' &&
                    session->scpRecv_response[session->scpRecv_response_len -
-                                              1] != '\r' &&
+                                             1] != '\r' &&
                    session->scpRecv_response[session->scpRecv_response_len -
-                                              1] != '\n') {
+                                             1] != '\n') {
                     ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                              "Invalid data in SCP response");
                     goto scp_recv_error;
