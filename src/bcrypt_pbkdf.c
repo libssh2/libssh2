@@ -41,7 +41,7 @@
  *
  * One modification from official pbkdf2. Instead of outputting key material
  * linearly, we mix it. pbkdf2 has a known weakness where if one uses it to
- * generate (i.e.) 512 bits of key material for use as two 256 bit keys, an
+ * generate (i.e.) 512 bits of key material for use as two 256-bit keys, an
  * attacker can merely run once through the outer loop below, but the user
  * always runs it twice. Shuffling output bytes requires computing the
  * entirety of the key material to assemble any subkey. This is something a
