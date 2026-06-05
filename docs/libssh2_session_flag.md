@@ -45,3 +45,5 @@ Returns regular libssh2 error code.
 
 This function has existed since the age of dawn. LIBSSH2_FLAG_COMPRESS was
 added in version 1.2.8.
+
+Marked as deprecated since 1.1
