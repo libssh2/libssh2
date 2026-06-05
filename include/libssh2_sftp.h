@@ -208,9 +208,11 @@ struct _LIBSSH2_SFTP_STATVFS {
 #define LIBSSH2_FX_NO_MEDIA                 13UL
 #define LIBSSH2_FX_NO_SPACE_ON_FILESYSTEM   14UL
 #define LIBSSH2_FX_QUOTA_EXCEEDED           15UL
-#define LIBSSH2_FX_UNKNOWN_PRINCIPLE        16UL /* Initial mis-spelling */
+#ifndef LIBSSH2_NO_DEPRECATED
+#define LIBSSH2_FX_UNKNOWN_PRINCIPLE        16UL /* Initial misspelling */
+#define LIBSSH2_FX_LOCK_CONFlICT            17UL /* Initial misspelling */
+#endif
 #define LIBSSH2_FX_UNKNOWN_PRINCIPAL        16UL
-#define LIBSSH2_FX_LOCK_CONFlICT            17UL /* Initial mis-spelling */
 #define LIBSSH2_FX_LOCK_CONFLICT            17UL
 #define LIBSSH2_FX_DIR_NOT_EMPTY            18UL
 #define LIBSSH2_FX_NOT_A_DIRECTORY          19UL
