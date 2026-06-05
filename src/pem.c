@@ -409,11 +409,10 @@ out:
 #define OPENSSH_HEADER_BEGIN "-----BEGIN OPENSSH PRIVATE KEY-----"
 #define OPENSSH_HEADER_END   "-----END OPENSSH PRIVATE KEY-----"
 
-static int ssh2_openssh_pem_parse_data(LIBSSH2_SESSION *session,
-                                       const unsigned char *passphrase,
-                                       const char *b64data,
-                                       size_t b64datalen,
-                                       struct string_buf **decrypted_buf)
+static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
+                                  const unsigned char *passphrase,
+                                  const char *b64data, size_t b64datalen,
+                                  struct string_buf **decrypted_buf)
 {
     const struct crypt_method *method = NULL;
     struct string_buf decoded, decrypted, kdf_buf;
@@ -785,11 +784,8 @@ int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    ret = ssh2_openssh_pem_parse_data(session,
-                                      passphrase,
-                                      (const char *)b64data,
-                                      b64datalen,
-                                      decrypted_buf);
+    ret = openssh_pem_parse_data(session, passphrase,
+                                 b64data, b64datalen, decrypted_buf);
 
     if(b64data) {
         ssh2_explicit_zero(b64data, b64datalen);
@@ -867,8 +863,8 @@ int ssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
         return ssh2_err(session, LIBSSH2_ERROR_PROTO,
                         "Error parsing PEM: base 64 data missing");
 
-    ret = ssh2_openssh_pem_parse_data(session, passphrase, b64data,
-                                      b64datalen, decrypted_buf);
+    ret = openssh_pem_parse_data(session, passphrase,
+                                 b64data, b64datalen, decrypted_buf);
 
 out:
     if(b64data) {
