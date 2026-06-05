@@ -48,6 +48,11 @@
 
 #ifdef USE_OPENSSL_3
 #define USE_PEM_READ_BIO_PRIVATEKEY
+#else
+#if defined(__clang__) && __clang_major__ >= 16
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-function-type-strict"
+#endif
 #endif
 
 int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
@@ -5150,5 +5155,11 @@ const char *ssh2_supported_key_sign_algs(LIBSSH2_SESSION *session,
 
     return NULL;
 }
+
+#ifndef USE_OPENSSL_3
+#if defined(__clang__) && __clang_major__ >= 16
+#pragma clang diagnostic pop
+#endif
+#endif
 
 #endif /* LIBSSH2_OPENSSL || LIBSSH2_WOLFSSL */
