@@ -1355,10 +1355,7 @@ int libssh2_session_set_last_error(LIBSSH2_SESSION *session,
     return ssh2_err_flags(session, errcode, errmsg, SSH2_ERR_FLAG_DUP);
 }
 
-#ifndef LIBSSH2_NO_DEPRECATED
 /*
- * DEPRECATED, DO NOT USE!
- *
  * Set/Get session flags
  *
  * Return error code.
@@ -1382,7 +1379,6 @@ int libssh2_session_flag(LIBSSH2_SESSION *session, int flag, int value)
 
     return LIBSSH2_ERROR_NONE;
 }
-#endif
 
 /*
  * Set a session's blocking mode on or off, return the previous status when

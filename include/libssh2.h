@@ -359,12 +359,10 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
 #define LIBSSH2_METHOD_LANG_SC      9
 #define LIBSSH2_METHOD_SIGN_ALGO    10
 
-#ifndef LIBSSH2_NO_DEPRECATED
 /* flags */
 #define LIBSSH2_FLAG_SIGPIPE        1
 #define LIBSSH2_FLAG_COMPRESS       2
 #define LIBSSH2_FLAG_QUOTE_PATHS    3
-#endif
 
 typedef struct _LIBSSH2_SESSION                     LIBSSH2_SESSION;
 typedef struct _LIBSSH2_CHANNEL                     LIBSSH2_CHANNEL;
@@ -632,11 +630,8 @@ LIBSSH2_API int libssh2_session_set_last_error(LIBSSH2_SESSION *session,
                                                const char *errmsg);
 LIBSSH2_API int libssh2_session_block_directions(LIBSSH2_SESSION *session);
 
-#ifndef LIBSSH2_NO_DEPRECATED
-LIBSSH2_DEPRECATED(1.1, "")
 LIBSSH2_API int libssh2_session_flag(LIBSSH2_SESSION *session, int flag,
                                      int value);
-#endif
 LIBSSH2_API const char *libssh2_session_banner_get(LIBSSH2_SESSION *session);
 
 /* Userauth API */
