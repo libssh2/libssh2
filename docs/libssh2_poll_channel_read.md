@@ -35,4 +35,5 @@ Marked as deprecated since 1.2.0
 
 # RETURN VALUE
 
-Returns 1 when data is available and 0 otherwise.
+Returns 1 if data is available, 0 if not, or a negative libssh2 error code
+on error.
