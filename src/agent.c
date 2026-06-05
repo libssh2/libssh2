@@ -512,16 +512,16 @@ static int agent_connect_unix(LIBSSH2_AGENT *agent)
         return finished;                                                \
     } while(0)
 
-static ssize_t _send_all(LIBSSH2_SEND_FUNC(func), libssh2_socket_t socket,
-                         const void *buffer, size_t length,
-                         int flags, void **abstract)
+static ssize_t agent_send_all(LIBSSH2_SEND_FUNC(func), libssh2_socket_t socket,
+                              const void *buffer, size_t length,
+                              int flags, void **abstract)
 {
     RECV_SEND_ALL(func, socket, SSH2_UNCONST(buffer), length, flags, abstract);
 }
 
-static ssize_t _recv_all(LIBSSH2_RECV_FUNC(func), libssh2_socket_t socket,
-                         void *buffer, size_t length,
-                         int flags, void **abstract)
+static ssize_t agent_recv_all(LIBSSH2_RECV_FUNC(func), libssh2_socket_t socket,
+                              void *buffer, size_t length,
+                              int flags, void **abstract)
 {
     RECV_SEND_ALL(func, socket, buffer, length, flags, abstract);
 }
@@ -535,9 +535,9 @@ static int agent_transact_unix(LIBSSH2_AGENT *agent,
     /* Send the length of the request */
     if(transctx->state == agent_NB_state_request_created) {
         ssh2_htonu32(buf, (uint32_t)transctx->request_len);
-        rc = (int)_send_all(agent->session->send, agent->fd,
-                            buf, sizeof(buf), 0,
-                            &agent->session->abstract);
+        rc = (int)agent_send_all(agent->session->send, agent->fd,
+                                 buf, sizeof(buf), 0,
+                                 &agent->session->abstract);
         if(rc == -EAGAIN)
             return LIBSSH2_ERROR_EAGAIN;
         else if(rc < 0)
@@ -548,9 +548,9 @@ static int agent_transact_unix(LIBSSH2_AGENT *agent,
 
     /* Send the request body */
     if(transctx->state == agent_NB_state_request_length_sent) {
-        rc = (int)_send_all(agent->session->send, agent->fd,
-                            transctx->request, transctx->request_len, 0,
-                            &agent->session->abstract);
+        rc = (int)agent_send_all(agent->session->send, agent->fd,
+                                 transctx->request, transctx->request_len, 0,
+                                 &agent->session->abstract);
         if(rc == -EAGAIN)
             return LIBSSH2_ERROR_EAGAIN;
         else if(rc < 0)
@@ -561,9 +561,9 @@ static int agent_transact_unix(LIBSSH2_AGENT *agent,
 
     /* Receive the length of a response */
     if(transctx->state == agent_NB_state_request_sent) {
-        rc = (int)_recv_all(agent->session->recv, agent->fd,
-                            buf, sizeof(buf), 0,
-                            &agent->session->abstract);
+        rc = (int)agent_recv_all(agent->session->recv, agent->fd,
+                                 buf, sizeof(buf), 0,
+                                 &agent->session->abstract);
         if(rc < 0) {
             if(rc == -EAGAIN)
                 return LIBSSH2_ERROR_EAGAIN;
@@ -581,9 +581,9 @@ static int agent_transact_unix(LIBSSH2_AGENT *agent,
 
     /* Receive the response body */
     if(transctx->state == agent_NB_state_response_length_received) {
-        rc = (int)_recv_all(agent->session->recv, agent->fd,
-                            transctx->response, transctx->response_len, 0,
-                            &agent->session->abstract);
+        rc = (int)agent_recv_all(agent->session->recv, agent->fd,
+                                 transctx->response, transctx->response_len, 0,
+                                 &agent->session->abstract);
         if(rc < 0) {
             if(rc == -EAGAIN)
                 return LIBSSH2_ERROR_EAGAIN;
