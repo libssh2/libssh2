@@ -53,11 +53,18 @@
 #include <windows.h>
 #include <bcrypt.h>
 
-#define LIBSSH2_MD5_ENABLE
-#define LIBSSH2_MD5_PEM_ENABLE
-#define LIBSSH2_MD5 1
+#ifdef OPENSSL_NO_MD5
+# define LIBSSH2_MD5 0
+#else
+# define LIBSSH2_MD5 1
+#endif
 
-#define LIBSSH2_HMAC_RIPEMD 0
+#if defined(OPENSSL_NO_RIPEMD) || defined(OPENSSL_NO_RMD160)
+# define LIBSSH2_HMAC_RIPEMD 0
+#else
+# define LIBSSH2_HMAC_RIPEMD 1
+#endif
+
 #define LIBSSH2_HMAC_SHA256 1
 #define LIBSSH2_HMAC_SHA512 1
 
@@ -65,14 +72,34 @@
 #define LIBSSH2_AES_CTR 1
 #define LIBSSH2_AES_GCM 0
 #define LIBSSH2_BLOWFISH 0
-#define LIBSSH2_RC4 1
 #define LIBSSH2_CAST 0
-#define LIBSSH2_3DES 1
 
-#define LIBSSH2_RSA 1
-#define LIBSSH2_RSA_SHA1 1
-#define LIBSSH2_RSA_SHA2 1
-#define LIBSSH2_DSA 1
+#ifdef OPENSSL_NO_RC4
+# define LIBSSH2_RC4 0
+#else
+# define LIBSSH2_RC4 1
+#endif
+
+#ifdef OPENSSL_NO_DES
+# define LIBSSH2_3DES 0
+#else
+# define LIBSSH2_3DES 1
+#endif
+
+#ifdef OPENSSL_NO_RSA
+# define LIBSSH2_RSA 0
+# define LIBSSH2_RSA_SHA1 0
+# define LIBSSH2_RSA_SHA2 0
+#else
+# define LIBSSH2_RSA 1
+# define LIBSSH2_RSA_SHA1 1
+# define LIBSSH2_RSA_SHA2 1
+#endif
+#ifdef OPENSSL_NO_DSA
+# define LIBSSH2_DSA 0
+#else
+# define LIBSSH2_DSA 1
+#endif
 #define LIBSSH2_ED25519 0
 #define LIBSSH2_MLKEM 0
 
@@ -127,8 +154,12 @@ struct wcng_ctx {
 #endif
     BCRYPT_ALG_HANDLE hAlgAES_CBC;
     BCRYPT_ALG_HANDLE hAlgAES_ECB;
+#if LIBSSH2_RC4
     BCRYPT_ALG_HANDLE hAlgRC4_NA;
+#endif
+#if LIBSSH2_3DES
     BCRYPT_ALG_HANDLE hAlg3DES_CBC;
+#endif
     BCRYPT_ALG_HANDLE hAlgDH;
     BCRYPT_ALG_HANDLE hAlgChacha20;
 #if LIBSSH2_ECDSA
@@ -337,8 +368,12 @@ struct wcng_cipher_t {
 #define ssh2_cipher_aes256    { &ssh2_wcng.hAlgAES_CBC, 32, 1, 0 }
 #define ssh2_cipher_aes192    { &ssh2_wcng.hAlgAES_CBC, 24, 1, 0 }
 #define ssh2_cipher_aes128    { &ssh2_wcng.hAlgAES_CBC, 16, 1, 0 }
+#if LIBSSH2_RC4
 #define ssh2_cipher_arcfour   { &ssh2_wcng.hAlgRC4_NA, 16, 0, 0 }
+#endif
+#if LIBSSH2_3DES
 #define ssh2_cipher_3des      { &ssh2_wcng.hAlg3DES_CBC, 24, 1, 0 }
+#endif
 #define ssh2_cipher_chacha20  { &ssh2_wcng.hAlgChacha20, 24, 1, 0 }
 
 void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx);

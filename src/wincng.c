@@ -50,8 +50,10 @@
 #define _WIN32_WINNT 0x0600
 #endif
 
+#if LIBSSH2_RSA || LIBSSH2_DSA
 #if !defined(LIBSSH2_WINCNG_DISABLE_WINCRYPT) && !defined(HAVE_LIBCRYPT32)
 #define HAVE_LIBCRYPT32
+#endif
 #endif
 
 /* specify the required libraries for dependencies using MSVC */
@@ -68,16 +70,20 @@
 
 #include <stdlib.h>
 
+#if LIBSSH2_RSA || LIBSSH2_DSA
 #ifdef HAVE_LIBCRYPT32
 #include <wincrypt.h>  /* for CryptDecodeObjectEx() */
 
+#if LIBSSH2_RSA
 #define PEM_RSA_HEADER "-----BEGIN RSA PRIVATE KEY-----"
 #define PEM_RSA_FOOTER "-----END RSA PRIVATE KEY-----"
+#endif
 #if LIBSSH2_DSA
 #define PEM_DSA_HEADER "-----BEGIN DSA PRIVATE KEY-----"
 #define PEM_DSA_FOOTER "-----END DSA PRIVATE KEY-----"
 #endif
 #endif /* HAVE_LIBCRYPT32 */
+#endif
 #if LIBSSH2_ECDSA
 #define PEM_ECDSA_HEADER "-----BEGIN OPENSSH PRIVATE KEY-----"
 #define PEM_ECDSA_FOOTER "-----END OPENSSH PRIVATE KEY-----"
@@ -595,7 +601,7 @@ void ssh2_crypto_init(void)
             }
         }
     }
-
+#if LIBSSH2_RC4
     ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgRC4_NA,
                                       BCRYPT_RC4_ALGORITHM, NULL, 0);
     if(BCRYPT_SUCCESS(ret)) {
@@ -610,7 +616,8 @@ void ssh2_crypto_init(void)
             }
         }
     }
-
+#endif
+#if LIBSSH2_3DES
     ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlg3DES_CBC,
                                       BCRYPT_3DES_ALGORITHM, NULL, 0);
     if(BCRYPT_SUCCESS(ret)) {
@@ -625,7 +632,7 @@ void ssh2_crypto_init(void)
             }
         }
     }
-
+#endif
     ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgDH,
                                       BCRYPT_DH_ALGORITHM, NULL, 0);
     if(!BCRYPT_SUCCESS(ret)) {
@@ -698,10 +705,14 @@ void ssh2_crypto_exit(void)
 #endif
     if(ssh2_wcng.hAlgAES_CBC)
         (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgAES_CBC, 0);
+#if LIBSSH2_RC4
     if(ssh2_wcng.hAlgRC4_NA)
         (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgRC4_NA, 0);
+#endif
+#if LIBSSH2_3DES
     if(ssh2_wcng.hAlg3DES_CBC)
         (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlg3DES_CBC, 0);
+#endif
     if(ssh2_wcng.hAlgDH)
         (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgDH, 0);
 
@@ -976,7 +987,6 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx,
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
-#endif
 
 #ifdef HAVE_LIBCRYPT32
 static int wcng_load_pem(LIBSSH2_SESSION *session,
@@ -1015,11 +1025,15 @@ static int wcng_load_private(LIBSSH2_SESSION *session,
     size_t datalen = 0;
     int ret = -1;
 
+#if LIBSSH2_RSA
     if(ret && tryLoadRSA) {
         ret = wcng_load_pem(session, filename, passphrase,
                             PEM_RSA_HEADER, PEM_RSA_FOOTER,
                             &data, &datalen);
     }
+#else
+   (void)tryLoadRSA;
+#endif
 
 #if LIBSSH2_DSA
     if(ret && tryLoadDSA) {
@@ -1051,6 +1065,7 @@ static int wcng_load_private_memory(LIBSSH2_SESSION *session,
     size_t datalen = 0;
     int ret = -1;
 
+#if LIBSSH2_RSA
     if(ret && tryLoadRSA) {
         ret = ssh2_pem_parse_memory(session,
                                     PEM_RSA_HEADER, PEM_RSA_FOOTER,
@@ -1058,6 +1073,9 @@ static int wcng_load_private_memory(LIBSSH2_SESSION *session,
                                     privatekeydata, privatekeydata_len,
                                     &data, &datalen);
     }
+#else
+   (void)tryLoadRSA;
+#endif
 
 #if LIBSSH2_DSA
     if(ret && tryLoadDSA) {
@@ -1238,7 +1256,6 @@ static int wcng_asn_decode_bns(unsigned char *pbEncoded,
 }
 #endif /* HAVE_LIBCRYPT32 */
 
-#if LIBSSH2_RSA || LIBSSH2_DSA
 static ULONG wcng_bn_size(const unsigned char *bignum, ULONG length)
 {
     ULONG offset;
@@ -1256,7 +1273,7 @@ static ULONG wcng_bn_size(const unsigned char *bignum, ULONG length)
 
     return length - offset;
 }
-#endif
+#endif /* LIBSSH2_RSA || LIBSSH2_DSA */
 
 #if LIBSSH2_RSA
 /*******************************************************************/
@@ -3025,6 +3042,7 @@ ssh2_curve_type ssh2_ecdsa_get_curve_type(IN ssh2_ecdsa_ctx *key)
  * Windows CNG backend: Key functions
  */
 
+#if LIBSSH2_RSA || LIBSSH2_DSA
 #ifdef HAVE_LIBCRYPT32
 static DWORD wcng_pub_priv_write(unsigned char *key,
                                  DWORD offset,
@@ -3233,6 +3251,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                     "memory: Method unsupported in Windows CNG backend");
 #endif /* HAVE_LIBCRYPT32 */
 }
+#endif /* LIBSSH2_RSA || LIBSSH2_DSA */
 
 int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                               unsigned char **method,
