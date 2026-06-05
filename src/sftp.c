@@ -2535,9 +2535,10 @@ void libssh2_sftp_seek(LIBSSH2_SFTP_HANDLE *handle, size_t offset)
 {
     libssh2_sftp_seek64(handle, (libssh2_uint64_t)offset);
 }
-#endif
 
 /*
+ * DEPRECATED, DO NOT USE!
+ *
  * Return the current read/write pointer's offset
  */
 size_t libssh2_sftp_tell(LIBSSH2_SFTP_HANDLE *handle)
@@ -2550,6 +2551,7 @@ size_t libssh2_sftp_tell(LIBSSH2_SFTP_HANDLE *handle)
        should use */
     return (size_t)(handle->u.file.offset);
 }
+#endif
 
 /*
  * Return the current read/write pointer's offset

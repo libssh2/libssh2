@@ -29,6 +29,10 @@ size_t libssh2_sftp_tell(LIBSSH2_SFTP_HANDLE *handle);
 Returns the current offset of the file handle's internal pointer. Note that
 this is now deprecated. Use the newer **libssh2_sftp_tell64(3)** instead!
 
+# AVAILABILITY
+
+Marked as deprecated since 1.0
+
 # RETURN VALUE
 
 Current offset from beginning of file in bytes.
