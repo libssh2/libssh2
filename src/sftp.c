@@ -2441,8 +2441,7 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
     }
 
     rc = sftp_packet_requirev(sftp, 2, fstat_responses,
-                              sftp->fstat_request_id, &data,
-                              &data_len, 9);
+                              sftp->fstat_request_id, &data, &data_len, 9);
     if(rc == LIBSSH2_ERROR_EAGAIN)
         return (int)rc;
     else if(rc == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
@@ -2922,8 +2921,7 @@ static int sftp_rename(LIBSSH2_SFTP *sftp,
     }
 
     rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
-                             sftp->rename_request_id, &data,
-                             &data_len, 9);
+                             sftp->rename_request_id, &data, &data_len, 9);
     if(rc == LIBSSH2_ERROR_EAGAIN) {
         return (int)rc;
     }
@@ -3197,7 +3195,6 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
 
     rc = sftp_packet_requirev(sftp, 2, responses, sftp->fstatvfs_request_id,
                               &data, &data_len, 9);
-
     if(rc == LIBSSH2_ERROR_EAGAIN) {
         return (int)rc;
     }
