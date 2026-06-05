@@ -709,8 +709,8 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
     int ret;
-    int cipher = ssh2_gcry_cipher(algo);
-    int mode = ssh2_gcry_mode(algo);
+    int cipher = LGCR_CIPHER(algo);
+    int mode = LGCR_MODE(algo);
     size_t keylen = gcry_cipher_get_algo_keylen(cipher);
 
     (void)encrypt;

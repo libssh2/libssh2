@@ -157,32 +157,21 @@
 #define SSH2_CIPHER_T(name) int name
 #define ssh2_cipher_ctx     gcry_cipher_hd_t
 
-#define ssh2_gcry_ciphermode(c, m) (((c) << 8) | (m))
-#define ssh2_gcry_cipher(c)        ((c) >> 8)
-#define ssh2_gcry_mode(m)          ((m) & 0xFF)
+#define CM(c, m)              (((c) << 8) | (m)) /* ciphermode */
+#define LGCR_CIPHER(c)        ((c) >> 8)
+#define LGCR_MODE(m)          ((m) & 0xFF)
 
-#define ssh2_cipher_aes256ctr \
-    ssh2_gcry_ciphermode(GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR)
-#define ssh2_cipher_aes192ctr \
-    ssh2_gcry_ciphermode(GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CTR)
-#define ssh2_cipher_aes128ctr \
-    ssh2_gcry_ciphermode(GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR)
-#define ssh2_cipher_aes256 \
-    ssh2_gcry_ciphermode(GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CBC)
-#define ssh2_cipher_aes192 \
-    ssh2_gcry_ciphermode(GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CBC)
-#define ssh2_cipher_aes128 \
-    ssh2_gcry_ciphermode(GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CBC)
-#define ssh2_cipher_blowfish \
-    ssh2_gcry_ciphermode(GCRY_CIPHER_BLOWFISH, GCRY_CIPHER_MODE_CBC)
-#define ssh2_cipher_arcfour \
-    ssh2_gcry_ciphermode(GCRY_CIPHER_ARCFOUR, GCRY_CIPHER_MODE_STREAM)
-#define ssh2_cipher_cast5 \
-    ssh2_gcry_ciphermode(GCRY_CIPHER_CAST5, GCRY_CIPHER_MODE_CBC)
-#define ssh2_cipher_3des \
-    ssh2_gcry_ciphermode(GCRY_CIPHER_3DES, GCRY_CIPHER_MODE_CBC)
-#define ssh2_cipher_chacha20 \
-    ssh2_gcry_ciphermode(GCRY_CIPHER_CHACHA20, GCRY_CIPHER_MODE_STREAM)
+#define ssh2_cipher_aes256ctr CM(GCRY_CIPHER_AES256  , GCRY_CIPHER_MODE_CTR)
+#define ssh2_cipher_aes192ctr CM(GCRY_CIPHER_AES192  , GCRY_CIPHER_MODE_CTR)
+#define ssh2_cipher_aes128ctr CM(GCRY_CIPHER_AES128  , GCRY_CIPHER_MODE_CTR)
+#define ssh2_cipher_aes256    CM(GCRY_CIPHER_AES256  , GCRY_CIPHER_MODE_CBC)
+#define ssh2_cipher_aes192    CM(GCRY_CIPHER_AES192  , GCRY_CIPHER_MODE_CBC)
+#define ssh2_cipher_aes128    CM(GCRY_CIPHER_AES128  , GCRY_CIPHER_MODE_CBC)
+#define ssh2_cipher_blowfish  CM(GCRY_CIPHER_BLOWFISH, GCRY_CIPHER_MODE_CBC)
+#define ssh2_cipher_arcfour   CM(GCRY_CIPHER_ARCFOUR , GCRY_CIPHER_MODE_STREAM)
+#define ssh2_cipher_cast5     CM(GCRY_CIPHER_CAST5   , GCRY_CIPHER_MODE_CBC)
+#define ssh2_cipher_3des      CM(GCRY_CIPHER_3DES    , GCRY_CIPHER_MODE_CBC)
+#define ssh2_cipher_chacha20  CM(GCRY_CIPHER_CHACHA20, GCRY_CIPHER_MODE_STREAM)
 
 #define ssh2_cipher_dtor(ctx) gcry_cipher_close(*(ctx))
 
