@@ -1453,8 +1453,8 @@ long libssh2_session_get_read_timeout(LIBSSH2_SESSION *session)
 /*
  * DEPRECATED, DO NOT USE!
  *
- * Returns 0 if no data is waiting on channel,
- * non-0 if data is available
+ * Returns 1 if data is available, 0 if not, or a negative libssh2 error code
+ * on error.
  */
 int libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended)
 {
