@@ -135,10 +135,10 @@ static inline int packet_queue_listener(
 
     if(listen_state->state != ssh2_NB_state_sent) {
         while(listn) {
-            if((listn->port == (int)listen_state->port) &&
-               (strlen(listn->host) == listen_state->host_len) &&
-               (memcmp(listn->host, listen_state->host,
-                       listen_state->host_len) == 0)) {
+            if(listn->port == (int)listen_state->port &&
+               strlen(listn->host) == listen_state->host_len &&
+               memcmp(listn->host, listen_state->host,
+                      listen_state->host_len) == 0) {
                 /* This is our listener */
                 LIBSSH2_CHANNEL *channel = NULL;
                 listen_state->channel = NULL;
@@ -648,7 +648,7 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                   "Packet type %u received, length=%ld",
                   (unsigned int)msg, (long)datalen));
 
-        if((macstate == SSH2_MAC_INVALID) &&
+        if(macstate == SSH2_MAC_INVALID &&
            (!session->macerror ||
             SSH2_MACERROR(session, (char *)data, datalen))) {
             /* Bad MAC input, but no callback set or non-zero return from the
@@ -915,7 +915,7 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
             if(datalen >= 5) {
                 want_reply = 0;
                 len = ssh2_ntohu32(data + 1);
-                if((len <= (UINT_MAX - 6)) && (datalen >= (6 + len))) {
+                if(len <= (UINT_MAX - 6) && datalen >= (6 + len)) {
                     want_reply = data[5 + len];
                     ssh2_deb((session, LIBSSH2_TRACE_CONN,
                               "Received global request type %.*s (wr %X)",
@@ -1267,11 +1267,10 @@ clean_exit:
         case SSH_MSG_CHANNEL_OPEN:
             if(datalen < 17)
                 ;
-            else if((datalen >= (strlen("forwarded-tcpip") + 5)) &&
-                    (strlen("forwarded-tcpip") ==
-                     ssh2_ntohu32(data + 1)) &&
-                    (memcmp(data + 5, "forwarded-tcpip",
-                            strlen("forwarded-tcpip")) == 0)) {
+            else if(datalen >= (strlen("forwarded-tcpip") + 5) &&
+                    strlen("forwarded-tcpip") == ssh2_ntohu32(data + 1) &&
+                    memcmp(data + 5, "forwarded-tcpip",
+                           strlen("forwarded-tcpip")) == 0) {
 
                 /* init the state struct */
                 memset(&session->packAdd_Qlstn_state, 0,
@@ -1282,9 +1281,9 @@ ssh2_packet_add_jump_point2:
                 rc = packet_queue_listener(session, data, datalen,
                                            &session->packAdd_Qlstn_state);
             }
-            else if((datalen >= (strlen("x11") + 5)) &&
-                    ((strlen("x11")) == ssh2_ntohu32(data + 1)) &&
-                    (memcmp(data + 5, "x11", strlen("x11")) == 0)) {
+            else if(datalen >= (strlen("x11") + 5) &&
+                    strlen("x11") == ssh2_ntohu32(data + 1) &&
+                    memcmp(data + 5, "x11", strlen("x11")) == 0) {
 
                 /* init the state struct */
                 memset(&session->packAdd_x11open_state, 0,
@@ -1295,11 +1294,11 @@ ssh2_packet_add_jump_point3:
                 rc = packet_x11_open(session, data, datalen,
                                      &session->packAdd_x11open_state);
             }
-            else if((datalen >= (strlen("auth-agent@openssh.com") + 5)) &&
-                    (strlen("auth-agent@openssh.com") ==
-                     ssh2_ntohu32(data + 1)) &&
-                    (memcmp(data + 5, "auth-agent@openssh.com",
-                            strlen("auth-agent@openssh.com")) == 0)) {
+            else if(datalen >= (strlen("auth-agent@openssh.com") + 5) &&
+                    strlen("auth-agent@openssh.com") ==
+                        ssh2_ntohu32(data + 1) &&
+                    memcmp(data + 5, "auth-agent@openssh.com",
+                           strlen("auth-agent@openssh.com")) == 0) {
 
                 /* init the state struct */
                 memset(&session->packAdd_authagent_state, 0,
@@ -1433,9 +1432,9 @@ int ssh2_packet_ask(LIBSSH2_SESSION *session, unsigned char packet_type,
 
     while(packet) {
         if(packet->data[0] == packet_type &&
-           (packet->data_len >= (match_ofs + match_len)) &&
+           packet->data_len >= (match_ofs + match_len) &&
            (!match_buf ||
-            (memcmp(packet->data + match_ofs, match_buf, match_len) == 0))) {
+            memcmp(packet->data + match_ofs, match_buf, match_len) == 0)) {
             *data = packet->data;
             *data_len = packet->data_len;
 
@@ -1629,7 +1628,7 @@ int ssh2_packet_requirev(LIBSSH2_SESSION *session,
 
     while(session->socket_state != SSH2_SOCKET_DISCONNECTED) {
         int ret = ssh2_transport_read(session);
-        if((ret < 0) && (ret != LIBSSH2_ERROR_EAGAIN)) {
+        if(ret < 0 && ret != LIBSSH2_ERROR_EAGAIN) {
             state->start = 0;
             return ret;
         }

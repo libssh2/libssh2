@@ -99,7 +99,7 @@ static void debugdump(LIBSSH2_SESSION *session,
         buffer[used++] = ':';
         buffer[used++] = ' ';
 
-        for(c = 0; (c < width) && (i + c < size); c++) {
+        for(c = 0; c < width && (i + c) < size; c++) {
             buffer[used++] = isprint(ptr[i + c]) ?
                 ptr[i + c] : UNPRINTABLE_CHAR;
         }
@@ -490,7 +490,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
             if(nread <= 0) {
                 /* check if this is due to EAGAIN and return the special
                    return code if so, error out normally otherwise */
-                if((nread < 0) && (nread == -EAGAIN)) {
+                if(nread < 0 && nread == -EAGAIN) {
                     session->socket_block_directions |=
                         LIBSSH2_SESSION_BLOCK_INBOUND;
                     return LIBSSH2_ERROR_EAGAIN;
@@ -918,7 +918,7 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
     }
 
     /* send as much as possible of the existing packet */
-    if((data != p->odata) || (data_len != p->olen)) {
+    if(data != p->odata || data_len != p->olen) {
         /* When we are about to complete the sending of a packet, it is vital
            that the caller does not try to send a new/different packet since
            we do not add this one up until the previous one has been sent. To

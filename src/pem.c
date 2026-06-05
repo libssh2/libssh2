@@ -560,8 +560,8 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
         }
 
         if(strcmp((const char *)kdfname, "bcrypt") == 0 && passphrase) {
-            if((ssh2_get_string(&kdf_buf, &salt, &salt_len)) ||
-               (ssh2_get_u32(&kdf_buf, &rounds) != 0)) {
+            if(ssh2_get_string(&kdf_buf, &salt, &salt_len) ||
+               ssh2_get_u32(&kdf_buf, &rounds) != 0) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                "kdf contains unexpected values");
                 goto out;

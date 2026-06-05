@@ -457,9 +457,9 @@ static int sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
     /* Special consideration when getting VERSION packet */
 
     while(packet) {
-        if((packet->data[0] == packet_type) &&
-           ((packet_type == SSH_FXP_VERSION) ||
-            (packet->request_id == request_id))) {
+        if(packet->data[0] == packet_type &&
+           (packet_type == SSH_FXP_VERSION ||
+            packet->request_id == request_id)) {
 
             /* Match! Fetch the data */
             *data = packet->data;
@@ -569,7 +569,7 @@ static int sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
         }
 
         rc = sftp_packet_read(sftp);
-        if((rc < 0) && (rc != LIBSSH2_ERROR_EAGAIN)) {
+        if(rc < 0 && rc != LIBSSH2_ERROR_EAGAIN) {
             sftp->requirev_start = 0;
             return rc;
         }
@@ -1858,7 +1858,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                 goto end;
             }
 
-            if(longentry && (longentry_maxlen > 1)) {
+            if(longentry && longentry_maxlen > 1) {
                 longentry_len = real_longentry_len;
 
                 if(longentry_len >= longentry_maxlen ||
@@ -3820,8 +3820,9 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp,
 
     if(link_type == LIBSSH2_SFTP_SYMLINK) {
 
-        if((target_len + 4 < target_len) ||
-           (packet_len + (4 + target_len) < packet_len)) {
+        /* FIXME: possible incorrect/impossible bounds checks: */
+        if((target_len + 4) < target_len ||
+           (packet_len + 4 + target_len) < packet_len) {
             return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                             "Input too large (2) sftp_symlink");
         }
@@ -3833,7 +3834,7 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp,
     if(sftp->symlink_state == ssh2_NB_state_idle) {
         sftp->last_errno = LIBSSH2_FX_OK;
 
-        if((sftp->version < 3) && (link_type != LIBSSH2_SFTP_REALPATH)) {
+        if(sftp->version < 3 && link_type != LIBSSH2_SFTP_REALPATH) {
             return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                             "Server does not support SYMLINK or READLINK");
         }

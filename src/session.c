@@ -112,9 +112,9 @@ static int banner_receive(LIBSSH2_SESSION *session)
         banner_len = session->banner_TxRx_total_send;
     }
 
-    while((banner_len < sizeof(session->banner_TxRx_banner)) &&
-          ((banner_len == 0) ||
-           (session->banner_TxRx_banner[banner_len - 1] != '\n'))) {
+    while(banner_len < sizeof(session->banner_TxRx_banner) &&
+          (banner_len == 0 ||
+           session->banner_TxRx_banner[banner_len - 1] != '\n')) {
         char c = '\0';
 
         /* no incoming block yet! */
@@ -165,8 +165,8 @@ static int banner_receive(LIBSSH2_SESSION *session)
     }
 
     while(banner_len &&
-          ((session->banner_TxRx_banner[banner_len - 1] == '\n') ||
-           (session->banner_TxRx_banner[banner_len - 1] == '\r'))) {
+          (session->banner_TxRx_banner[banner_len - 1] == '\n' ||
+           session->banner_TxRx_banner[banner_len - 1] == '\r')) {
         banner_len--;
     }
 
@@ -1837,7 +1837,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
         }
 #endif /* !HAVE_POLL && !HAVE_SELECT -- timeout (and by extension
         * timeout_remaining) is equal to 0 */
-    } while((timeout_remaining > 0) && !active_fds);
+    } while(timeout_remaining > 0 && !active_fds);
 
     return active_fds;
 }

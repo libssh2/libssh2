@@ -225,8 +225,8 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         entry->key = ptr;
     }
 
-    if(key_type_name && ((typemask & LIBSSH2_KNOWNHOST_KEY_MASK) ==
-                         LIBSSH2_KNOWNHOST_KEY_UNKNOWN)) {
+    if(key_type_name && (typemask & LIBSSH2_KNOWNHOST_KEY_MASK) ==
+                        LIBSSH2_KNOWNHOST_KEY_UNKNOWN) {
         entry->key_type_name = SSH2_ALLOC(hosts->session, key_type_len + 1);
         if(!entry->key_type_name) {
             rc = ssh2_err(hosts->session, LIBSSH2_ERROR_ALLOC,
@@ -555,7 +555,7 @@ int libssh2_knownhost_del(LIBSSH2_KNOWNHOSTS *hosts,
     struct known_host *node;
 
     /* check that this was retrieved the right way or get out */
-    if(!entry || (entry->magic != KNOWNHOST_MAGIC))
+    if(!entry || entry->magic != KNOWNHOST_MAGIC)
         return ssh2_err(hosts->session, LIBSSH2_ERROR_INVAL,
                         "Invalid host information");
 
@@ -615,7 +615,7 @@ static int oldstyle_hostline(LIBSSH2_KNOWNHOSTS *hosts,
 
         /* when we get to the start or see a comma coming up, add the host
            name to the collection */
-        if((name == host) || (*(name - 1) == ',')) {
+        if(name == host || *(name - 1) == ',') {
 
             char hostbuf[256];
 
@@ -664,7 +664,7 @@ static int hashed_hostline(LIBSSH2_KNOWNHOSTS *hosts,
     hostlen -= 3; /* deduct the marker */
 
     /* this is where the salt starts, find the end of it */
-    for(p = salt; *p && (*p != '|'); p++)
+    for(p = salt; *p && *p != '|'; p++)
         ;
 
     if(*p == '|') {
@@ -750,7 +750,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
 
     default:
         key_type_name = key;
-        while(keylen && *key && (*key != ' ') && (*key != '\t')) {
+        while(keylen && *key && *key != ' ' && *key != '\t') {
             key++;
             keylen--;
         }
@@ -774,7 +774,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
             key_type = LIBSSH2_KNOWNHOST_KEY_UNKNOWN;
 
         /* skip whitespaces */
-        while(keylen && ((*key == ' ') || (*key == '\t'))) {
+        while(keylen && (*key == ' ' || *key == '\t')) {
             key++;
             keylen--;
         }
@@ -784,7 +784,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
 
         /* move over key */
         while(commentlen && *comment &&
-              (*comment != ' ') && (*comment != '\t')) {
+              *comment != ' ' && *comment != '\t') {
             comment++;
             commentlen--;
         }
@@ -798,7 +798,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
 
         /* skip whitespaces */
         while(commentlen && *comment &&
-              ((*comment == ' ') || (*comment == '\t'))) {
+              (*comment == ' ' || *comment == '\t')) {
             comment++;
             commentlen--;
         }
@@ -806,7 +806,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
     }
 
     /* Figure out host format */
-    if((hostlen < 3) || memcmp(host, "|1|", 3)) {
+    if(hostlen < 3 || memcmp(host, "|1|", 3)) {
         /* old style plain text: [name]([,][name])*
 
            for the sake of simplicity, we add them as separate hosts with the
@@ -867,12 +867,12 @@ int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
     cp = line;
 
     /* skip leading whitespaces */
-    while(len && ((*cp == ' ') || (*cp == '\t'))) {
+    while(len && (*cp == ' ' || *cp == '\t')) {
         cp++;
         len--;
     }
 
-    if(!len || !*cp || (*cp == '#') || (*cp == '\n'))
+    if(!len || !*cp || *cp == '#' || *cp == '\n')
         /* comment or empty line */
         return LIBSSH2_ERROR_NONE;
 
@@ -880,7 +880,7 @@ int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
     hostp = cp;
 
     /* move over the host to the separator */
-    while(len && *cp && (*cp != ' ') && (*cp != '\t')) {
+    while(len && *cp && *cp != ' ' && *cp != '\t') {
         cp++;
         len--;
     }
@@ -888,7 +888,7 @@ int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
     hostlen = cp - hostp;
 
     /* the key starts after the whitespaces */
-    while(len && *cp && ((*cp == ' ') || (*cp == '\t'))) {
+    while(len && *cp && (*cp == ' ' || *cp == '\t')) {
         cp++;
         len--;
     }
@@ -901,7 +901,7 @@ int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
     keylen = len;
 
     /* check if the line (key) ends with a newline and if so kill it */
-    while(len && *cp && (*cp != '\n')) {
+    while(len && *cp && *cp != '\n') {
         cp++;
         len--;
     }

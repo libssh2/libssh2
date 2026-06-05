@@ -3666,7 +3666,7 @@ unsigned char *ssh2_kex_agree_instr(unsigned char *haystack,
     left = end_haystack - s;
 
     /* Needle at start of haystack */
-    if((strncmp((char *)haystack, (const char *)needle, needle_len) == 0) &&
+    if(strncmp((char *)haystack, (const char *)needle, needle_len) == 0 &&
        (needle_len == haystack_len || haystack[needle_len] == ',')) {
         return haystack;
     }
@@ -3677,7 +3677,7 @@ unsigned char *ssh2_kex_agree_instr(unsigned char *haystack,
     while((s = (unsigned char *)memchr((char *)s, ',', left)) != NULL) {
         /* Advance buffer past coma if we can */
         left = end_haystack - s;
-        if((left >= 1) && (left <= haystack_len) && (left > needle_len)) {
+        if(left >= 1 && left <= haystack_len && left > needle_len) {
             s++;
             left--;
         }
@@ -3686,7 +3686,7 @@ unsigned char *ssh2_kex_agree_instr(unsigned char *haystack,
         }
 
         /* Needle at X position */
-        if((strncmp((char *)s, (const char *)needle, needle_len) == 0) &&
+        if(strncmp((char *)s, (const char *)needle, needle_len) == 0 &&
            (((s - haystack) + needle_len) == haystack_len ||
             s[needle_len] == ',')) {
             return s;
@@ -3701,8 +3701,8 @@ static const struct common_method *kex_get_method_by_name(
     const struct common_method **methodlist)
 {
     while(*methodlist) {
-        if((strlen((*methodlist)->name) == name_len) &&
-           (strncmp((*methodlist)->name, name, name_len) == 0)) {
+        if(strlen((*methodlist)->name) == name_len &&
+           strncmp((*methodlist)->name, name, name_len) == 0) {
             return *methodlist;
         }
         methodlist++;
@@ -3739,11 +3739,11 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session,
 
                 /* OK so far, but does it suit our purposes? (Encrypting
                    vs Signing) */
-                if(((kex_flags & KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0) ||
+                if((kex_flags & KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0 ||
                    method->encrypt) {
                     /* Either this hostkey can do encryption or this kex
                        does not require it */
-                    if(((kex_flags & KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) == 0) ||
+                    if((kex_flags & KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) == 0 ||
                        method->sig_verify) {
                         /* Either this hostkey can do signing or this kex
                            does not require it */
@@ -3758,18 +3758,18 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    while(hostkeyp && (*hostkeyp) && (*hostkeyp)->name) {
+    while(hostkeyp && *hostkeyp && (*hostkeyp)->name) {
         s = ssh2_kex_agree_instr(hostkey, hostkey_len,
                                  (const unsigned char *)(*hostkeyp)->name,
                                  strlen((*hostkeyp)->name));
         if(s) {
             /* OK so far, but does it suit our purposes? (Encrypting vs
                Signing) */
-            if(((kex_flags & KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0) ||
+            if((kex_flags & KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0 ||
                (*hostkeyp)->encrypt) {
                 /* Either this hostkey can do encryption or this kex
                    does not require it */
-                if(((kex_flags & KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) == 0) ||
+                if((kex_flags & KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) == 0 ||
                    (*hostkeyp)->sig_verify) {
                     /* Either this hostkey can do signing or this kex
                        does not require it */
@@ -3824,7 +3824,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
                 if(kex_agree_hostkey(session, method->flags, hostkey,
                                      hostkey_len) == 0) {
                     session->kex = method;
-                    if(session->burn_optimistic_kexinit && (kex == q)) {
+                    if(session->burn_optimistic_kexinit && kex == q) {
                         /* Server sent an optimistic packet, and client agrees
                          * with preference cancel burning the first KEX_INIT
                          * packet that comes in */
@@ -3850,7 +3850,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
             if(kex_agree_hostkey(session, (*kexp)->flags, hostkey,
                                  hostkey_len) == 0) {
                 session->kex = *kexp;
-                if(session->burn_optimistic_kexinit && (kex == s)) {
+                if(session->burn_optimistic_kexinit && kex == s) {
                     /* Server sent an optimistic packet, and client agrees
                      * with preference cancel burning the first KEX_INIT
                      * packet that comes in */

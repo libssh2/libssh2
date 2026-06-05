@@ -102,7 +102,7 @@
 #ifdef _WIN32
 /* Detect Windows App environment which has a restricted access
    to the Win32 APIs. */
-#  if (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)) || \
+#  if (defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0602) || \
   defined(WINAPI_FAMILY)
 #    include <winapifamily.h>
 #    if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) && \
@@ -132,7 +132,7 @@
 #endif
 
 #if (defined(__GNUC__) || defined(__clang__)) && \
-    defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) && \
+    defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L && \
     !defined(LIBSSH2_NO_FMT_CHECKS)
 #ifdef __MINGW_PRINTF_FORMAT
 #define SSH2_PRINTF(fmt, arg) \
@@ -1237,7 +1237,7 @@ size_t plain_method(char *method, size_t method_len);
 #define SSH2_ARRAYSIZE(a) (sizeof(a) / sizeof((a)[0]))
 
 /* define to output the libssh2_int64_t type in a *printf() */
-#if defined(__MINGW32__) || (defined(_MSC_VER) && (_MSC_VER >= 1800))
+#if defined(__MINGW32__) || (defined(_MSC_VER) && _MSC_VER >= 1800)
 #define SSH2_INT64_T_FORMAT PRId64
 #elif defined(_WIN32)
 #define SSH2_INT64_T_FORMAT "I64d"

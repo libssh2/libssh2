@@ -153,7 +153,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
                      "Would block requesting userauth list");
             return NULL;
         }
-        else if(rc || (session->userauth_list_data_len < 1)) {
+        else if(rc || session->userauth_list_data_len < 1) {
             ssh2_err(session, rc, "Failed getting response");
             session->userauth_list_state = ssh2_NB_state_idle;
             return NULL;
@@ -207,7 +207,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
                          "Would block requesting userauth list");
                 return NULL;
             }
-            else if(rc || (session->userauth_list_data_len < 1)) {
+            else if(rc || session->userauth_list_data_len < 1) {
                 ssh2_err(session, rc, "Failed getting response");
                 session->userauth_list_state = ssh2_NB_state_idle;
                 return NULL;
@@ -381,9 +381,9 @@ static int userauth_password(LIBSSH2_SESSION *session,
 
 password_response:
 
-    if((session->userauth_pswd_state == ssh2_NB_state_sent) ||
-       (session->userauth_pswd_state == ssh2_NB_state_sent1) ||
-       (session->userauth_pswd_state == ssh2_NB_state_sent2)) {
+    if(session->userauth_pswd_state == ssh2_NB_state_sent ||
+       session->userauth_pswd_state == ssh2_NB_state_sent1 ||
+       session->userauth_pswd_state == ssh2_NB_state_sent2) {
         if(session->userauth_pswd_state == ssh2_NB_state_sent) {
             rc = ssh2_packet_requirev(session, reply_codes,
                                       &session->userauth_pswd_data,
@@ -436,14 +436,14 @@ password_response:
                             "Unexpected packet size");
         }
 
-        if((session->userauth_pswd_data[0] ==
-            SSH_MSG_USERAUTH_PASSWD_CHANGEREQ) ||
-           (session->userauth_pswd_data0 ==
-            SSH_MSG_USERAUTH_PASSWD_CHANGEREQ)) {
+        if(session->userauth_pswd_data[0] ==
+           SSH_MSG_USERAUTH_PASSWD_CHANGEREQ ||
+           session->userauth_pswd_data0 ==
+           SSH_MSG_USERAUTH_PASSWD_CHANGEREQ) {
             session->userauth_pswd_data0 = SSH_MSG_USERAUTH_PASSWD_CHANGEREQ;
 
-            if((session->userauth_pswd_state == ssh2_NB_state_sent1) ||
-               (session->userauth_pswd_state == ssh2_NB_state_sent2)) {
+            if(session->userauth_pswd_state == ssh2_NB_state_sent1 ||
+               session->userauth_pswd_state == ssh2_NB_state_sent2) {
                 if(session->userauth_pswd_state == ssh2_NB_state_sent1) {
                     ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                               "Password change required"));
@@ -1698,7 +1698,7 @@ retry_auth:
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             return ssh2_err(session, LIBSSH2_ERROR_EAGAIN, "Would block");
         }
-        else if(rc || (session->userauth_pblc_data_len < 1)) {
+        else if(rc || session->userauth_pblc_data_len < 1) {
             SSH2_FREE(session, session->userauth_pblc_packet);
             session->userauth_pblc_packet = NULL;
             SSH2_FREE(session, session->userauth_pblc_method);

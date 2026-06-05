@@ -43,7 +43,7 @@
 #define SSH2_CRYPTO_ENGINE libssh2_wincng
 
 /* required for cross-compilation against the w64 mingw-runtime package */
-#if defined(_WIN32_WINNT) && (_WIN32_WINNT < 0x0600)
+#if defined(_WIN32_WINNT) && _WIN32_WINNT < 0x0600
 #undef _WIN32_WINNT
 #endif
 #ifndef _WIN32_WINNT
