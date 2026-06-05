@@ -140,7 +140,7 @@ test_script:
         if($env:CMAKE_GENERATE -like '*WinCNG*') {
           $env:FIXTURE_TRACE_ALL_CONNECT = '1'
         }
-        $env:OPENSSH_SERVER_IMAGE=[string] (& bash -c "echo ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)")
+        $env:OPENSSH_SERVER_IMAGE = [string] (& bash -c "echo ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)")
         cd _bld; ctest -VV -C $($env:CMAKE_CONFIGURATION) --output-on-failure --timeout 900
       }
 
