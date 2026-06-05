@@ -130,8 +130,8 @@ static void remove_zombie_request(LIBSSH2_SFTP *sftp, uint32_t request_id)
                                                               request_id);
     if(zombie) {
         ssh2_deb((session, LIBSSH2_TRACE_SFTP,
-                  "Removing request ID %u from the list of "
-                  "zombie requests", request_id));
+                  "Removing request ID %u from the list of zombie requests",
+                  request_id));
 
         ssh2_list_remove(&zombie->node);
         SSH2_FREE(session, zombie);
@@ -852,8 +852,8 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
         session->sftpInit_sent = 0; /* nothing's sent yet */
 
         ssh2_deb((session, LIBSSH2_TRACE_SFTP,
-                  "Sending FXP_INIT packet advertising "
-                  "version %d support", (int)LIBSSH2_SFTP_VERSION));
+                  "Sending FXP_INIT packet advertising version %d support",
+                  (int)LIBSSH2_SFTP_VERSION));
 
         session->sftpInit_state = ssh2_NB_state_sent2;
     }
