@@ -51,7 +51,7 @@
 #endif
 
 #if LIBSSH2_RSA || LIBSSH2_DSA
-#if !defined(LIBSSH2_WINCNG_DISABLE_WINCRYPT) && !defined(HAVE_LIBCRYPT32)
+#ifndef HAVE_LIBCRYPT32
 #define HAVE_LIBCRYPT32
 #endif
 #endif
