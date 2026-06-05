@@ -285,7 +285,7 @@ error:
  * pre-hashed when checking for it in the libssh2_knownhost_check() function.
  *
  * The keylen parameter may be omitted (zero) if the key is provided as a
- * NULL-terminated base64-encoded string.
+ * null-terminated base64-encoded string.
  */
 int libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
                           const char *host, const char *salt,
@@ -319,7 +319,7 @@ int libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
  * pre-hashed when checking for it in the libssh2_knownhost_check() function.
  *
  * The keylen parameter may be omitted (zero) if the key is provided as a
- * NULL-terminated base64-encoded string.
+ * null-terminated base64-encoded string.
  */
 int libssh2_knownhost_addc(LIBSSH2_KNOWNHOSTS *hosts,
                            const char *host, const char *salt,
