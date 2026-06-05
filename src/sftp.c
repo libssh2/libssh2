@@ -2052,7 +2052,6 @@ int libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle,
  *   Introduce an option that disables this sort of "speculative" ahead writing
  *   as there is a risk that it does harm to some app.
  */
-
 static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
                           size_t count)
 {
