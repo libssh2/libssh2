@@ -1671,7 +1671,7 @@ int libssh2_channel_flush_ex(LIBSSH2_CHANNEL *channel, int streamid)
 
 /*
  * Return the channel's program exit status. Note that the actual protocol
- * provides the full 32bit this function returns.  We cannot abuse it to
+ * provides the full 32-bit this function returns.  We cannot abuse it to
  * return error values in case of errors so we return a zero if channel is
  * NULL.
  */
