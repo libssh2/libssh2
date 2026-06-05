@@ -3821,7 +3821,6 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp,
 
     if(link_type == LIBSSH2_SFTP_SYMLINK) {
 
-        /* FIXME: possible incorrect/impossible bounds checks: */
         if((target_len + 4) < target_len ||
            (packet_len + 4 + target_len) < packet_len) {
             return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
