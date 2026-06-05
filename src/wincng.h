@@ -161,7 +161,6 @@ struct wcng_ctx {
     BCRYPT_ALG_HANDLE hAlg3DES_CBC;
 #endif
     BCRYPT_ALG_HANDLE hAlgDH;
-    BCRYPT_ALG_HANDLE hAlgChacha20;
 #if LIBSSH2_ECDSA
     BCRYPT_ALG_HANDLE hAlgECDH[3];  /* indexed by ssh2_curve_type */
     BCRYPT_ALG_HANDLE hAlgECDSA[3]; /* indexed by ssh2_curve_type */
@@ -371,7 +370,7 @@ struct wcng_cipher_t {
 #if LIBSSH2_3DES
 #define ssh2_cipher_3des      { &ssh2_wcng.hAlg3DES_CBC, 24, 1, 0 }
 #endif
-#define ssh2_cipher_chacha20  { &ssh2_wcng.hAlgChacha20, 24, 1, 0 }
+#define ssh2_cipher_chacha20  { NULL /* unused */, 24, 1, 0 }
 
 void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx);
 
