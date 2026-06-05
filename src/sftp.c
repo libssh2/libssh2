@@ -86,10 +86,8 @@
 #define SSH_FXP_EXTENDED                        200
 #define SSH_FXP_EXTENDED_REPLY                  201
 
-/* S_IFREG */
-#define SSH2_SFTP_ATTR_PFILETYPE_FILE           0100000
-/* S_IFDIR */
-#define SSH2_SFTP_ATTR_PFILETYPE_DIR            0040000
+#define SSH2_SFTP_ATTR_PFILETYPE_FILE           0100000  /* S_IFREG */
+#define SSH2_SFTP_ATTR_PFILETYPE_DIR            0040000  /* S_IFDIR */
 
 #define SSH_FXE_STATVFS_ST_RDONLY               0x00000001
 #define SSH_FXE_STATVFS_ST_NOSUID               0x00000002
