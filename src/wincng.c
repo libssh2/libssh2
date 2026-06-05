@@ -50,29 +50,21 @@
 #define _WIN32_WINNT 0x0600
 #endif
 
-#if LIBSSH2_RSA || LIBSSH2_DSA
-#ifndef HAVE_LIBCRYPT32
-#define HAVE_LIBCRYPT32
-#endif
-#endif
-
-/* specify the required libraries for dependencies using MSVC */
 #ifdef _MSC_VER
 #pragma comment(lib, "bcrypt.lib")
-#ifdef HAVE_LIBCRYPT32
+#if LIBSSH2_RSA || LIBSSH2_DSA
 #pragma comment(lib, "crypt32.lib")
 #endif
 #endif
 
 #include <windows.h>
+#if LIBSSH2_RSA || LIBSSH2_DSA
+#include <wincrypt.h>  /* for CryptDecodeObjectEx() */
+#endif
 #include <bcrypt.h>
 #include <math.h>
 
 #include <stdlib.h>
-
-#if LIBSSH2_RSA || LIBSSH2_DSA
-#ifdef HAVE_LIBCRYPT32
-#include <wincrypt.h>  /* for CryptDecodeObjectEx() */
 
 #if LIBSSH2_RSA
 #define PEM_RSA_HEADER "-----BEGIN RSA PRIVATE KEY-----"
@@ -81,8 +73,6 @@
 #if LIBSSH2_DSA
 #define PEM_DSA_HEADER "-----BEGIN DSA PRIVATE KEY-----"
 #define PEM_DSA_FOOTER "-----END DSA PRIVATE KEY-----"
-#endif
-#endif /* HAVE_LIBCRYPT32 */
 #endif
 #if LIBSSH2_ECDSA
 #define PEM_ECDSA_HEADER "-----BEGIN OPENSSH PRIVATE KEY-----"
@@ -988,7 +978,6 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx,
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-#ifdef HAVE_LIBCRYPT32
 static int wcng_load_pem(LIBSSH2_SESSION *session,
                          const char *filename,
                          const unsigned char *passphrase,
@@ -1254,7 +1243,6 @@ static int wcng_asn_decode_bns(unsigned char *pbEncoded,
 
     return ret;
 }
-#endif /* HAVE_LIBCRYPT32 */
 
 static ULONG wcng_bn_size(const unsigned char *bignum, ULONG length)
 {
@@ -1413,7 +1401,6 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     return 0;
 }
 
-#ifdef HAVE_LIBCRYPT32
 static int wcng_rsa_new_private_parse(ssh2_rsa_ctx **rsa,
                                       LIBSSH2_SESSION *session,
                                       unsigned char *pbEncoded,
@@ -1455,14 +1442,12 @@ static int wcng_rsa_new_private_parse(ssh2_rsa_ctx **rsa,
 
     return 0;
 }
-#endif /* HAVE_LIBCRYPT32 */
 
 int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
                          LIBSSH2_SESSION *session,
                          const char *filename,
                          const unsigned char *passphrase)
 {
-#ifdef HAVE_LIBCRYPT32
     unsigned char *pbEncoded;
     size_t cbEncoded;
     int ret;
@@ -1474,15 +1459,6 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
     }
 
     return wcng_rsa_new_private_parse(rsa, session, pbEncoded, cbEncoded);
-#else
-    (void)rsa;
-    (void)filename;
-    (void)passphrase;
-
-    return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                    "Unable to load RSA key from private key file: "
-                    "Method unsupported in Windows CNG backend");
-#endif /* HAVE_LIBCRYPT32 */
 }
 
 int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
@@ -1490,7 +1466,6 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                     const char *filedata, size_t filedata_len,
                                     const unsigned char *passphrase)
 {
-#ifdef HAVE_LIBCRYPT32
     unsigned char *pbEncoded;
     size_t cbEncoded;
     int ret;
@@ -1502,16 +1477,6 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
     }
 
     return wcng_rsa_new_private_parse(rsa, session, pbEncoded, cbEncoded);
-#else
-    (void)rsa;
-    (void)filedata;
-    (void)filedata_len;
-    (void)passphrase;
-
-    return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                    "Unable to extract private key from memory: "
-                    "Method unsupported in Windows CNG backend");
-#endif /* HAVE_LIBCRYPT32 */
 }
 
 #if LIBSSH2_RSA_SHA1
@@ -1737,7 +1702,6 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
     return 0;
 }
 
-#ifdef HAVE_LIBCRYPT32
 static int wcng_dsa_new_private_parse(ssh2_dsa_ctx **dsa,
                                       LIBSSH2_SESSION *session,
                                       unsigned char *pbEncoded,
@@ -1781,14 +1745,12 @@ static int wcng_dsa_new_private_parse(ssh2_dsa_ctx **dsa,
 
     return ret;
 }
-#endif /* HAVE_LIBCRYPT32 */
 
 int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
                          LIBSSH2_SESSION *session,
                          const char *filename,
                          const unsigned char *passphrase)
 {
-#ifdef HAVE_LIBCRYPT32
     unsigned char *pbEncoded;
     size_t cbEncoded;
     int ret;
@@ -1800,15 +1762,6 @@ int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
     }
 
     return wcng_dsa_new_private_parse(dsa, session, pbEncoded, cbEncoded);
-#else
-    (void)dsa;
-    (void)filename;
-    (void)passphrase;
-
-    return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                    "Unable to load DSA key from private key file: "
-                    "Method unsupported in Windows CNG backend");
-#endif /* HAVE_LIBCRYPT32 */
 }
 
 int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
@@ -1816,7 +1769,6 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
                                     const char *filedata, size_t filedata_len,
                                     const unsigned char *passphrase)
 {
-#ifdef HAVE_LIBCRYPT32
     unsigned char *pbEncoded;
     size_t cbEncoded;
     int ret;
@@ -1828,16 +1780,6 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
     }
 
     return wcng_dsa_new_private_parse(dsa, session, pbEncoded, cbEncoded);
-#else
-    (void)dsa;
-    (void)filedata;
-    (void)filedata_len;
-    (void)passphrase;
-
-    return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                    "Unable to extract private key from memory: "
-                    "Method unsupported in Windows CNG backend");
-#endif /* HAVE_LIBCRYPT32 */
 }
 
 int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
@@ -3043,7 +2985,6 @@ ssh2_curve_type ssh2_ecdsa_get_curve_type(IN ssh2_ecdsa_ctx *key)
  */
 
 #if LIBSSH2_RSA || LIBSSH2_DSA
-#ifdef HAVE_LIBCRYPT32
 static DWORD wcng_pub_priv_write(unsigned char *key,
                                  DWORD offset,
                                  const unsigned char *bignum,
@@ -3173,7 +3114,6 @@ static int wcng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
 
     return ret;
 }
-#endif /* HAVE_LIBCRYPT32 */
 
 int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                           unsigned char **method,
@@ -3183,7 +3123,6 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                           const char *privatekey,
                           const char *passphrase)
 {
-#ifdef HAVE_LIBCRYPT32
     unsigned char *pbEncoded;
     size_t cbEncoded;
     int ret;
@@ -3198,18 +3137,6 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     return wcng_pub_priv_keyfile_parse(session, method, method_len,
                                        pubkeydata, pubkeydata_len,
                                        pbEncoded, cbEncoded);
-#else
-    (void)method;
-    (void)method_len;
-    (void)pubkeydata;
-    (void)pubkeydata_len;
-    (void)privatekey;
-    (void)passphrase;
-
-    return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                    "Unable to load public key from private key file: "
-                    "Method unsupported in Windows CNG backend");
-#endif /* HAVE_LIBCRYPT32 */
 }
 
 int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
@@ -3221,7 +3148,6 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                 size_t privatekeydata_len,
                                 const char *passphrase)
 {
-#ifdef HAVE_LIBCRYPT32
     unsigned char *pbEncoded;
     size_t cbEncoded;
     int ret;
@@ -3237,19 +3163,6 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     return wcng_pub_priv_keyfile_parse(session, method, method_len,
                                        pubkeydata, pubkeydata_len,
                                        pbEncoded, cbEncoded);
-#else
-    (void)method;
-    (void)method_len;
-    (void)pubkeydata_len;
-    (void)pubkeydata;
-    (void)privatekeydata;
-    (void)privatekeydata_len;
-    (void)passphrase;
-
-    return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                    "Unable to extract public key from private key in "
-                    "memory: Method unsupported in Windows CNG backend");
-#endif /* HAVE_LIBCRYPT32 */
 }
 #endif /* LIBSSH2_RSA || LIBSSH2_DSA */
 
