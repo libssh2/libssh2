@@ -1009,8 +1009,7 @@ int libssh2_sign_sk(LIBSSH2_SESSION *session,
     }
     else {
         ssh2_deb((session, LIBSSH2_ERROR_DECRYPT,
-                  "sign_callback failed or "
-                  "returned invalid signature."));
+                  "sign_callback failed or returned invalid signature."));
         *sig_len = 0;
     }
 
