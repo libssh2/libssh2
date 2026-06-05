@@ -403,10 +403,9 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
         session->scpRecv_state = ssh2_NB_state_sent2;
     }
 
-    if((session->scpRecv_state == ssh2_NB_state_sent2) ||
-       (session->scpRecv_state == ssh2_NB_state_sent3)) {
-        while(sb && (session->scpRecv_response_len <
-                     SSH2_SCP_RESPONSE_BUFLEN)) {
+    if(session->scpRecv_state == ssh2_NB_state_sent2 ||
+       session->scpRecv_state == ssh2_NB_state_sent3) {
+        while(sb && session->scpRecv_response_len < SSH2_SCP_RESPONSE_BUFLEN) {
             unsigned char *s, *p;
 
             if(session->scpRecv_state == ssh2_NB_state_sent2) {
@@ -467,25 +466,25 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                     goto scp_recv_error;
                 }
 
-                if((session->scpRecv_response_len > 1) &&
-                   ((session->scpRecv_response[session->scpRecv_response_len -
-                                               1] < '0') ||
-                    (session->scpRecv_response[session->scpRecv_response_len -
-                                               1] > '9')) &&
+                if(session->scpRecv_response_len > 1 &&
                    (session->scpRecv_response[session->scpRecv_response_len -
-                                              1] != ' ') &&
-                   (session->scpRecv_response[session->scpRecv_response_len -
-                                              1] != '\r') &&
-                   (session->scpRecv_response[session->scpRecv_response_len -
-                                              1] != '\n')) {
+                                               1] < '0' ||
+                    session->scpRecv_response[session->scpRecv_response_len -
+                                               1] > '9') &&
+                   session->scpRecv_response[session->scpRecv_response_len -
+                                              1] != ' ' &&
+                   session->scpRecv_response[session->scpRecv_response_len -
+                                              1] != '\r' &&
+                   session->scpRecv_response[session->scpRecv_response_len -
+                                              1] != '\n') {
                     ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                              "Invalid data in SCP response");
                     goto scp_recv_error;
                 }
 
-                if((session->scpRecv_response_len < 9) ||
-                   (session->scpRecv_response[session->scpRecv_response_len -
-                                              1] != '\n')) {
+                if(session->scpRecv_response_len < 9 ||
+                   session->scpRecv_response[session->scpRecv_response_len -
+                                             1] != '\n') {
                     if(session->scpRecv_response_len ==
                        SSH2_SCP_RESPONSE_BUFLEN) {
                         /* You had your chance */
@@ -519,7 +518,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 s = session->scpRecv_response + 1;
 
                 p = (unsigned char *)strchr((char *)s, ' ');
-                if(!p || ((p - s) <= 0)) {
+                if(!p || (p - s) <= 0) {
                     /* No spaces or space in the wrong spot */
                     ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                              "Invalid response from SCP server, "
@@ -532,7 +531,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 session->scpRecv_mtime = strtol((char *)s, NULL, 10);
 
                 s = (unsigned char *)strchr((char *)p, ' ');
-                if(!s || ((s - p) <= 0)) {
+                if(!s || (s - p) <= 0) {
                     /* No spaces or space in the wrong spot */
                     ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                              "Invalid response from SCP server, "
@@ -543,7 +542,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 /* Ignore mtime.usec */
                 s++;
                 p = (unsigned char *)strchr((char *)s, ' ');
-                if(!p || ((p - s) <= 0)) {
+                if(!p || (p - s) <= 0) {
                     /* No spaces or space in the wrong spot */
                     ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                              "Invalid response from SCP server, "
@@ -593,8 +592,8 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
         session->scpRecv_state = ssh2_NB_state_sent5;
     }
 
-    if((session->scpRecv_state == ssh2_NB_state_sent5) ||
-       (session->scpRecv_state == ssh2_NB_state_sent6)) {
+    if(session->scpRecv_state == ssh2_NB_state_sent5 ||
+       session->scpRecv_state == ssh2_NB_state_sent6) {
         while(session->scpRecv_response_len < SSH2_SCP_RESPONSE_BUFLEN) {
             char *s, *p, *e = NULL;
 
@@ -624,21 +623,21 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                     goto scp_recv_error;
                 }
 
-                if((session->scpRecv_response_len > 1) &&
-                   (session->scpRecv_response[session->scpRecv_response_len -
-                                              1] != '\r') &&
-                   (session->scpRecv_response[session->scpRecv_response_len -
-                                              1] != '\n') &&
-                   (session->scpRecv_response[session->scpRecv_response_len -
-                                              1] < 32)) {
+                if(session->scpRecv_response_len > 1 &&
+                   session->scpRecv_response[session->scpRecv_response_len -
+                                             1] != '\r' &&
+                   session->scpRecv_response[session->scpRecv_response_len -
+                                             1] != '\n' &&
+                   session->scpRecv_response[session->scpRecv_response_len -
+                                             1] < 32) {
                     ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                              "Invalid data in SCP response");
                     goto scp_recv_error;
                 }
 
-                if((session->scpRecv_response_len < 7) ||
-                   (session->scpRecv_response[session->scpRecv_response_len -
-                                              1] != '\n')) {
+                if(session->scpRecv_response_len < 7 ||
+                   session->scpRecv_response[session->scpRecv_response_len -
+                                             1] != '\n') {
                     if(session->scpRecv_response_len ==
                        SSH2_SCP_RESPONSE_BUFLEN) {
                         /* You had your chance */
@@ -654,10 +653,10 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 /* We are guaranteed not to go under response_len == 0 by the
                    logic above */
                 while(
-                    (session->scpRecv_response[session->scpRecv_response_len -
-                                               1] == '\r') ||
-                    (session->scpRecv_response[session->scpRecv_response_len -
-                                               1] == '\n')) {
+                    session->scpRecv_response[session->scpRecv_response_len -
+                                              1] == '\r' ||
+                    session->scpRecv_response[session->scpRecv_response_len -
+                                              1] == '\n') {
                     session->scpRecv_response_len--;
                 }
                 session->scpRecv_response[session->scpRecv_response_len] =
@@ -673,7 +672,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 s = (char *)session->scpRecv_response + 1;
 
                 p = strchr(s, ' ');
-                if(!p || ((p - s) <= 0)) {
+                if(!p || (p - s) <= 0) {
                     /* No spaces or space in the wrong spot */
                     ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                              "Invalid response from SCP server, "
@@ -691,7 +690,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 }
 
                 s = strchr(p, ' ');
-                if(!s || ((s - p) <= 0)) {
+                if(!s || (s - p) <= 0) {
                     /* No spaces or space in the wrong spot */
                     ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                              "Invalid response from SCP server, "

@@ -96,7 +96,7 @@ int ssh2_err_flags(LIBSSH2_SESSION *session, int errcode,
     session->err_code = errcode;
     session->err_flags = 0;
 
-    if(errmsg && ((errflags & SSH2_ERR_FLAG_DUP) != 0)) {
+    if(errmsg && (errflags & SSH2_ERR_FLAG_DUP) != 0) {
         size_t len = strlen(errmsg);
         char *copy = SSH2_ALLOC(session, len + 1);
         if(copy) {
@@ -112,7 +112,7 @@ int ssh2_err_flags(LIBSSH2_SESSION *session, int errcode,
         session->err_msg = errmsg;
 
 #ifdef LIBSSH2DEBUG
-    if((errcode == LIBSSH2_ERROR_EAGAIN) && !session->api_block_mode)
+    if(errcode == LIBSSH2_ERROR_EAGAIN && !session->api_block_mode)
         /* if this is EAGAIN and we are in non-blocking mode, do not generate
            a debug output for this */
         return errcode;
@@ -962,7 +962,7 @@ int ssh2_check_length(struct string_buf *buf, size_t requested_len)
 {
     unsigned char *endp = &buf->data[buf->len];
     size_t left = endp - buf->dataptr;
-    return (requested_len <= left) && (left <= buf->len);
+    return requested_len <= left && left <= buf->len;
 }
 
 int ssh2_eob(struct string_buf *buf)

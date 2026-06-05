@@ -193,7 +193,7 @@ static int comp_method_zlib_comp(LIBSSH2_SESSION *session,
 
     status = deflate(strm, Z_PARTIAL_FLUSH);
 
-    if((status == Z_OK) && (strm->avail_out > 0)) {
+    if(status == Z_OK && strm->avail_out > 0) {
         *dest_len = out_maxlen - strm->avail_out;
         return 0;
     }

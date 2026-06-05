@@ -1383,10 +1383,8 @@ static int rsa_new_additional_parameters(ssh2_rsa_ctx *rsa)
         goto out;
     }
 
-    if((BN_sub(aux, q, BN_value_one()) == 0) ||
-       (BN_mod(dmq1, d, aux, ctx) == 0) ||
-       (BN_sub(aux, p, BN_value_one()) == 0) ||
-       (BN_mod(dmp1, d, aux, ctx) == 0)) {
+    if(BN_sub(aux, q, BN_value_one()) == 0 || BN_mod(dmq1, d, aux, ctx) == 0 ||
+       BN_sub(aux, p, BN_value_one()) == 0 || BN_mod(dmp1, d, aux, ctx) == 0) {
         rc = -1;
         goto out;
     }
@@ -4189,7 +4187,7 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
 
     size_t out_len = 0;
 
-    if(!k || !(*k) || server_public_key_len <= 0)
+    if(!k || !*k || server_public_key_len <= 0)
         return -1;
 
     bn_ctx = BN_CTX_new();

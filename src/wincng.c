@@ -1125,8 +1125,7 @@ static int wcng_bn_ltob(unsigned char *pbInput,
     }
 
     pbOutput[0] = 0;
-    for(index = 0; ((index + offset) < cbOutput) &&
-                   (index < cbInput); index++) {
+    for(index = 0; (index + offset) < cbOutput && index < cbInput; index++) {
         pbOutput[index + offset] = pbInput[length - index];
     }
 
@@ -1234,7 +1233,7 @@ static ULONG wcng_bn_size(const unsigned char *bignum, ULONG length)
     length--;
 
     offset = 0;
-    while(!(*(bignum + offset)) && (offset < length))
+    while(!*(bignum + offset) && offset < length)
         offset++;
 
     length++;
