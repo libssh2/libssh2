@@ -830,9 +830,9 @@ dnl the code was bad, try a different program now, test 2
 #include <unistd.h>
 #include <stropts.h>
 ]], [[
-/* FIONBIO source test (old-style unix) */
- int socket;
- int flags = ioctl(socket, FIONBIO, &flags);
+  /* FIONBIO source test (old-style unix) */
+  int socket;
+  int flags = ioctl(socket, FIONBIO, &flags);
 ]])],[
 dnl FIONBIO test was good
 nonblock="FIONBIO"
@@ -845,9 +845,9 @@ dnl the code was bad, try a different program now, test 3
 /* headers for IoctlSocket test (Amiga?) */
 #include <sys/ioctl.h>
 ]], [[
-/* IoctlSocket source code */
- int socket;
- int flags = IoctlSocket(socket, FIONBIO, (long)1);
+  /* IoctlSocket source code */
+  int socket;
+  int flags = IoctlSocket(socket, FIONBIO, (long)1);
 ]])],[
 dnl ioctlsocket test was good
 nonblock="IoctlSocket"
@@ -855,8 +855,8 @@ AC_DEFINE(HAVE_IOCTLSOCKET_CASE, 1, [use Ioctlsocket() for non-blocking sockets]
 ],[
 dnl Ioctlsocket did not compile, do test 4!
   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-/* headers for SO_NONBLOCK test (BeOS) */
-#include <socket.h>
+    /* headers for SO_NONBLOCK test (BeOS) */
+    #include <socket.h>
 ]], [[
 /* SO_NONBLOCK source code */
  long b = 1;
@@ -943,7 +943,7 @@ AC_DEFUN([CURL_CONFIGURE_REENTRANT], [
     AC_LANG_PROGRAM([[
     ]],[[
       #ifdef _REENTRANT
-        int dummy=1;
+        int dummy = 1;
       #else
         force compilation error
       #endif

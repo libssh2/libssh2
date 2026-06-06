@@ -387,7 +387,7 @@ if test "$ac_cv_func_select" != "yes"; then
     #include <winsock2.h>
     #endif
     ]], [[
-      select(0,(fd_set *)NULL,(fd_set *)NULL,(fd_set *)NULL,(struct timeval *)NULL);
+      select(0, (fd_set *)NULL, (fd_set *)NULL, (fd_set *)NULL, (struct timeval *)NULL);
     ]])],[
       AC_MSG_RESULT([yes])
       HAVE_SELECT="1"
