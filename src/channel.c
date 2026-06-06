@@ -1529,8 +1529,7 @@ int ssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
     }
 
     return ssh2_err(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
-                    "Unable to complete request for "
-                    "channel-process-startup");
+                    "Unable to complete request for channel-process-startup");
 }
 
 /*
