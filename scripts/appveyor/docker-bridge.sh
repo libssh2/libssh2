@@ -25,4 +25,4 @@ curl \
   -F ssh_forward="127.0.0.1:${OPENSSH_SERVER_PORT} 127.0.0.1:${OPENSSH_SERVER_PORT},127.0.0.1:2375 /var/run/docker.sock" \
   -F ssh_hostkey="$(paste -d , /etc/ssh/ssh_host_*_key.pub)" \
   -F ssh_privkey="$(paste -sd , auth)" \
-  -s 'https://stuff.marc-hoersken.de/libssh2/dispatch.php'
+  --silent --show-error --fail 'https://stuff.marc-hoersken.de/libssh2/dispatch.php'
