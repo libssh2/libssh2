@@ -1,9 +1,9 @@
-# Copyright (C) The libssh2 project and its contributors.
-#
-# SPDX-License-Identifier: BSD-3-Clause
-#
+dnl Copyright (C) The libssh2 project and its contributors.
+dnl
+dnl SPDX-License-Identifier: BSD-3-Clause
+dnl
 
-# AC_PREREQ(2.59)
+dnl AC_PREREQ(2.59)
 AC_INIT([libssh2],[-],[libssh2-devel@lists.haxx.se])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src])
@@ -29,9 +29,9 @@ AC_MSG_RESULT($LIBSSH2_VERSION)
 
 AC_SUBST(LIBSSH2_VERSION)
 
-# Check for the OS.
-# Daniel's note: this should not be necessary and we need to work to
-# get this removed.
+dnl Check for the OS.
+dnl Daniel's note: this should not be necessary and we need to work to
+dnl get this removed.
 AC_CANONICAL_HOST
 case "$host" in
   *-mingw*)
@@ -51,10 +51,10 @@ esac
 dnl Our configure and build reentrant settings
 CURL_CONFIGURE_REENTRANT
 
-# Some systems (Solaris?) have socket() in -lsocket.
+dnl Some systems (Solaris?) have socket() in -lsocket.
 AC_SEARCH_LIBS(socket, socket)
 
-# Solaris has inet_addr() in -lnsl.
+dnl Solaris has inet_addr() in -lnsl.
 AC_SEARCH_LIBS(inet_addr, nsl)
 
 AC_SUBST(LIBS)
@@ -82,7 +82,7 @@ LT_LANG([Windows Resource])
 dnl check for windows.h
 case $host in
   *-*-msys | *-*-cygwin* | *-*-cegcc*)
-    # These are POSIX-like systems using BSD-like sockets API.
+    dnl These are POSIX-like systems using BSD-like sockets API.
     ;;
   *)
     AC_CHECK_HEADERS([windows.h], [have_windows_h=yes], [have_windows_h=no])
@@ -165,7 +165,7 @@ else
   test "$found_crypto_str" = "" && found_crypto_str="$found_crypto"
 fi
 
-# ECDSA support with WinCNG
+dnl ECDSA support with WinCNG
 AC_ARG_ENABLE(ecdsa-wincng,
   AS_HELP_STRING([--enable-ecdsa-wincng],
     WinCNG ECDSA support (requires Windows 10 or later)),
@@ -176,7 +176,7 @@ else
   wincng_ecdsa=no
 fi
 
-# libz
+dnl libz
 
 AC_ARG_WITH([libz],
   AS_HELP_STRING([--with-libz],[Use libz for compression]),
@@ -210,9 +210,9 @@ fi
 
 AC_SUBST(LIBSSH2_PC_REQUIRES_PRIVATE)
 
-#
-# Optional Settings
-#
+dnl
+dnl Optional Settings
+dnl
 AC_ARG_ENABLE(clear-memory,
   AS_HELP_STRING([--disable-clear-memory],[Disable clearing of memory before being freed]),
   [CLEAR_MEMORY=$enableval])
@@ -306,21 +306,21 @@ AC_ARG_ENABLE([deprecated],
     [with_deprecated="yes"]
 )
 
-# Run Docker tests?
+dnl Run Docker tests?
 AC_ARG_ENABLE([docker-tests],
   [AS_HELP_STRING([--disable-docker-tests],
     [Do not run tests requiring Docker])],
   [run_docker_tests=no], [run_docker_tests=yes])
 AM_CONDITIONAL([RUN_DOCKER_TESTS], [test "x$run_docker_tests" != "xno"])
 
-# Run sshd tests?
+dnl Run sshd tests?
 AC_ARG_ENABLE([sshd-tests],
   [AS_HELP_STRING([--disable-sshd-tests],
     [Do not run tests requiring sshd])],
   [run_sshd_tests=no], [run_sshd_tests=yes])
 AM_CONDITIONAL([RUN_SSHD_TESTS], [test "x$run_sshd_tests" != "xno"])
 
-# Build example applications?
+dnl Build example applications?
 AC_MSG_CHECKING([whether to build example applications])
 AC_ARG_ENABLE([examples-build],
 AS_HELP_STRING([--enable-examples-build], [Build example applications (this is the default)])
@@ -338,19 +338,19 @@ AS_HELP_STRING([--disable-examples-build], [Do not build example applications]),
 AC_MSG_RESULT($build_examples)
 AM_CONDITIONAL([BUILD_EXAMPLES], [test "x$build_examples" != "xno"])
 
-# Build OSS fuzzing targets?
+dnl Build OSS fuzzing targets?
 AC_ARG_ENABLE([ossfuzzers],
   [AS_HELP_STRING([--enable-ossfuzzers],
     [Whether to generate the fuzzers for OSS-Fuzz])],
   [have_ossfuzzers=yes], [have_ossfuzzers=no])
 AM_CONDITIONAL([USE_OSSFUZZERS], [test "x$have_ossfuzzers" = "xyes"])
 
-# Set the correct flags for the given fuzzing engine.
+dnl Set the correct flags for the given fuzzing engine.
 AC_SUBST([LIB_FUZZING_ENGINE])
 AM_CONDITIONAL([USE_OSSFUZZ_FLAG], [test "x$LIB_FUZZING_ENGINE" = "x-fsanitize=fuzzer"])
 AM_CONDITIONAL([USE_OSSFUZZ_STATIC], [test -f "$LIB_FUZZING_ENGINE"])
 
-# Checks for header files.
+dnl Checks for header files.
 AC_CHECK_HEADERS([unistd.h sys/uio.h])
 AC_CHECK_HEADERS([sys/select.h sys/socket.h sys/ioctl.h sys/time.h])
 AC_CHECK_HEADERS([arpa/inet.h netinet/in.h])
@@ -400,7 +400,7 @@ fi
 
 AC_FUNC_ALLOCA
 
-# Checks for typedefs, structures, and compiler characteristics.
+dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 
 CURL_CHECK_NONBLOCKING_SOCKET
@@ -428,9 +428,9 @@ AM_CONDITIONAL([HAVE_WINDRES],
 
 AM_CONDITIONAL([HAVE_LIB_STATIC], [test "x$enable_static" != "xno"])
 
-# Configure parameters
+dnl Configure parameters
 
-# Append crypto lib
+dnl Append crypto lib
 if   test "$found_crypto" = "openssl"; then
   LIBS="${LIBS} ${LTLIBSSL}"
 elif test "$found_crypto" = "wolfssl"; then
