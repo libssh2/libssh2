@@ -279,7 +279,6 @@ AS_HELP_STRING([--disable-hidden-symbols],[Leave all symbols with default visibi
       else
          AC_MSG_RESULT(no)
        fi
-
     else
       dnl Test for SunPro cc
       if $CC 2>&1 | grep flags >/dev/null && $CC -flags | grep xldscope= >/dev/null; then
