@@ -54,10 +54,10 @@ statbuf style data into.
 
 # RETURN VALUE
 
-Number of bytes actually populated into buffer (not counting the terminating
-zero), or negative on failure. It returns LIBSSH2_ERROR_EAGAIN when it would
-otherwise block. While LIBSSH2_ERROR_EAGAIN is a negative number, it is not
-really a failure per se.
+Number of bytes actually populated into buffer (not counting the
+null-terminator), or negative on failure. It returns LIBSSH2_ERROR_EAGAIN when
+it would otherwise block. While LIBSSH2_ERROR_EAGAIN is a negative number, it
+is not really a failure per se.
 
 # BUG
 
