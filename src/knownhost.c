@@ -211,7 +211,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
             goto error;
         }
         memcpy(entry->key, key, keylen + 1);
-        entry->key[keylen] = 0; /* force a terminating zero trailer */
+        entry->key[keylen] = 0; /* force a null-terminator */
     }
     else {
         /* key is raw, we base64 encode it and store it as such */
@@ -246,7 +246,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
             goto error;
         }
         memcpy(entry->comment, comment, commentlen + 1);
-        entry->comment[commentlen] = 0; /* force a terminating zero trailer */
+        entry->comment[commentlen] = 0; /* force a null-terminator */
         entry->comment_len = commentlen;
     }
     else {
