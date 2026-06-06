@@ -679,6 +679,57 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
 
 ]) dnl end of AC_DEFUN()
 
+dnl CURL_CONVERT_INCLUDE_TO_ISYSTEM
+dnl -------------------------------------------------
+dnl Changes standard include paths present in CFLAGS
+dnl and CPPFLAGS into isystem include paths. This is
+dnl done to prevent GNUC from generating warnings on
+dnl headers from these locations, although on ancient
+dnl GNUC versions these warnings are not silenced.
+
+AC_DEFUN([CURL_CONVERT_INCLUDE_TO_ISYSTEM], [
+  AC_REQUIRE([CURL_SHFUNC_SQUEEZE])
+  AC_REQUIRE([CURL_CHECK_COMPILER_CLANG])
+  AC_MSG_CHECKING([convert -I options to -isystem])
+  if test "$compiler_id" = "GNU_C" ||
+     test "$compiler_id" = "CLANG" ||
+     test "$compiler_id" = "APPLECLANG"; then
+    AC_MSG_RESULT([yes])
+    tmp_has_include="no"
+    tmp_chg_FLAGS="$CFLAGS"
+    for word1 in $tmp_chg_FLAGS; do
+      case "$word1" in
+        -I*)
+          tmp_has_include="yes"
+          ;;
+      esac
+    done
+    if test "$tmp_has_include" = "yes"; then
+      tmp_chg_FLAGS=`echo "$tmp_chg_FLAGS" | "$SED" 's/^-I/ -isystem /g'`
+      tmp_chg_FLAGS=`echo "$tmp_chg_FLAGS" | "$SED" 's/ -I/ -isystem /g'`
+      CFLAGS="$tmp_chg_FLAGS"
+      squeeze CFLAGS
+    fi
+    tmp_has_include="no"
+    tmp_chg_FLAGS="$CPPFLAGS"
+    for word1 in $tmp_chg_FLAGS; do
+      case "$word1" in
+        -I*)
+          tmp_has_include="yes"
+          ;;
+      esac
+    done
+    if test "$tmp_has_include" = "yes"; then
+      tmp_chg_FLAGS=`echo "$tmp_chg_FLAGS" | "$SED" 's/^-I/ -isystem /g'`
+      tmp_chg_FLAGS=`echo "$tmp_chg_FLAGS" | "$SED" 's/ -I/ -isystem /g'`
+      CPPFLAGS="$tmp_chg_FLAGS"
+      squeeze CPPFLAGS
+    fi
+  else
+    AC_MSG_RESULT([no])
+  fi
+])
+
 dnl CURL_ADD_COMPILER_WARNINGS (WARNING-LIST, NEW-WARNINGS)
 dnl -------------------------------------------------------
 dnl Contents of variable WARNING-LIST and NEW-WARNINGS are
