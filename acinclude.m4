@@ -113,7 +113,7 @@ AC_DEFUN([CURL_CHECK_COMPILER_CLANG], [
     AC_MSG_RESULT([yes])
     AC_MSG_CHECKING([if compiler is xlclang])
     CURL_CHECK_DEF([__ibmxl__], [], [silent])
-    if test "$curl_cv_have_def___ibmxl__" = "yes" ; then
+    if test "$curl_cv_have_def___ibmxl__" = "yes"; then
       dnl IBM's almost-compatible clang version
       AC_MSG_RESULT([yes])
       compiler_id="XLCLANG"

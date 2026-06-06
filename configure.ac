@@ -271,8 +271,8 @@ AS_HELP_STRING([--disable-hidden-symbols],[Leave all symbols with default visibi
     ;;
   *)
     AC_MSG_CHECKING([whether $CC supports it])
-    if test "$GCC" = yes ; then
-      if $CC --help --verbose 2>&1 | grep fvisibility= > /dev/null ; then
+    if test "$GCC" = yes; then
+      if $CC --help --verbose 2>&1 | grep fvisibility= > /dev/null; then
         AC_MSG_RESULT(yes)
         AC_DEFINE(LIBSSH2_API, [__attribute__ ((visibility ("default")))], [to make a symbol visible])
         CFLAGS="$CFLAGS -fvisibility=hidden"
@@ -282,7 +282,7 @@ AS_HELP_STRING([--disable-hidden-symbols],[Leave all symbols with default visibi
 
     else
       dnl Test for SunPro cc
-      if $CC 2>&1 | grep flags >/dev/null && $CC -flags | grep xldscope= >/dev/null ; then
+      if $CC 2>&1 | grep flags >/dev/null && $CC -flags | grep xldscope= >/dev/null; then
         AC_MSG_RESULT(yes)
         AC_DEFINE(LIBSSH2_API, [__global], [to make a symbol visible])
         CFLAGS="$CFLAGS -xldscope=hidden"
