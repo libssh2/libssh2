@@ -236,7 +236,7 @@ static unsigned char *write_bn(unsigned char *buf, const BIGNUM *bn,
 #endif
 
 #ifdef USE_OPENSSL_3
-static inline void swap_bytes(unsigned char *buf, unsigned long len)
+static SSH2_INLINE void swap_bytes(unsigned char *buf, unsigned long len)
 {
 #if !defined(WORDS_BIGENDIAN) || !WORDS_BIGENDIAN
     unsigned long i, j;

@@ -1495,7 +1495,7 @@ int libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended)
  * Returns 0 if writing to channel would block,
  * non-0 if data can be written without blocking
  */
-static inline int poll_channel_write(LIBSSH2_CHANNEL *channel)
+static SSH2_INLINE int poll_channel_write(LIBSSH2_CHANNEL *channel)
 {
     return channel->local.window_size ? 1 : 0;
 }
@@ -1504,7 +1504,7 @@ static inline int poll_channel_write(LIBSSH2_CHANNEL *channel)
  * Returns 0 if no connections are waiting to be accepted
  * non-0 if one or more connections are available
  */
-static inline int poll_listener_queued(LIBSSH2_LISTENER *listener)
+static SSH2_INLINE int poll_listener_queued(LIBSSH2_LISTENER *listener)
 {
     return ssh2_list_first(&listener->queue) ? 1 : 0;
 }
