@@ -174,13 +174,26 @@ int ssh2_gettimeofday(struct timeval *tp, void *tzp);
 #endif
 #endif
 
-/* "inline" keyword is valid only with C++ engine! */
-#ifdef __GNUC__
-#undef inline
-#define inline __inline__
+#ifdef SSH2_INLINE
+/* 'SSH2_INLINE' defined, use as-is */
+#elif defined(inline)
+#  define SSH2_INLINE inline /* 'inline' defined, assumed correct */
+#elif defined(__cplusplus)
+/* The code is compiled with C++ compiler.
+   C++ always supports 'inline'. */
+#  define SSH2_INLINE inline /* 'inline' keyword supported */
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+/* C99 (and later) supports 'inline' keyword */
+#  define SSH2_INLINE inline /* 'inline' keyword supported */
+#elif defined(__GNUC__) && __GNUC__ >= 3
+/* GCC supports '__inline__' as an extension */
+#  define SSH2_INLINE __inline__
 #elif defined(_MSC_VER)
-#undef inline
-#define inline __inline
+#  define SSH2_INLINE __inline
+#else
+/* Probably 'inline' is not supported by compiler.
+   Define to the empty string to be on the safe side. */
+#  define SSH2_INLINE /* empty */
 #endif
 
 /* 3DS does not seem to have iovec */
