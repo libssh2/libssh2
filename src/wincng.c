@@ -1978,9 +1978,9 @@ static int wcng_publickey_from_point(IN wcng_ecc_keytype keytype,
         wcng_ecdsa_algs[point->curve].public_import_magic[keytype];
 
     /** Copy x, y */
-    memcpy((PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB),
+    memcpy((char *)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB),
            point->x, point->x_len);
-    memcpy((PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB) + point->x_len,
+    memcpy((char *)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB) + point->x_len,
            point->y, point->y_len);
 
     status = BCryptImportKeyPair(
@@ -2044,11 +2044,11 @@ static int wcng_privatekey_from_point(IN wcng_ecc_keytype keytype,
         wcng_ecdsa_algs[q->curve].private_import_magic[keytype];
 
     /* Copy x, y, d */
-    memcpy((PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB),
+    memcpy((char *)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB),
            q->x, q->x_len);
-    memcpy((PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB) + q->x_len,
+    memcpy((char *)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB) + q->x_len,
            q->y, q->y_len);
-    memcpy((PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB) + q->x_len + q->y_len,
+    memcpy((char *)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB) + q->x_len + q->y_len,
            d, d_len);
 
     status = BCryptImportKeyPair(
