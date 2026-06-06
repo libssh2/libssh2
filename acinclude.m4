@@ -219,7 +219,11 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           fi
           AC_MSG_RESULT([clang '$compiler_num' (raw: '$fullclangver' / '$clangver')])
 
-          tmp_CFLAGS="-pedantic"
+          if test "$compiler_num" -ge "302"; then
+            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [pedantic])
+          else
+            tmp_CFLAGS="$tmp_CFLAGS -pedantic"
+          fi
           if test "$want_werror" = "yes"; then
             LIBSSH2_CFLAG_EXTRAS="$LIBSSH2_CFLAG_EXTRAS -pedantic-errors"
           fi
@@ -287,6 +291,11 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
             tmp_CFLAGS="$tmp_CFLAGS -Wformat=2"
           fi
 
+          dnl Only clang 3.1 or later
+          if test "$compiler_num" -ge "301"; then
+            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [format-non-iso])
+          fi
+
           dnl Only clang 3.2 or later
           if test "$compiler_num" -ge "302"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [enum-conversion])
@@ -328,28 +337,46 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
               tmp_CFLAGS="$tmp_CFLAGS -Wno-varargs"
             fi
           fi
+
           dnl clang 7 or later
           if test "$compiler_num" -ge "700"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [assign-enum])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [extra-semi-stmt])
           fi
+
           dnl clang 10 or later
           if test "$compiler_num" -ge "1000"; then
             tmp_CFLAGS="$tmp_CFLAGS -Wimplicit-fallthrough"  # we have silencing markup for clang 10.0 and above only
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [xor-used-as-pow])
           fi
+
+          dnl clang 13 or later
+          if test "$compiler_num" -ge "1300"; then
+            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [cast-function-type])
+            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [reserved-identifier]) # Keep it before -Wno-reserved-macro-identifier
+            tmp_CFLAGS="$tmp_CFLAGS -Wno-reserved-macro-identifier"  # Sometimes such external macros need to be set
+          fi
+
+          dnl clang 16 or later
+          #if test "$compiler_num" -ge "1600"; then
+          #  tmp_CFLAGS="$tmp_CFLAGS -Wno-unsafe-buffer-usage"
+          #fi
+
           dnl clang 17 or later
           if test "$compiler_num" -ge "1700"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [cast-function-type-strict])  # with Apple clang it requires 16.0 or above
           fi
+
           dnl clang 19 or later
           if test "$compiler_num" -ge "1901"; then
             tmp_CFLAGS="$tmp_CFLAGS -Wformat-signedness"
           fi
+
           dnl clang 20 or later
           if test "$compiler_num" -ge "2001"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [array-compare])
           fi
+
           dnl clang 21 or later
           if test "$compiler_num" -ge "2101"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [c++-hidden-decl])
@@ -413,7 +440,11 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           fi
         else dnl $ICC = yes
           dnl this is a set of options we believe *ALL* gcc versions support:
-          tmp_CFLAGS="-pedantic"
+          if test "$compiler_num" -ge "408"; then
+            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [pedantic])
+          else
+            tmp_CFLAGS="$tmp_CFLAGS -pedantic"
+          fi
           if test "$want_werror" = "yes"; then
             LIBSSH2_CFLAG_EXTRAS="$LIBSSH2_CFLAG_EXTRAS -pedantic-errors"
           fi

@@ -197,7 +197,7 @@ if(PICKY_COMPILER)
       if((CMAKE_C_COMPILER_ID STREQUAL "Clang"      AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 16.0) OR
          (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 15.0))
         list(APPEND _picky_enable
-          -Wno-unsafe-buffer-usage         # clang 16.0            appleclang 15.0
+        # -Wno-unsafe-buffer-usage         # clang 16.0            appleclang 15.0
         )
       endif()
       if((CMAKE_C_COMPILER_ID STREQUAL "Clang"      AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 16.0) OR
