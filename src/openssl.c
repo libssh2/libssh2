@@ -1123,19 +1123,22 @@ static int passphrase_cb(char *buf, int size, int rwflag, void *passphrase)
 #define CB_RSA PEM_read_bio_RSAPrivateKey
 #endif
 #endif
-#if LIBSSH2_DSA || LIBSSH2_ECDSA || LIBSSH2_ED25519
+#if LIBSSH2_DSA
 #ifdef USE_OPENSSL_3
 #define CB_DSA PEM_read_bio_PrivateKey
 #else
 #define CB_DSA PEM_read_bio_DSAPrivateKey
 #endif
 #endif
-#if LIBSSH2_ECDSA || LIBSSH2_ED25519
+#if LIBSSH2_ECDSA
 #ifdef USE_OPENSSL_3
-#define CB_EC  PEM_read_bio_PrivateKey
+#define CB_EC PEM_read_bio_PrivateKey
 #else
-#define CB_EC  PEM_read_bio_ECPrivateKey
+#define CB_EC PEM_read_bio_ECPrivateKey
 #endif
+#endif
+#if LIBSSH2_ED25519
+#define CB_ED PEM_read_bio_PrivateKey
 #endif
 
 #define READ_PRIVKEY_FROM_BLOB(ctx, cb, blob, blob_len, passphrase)           \
@@ -2500,7 +2503,7 @@ int ssh2_ed25519_new_private_frommemory(ssh2_ed25519_ctx **ed_ctx,
 
     ssh2_init_if_needed();
 
-    READ_PRIVKEY_FROM_BLOB(ed_ctx, CB_EC, filedata, filedata_len, passphrase);
+    READ_PRIVKEY_FROM_BLOB(ed_ctx, CB_ED, filedata, filedata_len, passphrase);
 
     if(!*ed_ctx) {
         if(EVP_PKEY_id(ctx) != EVP_PKEY_ED25519) {
