@@ -1116,14 +1116,26 @@ static int passphrase_cb(char *buf, int size, int rwflag, void *passphrase)
     return passphrase_len;
 }
 
+#if LIBSSH2_RSA
 #ifdef USE_OPENSSL_3
 #define CB_RSA PEM_read_bio_PrivateKey
-#define CB_DSA PEM_read_bio_PrivateKey
-#define CB_EC  PEM_read_bio_PrivateKey
 #else
 #define CB_RSA PEM_read_bio_RSAPrivateKey
+#endif
+#endif
+#if LIBSSH2_DSA || LIBSSH2_ECDSA || LIBSSH2_ED25519
+#ifdef USE_OPENSSL_3
+#define CB_DSA PEM_read_bio_PrivateKey
+#else
 #define CB_DSA PEM_read_bio_DSAPrivateKey
+#endif
+#endif
+#if LIBSSH2_ECDSA || LIBSSH2_ED25519
+#ifdef USE_OPENSSL_3
+#define CB_EC  PEM_read_bio_PrivateKey
+#else
 #define CB_EC  PEM_read_bio_ECPrivateKey
+#endif
 #endif
 
 #define READ_PRIVKEY_FROM_BLOB(ctx, cb, blob, blob_len, passphrase)           \
