@@ -9,10 +9,10 @@ target_include_directories(standaloneengine PRIVATE
 set_target_properties(standaloneengine PROPERTIES UNITY_BUILD OFF)
 
 foreach(_fuzz_target IN ITEMS
-  ssh2_client_fuzzer
-  ssh2_sftp_packet_fuzzer
-  ssh2_knownhost_fuzzer)
-
+    ssh2_client_fuzzer
+    ssh2_sftp_packet_fuzzer
+    ssh2_knownhost_fuzzer
+)
   add_executable(${_fuzz_target} "${_fuzz_target}.cc" "testinput.h")
   target_include_directories(${_fuzz_target} PRIVATE
     "${PROJECT_SOURCE_DIR}/include")
