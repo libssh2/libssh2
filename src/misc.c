@@ -742,15 +742,15 @@ int ssh2_gettimeofday(struct timeval *tp, void *tzp)
     if(tp) {
 #ifdef _WIN32
 /* Offset between 1601-01-01 and 1970-01-01 in 100 nanosec units */
-#define _WIN32_FT_OFFSET (116444736000000000)
+#define SSH2_WIN32_FT_OFFSET 116444736000000000
 
         union {
             libssh2_uint64_t ns100; /* time since 1 Jan 1601 in 100ns units */
             FILETIME ft;
-        } _now;
-        GetSystemTimeAsFileTime(&_now.ft);
-        tp->tv_usec = (long)((_now.ns100 / 10) % 1000000);
-        tp->tv_sec = (long)((_now.ns100 - _WIN32_FT_OFFSET) / 10000000);
+        } now;
+        GetSystemTimeAsFileTime(&now.ft);
+        tp->tv_usec = (long)((now.ns100 / 10) % 1000000);
+        tp->tv_sec = (long)((now.ns100 - SSH2_WIN32_FT_OFFSET) / 10000000);
 #else
         /* Platforms without a native implementation or local replacement */
         tp->tv_usec = 0;
