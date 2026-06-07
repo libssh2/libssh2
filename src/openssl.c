@@ -1347,7 +1347,7 @@ out:
 
     return rc;
 }
-#endif /* ndef USE_OPENSSL_3 */
+#endif /* !USE_OPENSSL_3 */
 
 static int gen_publickey_from_rsa_openssh_priv_data(
     LIBSSH2_SESSION *session,
