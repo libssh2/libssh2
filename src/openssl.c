@@ -1178,20 +1178,17 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
 
     ssh2_init_if_needed();
 
-    bp = BIO_new_mem_buf(blob, (int)(blob_len));
+    bp = BIO_new_mem_buf(filedata, (int)filedata_len);
     if(bp) {
-        *(ctx) = CB_RSA(bp, NULL, passphrase_cb, SSH2_UNCONST(passphrase));
+        *rsa = CB_RSA(bp, NULL, passphrase_cb, SSH2_UNCONST(passphrase));
         BIO_free(bp);
+        if(*rsa)
+            rc = pub_priv_openssh_keyfilememory(session, (void **)rsa,
+                                                "ssh-rsa",
+                                                NULL, NULL, NULL, NULL,
+                                                filedata, filedata_len,
+                                                passphrase);
     }
-    else
-        *(ctx) = NULL;
-
-    if(*rsa)
-        rc = pub_priv_openssh_keyfilememory(session, (void **)rsa,
-                                            "ssh-rsa",
-                                            NULL, NULL, NULL, NULL,
-                                            filedata, filedata_len,
-                                            passphrase);
 
     return rc;
 }
@@ -1570,12 +1567,9 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
     if(bp) {
         *rsa = CB_RSA(bp, NULL, passphrase_cb, SSH2_UNCONST(passphrase));
         BIO_free(bp);
+        if(*rsa)
+            rc = rsa_new_openssh_private(rsa, session, filename, passphrase);
     }
-    else
-        *rsa = NULL;
-
-    if(*rsa)
-        rc = rsa_new_openssh_private(rsa, session, filename, passphrase);
 
     return rc;
 }
