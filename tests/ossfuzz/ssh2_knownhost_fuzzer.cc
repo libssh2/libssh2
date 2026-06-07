@@ -21,9 +21,6 @@
  * The harness requires no network access and uses only the public API.
  */
 
-#include <stddef.h>
-#include <stdint.h>
-
 #include "libssh2.h"
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
