@@ -1126,30 +1126,28 @@ static int passphrase_cb(char *buf, int size, int rwflag, void *passphrase)
 #define CB_EC  PEM_read_bio_ECPrivateKey
 #endif
 
-#define READ_PRIVKEY_FROM_BLOB(ctx, cb, blob, blob_len, passphrase)   \
-    do {                                                              \
-        BIO *bp = BIO_new_mem_buf(blob, (int)(blob_len));             \
-        if(bp) {                                                      \
-            *(ctx) = (cb)(bp, NULL, (pem_password_cb *)passphrase_cb, \
-                          SSH2_UNCONST(passphrase));                  \
-            BIO_free(bp);                                             \
-        }                                                             \
-        else                                                          \
-            *(ctx) = NULL;                                            \
+#define READ_PRIVKEY_FROM_BLOB(ctx, cb, blob, blob_len, passphrase)           \
+    do {                                                                      \
+        BIO *bp = BIO_new_mem_buf(blob, (int)(blob_len));                     \
+        if(bp) {                                                              \
+            *(ctx) = (cb)(bp, NULL, passphrase_cb, SSH2_UNCONST(passphrase)); \
+            BIO_free(bp);                                                     \
+        }                                                                     \
+        else                                                                  \
+            *(ctx) = NULL;                                                    \
     } while(0)
 #endif
 
 #if LIBSSH2_RSA || LIBSSH2_DSA || LIBSSH2_ECDSA
-#define READ_PRIVKEY_FROM_FILE(ctx, cb, filename, passphrase)         \
-    do {                                                              \
-        BIO *bp = BIO_new_file(filename, "r");                        \
-        if(bp) {                                                      \
-            *(ctx) = (cb)(bp, NULL, (pem_password_cb *)passphrase_cb, \
-                          SSH2_UNCONST(passphrase));                  \
-            BIO_free(bp);                                             \
-        }                                                             \
-        else                                                          \
-            *(ctx) = NULL;                                            \
+#define READ_PRIVKEY_FROM_FILE(ctx, cb, filename, passphrase)                 \
+    do {                                                                      \
+        BIO *bp = BIO_new_file(filename, "r");                                \
+        if(bp) {                                                              \
+            *(ctx) = (cb)(bp, NULL, passphrase_cb, SSH2_UNCONST(passphrase)); \
+            BIO_free(bp);                                                     \
+        }                                                                     \
+        else                                                                  \
+            *(ctx) = NULL;                                                    \
     } while(0)
 #endif
 
