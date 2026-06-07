@@ -61,16 +61,14 @@
 #define NONLS
 #endif
 
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-macro-identifier"
+#endif
+
 #ifdef __MINGW32__
-#  if defined(__clang__) && __clang_major__ >= 13
-#  pragma clang diagnostic push
-#  pragma clang diagnostic ignored "-Wreserved-macro-identifier"
-#  endif
 #  undef _FILE_OFFSET_BITS
 #  define _FILE_OFFSET_BITS 64
-#  if defined(__clang__) && __clang_major__ >= 13
-#  pragma clang diagnostic pop
-#  endif
 #elif defined(_MSC_VER)
 #  ifndef _CRT_SECURE_NO_WARNINGS
 #  define _CRT_SECURE_NO_WARNINGS  /* for fopen(), getenv() */
@@ -95,6 +93,10 @@
 /* Silence bogus warning C4127: conditional expression is constant */
 #  pragma warning(disable:4127)
 #  endif
+#endif
+
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic pop
 #endif
 
 #endif /* _WIN32 */
