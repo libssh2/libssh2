@@ -2,14 +2,11 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#include <assert.h>
 #include <errno.h>
-#include <stdbool.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
+
 #include <libssh2.h>
 #include "testinput.h"
 
