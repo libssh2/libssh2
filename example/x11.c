@@ -46,7 +46,7 @@
 
 #include <termios.h>
 
-#define _PATH_UNIX_X "/tmp/.X11-unix/X%d"
+#define PATH_UNIX_X "/tmp/.X11-unix/X%d"
 
 /*
  * Chained list that contains channels and associated X11 socket for each X11
@@ -130,7 +130,7 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
             memset(&addr, 0, sizeof(addr));
             addr.sun_family = AF_UNIX;
             snprintf(addr.sun_path, sizeof(addr.sun_path),
-                     _PATH_UNIX_X, display_port);
+                     PATH_UNIX_X, display_port);
             rc = connect(sock, (struct sockaddr *)&addr, sizeof(addr));
 
             if(rc != -1) {
