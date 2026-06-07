@@ -961,6 +961,7 @@ jobs:
 
       - name: 'configure'
         env:
+          MATRIX_IMAGE: '${{ matrix.image }}'
           MATRIX_ARCH: '${{ matrix.arch }}'
           MATRIX_CRYPTO: '${{ matrix.crypto }}'
           MATRIX_PLAT: '${{ matrix.plat }}'
@@ -977,6 +978,9 @@ jobs:
             options+=' -DCMAKE_SYSTEM_VERSION=10.0'
           else
             system='Windows'
+          fi
+          if [[ "${MATRIX_IMAGE}" = *'windows-2025'* ]]; then
+            options+=' -DUSE_NSIS=OFF'
           fi
           [ "${MATRIX_CRYPTO}" = 'WinCNG' ] && options+=" -DENABLE_ECDSA_WINCNG=${MATRIX_WINCND_ECDSA}"
           cmake -B bld ${options} \
