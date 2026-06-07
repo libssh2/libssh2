@@ -246,9 +246,9 @@ libssh2_uint64_t ssh2_ntohu64(const unsigned char *buf)
 void ssh2_htonu32(unsigned char *buf, uint32_t value)
 {
     buf[0] = (unsigned char)((value >> 24) & 0xFF);
-    buf[1] = (value >> 16) & 0xFF;
-    buf[2] = (value >> 8) & 0xFF;
-    buf[3] = value & 0xFF;
+    buf[1] = (unsigned char)((value >> 16) & 0xFF);
+    buf[2] = (unsigned char)((value >> 8) & 0xFF);
+    buf[3] = (unsigned char)(value & 0xFF);
 }
 
 void ssh2_store_u32(unsigned char **buf, uint32_t value)
@@ -694,10 +694,10 @@ void ssh2_list_remove(struct list_node *entry)
 #if 0
 /* insert a node before the given 'after' entry */
 void ssh2_list_insert(struct list_node *after, /* insert before this */
-                          struct list_node *entry)
+                      struct list_node *entry)
 {
     /* 'after' is next to 'entry' */
-    bentry->next = after;
+    entry->next = after;
 
     /* entry's prev is then made to be the prev after current has */
     entry->prev = after->prev;
@@ -820,7 +820,6 @@ void ssh2_string_buf_free(LIBSSH2_SESSION *session, struct string_buf *buf)
         SSH2_FREE(session, buf->data);
 
     SSH2_FREE(session, buf);
-    buf = NULL;
 }
 
 int ssh2_get_byte(struct string_buf *buf, unsigned char *out)

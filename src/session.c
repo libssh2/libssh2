@@ -1658,8 +1658,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                        ((fds[i].revents & LIBSSH2_POLLFD_POLLIN) == 0)) {
                         /* Not yet known to be ready for read */
                         fds[i].revents |=
-                            libssh2_poll_channel_read(fds[i].fd.channel,
-                                                      0) ?
+                            libssh2_poll_channel_read(fds[i].fd.channel, 0) ?
                             LIBSSH2_POLLFD_POLLIN : 0;
                     }
                     if((fds[i].events & LIBSSH2_POLLFD_POLLEXT) &&
@@ -1667,8 +1666,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                        ((fds[i].revents & LIBSSH2_POLLFD_POLLEXT) == 0)) {
                         /* Not yet known to be ready for extended read */
                         fds[i].revents |=
-                            libssh2_poll_channel_read(fds[i].fd.channel,
-                                                      1) ?
+                            libssh2_poll_channel_read(fds[i].fd.channel, 1) ?
                             LIBSSH2_POLLFD_POLLEXT : 0;
                     }
                     if((fds[i].events & LIBSSH2_POLLFD_POLLOUT) &&
@@ -1676,7 +1674,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                        ((fds[i].revents & LIBSSH2_POLLFD_POLLOUT) == 0)) {
                         /* Not yet known to be ready for write */
                         fds[i].revents |=
-                            poll_channel_write(fds[i].fd. channel) ?
+                            poll_channel_write(fds[i].fd.channel) ?
                             LIBSSH2_POLLFD_POLLOUT : 0;
                     }
                     if(fds[i].fd.channel->remote.close ||
@@ -1697,7 +1695,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                        ((fds[i].revents & LIBSSH2_POLLFD_POLLIN) == 0)) {
                         /* No connections known of yet */
                         fds[i].revents |=
-                            poll_listener_queued(fds[i].fd. listener) ?
+                            poll_listener_queued(fds[i].fd.listener) ?
                             LIBSSH2_POLLFD_POLLIN : 0;
                     }
                     if(fds[i].fd.listener->session->socket_state ==
@@ -1736,8 +1734,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                 switch(fds[i].type) {
                 case LIBSSH2_POLLFD_SOCKET:
                     fds[i].revents = sockets[i].revents;
-                    sockets[i].revents = 0; /* In case we loop again, be
-                                               nice */
+                    sockets[i].revents = 0; /* Be nice in case we loop again */
                     if(fds[i].revents) {
                         active_fds++;
                     }
@@ -1745,8 +1742,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                 case LIBSSH2_POLLFD_CHANNEL:
                     if(sockets[i].events & POLLIN) {
                         /* Spin session until no data available */
-                        while(ssh2_transport_read(fds[i].fd.
-                                                      channel->session)
+                        while(ssh2_transport_read(fds[i].fd.channel->session)
                               > 0);
                     }
                     if(sockets[i].revents & POLLHUP) {
@@ -1759,8 +1755,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                 case LIBSSH2_POLLFD_LISTENER:
                     if(sockets[i].events & POLLIN) {
                         /* Spin session until no data available */
-                        while(ssh2_transport_read(fds[i].fd.
-                                                      listener->session)
+                        while(ssh2_transport_read(fds[i].fd.listener->session)
                               > 0);
                     }
                     if(sockets[i].revents & POLLHUP) {
@@ -1818,8 +1813,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                     if(FD_ISSET(fds[i].fd.channel->session->socket_fd,
                                 &rfds)) {
                         /* Spin session until no data available */
-                        while(ssh2_transport_read(fds[i].fd.
-                                                      channel->session)
+                        while(ssh2_transport_read(fds[i].fd.channel->session)
                               > 0);
                     }
                     break;
@@ -1828,8 +1822,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                     if(FD_ISSET(fds[i].fd.listener->session->socket_fd,
                                 &rfds)) {
                         /* Spin session until no data available */
-                        while(ssh2_transport_read(fds[i].fd.
-                                                      listener->session)
+                        while(ssh2_transport_read(fds[i].fd.listener->session)
                               > 0);
                     }
                     break;

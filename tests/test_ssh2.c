@@ -6,7 +6,7 @@
  */
 
 #include "libssh2_setup.h"
-#include <libssh2.h>
+#include "libssh2.h"
 
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
