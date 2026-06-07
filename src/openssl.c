@@ -1166,7 +1166,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                     size_t filedata_len,
                                     const unsigned char *passphrase)
 {
-    int rc = -1;
+    int rc = 0;
     BIO *bp;
 
     ssh2_init_if_needed();
@@ -1181,7 +1181,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                           SSH2_UNCONST(passphrase));
 #endif
         BIO_free(bp);
-        if(*rsa)
+        if(!*rsa)
             rc = pub_priv_openssh_keyfilememory(session, (void **)rsa,
                                                 "ssh-rsa",
                                                 NULL, NULL, NULL, NULL,
@@ -1557,7 +1557,7 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
                          const char *filename,
                          const unsigned char *passphrase)
 {
-    int rc = -1;
+    int rc = 0;
     BIO *bp;
 
     ssh2_init_if_needed();
@@ -1572,7 +1572,7 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
                                           SSH2_UNCONST(passphrase));
 #endif
         BIO_free(bp);
-        if(*rsa)
+        if(!*rsa)
             rc = rsa_new_openssh_private(rsa, session, filename, passphrase);
     }
 
@@ -1587,13 +1587,12 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
                                     size_t filedata_len,
                                     const unsigned char *passphrase)
 {
-    int rc = -1;
+    int rc = 0;
 
     ssh2_init_if_needed();
 
     READ_PRIVKEY_FROM_BLOB(dsa, CB_DSA, filedata, filedata_len, passphrase);
-
-    if(*dsa)
+    if(!*dsa)
         rc = pub_priv_openssh_keyfilememory(session, (void **)dsa,
                                             "ssh-dsa",
                                             NULL, NULL, NULL, NULL,
@@ -1887,13 +1886,12 @@ int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
                          const char *filename,
                          const unsigned char *passphrase)
 {
-    int rc = -1;
+    int rc = 0;
 
     ssh2_init_if_needed();
 
     READ_PRIVKEY_FROM_FILE(dsa, CB_DSA, filename, passphrase);
-
-    if(*dsa)
+    if(!*dsa)
         rc = dsa_new_openssh_private(dsa, session, filename, passphrase);
 
     return rc;
@@ -1907,13 +1905,12 @@ int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
                                       size_t filedata_len,
                                       const unsigned char *passphrase)
 {
-    int rc = -1;
+    int rc = 0;
 
     ssh2_init_if_needed();
 
     READ_PRIVKEY_FROM_BLOB(ec_ctx, CB_EC, filedata, filedata_len, passphrase);
-
-    if(*ec_ctx)
+    if(!*ec_ctx)
         rc = pub_priv_openssh_keyfilememory(session, (void **)ec_ctx,
                                             "ssh-ecdsa",
                                             NULL, NULL, NULL, NULL,
@@ -2517,7 +2514,6 @@ int ssh2_ed25519_new_private_frommemory(ssh2_ed25519_ctx **ed_ctx,
     ssh2_init_if_needed();
 
     READ_PRIVKEY_FROM_BLOB(&ctx, CB_ED, filedata, filedata_len, passphrase);
-
     if(ctx) {
         if(EVP_PKEY_id(ctx) != EVP_PKEY_ED25519) {
             ssh2_ed25519_free(ctx);
@@ -3931,13 +3927,12 @@ int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
                            const char *filename,
                            const unsigned char *passphrase)
 {
-    int rc = -1;
+    int rc = 0;
 
     ssh2_init_if_needed();
 
     READ_PRIVKEY_FROM_FILE(ec_ctx, CB_EC, filename, passphrase);
-
-    if(*ec_ctx)
+    if(!*ec_ctx)
         rc = ecdsa_new_openssh_private(ec_ctx, session, filename, passphrase);
 
     return rc;
@@ -3952,13 +3947,12 @@ int ssh2_ecdsa_new_private_sk(ssh2_ecdsa_ctx **ec_ctx,
                               const char *filename,
                               const unsigned char *passphrase)
 {
-    int rc = -1;
+    int rc = 0;
 
     ssh2_init_if_needed();
 
     READ_PRIVKEY_FROM_FILE(ec_ctx, CB_EC, filename, passphrase);
-
-    if(*ec_ctx)
+    if(!*ec_ctx)
         rc = ecdsa_new_openssh_private_sk(ec_ctx, flags, application,
                                           key_handle, handle_len, session,
                                           filename, passphrase);
