@@ -354,7 +354,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           if test "$compiler_num" -ge "1300"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [cast-function-type])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [reserved-identifier]) # Keep it before -Wno-reserved-macro-identifier
-            # tmp_CFLAGS="$tmp_CFLAGS -Wno-reserved-macro-identifier"  # Sometimes such external macros need to be set
+            tmp_CFLAGS="$tmp_CFLAGS -Wno-reserved-macro-identifier"  # Sometimes such external macros need to be set
           fi
 
           dnl clang 16 or later
