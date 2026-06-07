@@ -7,7 +7,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include <libssh2.h>
+#include "libssh2.h"
 #include "testinput.h"
 
 #define FUZZ_ASSERT(COND)                                      \
