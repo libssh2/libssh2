@@ -487,7 +487,7 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
                                 m_len);
 }
 #endif
-#endif
+#endif /* LIBSSH_RSA */
 
 #if LIBSSH2_DSA
 int ssh2_dsa_new(ssh2_dsa_ctx **dsactx,
