@@ -1130,7 +1130,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
     ssh2_init_if_needed();
 
     bp = BIO_new_mem_buf(filedata, (int)filedata_len);
-    if(bp) {
+    if(bp)
 #ifdef USE_OPENSSL_3
         *rsa = PEM_read_bio_PrivateKey(bp, NULL, passphrase_cb,
                                        SSH2_UNCONST(passphrase));
@@ -1138,8 +1138,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
         *rsa = PEM_read_bio_RSAPrivateKey(bp, NULL, passphrase_cb,
                                           SSH2_UNCONST(passphrase));
 #endif
-        BIO_free(bp);
-    }
+    BIO_free(bp);
     if(!*rsa)
         rc = pub_priv_openssh_keyfilememory(session, (void **)rsa,
                                             "ssh-rsa",
@@ -1521,7 +1520,7 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
     ssh2_init_if_needed();
 
     bp = BIO_new_file(filename, "r");
-    if(bp) {
+    if(bp)
 #ifdef USE_OPENSSL_3
         *rsa = PEM_read_bio_PrivateKey(bp, NULL, passphrase_cb,
                                        SSH2_UNCONST(passphrase));
@@ -1529,8 +1528,7 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
         *rsa = PEM_read_bio_RSAPrivateKey(bp, NULL, passphrase_cb,
                                           SSH2_UNCONST(passphrase));
 #endif
-        BIO_free(bp);
-    }
+    BIO_free(bp);
     if(!*rsa)
         rc = rsa_new_openssh_private(rsa, session, filename, passphrase);
 
@@ -1551,7 +1549,7 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
     ssh2_init_if_needed();
 
     bp = BIO_new_mem_buf(filedata, (int)filedata_len);
-    if(bp) {
+    if(bp)
 #ifdef USE_OPENSSL_3
         *dsa = PEM_read_bio_PrivateKey(bp, NULL, passphrase_cb,
                                        SSH2_UNCONST(passphrase));
@@ -1559,8 +1557,7 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
         *dsa = PEM_read_bio_DSAPrivateKey(bp, NULL, passphrase_cb,
                                           SSH2_UNCONST(passphrase));
 #endif
-        BIO_free(bp);
-    }
+    BIO_free(bp);
     if(!*dsa)
         rc = pub_priv_openssh_keyfilememory(session, (void **)dsa,
                                             "ssh-dsa",
@@ -1861,7 +1858,7 @@ int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
     ssh2_init_if_needed();
 
     bp = BIO_new_file(filename, "r");
-    if(bp) {
+    if(bp)
 #ifdef USE_OPENSSL_3
         *dsa = PEM_read_bio_PrivateKey(bp, NULL, passphrase_cb,
                                        SSH2_UNCONST(passphrase));
@@ -1869,8 +1866,7 @@ int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
         *dsa = PEM_read_bio_DSAPrivateKey(bp, NULL, passphrase_cb,
                                           SSH2_UNCONST(passphrase));
 #endif
-        BIO_free(bp);
-    }
+    BIO_free(bp);
     if(!*dsa)
         rc = dsa_new_openssh_private(dsa, session, filename, passphrase);
 
@@ -1891,7 +1887,7 @@ int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
     ssh2_init_if_needed();
 
     bp = BIO_new_mem_buf(filedata, (int)filedata_len);
-    if(bp) {
+    if(bp)
 #ifdef USE_OPENSSL_3
         *ec_ctx = PEM_read_bio_PrivateKey(bp, NULL, passphrase_cb,
                                           SSH2_UNCONST(passphrase));
@@ -1899,8 +1895,7 @@ int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
         *ec_ctx = PEM_read_bio_ECPrivateKey(bp, NULL, passphrase_cb,
                                             SSH2_UNCONST(passphrase));
 #endif
-        BIO_free(bp);
-    }
+    BIO_free(bp);
     if(!*ec_ctx)
         rc = pub_priv_openssh_keyfilememory(session, (void **)ec_ctx,
                                             "ssh-ecdsa",
@@ -3930,7 +3925,7 @@ int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
     ssh2_init_if_needed();
 
     bp = BIO_new_file(filename, "r");
-    if(bp) {
+    if(bp)
 #ifdef USE_OPENSSL_3
         *ec_ctx = PEM_read_bio_PrivateKey(bp, NULL, passphrase_cb,
                                           SSH2_UNCONST(passphrase));
@@ -3938,8 +3933,7 @@ int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
         *ec_ctx = PEM_read_bio_ECPrivateKey(bp, NULL, passphrase_cb,
                                             SSH2_UNCONST(passphrase));
 #endif
-        BIO_free(bp);
-    }
+    BIO_free(bp);
     if(!*ec_ctx)
         rc = ecdsa_new_openssh_private(ec_ctx, session, filename, passphrase);
 
@@ -3961,7 +3955,7 @@ int ssh2_ecdsa_new_private_sk(ssh2_ecdsa_ctx **ec_ctx,
     ssh2_init_if_needed();
 
     bp = BIO_new_file(filename, "r");
-    if(bp) {
+    if(bp)
 #ifdef USE_OPENSSL_3
         *ec_ctx = PEM_read_bio_PrivateKey(bp, NULL, passphrase_cb,
                                           SSH2_UNCONST(passphrase));
@@ -3969,8 +3963,7 @@ int ssh2_ecdsa_new_private_sk(ssh2_ecdsa_ctx **ec_ctx,
         *ec_ctx = PEM_read_bio_ECPrivateKey(bp, NULL, passphrase_cb,
                                             SSH2_UNCONST(passphrase));
 #endif
-        BIO_free(bp);
-    }
+    BIO_free(bp);
     if(!*ec_ctx)
         rc = ecdsa_new_openssh_private_sk(ec_ctx, flags, application,
                                           key_handle, handle_len, session,
