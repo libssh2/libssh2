@@ -119,7 +119,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     }
 
     /* ------------------------------------------------------------------ */
-    /* Run the client handshake against our synthetic server data.         */
+    /* Run the client handshake against our synthetic server data.        */
     /* ------------------------------------------------------------------ */
     session = libssh2_session_init();
     if(!session)
