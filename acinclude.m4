@@ -639,18 +639,6 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [unterminated-string-initialization])
           fi
 
-          for flag in $CPPFLAGS; do
-            case "$flag" in
-             -I*)
-               dnl Include path, provide a -isystem option for the same dir
-               dnl to prevent warnings in those dirs. The -isystem was not
-               dnl reliable on earlier gcc versions.
-               add=`echo $flag | sed 's/^-I/-isystem /g'`
-               tmp_CFLAGS="$tmp_CFLAGS $add"
-               ;;
-            esac
-          done
-
     fi dnl $ICC = no
 
     CFLAGS="$CFLAGS $tmp_CFLAGS"
