@@ -1116,6 +1116,13 @@ static int passphrase_cb(char *buf, int size, int rwflag, void *passphrase)
     return passphrase_len;
 }
 
+#if LIBSSH2_RSA
+#ifdef USE_OPENSSL_3
+#define CB_RSA &PEM_read_bio_PrivateKey
+#else
+#define CB_RSA &PEM_read_bio_RSAPrivateKey
+#endif
+#endif
 #if LIBSSH2_DSA
 #ifdef USE_OPENSSL_3
 #define CB_DSA &PEM_read_bio_PrivateKey
@@ -1167,27 +1174,16 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                     const unsigned char *passphrase)
 {
     int rc = 0;
-    BIO *bp;
 
     ssh2_init_if_needed();
 
-    bp = BIO_new_mem_buf(filedata, (int)filedata_len);
-    if(bp) {
-#ifdef USE_OPENSSL_3
-        *rsa = PEM_read_bio_PrivateKey(bp, NULL, passphrase_cb,
-                                       SSH2_UNCONST(passphrase));
-#else
-        *rsa = PEM_read_bio_RSAPrivateKey(bp, NULL, passphrase_cb,
-                                          SSH2_UNCONST(passphrase));
-#endif
-        BIO_free(bp);
-        if(!*rsa)
-            rc = pub_priv_openssh_keyfilememory(session, (void **)rsa,
-                                                "ssh-rsa",
-                                                NULL, NULL, NULL, NULL,
-                                                filedata, filedata_len,
-                                                passphrase);
-    }
+    READ_PRIVKEY_FROM_BLOB(rsa, CB_RSA, filedata, filedata_len, passphrase);
+    if(!*rsa)
+        rc = pub_priv_openssh_keyfilememory(session, (void **)rsa,
+                                            "ssh-rsa",
+                                            NULL, NULL, NULL, NULL,
+                                            filedata, filedata_len,
+                                            passphrase);
 
     return rc;
 }
@@ -1558,23 +1554,12 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
                          const unsigned char *passphrase)
 {
     int rc = 0;
-    BIO *bp;
 
     ssh2_init_if_needed();
 
-    bp = BIO_new_file(filename, "r");
-    if(bp) {
-#ifdef USE_OPENSSL_3
-        *rsa = PEM_read_bio_PrivateKey(bp, NULL, passphrase_cb,
-                                       SSH2_UNCONST(passphrase));
-#else
-        *rsa = PEM_read_bio_RSAPrivateKey(bp, NULL, passphrase_cb,
-                                          SSH2_UNCONST(passphrase));
-#endif
-        BIO_free(bp);
-        if(!*rsa)
-            rc = rsa_new_openssh_private(rsa, session, filename, passphrase);
-    }
+    READ_PRIVKEY_FROM_FILE(rsa, CB_RSA, filename, passphrase);
+    if(!*rsa)
+        rc = rsa_new_openssh_private(rsa, session, filename, passphrase);
 
     return rc;
 }
