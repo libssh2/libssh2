@@ -2516,9 +2516,9 @@ int ssh2_ed25519_new_private_frommemory(ssh2_ed25519_ctx **ed_ctx,
 
     ssh2_init_if_needed();
 
-    READ_PRIVKEY_FROM_BLOB(ctx, CB_ED, filedata, filedata_len, passphrase);
+    READ_PRIVKEY_FROM_BLOB(&ctx, CB_ED, filedata, filedata_len, passphrase);
 
-    if(*ctx) {
+    if(ctx) {
         if(EVP_PKEY_id(ctx) != EVP_PKEY_ED25519) {
             ssh2_ed25519_free(ctx);
             return ssh2_err(session, LIBSSH2_ERROR_PROTO,
