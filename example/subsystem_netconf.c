@@ -23,7 +23,7 @@
 #include <string.h>
 
 #ifndef INADDR_NONE
-#define INADDR_NONE (in_addr_t)~0
+#define INADDR_NONE ((in_addr_t)~0)
 #endif
 
 static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
