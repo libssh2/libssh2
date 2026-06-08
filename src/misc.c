@@ -85,8 +85,9 @@ int ssh2_err_flags(LIBSSH2_SESSION *session, int errcode,
                    const char *errmsg, int errflags)
 {
     if(!session) {
-        if(errmsg)
-            fprintf(stderr, "Session is NULL, error: %s\n", errmsg);
+        ssh2_deb((session, LIBSSH2_TRACE_ERROR,
+                 "ssh2_err_flags: session is NULL, error: %s",
+                 errmsg ? errmsg : "<null>"));
         return errcode;
     }
 
