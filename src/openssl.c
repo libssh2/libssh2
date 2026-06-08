@@ -584,6 +584,8 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsactx,
     if(y_buf)
         OPENSSL_clear_free(y_buf, y_len);
 
+    EVP_PKEY_CTX_free(ctx);
+
     return (ret == 1) ? 0 : -1;
 
 #else
