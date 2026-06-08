@@ -697,7 +697,7 @@ void ssh2_list_insert(struct list_node *after, /* insert before this */
                       struct list_node *entry)
 {
     /* 'after' is next to 'entry' */
-    bentry->next = after;
+    entry->next = after;
 
     /* entry's prev is then made to be the prev after current has */
     entry->prev = after->prev;
