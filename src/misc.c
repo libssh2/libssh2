@@ -246,9 +246,9 @@ libssh2_uint64_t ssh2_ntohu64(const unsigned char *buf)
 void ssh2_htonu32(unsigned char *buf, uint32_t value)
 {
     buf[0] = (unsigned char)((value >> 24) & 0xFF);
-    buf[1] = (value >> 16) & 0xFF;
-    buf[2] = (value >> 8) & 0xFF;
-    buf[3] = value & 0xFF;
+    buf[1] = (unsigned char)((value >> 16) & 0xFF);
+    buf[2] = (unsigned char)((value >> 8) & 0xFF);
+    buf[3] = (unsigned char)(value & 0xFF);
 }
 
 void ssh2_store_u32(unsigned char **buf, uint32_t value)
