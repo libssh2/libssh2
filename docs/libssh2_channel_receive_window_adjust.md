@@ -39,7 +39,7 @@ made to return a 'long' which may not be 32-bit on all platforms.
 
 # ERRORS
 
-In 1.0 and earlier, this function returns LIBSSH2_ERROR_EAGAIN for
+In 1.0 and lower, this function returns LIBSSH2_ERROR_EAGAIN for
 non-blocking channels where it would otherwise block. However, that is a
 negative number and this function only returns an unsigned value and this then
 leads to a strange value being returned.

@@ -1161,7 +1161,7 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
                      "FXP_OPENDIR packet");
             return NULL;
         }
-        /* Filetype in SFTP 3 and earlier */
+        /* Filetype in SFTP 3 and lower */
         attrs.permissions = mode |
             (open_file ? SSH2_SFTP_ATTR_PFILETYPE_FILE :
              SSH2_SFTP_ATTR_PFILETYPE_DIR);
@@ -3427,7 +3427,7 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp,
     int rc;
 
     if(mode != LIBSSH2_SFTP_DEFAULT_MODE) {
-        /* Filetype in SFTP 3 and earlier */
+        /* Filetype in SFTP 3 and lower */
         attrs.flags = LIBSSH2_SFTP_ATTR_PERMISSIONS;
         attrs.permissions = mode | SSH2_SFTP_ATTR_PFILETYPE_DIR;
     }
