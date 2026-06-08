@@ -325,12 +325,11 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     if(EVP_PKEY_fromdata_init(ctx) > 0) {
         ret = EVP_PKEY_fromdata(ctx, rsa, EVP_PKEY_KEYPAIR, params);
     }
+
     if(nbuf)
         OPENSSL_clear_free(nbuf, nlen);
-
     if(ebuf)
         OPENSSL_clear_free(ebuf, elen);
-
     if(dbuf)
         OPENSSL_clear_free(dbuf, dlen);
 
