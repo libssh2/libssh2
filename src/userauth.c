@@ -1333,10 +1333,10 @@ size_t plain_method(char *method, size_t method_len)
     return method_len;
 }
 
-/* Function to check if the given version is less than pattern (OpenSSH 7.8)
+/* Function to check if the given version is lower than pattern (OpenSSH 7.8)
  * This function expects the input version in x.y* format
  * (x being openssh major and y being openssh minor version)
- * Returns 1 if the version is less than OpenSSH_7.8, 0 otherwise
+ * Returns 1 if the version is lower than OpenSSH_7.8, 0 otherwise
  */
 static int is_version_less_than_78(const char *version)
 {
@@ -1406,7 +1406,7 @@ static int key_sign_algorithm(LIBSSH2_SESSION *session,
     }
 
     /* Set "SSH_BUG_SIGTYPE" flag when the remote server version is OpenSSH 7.7
-       or less and when the RSA key in question is a certificate to ignore
+       or lower and when the RSA key in question is a certificate to ignore
        "server-sig-algs" and only offer ssh-rsa signature algorithm for
        RSA certs */
     remote_banner = libssh2_session_banner_get(session);
