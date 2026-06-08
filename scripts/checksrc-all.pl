@@ -18,7 +18,6 @@ my @options = (
     "-afclose",
     "-afopen",
     "-afree",
-    "-afstat",
     "-amalloc",
     "-aprintf",
     "-arealloc",
