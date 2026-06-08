@@ -104,7 +104,7 @@ int test(LIBSSH2_SESSION *session)
             fprintf(stderr, "Unable to read response: %ld\n", (long)err);
         else {
             unsigned int i;
-            for(i = 0; i < (unsigned long)err; ++i) {
+            for(i = 0; i < (unsigned int)err; ++i) {
                 if(buf[i]) {
                     fprintf(stderr, "Bad data received\n");
                     /* Test fails below due to bad data length */
