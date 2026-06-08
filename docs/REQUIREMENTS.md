@@ -18,7 +18,7 @@ We aim to support these or greater/later versions.
 
 ## Build tools
 
-Building libssh2 requires these or greater tool versions:
+Building libssh2 requires these or greater/later tool versions:
 
 - clang-tidy     17.0.0 (2023-09-19), recommended: 19.1.0 (2024-09-17)
 - cmake          3.18 (2020-07-15)
