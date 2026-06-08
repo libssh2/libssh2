@@ -22,7 +22,6 @@ my @options = (
     "-arealloc",
     "-asnprintf",
     "-asocket",
-    "-astrdup",
 );
 
 my @files;
