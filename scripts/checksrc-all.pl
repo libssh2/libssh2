@@ -35,10 +35,10 @@ if(system('git rev-parse --is-inside-work-tree >/dev/null 2>&1') == 0) {
     $is_git = 1;
 }
 else {
-    find(sub { if(/\.[ch]$/) { push(@files, $File::Find::name) } }, ('.'));
+    find(sub { if(/\.([ch]|cc)$/) { push(@files, $File::Find::name) } }, ('.'));
 }
 if(@ARGV) {
-    find(sub { if(/\.[ch]$/) { push(@files, $File::Find::name) } }, @ARGV);
+    find(sub { if(/\.([ch]|cc)$/) { push(@files, $File::Find::name) } }, @ARGV);
 }
 
 @files = grep !/\/CMakeFiles\//, @files;
@@ -55,7 +55,7 @@ for my $dir (@dirs) {
         chomp(@files);
     }
     else {
-        @files = glob("$dir/*.[ch]");
+        @files = glob("$dir/*.[ch] $dir/*.cc");
     }
     if(@files && system("$scripts_dir/checksrc.pl", @options, @files) != 0) {
         $anyfailed = 1;
