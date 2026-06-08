@@ -972,6 +972,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
             }
             memcpy(extversion_str, extdata, extdata_len);
             extversion_str[extdata_len] = '\0';
+            /* !checksrc! disable BANNEDFUNC 1 */
             extversion = (uint32_t)strtol(extversion_str, NULL, 10);
             SSH2_FREE(session, extversion_str);
         }

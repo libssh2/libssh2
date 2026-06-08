@@ -24,7 +24,6 @@ my @options = (
     "-asocket",
     "-astrdup",
     "-astrtok",
-    "-astrtol",
 );
 
 my @files;

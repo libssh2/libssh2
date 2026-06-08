@@ -528,6 +528,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
 
                 *(p++) = '\0';
                 /* Make sure we do not get fooled by leftover values */
+                /* !checksrc! disable BANNEDFUNC 1 */
                 session->scpRecv_mtime = strtol((char *)s, NULL, 10);
 
                 s = (unsigned char *)strchr((char *)p, ' ');
@@ -552,6 +553,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
 
                 *p = '\0';
                 /* Make sure we do not get fooled by leftover values */
+                /* !checksrc! disable BANNEDFUNC 1 */
                 session->scpRecv_atime = strtol((char *)s, NULL, 10);
 
                 /* SCP ACK */
@@ -682,6 +684,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
 
                 *(p++) = '\0';
                 /* Make sure we do not get fooled by leftover values */
+                /* !checksrc! disable BANNEDFUNC 1 */
                 session->scpRecv_mode = strtol(s, &e, 8);
                 if(e && *e) {
                     ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,

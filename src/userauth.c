@@ -1348,10 +1348,12 @@ static int is_version_less_than_78(const char *version)
     if(!version)
         return 0;
 
+    /* !checksrc! disable BANNEDFUNC 1 */
     major = strtol(version, &endptr_major, 10);
     if(!endptr_major || *endptr_major != '.')
         return 0; /* Not a valid number */
 
+    /* !checksrc! disable BANNEDFUNC 1 */
     minor = strtol(endptr_major + 1, &endptr_minor, 10);
     if(!endptr_minor || endptr_minor == endptr_major + 1)
         return 0; /* Not a valid number */
