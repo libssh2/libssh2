@@ -22,7 +22,6 @@ my @options = (
     "-arealloc",
     "-asnprintf",
     "-asocket",
-    "-asocketpair",
     "-astrdup",
     "-astrtok",
     "-astrtol",
@@ -32,7 +31,7 @@ my @options = (
 my @files;
 my $is_git = 0;
 if(system('git rev-parse --is-inside-work-tree >/dev/null 2>&1') == 0) {
-    open(O, '-|', 'git', 'ls-files', '*.[ch]') || die; push @files, <O>; close(O);
+    open(O, '-|', 'git', 'ls-files', '*.[ch]', '*.cc') || die; push @files, <O>; close(O);
     $is_git = 1;
 }
 else {
@@ -52,7 +51,7 @@ my $anyfailed = 0;
 for my $dir (@dirs) {
     if($is_git) {
         @files = ();
-        open(O, '-|', 'git', 'ls-files', ":(glob)$dir/*.[ch]") || die; push @files, <O>; close(O);
+        open(O, '-|', 'git', 'ls-files', ":(glob)$dir/*.[ch]", ":(glob)$dir/*.cc") || die; push @files, <O>; close(O);
         chomp(@files);
     }
     else {
