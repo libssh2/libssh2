@@ -3,3 +3,4 @@
 
 allowfunc fprintf
 allowfunc printf
+allowfunc vsnprintf

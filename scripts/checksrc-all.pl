@@ -25,7 +25,6 @@ my @options = (
     "-astrdup",
     "-astrtok",
     "-astrtol",
-    "-avsnprintf",
 );
 
 my @files;

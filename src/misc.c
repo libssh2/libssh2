@@ -75,6 +75,7 @@ int ssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
     if(cp_max_len < 2)
         return 0;
     va_start(args, fmt);
+    /* !checksrc! disable BANNEDFUNC 1 */
     n = vsnprintf(cp, cp_max_len, fmt, args);
     va_end(args);
     return (n < (int)cp_max_len) ? n : (int)(cp_max_len - 1);
@@ -595,6 +596,7 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 #endif
+        /* !checksrc! disable BANNEDFUNC 1 */
         len = vsnprintf(buffer + msglen, buflen, format, vargs);
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
