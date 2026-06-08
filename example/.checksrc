@@ -6,3 +6,5 @@ allowfunc atoi
 allowfunc fprintf
 allowfunc fstat
 allowfunc printf
+allowfunc recv
+allowfunc send

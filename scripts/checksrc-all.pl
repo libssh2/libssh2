@@ -20,8 +20,6 @@ my @options = (
     "-afree",
     "-amalloc",
     "-arealloc",
-    "-arecv",
-    "-asend",
     "-asnprintf",
     "-asocket",
     "-asocketpair",
