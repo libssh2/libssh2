@@ -59,6 +59,7 @@ librunner_la_SOURCES = \
   openssh_fixture.c openssh_fixture.h
 
 EXTRA_DIST = \
+  .checksrc \
   CMakeLists.txt \
   key_dsa \
   key_dsa.pub \

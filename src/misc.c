@@ -607,6 +607,7 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
         (session->tracehandler)(session, session->tracehandler_context, buffer,
                                 msglen);
     else
+        /* !checksrc! disable BANNEDFUNC 1 */
         fprintf(stderr, "%s\n", buffer);
 }
 
