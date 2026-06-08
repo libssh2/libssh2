@@ -15,7 +15,6 @@ my @options = (
     "-AFIXME", "-AERRNOVAR",
     "-acalloc",
     "-aclose",
-    "-aCreateFileA",
     "-afclose",
     "-afopen",
     "-afree",
