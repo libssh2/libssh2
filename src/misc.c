@@ -694,7 +694,7 @@ void ssh2_list_remove(struct list_node *entry)
 #if 0
 /* insert a node before the given 'after' entry */
 void ssh2_list_insert(struct list_node *after, /* insert before this */
-                          struct list_node *entry)
+                      struct list_node *entry)
 {
     /* 'after' is next to 'entry' */
     bentry->next = after;
