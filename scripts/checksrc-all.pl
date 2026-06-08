@@ -19,7 +19,6 @@ my @options = (
     "-afopen",
     "-afree",
     "-amalloc",
-    "-aprintf",
     "-arealloc",
     "-arecv",
     "-asend",

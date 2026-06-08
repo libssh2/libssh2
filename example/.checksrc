@@ -5,3 +5,4 @@ allowfunc accept
 allowfunc atoi
 allowfunc fprintf
 allowfunc fstat
+allowfunc printf
