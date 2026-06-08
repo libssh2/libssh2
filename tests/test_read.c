@@ -119,10 +119,8 @@ int test(LIBSSH2_SESSION *session)
     if(libssh2_channel_close(channel))
         fprintf(stderr, "Unable to close channel\n");
 
-    if(channel) {
+    if(channel)
         libssh2_channel_free(channel);
-        channel = NULL;
-    }
 
 shutdown:
 
