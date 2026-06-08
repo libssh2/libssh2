@@ -136,13 +136,11 @@ int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
 {
 #ifdef USE_OPENSSL_3
     return EVP_MAC_update(*ctx, data, datalen);
-#else
-#ifdef LIBSSH2_WOLFSSL
-    /* FIXME: upstream bug as of v5.7.0: datalen is int instead of size_t */
+#elif defined(LIBSSH2_WOLFSSL)
+    /* As of wolfSSL v5.9.1 datalen is int, not size_t */
     return HMAC_Update(*ctx, data, (int)datalen);
-#else /* !LIBSSH2_WOLFSSL */
+#else
     return HMAC_Update(*ctx, data, datalen);
-#endif /* LIBSSH2_WOLFSSL */
 #endif
 }
 
@@ -203,7 +201,7 @@ static unsigned char *ossl_write_bn(unsigned char *buf, const BIGNUM *bn,
     *p = 0;
     BN_bn2bin(bn, p + 1);
 
-    if(!(*(p + 1) & 0x80))
+    if(!(p[1] & 0x80))
         memmove(p, p + 1, --bn_bytes);
 
     ssh2_htonu32(p - 4, bn_bytes);  /* Post write bn size. */
@@ -905,7 +903,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo), int encrypt,
             ret = EVP_CIPHER_CTX_ctrl(*ctx, EVP_CTRL_GCM_IV_GEN, 1, lastiv);
 
         if(aadlen)
-            /* Include the 4 byte packet length as AAD */
+            /* Include the 4-byte packet length as AAD */
             ret = EVP_Cipher(*ctx, NULL, block, aadlen);
     }
 

@@ -260,16 +260,15 @@ int ssh2_ed25519_new_private_frommemory(ssh2_ed25519_ctx **ed_ctx,
                                         size_t filedata_len,
                                         const unsigned char *passphrase);
 
-int ssh2_ed25519_new_private_frommemory_sk(
-    ssh2_ed25519_ctx **ed_ctx,
-    unsigned char *flags,
-    const char **application,
-    const unsigned char **key_handle,
-    size_t *handle_len,
-    LIBSSH2_SESSION *session,
-    const char *filedata,
-    size_t filedata_len,
-    const unsigned char *passphrase);
+int ssh2_ed25519_new_private_frommemory_sk(ssh2_ed25519_ctx **ed_ctx,
+                                           unsigned char *flags,
+                                           const char **application,
+                                           const unsigned char **key_handle,
+                                           size_t *handle_len,
+                                           LIBSSH2_SESSION *session,
+                                           const char *filedata,
+                                           size_t filedata_len,
+                                           const unsigned char *passphrase);
 #endif /* LIBSSH2_ED25519 */
 
 #if LIBSSH2_MLKEM

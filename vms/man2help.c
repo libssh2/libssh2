@@ -494,7 +494,7 @@ static int convertmans(char *filespec, char *hlpfilename, int base_level,
 static void print_help(void)
 {
     fprintf(stderr,
-            "Usage: [-a] [-b x] convertman <manfilespec> <helptextfile>\n"
+            "Usage: [-a] [-b x] man2help <manfilespec> <helptextfile>\n"
             "       -a append <manfilespec> to <helptextfile>\n"
             "       -b <baselevel> if no headers found create one "
                        "with level <baselevel>\n"

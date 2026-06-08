@@ -163,8 +163,8 @@ int main(int argc, char *argv[])
 
     nh = libssh2_knownhost_init(session);
     if(!nh) {
-        /* eeek, do cleanup here */
-        return 2;
+        exitcode = 2;
+        goto shutdown;
     }
 
     /* read all hosts from here */
@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
         struct libssh2_knownhost *host;
         int check = libssh2_knownhost_checkp(nh, hostname, 22,
                                              fingerprint, len,
-                                             LIBSSH2_KNOWNHOST_TYPE_PLAIN|
+                                             LIBSSH2_KNOWNHOST_TYPE_PLAIN |
                                              LIBSSH2_KNOWNHOST_KEYENC_RAW,
                                              &host);
 
@@ -194,8 +194,9 @@ int main(int argc, char *argv[])
          *****/
     }
     else {
-        /* eeek, do cleanup here */
-        return 3;
+        libssh2_knownhost_free(nh);
+        exitcode = 3;
+        goto shutdown;
     }
     libssh2_knownhost_free(nh);
 
@@ -206,7 +207,7 @@ int main(int argc, char *argv[])
             ;
         if(rc) {
             fprintf(stderr, "Authentication by password failed.\n");
-            return 1;
+            goto shutdown;
         }
     }
 
@@ -356,7 +357,6 @@ int main(int argc, char *argv[])
                     exitsignal ? exitsignal : "none");
 
         libssh2_channel_free(channel);
-        channel = NULL;
 
         fprintf(stderr, "\nrereads: %d rewrites: %d totwritten %lu\n",
                 rereads, rewrites, (unsigned long)totwritten);

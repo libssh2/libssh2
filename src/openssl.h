@@ -309,7 +309,6 @@ int ssh2_ossl_md5_final(ssh2_md5_ctx *ctx, unsigned char *out);
 #define ssh2_crypto_exit()
 
 #if LIBSSH2_RSA
-
 #ifdef USE_OPENSSL_3
 #define ssh2_rsa_ctx          EVP_PKEY
 #define ssh2_rsa_free(rsactx) EVP_PKEY_free(rsactx)
@@ -317,11 +316,9 @@ int ssh2_ossl_md5_final(ssh2_md5_ctx *ctx, unsigned char *out);
 #define ssh2_rsa_ctx          RSA
 #define ssh2_rsa_free(rsactx) RSA_free(rsactx)
 #endif
-
 #endif /* LIBSSH2_RSA */
 
 #if LIBSSH2_DSA
-
 #ifdef USE_OPENSSL_3
 #define ssh2_dsa_ctx          EVP_PKEY
 #define ssh2_dsa_free(rsactx) EVP_PKEY_free(rsactx)
@@ -329,11 +326,9 @@ int ssh2_ossl_md5_final(ssh2_md5_ctx *ctx, unsigned char *out);
 #define ssh2_dsa_ctx          DSA
 #define ssh2_dsa_free(dsactx) DSA_free(dsactx)
 #endif
-
 #endif /* LIBSSH2_DSA */
 
 #if LIBSSH2_ECDSA
-
 #define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 
 #ifdef USE_OPENSSL_3

@@ -467,7 +467,7 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
     }
 
     if(ssh2_get_string(&decoded, &kdf, &kdf_len)) {
-        ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "kdf is missing");
+        ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "KDF is missing");
         goto out;
     }
     else {
@@ -485,7 +485,8 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
 
     if(strcmp((const char *)kdfname, "none") &&
        strcmp((const char *)kdfname, "bcrypt")) {
-        ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "unknown cipher");
+        ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                       "unrecognized KDF algorithm");
         goto out;
     }
 
@@ -560,7 +561,7 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
             if(ssh2_get_string(&kdf_buf, &salt, &salt_len) ||
                ssh2_get_u32(&kdf_buf, &rounds) != 0) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                               "kdf contains unexpected values");
+                               "KDF contains unexpected values");
                 goto out;
             }
 
@@ -575,7 +576,7 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
         }
         else {
             ret = ssh2_err(session, LIBSSH2_ERROR_KEYFILE_AUTH_FAILED,
-                           "bcrypted without passphrase");
+                           "bcrypt-encrypted without passphrase");
             goto out;
         }
 
@@ -646,7 +647,7 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
 
             /* No padding */
 
-            /* for the AES GCM methods, the 16 byte authentication tag is
+            /* for the AES-GCM methods, the 16-byte authentication tag is
              * appended to the encrypted key */
             if(!strcmp(method->name, "aes256-gcm@openssh.com") ||
                !strcmp(method->name, "aes128-gcm@openssh.com")) {

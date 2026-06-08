@@ -962,7 +962,7 @@ int libssh2_sign_sk(LIBSSH2_SESSION *session,
                 }
                 else {
                     ssh2_deb((session, LIBSSH2_ERROR_STORE_OVERFLOW,
-                              "Too large write."));
+                              "Write operation exceeded buffer size."));
                     rc = LIBSSH2_ERROR_STORE_OVERFLOW;
                     SSH2_FREE(session, *sig);
                     *sig = NULL;

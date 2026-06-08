@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
     int rc;
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
-    int exitcode;
+    int exitcode = 0;
     char *exitsignal = NULL;
     ssize_t bytecount = 0;
     size_t len;
@@ -167,8 +167,8 @@ int main(int argc, char *argv[])
 
     nh = libssh2_knownhost_init(session);
     if(!nh) {
-        /* eeek, do cleanup here */
-        return 2;
+        exitcode = 2;
+        goto shutdown;
     }
 
     /* read all hosts from here */
@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
         struct libssh2_knownhost *host;
         int check = libssh2_knownhost_checkp(nh, hostname, 22,
                                              fingerprint, len,
-                                             LIBSSH2_KNOWNHOST_TYPE_PLAIN|
+                                             LIBSSH2_KNOWNHOST_TYPE_PLAIN |
                                              LIBSSH2_KNOWNHOST_KEYENC_RAW,
                                              &host);
 
@@ -198,8 +198,9 @@ int main(int argc, char *argv[])
          *****/
     }
     else {
-        /* eeek, do cleanup here */
-        return 3;
+        libssh2_knownhost_free(nh);
+        exitcode = 3;
+        goto shutdown;
     }
     libssh2_knownhost_free(nh);
 
@@ -298,7 +299,6 @@ int main(int argc, char *argv[])
                 exitcode, (long)bytecount);
 
     libssh2_channel_free(channel);
-    channel = NULL;
 
 shutdown:
 
@@ -320,5 +320,5 @@ shutdown:
     WSACleanup();
 #endif
 
-    return 0;
+    return exitcode;
 }

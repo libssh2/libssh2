@@ -1055,8 +1055,7 @@ static int wcng_load_private_memory(LIBSSH2_SESSION *session,
 
 #if LIBSSH2_RSA
     if(ret && tryLoadRSA) {
-        ret = ssh2_pem_parse_memory(session,
-                                    PEM_RSA_HEADER, PEM_RSA_FOOTER,
+        ret = ssh2_pem_parse_memory(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
                                     passphrase,
                                     privatekeydata, privatekeydata_len,
                                     &data, &datalen);
@@ -1067,8 +1066,7 @@ static int wcng_load_private_memory(LIBSSH2_SESSION *session,
 
 #if LIBSSH2_DSA
     if(ret && tryLoadDSA) {
-        ret = ssh2_pem_parse_memory(session,
-                                    PEM_DSA_HEADER, PEM_DSA_FOOTER,
+        ret = ssh2_pem_parse_memory(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
                                     passphrase,
                                     privatekeydata, privatekeydata_len,
                                     &data, &datalen);
@@ -2602,12 +2600,9 @@ int ssh2_ecdsa_new_private(OUT ssh2_ecdsa_ctx **key,
         goto cleanup;
     }
 
-    result = ssh2_ecdsa_new_private_frommemory(
-        key,
-        session,
-        (const char *)data,
-        datalen,
-        passphrase);
+    result = ssh2_ecdsa_new_private_frommemory(key, session,
+                                               (const char *)data, datalen,
+                                               passphrase);
     if(result != LIBSSH2_ERROR_NONE) {
         goto cleanup;
     }
@@ -2932,7 +2927,8 @@ int ssh2_ecdsa_sign(IN LIBSSH2_SESSION *session,
         *signature_len = signature_ptr - *signature;
     }
     else {
-        ssh2_deb((session, LIBSSH2_ERROR_STORE_OVERFLOW, "Too large write."));
+        ssh2_deb((session, LIBSSH2_ERROR_STORE_OVERFLOW,
+                  "Write operation exceeded buffer size."));
         result = LIBSSH2_ERROR_STORE_OVERFLOW;
         goto cleanup;
     }
@@ -3341,6 +3337,8 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
             }
             if(BCRYPT_SUCCESS(ret)) {
                 if(algo.ctrMode) {
+                    /* CTR mode intentionally XORs in place:
+                       block = block XOR pbOutput. */
                     /* NOLINTNEXTLINE(readability-suspicious-call-argument) */
                     ssh2_xor_data(block, block, pbOutput, blocksize);
                     wcng_aes_ctr_increment(ctx->pbCtr, ctx->dwCtrLength);
@@ -3429,10 +3427,10 @@ int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
         BCRYPT_DH_PARAMETER_HEADER *dh_params;
         ULONG dh_params_len;
         int status;
-        /* Note that the DH provider requires that keys be multiples of 64 bits
-         * in length. At the time of writing a practical observed group_order
-         * value is 257, so we need to round down to 8 bytes of length (64/8)
-         * in order for kex to succeed */
+        /* The DH provider requires keys to be multiples of 64 bits. Since
+         * group_order can be values like 257, we round down to the nearest
+         * multiple of 8 bytes (64 bits / 8) to meet this requirement for key
+         * exchange success. */
         ULONG key_length_bytes = max((ULONG)wcng_round_down(group_order, 8),
                                      max(g->length, p->length));
         BCRYPT_DH_KEY_BLOB *dh_key_blob;
@@ -3712,12 +3710,12 @@ out:
         free(public_blob);
 
         if(status == STATUS_NOT_SUPPORTED && ssh2_wcng.hasAlgDHwithKDF == -1) {
-            goto fb; /* fallback to RSA-based implementation */
+            goto fallback; /* fallback to RSA-based implementation */
         }
         return BCRYPT_SUCCESS(status) ? 0 : -1;
     }
 
-fb:
+fallback:
     /* Compute the shared secret */
     return wcng_bn_mod_exp(secret, f, dhctx->dh_privbn, p);
 }

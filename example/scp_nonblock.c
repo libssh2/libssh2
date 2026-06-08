@@ -14,7 +14,7 @@
 #include <libssh2.h>
 
 #ifdef _WIN32
-#define write(f, b, c)  write(f, b, (unsigned int)(c))
+#define write(f, b, c)  _write(f, b, (unsigned int)(c))
 #endif
 
 #ifdef HAVE_SYS_SOCKET_H
@@ -287,7 +287,6 @@ int main(int argc, char *argv[])
 #endif
 
     libssh2_channel_free(channel);
-    channel = NULL;
 
 shutdown:
 

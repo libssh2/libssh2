@@ -245,10 +245,8 @@ int main(int argc, char *argv[])
 
 skip_shell:
 
-    if(channel) {
+    if(channel)
         libssh2_channel_free(channel);
-        channel = NULL;
-    }
 
 shutdown:
 
