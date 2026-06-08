@@ -820,7 +820,6 @@ void ssh2_string_buf_free(LIBSSH2_SESSION *session, struct string_buf *buf)
         SSH2_FREE(session, buf->data);
 
     SSH2_FREE(session, buf);
-    buf = NULL;
 }
 
 int ssh2_get_byte(struct string_buf *buf, unsigned char *out)
