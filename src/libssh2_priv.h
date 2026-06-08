@@ -183,7 +183,7 @@ int ssh2_gettimeofday(struct timeval *tp, void *tzp);
    C++ always supports 'inline'. */
 #  define SSH2_INLINE inline /* 'inline' keyword supported */
 #elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
-/* C99 (and newer) supports 'inline' keyword */
+/* C99 (and later) supports 'inline' keyword */
 #  define SSH2_INLINE inline /* 'inline' keyword supported */
 #elif defined(__GNUC__) && __GNUC__ >= 3
 /* GCC supports '__inline__' as an extension */
