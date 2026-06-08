@@ -457,7 +457,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           dnl Only gcc 1.4 or greater
           if test "$compiler_num" -ge "104"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [pointer-arith write-strings])
-            dnl If not cross-compiling with a gcc older than 3.0
+            dnl If not cross-compiling with a gcc lower than 3.0
             if test "$cross_compiling" != "yes" ||
               test "$compiler_num" -ge "300"; then
               CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [unused shadow])
@@ -467,7 +467,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           dnl Only gcc 2.7 or greater
           if test "$compiler_num" -ge "207"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [nested-externs])
-            dnl If not cross-compiling with a gcc older than 3.0
+            dnl If not cross-compiling with a gcc lower than 3.0
             if test "$cross_compiling" != "yes" ||
               test "$compiler_num" -ge "300"; then
               CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [missing-declarations])
