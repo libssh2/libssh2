@@ -340,7 +340,7 @@ if(PICKY_COMPILER)
         list(APPEND _picky "${_ccopt}")
       endif()
     endforeach()
-  elseif(MSVC AND MSVC_VERSION LESS_EQUAL 1951)  # Skip for untested/unreleased later versions
+  elseif(MSVC AND MSVC_VERSION LESS_EQUAL 1951)  # Skip for untested/unreleased greater versions
     list(APPEND _picky "-Wall")
     list(APPEND _picky "-wd4061")  # enumerator 'A' in switch of enum 'B' is not explicitly handled by a case label
     list(APPEND _picky "-wd4191")  # 'type cast': unsafe conversion from 'FARPROC' to 'void (__cdecl *)(void)'
