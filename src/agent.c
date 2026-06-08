@@ -260,6 +260,7 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
          * uncomment the following line to enable support within the Win32
          * OpenSSH code.
          */
+        /* !checksrc! disable BANNEDFUNC 1 */
         pipe = CreateFileA(path, GENERIC_READ | GENERIC_WRITE, 0, NULL,
                            OPEN_EXISTING,
                            /* FILE_FLAG_OVERLAPPED | */

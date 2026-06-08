@@ -570,6 +570,7 @@ static void report(uint32_t data[], uint16_t len)
 {
     int i;
     for(i = 0; i < len; i += 2)
+        /* !checksrc! disable BANNEDFUNC 1 */
         printf("Block %d: 0x%08lx 0x%08lx.\n",
                i / 2, (unsigned long)data[i], (unsigned long)data[i + 1]);
 }
@@ -593,15 +594,18 @@ int main(void)
     blf_enc(&c, data, 5);
     blf_dec(&c, data, 1);
     blf_dec(&c, data + 2, 4);
+    /* !checksrc! disable BANNEDFUNC 1 */
     printf("Should read as 0 - 9.\n");
     report(data, 10);
 
     /* Second test */
     blf_key(&c, (uint8_t *)key2, (uint16_t)strlen(key2));
     blf_enc(&c, data2, 1);
+    /* !checksrc! disable BANNEDFUNC 1 */
     printf("\nShould read as: 0x324ed0fe 0xf413a203.\n");
     report(data2, 2);
     blf_dec(&c, data2, 1);
+    /* !checksrc! disable BANNEDFUNC 1 */
     printf("\nShould read as: 0x424c4f57 0x46495348.\n");
     report(data2, 2);
 
