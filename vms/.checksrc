@@ -4,3 +4,4 @@
 allowfunc atoi
 allowfunc fprintf
 allowfunc printf
+allowfunc strtok

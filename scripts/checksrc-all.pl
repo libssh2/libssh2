@@ -23,7 +23,6 @@ my @options = (
     "-asnprintf",
     "-asocket",
     "-astrdup",
-    "-astrtok",
 );
 
 my @files;
