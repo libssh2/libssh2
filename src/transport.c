@@ -74,6 +74,7 @@ static void debugdump(LIBSSH2_SESSION *session,
         (session->tracehandler)(session, session->tracehandler_context,
                                 buffer, used);
     else
+        /* !checksrc! disable BANNEDFUNC 1 */
         fprintf(stderr, "%s", buffer);
 
     for(i = 0; i < size; i += width) {
@@ -109,6 +110,7 @@ static void debugdump(LIBSSH2_SESSION *session,
             (session->tracehandler)(session, session->tracehandler_context,
                                     buffer, used);
         else
+            /* !checksrc! disable BANNEDFUNC 1 */
             fprintf(stderr, "%s\n", buffer);
     }
 }
