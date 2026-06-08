@@ -171,7 +171,6 @@ int main(int argc, char *argv[])
     }
 
     libssh2_channel_free(channel);
-    channel = NULL;
 
 shutdown:
 

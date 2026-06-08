@@ -529,10 +529,8 @@ shutdown:
     if(fds)
         free(fds);
 
-    if(channel) {
+    if(channel)
         libssh2_channel_free(channel);
-        channel = NULL;
-    }
 
     if(session) {
         libssh2_session_disconnect(session, "Normal Shutdown");

@@ -356,7 +356,6 @@ int main(int argc, char *argv[])
                     exitsignal ? exitsignal : "none");
 
         libssh2_channel_free(channel);
-        channel = NULL;
 
         fprintf(stderr, "\nrereads: %d rewrites: %d totwritten %lu\n",
                 rereads, rewrites, (unsigned long)totwritten);

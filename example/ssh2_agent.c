@@ -213,10 +213,8 @@ int main(int argc, char *argv[])
 
 skip_shell:
 
-    if(channel) {
+    if(channel)
         libssh2_channel_free(channel);
-        channel = NULL;
-    }
 
     /* Other channel types are supported via:
      * libssh2_scp_send64()
