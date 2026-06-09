@@ -941,13 +941,13 @@ static int wcng_load_private(LIBSSH2_SESSION *session,
     return ret;
 }
 
-static int wcng_load_private_memory(LIBSSH2_SESSION *session,
-                                    const char *privatekeydata,
-                                    size_t privatekeydata_len,
-                                    const char *passphrase,
-                                    unsigned char **ppbEncoded,
-                                    size_t *pcbEncoded,
-                                    int tryLoadRSA, int tryLoadDSA)
+static int wcng_load_privkey_blob(LIBSSH2_SESSION *session,
+                                  const char *privatekeydata,
+                                  size_t privatekeydata_len,
+                                  const char *passphrase,
+                                  unsigned char **ppbEncoded,
+                                  size_t *pcbEncoded,
+                                  int tryLoadRSA, int tryLoadDSA)
 {
     unsigned char *data = NULL;
     size_t datalen = 0;
@@ -1356,8 +1356,8 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_private_memory(session, blob, blob_len,
-                                   passphrase, &pbEncoded, &cbEncoded, 1, 0);
+    ret = wcng_load_privkey_blob(session, blob, blob_len,
+                                 passphrase, &pbEncoded, &cbEncoded, 1, 0);
     if(ret)
         return -1;
 
@@ -1643,8 +1643,8 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_private_memory(session, blob, blob_len,
-                                   passphrase, &pbEncoded, &cbEncoded, 0, 1);
+    ret = wcng_load_privkey_blob(session, blob, blob_len,
+                                 passphrase, &pbEncoded, &cbEncoded, 0, 1);
     if(ret)
         return -1;
 
@@ -2861,8 +2861,8 @@ int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_private_memory(session, privatekeydata, privatekeydata_len,
-                                   passphrase, &pbEncoded, &cbEncoded, 1, 1);
+    ret = wcng_load_privkey_blob(session, privatekeydata, privatekeydata_len,
+                                 passphrase, &pbEncoded, &cbEncoded, 1, 1);
     if(ret)
         return -1;
 
