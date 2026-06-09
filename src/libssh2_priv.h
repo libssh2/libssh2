@@ -1229,12 +1229,12 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
                    const char *headerend,
                    const char *passphrase,
                    FILE *fp, unsigned char **data, size_t *datalen);
-int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
-                          const char *headerbegin,
-                          const char *headerend,
-                          const char *passphrase,
-                          const char *filedata, size_t filedata_len,
-                          unsigned char **data, size_t *datalen);
+int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
+                        const char *headerbegin,
+                        const char *headerend,
+                        const char *passphrase,
+                        const char *filedata, size_t filedata_len,
+                        unsigned char **data, size_t *datalen);
 /* OpenSSL keys */
 int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
                            const char *passphrase,

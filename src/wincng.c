@@ -955,20 +955,20 @@ static int wcng_load_privkey_blob(LIBSSH2_SESSION *session,
 
 #if LIBSSH2_RSA
     if(ret && tryLoadRSA)
-        ret = ssh2_pem_parse_memory(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
-                                    passphrase,
-                                    privatekeydata, privatekeydata_len,
-                                    &data, &datalen);
+        ret = ssh2_pem_parse_blob(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
+                                  passphrase,
+                                  privatekeydata, privatekeydata_len,
+                                  &data, &datalen);
 #else
     (void)tryLoadRSA;
 #endif
 
 #if LIBSSH2_DSA
     if(ret && tryLoadDSA)
-        ret = ssh2_pem_parse_memory(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
-                                    passphrase,
-                                    privatekeydata, privatekeydata_len,
-                                    &data, &datalen);
+        ret = ssh2_pem_parse_blob(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
+                                  passphrase,
+                                  privatekeydata, privatekeydata_len,
+                                  &data, &datalen);
 #else
     (void)tryLoadDSA;
 #endif

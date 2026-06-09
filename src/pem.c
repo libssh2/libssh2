@@ -146,9 +146,9 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
         goto out;
     }
 
-    ret = ssh2_pem_parse_memory(session, headerbegin, headerend,
-                                passphrase, filedata, filedata_len,
-                                data, datalen);
+    ret = ssh2_pem_parse_blob(session, headerbegin, headerend,
+                              passphrase, filedata, filedata_len,
+                              data, datalen);
 
 out:
     if(filedata)
@@ -156,12 +156,12 @@ out:
     return ret;
 }
 
-int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
-                          const char *headerbegin,
-                          const char *headerend,
-                          const char *passphrase,
-                          const char *filedata, size_t filedata_len,
-                          unsigned char **data, size_t *datalen)
+int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
+                        const char *headerbegin,
+                        const char *headerend,
+                        const char *passphrase,
+                        const char *filedata, size_t filedata_len,
+                        unsigned char **data, size_t *datalen)
 {
     char line[LINE_SIZE];
     unsigned char iv[LINE_SIZE];
