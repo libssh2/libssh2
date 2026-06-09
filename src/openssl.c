@@ -212,8 +212,8 @@ static int sk_pub_openssh_keyfilememory(LIBSSH2_SESSION *session,
                                         const unsigned char *passphrase);
 
 #if LIBSSH2_RSA || LIBSSH2_DSA || LIBSSH2_ECDSA
-static unsigned char *write_bn(unsigned char *buf, const BIGNUM *bn,
-                               int bn_bytes)
+static unsigned char *ossl_write_bn(unsigned char *buf, const BIGNUM *bn,
+                                    int bn_bytes)
 {
     unsigned char *p = buf;
 
@@ -1202,8 +1202,8 @@ static unsigned char *gen_publickey_from_rsa(LIBSSH2_SESSION *session,
     memcpy(p, "ssh-rsa", 7);
     p += 7;
 
-    p = write_bn(p, e, e_bytes);
-    p = write_bn(p, n, n_bytes);
+    p = ossl_write_bn(p, e, e_bytes);
+    p = ossl_write_bn(p, n, n_bytes);
 
     *key_len = (size_t)(p - key);
 fail:
@@ -1628,10 +1628,10 @@ static unsigned char *gen_publickey_from_dsa(LIBSSH2_SESSION *session,
     memcpy(p, "ssh-dss", 7);
     p += 7;
 
-    p = write_bn(p, p_bn, p_bytes);
-    p = write_bn(p, q, q_bytes);
-    p = write_bn(p, g, g_bytes);
-    p = write_bn(p, pub_key, k_bytes);
+    p = ossl_write_bn(p, p_bn, p_bytes);
+    p = ossl_write_bn(p, q, q_bytes);
+    p = ossl_write_bn(p, g, g_bytes);
+    p = ossl_write_bn(p, pub_key, k_bytes);
 
     *key_len = (size_t)(p - key);
 fail:
@@ -2985,8 +2985,8 @@ int ssh2_ecdsa_sign(LIBSSH2_SESSION *session, ssh2_ecdsa_ctx *ec_ctx,
     }
 
     sp = temp_buffer;
-    sp = write_bn(sp, pr, r_len);
-    sp = write_bn(sp, ps, s_len);
+    sp = ossl_write_bn(sp, pr, r_len);
+    sp = ossl_write_bn(sp, ps, s_len);
 
     out_buffer_len = (size_t)(sp - temp_buffer);
 
