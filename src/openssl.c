@@ -3877,7 +3877,8 @@ int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
 #endif
     BIO_free(bp);
     if(!*ec_ctx)
-        rc = ecossl_dsa_openssh_priv_new(ec_ctx, session, filename, passphrase);
+        rc = ecossl_dsa_openssh_priv_new(ec_ctx, session, filename,
+                                         passphrase);
 
     return rc;
 }
