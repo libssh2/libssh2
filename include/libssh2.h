@@ -853,8 +853,7 @@ LIBSSH2_API libssh2_cb_generic *libssh2_channel_callback_set(
  * gets the reference to abstract user data pointer from a channel;
  * This allows changing the abstract user data content.
  */
-LIBSSH2_API void **
-libssh2_channel_abstract(LIBSSH2_CHANNEL *channel);
+LIBSSH2_API void **libssh2_channel_abstract(LIBSSH2_CHANNEL *channel);
 
 LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_direct_tcpip_ex(
     LIBSSH2_SESSION *session, const char *host,
