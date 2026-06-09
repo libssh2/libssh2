@@ -202,9 +202,7 @@ static int build_openssh_server_docker_image(void)
 
 static const char *openssh_server_port(void)
 {
-    const char *val = getenv("OPENSSH_SERVER_PORT");
-    fprintf(stderr, "dbg: OPENSSH_SERVER_PORT: |%s|\n", val ? val : "(unset)");
-    return val;
+    return getenv("OPENSSH_SERVER_PORT");
 }
 
 static int start_openssh_server(char **container_id_out)
