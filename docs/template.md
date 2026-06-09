@@ -16,8 +16,7 @@ libssh2_template - short function description
 ~~~c
 #include <libssh2.h>
 
-void
-libssh2_template(void);
+void libssh2_template(void);
 ~~~
 
 # DESCRIPTION

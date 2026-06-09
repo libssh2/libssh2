@@ -19,7 +19,7 @@ then    CMD="CRTSRCPF FILE(${TARGETLIB}/LIBSSH2RPG) RCDLEN(112)"
         system "${CMD}"
 fi
 
-#       Map file names to DB2 name syntax.
+#       Map filenames to DB2 name syntax.
 
 for HFILE in *.rpgle *.rpgle.in
 do      NAME="$(basename "${HFILE}" .in)"
@@ -31,7 +31,7 @@ do      NAME="$(basename "${HFILE}" .in)"
 done > tmpsubstfile1
 
 #       Order substitution commands so that a prefix appears after all
-#               file names beginning with the prefix.
+#               filenames beginning with the prefix.
 
 sort -r tmpsubstfile1 | sed 's/^[^ ]*[ ]*//' > tmpsubstfile2
 

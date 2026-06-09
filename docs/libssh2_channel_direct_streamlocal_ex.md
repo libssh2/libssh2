@@ -17,10 +17,10 @@ libssh2_channel_direct_streamlocal_ex - Tunnel a UNIX socket connection through 
 ~~~c
 #include <libssh2.h>
 
-LIBSSH2_CHANNEL *
-libssh2_channel_direct_streamlocal_ex(LIBSSH2_SESSION *session,
-                                      const char *socket_path,
-                                      const char *shost, int sport);
+LIBSSH2_CHANNEL *libssh2_channel_direct_streamlocal_ex(
+    LIBSSH2_SESSION *session,
+    const char *socket_path,
+    const char *shost, int sport);
 ~~~
 
 # DESCRIPTION

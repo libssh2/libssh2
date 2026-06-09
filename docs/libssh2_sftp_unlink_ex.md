@@ -18,11 +18,10 @@ libssh2_sftp_unlink_ex - unlink an SFTP file
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int
-libssh2_sftp_unlink_ex(LIBSSH2_SFTP *sftp, const char *filename, unsigned int filename_len);
+int libssh2_sftp_unlink_ex(LIBSSH2_SFTP *sftp, const char *filename,
+                           unsigned int filename_len);
 
-int
-libssh2_sftp_unlink(LIBSSH2_SFTP *sftp, const char *filename);
+int libssh2_sftp_unlink(LIBSSH2_SFTP *sftp, const char *filename);
 ~~~
 
 # DESCRIPTION

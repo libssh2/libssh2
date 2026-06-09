@@ -17,17 +17,17 @@ libssh2_userauth_publickey_sk - authenticate a session with a FIDO2 authenticato
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
-                              const char *username,
-                              size_t username_len,
-                              const unsigned char *publickeydata,
-                              size_t publickeydata_len,
-                              const char *privatekeydata,
-                              size_t privatekeydata_len,
-                              const char *passphrase,
-                              LIBSSH2_USERAUTH_SK_SIGN_FUNC(*sign_callback),
-                              void **abstract);
+int libssh2_userauth_publickey_sk(
+    LIBSSH2_SESSION *session,
+    const char *username,
+    size_t username_len,
+    const unsigned char *publickeydata,
+    size_t publickeydata_len,
+    const char *privatekeydata,
+    size_t privatekeydata_len,
+    const char *passphrase,
+    LIBSSH2_USERAUTH_SK_SIGN_FUNC(*sign_callback),
+    void **abstract);
 ~~~
 
 # CALLBACK
@@ -61,7 +61,7 @@ int name(LIBSSH2_SESSION *session, LIBSSH2_SK_SIG_INFO *sig_info,
 *username_len* - Length of username parameter.
 
 *publickeydata* - Buffer containing the contents of a public key file. If
-NULL, the public key will be extracted from the privatekeydata. When using
+NULL, the public key is extracted from the privatekeydata. When using
 certificate authentication, this buffer should contain the public certificate
 data.
 
@@ -128,14 +128,14 @@ to the callback.
 *sig_r* - For Ed25519 signatures, this contains the entire signature, as
 returned directly from the authenticator. For ECDSA signatures, this contains
 the r component of the signature in a big-endian binary representation. For
-both algorithms, use LIBSSH2_ALLOC to allocate memory. It will be freed by the
+both algorithms, use SSH2_ALLOC to allocate memory. It is freed by the
 caller.
 
 *sig_r_len* - The length of the sig_r parameter.
 
 *sig_s* - For ECDSA signatures, this contains the s component of the
-signature in a big-endian binary representation. Use LIBSSH2_ALLOC to allocate
-memory. It will be freed by the caller. For Ed25519 signatures, set this to
+signature in a big-endian binary representation. Use SSH2_ALLOC to allocate
+memory. It is freed by the caller. For Ed25519 signatures, set this to
 NULL.
 
 *sig_s_len* - The length of the sig_s parameter.

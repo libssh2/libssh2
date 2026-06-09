@@ -16,8 +16,7 @@ libssh2_session_block_directions - get directions to wait for
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_session_block_directions(LIBSSH2_SESSION *session);
+int libssh2_session_block_directions(LIBSSH2_SESSION *session);
 ~~~
 
 # DESCRIPTION

@@ -17,19 +17,23 @@ libssh2_poll_channel_read - check if data is available
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended);
+int libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended);
 ~~~
 
 # DESCRIPTION
 
-This function is deprecated. Do note use.
+This function is deprecated. Do not use.
 
 *libssh2_poll_channel_read(3)* checks to see if data is available in the
 *channel*'s read buffer. No attempt is made with this method to see if
 packets are available to be processed. For full polling support, use
 *libssh2_poll(3)*.
 
+# AVAILABILITY
+
+Marked as deprecated since 1.2.0
+
 # RETURN VALUE
 
-Returns 1 when data is available and 0 otherwise.
+Returns 1 if data is available, 0 if not, or a negative libssh2 error code
+on error.

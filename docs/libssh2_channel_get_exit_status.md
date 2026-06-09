@@ -16,8 +16,7 @@ libssh2_channel_get_exit_status - get the remote exit code
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_get_exit_status(LIBSSH2_CHANNEL* channel)
+int libssh2_channel_get_exit_status(LIBSSH2_CHANNEL *channel)
 ~~~
 
 # DESCRIPTION

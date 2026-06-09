@@ -17,8 +17,7 @@ libssh2_session_set_blocking - set or clear blocking mode on session
 ~~~c
 #include <libssh2.h>
 
-void
-libssh2_session_set_blocking(LIBSSH2_SESSION *session, int blocking);
+void libssh2_session_set_blocking(LIBSSH2_SESSION *session, int blocking);
 ~~~
 
 # DESCRIPTION
@@ -28,13 +27,13 @@ libssh2_session_set_blocking(LIBSSH2_SESSION *session, int blocking);
 *blocking* - Set to a non-zero value to make the channel block, or zero to
 make it non-blocking.
 
-Set or clear blocking mode on the selected on the session. This will
-instantly affect any channels associated with this session. If a read is
+Set or clear blocking mode on the selected on the session. This
+instantly affects any channels associated with this session. If a read is
 performed on a session with no data currently available, a blocking session
-will wait for data to arrive and return what it receives. A non-blocking
-session will return immediately with an empty buffer. If a write is performed
-on a session with no room for more data, a blocking session will wait for
-room. A non-blocking session will return immediately without writing
+waits for data to arrive and return what it receives. A non-blocking
+session returns immediately with an empty buffer. If a write is performed
+on a session with no room for more data, a blocking session waits for
+room. A non-blocking session returns immediately without writing
 anything.
 
 # RETURN VALUE

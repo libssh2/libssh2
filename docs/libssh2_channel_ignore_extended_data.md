@@ -17,9 +17,8 @@ libssh2_channel_ignore_extended_data - convenience macro for *libssh2_channel_ha
 ~~~c
 #include <libssh2.h>
 
-void
-libssh2_channel_ignore_extended_data(LIBSSH2_CHANNEL *channel,
-                                     int ignore_mode);
+void libssh2_channel_ignore_extended_data(LIBSSH2_CHANNEL *channel,
+                                          int ignore_mode);
 ~~~
 
 # DESCRIPTION

@@ -178,7 +178,7 @@ static const struct test_case test_cases[TEST_CASES_LEN] = {
         "\0\0\0\x0aPassword: \0"
         "\0\0\0\x07Token: \1", 44,
         { FAIL, -6, "Unable to decode keyboard-interactive prompt message" } },
-    /* overflow language on 32 bit platform */
+    /* overflow language on 32-bit platform */
     {
         "<"
         "\0\0\0\x19"
@@ -224,7 +224,6 @@ failed_malloc_test_cases[FAILED_MALLOC_TEST_CASES_LEN] = {
 static int alloc_count = 0;
 static int free_count = 0;
 
-/* libssh2_default_alloc */
 static LIBSSH2_ALLOC_FUNC(test_alloc)
 {
     int *threshold_int_ptr = *abstract;
@@ -236,7 +235,6 @@ static LIBSSH2_ALLOC_FUNC(test_alloc)
     return malloc(count);
 }
 
-/* libssh2_default_free */
 static LIBSSH2_FREE_FUNC(test_free)
 {
     (void)abstract;
@@ -262,7 +260,7 @@ static int test_case(int num,
         return 1;
     }
 
-    session->userauth_kybd_data = LIBSSH2_ALLOC(session, data_len);
+    session->userauth_kybd_data = SSH2_ALLOC(session, data_len);
     session->userauth_kybd_data_len = data_len;
     memcpy(session->userauth_kybd_data, data, data_len);
 

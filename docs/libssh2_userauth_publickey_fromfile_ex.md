@@ -17,13 +17,12 @@ libssh2_userauth_publickey_fromfile_ex - authenticate a session with a public ke
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
-                                       const char *username,
-                                       unsigned int username_len,
-                                       const char *publickey,
-                                       const char *privatekey,
-                                       const char *passphrase);
+int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
+                                           const char *username,
+                                           unsigned int username_len,
+                                           const char *publickey,
+                                           const char *privatekey,
+                                           const char *passphrase);
 ~~~
 
 # DESCRIPTION
@@ -31,7 +30,7 @@ libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 *session* - Session instance as returned by
 **libssh2_session_init_ex(3)**
 
-*username* - Pointer to user name to authenticate as.
+*username* - Pointer to username to authenticate as.
 
 *username_len* - Length of *username*.
 

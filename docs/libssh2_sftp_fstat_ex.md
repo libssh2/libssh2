@@ -18,9 +18,8 @@ libssh2_sftp_fstat_ex - get or set attributes on an SFTP file handle
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int
-libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *handle,
-                      LIBSSH2_SFTP_ATTRIBUTES *attrs, int setstat)
+int libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *handle,
+                          LIBSSH2_SFTP_ATTRIBUTES *attrs, int setstat)
 
 #define libssh2_sftp_fstat(handle, attrs) \
     libssh2_sftp_fstat_ex(handle, attrs, 0)
@@ -35,7 +34,7 @@ libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *handle,
 *attrs* - Pointer to an LIBSSH2_SFTP_ATTRIBUTES structure to set file
 metadata from or into depending on the value of setstat.
 
-*setstat* - When non-zero, the file's metadata will be updated
+*setstat* - When non-zero, the file's metadata is updated
 with the data found in attrs according to the values of attrs-\>flags
 and other relevant member attributes.
 
@@ -49,7 +48,7 @@ LIBSSH2_SFTP_ATTRIBUTES is a typedefed struct that is defined as below
 struct _LIBSSH2_SFTP_ATTRIBUTES {
 
     /* If flags & ATTR_* bit is set, then the value in this
-     * struct will be meaningful Otherwise it should be ignored
+     * struct is meaningful otherwise it should be ignored
      */
     unsigned long flags;
 
@@ -69,14 +68,14 @@ struct _LIBSSH2_SFTP_ATTRIBUTES {
 };
 ~~~
 
-You will find a full set of defines and macros to identify flags and
+You find a full set of defines and macros to identify flags and
 permissions on the **libssh2_sftp.h** header file, but some of the
 most common ones are:
 
 To check for specific user permissions, the set of defines are in the
 pattern LIBSSH2_SFTP_S_I\<action\>\<who\> where \<action\> is R, W or X for
 read, write and executable and \<who\> is USR, GRP and OTH for user,
-group and other. So, you check for a user readable file, use the bit
+group and other. Thus, you check for a user readable file, use the bit
 *LIBSSH2_SFTP_S_IRUSR* while you want to see if it is executable
 for other, you use *LIBSSH2_SFTP_S_IXOTH* and so on.
 

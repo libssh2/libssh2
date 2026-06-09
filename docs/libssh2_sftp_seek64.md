@@ -18,9 +18,8 @@ libssh2_sftp_seek64 - set the read/write position within a file
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-void
-libssh2_sftp_seek64(LIBSSH2_SFTP_HANDLE *handle,
-                    libssh2_uint64_t offset);
+void libssh2_sftp_seek64(LIBSSH2_SFTP_HANDLE *handle,
+                         libssh2_uint64_t offset);
 ~~~
 
 # DESCRIPTION
@@ -36,7 +35,7 @@ operation. The localized file pointer is used as a convenience offset during
 read/write operations.
 
 You MUST NOT seek during writing or reading a file with SFTP, as the internals
-use outstanding packets and changing the "file position" during transit will
+use outstanding packets and changing the "file position" during transit
 results in badness.
 
 # AVAILABILITY

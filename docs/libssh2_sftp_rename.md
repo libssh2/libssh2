@@ -18,10 +18,9 @@ libssh2_sftp_rename - convenience macro for *libssh2_sftp_rename_ex(3)* calls
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int
-libssh2_sftp_rename(LIBSSH2_SFTP *sftp,
-                    const char *source_filename,
-                    const char *destination_filename);
+int libssh2_sftp_rename(LIBSSH2_SFTP *sftp,
+                        const char *source_filename,
+                        const char *destination_filename);
 ~~~
 
 # DESCRIPTION

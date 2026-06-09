@@ -9,7 +9,7 @@ include(CheckCSourceCompiles)
 # and XPG3, while the other different ways for different systems (old BSD,
 # Windows and Amiga).
 #
-# One of the following variables will be set indicating the supported
+# One of the following variables are set indicating the supported
 # method (if any):
 #   HAVE_O_NONBLOCK
 #   HAVE_FIONBIO

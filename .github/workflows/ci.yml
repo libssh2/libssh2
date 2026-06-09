@@ -597,6 +597,11 @@ jobs:
         if: ${{ !cancelled() }}
         run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
+      - name: 'libssh2_config.h'
+        run: |
+          echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'
+          grep -F '#define' bld/src/libssh2_config.h | sort || true
+
       - name: 'build'
         if: ${{ !matrix.target }}
         run: |
@@ -709,6 +714,11 @@ jobs:
         if: ${{ !cancelled() }}
         run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
+      - name: 'libssh2_config.h'
+        run: |
+          echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'
+          grep -F '#define' bld/src/libssh2_config.h | sort || true
+
       - name: 'build'
         run: |
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
@@ -775,6 +785,11 @@ jobs:
       - name: 'configure log'
         if: ${{ !cancelled() }}
         run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
+
+      - name: 'libssh2_config.h'
+        run: |
+          echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'
+          grep -F '#define' bld/src/libssh2_config.h | sort || true
 
       - name: 'build'
         timeout-minutes: 5
@@ -897,6 +912,11 @@ jobs:
         if: ${{ !cancelled() }}
         run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
+      - name: 'libssh2_config.h'
+        run: |
+          echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'
+          grep -F '#define' bld/src/libssh2_config.h | sort || true
+
       - name: 'build'
         run: |
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
@@ -918,7 +938,7 @@ jobs:
 
   build_msvc:
     name: 'msvc'
-    runs-on: windows-2022
+    runs-on: '${{ matrix.image }}'
     timeout-minutes: 10
     defaults:
       run:
@@ -927,13 +947,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { arch: x64  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'OFF', zlib: 'OFF', unity: 'ON' }
-          - { arch: x64  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'ON' , shared: 'ON' , zlib: 'OFF', unity: 'ON' }
-          - { arch: x64  , plat: windows, crypto: OpenSSL, wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
-          - { arch: x64  , plat: uwp    , crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
-          - { arch: arm64, plat: windows, crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
-          - { arch: arm64, plat: uwp    , crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'OFF' }
-          - { arch: x86  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
+          - { image: 'windows-2022'       , arch: x64  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'OFF', zlib: 'OFF', unity: 'ON' }
+          - { image: 'windows-2025-vs2026', arch: x64  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'ON' , shared: 'ON' , zlib: 'OFF', unity: 'ON' }
+          - { image: 'windows-2022'       , arch: x64  , plat: windows, crypto: OpenSSL, wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
+          - { image: 'windows-2022'       , arch: x64  , plat: uwp    , crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
+          - { image: 'windows-2025-vs2026', arch: arm64, plat: windows, crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
+          - { image: 'windows-2022'       , arch: arm64, plat: uwp    , crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'OFF' }
+          - { image: 'windows-2022'       , arch: x86  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -941,6 +961,7 @@ jobs:
 
       - name: 'configure'
         env:
+          MATRIX_IMAGE: '${{ matrix.image }}'
           MATRIX_ARCH: '${{ matrix.arch }}'
           MATRIX_CRYPTO: '${{ matrix.crypto }}'
           MATRIX_PLAT: '${{ matrix.plat }}'
@@ -977,6 +998,11 @@ jobs:
       - name: 'configure log'
         if: ${{ !cancelled() }}
         run: cat bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
+
+      - name: 'libssh2_config.h'
+        run: |
+          echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'
+          grep -F '#define' bld/src/libssh2_config.h | sort || true
 
       - name: 'build'
         run: cmake --build bld --parallel 5 --target package --config Release
@@ -1069,10 +1095,15 @@ jobs:
         if: ${{ !cancelled() }}
         run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
+      - name: 'libssh2_config.h'
+        run: |
+          echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'
+          grep -F '#define' bld/src/libssh2_config.h | sort || true
+
       - name: 'build'
         run: |
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
-            cmake --build bld
+            cmake --build bld --verbose
           else
             make -C bld -j4 V=1
           fi
@@ -1179,6 +1210,11 @@ jobs:
       - name: 'configure log'
         if: ${{ !cancelled() }}
         run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
+
+      - name: 'libssh2_config.h'
+        run: |
+          echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'
+          grep -F '#define' bld/src/libssh2_config.h | sort || true
 
       - name: 'build'
         run: |

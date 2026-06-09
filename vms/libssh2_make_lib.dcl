@@ -188,7 +188,7 @@ $! low$'shortened-uppercase-name' with as value lowercase shortened
 $! name in it, so we can add the proper lower or mixed case
 $! shortened name later when building the transfer vectors
 $! for the shared image.
-$! This is to prevent two very long similar function names
+$! This is to prevent two long similar function names
 $! that are shortened getting mixed up when sorted alphabetically.
 $!
 $ inputfile = "[.cxx_repository]cxx$demangler_db.lowercase"

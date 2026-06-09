@@ -19,11 +19,10 @@ libssh2_sftp_readdir_ex - read directory data from an SFTP handle
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int
-libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle,
-                        char *buffer, size_t buffer_maxlen,
-                        char *longentry, size_t longentry_maxlen,
-                        LIBSSH2_SFTP_ATTRIBUTES *attrs);
+int libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle,
+                            char *buffer, size_t buffer_maxlen,
+                            char *longentry, size_t longentry_maxlen,
+                            LIBSSH2_SFTP_ATTRIBUTES *attrs);
 ~~~
 
 # DESCRIPTION
@@ -37,7 +36,7 @@ information for the next entry, if any.
 *buffer_maxlen* bytes to read data into.
 
 *buffer_maxlen* - is the length of buffer in bytes. If the length of the
-filename is longer than the space provided by buffer_maxlen it will be
+filename is longer than the space provided by buffer_maxlen it is
 truncated to fit.
 
 *longentry* - is a pointer to a pre-allocated buffer of at least
@@ -48,17 +47,17 @@ a directory listing command is to display this data).
 
 *longentry_maxlen* - is the length of longentry in bytes. If the length of
 the full directory entry is longer than the space provided by
-*longentry_maxlen* it will be truncated to fit.
+*longentry_maxlen* it is truncated to fit.
 
 *attrs* - is a pointer to LIBSSH2_SFTP_ATTRIBUTES storage to populate
 statbuf style data into.
 
 # RETURN VALUE
 
-Number of bytes actually populated into buffer (not counting the terminating
-zero), or negative on failure. It returns LIBSSH2_ERROR_EAGAIN when it would
-otherwise block. While LIBSSH2_ERROR_EAGAIN is a negative number, it is not
-really a failure per se.
+Number of bytes actually populated into buffer (not counting the
+null-terminator), or negative on failure. It returns LIBSSH2_ERROR_EAGAIN when
+it would otherwise block. While LIBSSH2_ERROR_EAGAIN is a negative number, it
+is not really a failure per se.
 
 # BUG
 

@@ -44,10 +44,10 @@ include(CheckLibraryExists)
 # then, if not found that way, linking in each optional library as well.  This
 # function is similar to autotools AC_SEARCH_LIBS.
 #
-# If the function if found, this will define <var>.
+# If the function if found, this defines <var>.
 #
 # If the function was only found by linking in an additional library, this
-# will define NEED_LIB_LIBX, where LIBX is the one of lib1 to libn that
+# defines NEED_LIB_LIBX, where LIBX is the one of lib1 to libn that
 # makes the function available, in uppercase.
 #
 # The following variables may be set before calling this macro to

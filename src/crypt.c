@@ -52,7 +52,7 @@
  * typically disabled on SSH2 implementations and is disabled in libssh2
  * by default as well.
  *
- * Enabling this option will allow for "none" as a negotiable method,
+ * Enabling this option allows for "none" as a negotiable method,
  * however it still requires that the method be advertised by the remote
  * end and that no more-preferable methods are available.
  *
@@ -83,25 +83,27 @@ static const struct crypt_method crypt_method_none = {
 
 struct crypt_ctx {
     int encrypt;
-    LIBSSH2_CIPHER_T(algo);
-    libssh2_cipher_ctx h;
+    SSH2_CIPHER_T(algo);
+    ssh2_cipher_ctx h;
     struct chachapoly_ctx chachapoly_ctx;
 };
 
+#if LIBSSH2_AES_GCM || LIBSSH2_AES_CTR || LIBSSH2_AES_CBC || \
+    LIBSSH2_BLOWFISH || LIBSSH2_RC4 || LIBSSH2_CAST || LIBSSH2_3DES
 static int crypt_init(LIBSSH2_SESSION *session,
                       const struct crypt_method *method,
                       unsigned char *iv, int *free_iv,
                       unsigned char *secret, int *free_secret,
                       int encrypt, void **abstract)
 {
-    struct crypt_ctx *ctx = LIBSSH2_ALLOC(session, sizeof(struct crypt_ctx));
+    struct crypt_ctx *ctx = SSH2_ALLOC(session, sizeof(struct crypt_ctx));
     if(!ctx)
         return LIBSSH2_ERROR_ALLOC;
 
     ctx->encrypt = encrypt;
     ctx->algo = method->algo;
-    if(_libssh2_cipher_init(&ctx->h, ctx->algo, iv, secret, encrypt)) {
-        LIBSSH2_FREE(session, ctx);
+    if(ssh2_cipher_init(&ctx->h, ctx->algo, iv, secret, encrypt)) {
+        SSH2_FREE(session, ctx);
         return -1;
     }
     *abstract = ctx;
@@ -120,20 +122,21 @@ static int crypt_encrypt(LIBSSH2_SESSION *session,
     struct crypt_ctx *cctx = *(struct crypt_ctx **)abstract;
     (void)session;
     (void)seqno;
-    return _libssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, buf,
-                                 buf_len, firstlast);
+    return ssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, buf,
+                             buf_len, firstlast);
 }
 
 static int crypt_dtor(LIBSSH2_SESSION *session, void **abstract)
 {
     struct crypt_ctx **cctx = (struct crypt_ctx **)abstract;
     if(cctx && *cctx) {
-        _libssh2_cipher_dtor(&(*cctx)->h);
-        LIBSSH2_FREE(session, *cctx);
+        ssh2_cipher_dtor(&(*cctx)->h);
+        SSH2_FREE(session, *cctx);
         *abstract = NULL;
     }
     return 0;
 }
+#endif
 
 #if LIBSSH2_AES_GCM
 static const struct crypt_method crypt_method_aes256_gcm = {
@@ -141,14 +144,14 @@ static const struct crypt_method crypt_method_aes256_gcm = {
     "",
     16,                         /* blocksize */
     12,                         /* initial value length */
-    32,                         /* secret length -- 32*8 == 256bit */
+    32,                         /* secret length -- 32*8 == 256-bit */
     16,                         /* length of the authentication tag */
-    LIBSSH2_CRYPT_FLAG_INTEGRATED_MAC | LIBSSH2_CRYPT_FLAG_PKTLEN_AAD,
+    SSH2_CRYPT_FLAG_INTEGRATED_MAC | SSH2_CRYPT_FLAG_PKTLEN_AAD,
     &crypt_init,
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_aes256gcm
+    ssh2_cipher_aes256gcm
 };
 
 static const struct crypt_method crypt_method_aes128_gcm = {
@@ -156,14 +159,14 @@ static const struct crypt_method crypt_method_aes128_gcm = {
     "",
     16,                         /* blocksize */
     12,                         /* initial value length */
-    16,                         /* secret length -- 16*8 == 128bit */
+    16,                         /* secret length -- 16*8 == 128-bit */
     16,                         /* length of the authentication tag */
-    LIBSSH2_CRYPT_FLAG_INTEGRATED_MAC | LIBSSH2_CRYPT_FLAG_PKTLEN_AAD,
+    SSH2_CRYPT_FLAG_INTEGRATED_MAC | SSH2_CRYPT_FLAG_PKTLEN_AAD,
     &crypt_init,
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_aes128gcm
+    ssh2_cipher_aes128gcm
 };
 #endif
 
@@ -173,14 +176,14 @@ static const struct crypt_method crypt_method_aes128_ctr = {
     "",
     16,                         /* blocksize */
     16,                         /* initial value length */
-    16,                         /* secret length -- 16*8 == 128bit */
+    16,                         /* secret length -- 16*8 == 128-bit */
     0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_aes128ctr
+    ssh2_cipher_aes128ctr
 };
 
 static const struct crypt_method crypt_method_aes192_ctr = {
@@ -188,14 +191,14 @@ static const struct crypt_method crypt_method_aes192_ctr = {
     "",
     16,                         /* blocksize */
     16,                         /* initial value length */
-    24,                         /* secret length -- 24*8 == 192bit */
+    24,                         /* secret length -- 24*8 == 192-bit */
     0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_aes192ctr
+    ssh2_cipher_aes192ctr
 };
 
 static const struct crypt_method crypt_method_aes256_ctr = {
@@ -203,14 +206,14 @@ static const struct crypt_method crypt_method_aes256_ctr = {
     "",
     16,                         /* blocksize */
     16,                         /* initial value length */
-    32,                         /* secret length -- 32*8 == 256bit */
+    32,                         /* secret length -- 32*8 == 256-bit */
     0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_aes256ctr
+    ssh2_cipher_aes256ctr
 };
 #endif
 
@@ -220,14 +223,14 @@ static const struct crypt_method crypt_method_aes128_cbc = {
     "DEK-Info: AES-128-CBC",
     16,                         /* blocksize */
     16,                         /* initial value length */
-    16,                         /* secret length -- 16*8 == 128bit */
+    16,                         /* secret length -- 16*8 == 128-bit */
     0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_aes128
+    ssh2_cipher_aes128
 };
 
 static const struct crypt_method crypt_method_aes192_cbc = {
@@ -235,14 +238,14 @@ static const struct crypt_method crypt_method_aes192_cbc = {
     "DEK-Info: AES-192-CBC",
     16,                         /* blocksize */
     16,                         /* initial value length */
-    24,                         /* secret length -- 24*8 == 192bit */
+    24,                         /* secret length -- 24*8 == 192-bit */
     0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_aes192
+    ssh2_cipher_aes192
 };
 
 static const struct crypt_method crypt_method_aes256_cbc = {
@@ -250,14 +253,14 @@ static const struct crypt_method crypt_method_aes256_cbc = {
     "DEK-Info: AES-256-CBC",
     16,                         /* blocksize */
     16,                         /* initial value length */
-    32,                         /* secret length -- 32*8 == 256bit */
+    32,                         /* secret length -- 32*8 == 256-bit */
     0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_aes256
+    ssh2_cipher_aes256
 };
 
 /* rijndael-cbc@lysator.liu.se == aes256-cbc */
@@ -266,14 +269,14 @@ static const struct crypt_method crypt_method_rijndael_cbc_lysator_liu_se = {
     "DEK-Info: AES-256-CBC",
     16,                         /* blocksize */
     16,                         /* initial value length */
-    32,                         /* secret length -- 32*8 == 256bit */
+    32,                         /* secret length -- 32*8 == 256-bit */
     0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_aes256
+    ssh2_cipher_aes256
 };
 #endif /* LIBSSH2_AES_CBC */
 
@@ -290,7 +293,7 @@ static const struct crypt_method crypt_method_blowfish_cbc = {
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_blowfish
+    ssh2_cipher_blowfish
 };
 #endif /* LIBSSH2_BLOWFISH */
 
@@ -307,7 +310,7 @@ static const struct crypt_method crypt_method_arcfour = {
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_arcfour
+    ssh2_cipher_arcfour
 };
 
 static int crypt_init_arcfour128(LIBSSH2_SESSION *session,
@@ -325,9 +328,9 @@ static int crypt_init_arcfour128(LIBSSH2_SESSION *session,
         unsigned char block[8];
         size_t discard = 1536;
         for(; discard; discard -= 8)
-            _libssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, block,
-                                  method->blocksize, MIDDLE_BLOCK);
-                               /* Not all middle, but here it doesn't matter */
+            ssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, block,
+                              method->blocksize, MIDDLE_BLOCK);
+                              /* Not all middle, but here it does not matter */
     }
 
     return rc;
@@ -345,7 +348,7 @@ static const struct crypt_method crypt_method_arcfour128 = {
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_arcfour
+    ssh2_cipher_arcfour
 };
 #endif /* LIBSSH2_RC4 */
 
@@ -362,7 +365,7 @@ static const struct crypt_method crypt_method_cast128_cbc = {
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_cast5
+    ssh2_cipher_cast5
 };
 #endif /* LIBSSH2_CAST */
 
@@ -379,7 +382,7 @@ static const struct crypt_method crypt_method_3des_cbc = {
     NULL,
     &crypt_encrypt,
     &crypt_dtor,
-    libssh2_cipher_3des
+    ssh2_cipher_3des
 };
 #endif
 
@@ -389,7 +392,7 @@ static int crypt_init_chacha20_poly(LIBSSH2_SESSION *session,
                                     unsigned char *secret, int *free_secret,
                                     int encrypt, void **abstract)
 {
-    struct crypt_ctx *ctx = LIBSSH2_ALLOC(session, sizeof(struct crypt_ctx));
+    struct crypt_ctx *ctx = SSH2_ALLOC(session, sizeof(struct crypt_ctx));
 
     (void)iv;
 
@@ -400,7 +403,7 @@ static int crypt_init_chacha20_poly(LIBSSH2_SESSION *session,
     ctx->algo = method->algo;
 
     if(chachapoly_init(&ctx->chachapoly_ctx, secret, method->secret_len)) {
-        LIBSSH2_FREE(session, ctx);
+        SSH2_FREE(session, ctx);
         return -1;
     }
 
@@ -436,12 +439,12 @@ static int crypt_encrypt_chacha20_poly_buffer(LIBSSH2_SESSION *session,
         }
         else {
             /* buf is full packet including size and auth tag but buf_len
-               doesn't include size */
+               does not include size */
             ret = chachapoly_crypt(&ctx->chachapoly_ctx, seqno, buf, buf,
                                    buf_len, 4, ctx->encrypt);
 
             /* the api expects the size field to already be removed
-               from the decrypted packet so we'll help it out */
+               from the decrypted packet so we help it out */
             if(ret == 0) {
                 memmove(buf, buf + 4, buf_len - 4);
             }
@@ -469,7 +472,7 @@ static int crypt_dtor_chacha20_poly(LIBSSH2_SESSION *session, void **abstract)
 {
     struct crypt_ctx **cctx = (struct crypt_ctx **)abstract;
     if(cctx && *cctx) {
-        LIBSSH2_FREE(session, *cctx);
+        SSH2_FREE(session, *cctx);
         *abstract = NULL;
     }
     return 0;
@@ -482,12 +485,12 @@ static const struct crypt_method crypt_method_chacha20_poly1305_openssh = {
     0,                                          /* initial value length */
     64,                                         /* secret length */
     16,                                         /* length of the auth_tag */
-    LIBSSH2_CRYPT_FLAG_REQUIRES_FULL_PACKET,    /* flags */
+    SSH2_CRYPT_FLAG_REQUIRES_FULL_PACKET,       /* flags */
     &crypt_init_chacha20_poly,
     &crypt_get_length_chacha20_poly,
     &crypt_encrypt_chacha20_poly_buffer,
     &crypt_dtor_chacha20_poly,
-    libssh2_cipher_chacha20                     /* not actually used */
+    ssh2_cipher_chacha20                        /* not actually used */
 };
 
 /* These are the crypt methods that are available to be negotiated. Methods
@@ -529,7 +532,7 @@ static const struct crypt_method *crypt_methods[] = {
 };
 
 /* Expose to kex.c */
-const struct crypt_method **libssh2_crypt_methods(void)
+const struct crypt_method **ssh2_crypt_methods(void)
 {
     return crypt_methods;
 }

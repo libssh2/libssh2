@@ -2,7 +2,7 @@
  *
  * Sample showing how to use libssh2 to execute a command remotely.
  *
- * The sample code has fixed values for host name, user name, password
+ * The sample code has fixed values for hostname, username, password
  * and command to run.
  *
  * $ ./ssh2_exec 127.0.0.1 user password "uptime"
@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
     /* tell libssh2 we want it all done non-blocking */
     libssh2_session_set_blocking(session, 0);
 
-    /* ... start it up. This will trade welcome banners, exchange keys,
+    /* ... start it up. This trades welcome banners, exchange keys,
      * and setup crypto, compression, and MAC layers
      */
     while((rc = libssh2_session_handshake(session, sock)) ==

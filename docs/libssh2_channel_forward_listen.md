@@ -17,8 +17,7 @@ libssh2_channel_forward_listen - convenience macro for *libssh2_channel_forward_
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_forward_listen(LIBSSH2_SESSION *session, int port);
+int libssh2_channel_forward_listen(LIBSSH2_SESSION *session, int port);
 ~~~
 
 # DESCRIPTION

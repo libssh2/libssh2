@@ -19,15 +19,13 @@ libssh2_sftp_mkdir_ex - create a directory on the remote file system
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int
-libssh2_sftp_mkdir_ex(LIBSSH2_SFTP *sftp,
-                      const char *path, unsigned int path_len,
-                      long mode);
+int libssh2_sftp_mkdir_ex(LIBSSH2_SFTP *sftp,
+                          const char *path, unsigned int path_len,
+                          long mode);
 
-int
-libssh2_sftp_mkdir(LIBSSH2_SFTP *sftp,
-                   const char *path,
-                   long mode);
+int libssh2_sftp_mkdir(LIBSSH2_SFTP *sftp,
+                       const char *path,
+                       long mode);
 ~~~
 
 # DESCRIPTION

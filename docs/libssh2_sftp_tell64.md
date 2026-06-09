@@ -19,8 +19,7 @@ libssh2_sftp_tell64 - get the current read/write position indicator for a file
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-libssh2_uint64_t
-libssh2_sftp_tell64(LIBSSH2_SFTP_HANDLE *handle);
+libssh2_uint64_t libssh2_sftp_tell64(LIBSSH2_SFTP_HANDLE *handle);
 ~~~
 
 # DESCRIPTION

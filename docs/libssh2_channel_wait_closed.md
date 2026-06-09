@@ -19,8 +19,7 @@ libssh2_channel_wait_closed - wait for the remote to close the channel
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_wait_closed(LIBSSH2_CHANNEL *channel);
+int libssh2_channel_wait_closed(LIBSSH2_CHANNEL *channel);
 ~~~
 
 # DESCRIPTION

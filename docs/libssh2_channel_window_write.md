@@ -17,8 +17,7 @@ libssh2_channel_window_write - convenience macro for *libssh2_channel_window_wri
 ~~~c
 #include <libssh2.h>
 
-unsigned long
-libssh2_channel_window_write(LIBSSH2_CHANNEL *channel);
+unsigned long libssh2_channel_window_write(LIBSSH2_CHANNEL *channel);
 ~~~
 
 # DESCRIPTION

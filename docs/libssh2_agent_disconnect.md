@@ -18,8 +18,7 @@ libssh2_agent_disconnect - close a connection to an ssh-agent
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_agent_disconnect(LIBSSH2_AGENT *agent);
+int libssh2_agent_disconnect(LIBSSH2_AGENT *agent);
 ~~~
 
 # DESCRIPTION

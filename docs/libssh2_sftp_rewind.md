@@ -18,8 +18,7 @@ libssh2_sftp_rewind - convenience macro for *libssh2_sftp_seek64(3)* calls
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int
-libssh2_sftp_rewind(LIBSSH2_SFTP_HANDLE *handle);
+int libssh2_sftp_rewind(LIBSSH2_SFTP_HANDLE *handle);
 ~~~
 
 # DESCRIPTION

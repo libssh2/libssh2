@@ -17,8 +17,7 @@ libssh2_exit - global library deinitialization
 ~~~c
 #include <libssh2.h>
 
-void
-libssh2_exit(void);
+void libssh2_exit(void);
 ~~~
 
 # DESCRIPTION

@@ -18,9 +18,10 @@ libssh2_scp_send_ex - Send a file via SCP
 ~~~c
 #include <libssh2.h>
 
-LIBSSH2_CHANNEL *
-libssh2_scp_send_ex(LIBSSH2_SESSION *session, const char *path, int mode,
-                    size_t size, long mtime, long atime);
+LIBSSH2_CHANNEL *libssh2_scp_send_ex(LIBSSH2_SESSION *session, const char *path,
+                                     int mode,
+                                     size_t size,
+                                     long mtime, long atime);
 ~~~
 
 # DESCRIPTION
@@ -31,7 +32,7 @@ This function has been deemed deprecated since libssh2 1.2.6. See
 *session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *path* - Full path and filename of file to transfer to. That is the remote
-file name.
+filename.
 
 *mode* - File access mode to create file with
 

@@ -17,14 +17,15 @@ libssh2_channel_direct_tcpip_ex - Tunnel a TCP connection through an SSH session
 ~~~c
 #include <libssh2.h>
 
-LIBSSH2_CHANNEL *
-libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *session,
-                                const char *host, int port,
-                                const char *shost, int sport);
+LIBSSH2_CHANNEL *libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *session,
+                                                 const char *host,
+                                                 int port,
+                                                 const char *shost,
+                                                 int sport);
 
-LIBSSH2_CHANNEL *
-libssh2_channel_direct_tcpip(LIBSSH2_SESSION *session,
-                             const char *host, int port);
+LIBSSH2_CHANNEL *libssh2_channel_direct_tcpip(LIBSSH2_SESSION *session,
+                                              const char *host,
+                                              int port);
 ~~~
 
 # DESCRIPTION

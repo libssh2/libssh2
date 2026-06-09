@@ -19,9 +19,8 @@ libssh2_knownhost_readfile - parse a file of known hosts
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
-                           const char *filename, int type);
+int libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
+                               const char *filename, int type);
 ~~~
 
 # DESCRIPTION

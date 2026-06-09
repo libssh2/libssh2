@@ -18,8 +18,7 @@ libssh2_agent_init - init an ssh-agent handle
 ~~~c
 #include <libssh2.h>
 
-LIBSSH2_AGENT *
-libssh2_agent_init(LIBSSH2_SESSION *session);
+LIBSSH2_AGENT *libssh2_agent_init(LIBSSH2_SESSION *session);
 ~~~
 
 # DESCRIPTION

@@ -2,8 +2,8 @@
  *
  * Sample showing how to do SFTP transfers in a non-blocking manner.
  *
- * It will first download a given source file, store it locally and then
- * upload the file again to a given destination file.
+ * It first downloads a given source file, stores it locally and then
+ * uploads the file again to a given destination file.
  *
  * Using the SFTP server running on 127.0.0.1
  *
@@ -42,7 +42,7 @@ static const char *username = "username";
 static const char *password = "password";
 static const char *sftppath = "/tmp/TEST"; /* source path */
 static const char *dest = "/tmp/TEST2";    /* destination path */
-static const char *storage = "/tmp/sftp-storage"; /* local file name to store
+static const char *storage = "/tmp/sftp-storage"; /* local filename to store
                                                      the downloaded file in */
 
 static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
-    /* ... start it up. This will trade welcome banners, exchange keys,
+    /* ... start it up. This trades welcome banners, exchange keys,
      * and setup crypto, compression, and MAC layers
      */
     rc = libssh2_session_handshake(session, sock);
@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
     /* At this point we have not yet authenticated.  The first thing to do
      * is check the hostkey's fingerprint against our known hosts Your app
      * may have it hard coded, may go to a file, may present it to the
-     * user, that's your call
+     * user, that is your call
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
                                         LIBSSH2_FXF_READ, 0);
         if(!sftp_handle) {
             if(libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
-                fprintf(stderr, "Unable to open file with SFTP: %ld\n",
+                fprintf(stderr, "Unable to open file with SFTP: %lu\n",
                         libssh2_sftp_last_error(sftp_session));
                 goto shutdown;
             }
@@ -286,12 +286,12 @@ int main(int argc, char *argv[])
 
     tempstorage = fopen(storage, "rb");
     if(!tempstorage) {
-        /* weird, we cannot read the file we just wrote to... */
+        /* weird, we cannot read the file we wrote to... */
         fprintf(stderr, "Cannot open %s for reading\n", storage);
         goto shutdown;
     }
 
-    /* we're done downloading, now reverse the process and upload the
+    /* we are done downloading, now reverse the process and upload the
        temporarily stored data to the destination path */
     sftp_handle = libssh2_sftp_open(sftp_session, dest,
                                     LIBSSH2_FXF_WRITE |

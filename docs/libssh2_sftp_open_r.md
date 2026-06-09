@@ -18,11 +18,11 @@ libssh2_sftp_open_r - convenience macro for *libssh2_sftp_open_ex_r(3)* calls
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-LIBSSH2_SFTP_HANDLE *
-libssh2_sftp_open_r(LIBSSH2_SFTP *sftp, const char *filename,
-                    unsigned long flags,
-                    long mode,
-                    LIBSSH2_SFTP_ATTRIBUTES *attrs);
+LIBSSH2_SFTP_HANDLE *libssh2_sftp_open_r(LIBSSH2_SFTP *sftp,
+                                         const char *filename,
+                                         unsigned long flags,
+                                         long mode,
+                                         LIBSSH2_SFTP_ATTRIBUTES *attrs);
 ~~~
 
 # DESCRIPTION

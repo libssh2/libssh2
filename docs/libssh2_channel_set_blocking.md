@@ -19,8 +19,7 @@ libssh2_channel_set_blocking - set or clear blocking mode on channel
 ~~~c
 #include <libssh2.h>
 
-void
-libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel, int blocking);
+void libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel, int blocking);
 ~~~
 
 # DESCRIPTION
@@ -31,7 +30,7 @@ libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel, int blocking);
 make it non-blocking.
 
 Currently this is a short cut call to libssh2_session_set_blocking(3)
-and therefore will affect the session and all channels.
+and therefore affects the session and all channels.
 
 # RETURN VALUE
 

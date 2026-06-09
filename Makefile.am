@@ -20,7 +20,7 @@ DISTCLEANFILES =
 
 VMSFILES = vms/libssh2_make_example.dcl vms/libssh2_make_help.dcl \
   vms/libssh2_make_kit.dcl vms/libssh2_make_lib.dcl vms/man2help.c \
-  vms/readme.vms vms/libssh2_config.h
+  vms/readme.vms vms/libssh2_config.h vms/.checksrc
 
 WIN32FILES = src/libssh2.rc
 
@@ -38,6 +38,10 @@ OS400FILES = os400/README400 os400/initscript.sh os400/make.sh \
   os400/rpg-examples/SFTPXMPLE
 
 SCRIPTSFILES = \
+  scripts/badwords \
+  scripts/badwords-all \
+  scripts/badwords.txt \
+  scripts/cd2nroff \
   scripts/checksrc-all.pl \
   scripts/checksrc.pl \
   scripts/cmakelint.sh \

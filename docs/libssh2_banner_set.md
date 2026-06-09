@@ -18,8 +18,7 @@ libssh2_banner_set - set the SSH protocol banner for the local client
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_banner_set(LIBSSH2_SESSION *session, const char *banner);
+int libssh2_banner_set(LIBSSH2_SESSION *session, const char *banner);
 ~~~
 
 # DESCRIPTION
@@ -31,10 +30,10 @@ This function is **DEPRECATED** in 1.4.0. Use the
 
 *banner* - A pointer to a user defined banner
 
-Set the banner that will be sent to the remote host when the SSH session is
+Set the banner that is sent to the remote host when the SSH session is
 started with libssh2_session_handshake(3)
 This is optional; a banner corresponding to the protocol and libssh2 version
-will be sent by default.
+is sent by default.
 
 # RETURN VALUE
 

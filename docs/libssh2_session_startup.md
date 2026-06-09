@@ -18,8 +18,7 @@ libssh2_session_startup - begin transport layer
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_session_startup(LIBSSH2_SESSION *session, int socket);
+int libssh2_session_startup(LIBSSH2_SESSION *session, int socket);
 ~~~
 
 # DESCRIPTION
@@ -30,8 +29,8 @@ Starting in libssh2 version 1.2.8 this function is considered deprecated. Use
 *session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *socket* - Connected socket descriptor. Typically a TCP connection
-though the protocol allows for any reliable transport and the library will
-attempt to use any berkeley socket.
+though the protocol allows for any reliable transport and the library
+attempts to use any berkeley socket.
 
 Begin transport layer protocol negotiation with the connected host.
 

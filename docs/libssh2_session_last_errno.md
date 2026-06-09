@@ -19,8 +19,7 @@ libssh2_session_last_errno - get the most recent error number
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_session_last_errno(LIBSSH2_SESSION *session);
+int libssh2_session_last_errno(LIBSSH2_SESSION *session);
 ~~~
 
 # DESCRIPTION
@@ -31,4 +30,4 @@ Determine the most recent error condition.
 
 # RETURN VALUE
 
-Numeric error code corresponding to the the Error Code constants.
+Numeric error code corresponding to the Error Code constants.

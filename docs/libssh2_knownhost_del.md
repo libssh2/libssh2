@@ -20,9 +20,8 @@ libssh2_knownhost_del - delete a known host entry
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_knownhost_del(LIBSSH2_KNOWNHOSTS *hosts,
-                      struct libssh2_knownhost *entry);
+int libssh2_knownhost_del(LIBSSH2_KNOWNHOSTS *hosts,
+                          struct libssh2_knownhost *entry);
 ~~~
 
 # DESCRIPTION

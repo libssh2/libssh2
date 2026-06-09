@@ -18,8 +18,7 @@ libssh2_sftp_close - convenience macro for *libssh2_sftp_close_handle(3)* calls
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int
-libssh2_sftp_close(LIBSSH2_SFTP_HANDLE *handle);
+int libssh2_sftp_close(LIBSSH2_SFTP_HANDLE *handle);
 ~~~
 
 # DESCRIPTION

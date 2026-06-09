@@ -18,10 +18,9 @@ libssh2_sftp_readdir - convenience macro for *libssh2_sftp_readdir_ex(3)* calls
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int
-libssh2_sftp_readdir(LIBSSH2_SFTP_HANDLE *handle,
-                     char *buffer, size_t buffer_maxlen,
-                     LIBSSH2_SFTP_ATTRIBUTES *attrs);
+int libssh2_sftp_readdir(LIBSSH2_SFTP_HANDLE *handle,
+                         char *buffer, size_t buffer_maxlen,
+                         LIBSSH2_SFTP_ATTRIBUTES *attrs);
 ~~~
 
 # DESCRIPTION

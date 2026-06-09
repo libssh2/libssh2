@@ -19,12 +19,11 @@ libssh2_knownhost_checkp - check a host+key against the list of known hosts
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_knownhost_checkp(LIBSSH2_KNOWNHOSTS *hosts,
-                         const char *host, int port,
-                         const char *key, size_t keylen,
-                         int typemask,
-                         struct libssh2_knownhost **knownhost);
+int libssh2_knownhost_checkp(LIBSSH2_KNOWNHOSTS *hosts,
+                             const char *host, int port,
+                             const char *key, size_t keylen,
+                             int typemask,
+                             struct libssh2_knownhost **knownhost);
 ~~~
 
 # DESCRIPTION
@@ -32,13 +31,13 @@ libssh2_knownhost_checkp(LIBSSH2_KNOWNHOSTS *hosts,
 Checks a host and its associated key against the collection of known hosts,
 and returns info back about the (partially) matched entry.
 
-*host* is a pointer the host name in plain text. The host name can be the
+*host* is a pointer the hostname in plain text. The hostname can be the
 IP numerical address of the host or the full name.
 
 *port* is the port number used by the host (or a negative number
-to check the generic host). If the port number is given, libssh2 will
-check the key for the specific host + port number combination in
-addition to the plain host name only check.
+to check the generic host). If the port number is given, libssh2
+checks the key for the specific host + port number combination in
+addition to the plain hostname only check.
 
 *key* is a pointer to the key for the given host.
 
@@ -46,10 +45,10 @@ addition to the plain host name only check.
 argument
 
 *typemask* is a bitmask that specifies format and info about the data
-passed to this function. Specifically, it details what format the host name is,
+passed to this function. Specifically, it details what format the hostname is,
 what format the key is and what key type it is.
 
-The host name is given as one of the following types:
+The hostname is given as one of the following types:
 LIBSSH2_KNOWNHOST_TYPE_PLAIN or LIBSSH2_KNOWNHOST_TYPE_CUSTOM.
 
 The key is encoded using one of the following encodings:

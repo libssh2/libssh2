@@ -17,17 +17,14 @@ libssh2_channel_read_ex - read data from a channel stream
 ~~~c
 #include <libssh2.h>
 
-ssize_t
-libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id,
-                        char *buf, size_t buflen);
+ssize_t libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id,
+                                char *buf, size_t buflen);
 
-ssize_t
-libssh2_channel_read(LIBSSH2_CHANNEL *channel,
-                     char *buf, size_t buflen);
+ssize_t libssh2_channel_read(LIBSSH2_CHANNEL *channel,
+                             char *buf, size_t buflen);
 
-ssize_t
-libssh2_channel_read_stderr(LIBSSH2_CHANNEL *channel,
-                            char *buf, size_t buflen);
+ssize_t libssh2_channel_read_stderr(LIBSSH2_CHANNEL *channel,
+                                    char *buf, size_t buflen);
 ~~~
 
 # DESCRIPTION

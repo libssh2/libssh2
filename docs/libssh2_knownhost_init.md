@@ -19,8 +19,7 @@ libssh2_knownhost_init - init a collection of known hosts
 ~~~c
 #include <libssh2.h>
 
-LIBSSH2_KNOWNHOSTS *
-libssh2_knownhost_init(LIBSSH2_SESSION *session);
+LIBSSH2_KNOWNHOSTS *libssh2_knownhost_init(LIBSSH2_SESSION *session);
 ~~~
 
 # DESCRIPTION
