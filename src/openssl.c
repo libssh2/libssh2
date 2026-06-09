@@ -4377,6 +4377,9 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
     unsigned char *buf = NULL;
     struct string_buf *decrypted = NULL;
     int rc = 0;
+#if LIBSSH2_ECDSA
+    ssh2_curve_type type;
+#endif
 
     if(!session) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO, "Session is required");
@@ -4439,15 +4442,11 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
                                                   NULL);
 #endif
 #if LIBSSH2_ECDSA
-    {
-        ssh2_curve_type type;
-
-        if(ssh2_ecdsa_curve_type_from_name((const char *)buf, &type) == 0)
-            rc = ossl_ecdsa_openssh_priv_to_pubkey(session, type, decrypted,
-                                                   method, method_len,
-                                                   pubkeydata, pubkeydata_len,
-                                                   NULL);
-    }
+    if(ssh2_ecdsa_curve_type_from_name((const char *)buf, &type) == 0)
+        rc = ossl_ecdsa_openssh_priv_to_pubkey(session, type, decrypted,
+                                               method, method_len,
+                                               pubkeydata, pubkeydata_len,
+                                               NULL);
 #endif
 
     if(decrypted)
