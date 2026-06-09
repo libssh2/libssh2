@@ -248,7 +248,7 @@ static int is_running_inside_a_container(void)
 #else
     static const char *cgroup_filename = "/proc/self/cgroup";
     FILE *f;
-    char line[256];
+    char line[1024];
     int found = 0;
     f = fopen(cgroup_filename, "r");
     if(!f) {
