@@ -1342,13 +1342,13 @@ out:
 }
 #endif /* !USE_OPENSSL_3 */
 
-static int ossl_rsa_to_pubkey_openssh_priv_data(LIBSSH2_SESSION *session,
-                                                struct string_buf *decrypted,
-                                                unsigned char **method,
-                                                size_t *method_len,
-                                                unsigned char **pubkeydata,
-                                                size_t *pubkeydata_len,
-                                                ssh2_rsa_ctx **rsa_ctx)
+static int ossl_rsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
+                                           struct string_buf *decrypted,
+                                           unsigned char **method,
+                                           size_t *method_len,
+                                           unsigned char **pubkeydata,
+                                           size_t *pubkeydata_len,
+                                           ssh2_rsa_ctx **rsa_ctx)
 {
     int rc = 0;
     size_t nlen, elen, dlen, plen, qlen, coefflen, commentlen;
@@ -1487,8 +1487,8 @@ static int ossl_rsa_openssh_priv_new(ssh2_rsa_ctx **rsa,
     }
 
     if(strcmp("ssh-rsa", (const char *)buf) == 0) {
-        rc = ossl_rsa_to_pubkey_openssh_priv_data(session, decrypted,
-                                                  NULL, NULL, NULL, NULL, rsa);
+        rc = ossl_rsa_openssh_priv_to_pubkey(session, decrypted,
+                                             NULL, NULL, NULL, NULL, rsa);
     }
     else {
         rc = -1;
@@ -1694,13 +1694,13 @@ alloc_error:
                     "Unable to allocate memory for private key data");
 }
 
-static int ossl_dsa_to_pubkey_openssh_priv_data(LIBSSH2_SESSION *session,
-                                                struct string_buf *decrypted,
-                                                unsigned char **method,
-                                                size_t *method_len,
-                                                unsigned char **pubkeydata,
-                                                size_t *pubkeydata_len,
-                                                ssh2_dsa_ctx **dsa_ctx)
+static int ossl_dsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
+                                           struct string_buf *decrypted,
+                                           unsigned char **method,
+                                           size_t *method_len,
+                                           unsigned char **pubkeydata,
+                                           size_t *pubkeydata_len,
+                                           ssh2_dsa_ctx **dsa_ctx)
 {
     int rc = 0;
     size_t plen, qlen, glen, pub_len, priv_len;
@@ -1820,8 +1820,8 @@ static int ossl_dsa_openssh_priv_new(ssh2_dsa_ctx **dsa,
     }
 
     if(strcmp("ssh-dss", (const char *)buf) == 0) {
-        rc = ossl_dsa_to_pubkey_openssh_priv_data(session, decrypted,
-                                                  NULL, NULL, NULL, NULL, dsa);
+        rc = ossl_dsa_openssh_priv_to_pubkey(session, decrypted,
+                                             NULL, NULL, NULL, NULL, dsa);
     }
     else {
         rc = -1;
@@ -4430,18 +4430,18 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
 #endif
 #if LIBSSH2_RSA
     if(strcmp("ssh-rsa", (const char *)buf) == 0) {
-        rc = ossl_rsa_to_pubkey_openssh_priv_data(session, decrypted,
-                                                  method, method_len,
-                                                  pubkeydata, pubkeydata_len,
-                                                  NULL);
+        rc = ossl_rsa_openssh_priv_to_pubkey(session, decrypted,
+                                             method, method_len,
+                                             pubkeydata, pubkeydata_len,
+                                             NULL);
     }
 #endif
 #if LIBSSH2_DSA
     if(strcmp("ssh-dss", (const char *)buf) == 0) {
-        rc = ossl_dsa_to_pubkey_openssh_priv_data(session, decrypted,
-                                                  method, method_len,
-                                                  pubkeydata, pubkeydata_len,
-                                                  NULL);
+        rc = ossl_dsa_openssh_priv_to_pubkey(session, decrypted,
+                                             method, method_len,
+                                             pubkeydata, pubkeydata_len,
+                                             NULL);
     }
 #endif
 #if LIBSSH2_ECDSA
@@ -4627,22 +4627,20 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
 #if LIBSSH2_RSA
     if(strcmp("ssh-rsa", (const char *)buf) == 0) {
         if(!key_type || strcmp("ssh-rsa", key_type) == 0) {
-            rc = ossl_rsa_to_pubkey_openssh_priv_data(session, decrypted,
-                                                      method, method_len,
-                                                      pubkeydata,
-                                                      pubkeydata_len,
-                                                     (ssh2_rsa_ctx **)key_ctx);
+            rc = ossl_rsa_openssh_priv_to_pubkey(session, decrypted,
+                                                 method, method_len,
+                                                 pubkeydata, pubkeydata_len,
+                                                 (ssh2_rsa_ctx **)key_ctx);
         }
     }
 #endif
 #if LIBSSH2_DSA
     if(strcmp("ssh-dss", (const char *)buf) == 0) {
         if(!key_type || strcmp("ssh-dss", key_type) == 0) {
-            rc = ossl_dsa_to_pubkey_openssh_priv_data(session, decrypted,
-                                                      method, method_len,
-                                                      pubkeydata,
-                                                      pubkeydata_len,
-                                                     (ssh2_dsa_ctx **)key_ctx);
+            rc = ossl_dsa_openssh_priv_to_pubkey(session, decrypted,
+                                                 method, method_len,
+                                                 pubkeydata, pubkeydata_len,
+                                                 (ssh2_dsa_ctx **)key_ctx);
         }
     }
 #endif
@@ -4650,8 +4648,7 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
     if(strcmp("sk-ecdsa-sha2-nistp256@openssh.com", (const char *)buf) == 0) {
         rc = ossl_ecdsa_sk_openssh_priv_to_pubkey(session, decrypted,
                                                   method, method_len,
-                                                  pubkeydata,
-                                                  pubkeydata_len,
+                                                  pubkeydata, pubkeydata_len,
                                                   NULL, NULL, NULL, NULL,
                                                   (ssh2_ecdsa_ctx **)key_ctx);
     }
@@ -4659,8 +4656,7 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
         if(!key_type || strcmp("ssh-ecdsa", key_type) == 0) {
             rc = ossl_ecdsa_openssh_priv_to_pubkey(session, type, decrypted,
                                                    method, method_len,
-                                                   pubkeydata,
-                                                   pubkeydata_len,
+                                                   pubkeydata, pubkeydata_len,
                                                    (ssh2_ecdsa_ctx **)key_ctx);
         }
     }
