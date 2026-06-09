@@ -1206,7 +1206,7 @@ fail:
     return key;
 }
 
-static int ossl_rsa_to_pubkey_evp(LIBSSH2_SESSION *session,
+static int ossl_rsa_evp_to_pubkey(LIBSSH2_SESSION *session,
                                   unsigned char **method,
                                   size_t *method_len,
                                   unsigned char **pubkeydata,
@@ -1422,7 +1422,7 @@ static int ossl_rsa_to_pubkey_openssh_priv_data(LIBSSH2_SESSION *session,
         EVP_PKEY_set1_RSA(pk, rsa);
 #endif
 
-        rc = ossl_rsa_to_pubkey_evp(session, method, method_len,
+        rc = ossl_rsa_evp_to_pubkey(session, method, method_len,
                                     pubkeydata, pubkeydata_len, pk);
 
 #ifndef USE_OPENSSL_3
@@ -1631,7 +1631,7 @@ fail:
     return key;
 }
 
-static int ossl_dsa_to_pubkey_evp(LIBSSH2_SESSION *session,
+static int ossl_dsa_evp_to_pubkey(LIBSSH2_SESSION *session,
                                   unsigned char **method,
                                   size_t *method_len,
                                   unsigned char **pubkeydata,
@@ -1755,7 +1755,7 @@ static int ossl_dsa_to_pubkey_openssh_priv_data(LIBSSH2_SESSION *session,
         EVP_PKEY_set1_DSA(pk, dsa);
 #endif
 
-        rc = ossl_dsa_to_pubkey_evp(session, method, method_len,
+        rc = ossl_dsa_evp_to_pubkey(session, method, method_len,
                                     pubkeydata, pubkeydata_len, pk);
 
 #ifndef USE_OPENSSL_3
@@ -4524,13 +4524,13 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
 #endif /* LIBSSH2_ED25519 */
 #if LIBSSH2_RSA
     case EVP_PKEY_RSA:
-        st = ossl_rsa_to_pubkey_evp(session, method, method_len,
+        st = ossl_rsa_evp_to_pubkey(session, method, method_len,
                                     pubkeydata, pubkeydata_len, pk);
         break;
 #endif /* LIBSSH2_RSA */
 #if LIBSSH2_DSA
     case EVP_PKEY_DSA:
-        st = ossl_dsa_to_pubkey_evp(session, method, method_len,
+        st = ossl_dsa_evp_to_pubkey(session, method, method_len,
                                     pubkeydata, pubkeydata_len, pk);
         break;
 #endif /* LIBSSH2_DSA */
@@ -4844,13 +4844,13 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
 #endif /* LIBSSH2_ED25519 */
 #if LIBSSH2_RSA
     case EVP_PKEY_RSA:
-        st = ossl_rsa_to_pubkey_evp(session, method, method_len,
+        st = ossl_rsa_evp_to_pubkey(session, method, method_len,
                                     pubkeydata, pubkeydata_len, pk);
         break;
 #endif /* LIBSSH2_RSA */
 #if LIBSSH2_DSA
     case EVP_PKEY_DSA:
-        st = ossl_dsa_to_pubkey_evp(session, method, method_len,
+        st = ossl_dsa_evp_to_pubkey(session, method, method_len,
                                     pubkeydata, pubkeydata_len, pk);
         break;
 #endif /* LIBSSH2_DSA */
