@@ -4604,42 +4604,46 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
 
 #if LIBSSH2_ED25519
     if(strcmp("ssh-ed25519", (const char *)buf) == 0) {
-        if(!key_type || strcmp("ssh-ed25519", key_type) == 0)
+        if(!key_type || strcmp("ssh-ed25519", key_type) == 0) {
             rc = ossl_ed25519_openssh_priv_to_pubkey(session, decrypted,
                                                      method, method_len,
                                                      pubkeydata,
                                                      pubkeydata_len,
                                                  (ssh2_ed25519_ctx **)key_ctx);
+        }
     }
 
     if(strcmp("sk-ssh-ed25519@openssh.com", (const char *)buf) == 0) {
-        if(!key_type || strcmp("sk-ssh-ed25519@openssh.com", key_type) == 0)
+        if(!key_type || strcmp("sk-ssh-ed25519@openssh.com", key_type) == 0) {
             rc = ossl_ed25519_openssh_sk_priv_to_pubkey(session, decrypted,
                                                         method, method_len,
                                                         pubkeydata,
                                                         pubkeydata_len,
                                                         NULL, NULL, NULL, NULL,
                                                  (ssh2_ed25519_ctx **)key_ctx);
+        }
     }
 #endif
 #if LIBSSH2_RSA
     if(strcmp("ssh-rsa", (const char *)buf) == 0) {
-        if(!key_type || strcmp("ssh-rsa", key_type) == 0)
+        if(!key_type || strcmp("ssh-rsa", key_type) == 0) {
             rc = ossl_rsa_to_pubkey_openssh_priv_data(session, decrypted,
                                                       method, method_len,
                                                       pubkeydata,
                                                       pubkeydata_len,
                                                      (ssh2_rsa_ctx **)key_ctx);
+        }
     }
 #endif
 #if LIBSSH2_DSA
     if(strcmp("ssh-dss", (const char *)buf) == 0) {
-        if(!key_type || strcmp("ssh-dss", key_type) == 0)
+        if(!key_type || strcmp("ssh-dss", key_type) == 0) {
             rc = ossl_dsa_to_pubkey_openssh_priv_data(session, decrypted,
                                                       method, method_len,
                                                       pubkeydata,
                                                       pubkeydata_len,
                                                      (ssh2_dsa_ctx **)key_ctx);
+        }
     }
 #endif
 #if LIBSSH2_ECDSA
@@ -4652,12 +4656,13 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
                                                   (ssh2_ecdsa_ctx **)key_ctx);
     }
     else if(ssh2_ecdsa_curve_type_from_name((const char *)buf, &type) == 0) {
-        if(!key_type || strcmp("ssh-ecdsa", key_type) == 0)
+        if(!key_type || strcmp("ssh-ecdsa", key_type) == 0) {
             rc = ossl_ecdsa_openssh_priv_to_pubkey(session, type, decrypted,
                                                    method, method_len,
                                                    pubkeydata,
                                                    pubkeydata_len,
                                                    (ssh2_ecdsa_ctx **)key_ctx);
+        }
     }
 #endif
 
