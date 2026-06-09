@@ -672,13 +672,16 @@ LIBSSH2_LISTENER *libssh2_channel_forward_listen_ex(LIBSSH2_SESSION *session,
     return ptr;
 }
 
-LIBSSH2_API void **
-libssh2_listener_abstract(LIBSSH2_LISTENER *listener)
+void **libssh2_listener_abstract(LIBSSH2_LISTENER *listener)
 {
     return &listener->abstract;
 }
 
-LIBSSH2_API
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-function-type"
+#endif
+
 libssh2_cb_generic *libssh2_listener_callback_set(LIBSSH2_LISTENER *listener,
                                                   int cbtype,
                                                   libssh2_cb_generic *callback)
@@ -692,6 +695,9 @@ libssh2_cb_generic *libssh2_listener_callback_set(LIBSSH2_LISTENER *listener,
     }
     return oldFunc;
 }
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 /*
  * Stop listening on a remote port and free the listener
@@ -2945,6 +2951,10 @@ libssh2_channel_abstract(LIBSSH2_CHANNEL *channel)
     return &channel->abstract;
 }
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-function-type"
+#endif
 libssh2_cb_generic *
 libssh2_channel_callback_set(LIBSSH2_CHANNEL *channel,
                              int cbtype,
@@ -2974,3 +2984,6 @@ libssh2_channel_callback_set(LIBSSH2_CHANNEL *channel,
 
     return oldcb;
 }
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
