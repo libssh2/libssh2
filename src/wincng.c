@@ -1055,8 +1055,7 @@ static int wcng_load_private_memory(LIBSSH2_SESSION *session,
 
 #if LIBSSH2_RSA
     if(ret && tryLoadRSA) {
-        ret = ssh2_pem_parse_memory(session,
-                                    PEM_RSA_HEADER, PEM_RSA_FOOTER,
+        ret = ssh2_pem_parse_memory(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
                                     passphrase,
                                     privatekeydata, privatekeydata_len,
                                     &data, &datalen);
@@ -1067,8 +1066,7 @@ static int wcng_load_private_memory(LIBSSH2_SESSION *session,
 
 #if LIBSSH2_DSA
     if(ret && tryLoadDSA) {
-        ret = ssh2_pem_parse_memory(session,
-                                    PEM_DSA_HEADER, PEM_DSA_FOOTER,
+        ret = ssh2_pem_parse_memory(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
                                     passphrase,
                                     privatekeydata, privatekeydata_len,
                                     &data, &datalen);
