@@ -2600,12 +2600,9 @@ int ssh2_ecdsa_new_private(OUT ssh2_ecdsa_ctx **key,
         goto cleanup;
     }
 
-    result = ssh2_ecdsa_new_private_frommemory(
-        key,
-        session,
-        (const char *)data,
-        datalen,
-        passphrase);
+    result = ssh2_ecdsa_new_private_frommemory(key, session,
+                                               (const char *)data, datalen,
+                                               passphrase);
     if(result != LIBSSH2_ERROR_NONE) {
         goto cleanup;
     }
