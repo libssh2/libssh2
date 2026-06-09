@@ -114,6 +114,16 @@ LIBSSH2_CHANNEL *ssh2_channel_locate(LIBSSH2_SESSION *session,
     return NULL;
 }
 
+static void channel_request_callback(LIBSSH2_CHANNEL *channel,
+                                     const char *request,
+                                     size_t request_len)
+{
+    if(channel->request_cb) {
+        LIBSSH2_SESSION *session = channel->session;
+        SSH2_CHANNEL_REQUEST(session, channel, request, request_len);
+    }
+}
+
 /*
  * Establish a generic session channel
  */
@@ -942,6 +952,7 @@ static int channel_setenv(LIBSSH2_CHANNEL *channel,
         if(data[0] == SSH_MSG_CHANNEL_SUCCESS) {
             SSH2_FREE(session, data);
             channel->setenv_state = ssh2_NB_state_idle;
+            channel_request_callback(channel, "env", sizeof("env") - 1);
             return 0;
         }
 
@@ -1060,8 +1071,11 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
         SSH2_FREE(session, data);
         channel->reqPTY_state = ssh2_NB_state_idle;
 
-        if(code == SSH_MSG_CHANNEL_SUCCESS)
+        if(code == SSH_MSG_CHANNEL_SUCCESS) {
+            channel_request_callback(channel, "pty-req",
+                                     sizeof("pty-req") - 1);
             return 0;
+        }
     }
 
     return ssh2_err(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
@@ -1158,8 +1172,10 @@ static int channel_request_auth_agent(LIBSSH2_CHANNEL *channel,
         SSH2_FREE(session, data);
         channel->req_auth_agent_state = ssh2_NB_state_idle;
 
-        if(code == SSH_MSG_CHANNEL_SUCCESS)
+        if(code == SSH_MSG_CHANNEL_SUCCESS) {
+            channel_request_callback(channel, request_str, request_str_len);
             return 0;
+        }
     }
 
     return ssh2_err(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
@@ -1431,8 +1447,11 @@ static int channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
         SSH2_FREE(session, data);
         channel->reqX11_state = ssh2_NB_state_idle;
 
-        if(code == SSH_MSG_CHANNEL_SUCCESS)
+        if(code == SSH_MSG_CHANNEL_SUCCESS) {
+            channel_request_callback(channel, "x11-req",
+                                     sizeof("x11-req") - 1);
             return 0;
+        }
     }
 
     return ssh2_err(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
@@ -1551,8 +1570,10 @@ int ssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
         SSH2_FREE(session, data);
         channel->process_state = ssh2_NB_state_end;
 
-        if(code == SSH_MSG_CHANNEL_SUCCESS)
+        if(code == SSH_MSG_CHANNEL_SUCCESS) {
+            channel_request_callback(channel, request, request_len);
             return 0;
+        }
     }
 
     return ssh2_err(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
@@ -2967,7 +2988,7 @@ libssh2_channel_callback_set(LIBSSH2_CHANNEL *channel,
 
     switch(cbtype) {
     case LIBSSH2_CALLBACK_CHANNEL_EOF:
-        oldcb = (libssh2_cb_generic*)channel->close_cb;
+        oldcb = (libssh2_cb_generic*)channel->eof_cb;
         channel->eof_cb = (LIBSSH2_CHANNEL_EOF_FUNC((*)))callback;
         break;
     case LIBSSH2_CALLBACK_CHANNEL_CLOSE:
@@ -2977,6 +2998,10 @@ libssh2_channel_callback_set(LIBSSH2_CHANNEL *channel,
     case LIBSSH2_CALLBACK_CHANNEL_DATA:
         oldcb = (libssh2_cb_generic*)channel->data_cb;
         channel->data_cb = (LIBSSH2_CHANNEL_DATA_FUNC((*)))callback;
+        break;
+    case LIBSSH2_CALLBACK_CHANNEL_REQUEST:
+        oldcb = (libssh2_cb_generic*)channel->request_cb;
+        channel->request_cb = (LIBSSH2_CHANNEL_REQUEST_FUNC((*)))callback;
         break;
     default:
         return NULL;

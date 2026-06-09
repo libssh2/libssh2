@@ -295,6 +295,10 @@ struct iovec {
 #define SSH2_CHANNEL_DATA(session, channel, stream, buffer, length) \
     channel->data_cb(session, &(session)->abstract, \
                      channel, &(channel)->abstract, stream, buffer, length)
+#define SSH2_CHANNEL_REQUEST(session, channel, request, request_len) \
+    channel->request_cb(session, &(session)->abstract, \
+                        channel, &(channel)->abstract, \
+                        request, request_len)
 
 #define SSH2_LISTENER_CONNECT(session, listener, channel) \
     listener->connect_cb(session, &(session)->abstract, \
@@ -495,6 +499,7 @@ struct _LIBSSH2_CHANNEL {
     LIBSSH2_CHANNEL_DATA_FUNC(*data_cb);
     LIBSSH2_CHANNEL_EOF_FUNC(*eof_cb);
     LIBSSH2_CHANNEL_CLOSE_FUNC(*close_cb);
+    LIBSSH2_CHANNEL_REQUEST_FUNC(*request_cb);
 
     /* State variables used in libssh2_channel_setenv_ex() */
     ssh2_NB_states setenv_state;

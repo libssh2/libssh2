@@ -345,6 +345,11 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
                 LIBSSH2_CHANNEL *channel, void **channel_abstract, \
                 int stream, const unsigned char *buffer, size_t length)
 
+#define LIBSSH2_CHANNEL_REQUEST_FUNC(name) \
+    void (name)(LIBSSH2_SESSION *session, void **session_abstract, \
+                LIBSSH2_CHANNEL *channel, void **channel_abstract, \
+                const char *request, size_t request_len)
+
 /* I/O callbacks */
 #define LIBSSH2_RECV_FUNC(name)                                         \
     ssize_t (name)(libssh2_socket_t socket,                             \
@@ -389,6 +394,7 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
 #define LIBSSH2_CALLBACK_CHANNEL_EOF   0
 #define LIBSSH2_CALLBACK_CHANNEL_CLOSE 1
 #define LIBSSH2_CALLBACK_CHANNEL_DATA  2
+#define LIBSSH2_CALLBACK_CHANNEL_REQUEST 3
 
 /* libssh2_listener_callback_set() constant */
 #define LIBSSH2_CALLBACK_LISTENER_ACCEPT 0
