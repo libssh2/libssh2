@@ -4745,8 +4745,7 @@ static int ossl_key_sk_from_openssh_blob(LIBSSH2_SESSION *session,
 #if LIBSSH2_ED25519
     if(strcmp("sk-ssh-ed25519@openssh.com", (const char *)buf) == 0) {
         *algorithm = LIBSSH2_HOSTKEY_TYPE_ED25519;
-        if(!key_type ||
-           strcmp("sk-ssh-ed25519@openssh.com", key_type) == 0) {
+        if(!key_type || strcmp("sk-ssh-ed25519@openssh.com", key_type) == 0) {
             rc = ossl_ed25519_openssh_sk_priv_to_pubkey(session, decrypted,
                                                         method, method_len,
                                                         pubkeydata,
