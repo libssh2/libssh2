@@ -61,9 +61,8 @@ int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 }
 
 #ifdef USE_OPENSSL_3
-static int ossl_hmac_init(ssh2_hmac_ctx *ctx,
-                     void *key, size_t keylen,
-                     const char *digest_name)
+static int ossl_hmac_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen,
+                          const char *digest_name)
 {
     EVP_MAC *mac;
     OSSL_PARAM params[3];
