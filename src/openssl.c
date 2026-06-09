@@ -1919,20 +1919,12 @@ int ssh2_ecdsa_new_private_frommemory_sk(ssh2_ecdsa_ctx **ec_ctx,
                                          const unsigned char *passphrase)
 {
     int algorithm;
-    return sk_pub_openssh_keyfilememory(session,
-                                        (void **)ec_ctx,
+    return sk_pub_openssh_keyfilememory(session, (void **)ec_ctx,
                                         "sk-ecdsa-sha2-nistp256@openssh.com",
-                                        NULL,
-                                        NULL,
-                                        NULL,
-                                        NULL,
-                                        &algorithm,
-                                        flags,
-                                        application,
-                                        key_handle,
-                                        handle_len,
-                                        filedata,
-                                        filedata_len,
+                                        NULL, NULL, NULL, NULL,
+                                        &algorithm, flags, application,
+                                        key_handle, handle_len,
+                                        filedata, filedata_len,
                                         passphrase);
 }
 
@@ -2537,20 +2529,12 @@ int ssh2_ed25519_new_private_frommemory_sk(ssh2_ed25519_ctx **ed_ctx,
                                            const unsigned char *passphrase)
 {
     int algorithm;
-    return sk_pub_openssh_keyfilememory(session,
-                                        (void **)ed_ctx,
+    return sk_pub_openssh_keyfilememory(session, (void **)ed_ctx,
                                         "sk-ssh-ed25519@openssh.com",
-                                        NULL,
-                                        NULL,
-                                        NULL,
-                                        NULL,
-                                        &algorithm,
-                                        flags,
-                                        application,
-                                        key_handle,
-                                        handle_len,
-                                        filedata,
-                                        filedata_len,
+                                        NULL, NULL, NULL, NULL,
+                                        &algorithm, flags, application,
+                                        key_handle, handle_len,
+                                        filedata, filedata_len,
                                         passphrase);
 }
 
