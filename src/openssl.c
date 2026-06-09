@@ -2018,7 +2018,7 @@ clean_exit:
     return -1;
 }
 
-static int ossl_ed25519_openssh_sk_priv_to_pubkey(
+static int ossl_ed25519_sk_openssh_priv_to_pubkey(
     LIBSSH2_SESSION *session,
     struct string_buf *decrypted,
     unsigned char **method,
@@ -2265,7 +2265,7 @@ int ssh2_ed25519_new_private_sk(ssh2_ed25519_ctx **ed_ctx,
     }
 
     if(!strcmp("sk-ssh-ed25519@openssh.com", (const char *)buf))
-        rc = ossl_ed25519_openssh_sk_priv_to_pubkey(session, decrypted,
+        rc = ossl_ed25519_sk_openssh_priv_to_pubkey(session, decrypted,
                                                     NULL, NULL, NULL, NULL,
                                                     flags, application,
                                                     key_handle, handle_len,
@@ -4267,7 +4267,7 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
 
     if(!strcmp("sk-ssh-ed25519@openssh.com", (const char *)buf) &&
        (!key_type || !strcmp("sk-ssh-ed25519@openssh.com", key_type)))
-        rc = ossl_ed25519_openssh_sk_priv_to_pubkey(session, decrypted,
+        rc = ossl_ed25519_sk_openssh_priv_to_pubkey(session, decrypted,
                                                     method, method_len,
                                                     pubkeydata, pubkeydata_len,
                                                     NULL, NULL, NULL, NULL,
@@ -4377,7 +4377,7 @@ static int ossl_key_sk_from_openssh_blob(LIBSSH2_SESSION *session,
     if(!strcmp("sk-ssh-ed25519@openssh.com", (const char *)buf)) {
         *algorithm = LIBSSH2_HOSTKEY_TYPE_ED25519;
         if(!key_type || !strcmp("sk-ssh-ed25519@openssh.com", key_type))
-            rc = ossl_ed25519_openssh_sk_priv_to_pubkey(session, decrypted,
+            rc = ossl_ed25519_sk_openssh_priv_to_pubkey(session, decrypted,
                                                         method, method_len,
                                                         pubkeydata,
                                                         pubkeydata_len,
