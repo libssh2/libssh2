@@ -325,7 +325,7 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
                 LIBSSH2_CHANNEL *channel, void **channel_abstract)
 
 #define LIBSSH2_LISTENER_CONNECT_FUNC(name) \
-    void (name)(LIBSSH2_SESSION *session, void **session_abstract, \
+    void (name)(LIBSSH2_SESSION *session, void **session_abstract,    \
                 LIBSSH2_LISTENER *listener, void **listener_abstract, \
                 LIBSSH2_CHANNEL *channel)
 
