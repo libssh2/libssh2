@@ -19,7 +19,7 @@ elseif($ip.StartsWith('10.0.')) {
 }
 
 # get external IP
-$extip = (New-Object Net.WebClient).DownloadString('https://www.appveyor.com/tools/my-ip.aspx').Trim()
+$extip = (New-Object Net.WebClient).DownloadString('https://checkip.amazonaws.com/').Trim()
 
 # allow inbound traffic
 New-NetFirewallRule -DisplayName 'SSH via RDP port' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 22,3389
