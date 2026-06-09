@@ -973,9 +973,14 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
     return rc < length ? LIBSSH2_ERROR_EAGAIN : LIBSSH2_ERROR_NONE;
 }
 
-int libssh2_read(LIBSSH2_SESSION *session)
+/*
+ * public API entry to trigger processing a read.
+ * Used with callbacks when a repsonse might be immediatly available.
+ *
+ */
+int libssh2_session_read(LIBSSH2_SESSION *session)
 {
-    return _libssh2_transport_read(session);
+    return ssh2_transport_read(session);
 }
 
 /*

@@ -238,7 +238,7 @@ static SSH2_INLINE int packet_queue_listener(
                              */
                             ssh2_list_add(&listen_state->channel->session->channels,
                                           &listen_state->channel->node);
-                            LIBSSH2_LISTENER_CONNECT(session, listn,
+                            SSH2_LISTENER_CONNECT(session, listn,
                                                      listen_state->channel);
                         }
                         else {
@@ -1106,7 +1106,7 @@ ssh2_packet_add_jump_point1:
                 channelp->remote.eof = 1;
                 /* post event callback, after channel set to eof state */
                 if(channelp->eof_cb)
-                    LIBSSH2_CHANNEL_EOF(session, channelp);
+                    SSH2_CHANNEL_EOF(session, channelp);
             }
             SSH2_FREE(session, data);
             session->packAdd_state = ssh2_NB_state_idle;
@@ -1269,7 +1269,7 @@ clean_exit:
             channelp->remote.close = 1;
             channelp->remote.eof = 1;
             if(channelp->close_cb)
-                LIBSSH2_CHANNEL_CLOSE(session, channelp);
+                SSH2_CHANNEL_CLOSE(session, channelp);
 
             SSH2_FREE(session, data);
             session->packAdd_state = ssh2_NB_state_idle;
@@ -1403,18 +1403,18 @@ ssh2_packet_add_jump_authagent:
                      *    otherwise send as stream id
                      */
                     if(data[0] == SSH_MSG_CHANNEL_DATA)
-                        LIBSSH2_CHANNEL_DATA(session, channelp, 0,
+                        SSH2_CHANNEL_DATA(session, channelp, 0,
                                              data + data_head,
                                              datalen - data_head);
                     else if(data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) {
-                        uint32_t sid = _libssh2_ntohu32(data + 5);
+                        uint32_t sid = ssh2_ntohu32(data + 5);
                         if(channelp->remote.extended_data_ignore_mode ==
                             LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE)
-                            LIBSSH2_CHANNEL_DATA(session, channelp, sid,
+                            SSH2_CHANNEL_DATA(session, channelp, sid,
                                                  data + data_head,
                                                  datalen - data_head);
                         else if(sid == SSH_EXTENDED_DATA_STDERR)
-                            LIBSSH2_CHANNEL_DATA(session, channelp, 1,
+                            SSH2_CHANNEL_DATA(session, channelp, 1,
                                                  data + data_head,
                                                  datalen - data_head);
                     }
@@ -1429,7 +1429,6 @@ ssh2_packet_add_jump_authagent:
             ssh2_list_add(&session->packets, &packetp->node);
         else SSH2_FREE(session, packetp);
 
-        _ssh2_list_add(&session->packets, &packetp->node);
         session->packAdd_state = ssh2_NB_state_sent1;
     }
 

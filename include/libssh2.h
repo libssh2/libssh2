@@ -815,7 +815,7 @@ LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds,
 #endif
 
 /* External read of any pending transport queued messages */
-LIBSSH2_API int libssh2_read(LIBSSH2_SESSION *session);
+LIBSSH2_API int libssh2_session_read(LIBSSH2_SESSION *session);
 
 /* Channel API */
 #define LIBSSH2_CHANNEL_WINDOW_DEFAULT  (2*1024*1024)

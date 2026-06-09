@@ -289,14 +289,14 @@ struct iovec {
 #define SSH2_CHANNEL_CLOSE(session, channel) \
     channel->close_cb(session, &(session)->abstract, \
                       channel, &(channel)->abstract)
-#define LIBSSH2_CHANNEL_EOF(session, channel) \
+#define SSH2_CHANNEL_EOF(session, channel) \
     channel->eof_cb(session, &(session)->abstract, \
                     channel, &(channel)->abstract)
-#define LIBSSH2_CHANNEL_DATA(session, channel, stream, buffer, length) \
+#define SSH2_CHANNEL_DATA(session, channel, stream, buffer, length) \
     channel->data_cb(session, &(session)->abstract, \
                      channel, &(channel)->abstract, stream, buffer, length)
 
-#define LIBSSH2_LISTENER_CONNECT(session, listener, channel) \
+#define SSH2_LISTENER_CONNECT(session, listener, channel) \
     listener->connect_cb(session, &(session)->abstract, \
                          listener, &(listener)->abstract, channel)
 
