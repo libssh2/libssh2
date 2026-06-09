@@ -61,7 +61,7 @@ int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 }
 
 #ifdef USE_OPENSSL_3
-static int hmac_init(ssh2_hmac_ctx *ctx,
+static int ossl_hmac_init(ssh2_hmac_ctx *ctx,
                      void *key, size_t keylen,
                      const char *digest_name)
 {
@@ -91,7 +91,7 @@ static int hmac_init(ssh2_hmac_ctx *ctx,
 int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
 #ifdef USE_OPENSSL_3
-    return hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_MD5);
+    return ossl_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_MD5);
 #elif defined(HAVE_OPAQUE_STRUCTS)
     return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_md5(), NULL);
 #else
@@ -104,7 +104,7 @@ int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 int ssh2_hmac_ripemd160_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
 #ifdef USE_OPENSSL_3
-    return hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_RIPEMD160);
+    return ossl_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_RIPEMD160);
 #elif defined(HAVE_OPAQUE_STRUCTS)
     return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_ripemd160(), NULL);
 #else
@@ -116,7 +116,7 @@ int ssh2_hmac_ripemd160_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
 #ifdef USE_OPENSSL_3
-    return hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_SHA1);
+    return ossl_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_SHA1);
 #elif defined(HAVE_OPAQUE_STRUCTS)
     return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_sha1(), NULL);
 #else
@@ -127,7 +127,7 @@ int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
 #ifdef USE_OPENSSL_3
-    return hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_SHA2_256);
+    return ossl_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_SHA2_256);
 #elif defined(HAVE_OPAQUE_STRUCTS)
     return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_sha256(), NULL);
 #else
@@ -138,7 +138,7 @@ int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
 #ifdef USE_OPENSSL_3
-    return hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_SHA2_512);
+    return ossl_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_SHA2_512);
 #elif defined(HAVE_OPAQUE_STRUCTS)
     return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_sha512(), NULL);
 #else
