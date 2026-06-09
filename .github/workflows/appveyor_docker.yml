@@ -42,6 +42,9 @@ name: 'AppVeyor Docker Bridge'
       ssh_privkey:
         required: true
 
+concurrency:
+  group: ${{ github.run_id }}
+
 permissions: {}
 
 env:
