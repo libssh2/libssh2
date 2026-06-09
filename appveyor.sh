@@ -10,6 +10,13 @@ set -eux; [ -n "${BASH:-}${ZSH_NAME:-}" ] && set -o pipefail
 
 # Install custom cmake version
 if [ "${APPVEYOR_BUILD_WORKER_IMAGE}" != 'Visual Studio 2022' ]; then
+  if [ "${APPVEYOR_BUILD_WORKER_IMAGE}" = 'Visual Studio 2026' ]; then
+    CMAKE_VERSION=${CMAKE_NEW_VERSION}
+    CMAKE_SHA256=${CMAKE_NEW_SHA256}
+  else
+    CMAKE_VERSION=${CMAKE_OLD_VERSION}
+    CMAKE_SHA256=${CMAKE_OLD_SHA256}
+  fi
   cmake_ver="$(printf '%02d%02d' \
     "$(echo "${CMAKE_VERSION}" | cut -f1 -d.)" \
     "$(echo "${CMAKE_VERSION}" | cut -f2 -d.)")"
