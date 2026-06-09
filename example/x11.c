@@ -46,7 +46,7 @@
 
 #include <termios.h>
 
-#define _PATH_UNIX_X "/tmp/.X11-unix/X%d"
+#define PATH_UNIX_X "/tmp/.X11-unix/X%d"
 
 /*
  * Chained list that contains channels and associated X11 socket for each X11
@@ -59,16 +59,16 @@ struct chan_X11_list {
 };
 
 static struct chan_X11_list *gp_x11_chan = NULL;
-static struct termios _saved_tio;
+static struct termios s_saved_tio;
 
-static int _raw_mode(void)
+static int raw_mode(void)
 {
     int rc;
     struct termios tio;
 
     rc = tcgetattr(fileno(stdin), &tio);
     if(rc != -1) {
-        _saved_tio = tio;
+        s_saved_tio = tio;
         /* do the equivalent of cfmakeraw() manually, to build on Solaris */
         tio.c_iflag &= ~(tcflag_t)(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR |
                                    IGNCR | ICRNL | IXON);
@@ -81,10 +81,10 @@ static int _raw_mode(void)
     return rc;
 }
 
-static int _normal_mode(void)
+static int normal_mode(void)
 {
     int rc;
-    rc = tcsetattr(fileno(stdin), TCSADRAIN, &_saved_tio);
+    rc = tcsetattr(fileno(stdin), TCSADRAIN, &s_saved_tio);
     return rc;
 }
 
@@ -130,7 +130,7 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
             memset(&addr, 0, sizeof(addr));
             addr.sun_family = AF_UNIX;
             snprintf(addr.sun_path, sizeof(addr.sun_path),
-                     _PATH_UNIX_X, display_port);
+                     PATH_UNIX_X, display_port);
             rc = connect(sock, (struct sockaddr *)&addr, sizeof(addr));
 
             if(rc != -1) {
@@ -407,7 +407,7 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
-    rc = _raw_mode();
+    rc = raw_mode();
     if(rc) {
         fprintf(stderr, "Failed to enter raw mode\n");
         goto shutdown;
@@ -546,7 +546,7 @@ shutdown:
 
     fprintf(stderr, "all done\n");
 
-    _normal_mode();
+    normal_mode();
 
     libssh2_exit();
 

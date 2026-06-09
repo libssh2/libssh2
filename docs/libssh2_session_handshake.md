@@ -18,8 +18,8 @@ libssh2_session_handshake - perform the SSH handshake
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_session_handshake(LIBSSH2_SESSION *session, libssh2_socket_t socket);
+int libssh2_session_handshake(LIBSSH2_SESSION *session,
+                              libssh2_socket_t socket);
 ~~~
 
 # DESCRIPTION
@@ -27,8 +27,8 @@ libssh2_session_handshake(LIBSSH2_SESSION *session, libssh2_socket_t socket);
 *session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *socket* - Connected socket descriptor. Typically a TCP connection
-though the protocol allows for any reliable transport and the library will
-attempt to use any berkeley socket.
+though the protocol allows for any reliable transport and the library
+attempts to use any berkeley socket.
 
 Begin transport layer protocol negotiation with the connected host.
 

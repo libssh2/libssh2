@@ -7,27 +7,27 @@ Source: libssh2
 See-also:
   - libssh2_channel_get_exit_signal(3)
   - libssh2_channel_open_ex(3)
+  - libssh2_channel_signal(3)
 ---
 
 # NAME
 
-libssh2_channel_signal_ex -- Send a signal to process previously opened on channel.
+libssh2_channel_signal_ex - Send a signal to process previously opened on channel.
 
 # SYNOPSIS
 
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_signal_ex(LIBSSH2_CHANNEL *channel,
-                          const char *signame,
-                          size_t signame_len)
+int libssh2_channel_signal_ex(LIBSSH2_CHANNEL *channel,
+                              const char *signame,
+                              size_t signame_len)
 ~~~
 
 # DESCRIPTION
 
 A signal can be delivered to the remote process/service. Some servers or
-systems may not implement signals, in which case they will probably ignore this
+systems may not implement signals, in which case they probably ignore this
 message.
 
 *channel* - Previously opened channel instance such as returned by libssh2_channel_open_ex(3).
@@ -42,3 +42,7 @@ There is also a macro *libssh2_channel_signal(channel, signame)* that supplies t
 
 Normal channel error codes.
 LIBSSH2_ERROR_EAGAIN when it would block.
+
+# AVAILABILITY
+
+Added in libssh2 1.11.0

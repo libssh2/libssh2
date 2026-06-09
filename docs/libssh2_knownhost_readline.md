@@ -19,9 +19,8 @@ libssh2_knownhost_readline - read a known host line
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
-                           const char *line, size_t len, int type):
+int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
+                               const char *line, size_t len, int type):
 ~~~
 
 # DESCRIPTION

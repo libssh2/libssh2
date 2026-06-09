@@ -40,7 +40,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#define LIBSSH2_CRYPTO_ENGINE libssh2_openssl
+#define SSH2_CRYPTO_ENGINE libssh2_openssl
 
 /* disable deprecated warnings in OpenSSL 3 */
 #define OPENSSL_SUPPRESS_DEPRECATED
@@ -70,7 +70,7 @@
 #define OPENSSL_NO_DES
 #endif
 
-/* wolfSSL doesn't support Blowfish or CAST. */
+/* wolfSSL does not support Blowfish or CAST. */
 #define OPENSSL_NO_BF
 #define OPENSSL_NO_CAST
 
@@ -118,7 +118,7 @@
 #if !defined(LIBRESSL_VERSION_NUMBER) || defined(LIBSSH2_WOLFSSL) || \
     (defined(LIBRESSL_VERSION_NUMBER) && \
     LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
-/* For wolfSSL, whether the structs are truly opaque or not, it's best to not
+/* For wolfSSL, whether the structs are truly opaque or not, it is best to not
  * rely on their internal data members being exposed publicly. */
 # define HAVE_OPAQUE_STRUCTS 1
 #endif
@@ -223,127 +223,122 @@
 
 #include "crypto_config.h"
 
-#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
+void ssh2_crypto_init(void);
+#define ssh2_crypto_exit()
 
-#define _libssh2_random(buf, len)  _libssh2_openssl_random(buf, len)
+int ssh2_random(unsigned char *buf, size_t len);
 
-#define libssh2_prepare_iovec(vec, len)  /* Empty. */
+#define ssh2_prepare_iovec(vec, len)  /* Empty. */
 
 #ifdef HAVE_OPAQUE_STRUCTS
-#define libssh2_sha1_ctx EVP_MD_CTX *
+#define ssh2_sha1_ctx EVP_MD_CTX *
 #else
-#define libssh2_sha1_ctx EVP_MD_CTX
+#define ssh2_sha1_ctx EVP_MD_CTX
 #endif
 
 /* returns 0 in case of failure */
-int _libssh2_sha1_init(libssh2_sha1_ctx *ctx);
-int _libssh2_sha1_update(libssh2_sha1_ctx *ctx,
-                         const void *data, size_t len);
-int _libssh2_sha1_final(libssh2_sha1_ctx *ctx, unsigned char *out);
-int _libssh2_sha1(const unsigned char *message, size_t len,
-                  unsigned char *out);
-#define libssh2_sha1_init(x) _libssh2_sha1_init(x)
-#define libssh2_sha1_update(ctx, data, len) \
-    _libssh2_sha1_update(&(ctx), data, len)
-#define libssh2_sha1_final(ctx, out) _libssh2_sha1_final(&(ctx), out)
-#define libssh2_sha1(x, y, z) _libssh2_sha1(x, y, z)
+int ssh2_ossl_sha1_init(ssh2_sha1_ctx *ctx);
+int ssh2_ossl_sha1_update(ssh2_sha1_ctx *ctx, const void *data, size_t len);
+int ssh2_ossl_sha1_final(ssh2_sha1_ctx *ctx, unsigned char *out);
+int ssh2_ossl_sha1(const unsigned char *message, size_t len,
+                   unsigned char *out);
+#define ssh2_sha1_init(x)                ssh2_ossl_sha1_init(x)
+#define ssh2_sha1_update(ctx, data, len) \
+    ssh2_ossl_sha1_update(&(ctx), data, len)
+#define ssh2_sha1_final(ctx, out)        ssh2_ossl_sha1_final(&(ctx), out)
+#define ssh2_sha1(x, y, z)               ssh2_ossl_sha1(x, y, z)
 
 #ifdef HAVE_OPAQUE_STRUCTS
-#define libssh2_sha256_ctx EVP_MD_CTX *
+#define ssh2_sha256_ctx EVP_MD_CTX *
 #else
-#define libssh2_sha256_ctx EVP_MD_CTX
+#define ssh2_sha256_ctx EVP_MD_CTX
 #endif
 
 /* returns 0 in case of failure */
-int _libssh2_sha256_init(libssh2_sha256_ctx *ctx);
-int _libssh2_sha256_update(libssh2_sha256_ctx *ctx,
-                           const void *data, size_t len);
-int _libssh2_sha256_final(libssh2_sha256_ctx *ctx, unsigned char *out);
-int _libssh2_sha256(const unsigned char *message, size_t len,
-                    unsigned char *out);
-#define libssh2_sha256_init(x) _libssh2_sha256_init(x)
-#define libssh2_sha256_update(ctx, data, len) \
-    _libssh2_sha256_update(&(ctx), data, len)
-#define libssh2_sha256_final(ctx, out) _libssh2_sha256_final(&(ctx), out)
-#define libssh2_sha256(x, y, z) _libssh2_sha256(x, y, z)
+int ssh2_ossl_sha256_init(ssh2_sha256_ctx *ctx);
+int ssh2_ossl_sha256_update(ssh2_sha256_ctx *ctx, const void *data,
+                            size_t len);
+int ssh2_ossl_sha256_final(ssh2_sha256_ctx *ctx, unsigned char *out);
+int ssh2_ossl_sha256(const unsigned char *message, size_t len,
+                     unsigned char *out);
+#define ssh2_sha256_init(x) ssh2_ossl_sha256_init(x)
+#define ssh2_sha256_update(ctx, data, len) \
+    ssh2_ossl_sha256_update(&(ctx), data, len)
+#define ssh2_sha256_final(ctx, out) ssh2_ossl_sha256_final(&(ctx), out)
+#define ssh2_sha256(x, y, z)        ssh2_ossl_sha256(x, y, z)
 
 #ifdef HAVE_OPAQUE_STRUCTS
-#define libssh2_sha384_ctx EVP_MD_CTX *
+#define ssh2_sha384_ctx EVP_MD_CTX *
 #else
-#define libssh2_sha384_ctx EVP_MD_CTX
+#define ssh2_sha384_ctx EVP_MD_CTX
 #endif
 
 /* returns 0 in case of failure */
-int _libssh2_sha384_init(libssh2_sha384_ctx *ctx);
-int _libssh2_sha384_update(libssh2_sha384_ctx *ctx,
-                           const void *data, size_t len);
-int _libssh2_sha384_final(libssh2_sha384_ctx *ctx, unsigned char *out);
-int _libssh2_sha384(const unsigned char *message, size_t len,
-                    unsigned char *out);
-#define libssh2_sha384_init(x) _libssh2_sha384_init(x)
-#define libssh2_sha384_update(ctx, data, len) \
-    _libssh2_sha384_update(&(ctx), data, len)
-#define libssh2_sha384_final(ctx, out) _libssh2_sha384_final(&(ctx), out)
-#define libssh2_sha384(x, y, z) _libssh2_sha384(x, y, z)
+int ssh2_ossl_sha384_init(ssh2_sha384_ctx *ctx);
+int ssh2_ossl_sha384_update(ssh2_sha384_ctx *ctx, const void *data,
+                            size_t len);
+int ssh2_ossl_sha384_final(ssh2_sha384_ctx *ctx, unsigned char *out);
+int ssh2_ossl_sha384(const unsigned char *message, size_t len,
+                     unsigned char *out);
+#define ssh2_sha384_init(x) ssh2_ossl_sha384_init(x)
+#define ssh2_sha384_update(ctx, data, len) \
+    ssh2_ossl_sha384_update(&(ctx), data, len)
+#define ssh2_sha384_final(ctx, out) ssh2_ossl_sha384_final(&(ctx), out)
+#define ssh2_sha384(x, y, z)        ssh2_ossl_sha384(x, y, z)
 
 #ifdef HAVE_OPAQUE_STRUCTS
-#define libssh2_sha512_ctx EVP_MD_CTX *
+#define ssh2_sha512_ctx EVP_MD_CTX *
 #else
-#define libssh2_sha512_ctx EVP_MD_CTX
+#define ssh2_sha512_ctx EVP_MD_CTX
 #endif
 
 /* returns 0 in case of failure */
-int _libssh2_sha512_init(libssh2_sha512_ctx *ctx);
-int _libssh2_sha512_update(libssh2_sha512_ctx *ctx,
-                           const void *data, size_t len);
-int _libssh2_sha512_final(libssh2_sha512_ctx *ctx, unsigned char *out);
-int _libssh2_sha512(const unsigned char *message, size_t len,
-                    unsigned char *out);
-#define libssh2_sha512_init(x) _libssh2_sha512_init(x)
-#define libssh2_sha512_update(ctx, data, len) \
-    _libssh2_sha512_update(&(ctx), data, len)
-#define libssh2_sha512_final(ctx, out) _libssh2_sha512_final(&(ctx), out)
-#define libssh2_sha512(x, y, z) _libssh2_sha512(x, y, z)
+int ssh2_ossl_sha512_init(ssh2_sha512_ctx *ctx);
+int ssh2_ossl_sha512_update(ssh2_sha512_ctx *ctx, const void *data,
+                            size_t len);
+int ssh2_ossl_sha512_final(ssh2_sha512_ctx *ctx, unsigned char *out);
+int ssh2_ossl_sha512(const unsigned char *message, size_t len,
+                     unsigned char *out);
+#define ssh2_sha512_init(x) ssh2_ossl_sha512_init(x)
+#define ssh2_sha512_update(ctx, data, len) \
+    ssh2_ossl_sha512_update(&(ctx), data, len)
+#define ssh2_sha512_final(ctx, out) ssh2_ossl_sha512_final(&(ctx), out)
+#define ssh2_sha512(x, y, z)        ssh2_ossl_sha512(x, y, z)
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #ifdef HAVE_OPAQUE_STRUCTS
-#define libssh2_md5_ctx EVP_MD_CTX *
+#define ssh2_md5_ctx EVP_MD_CTX *
 #else
-#define libssh2_md5_ctx EVP_MD_CTX
+#define ssh2_md5_ctx EVP_MD_CTX
 #endif
 
 /* returns 0 in case of failure */
-int _libssh2_md5_init(libssh2_md5_ctx *ctx);
-int _libssh2_md5_update(libssh2_md5_ctx *ctx,
-                        const void *data, size_t len);
-int _libssh2_md5_final(libssh2_md5_ctx *ctx, unsigned char *out);
-#define libssh2_md5_init(x) _libssh2_md5_init(x)
-#define libssh2_md5_update(ctx, data, len) \
-    _libssh2_md5_update(&(ctx), data, len)
-#define libssh2_md5_final(ctx, out) _libssh2_md5_final(&(ctx), out)
+int ssh2_ossl_md5_init(ssh2_md5_ctx *ctx);
+int ssh2_ossl_md5_update(ssh2_md5_ctx *ctx, const void *data, size_t len);
+int ssh2_ossl_md5_final(ssh2_md5_ctx *ctx, unsigned char *out);
+#define ssh2_md5_init(x)                ssh2_ossl_md5_init(x)
+#define ssh2_md5_update(ctx, data, len) ssh2_ossl_md5_update(&(ctx), data, len)
+#define ssh2_md5_final(ctx, out)        ssh2_ossl_md5_final(&(ctx), out)
 #endif /* LIBSSH2_MD5 || LIBSSH2_MD5_PEM */
 
 #ifdef USE_OPENSSL_3
-#define libssh2_hmac_ctx EVP_MAC_CTX *
+#define ssh2_hmac_ctx EVP_MAC_CTX *
 #elif defined(HAVE_OPAQUE_STRUCTS)
-#define libssh2_hmac_ctx HMAC_CTX *
+#define ssh2_hmac_ctx HMAC_CTX *
 #else /* !HAVE_OPAQUE_STRUCTS */
-#define libssh2_hmac_ctx HMAC_CTX
+#define ssh2_hmac_ctx HMAC_CTX
 #endif /* USE_OPENSSL_3 */
 
-void _libssh2_openssl_crypto_init(void);
-void _libssh2_openssl_crypto_exit(void);
-#define libssh2_crypto_init() _libssh2_openssl_crypto_init()
-#define libssh2_crypto_exit() _libssh2_openssl_crypto_exit()
+#define ssh2_crypto_exit()
 
 #if LIBSSH2_RSA
 
 #ifdef USE_OPENSSL_3
-#define libssh2_rsa_ctx EVP_PKEY
-#define _libssh2_rsa_free(rsactx) EVP_PKEY_free(rsactx)
+#define ssh2_rsa_ctx          EVP_PKEY
+#define ssh2_rsa_free(rsactx) EVP_PKEY_free(rsactx)
 #else
-#define libssh2_rsa_ctx RSA
-#define _libssh2_rsa_free(rsactx) RSA_free(rsactx)
+#define ssh2_rsa_ctx          RSA
+#define ssh2_rsa_free(rsactx) RSA_free(rsactx)
 #endif
 
 #endif /* LIBSSH2_RSA */
@@ -351,112 +346,102 @@ void _libssh2_openssl_crypto_exit(void);
 #if LIBSSH2_DSA
 
 #ifdef USE_OPENSSL_3
-#define libssh2_dsa_ctx EVP_PKEY
-#define _libssh2_dsa_free(rsactx) EVP_PKEY_free(rsactx)
+#define ssh2_dsa_ctx          EVP_PKEY
+#define ssh2_dsa_free(rsactx) EVP_PKEY_free(rsactx)
 #else
-#define libssh2_dsa_ctx DSA
-#define _libssh2_dsa_free(dsactx) DSA_free(dsactx)
+#define ssh2_dsa_ctx          DSA
+#define ssh2_dsa_free(dsactx) DSA_free(dsactx)
 #endif
 
 #endif /* LIBSSH2_DSA */
 
 #if LIBSSH2_ECDSA
 
+#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
+
 #ifdef USE_OPENSSL_3
-#define libssh2_ecdsa_ctx EVP_PKEY
-#define _libssh2_ecdsa_free(ecdsactx) EVP_PKEY_free(ecdsactx)
-#define libssh2_ec_key EVP_PKEY
+#define ssh2_ecdsa_ctx            EVP_PKEY
+#define ssh2_ecdsa_free(ecdsactx) EVP_PKEY_free(ecdsactx)
+#define ssh2_ec_key               EVP_PKEY
 #else
-#define libssh2_ecdsa_ctx EC_KEY
-#define _libssh2_ecdsa_free(ecdsactx) EC_KEY_free(ecdsactx)
-#define libssh2_ec_key EC_KEY
+#define ssh2_ecdsa_ctx            EC_KEY
+#define ssh2_ecdsa_free(ecdsactx) EC_KEY_free(ecdsactx)
+#define ssh2_ec_key               EC_KEY
 #endif
 
 typedef enum {
-    LIBSSH2_EC_CURVE_NISTP256 = NID_X9_62_prime256v1,
-    LIBSSH2_EC_CURVE_NISTP384 = NID_secp384r1,
-    LIBSSH2_EC_CURVE_NISTP521 = NID_secp521r1
-} libssh2_curve_type;
+    SSH2_EC_CURVE_NISTP256 = NID_X9_62_prime256v1,
+    SSH2_EC_CURVE_NISTP384 = NID_secp384r1,
+    SSH2_EC_CURVE_NISTP521 = NID_secp521r1
+} ssh2_curve_type;
 #else /* !LIBSSH2_ECDSA */
-#define libssh2_ec_key void
+#define ssh2_ec_key void
 #endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519
-#define libssh2_ed25519_ctx EVP_PKEY
-#define _libssh2_ed25519_free(ctx) EVP_PKEY_free(ctx)
+#define ssh2_ed25519_ctx       EVP_PKEY
+#define ssh2_ed25519_free(ctx) EVP_PKEY_free(ctx)
 #endif /* LIBSSH2_ED25519 */
 
-#define LIBSSH2_CIPHER_T(name) const EVP_CIPHER *(*(name))(void)
+#define SSH2_CIPHER_T(name) const EVP_CIPHER *(*(name))(void)
 #ifdef HAVE_OPAQUE_STRUCTS
-#define libssh2_cipher_ctx EVP_CIPHER_CTX *
+#define ssh2_cipher_ctx EVP_CIPHER_CTX *
 #else
-#define libssh2_cipher_ctx EVP_CIPHER_CTX
+#define ssh2_cipher_ctx EVP_CIPHER_CTX
 #endif
 
-#define libssh2_cipher_aes256gcm EVP_aes_256_gcm
-#define libssh2_cipher_aes128gcm EVP_aes_128_gcm
+#define ssh2_cipher_aes256gcm EVP_aes_256_gcm
+#define ssh2_cipher_aes128gcm EVP_aes_128_gcm
 
-#define libssh2_cipher_aes256    EVP_aes_256_cbc
-#define libssh2_cipher_aes192    EVP_aes_192_cbc
-#define libssh2_cipher_aes128    EVP_aes_128_cbc
-#define libssh2_cipher_aes128ctr EVP_aes_128_ctr
-#define libssh2_cipher_aes192ctr EVP_aes_192_ctr
-#define libssh2_cipher_aes256ctr EVP_aes_256_ctr
-#define libssh2_cipher_blowfish  EVP_bf_cbc
-#define libssh2_cipher_arcfour   EVP_rc4
-#define libssh2_cipher_cast5     EVP_cast5_cbc
-#define libssh2_cipher_3des      EVP_des_ede3_cbc
-#define libssh2_cipher_chacha20  NULL
+#define ssh2_cipher_aes256    EVP_aes_256_cbc
+#define ssh2_cipher_aes192    EVP_aes_192_cbc
+#define ssh2_cipher_aes128    EVP_aes_128_cbc
+#define ssh2_cipher_aes128ctr EVP_aes_128_ctr
+#define ssh2_cipher_aes192ctr EVP_aes_192_ctr
+#define ssh2_cipher_aes256ctr EVP_aes_256_ctr
+#define ssh2_cipher_blowfish  EVP_bf_cbc
+#define ssh2_cipher_arcfour   EVP_rc4
+#define ssh2_cipher_cast5     EVP_cast5_cbc
+#define ssh2_cipher_3des      EVP_des_ede3_cbc
+#define ssh2_cipher_chacha20  NULL
 
 #ifdef HAVE_OPAQUE_STRUCTS
-#define _libssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_free(*(ctx))
+#define ssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_free(*(ctx))
 #else
-#define _libssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_cleanup(ctx)
+#define ssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_cleanup(ctx)
 #endif
 
-#define libssh2_bn BIGNUM
-#define libssh2_bn_ctx BN_CTX
-#define _libssh2_bn_ctx_new() BN_CTX_new()
-#define _libssh2_bn_ctx_free(bnctx) BN_CTX_free(bnctx)
-#define _libssh2_bn_init() BN_new()
-#define _libssh2_bn_init_from_bin() _libssh2_bn_init()
-#define _libssh2_bn_set_word(bn, val) !BN_set_word(bn, val)
-int _libssh2_bn_from_bin(libssh2_bn *bn, size_t len,
-                         const unsigned char *val);
-#define _libssh2_bn_to_bin(bn, val) (BN_bn2bin(bn, val) <= 0)
-#define _libssh2_bn_bytes(bn) BN_num_bytes(bn)
-#define _libssh2_bn_bits(bn) BN_num_bits(bn)
-#define _libssh2_bn_free(bn) BN_clear_free(bn)
+#define ssh2_bn_ctx               BN_CTX
+#define ssh2_bn_ctx_new()         BN_CTX_new()
+#define ssh2_bn_ctx_free(bnctx)   BN_CTX_free(bnctx)
+
+#define ssh2_bn                   BIGNUM
+#define ssh2_bn_init()            BN_new()
+#define ssh2_bn_init_from_bin()   ssh2_bn_init()
+#define ssh2_bn_set_word(bn, val) !BN_set_word(bn, val)
+int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *val);
+#define ssh2_bn_to_bin(bn, val)   (BN_bn2bin(bn, val) <= 0)
+#define ssh2_bn_bytes(bn)         BN_num_bytes(bn)
+#define ssh2_bn_bits(bn)          BN_num_bits(bn)
+#define ssh2_bn_free(bn)          BN_clear_free(bn)
 
 /* Default generate and safe prime sizes for
    diffie-hellman-group-exchange-sha1 */
-#define LIBSSH2_DH_GEX_MINGROUP     2048
-#define LIBSSH2_DH_GEX_OPTGROUP     4096
-#define LIBSSH2_DH_GEX_MAXGROUP     8192
+#define SSH2_DH_GEX_MINGROUP     2048
+#define SSH2_DH_GEX_OPTGROUP     4096
+#define SSH2_DH_GEX_MAXGROUP     8192
 
-#define LIBSSH2_DH_MAX_MODULUS_BITS 16384
+#define SSH2_DH_MAX_MODULUS_BITS 16384
 
-#define libssh2_dh_ctx BIGNUM *
-#define libssh2_dh_init(dhctx) _libssh2_dh_init(dhctx)
-#define libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
-    _libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx)
-#define libssh2_dh_secret(dhctx, secret, f, p, bnctx) \
-    _libssh2_dh_secret(dhctx, secret, f, p, bnctx)
-#define libssh2_dh_dtor(dhctx) _libssh2_dh_dtor(dhctx)
-void _libssh2_dh_init(libssh2_dh_ctx *dhctx);
-int _libssh2_dh_key_pair(libssh2_dh_ctx *dhctx, libssh2_bn *public,
-                         libssh2_bn *g, libssh2_bn *p,
-                         int group_order,
-                         libssh2_bn_ctx *bnctx);
-int _libssh2_dh_secret(libssh2_dh_ctx *dhctx, libssh2_bn *secret,
-                       libssh2_bn *f, libssh2_bn *p,
-                       libssh2_bn_ctx *bnctx);
-void _libssh2_dh_dtor(libssh2_dh_ctx *dhctx);
+#define ssh2_dh_ctx BIGNUM *
+#define ssh2_dh_key_pair(dhctx, pub, g, p, group_order, bnctx) \
+    ssh2_ossl_dh_key_pair(dhctx, pub, g, p, group_order, bnctx)
+#define ssh2_dh_secret(dhctx, secret, f, p, bnctx) \
+    ssh2_ossl_dh_secret(dhctx, secret, f, p, bnctx)
 
-int _libssh2_openssl_random(void *buf, size_t len);
-
-const EVP_CIPHER *_libssh2_EVP_aes_128_ctr(void);
-const EVP_CIPHER *_libssh2_EVP_aes_192_ctr(void);
-const EVP_CIPHER *_libssh2_EVP_aes_256_ctr(void);
+int ssh2_ossl_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
+                          ssh2_bn *p, int group_order, ssh2_bn_ctx *bnctx);
+int ssh2_ossl_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
+                        ssh2_bn *p, ssh2_bn_ctx *bnctx);
 
 #endif /* LIBSSH2_OPENSSL_H */

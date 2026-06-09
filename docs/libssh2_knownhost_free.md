@@ -19,8 +19,7 @@ libssh2_knownhost_free - free a collection of known hosts
 ~~~c
 #include <libssh2.h>
 
-void
-libssh2_knownhost_free(LIBSSH2_KNOWNHOSTS *hosts);
+void libssh2_knownhost_free(LIBSSH2_KNOWNHOSTS *hosts);
 ~~~
 
 # DESCRIPTION

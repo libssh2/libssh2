@@ -17,14 +17,12 @@ libssh2_channel_setenv_ex - set an environment variable on the channel
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_setenv_ex(LIBSSH2_CHANNEL *channel,
-                          char *varname, unsigned int varname_len,
-                          const char *value, unsigned int value_len);
+int libssh2_channel_setenv_ex(LIBSSH2_CHANNEL *channel,
+                              char *varname, unsigned int varname_len,
+                              const char *value, unsigned int value_len);
 
-int
-libssh2_channel_setenv(LIBSSH2_CHANNEL *channel,
-                       char *varname, const char *value);
+int libssh2_channel_setenv(LIBSSH2_CHANNEL *channel,
+                           char *varname, const char *value);
 ~~~
 
 # DESCRIPTION

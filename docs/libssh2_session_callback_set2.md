@@ -18,9 +18,10 @@ libssh2_session_callback_set2 - set a callback function
 ~~~c
 #include <libssh2.h>
 
-libssh2_cb_generic *
-libssh2_session_callback_set2(LIBSSH2_SESSION *session, int cbtype,
-                              libssh2_cb_generic *callback);
+libssh2_cb_generic *libssh2_session_callback_set2(
+    LIBSSH2_SESSION *session,
+    int cbtype,
+    libssh2_cb_generic *callback);
 ~~~
 
 # DESCRIPTION
@@ -53,7 +54,7 @@ Called when a SSH_MSG_DISCONNECT message is received
 ## LIBSSH2_CALLBACK_MACERROR
 
 Called when a mismatched MAC has been detected in the transport layer. If the
-function returns 0, the packet will be accepted nonetheless.
+function returns 0, the packet is accepted nonetheless.
 
 ## LIBSSH2_CALLBACK_X11
 
@@ -109,7 +110,7 @@ ssh-agent and perform any setup, such as configuring the agent or adding keys.
 The prototype of the callback:
 
 ~~~c
-void authagent(LIBSSH2_SESSION* session, LIBSSH2_CHANNEL *channel,
+void authagent(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
                void **abstract);
 ~~~
 
@@ -121,7 +122,7 @@ a SSH2_AGENTC_REQUEST_IDENTITIES message has been received.
 The prototype of the callback:
 
 ~~~c
-void identities(LIBSSH2_SESSION* session, void *buffer,
+void identities(LIBSSH2_SESSION *session, void *buffer,
                 const char *agent_path,
                 void **abstract)
 ~~~
@@ -130,7 +131,7 @@ void identities(LIBSSH2_SESSION* session, void *buffer,
 this differently. For example, one client may pass in an unsigned char ** for
 this parameter, while another may pass in a pointer to a struct.
 
-Regardless of the type of buffer used, the client will need to send back a list
+Regardless of the type of buffer used, the client needs to send back a list
 of identities in the following format.
 
 uint32 buffer length
@@ -153,7 +154,7 @@ a SSH2_AGENTC_SIGN_REQUEST message has been received.
 The prototype of the callback:
 
 ~~~c
-void sign(LIBSSH2_SESSION* session,
+void sign(LIBSSH2_SESSION *session,
           unsigned char *blob, unsigned int blen,
           const unsigned char *data, unsigned int dlen,
           unsigned char **sig, unsigned int *sig_len,

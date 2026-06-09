@@ -2,7 +2,7 @@
  *
  * Sample showing how to do SSH2 connect using ssh-agent.
  *
- * The sample code has default values for host name, user name:
+ * The sample code has default values for hostname, username:
  *
  * $ ./ssh2_agent host user
  *
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
     /* At this point we have not yet authenticated.  The first thing to do
      * is check the hostkey's fingerprint against our known hosts Your app
      * may have it hard coded, may go to a file, may present it to the
-     * user, that's your call
+     * user, that is your call
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    /* We're authenticated now. */
+    /* We are authenticated now. */
 
     /* Request a shell */
     channel = libssh2_channel_open_session(session);
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
     }
 
     /* Some environment variables may be set,
-     * It's up to the server which ones it'll allow though
+     * It is up to the server which ones it allows though
      */
     libssh2_channel_setenv(channel, "FOO", "bar");
 
@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
      * libssh2_channel_write_stderr()
      *
      * Blocking mode may be (en|dis)abled with: libssh2_channel_set_blocking()
-     * If the server send EOF, libssh2_channel_eof() will return non-0
+     * If the server send EOF, libssh2_channel_eof() returns non-0
      * To send EOF to the server use: libssh2_channel_send_eof()
      * A channel can be closed with: libssh2_channel_close()
      * A channel can be freed with: libssh2_channel_free()

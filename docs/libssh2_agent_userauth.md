@@ -19,17 +19,16 @@ libssh2_agent_userauth - authenticate a session with a public key, with the help
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_agent_userauth(LIBSSH2_AGENT *agent,
-                       const char *username,
-                       struct libssh2_agent_publickey *identity);
+int libssh2_agent_userauth(LIBSSH2_AGENT *agent,
+                           const char *username,
+                           struct libssh2_agent_publickey *identity);
 ~~~
 
 # DESCRIPTION
 
 *agent* - ssh-agent handle as returned by libssh2_agent_init(3)
 
-*username* - Remote user name to authenticate as.
+*username* - Remote username to authenticate as.
 
 *identity* - Public key to authenticate with, as returned by
 libssh2_agent_get_identity(3)

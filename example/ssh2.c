@@ -2,7 +2,7 @@
  *
  * Sample showing how to do SSH2 connect.
  *
- * The sample code has default values for host name, user name, password
+ * The sample code has default values for hostname, username, password
  * and path to copy, but you can specify them on the command line like:
  *
  * $ ./ssh2 hostip user password [[-p|-i|-k] [command]]
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
-    /* Create a session instance and start it up. This will trade welcome
+    /* Create a session instance and start it up. This trades welcome
      * banners, exchange keys, and setup crypto, compression, and MAC layers
      */
     session = libssh2_session_init();
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
     /* At this point we have not yet authenticated.  The first thing to do
      * is check the hostkey's fingerprint against our known hosts Your app
      * may have it hard coded, may go to a file, may present it to the
-     * user, that's your call
+     * user, that is your call
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
     }
 
     /* Some environment variables may be set,
-     * It's up to the server which ones it'll allow though
+     * It is up to the server which ones it allows though
      */
     libssh2_channel_setenv(channel, "FOO", "bar");
 
@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Unable to request command on channel\n");
             goto shutdown;
         }
-        /* Instead of just running a single command with libssh2_channel_exec,
+        /* Instead of running a single command with libssh2_channel_exec,
          * a shell can be opened on the channel instead, for interactive use.
          * You usually want a pty allocated first in that case (see above). */
 #if 0
@@ -300,14 +300,14 @@ int main(int argc, char *argv[])
          *
          * Blocking mode may be (en|dis)abled with:
          *    libssh2_channel_set_blocking()
-         * If the server send EOF, libssh2_channel_eof() will return non-0
+         * If the server send EOF, libssh2_channel_eof() returns non-0
          * To send EOF to the server use: libssh2_channel_send_eof()
          * A channel can be closed with: libssh2_channel_close()
          * A channel can be freed with: libssh2_channel_free()
          */
 
         /* Read and display all the data received on stdout (ignoring stderr)
-         * until the channel closes. This will eventually block if the command
+         * until the channel closes. This eventually blocks if the command
          * produces too much data on stderr; the loop must be rewritten to use
          * non-blocking mode and include interspersed calls to
          * libssh2_channel_read_stderr() to avoid this. See ssh2_echo.c for

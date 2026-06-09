@@ -17,8 +17,7 @@ libssh2_userauth_authenticated - return authentication status
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_userauth_authenticated(LIBSSH2_SESSION *session);
+int libssh2_userauth_authenticated(LIBSSH2_SESSION *session);
 ~~~
 
 # DESCRIPTION

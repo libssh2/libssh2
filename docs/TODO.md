@@ -15,7 +15,7 @@ SPDX-License-Identifier: BSD-3-Clause
   does not then use as much memory as today. Possibly by an app-controllable
   "Window mode"?
 
-* Decrease the number of mallocs. Everywhere. Will get easier once the
+* Decrease the number of mallocs. Everywhere. It gets easier once the
   buffering improvements have been done.
 
 * Use `SO_NOSIGPIPE` for macOS/BSD systems where `MSG_NOSIGNAL` does not
@@ -45,7 +45,7 @@ SPDX-License-Identifier: BSD-3-Clause
 * remove the following functions from the API/ABI:
   ```
   libssh2_base64_decode()
-  libssh2_session_flag()
+  libssh2_session_flag() (needs replacement for LIBSSH2_FLAG_COMPRESS support)
   libssh2_channel_handle_extended_data()
   libssh2_channel_receive_window_adjust()
   libssh2_poll()
@@ -58,8 +58,9 @@ SPDX-License-Identifier: BSD-3-Clause
 
 * Rename a few functions:
   ```
-  libssh2_hostkey_hash => libssh2_session_hostkey_hash
-  libssh2_banner_set => libssh2_session_banner_set
+  libssh2_hostkey_hash() => libssh2_session_hostkey_hash()
+  libssh2_banner_set() => libssh2_session_banner_set()
+  libssh2_sign_sk() => libssh2_userauth_sign_sk()
   ```
 
 * change `int` to `libssh2_socket_t` in the public API for sockets.
@@ -109,7 +110,7 @@ slow. (The original API had the `libssh2_poll_channel_read()` and
 much the same problems plus a few others.)
 
 Traffic in the other direction is similarly limited: the app has to try
-sending to all channels, even though some of them may very well not accept any
+sending to all channels, even though some of them may well not accept any
 data at that point.
 
 A SOLUTION
@@ -119,15 +120,15 @@ I suggest we introduce two new helper functions:
 - `libssh2_transport_read()`
 
   Read "a bunch" of data from the given socket and returns information to the
-  app about what channels that are now readable (ie they will not block when
-  read from). The function can be called over and over and it will repeatedly
-  return info about what channels that are readable at that moment.
+  app about what channels that are now readable (i.e. they do not block when
+  read from). The function can be called over and over and it repeatedly
+  returns info about what channels that are readable at that moment.
 
 - `libssh2_transport_write()`
 
   Returns information about what channels that are writable, in the sense
   that they have windows set from the remote side that allows data to get
-  sent. Writing to one of those channels will not block. Of course, the
+  sent. Writing to one of those channels does not block. Of course, the
   underlying socket may only accept a certain amount of data, so at the first
   short return, nothing more should be attempted to get sent until `select()`
   (or equivalent) has been used on the master socket again.
@@ -139,8 +140,8 @@ out.
 VOLUNTARY
 
 I wanted to mention that these two helper functions would not be mandatory in
-any way. They would just be there for those who want them, and existing
-programs can remain using the old functions only if they prefer to.
+any way. They would be there for those who want them, and existing programs
+can remain using the old functions only if they prefer to.
 
 ## New SFTP API
 

@@ -17,8 +17,7 @@ libssh2_session_set_timeout - set timeout for blocking functions
 ~~~c
 #include <libssh2.h>
 
-void
-libssh2_session_set_timeout(LIBSSH2_SESSION *session, long timeout);
+void libssh2_session_set_timeout(LIBSSH2_SESSION *session, long timeout);
 ~~~
 
 # DESCRIPTION

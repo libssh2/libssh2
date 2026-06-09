@@ -43,21 +43,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static int test_libssh2_base64_decode(LIBSSH2_SESSION *session)
+static int test_ssh2_base64_decode(LIBSSH2_SESSION *session)
 {
     char *data;
     size_t datalen;
     const char *src = "Zm5vcmQ=";
     int ret;
 
-    ret = _libssh2_base64_decode(session, &data, &datalen,
-                                 src, strlen(src));
+    ret = ssh2_base64_decode(session, &data, &datalen, src, strlen(src));
     if(ret)
         return ret;
 
     if(datalen != 5 || strcmp(data, "fnord") != 0) {
-        fprintf(stderr,
-                "_libssh2_base64_decode() failed (%d, %.*s)\n",
+        fprintf(stderr, "ssh2_base64_decode() failed (%d, %.*s)\n",
                 (int)datalen, (int)datalen, data);
         return 1;
     }
@@ -86,11 +84,11 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    test_libssh2_base64_decode(session);
+    rc = test_ssh2_base64_decode(session);
 
     libssh2_session_free(session);
 
     libssh2_exit();
 
-    return 0;
+    return rc;
 }

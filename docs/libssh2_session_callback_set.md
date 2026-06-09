@@ -19,9 +19,8 @@ libssh2_session_callback_set - set a callback function
 ~~~c
 #include <libssh2.h>
 
-void *
-libssh2_session_callback_set(LIBSSH2_SESSION *session,
-                             int cbtype, void *callback);
+void *libssh2_session_callback_set(LIBSSH2_SESSION *session,
+                                   int cbtype, void *callback);
 ~~~
 
 # DESCRIPTION

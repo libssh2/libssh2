@@ -10,7 +10,7 @@ See [SECURITY.md](https://github.com/libssh2/libssh2/blob/master/docs/SECURITY.m
 
 ## Reporting a Vulnerability
 
-If you have found or just suspect a security problem somewhere in libssh2,
+If you have found or suspect a security problem somewhere in libssh2,
 email `libssh2-security@haxx.se` about it.
 
 **Do not submit suspected security issues in the public bug tracker!**

@@ -19,9 +19,8 @@ libssh2_channel_handle_extended_data2 - set extended data handling mode
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_handle_extended_data2(LIBSSH2_CHANNEL *channel,
-                                      int ignore_mode);
+int libssh2_channel_handle_extended_data2(LIBSSH2_CHANNEL *channel,
+                                          int ignore_mode);
 ~~~
 
 # DESCRIPTION
@@ -35,7 +34,7 @@ reading
 
 **LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE**: Treat extended data and ordinary
 data the same. Merge all substreams such that calls to libssh2_channel_read(3)
-will pull from all substreams on a first-in/first-out basis.
+pulls from all substreams on a first-in/first-out basis.
 
 **LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE**: Discard all extended data as it
 arrives.

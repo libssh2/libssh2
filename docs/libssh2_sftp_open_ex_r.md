@@ -19,13 +19,13 @@ libssh2_sftp_open_ex_r - open filehandle for file on SFTP.
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-LIBSSH2_SFTP_HANDLE *
-libssh2_sftp_open_ex_r(LIBSSH2_SFTP *sftp, const char *filename,
-                       size_t filename_len,
-                       unsigned long flags,
-                       long mode,
-                       int open_type,
-                       LIBSSH2_SFTP_ATTRIBUTES *attrs);
+LIBSSH2_SFTP_HANDLE *libssh2_sftp_open_ex_r(LIBSSH2_SFTP *sftp,
+                                            const char *filename,
+                                            size_t filename_len,
+                                            unsigned long flags,
+                                            long mode,
+                                            int open_type,
+                                            LIBSSH2_SFTP_ATTRIBUTES *attrs);
 ~~~
 
 # DESCRIPTION
@@ -53,8 +53,8 @@ Force all writes to append data at the end of the file.
 
 ## LIBSSH2_FXF_CREAT,
 
-If this flag is specified, then a new file will be created if one does not
-already exist (if LIBSSH2_FXF_TRUNC is specified, the new file will be
+If this flag is specified, then a new file is created if one does not
+already exist (if LIBSSH2_FXF_TRUNC is specified, the new file is
 truncated to zero length if it previously exists)
 
 ## LIBSSH2_FXF_TRUNC

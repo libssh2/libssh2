@@ -45,19 +45,18 @@
 
 #include "libssh2.h"
 
-typedef struct _libssh2_string_cache    libssh2_string_cache;
+typedef struct _libssh2_string_cache libssh2_string_cache;
 
-LIBSSH2_API char *
-libssh2_from_ccsid(LIBSSH2_SESSION *session, libssh2_string_cache **cache,
-                   unsigned short ccsid, const char *string, ssize_t inlen,
-                   size_t *outlen);
-LIBSSH2_API char *
-libssh2_to_ccsid(LIBSSH2_SESSION *session, libssh2_string_cache **cache,
-                 unsigned short ccsid, const char *string, ssize_t inlen,
-                 size_t *outlen);
-LIBSSH2_API void
-libssh2_release_string_cache(LIBSSH2_SESSION *session,
-                             libssh2_string_cache **cache);
+LIBSSH2_API char *libssh2_from_ccsid(LIBSSH2_SESSION *session,
+                                     libssh2_string_cache **cache,
+                                     unsigned short ccsid, const char *string,
+                                     ssize_t inlen, size_t *outlen);
+LIBSSH2_API char *libssh2_to_ccsid(LIBSSH2_SESSION *session,
+                                   libssh2_string_cache **cache,
+                                   unsigned short ccsid, const char *string,
+                                   ssize_t inlen, size_t *outlen);
+LIBSSH2_API void libssh2_release_string_cache(LIBSSH2_SESSION *session,
+                                              libssh2_string_cache **cache);
 
 #endif
 

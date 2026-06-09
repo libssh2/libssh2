@@ -1,0 +1,13 @@
+#!/usr/bin/env perl
+# Copyright (C) Daniel Stenberg, <daniel@haxx.se>, et al.
+#
+# SPDX-License-Identifier: curl
+
+use strict;
+use warnings;
+
+use File::Basename;
+
+chdir dirname(__FILE__) . '/..';
+
+exit system('scripts/badwords', ('scripts/badwords.txt')) >> 8;

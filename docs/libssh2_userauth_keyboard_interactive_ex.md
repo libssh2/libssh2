@@ -18,11 +18,11 @@ keyboard-interactive authentication
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION *session,
-                                         const char *username,
-                                         unsigned int username_len,
-                   LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(*response_callback));
+int libssh2_userauth_keyboard_interactive_ex(
+    LIBSSH2_SESSION *session,
+    const char *username,
+    unsigned int username_len,
+    LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(*response_callback));
 ~~~
 
 # DESCRIPTION
@@ -36,10 +36,10 @@ for.
 *username_len* - Length of username parameter.
 
 *response_callback* - As authentication proceeds, the host issues several
-(1 or more) challenges and requires responses. This callback will be called at
+(1 or more) challenges and requires responses. This callback is called at
 this moment. The callback is responsible to obtain responses for the
 challenges, fill the provided data structure and then return
-control. Responses will be sent to the host. String values will be free(3)ed
+control. Responses are sent to the host. String values are free(3)ed
 by the library. The callback prototype must match this:
 
 ~~~c
@@ -54,7 +54,7 @@ void response(const char *name,
 
 Attempts keyboard-interactive (challenge/response) authentication.
 
-Note that many SSH servers will always issue a single "password" challenge,
+Note that many SSH servers always issue a single "password" challenge,
 requesting actual password as response, but it is not required by the
 protocol, and various authentication schemes, such as smartcard authentication
 may use keyboard-interactive authentication type too.

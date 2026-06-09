@@ -17,18 +17,18 @@ libssh2_userauth_password_ex - authenticate a session with username and password
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_userauth_password_ex(LIBSSH2_SESSION *session,
-                             const char *username,
-                             unsigned int username_len,
-                             const char *password,
-                             unsigned int password_len,
-                             LIBSSH2_PASSWD_CHANGEREQ_FUNC(*passwd_change_cb));
+int libssh2_userauth_password_ex(
+    LIBSSH2_SESSION *session,
+    const char *username,
+    unsigned int username_len,
+    const char *password,
+    unsigned int password_len,
+    LIBSSH2_PASSWD_CHANGEREQ_FUNC(*passwd_change_cb));
 
 #define libssh2_userauth_password(session, username, password) \
-     libssh2_userauth_password_ex(session, \
-                                  username, strlen(username), \
-                                  password, strlen(password), NULL)
+    libssh2_userauth_password_ex(session, \
+                                 username, strlen(username), \
+                                 password, strlen(password), NULL)
 ~~~
 
 # DESCRIPTION
@@ -44,9 +44,9 @@ libssh2_userauth_password_ex(LIBSSH2_SESSION *session,
 *password_len* - Length of password parameter.
 
 *passwd_change_cb* - If the host accepts authentication but
-requests that the password be changed, this callback will be issued.
+requests that the password be changed, this callback is issued.
 If no callback is defined, but server required password change,
-authentication will fail.
+authentication fails.
 
 Attempt basic password authentication. Note that many SSH servers
 which appear to support ordinary password authentication actually have

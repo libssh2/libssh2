@@ -32,8 +32,11 @@ int main(int argc, char **argv)
         crypto_str = "(unrecognized)";
     }
 
-    printf("libssh2 test: |%s|%s|%s|\n", argv[0],
-                                         libssh2_version(0), crypto_str);
+    puts("libssh2 test:");
+    puts(argv[0]);
+    puts(libssh2_version(0));
+    puts(crypto_str);
+    puts("---");
 
     return 0;
 }

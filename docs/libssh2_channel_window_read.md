@@ -17,8 +17,7 @@ libssh2_channel_window_read - convenience macro for *libssh2_channel_window_read
 ~~~c
 #include <libssh2.h>
 
-unsigned long
-libssh2_channel_window_read(LIBSSH2_CHANNEL *channel);
+unsigned long libssh2_channel_window_read(LIBSSH2_CHANNEL *channel);
 ~~~
 
 # DESCRIPTION

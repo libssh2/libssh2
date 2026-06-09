@@ -20,10 +20,9 @@ libssh2_sftp_stat_ex - get status about an SFTP file
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int
-libssh2_sftp_stat_ex(LIBSSH2_SFTP *sftp, const char *path,
-                     unsigned int path_len, int stat_type,
-                     LIBSSH2_SFTP_ATTRIBUTES *attrs);
+int libssh2_sftp_stat_ex(LIBSSH2_SFTP *sftp, const char *path,
+                         unsigned int path_len, int stat_type,
+                         LIBSSH2_SFTP_ATTRIBUTES *attrs);
 ~~~
 
 # DESCRIPTION
@@ -48,17 +47,16 @@ stat operation to perform:
 metadata from or into depending on the value of stat_type.
 
 Get or Set statbuf type data on a remote filesystem object. When getting
-statbuf data, libssh2_sftp_stat(3)
-will follow all symlinks, while libssh2_sftp_lstat(3)
-will return data about the object encountered, even if that object
-happens to be a symlink.
+statbuf data, libssh2_sftp_stat(3) follows all symlinks, while
+libssh2_sftp_lstat(3) returns data about the object encountered, even if
+that object happens to be a symlink.
 
 The LIBSSH2_SFTP_ATTRIBUTES struct looks like this:
 
 ~~~c
 struct LIBSSH2_SFTP_ATTRIBUTES {
-    /* If flags & ATTR_* bit is set, then the value in this struct will be
-     * meaningful Otherwise it should be ignored
+    /* If flags & ATTR_* bit is set, then the value in this struct is
+     * meaningful otherwise it should be ignored
      */
     unsigned long flags;
 

@@ -21,10 +21,9 @@ libssh2_sftp_symlink_ex - read or set a symbolic link
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int
-libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp, const char *path,
-                        unsigned int path_len, char *target,
-                        unsigned int target_len, int link_type);
+int libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp, const char *path,
+                            unsigned int path_len, char *target,
+                            unsigned int target_len, int link_type);
 ~~~
 
 # DESCRIPTION
@@ -68,8 +67,8 @@ When using LIBSSH2_SFTP_SYMLINK, this function returns 0 on success or negative
 on failure.
 
 When using LIBSSH2_SFTP_READLINK or LIBSSH2_SFTP_REALPATH, it returns the
-number of bytes it copied to the target buffer (not including the terminating
-zero) or negative on failure.
+number of bytes it copied to the target buffer (not including the
+null-terminator) or negative on failure.
 
 It returns LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
 LIBSSH2_ERROR_EAGAIN is a negative number, it is not really a failure per se.

@@ -1,6 +1,6 @@
 *These are the porting notes to OpenVMS, as of 7 April 2010
-by Jose Baars. This file will be installed as
-libssh2*.release_notes by the product install kit.
+by Jose Baars. This file is installed as libssh2*.release_notes
+by the product install kit.
 
 LIBSSH2
 -------
@@ -30,19 +30,19 @@ Prerequisites
   See the remarks at prerequisites for building the kit
 
 The first three dependencies are tested at installation time, and
-installation will fail if any these products are not installed.
+installation fails if any these products are not installed.
 The ZLIB dependency is not tested by the product installation
-procedure, as libssh2 will probably be installed as part of
-multiple libraries including zlib.
+procedure, as libssh2 is probably installed as part of multiple
+libraries including zlib.
 
 Install
 -------
 
-The kit will install gnv$libssh2.exe in a directory tree that might
+The kit installs gnv$libssh2.exe in a directory tree that might
 already be available on your system if you have installed other gnv*
 libraries or utilities.
 
-The directory tree for gnv$libssh2.exe will be like this:
+The directory tree for gnv$libssh2.exe is like this:
 
 [gnv] -- [usr] -- [include] -- [libssh2] include files for libssh2
                   [lib] gnv$libssh2_x_y_z.exe
@@ -54,7 +54,7 @@ optional:
                                         [example] libssh2_examples-x_y_z.bck
                   [common_src] libssh2-x_y_z_src.bck
 
-By default, it will install the shared image and include files to
+By default, it installs the shared image and include files to
 SYS$COMMON:[GNV...].
 
 You can override this destination by specifying the destination
@@ -70,7 +70,7 @@ Please ignore the following warnings, as the kit is not signed :
 Optionally, you can install a backup saveset with some programming examples,
 or a backupo saveset with the complete libssh2 source tree.
 
-you will need to answer 'NO' to the question
+you need to answer 'NO' to the question
 'Do you want the default for all options'.
 
 and 'YES' to either or both the following questions:
@@ -82,11 +82,11 @@ and 'YES' to either or both the following questions:
 Post installation tasks
 -----------------------
 
-Although we will try to maintain upward compatibility of libssh2,
+Although we try to maintain upward compatibility of libssh2,
 this can not be guaranteed by the libssh2 project itself for OpenVMS,
 nor eternally by us.
 
-To use libssh2 effectively, you will have to define a system logical
+To use libssh2 effectively, you have to define a system logical
 to point to the shared image. If you are willing to take the gamble,
 define this logical in your systartup like so:
 
@@ -138,7 +138,7 @@ Building gnv$libssh2
 ====================
 
 You can build gnv$libssh2 yourself, which may have advantages, as the library is
-in full development, very regularly new features are added.
+in full development, regularly new features are added.
 
 For production use, it is probably advisable to use a stable version, and
 link against that. To check out new features, statically linking against
@@ -148,7 +148,7 @@ issues.
 Prerequisites
 -------------
 
-You will need to have the following available:
+You need to have the following available:
 
 - An Alpha or Itanium VMS system. Due to dependencies on zlib, ssl and ODS-5,
   support on VAXen would be cumbersome at least.
@@ -167,10 +167,10 @@ You will need to have the following available:
 - The HP OpenSSL product. Of course, with tweaking, you can probably link
   it against the OpenSSL library, but that is not what I have used.
 
-- A C compiler. I don't know any other working C compilers than
+- A C compiler. I do not know any other working C compilers than
   the DEC/Compac/HP-C compiler on VMS.
 
-- An ODS-5 disk. With tweaking you'll get it to work on an ODS-2
+- An ODS-5 disk. With tweaking you can get it to work on an ODS-2
   disk, but it is unpractical to do so.
 
 - A version of VMSTAR that understands ODS-5 disks and extended
@@ -191,7 +191,7 @@ Downloading libssh2
 -------------------
 
 At the website of libssh2, you can find stable and daily gzipped
-tarballs. if you have a computer connected to internet you can
+tarballs. if you have a computer connected to Internet you can
 download a daily build yourself by a procedure that looks a lot like
 this ( fill out your own proxy user/password, set up right symbols to
 gunzip, vmstar and curl and set up the libssh2 build version):
@@ -223,7 +223,7 @@ $!
 $ tarfile = f$search("libssh2-''libssh2_version'-''currentday'.tar.;")
 $ vmstar xf 'tarfile'
 
-Downloading a stable build will need you to get rid of the currentday.
+Downloading a stable build needs you to get rid of the currentday.
 
 After the download, you should have a directory tree with a toplevel
 directory called [libssh2-x.y.z-yyyymmdd].
@@ -280,7 +280,7 @@ the procedure like so:
 @libssh2_make_example.dcl sftp "SHARED"
 
 The procedure defines a process logical gnv$libssh2 pointing to the shared
-image library in the directory, which obviously will not survive a logout.
+image library in the directory, which obviously does not survive a logout.
 
 Building the help library
 -------------------------

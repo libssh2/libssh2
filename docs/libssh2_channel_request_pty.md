@@ -17,8 +17,7 @@ libssh2_channel_request_pty - convenience macro for *libssh2_channel_request_pty
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_request_pty(LIBSSH2_SESSION *session, const char *term);
+int libssh2_channel_request_pty(LIBSSH2_SESSION *session, const char *term);
 ~~~
 
 # DESCRIPTION

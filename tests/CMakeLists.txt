@@ -87,7 +87,7 @@ foreach(_test IN LISTS DOCKER_TESTS STANDALONE_TESTS SSHD_TESTS)
     message(STATUS "Skip test requiring static libssh2 lib: ${_test}")
   endif()
 
-  # We support the same target as both Docker and SSHD test. Build those just once.
+  # We support the same target as both Docker and SSHD test. Build those only once.
   # Skip building tests that require the static lib when the static lib is not built.
   if(NOT TARGET ${_test} AND _lib_for_tests)
     add_executable(${_test} "${_test}.c")

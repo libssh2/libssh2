@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 
                 printf("complete.");
 
-                /* Free the buffer as it's no longer needed. */
+                /* Free the buffer as it is no longer needed. */
                 free(buffer);
                 buffer = NULL;
             }
@@ -58,7 +58,7 @@ int main(int argc, char **argv)
                         buffer_len);
             }
 
-            /* Close the file as it's no longer needed. */
+            /* Close the file as it is no longer needed. */
             fclose(infile);
             infile = NULL;
         }

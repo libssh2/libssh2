@@ -18,16 +18,16 @@ libssh2_channel_window_write_ex - Check the status of the write window
 ~~~c
 #include <libssh2.h>
 
-unsigned long
-libssh2_channel_window_write_ex(LIBSSH2_CHANNEL *channel,
-                                unsigned long *window_size_initial)
+unsigned long libssh2_channel_window_write_ex(
+    LIBSSH2_CHANNEL *channel,
+    unsigned long *window_size_initial)
 ~~~
 
 # DESCRIPTION
 
 Check the status of the write window Returns the number of bytes which may be
 safely written on the channel without blocking. 'window_size_initial' (if
-passed) will be populated with the size of the initial window as defined by
+passed) is populated with the size of the initial window as defined by
 the channel_open request
 
 # RETURN VALUE

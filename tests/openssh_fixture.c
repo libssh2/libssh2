@@ -54,12 +54,14 @@
 #endif
 
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdlib.h>  /* for atoi() */
 #include <stdarg.h>
 #include <ctype.h>
 
-#if defined(_WIN32) && defined(_WIN64)
-#define LIBSSH2_SOCKET_MASK "%lld"
+#ifdef _WIN64
+#define LIBSSH2_SOCKET_MASK "%llu"
+#elif defined(_WIN32)
+#define LIBSSH2_SOCKET_MASK "%u"
 #else
 #define LIBSSH2_SOCKET_MASK "%d"
 #endif
@@ -80,7 +82,7 @@ int openssh_fixture_have_docker(void)
 }
 
 static int run_command_varg(char **output, const char *command, va_list args)
-    LIBSSH2_PRINTF(2, 0);
+    SSH2_PRINTF(2, 0);
 
 static int run_command_varg(char **output, const char *command, va_list args)
 {
@@ -155,7 +157,7 @@ static int run_command_varg(char **output, const char *command, va_list args)
 }
 
 static int run_command(char **output, const char *command, ...)
-    LIBSSH2_PRINTF(2, 3);
+    SSH2_PRINTF(2, 3);
 
 static int run_command(char **output, const char *command, ...)
 {
@@ -246,11 +248,11 @@ static int is_running_inside_a_container(void)
 #else
     static const char *cgroup_filename = "/proc/self/cgroup";
     FILE *f;
-    char line[256];
+    char line[1024];
     int found = 0;
     f = fopen(cgroup_filename, "r");
     if(!f) {
-        /* Don't go further, we are not in a container */
+        /* Do not go further, we are not in a container */
         return 0;
     }
     while(fgets(line, sizeof(line), f)) {
@@ -390,7 +392,7 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
     }
 
     /* 0.0.0.0 is returned by Docker for Windows, because the container
-       is reachable from anywhere. But we cannot connect to 0.0.0.0,
+       is reachable from anywhere. We cannot connect to 0.0.0.0,
        instead we assume localhost and try to connect to 127.0.0.1. */
     if(ip_address && strcmp(ip_address, "0.0.0.0") == 0) {
         free(ip_address);
@@ -411,14 +413,14 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
     }
 
     sin.sin_family = AF_INET;
-    sin.sin_port = htons((unsigned short)strtol(port_string, NULL, 0));
+    sin.sin_port = htons((unsigned short)atoi(port_string));
     sin.sin_addr.s_addr = hostaddr;
 
     for(counter = 0; counter < 3; ++counter) {
         if(connect(sock, (struct sockaddr *)(&sin),
                    sizeof(struct sockaddr_in))) {
             fprintf(stderr,
-                    "Connection to %s:%s attempt #%d failed: retrying...\n",
+                    "Connection to %s:%s attempt #%u failed: retrying...\n",
                     ip_address, port_string, counter);
             portable_sleep(1 + 2 * counter);
         }

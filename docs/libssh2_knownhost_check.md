@@ -19,12 +19,11 @@ libssh2_knownhost_check - check a host+key against the list of known hosts
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
-                        const char *host,
-                        const char *key, size_t keylen,
-                        int typemask,
-                        struct libssh2_knownhost **knownhost);
+int libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
+                            const char *host,
+                            const char *key, size_t keylen,
+                            int typemask,
+                            struct libssh2_knownhost **knownhost);
 ~~~
 
 # DESCRIPTION
@@ -32,7 +31,7 @@ libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
 Checks a host and its associated key against the collection of known hosts,
 and returns info back about the (partially) matched entry.
 
-*host* is a pointer the host name in plain text. The host name can be the
+*host* is a pointer the hostname in plain text. The hostname can be the
 IP numerical address of the host or the full name.
 
 *key* is a pointer to the key for the given host.
@@ -41,10 +40,10 @@ IP numerical address of the host or the full name.
 argument
 
 *typemask* is a bitmask that specifies format and info about the data
-passed to this function. Specifically, it details what format the host name is,
+passed to this function. Specifically, it details what format the hostname is,
 what format the key is and what key type it is.
 
-The host name is given as one of the following types:
+The hostname is given as one of the following types:
 LIBSSH2_KNOWNHOST_TYPE_PLAIN or LIBSSH2_KNOWNHOST_TYPE_CUSTOM.
 
 The key is encoded using one of the following encodings:

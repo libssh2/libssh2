@@ -17,9 +17,8 @@ libssh2_channel_read_stderr - convenience macro for *libssh2_channel_read_ex(3)*
 ~~~c
 #include <libssh2.h>
 
-ssize_t
-libssh2_channel_read_stderr(LIBSSH2_CHANNEL *channel,
-                            char *buf, size_t buflen);
+ssize_t libssh2_channel_read_stderr(LIBSSH2_CHANNEL *channel,
+                                    char *buf, size_t buflen);
 ~~~
 
 # DESCRIPTION

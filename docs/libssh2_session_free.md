@@ -5,7 +5,7 @@ Title: libssh2_session_free
 Section: 3
 Source: libssh2
 See-also:
-  - libssh2_session_disconnect_ex(3)
+  - libssh2_session_disconnect(3)
   - libssh2_session_disconnect_ex(3)
   - libssh2_session_init_ex(3)
 ---
@@ -19,8 +19,7 @@ libssh2_session_free - frees resources associated with a session instance
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_session_free(LIBSSH2_SESSION *session);
+int libssh2_session_free(LIBSSH2_SESSION *session);
 ~~~
 
 # DESCRIPTION

@@ -57,11 +57,6 @@ extern "C" {
  */
 #define LIBSSH2_SFTP_VERSION        3
 
-typedef struct _LIBSSH2_SFTP                LIBSSH2_SFTP;
-typedef struct _LIBSSH2_SFTP_HANDLE         LIBSSH2_SFTP_HANDLE;
-typedef struct _LIBSSH2_SFTP_ATTRIBUTES     LIBSSH2_SFTP_ATTRIBUTES;
-typedef struct _LIBSSH2_SFTP_STATVFS        LIBSSH2_SFTP_STATVFS;
-
 /* Flags for open_ex() */
 #define LIBSSH2_SFTP_OPENFILE           0
 #define LIBSSH2_SFTP_OPENDIR            1
@@ -95,9 +90,18 @@ typedef struct _LIBSSH2_SFTP_STATVFS        LIBSSH2_SFTP_STATVFS;
 #define LIBSSH2_SFTP_ST_RDONLY              0x00000001
 #define LIBSSH2_SFTP_ST_NOSUID              0x00000002
 
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-identifier"
+#endif
+typedef struct _LIBSSH2_SFTP                LIBSSH2_SFTP;
+typedef struct _LIBSSH2_SFTP_HANDLE         LIBSSH2_SFTP_HANDLE;
+typedef struct _LIBSSH2_SFTP_ATTRIBUTES     LIBSSH2_SFTP_ATTRIBUTES;
+typedef struct _LIBSSH2_SFTP_STATVFS        LIBSSH2_SFTP_STATVFS;
+
 struct _LIBSSH2_SFTP_ATTRIBUTES {
-    /* If flags & ATTR_* bit is set, then the value in this struct will be
-     * meaningful Otherwise it should be ignored
+    /* If flags & ATTR_* bit is set, then the value in this struct is
+     * meaningful otherwise it should be ignored
      */
     unsigned long flags;
 
@@ -120,6 +124,9 @@ struct _LIBSSH2_SFTP_STATVFS {
     libssh2_uint64_t  f_flag;     /* mount flags */
     libssh2_uint64_t  f_namemax;  /* maximum filename length */
 };
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic pop
+#endif
 
 /* SFTP filetypes */
 #define LIBSSH2_SFTP_TYPE_REGULAR           1
@@ -182,7 +189,8 @@ struct _LIBSSH2_SFTP_STATVFS {
     (((m) & LIBSSH2_SFTP_S_IFMT) == LIBSSH2_SFTP_S_IFSOCK)
 
 /* SFTP File Transfer Flags -- (e.g. flags parameter to sftp_open())
- * Danger will robinson... APPEND doesn't have any effect on OpenSSH servers */
+ * Danger Will Robinson... APPEND does not have any effect on OpenSSH servers
+ */
 #define LIBSSH2_FXF_READ                        0x00000001
 #define LIBSSH2_FXF_WRITE                       0x00000002
 #define LIBSSH2_FXF_APPEND                      0x00000004
@@ -207,9 +215,11 @@ struct _LIBSSH2_SFTP_STATVFS {
 #define LIBSSH2_FX_NO_MEDIA                 13UL
 #define LIBSSH2_FX_NO_SPACE_ON_FILESYSTEM   14UL
 #define LIBSSH2_FX_QUOTA_EXCEEDED           15UL
-#define LIBSSH2_FX_UNKNOWN_PRINCIPLE        16UL /* Initial mis-spelling */
+#ifndef LIBSSH2_NO_DEPRECATED
+#define LIBSSH2_FX_UNKNOWN_PRINCIPLE        16UL /* Initial misspelling */
+#define LIBSSH2_FX_LOCK_CONFlICT            17UL /* Initial misspelling */
+#endif
 #define LIBSSH2_FX_UNKNOWN_PRINCIPAL        16UL
-#define LIBSSH2_FX_LOCK_CONFlICT            17UL /* Initial mis-spelling */
 #define LIBSSH2_FX_LOCK_CONFLICT            17UL
 #define LIBSSH2_FX_DIR_NOT_EMPTY            18UL
 #define LIBSSH2_FX_NOT_A_DIRECTORY          19UL
@@ -226,21 +236,21 @@ LIBSSH2_API unsigned long libssh2_sftp_last_error(LIBSSH2_SFTP *sftp);
 LIBSSH2_API LIBSSH2_CHANNEL *libssh2_sftp_get_channel(LIBSSH2_SFTP *sftp);
 
 /* File / Directory Ops */
-LIBSSH2_API LIBSSH2_SFTP_HANDLE *
-libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp,
-                     const char *filename, unsigned int filename_len,
-                     unsigned long flags, long mode, int open_type);
+LIBSSH2_API LIBSSH2_SFTP_HANDLE *libssh2_sftp_open_ex(
+    LIBSSH2_SFTP *sftp,
+    const char *filename, unsigned int filename_len,
+    unsigned long flags, long mode, int open_type);
 #define libssh2_sftp_open(sftp, filename, flags, mode) \
     libssh2_sftp_open_ex(sftp, filename, (unsigned int)strlen(filename), \
                          flags, mode, LIBSSH2_SFTP_OPENFILE)
 #define libssh2_sftp_opendir(sftp, path) \
     libssh2_sftp_open_ex(sftp, path, (unsigned int)strlen(path), \
                          0, 0, LIBSSH2_SFTP_OPENDIR)
-LIBSSH2_API LIBSSH2_SFTP_HANDLE *
-libssh2_sftp_open_ex_r(LIBSSH2_SFTP *sftp,
-                       const char *filename, size_t filename_len,
-                       unsigned long flags, long mode, int open_type,
-                       LIBSSH2_SFTP_ATTRIBUTES *attrs);
+LIBSSH2_API LIBSSH2_SFTP_HANDLE *libssh2_sftp_open_ex_r(
+    LIBSSH2_SFTP *sftp,
+    const char *filename, size_t filename_len,
+    unsigned long flags, long mode, int open_type,
+    LIBSSH2_SFTP_ATTRIBUTES *attrs);
 #define libssh2_sftp_open_r(sftp, filename, flags, mode, attrs) \
     libssh2_sftp_open_ex_r(sftp, filename, strlen(filename), \
                            flags, mode, LIBSSH2_SFTP_OPENFILE, attrs)
@@ -264,12 +274,16 @@ LIBSSH2_API int libssh2_sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle);
 #define libssh2_sftp_close(handle) libssh2_sftp_close_handle(handle)
 #define libssh2_sftp_closedir(handle) libssh2_sftp_close_handle(handle)
 
+#ifndef LIBSSH2_NO_DEPRECATED
+LIBSSH2_DEPRECATED(1.2.8, "Use libssh2_sftp_seek64()")
 LIBSSH2_API void libssh2_sftp_seek(LIBSSH2_SFTP_HANDLE *handle, size_t offset);
+LIBSSH2_DEPRECATED(1.0, "Use libssh2_sftp_tell64()")
+LIBSSH2_API size_t libssh2_sftp_tell(LIBSSH2_SFTP_HANDLE *handle);
+#endif
 LIBSSH2_API void libssh2_sftp_seek64(LIBSSH2_SFTP_HANDLE *handle,
                                      libssh2_uint64_t offset);
 #define libssh2_sftp_rewind(handle) libssh2_sftp_seek64(handle, 0)
 
-LIBSSH2_API size_t libssh2_sftp_tell(LIBSSH2_SFTP_HANDLE *handle);
 LIBSSH2_API libssh2_uint64_t libssh2_sftp_tell64(LIBSSH2_SFTP_HANDLE *handle);
 
 LIBSSH2_API int libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *handle,

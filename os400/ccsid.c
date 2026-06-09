@@ -50,23 +50,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define CCSID_UTF8      1208
-#define CCSID_UTF16BE   13488
-#define STRING_GRANULE  256
-#define MAX_CHAR_SIZE   4
+#define CCSID_UTF8     1208
+#define CCSID_UTF16BE  13488
+#define STRING_GRANULE 256
+#define MAX_CHAR_SIZE  4
 
-#define OFFSET_OF(t, f) ((size_t) ((char *) &((t *) 0)->f - (char *) 0))
+#define OFFSET_OF(t, f) ((size_t)((char *)&((t *)0)->f - (char *)0))
 
-#define ALLOC(s, sz)        ((s) ? LIBSSH2_ALLOC(s, sz) : malloc(sz))
-#define REALLOC(s, p, sz)   ((s) ? LIBSSH2_REALLOC(s, p, sz) : realloc(p, sz))
-#define FREE(s, p)          ((s) ? LIBSSH2_FREE(s, p) : free(p))
+#define ALLOC(s, sz)      ((s) ? SSH2_ALLOC(s, sz) : malloc(sz))
+#define REALLOC(s, p, sz) ((s) ? SSH2_REALLOC(s, p, sz) : realloc(p, sz))
+#define FREE(s, p)        ((s) ? SSH2_FREE(s, p) : free(p))
 
 struct _libssh2_string_cache {
-    libssh2_string_cache *  next;
-    char                    string[1];
+    libssh2_string_cache *next;
+    char string[1];
 };
 
-static const QtqCode_T  utf8code = { CCSID_UTF8 };
+static const QtqCode_T utf8code = { CCSID_UTF8 };
 
 static ssize_t terminator_size(unsigned short ccsid)
 {
@@ -91,9 +91,9 @@ static ssize_t terminator_size(unsigned short ccsid)
 
     /* Convert an UTF-8 NUL to the target CCSID: use the converted size as
        result. */
-    memset((void *) &outcode, 0, sizeof(outcode));
+    memset((void *)&outcode, 0, sizeof(outcode));
     outcode.CCSID = ccsid;
-    cd = QtqIconvOpen(&outcode, (QtqCode_T *) &utf8code);
+    cd = QtqIconvOpen(&outcode, (QtqCode_T *)&utf8code);
     if(cd.return_value == -1)
         return -1;
     inp = "";
@@ -106,10 +106,10 @@ static ssize_t terminator_size(unsigned short ccsid)
     return olen ? olen : -1;
 }
 
-static char *
-convert_ccsid(LIBSSH2_SESSION *session, libssh2_string_cache **cache,
-              unsigned short outccsid, unsigned short inccsid,
-              const char *instring, ssize_t inlen, size_t *outlen)
+static char *convert_ccsid(LIBSSH2_SESSION *session,
+                           libssh2_string_cache **cache,
+                           unsigned short outccsid, unsigned short inccsid,
+                           const char *instring, ssize_t inlen, size_t *outlen)
 {
     char *inp;
     char *outp;
@@ -141,12 +141,12 @@ convert_ccsid(LIBSSH2_SESSION *session, libssh2_string_cache **cache,
         return NULL;
 
     /* Prepare conversion parameters. */
-    memset((void *) &incode, 0, sizeof(incode));
-    memset((void *) &outcode, 0, sizeof(outcode));
+    memset((void *)&incode, 0, sizeof(incode));
+    memset((void *)&outcode, 0, sizeof(outcode));
     incode.CCSID = inccsid;
     outcode.CCSID = outccsid;
     curlen = OFFSET_OF(libssh2_string_cache, string);
-    inp = (char *) instring;
+    inp = (char *)instring;
     ilen = inlen;
     buflen = inlen + curlen;
     if(inlen < 0) {
@@ -208,7 +208,7 @@ convert_ccsid(LIBSSH2_SESSION *session, libssh2_string_cache **cache,
         dst = REALLOC(session, dst, curlen + termsize);
 
     /* Link to cache. */
-    outstring = (libssh2_string_cache *) dst;
+    outstring = (libssh2_string_cache *)dst;
     outstring->next = *cache;
     *cache = outstring;
 
@@ -219,34 +219,31 @@ convert_ccsid(LIBSSH2_SESSION *session, libssh2_string_cache **cache,
     return outstring->string;
 }
 
-LIBSSH2_API char *
-libssh2_from_ccsid(LIBSSH2_SESSION *session, libssh2_string_cache **cache,
-                   unsigned short ccsid, const char *string, ssize_t inlen,
-                   size_t *outlen)
+char *libssh2_from_ccsid(LIBSSH2_SESSION *session,
+                         libssh2_string_cache **cache, unsigned short ccsid,
+                         const char *string, ssize_t inlen, size_t *outlen)
 {
-    return convert_ccsid(session, cache,
-                         CCSID_UTF8, ccsid, string, inlen, outlen);
+    return convert_ccsid(session, cache, CCSID_UTF8, ccsid, string, inlen,
+                         outlen);
 }
 
-LIBSSH2_API char *
-libssh2_to_ccsid(LIBSSH2_SESSION *session, libssh2_string_cache **cache,
-                 unsigned short ccsid, const char *string, ssize_t inlen,
-                 size_t *outlen)
+char *libssh2_to_ccsid(LIBSSH2_SESSION *session, libssh2_string_cache **cache,
+                       unsigned short ccsid, const char *string, ssize_t inlen,
+                       size_t *outlen)
 {
-    return convert_ccsid(session, cache,
-                         ccsid, CCSID_UTF8, string, inlen, outlen);
+    return convert_ccsid(session, cache, ccsid, CCSID_UTF8, string, inlen,
+                         outlen);
 }
 
-LIBSSH2_API void
-libssh2_release_string_cache(LIBSSH2_SESSION *session,
-                             libssh2_string_cache **cache)
+void libssh2_release_string_cache(LIBSSH2_SESSION *session,
+                                  libssh2_string_cache **cache)
 {
     libssh2_string_cache *p;
 
     if(cache)
         while((p = *cache)) {
             *cache = p->next;
-            FREE(session, (char *) p);
+            FREE(session, (char *)p);
         }
 }
 

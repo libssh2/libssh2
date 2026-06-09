@@ -18,14 +18,12 @@ libssh2_channel_x11_req_ex - request an X11 forwarding channel
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_connection,
-                           const char *auth_proto, const char *auth_cookie,
-                           int screen_number);
+int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_connection,
+                               const char *auth_proto, const char *auth_cookie,
+                               int screen_number);
 
-int
-libssh2_channel_x11_req(LIBSSH2_CHANNEL *channel,
-                        int screen_number);
+int libssh2_channel_x11_req(LIBSSH2_CHANNEL *channel,
+                            int screen_number);
 ~~~
 
 # DESCRIPTION
@@ -43,7 +41,7 @@ libssh2_channel_open_ex(3).
 
 Request an X11 forwarding on *channel*. To use X11 forwarding,
 libssh2_session_callback_set2(3)
-must first be called to set **LIBSSH2_CALLBACK_X11**. This callback will be
+must first be called to set **LIBSSH2_CALLBACK_X11**. This callback is
 invoked when the remote host accepts the X11 forwarding.
 
 # RETURN VALUE

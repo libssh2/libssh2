@@ -75,7 +75,7 @@ static int connect_to_server(void)
 static char const *skip_crypt[] = {
 #ifdef LIBSSH2_MBEDTLS
     /* Due to a bug with mbedTLS support, these crypt methods fail.
-       Until that bug is fixed, don't run them there to avoid this
+       Until that bug is fixed, do not run them there to avoid this
        known issue causing red tests.
        See: https://github.com/libssh2/libssh2/issues/793
      */

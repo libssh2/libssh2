@@ -19,8 +19,7 @@ libssh2_sftp_fsync - synchronize file to disk
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int
-libssh2_sftp_fsync(LIBSSH2_SFTP_HANDLE *handle)
+int libssh2_sftp_fsync(LIBSSH2_SFTP_HANDLE *handle)
 ~~~
 
 # DESCRIPTION
@@ -48,7 +47,7 @@ LIBSSH2_ERROR_EAGAIN is a negative number, it is not really a failure per se.
 was received on the socket, or an SFTP operation caused an errorcode
 to be returned by the server. In particular, this can be returned if
 the SSH server does not support the fsync operation: the SFTP subcode
-*LIBSSH2_FX_OP_UNSUPPORTED* will be returned in this case.
+*LIBSSH2_FX_OP_UNSUPPORTED* is returned in this case.
 
 # AVAILABILITY
 

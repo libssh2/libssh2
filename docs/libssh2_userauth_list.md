@@ -17,26 +17,25 @@ libssh2_userauth_list - list supported authentication methods
 ~~~c
 #include <libssh2.h>
 
-char *
-libssh2_userauth_list(LIBSSH2_SESSION *session,
-                      const char *username,
-                      unsigned int username_len);
+char *libssh2_userauth_list(LIBSSH2_SESSION *session,
+                            const char *username,
+                            unsigned int username_len);
 ~~~
 
 # DESCRIPTION
 
 *session* - Session instance as returned by libssh2_session_init_ex(3)
 
-*username* - Username which will be used while authenticating. Note that
+*username* - Username which is used while authenticating. Note that
 most server implementations do not permit attempting authentication with
 different usernames between requests. Therefore this must be the same username
-you will use on later userauth calls.
+you use on later userauth calls.
 
 *username_len* - Length of username parameter.
 
 Send a **SSH_USERAUTH_NONE** request to the remote host. Unless the remote
 host is configured to accept none as a viable authentication scheme
-(unlikely), it will return **SSH_USERAUTH_FAILURE** along with a listing of
+(unlikely), it returns **SSH_USERAUTH_FAILURE** along with a listing of
 what authentication schemes it does support. In the unlikely event that none
 authentication succeeds, this method with return NULL. This case may be
 distinguished from a failing case by examining

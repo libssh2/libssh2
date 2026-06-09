@@ -17,10 +17,10 @@ libssh2_userauth_keyboard_interactive - convenience macro for *libssh2_userauth_
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_userauth_keyboard_interactive(LIBSSH2_SESSION* session,
-                                      const char *username,
-                    LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(*response_callback));
+int libssh2_userauth_keyboard_interactive(
+    LIBSSH2_SESSION *session,
+    const char *username,
+    LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(*response_callback));
 ~~~
 
 # DESCRIPTION

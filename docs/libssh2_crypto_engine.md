@@ -16,8 +16,7 @@ libssh2_crypto_engine - retrieve used crypto engine
 ~~~c
 #include <libssh2.h>
 
-libssh2_crypto_engine_t
-libssh2_crypto_engine(void);
+libssh2_crypto_engine_t libssh2_crypto_engine(void);
 ~~~
 
 # DESCRIPTION

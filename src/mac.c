@@ -49,7 +49,7 @@
  * a "none" cipher, it is still not recommended as disabling MAC hashes
  * removes a layer of security.
  *
- * Enabling this option will allow for "none" as a negotiable method,
+ * Enabling this option allows for "none" as a negotiable method,
  * however it still requires that the method be advertised by the remote
  * end and that no more-preferable methods are available.
  */
@@ -93,7 +93,7 @@ static int mac_method_common_init(LIBSSH2_SESSION *session, unsigned char *key,
 static int mac_method_common_dtor(LIBSSH2_SESSION *session, void **abstract)
 {
     if(*abstract) {
-        LIBSSH2_FREE(session, *abstract);
+        SSH2_FREE(session, *abstract);
     }
     *abstract = NULL;
 
@@ -111,23 +111,23 @@ static int mac_method_hmac_sha2_512_hash(LIBSSH2_SESSION *session,
                                          const unsigned char *addtl,
                                          size_t addtl_len, void **abstract)
 {
-    libssh2_hmac_ctx ctx;
+    ssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
     int res;
     (void)session;
 
-    _libssh2_htonu32(seqno_buf, seqno);
+    ssh2_htonu32(seqno_buf, seqno);
 
-    if(!_libssh2_hmac_ctx_init(&ctx))
+    if(!ssh2_hmac_ctx_init(&ctx))
         return 1;
-    res = _libssh2_hmac_sha512_init(&ctx, *abstract, 64) &&
-          _libssh2_hmac_update(&ctx, seqno_buf, 4) &&
-          _libssh2_hmac_update(&ctx, packet, packet_len);
+    res = ssh2_hmac_sha512_init(&ctx, *abstract, 64) &&
+          ssh2_hmac_update(&ctx, seqno_buf, 4) &&
+          ssh2_hmac_update(&ctx, packet, packet_len);
     if(res && addtl && addtl_len)
-        res = _libssh2_hmac_update(&ctx, addtl, addtl_len);
+        res = ssh2_hmac_update(&ctx, addtl, addtl_len);
     if(res)
-        res = _libssh2_hmac_final(&ctx, buf);
-    _libssh2_hmac_cleanup(&ctx);
+        res = ssh2_hmac_final(&ctx, buf);
+    ssh2_hmac_cleanup(&ctx);
 
     return !res;
 }
@@ -165,23 +165,23 @@ static int mac_method_hmac_sha2_256_hash(LIBSSH2_SESSION *session,
                                          const unsigned char *addtl,
                                          size_t addtl_len, void **abstract)
 {
-    libssh2_hmac_ctx ctx;
+    ssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
     int res;
     (void)session;
 
-    _libssh2_htonu32(seqno_buf, seqno);
+    ssh2_htonu32(seqno_buf, seqno);
 
-    if(!_libssh2_hmac_ctx_init(&ctx))
+    if(!ssh2_hmac_ctx_init(&ctx))
         return 1;
-    res = _libssh2_hmac_sha256_init(&ctx, *abstract, 32) &&
-          _libssh2_hmac_update(&ctx, seqno_buf, 4) &&
-          _libssh2_hmac_update(&ctx, packet, packet_len);
+    res = ssh2_hmac_sha256_init(&ctx, *abstract, 32) &&
+          ssh2_hmac_update(&ctx, seqno_buf, 4) &&
+          ssh2_hmac_update(&ctx, packet, packet_len);
     if(res && addtl && addtl_len)
-        res = _libssh2_hmac_update(&ctx, addtl, addtl_len);
+        res = ssh2_hmac_update(&ctx, addtl, addtl_len);
     if(res)
-        res = _libssh2_hmac_final(&ctx, buf);
-    _libssh2_hmac_cleanup(&ctx);
+        res = ssh2_hmac_final(&ctx, buf);
+    ssh2_hmac_cleanup(&ctx);
 
     return !res;
 }
@@ -218,23 +218,23 @@ static int mac_method_hmac_sha1_hash(LIBSSH2_SESSION *session,
                                      const unsigned char *addtl,
                                      size_t addtl_len, void **abstract)
 {
-    libssh2_hmac_ctx ctx;
+    ssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
     int res;
     (void)session;
 
-    _libssh2_htonu32(seqno_buf, seqno);
+    ssh2_htonu32(seqno_buf, seqno);
 
-    if(!_libssh2_hmac_ctx_init(&ctx))
+    if(!ssh2_hmac_ctx_init(&ctx))
         return 1;
-    res = _libssh2_hmac_sha1_init(&ctx, *abstract, 20) &&
-          _libssh2_hmac_update(&ctx, seqno_buf, 4) &&
-          _libssh2_hmac_update(&ctx, packet, packet_len);
+    res = ssh2_hmac_sha1_init(&ctx, *abstract, 20) &&
+          ssh2_hmac_update(&ctx, seqno_buf, 4) &&
+          ssh2_hmac_update(&ctx, packet, packet_len);
     if(res && addtl && addtl_len)
-        res = _libssh2_hmac_update(&ctx, addtl, addtl_len);
+        res = ssh2_hmac_update(&ctx, addtl, addtl_len);
     if(res)
-        res = _libssh2_hmac_final(&ctx, buf);
-    _libssh2_hmac_cleanup(&ctx);
+        res = ssh2_hmac_final(&ctx, buf);
+    ssh2_hmac_cleanup(&ctx);
 
     return !res;
 }
@@ -300,23 +300,23 @@ static int mac_method_hmac_md5_hash(LIBSSH2_SESSION *session,
                                     const unsigned char *addtl,
                                     size_t addtl_len, void **abstract)
 {
-    libssh2_hmac_ctx ctx;
+    ssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
     int res;
     (void)session;
 
-    _libssh2_htonu32(seqno_buf, seqno);
+    ssh2_htonu32(seqno_buf, seqno);
 
-    if(!_libssh2_hmac_ctx_init(&ctx))
+    if(!ssh2_hmac_ctx_init(&ctx))
         return 1;
-    res = _libssh2_hmac_md5_init(&ctx, *abstract, 16) &&
-          _libssh2_hmac_update(&ctx, seqno_buf, 4) &&
-          _libssh2_hmac_update(&ctx, packet, packet_len);
+    res = ssh2_hmac_md5_init(&ctx, *abstract, 16) &&
+          ssh2_hmac_update(&ctx, seqno_buf, 4) &&
+          ssh2_hmac_update(&ctx, packet, packet_len);
     if(res && addtl && addtl_len)
-        res = _libssh2_hmac_update(&ctx, addtl, addtl_len);
+        res = ssh2_hmac_update(&ctx, addtl, addtl_len);
     if(res)
-        res = _libssh2_hmac_final(&ctx, buf);
-    _libssh2_hmac_cleanup(&ctx);
+        res = ssh2_hmac_final(&ctx, buf);
+    ssh2_hmac_cleanup(&ctx);
 
     return !res;
 }
@@ -373,23 +373,23 @@ static int mac_method_hmac_ripemd160_hash(LIBSSH2_SESSION *session,
                                           const unsigned char *addtl,
                                           size_t addtl_len, void **abstract)
 {
-    libssh2_hmac_ctx ctx;
+    ssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
     int res;
     (void)session;
 
-    _libssh2_htonu32(seqno_buf, seqno);
+    ssh2_htonu32(seqno_buf, seqno);
 
-    if(!_libssh2_hmac_ctx_init(&ctx))
+    if(!ssh2_hmac_ctx_init(&ctx))
         return 1;
-    res = _libssh2_hmac_ripemd160_init(&ctx, *abstract, 20) &&
-          _libssh2_hmac_update(&ctx, seqno_buf, 4) &&
-          _libssh2_hmac_update(&ctx, packet, packet_len);
+    res = ssh2_hmac_ripemd160_init(&ctx, *abstract, 20) &&
+          ssh2_hmac_update(&ctx, seqno_buf, 4) &&
+          ssh2_hmac_update(&ctx, packet, packet_len);
     if(res && addtl && addtl_len)
-        res = _libssh2_hmac_update(&ctx, addtl, addtl_len);
+        res = ssh2_hmac_update(&ctx, addtl, addtl_len);
     if(res)
-        res = _libssh2_hmac_final(&ctx, buf);
-    _libssh2_hmac_cleanup(&ctx);
+        res = ssh2_hmac_final(&ctx, buf);
+    ssh2_hmac_cleanup(&ctx);
 
     return !res;
 }
@@ -441,7 +441,7 @@ static const struct mac_method *mac_methods[] = {
     NULL
 };
 
-const struct mac_method **_libssh2_mac_methods(void)
+const struct mac_method **ssh2_mac_methods(void)
 {
     return mac_methods;
 }
@@ -498,8 +498,7 @@ static const struct mac_method mac_method_hmac_aesgcm = {
 
 /* See if the negotiated crypto method has its own authentication scheme that
  * obviates the need for a separate negotiated hmac method */
-const struct mac_method *_libssh2_mac_override(
-    const struct crypt_method *crypt)
+const struct mac_method *ssh2_mac_override(const struct crypt_method *crypt)
 {
 #if LIBSSH2_AES_GCM
     if(!strcmp(crypt->name, "aes256-gcm@openssh.com") ||

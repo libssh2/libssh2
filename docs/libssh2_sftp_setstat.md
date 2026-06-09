@@ -18,9 +18,8 @@ libssh2_sftp_setstat - convenience macro for *libssh2_sftp_stat_ex(3)* calls
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int
-libssh2_sftp_setstat(LIBSSH2_SFTP *sftp, const char *path,
-                     LIBSSH2_SFTP_ATTRIBUTES *attr);
+int libssh2_sftp_setstat(LIBSSH2_SFTP *sftp, const char *path,
+                         LIBSSH2_SFTP_ATTRIBUTES *attr);
 ~~~
 
 # DESCRIPTION

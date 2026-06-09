@@ -20,8 +20,7 @@ libssh2_sftp_init - open SFTP channel for the given SSH session.
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-LIBSSH2_SFTP *
-libssh2_sftp_init(LIBSSH2_SESSION *session);
+LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session);
 ~~~
 
 # DESCRIPTION

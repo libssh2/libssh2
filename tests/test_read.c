@@ -8,7 +8,7 @@
 #include "runner.h"
 #include "openssh_fixture.h"
 
-#include <stdlib.h>  /* for getenv() */
+#include <stdlib.h>  /* for atoi(), getenv() */
 
 /* set in Dockerfile */
 static const char *username = "libssh2";
@@ -81,7 +81,7 @@ int test(LIBSSH2_SESSION *session)
 
     env = getenv("FIXTURE_XFER_COUNT");
     if(env) {
-        xfer_count = (unsigned long)strtol(env, NULL, 0);
+        xfer_count = (unsigned long)atoi(env);
         fprintf(stderr, "Custom xfer_count: %lu\n", xfer_count);
     }
 
@@ -107,7 +107,7 @@ int test(LIBSSH2_SESSION *session)
             for(i = 0; i < (unsigned long)err; ++i) {
                 if(buf[i]) {
                     fprintf(stderr, "Bad data received\n");
-                    /* Test will fail below due to bad data length */
+                    /* Test fails below due to bad data length */
                     break;
                 }
             }

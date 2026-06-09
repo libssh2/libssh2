@@ -96,7 +96,7 @@
      d sin             ds                  likeds(sockaddr_in)                  Remote IP address
      d sock            s             10i 0 inz(LIBSSH2_INVALID_SOCKET)          Socket descriptor
      d rc              s             10i 0                                      Result code
-     d hostlen         s             10u 0                                      Host name length
+     d hostlen         s             10u 0                                      Hostname length
       *
       **************************************************************************
       *                            Main program
@@ -161,7 +161,7 @@
         // Since we have set non-blocking, tell libssh2 we are blocking
         libssh2_session_set_blocking(session: 1);
 
-        // ... start it up. This will trade welcome banners, exchange keys,
+        // ... start it up. This trades welcome banners, exchange keys,
         // and setup crypto, compression, and MAC layers
         rc = libssh2_session_handshake(session: sock);
         if rc <> 0;

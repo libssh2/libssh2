@@ -46,7 +46,7 @@
 #include "packet.h"
 
 /*
- * libssh2_transport_send
+ * ssh2_transport_send()
  *
  * Send a packet, encrypting it and adding a MAC code if necessary
  * Returns 0 on success, non-zero on failure.
@@ -61,20 +61,20 @@
  * then be called with the same argument set (same data pointer and same
  * data_len) until ERROR_NONE or failure is returned.
  *
- * This function DOES NOT call _libssh2_error() on any errors.
+ * This function DOES NOT call ssh2_err() on any errors.
  */
-int _libssh2_transport_send(LIBSSH2_SESSION *session,
-                            const unsigned char *data, size_t data_len,
-                            const unsigned char *data2, size_t data2_len);
+int ssh2_transport_send(LIBSSH2_SESSION *session,
+                        const unsigned char *data, size_t data_len,
+                        const unsigned char *data2, size_t data2_len);
 
 /*
- * _libssh2_transport_read
+ * ssh2_transport_read()
  *
  * Collect a packet into the input brigade block only controls whether or not
  * to wait for a packet to start.
  *
  * Returns packet type added to input brigade (PACKET_NONE if nothing added),
- * or PACKET_FAIL on failure and PACKET_EAGAIN if it couldn't process a full
+ * or PACKET_FAIL on failure and PACKET_EAGAIN if it could not process a full
  * packet.
  */
 
@@ -82,6 +82,6 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
  * This function reads the binary stream as specified in chapter 6 of RFC4253
  * "The Secure Shell (SSH) Transport Layer Protocol"
  */
-int _libssh2_transport_read(LIBSSH2_SESSION *session);
+int ssh2_transport_read(LIBSSH2_SESSION *session);
 
 #endif /* LIBSSH2_TRANSPORT_H */

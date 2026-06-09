@@ -541,7 +541,7 @@ int main(int argc, char **argv)
             }
             if(basechange) {
                 basechange = 0;
-                i = i + 1;
+                ++i;
             }
         }
         else {

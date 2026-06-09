@@ -16,8 +16,7 @@ libssh2_trace - enable debug info from inside libssh2
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_trace(LIBSSH2_SESSION *session, int bitmask);
+int libssh2_trace(LIBSSH2_SESSION *session, int bitmask);
 ~~~
 
 # DESCRIPTION

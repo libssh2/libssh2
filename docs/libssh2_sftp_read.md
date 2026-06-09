@@ -20,9 +20,8 @@ libssh2_sftp_read - read data from an SFTP handle
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-ssize_t
-libssh2_sftp_read(LIBSSH2_SFTP_HANDLE *handle,
-                  char *buffer, size_t buffer_maxlen);
+ssize_t libssh2_sftp_read(LIBSSH2_SFTP_HANDLE *handle,
+                          char *buffer, size_t buffer_maxlen);
 ~~~
 
 # DESCRIPTION
@@ -36,7 +35,7 @@ libssh2_sftp_read(LIBSSH2_SFTP_HANDLE *handle,
 Reads a block of data from an LIBSSH2_SFTP_HANDLE. This method is modelled
 after the POSIX read(2)
 function and uses the same calling semantics. libssh2_sftp_read(3)
-will attempt to read as much as possible however it may not fill all of buffer
+attempts to read as much as possible however it may not fill all of buffer
 if the file pointer reaches the end or if further reads would cause the socket
 to block.
 

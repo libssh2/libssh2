@@ -50,6 +50,10 @@
 
 #include "libssh2.h"
 
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-identifier"
+#endif
 typedef struct _LIBSSH2_PUBLICKEY               LIBSSH2_PUBLICKEY;
 
 /* !checksrc! disable TYPEDEFSTRUCT 1 */
@@ -72,6 +76,9 @@ typedef struct _libssh2_publickey_list {
     unsigned long num_attrs;
     libssh2_publickey_attribute *attrs; /* free me */
 } libssh2_publickey_list;
+#if defined(__clang__) && __clang_major__ >= 13
+#pragma clang diagnostic pop
+#endif
 
 /* Generally use the first macro here, but if both name and value are string
    literals, you can use _fast() to take advantage of preprocessing */
@@ -85,17 +92,17 @@ extern "C" {
 #endif
 
 /* Publickey Subsystem */
-LIBSSH2_API LIBSSH2_PUBLICKEY *
-libssh2_publickey_init(LIBSSH2_SESSION *session);
+LIBSSH2_API LIBSSH2_PUBLICKEY *libssh2_publickey_init(
+    LIBSSH2_SESSION *session);
 
-LIBSSH2_API int
-libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
-                         const unsigned char *name,
-                         unsigned long name_len,
-                         const unsigned char *blob,
-                         unsigned long blob_len, char overwrite,
-                         unsigned long num_attrs,
-                         const libssh2_publickey_attribute attrs[]);
+LIBSSH2_API int libssh2_publickey_add_ex(
+    LIBSSH2_PUBLICKEY *pkey,
+    const unsigned char *name,
+    unsigned long name_len,
+    const unsigned char *blob,
+    unsigned long blob_len, char overwrite,
+    unsigned long num_attrs,
+    const libssh2_publickey_attribute attrs[]);
 #define libssh2_publickey_add(pkey, name, blob, blob_len, overwrite, \
                               num_attrs, attrs) \
     libssh2_publickey_add_ex(pkey, name, strlen(name), blob, blob_len, \
@@ -109,13 +116,14 @@ LIBSSH2_API int libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
 #define libssh2_publickey_remove(pkey, name, blob, blob_len) \
     libssh2_publickey_remove_ex(pkey, name, strlen(name), blob, blob_len)
 
-LIBSSH2_API int
-libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
-                             unsigned long *num_keys,
-                             libssh2_publickey_list **pkey_list);
-LIBSSH2_API void
-libssh2_publickey_list_free(LIBSSH2_PUBLICKEY *pkey,
-                            libssh2_publickey_list *pkey_list);
+LIBSSH2_API int libssh2_publickey_list_fetch(
+    LIBSSH2_PUBLICKEY *pkey,
+    unsigned long *num_keys,
+    libssh2_publickey_list **pkey_list);
+
+LIBSSH2_API void libssh2_publickey_list_free(
+    LIBSSH2_PUBLICKEY *pkey,
+    libssh2_publickey_list *pkey_list);
 
 LIBSSH2_API int libssh2_publickey_shutdown(LIBSSH2_PUBLICKEY *pkey);
 

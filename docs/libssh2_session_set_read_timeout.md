@@ -17,8 +17,7 @@ libssh2_session_set_read_timeout - set timeout for packet read functions
 ~~~c
 #include <libssh2.h>
 
-void
-libssh2_session_set_read_timeout(LIBSSH2_SESSION *session, long timeout);
+void libssh2_session_set_read_timeout(LIBSSH2_SESSION *session, long timeout);
 ~~~
 
 # DESCRIPTION
@@ -27,7 +26,7 @@ Set the **timeout** in seconds for how long libssh2 packet read
 function calls may wait until they consider the situation an error and return
 LIBSSH2_ERROR_TIMEOUT.
 
-By default or if you set the timeout to zero, the timeout will be set to
+By default or if you set the timeout to zero, the timeout is set to
 60 seconds.
 
 # RETURN VALUE

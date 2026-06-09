@@ -17,8 +17,7 @@ libssh2_channel_forward_accept - accept a queued connection
 ~~~c
 #include <libssh2.h>
 
-LIBSSH2_CHANNEL *
-libssh2_channel_forward_accept(LIBSSH2_LISTENER *listener);
+LIBSSH2_CHANNEL *libssh2_channel_forward_accept(LIBSSH2_LISTENER *listener);
 ~~~
 
 # DESCRIPTION

@@ -17,8 +17,7 @@ libssh2_channel_subsystem - convenience macro for *libssh2_channel_process_start
 ~~~c
 #include <libssh2.h>
 
-int
-libssh2_channel_subsystem(LIBSSH2_CHANNEL *channel, const char *subsystem);
+int libssh2_channel_subsystem(LIBSSH2_CHANNEL *channel, const char *subsystem);
 ~~~
 
 # DESCRIPTION

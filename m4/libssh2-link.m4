@@ -11,7 +11,7 @@ dnl From Bruno Haible.
 AC_PREREQ([2.54])
 
 dnl LIBSSH2_WITH_FINAL_PREFIX([statement]) evaluates statement, with the
-dnl variables prefix and exec_prefix bound to the values they will have
+dnl variables prefix and exec_prefix bound to the values they have
 dnl at the end of the configure script.
 AC_DEFUN([LIBSSH2_WITH_FINAL_PREFIX],
 [
@@ -26,7 +26,7 @@ AC_DEFUN([LIBSSH2_WITH_FINAL_PREFIX],
 
 dnl LIBSSH2_PREPARE_PREFIX creates variables acl_final_prefix,
 dnl acl_final_exec_prefix, containing the values to which $prefix and
-dnl $exec_prefix will expand at the end of the configure script.
+dnl $exec_prefix expands at the end of the configure script.
 AC_DEFUN([LIBSSH2_PREPARE_PREFIX],
 [
   dnl Unfortunately, prefix and exec_prefix get only finally determined
@@ -154,7 +154,7 @@ AC_DEFUN([LIBSSH2_HAVE_LINKFLAGS],
     AC_MSG_RESULT([$LIB[]NAME])
   else
     HAVE_LIB[]NAME=no
-    dnl If $LIB[]NAME didn't lead to a usable library, we don't need
+    dnl If $LIB[]NAME did not lead to a usable library, we do not need
     dnl $INC[]NAME either.
     CPPFLAGS="$ac_save_CPPFLAGS"
     LIB[]NAME=
@@ -223,7 +223,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
   ])
   AC_ARG_WITH([lib]N_A_M_E[-prefix],
 [  --with-lib]N_A_M_E[-prefix[=DIR]  search for lib$1 in DIR/include and DIR/lib
-  --without-lib]N_A_M_E[-prefix     don't search for lib$1 in includedir and libdir],
+  --without-lib]N_A_M_E[-prefix     do not search for lib$1 in includedir and libdir],
 [
     if test "X$withval" = "Xno"; then
       use_additional=no
@@ -274,7 +274,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
             test -z "$value" || LTLIB[]NAME="${LTLIB[]NAME}${LTLIB[]NAME:+ }$value"
           else
             dnl An earlier call to LIBSSH2_HAVE_LINKFLAGS has determined
-            dnl that this library doesn't exist. So just drop it.
+            dnl that this library does not exist. So drop it.
             :
           fi
         else
@@ -392,7 +392,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
             LTLIB[]NAME="${LTLIB[]NAME}${LTLIB[]NAME:+ }-L$found_dir -l$name"
             if test "X$found_so" != "X"; then
               dnl Linking with a shared library. We attempt to hardcode its
-              dnl directory into the executable's runpath, unless it's the
+              dnl directory into the executable's runpath, unless it is the
               dnl standard /usr/lib.
               if test "$enable_rpath" = no || test "X$found_dir" = "X/usr/$acl_libdirstem"; then
                 dnl No hardcoding is needed.
@@ -401,7 +401,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
                 dnl Use an explicit option to hardcode DIR into the resulting
                 dnl binary.
                 dnl Potentially add DIR to ltrpathdirs.
-                dnl The ltrpathdirs will be appended to $LTLIBNAME at the end.
+                dnl The ltrpathdirs is appended to $LTLIBNAME at the end.
                 haveit=
                 for x in $ltrpathdirs; do
                   if test "X$x" = "X$found_dir"; then
@@ -423,7 +423,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
                     dnl binary.
                     LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }$found_so"
                     dnl Potentially add DIR to rpathdirs.
-                    dnl The rpathdirs will be appended to $LIBNAME at the end.
+                    dnl The rpathdirs is appended to $LIBNAME at the end.
                     haveit=
                     for x in $rpathdirs; do
                       if test "X$x" = "X$found_dir"; then
@@ -436,7 +436,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
                     fi
                   else
                     dnl Rely on "-L$found_dir".
-                    dnl But don't add it if it's already contained in the LDFLAGS
+                    dnl But do not add it if it is already contained in the LDFLAGS
                     dnl or the already constructed $LIBNAME
                     haveit=
                     for x in $LDFLAGS $LIB[]NAME; do
@@ -456,9 +456,9 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
                       LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }$found_so"
                     else
                       dnl We cannot use $acl_hardcode_runpath_var and LD_RUN_PATH
-                      dnl here, because this doesn't fit in flags passed to the
+                      dnl here, because this does not fit in flags passed to the
                       dnl compiler. So give up. No hardcoding. This affects only
-                      dnl very old systems.
+                      dnl old systems.
                       dnl FIXME: Not sure whether we should use
                       dnl "-L$found_dir -l$name" or "-L$found_dir $found_so"
                       dnl here.
@@ -472,7 +472,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
                 dnl Linking with a static library.
                 LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }$found_a"
               else
-                dnl We shouldn't come here, but anyway it's good to have a
+                dnl We should not come here, but anyway it is good to have a
                 dnl fallback.
                 LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }-L$found_dir -l$name"
               fi
@@ -488,12 +488,12 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
             esac
             if test "X$additional_includedir" != "X"; then
               dnl Potentially add $additional_includedir to $INCNAME.
-              dnl But don't add it
-              dnl   1. if it's the standard /usr/include,
-              dnl   2. if it's /usr/local/include and we are using GCC on Linux,
-              dnl   3. if it's already present in $CPPFLAGS or the already
+              dnl But do not add it
+              dnl   1. if it is the standard /usr/include,
+              dnl   2. if it is /usr/local/include and we are using GCC on Linux,
+              dnl   3. if it is already present in $CPPFLAGS or the already
               dnl      constructed $INCNAME,
-              dnl   4. if it doesn't exist as a directory.
+              dnl   4. if it does not exist as a directory.
               if test "X$additional_includedir" != "X/usr/include"; then
                 haveit=
                 if test "X$additional_includedir" = "X/usr/local/include"; then
@@ -537,12 +537,12 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
                   -L*)
                     additional_libdir=`echo "X$dep" | sed -e 's/^X-L//'`
                     dnl Potentially add $additional_libdir to $LIBNAME and $LTLIBNAME.
-                    dnl But don't add it
-                    dnl   1. if it's the standard /usr/lib,
-                    dnl   2. if it's /usr/local/lib and we are using GCC on Linux,
-                    dnl   3. if it's already present in $LDFLAGS or the already
+                    dnl But do not add it
+                    dnl   1. if it is the standard /usr/lib,
+                    dnl   2. if it is /usr/local/lib and we are using GCC on Linux,
+                    dnl   3. if it is already present in $LDFLAGS or the already
                     dnl      constructed $LIBNAME,
-                    dnl   4. if it doesn't exist as a directory.
+                    dnl   4. if it does not exist as a directory.
                     if test "X$additional_libdir" != "X/usr/$acl_libdirstem"; then
                       haveit=
                       if test "X$additional_libdir" = "X/usr/local/$acl_libdirstem"; then
@@ -588,7 +588,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
                     dir=`echo "X$dep" | sed -e 's/^X-R//'`
                     if test "$enable_rpath" != no; then
                       dnl Potentially add DIR to rpathdirs.
-                      dnl The rpathdirs will be appended to $LIBNAME at the end.
+                      dnl The rpathdirs is appended to $LIBNAME at the end.
                       haveit=
                       for x in $rpathdirs; do
                         if test "X$x" = "X$dir"; then
@@ -600,7 +600,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
                         rpathdirs="$rpathdirs $dir"
                       fi
                       dnl Potentially add DIR to ltrpathdirs.
-                      dnl The ltrpathdirs will be appended to $LTLIBNAME at the end.
+                      dnl The ltrpathdirs is appended to $LTLIBNAME at the end.
                       haveit=
                       for x in $ltrpathdirs; do
                         if test "X$x" = "X$dir"; then
@@ -632,7 +632,7 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
               done
             fi
           else
-            dnl Didn't find the library; assume it is in the system directories
+            dnl Did not find the library; assume it is in the system directories
             dnl known to the linker and runtime loader. (All the system
             dnl directories known to the linker should also be known to the
             dnl runtime loader, otherwise the system is severely misconfigured.)
