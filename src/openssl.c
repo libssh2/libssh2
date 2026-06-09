@@ -3873,7 +3873,7 @@ int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
 
     *out_public_key_octal = SSH2_ALLOC(session, octal_len);
 
-    if(!(*out_public_key_octal)) {
+    if(!*out_public_key_octal) {
         ret = -1;
         goto clean_exit;
     }
