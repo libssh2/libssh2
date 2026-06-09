@@ -222,9 +222,10 @@ static unsigned char *ossl_write_bn(unsigned char *buf, const BIGNUM *bn,
 
     *p = 0;
     BN_bn2bin(bn, p + 1);
-    if(!(*(p + 1) & 0x80)) {
+
+    if(!(*(p + 1) & 0x80))
         memmove(p, p + 1, --bn_bytes);
-    }
+
     ssh2_htonu32(p - 4, bn_bytes);  /* Post write bn size. */
 
     return p + bn_bytes;
@@ -321,9 +322,8 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     *rsa = NULL;
     ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);
 
-    if(EVP_PKEY_fromdata_init(ctx) > 0) {
+    if(EVP_PKEY_fromdata_init(ctx) > 0)
         ret = EVP_PKEY_fromdata(ctx, rsa, EVP_PKEY_KEYPAIR, params);
-    }
 
     if(nbuf)
         OPENSSL_clear_free(nbuf, nlen);
@@ -659,9 +659,8 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
 
     if(ctx && !ssh2_ossl_sha1(m, m_len, hash)) {
         /* ssh2_ossl_sha1() succeeded */
-        if(EVP_PKEY_verify_init(ctx) > 0) {
+        if(EVP_PKEY_verify_init(ctx) > 0)
             ret = EVP_PKEY_verify(ctx, der, der_len, hash, SHA_DIGEST_LENGTH);
-        }
     }
 
     if(ctx)
@@ -987,23 +986,20 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo), int encrypt,
     /* First block */
     if(IS_FIRST(firstlast)) {
         /* Increments invocation_counter portion of IV */
-        if(is_aesgcm) {
+        if(is_aesgcm)
             ret = EVP_CIPHER_CTX_ctrl(*ctx, EVP_CTRL_GCM_IV_GEN, 1, lastiv);
-        }
 
-        if(aadlen) {
+        if(aadlen)
             /* Include the 4 byte packet length as AAD */
             ret = EVP_Cipher(*ctx, NULL, block, aadlen);
-        }
     }
 
     /* Last portion of block to encrypt/decrypt */
     if(IS_LAST(firstlast)) {
-        if(is_aesgcm && !encrypt) {
+        if(is_aesgcm && !encrypt)
             /* set tag on decryption */
             ret = EVP_CIPHER_CTX_ctrl(*ctx, EVP_CTRL_GCM_SET_TAG, authlen,
                                       block + blocksize - authlen);
-        }
     }
 #else
     (void)encrypt;
@@ -2537,6 +2533,7 @@ int ssh2_mlkem_new(LIBSSH2_SESSION *session, int ml_kem_size,
         actualPrivLen = privLen;
         if(!priv)
             goto clean_exit;
+
         if(EVP_PKEY_get_raw_private_key(key, priv, &actualPrivLen) != 1 ||
            privLen != actualPrivLen) {
             goto clean_exit;
@@ -3304,19 +3301,15 @@ static int ossl_ecdsa_evp_to_pubkey(LIBSSH2_SESSION *session,
     if(!method_buf)
         return ssh2_err(session, LIBSSH2_ERROR_ALLOC, "out of memory");
 
-    if(is_sk) {
+    if(is_sk)
         memcpy(method_buf, "sk-ecdsa-sha2-nistp256@openssh.com",
                method_buf_len);
-    }
-    else if(type == SSH2_EC_CURVE_NISTP256) {
+    else if(type == SSH2_EC_CURVE_NISTP256)
         memcpy(method_buf, "ecdsa-sha2-nistp256", method_buf_len);
-    }
-    else if(type == SSH2_EC_CURVE_NISTP384) {
+    else if(type == SSH2_EC_CURVE_NISTP384)
         memcpy(method_buf, "ecdsa-sha2-nistp384", method_buf_len);
-    }
-    else if(type == SSH2_EC_CURVE_NISTP521) {
+    else if(type == SSH2_EC_CURVE_NISTP521)
         memcpy(method_buf, "ecdsa-sha2-nistp521", method_buf_len);
-    }
     else {
         ssh2_deb((session, LIBSSH2_TRACE_ERROR,
                   "Unsupported EC private key type"));
@@ -4547,13 +4540,12 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
     }
 #endif
 #if LIBSSH2_ECDSA
-    if(strcmp("sk-ecdsa-sha2-nistp256@openssh.com", (const char *)buf) == 0) {
+    if(strcmp("sk-ecdsa-sha2-nistp256@openssh.com", (const char *)buf) == 0)
         rc = ossl_ecdsa_sk_openssh_priv_to_pubkey(session, decrypted,
                                                   method, method_len,
                                                   pubkeydata, pubkeydata_len,
                                                   NULL, NULL, NULL, NULL,
                                                   (ssh2_ecdsa_ctx **)key_ctx);
-    }
     else if(ssh2_ecdsa_curve_type_from_name((const char *)buf, &type) == 0) {
         if(!key_type || strcmp("ssh-ecdsa", key_type) == 0)
             rc = ossl_ecdsa_openssh_priv_to_pubkey(session, type, decrypted,
