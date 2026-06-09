@@ -1142,11 +1142,9 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
 #endif
     BIO_free(bp);
     if(!*rsa)
-        rc = ossl_key_from_openssh_blob(session, (void **)rsa,
-                                        "ssh-rsa",
+        rc = ossl_key_from_openssh_blob(session, (void **)rsa, "ssh-rsa",
                                         NULL, NULL, NULL, NULL,
-                                        filedata, filedata_len,
-                                        passphrase);
+                                        filedata, filedata_len, passphrase);
 
     return rc;
 }
@@ -1559,11 +1557,9 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
 #endif
     BIO_free(bp);
     if(!*dsa)
-        rc = ossl_key_from_openssh_blob(session, (void **)dsa,
-                                        "ssh-dsa",
+        rc = ossl_key_from_openssh_blob(session, (void **)dsa, "ssh-dsa",
                                         NULL, NULL, NULL, NULL,
-                                        filedata, filedata_len,
-                                        passphrase);
+                                        filedata, filedata_len, passphrase);
 
     return rc;
 }
@@ -1895,11 +1891,9 @@ int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
 #endif
     BIO_free(bp);
     if(!*ec_ctx)
-        rc = ossl_key_from_openssh_blob(session, (void **)ec_ctx,
-                                        "ssh-ecdsa",
+        rc = ossl_key_from_openssh_blob(session, (void **)ec_ctx, "ssh-ecdsa",
                                         NULL, NULL, NULL, NULL,
-                                        filedata, filedata_len,
-                                        passphrase);
+                                        filedata, filedata_len, passphrase);
 
     return rc;
 }
@@ -2500,11 +2494,9 @@ int ssh2_ed25519_new_private_frommemory(ssh2_ed25519_ctx **ed_ctx,
         }
     }
 
-    return ossl_key_from_openssh_blob(session, (void **)ed_ctx,
-                                      "ssh-ed25519",
+    return ossl_key_from_openssh_blob(session, (void **)ed_ctx, "ssh-ed25519",
                                       NULL, NULL, NULL, NULL,
-                                      filedata, filedata_len,
-                                      passphrase);
+                                      filedata, filedata_len, passphrase);
 }
 
 int ssh2_ed25519_new_private_frommemory_sk(ssh2_ed25519_ctx **ed_ctx,
