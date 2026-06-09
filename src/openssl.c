@@ -1041,9 +1041,8 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo), int encrypt,
 #else
             ret = EVP_Cipher(ctx, NULL, NULL, 0); /* final */
 #endif
-            if(ret < 0) {
+            if(ret < 0)
                 ret = 0;
-            }
             else {
                 ret = 1;
 #if LIBSSH2_AES_GCM
