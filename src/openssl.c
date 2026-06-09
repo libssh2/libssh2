@@ -995,12 +995,10 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo), int encrypt,
     }
 
     /* Last portion of block to encrypt/decrypt */
-    if(IS_LAST(firstlast)) {
-        if(is_aesgcm && !encrypt)
-            /* set tag on decryption */
-            ret = EVP_CIPHER_CTX_ctrl(*ctx, EVP_CTRL_GCM_SET_TAG, authlen,
-                                      block + blocksize - authlen);
-    }
+    if(IS_LAST(firstlast) && is_aesgcm && !encrypt)
+        /* set tag on decryption */
+        ret = EVP_CIPHER_CTX_ctrl(*ctx, EVP_CTRL_GCM_SET_TAG, authlen,
+                                  block + blocksize - authlen);
 #else
     (void)encrypt;
     (void)firstlast;
