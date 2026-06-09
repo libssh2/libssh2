@@ -1239,11 +1239,10 @@ int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
 int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
                            const char *passphrase,
                            FILE *fp, struct string_buf **decrypted_buf);
-int ssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
-                                  const char *passphrase,
-                                  const char *filedata,
-                                  size_t filedata_len,
-                                  struct string_buf **decrypted_buf);
+int ssh2_openssh_pem_parse_blob(LIBSSH2_SESSION *session,
+                                const char *passphrase,
+                                const char *filedata, size_t filedata_len,
+                                struct string_buf **decrypted_buf);
 
 int ssh2_pem_decode_sequence(unsigned char **data, size_t *datalen);
 int ssh2_pem_decode_integer(unsigned char **data, size_t *datalen,

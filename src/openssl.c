@@ -3839,9 +3839,9 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
 
     OSSL_INIT_IF_NEEDED();
 
-    rc = ssh2_openssh_pem_parse_memory(session, passphrase,
-                                       privatekeydata,
-                                       privatekeydata_len, &decrypted);
+    rc = ssh2_openssh_pem_parse_blob(session, passphrase,
+                                     privatekeydata, privatekeydata_len,
+                                     &decrypted);
     if(rc)
         return rc;
 
@@ -3942,9 +3942,9 @@ int ssh2_sk_pubkey_blob(LIBSSH2_SESSION *session,
 
     OSSL_INIT_IF_NEEDED();
 
-    rc = ssh2_openssh_pem_parse_memory(session, passphrase,
-                                       privatekeydata,
-                                       privatekeydata_len, &decrypted);
+    rc = ssh2_openssh_pem_parse_blob(session, passphrase,
+                                     privatekeydata, privatekeydata_len,
+                                     &decrypted);
     if(rc)
         return rc;
 

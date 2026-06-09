@@ -1073,9 +1073,8 @@ static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
     size_t curvelen, exponentlen, pointlen;
     unsigned char *curve, *exponent, *point_buf;
 
-    if(ssh2_openssh_pem_parse_memory(session, passphrase,
-                                     (const char *)data, data_len,
-                                     &decrypted))
+    if(ssh2_openssh_pem_parse_blob(session, passphrase,
+                                   (const char *)data, data_len, &decrypted))
         goto failed;
 
     if(ssh2_get_string(decrypted, &name, NULL))
