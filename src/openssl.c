@@ -400,10 +400,8 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
 #endif /* USE_OPENSSL_3 */
 }
 
-int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
-                         size_t hash_len,
-                         const unsigned char *sig,
-                         size_t sig_len,
+int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
+                         const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
 #ifdef USE_OPENSSL_3
@@ -478,8 +476,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
 
 #if LIBSSH2_RSA_SHA1
 int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
-                         const unsigned char *sig,
-                         size_t sig_len,
+                         const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
     return ssh2_rsa_sha2_verify(rsactx, SHA_DIGEST_LENGTH, sig, sig_len, m,
@@ -752,8 +749,7 @@ int ssh2_ecdsa_curve_type_from_name(const char *name,
  * Creates a new public key given an octal string, length and type
  */
 int ssh2_ecdsa_curve_name_with_octal_new(ssh2_ecdsa_ctx **ec_ctx,
-                                         const unsigned char *k,
-                                         size_t k_len,
+                                         const unsigned char *k, size_t k_len,
                                          ssh2_curve_type curve)
 {
     int ret = 0;
@@ -977,9 +973,8 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
 #define EVP_MAX_BLOCK_LENGTH 32
 #endif
 
-int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
-                      int encrypt, unsigned char *block, size_t blocksize,
-                      int firstlast)
+int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo), int encrypt,
+                      unsigned char *block, size_t blocksize, int firstlast)
 {
     unsigned char buf[EVP_MAX_BLOCK_LENGTH];
     int ret = 1;
@@ -1122,8 +1117,7 @@ static int ossl_passphrase_cb(char *buf, int size, int rwflag,
 #if LIBSSH2_RSA
 int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                     LIBSSH2_SESSION *session,
-                                    const char *filedata,
-                                    size_t filedata_len,
+                                    const char *filedata, size_t filedata_len,
                                     const unsigned char *passphrase)
 {
     int rc = 0;
@@ -1150,8 +1144,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
 }
 
 static unsigned char *ossl_rsa_to_pubkey(LIBSSH2_SESSION *session,
-                                         ssh2_rsa_ctx *rsa,
-                                         size_t *key_len)
+                                         ssh2_rsa_ctx *rsa, size_t *key_len)
 {
     int e_bytes, n_bytes;
     unsigned long len;
@@ -1565,8 +1558,7 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
 }
 
 static unsigned char *ossl_dsa_to_pubkey(LIBSSH2_SESSION *session,
-                                         ssh2_dsa_ctx *dsa,
-                                         size_t *key_len)
+                                         ssh2_dsa_ctx *dsa, size_t *key_len)
 {
     int p_bytes, q_bytes, g_bytes, k_bytes;
     unsigned long len;
@@ -2546,8 +2538,7 @@ int ssh2_ed25519_new_public(ssh2_ed25519_ctx **ed_ctx,
 
 #if LIBSSH2_MLKEM
 
-int ssh2_mlkem_new(LIBSSH2_SESSION *session,
-                   int ml_kem_size,
+int ssh2_mlkem_new(LIBSSH2_SESSION *session, int ml_kem_size,
                    unsigned char **out_public_key,
                    unsigned char **out_private_key)
 {
@@ -2632,10 +2623,8 @@ clean_exit:
     return rc;
 }
 
-int ssh2_mlkem_get_sk(unsigned char *out_shared_key,
-                      int ml_kem_size,
-                      uint8_t *private_key,
-                      uint8_t *server_ciphertext)
+int ssh2_mlkem_get_sk(unsigned char *out_shared_key, int ml_kem_size,
+                      uint8_t *private_key, uint8_t *server_ciphertext)
 {
     int rc = -1;
     EVP_PKEY *client_key = NULL;
@@ -2711,10 +2700,8 @@ clean_exit:
 #endif
 
 #if LIBSSH2_RSA
-int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
-                       ssh2_rsa_ctx *rsactx,
-                       const unsigned char *hash,
-                       size_t hash_len,
+int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
+                       const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
     int ret = -1;
@@ -2797,10 +2784,8 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
 }
 
 #if LIBSSH2_RSA_SHA1
-int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
-                       ssh2_rsa_ctx *rsactx,
-                       const unsigned char *hash,
-                       size_t hash_len,
+int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
+                       const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
     return ssh2_rsa_sha2_sign(session, rsactx, hash, hash_len,
@@ -3323,8 +3308,7 @@ int ssh2_ossl_md5_final(ssh2_md5_ctx *ctx, unsigned char *out)
 #if LIBSSH2_ECDSA
 
 static int ossl_ecdsa_evp_to_pubkey(LIBSSH2_SESSION *session,
-                                    unsigned char **method,
-                                    size_t *method_len,
+                                    unsigned char **method, size_t *method_len,
                                     unsigned char **pubkeydata,
                                     size_t *pubkeydata_len,
                                     int is_sk,
@@ -4630,7 +4614,7 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
                                                         method, method_len,
                                                         pubkeydata,
                                                         pubkeydata_len,
-                                                        NULL, NULL,NULL, NULL,
+                                                        NULL, NULL, NULL, NULL,
                                                  (ssh2_ed25519_ctx **)key_ctx);
     }
 #endif
@@ -4784,8 +4768,7 @@ static int ossl_key_sk_from_openssh_blob(LIBSSH2_SESSION *session,
 #endif
 
 int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                unsigned char **method,
-                                size_t *method_len,
+                                unsigned char **method, size_t *method_len,
                                 unsigned char **pubkeydata,
                                 size_t *pubkeydata_len,
                                 const char *privatekeydata,
