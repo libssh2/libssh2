@@ -3740,7 +3740,7 @@ fail:
     return rc;
 }
 
-static int ecossl_dsa_openssh_priv_new(ssh2_ecdsa_ctx **ec_ctx,
+static int ossl_ecdsa_openssh_priv_new(ssh2_ecdsa_ctx **ec_ctx,
                                        LIBSSH2_SESSION *session,
                                        const char *filename,
                                        const unsigned char *passphrase)
@@ -3796,7 +3796,7 @@ static int ecossl_dsa_openssh_priv_new(ssh2_ecdsa_ctx **ec_ctx,
     return rc;
 }
 
-static int ecossl_dsa_openssh_priv_new_sk(ssh2_ecdsa_ctx **ec_ctx,
+static int ossl_ecdsa_sk_openssh_priv_new(ssh2_ecdsa_ctx **ec_ctx,
                                           uint8_t *flags,
                                           const char **application,
                                           const unsigned char **key_handle,
@@ -3877,7 +3877,7 @@ int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
 #endif
     BIO_free(bp);
     if(!*ec_ctx)
-        rc = ecossl_dsa_openssh_priv_new(ec_ctx, session, filename,
+        rc = ossl_ecdsa_openssh_priv_new(ec_ctx, session, filename,
                                          passphrase);
 
     return rc;
@@ -3908,7 +3908,7 @@ int ssh2_ecdsa_new_private_sk(ssh2_ecdsa_ctx **ec_ctx,
 #endif
     BIO_free(bp);
     if(!*ec_ctx)
-        rc = ecossl_dsa_openssh_priv_new_sk(ec_ctx, flags, application,
+        rc = ossl_ecdsa_sk_openssh_priv_new(ec_ctx, flags, application,
                                             key_handle, handle_len, session,
                                             filename, passphrase);
 
