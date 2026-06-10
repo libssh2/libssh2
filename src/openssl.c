@@ -1930,8 +1930,7 @@ static int ossl_ed25519_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
         unsigned char *comment = SSH2_CALLOC(session, tmp_len + 1);
         if(comment) {
             memcpy(comment, buf, tmp_len);
-            /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
-            memcpy(comment + tmp_len, "\0", 1);
+            comment[tmp_len] = '\0';
 
             ssh2_deb((session, LIBSSH2_TRACE_AUTH, "Key comment: %s",
                       comment));
