@@ -335,7 +335,7 @@ This release includes the following enhancements and bugfixes:
 - pem: add validation for data length and padding (00b17231 #1797)
 - pem: fix possible double free if key in error cases (2fb5803c #1550 #1549)
 - publickey: fix double-free by transferring ownership of receive_packet (86301ab5 #1699)
-- REQUIREMENTS.txt: set/bump and document minimum versions (772abc7a #1919 #1893)
+- REQUIREMENTS.md: set/bump and document minimum versions (772abc7a #1919 #1893)
 - REUSE: add copyright headers to more files, `.gitignore` updates (4f9e6e0b #1718)
 - scp: fix NULL dereference in path arg of send/recv (992dafbc #1625)
 - scripts: move `maketgz`, `git2news.pl` from root to scripts directory (07ffced7 #1918)
