@@ -44,7 +44,7 @@ name: 'AppVeyor Docker Bridge'
 
 concurrency:
   group: ${{ github.run_id }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 permissions: {}
 
