@@ -202,7 +202,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         break;
     default:
         rc = ssh2_err(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                      "Unknown hostname type");
+                      "Unrecognized hostname type");
         goto error;
     }
 

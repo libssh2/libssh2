@@ -2121,7 +2121,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
         }
         else {
             ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
-                           "Unknown SHA digest for EC curve");
+                           "Unrecognized SHA digest for EC curve");
             goto clean_exit;
         }
         ret = finish_kex(session, exchange_state, digest_len, sha_algo_value);
@@ -2158,7 +2158,7 @@ static int kex_method_ecdh_key_exchange(
         rc = kex_session_ecdh_curve_type(session->kex->name, &type);
 
         if(rc) {
-            ret = ssh2_err(session, -1, "Unknown KEX nistp curve type");
+            ret = ssh2_err(session, -1, "Unrecognized KEX nistp curve type");
             goto ecdh_clean_exit;
         }
 
@@ -2218,7 +2218,7 @@ static int kex_method_ecdh_key_exchange(
         rc = kex_session_ecdh_curve_type(session->kex->name, &type);
 
         if(rc) {
-            ret = ssh2_err(session, -1, "Unknown KEX nistp curve type");
+            ret = ssh2_err(session, -1, "Unrecognized KEX nistp curve type");
             goto ecdh_clean_exit;
         }
 
@@ -2312,7 +2312,8 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
     unsigned char *shared_secret = NULL;
 
     if(kex_session_hybrid_curve_type(session->kex->name, &type)) {
-        ret = ssh2_err(session, -1, "Unknown KEX hybrid nistp curve type");
+        ret = ssh2_err(session, -1,
+                       "Unrecognized KEX hybrid nistp curve type");
         goto clean_exit;
     }
 
@@ -2542,7 +2543,8 @@ static int kex_method_mlkem_nistp_key_exchange(
         unsigned char *s = NULL;
 
         if(kex_session_hybrid_curve_type(session->kex->name, &type)) {
-            ret = ssh2_err(session, -1, "Unknown KEX hybrid nistp curve type");
+            ret = ssh2_err(session, -1,
+                           "Unrecognized KEX hybrid nistp curve type");
             goto clean_exit;
         }
 
@@ -2856,7 +2858,8 @@ static int kex_method_curve25519_key_exchange(
             rc = strcmp(session->kex->name, "curve25519-sha256");
 
         if(rc) {
-            ret = ssh2_err(session, -1, "Unknown KEX curve25519 curve type");
+            ret = ssh2_err(session, -1,
+                           "Unrecognized KEX curve25519 curve type");
             goto clean_exit;
         }
 
@@ -4469,7 +4472,7 @@ int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
 
     default:
         return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                        "Unknown method type");
+                        "Unrecognized method type");
     } /* switch */
 
     /* weird situation */
