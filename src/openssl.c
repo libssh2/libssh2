@@ -201,7 +201,7 @@ static unsigned char *ossl_write_bn(unsigned char *buf, const BIGNUM *bn,
     *p = 0;
     BN_bn2bin(bn, p + 1);
 
-    if(!(*(p + 1) & 0x80))
+    if(!(p[1] & 0x80)) {
         memmove(p, p + 1, --bn_bytes);
 
     ssh2_htonu32(p - 4, bn_bytes);  /* Post write bn size. */
