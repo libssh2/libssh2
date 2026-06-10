@@ -405,8 +405,6 @@ out:
 }
 
 /* OpenSSH formatted keys */
-#define OPENSSH_HEADER_BEGIN "-----BEGIN OPENSSH PRIVATE KEY-----"
-#define OPENSSH_HEADER_END   "-----END OPENSSH PRIVATE KEY-----"
 
 static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
                                   const unsigned char *passphrase,

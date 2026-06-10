@@ -75,9 +75,6 @@
 #define PEM_DSA_FOOTER "-----END DSA PRIVATE KEY-----"
 #endif
 #if LIBSSH2_ECDSA
-#define PEM_ECDSA_HEADER "-----BEGIN OPENSSH PRIVATE KEY-----"
-#define PEM_ECDSA_FOOTER "-----END OPENSSH PRIVATE KEY-----"
-
 /* Define these manually to avoid including <ntstatus.h> and thus
    clashing with <windows.h> symbols. */
 #ifndef STATUS_INVALID_SIGNATURE
@@ -2592,8 +2589,8 @@ int ssh2_ecdsa_new_private(OUT ssh2_ecdsa_ctx **key,
     }
 
     result = ssh2_pem_parse(session,
-        PEM_ECDSA_HEADER,
-        PEM_ECDSA_FOOTER,
+        OPENSSH_HEADER_BEGIN,
+        OPENSSH_HEADER_END,
         passphrase,
         file_handle,
         &data,
