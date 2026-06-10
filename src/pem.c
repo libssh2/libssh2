@@ -467,7 +467,7 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
     }
 
     if(ssh2_get_string(&decoded, &kdf, &kdf_len)) {
-        ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "kdf is missing");
+        ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "KDF is missing");
         goto out;
     }
     else {
@@ -485,7 +485,8 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
 
     if(strcmp((const char *)kdfname, "none") &&
        strcmp((const char *)kdfname, "bcrypt")) {
-        ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "unknown cipher");
+        ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                       "unrecognized KDF algorithm");
         goto out;
     }
 
