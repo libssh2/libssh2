@@ -982,5 +982,5 @@ int ssh2_timingsafe_bcmp(const void *b1, const void *b2, size_t n)
 
     for(; n > 0; n--)
         ret |= *p1++ ^ *p2++;
-    return (ret != 0);
+    return ret != 0;
 }
