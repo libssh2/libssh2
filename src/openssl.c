@@ -1926,7 +1926,7 @@ static int ossl_ed25519_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
         goto clean_exit;
     }
 
-    if(tmp_len > 0 && tmp_len <= INT_MAX && buf) {
+    if(tmp_len > 0 && tmp_len <= INT_MAX) {
         ssh2_deb((session, LIBSSH2_TRACE_AUTH, "Key comment: %.*s",
                   (int)tmp_len, buf));
     }
