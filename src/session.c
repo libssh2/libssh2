@@ -1162,19 +1162,19 @@ static int session_disconnect(LIBSSH2_SESSION *session, int reason,
         if(description)
             descr_len = strlen(description);
 
-        if(lang)
-            lang_len = strlen(lang);
-
         if(descr_len > 256)
             return ssh2_err(session, LIBSSH2_ERROR_INVAL,
                             "too long description");
+
+        if(lang)
+            lang_len = strlen(lang);
 
         if(lang_len > 256)
             return ssh2_err(session, LIBSSH2_ERROR_INVAL,
                             "too long language string");
 
         /* 13 = packet_type(1) + reason code(4) + descr_len(4) + lang_len(4) */
-        session->disconnect_data_len = descr_len + lang_len + 13;
+        session->disconnect_data_len = descr_len + 13;
 
         s = session->disconnect_data;
 
