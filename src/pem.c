@@ -89,9 +89,13 @@ static int readline_memory(char *line, size_t line_size,
     }
 
     line[len] = '\0';
-    *filedata_offset += 1;
 
-    return 0;
+    if(*filedata_offset < filedata_len && filedata[*filedata_offset] == '\r')
+        *filedata_offset += 1;
+    if(*filedata_offset < filedata_len && filedata[*filedata_offset] == '\n')
+        *filedata_offset += 1;
+
+    return *filedata_offset > off ? 0 : -1;
 }
 
 #define LINE_SIZE 128
@@ -186,9 +190,6 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
             return -1;
         }
-
-        if(!*line)
-            break;
     } while(strcmp(line, headerbegin));
 
     if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
