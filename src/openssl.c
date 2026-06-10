@@ -1926,19 +1926,9 @@ static int ossl_ed25519_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
         goto clean_exit;
     }
 
-    if(tmp_len > 0) {
-        unsigned char *comment = SSH2_CALLOC(session, tmp_len + 1);
-        if(comment) {
-            memcpy(comment, buf, tmp_len);
-            /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
-            memcpy(comment + tmp_len, "\0", 1);
-
-            ssh2_deb((session, LIBSSH2_TRACE_AUTH, "Key comment: %s",
-                      comment));
-
-            SSH2_FREE(session, comment);
-        }
-    }
+    if(tmp_len > 0 && tmp_len <= INT_MAX)
+        ssh2_deb((session, LIBSSH2_TRACE_AUTH, "Key comment: %.*s",
+                  (int)tmp_len, buf));
 
     /* Padding */
     i = 1;
