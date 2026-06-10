@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
         struct libssh2_knownhost *host;
         int check = libssh2_knownhost_checkp(nh, hostname, 22,
                                              fingerprint, len,
-                                             LIBSSH2_KNOWNHOST_TYPE_PLAIN|
+                                             LIBSSH2_KNOWNHOST_TYPE_PLAIN |
                                              LIBSSH2_KNOWNHOST_KEYENC_RAW,
                                              &host);
 
