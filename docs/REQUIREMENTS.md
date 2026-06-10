@@ -9,7 +9,7 @@ SPDX-License-Identifier: BSD-3-Clause
 We aim to support these or later versions.
 
 - Libgcrypt      1.8 (2017-07-18)
-- LibreSSL       2.8.0 (2018-08-04), recommended: 3.6.0 (2022-10-05) for AES-GCM
+- LibreSSL       2.8.0 (2018-08-06), recommended: 3.6.0 (2022-10-05) for AES-GCM
 - mbedTLS        3.1.0 - 3.6.x (2021-12-15)
 - OpenSSL        1.1.1 (2018-09-11)
 - Windows        Vista 6.0 (2006-11-08 - 2012-04-10)
