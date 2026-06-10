@@ -2778,7 +2778,7 @@ int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **key,
     }
 
     /* Read OPENSSL_PRIVATEKEY_AUTH_MAGIC */
-    if(!strncmp(data, OPENSSL_PRIVATEKEY_AUTH_MAGIC, data_len)) {
+    if(strncmp(data, OPENSSL_PRIVATEKEY_AUTH_MAGIC, data_len)) {
         result = -1;
         goto cleanup;
     }
