@@ -977,7 +977,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
             SSH2_FREE(session, extversion_str);
         }
         if(extname_len == 24 &&
-           strncmp("posix-rename@openssh.com", (char *)extname, 24) == 0) {
+           !strncmp("posix-rename@openssh.com", (char *)extname, 24)) {
             sftp_handle->posix_rename_version = extversion;
         }
     }

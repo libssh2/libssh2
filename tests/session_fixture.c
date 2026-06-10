@@ -123,7 +123,7 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
     if(crypt) {
         char const * const *sk;
         for(sk = skip_crypt; *sk; ++sk) {
-            if(strcmp(*sk, crypt) == 0) {
+            if(!strcmp(*sk, crypt)) {
                 fprintf(stderr, "unsupported crypt algorithm (%s) skipped.\n",
                                 crypt);
                 *skipped = 1;
@@ -135,7 +135,7 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
     if(mac) {
         char const * const *sk;
         for(sk = skip_mac; *sk; ++sk) {
-            if(strcmp(*sk, mac) == 0) {
+            if(!strcmp(*sk, mac)) {
                 fprintf(stderr, "unsupported MAC algorithm (%s) skipped.\n",
                                 mac);
                 *skipped = 1;
@@ -471,7 +471,7 @@ int test_auth_pubkey(LIBSSH2_SESSION *session, int flags,
     const char *userauth_list;
 
     /* Ignore our hard-wired Dockerfile user when not running under Docker */
-    if(!openssh_fixture_have_docker() && strcmp(username, "libssh2") == 0) {
+    if(!openssh_fixture_have_docker() && !strcmp(username, "libssh2")) {
         username = getenv("USER");
         if(!username) {
 #ifdef _WIN32

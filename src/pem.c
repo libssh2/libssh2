@@ -196,7 +196,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
     }
 
     if(passphrase &&
-       memcmp(line, crypt_annotation, strlen(crypt_annotation)) == 0) {
+       !memcmp(line, crypt_annotation, strlen(crypt_annotation))) {
         const struct crypt_method **all_methods, *cur_method;
         int i;
 
@@ -209,8 +209,8 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         /* !checksrc! disable EQUALSNULL 1 */
         while((cur_method = *all_methods++) != NULL) {
             if(*cur_method->pem_annotation &&
-               memcmp(line, cur_method->pem_annotation,
-                      strlen(cur_method->pem_annotation)) == 0) {
+               !memcmp(line, cur_method->pem_annotation,
+                       strlen(cur_method->pem_annotation))) {
                 method = cur_method;
                 memcpy(iv, line + strlen(method->pem_annotation) + 1,
                        2 * method->iv_len);
@@ -528,8 +528,8 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
         all_methods = ssh2_crypt_methods();
         /* !checksrc! disable EQUALSNULL 1 */
         while((cur_method = *all_methods++) != NULL) {
-            if(*cur_method->name && memcmp(ciphername, cur_method->name,
-                                           strlen(cur_method->name)) == 0) {
+            if(*cur_method->name && !memcmp(ciphername, cur_method->name,
+                                            strlen(cur_method->name))) {
                 method = cur_method;
             }
         }
@@ -559,7 +559,7 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
             goto out;
         }
 
-        if(strcmp((const char *)kdfname, "bcrypt") == 0 && passphrase) {
+        if(!strcmp((const char *)kdfname, "bcrypt") && passphrase) {
             if(ssh2_get_string(&kdf_buf, &salt, &salt_len) ||
                ssh2_get_u32(&kdf_buf, &rounds) != 0) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -651,8 +651,8 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
 
             /* for the AES GCM methods, the 16 byte authentication tag is
              * appended to the encrypted key */
-            if(strcmp(method->name, "aes256-gcm@openssh.com") == 0 ||
-               strcmp(method->name, "aes128-gcm@openssh.com") == 0) {
+            if(!strcmp(method->name, "aes256-gcm@openssh.com") ||
+               !strcmp(method->name, "aes128-gcm@openssh.com")) {
                 if(!ssh2_check_length(&decoded, 16)) {
                     ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                    "GCM auth tag missing");

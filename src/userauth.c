@@ -756,8 +756,8 @@ static int memory_read_privatekey(LIBSSH2_SESSION *session,
     *hostkey_abstract = NULL;
     while(*hostkey_methods_avail && (*hostkey_methods_avail)->name) {
         if((*hostkey_methods_avail)->initPEMFromMemory &&
-           strncmp((*hostkey_methods_avail)->name, (const char *)method,
-                   method_len) == 0) {
+           !strncmp((*hostkey_methods_avail)->name, (const char *)method,
+                    method_len)) {
             *hostkey_method = *hostkey_methods_avail;
             break;
         }
@@ -799,8 +799,8 @@ static int file_read_privatekey(LIBSSH2_SESSION *session,
     *hostkey_abstract = NULL;
     while(*hostkey_methods_avail && (*hostkey_methods_avail)->name) {
         if((*hostkey_methods_avail)->initPEM &&
-           strncmp((*hostkey_methods_avail)->name, (const char *)method,
-                   method_len) == 0) {
+           !strncmp((*hostkey_methods_avail)->name, (const char *)method,
+                    method_len)) {
             *hostkey_method = *hostkey_methods_avail;
             break;
         }
@@ -1418,7 +1418,7 @@ static int key_sign_algorithm(LIBSSH2_SESSION *session,
             int SSH_BUG_SIGTYPE = is_version_less_than_78(remote_ver);
             if(SSH_BUG_SIGTYPE &&
                *key_method && *key_method_len == method_len &&
-               memcmp(*key_method, method, method_len) == 0) {
+               !memcmp(*key_method, method, method_len)) {
                 return LIBSSH2_ERROR_NONE;
             }
         }
@@ -1447,7 +1447,7 @@ static int key_sign_algorithm(LIBSSH2_SESSION *session,
             f = strchr(a, ',');
             f_len = f ? (size_t)(f - a) : strlen(a);
 
-            if(f_len == p_len && memcmp(a, s, p_len) == 0) {
+            if(f_len == p_len && !memcmp(a, s, p_len)) {
 
                 if(i != filtered_algs) {
                     memcpy(i, ",", 1);
@@ -1480,7 +1480,7 @@ static int key_sign_algorithm(LIBSSH2_SESSION *session,
             f = strchr(a, ',');
             f_len = f ? (size_t)(f - a) : strlen(a);
 
-            if(f_len == p_len && memcmp(a, s, p_len) == 0) {
+            if(f_len == p_len && !memcmp(a, s, p_len)) {
                 /* found a match, upgrade key method */
                 match = s;
                 match_len = p_len;
@@ -1495,7 +1495,7 @@ static int key_sign_algorithm(LIBSSH2_SESSION *session,
 
     if(match) {
         if(*key_method && *key_method_len == method_len &&
-           memcmp(*key_method, method, method_len) == 0) {
+           !memcmp(*key_method, method, method_len)) {
             SSH2_FREE(session, *key_method);
             *key_method = SSH2_ALLOC(session, match_len + suffix_len);
             if(*key_method) {
@@ -1832,12 +1832,12 @@ retry_auth:
             plain_method((char *)session->userauth_pblc_method,
                          session->userauth_pblc_method_len);
 
-        if(strncmp((const char *)session->userauth_pblc_method,
-                   "sk-ecdsa-sha2-nistp256@openssh.com",
-                   session->userauth_pblc_method_len) == 0 ||
-           strncmp((const char *)session->userauth_pblc_method,
-                   "sk-ssh-ed25519@openssh.com",
-                   session->userauth_pblc_method_len) == 0) {
+        if(!strncmp((const char *)session->userauth_pblc_method,
+                    "sk-ecdsa-sha2-nistp256@openssh.com",
+                    session->userauth_pblc_method_len) ||
+           !strncmp((const char *)session->userauth_pblc_method,
+                    "sk-ssh-ed25519@openssh.com",
+                    session->userauth_pblc_method_len)) {
             ssh2_store_u32(&s,
                            (uint32_t)(4 + session->userauth_pblc_method_len +
                                       sig_len));

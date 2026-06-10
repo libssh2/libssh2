@@ -86,16 +86,16 @@ static int hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
 
     /* we accept one of 3 header types */
 #if LIBSSH2_RSA_SHA1
-    if(type_len == 7 && strncmp("ssh-rsa", (char *)type, 7) == 0) {
+    if(type_len == 7 && !strncmp("ssh-rsa", (char *)type, 7)) {
         /* ssh-rsa */
     }
     else
 #endif
 #if LIBSSH2_RSA_SHA2
-    if(type_len == 12 && strncmp("rsa-sha2-256", (char *)type, 12) == 0) {
+    if(type_len == 12 && !strncmp("rsa-sha2-256", (char *)type, 12)) {
         /* rsa-sha2-256 */
     }
-    else if(type_len == 12 && strncmp("rsa-sha2-512", (char *)type, 12) == 0) {
+    else if(type_len == 12 && !strncmp("rsa-sha2-512", (char *)type, 12)) {
         /* rsa-sha2-512 */
     }
     else
@@ -754,13 +754,13 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
     if(ssh2_get_string(&buf, &type_str, &len) || len != 19)
         return -1;
 
-    if(strncmp((char *)type_str, "ecdsa-sha2-nistp256", 19) == 0) {
+    if(!strncmp((char *)type_str, "ecdsa-sha2-nistp256", 19)) {
         type = SSH2_EC_CURVE_NISTP256;
     }
-    else if(strncmp((char *)type_str, "ecdsa-sha2-nistp384", 19) == 0) {
+    else if(!strncmp((char *)type_str, "ecdsa-sha2-nistp384", 19)) {
         type = SSH2_EC_CURVE_NISTP384;
     }
-    else if(strncmp((char *)type_str, "ecdsa-sha2-nistp521", 19) == 0) {
+    else if(!strncmp((char *)type_str, "ecdsa-sha2-nistp521", 19)) {
         type = SSH2_EC_CURVE_NISTP521;
     }
     else {

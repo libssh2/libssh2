@@ -2460,7 +2460,7 @@ static int wcng_ecdsa_curve_type_from_name(IN const char *name,
     }
 
     for(curve = 0; curve < SSH2_ARRAYSIZE(wcng_ecdsa_algs); curve++) {
-        if(strcmp(name, wcng_ecdsa_algs[curve].name) == 0) {
+        if(!strcmp(name, wcng_ecdsa_algs[curve].name)) {
             *out_curve = (ssh2_curve_type)curve;
             return LIBSSH2_ERROR_NONE;
         }
@@ -2778,7 +2778,7 @@ int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **key,
     }
 
     /* Read OPENSSL_PRIVATEKEY_AUTH_MAGIC */
-    if(strncmp(data, OPENSSL_PRIVATEKEY_AUTH_MAGIC, data_len) != 0) {
+    if(!strncmp(data, OPENSSL_PRIVATEKEY_AUTH_MAGIC, data_len)) {
         result = -1;
         goto cleanup;
     }
@@ -3742,7 +3742,7 @@ const char *ssh2_supported_key_sign_algs(LIBSSH2_SESSION *session,
 
 #if LIBSSH2_RSA_SHA2
     if(key_method_len == 7 &&
-       memcmp(key_method, "ssh-rsa", key_method_len) == 0) {
+       !memcmp(key_method, "ssh-rsa", key_method_len)) {
         return "rsa-sha2-512,rsa-sha2-256"
 #if LIBSSH2_RSA_SHA1
             ",ssh-rsa"

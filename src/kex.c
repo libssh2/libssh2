@@ -1659,9 +1659,9 @@ static int kex_session_hybrid_curve_type(const char *name,
     if(!name)
         return -1;
 
-    if(strcmp(name, "mlkem768nistp256-sha256") == 0)
+    if(!strcmp(name, "mlkem768nistp256-sha256"))
         type = SSH2_EC_CURVE_NISTP256;
-    else if(strcmp(name, "mlkem1024nistp384-sha384") == 0)
+    else if(!strcmp(name, "mlkem1024nistp384-sha384"))
         type = SSH2_EC_CURVE_NISTP384;
     else {
         return -1;
@@ -1915,11 +1915,11 @@ static int kex_session_ecdh_curve_type(const char *name,
     if(!name)
         return -1;
 
-    if(strcmp(name, "ecdh-sha2-nistp256") == 0)
+    if(!strcmp(name, "ecdh-sha2-nistp256"))
         type = SSH2_EC_CURVE_NISTP256;
-    else if(strcmp(name, "ecdh-sha2-nistp384") == 0)
+    else if(!strcmp(name, "ecdh-sha2-nistp384"))
         type = SSH2_EC_CURVE_NISTP384;
-    else if(strcmp(name, "ecdh-sha2-nistp521") == 0)
+    else if(!strcmp(name, "ecdh-sha2-nistp521"))
         type = SSH2_EC_CURVE_NISTP521;
     else {
         return -1;
@@ -3666,7 +3666,7 @@ unsigned char *ssh2_kex_agree_instr(unsigned char *haystack,
     left = end_haystack - s;
 
     /* Needle at start of haystack */
-    if(strncmp((char *)haystack, (const char *)needle, needle_len) == 0 &&
+    if(!strncmp((char *)haystack, (const char *)needle, needle_len) &&
        (needle_len == haystack_len || haystack[needle_len] == ',')) {
         return haystack;
     }
@@ -3686,7 +3686,7 @@ unsigned char *ssh2_kex_agree_instr(unsigned char *haystack,
         }
 
         /* Needle at X position */
-        if(strncmp((char *)s, (const char *)needle, needle_len) == 0 &&
+        if(!strncmp((char *)s, (const char *)needle, needle_len) &&
            (((s - haystack) + needle_len) == haystack_len ||
             s[needle_len] == ',')) {
             return s;
@@ -3702,7 +3702,7 @@ static const struct common_method *kex_get_method_by_name(
 {
     while(*methodlist) {
         if(strlen((*methodlist)->name) == name_len &&
-           strncmp((*methodlist)->name, name, name_len) == 0) {
+           !strncmp((*methodlist)->name, name, name_len)) {
             return *methodlist;
         }
         methodlist++;

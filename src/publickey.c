@@ -200,7 +200,7 @@ static int publickey_response_id(unsigned char **pdata, size_t data_len)
 
     while(codes->name) {
         if((unsigned long)codes->name_len == response_len &&
-           strncmp(codes->name, (char *)data, response_len) == 0) {
+           !strncmp(codes->name, (char *)data, response_len)) {
             *pdata = data + response_len;
             return codes->code;
         }
@@ -580,8 +580,7 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
             for(i = 0; i < num_attrs; i++) {
                 /* Search for a comment attribute */
                 if(attrs[i].name_len == (sizeof("comment") - 1) &&
-                   strncmp(attrs[i].name, "comment",
-                           sizeof("comment") - 1) == 0) {
+                   !strncmp(attrs[i].name, "comment", sizeof("comment") - 1)) {
                     comment = (const unsigned char *)attrs[i].value;
                     comment_len = attrs[i].value_len;
                     break;
