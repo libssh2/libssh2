@@ -647,7 +647,7 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
 
             /* No padding */
 
-            /* for the AES GCM methods, the 16 byte authentication tag is
+            /* for the AES-GCM methods, the 16 byte authentication tag is
              * appended to the encrypted key */
             if(!strcmp(method->name, "aes256-gcm@openssh.com") ||
                !strcmp(method->name, "aes128-gcm@openssh.com")) {
