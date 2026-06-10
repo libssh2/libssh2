@@ -78,7 +78,7 @@
         int rc;                                                          \
         do {                                                             \
             (ptr) = (x);                                                 \
-            if(!(sess) || !(sess)->api_block_mode || (ptr) != NULL ||    \
+            if(!(sess) || !(sess)->api_block_mode || (ptr) ||            \
                libssh2_session_last_errno(sess) != LIBSSH2_ERROR_EAGAIN) \
                 break;                                                   \
             (rc) = ssh2_wait_socket(sess, entry_time);                   \
