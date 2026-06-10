@@ -2589,8 +2589,8 @@ int ssh2_ecdsa_new_private(OUT ssh2_ecdsa_ctx **key,
     }
 
     result = ssh2_pem_parse(session,
-        OPENSSH_HEADER_BEGIN,
-        OPENSSH_HEADER_END,
+        OPENSSH_PRIVKEY_HEADER,
+        OPENSSH_PRIVKEY_FOOTER,
         passphrase,
         file_handle,
         &data,

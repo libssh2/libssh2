@@ -745,7 +745,7 @@ int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
         if(readline(line, LINE_SIZE, fp)) {
             return -1;
         }
-    } while(strcmp(line, OPENSSH_HEADER_BEGIN));
+    } while(strcmp(line, OPENSSH_PRIVKEY_HEADER));
 
     if(readline(line, LINE_SIZE, fp)) {
         return -1;
@@ -775,7 +775,7 @@ int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
             ret = -1;
             goto out;
         }
-    } while(strcmp(line, OPENSSH_HEADER_END));
+    } while(strcmp(line, OPENSSH_PRIVKEY_FOOTER));
 
     if(!b64data) {
         return -1;
@@ -821,7 +821,7 @@ int ssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
         if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
             return -1;
         }
-    } while(strcmp(line, OPENSSH_HEADER_BEGIN));
+    } while(strcmp(line, OPENSSH_PRIVKEY_HEADER));
 
     *line = '\0';
 
@@ -854,7 +854,7 @@ int ssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
             ret = -1;
             goto out;
         }
-    } while(strcmp(line, OPENSSH_HEADER_END));
+    } while(strcmp(line, OPENSSH_PRIVKEY_FOOTER));
 
     if(!b64data)
         return ssh2_err(session, LIBSSH2_ERROR_PROTO,
