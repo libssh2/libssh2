@@ -975,7 +975,7 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
 
 /*
  * public API entry to trigger processing a read.
- * Used with callbacks when a repsonse might be immediatly available.
+ * Used with callbacks when a response might be immediately available.
  *
  */
 int libssh2_session_read(LIBSSH2_SESSION *session)
