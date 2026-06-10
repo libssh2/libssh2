@@ -2423,6 +2423,7 @@ int ssh2_mlkem_new(LIBSSH2_SESSION *session, int ml_kem_size,
 
     if(out_public_key) {
         pub = SSH2_ALLOC(session, pubLen);
+        actualPubLen = pubLen;
         if(!pub)
             goto clean_exit;
 
