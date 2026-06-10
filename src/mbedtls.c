@@ -376,10 +376,10 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     ssh2_rsa_ctx *ctx;
 
     ctx = (ssh2_rsa_ctx *)mbedtls_calloc(1, sizeof(ssh2_rsa_ctx));
-    if(ctx)
-        mbedtls_rsa_init(ctx);
-    else
+    if(!ctx)
         return -1;
+
+    mbedtls_rsa_init(ctx);
 
     ret = 0;
     if(mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(E)), edata, elen) ||
