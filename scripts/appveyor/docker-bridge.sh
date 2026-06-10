@@ -12,9 +12,6 @@ ssh-keygen -t ed25519 -f auth -q -N '' && mkdir .ssh && mv auth.pub .ssh/authori
 ssh-keygen -A
 "$(command -v sshd)" &
 
-cat /etc/ssh/ssh_host_*_key.pub | cut -d ' ' -f 1
-sleep 5
-
 curl \
   -F account="${APPVEYOR_ACCOUNT_NAME}" \
   -F project="${APPVEYOR_PROJECT_SLUG}" \
