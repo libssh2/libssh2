@@ -51,12 +51,9 @@ int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 #ifdef USE_OPENSSL_3
     *ctx = NULL;
     return 1;
-#elif defined(HAVE_OPAQUE_STRUCTS)
+#else
     *ctx = HMAC_CTX_new();
     return *ctx ? 1 : 0;
-#else
-    HMAC_CTX_init(ctx);
-    return 1;
 #endif
 }
 
@@ -91,10 +88,8 @@ int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
 #ifdef USE_OPENSSL_3
     return ossl_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_MD5);
-#elif defined(HAVE_OPAQUE_STRUCTS)
-    return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_md5(), NULL);
 #else
-    return HMAC_Init_ex(ctx, key, (int)keylen, EVP_md5(), NULL);
+    return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_md5(), NULL);
 #endif
 }
 #endif
@@ -104,10 +99,8 @@ int ssh2_hmac_ripemd160_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
 #ifdef USE_OPENSSL_3
     return ossl_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_RIPEMD160);
-#elif defined(HAVE_OPAQUE_STRUCTS)
-    return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_ripemd160(), NULL);
 #else
-    return HMAC_Init_ex(ctx, key, (int)keylen, EVP_ripemd160(), NULL);
+    return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_ripemd160(), NULL);
 #endif
 }
 #endif
@@ -116,10 +109,8 @@ int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
 #ifdef USE_OPENSSL_3
     return ossl_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_SHA1);
-#elif defined(HAVE_OPAQUE_STRUCTS)
-    return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_sha1(), NULL);
 #else
-    return HMAC_Init_ex(ctx, key, (int)keylen, EVP_sha1(), NULL);
+    return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_sha1(), NULL);
 #endif
 }
 
@@ -127,10 +118,8 @@ int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
 #ifdef USE_OPENSSL_3
     return ossl_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_SHA2_256);
-#elif defined(HAVE_OPAQUE_STRUCTS)
-    return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_sha256(), NULL);
 #else
-    return HMAC_Init_ex(ctx, key, (int)keylen, EVP_sha256(), NULL);
+    return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_sha256(), NULL);
 #endif
 }
 
@@ -138,10 +127,8 @@ int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
 #ifdef USE_OPENSSL_3
     return ossl_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_SHA2_512);
-#elif defined(HAVE_OPAQUE_STRUCTS)
-    return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_sha512(), NULL);
 #else
-    return HMAC_Init_ex(ctx, key, (int)keylen, EVP_sha512(), NULL);
+    return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_sha512(), NULL);
 #endif
 }
 
@@ -149,15 +136,13 @@ int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
 {
 #ifdef USE_OPENSSL_3
     return EVP_MAC_update(*ctx, data, datalen);
-#elif defined(HAVE_OPAQUE_STRUCTS)
-/* FIXME: upstream bug as of v5.7.0: datalen is int instead of size_t */
+#else
 #ifdef LIBSSH2_WOLFSSL
+    /* FIXME: upstream bug as of v5.7.0: datalen is int instead of size_t */
     return HMAC_Update(*ctx, data, (int)datalen);
 #else /* !LIBSSH2_WOLFSSL */
     return HMAC_Update(*ctx, data, datalen);
 #endif /* LIBSSH2_WOLFSSL */
-#else
-    return HMAC_Update(ctx, data, datalen);
 #endif
 }
 
@@ -165,10 +150,8 @@ int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *data)
 {
 #ifdef USE_OPENSSL_3
     return EVP_MAC_final(*ctx, data, NULL, MAX_MACSIZE);
-#elif defined(HAVE_OPAQUE_STRUCTS)
-    return HMAC_Final(*ctx, data, NULL);
 #else
-    return HMAC_Final(ctx, data, NULL);
+    return HMAC_Final(*ctx, data, NULL);
 #endif
 }
 
@@ -176,10 +159,8 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
 {
 #ifdef USE_OPENSSL_3
     EVP_MAC_CTX_free(*ctx);
-#elif defined(HAVE_OPAQUE_STRUCTS)
-    HMAC_CTX_free(*ctx);
 #else
-    HMAC_cleanup(ctx);
+    HMAC_CTX_free(*ctx);
 #endif
 }
 
@@ -371,30 +352,11 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     }
 
     *rsa = RSA_new();
-#ifdef HAVE_OPAQUE_STRUCTS
     RSA_set0_key(*rsa, n, e, d);
-#else
-    (*rsa)->e = e;
-    (*rsa)->n = n;
-    (*rsa)->d = d;
-#endif
-
-#ifdef HAVE_OPAQUE_STRUCTS
     RSA_set0_factors(*rsa, p, q);
-#else
-    (*rsa)->p = p;
-    (*rsa)->q = q;
-#endif
-
-#ifdef HAVE_OPAQUE_STRUCTS
     RSA_set0_crt_params(*rsa, dmp1, dmq1, iqmp);
-#else
-    (*rsa)->dmp1 = dmp1;
-    (*rsa)->dmq1 = dmq1;
-    (*rsa)->iqmp = iqmp;
-#endif
-    return 0;
 
+    return 0;
 #endif /* USE_OPENSSL_3 */
 }
 
@@ -604,22 +566,10 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsactx,
 
     *dsactx = DSA_new();
 
-#ifdef HAVE_OPAQUE_STRUCTS
     DSA_set0_pqg(*dsactx, p_bn, q_bn, g_bn);
-#else
-    (*dsactx)->p = p_bn;
-    (*dsactx)->g = g_bn;
-    (*dsactx)->q = q_bn;
-#endif
-
-#ifdef HAVE_OPAQUE_STRUCTS
     DSA_set0_key(*dsactx, pub_key, priv_key);
-#else
-    (*dsactx)->pub_key = pub_key;
-    (*dsactx)->priv_key = priv_key;
-#endif
-    return 0;
 
+    return 0;
 #endif /* USE_OPENSSL_3 */
 }
 
@@ -645,12 +595,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
     BN_bin2bn(sig + 20, 20, s);
 
     dsasig = DSA_SIG_new();
-#ifdef HAVE_OPAQUE_STRUCTS
     DSA_SIG_set0(dsasig, r, s);
-#else
-    dsasig->r = r;
-    dsasig->s = s;
-#endif
 
 #ifdef USE_OPENSSL_3
     ctx = EVP_PKEY_CTX_new(dsactx, NULL);
@@ -857,7 +802,6 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
     EC_KEY *ec_key = (EC_KEY *)ec_ctx;
 #endif
 
-#ifdef HAVE_OPAQUE_STRUCTS
     ECDSA_SIG *ecdsa_sig = ECDSA_SIG_new();
     BIGNUM *pr = BN_new();
     BIGNUM *ps = BN_new();
@@ -865,14 +809,6 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
     BN_bin2bn(r, (int)r_len, pr);
     BN_bin2bn(s, (int)s_len, ps);
     ECDSA_SIG_set0(ecdsa_sig, pr, ps);
-#else
-    ECDSA_SIG ecdsa_sig_;
-    ECDSA_SIG *ecdsa_sig = &ecdsa_sig_;
-    ecdsa_sig_.r = BN_new();
-    BN_bin2bn(r, (int)r_len, ecdsa_sig_.r);
-    ecdsa_sig_.s = BN_new();
-    BN_bin2bn(s, (int)s_len, ecdsa_sig_.s);
-#endif
 
 #ifdef USE_OPENSSL_3
     ctx = EVP_PKEY_CTX_new(ec_ctx, NULL);
@@ -905,15 +841,8 @@ cleanup:
         OPENSSL_free(der);
 #endif
 
-#ifdef HAVE_OPAQUE_STRUCTS
     if(ecdsa_sig)
         ECDSA_SIG_free(ecdsa_sig);
-#else
-    if(ecdsa_sig_.s)
-        BN_clear_free(ecdsa_sig_.s);
-    if(ecdsa_sig_.r)
-        BN_clear_free(ecdsa_sig_.r);
-#endif
 
     return (ret == 1) ? 0 : -1;
 }
@@ -923,7 +852,6 @@ cleanup:
 int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
-#ifdef HAVE_OPAQUE_STRUCTS
 #if LIBSSH2_AES_GCM
     const int is_aesgcm = (algo == EVP_aes_128_gcm) ||
                           (algo == EVP_aes_256_gcm);
@@ -940,13 +868,6 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
 #endif /* LIBSSH2_AES_GCM */
 
     return rc;
-#else
-# if LIBSSH2_AES_GCM
-#  error AES-GCM is only supported with opaque structs in use
-# endif /* LIBSSH2_AES_GCM */
-    EVP_CIPHER_CTX_init(h);
-    return !EVP_CipherInit(h, algo(), secret, iv, encrypt);
-#endif
 }
 
 #ifndef EVP_MAX_BLOCK_LENGTH
@@ -1003,13 +924,8 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo), int encrypt,
     (void)firstlast;
 #endif /* LIBSSH2_AES_GCM */
 
-    if(cryptlen > 0) {
-#ifdef HAVE_OPAQUE_STRUCTS
+    if(cryptlen > 0)
         ret = EVP_Cipher(*ctx, buf + aadlen, block + aadlen, cryptlen);
-#else
-        ret = EVP_Cipher(ctx, buf + aadlen, block + aadlen, cryptlen);
-#endif
-    }
 
 #if defined(USE_OPENSSL_3) || defined(LIBSSH2_WOLFSSL)
     if(ret != -1)
@@ -1029,10 +945,8 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo), int encrypt,
             unsigned char buf2[EVP_MAX_BLOCK_LENGTH];
             int outb;
             ret = EVP_CipherFinal(*ctx, buf2, &outb);
-#elif defined(HAVE_OPAQUE_STRUCTS)
-            ret = EVP_Cipher(*ctx, NULL, NULL, 0); /* final */
 #else
-            ret = EVP_Cipher(ctx, NULL, NULL, 0); /* final */
+            ret = EVP_Cipher(*ctx, NULL, NULL, 0); /* final */
 #endif
             if(ret < 0)
                 ret = 0;
@@ -1132,17 +1046,10 @@ static unsigned char *ossl_rsa_to_pubkey(LIBSSH2_SESSION *session,
     EVP_PKEY_get_bn_param(rsa, OSSL_PKEY_PARAM_RSA_E, &e);
     EVP_PKEY_get_bn_param(rsa, OSSL_PKEY_PARAM_RSA_N, &n);
 #else
-    const BIGNUM *e;
-    const BIGNUM *n;
-#ifdef HAVE_OPAQUE_STRUCTS
-    e = NULL;
-    n = NULL;
+    const BIGNUM *e = NULL;
+    const BIGNUM *n = NULL;
 
     RSA_get0_key(rsa, &n, &e, NULL);
-#else
-    e = rsa->e;
-    n = rsa->n;
-#endif
 #endif
     if(!e || !n)
         goto fail;
@@ -1249,14 +1156,8 @@ static int ossl_rsa_additional_params_new(ssh2_rsa_ctx *rsa)
     const BIGNUM *d = NULL;
     int rc = 0;
 
-#ifdef HAVE_OPAQUE_STRUCTS
     RSA_get0_key(rsa, NULL, NULL, &d);
     RSA_get0_factors(rsa, &p, &q);
-#else
-    d = (*rsa).d;
-    p = (*rsa).p;
-    q = (*rsa).q;
-#endif
 
     ctx = BN_CTX_new();
     if(!ctx)
@@ -1286,12 +1187,7 @@ static int ossl_rsa_additional_params_new(ssh2_rsa_ctx *rsa)
         goto out;
     }
 
-#ifdef HAVE_OPAQUE_STRUCTS
     RSA_set0_crt_params(rsa, dmp1, dmq1, NULL);
-#else
-    (*rsa).dmp1 = dmp1;
-    (*rsa).dmq1 = dmq1;
-#endif
 
 out:
     if(aux)
@@ -1544,19 +1440,9 @@ static unsigned char *ossl_dsa_to_pubkey(LIBSSH2_SESSION *session,
     const BIGNUM *q;
     const BIGNUM *g;
     const BIGNUM *pub_key;
-#ifdef HAVE_OPAQUE_STRUCTS
-    DSA_get0_pqg(dsa, &p_bn, &q, &g);
-#else
-    p_bn = dsa->p;
-    q = dsa->q;
-    g = dsa->g;
-#endif
 
-#ifdef HAVE_OPAQUE_STRUCTS
+    DSA_get0_pqg(dsa, &p_bn, &q, &g);
     DSA_get0_key(dsa, &pub_key, NULL);
-#else
-    pub_key = dsa->pub_key;
-#endif
 #endif
     p_bytes = BN_num_bytes(p_bn) + 1;
     q_bytes = BN_num_bytes(q) + 1;
@@ -2776,12 +2662,8 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
     if(!sig)
         return -1;
 
-#ifdef HAVE_OPAQUE_STRUCTS
     DSA_SIG_get0(sig, &r, &s);
-#else
-    r = sig->r;
-    s = sig->s;
-#endif
+
     r_len = BN_num_bytes(r);
     if(r_len < 1 || r_len > SHA_DIGEST_LENGTH) {
         DSA_SIG_free(sig);
@@ -2855,12 +2737,7 @@ int ssh2_ecdsa_sign(LIBSSH2_SESSION *session, ssh2_ecdsa_ctx *ec_ctx,
         return -1;
 #endif
 
-#ifdef HAVE_OPAQUE_STRUCTS
     ECDSA_SIG_get0(sig, &pr, &ps);
-#else
-    pr = sig->r;
-    ps = sig->s;
-#endif
 
     r_len = BN_num_bytes(pr) + 1;
     s_len = BN_num_bytes(ps) + 1;
@@ -2907,7 +2784,6 @@ clean_exit:
 
 int ssh2_ossl_sha1_init(ssh2_sha1_ctx *ctx)
 {
-#ifdef HAVE_OPAQUE_STRUCTS
     *ctx = EVP_MD_CTX_new();
 
     if(!*ctx)
@@ -2920,36 +2796,23 @@ int ssh2_ossl_sha1_init(ssh2_sha1_ctx *ctx)
     *ctx = NULL;
 
     return 0;
-#else
-    EVP_MD_CTX_init(ctx);
-    return EVP_DigestInit(ctx, EVP_get_digestbyname("sha1"));
-#endif
 }
 
 int ssh2_ossl_sha1_update(ssh2_sha1_ctx *ctx, const void *data, size_t len)
 {
-#ifdef HAVE_OPAQUE_STRUCTS
     return EVP_DigestUpdate(*ctx, data, len);
-#else
-    return EVP_DigestUpdate(ctx, data, len);
-#endif
 }
 
 int ssh2_ossl_sha1_final(ssh2_sha1_ctx *ctx, unsigned char *out)
 {
-#ifdef HAVE_OPAQUE_STRUCTS
     int ret = EVP_DigestFinal(*ctx, out, NULL);
     EVP_MD_CTX_free(*ctx);
     return ret;
-#else
-    return EVP_DigestFinal(ctx, out, NULL);
-#endif
 }
 
 int ssh2_ossl_sha1(const unsigned char *message, size_t len,
                    unsigned char *out)
 {
-#ifdef HAVE_OPAQUE_STRUCTS
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
 
     if(!ctx)
@@ -2962,22 +2825,11 @@ int ssh2_ossl_sha1(const unsigned char *message, size_t len,
         return 0; /* success */
     }
     EVP_MD_CTX_free(ctx);
-#else
-    EVP_MD_CTX ctx;
-
-    EVP_MD_CTX_init(&ctx);
-    if(EVP_DigestInit(&ctx, EVP_get_digestbyname("sha1"))) {
-        EVP_DigestUpdate(&ctx, message, len);
-        EVP_DigestFinal(&ctx, out, NULL);
-        return 0; /* success */
-    }
-#endif
     return 1; /* error */
 }
 
 int ssh2_ossl_sha256_init(ssh2_sha256_ctx *ctx)
 {
-#ifdef HAVE_OPAQUE_STRUCTS
     *ctx = EVP_MD_CTX_new();
 
     if(!*ctx)
@@ -2990,36 +2842,23 @@ int ssh2_ossl_sha256_init(ssh2_sha256_ctx *ctx)
     *ctx = NULL;
 
     return 0;
-#else
-    EVP_MD_CTX_init(ctx);
-    return EVP_DigestInit(ctx, EVP_get_digestbyname("sha256"));
-#endif
 }
 
 int ssh2_ossl_sha256_update(ssh2_sha256_ctx *ctx, const void *data, size_t len)
 {
-#ifdef HAVE_OPAQUE_STRUCTS
     return EVP_DigestUpdate(*ctx, data, len);
-#else
-    return EVP_DigestUpdate(ctx, data, len);
-#endif
 }
 
 int ssh2_ossl_sha256_final(ssh2_sha256_ctx *ctx, unsigned char *out)
 {
-#ifdef HAVE_OPAQUE_STRUCTS
     int ret = EVP_DigestFinal(*ctx, out, NULL);
     EVP_MD_CTX_free(*ctx);
     return ret;
-#else
-    return EVP_DigestFinal(ctx, out, NULL);
-#endif
 }
 
 int ssh2_ossl_sha256(const unsigned char *message, size_t len,
                      unsigned char *out)
 {
-#ifdef HAVE_OPAQUE_STRUCTS
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
 
     if(!ctx)
@@ -3032,22 +2871,11 @@ int ssh2_ossl_sha256(const unsigned char *message, size_t len,
         return 0; /* success */
     }
     EVP_MD_CTX_free(ctx);
-#else
-    EVP_MD_CTX ctx;
-
-    EVP_MD_CTX_init(&ctx);
-    if(EVP_DigestInit(&ctx, EVP_get_digestbyname("sha256"))) {
-        EVP_DigestUpdate(&ctx, message, len);
-        EVP_DigestFinal(&ctx, out, NULL);
-        return 0; /* success */
-    }
-#endif
     return 1; /* error */
 }
 
 int ssh2_ossl_sha384_init(ssh2_sha384_ctx *ctx)
 {
-#ifdef HAVE_OPAQUE_STRUCTS
     *ctx = EVP_MD_CTX_new();
 
     if(!*ctx)
@@ -3060,36 +2888,23 @@ int ssh2_ossl_sha384_init(ssh2_sha384_ctx *ctx)
     *ctx = NULL;
 
     return 0;
-#else
-    EVP_MD_CTX_init(ctx);
-    return EVP_DigestInit(ctx, EVP_get_digestbyname("sha384"));
-#endif
 }
 
 int ssh2_ossl_sha384_update(ssh2_sha384_ctx *ctx, const void *data, size_t len)
 {
-#ifdef HAVE_OPAQUE_STRUCTS
     return EVP_DigestUpdate(*ctx, data, len);
-#else
-    return EVP_DigestUpdate(ctx, data, len);
-#endif
 }
 
 int ssh2_ossl_sha384_final(ssh2_sha384_ctx *ctx, unsigned char *out)
 {
-#ifdef HAVE_OPAQUE_STRUCTS
     int ret = EVP_DigestFinal(*ctx, out, NULL);
     EVP_MD_CTX_free(*ctx);
     return ret;
-#else
-    return EVP_DigestFinal(ctx, out, NULL);
-#endif
 }
 
 int ssh2_ossl_sha384(const unsigned char *message, size_t len,
                      unsigned char *out)
 {
-#ifdef HAVE_OPAQUE_STRUCTS
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
 
     if(!ctx)
@@ -3102,22 +2917,11 @@ int ssh2_ossl_sha384(const unsigned char *message, size_t len,
         return 0; /* success */
     }
     EVP_MD_CTX_free(ctx);
-#else
-    EVP_MD_CTX ctx;
-
-    EVP_MD_CTX_init(&ctx);
-    if(EVP_DigestInit(&ctx, EVP_get_digestbyname("sha384"))) {
-        EVP_DigestUpdate(&ctx, message, len);
-        EVP_DigestFinal(&ctx, out, NULL);
-        return 0; /* success */
-    }
-#endif
     return 1; /* error */
 }
 
 int ssh2_ossl_sha512_init(ssh2_sha512_ctx *ctx)
 {
-#ifdef HAVE_OPAQUE_STRUCTS
     *ctx = EVP_MD_CTX_new();
 
     if(!*ctx)
@@ -3130,36 +2934,23 @@ int ssh2_ossl_sha512_init(ssh2_sha512_ctx *ctx)
     *ctx = NULL;
 
     return 0;
-#else
-    EVP_MD_CTX_init(ctx);
-    return EVP_DigestInit(ctx, EVP_get_digestbyname("sha512"));
-#endif
 }
 
 int ssh2_ossl_sha512_update(ssh2_sha512_ctx *ctx, const void *data, size_t len)
 {
-#ifdef HAVE_OPAQUE_STRUCTS
     return EVP_DigestUpdate(*ctx, data, len);
-#else
-    return EVP_DigestUpdate(ctx, data, len);
-#endif
 }
 
 int ssh2_ossl_sha512_final(ssh2_sha512_ctx *ctx, unsigned char *out)
 {
-#ifdef HAVE_OPAQUE_STRUCTS
     int ret = EVP_DigestFinal(*ctx, out, NULL);
     EVP_MD_CTX_free(*ctx);
     return ret;
-#else
-    return EVP_DigestFinal(ctx, out, NULL);
-#endif
 }
 
 int ssh2_ossl_sha512(const unsigned char *message, size_t len,
                      unsigned char *out)
 {
-#ifdef HAVE_OPAQUE_STRUCTS
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
 
     if(!ctx)
@@ -3172,16 +2963,6 @@ int ssh2_ossl_sha512(const unsigned char *message, size_t len,
         return 0; /* success */
     }
     EVP_MD_CTX_free(ctx);
-#else
-    EVP_MD_CTX ctx;
-
-    EVP_MD_CTX_init(&ctx);
-    if(EVP_DigestInit(&ctx, EVP_get_digestbyname("sha512"))) {
-        EVP_DigestUpdate(&ctx, message, len);
-        EVP_DigestFinal(&ctx, out, NULL);
-        return 0; /* success */
-    }
-#endif
     return 1; /* error */
 }
 
@@ -3201,7 +2982,6 @@ int ssh2_ossl_md5_init(ssh2_md5_ctx *ctx)
         return 0;
 #endif
 
-#ifdef HAVE_OPAQUE_STRUCTS
     *ctx = EVP_MD_CTX_new();
 
     if(!*ctx)
@@ -3214,30 +2994,18 @@ int ssh2_ossl_md5_init(ssh2_md5_ctx *ctx)
     *ctx = NULL;
 
     return 0;
-#else
-    EVP_MD_CTX_init(ctx);
-    return EVP_DigestInit(ctx, EVP_get_digestbyname("md5"));
-#endif
 }
 
 int ssh2_ossl_md5_update(ssh2_md5_ctx *ctx, const void *data, size_t len)
 {
-#ifdef HAVE_OPAQUE_STRUCTS
     return EVP_DigestUpdate(*ctx, data, len);
-#else
-    return EVP_DigestUpdate(ctx, data, len);
-#endif
 }
 
 int ssh2_ossl_md5_final(ssh2_md5_ctx *ctx, unsigned char *out)
 {
-#ifdef HAVE_OPAQUE_STRUCTS
     int ret = EVP_DigestFinal(*ctx, out, NULL);
     EVP_MD_CTX_free(*ctx);
     return ret;
-#else
-    return EVP_DigestFinal(ctx, out, NULL);
-#endif
 }
 #endif
 
@@ -4405,11 +4173,7 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
         return 0;
     }
 
-#ifdef HAVE_OPAQUE_STRUCTS
     pktype = EVP_PKEY_id(pk);
-#else
-    pktype = pk->type;
-#endif
 
     switch(pktype) {
 #if LIBSSH2_ED25519
@@ -4707,11 +4471,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                         "Unsupported private key file format");
     }
 
-#ifdef HAVE_OPAQUE_STRUCTS
     pktype = EVP_PKEY_id(pk);
-#else
-    pktype = pk->type;
-#endif
 
     switch(pktype) {
 #if LIBSSH2_ED25519
