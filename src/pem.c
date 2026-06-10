@@ -887,12 +887,15 @@ static int read_asn1_length(const unsigned char *data,
 
     if(*len >= 0x80) {
         lenlen = *len & 0x7F;
-        *len = data[1];
         if(1 + lenlen > datalen) {
             return -1;
         }
+        *len = data[1];
         if(lenlen > 1) {
             *len <<= 8;
+            if(2 + lenlen > datalen) {
+                return -1;
+            }
             *len |= data[2];
         }
     }
