@@ -2778,7 +2778,9 @@ int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **key,
     }
 
     /* Read OPENSSL_PRIVATEKEY_AUTH_MAGIC */
-    if(strncmp(data, OPENSSL_PRIVATEKEY_AUTH_MAGIC, data_len)) {
+    if(data_len < sizeof(OPENSSL_PRIVATEKEY_AUTH_MAGIC) ||
+       memcmp(data, OPENSSL_PRIVATEKEY_AUTH_MAGIC,
+              sizeof(OPENSSL_PRIVATEKEY_AUTH_MAGIC))) {
         result = -1;
         goto cleanup;
     }
@@ -2786,7 +2788,7 @@ int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **key,
     data_buffer.len = data_len;
     data_buffer.data = (unsigned char *)SSH2_UNCONST(data);
     data_buffer.dataptr = data_buffer.data +
-                          strlen(OPENSSL_PRIVATEKEY_AUTH_MAGIC) + 1;
+                          sizeof(OPENSSL_PRIVATEKEY_AUTH_MAGIC);
 
     /* Read ciphername, should be 'none' as we do not support passphrases */
     result = ssh2_match_string(&data_buffer, "none");

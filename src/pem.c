@@ -445,19 +445,18 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
     decoded.dataptr = (unsigned char *)f;
     decoded.len = f_len;
 
-    if(decoded.len < strlen(AUTH_MAGIC)) {
+    if(decoded.len < sizeof(AUTH_MAGIC)) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "key too short");
         goto out;
     }
 
-    if(strncmp((const char *)decoded.dataptr, AUTH_MAGIC,
-               strlen(AUTH_MAGIC))) {
+    if(memcmp((const char *)decoded.dataptr, AUTH_MAGIC, sizeof(AUTH_MAGIC))) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                        "key auth magic mismatch");
         goto out;
     }
 
-    decoded.dataptr += strlen(AUTH_MAGIC) + 1;
+    decoded.dataptr += sizeof(AUTH_MAGIC);
 
     if(ssh2_get_string(&decoded, &ciphername, &tmp_len) || tmp_len == 0) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "ciphername is missing");
