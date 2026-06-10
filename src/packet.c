@@ -236,10 +236,12 @@ static SSH2_INLINE int packet_queue_listener(
                              * doesn't need to be called, so just do the
                              * work it did.
                              */
-                            ssh2_list_add(&listen_state->channel->session->channels,
-                                          &listen_state->channel->node);
+                            LIBSSH2_CHANNEL *new_channel =
+                                listen_state->channel;
+                            ssh2_list_add(&new_channel->session->channels,
+                                          &new_channel->node);
                             SSH2_LISTENER_CONNECT(session, listn,
-                                                     listen_state->channel);
+                                                  new_channel);
                         }
                         else {
                             ssh2_list_add(&listn->queue,
