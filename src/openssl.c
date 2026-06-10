@@ -1927,7 +1927,7 @@ static int ossl_ed25519_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     }
 
     if(tmp_len > 0) {
-        unsigned char *comment = SSH2_CALLOC(session, tmp_len + 1);
+        char *comment = SSH2_CALLOC(session, tmp_len + 1);
         if(comment) {
             memcpy(comment, buf, tmp_len);
             comment[tmp_len] = '\0';
