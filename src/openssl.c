@@ -3416,12 +3416,12 @@ fail:
         ssh2_ecdsa_free(ec_key);
 
     if(application && *application) {
-        SSH2_FREE(session, (void *)application);
+        SSH2_FREE(session, SSH2_UNCONST(*application));
         *application = NULL;
     }
 
     if(key_handle && *key_handle) {
-        SSH2_FREE(session, (void *)key_handle);
+        SSH2_FREE(session, SSH2_UNCONST(*key_handle));
         *key_handle = NULL;
     }
 
