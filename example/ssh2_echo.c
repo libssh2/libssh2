@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
     }
     libssh2_knownhost_free(nh);
 
-    if(strlen(password) != 0) {
+    if(strlen(password)) {
         /* We could authenticate via password */
         while((rc = libssh2_userauth_password(session, username, password)) ==
               LIBSSH2_ERROR_EAGAIN)
