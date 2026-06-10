@@ -315,7 +315,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     EVP_PKEY_CTX_free(ctx);
 
     return (ret == 1) ? 0 : -1;
-#else
+#else /* !USE_OPENSSL_3 */
     BIGNUM *e;
     BIGNUM *n;
     BIGNUM *d = 0;
@@ -368,7 +368,6 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
     EVP_PKEY_CTX *ctx = NULL;
     const EVP_MD *md = NULL;
 #endif
-
     int ret;
     int nid_type;
     unsigned char *hash = malloc(hash_len);
@@ -417,9 +416,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
 
     if(ctx)
         EVP_PKEY_CTX_free(ctx);
-
 #else
-
     ret = RSA_verify(nid_type, hash, (unsigned int)hash_len,
                      (const unsigned char *)sig,
                      (unsigned int)sig_len, rsactx);
@@ -538,9 +535,7 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsactx,
     EVP_PKEY_CTX_free(ctx);
 
     return (ret == 1) ? 0 : -1;
-
-#else
-
+#else /* !USE_OPENSSL_3 */
     BIGNUM *p_bn;
     BIGNUM *q_bn;
     BIGNUM *g_bn;
