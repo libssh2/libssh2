@@ -771,15 +771,15 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
         return -1;
 
     if(type == SSH2_EC_CURVE_NISTP256 &&
-       strncmp((char *)domain, "nistp256", 8) != 0) {
+       strncmp((char *)domain, "nistp256", 8)) {
         return -1;
     }
     else if(type == SSH2_EC_CURVE_NISTP384 &&
-            strncmp((char *)domain, "nistp384", 8) != 0) {
+            strncmp((char *)domain, "nistp384", 8)) {
         return -1;
     }
     else if(type == SSH2_EC_CURVE_NISTP521 &&
-            strncmp((char *)domain, "nistp521", 8) != 0) {
+            strncmp((char *)domain, "nistp521", 8)) {
         return -1;
     }
 

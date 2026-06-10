@@ -1213,12 +1213,12 @@ int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
     fp = fopen(filename, "rb");
     if(!fp)
         goto cleanup;
-    if(fseek(fp, 0, SEEK_END) != 0)
+    if(fseek(fp, 0, SEEK_END))
         goto cleanup;
     file_size = ftell(fp);
     if(file_size < 0 || file_size > (1024 * 1024))
         goto cleanup;
-    if(fseek(fp, 0, SEEK_SET) != 0)
+    if(fseek(fp, 0, SEEK_SET))
         goto cleanup;
     data_len = (size_t)file_size;
     if(data_len == 0)

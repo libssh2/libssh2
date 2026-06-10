@@ -115,7 +115,7 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
     long file_size;
     size_t filedata_len;
 
-    if(fseek(fp, 0L, SEEK_END) != 0) {
+    if(fseek(fp, 0L, SEEK_END)) {
         ssh2_err(session, LIBSSH2_ERROR_FILE,
                  "Bad seek to file end in PEM parsing");
         goto out;
@@ -136,7 +136,7 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
                  "Input too large in PEM parsing");
         goto out;
     }
-    if(fseek(fp, 0L, SEEK_SET) != 0) {
+    if(fseek(fp, 0L, SEEK_SET)) {
         ssh2_err(session, LIBSSH2_ERROR_FILE, "Bad seek to 0 in PEM parsing");
         goto out;
     }
@@ -189,7 +189,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
 
         if(!*line)
             break;
-    } while(strcmp(line, headerbegin) != 0);
+    } while(strcmp(line, headerbegin));
 
     if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
         return -1;
@@ -264,7 +264,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
             ret = -1;
             goto out;
         }
-    } while(strcmp(line, headerend) != 0);
+    } while(strcmp(line, headerend));
 
     if(!b64data) {
         return -1;
@@ -451,7 +451,7 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
     }
 
     if(strncmp((const char *)decoded.dataptr, AUTH_MAGIC,
-               strlen(AUTH_MAGIC)) != 0) {
+               strlen(AUTH_MAGIC))) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                        "key auth magic mismatch");
         goto out;
@@ -480,20 +480,20 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
     }
 
     if((!passphrase || strlen((const char *)passphrase) == 0) &&
-       strcmp((const char *)ciphername, "none") != 0) {
+       strcmp((const char *)ciphername, "none")) {
         /* passphrase required */
         ret = LIBSSH2_ERROR_KEYFILE_AUTH_FAILED;
         goto out;
     }
 
-    if(strcmp((const char *)kdfname, "none") != 0 &&
-       strcmp((const char *)kdfname, "bcrypt") != 0) {
+    if(strcmp((const char *)kdfname, "none") &&
+       strcmp((const char *)kdfname, "bcrypt")) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "unknown cipher");
         goto out;
     }
 
     if(!strcmp((const char *)kdfname, "none") &&
-       strcmp((const char *)ciphername, "none") != 0) {
+       strcmp((const char *)ciphername, "none")) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "invalid format");
         goto out;
     }
@@ -522,7 +522,7 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
     decrypted.data = decrypted.dataptr = buf;
     decrypted.len = tmp_len;
 
-    if(ciphername && strcmp((const char *)ciphername, "none") != 0) {
+    if(ciphername && strcmp((const char *)ciphername, "none")) {
         const struct crypt_method **all_methods, *cur_method;
 
         all_methods = ssh2_crypt_methods();
@@ -748,7 +748,7 @@ int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
         if(readline(line, LINE_SIZE, fp)) {
             return -1;
         }
-    } while(strcmp(line, OPENSSH_HEADER_BEGIN) != 0);
+    } while(strcmp(line, OPENSSH_HEADER_BEGIN));
 
     if(readline(line, LINE_SIZE, fp)) {
         return -1;
@@ -778,7 +778,7 @@ int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
             ret = -1;
             goto out;
         }
-    } while(strcmp(line, OPENSSH_HEADER_END) != 0);
+    } while(strcmp(line, OPENSSH_HEADER_END));
 
     if(!b64data) {
         return -1;
@@ -824,7 +824,7 @@ int ssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
         if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
             return -1;
         }
-    } while(strcmp(line, OPENSSH_HEADER_BEGIN) != 0);
+    } while(strcmp(line, OPENSSH_HEADER_BEGIN));
 
     *line = '\0';
 
@@ -857,7 +857,7 @@ int ssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
             ret = -1;
             goto out;
         }
-    } while(strcmp(line, OPENSSH_HEADER_END) != 0);
+    } while(strcmp(line, OPENSSH_HEADER_END));
 
     if(!b64data)
         return ssh2_err(session, LIBSSH2_ERROR_PROTO,
