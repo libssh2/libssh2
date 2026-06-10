@@ -1089,9 +1089,11 @@ static int session_free(LIBSSH2_SESSION *session)
     }
 
     /* Free payload buffer */
-    if(session->packet.total_num) {
+    if(session->packet.payload) {
         SSH2_FREE(session, session->packet.payload);
+        session->packet.payload = NULL;
     }
+    session->packet.total_num = 0;
 
     /* Cleanup all remaining packets */
     /* !checksrc! disable EQUALSNULL 1 */
