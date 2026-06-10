@@ -198,7 +198,7 @@ static int hostkey_method_ssh_rsa_sig_verify(LIBSSH2_SESSION *session,
     (void)session;
 
     /* Skip past keyname_len(4) + keyname(7){"ssh-rsa"} + signature_len(4) */
-    if(sig_len < 15)
+    if(sig_len <= 15)
         return -1;
 
     sig += 15;
@@ -267,7 +267,7 @@ static int hostkey_method_ssh_rsa_sha2_256_sig_verify(
 
     /* Skip past keyname_len(4) + keyname(12){"rsa-sha2-256"} +
        signature_len(4) */
-    if(sig_len < 20)
+    if(sig_len <= 20)
         return -1;
 
     sig += 20;
@@ -334,7 +334,7 @@ static int hostkey_method_ssh_rsa_sha2_512_sig_verify(
 
     /* Skip past keyname_len(4) + keyname(12){"rsa-sha2-512"} +
        signature_len(4) */
-    if(sig_len < 20)
+    if(sig_len <= 20)
         return -1;
 
     sig += 20;
@@ -1172,11 +1172,11 @@ static int hostkey_method_ssh_ed25519_sig_verify(LIBSSH2_SESSION *session,
     ssh2_ed25519_ctx *ctx = (ssh2_ed25519_ctx *)(*abstract);
     (void)session;
 
-    if(sig_len < 19)
-        return -1;
-
     /* Skip past keyname_len(4) + keyname(11){"ssh-ed25519"} +
        signature_len(4) */
+    if(sig_len <= 19)
+        return -1;
+
     sig += 19;
     sig_len -= 19;
 
