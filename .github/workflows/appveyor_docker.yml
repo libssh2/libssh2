@@ -44,6 +44,10 @@ name: 'AppVeyor Docker Bridge'
 
 permissions: {}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   DO_NOT_TRACK: '1'
 
