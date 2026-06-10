@@ -180,10 +180,17 @@
 
 /* wolfSSL v5.4.0 is required due to possibly this bug:
    https://github.com/wolfSSL/wolfssl/pull/5205
-   Before this release, all libssh2 tests crash with AES-GCM enabled */
-#if !defined(OPENSSL_NO_AES) || \
-    (defined(LIBSSH2_WOLFSSL) && LIBWOLFSSL_VERSION_HEX >= 0x05004000 && \
-    defined(HAVE_AESGCM) && defined(WOLFSSL_AESGCM_STREAM))
+   Before this release, all libssh2 tests crash with AES-GCM enabled.
+   LibreSSL v3.6.0+ is required. */
+#if defined(LIBSSH2_WOLFSSL) && \
+    (LIBWOLFSSL_VERSION_HEX < 0x05004000 || \
+     !defined(HAVE_AESGCM) || !defined(WOLFSSL_AESGCM_STREAM))
+# define HAVE_NO_AES_GCM
+#elif defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x3060000fL
+# define HAVE_NO_AES_GCM
+#endif
+
+#if !defined(OPENSSL_NO_AES) && !defined(HAVE_NO_AES_GCM)
 # define LIBSSH2_AES_GCM 1
 #else
 # define LIBSSH2_AES_GCM 0
