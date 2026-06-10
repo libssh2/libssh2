@@ -3614,7 +3614,6 @@ int ssh2_wcng_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
         BCRYPT_SECRET_HANDLE agreement = NULL;
         ULONG secret_len_bytes = 0;
         NTSTATUS status;
-        unsigned char *start, *end;
         BCRYPT_DH_KEY_BLOB *public_blob;
         ULONG key_length_bytes = max(f->length, dhctx->dh_params->cbKeyLength);
         ULONG public_blob_len = (ULONG)(sizeof(*public_blob) +
@@ -3699,15 +3698,7 @@ int ssh2_wcng_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
         /* Counter to all the other data in the BCrypt APIs, the raw secret is
          * returned to us in host byte order, so we need to swap it to big
          * endian order. */
-        start = secret->bignum;
-        end = secret->bignum + secret->length - 1;
-        while(start < end) {
-            unsigned char tmp = *end;
-            *end = *start;
-            *start = tmp;
-            start++;
-            end--;
-        }
+        wcng_reverse_bytes(secret->bignum, secret->length);
 
         status = 0;
         ssh2_wcng.hasAlgDHwithKDF = 1;
