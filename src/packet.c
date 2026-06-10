@@ -137,8 +137,8 @@ static SSH2_INLINE int packet_queue_listener(
         while(listn) {
             if(listn->port == (int)listen_state->port &&
                strlen(listn->host) == listen_state->host_len &&
-               memcmp(listn->host, listen_state->host,
-                      listen_state->host_len) == 0) {
+               !memcmp(listn->host, listen_state->host,
+                       listen_state->host_len)) {
                 /* This is our listener */
                 LIBSSH2_CHANNEL *channel = NULL;
                 listen_state->channel = NULL;
@@ -878,7 +878,7 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                     }
 
                     if(name && name_len == 15 &&
-                       memcmp(name, "server-sig-algs", 15) == 0) {
+                       !memcmp(name, "server-sig-algs", 15)) {
                         if(session->server_sign_algorithms) {
                             SSH2_FREE(session,
                                       session->server_sign_algorithms);
@@ -1269,8 +1269,8 @@ clean_exit:
                 ;
             else if(datalen >= (strlen("forwarded-tcpip") + 5) &&
                     strlen("forwarded-tcpip") == ssh2_ntohu32(data + 1) &&
-                    memcmp(data + 5, "forwarded-tcpip",
-                           strlen("forwarded-tcpip")) == 0) {
+                    !memcmp(data + 5, "forwarded-tcpip",
+                            strlen("forwarded-tcpip"))) {
 
                 /* init the state struct */
                 memset(&session->packAdd_Qlstn_state, 0,
@@ -1283,7 +1283,7 @@ ssh2_packet_add_jump_point2:
             }
             else if(datalen >= (strlen("x11") + 5) &&
                     strlen("x11") == ssh2_ntohu32(data + 1) &&
-                    memcmp(data + 5, "x11", strlen("x11")) == 0) {
+                    !memcmp(data + 5, "x11", strlen("x11"))) {
 
                 /* init the state struct */
                 memset(&session->packAdd_x11open_state, 0,
@@ -1297,8 +1297,8 @@ ssh2_packet_add_jump_point3:
             else if(datalen >= (strlen("auth-agent@openssh.com") + 5) &&
                     strlen("auth-agent@openssh.com") ==
                         ssh2_ntohu32(data + 1) &&
-                    memcmp(data + 5, "auth-agent@openssh.com",
-                           strlen("auth-agent@openssh.com")) == 0) {
+                    !memcmp(data + 5, "auth-agent@openssh.com",
+                            strlen("auth-agent@openssh.com"))) {
 
                 /* init the state struct */
                 memset(&session->packAdd_authagent_state, 0,
@@ -1434,7 +1434,7 @@ int ssh2_packet_ask(LIBSSH2_SESSION *session, unsigned char packet_type,
         if(packet->data[0] == packet_type &&
            packet->data_len >= (match_ofs + match_len) &&
            (!match_buf ||
-            memcmp(packet->data + match_ofs, match_buf, match_len) == 0)) {
+            !memcmp(packet->data + match_ofs, match_buf, match_len))) {
             *data = packet->data;
             *data_len = packet->data_len;
 

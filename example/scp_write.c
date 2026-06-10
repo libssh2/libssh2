@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    if(fstat(fileno(local), &fileinfo) != 0) {
+    if(fstat(fileno(local), &fileinfo)) {
         fprintf(stderr, "error: could not stat file %s\n", loclfile);
         fclose(local);
         return 1;

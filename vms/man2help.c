@@ -328,9 +328,9 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
             case 'S':
                 if(*(m + 1) == 'H') {
                     *h++ = '\n';
-                    if(strncmp(m + 3, "NAME", 4) == 0 ||
-                       strncmp(m + 3, "SYNOPSIS", 8) == 0 ||
-                       strncmp(m + 3, "DESCRIPTION", 11) == 0) {
+                    if(!strncmp(m + 3, "NAME", 4)  ||
+                       !strncmp(m + 3, "SYNOPSIS", 8) ||
+                       !strncmp(m + 3, "DESCRIPTION", 11)) {
                         while(*m != '\n' && *m != '\r')
                             ++m;
                         mode = 0;

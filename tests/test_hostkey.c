@@ -65,7 +65,7 @@ int test(LIBSSH2_SESSION *session)
         return 1;
     }
 
-    if(memcmp(hostkey, expected_hostkey, len) != 0) {
+    if(memcmp(hostkey, expected_hostkey, len)) {
         fprintf(stderr, "Hostkeys do not match\n");
         return 1;
     }

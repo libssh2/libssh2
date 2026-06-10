@@ -115,7 +115,7 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
     long file_size;
     size_t filedata_len;
 
-    if(fseek(fp, 0L, SEEK_END) != 0) {
+    if(fseek(fp, 0L, SEEK_END)) {
         ssh2_err(session, LIBSSH2_ERROR_FILE,
                  "Bad seek to file end in PEM parsing");
         goto out;
@@ -136,7 +136,7 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
                  "Input too large in PEM parsing");
         goto out;
     }
-    if(fseek(fp, 0L, SEEK_SET) != 0) {
+    if(fseek(fp, 0L, SEEK_SET)) {
         ssh2_err(session, LIBSSH2_ERROR_FILE, "Bad seek to 0 in PEM parsing");
         goto out;
     }
@@ -189,14 +189,14 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
 
         if(!*line)
             break;
-    } while(strcmp(line, headerbegin) != 0);
+    } while(strcmp(line, headerbegin));
 
     if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
         return -1;
     }
 
     if(passphrase &&
-       memcmp(line, crypt_annotation, strlen(crypt_annotation)) == 0) {
+       !memcmp(line, crypt_annotation, strlen(crypt_annotation))) {
         const struct crypt_method **all_methods, *cur_method;
         int i;
 
@@ -209,8 +209,8 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         /* !checksrc! disable EQUALSNULL 1 */
         while((cur_method = *all_methods++) != NULL) {
             if(*cur_method->pem_annotation &&
-               memcmp(line, cur_method->pem_annotation,
-                      strlen(cur_method->pem_annotation)) == 0) {
+               !memcmp(line, cur_method->pem_annotation,
+                       strlen(cur_method->pem_annotation))) {
                 method = cur_method;
                 memcpy(iv, line + strlen(method->pem_annotation) + 1,
                        2 * method->iv_len);
@@ -264,7 +264,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
             ret = -1;
             goto out;
         }
-    } while(strcmp(line, headerend) != 0);
+    } while(strcmp(line, headerend));
 
     if(!b64data) {
         return -1;
@@ -451,7 +451,7 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
     }
 
     if(strncmp((const char *)decoded.dataptr, AUTH_MAGIC,
-               strlen(AUTH_MAGIC)) != 0) {
+               strlen(AUTH_MAGIC))) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                        "key auth magic mismatch");
         goto out;
@@ -480,20 +480,20 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
     }
 
     if((!passphrase || strlen((const char *)passphrase) == 0) &&
-       strcmp((const char *)ciphername, "none") != 0) {
+       strcmp((const char *)ciphername, "none")) {
         /* passphrase required */
         ret = LIBSSH2_ERROR_KEYFILE_AUTH_FAILED;
         goto out;
     }
 
-    if(strcmp((const char *)kdfname, "none") != 0 &&
-       strcmp((const char *)kdfname, "bcrypt") != 0) {
+    if(strcmp((const char *)kdfname, "none") &&
+       strcmp((const char *)kdfname, "bcrypt")) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "unknown cipher");
         goto out;
     }
 
     if(!strcmp((const char *)kdfname, "none") &&
-       strcmp((const char *)ciphername, "none") != 0) {
+       strcmp((const char *)ciphername, "none")) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "invalid format");
         goto out;
     }
@@ -522,14 +522,14 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
     decrypted.data = decrypted.dataptr = buf;
     decrypted.len = tmp_len;
 
-    if(ciphername && strcmp((const char *)ciphername, "none") != 0) {
+    if(ciphername && strcmp((const char *)ciphername, "none")) {
         const struct crypt_method **all_methods, *cur_method;
 
         all_methods = ssh2_crypt_methods();
         /* !checksrc! disable EQUALSNULL 1 */
         while((cur_method = *all_methods++) != NULL) {
-            if(*cur_method->name && memcmp(ciphername, cur_method->name,
-                                           strlen(cur_method->name)) == 0) {
+            if(*cur_method->name && !memcmp(ciphername, cur_method->name,
+                                            strlen(cur_method->name))) {
                 method = cur_method;
             }
         }
@@ -559,7 +559,7 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
             goto out;
         }
 
-        if(strcmp((const char *)kdfname, "bcrypt") == 0 && passphrase) {
+        if(!strcmp((const char *)kdfname, "bcrypt") && passphrase) {
             if(ssh2_get_string(&kdf_buf, &salt, &salt_len) ||
                ssh2_get_u32(&kdf_buf, &rounds) != 0) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -651,8 +651,8 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
 
             /* for the AES GCM methods, the 16 byte authentication tag is
              * appended to the encrypted key */
-            if(strcmp(method->name, "aes256-gcm@openssh.com") == 0 ||
-               strcmp(method->name, "aes128-gcm@openssh.com") == 0) {
+            if(!strcmp(method->name, "aes256-gcm@openssh.com") ||
+               !strcmp(method->name, "aes128-gcm@openssh.com")) {
                 if(!ssh2_check_length(&decoded, 16)) {
                     ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                    "GCM auth tag missing");
@@ -748,7 +748,7 @@ int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
         if(readline(line, LINE_SIZE, fp)) {
             return -1;
         }
-    } while(strcmp(line, OPENSSH_HEADER_BEGIN) != 0);
+    } while(strcmp(line, OPENSSH_HEADER_BEGIN));
 
     if(readline(line, LINE_SIZE, fp)) {
         return -1;
@@ -778,7 +778,7 @@ int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
             ret = -1;
             goto out;
         }
-    } while(strcmp(line, OPENSSH_HEADER_END) != 0);
+    } while(strcmp(line, OPENSSH_HEADER_END));
 
     if(!b64data) {
         return -1;
@@ -824,7 +824,7 @@ int ssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
         if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
             return -1;
         }
-    } while(strcmp(line, OPENSSH_HEADER_BEGIN) != 0);
+    } while(strcmp(line, OPENSSH_HEADER_BEGIN));
 
     *line = '\0';
 
@@ -857,7 +857,7 @@ int ssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
             ret = -1;
             goto out;
         }
-    } while(strcmp(line, OPENSSH_HEADER_END) != 0);
+    } while(strcmp(line, OPENSSH_HEADER_END));
 
     if(!b64data)
         return ssh2_err(session, LIBSSH2_ERROR_PROTO,

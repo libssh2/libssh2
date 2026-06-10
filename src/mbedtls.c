@@ -1105,11 +1105,11 @@ static int mbed_ecdsa_curve_type_from_name(const char *name,
     if(!name || strlen(name) != 19)
         return -1;
 
-    if(strcmp(name, "ecdsa-sha2-nistp256") == 0)
+    if(!strcmp(name, "ecdsa-sha2-nistp256"))
         type = SSH2_EC_CURVE_NISTP256;
-    else if(strcmp(name, "ecdsa-sha2-nistp384") == 0)
+    else if(!strcmp(name, "ecdsa-sha2-nistp384"))
         type = SSH2_EC_CURVE_NISTP384;
-    else if(strcmp(name, "ecdsa-sha2-nistp521") == 0)
+    else if(!strcmp(name, "ecdsa-sha2-nistp521"))
         type = SSH2_EC_CURVE_NISTP521;
     else {
         return -1;
@@ -1213,12 +1213,12 @@ int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
     fp = fopen(filename, "rb");
     if(!fp)
         goto cleanup;
-    if(fseek(fp, 0, SEEK_END) != 0)
+    if(fseek(fp, 0, SEEK_END))
         goto cleanup;
     file_size = ftell(fp);
     if(file_size < 0 || file_size > (1024 * 1024))
         goto cleanup;
-    if(fseek(fp, 0, SEEK_SET) != 0)
+    if(fseek(fp, 0, SEEK_SET))
         goto cleanup;
     data_len = (size_t)file_size;
     if(data_len == 0)
@@ -1387,7 +1387,7 @@ const char *ssh2_supported_key_sign_algs(LIBSSH2_SESSION *session,
 
 #if LIBSSH2_RSA_SHA2
     if(key_method_len == 7 &&
-       memcmp(key_method, "ssh-rsa", key_method_len) == 0) {
+       !memcmp(key_method, "ssh-rsa", key_method_len)) {
         return "rsa-sha2-512,rsa-sha2-256"
 #if LIBSSH2_RSA_SHA1
             ",ssh-rsa"

@@ -54,7 +54,7 @@ static int test_ssh2_base64_decode(LIBSSH2_SESSION *session)
     if(ret)
         return ret;
 
-    if(datalen != 5 || strcmp(data, "fnord") != 0) {
+    if(datalen != 5 || strcmp(data, "fnord")) {
         fprintf(stderr, "ssh2_base64_decode() failed (%d, %.*s)\n",
                 (int)datalen, (int)datalen, data);
         return 1;
