@@ -342,7 +342,6 @@ void ssh2_dh_dtor(ssh2_dh_ctx *dhctx);
 /* OpenSSH formatted keys */
 #define OPENSSH_HEADER_BEGIN "-----BEGIN OPENSSH PRIVATE KEY-----"
 #define OPENSSH_HEADER_END   "-----END OPENSSH PRIVATE KEY-----"
-
-#define OPENSSL_PRIVATEKEY_AUTH_MAGIC "openssh-key-v1"
+#define OPENSSH_PRIVKEY_AUTH_MAGIC   "openssh-key-v1"
 
 #endif /* LIBSSH2_CRYPTO_H */
