@@ -78,8 +78,6 @@
 #define PEM_ECDSA_HEADER "-----BEGIN OPENSSH PRIVATE KEY-----"
 #define PEM_ECDSA_FOOTER "-----END OPENSSH PRIVATE KEY-----"
 
-#define OPENSSL_PRIVATEKEY_AUTH_MAGIC "openssh-key-v1"
-
 /* Define these manually to avoid including <ntstatus.h> and thus
    clashing with <windows.h> symbols. */
 #ifndef STATUS_INVALID_SIGNATURE
