@@ -3424,10 +3424,10 @@ int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
         BCRYPT_DH_PARAMETER_HEADER *dh_params;
         ULONG dh_params_len;
         int status;
-        /* Note that the DH provider requires that keys be multiples of 64 bits
-         * in length. At the time of writing a practical observed group_order
-         * value is 257, so we need to round down to 8 bytes of length (64/8)
-         * in order for kex to succeed */
+        /* The DH provider requires keys to be multiples of 64 bits. Since
+         * group_order can be values like 257, we round down to the nearest
+         * multiple of 8 bytes (64 bits / 8) to meet this requirement for key
+         * exchange success. */
         ULONG key_length_bytes = max((ULONG)wcng_round_down(group_order, 8),
                                      max(g->length, p->length));
         BCRYPT_DH_KEY_BLOB *dh_key_blob;
