@@ -82,6 +82,9 @@
 #endif
 #endif
 
+#ifndef STATUS_INVALID_PARAMETER
+#define STATUS_INVALID_PARAMETER ((NTSTATUS)0xC000000D)
+#endif
 #ifndef STATUS_NOT_SUPPORTED
 #define STATUS_NOT_SUPPORTED ((NTSTATUS)0xC00000BB)
 #endif
@@ -2437,7 +2440,7 @@ int ssh2_ecdh_gen_k(OUT ssh2_bn **secret,
      */
 
     if(wcng_reverse_bytes((*secret)->bignum, secret_len)) {
-        result = LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+        result = LIBSSH2_ERROR_INVAL;
         goto cleanup;
     }
 
@@ -3705,7 +3708,7 @@ int ssh2_wcng_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
          * returned to us in host byte order, so we need to swap it to big
          * endian order. */
         if(wcng_reverse_bytes(secret->bignum, secret->length)) {
-            status = (NTSTATUS)STATUS_NO_MEMORY;
+            status = (NTSTATUS)STATUS_INVALID_PARAMETER;
             goto out;
         }
 
