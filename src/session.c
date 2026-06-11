@@ -1516,11 +1516,12 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
     unsigned int i, active_fds;
 #ifdef HAVE_POLL
     LIBSSH2_SESSION *session = NULL;
-    struct pollfd sockets_fixed[256];
+    struct pollfd sockets_stack[256];
+    struct pollfd *sockets_heap = NULL;
     struct pollfd *sockets;
 
     if(nfds > 256) {
-        sockets = calloc(nfds, sizeof(struct pollfd));
+        sockets = sockets_heap = calloc(nfds, sizeof(struct pollfd));
         if(!sockets)
             return -1;
     }
@@ -1554,6 +1555,8 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
             break;
 
         default:
+            if(sockets_heap)
+                free(sockets_heap);
             if(session)
                 ssh2_err(session, LIBSSH2_ERROR_INVALID_POLL_TYPE,
                          "Invalid descriptor passed to libssh2_poll()");
@@ -1644,7 +1647,6 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
 #if defined(HAVE_POLL) || defined(HAVE_SELECT)
         int sysret;
 #endif
-
         active_fds = 0;
 
         for(i = 0; i < nfds; i++) {
@@ -1715,8 +1717,8 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                are ready */
             timeout_remaining = 0;
         }
-#ifdef HAVE_POLL
 
+#ifdef HAVE_POLL
         {
             struct timeval tv_begin, tv_end;
 
@@ -1767,17 +1769,14 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
             }
         }
 
-        if(nfds > 256)
-            free(sockets);
-
 #elif defined(HAVE_SELECT)
+
         tv.tv_sec = timeout_remaining / 1000;
 #ifdef libssh2_usec_t
         tv.tv_usec = (libssh2_usec_t)((timeout_remaining % 1000) * 1000);
 #else
         tv.tv_usec = (timeout_remaining % 1000) * 1000;
 #endif
-
         {
             struct timeval tv_begin, tv_end;
 
@@ -1834,6 +1833,11 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
 #endif /* !HAVE_POLL && !HAVE_SELECT -- timeout (and by extension
         * timeout_remaining) is equal to 0 */
     } while(timeout_remaining > 0 && !active_fds);
+
+#ifdef HAVE_POLL
+    if(sockets_heap)
+        free(sockets_heap);
+#endif
 
     return active_fds;
 }
