@@ -4045,7 +4045,7 @@ static int kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *data,
                              size_t data_len)
 {
     unsigned char *kex, *hostkey, *crypt_cs, *crypt_sc, *comp_cs, *comp_sc,
-        *mac_cs, *mac_sc;
+        *mac_cs, *mac_sc, *tmp;
     size_t kex_len, hostkey_len, crypt_cs_len, crypt_sc_len, comp_cs_len;
     size_t comp_sc_len, mac_cs_len, mac_sc_len;
     struct string_buf buf;
@@ -4077,6 +4077,12 @@ static int kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *data,
     if(ssh2_get_string(&buf, &comp_cs, &comp_cs_len))
         return -1;
     if(ssh2_get_string(&buf, &comp_sc, &comp_sc_len))
+        return -1;
+
+    /* read lang_cs and lang_sc but are unused */
+    if(_libssh2_get_string(&buf, &tmp, NULL))
+        return -1;
+    if(_libssh2_get_string(&buf, &tmp, NULL))
         return -1;
 
     /* If the server sent an optimistic packet, assume that it guessed wrong.
