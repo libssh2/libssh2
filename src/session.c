@@ -47,9 +47,6 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifdef HAVE_ALLOCA_H
-#include <alloca.h>
-#endif
 
 #include <errno.h>
 #include <stdlib.h>
@@ -1519,16 +1516,17 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
     unsigned int i, active_fds;
 #ifdef HAVE_POLL
     LIBSSH2_SESSION *session = NULL;
-#ifdef HAVE_ALLOCA
-    struct pollfd *sockets = alloca(sizeof(struct pollfd) * nfds);
-#else
-    struct pollfd sockets[256];
+    struct pollfd sockets_fixed[256];
+    struct pollfd *sockets;
 
-    if(nfds > 256)
-        /* systems without alloca use a fixed-size array, this can be fixed if
-           we really want to, at least if the compiler is a C99 capable one */
-        return -1;
-#endif /* HAVE_ALLOCA */
+    if(nfds > 256) {
+        sockets = calloc(nfds, sizeof(struct pollfd));
+        if(!sockets)
+            return -1;
+    }
+    else
+        sockets = sockets_stack;
+
     /* Setup sockets for polling */
     for(i = 0; i < nfds; i++) {
         fds[i].revents = 0;
@@ -1768,6 +1766,10 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                 }
             }
         }
+
+        if(nfds > 256)
+            free(sockets);
+
 #elif defined(HAVE_SELECT)
         tv.tv_sec = timeout_remaining / 1000;
 #ifdef libssh2_usec_t
