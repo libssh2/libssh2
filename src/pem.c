@@ -89,12 +89,7 @@ static int readline_memory(char *line, size_t line_size,
     }
 
     line[len] = '\0';
-
-    if(*filedata_offset < filedata_len &&
-       (filedata[*filedata_offset] == '\n' ||
-        filedata[*filedata_offset] == '\r')) {
-        *filedata_offset += 1;
-    }
+    *filedata_offset += 1;
 
     return 0;
 }
