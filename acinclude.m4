@@ -519,7 +519,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
             tmp_CFLAGS="$tmp_CFLAGS -Wstrict-aliasing=3"
           fi
 
-          dnl Only gcc 4.1 or greater (possibly lower)
+          dnl Only gcc 4.1 or greater
           if test "$compiler_num" -ge "401"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [attributes])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [div-by-zero format-security])
