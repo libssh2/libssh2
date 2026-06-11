@@ -746,13 +746,21 @@ static int agent_sign(LIBSSH2_SESSION *session,
     LIBSSH2_AGENT *agent = (LIBSSH2_AGENT *)(*abstract);
     struct agent_transaction_ctx *transctx = &agent->transctx;
     struct agent_publickey *identity = agent->identity;
-    ssize_t len = 1 + 4 + identity->external.blob_len + 4 + data_len + 4;
+    ssize_t len;
     ssize_t method_len;
     unsigned char *s;
     int rc;
     unsigned char *method_name = NULL;
     uint32_t sign_flags = 0;
     ssize_t plain_len;
+
+    len = 1 + 4 + 4 + 4;  /* fixed parts */
+    if(identity->external.blob_len > SIZE_MAX - len ||
+       data_len > SIZE_MAX - len - identity->external.blob_len) {
+        return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                        "Agent sign request too large");
+    }
+    len += identity->external.blob_len + data_len;
 
     /* Create a request to sign the data */
     if(transctx->state == agent_NB_state_init) {
@@ -868,8 +876,7 @@ static int agent_sign(LIBSSH2_SESSION *session,
     }
     *sig_len = ssh2_ntohu32(s);
     s += 4;
-    len -= *sig_len;
-    if(len < 0) {
+    if(*sig_len > (size_t)len) {
         rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
         goto error;
     }
