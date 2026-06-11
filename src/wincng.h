@@ -322,8 +322,9 @@ struct wcng_cipher_ctx {
 struct wcng_cipher_t {
     BCRYPT_ALG_HANDLE *phAlg;
     ULONG dwKeyLength;
-    int useIV;      /* TODO: Convert to bool when a C89-compatible bool type
-                       is defined */
+    /* TODO: Convert boolean flags to bool when a C89-compatible bool type is
+             defined */
+    int useIV;
     int ctrMode;
 };
 
