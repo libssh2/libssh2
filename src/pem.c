@@ -617,9 +617,7 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
 
         if(method->flags & SSH2_CRYPT_FLAG_REQUIRES_FULL_PACKET) {
             if(method->crypt(session, 0, decrypted.data,
-                             decrypted.len,
-                             &abstract,
-                             MIDDLE_BLOCK)) {
+                             decrypted.len, &abstract, MIDDLE_BLOCK)) {
                 ret = LIBSSH2_ERROR_DECRYPT;
                 method->dtor(session, &abstract);
                 goto out;
@@ -635,9 +633,7 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
                  * loop.
                  */
                 if(method->crypt(session, 0, decrypted.data + len_decrypted,
-                                 blocksize,
-                                 &abstract,
-                                 MIDDLE_BLOCK)) {
+                                 blocksize, &abstract, MIDDLE_BLOCK)) {
                     ret = LIBSSH2_ERROR_DECRYPT;
                     method->dtor(session, &abstract);
                     goto out;
@@ -658,8 +654,8 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
                     method->dtor(session, &abstract);
                     goto out;
                 }
-                if(method->crypt(session, 0, decoded.dataptr, 16, &abstract,
-                                 LAST_BLOCK)) {
+                if(method->crypt(session, 0, decoded.dataptr,
+                                 16, &abstract, LAST_BLOCK)) {
                     ret = ssh2_err(session, LIBSSH2_ERROR_DECRYPT,
                                    "GCM auth tag invalid");
                     method->dtor(session, &abstract);
