@@ -141,18 +141,20 @@ static int wcng_reverse_bytes(IN PUCHAR buffer, IN size_t buffer_len)
 {
     PUCHAR start, end;
 
-    if(!buffer || buffer_len < 2) {
+    if(!buffer)
         return -1;
     }
 
-    start = buffer;
-    end = buffer + buffer_len - 1;
-    while(start < end) {
-        unsigned char tmp = *end;
-        *end = *start;
-        *start = tmp;
-        start++;
-        end--;
+    if(buffer_len >= 2) {
+        start = buffer;
+        end = buffer + buffer_len - 1;
+        while(start < end) {
+            unsigned char tmp = *end;
+            *end = *start;
+            *start = tmp;
+            start++;
+            end--;
+        }
     }
 
     return 0;
