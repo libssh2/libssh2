@@ -41,4 +41,4 @@ and a typical "release build" might not.
 
 # AVAILABILITY
 
-Added in libssh2 v1.2.3
+Added in libssh2 1.2.3
