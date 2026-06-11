@@ -3707,12 +3707,12 @@ out:
         free(public_blob);
 
         if(status == STATUS_NOT_SUPPORTED && ssh2_wcng.hasAlgDHwithKDF == -1) {
-            goto fb; /* fallback to RSA-based implementation */
+            goto fallback; /* fallback to RSA-based implementation */
         }
         return BCRYPT_SUCCESS(status) ? 0 : -1;
     }
 
-fb:
+fallback:
     /* Compute the shared secret */
     return wcng_bn_mod_exp(secret, f, dhctx->dh_privbn, p);
 }
