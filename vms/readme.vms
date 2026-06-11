@@ -68,7 +68,7 @@ Please ignore the following warnings, as the kit is not signed :
 -PCSI-I-NOTSIGNED, product kit is not signed and therefore has no manifest file
 
 Optionally, you can install a backup saveset with some programming examples,
-or a backupo saveset with the complete libssh2 source tree.
+or a backup saveset with the complete libssh2 source tree.
 
 you need to answer 'NO' to the question
 'Do you want the default for all options'.
