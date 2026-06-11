@@ -399,25 +399,27 @@ static int finish_kex(LIBSSH2_SESSION *session,
                             exchange_state, &iv,
                             session->local.crypt->iv_len,
                             (const unsigned char *)"A");
+        if(!iv)
+            return ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
+                            "Unable to generate IV for key exchange");
 
-        if(!iv) {
-            return -1;
-        }
         sha_algo_value_hash(sha_algo_value, session,
                             exchange_state, &secret,
                             session->local.crypt->secret_len,
                             (const unsigned char *)"C");
-
         if(!secret) {
             SSH2_FREE(session, iv);
-            return LIBSSH2_ERROR_KEX_FAILURE;
+            return ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
+                            "Unable to derive secret for key exchange");
         }
+
         if(session->local.crypt->init(session, session->local.crypt, iv,
                                       &free_iv, secret, &free_secret, 1,
                                       &session->local.crypt_abstract)) {
             SSH2_FREE(session, iv);
             SSH2_FREE(session, secret);
-            return LIBSSH2_ERROR_KEX_FAILURE;
+            return ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
+                            "Unable to initialize local encryption context");
         }
 
         if(free_iv) {
@@ -446,23 +448,27 @@ static int finish_kex(LIBSSH2_SESSION *session,
                             exchange_state, &iv,
                             session->remote.crypt->iv_len,
                             (const unsigned char *)"B");
-        if(!iv) {
-            return LIBSSH2_ERROR_KEX_FAILURE;
-        }
+        if(!iv)
+            return ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
+                            "Failed to derive remote IV during key exchange");
+
         sha_algo_value_hash(sha_algo_value, session,
                             exchange_state, &secret,
                             session->remote.crypt->secret_len,
                             (const unsigned char *)"D");
         if(!secret) {
             SSH2_FREE(session, iv);
-            return LIBSSH2_ERROR_KEX_FAILURE;
+            return ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
+                            "Failed to derive remote encryption secret during "
+                            "key exchange");
         }
         if(session->remote.crypt->init(session, session->remote.crypt, iv,
                                        &free_iv, secret, &free_secret, 0,
                                        &session->remote.crypt_abstract)) {
             SSH2_FREE(session, iv);
             SSH2_FREE(session, secret);
-            return LIBSSH2_ERROR_KEX_FAILURE;
+            return ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
+                            "Failed to initialize remote encryption context");
         }
 
         if(free_iv) {
@@ -490,12 +496,12 @@ static int finish_kex(LIBSSH2_SESSION *session,
                             exchange_state, &key,
                             session->local.mac->key_len,
                             (const unsigned char *)"E");
-        if(!key) {
-            return LIBSSH2_ERROR_KEX_FAILURE;
-        }
+        if(!key)
+            return ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
+                            "Unable to derive client-to-server MAC key");
+
         session->local.mac->init(session, key, &free_key,
                                  &session->local.mac_abstract);
-
         if(free_key) {
             ssh2_explicit_zero(key, session->local.mac->key_len);
             SSH2_FREE(session, key);
@@ -516,9 +522,10 @@ static int finish_kex(LIBSSH2_SESSION *session,
                             exchange_state, &key,
                             session->remote.mac->key_len,
                             (const unsigned char *)"F");
-        if(!key) {
-            return LIBSSH2_ERROR_KEX_FAILURE;
-        }
+        if(!key)
+            return ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
+                            "Unable to derive server-to-client MAC key");
+
         session->remote.mac->init(session, key, &free_key,
                                   &session->remote.mac_abstract);
 
