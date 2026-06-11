@@ -903,7 +903,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo), int encrypt,
             ret = EVP_CIPHER_CTX_ctrl(*ctx, EVP_CTRL_GCM_IV_GEN, 1, lastiv);
 
         if(aadlen)
-            /* Include the 4 byte packet length as AAD */
+            /* Include the 4-byte packet length as AAD */
             ret = EVP_Cipher(*ctx, NULL, block, aadlen);
     }
 
