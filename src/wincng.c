@@ -2435,6 +2435,7 @@ int ssh2_ecdh_gen_k(OUT ssh2_bn **secret,
 cleanup:
     if(result != LIBSSH2_ERROR_NONE && *secret) {
         ssh2_wcng_bn_free(*secret);
+        *secret = NULL;
     }
 
     if(result != LIBSSH2_ERROR_NONE && agreed_secret_handle) {
