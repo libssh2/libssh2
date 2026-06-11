@@ -82,9 +82,6 @@
 #endif
 #endif
 
-#ifndef STATUS_INVALID_PARAMETER
-#define STATUS_INVALID_PARAMETER ((NTSTATUS)0xC000000D)
-#endif
 #ifndef STATUS_NOT_SUPPORTED
 #define STATUS_NOT_SUPPORTED ((NTSTATUS)0xC00000BB)
 #endif
@@ -137,17 +134,11 @@ static void wcng_memcpy_with_be_padding(unsigned char *dest, ULONG dest_len,
     memcpy((dest + dest_len) - src_len, src, src_len);
 }
 
-static int wcng_reverse_bytes(IN PUCHAR buffer, IN size_t buffer_len)
+static void wcng_reverse_bytes(IN PUCHAR buffer, IN size_t buffer_len)
 {
-    PUCHAR start, end;
-
-    if(!buffer)
-        return -1;
-    }
-
-    if(buffer_len >= 2) {
-        start = buffer;
-        end = buffer + buffer_len - 1;
+    if(buffer && buffer_len >= 2) {
+        PUCHAR start = buffer;
+        PUCHAR end = buffer + buffer_len - 1;
         while(start < end) {
             unsigned char tmp = *end;
             *end = *start;
@@ -156,8 +147,6 @@ static int wcng_reverse_bytes(IN PUCHAR buffer, IN size_t buffer_len)
             end--;
         }
     }
-
-    return 0;
 }
 
 /*******************************************************************/
@@ -2441,10 +2430,7 @@ int ssh2_ecdh_gen_k(OUT ssh2_bn **secret,
      * raw secret, so we need to swap it to big endian order.
      */
 
-    if(wcng_reverse_bytes((*secret)->bignum, secret_len)) {
-        result = LIBSSH2_ERROR_INVAL;
-        goto cleanup;
-    }
+    wcng_reverse_bytes((*secret)->bignum, secret_len);
 
     result = LIBSSH2_ERROR_NONE;
 
@@ -3709,10 +3695,7 @@ int ssh2_wcng_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
         /* Counter to all the other data in the BCrypt APIs, the raw secret is
          * returned to us in host byte order, so we need to swap it to big
          * endian order. */
-        if(wcng_reverse_bytes(secret->bignum, secret->length)) {
-            status = (NTSTATUS)STATUS_INVALID_PARAMETER;
-            goto out;
-        }
+        wcng_reverse_bytes(secret->bignum, secret->length);
 
         status = 0;
         ssh2_wcng.hasAlgDHwithKDF = 1;
