@@ -3336,6 +3336,8 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
             }
             if(BCRYPT_SUCCESS(ret)) {
                 if(algo.ctrMode) {
+                    /* CTR mode intentionally XORs in place:
+                       block = block XOR pbOutput. */
                     /* NOLINTNEXTLINE(readability-suspicious-call-argument) */
                     ssh2_xor_data(block, block, pbOutput, blocksize);
                     wcng_aes_ctr_increment(ctx->pbCtr, ctx->dwCtrLength);
