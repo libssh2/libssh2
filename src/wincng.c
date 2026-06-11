@@ -2927,7 +2927,8 @@ int ssh2_ecdsa_sign(IN LIBSSH2_SESSION *session,
         *signature_len = signature_ptr - *signature;
     }
     else {
-        ssh2_deb((session, LIBSSH2_ERROR_STORE_OVERFLOW, "Too large write."));
+        ssh2_deb((session, LIBSSH2_ERROR_STORE_OVERFLOW,
+                  "Write operation exceeded buffer size."));
         result = LIBSSH2_ERROR_STORE_OVERFLOW;
         goto cleanup;
     }
