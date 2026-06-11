@@ -398,8 +398,6 @@ if test "$ac_cv_func_select" != "yes"; then
   ])
 fi
 
-AC_FUNC_ALLOCA
-
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 

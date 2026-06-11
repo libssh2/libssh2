@@ -47,9 +47,6 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifdef HAVE_ALLOCA_H
-#include <alloca.h>
-#endif
 
 #include <errno.h>
 #include <stdlib.h>
@@ -1519,16 +1516,18 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
     unsigned int i, active_fds;
 #ifdef HAVE_POLL
     LIBSSH2_SESSION *session = NULL;
-#ifdef HAVE_ALLOCA
-    struct pollfd *sockets = alloca(sizeof(struct pollfd) * nfds);
-#else
-    struct pollfd sockets[256];
+    struct pollfd sockets_stack[256];
+    struct pollfd *sockets_heap = NULL;
+    struct pollfd *sockets;
 
-    if(nfds > 256)
-        /* systems without alloca use a fixed-size array, this can be fixed if
-           we really want to, at least if the compiler is a C99 capable one */
-        return -1;
-#endif /* HAVE_ALLOCA */
+    if(nfds > 256) {
+        sockets = sockets_heap = calloc(nfds, sizeof(struct pollfd));
+        if(!sockets)
+            return -1;
+    }
+    else
+        sockets = sockets_stack;
+
     /* Setup sockets for polling */
     for(i = 0; i < nfds; i++) {
         fds[i].revents = 0;
@@ -1556,6 +1555,8 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
             break;
 
         default:
+            if(sockets_heap)
+                free(sockets_heap);
             if(session)
                 ssh2_err(session, LIBSSH2_ERROR_INVALID_POLL_TYPE,
                          "Invalid descriptor passed to libssh2_poll()");
@@ -1646,7 +1647,6 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
 #if defined(HAVE_POLL) || defined(HAVE_SELECT)
         int sysret;
 #endif
-
         active_fds = 0;
 
         for(i = 0; i < nfds; i++) {
@@ -1717,8 +1717,8 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                are ready */
             timeout_remaining = 0;
         }
-#ifdef HAVE_POLL
 
+#ifdef HAVE_POLL
         {
             struct timeval tv_begin, tv_end;
 
@@ -1768,14 +1768,15 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                 }
             }
         }
+
 #elif defined(HAVE_SELECT)
+
         tv.tv_sec = timeout_remaining / 1000;
 #ifdef libssh2_usec_t
         tv.tv_usec = (libssh2_usec_t)((timeout_remaining % 1000) * 1000);
 #else
         tv.tv_usec = (timeout_remaining % 1000) * 1000;
 #endif
-
         {
             struct timeval tv_begin, tv_end;
 
@@ -1832,6 +1833,11 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
 #endif /* !HAVE_POLL && !HAVE_SELECT -- timeout (and by extension
         * timeout_remaining) is equal to 0 */
     } while(timeout_remaining > 0 && !active_fds);
+
+#ifdef HAVE_POLL
+    if(sockets_heap)
+        free(sockets_heap);
+#endif
 
     return active_fds;
 }
