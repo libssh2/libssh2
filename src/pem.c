@@ -186,10 +186,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
             return -1;
         }
-
-        if(!*line)
-            break;
-    } while(strcmp(line, headerbegin));
+    } while(*line && strcmp(line, headerbegin));
 
     if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
         return -1;
@@ -264,7 +261,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
             ret = -1;
             goto out;
         }
-    } while(strcmp(line, headerend));
+    } while(*line && strcmp(line, headerend));
 
     if(!b64data) {
         return -1;
