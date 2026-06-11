@@ -95,7 +95,7 @@ static int readline_memory(char *line, size_t line_size,
     if(*filedata_offset < filedata_len && filedata[*filedata_offset] == '\n')
         *filedata_offset += 1;
 
-    return (*filedata_offset < filedata_len || len) ? 0 : -1;
+    return *filedata_offset > off ? 0 : -1;
 }
 
 #define LINE_SIZE 128
