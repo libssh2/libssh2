@@ -696,6 +696,8 @@ void ssh2_crypto_exit(void)
 #endif
     if(ssh2_wcng.hAlgAES_CBC)
         (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgAES_CBC, 0);
+    if(ssh2_wcng.hAlgAES_ECB)
+        (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgAES_ECB, 0);
 #if LIBSSH2_RC4
     if(ssh2_wcng.hAlgRC4_NA)
         (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgRC4_NA, 0);
