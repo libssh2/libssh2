@@ -23,7 +23,7 @@ int libssh2_session_startup(LIBSSH2_SESSION *session, int socket);
 
 # DESCRIPTION
 
-Starting in libssh2 v1.2.8 this function is considered deprecated. Use
+Starting in libssh2 1.2.8 this function is considered deprecated. Use
 *libssh2_session_handshake(3)* instead.
 
 *session* - Session instance as returned by libssh2_session_init_ex(3)
