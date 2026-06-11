@@ -4080,9 +4080,9 @@ static int kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *data,
         return -1;
 
     /* read lang_cs and lang_sc but are unused */
-    if(_libssh2_get_string(&buf, &tmp, NULL))
+    if(ssh2_get_string(&buf, &tmp, NULL))
         return -1;
-    if(_libssh2_get_string(&buf, &tmp, NULL))
+    if(ssh2_get_string(&buf, &tmp, NULL))
         return -1;
 
     /* If the server sent an optimistic packet, assume that it guessed wrong.
