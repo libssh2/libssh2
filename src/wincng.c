@@ -136,14 +136,16 @@ static void wcng_memcpy_with_be_padding(unsigned char *dest, ULONG dest_len,
 
 static void wcng_reverse_bytes(IN PUCHAR buffer, IN size_t buffer_len)
 {
-    PUCHAR start = buffer;
-    PUCHAR end = buffer + buffer_len - 1;
-    while(start < end) {
-        unsigned char tmp = *end;
-        *end = *start;
-        *start = tmp;
-        start++;
-        end--;
+    if(buffer && buffer_len >= 2) {
+        PUCHAR start = buffer;
+        PUCHAR end = buffer + buffer_len - 1;
+        while(start < end) {
+            unsigned char tmp = *end;
+            *end = *start;
+            *start = tmp;
+            start++;
+            end--;
+        }
     }
 }
 
