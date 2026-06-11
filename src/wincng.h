@@ -53,18 +53,11 @@
 #include <windows.h>
 #include <bcrypt.h>
 
-#ifdef OPENSSL_NO_MD5
-# define LIBSSH2_MD5 0
-#else
-# define LIBSSH2_MD5 1
-#endif
+#define LIBSSH2_MD5_ENABLE
+#define LIBSSH2_MD5_PEM_ENABLE
+#define LIBSSH2_MD5 1
 
-#if defined(OPENSSL_NO_RIPEMD) || defined(OPENSSL_NO_RMD160)
-# define LIBSSH2_HMAC_RIPEMD 0
-#else
-# define LIBSSH2_HMAC_RIPEMD 1
-#endif
-
+#define LIBSSH2_HMAC_RIPEMD 0
 #define LIBSSH2_HMAC_SHA256 1
 #define LIBSSH2_HMAC_SHA512 1
 
@@ -72,34 +65,14 @@
 #define LIBSSH2_AES_CTR 1
 #define LIBSSH2_AES_GCM 0
 #define LIBSSH2_BLOWFISH 0
+#define LIBSSH2_RC4 1
 #define LIBSSH2_CAST 0
+#define LIBSSH2_3DES 1
 
-#ifdef OPENSSL_NO_RC4
-# define LIBSSH2_RC4 0
-#else
-# define LIBSSH2_RC4 1
-#endif
-
-#ifdef OPENSSL_NO_DES
-# define LIBSSH2_3DES 0
-#else
-# define LIBSSH2_3DES 1
-#endif
-
-#ifdef OPENSSL_NO_RSA
-# define LIBSSH2_RSA 0
-# define LIBSSH2_RSA_SHA1 0
-# define LIBSSH2_RSA_SHA2 0
-#else
-# define LIBSSH2_RSA 1
-# define LIBSSH2_RSA_SHA1 1
-# define LIBSSH2_RSA_SHA2 1
-#endif
-#ifdef OPENSSL_NO_DSA
-# define LIBSSH2_DSA 0
-#else
-# define LIBSSH2_DSA 1
-#endif
+#define LIBSSH2_RSA 1
+#define LIBSSH2_RSA_SHA1 1
+#define LIBSSH2_RSA_SHA2 1
+#define LIBSSH2_DSA 1
 #define LIBSSH2_ED25519 0
 #define LIBSSH2_MLKEM 0
 
