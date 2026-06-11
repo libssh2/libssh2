@@ -559,7 +559,7 @@ static int agent_transact_unix(LIBSSH2_AGENT *agent,
         transctx->state = agent_NB_state_request_sent;
     }
 
-    /* Receive the length of a response */
+    /* Receive the length of the response */
     if(transctx->state == agent_NB_state_request_sent) {
         rc = (int)agent_recv_all(agent->session->recv, agent->fd,
                                  buf, sizeof(buf), 0,
@@ -1102,7 +1102,7 @@ int libssh2_agent_connect(LIBSSH2_AGENT *agent)
     int i, rc = LIBSSH2_ERROR_METHOD_NOT_SUPPORTED;
     for(i = 0; supported_backends[i].name; i++) {
         agent->ops = supported_backends[i].ops;
-        rc = (agent->ops->connect)(agent);
+        rc = agent->ops->connect(agent);
         if(!rc)
             return LIBSSH2_ERROR_NONE;
     }
