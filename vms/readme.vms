@@ -26,7 +26,7 @@ Prerequisites
   See the remarks at prerequisites for building the kit
 - HP OPENSSL V1.3 minimal.
   See the remarks at prerequisites for building the kit
-- JEM  ZLIB V1.2-3E1 minimal.
+- JEM ZLIB V1.2-3E1 minimal.
   See the remarks at prerequisites for building the kit
 
 The first three dependencies are tested at installation time, and
