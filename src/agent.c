@@ -876,11 +876,13 @@ static int agent_sign(LIBSSH2_SESSION *session,
     }
 
     *sig_len = ssh2_ntohu32(s);
+    len -= 4;
+    s += 4;
+
     if(len < *sig_len) {
         rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
         goto error;
     }
-    s += 4;
 
     *sig = SSH2_ALLOC(session, *sig_len);
     if(!*sig) {
