@@ -79,7 +79,7 @@ buffer is too small to fit the requested object name.
 # BUG
 
 Passing in a too small buffer when receiving data only results in libssh2
-1.2.7 or earlier not to copy the entire data amount, and it is not possible
+1.2.7 and lower not to copy the entire data amount, and it is not possible
 for the application to tell when it happens!
 
 # ERRORS

@@ -90,7 +90,7 @@ This release includes the following enhancements and bugfixes:
 - CI: set `DO_NOT_TRACK=1` (c615272e #1872)
 - clang-tidy: extend checks, fix fallouts (6e47049c #1844)
 - clang-tidy: fix and/or silence issues found, and more (a1a28ac9 #1561)
-- cmake: drop support for CMake 3.17 and older (ac7b9b21 #1839)
+- cmake: drop support for CMake 3.17 and lower (ac7b9b21 #1839)
 - cmake: tidy up line order (e900f4a2 #1836)
 - cmake: avoid setting custom property on built-in interface targets (bd1d00a4 #1789 #1535)
 - cmake: rename `libssh2-config.cmake.in` to `libssh2-config.in.cmake` (35e1c653 #1765)

@@ -90,7 +90,7 @@
 
 #ifdef LIBSSH2_HAVE_ZLIB
 #ifndef ZLIB_CONST
-#define ZLIB_CONST  /* Use z_const. Supported by v1.2.5.2 and upper. */
+#define ZLIB_CONST  /* Use z_const. Supported by v1.2.5.2 or greater. */
 #endif
 #endif
 
@@ -183,7 +183,7 @@ int ssh2_gettimeofday(struct timeval *tp, void *tzp);
    C++ always supports 'inline'. */
 #  define SSH2_INLINE inline /* 'inline' keyword supported */
 #elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
-/* C99 (and later) supports 'inline' keyword */
+/* C99 (and newer) supports 'inline' keyword */
 #  define SSH2_INLINE inline /* 'inline' keyword supported */
 #elif defined(__GNUC__) && __GNUC__ >= 3
 /* GCC supports '__inline__' as an extension */

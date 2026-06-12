@@ -1333,12 +1333,12 @@ size_t plain_method(char *method, size_t method_len)
     return method_len;
 }
 
-/* Function to check if the given version is less than pattern (OpenSSH 7.8)
+/* Function to check if the given version is lower than OpenSSH 7.8.
  * This function expects the input version in x.y* format
  * (x being openssh major and y being openssh minor version)
- * Returns 1 if the version is less than OpenSSH_7.8, 0 otherwise
+ * Returns 1 if the version is lower than OpenSSH_7.8, 0 otherwise
  */
-static int is_version_less_than_78(const char *version)
+static int is_version_lower_than_78(const char *version)
 {
     char *endptr_major = NULL;
     char *endptr_minor = NULL;
@@ -1415,7 +1415,7 @@ static int key_sign_algorithm(LIBSSH2_SESSION *session,
         const char *remote_ver_start = strstr(remote_banner, remote_ver_pre);
         if(remote_ver_start) {
             const char *remote_ver = remote_ver_start + strlen(remote_ver_pre);
-            int SSH_BUG_SIGTYPE = is_version_less_than_78(remote_ver);
+            int SSH_BUG_SIGTYPE = is_version_lower_than_78(remote_ver);
             if(SSH_BUG_SIGTYPE &&
                *key_method && *key_method_len == method_len &&
                !memcmp(*key_method, method, method_len)) {

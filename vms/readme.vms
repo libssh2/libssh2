@@ -20,13 +20,13 @@ Installing the PCSI kit
 
 Prerequisites
 -------------
-- VMS version 8.3 minimal.
+- VMS v8.3 or greater.
   See the remarks at prerequisites for building the kit
 - TCP/IP stack, both TCP/IP services and Multinet should work.
   See the remarks at prerequisites for building the kit
-- HP OPENSSL V1.3 minimal.
+- HP OpenSSL v1.3 or greater.
   See the remarks at prerequisites for building the kit
-- JEM ZLIB V1.2-3E1 minimal.
+- JEM ZLIB v1.2-3E1 or greater.
   See the remarks at prerequisites for building the kit
 
 The first three dependencies are tested at installation time, and
@@ -153,7 +153,7 @@ You need to have the following available:
 - An Alpha or Itanium VMS system. Due to dependencies on zlib, ssl and ODS-5,
   support on VAXen would be cumbersome at least.
 
-- VMS version 8.3 minimal. This is a requirement of gnv$zlibshr.exe against
+- VMS v8.3 or greater. This is a requirement of gnv$zlibshr.exe against
   which shared image library libssh2 is linked. If you use another zlib
   to link against, you can make it work under lower versions of VMS.
   I have made it work on VMS 7.3-2 with not a lot of difficulty.
