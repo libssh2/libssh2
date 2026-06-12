@@ -753,8 +753,8 @@ static int agent_sign(LIBSSH2_SESSION *session,
     uint32_t sign_flags = 0;
 
     len = 1 + 4 + 4 + 4;  /* fixed parts */
-    if(identity->external.blob_len > SIZE_MAX - len ||
-       data_len > SIZE_MAX - len - identity->external.blob_len) {
+    if(identity->external.blob_len > UINT32_MAX - len ||
+       data_len > UINT32_MAX - len - identity->external.blob_len) {
         return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                         "Agent sign request too large");
     }
@@ -800,11 +800,6 @@ static int agent_sign(LIBSSH2_SESSION *session,
     /* if no agent has been connected, bail out */
     if(!agent->ops)
         return ssh2_err(session, LIBSSH2_ERROR_BAD_USE, "agent not connected");
-
-    /* cannot pass more than 32-bit size on the wire */
-    if(transctx->request_len > UINT32_MAX)
-        return ssh2_err(session, LIBSSH2_ERROR_BAD_USE,
-                        "agent request too large");
 
     rc = agent->ops->transact(agent, transctx);
     if(rc) {
