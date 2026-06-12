@@ -746,13 +746,11 @@ static int agent_sign(LIBSSH2_SESSION *session,
     LIBSSH2_AGENT *agent = (LIBSSH2_AGENT *)(*abstract);
     struct agent_transaction_ctx *transctx = &agent->transctx;
     struct agent_publickey *identity = agent->identity;
-    size_t len;
-    size_t method_len;
+    size_t len, method_len, plain_len;
     unsigned char *s;
     int rc;
     unsigned char *method_name = NULL;
     uint32_t sign_flags = 0;
-    size_t plain_len;
 
     len = 1 + 4 + 4 + 4;  /* fixed parts */
     if(identity->external.blob_len > SIZE_MAX - len ||
