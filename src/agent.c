@@ -883,7 +883,6 @@ static int agent_sign(LIBSSH2_SESSION *session,
         rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
         goto error;
     }
-    len -= 4;
     s += 4;
 
     *sig = SSH2_ALLOC(session, *sig_len);
