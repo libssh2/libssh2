@@ -45,7 +45,6 @@
 #include <unistd.h>
 #endif
 
-#include <errno.h>
 #include <assert.h>
 
 #ifdef _WIN32
@@ -163,12 +162,7 @@ ssize_t ssh2_recv(libssh2_socket_t socket, void *buffer, size_t length,
 
     rc = SSH2_RECV_LOW(socket, buffer, length, flags);
     if(rc < 0) {
-        int err;
-#ifdef _WIN32
-        err = ssh2_wsa2errno();
-#else
-        err = errno;
-#endif
+        int err = SSH2_ERRNO();
         /* Profiling tools that use SIGPROF can cause EINTR responses.
            recv() does not modify its arguments when it returns EINTR,
            but there may be data waiting, so the caller should try again */
@@ -201,12 +195,7 @@ ssize_t ssh2_send(libssh2_socket_t socket,
 
     rc = SSH2_SEND_LOW(socket, buffer, length, flags);
     if(rc < 0) {
-        int err;
-#ifdef _WIN32
-        err = ssh2_wsa2errno();
-#else
-        err = errno;
-#endif
+        int err = SSH2_ERRNO();
         /* Profiling tools that use SIGPROF can cause EINTR responses.
            send() is defined as not yet sending any data when it returns EINTR,
            so the caller should try again */

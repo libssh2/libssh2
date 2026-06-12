@@ -48,7 +48,6 @@
 #include <unistd.h>
 #endif
 
-#include <errno.h>
 #include <stdlib.h>
 #include <fcntl.h>
 
@@ -684,16 +683,10 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
                         "Timed out waiting on socket");
     }
     if(rc < 0) {
-        int err;
-#ifdef _WIN32
-        err = ssh2_wsa2errno();
-#else
-        err = errno;
-#endif
         /* Profiling tools that use SIGPROF can cause EINTR responses.
            poll() / select() do not set any descriptor states on EINTR,
            but some fds may be ready, so the caller should try again */
-        if(err == EINTR)
+        if(SSH2_ERRNO() == EINTR)
             return 0;
 
         return ssh2_err(session, LIBSSH2_ERROR_TIMEOUT,
