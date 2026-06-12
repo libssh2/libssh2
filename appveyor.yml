@@ -47,20 +47,20 @@ environment:
       CMAKE_GENERATOR: 'Visual Studio 18 2026'
       CMAKE_GENERATE: '-A x64 -T ClangCl -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v36-Win64'
 
-    - job_name: 'VS2022, OpenSSL 3, x64, Server 2019'
+    - job_name: 'VS2022, OpenSSL 3, x64, Server 2019, Shared-only'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
       CMAKE_GENERATOR: 'Visual Studio 17 2022'
       CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v30-Win64 -DBUILD_STATIC_LIBS=OFF'
 
-    - job_name: 'VS2015, OpenSSL 1.1, x86, Server 2016'
+    - job_name: 'VS2015, OpenSSL 1.1, x86, Server 2016, Static-only'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
       CMAKE_GENERATOR: 'Visual Studio 14 2015'
       CMAKE_GENERATE: '-A Win32 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32 -DBUILD_SHARED_LIBS=OFF'
 
-    - job_name: 'VS2015, OpenSSL 1.1, x64, Server 2012 R2, Debug-logging'
+    - job_name: 'VS2015, OpenSSL 1.1, x64, Server 2012 R2, Shared-only, Debug-logging'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       CMAKE_GENERATOR: 'Visual Studio 14 2015'
-      CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64 -DENABLE_DEBUG_LOGGING=ON'
+      CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64 -DBUILD_STATIC_LIBS=OFF -DENABLE_DEBUG_LOGGING=ON'
 
     - job_name: 'VS2013, OpenSSL 1.1, x64, Server 2012 R2'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
