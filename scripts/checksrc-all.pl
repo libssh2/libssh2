@@ -22,6 +22,7 @@ my @options = (
     "-arealloc",
     "-asnprintf",
     "-asocket",
+    "-berrno",
 );
 
 my @files;
