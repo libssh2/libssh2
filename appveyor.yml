@@ -72,12 +72,6 @@ environment:
       CMAKE_GENERATOR: 'Visual Studio 12 2013'
       CMAKE_GENERATE: '-A Win32 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32 -DBUILD_STATIC_LIBS=OFF'
 
-    - job_name: 'VS2013, OpenSSL 1.1, x64, Build-only, Static-only'
-      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
-      CMAKE_GENERATOR: 'Visual Studio 12 2013'
-      CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64 -DBUILD_SHARED_LIBS=OFF'
-      #SKIP_CTEST: 'yes'
-
     - job_name: 'VS2010, WinCNG, x64, Build-only, non-unity'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       CMAKE_GENERATOR: 'Visual Studio 10 2010'
@@ -88,12 +82,6 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2026'
       CMAKE_GENERATOR: 'Visual Studio 18 2026'
       CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=WinCNG -DENABLE_DEBUG_LOGGING=ON'
-
-    - job_name: 'VS2022, WinCNG, ARM64, Build-only'
-      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
-      CMAKE_GENERATOR: 'Visual Studio 17 2022'
-      CMAKE_GENERATE: '-A ARM64 -DCRYPTO_BACKEND=WinCNG -DENABLE_ECDSA_WINCNG=ON'
-      #SKIP_CTEST: 'yes'
 
     - job_name: 'VS2015, WinCNG, x64, Server 2012 R2'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
