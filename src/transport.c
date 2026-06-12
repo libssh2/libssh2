@@ -651,7 +651,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                 else if(p->packet_length > LIBSSH2_PACKET_MAXPAYLOAD) {
                     return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
                 }
-                
+
                 /* total_num may include size field, however due to existing
                  * logic it needs to be removed after the entire packet is read
                  */
