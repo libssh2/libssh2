@@ -72,10 +72,10 @@ environment:
       CMAKE_GENERATOR: 'Visual Studio 12 2013'
       CMAKE_GENERATE: '-A Win32 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32 -DBUILD_STATIC_LIBS=OFF'
 
-    - job_name: 'VS2010, WinCNG, x64, Build-only, non-unity'
+    - job_name: 'VS2010, WinCNG, x64, Build-only, non-unity, examples'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       CMAKE_GENERATOR: 'Visual Studio 10 2010'
-      CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=WinCNG -DENABLE_ECDSA_WINCNG=ON -DCMAKE_UNITY_BUILD=OFF'
+      CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=WinCNG -DENABLE_ECDSA_WINCNG=ON -DCMAKE_UNITY_BUILD=OFF -DBUILD_EXAMPLES=ON'
       #SKIP_CTEST: 'yes'
 
   # Re-enable when tests work again
