@@ -812,8 +812,7 @@ static int agent_sign(LIBSSH2_SESSION *session,
 
     len = transctx->response_len;
     s = transctx->response;
-    len--;
-    if(len < 0) {
+    if(len < 1) {
         rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
         goto error;
     }
@@ -821,26 +820,27 @@ static int agent_sign(LIBSSH2_SESSION *session,
         rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
         goto error;
     }
+    len--;
     s++;
 
     /* Skip the entire length of the signature */
-    len -= 4;
-    if(len < 0) {
+    if(len < 4) {
         rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
         goto error;
     }
+    len -= 4;
     s += 4;
 
     /* Skip signing method */
-    len -= 4;
-    if(len < 0) {
+    if(len < 4) {
         rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
         goto error;
     }
-    method_len = ssh2_ntohu32(s);
+    len -= 4;
     s += 4;
-    len -= method_len;
-    if(len < 0) {
+
+    method_len = ssh2_ntohu32(s);
+    if(len < method_len) {
         rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
         goto error;
     }
@@ -852,6 +852,7 @@ static int agent_sign(LIBSSH2_SESSION *session,
         goto error;
     }
     memcpy(method_name, s, method_len);
+    len -= method_len;
     s += method_len;
 
     plain_len = plain_method((char *)session->userauth_pblc_method,
@@ -869,17 +870,18 @@ static int agent_sign(LIBSSH2_SESSION *session,
     }
 
     /* Read the signature */
-    len -= 4;
-    if(len < 0) {
+    if(len < 4) {
         rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
         goto error;
     }
+
     *sig_len = ssh2_ntohu32(s);
-    s += 4;
-    if(*sig_len > (size_t)len) {
+    if(len < *sig_len) {
         rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
         goto error;
     }
+    len -= 4;
+    s += 4;
 
     *sig = SSH2_ALLOC(session, *sig_len);
     if(!*sig) {
