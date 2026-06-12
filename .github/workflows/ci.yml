@@ -951,8 +951,8 @@ jobs:
           - { image: 'windows-2025-vs2026', arch: x64  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'ON' , shared: 'ON' , zlib: 'OFF', unity: 'ON' }
           - { image: 'windows-2022'       , arch: x64  , plat: windows, crypto: OpenSSL, wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
           - { image: 'windows-2022'       , arch: x64  , plat: uwp    , crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
-          - { image: 'windows-2025-vs2026', arch: arm64, plat: windows, crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
-          - { image: 'windows-2022'       , arch: arm64, plat: uwp    , crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'OFF' }
+          - { image: 'windows-2022'       , arch: arm64, plat: windows, crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
+          - { image: 'windows-2025-vs2026', arch: arm64, plat: uwp    , crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'OFF' }
           - { image: 'windows-2022'       , arch: x86  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2

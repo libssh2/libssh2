@@ -32,6 +32,8 @@ if [ "${APPVEYOR_BUILD_WORKER_IMAGE}" != 'Visual Studio 2022' ]; then
 fi
 
 echo "CMake job options: ${CMAKE_GENERATE:-}"
+options=''
+[ "${SKIP_CTEST:-}" != 'yes' ] && options+=' -DBUILD_TESTING=OFF'
 # FIXME: First sshd test sometimes timeouts, subsequent ones almost always fail:
 #        'libssh2_session_handshake failed (-43): Failed getting banner'
 # shellcheck disable=SC2086
@@ -39,7 +41,10 @@ cmake -B _bld \
   -DCMAKE_UNITY_BUILD=ON -DENABLE_WERROR=ON \
   -DCMAKE_VS_GLOBALS=TrackFileAccess=false \
   -DRUN_SSHD_TESTS=OFF \
-  ${CMAKE_GENERATE:-}
+  -DBUILD_EXAMPLES=OFF \
+  -DLIBSSH2_BUILD_DOCS=OFF \
+  ${CMAKE_GENERATE:-} \
+  ${options}
 echo 'libssh2_config.h'; grep -F '#define' _bld/src/libssh2_config.h | sort || true
 cmake --build _bld --config "${CMAKE_CONFIGURATION}" --parallel 2
 
