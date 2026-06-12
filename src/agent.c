@@ -834,10 +834,12 @@ static int agent_sign(LIBSSH2_SESSION *session,
         rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
         goto error;
     }
+
+    /* method length */
+    method_len = ssh2_ntohu32(s);
     len -= 4;
     s += 4;
 
-    method_len = ssh2_ntohu32(s);
     if(len < method_len) {
         rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
         goto error;
