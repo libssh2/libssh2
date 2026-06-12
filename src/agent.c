@@ -746,7 +746,7 @@ static int agent_sign(LIBSSH2_SESSION *session,
     LIBSSH2_AGENT *agent = (LIBSSH2_AGENT *)(*abstract);
     struct agent_transaction_ctx *transctx = &agent->transctx;
     struct agent_publickey *identity = agent->identity;
-    ssize_t len;
+    size_t len;
     ssize_t method_len;
     unsigned char *s;
     int rc;
