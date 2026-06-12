@@ -59,11 +59,11 @@
 #include <ctype.h>
 
 #ifdef _WIN64
-#define LIBSSH2_SOCKET_MASK "%llu"
+#define LIBSSH2_SOCKET_MASK "llu"
 #elif defined(_WIN32)
-#define LIBSSH2_SOCKET_MASK "%u"
+#define LIBSSH2_SOCKET_MASK "u"
 #else
-#define LIBSSH2_SOCKET_MASK "%d"
+#define LIBSSH2_SOCKET_MASK "d"
 #endif
 
 #ifdef LIBSSH2_WINDOWS_UWP
@@ -408,7 +408,7 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock == LIBSSH2_INVALID_SOCKET) {
         fprintf(stderr,
-                "Failed to open socket (" LIBSSH2_SOCKET_MASK ")\n", sock);
+                "Failed to open socket (%" LIBSSH2_SOCKET_MASK ")\n", sock);
         goto cleanup;
     }
 
