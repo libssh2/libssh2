@@ -801,7 +801,7 @@ static int agent_sign(LIBSSH2_SESSION *session,
     if(!agent->ops)
         return ssh2_err(session, LIBSSH2_ERROR_BAD_USE, "agent not connected");
 
-    /* cannot pass more than a 32-bit size on the wire */
+    /* cannot pass more than 32-bit size on the wire */
     if(transctx->request_len > UINT32_MAX)
         return ssh2_err(session, LIBSSH2_ERROR_BAD_USE,
                         "agent request too large");
