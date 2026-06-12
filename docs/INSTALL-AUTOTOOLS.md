@@ -214,35 +214,35 @@ configuration-related scripts to be executed by `/bin/bash`.
 
 `configure` recognizes the following options to control how it operates.
 
- * `--help`, `-h`
+* `--help`, `-h`
 
-   Print a summary of the options to `configure`, and exit.
+  Print a summary of the options to `configure`, and exit.
 
- * `--version`, `-V`
+* `--version`, `-V`
 
-   Print the version of Autoconf used to generate the `configure` script, and
-   exit.
+  Print the version of Autoconf used to generate the `configure` script, and
+  exit.
 
- * `--cache-file=FILE`
+* `--cache-file=FILE`
 
-   Enable the cache: use and save the results of the tests in FILE,
-   traditionally `config.cache`. FILE defaults to `/dev/null` to disable
-   caching.
+  Enable the cache: use and save the results of the tests in FILE,
+  traditionally `config.cache`. FILE defaults to `/dev/null` to disable
+  caching.
 
- * `--config-cache`, `-C`
+* `--config-cache`, `-C`
 
-   Alias for `--cache-file=config.cache`.
+  Alias for `--cache-file=config.cache`.
 
- * `--quiet`, `--silent`, `-q`
+* `--quiet`, `--silent`, `-q`
 
-   Do not print messages saying which checks are being made. To suppress all
-   normal output, redirect it to `/dev/null` (any error messages are still
-   shown).
+  Do not print messages saying which checks are being made. To suppress all
+  normal output, redirect it to `/dev/null` (any error messages are still
+  shown).
 
- * `--srcdir=DIR`
+* `--srcdir=DIR`
 
-   Look for the package's source code in directory DIR. Usually `configure`
-   can determine that directory automatically.
+  Look for the package's source code in directory DIR. Usually `configure`
+  can determine that directory automatically.
 
 `configure` also accepts some other, not widely useful, options. Run
 `configure --help` for more details.
