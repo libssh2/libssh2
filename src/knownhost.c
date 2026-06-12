@@ -912,8 +912,8 @@ int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
         len--;
     }
 
-    /* null-terminate where the newline is */
-    if(*cp == '\n')
+    /* null-terminate where the newline or eob is */
+    if(*cp == '\n' || *cp == '\0')
         keylen--; /* do not include this in the count */
 
     /* deal with this one host+key line */
