@@ -752,7 +752,7 @@ static int agent_sign(LIBSSH2_SESSION *session,
     int rc;
     unsigned char *method_name = NULL;
     uint32_t sign_flags = 0;
-    ssize_t plain_len;
+    size_t plain_len;
 
     len = 1 + 4 + 4 + 4;  /* fixed parts */
     if(identity->external.blob_len > SIZE_MAX - len ||
