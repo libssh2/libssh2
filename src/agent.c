@@ -799,13 +799,14 @@ static int agent_sign(LIBSSH2_SESSION *session,
     if(*transctx->request != SSH2_AGENTC_SIGN_REQUEST)
         return ssh2_err(session, LIBSSH2_ERROR_BAD_USE, "illegal request");
 
+    /* if no agent has been connected, bail out */
     if(!agent->ops)
-        /* if no agent has been connected, bail out */
         return ssh2_err(session, LIBSSH2_ERROR_BAD_USE, "agent not connected");
 
+    /* cannot pass more than a 32-bit size on the wire */
     if(transctx->request_len > UINT32_MAX)
-        /* cannot pass more than a 32-bit size on the wire */
-        return ssh2_err(session, LIBSSH2_ERROR_BAD_USE, "agent request too large");
+        return ssh2_err(session, LIBSSH2_ERROR_BAD_USE,
+                        "agent request too large");
 
     rc = agent->ops->transact(agent, transctx);
     if(rc) {
