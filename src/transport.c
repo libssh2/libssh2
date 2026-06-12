@@ -645,8 +645,12 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                 total_num = 4;
 
                 p->packet_length = ssh2_ntohu32(block);
-                if(p->packet_length < 1)
+                if(p->packet_length < 1) {
                     return LIBSSH2_ERROR_DECRYPT;
+                }
+                else if(p->packet_length > LIBSSH2_PACKET_MAXPAYLOAD) {
+                    return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
+                }
 
                 /* total_num may include size field, however due to existing
                  * logic it needs to be removed after the entire packet is read
