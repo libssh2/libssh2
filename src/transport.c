@@ -977,6 +977,16 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
 }
 
 /*
+ * public API entry to trigger processing a read.
+ * Used with callbacks when a response might be immediately available.
+ *
+ */
+int libssh2_session_read(LIBSSH2_SESSION *session)
+{
+    return ssh2_transport_read(session);
+}
+
+/*
  * Send a packet, encrypting it and adding a MAC code if necessary
  * Returns 0 on success, non-zero on failure.
  *

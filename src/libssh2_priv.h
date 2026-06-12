@@ -289,6 +289,20 @@ struct iovec {
 #define SSH2_CHANNEL_CLOSE(session, channel) \
     channel->close_cb(session, &(session)->abstract, \
                       channel, &(channel)->abstract)
+#define SSH2_CHANNEL_EOF(session, channel) \
+    channel->eof_cb(session, &(session)->abstract, \
+                    channel, &(channel)->abstract)
+#define SSH2_CHANNEL_DATA(session, channel, stream, buffer, length) \
+    channel->data_cb(session, &(session)->abstract, \
+                     channel, &(channel)->abstract, stream, buffer, length)
+#define SSH2_CHANNEL_REQUEST(session, channel, request, request_len) \
+    channel->request_cb(session, &(session)->abstract, \
+                        channel, &(channel)->abstract, \
+                        request, request_len)
+
+#define SSH2_LISTENER_CONNECT(session, listener, channel) \
+    listener->connect_cb(session, &(session)->abstract, \
+                         listener, &(listener)->abstract, channel)
 
 #define SSH2_SEND_FD(session, fd, buffer, length, flags) \
     ((session)->send)(fd, buffer, length, flags, &(session)->abstract)
@@ -481,7 +495,11 @@ struct _LIBSSH2_CHANNEL {
     LIBSSH2_SESSION *session;
 
     void *abstract;
+
+    LIBSSH2_CHANNEL_DATA_FUNC(*data_cb);
+    LIBSSH2_CHANNEL_EOF_FUNC(*eof_cb);
     LIBSSH2_CHANNEL_CLOSE_FUNC(*close_cb);
+    LIBSSH2_CHANNEL_REQUEST_FUNC(*request_cb);
 
     /* State variables used in libssh2_channel_setenv_ex() */
     ssh2_NB_states setenv_state;
@@ -581,6 +599,9 @@ struct _LIBSSH2_LISTENER {
     ssh2_NB_states chanFwdCncl_state;
     unsigned char *chanFwdCncl_data;
     size_t chanFwdCncl_data_len;
+
+    void *abstract;
+    LIBSSH2_LISTENER_CONNECT_FUNC((*connect_cb));
 };
 #if defined(__clang__) && __clang_major__ >= 13
 #pragma clang diagnostic pop
