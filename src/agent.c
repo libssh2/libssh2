@@ -747,7 +747,7 @@ static int agent_sign(LIBSSH2_SESSION *session,
     struct agent_transaction_ctx *transctx = &agent->transctx;
     struct agent_publickey *identity = agent->identity;
     size_t len;
-    ssize_t method_len;
+    size_t method_len;
     unsigned char *s;
     int rc;
     unsigned char *method_name = NULL;
@@ -863,7 +863,7 @@ static int agent_sign(LIBSSH2_SESSION *session,
                              session->userauth_pblc_method_len);
 
     /* check to see if we match requested */
-    if(((size_t)method_len != session->userauth_pblc_method_len &&
+    if((method_len != session->userauth_pblc_method_len &&
         method_len != plain_len) ||
        memcmp(method_name, session->userauth_pblc_method, method_len)) {
         ssh2_deb((session, LIBSSH2_TRACE_KEX, "Agent sign method %.*s",
