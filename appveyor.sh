@@ -42,6 +42,7 @@ cmake -B _bld \
   -DCMAKE_VS_GLOBALS=TrackFileAccess=false \
   -DRUN_SSHD_TESTS=OFF \
   -BUILD_EXAMPLES=OFF \
+  -DLIBSSH2_BUILD_DOCS=OFF \
   ${CMAKE_GENERATE:-} \
   ${options}
 echo 'libssh2_config.h'; grep -F '#define' _bld/src/libssh2_config.h | sort || true
