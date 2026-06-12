@@ -216,7 +216,12 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
                           "Unable to allocate memory for key");
             goto error;
         }
-        memcpy(entry->key, key, keylen + 1);
+        /* Copy exactly keylen bytes; the entry is allocated keylen + 1 and
+           null-terminated explicitly below. Reading keylen + 1 bytes here
+           would read one byte past the key data (the trailing separator or
+           NUL), which is out of bounds when the caller's buffer ends right
+           after the key. */
+        memcpy(entry->key, key, keylen);
         entry->key[keylen] = 0; /* force a null-terminator */
     }
     else {
@@ -251,7 +256,11 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
                           "Unable to allocate memory for comment");
             goto error;
         }
-        memcpy(entry->comment, comment, commentlen + 1);
+        /* Copy exactly commentlen bytes; reading commentlen + 1 reads one
+           byte past the comment, which is out of bounds when the comment
+           reaches the end of the caller's buffer. The entry is allocated
+           commentlen + 1 and null-terminated below. */
+        memcpy(entry->comment, comment, commentlen);
         entry->comment[commentlen] = 0; /* force a null-terminator */
         entry->comment_len = commentlen;
     }
@@ -912,8 +921,10 @@ int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
         len--;
     }
 
-    /* null-terminate where the newline is */
-    if(*cp == '\n')
+    /* null-terminate where the newline is. Guard the dereference: if the
+       loop above ran out of input (len == 0), cp points one past the buffer
+       and *cp would be an out-of-bounds read. */
+    if(len && *cp == '\n')
         keylen--; /* do not include this in the count */
 
     /* deal with this one host+key line */
