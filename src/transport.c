@@ -44,7 +44,6 @@
 
 #include "libssh2_priv.h"
 
-#include <errno.h>
 #include <ctype.h>
 #include <assert.h>
 
