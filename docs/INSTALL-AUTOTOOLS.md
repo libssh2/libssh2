@@ -51,7 +51,7 @@ edit it.
 
 The file `configure.ac` (or `configure.in`) is used to create `configure` by
 a program called `autoconf`. You only need `configure.ac` if you want to change
-it or regenerate `configure` using a later version of `autoconf`.
+it or regenerate `configure` using a newer version of `autoconf`.
 
 The simplest way to compile this package is:
 
