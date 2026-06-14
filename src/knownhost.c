@@ -907,13 +907,13 @@ int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
     keylen = len;
 
     /* check if the line (key) ends with a newline and if so kill it */
-    while(len && *cp && *cp != '\n') {
+    while(len && *cp != '\n') {
         cp++;
         len--;
     }
 
-    /* null-terminate where the newline is */
-    if(*cp == '\n')
+    /* strip trailing newline, if any */
+    if(len && *cp == '\n')
         keylen--; /* do not include this in the count */
 
     /* deal with this one host+key line */
