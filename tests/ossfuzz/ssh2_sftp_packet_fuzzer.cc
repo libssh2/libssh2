@@ -72,7 +72,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     }
 
     rc = socketpair(AF_UNIX, SOCK_STREAM, 0, socket_fds);
-    if(rc != 0)
+    if(rc)
         goto cleanup;
 
     /* ------------------------------------------------------------------ */

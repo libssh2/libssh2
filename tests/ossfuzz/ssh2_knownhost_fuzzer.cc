@@ -27,10 +27,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_KNOWNHOSTS *hosts = NULL;
 
-    if(size == 0)
+    if(!size)
         return 0;
 
-    if(libssh2_init(0) != 0)
+    if(libssh2_init(0))
         goto cleanup;
 
     session = libssh2_session_init();
@@ -53,7 +53,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     {
         struct libssh2_knownhost *node = NULL;
         int grc = libssh2_knownhost_get(hosts, &node, NULL);
-        while(grc == 0 && node) {
+        while(!grc && node) {
             char linebuf[4096];
             size_t linelen = 0;
             libssh2_knownhost_writeline(hosts, node,
