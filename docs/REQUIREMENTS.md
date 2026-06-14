@@ -6,7 +6,7 @@ SPDX-License-Identifier: BSD-3-Clause
 
 ## Dependencies
 
-We aim to support these versions or greater.
+We aim to support these or later versions:
 
 - Libgcrypt      1.8 (2017-07-18)
 - LibreSSL       3.7.0 (2022-12-12)
@@ -18,7 +18,7 @@ We aim to support these versions or greater.
 
 ## Build tools
 
-Building libssh2 requires these tool versions or greater:
+Building libssh2 requires these or later tool versions:
 
 - clang-tidy     17.0.0 (2023-09-19), recommended: 19.1.0 (2024-09-17)
 - cmake          3.18 (2020-07-15)
