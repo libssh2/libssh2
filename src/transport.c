@@ -338,6 +338,10 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
                              session->fullpacket_macstate, seq);
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return rc;
+        /* ssh2_packet_add() frees the payload data on success and
+         * on non-EAGAIN errors, so clear the pointer to prevent
+         * use-after-free and double-free in session cleanup */
+        p->payload = NULL;
         if(rc) {
             session->fullpacket_state = ssh2_NB_state_idle;
             return rc;
