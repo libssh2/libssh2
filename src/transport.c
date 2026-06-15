@@ -325,11 +325,20 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
         rc = ssh2_packet_add(session, p->payload,
                              session->fullpacket_payload_len,
                              session->fullpacket_macstate, seq);
-        if(rc == LIBSSH2_ERROR_EAGAIN)
+        if(rc == LIBSSH2_ERROR_EAGAIN) {
+            /* ssh2_packet_add() queues the packet into
+             * session->packets before attempting follow-up
+             * work like key re-exchange. If EAGAIN occurs
+             * during that work, packAdd_state is reset to
+             * idle and the data is already owned by the
+             * packet queue. Clear p->payload to prevent
+             * double-free in session cleanup. */
+            if(session->packAdd_state == ssh2_NB_state_idle)
+                p->payload = NULL;
             return rc;
-        /* ssh2_packet_add() frees the payload data on success and
-         * on non-EAGAIN errors, so clear the pointer to prevent
-         * use-after-free and double-free in session cleanup */
+        }
+        /* ssh2_packet_add() takes ownership of the payload
+         * on all non-EAGAIN paths, so clear the pointer */
         p->payload = NULL;
         if(rc) {
             session->fullpacket_state = ssh2_NB_state_idle;
