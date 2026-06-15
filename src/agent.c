@@ -559,7 +559,7 @@ static int agent_transact_unix(LIBSSH2_AGENT *agent,
         transctx->state = agent_NB_state_request_sent;
     }
 
-    /* Receive the length of a response */
+    /* Receive the length of the response */
     if(transctx->state == agent_NB_state_request_sent) {
         rc = (int)agent_recv_all(agent->session->recv, agent->fd,
                                  buf, sizeof(buf), 0,
