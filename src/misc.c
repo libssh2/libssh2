@@ -162,22 +162,22 @@ ssize_t ssh2_recv(libssh2_socket_t socket, void *buffer, size_t length,
 
     rc = SSH2_RECV_LOW(socket, buffer, length, flags);
     if(rc < 0) {
-        int err = SSH2_ERRNO();
+        int sockerr = SSH2_ERRNO();
         /* Profiling tools that use SIGPROF can cause EINTR responses.
            recv() does not modify its arguments when it returns EINTR,
            but there may be data waiting, so the caller should try again */
-        if(err == EINTR)
+        if(sockerr == EINTR)
             return -EAGAIN;
         /* Sometimes the first recv() function call sets errno to ENOENT on
            Solaris and HP-UX */
-        if(err == ENOENT)
+        if(sockerr == ENOENT)
             return -EAGAIN;
 #ifdef EWOULDBLOCK /* For VMS and other special unixes */
-        else if(err == EWOULDBLOCK)
+        else if(sockerr == EWOULDBLOCK)
             return -EAGAIN;
 #endif
         else
-            return -err;
+            return -sockerr;
     }
     return rc;
 }
@@ -195,17 +195,17 @@ ssize_t ssh2_send(libssh2_socket_t socket,
 
     rc = SSH2_SEND_LOW(socket, buffer, length, flags);
     if(rc < 0) {
-        int err = SSH2_ERRNO();
+        int sockerr = SSH2_ERRNO();
         /* Profiling tools that use SIGPROF can cause EINTR responses.
            send() is defined as not yet sending any data when it returns EINTR,
            so the caller should try again */
-        if(err == EINTR)
+        if(sockerr == EINTR)
             return -EAGAIN;
 #ifdef EWOULDBLOCK /* For VMS and other special unixes */
-        if(err == EWOULDBLOCK)
+        if(sockerr == EWOULDBLOCK)
             return -EAGAIN;
 #endif
-        return -err;
+        return -sockerr;
     }
     return rc;
 }
