@@ -593,7 +593,7 @@ static int agent_transact_unix(LIBSSH2_AGENT *agent,
         transctx->state = agent_NB_state_response_received;
     }
 
-    return 0;
+    return LIBSSH2_ERROR_NONE;
 }
 
 static int agent_disconnect_unix(LIBSSH2_AGENT *agent)
@@ -707,13 +707,13 @@ static int agent_transact_pageant(LIBSSH2_AGENT *agent,
 
     UnmapViewOfFile(p);
     CloseHandle(filemap);
-    return 0;
+    return LIBSSH2_ERROR_NONE;
 }
 
 static int agent_disconnect_pageant(LIBSSH2_AGENT *agent)
 {
     agent->fd = LIBSSH2_INVALID_SOCKET;
-    return 0;
+    return LIBSSH2_ERROR_NONE;
 }
 
 static struct agent_ops agent_ops_pageant = {
@@ -1102,12 +1102,12 @@ LIBSSH2_AGENT *libssh2_agent_init(LIBSSH2_SESSION *session)
  */
 int libssh2_agent_connect(LIBSSH2_AGENT *agent)
 {
-    int i, rc = -1;
+    int i, rc = LIBSSH2_ERROR_METHOD_NOT_SUPPORTED;
     for(i = 0; supported_backends[i].name; i++) {
         agent->ops = supported_backends[i].ops;
         rc = (agent->ops->connect)(agent);
         if(!rc)
-            return 0;
+            return LIBSSH2_ERROR_NONE;
     }
     return rc;
 }
@@ -1243,7 +1243,7 @@ int libssh2_agent_disconnect(LIBSSH2_AGENT *agent)
 {
     if(agent->ops && agent->fd != LIBSSH2_INVALID_SOCKET)
         return agent->ops->disconnect(agent);
-    return 0;
+    return LIBSSH2_ERROR_NONE;
 }
 
 /*
