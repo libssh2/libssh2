@@ -1277,9 +1277,11 @@ void libssh2_agent_set_identity_path(LIBSSH2_AGENT *agent, const char *path)
         size_t path_len = strlen(path);
         if(path_len < SIZE_MAX - 1) {
             char *path_buf = SSH2_ALLOC(agent->session, path_len + 1);
-            memcpy(path_buf, path, path_len);
-            path_buf[path_len] = '\0';
-            agent->identity_agent_path = path_buf;
+            if(path_buf) {
+                memcpy(path_buf, path, path_len);
+                path_buf[path_len] = '\0';
+                agent->identity_agent_path = path_buf;
+            }
         }
     }
 }
