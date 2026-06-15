@@ -1130,7 +1130,7 @@ hostkey_method_ssh_ed25519_cert_init(LIBSSH2_SESSION * session,
         return -1;
     }
 
-    buf.data = (unsigned char *)LIBSSH2_UNCONST(hostkey_data);
+    buf.data = (unsigned char *)SSH2_UNCONST(hostkey_data);
     buf.dataptr = buf.data;
     buf.len = hostkey_data_len;
 
