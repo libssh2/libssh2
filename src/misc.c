@@ -173,11 +173,10 @@ ssize_t ssh2_recv(libssh2_socket_t socket, void *buffer, size_t length,
         if(sockerr == ENOENT)
             return -EAGAIN;
 #ifdef EWOULDBLOCK /* For VMS and other special unixes */
-        else if(sockerr == EWOULDBLOCK)
+        if(sockerr == EWOULDBLOCK)
             return -EAGAIN;
 #endif
-        else
-            return -sockerr;
+        return -sockerr;
     }
     return rc;
 }
