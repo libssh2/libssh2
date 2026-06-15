@@ -1103,6 +1103,63 @@ static int hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION *session,
 }
 
 /*
+ * hostkey_method_ssh_ed25519_cert_init
+ *
+ * Initialize the server hostkey cert
+ */
+static int
+hostkey_method_ssh_ed25519_cert_init(LIBSSH2_SESSION * session,
+                                     const unsigned char *hostkey_data,
+                                     size_t hostkey_data_len,
+                                     void **abstract)
+{
+    size_t key_len, nonce_len;
+    unsigned char *key;
+    libssh2_ed25519_ctx *ctx = NULL;
+    struct string_buf buf;
+    unsigned char *nonce;
+
+    if(*abstract) {
+        hostkey_method_ssh_ed25519_dtor(session, abstract);
+        *abstract = NULL;
+    }
+
+    /* 4 + 32 + 4 + 16 + 4 */
+    if(hostkey_data_len < 60 ) {
+        ssh2_deb((session, LIBSSH2_TRACE_ERROR, "host key length too short"));
+        return -1;
+    }
+
+    buf.data = (unsigned char *)LIBSSH2_UNCONST(hostkey_data);
+    buf.dataptr = buf.data;
+    buf.len = hostkey_data_len;
+
+    if(ssh2_match_string(&buf, "ssh-ed25519-cert-v01@openssh.com"))
+        return -1;
+
+    /* nonce - must be min of 16 bytes */
+    if(ssh2_get_string(&buf, &nonce, &nonce_len) || nonce_len < 16)
+        return -1;
+
+    /* public key */
+    if(ssh2_get_string(&buf, &key, &key_len))
+        return -1;
+
+    /*
+     * we can't check for eob here because certs
+     * have more meta data we don't read
+     */
+
+    if(ssh2_ed25519_new_public(&ctx, session, key, key_len) != 0) {
+        return -1;
+    }
+
+    *abstract = ctx;
+
+    return 0;
+}
+
+/*
  * Load a Private Key from a PEM file
  */
 static int hostkey_method_ssh_ed25519_initPEM(LIBSSH2_SESSION *session,
@@ -1239,7 +1296,7 @@ static const struct hostkey_method hostkey_method_ssh_ed25519 = {
 static const struct hostkey_method hostkey_method_ssh_ed25519_cert = {
     "ssh-ed25519-cert-v01@openssh.com",
     SHA256_DIGEST_LENGTH,
-    hostkey_method_ssh_ed25519_init,
+    hostkey_method_ssh_ed25519_cert_init,
     hostkey_method_ssh_ed25519_initPEM,
     hostkey_method_ssh_ed25519_initPEMFromMemory,
     hostkey_method_ssh_ed25519_sig_verify,
