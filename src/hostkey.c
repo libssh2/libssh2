@@ -1125,7 +1125,7 @@ hostkey_method_ssh_ed25519_cert_init(LIBSSH2_SESSION * session,
     }
 
     /* 4 + 32 + 4 + 16 + 4 */
-    if(hostkey_data_len < 60 ) {
+    if(hostkey_data_len < 60) {
         ssh2_deb((session, LIBSSH2_TRACE_ERROR, "host key length too short"));
         return -1;
     }
