@@ -33,7 +33,7 @@ fi
 
 echo "CMake job options: ${CMAKE_GENERATE:-}"
 options=''
-[ "${SKIP_CTEST:-}" != 'yes' ] && options+=' -DBUILD_TESTING=OFF'
+[ "${SKIP_CTEST:-}" = 'yes' ] && options+=' -DBUILD_TESTING=OFF'
 # FIXME: First sshd test sometimes timeouts, subsequent ones almost always fail:
 #        'libssh2_session_handshake failed (-43): Failed getting banner'
 # shellcheck disable=SC2086
