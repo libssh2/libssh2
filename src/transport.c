@@ -694,10 +694,6 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                     if(blocksize - 5 <= (int)total_num) {
                         memcpy(p->wptr, &block[5], blocksize - 5);
                         p->wptr += blocksize - 5; /* advance write pointer */
-                        if(etm) {
-                            /* advance past unencrypted packet length */
-                            p->wptr += 4;
-                        }
                     }
                     else {
                         if(p->payload)
