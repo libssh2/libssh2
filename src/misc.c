@@ -172,10 +172,8 @@ ssize_t ssh2_recv(libssh2_socket_t socket, void *buffer, size_t length,
            Solaris and HP-UX */
         if(sockerr == ENOENT)
             return -EAGAIN;
-#ifdef EWOULDBLOCK /* For VMS and other special unixes */
         if(sockerr == EWOULDBLOCK)
             return -EAGAIN;
-#endif
         return -sockerr;
     }
     return rc;
@@ -200,10 +198,8 @@ ssize_t ssh2_send(libssh2_socket_t socket,
            so the caller should try again */
         if(sockerr == EINTR)
             return -EAGAIN;
-#ifdef EWOULDBLOCK /* For VMS and other special unixes */
         if(sockerr == EWOULDBLOCK)
             return -EAGAIN;
-#endif
         return -sockerr;
     }
     return rc;
