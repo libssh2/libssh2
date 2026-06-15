@@ -1225,13 +1225,13 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
                    last short packet with the previous one since AES-GCM
                    crypt() assumes that the entire MAC is available in that
                    packet so it can set that to the authentication tag. */
-                if(!CRYPT_FLAG_L(session, INTEGRATED_MAC))
-                    if(i > packet_length - 2 * bsize) {
-                        /* increase the final block size */
-                        bsize = packet_length - i;
-                        /* advance the loop counter by the extra amount */
-                        i += bsize - session->local.crypt->blocksize;
-                    }
+                if(!CRYPT_FLAG_L(session, INTEGRATED_MAC) &&
+                   i > packet_length - 2 * bsize) {
+                    /* increase the final block size */
+                    bsize = packet_length - i;
+                    /* advance the loop counter by the extra amount */
+                    i += bsize - session->local.crypt->blocksize;
+                }
                 ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
                           "crypting bytes %lu-%lu", (unsigned long)i,
                           (unsigned long)(i + bsize - 1)));
