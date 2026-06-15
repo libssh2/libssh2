@@ -313,7 +313,7 @@ int ssh2_store_bignum_bytes(unsigned char **buf,
     ssh2_store_u32(buf, len_stored + extraByte);
 
     if(extraByte) {
-        **buf = 0;
+        (*buf)[0] = 0;
         *buf += 1;
     }
 
