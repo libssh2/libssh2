@@ -3844,7 +3844,7 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
     secret_len = ECDH_compute_key(secret, secret_len, server_public_key_point,
                                   private_key, NULL);
 
-    if(secret_len <= 0 || secret_len > EC_MAX_POINT_LEN) {
+    if(!secret_len || secret_len > EC_MAX_POINT_LEN) {
         ret = -1;
         goto clean_exit;
     }
