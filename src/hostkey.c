@@ -1115,7 +1115,7 @@ hostkey_method_ssh_ed25519_cert_init(LIBSSH2_SESSION * session,
 {
     size_t key_len, nonce_len;
     unsigned char *key;
-    libssh2_ed25519_ctx *ctx = NULL;
+    ssh2_ed25519_ctx *ctx = NULL;
     struct string_buf buf;
     unsigned char *nonce;
 
