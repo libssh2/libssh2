@@ -1102,7 +1102,7 @@ LIBSSH2_AGENT *libssh2_agent_init(LIBSSH2_SESSION *session)
  */
 int libssh2_agent_connect(LIBSSH2_AGENT *agent)
 {
-    int i, rc = LIBSSH2_ERROR_SOCKET_NONE;
+    int i, rc = LIBSSH2_ERROR_METHOD_NOT_SUPPORTED;
     for(i = 0; supported_backends[i].name; i++) {
         agent->ops = supported_backends[i].ops;
         rc = (agent->ops->connect)(agent);
