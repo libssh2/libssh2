@@ -1212,9 +1212,9 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
                 /* The INTEGRATED_MAC case always has an extra call below, so
                    it never is LAST_BLOCK up here. */
                 int firstlast = i == 0 ? FIRST_BLOCK :
-                (!CRYPT_FLAG_L(session, INTEGRATED_MAC) &&
-                 (i == packet_length - session->local.crypt->blocksize)
-                 ? LAST_BLOCK : MIDDLE_BLOCK);
+                    (!CRYPT_FLAG_L(session, INTEGRATED_MAC) &&
+                     (i == packet_length - session->local.crypt->blocksize)
+                     ? LAST_BLOCK : MIDDLE_BLOCK);
                 /* In the AAD case, the last block would be only 4 bytes
                    because everything is offset by 4 since the initial
                    packet_length is not encrypted. In this case, combine that
