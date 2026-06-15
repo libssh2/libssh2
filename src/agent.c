@@ -598,13 +598,10 @@ static int agent_transact_unix(LIBSSH2_AGENT *agent,
 
 static int agent_disconnect_unix(LIBSSH2_AGENT *agent)
 {
-    int ret;
-    ret = close(agent->fd);
-    if(ret != -1)
-        agent->fd = LIBSSH2_INVALID_SOCKET;
-    else
+    if(close(agent->fd) == -1)
         return ssh2_err(agent->session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
                         "failed closing the agent socket");
+    agent->fd = LIBSSH2_INVALID_SOCKET;
     return LIBSSH2_ERROR_NONE;
 }
 
