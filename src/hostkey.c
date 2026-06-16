@@ -1107,11 +1107,11 @@ static int hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION *session,
  *
  * Initialize the server hostkey cert
  */
-static int
-hostkey_method_ssh_ed25519_cert_init(LIBSSH2_SESSION * session,
-                                     const unsigned char *hostkey_data,
-                                     size_t hostkey_data_len,
-                                     void **abstract)
+static int hostkey_method_ssh_ed25519_cert_init(
+    LIBSSH2_SESSION *session,
+    const unsigned char *hostkey_data,
+    size_t hostkey_data_len,
+    void **abstract)
 {
     size_t key_len, nonce_len;
     unsigned char *key;
