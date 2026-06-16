@@ -446,7 +446,7 @@ static int read_file(const char *path, char **out_buffer, size_t *out_len)
         return 1;
     }
 
-    if(1 != fread(buffer, (size_t)len, 1, fp)) {
+    if(fread(buffer, (size_t)len, 1, fp) != 1) {
         fclose(fp);
         free(buffer);
         fprintf(stderr, "Could not read file into memory.\n");

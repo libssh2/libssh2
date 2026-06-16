@@ -117,13 +117,12 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
      * tell mbedTLS to expect no padding on the cipher layer. Only call
      * set_padding_mode for CBC ciphers since other modes (CTR, stream)
      * are not applicable and causes an error. */
-    if(!ret) {
-        if(algo == MBEDTLS_CIPHER_AES_128_CBC ||
-           algo == MBEDTLS_CIPHER_AES_192_CBC ||
-           algo == MBEDTLS_CIPHER_AES_256_CBC ||
-           algo == MBEDTLS_CIPHER_DES_EDE3_CBC) {
-            ret = mbedtls_cipher_set_padding_mode(h, MBEDTLS_PADDING_NONE);
-        }
+    if(!ret &&
+       (algo == MBEDTLS_CIPHER_AES_128_CBC ||
+        algo == MBEDTLS_CIPHER_AES_192_CBC ||
+        algo == MBEDTLS_CIPHER_AES_256_CBC ||
+        algo == MBEDTLS_CIPHER_DES_EDE3_CBC)) {
+        ret = mbedtls_cipher_set_padding_mode(h, MBEDTLS_PADDING_NONE);
     }
 
     if(!ret)
@@ -179,13 +178,13 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 }
 
 int ssh2_mbed_hash_init(mbedtls_md_context_t *ctx,
-                        mbedtls_md_type_t mdtype,
+                        mbedtls_md_type_t md_type,
                         const unsigned char *key, size_t keylen)
 {
     const mbedtls_md_info_t *md_info;
     int ret, hmac;
 
-    md_info = mbedtls_md_info_from_type(mdtype);
+    md_info = mbedtls_md_info_from_type(md_type);
     if(!md_info)
         return 0;
 
@@ -214,12 +213,12 @@ int ssh2_mbed_hash_final(mbedtls_md_context_t *ctx, unsigned char *hash)
 }
 
 int ssh2_mbed_hash(const unsigned char *data, size_t datalen,
-                   mbedtls_md_type_t mdtype, unsigned char *hash)
+                   mbedtls_md_type_t md_type, unsigned char *hash)
 {
     const mbedtls_md_info_t *md_info;
     int ret;
 
-    md_info = mbedtls_md_info_from_type(mdtype);
+    md_info = mbedtls_md_info_from_type(md_type);
     if(!md_info)
         return 0;
 
