@@ -195,10 +195,10 @@
 # define HAVE_NO_AES_GCM
 #endif
 
-#if !defined(OPENSSL_NO_AES) && !defined(HAVE_NO_AES_GCM)
-# define LIBSSH2_AES_GCM 1
-#else
+#if defined(OPENSSL_NO_AES) || defined(HAVE_NO_AES_GCM)
 # define LIBSSH2_AES_GCM 0
+#else
+# define LIBSSH2_AES_GCM 1
 #endif
 
 #ifdef OPENSSL_NO_BF
