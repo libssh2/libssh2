@@ -211,16 +211,13 @@ static int banner_send(LIBSSH2_SESSION *session)
 #ifdef LIBSSH2DEBUG
         {
             char banner_dup[256];
+            size_t copy_len = banner_len > 2 ? banner_len - 2 : 0;
+            if(copy_len > 255)
+                copy_len = 255;
 
             /* Hack and slash to avoid sending CRLF in debug output */
-            if(banner_len < 256) {
-                memcpy(banner_dup, banner, banner_len - 2);
-                banner_dup[banner_len - 2] = '\0';
-            }
-            else {
-                memcpy(banner_dup, banner, 255);
-                banner_dup[255] = '\0';
-            }
+            memcpy(banner_dup, banner, copy_len);
+            banner_dup[copy_len] = '\0';
 
             ssh2_deb((session, LIBSSH2_TRACE_TRANS, "Sending Banner: %s",
                       banner_dup));
