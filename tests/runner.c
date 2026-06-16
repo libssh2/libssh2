@@ -42,14 +42,10 @@
 int main(void)
 {
     int exit_code;
-    int retries = 0, retry = 0;
-
-    /* Retry transient key exchange failures when the fixture server is not
-       ready yet. */
-    retries += 1;
+    int retries = 1, retry = 0;
 
 #ifdef LIBSSH2_WINCNG
-    /* FIXME: Retry tests with WinCNG due to flakiness in hostkey
+    /* Add extra retries with WinCNG due to flakiness in hostkey
        verification: https://github.com/libssh2/libssh2/issues/804 */
     retries += 2;
 #endif
