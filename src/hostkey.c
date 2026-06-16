@@ -155,7 +155,7 @@ static int hostkey_method_ssh_rsa_initPEM(LIBSSH2_SESSION *session,
 }
 
 /*
- * Load a Private Key from a memory
+ * Load a Private Key from memory
  */
 static int hostkey_method_ssh_rsa_initPEMFromMemory(
     LIBSSH2_SESSION *session,
@@ -1103,8 +1103,6 @@ static int hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION *session,
 }
 
 /*
- * hostkey_method_ssh_ed25519_cert_init
- *
  * Initialize the server hostkey cert
  */
 static int hostkey_method_ssh_ed25519_cert_init(
@@ -1146,7 +1144,7 @@ static int hostkey_method_ssh_ed25519_cert_init(
         return -1;
 
     /*
-     * we can't check for eob here because certs
+     * we cannot check for eob here because certs
      * have more meta data we don't read
      */
 

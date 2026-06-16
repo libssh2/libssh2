@@ -1522,7 +1522,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                                sizeof(struct sftp_pipeline_chunk));
             if(!chunk)
                 return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                                "malloc fail for FXP_WRITE");
+                                "malloc fail for FXP_READ");
 
             chunk->offset = filep->offset_sent;
             chunk->len = size;
@@ -3201,7 +3201,7 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
             SSH2_FREE(session, data);
         }
         return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-                        "SFTP rename packet too short");
+                        "SFTP fstatvfs packet too short");
     }
     else if(rc) {
         sftp->fstatvfs_state = ssh2_NB_state_idle;

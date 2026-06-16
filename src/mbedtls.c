@@ -470,10 +470,8 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
 
     mbedtls_rsa_init(*rsa);
 
-    /*
-    mbedtls checks in "mbedtls/pkparse.c:1184" if "key[keylen - 1] != '\0'"
-    private-key from memory fails if the last byte is not a null byte
-    */
+    /* mbedtls checks in "mbedtls/pkparse.c:1184" if "key[keylen - 1] != '\0'"
+       private-key from memory fails if the last byte is not a null byte */
     filedata_nullterm = mbedtls_calloc(filedata_len + 1, 1);
     if(!filedata_nullterm) {
         return -1;
@@ -761,10 +759,8 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     void *privatekeydata_nullterm;
     size_t pwd_len;
 
-    /*
-    mbedtls checks in "mbedtls/pkparse.c:1184" if "key[keylen - 1] != '\0'"
-    private-key from memory fails if the last byte is not a null byte
-    */
+    /* mbedtls checks in "mbedtls/pkparse.c:1184" if "key[keylen - 1] != '\0'"
+       private-key from memory fails if the last byte is not a null byte */
     privatekeydata_nullterm = mbedtls_calloc(privatekeydata_len + 1, 1);
     if(!privatekeydata_nullterm) {
         return -1;
