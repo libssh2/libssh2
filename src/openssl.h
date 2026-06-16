@@ -190,12 +190,8 @@
 # define LIBSSH2_AES_CBC 0
 #endif
 
-#if defined(LIBSSH2_WOLFSSL) && \
-    (!defined(HAVE_AESGCM) || !defined(WOLFSSL_AESGCM_STREAM))
-# define HAVE_NO_AES_GCM
-#endif
-
-#if defined(OPENSSL_NO_AES) || defined(HAVE_NO_AES_GCM)
+#if defined(OPENSSL_NO_AES) || (defined(LIBSSH2_WOLFSSL) && \
+    (!defined(HAVE_AESGCM) || !defined(WOLFSSL_AESGCM_STREAM)))
 # define LIBSSH2_AES_GCM 0
 #else
 # define LIBSSH2_AES_GCM 1
