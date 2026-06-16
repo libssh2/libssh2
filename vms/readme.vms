@@ -12,7 +12,7 @@ to be found at https://libssh2.org.
 GNV
 ---
 
-The library uses the GNV prefix, on advise of the kind supporter
+The library uses the GNV prefix, on advice of the kind supporter
 of the GNV project, John Malmberg.
 
 Installing the PCSI kit
@@ -168,7 +168,7 @@ You need to have the following available:
   it against the OpenSSL library, but that is not what I have used.
 
 - A C compiler. I do not know any other working C compilers than
-  the DEC/Compac/HP-C compiler on VMS.
+  the DEC/Compaq/HP-C compiler on VMS.
 
 - An ODS-5 disk. With tweaking you can get it to work on an ODS-2
   disk, but it is unpractical to do so.
