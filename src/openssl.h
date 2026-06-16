@@ -124,7 +124,7 @@
 #  if LIBRESSL_VERSION_NUMBER < 0x3070000fL
 #    error "LibreSSL 3.7.0 or greater required"
 #  endif
-#else /* including AWS-LC/BoringSSL */
+#else /* AWS-LC/BoringSSL advertise themselves as 0x1010107f */
 #  if OPENSSL_VERSION_NUMBER < 0x10101000L
 #    error "OpenSSL 1.1.1 or greater required"
 #  endif
