@@ -44,6 +44,10 @@ int main(void)
     int exit_code;
     int retries = 0, retry = 0;
 
+    /* Retry transient key exchange failures when the fixture server is not
+       ready yet. */
+    retries += 1;
+
 #ifdef LIBSSH2_WINCNG
     /* FIXME: Retry tests with WinCNG due to flakiness in hostkey
        verification: https://github.com/libssh2/libssh2/issues/804 */
@@ -65,9 +69,7 @@ int main(void)
         }
         stop_session_fixture();
         if(exit_code == 0 ||
-#ifdef LIBSSH2_WINCNG
            rc != LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE ||
-#endif
            ++retry > retries) {
             break;
         }
