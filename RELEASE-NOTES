@@ -31,8 +31,9 @@ Deprecation notices:
 
 - The next release drops support for the above options.
 
-- This release drops support for OpenSSL <1.1.1, LibreSSL <2.8,
-  mbedTLS 2.x, zlib <1.2.5.2, old/classic mingw, mingw-w64 <3.0.
+- This release drops support for OpenSSL <1.1.1, LibreSSL <3.7,
+  mbedTLS 2.x, wolfSSL <5.4.0, zlib <1.2.5.2, old/classic mingw,
+  mingw-w64 <3.0.
 
 - This release drops support for Visual Studio 2008 and older.
   Requiring 2010 or newer (`_MSC_VER` >= 1600).
