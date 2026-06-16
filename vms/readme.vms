@@ -30,7 +30,7 @@ Prerequisites
   See the remarks at prerequisites for building the kit
 
 The first three dependencies are tested at installation time, and
-installation fails if any these products are not installed.
+installation fails if any of these products are not installed.
 The ZLIB dependency is not tested by the product installation
 procedure, as libssh2 is probably installed as part of multiple
 libraries including zlib.
@@ -184,7 +184,7 @@ Optional:
 
 - curl, to be found at  https://curl.haxx.se
   You might want to use curl to download the libssh2 kit directly
-  to you VMS machine. Interestingly, sftp in curl is implemented using
+  to your VMS machine. Interestingly, sftp in curl is implemented using
   libssh2, soon to be expected on VMS as well, hopefully.
 
 Downloading libssh2
