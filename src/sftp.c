@@ -1522,7 +1522,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                                sizeof(struct sftp_pipeline_chunk));
             if(!chunk)
                 return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                                "malloc fail for FXP_WRITE");
+                                "malloc fail for FXP_READ");
 
             chunk->offset = filep->offset_sent;
             chunk->len = size;
