@@ -43,6 +43,8 @@
 
 #ifdef _WIN32
 #include <ws2tcpip.h>  /* for socklen_t */
+#else
+#include <netinet/in.h>
 #endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -699,6 +701,8 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
 static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 {
     int rc;
+    struct sockaddr_in serv_addr;
+    socklen_t len = sizeof(serv_addr);
 
     if(!session) {
         ssh2_deb((session, LIBSSH2_TRACE_TRANS,
@@ -713,6 +717,14 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
             /* Did we forget something? */
             return ssh2_err(session, LIBSSH2_ERROR_BAD_SOCKET,
                             "Bad socket provided");
+        }
+        memset(&serv_addr, 0, sizeof(serv_addr));
+        rc = getpeername(sock, (struct sockaddr*)&serv_addr, &len);
+        if(rc || serv_addr.sin_family != AF_INET ||
+           serv_addr.sin_port == 0) {
+            session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
+            return _libssh2_error(session, LIBSSH2_ERROR_BAD_SOCKET,
+                                  "Bad socket provided");
         }
         session->socket_fd = sock;
 
