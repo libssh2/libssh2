@@ -141,7 +141,7 @@ jobs:
             sha256sum pkg.bin && sha256sum pkg.bin | grep -qwF -- "${OLD_CMAKE_SHA256_WIN_INTEL}" && unzip -q pkg.bin && rm -f pkg.bin
             printf '%s' ~/cmake-"${OLD_CMAKE_VERSION}"-win64-x64/bin/cmake.exe > ~/old-cmake-path.txt
           elif [[ "${MATRIX_IMAGE}" = *'ubuntu'* ]]; then
-            sudo sed -i 's/priority:1/priority:9/' /etc/apt/apt-mirrors.txt; cat /etc/apt/apt-mirrors.txt
+            sudo sed -i '/azure/d' /etc/apt/apt-mirrors.txt; cat /etc/apt/apt-mirrors.txt
             sudo apt-get -o Dpkg::Use-Pty=0 install libgcrypt-dev libssl-dev libwolfssl-dev
             /home/linuxbrew/.linuxbrew/bin/brew install mbedtls@3
             cd ~
@@ -332,7 +332,7 @@ jobs:
         timeout-minutes: 2
         run: |
           sudo find /etc/apt/sources.list.d -type f -not -name 'ubuntu.sources' -delete -print
-          sudo sed -i 's/priority:1/priority:9/' /etc/apt/apt-mirrors.txt; cat /etc/apt/apt-mirrors.txt
+          sudo sed -i '/azure/d' /etc/apt/apt-mirrors.txt; cat /etc/apt/apt-mirrors.txt
           sudo dpkg --add-architecture "${MATRIX_ARCH}"
           sudo apt-get -o Dpkg::Use-Pty=0 update
           sudo apt-get -o Dpkg::Use-Pty=0 install gcc-multilib build-essential zlib1g-dev:"${MATRIX_ARCH}"
@@ -346,7 +346,7 @@ jobs:
           [ "${MATRIX_CRYPTO}" = 'OpenSSL' ] && pkgs+=" libssl-dev:${MATRIX_ARCH}"
           [ "${MATRIX_CRYPTO}" = 'wolfSSL' ] && pkgs+=" libwolfssl-dev:${MATRIX_ARCH}"
           if [ -n "${pkgs}" ]; then
-            sudo sed -i 's/priority:1/priority:9/' /etc/apt/apt-mirrors.txt; cat /etc/apt/apt-mirrors.txt
+            sudo sed -i '/azure/d' /etc/apt/apt-mirrors.txt; cat /etc/apt/apt-mirrors.txt
             sudo apt-get -o Dpkg::Use-Pty=0 install ${pkgs}
           fi
 
@@ -674,7 +674,7 @@ jobs:
         env:
           INSTALL_PACKAGES: ${{ matrix.compiler == 'clang-tidy' && 'clang-20 clang-tidy-20' || '' }}
         run: |
-          sudo sed -i 's/priority:1/priority:9/' /etc/apt/apt-mirrors.txt; cat /etc/apt/apt-mirrors.txt
+          sudo sed -i '/azure/d' /etc/apt/apt-mirrors.txt; cat /etc/apt/apt-mirrors.txt
           sudo apt-get -o Dpkg::Use-Pty=0 install gcc-mingw-w64-x86-64-win32 ${INSTALL_PACKAGES}
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
