@@ -3201,7 +3201,7 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
             SSH2_FREE(session, data);
         }
         return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-                        "SFTP rename packet too short");
+                        "SFTP fstatvfs packet too short");
     }
     else if(rc) {
         sftp->fstatvfs_state = ssh2_NB_state_idle;
