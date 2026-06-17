@@ -347,6 +347,7 @@ jobs:
           [ "${MATRIX_CRYPTO}" = 'wolfSSL' ] && pkgs+=" libwolfssl-dev:${MATRIX_ARCH}"
           if [ -n "${pkgs}" ]; then
             sudo sed -i '/azure/d' /etc/apt/apt-mirrors.txt; cat /etc/apt/apt-mirrors.txt
+            sudo apt-get -o Dpkg::Use-Pty=0 update
             sudo apt-get -o Dpkg::Use-Pty=0 install ${pkgs}
           fi
 
