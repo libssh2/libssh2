@@ -58,6 +58,10 @@
 #include <mbedtls/pk.h>
 #include <mbedtls/error.h>
 
+#if MBEDTLS_VERSION_NUMBER < 0x03010000
+#  error "mbedTLS 3.1.0 or greater required"
+#endif
+
 /* Define which features are supported. */
 #define LIBSSH2_MD5 1
 
