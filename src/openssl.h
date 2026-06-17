@@ -304,8 +304,6 @@ int ssh2_ossl_md5_final(ssh2_md5_ctx *ctx, unsigned char *out);
 #define ssh2_hmac_ctx HMAC_CTX *
 #endif /* USE_OPENSSL_3 */
 
-#define ssh2_crypto_exit()
-
 #if LIBSSH2_RSA
 #ifdef USE_OPENSSL_3
 #define ssh2_rsa_ctx          EVP_PKEY
