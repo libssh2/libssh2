@@ -1669,13 +1669,11 @@ static int kex_session_hybrid_curve_type(const char *name,
         type = SSH2_EC_CURVE_NISTP256;
     else if(!strcmp(name, "mlkem1024nistp384-sha384"))
         type = SSH2_EC_CURVE_NISTP384;
-    else {
+    else
         return -1;
-    }
 
-    if(out_type) {
+    if(out_type)
         *out_type = type;
-    }
 
     return 0;
 }
