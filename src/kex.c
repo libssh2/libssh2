@@ -1654,7 +1654,6 @@ dh_gex_clean_exit:
 }
 
 #if (LIBSSH2_ECDSA || LIBSSH2_ED25519) && LIBSSH2_MLKEM
-
 /*
  * returns the EC curve type by name used in hybrid key exchange
  */
@@ -1670,21 +1669,17 @@ static int kex_session_hybrid_curve_type(const char *name,
         type = SSH2_EC_CURVE_NISTP256;
     else if(!strcmp(name, "mlkem1024nistp384-sha384"))
         type = SSH2_EC_CURVE_NISTP384;
-    else {
+    else
         return -1;
-    }
 
-    if(out_type) {
+    if(out_type)
         *out_type = type;
-    }
 
     return 0;
 }
-
 #endif
 
-#if LIBSSH2_ECDSA
-
+#if LIBSSH2_ECDSA || LIBSSH2_ED25519
 /*
  * Macro that create and verifies EC SHA hash with a given digest bytes
  *
@@ -1794,8 +1789,11 @@ static int kex_session_hybrid_curve_type(const char *name,
         }                                                                     \
     } while(0)
 
-#if LIBSSH2_MLKEM
+#endif /* LIBSSH2_ECDSA || LIBSSH2_ED25519 */
 
+#if LIBSSH2_ECDSA
+
+#if LIBSSH2_MLKEM
 /*
  * Macro that create and verifies HYBRID (EC+PQ) SHA hash with a given
  * digest bytes
@@ -1909,7 +1907,7 @@ static int kex_session_hybrid_curve_type(const char *name,
         }                                                                     \
     } while(0)
 
-#endif
+#endif /* LIBSSH2_MLKEM */
 
 /*
  * returns the EC curve type by name used in key exchange

@@ -276,11 +276,6 @@ void ssh2_dsa_free(ssh2_dsa_ctx *dsa);
  */
 
 #if LIBSSH2_ECDSA
-/* Maximum uncompressed EC point length for NIST P-521:
- * two 521-bit coordinates rounded up to bytes, plus 1-byte format prefix.
- */
-#define EC_MAX_POINT_LEN ((((521 + 7) / 8) * 2) + 1)
-
 typedef enum {
     SSH2_EC_CURVE_NISTP256 = 0,
     SSH2_EC_CURVE_NISTP384 = 1,
@@ -296,8 +291,6 @@ struct wcng_ecdsa_ctx {
 #define ssh2_ec_key    struct wcng_ecdsa_ctx
 
 void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ctx);
-#else
-#define ssh2_ec_key void
 #endif
 
 /*******************************************************************/

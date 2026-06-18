@@ -330,8 +330,6 @@ int ssh2_ossl_md5_final(ssh2_md5_ctx *ctx, unsigned char *out);
 #endif /* LIBSSH2_DSA */
 
 #if LIBSSH2_ECDSA
-#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
-
 #ifdef USE_OPENSSL_3
 #define ssh2_ecdsa_ctx            EVP_PKEY
 #define ssh2_ecdsa_free(ecdsactx) EVP_PKEY_free(ecdsactx)
@@ -347,8 +345,6 @@ typedef enum {
     SSH2_EC_CURVE_NISTP384 = NID_secp384r1,
     SSH2_EC_CURVE_NISTP521 = NID_secp521r1
 } ssh2_curve_type;
-#else /* !LIBSSH2_ECDSA */
-#define ssh2_ec_key void
 #endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519

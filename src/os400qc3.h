@@ -195,12 +195,6 @@
 #define SHA384_DIGEST_LENGTH 48
 #define SHA512_DIGEST_LENGTH 64
 
-#if LIBSSH2_ECDSA
-#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
-#else
-#define ssh2_ec_key void
-#endif
-
 /*******************************************************************
  *
  * OS/400 QC3 crypto-library backend: global handles structures.
