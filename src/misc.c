@@ -382,10 +382,9 @@ int ssh2_base64_decode(LIBSSH2_SESSION *session,
     *datalen = 0;
     *data = SSH2_ALLOC(session, src_len);
     d = (unsigned char *)*data;
-    if(!d) {
+    if(!d)
         return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                         "Unable to allocate memory for base64 decoding");
-    }
 
     for(s = src; s < (src + src_len); s++) {
         v = base64_reverse_table[(unsigned char)*s];
@@ -547,10 +546,8 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
     const char *contexttext = contexts[0];
     unsigned int contextindex;
 
-    if(!(session->showmask & context)) {
-        /* no such output asked for */
-        return;
-    }
+    if(!(session->showmask & context))
+        return;  /* no such output asked for */
 
     /* Find the first matching context string for this message */
     for(contextindex = 0; contextindex < SSH2_ARRAYSIZE(contexts);
@@ -562,9 +559,8 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
     }
 
     gettimeofday(&now, NULL);
-    if(!firstsec) {
+    if(!firstsec)
         firstsec = now.tv_sec;
-    }
     now.tv_sec -= firstsec;
 
     len = snprintf(buffer, buflen, "[libssh2] %d.%06d %s: ",
@@ -754,9 +750,8 @@ int ssh2_gettimeofday(struct timeval *tp, void *tzp)
 void *ssh2_calloc(LIBSSH2_SESSION *session, size_t size)
 {
     void *p = SSH2_ALLOC(session, size);
-    if(p) {
+    if(p)
         memset(p, 0, size);
-    }
     return p;
 }
 
@@ -808,9 +803,8 @@ void ssh2_string_buf_free(LIBSSH2_SESSION *session, struct string_buf *buf)
 
 int ssh2_get_byte(struct string_buf *buf, unsigned char *out)
 {
-    if(!ssh2_check_length(buf, 1)) {
+    if(!ssh2_check_length(buf, 1))
         return -1;
-    }
 
     *out = buf->dataptr[0];
     buf->dataptr += 1;
@@ -819,9 +813,8 @@ int ssh2_get_byte(struct string_buf *buf, unsigned char *out)
 
 int ssh2_get_boolean(struct string_buf *buf, unsigned char *out)
 {
-    if(!ssh2_check_length(buf, 1)) {
+    if(!ssh2_check_length(buf, 1))
         return -1;
-    }
 
     *out = buf->dataptr[0] == 0 ? 0 : 1;
     buf->dataptr += 1;
@@ -830,9 +823,8 @@ int ssh2_get_boolean(struct string_buf *buf, unsigned char *out)
 
 int ssh2_get_u32(struct string_buf *buf, uint32_t *out)
 {
-    if(!ssh2_check_length(buf, 4)) {
+    if(!ssh2_check_length(buf, 4))
         return -1;
-    }
 
     *out = ssh2_ntohu32(buf->dataptr);
     buf->dataptr += 4;
@@ -841,9 +833,8 @@ int ssh2_get_u32(struct string_buf *buf, uint32_t *out)
 
 int ssh2_get_u64(struct string_buf *buf, libssh2_uint64_t *out)
 {
-    if(!ssh2_check_length(buf, 8)) {
+    if(!ssh2_check_length(buf, 8))
         return -1;
-    }
 
     *out = ssh2_ntohu64(buf->dataptr);
     buf->dataptr += 8;
@@ -855,9 +846,8 @@ int ssh2_match_string(struct string_buf *buf, const char *match)
     unsigned char *out;
     size_t len = 0;
     if(ssh2_get_string(buf, &out, &len) || len != strlen(match) ||
-       strncmp((char *)out, match, strlen(match))) {
+       strncmp((char *)out, match, strlen(match)))
         return -1;
-    }
     return 0;
 }
 
@@ -865,12 +855,10 @@ int ssh2_get_string(struct string_buf *buf, unsigned char **outbuf,
                     size_t *outlen)
 {
     uint32_t data_len;
-    if(!buf || ssh2_get_u32(buf, &data_len) != 0) {
+    if(!buf || ssh2_get_u32(buf, &data_len) != 0)
         return -1;
-    }
-    if(!ssh2_check_length(buf, data_len)) {
+    if(!ssh2_check_length(buf, data_len))
         return -1;
-    }
     *outbuf = buf->dataptr;
     buf->dataptr += data_len;
 
@@ -886,22 +874,18 @@ int ssh2_copy_string(LIBSSH2_SESSION *session, struct string_buf *buf,
     size_t str_len;
     unsigned char *str;
 
-    if(ssh2_get_string(buf, &str, &str_len)) {
+    if(ssh2_get_string(buf, &str, &str_len))
         return -1;
-    }
 
     if(str_len) {
         *outbuf = SSH2_ALLOC(session, str_len);
-        if(*outbuf) {
+        if(*outbuf)
             memcpy(*outbuf, str, str_len);
-        }
-        else {
+        else
             return -1;
-        }
     }
-    else {
+    else
         *outbuf = NULL;
-    }
 
     if(outlen)
         *outlen = str_len;
@@ -916,12 +900,10 @@ int ssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf,
     uint32_t bn_len;
     unsigned char *bnptr;
 
-    if(ssh2_get_u32(buf, &data_len)) {
+    if(ssh2_get_u32(buf, &data_len))
         return -1;
-    }
-    if(!ssh2_check_length(buf, data_len)) {
+    if(!ssh2_check_length(buf, data_len))
         return -1;
-    }
 
     bn_len = data_len;
     bnptr = buf->dataptr;

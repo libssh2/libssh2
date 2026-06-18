@@ -171,9 +171,8 @@ static int bcrypt_pbkdf(const char *pass, size_t passlen,
         amt = SSH2_MIN(amt, keylen);
         for(i = 0; i < amt; i++) {
             size_t dest = i * stride + (count - 1);
-            if(dest >= origkeylen) {
+            if(dest >= origkeylen)
                 break;
-            }
             key[dest] = out[i];
         }
         keylen -= i;

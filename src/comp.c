@@ -140,23 +140,18 @@ static int comp_method_zlib_init(LIBSSH2_SESSION *session, int compr,
     int status;
 
     strm = SSH2_CALLOC(session, sizeof(z_stream));
-    if(!strm) {
+    if(!strm)
         return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                         "Unable to allocate memory for "
                         "zlib compression/decompression");
-    }
 
     strm->opaque = (voidpf)session;
     strm->zalloc = (alloc_func)comp_method_zlib_alloc;
     strm->zfree = (free_func)comp_method_zlib_free;
-    if(compr) {
-        /* deflate */
+    if(compr)
         status = deflateInit(strm, Z_DEFAULT_COMPRESSION);
-    }
-    else {
-        /* inflate */
+    else
         status = inflateInit(strm);
-    }
 
     if(status != Z_OK) {
         SSH2_FREE(session, strm);

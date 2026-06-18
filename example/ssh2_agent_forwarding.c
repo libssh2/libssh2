@@ -111,9 +111,8 @@ int main(int argc, char *argv[])
     hostname = argv[1];
     username = argv[2];
 
-    if(argc > 3) {
+    if(argc > 3)
         commandline = argv[3];
-    }
 
     rc = libssh2_init(0);
     if(rc) {
@@ -179,11 +178,10 @@ int main(int argc, char *argv[])
             rc = 1;
             goto shutdown;
         }
-        if(libssh2_agent_userauth(agent, username, identity)) {
+        if(libssh2_agent_userauth(agent, username, identity))
             fprintf(stderr, "Authentication with username %s and "
                     "public key %s failed.\n",
                     username, identity->comment);
-        }
         else {
             fprintf(stderr, "Authentication with username %s and "
                     "public key %s succeeded.\n",
@@ -217,26 +215,26 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Error\n");
         return 1;
     }
+
     while((rc = libssh2_channel_request_auth_agent(channel)) ==
-          LIBSSH2_ERROR_EAGAIN) {
+          LIBSSH2_ERROR_EAGAIN)
         waitsocket(sock, session);
-    }
     if(rc) {
         fprintf(stderr, "Error, could not request auth agent, "
                 "error code %d.\n", rc);
         return 1;
     }
-    else {
+    else
         fprintf(stdout, "Agent forwarding request succeeded.\n");
-    }
+
     while((rc = libssh2_channel_exec(channel, commandline)) ==
-          LIBSSH2_ERROR_EAGAIN) {
+          LIBSSH2_ERROR_EAGAIN)
         waitsocket(sock, session);
-    }
     if(rc) {
         fprintf(stderr, "Error\n");
         return 1;
     }
+
     for(;;) {
         ssize_t nread;
         /* loop until we block */
@@ -251,25 +249,22 @@ int main(int argc, char *argv[])
                     fputc(buffer[i], stderr);
                 fprintf(stderr, "\n");
             }
-            else if(nread < 0 && nread != LIBSSH2_ERROR_EAGAIN) {
+            else if(nread < 0 && nread != LIBSSH2_ERROR_EAGAIN)
                 /* no need to output this for the EAGAIN case */
                 fprintf(stderr, "libssh2_channel_read returned %ld\n",
                         (long)nread);
-            }
         } while(nread > 0);
 
         /* this is due to blocking that would occur otherwise so we loop on
            this condition */
-        if(nread == LIBSSH2_ERROR_EAGAIN) {
+        if(nread == LIBSSH2_ERROR_EAGAIN)
             waitsocket(sock, session);
-        }
         else
             break;
     }
     exitcode = 127;
-    while((rc = libssh2_channel_close(channel)) == LIBSSH2_ERROR_EAGAIN) {
+    while((rc = libssh2_channel_close(channel)) == LIBSSH2_ERROR_EAGAIN)
         waitsocket(sock, session);
-    }
     if(rc == 0) {
         exitcode = libssh2_channel_get_exit_status(channel);
         libssh2_channel_get_exit_signal(channel, &exitsignal,
@@ -278,14 +273,12 @@ int main(int argc, char *argv[])
 
     rc = 0;
 
-    if(exitsignal) {
+    if(exitsignal)
         fprintf(stderr, "\nGot signal: %s\n",
                 exitsignal ? exitsignal : "none");
-    }
-    else {
+    else
         fprintf(stderr, "\nEXIT: %d bytecount: %ld\n",
                 exitcode, (long)bytecount);
-    }
 
     libssh2_channel_free(channel);
 

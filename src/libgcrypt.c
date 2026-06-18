@@ -153,16 +153,15 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     (void)e2data;
     (void)e2len;
 
-    if(ddata) {
+    if(ddata)
         rc = gcry_sexp_build(rsa, NULL,
                  "(private-key(rsa(n%b)(e%b)(d%b)(q%b)(p%b)(u%b)))",
                  nlen, ndata, elen, edata, dlen, ddata, plen, pdata,
                  qlen, qdata, coefflen, coeffdata);
-    }
-    else {
+    else
         rc = gcry_sexp_build(rsa, NULL, "(public-key(rsa(n%b)(e%b)))",
                              nlen, ndata, elen, edata);
-    }
+
     if(rc) {
         *rsa = NULL;
         return -1;
@@ -199,9 +198,8 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
         algo = "sha512";
         ret = ssh2_sha512(m, m_len, hash);
     }
-    else {
+    else
         ret = 1;
-    }
 
     if(ret) {
         ret = -1;
@@ -255,16 +253,14 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsactx,
 {
     int rc;
 
-    if(x_len) {
+    if(x_len)
         rc = gcry_sexp_build(dsactx, NULL,
                              "(private-key(dsa(p%b)(q%b)(g%b)(y%b)(x%b)))",
                              p_len, p, q_len, q, g_len, g, y_len, y, x_len, x);
-    }
-    else {
+    else
         rc = gcry_sexp_build(dsactx, NULL,
                              "(public-key(dsa(p%b)(q%b)(g%b)(y%b)))",
                              p_len, p, q_len, q, g_len, g, y_len, y);
-    }
 
     if(rc) {
         *dsactx = NULL;
@@ -305,16 +301,14 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
     unsigned int nlen, elen, dlen, plen, qlen, e1len, e2len, coefflen;
 
     fp = fopen(filename, "rb");
-    if(!fp) {
+    if(!fp)
         return -1;
-    }
 
     ret = ssh2_pem_parse(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
                          passphrase, fp, &data, &datalen);
     fclose(fp);
-    if(ret) {
+    if(ret)
         return -1;
-    }
 
     save_data = data;
 
@@ -422,16 +416,14 @@ int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
     unsigned int plen, qlen, glen, ylen, xlen;
 
     fp = fopen(filename, "rb");
-    if(!fp) {
+    if(!fp)
         return -1;
-    }
 
     ret = ssh2_pem_parse(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
                          passphrase, fp, &data, &datalen);
     fclose(fp);
-    if(ret) {
+    if(ret)
         return -1;
-    }
 
     save_data = data;
 
@@ -591,25 +583,22 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
     const char *tmp;
     size_t size;
 
-    if(hash_len != SHA_DIGEST_LENGTH) {
+    if(hash_len != SHA_DIGEST_LENGTH)
         return -1;
-    }
 
     memcpy(zhash + 1, hash, hash_len);
     zhash[0] = 0;
 
     if(gcry_sexp_build(&data, NULL, "(data (value %b))",
-                       (int)(hash_len + 1), zhash)) {
+                       (int)(hash_len + 1), zhash))
         return -1;
-    }
 
     ret = gcry_pk_sign(&sig_sexp, data, dsactx);
 
     gcry_sexp_release(data);
 
-    if(ret) {
+    if(ret)
         return -1;
-    }
 
     memset(sig, 0, 40);
 
@@ -660,12 +649,10 @@ err:
     ret = -1;
 
 out:
-    if(sig_sexp) {
+    if(sig_sexp)
         gcry_sexp_release(sig_sexp);
-    }
-    if(data) {
+    if(data)
         gcry_sexp_release(data);
-    }
     return ret;
 }
 
@@ -677,15 +664,14 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
     gcry_sexp_t s_sig, s_hash;
     int rc = -1;
 
-    if(ssh2_sha1(m, m_len, hash + 1)) {
+    if(ssh2_sha1(m, m_len, hash + 1))
         return -1;
-    }
+
     hash[0] = 0;
 
     if(gcry_sexp_build(&s_hash, NULL, "(data(flags raw)(value %b))",
-                       SHA_DIGEST_LENGTH + 1, hash)) {
+                       SHA_DIGEST_LENGTH + 1, hash))
         return -1;
-    }
 
     if(gcry_sexp_build(&s_sig, NULL, "(sig-val(dsa(r %b)(s %b)))",
                        20, sig, 20, sig + 20)) {
@@ -712,9 +698,8 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
     (void)encrypt;
 
     ret = gcry_cipher_open(h, cipher, mode, 0);
-    if(ret) {
+    if(ret)
         return -1;
-    }
 
     ret = gcry_cipher_setkey(*h, secret, keylen);
     if(ret) {
@@ -747,12 +732,10 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx,
     (void)algo;
     (void)firstlast;
 
-    if(encrypt) {
+    if(encrypt)
         ret = gcry_cipher_encrypt(*ctx, block, blocksize, block, blocksize);
-    }
-    else {
+    else
         ret = gcry_cipher_decrypt(*ctx, block, blocksize, block, blocksize);
-    }
     return ret;
 }
 

@@ -94,9 +94,8 @@ static int run_command_varg(char **output, const char *command, va_list args)
     int ret;
     size_t buf_len;
 
-    if(output) {
+    if(output)
         *output = NULL;
-    }
 
     /* Format the command string */
 #if defined(__GNUC__) || defined(__clang__)
@@ -133,23 +132,20 @@ static int run_command_varg(char **output, const char *command, va_list args)
     buf[0] = 0;
     buf_len = 0;
     while(buf_len < (sizeof(buf) - 1) &&
-          fgets(&buf[buf_len], (int)(sizeof(buf) - buf_len), pipe)) {
+          fgets(&buf[buf_len], (int)(sizeof(buf) - buf_len), pipe))
         buf_len = strlen(buf);
-    }
 
     ret = pclose(pipe);
-    if(ret) {
+    if(ret)
         fprintf(stderr, "Error running command '%s' (exit %d): %s\n",
                 command, ret, buf);
-    }
 
     if(output) {
         /* command output may contain a trailing newline, so we trim
          * whitespace here */
         size_t end = strlen(buf);
-        while(end > 0 && isspace((int)buf[end - 1])) {
+        while(end > 0 && isspace((int)buf[end - 1]))
             buf[end - 1] = '\0';
-        }
 
         *output = libssh2_strdup(buf);
     }
@@ -186,18 +182,16 @@ static int build_openssh_server_docker_image(void)
             if(ret == 0) {
                 ret = run_command(NULL, "docker tag %s libssh2/openssh_server",
                                   container_image_name);
-                if(ret == 0) {
+                if(ret == 0)
                     return ret;
-                }
             }
         }
         return run_command(NULL,
                            "docker build --quiet -t libssh2/openssh_server %s",
                            srcdir_path("openssh_server"));
     }
-    else {
+    else
         return 0;
-    }
 }
 
 static const char *openssh_server_port(void)
@@ -209,12 +203,11 @@ static int start_openssh_server(char **container_id_out)
 {
     if(have_docker) {
         const char *container_host_port = openssh_server_port();
-        if(container_host_port) {
+        if(container_host_port)
             return run_command(container_id_out,
                                "docker run --rm -d -p %s:22 "
                                "libssh2/openssh_server",
                                container_host_port);
-        }
 
         return run_command(container_id_out,
                            "docker run --rm -d -p 22 "
@@ -228,12 +221,10 @@ static int start_openssh_server(char **container_id_out)
 
 static int stop_openssh_server(char *container_id)
 {
-    if(have_docker) {
+    if(have_docker)
         return run_command(NULL, "docker stop %s", container_id);
-    }
-    else {
+    else
         return 0;
-    }
 }
 
 static const char *docker_machine_name(void)
@@ -251,10 +242,8 @@ static int is_running_inside_a_container(void)
     char line[1024];
     int found = 0;
     f = fopen(cgroup_filename, "r");
-    if(!f) {
-        /* Do not go further, we are not in a container */
-        return 0;
-    }
+    if(!f)
+        return 0;  /* Do not go further, we are not in a container */
     while(fgets(line, sizeof(line), f)) {
         if(strstr(line, "docker")) {
             found = 1;
@@ -288,9 +277,8 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
         for(;;) {
             int ret = run_command(ip_address_out, "docker-machine ip %s",
                                   active_docker_machine);
-            if(ret == 0) {
+            if(ret == 0)
                 return 0;
-            }
             else if(attempt_no > 5) {
                 fprintf(
                     stderr,
@@ -306,21 +294,19 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
         }
     }
     else {
-        if(is_running_inside_a_container()) {
+        if(is_running_inside_a_container())
             return run_command(ip_address_out,
                                "docker inspect --format "
                                "\"{{ .NetworkSettings.IPAddress }}\""
                                " %s",
                                container_id);
-        }
-        else {
+        else
             return run_command(ip_address_out,
                                "docker inspect --format "
                                "\"{{ index (index (index "
                                ".NetworkSettings.Ports "
                                "\\\"22/tcp\\\") 0) \\\"HostIp\\\" }}\" %s",
                                container_id);
-        }
     }
 }
 
@@ -330,13 +316,12 @@ static int port_from_container(char *container_id, char **port_out)
         *port_out = libssh2_strdup("22");
         return 0;
     }
-    else {
+    else
         return run_command(port_out,
                            "docker inspect --format "
                            "\"{{ index (index (index .NetworkSettings.Ports "
                            "\\\"22/tcp\\\") 0) \\\"HostPort\\\" }}\" %s",
                            container_id);
-    }
 }
 
 static void close_socket_to_container(libssh2_socket_t sock)
@@ -380,14 +365,12 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
     else {
         const char *env;
         env = getenv("OPENSSH_SERVER_HOST");
-        if(!env) {
+        if(!env)
             env = "127.0.0.1";
-        }
         ip_address = libssh2_strdup(env);
         env = openssh_server_port();
-        if(!env) {
+        if(!env)
             env = "4711";
-        }
         port_string = libssh2_strdup(env);
     }
 
@@ -461,9 +444,8 @@ int start_openssh_fixture(void)
     have_docker = !getenv("OPENSSH_NO_DOCKER");
 
     ret = build_openssh_server_docker_image();
-    if(!ret) {
+    if(!ret)
         return start_openssh_server(&running_container_id);
-    }
     else {
         fprintf(stderr, "Failed to build docker image\n");
         return ret;
@@ -477,9 +459,8 @@ void stop_openssh_fixture(void)
         free(running_container_id);
         running_container_id = NULL;
     }
-    else if(have_docker) {
+    else if(have_docker)
         fprintf(stderr, "Cannot stop container - none started\n");
-    }
 
 #ifdef _WIN32
     WSACleanup();

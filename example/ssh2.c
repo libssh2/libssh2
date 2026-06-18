@@ -81,18 +81,14 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    if(argc > 1) {
+    if(argc > 1)
         hostaddr = inet_addr(argv[1]);
-    }
-    else {
+    else
         hostaddr = htonl(0x7F000001);
-    }
-    if(argc > 2) {
+    if(argc > 2)
         username = argv[2];
-    }
-    if(argc > 3) {
+    if(argc > 3)
         password = argv[3];
-    }
 
     rc = libssh2_init(0);
     if(rc) {
@@ -149,9 +145,8 @@ int main(int argc, char *argv[])
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
-    for(i = 0; i < 20; i++) {
+    for(i = 0; i < 20; i++)
         fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
-    }
     fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
@@ -159,27 +154,21 @@ int main(int argc, char *argv[])
                                          (unsigned int)strlen(username));
     if(userauthlist) {
         fprintf(stderr, "Authentication methods: %s\n", userauthlist);
-        if(strstr(userauthlist, "password")) {
+        if(strstr(userauthlist, "password"))
             auth_pw |= 1;
-        }
-        if(strstr(userauthlist, "keyboard-interactive")) {
+        if(strstr(userauthlist, "keyboard-interactive"))
             auth_pw |= 2;
-        }
-        if(strstr(userauthlist, "publickey")) {
+        if(strstr(userauthlist, "publickey"))
             auth_pw |= 4;
-        }
 
         /* check for options */
         if(argc > 4) {
-            if((auth_pw & 1) && !strcmp(argv[4], "-p")) {
+            if((auth_pw & 1) && !strcmp(argv[4], "-p"))
                 auth_pw = 1;
-            }
-            if((auth_pw & 2) && !strcmp(argv[4], "-i")) {
+            if((auth_pw & 2) && !strcmp(argv[4], "-i"))
                 auth_pw = 2;
-            }
-            if((auth_pw & 4) && !strcmp(argv[4], "-k")) {
+            if((auth_pw & 4) && !strcmp(argv[4], "-k"))
                 auth_pw = 4;
-            }
         }
 
         if(auth_pw & 1) {
@@ -188,9 +177,8 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "Authentication by password failed.\n");
                 goto shutdown;
             }
-            else {
+            else
                 fprintf(stderr, "Authentication by password succeeded.\n");
-            }
         }
         else if(auth_pw & 2) {
             /* Or via keyboard-interactive */
@@ -200,10 +188,9 @@ int main(int argc, char *argv[])
                         "Authentication by keyboard-interactive failed.\n");
                 goto shutdown;
             }
-            else {
+            else
                 fprintf(stderr,
                         "Authentication by keyboard-interactive succeeded.\n");
-            }
         }
         else if(auth_pw & 4) {
             /* Or by public key */
@@ -243,9 +230,8 @@ int main(int argc, char *argv[])
                 free(fn1);
                 goto shutdown;
             }
-            else {
+            else
                 fprintf(stderr, "Authentication by public key succeeded.\n");
-            }
             free(fn2);
             free(fn1);
         }
@@ -272,9 +258,8 @@ int main(int argc, char *argv[])
      * an interactive shell.
      */
 #if 0
-    if(libssh2_channel_request_pty(channel, "vanilla")) {
+    if(libssh2_channel_request_pty(channel, "vanilla"))
         fprintf(stderr, "Failed requesting pty\n");
-    }
 #endif
 
     if(argc > 5) {
@@ -318,9 +303,8 @@ int main(int argc, char *argv[])
             ssize_t err = libssh2_channel_read(channel, buf, sizeof(buf));
             if(err < 0)
                 fprintf(stderr, "Unable to read response: %ld\n", (long)err);
-            else {
+            else
                 fwrite(buf, 1, (size_t)err, stdout);
-            }
         }
     }
 

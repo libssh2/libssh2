@@ -54,15 +54,12 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    if(argc > 1) {
+    if(argc > 1)
         hostaddr = inet_addr(argv[1]);
-    }
-    else {
+    else
         hostaddr = htonl(0x7F000001);
-    }
-    if(argc > 2) {
+    if(argc > 2)
         username = argv[2];
-    }
 
     rc = libssh2_init(0);
     if(rc) {
@@ -108,9 +105,8 @@ int main(int argc, char *argv[])
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
-    for(i = 0; i < 20; i++) {
+    for(i = 0; i < 20; i++)
         fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
-    }
     fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
@@ -150,11 +146,10 @@ int main(int argc, char *argv[])
                 rc = 1;
                 goto shutdown;
             }
-            if(libssh2_agent_userauth(agent, username, identity)) {
+            if(libssh2_agent_userauth(agent, username, identity))
                 fprintf(stderr, "Authentication with username %s and "
                         "public key %s failed.\n",
                         username, identity->comment);
-            }
             else {
                 fprintf(stderr, "Authentication with username %s and "
                         "public key %s succeeded.\n",

@@ -61,9 +61,8 @@ void chacha_keysetup(struct chacha_ctx *x, const u8 *k, u32 kbits)
         k += 16;
         constants = sigma;
     }
-    else { /* kbits == 128 */
-        constants = tau;
-    }
+    else
+        constants = tau;  /* kbits == 128 */
     x->input[8] = U8TO32_LITTLE(k + 0);
     x->input[9] = U8TO32_LITTLE(k + 4);
     x->input[10] = U8TO32_LITTLE(k + 8);

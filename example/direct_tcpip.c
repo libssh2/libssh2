@@ -188,9 +188,8 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "Authentication by public key failed.\n");
                 goto shutdown;
             }
-            else {
+            else
                 fprintf(stderr, "Authentication by public key succeeded.\n");
-            }
         }
         else {
             fprintf(stderr, "No supported authentication methods found.\n");
@@ -291,9 +290,8 @@ int main(int argc, char *argv[])
             while(wr < len) {
                 ssize_t nwritten = libssh2_channel_write(channel, buf + wr,
                                                          (size_t)(len - wr));
-                if(nwritten == LIBSSH2_ERROR_EAGAIN) {
+                if(nwritten == LIBSSH2_ERROR_EAGAIN)
                     continue;
-                }
                 if(nwritten < 0) {
                     fprintf(stderr, "libssh2_channel_write: %ld\n",
                             (long)nwritten);

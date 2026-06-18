@@ -255,9 +255,8 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         entry->comment[commentlen] = 0; /* force a null-terminator */
         entry->comment_len = commentlen;
     }
-    else {
+    else
         entry->comment = NULL;
-    }
 
     /* add this new host to the big list of known hosts */
     ssh2_list_add(&hosts->head, &entry->node);
@@ -427,11 +426,10 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                     if(!ssh2_hmac_ctx_init(&ctx))
                         break;
 
-                    if(SHA_DIGEST_LENGTH != node->name_len) {
+                    if(SHA_DIGEST_LENGTH != node->name_len)
                         /* the name hash length must be the sha1 size or
                            we cannot match it */
                         break;
-                    }
                     if(!ssh2_hmac_sha1_init(&ctx, node->salt, node->salt_len))
                         break;
                     if(!ssh2_hmac_update(&ctx, host, strlen(host)) ||
@@ -812,22 +810,17 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
     }
 
     /* Figure out host format */
-    if(hostlen < 3 || memcmp(host, "|1|", 3)) {
+    if(hostlen < 3 || memcmp(host, "|1|", 3))
         /* old style plain text: [name]([,][name])*
-
-           for the sake of simplicity, we add them as separate hosts with the
-           same key
-        */
+           for simplicity, we add them as separate hosts with the same key */
         return oldstyle_hostline(hosts, host, hostlen, key_type_name,
                                  key_type_len, key, keylen, key_type,
                                  comment, commentlen);
-    }
-    else {
+    else
         /* |1|[salt]|[hash] */
         return hashed_hostline(hosts, host, hostlen, key_type_name,
                                key_type_len, key, keylen, key_type,
                                comment, commentlen);
-    }
 }
 
 /*

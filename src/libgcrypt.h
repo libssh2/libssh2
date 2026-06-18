@@ -140,7 +140,7 @@
 #define ssh2_hmac_ctx         gcry_md_hd_t
 
 #define ssh2_crypto_init()    gcry_control(GCRYCTL_DISABLE_SECMEM)
-#define ssh2_crypto_exit()
+#define ssh2_crypto_exit()    do {} while(0)
 
 #define ssh2_rsa_ctx          struct gcry_sexp
 #define ssh2_rsa_free(rsactx) gcry_sexp_release(rsactx)

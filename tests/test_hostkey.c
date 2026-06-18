@@ -34,21 +34,18 @@ int test(LIBSSH2_SESSION *session)
         return 1;
     }
 
-    if(type == LIBSSH2_HOSTKEY_TYPE_ED25519) {
+    if(type == LIBSSH2_HOSTKEY_TYPE_ED25519)
         rc = ssh2_base64_decode(session, &expected_hostkey, &expected_len,
                                 EXPECTED_ED25519_HOSTKEY,
                                 strlen(EXPECTED_ED25519_HOSTKEY));
-    }
-    else if(type == LIBSSH2_HOSTKEY_TYPE_ECDSA_256) {
+    else if(type == LIBSSH2_HOSTKEY_TYPE_ECDSA_256)
         rc = ssh2_base64_decode(session, &expected_hostkey, &expected_len,
                                 EXPECTED_ECDSA_HOSTKEY,
                                 strlen(EXPECTED_ECDSA_HOSTKEY));
-    }
-    else if(type == LIBSSH2_HOSTKEY_TYPE_RSA) {
+    else if(type == LIBSSH2_HOSTKEY_TYPE_RSA)
         rc = ssh2_base64_decode(session, &expected_hostkey, &expected_len,
                                 EXPECTED_RSA_HOSTKEY,
                                 strlen(EXPECTED_RSA_HOSTKEY));
-    }
     else {
         fprintf(stderr, "Unexpected type of hostkey: %d\n", type);
         return 1;

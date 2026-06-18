@@ -62,10 +62,8 @@ static void debugdump(LIBSSH2_SESSION *session,
     size_t used;
     static const char *hex_chars = "0123456789ABCDEF";
 
-    if(!(session->showmask & LIBSSH2_TRACE_TRANS)) {
-        /* not asked for, bail out */
-        return;
-    }
+    if(!(session->showmask & LIBSSH2_TRACE_TRANS))
+        return;  /* not asked for, bail out */
 
     used = snprintf(buffer, sizeof(buffer), "=> %s (%lu bytes)\n",
                     desc, (unsigned long)size);
@@ -188,9 +186,8 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
     memset(macbuf, '\0', sizeof(macbuf));
 
     if(!encrypted || (!CRYPT_FLAG_R(session, REQUIRES_FULL_PACKET) &&
-                      !CRYPT_FLAG_R(session, INTEGRATED_MAC))) {
+                      !CRYPT_FLAG_R(session, INTEGRATED_MAC)))
         remote_mac = session->remote.mac;
-    }
 
     if(session->fullpacket_state == ssh2_NB_state_idle) {
         session->fullpacket_macstate = SSH2_MAC_CONFIRMED;
@@ -201,23 +198,19 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
             /* Calculate MAC hash */
             int etm = remote_mac->etm;
             size_t mac_len = remote_mac->mac_len;
-            if(etm) {
-                /* store hash here */
+            if(etm)  /* store hash here */
                 remote_mac->hash(session, macbuf,
                                  session->remote.seqno,
                                  p->payload, p->total_num - mac_len,
                                  NULL, 0,
                                  &session->remote.mac_abstract);
-            }
-            else {
-                /* store hash here */
+            else  /* store hash here */
                 remote_mac->hash(session, macbuf,
                                  session->remote.seqno,
                                  p->init, 5,
                                  p->payload,
                                  session->fullpacket_payload_len,
                                  &session->remote.mac_abstract);
-            }
 
             /* Compare the calculated hash with the MAC we read from
              * the network. The read one is at the end of the payload
@@ -244,16 +237,14 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
 
                 rc = decrypt(session, p->payload + 4,
                              first_block, blocksize, FIRST_BLOCK);
-                if(rc) {
+                if(rc)
                     return rc;
-                }
 
                 /* we need buffer for decrypt */
                 decrypt_size = p->total_num - mac_len - 4;
                 decrypt_buffer = SSH2_ALLOC(session, decrypt_size);
-                if(!decrypt_buffer) {
+                if(!decrypt_buffer)
                     return LIBSSH2_ERROR_ALLOC;
-                }
 
                 /* grab padding length and copy anything else
                    into target buffer */
@@ -264,9 +255,8 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
                     return LIBSSH2_ERROR_PROTO;
                 }
 
-                if(blocksize > 1) {
+                if(blocksize > 1)
                     memcpy(decrypt_buffer, first_block + 1, blocksize - 1);
-                }
 
                 /* decrypt all other blocks packet */
                 if(blocksize < decrypt_size) {
@@ -284,10 +274,9 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
                 p->payload = decrypt_buffer;
             }
         }
-        else if(encrypted && CRYPT_FLAG_R(session, REQUIRES_FULL_PACKET)) {
+        else if(encrypted && CRYPT_FLAG_R(session, REQUIRES_FULL_PACKET))
             /* etm trim off padding byte from payload */
             memmove(p->payload, &p->payload[1], p->packet_length - 1);
-        }
 
         session->remote.seqno++;
 
@@ -347,9 +336,8 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
     session->fullpacket_state = ssh2_NB_state_idle;
 
     if(session->kex_strict &&
-       session->fullpacket_packet_type == SSH_MSG_NEWKEYS) {
+       session->fullpacket_packet_type == SSH_MSG_NEWKEYS)
         session->remote.seqno = 0;
-    }
 
     return session->fullpacket_packet_type;
 }
@@ -428,13 +416,11 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
 
     do {
         int etm;
-        if(session->socket_state == SSH2_SOCKET_DISCONNECTED) {
+        if(session->socket_state == SSH2_SOCKET_DISCONNECTED)
             return LIBSSH2_ERROR_SOCKET_DISCONNECT;
-        }
 
-        if(session->state & SSH2_STATE_NEWKEYS) {
+        if(session->state & SSH2_STATE_NEWKEYS)
             blocksize = session->remote.crypt->blocksize;
-        }
         else {
             encrypted = 0;      /* not encrypted */
             blocksize = 5;      /* not strictly true, but we can use 5 here to
@@ -442,12 +428,10 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
         }
 
         if(encrypted) {
-            if(CRYPT_FLAG_R(session, REQUIRES_FULL_PACKET)) {
+            if(CRYPT_FLAG_R(session, REQUIRES_FULL_PACKET))
                 auth_len = session->remote.crypt->auth_len;
-            }
-            else {
+            else
                 remote_mac = session->remote.mac;
-            }
         }
 
         etm = encrypted && remote_mac ? remote_mac->etm : 0;
@@ -479,10 +463,8 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                 p->readidx = 0;
                 p->writeidx = remainbuf;
             }
-            else {
-                /* nothing to move, zero the indexes */
+            else /* nothing to move, zero the indexes */
                 p->readidx = p->writeidx = 0;
-            }
 
             /* now read a big chunk from the network into the temp buffer */
             nread = SSH2_RECV(session, &p->buf[remainbuf],
@@ -577,9 +559,8 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                     /* first decrypted block */
                     rc = decrypt(session, &p->buf[p->readidx],
                                  block, blocksize, FIRST_BLOCK);
-                    if(rc != LIBSSH2_ERROR_NONE) {
+                    if(rc != LIBSSH2_ERROR_NONE)
                         return rc;
-                    }
                     /* Save the first 5 bytes of the decrypted package, to be
                        used in the hash calculation later down.
                        This is ignored in the INTEGRATED_MAC case. */
@@ -601,12 +582,10 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
             }
 
             if(!encrypted || !CRYPT_FLAG_R(session, REQUIRES_FULL_PACKET)) {
-                if(p->packet_length < 1) {
+                if(p->packet_length < 1)
                     return LIBSSH2_ERROR_DECRYPT;
-                }
-                else if(p->packet_length > LIBSSH2_PACKET_MAXPAYLOAD) {
+                else if(p->packet_length > LIBSSH2_PACKET_MAXPAYLOAD)
                     return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
-                }
 
                 if(etm) {
                     /* do not know what padding is until we decrypt the full
@@ -624,9 +603,8 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                        immediately following) until after the entire packet is
                        authenticated, so this is safe. */
                     p->padding_length = block[4];
-                    if(p->padding_length > p->packet_length - 1) {
+                    if(p->padding_length > p->packet_length - 1)
                         return LIBSSH2_ERROR_DECRYPT;
-                    }
 
                     /* total_num is the number of bytes following the initial
                        (5 bytes) packet length and padding length fields */
@@ -645,12 +623,10 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                 total_num = 4;
 
                 p->packet_length = ssh2_ntohu32(block);
-                if(p->packet_length < 1) {
+                if(p->packet_length < 1)
                     return LIBSSH2_ERROR_DECRYPT;
-                }
-                else if(p->packet_length > LIBSSH2_PACKET_MAXPAYLOAD) {
+                else if(p->packet_length > LIBSSH2_PACKET_MAXPAYLOAD)
                     return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
-                }
 
                 /* total_num may include size field, however due to existing
                  * logic it needs to be removed after the entire packet is read
@@ -672,16 +648,14 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
              * or less (including length, padding length, payload,
              * padding, and MAC.)."
              */
-            if(total_num > LIBSSH2_PACKET_MAXPAYLOAD || total_num == 0) {
+            if(total_num > LIBSSH2_PACKET_MAXPAYLOAD || total_num == 0)
                 return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
-            }
 
             /* Get a packet handle put data into. We get one to
                hold all data, including padding and MAC. */
             p->payload = SSH2_ALLOC(session, total_num);
-            if(!p->payload) {
+            if(!p->payload)
                 return LIBSSH2_ERROR_ALLOC;
-            }
             p->total_num = total_num;
             /* init write pointer to start of payload buffer */
             p->wptr = p->payload;
@@ -725,11 +699,10 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
            package */
         remainpack = p->total_num - p->data_num;
 
-        if(numbytes > remainpack) {
+        if(numbytes > remainpack)
             /* if we have more data in the buffer than what is going into this
                particular packet, we limit this round to this packet only */
             numbytes = remainpack;
-        }
 
         if(encrypted && CRYPT_FLAG_R(session, REQUIRES_FULL_PACKET)) {
             if(numbytes < remainpack) {
@@ -788,10 +761,9 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                 firstlast = MIDDLE_BLOCK;
             }
         }
-        else {
-            /* unencrypted data should not be decrypted at all */
+        else /* unencrypted data should not be decrypted at all */
             numdecrypt = 0;
-        }
+
         assert(numdecrypt >= 0);
 
         /* if there are bytes to decrypt, do that */
@@ -823,9 +795,8 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                    decrypted */
                 p->padding_length = p->wptr[0];
 
-                if(p->padding_length > p->packet_length - 1) {
+                if(p->padding_length > p->packet_length - 1)
                     return LIBSSH2_ERROR_DECRYPT;
-                }
             }
             else {
                 rc = decrypt(session, &p->buf[p->readidx], p->wptr, numdecrypt,
@@ -852,9 +823,8 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
            copy them as-is to the target buffer */
         if(numbytes > 0) {
 
-            if((size_t)numbytes <= (p->total_num - (p->wptr - p->payload))) {
+            if((size_t)numbytes <= (p->total_num - (p->wptr - p->payload)))
                 memcpy(p->wptr, &p->buf[p->readidx], numbytes);
-            }
             else {
                 if(p->payload)
                     SSH2_FREE(session, p->payload);
@@ -1051,12 +1021,10 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
     encrypted = (session->state & SSH2_STATE_NEWKEYS) ? 1 : 0;
 
     if(encrypted && session->local.crypt &&
-       CRYPT_FLAG_L(session, REQUIRES_FULL_PACKET)) {
+       CRYPT_FLAG_L(session, REQUIRES_FULL_PACKET))
         auth_len = session->local.crypt->auth_len;
-    }
-    else {
+    else
         local_mac = session->local.mac;
-    }
 
     etm = encrypted && local_mac ? local_mac->etm : 0;
 
@@ -1136,9 +1104,8 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
     /* if the padding becomes too small we add another blocksize worth
        of it (taken from the original libssh2 where it did not have any
        real explanation) */
-    if(padding_length < 4) {
+    if(padding_length < 4)
         padding_length += blocksize;
-    }
 #ifdef LIBSSH2_RANDOM_PADDING
     /* FIXME: we can add padding here, but that also makes the packets
        bigger etc */
@@ -1165,10 +1132,9 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
     p->outbuf[4] = (unsigned char)padding_length;
 
     /* fill the padding area with random junk */
-    if(ssh2_random(p->outbuf + 5 + data_len, padding_length)) {
+    if(ssh2_random(p->outbuf + 5 + data_len, padding_length))
         return ssh2_err(session, LIBSSH2_ERROR_RANDGEN,
                         "Unable to get random bytes for packet padding");
-    }
 
     if(encrypted) {
         size_t i;
@@ -1194,9 +1160,8 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
                                            p->outbuf,
                                            packet_length,
                                            &session->local.crypt_abstract,
-                                           0)) {
+                                           0))
                 return LIBSSH2_ERROR_ENCRYPT;
-            }
         }
         else {
             /* Encrypt the whole packet data, one block size at a time.
@@ -1269,9 +1234,8 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
 
     session->local.seqno++;
 
-    if(session->kex_strict && data[0] == SSH_MSG_NEWKEYS) {
+    if(session->kex_strict && data[0] == SSH_MSG_NEWKEYS)
         session->local.seqno = 0;
-    }
 
     ret = SSH2_SEND(session, p->outbuf, total_length,
                     SSH2_SOCKET_SEND_FLAGS(session));

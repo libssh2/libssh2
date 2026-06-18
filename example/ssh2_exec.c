@@ -106,18 +106,14 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    if(argc > 1) {
+    if(argc > 1)
         hostname = argv[1];  /* must be ip address only */
-    }
-    if(argc > 2) {
+    if(argc > 2)
         username = argv[2];
-    }
-    if(argc > 3) {
+    if(argc > 3)
         password = argv[3];
-    }
-    if(argc > 4) {
+    if(argc > 4)
         commandline = argv[4];
-    }
 
     rc = libssh2_init(0);
     if(rc) {
@@ -245,9 +241,8 @@ int main(int argc, char *argv[])
         return 1;
     }
     while((rc = libssh2_channel_exec(channel, commandline)) ==
-          LIBSSH2_ERROR_EAGAIN) {
+          LIBSSH2_ERROR_EAGAIN)
         waitsocket(sock, session);
-    }
     if(rc) {
         fprintf(stderr, "exec error\n");
         return 1;
@@ -266,18 +261,16 @@ int main(int argc, char *argv[])
                     fputc(buffer[i], stderr);
                 fprintf(stderr, "\n");
             }
-            else if(nread < 0 && nread != LIBSSH2_ERROR_EAGAIN) {
+            else if(nread < 0 && nread != LIBSSH2_ERROR_EAGAIN)
                 /* no need to output this for the EAGAIN case */
                 fprintf(stderr, "libssh2_channel_read returned %ld\n",
                         (long)nread);
-            }
         } while(nread > 0);
 
         /* this is due to blocking that would occur otherwise so we loop on
            this condition */
-        if(nread == LIBSSH2_ERROR_EAGAIN) {
+        if(nread == LIBSSH2_ERROR_EAGAIN)
             waitsocket(sock, session);
-        }
         else
             break;
     }

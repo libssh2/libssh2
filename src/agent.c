@@ -750,10 +750,9 @@ static int agent_sign(LIBSSH2_SESSION *session,
 
     len = 1 + 4 + 4 + 4;  /* fixed parts */
     if(identity->external.blob_len > UINT32_MAX - len ||
-       data_len > UINT32_MAX - len - identity->external.blob_len) {
+       data_len > UINT32_MAX - len - identity->external.blob_len)
         return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                         "Agent sign request too large");
-    }
     len += identity->external.blob_len + data_len;
 
     /* Create a request to sign the data */
@@ -773,14 +772,11 @@ static int agent_sign(LIBSSH2_SESSION *session,
         if(session->userauth_pblc_method_len > 0 &&
            session->userauth_pblc_method) {
             if(session->userauth_pblc_method_len == 12 &&
-               !memcmp(session->userauth_pblc_method, "rsa-sha2-512", 12)) {
+               !memcmp(session->userauth_pblc_method, "rsa-sha2-512", 12))
                 sign_flags = SSH_AGENT_RSA_SHA2_512;
-            }
             else if(session->userauth_pblc_method_len == 12 &&
-                    !memcmp(session->userauth_pblc_method, "rsa-sha2-256",
-                            12)) {
+                    !memcmp(session->userauth_pblc_method, "rsa-sha2-256", 12))
                 sign_flags = SSH_AGENT_RSA_SHA2_256;
-            }
         }
         ssh2_store_u32(&s, sign_flags);
 
@@ -798,9 +794,9 @@ static int agent_sign(LIBSSH2_SESSION *session,
         return ssh2_err(session, LIBSSH2_ERROR_BAD_USE, "agent not connected");
 
     rc = agent->ops->transact(agent, transctx);
-    if(rc) {
+    if(rc)
         goto error;
-    }
+
     SSH2_FREE(session, transctx->request);
     transctx->request = NULL;
 
@@ -1206,15 +1202,13 @@ int libssh2_agent_sign(LIBSSH2_AGENT *agent,
         agent->identity = identity->node;
     }
 
-    if(identity->blob_len < sizeof(uint32_t)) {
+    if(identity->blob_len < sizeof(uint32_t))
         return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
-    }
 
     key_kind_len = ssh2_ntohu32(identity->blob);
 
-    if(identity->blob_len < sizeof(uint32_t) + key_kind_len) {
+    if(identity->blob_len < sizeof(uint32_t) + key_kind_len)
         return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
-    }
 
     agent->session->userauth_pblc_method = SSH2_ALLOC(agent->session,
                                                       method_len);
@@ -1252,9 +1246,8 @@ int libssh2_agent_disconnect(LIBSSH2_AGENT *agent)
 void libssh2_agent_free(LIBSSH2_AGENT *agent)
 {
     /* Allow connection freeing when the socket has lost its connection */
-    if(agent->fd != LIBSSH2_INVALID_SOCKET) {
+    if(agent->fd != LIBSSH2_INVALID_SOCKET)
         libssh2_agent_disconnect(agent);
-    }
 
     if(agent->identity_agent_path)
         SSH2_FREE(agent->session, agent->identity_agent_path);
