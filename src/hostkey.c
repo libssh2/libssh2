@@ -1103,8 +1103,6 @@ static int hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION *session,
 }
 
 /*
- * hostkey_method_ssh_ed25519_cert_init
- *
  * Initialize the server hostkey cert
  */
 static int hostkey_method_ssh_ed25519_cert_init(
