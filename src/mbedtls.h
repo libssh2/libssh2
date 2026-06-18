@@ -228,9 +228,6 @@ void ssh2_rsa_free(ssh2_rsa_ctx *ctx);
  */
 
 #if LIBSSH2_ECDSA
-
-#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
-
 typedef enum {
 #ifdef MBEDTLS_ECP_DP_SECP256R1_ENABLED
     SSH2_EC_CURVE_NISTP256 = MBEDTLS_ECP_DP_SECP256R1,

@@ -159,6 +159,11 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
 #endif
 
 #if LIBSSH2_ECDSA
+/* Maximum uncompressed EC point length for NIST P-521:
+ * two 521-bit coordinates rounded up to bytes, plus 1-byte format prefix.
+ */
+#define EC_MAX_POINT_LEN ((((521 + 7) / 8) * 2) + 1)
+
 int ssh2_ecdsa_curve_name_with_octal_new(ssh2_ecdsa_ctx **ec_ctx,
                                          const unsigned char *k,
                                          size_t k_len,
