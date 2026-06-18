@@ -148,11 +148,6 @@
 #define ssh2_dsa_ctx          struct gcry_sexp
 #define ssh2_dsa_free(dsactx) gcry_sexp_release(dsactx)
 
-#if LIBSSH2_ECDSA
-#else
-#define ssh2_ec_key void
-#endif
-
 #define SSH2_CIPHER_T(name)   int name
 #define ssh2_cipher_ctx       gcry_cipher_hd_t
 

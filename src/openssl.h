@@ -345,8 +345,6 @@ typedef enum {
     SSH2_EC_CURVE_NISTP384 = NID_secp384r1,
     SSH2_EC_CURVE_NISTP521 = NID_secp521r1
 } ssh2_curve_type;
-#else /* !LIBSSH2_ECDSA */
-#define ssh2_ec_key void
 #endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519

@@ -250,8 +250,6 @@ typedef enum {
 #define ssh2_ec_key mbedtls_ecp_keypair
 
 void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ctx);
-#else
-#define ssh2_ec_key void
 #endif /* LIBSSH2_ECDSA */
 
 /*******************************************************************/
