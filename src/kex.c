@@ -1679,8 +1679,7 @@ static int kex_session_hybrid_curve_type(const char *name,
 }
 #endif
 
-#if LIBSSH2_ECDSA
-
+#if LIBSSH2_ECDSA || LIBSSH2_ED25519
 /*
  * Macro that create and verifies EC SHA hash with a given digest bytes
  *
@@ -1790,8 +1789,11 @@ static int kex_session_hybrid_curve_type(const char *name,
         }                                                                     \
     } while(0)
 
-#if LIBSSH2_MLKEM
+#endif /* LIBSSH2_ECDSA || LIBSSH2_ED25519 */
 
+#if LIBSSH2_ECDSA
+
+#if LIBSSH2_MLKEM
 /*
  * Macro that create and verifies HYBRID (EC+PQ) SHA hash with a given
  * digest bytes
@@ -1905,7 +1907,7 @@ static int kex_session_hybrid_curve_type(const char *name,
         }                                                                     \
     } while(0)
 
-#endif
+#endif /* LIBSSH2_MLKEM */
 
 /*
  * returns the EC curve type by name used in key exchange
