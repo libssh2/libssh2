@@ -1654,7 +1654,6 @@ dh_gex_clean_exit:
 }
 
 #if (LIBSSH2_ECDSA || LIBSSH2_ED25519) && LIBSSH2_MLKEM
-
 /*
  * returns the EC curve type by name used in hybrid key exchange
  */
@@ -1680,7 +1679,6 @@ static int kex_session_hybrid_curve_type(const char *name,
 
     return 0;
 }
-
 #endif
 
 #if LIBSSH2_ECDSA
