@@ -846,9 +846,8 @@ static int hostkey_method_ssh_ecdsa_initPEMFromMemory(
                                             privkeyfiledata,
                                             privkeyfiledata_len,
                                             passphrase);
-    if(ret) {
+    if(ret)
         return -1;
-    }
 
     if(abstract)
         *abstract = ec_ctx;
@@ -1093,9 +1092,8 @@ static int hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION *session,
     if(!ssh2_eob(&buf))
         return -1;
 
-    if(ssh2_ed25519_new_public(&ctx, session, key, key_len) != 0) {
+    if(ssh2_ed25519_new_public(&ctx, session, key, key_len) != 0)
         return -1;
-    }
 
     *abstract = ctx;
 
@@ -1148,9 +1146,8 @@ static int hostkey_method_ssh_ed25519_init_cert(
      * have more meta data we do not read
      */
 
-    if(ssh2_ed25519_new_public(&ctx, session, key, key_len) != 0) {
+    if(ssh2_ed25519_new_public(&ctx, session, key, key_len) != 0)
         return -1;
-    }
 
     *abstract = ctx;
 
@@ -1174,9 +1171,8 @@ static int hostkey_method_ssh_ed25519_initPEM(LIBSSH2_SESSION *session,
     }
 
     ret = ssh2_ed25519_new_private(&ec_ctx, session, privkeyfile, passphrase);
-    if(ret) {
+    if(ret)
         return -1;
-    }
 
     *abstract = ec_ctx;
 
@@ -1205,9 +1201,8 @@ static int hostkey_method_ssh_ed25519_initPEMFromMemory(
                                               privkeyfiledata,
                                               privkeyfiledata_len,
                                               passphrase);
-    if(ret) {
+    if(ret)
         return -1;
-    }
 
     if(abstract)
         *abstract = ed_ctx;
