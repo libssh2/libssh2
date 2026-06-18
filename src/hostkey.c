@@ -1105,7 +1105,7 @@ static int hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION *session,
 /*
  * Initialize the server hostkey cert
  */
-static int hostkey_method_ssh_ed25519_cert_init(
+static int hostkey_method_ssh_ed25519_init_cert(
     LIBSSH2_SESSION *session,
     const unsigned char *hostkey_data,
     size_t hostkey_data_len,
@@ -1294,7 +1294,7 @@ static const struct hostkey_method hostkey_method_ssh_ed25519 = {
 static const struct hostkey_method hostkey_method_ssh_ed25519_cert = {
     "ssh-ed25519-cert-v01@openssh.com",
     SHA256_DIGEST_LENGTH,
-    hostkey_method_ssh_ed25519_cert_init,
+    hostkey_method_ssh_ed25519_init_cert,
     hostkey_method_ssh_ed25519_initPEM,
     hostkey_method_ssh_ed25519_initPEMFromMemory,
     hostkey_method_ssh_ed25519_sig_verify,
