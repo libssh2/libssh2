@@ -227,7 +227,7 @@ jobs:
 
   build_linux:
     name: 'linux'
-    runs-on: ubuntu-26.04
+    runs-on: ${{ matrix.compiler == 'clang-tidy' && 'ubuntu-26.04' || (matrix.image || 'ubuntu-latest') }}
     timeout-minutes: 10
     strategy:
       fail-fast: false
@@ -260,6 +260,7 @@ jobs:
             crypto: mbedTLS-from-source
             build: 'CM'
             zlib: 'ON'
+            image: ubuntu-26.04
           - compiler: gcc
             arch: amd64
             crypto: OpenSSL
@@ -287,21 +288,25 @@ jobs:
             crypto: OpenSSL-3-no-deprecated
             build: 'CM'
             zlib: 'ON'
+            image: ubuntu-26.04
           - compiler: gcc
             arch: amd64
             crypto: OpenSSL-111-from-source
             build: 'CM'
             zlib: 'ON'
+            image: ubuntu-26.04
           - compiler: clang
             arch: amd64
             crypto: wolfSSL-from-source
             build: 'CM'
             zlib: 'ON'
+            image: ubuntu-26.04
           - compiler: clang
             arch: amd64
             crypto: wolfSSL-from-source-prev
             build: 'CM'
             zlib: 'ON'
+            image: ubuntu-26.04
     env:
       CC: ${{ matrix.compiler == 'clang-tidy' && 'clang' || matrix.compiler }}
       MATRIX_ARCH: '${{ matrix.arch }}'
