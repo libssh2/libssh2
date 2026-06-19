@@ -343,6 +343,7 @@ jobs:
         timeout-minutes: 2
         run: |
           pkgs=''
+          [ "${MATRIX_COMPILER}" = 'clang' ] && pkgs+=' clang-22'
           [ "${MATRIX_COMPILER}" = 'clang-tidy' ] && pkgs+=' clang-22 clang-tidy-22'
           [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && pkgs+=" libgcrypt-dev:${MATRIX_ARCH}"
           [ "${MATRIX_CRYPTO}" = 'OpenSSL' ] && pkgs+=" libssl-dev:${MATRIX_ARCH}"
@@ -549,6 +550,9 @@ jobs:
         env:
           MATRIX_COMPILER: '${{ matrix.compiler }}'
         run: |
+          if [ "${MATRIX_COMPILER}" = 'clang' ]; then
+            export CC=clang-22
+          fi
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             if [ "${MATRIX_CRYPTO}" = 'AWS-LC' ] || \
                [ "${MATRIX_CRYPTO}" = 'BoringSSL' ] || \
