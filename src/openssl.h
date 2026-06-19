@@ -335,9 +335,6 @@ int ssh2_ossl_md5_final(ssh2_md5_ctx *ctx, unsigned char *out);
 #define ssh2_ecdsa_ctx            EC_KEY
 #define ssh2_ecdsa_free(ecdsactx) EC_KEY_free(ecdsactx)
 #define ssh2_ec_key               EC_KEY
-#  if OPENSSL_VERSION_NUMBER < 0x20000000L
-#    warning "OpenSSL 1.1.1 + ECDSA compiled"
-#  endif
 #endif
 
 typedef enum {
