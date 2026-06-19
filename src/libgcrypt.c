@@ -309,9 +309,7 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
         return -1;
     }
 
-    ret = ssh2_pem_parse(session,
-                         "-----BEGIN RSA PRIVATE KEY-----",
-                         "-----END RSA PRIVATE KEY-----",
+    ret = ssh2_pem_parse(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
                          passphrase, fp, &data, &datalen);
     fclose(fp);
     if(ret) {
@@ -428,9 +426,7 @@ int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
         return -1;
     }
 
-    ret = ssh2_pem_parse(session,
-                         "-----BEGIN DSA PRIVATE KEY-----",
-                         "-----END DSA PRIVATE KEY-----",
+    ret = ssh2_pem_parse(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
                          passphrase, fp, &data, &datalen);
     fclose(fp);
     if(ret) {
