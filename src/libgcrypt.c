@@ -179,7 +179,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
 {
     unsigned char *hash;
     int ret;
-    const char *algo;
+    const char *algo = NULL;
     gcry_sexp_t s_hash = NULL;
     gcry_sexp_t s_sig = NULL;
 
