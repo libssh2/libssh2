@@ -66,7 +66,7 @@ jobs:
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           actionlint --version
           export SHELLCHECK_OPTS='--exclude=1090,1091,2086,2153 --enable=avoid-nullary-conditions,deprecate-which'
-          actionlint .github/workflows/*.yml
+          actionlint --ignore ubuntu-26.04 .github/workflows/*.yml
 
       - name: 'shellcheck GHA'
         run: |
