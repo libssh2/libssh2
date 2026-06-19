@@ -117,13 +117,12 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
      * tell mbedTLS to expect no padding on the cipher layer. Only call
      * set_padding_mode for CBC ciphers since other modes (CTR, stream)
      * are not applicable and causes an error. */
-    if(!ret) {
-        if(algo == MBEDTLS_CIPHER_AES_128_CBC ||
-           algo == MBEDTLS_CIPHER_AES_192_CBC ||
-           algo == MBEDTLS_CIPHER_AES_256_CBC ||
-           algo == MBEDTLS_CIPHER_DES_EDE3_CBC) {
-            ret = mbedtls_cipher_set_padding_mode(h, MBEDTLS_PADDING_NONE);
-        }
+    if(!ret &&
+       (algo == MBEDTLS_CIPHER_AES_128_CBC ||
+        algo == MBEDTLS_CIPHER_AES_192_CBC ||
+        algo == MBEDTLS_CIPHER_AES_256_CBC ||
+        algo == MBEDTLS_CIPHER_DES_EDE3_CBC)) {
+      ret = mbedtls_cipher_set_padding_mode(h, MBEDTLS_PADDING_NONE);
     }
 
     if(!ret)
