@@ -317,8 +317,8 @@ static const char beginencprivkeyhdr[] =
 static const char endencprivkeyhdr[] = "-----END ENCRYPTED PRIVATE KEY-----";
 static const char beginprivkeyhdr[] = "-----BEGIN PRIVATE KEY-----";
 static const char endprivkeyhdr[] = "-----END PRIVATE KEY-----";
-static const char beginrsaprivkeyhdr[] = "-----BEGIN RSA PRIVATE KEY-----";
-static const char endrsaprivkeyhdr[] = "-----END RSA PRIVATE KEY-----";
+static const char beginrsaprivkeyhdr[] = PEM_RSA_HEADER;
+static const char endrsaprivkeyhdr[] = PEM_RSA_FOOTER;
 static const char fopenrbmode[] = "rb";
 
 /* The rest of character literals in this module are in EBCDIC. */

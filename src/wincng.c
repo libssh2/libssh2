@@ -66,14 +66,6 @@
 
 #include <stdlib.h>
 
-#if LIBSSH2_RSA
-#define PEM_RSA_HEADER "-----BEGIN RSA PRIVATE KEY-----"
-#define PEM_RSA_FOOTER "-----END RSA PRIVATE KEY-----"
-#endif
-#if LIBSSH2_DSA
-#define PEM_DSA_HEADER "-----BEGIN DSA PRIVATE KEY-----"
-#define PEM_DSA_FOOTER "-----END DSA PRIVATE KEY-----"
-#endif
 #if LIBSSH2_ECDSA
 /* Define these manually to avoid including <ntstatus.h> and thus
    clashing with <windows.h> symbols. */
