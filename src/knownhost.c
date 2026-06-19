@@ -42,15 +42,15 @@
 
 struct known_host {
     struct list_node node;
-    char *name;      /* points to the name or the hash (allocated) */
-    size_t name_len; /* needed for hashed data */
-    int port;        /* if non-zero, a specific port this key is for on this
-                        host */
-    int typemask;    /* plain, sha1, custom, ... */
-    char *salt;      /* points to binary salt (allocated) */
-    size_t salt_len; /* size of salt */
-    char *key;       /* the (allocated) associated key. This is kept base64
-                        encoded in memory. */
+    char *name;          /* points to the name or the hash (allocated) */
+    size_t name_len;     /* needed for hashed data */
+    int port;            /* if non-zero, a specific port this key is for on
+                            this host */
+    int typemask;        /* plain, sha1, custom, ... */
+    char *salt;          /* points to binary salt (allocated) */
+    size_t salt_len;     /* size of salt */
+    char *key;           /* the (allocated) associated key. This is kept base64
+                            encoded in memory. */
     char *key_type_name; /* the (allocated) key type name */
     size_t key_type_len; /* size of key_type_name */
     char *comment;       /* the (allocated) optional comment text, may be
