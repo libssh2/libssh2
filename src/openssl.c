@@ -634,12 +634,18 @@ ssh2_curve_type ssh2_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ec_ctx)
         return SSH2_EC_CURVE_NISTP384;
     else if(bits == 521)
         return SSH2_EC_CURVE_NISTP521;
-
-    return SSH2_EC_CURVE_NISTP256;
 #else
     const EC_GROUP *group = EC_KEY_get0_group(ec_ctx);
-    return EC_GROUP_get_curve_name(group);
+    int curve = EC_GROUP_get_curve_name(group);
+
+    if(curve == NID_X9_62_prime256v1)
+        return SSH2_EC_CURVE_NISTP256;
+    else if(curve == NID_secp384r1)
+        return SSH2_EC_CURVE_NISTP384;
+    else if(curve == NID_secp521r1)
+        return SSH2_EC_CURVE_NISTP521;
 #endif
+    return SSH2_EC_CURVE_NISTP256;
 }
 
 /*
