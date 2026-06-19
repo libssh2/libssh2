@@ -1015,7 +1015,7 @@ jobs:
           grep -F '#define' bld/src/libssh2_config.h | sort || true
 
       - name: 'build'
-        run: cmake --build bld --parallel 5 --target package --config Release
+        run: cmake --build bld --target package --config Release
 
       - name: 'tests'
         # UWP binaries require a CRT DLL that is not found. Static CRT not supported.
