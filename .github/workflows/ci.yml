@@ -343,7 +343,7 @@ jobs:
         timeout-minutes: 2
         run: |
           pkgs=''
-          [ "${MATRIX_COMPILER}" = 'clang-tidy' ] && pkgs+=' clang-20 clang-tidy-20'
+          [ "${MATRIX_COMPILER}" = 'clang-tidy' ] && pkgs+=' clang-22 clang-tidy-22'
           [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && pkgs+=" libgcrypt-dev:${MATRIX_ARCH}"
           [ "${MATRIX_CRYPTO}" = 'OpenSSL' ] && pkgs+=" libssl-dev:${MATRIX_ARCH}"
           [ "${MATRIX_CRYPTO}" = 'wolfSSL' ] && pkgs+=" libwolfssl-dev:${MATRIX_ARCH}"
@@ -568,8 +568,8 @@ jobs:
               cflags+=' -m32'
             fi
             if [ "${MATRIX_COMPILER}" = 'clang-tidy' ]; then
-              options+=' -DLIBSSH2_CLANG_TIDY=ON -DCLANG_TIDY=/usr/bin/clang-tidy-20'
-              options+=' -DCMAKE_C_COMPILER=clang-20'
+              options+=' -DLIBSSH2_CLANG_TIDY=ON -DCLANG_TIDY=/usr/bin/clang-tidy-22'
+              options+=' -DCMAKE_C_COMPILER=clang-22'
             fi
             if [[ "${MATRIX_CRYPTO}" =~ ^(OpenSSL|Libgcrypt|mbedTLS|wolfSSL)$ && "${MATRIX_COMPILER}" != 'clang-tidy' && "${MATRIX_ZLIB}" = 'ON' ]]; then
               options+=' -DCMAKE_C_STANDARD=90'
@@ -676,7 +676,7 @@ jobs:
       - name: 'install packages'
         timeout-minutes: 2
         env:
-          INSTALL_PACKAGES: ${{ matrix.compiler == 'clang-tidy' && 'clang-20 clang-tidy-20' || '' }}
+          INSTALL_PACKAGES: ${{ matrix.compiler == 'clang-tidy' && 'clang-22 clang-tidy-22' || '' }}
         run: |
           sudo find /etc/apt/sources.list.d -type f -not -name 'ubuntu.sources' -delete -print
           sudo sed -i '/azure/d' /etc/apt/apt-mirrors.txt; cat /etc/apt/apt-mirrors.txt
@@ -697,9 +697,9 @@ jobs:
         run: |
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             if [ "${MATRIX_COMPILER}" = 'clang-tidy' ]; then
-              options+=' -DLIBSSH2_CLANG_TIDY=ON -DCLANG_TIDY=/usr/bin/clang-tidy-20'
-              options+=' -DCMAKE_C_COMPILER=clang-20'
-              options+=" -DCMAKE_RC_COMPILER=llvm-windres-$(clang-20 -dumpversion | cut -d '.' -f 1)"
+              options+=' -DLIBSSH2_CLANG_TIDY=ON -DCLANG_TIDY=/usr/bin/clang-tidy-22'
+              options+=' -DCMAKE_C_COMPILER=clang-22'
+              options+=" -DCMAKE_RC_COMPILER=llvm-windres-$(clang-22 -dumpversion | cut -d '.' -f 1)"
             else
               options+=" -DCMAKE_C_COMPILER=${TRIPLET}-gcc"
             fi
