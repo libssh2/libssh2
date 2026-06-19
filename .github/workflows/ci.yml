@@ -25,7 +25,7 @@ env:
 jobs:
   check_style:
     name: 'style-check'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -36,7 +36,7 @@ jobs:
 
   linters:
     name: 'linters'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -227,7 +227,7 @@ jobs:
 
   build_linux:
     name: 'linux'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     strategy:
       fail-fast: false
@@ -660,7 +660,7 @@ jobs:
 
   build_linux_cross_mingw64:
     name: "linux -> mingw-w64, ${{ matrix.build }} ${{ matrix.compiler }}"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     strategy:
       fail-fast: false
@@ -1125,7 +1125,7 @@ jobs:
 
   cross:
     name: "${{ matrix.os }} ${{ matrix.version }}, ${{ matrix.build == 'cmake' && 'CM' || 'AM' }} ${{ matrix.cc }} ${{ matrix.desc }} ${{ matrix.arch }}"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     defaults:
       run:
