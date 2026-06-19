@@ -343,6 +343,15 @@ const char *ssh2_supported_key_sign_algs(LIBSSH2_SESSION *session,
 void ssh2_dh_init(ssh2_dh_ctx *dhctx);
 void ssh2_dh_dtor(ssh2_dh_ctx *dhctx);
 
+#if LIBSSH2_RSA
+#define PEM_RSA_HEADER "-----BEGIN RSA PRIVATE KEY-----"
+#define PEM_RSA_FOOTER "-----END RSA PRIVATE KEY-----"
+#endif
+#if LIBSSH2_DSA
+#define PEM_DSA_HEADER "-----BEGIN DSA PRIVATE KEY-----"
+#define PEM_DSA_FOOTER "-----END DSA PRIVATE KEY-----"
+#endif
+
 #define OPENSSH_PRIVKEY_HEADER     "-----BEGIN OPENSSH PRIVATE KEY-----"
 #define OPENSSH_PRIVKEY_FOOTER     "-----END OPENSSH PRIVATE KEY-----"
 #define OPENSSH_PRIVKEY_AUTH_MAGIC "openssh-key-v1"
