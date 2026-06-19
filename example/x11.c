@@ -151,24 +151,24 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
                     }
                 }
                 else {
-                    struct chan_X11_list *new;
+                    struct chan_X11_list *chan_new;
                     struct chan_X11_list *chan_iter;
                     chan_iter = gp_x11_chan;
                     while(chan_iter->next)
                         chan_iter = chan_iter->next;
                     /* Create the new Node */
-                    new = (struct chan_X11_list *)
+                    chan_new = (struct chan_X11_list *)
                         calloc(1, sizeof(struct chan_X11_list));
-                    if(!new) {
+                    if(!chan_new) {
                         fprintf(stderr, "failed to calloc().\n");
                         shutdown(sock, SHUT_RDWR);
                         LIBSSH2_SOCKET_CLOSE(sock);
                     }
                     else {
-                        new->sock = sock;
-                        new->chan = channel;
-                        new->next = NULL;
-                        chan_iter->next = new;
+                        chan_new->sock = sock;
+                        chan_new->chan = channel;
+                        chan_new->next = NULL;
+                        chan_iter->next = chan_new;
                     }
                 }
             }
