@@ -179,13 +179,13 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 }
 
 int ssh2_mbed_hash_init(mbedtls_md_context_t *ctx,
-                        mbedtls_md_type_t mdtype,
+                        mbedtls_md_type_t md_type,
                         const unsigned char *key, size_t keylen)
 {
     const mbedtls_md_info_t *md_info;
     int ret, hmac;
 
-    md_info = mbedtls_md_info_from_type(mdtype);
+    md_info = mbedtls_md_info_from_type(md_type);
     if(!md_info)
         return 0;
 
@@ -214,12 +214,12 @@ int ssh2_mbed_hash_final(mbedtls_md_context_t *ctx, unsigned char *hash)
 }
 
 int ssh2_mbed_hash(const unsigned char *data, size_t datalen,
-                   mbedtls_md_type_t mdtype, unsigned char *hash)
+                   mbedtls_md_type_t md_type, unsigned char *hash)
 {
     const mbedtls_md_info_t *md_info;
     int ret;
 
-    md_info = mbedtls_md_info_from_type(mdtype);
+    md_info = mbedtls_md_info_from_type(md_type);
     if(!md_info)
         return 0;
 
