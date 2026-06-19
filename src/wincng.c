@@ -2000,8 +2000,7 @@ static int wcng_publickey_from_point(IN wcng_ecc_keytype keytype,
         NULL,
         BCRYPT_ECCPUBLIC_BLOB,
         key,
-        (PUCHAR)ecc_blob,
-        (ULONG)ecc_blob_len,
+        (PUCHAR)ecc_blob, (ULONG)ecc_blob_len,
         0);
     if(!BCRYPT_SUCCESS(status)) {
         result = LIBSSH2_ERROR_PUBLICKEY_PROTOCOL;
@@ -2068,8 +2067,7 @@ static int wcng_privatekey_from_point(IN wcng_ecc_keytype keytype,
         NULL,
         BCRYPT_ECCPRIVATE_BLOB,
         key,
-        (PUCHAR)ecc_blob,
-        (ULONG)ecc_blob_len,
+        (PUCHAR)ecc_blob, (ULONG)ecc_blob_len,
         0);
     if(!BCRYPT_SUCCESS(status)) {
         result = LIBSSH2_ERROR_PUBLICKEY_PROTOCOL;
@@ -2120,8 +2118,7 @@ static int wcng_uncompressed_point_from_publickey(
         NULL,
         BCRYPT_ECCPUBLIC_BLOB,
         NULL,
-        0,
-        &ecc_blob_len,
+        0, &ecc_blob_len,
         0);
     if(BCRYPT_SUCCESS(status) && ecc_blob_len > 0) {
         ecc_blob = SSH2_ALLOC(session, ecc_blob_len);
@@ -2134,8 +2131,7 @@ static int wcng_uncompressed_point_from_publickey(
             NULL,
             BCRYPT_ECCPUBLIC_BLOB,
             (PUCHAR)ecc_blob,
-            ecc_blob_len,
-            &ecc_blob_len,
+            ecc_blob_len, &ecc_blob_len,
             0);
     }
 
