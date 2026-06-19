@@ -98,7 +98,8 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
     const mbedtls_cipher_info_t *cipher_info;
-    int ret, op;
+    mbedtls_operation_t op;
+    int ret;
 
     if(!h)
         return -1;
@@ -510,7 +511,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
                          const unsigned char *m, size_t m_len)
 {
     int ret;
-    int md_type;
+    mbedtls_md_type_t md_type;
     unsigned char *hash;
 
     if(sig_len < mbedtls_rsa_get_len(rsactx))
@@ -564,7 +565,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
     int ret;
     unsigned char *sig;
     size_t sig_len;
-    int md_type;
+    mbedtls_md_type_t md_type;
 
     sig_len = mbedtls_rsa_get_len(rsactx);
     sig = SSH2_ALLOC(session, sig_len);
@@ -584,7 +585,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
     else {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
                  "Unsupported hash digest length");
-        md_type = 0;
+        md_type = MBEDTLS_MD_NONE;
         ret = -1;
     }
     if(ret == 0)
