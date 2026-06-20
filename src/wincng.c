@@ -2441,7 +2441,7 @@ static int wcng_ecdsa_curve_type_from_name(IN const char *name,
     unsigned int curve;
 
     /* Validate parameters */
-    if(!out_curve) {
+    if(!name || !out_curve) {
         return LIBSSH2_ERROR_INVAL;
     }
 
