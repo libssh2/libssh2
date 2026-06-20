@@ -351,7 +351,6 @@ void ssh2_dh_dtor(ssh2_dh_ctx *dhctx);
 #define PEM_DSA_HEADER "-----BEGIN DSA PRIVATE KEY-----"
 #define PEM_DSA_FOOTER "-----END DSA PRIVATE KEY-----"
 #endif
-
 #define OPENSSH_PRIVKEY_HEADER     "-----BEGIN OPENSSH PRIVATE KEY-----"
 #define OPENSSH_PRIVKEY_FOOTER     "-----END OPENSSH PRIVATE KEY-----"
 #define OPENSSH_PRIVKEY_AUTH_MAGIC "openssh-key-v1"
