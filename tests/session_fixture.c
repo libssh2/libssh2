@@ -97,7 +97,7 @@ static void srcdir_path_free(void)
 {
     size_t i;
     for(i = 0; i < curpath; ++i) {
-        free(filepath[curpath]);
+        free(filepath[i]);
     }
     curpath = 0;
 }
