@@ -51,61 +51,6 @@
 #include <stdlib.h>  /* for getenv() */
 #include <assert.h>
 
-static char *filepath[32];
-static size_t curpath;
-
-/* Return a static string that contains a file path relative to the srcdir
-   variable, if found. */
-char *srcdir_path(const char *file)
-{
-    if(file) {
-        char *p;
-        int len;
-
-        if(curpath >= SSH2_ARRAYSIZE(filepath)) {
-            fprintf(stderr, "srcdir_path ran out of filepath slots.\n");
-            return NULL;
-        }
-        assert(curpath < SSH2_ARRAYSIZE(filepath));
-
-        p = getenv("srcdir");
-        if(p) {
-            len = snprintf(NULL, 0, "%s/%s", p, file);
-            if(len <= 2)
-                return NULL;
-
-            filepath[curpath] = calloc(1, (size_t)len + 1);
-            if(!filepath[curpath])
-                return NULL;
-
-            snprintf(filepath[curpath], (size_t)len + 1, "%s/%s", p, file);
-        }
-        else {
-            len = snprintf(NULL, 0, "%s", file);
-            if(len <= 0)
-                return NULL;
-
-            filepath[curpath] = calloc(1, (size_t)len + 1);
-            if(!filepath[curpath])
-                return NULL;
-
-            snprintf(filepath[curpath], (size_t)len + 1, "%s", file);
-        }
-        return filepath[curpath++];
-    }
-    return NULL;
-}
-
-static void srcdir_path_free(void)
-{
-    size_t i;
-    for(i = 0; i < curpath; ++i) {
-        free(filepath[i]);
-        filepath[i] = NULL;
-    }
-    curpath = 0;
-}
-
 static LIBSSH2_SESSION *connected_session = NULL;
 static libssh2_socket_t connected_socket = LIBSSH2_INVALID_SOCKET;
 
@@ -276,6 +221,8 @@ void print_last_session_error(const char *function)
     }
 }
 
+static void srcdir_path_free(void);
+
 void stop_session_fixture(void)
 {
     if(connected_session) {
@@ -295,6 +242,61 @@ void stop_session_fixture(void)
     srcdir_path_free();
 
     stop_openssh_fixture();
+}
+
+static char *filepath[32];
+static size_t curpath;
+
+/* Return a static string that contains a file path relative to the srcdir
+   variable, if found. */
+char *srcdir_path(const char *file)
+{
+    if(file) {
+        char *p;
+        int len;
+
+        if(curpath >= SSH2_ARRAYSIZE(filepath)) {
+            fprintf(stderr, "srcdir_path ran out of filepath slots.\n");
+            return NULL;
+        }
+        assert(curpath < SSH2_ARRAYSIZE(filepath));
+
+        p = getenv("srcdir");
+        if(p) {
+            len = snprintf(NULL, 0, "%s/%s", p, file);
+            if(len <= 2)
+                return NULL;
+
+            filepath[curpath] = calloc(1, (size_t)len + 1);
+            if(!filepath[curpath])
+                return NULL;
+
+            snprintf(filepath[curpath], (size_t)len + 1, "%s/%s", p, file);
+        }
+        else {
+            len = snprintf(NULL, 0, "%s", file);
+            if(len <= 0)
+                return NULL;
+
+            filepath[curpath] = calloc(1, (size_t)len + 1);
+            if(!filepath[curpath])
+                return NULL;
+
+            snprintf(filepath[curpath], (size_t)len + 1, "%s", file);
+        }
+        return filepath[curpath++];
+    }
+    return NULL;
+}
+
+static void srcdir_path_free(void)
+{
+    size_t i;
+    for(i = 0; i < curpath; ++i) {
+        free(filepath[i]);
+        filepath[i] = NULL;
+    }
+    curpath = 0;
 }
 
 static const char *kbd_password;
