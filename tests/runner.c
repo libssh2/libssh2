@@ -53,16 +53,14 @@ int main(void)
     do {
         int skipped, rc;
         LIBSSH2_SESSION *session = start_session_fixture(&skipped, &rc);
-        if(session) {
+        if(session)
             exit_code = (test(session) == 0) ? 0 : 1;
-        }
         else if(skipped) {
             fprintf(stderr, "Test skipped.\n");
             exit_code = 0;
         }
-        else {
+        else
             exit_code = 1;
-        }
         stop_session_fixture();
         if(exit_code == 0 ||
 #ifdef LIBSSH2_WINCNG

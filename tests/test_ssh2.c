@@ -152,17 +152,15 @@ int main(int argc, char *argv[])
 #endif
         do {
             rc = libssh2_session_handshake(session, sock);
-            if(rc == 0) {
+            if(rc == 0)
                 break;
-            }
             fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
             if(
 #ifdef LIBSSH2_WINCNG
                rc != LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE ||
 #endif
-               ++retry > retries) {
+               ++retry > retries)
                 break;
-            }
             fprintf(stderr, "Retrying... %d / %d\n", retry, retries);
         } while(1);
     }
@@ -176,9 +174,8 @@ int main(int argc, char *argv[])
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
-    for(i = 0; i < 20; i++) {
+    for(i = 0; i < 20; i++)
         fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
-    }
     fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
@@ -186,15 +183,12 @@ int main(int argc, char *argv[])
                                          (unsigned int)strlen(username));
     if(userauthlist) {
         fprintf(stderr, "Authentication methods: %s\n", userauthlist);
-        if(strstr(userauthlist, "password")) {
+        if(strstr(userauthlist, "password"))
             auth_pw |= 1;
-        }
-        if(strstr(userauthlist, "keyboard-interactive")) {
+        if(strstr(userauthlist, "keyboard-interactive"))
             auth_pw |= 2;
-        }
-        if(strstr(userauthlist, "publickey")) {
+        if(strstr(userauthlist, "publickey"))
             auth_pw |= 4;
-        }
 
         if(auth_pw & 4) {
             /* Authenticate by public key */
@@ -204,9 +198,8 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "Authentication by public key failed.\n");
                 goto shutdown;
             }
-            else {
+            else
                 fprintf(stderr, "Authentication by public key succeeded.\n");
-            }
         }
         else {
             fprintf(stderr, "No supported authentication methods found.\n");
