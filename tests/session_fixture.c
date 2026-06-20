@@ -76,8 +76,7 @@ static char const *skip_crypt[] = {
     /* Due to a bug with mbedTLS support, these crypt methods fail.
        Until that bug is fixed, do not run them there to avoid this
        known issue causing red tests.
-       See: https://github.com/libssh2/libssh2/issues/793
-     */
+       See: https://github.com/libssh2/libssh2/issues/793 */
     "3des-cbc",
     "aes128-cbc",
     "aes192-cbc",
@@ -86,17 +85,14 @@ static char const *skip_crypt[] = {
     "aes256-gcm@openssh.com",
     "rijndael-cbc@lysator.liu.se",
 #endif
-
 #if !LIBSSH2_3DES
     "3des-cbc",
 #endif
-
 #if !LIBSSH2_AES_GCM
     /* Support for AES-GCM hasn't been added to these back-ends yet */
     "aes128-gcm@openssh.com",
     "aes256-gcm@openssh.com",
 #endif
-
     NULL
 };
 
@@ -478,13 +474,12 @@ int test_auth_pubkey(LIBSSH2_SESSION *session, int flags,
     /* Ignore our hard-wired Dockerfile user when not running under Docker */
     if(!openssh_fixture_have_docker() && !strcmp(username, "libssh2")) {
         username = getenv("USER");
-        if(!username) {
+        if(!username)
 #ifdef _WIN32
             username = getenv("USERNAME");
 #else
             username = getenv("LOGNAME");
 #endif
-        }
     }
 
     if(!username) {
