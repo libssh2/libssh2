@@ -231,8 +231,8 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
  *
  *******************************************************************/
 
-#define ssh2_crypto_init()
-#define ssh2_crypto_exit()
+#define ssh2_crypto_init()   do {} while(0)
+#define ssh2_crypto_exit()   do {} while(0)
 
 #define ssh2_sha1_ctx        Qc3_Format_ALGD0100_T
 #define ssh2_sha256_ctx      Qc3_Format_ALGD0100_T
