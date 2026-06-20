@@ -160,9 +160,8 @@ static int banner_receive(LIBSSH2_SESSION *session)
 
     while(banner_len &&
           (session->banner_TxRx_banner[banner_len - 1] == '\n' ||
-           session->banner_TxRx_banner[banner_len - 1] == '\r')) {
+           session->banner_TxRx_banner[banner_len - 1] == '\r'))
         banner_len--;
-    }
 
     /* From this point on, we are done here */
     session->banner_TxRx_state = ssh2_NB_state_idle;
