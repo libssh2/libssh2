@@ -52,10 +52,9 @@
 
 #ifdef OS400_DEBUG
 /* In debug mode, all system library errors cause an exception. */
-#define set_EC_length(ec, length)  ((ec).Bytes_Provided =      \
-                                    (ec).Bytes_Available = 0)
+#define set_EC_length(ec, len) ((ec).Bytes_Provided = ec).Bytes_Available = 0)
 #else
-#define set_EC_length(ec, length)  ((ec).Bytes_Provided = (length))
+#define set_EC_length(ec, len) ((ec).Bytes_Provided = (len))
 #endif
 
 /* Ensure va_list operations are not on an array. */
