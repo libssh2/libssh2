@@ -58,7 +58,7 @@ static void calculate_digest(const char *hash, size_t hash_len, char *buffer,
     char *p = buffer;
     char *end = buffer + buffer_len;
 
-    for(i = 0; i < hash_len && p < end; ++i) {
+    for(i = 0; i < hash_len && p < end - 2; ++i) {
         p += snprintf(p, (size_t)(end - p), "%02X", (unsigned char)hash[i]);
     }
 }
