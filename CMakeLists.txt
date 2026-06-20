@@ -407,7 +407,8 @@ configure_file("src/libssh2_config_cmake.h.in"
 
 ## Cryptography backend choice
 
-set(__runtime_dependencies "")
+# Files that must be in the same directory as the executables at runtime
+set(LIBSSH2_RUNTIME_DEPENDENCIES "")
 
 set(CRYPTO_BACKEND "" CACHE
   STRING "The backend to use for cryptography: Libgcrypt, mbedTLS, OpenSSL, WinCNG, wolfSSL, or empty to try any available")
@@ -447,7 +448,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
         HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
         PATH_SUFFIXES "bin" NO_DEFAULT_PATH)
       if(DLL_LIBCRYPTO)
-        list(APPEND __runtime_dependencies ${DLL_LIBCRYPTO})
+        list(APPEND LIBSSH2_RUNTIME_DEPENDENCIES ${DLL_LIBCRYPTO})
         message(STATUS "Found libcrypto DLL: ${DLL_LIBCRYPTO}")
       else()
         message(WARNING "Unable to find OpenSSL libcrypto DLL, executables may not run")

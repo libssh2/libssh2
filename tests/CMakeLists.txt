@@ -172,7 +172,7 @@ add_custom_target(clean-coverage COMMAND ${CMAKE_COMMAND} -E rm -rf --
 
 libssh2_add_target_to_copy_dependencies(
   TARGET copy_test_dependencies
-  DEPENDENCIES ${_runtime_dependencies}
+  DEPENDENCIES ${LIBSSH2_RUNTIME_DEPENDENCIES}
   BEFORE_TARGETS ${_test_targets})
 
 if(BUILD_OSSFUZZ)
