@@ -555,7 +555,7 @@ jobs:
           MATRIX_COMPILER: '${{ matrix.compiler }}'
         run: |
           if [ "${MATRIX_CRYPTO}" = 'OpenSSL-3-no-deprecated' ]; then
-            FIXTURE_TRACE_ALL_CONNECT=1  # try closing up on flaky CI failures
+            export FIXTURE_TRACE_ALL_CONNECT=1  # try closing up on flaky CI failures
           fi
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             if [ "${MATRIX_CRYPTO}" = 'AWS-LC' ] || \
