@@ -445,9 +445,8 @@ static int crypt_encrypt_chacha20_poly_buffer(LIBSSH2_SESSION *session,
 
             /* the api expects the size field to already be removed
                from the decrypted packet so we help it out */
-            if(ret == 0) {
+            if(ret == 0)
                 memmove(buf, buf + 4, buf_len - 4);
-            }
         }
     }
 
