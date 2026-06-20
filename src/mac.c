@@ -92,9 +92,8 @@ static int mac_method_common_init(LIBSSH2_SESSION *session, unsigned char *key,
  */
 static int mac_method_common_dtor(LIBSSH2_SESSION *session, void **abstract)
 {
-    if(*abstract) {
+    if(*abstract)
         SSH2_FREE(session, *abstract);
-    }
     *abstract = NULL;
 
     return 0;
