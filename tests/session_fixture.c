@@ -52,7 +52,7 @@
 #include <assert.h>
 
 static char *filepath[32];
-static int curpath;
+static size_t curpath;
 
 /* Return a static string that contains a file path relative to the srcdir
    variable, if found. */
@@ -95,7 +95,7 @@ char *srcdir_path(const char *file)
 
 static void srcdir_path_free(void)
 {
-    int i;
+    size_t i;
     for(i = 0; i < curpath; ++i) {
         free(filepath[curpath]);
     }
