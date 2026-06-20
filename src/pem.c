@@ -44,25 +44,21 @@ static int readline(char *line, int line_size, FILE *fp)
 {
     size_t len;
 
-    if(!line) {
+    if(!line)
         return -1;
-    }
-    if(!fgets(line, line_size, fp)) {
+    if(!fgets(line, line_size, fp))
         return -1;
+
+    if(*line) {
+        len = strlen(line);
+        if(len > 0 && line[len - 1] == '\n')
+            line[len - 1] = '\0';
     }
 
     if(*line) {
         len = strlen(line);
-        if(len > 0 && line[len - 1] == '\n') {
+        if(len > 0 && line[len - 1] == '\r')
             line[len - 1] = '\0';
-        }
-    }
-
-    if(*line) {
-        len = strlen(line);
-        if(len > 0 && line[len - 1] == '\r') {
-            line[len - 1] = '\0';
-        }
     }
 
     return 0;
@@ -78,9 +74,8 @@ static int readline_memory(char *line, size_t line_size,
 
     for(len = 0; off + len < filedata_len && len < line_size - 1; len++) {
         if(filedata[off + len] == '\n' ||
-           filedata[off + len] == '\r') {
+           filedata[off + len] == '\r')
             break;
-        }
     }
 
     if(len) {
@@ -163,9 +158,8 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
                                 data, datalen);
 
 out:
-    if(filedata) {
+    if(filedata)
         SSH2_FREE(session, filedata);
-    }
     return ret;
 }
 
@@ -187,14 +181,12 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
     do {
         *line = '\0';
 
-        if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
+        if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off))
             return -1;
-        }
     } while(strcmp(line, headerbegin));
 
-    if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
+    if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off))
         return -1;
-    }
 
     if(passphrase &&
        !memcmp(line, crypt_annotation, strlen(crypt_annotation))) {
@@ -267,9 +259,8 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         }
     } while(strcmp(line, headerend));
 
-    if(!b64data) {
+    if(!b64data)
         return -1;
-    }
 
     if(ssh2_base64_decode(session, (char **)data, datalen,
                           b64data, b64datalen)) {
@@ -327,9 +318,8 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
             goto out;
         }
 
-        if(free_secret) {
+        if(free_secret)
             ssh2_explicit_zero((char *)secret, sizeof(secret));
-        }
 
         /* Do the actual decryption */
         if((*datalen % blocksize) != 0) {
@@ -528,9 +518,8 @@ static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
         /* !checksrc! disable EQUALSNULL 1 */
         while((cur_method = *all_methods++) != NULL) {
             if(*cur_method->name && !memcmp(ciphername, cur_method->name,
-                                            strlen(cur_method->name))) {
+                                            strlen(cur_method->name)))
                 method = cur_method;
-            }
         }
 
         /* None of the available crypt methods were able to decrypt the key */
@@ -740,14 +729,12 @@ int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
     do {
         *line = '\0';
 
-        if(readline(line, LINE_SIZE, fp)) {
+        if(readline(line, LINE_SIZE, fp))
             return -1;
-        }
     } while(strcmp(line, OPENSSH_PRIVKEY_HEADER));
 
-    if(readline(line, LINE_SIZE, fp)) {
+    if(readline(line, LINE_SIZE, fp))
         return -1;
-    }
 
     do {
         if(*line) {
@@ -775,9 +762,8 @@ int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
         }
     } while(strcmp(line, OPENSSH_PRIVKEY_FOOTER));
 
-    if(!b64data) {
+    if(!b64data)
         return -1;
-    }
 
     ret = openssh_pem_parse_data(session, passphrase,
                                  b64data, b64datalen, decrypted_buf);
@@ -816,9 +802,8 @@ int ssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
             return ssh2_err(session, LIBSSH2_ERROR_PROTO,
                             "Error parsing PEM: OpenSSH header not found");
 
-        if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
+        if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off))
             return -1;
-        }
     } while(strcmp(line, OPENSSH_PRIVKEY_HEADER));
 
     *line = '\0';
@@ -875,33 +860,28 @@ static int read_asn1_length(const unsigned char *data,
     unsigned int lenlen;
     int nextpos;
 
-    if(datalen < 1) {
+    if(datalen < 1)
         return -1;
-    }
     *len = data[0];
 
     if(*len >= 0x80) {
         lenlen = *len & 0x7F;
-        if(1 + lenlen > datalen) {
+        if(1 + lenlen > datalen)
             return -1;
-        }
         *len = data[1];
         if(lenlen > 1) {
             *len <<= 8;
-            if(2 + lenlen > datalen) {
+            if(2 + lenlen > datalen)
                 return -1;
-            }
             *len |= data[2];
         }
     }
-    else {
+    else
         lenlen = 0;
-    }
 
     nextpos = 1 + lenlen;
-    if(lenlen > 2 || 1 + lenlen + *len > datalen) {
+    if(lenlen > 2 || 1 + lenlen + *len > datalen)
         return -1;
-    }
 
     return nextpos;
 }
@@ -911,21 +891,18 @@ int ssh2_pem_decode_sequence(unsigned char **data, size_t *datalen)
     size_t len;
     int lenlen;
 
-    if(*datalen < 1) {
+    if(*datalen < 1)
         return -1;
-    }
 
-    if((*data)[0] != '\x30') {
+    if((*data)[0] != '\x30')
         return -1;
-    }
 
     (*data)++;
     (*datalen)--;
 
     lenlen = read_asn1_length(*data, *datalen, &len);
-    if(lenlen < 0 || lenlen + len != *datalen) {
+    if(lenlen < 0 || lenlen + len != *datalen)
         return -1;
-    }
 
     *data += lenlen;
     *datalen -= lenlen;
@@ -939,21 +916,18 @@ int ssh2_pem_decode_integer(unsigned char **data, size_t *datalen,
     size_t len;
     int lenlen;
 
-    if(*datalen < 1) {
+    if(*datalen < 1)
         return -1;
-    }
 
-    if((*data)[0] != '\x02') {
+    if((*data)[0] != '\x02')
         return -1;
-    }
 
     (*data)++;
     (*datalen)--;
 
     lenlen = read_asn1_length(*data, *datalen, &len);
-    if(lenlen < 0 || lenlen + len > *datalen) {
+    if(lenlen < 0 || lenlen + len > *datalen)
         return -1;
-    }
 
     *data += lenlen;
     *datalen -= lenlen;
