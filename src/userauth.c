@@ -99,9 +99,8 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
 
         session->userauth_list_data_len = username_len + 27;
 
-        if(session->userauth_list_data) {
+        if(session->userauth_list_data)
             SSH2_FREE(session, session->userauth_list_data);
-        }
 
         s = session->userauth_list_data =
             SSH2_ALLOC(session, session->userauth_list_data_len);
@@ -176,9 +175,8 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
                 return NULL;
             }
 
-            if(session->userauth_banner) {
+            if(session->userauth_banner)
                 SSH2_FREE(session, session->userauth_banner);
-            }
 
             session->userauth_banner = SSH2_ALLOC(session, banner_len + 1);
             if(!session->userauth_banner) {
@@ -275,10 +273,9 @@ int libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner)
     if(!session)
         return LIBSSH2_ERROR_MISSING_USERAUTH_BANNER;
 
-    if(!session->userauth_banner) {
+    if(!session->userauth_banner)
         return ssh2_err(session, LIBSSH2_ERROR_MISSING_USERAUTH_BANNER,
                         "Missing userauth banner");
-    }
 
     if(banner)
         *banner = session->userauth_banner;
@@ -323,10 +320,9 @@ static int userauth_password(LIBSSH2_SESSION *session,
          * 40 = packet_type(1) + username_len(4) + service_len(4) +
          * service(14)"ssh-connection" + method_len(4) + method(8)"password" +
          * chgpwdbool(1) + password_len(4) */
-        if(username_len > UINT32_MAX - 40) {
+        if(username_len > UINT32_MAX - 40)
             return ssh2_err(session, LIBSSH2_ERROR_PROTO,
                             "username_len out of bounds");
-        }
 
         session->userauth_pswd_data_len = username_len + 40;
 
@@ -337,11 +333,10 @@ static int userauth_password(LIBSSH2_SESSION *session,
            struct */
         s = session->userauth_pswd_data =
             SSH2_ALLOC(session, session->userauth_pswd_data_len);
-        if(!session->userauth_pswd_data) {
+        if(!session->userauth_pswd_data)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate memory for "
                             "userauth-password request");
-        }
 
         *(s++) = SSH_MSG_USERAUTH_REQUEST;
         ssh2_store_str(&s, username, username_len);
@@ -361,10 +356,9 @@ static int userauth_password(LIBSSH2_SESSION *session,
         rc = ssh2_transport_send(session, session->userauth_pswd_data,
                                  session->userauth_pswd_data_len,
                                  password, password_len);
-        if(rc == LIBSSH2_ERROR_EAGAIN) {
+        if(rc == LIBSSH2_ERROR_EAGAIN)
             return ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
                             "Would block writing password request");
-        }
 
         /* now free the sent packet */
         SSH2_FREE(session, session->userauth_pswd_data);
@@ -456,12 +450,11 @@ password_response:
                                          &session->userauth_pswd_newpw,
                                          &session->userauth_pswd_newpw_len,
                                          &session->abstract);
-                        if(!session->userauth_pswd_newpw) {
+                        if(!session->userauth_pswd_newpw)
                             return ssh2_err(session,
                                             LIBSSH2_ERROR_PASSWORD_EXPIRED,
                                             "Password expired, and "
                                             "callback failed");
-                        }
 
                         /* basic data_len + newpw_len(4) */
                         if(username_len <= UINT32_MAX - password_len - 44) {
@@ -506,10 +499,9 @@ password_response:
                                             (const unsigned char *)
                                             session->userauth_pswd_newpw,
                                             session->userauth_pswd_newpw_len);
-                        if(rc == LIBSSH2_ERROR_EAGAIN) {
+                        if(rc == LIBSSH2_ERROR_EAGAIN)
                             return ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
                                             "Would block waiting");
-                        }
 
                         /* free the allocated packets again */
                         SSH2_FREE(session, session->userauth_pswd_data);
@@ -517,11 +509,10 @@ password_response:
                         SSH2_FREE(session, session->userauth_pswd_newpw);
                         session->userauth_pswd_newpw = NULL;
 
-                        if(rc) {
+                        if(rc)
                             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                                             "Unable to send userauth "
                                             "password-change request");
-                        }
 
                         /*
                          * Ugliest use of goto ever.  Blame it on the
@@ -579,16 +570,14 @@ static int memory_read_publickey(LIBSSH2_SESSION *session,
     size_t pubkey_len = pubkeyfiledata_len;
     size_t tmp_len;
 
-    if(pubkeyfiledata_len <= 1) {
+    if(pubkeyfiledata_len <= 1)
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
                         "Invalid data in public key file");
-    }
 
     pubkey = SSH2_ALLOC(session, pubkeyfiledata_len);
-    if(!pubkey) {
+    if(!pubkey)
         return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                         "Unable to allocate memory for public key data");
-    }
 
     memcpy(pubkey, pubkeyfiledata, pubkeyfiledata_len);
 
@@ -614,10 +603,9 @@ static int memory_read_publickey(LIBSSH2_SESSION *session,
     sp1++;
 
     sp2 = memchr(sp1, ' ', pubkey_len - (sp1 - pubkey));
-    if(!sp2) {
+    if(!sp2)
         /* Assume that the id string is missing, but that it is okay */
         sp2 = pubkey + pubkey_len;
-    }
 
     if(ssh2_base64_decode(session, (char **)&tmp, &tmp_len, (const char *)sp1,
                           sp2 - sp1)) {
@@ -664,13 +652,13 @@ static int file_read_publickey(LIBSSH2_SESSION *session,
               pubkeyfile));
     /* Read Public Key */
     fd = fopen(pubkeyfile, "rb");
-    if(!fd) {
+    if(!fd)
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
                         "Unable to open public key file");
-    }
-    while(!feof(fd) && fread(&c, 1, 1, fd) == 1 && c != '\r' && c != '\n') {
+
+    while(!feof(fd) && fread(&c, 1, 1, fd) == 1 && c != '\r' && c != '\n')
         pubkey_len++;
-    }
+
     fseek(fd, 0L, SEEK_SET);
 
     if(pubkey_len <= 1) {
@@ -695,9 +683,8 @@ static int file_read_publickey(LIBSSH2_SESSION *session,
     /*
      * Remove trailing whitespace
      */
-    while(pubkey_len && isspace(pubkey[pubkey_len - 1])) {
+    while(pubkey_len && isspace(pubkey[pubkey_len - 1]))
         pubkey_len--;
-    }
 
     if(!pubkey_len) {
         SSH2_FREE(session, pubkey);
@@ -716,10 +703,9 @@ static int file_read_publickey(LIBSSH2_SESSION *session,
 
     sp_len = sp1 > pubkey ? (sp1 - pubkey) : 0;
     sp2 = memchr(sp1, ' ', pubkey_len - sp_len);
-    if(!sp2) {
+    if(!sp2)
         /* Assume that the id string is missing, but that it is okay */
         sp2 = pubkey + pubkey_len;
-    }
 
     if(ssh2_base64_decode(session, (char **)&tmp, &tmp_len, (const char *)sp1,
                           sp2 - sp1)) {
@@ -763,10 +749,9 @@ static int memory_read_privatekey(LIBSSH2_SESSION *session,
         }
         hostkey_methods_avail++;
     }
-    if(!*hostkey_method) {
+    if(!*hostkey_method)
         return ssh2_err(session, LIBSSH2_ERROR_METHOD_NONE,
                         "No handler for specified private key");
-    }
 
     if((*hostkey_method)->initPEMFromMemory(session, privkeyfiledata,
                                             privkeyfiledata_len,
@@ -806,10 +791,9 @@ static int file_read_privatekey(LIBSSH2_SESSION *session,
         }
         hostkey_methods_avail++;
     }
-    if(!*hostkey_method) {
+    if(!*hostkey_method)
         return ssh2_err(session, LIBSSH2_ERROR_METHOD_NONE,
                         "No handler for specified private key");
-    }
 
     if((*hostkey_method)->initPEM(session, privkeyfile,
                                   (const unsigned char *)passphrase,
@@ -861,15 +845,13 @@ static int sign_frommemory(LIBSSH2_SESSION *session,
 
     if(privkeyobj->signv(session, sig, sig_len, 1, &datavec,
                          &hostkey_abstract)) {
-        if(privkeyobj->dtor) {
+        if(privkeyobj->dtor)
             privkeyobj->dtor(session, &hostkey_abstract);
-        }
         return -1;
     }
 
-    if(privkeyobj->dtor) {
+    if(privkeyobj->dtor)
         privkeyobj->dtor(session, &hostkey_abstract);
-    }
     return 0;
 }
 
@@ -901,15 +883,13 @@ static int sign_fromfile(LIBSSH2_SESSION *session,
 
     if(privkeyobj->signv(session, sig, sig_len, 1, &datavec,
                          &hostkey_abstract)) {
-        if(privkeyobj->dtor) {
+        if(privkeyobj->dtor)
             privkeyobj->dtor(session, &hostkey_abstract);
-        }
         return -1;
     }
 
-    if(privkeyobj->dtor) {
+    if(privkeyobj->dtor)
         privkeyobj->dtor(session, &hostkey_abstract);
-    }
     return 0;
 }
 
@@ -922,9 +902,8 @@ int libssh2_sign_sk(LIBSSH2_SESSION *session,
     LIBSSH2_PRIVKEY_SK *sk_info = (LIBSSH2_PRIVKEY_SK *)(*abstract);
     LIBSSH2_SK_SIG_INFO sig_info = { 0 };
 
-    if(sk_info->handle_len <= 0) {
+    if(sk_info->handle_len <= 0)
         return LIBSSH2_ERROR_DECRYPT;
-    }
 
     rc = sk_info->sign_callback(session,
                                 &sig_info,
@@ -1003,9 +982,8 @@ int libssh2_sign_sk(LIBSSH2_SESSION *session,
 
         SSH2_FREE(session, sig_info.sig_r);
 
-        if(sig_info.sig_s) {
+        if(sig_info.sig_s)
             SSH2_FREE(session, sig_info.sig_s);
-        }
     }
     else {
         ssh2_deb((session, LIBSSH2_ERROR_DECRYPT,
@@ -1147,15 +1125,13 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
             session->userauth_host_method = NULL;
             SSH2_FREE(session, session->userauth_host_packet);
             session->userauth_host_packet = NULL;
-            if(privkeyobj->dtor) {
+            if(privkeyobj->dtor)
                 privkeyobj->dtor(session, &abstract);
-            }
             return -1;
         }
 
-        if(privkeyobj && privkeyobj->dtor) {
+        if(privkeyobj && privkeyobj->dtor)
             privkeyobj->dtor(session, &abstract);
-        }
 
         if(sig_len > pubkeydata_len) {
             unsigned char *newpacket;
@@ -1203,9 +1179,8 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                                  session->userauth_host_s -
                                  session->userauth_host_packet,
                                  NULL, 0);
-        if(rc == LIBSSH2_ERROR_EAGAIN) {
+        if(rc == LIBSSH2_ERROR_EAGAIN)
             return ssh2_err(session, LIBSSH2_ERROR_EAGAIN, "Would block");
-        }
         else if(rc) {
             SSH2_FREE(session, session->userauth_host_packet);
             session->userauth_host_packet = NULL;
@@ -1231,15 +1206,13 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                                   &data_len, 0, NULL, 0,
                                   &session->
                                   userauth_host_packet_requirev_state);
-        if(rc == LIBSSH2_ERROR_EAGAIN) {
+        if(rc == LIBSSH2_ERROR_EAGAIN)
             return ssh2_err(session, LIBSSH2_ERROR_EAGAIN, "Would block");
-        }
 
         session->userauth_host_state = ssh2_NB_state_idle;
-        if(rc || data_len < 1) {
+        if(rc || data_len < 1)
             return ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
                             "Auth failed");
-        }
 
         if(session->userauth_host_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
             ssh2_deb((session, LIBSSH2_TRACE_AUTH,
@@ -1289,30 +1262,26 @@ int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
 size_t plain_method(char *method, size_t method_len)
 {
     if(!strncmp("ssh-rsa-cert-v01@openssh.com",
-                method, method_len)) {
+                method, method_len))
         return 7;
-    }
 
     if(!strncmp("rsa-sha2-256-cert-v01@openssh.com",
                 method, method_len) ||
        !strncmp("rsa-sha2-512-cert-v01@openssh.com",
-                method, method_len)) {
+                method, method_len))
         return 12;
-    }
 
     if(!strncmp("ecdsa-sha2-nistp256-cert-v01@openssh.com",
                 method, method_len) ||
        !strncmp("ecdsa-sha2-nistp384-cert-v01@openssh.com",
                 method, method_len) ||
        !strncmp("ecdsa-sha2-nistp521-cert-v01@openssh.com",
-                method, method_len)) {
+                method, method_len))
         return 19;
-    }
 
     if(!strncmp("ssh-ed25519-cert-v01@openssh.com",
-                method, method_len)) {
+                method, method_len))
         return 11;
-    }
 
     if(!strncmp("sk-ecdsa-sha2-nistp256-cert-v01@openssh.com",
                 method, method_len)) {
@@ -1359,9 +1328,9 @@ static int is_version_less_than_78(const char *version)
         return 0; /* Not a valid number */
 
     if((major >= 1 && major <= 6) ||
-       (major == 7 && minor >= 0 && minor <= 7)) {
+       (major == 7 && minor >= 0 && minor <= 7))
         return 1; /* Version is in the specified range */
-    }
+
     return 0;
 }
 
@@ -1400,10 +1369,9 @@ static int key_sign_algorithm(LIBSSH2_SESSION *session,
     const char *supported_algs =
         ssh2_supported_key_sign_algs(session, *key_method, *key_method_len);
 
-    if(!supported_algs || !session->server_sign_algorithms) {
+    if(!supported_algs || !session->server_sign_algorithms)
         /* no upgrading key algorithm supported, do nothing */
         return LIBSSH2_ERROR_NONE;
-    }
 
     /* Set "SSH_BUG_SIGTYPE" flag when the remote server version is OpenSSH 7.7
        or lower and when the RSA key in question is a certificate to ignore
@@ -1594,11 +1562,11 @@ retry_auth:
 
             session->userauth_pblc_method =
                 SSH2_ALLOC(session, session->userauth_pblc_method_len);
-            if(!session->userauth_pblc_method) {
+            if(!session->userauth_pblc_method)
                 return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                 "Unable to allocate memory "
                                 "for public key data");
-            }
+
             memcpy(session->userauth_pblc_method, pubkeydata + 4,
                    session->userauth_pblc_method_len);
         }
@@ -1616,11 +1584,10 @@ retry_auth:
         }
 
         if(session->userauth_pblc_method_len &&
-           session->userauth_pblc_method) {
+           session->userauth_pblc_method)
             ssh2_deb((session, LIBSSH2_TRACE_KEX, "Signing using %.*s",
                       (int)session->userauth_pblc_method_len,
                       session->userauth_pblc_method));
-        }
 
         /*
          * 45 = packet_type(1) + username_len(4) + servicename_len(4) +
@@ -1696,9 +1663,8 @@ retry_auth:
                                   NULL, 0,
                                   &session->
                                   userauth_pblc_packet_requirev_state);
-        if(rc == LIBSSH2_ERROR_EAGAIN) {
+        if(rc == LIBSSH2_ERROR_EAGAIN)
             return ssh2_err(session, LIBSSH2_ERROR_EAGAIN, "Would block");
-        }
         else if(rc || session->userauth_pblc_data_len < 1) {
             SSH2_FREE(session, session->userauth_pblc_packet);
             session->userauth_pblc_packet = NULL;
@@ -1756,11 +1722,10 @@ retry_auth:
         s = buf = SSH2_ALLOC(session,
                              4 + session->session_id_len +
                              session->userauth_pblc_packet_len);
-        if(!buf) {
+        if(!buf)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate memory for "
                             "userauth-publickey signed data");
-        }
 
         ssh2_store_str(&s, (const char *)session->session_id,
                        session->session_id_len);
@@ -1771,9 +1736,8 @@ retry_auth:
 
         rc = sign_callback(session, &sig, &sig_len, buf, s - buf, abstract);
         SSH2_FREE(session, buf);
-        if(rc == LIBSSH2_ERROR_EAGAIN) {
+        if(rc == LIBSSH2_ERROR_EAGAIN)
             return ssh2_err(session, LIBSSH2_ERROR_EAGAIN, "Would block");
-        }
         else if(rc == LIBSSH2_ERROR_ALGO_UNSUPPORTED && auth_attempts == 1) {
             /* try again with the default key algo */
             SSH2_FREE(session, session->userauth_pblc_method);
@@ -1794,10 +1758,9 @@ retry_auth:
                             "Callback returned error");
         }
 
-        if(!sig) {
+        if(!sig)
             return ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
                             "Callback did not return signature");
-        }
 
         /*
          * If this function was restarted, pubkeydata_len might still be 0
@@ -1872,9 +1835,8 @@ retry_auth:
                                  session->userauth_pblc_s -
                                  session->userauth_pblc_packet,
                                  NULL, 0);
-        if(rc == LIBSSH2_ERROR_EAGAIN) {
+        if(rc == LIBSSH2_ERROR_EAGAIN)
             return ssh2_err(session, LIBSSH2_ERROR_EAGAIN, "Would block");
-        }
         else if(rc) {
             SSH2_FREE(session, session->userauth_pblc_packet);
             session->userauth_pblc_packet = NULL;
@@ -1895,10 +1857,9 @@ retry_auth:
                               &session->userauth_pblc_data,
                               &session->userauth_pblc_data_len, 0, NULL, 0,
                               &session->userauth_pblc_packet_requirev_state);
-    if(rc == LIBSSH2_ERROR_EAGAIN) {
+    if(rc == LIBSSH2_ERROR_EAGAIN)
         return ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
                         "Would block waiting for publickey USERAUTH response");
-    }
     else if(rc || session->userauth_pblc_data_len < 1) {
         session->userauth_pblc_state = ssh2_NB_state_idle;
         return ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
@@ -2140,9 +2101,8 @@ static int userauth_keyboard_interactive(
         memset(&session->userauth_kybd_packet_requirev_state, 0,
                sizeof(session->userauth_kybd_packet_requirev_state));
 
-        if(username_len > MAX_INPUT_LEN) {
+        if(username_len > MAX_INPUT_LEN)
             return ssh2_err(session, LIBSSH2_ERROR_INVAL, "Username too long");
-        }
 
         session->userauth_kybd_packet_len =
             1                   /* byte    SSH_MSG_USERAUTH_REQUEST */
@@ -2157,11 +2117,10 @@ static int userauth_keyboard_interactive(
 
         session->userauth_kybd_data = s =
             SSH2_ALLOC(session, session->userauth_kybd_packet_len);
-        if(!s) {
+        if(!s)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate memory for "
                             "keyboard-interactive authentication");
-        }
 
         *s++ = SSH_MSG_USERAUTH_REQUEST;
 
@@ -2189,9 +2148,8 @@ static int userauth_keyboard_interactive(
     if(session->userauth_kybd_state == ssh2_NB_state_created) {
         rc = ssh2_transport_send(session, session->userauth_kybd_data,
                                  session->userauth_kybd_packet_len, NULL, 0);
-        if(rc == LIBSSH2_ERROR_EAGAIN) {
+        if(rc == LIBSSH2_ERROR_EAGAIN)
             return ssh2_err(session, LIBSSH2_ERROR_EAGAIN, "Would block");
-        }
         else if(rc) {
             SSH2_FREE(session, session->userauth_kybd_data);
             session->userauth_kybd_data = NULL;
@@ -2213,9 +2171,8 @@ static int userauth_keyboard_interactive(
                                       0, NULL, 0,
                                       &session->
                                       userauth_kybd_packet_requirev_state);
-            if(rc == LIBSSH2_ERROR_EAGAIN) {
+            if(rc == LIBSSH2_ERROR_EAGAIN)
                 return ssh2_err(session, LIBSSH2_ERROR_EAGAIN, "Would block");
-            }
             else if(rc || session->userauth_kybd_data_len < 1) {
                 session->userauth_kybd_state = ssh2_NB_state_idle;
                 return ssh2_err(session, LIBSSH2_ERROR_AUTHENTICATION_FAILED,
@@ -2244,10 +2201,8 @@ static int userauth_keyboard_interactive(
             }
 
             /* server requested PAM-like conversation */
-            if(userauth_keyboard_interactive_decode_info_request(session)
-               < 0) {
+            if(userauth_keyboard_interactive_decode_info_request(session) < 0)
                 goto cleanup;
-            }
 
             response_callback((const char *)session->userauth_kybd_auth_name,
                               (int)session->userauth_kybd_auth_name_len,
@@ -2300,10 +2255,9 @@ static int userauth_keyboard_interactive(
             s++;
             ssh2_store_u32(&s, session->userauth_kybd_num_prompts);
 
-            for(i = 0; i < session->userauth_kybd_num_prompts; i++) {
+            for(i = 0; i < session->userauth_kybd_num_prompts; i++)
                 ssh2_store_str(&s, session->userauth_kybd_responses[i].text,
                                session->userauth_kybd_responses[i].length);
-            }
 
             session->userauth_kybd_state = ssh2_NB_state_sent1;
         }
@@ -2430,10 +2384,9 @@ int libssh2_userauth_publickey_sk(
                                      &(sk_info.key_handle),
                                      &(sk_info.handle_len),
                                      privatekeydata, privatekeydata_len,
-                                     passphrase)) {
+                                     passphrase))
             return ssh2_err(session, LIBSSH2_ERROR_FILE,
                             "Unable to extract public key from private key.");
-        }
         else if(publickeydata_len == 0 || !publickeydata) {
             session->userauth_pblc_method = tmp_method;
             session->userauth_pblc_method_len = tmp_method_len;
@@ -2445,9 +2398,8 @@ int libssh2_userauth_publickey_sk(
             const char *ecdsa = "sk-ecdsa-sha2-nistp256-cert-v01@openssh.com";
             const char *ed25519 = "sk-ssh-ed25519-cert-v01@openssh.com";
 
-            if(tmp_method) {
+            if(tmp_method)
                 SSH2_FREE(session, tmp_method);
-            }
 
             if(!strncmp((const char *)publickeydata, ecdsa, strlen(ecdsa))) {
                 session->userauth_pblc_method_len = strlen(ecdsa);
@@ -2485,19 +2437,17 @@ int libssh2_userauth_publickey_sk(
                                      pubkeydata, pubkeydata_len,
                                      libssh2_sign_sk, &sign_abstract);
 
-        while(rc == LIBSSH2_ERROR_EAGAIN) {
+        while(rc == LIBSSH2_ERROR_EAGAIN)
             rc = ssh2_userauth_publickey(session, username, username_len,
                                          pubkeydata, pubkeydata_len,
                                          libssh2_sign_sk, &sign_abstract);
-        }
     }
 
     if(tmp_publickeydata)
         SSH2_FREE(session, tmp_publickeydata);
 
-    if(sk_info.application) {
+    if(sk_info.application)
         SSH2_FREE(session, SSH2_UNCONST(sk_info.application));
-    }
 
     return rc;
 }
