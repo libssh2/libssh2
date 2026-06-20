@@ -554,9 +554,6 @@ jobs:
         env:
           MATRIX_COMPILER: '${{ matrix.compiler }}'
         run: |
-          if [ "${MATRIX_CRYPTO}" = 'OpenSSL-3-no-deprecated' ]; then
-            export FIXTURE_TRACE_ALL_CONNECT=1  # try closing up on flaky CI failures
-          fi
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             if [ "${MATRIX_CRYPTO}" = 'AWS-LC' ] || \
                [ "${MATRIX_CRYPTO}" = 'BoringSSL' ] || \
@@ -627,6 +624,9 @@ jobs:
         if: ${{ !matrix.target && matrix.crypto != 'Libgcrypt' }}
         timeout-minutes: 10
         run: |
+          if [ "${MATRIX_CRYPTO}" = 'OpenSSL-3-no-deprecated' ]; then
+            export FIXTURE_TRACE_ALL_CONNECT=1  # try to close in on flaky CI failures
+          fi
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             export OPENSSH_SERVER_IMAGE; OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
             [ -d "$HOME"/usr ] && export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/usr/lib"
