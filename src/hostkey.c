@@ -1144,7 +1144,7 @@ static int hostkey_method_ssh_ed25519_cert_init(
         return -1;
 
     /*
-     * we can't check for eob here because certs
+     * we cannot check for eob here because certs
      * have more meta data we don't read
      */
 
