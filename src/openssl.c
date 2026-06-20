@@ -860,10 +860,9 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
     *h = EVP_CIPHER_CTX_new();
     rc = !EVP_CipherInit(*h, algo(), secret, iv, encrypt);
 #if LIBSSH2_AES_GCM
-    if(is_aesgcm) {
+    if(is_aesgcm)
         /* Sets both fixed and invocation_counter parts of IV */
         rc |= !EVP_CIPHER_CTX_ctrl(*h, EVP_CTRL_AEAD_SET_IV_FIXED, -1, iv);
-    }
 #endif /* LIBSSH2_AES_GCM */
 
     return rc;
