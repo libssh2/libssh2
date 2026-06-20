@@ -3252,6 +3252,7 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
 
     BN_bin2bn(exponent, (int)exponentlen, bn_exponent);
     rc = (EC_KEY_set_private_key(ec_key, bn_exponent) != 1);
+    BN_free(bn_exponent);
 #endif
 
     if(rc == 0 && ec_key && pubkeydata && method) {
