@@ -182,8 +182,6 @@ if(NOT LIBSSH2_DISABLE_INSTALL)
     DESTINATION ${CMAKE_INSTALL_DOCDIR})
 endif()
 
-include(PickyWarnings)
-
 set(LIBSSH2_LIBS_SOCKET "")
 set(LIBSSH2_LIBS "")
 
@@ -291,6 +289,8 @@ if(LIBSSH2_CLANG_TIDY)
     list(APPEND CMAKE_C_CLANG_TIDY ${_tidy_flags_list})
   endif()
 endif()
+
+include(PickyWarnings)
 
 # Auto-detection
 
