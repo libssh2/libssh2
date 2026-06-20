@@ -2126,8 +2126,7 @@ static int wcng_uncompressed_point_from_publickey(
             ecc_blob_len, &ecc_blob_len,
             0);
     }
-
-    if(!BCRYPT_SUCCESS(status)) {
+    else {
         result = ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                           "Decoding the ECC public key failed");
         goto cleanup;
