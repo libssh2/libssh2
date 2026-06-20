@@ -83,45 +83,37 @@ static SSH2_INLINE int packet_queue_listener(
         buf.dataptr = buf.data;
         buf.len = datalen;
 
-        if(datalen < offset + 12) { /* 3 * 4-byte */
+        if(datalen < offset + 12) /* 3 * 4-byte */
             return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                             "Unexpected packet size");
-        }
 
         buf.dataptr += offset;
 
-        if(ssh2_get_u32(&buf, &(listen_state->sender_channel))) {
+        if(ssh2_get_u32(&buf, &(listen_state->sender_channel)))
             return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                             "Data too short extracting channel");
-        }
-        if(ssh2_get_u32(&buf, &(listen_state->initial_window_size))) {
+        if(ssh2_get_u32(&buf, &(listen_state->initial_window_size)))
             return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                             "Data too short extracting window size");
-        }
-        if(ssh2_get_u32(&buf, &(listen_state->packet_size))) {
+        if(ssh2_get_u32(&buf, &(listen_state->packet_size)))
             return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                             "Data too short extracting packet");
-        }
-        if(ssh2_get_string(&buf, &(listen_state->host), &temp_len)) {
+        if(ssh2_get_string(&buf, &(listen_state->host), &temp_len))
             return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                             "Data too short extracting host");
-        }
         listen_state->host_len = (uint32_t)temp_len;
 
-        if(ssh2_get_u32(&buf, &(listen_state->port))) {
+        if(ssh2_get_u32(&buf, &(listen_state->port)))
             return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                             "Data too short extracting port");
-        }
-        if(ssh2_get_string(&buf, &(listen_state->shost), &temp_len)) {
+        if(ssh2_get_string(&buf, &(listen_state->shost), &temp_len))
             return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                             "Data too short extracting shost");
-        }
         listen_state->shost_len = (uint32_t)temp_len;
 
-        if(ssh2_get_u32(&buf, &(listen_state->sport))) {
+        if(ssh2_get_u32(&buf, &(listen_state->sport)))
             return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                             "Data too short extracting sport");
-        }
 
         ssh2_deb((session, LIBSSH2_TRACE_CONN,
                   "Remote received connection from %.*s:%u to %.*s:%u",
@@ -255,9 +247,8 @@ static SSH2_INLINE int packet_queue_listener(
 
     rc = ssh2_transport_send(session, listen_state->packet,
                              packet_len, NULL, 0);
-    if(rc == LIBSSH2_ERROR_EAGAIN) {
+    if(rc == LIBSSH2_ERROR_EAGAIN)
         return rc;
-    }
     else if(rc) {
         listen_state->state = ssh2_NB_state_idle;
         return ssh2_err(session, rc, "Unable to send open failure");
@@ -282,7 +273,6 @@ static SSH2_INLINE int packet_x11_open(
     int rc;
 
     if(x11open_state->state == ssh2_NB_state_idle) {
-
         size_t offset = strlen("x11") + 5;
         size_t temp_len = 0;
         unsigned char *temp_buf = NULL;
@@ -404,9 +394,8 @@ static SSH2_INLINE int packet_x11_open(
         if(x11open_state->state == ssh2_NB_state_created) {
             rc = ssh2_transport_send(session, x11open_state->packet, 17,
                                      NULL, 0);
-            if(rc == LIBSSH2_ERROR_EAGAIN) {
+            if(rc == LIBSSH2_ERROR_EAGAIN)
                 return rc;
-            }
             else if(rc) {
                 SSH2_FREE(session, x11open_state->shost);
                 x11open_state->shost = NULL;
@@ -447,9 +436,8 @@ x11_exit:
 
     rc = ssh2_transport_send(session, x11open_state->packet, packet_len,
                              NULL, 0);
-    if(rc == LIBSSH2_ERROR_EAGAIN) {
+    if(rc == LIBSSH2_ERROR_EAGAIN)
         return rc;
-    }
     else if(rc) {
         x11open_state->state = ssh2_NB_state_idle;
         return ssh2_err(session, rc, "Unable to send open failure");
@@ -479,26 +467,22 @@ static SSH2_INLINE int packet_authagent_open(
     buf.dataptr = buf.data;
     buf.len = datalen;
 
-    if(datalen < offset + 12) { /* 27-byte header + 3 * 4-byte */
+    if(datalen < offset + 12) /* 27-byte header + 3 * 4-byte */
         return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                         "Unexpected packet size");
-    }
 
     buf.dataptr += offset;
 
     if(authagent_state->state == ssh2_NB_state_idle) {
-        if(ssh2_get_u32(&buf, &(authagent_state->sender_channel))) {
+        if(ssh2_get_u32(&buf, &(authagent_state->sender_channel)))
             return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                             "Data too short extracting channel");
-        }
-        if(ssh2_get_u32(&buf, &(authagent_state->initial_window_size))) {
+        if(ssh2_get_u32(&buf, &(authagent_state->initial_window_size)))
             return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                             "Data too short extracting window size");
-        }
-        if(ssh2_get_u32(&buf, &(authagent_state->packet_size))) {
+        if(ssh2_get_u32(&buf, &(authagent_state->packet_size)))
             return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                             "Data too short extracting packet");
-        }
 
         ssh2_deb((session, LIBSSH2_TRACE_CONN,
                   "Auth Agent Connection Received on channel %u",
@@ -567,9 +551,8 @@ static SSH2_INLINE int packet_authagent_open(
         if(authagent_state->state == ssh2_NB_state_created) {
             rc = ssh2_transport_send(session, authagent_state->packet, 17,
                                      NULL, 0);
-            if(rc == LIBSSH2_ERROR_EAGAIN) {
+            if(rc == LIBSSH2_ERROR_EAGAIN)
                 return rc;
-            }
             else if(rc) {
                 authagent_state->state = ssh2_NB_state_idle;
                 return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
@@ -607,9 +590,8 @@ authagent_exit:
 
     rc = ssh2_transport_send(session, authagent_state->packet, packet_len,
                              NULL, 0);
-    if(rc == LIBSSH2_ERROR_EAGAIN) {
+    if(rc == LIBSSH2_ERROR_EAGAIN)
         return rc;
-    }
     else if(rc) {
         authagent_state->state = ssh2_NB_state_idle;
         return ssh2_err(session, rc, "Unable to send open failure");
@@ -764,11 +746,10 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                 ssh2_get_string(&buf, &message, &message_len);
                 ssh2_get_string(&buf, &language, &language_len);
 
-                if(session->ssh_msg_disconnect) {
+                if(session->ssh_msg_disconnect)
                     SSH2_DISCONNECT(session, reason, (const char *)message,
                                     message_len, (const char *)language,
                                     language_len);
-                }
 
                 ssh2_deb((session, LIBSSH2_TRACE_TRANS,
                           "Disconnect(%u): %.*s(%.*s)", reason,
@@ -788,9 +769,8 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
 
         case SSH_MSG_IGNORE:
             if(datalen >= 2) {
-                if(session->ssh_msg_ignore) {
+                if(session->ssh_msg_ignore)
                     SSH2_IGNORE(session, (char *)data + 1, datalen - 1);
-                }
             }
             else if(session->ssh_msg_ignore) {
                 SSH2_IGNORE(session, "", 0);
@@ -821,11 +801,10 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                     ssh2_get_string(&buf, &language, &language_len);
                 }
 
-                if(session->ssh_msg_debug) {
+                if(session->ssh_msg_debug)
                     SSH2_DEBUG(session, always_display, (const char *)message,
                                message_len, (const char *)language,
                                language_len);
-                }
             }
 
             ssh2_deb((session, LIBSSH2_TRACE_TRANS, "Debug Packet: %.*s",
@@ -852,10 +831,9 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                 buf.dataptr += 1; /* advance past type */
 
                 if(ssh2_get_u32(&buf, &nr_extensions) != 0 ||
-                   nr_extensions >= 1024) {
+                   nr_extensions >= 1024)
                     rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                   "Invalid extension info received");
-                }
 
                 while(rc == 0 && nr_extensions > 0) {
 
@@ -871,18 +849,16 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                     if(ssh2_get_string(&buf, &value, &value_len))
                         break;
 
-                    if(name && value) {
+                    if(name && value)
                         ssh2_deb((session, LIBSSH2_TRACE_KEX,
                                   "Server to Client extension %.*s: %.*s",
                                   (int)name_len, name, (int)value_len, value));
-                    }
 
                     if(name && name_len == 15 &&
                        !memcmp(name, "server-sig-algs", 15)) {
-                        if(session->server_sign_algorithms) {
+                        if(session->server_sign_algorithms)
                             SSH2_FREE(session,
                                       session->server_sign_algorithms);
-                        }
 
                         session->server_sign_algorithms =
                             SSH2_ALLOC(session, value_len + 1);
@@ -892,10 +868,9 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                                    value, value_len);
                             session->server_sign_algorithms[value_len] = '\0';
                         }
-                        else {
+                        else
                             rc = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                           "memory for server sign algo");
-                        }
                     }
                 }
             }
@@ -1149,10 +1124,9 @@ ssh2_packet_add_jump_point1:
                     if(channelp) {
 
                         uint32_t status = 0;
-                        if(ssh2_get_u32(&buf, &status)) {
+                        if(ssh2_get_u32(&buf, &status))
                             rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                           "exit-signal status error");
-                        }
 
                         channelp->exit_status = (int)status;
 
@@ -1176,15 +1150,13 @@ ssh2_packet_add_jump_point1:
                         /* signal name (without SIG prefix) */
                         unsigned char *sig_name = NULL;
                         size_t sig_len = 0;
-                        if(ssh2_get_string(&buf, &sig_name, &sig_len)) {
+                        if(ssh2_get_string(&buf, &sig_name, &sig_len))
                             rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                           "signal name protocol error");
-                        }
 
-                        if(sig_len > UINT32_MAX - 1) {
+                        if(sig_len > UINT32_MAX - 1)
                             rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                           "signal name out of bounds");
-                        }
                         else if(sig_len > 0) {
                             channelp->exit_signal =
                                 SSH2_ALLOC(session, sig_len + 1);
@@ -1201,14 +1173,12 @@ ssh2_packet_add_jump_point1:
                                           channelp->local.id,
                                           channelp->remote.id));
                             }
-                            else {
+                            else
                                 rc = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                               "exit signal alloc error");
-                            }
                         }
-                        else {
+                        else
                             channelp->exit_signal = NULL;
-                        }
                     }
                 }
 
@@ -1329,10 +1299,9 @@ ssh2_packet_add_jump_authagent:
                 channelp =
                     ssh2_channel_locate(session, ssh2_ntohu32(data + 1));
                 if(channelp) {
-                    if(bytestoadd > UINT32_MAX - channelp->local.window_size) {
+                    if(bytestoadd > UINT32_MAX - channelp->local.window_size)
                         rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                       "Window adjust out of bounds");
-                    }
                     else {
                         channelp->local.window_size += bytestoadd;
 
@@ -1474,9 +1443,8 @@ int ssh2_packet_askv(LIBSSH2_SESSION *session,
     for(i = 0; i < packet_types_len; i++) {
         if(ssh2_packet_ask(session, packet_types[i], data,
                            data_len, match_ofs,
-                           match_buf, match_len) == 0) {
+                           match_buf, match_len) == 0)
             return 0;
-        }
     }
 
     return -1;
@@ -1500,10 +1468,8 @@ int ssh2_packet_require(LIBSSH2_SESSION *session,
     if(state->start == 0) {
         if(ssh2_packet_ask(session, packet_type, data, data_len,
                            match_ofs, match_buf,
-                           match_len) == 0) {
-            /* A packet was available in the packet brigade */
-            return 0;
-        }
+                           match_len) == 0)
+            return 0;  /* A packet was available in the packet brigade */
 
         state->start = time(NULL);
     }
@@ -1557,9 +1523,8 @@ int ssh2_packet_burn(LIBSSH2_SESSION *session, ssh2_NB_states *state)
     int ret;
 
     if(*state == ssh2_NB_state_idle) {
-        for(i = 1; i < 255; i++) {
+        for(i = 1; i < 255; i++)
             all_packets[i - 1] = i;
-        }
         all_packets[254] = 0;
 
         if(ssh2_packet_askv(session, all_packets, &data, &data_len, 0,
@@ -1577,17 +1542,14 @@ int ssh2_packet_burn(LIBSSH2_SESSION *session, ssh2_NB_states *state)
 
     while(session->socket_state == SSH2_SOCKET_CONNECTED) {
         ret = ssh2_transport_read(session);
-        if(ret == LIBSSH2_ERROR_EAGAIN) {
+        if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
-        }
         else if(ret < 0) {
             *state = ssh2_NB_state_idle;
             return ret;
         }
-        else if(ret == 0) {
-            /* FIXME: this might busyloop */
-            continue;
-        }
+        else if(ret == 0)
+            continue;  /* FIXME: this might busyloop */
 
         /* Be lazy, let packet_ask pull it out of the brigade */
         if(ssh2_packet_ask(session, (unsigned char)ret, &data, &data_len,
@@ -1622,9 +1584,8 @@ int ssh2_packet_requirev(LIBSSH2_SESSION *session,
         return 0;
     }
 
-    if(state->start == 0) {
+    if(state->start == 0)
         state->start = time(NULL);
-    }
 
     while(session->socket_state != SSH2_SOCKET_DISCONNECTED) {
         int ret = ssh2_transport_read(session);
@@ -1640,9 +1601,8 @@ int ssh2_packet_requirev(LIBSSH2_SESSION *session,
                 state->start = 0;
                 return LIBSSH2_ERROR_TIMEOUT;
             }
-            else if(ret == LIBSSH2_ERROR_EAGAIN) {
+            else if(ret == LIBSSH2_ERROR_EAGAIN)
                 return ret;
-            }
         }
 
         if(strchr((const char *)packet_types, ret)) {
