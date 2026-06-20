@@ -282,7 +282,7 @@ char *srcdir_path(const char *file)
     else {
         int i;
         for(i = 0; i < curpath; ++i) {
-            free(filepath[curpath]);
+            free(filepath[i]);
         }
         curpath = 0;
         return NULL;
