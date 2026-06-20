@@ -235,9 +235,9 @@ void stop_session_fixture(void)
     close_socket_to_openssh_server(connected_socket);
     connected_socket = LIBSSH2_INVALID_SOCKET;
 
-    srcdir_path(NULL);  /* cleanup allocated filepath */
-
     libssh2_exit();
+
+    srcdir_path(NULL);  /* cleanup allocated filepath */
 
     stop_openssh_fixture();
 }
