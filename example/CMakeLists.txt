@@ -58,5 +58,5 @@ endforeach()
 
 libssh2_add_target_to_copy_dependencies(
   TARGET copy_example_dependencies
-  DEPENDENCIES ${_runtime_dependencies}
+  DEPENDENCIES ${__runtime_dependencies}
   BEFORE_TARGETS ${_example_targets})

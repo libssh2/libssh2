@@ -407,6 +407,7 @@ configure_file("src/libssh2_config_cmake.h.in"
 
 ## Cryptography backend choice
 
+# Files that must be in the same directory as the executables at runtime
 set(__runtime_dependencies "")
 
 set(CRYPTO_BACKEND "" CACHE
