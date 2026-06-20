@@ -64,6 +64,7 @@ char *srcdir_path(const char *file)
 
         if(curpath >= SSH2_ARRAYSIZE(filepath)) {
             fprintf(stderr, "srcdir_path ran out of filepath slots.\n");
+            return NULL;
         }
         assert(curpath < SSH2_ARRAYSIZE(filepath));
 
