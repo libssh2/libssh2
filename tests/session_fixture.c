@@ -75,9 +75,8 @@ char *srcdir_path(const char *file)
                 filepath[curpath] = calloc(1, (size_t)len + 1);
                 snprintf(filepath[curpath], (size_t)len + 1, "%s/%s", p, file);
             }
-            else {
+            else
                 return NULL;
-            }
         }
         else {
             len = snprintf(NULL, 0, "%s", file);
@@ -85,9 +84,8 @@ char *srcdir_path(const char *file)
                 filepath[curpath] = calloc(1, (size_t)len + 1);
                 snprintf(filepath[curpath], (size_t)len + 1, "%s", file);
             }
-            else {
+            else
                 return NULL;
-            }
         }
         return filepath[curpath++];
     }
