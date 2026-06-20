@@ -155,7 +155,7 @@ static int hostkey_method_ssh_rsa_initPEM(LIBSSH2_SESSION *session,
 }
 
 /*
- * Load a Private Key from a memory
+ * Load a Private Key from memory
  */
 static int hostkey_method_ssh_rsa_initPEMFromMemory(
     LIBSSH2_SESSION *session,
