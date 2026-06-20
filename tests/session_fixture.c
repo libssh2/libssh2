@@ -71,21 +71,25 @@ char *srcdir_path(const char *file)
         p = getenv("srcdir");
         if(p) {
             len = snprintf(NULL, 0, "%s/%s", p, file);
-            if(len > 2) {
-                filepath[curpath] = calloc(1, (size_t)len + 1);
-                snprintf(filepath[curpath], (size_t)len + 1, "%s/%s", p, file);
-            }
-            else
+            if(len <= 2)
                 return NULL;
+
+            filepath[curpath] = calloc(1, (size_t)len + 1);
+            if(!filepath[curpath])
+                return NULL;
+
+            snprintf(filepath[curpath], (size_t)len + 1, "%s/%s", p, file);
         }
         else {
             len = snprintf(NULL, 0, "%s", file);
-            if(len > 0) {
-                filepath[curpath] = calloc(1, (size_t)len + 1);
-                snprintf(filepath[curpath], (size_t)len + 1, "%s", file);
-            }
-            else
+            if(len <= 0)
                 return NULL;
+
+            filepath[curpath] = calloc(1, (size_t)len + 1);
+            if(!filepath[curpath])
+                return NULL;
+
+            snprintf(filepath[curpath], (size_t)len + 1, "%s", file);
         }
         return filepath[curpath++];
     }
