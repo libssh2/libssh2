@@ -1145,7 +1145,7 @@ static int hostkey_method_ssh_ed25519_init_cert(
 
     /*
      * we cannot check for eob here because certs
-     * have more meta data we don't read
+     * have more meta data we do not read
      */
 
     if(ssh2_ed25519_new_public(&ctx, session, key, key_len) != 0) {
