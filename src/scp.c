@@ -321,11 +321,10 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
             memcpy(&session->scpRecv_command[cmd_len], path, path_len);
             cmd_len += path_len;
         }
-        else {
+        else
             cmd_len += shell_quotearg(path,
                                       &session->scpRecv_command[cmd_len],
                                       session->scpRecv_command_len - cmd_len);
-        }
 
         /* the command to exec should _not_ be null-terminated */
         session->scpRecv_command_len = cmd_len;
@@ -349,10 +348,9 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 session->scpRecv_command = NULL;
                 session->scpRecv_state = ssh2_NB_state_idle;
             }
-            else {
+            else
                 ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
                          "Would block starting up channel");
-            }
             return NULL;
         }
 
@@ -393,9 +391,8 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                      "Would block sending initial wakeup");
             return NULL;
         }
-        else if(rc != 1) {
+        else if(rc != 1)
             goto scp_recv_error;
-        }
 
         /* Parse SCP response */
         session->scpRecv_response_len = 0;
@@ -570,9 +567,8 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                              "Would block waiting to send SCP ACK");
                     return NULL;
                 }
-                else if(rc != 1) {
+                else if(rc != 1)
                     goto scp_recv_error;
-                }
 
                 ssh2_deb((session, LIBSSH2_TRACE_SCP,
                           "mtime = %ld, atime = %ld",
@@ -724,9 +720,9 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                              "Would block sending SCP ACK");
                     return NULL;
                 }
-                else if(rc != 1) {
+                else if(rc != 1)
                     goto scp_recv_error;
-                }
+
                 ssh2_deb((session, LIBSSH2_TRACE_SCP, "mode = 0%lo size = %ld",
                           (unsigned long)session->scpRecv_mode,
                           (long)session->scpRecv_size));
@@ -870,10 +866,9 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
             memcpy(&session->scpSend_command[cmd_len], path, path_len);
             cmd_len += path_len;
         }
-        else {
+        else
             cmd_len += shell_quotearg(path, &session->scpSend_command[cmd_len],
                                       session->scpSend_command_len - cmd_len);
-        }
 
         /* the command to exec should _not_ be null-terminated */
         session->scpSend_command_len = cmd_len;
@@ -897,10 +892,9 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
                 session->scpSend_command = NULL;
                 session->scpSend_state = ssh2_NB_state_idle;
             }
-            else {
+            else
                 ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
                          "Would block starting up channel");
-            }
             return NULL;
         }
 
@@ -1012,11 +1006,8 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
             session->scpSend_state = ssh2_NB_state_sent4;
         }
     }
-    else {
-        if(session->scpSend_state == ssh2_NB_state_sent2) {
-            session->scpSend_state = ssh2_NB_state_sent4;
-        }
-    }
+    else if(session->scpSend_state == ssh2_NB_state_sent2)
+        session->scpSend_state = ssh2_NB_state_sent4;
 
     if(session->scpSend_state == ssh2_NB_state_sent4) {
         /* Send mode, size, and basename */
@@ -1105,10 +1096,9 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
 scp_send_empty_channel:
     /* the code only jumps here as a result of a zero read from channel_read()
        so we check EOF status to avoid getting stuck in a loop */
-    if(libssh2_channel_eof(session->scpSend_channel)) {
+    if(libssh2_channel_eof(session->scpSend_channel))
         ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                  "Unexpected channel close");
-    }
     else
         return session->scpSend_channel;
     /* fall-through */
