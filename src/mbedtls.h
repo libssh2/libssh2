@@ -207,11 +207,11 @@ int ssh2_random(unsigned char *buf, size_t len);
 #endif
 
 int ssh2_mbed_hash_init(mbedtls_md_context_t *ctx,
-                        mbedtls_md_type_t mdtype,
+                        mbedtls_md_type_t md_type,
                         const unsigned char *key, size_t keylen);
 int ssh2_mbed_hash_final(mbedtls_md_context_t *ctx, unsigned char *hash);
 int ssh2_mbed_hash(const unsigned char *data, size_t datalen,
-                   mbedtls_md_type_t mdtype, unsigned char *hash);
+                   mbedtls_md_type_t md_type, unsigned char *hash);
 
 /*******************************************************************/
 /*
