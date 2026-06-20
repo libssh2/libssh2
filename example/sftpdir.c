@@ -84,21 +84,16 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    if(argc > 1) {
+    if(argc > 1)
         hostaddr = inet_addr(argv[1]);
-    }
-    else {
+    else
         hostaddr = htonl(0x7F000001);
-    }
-    if(argc > 2) {
+    if(argc > 2)
         username = argv[2];
-    }
-    if(argc > 3) {
+    if(argc > 3)
         password = argv[3];
-    }
-    if(argc > 4) {
+    if(argc > 4)
         sftppath = argv[4];
-    }
 
     rc = libssh2_init(0);
     if(rc) {
@@ -147,9 +142,8 @@ int main(int argc, char *argv[])
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
-    for(i = 0; i < 20; i++) {
+    for(i = 0; i < 20; i++)
         fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
-    }
     fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
@@ -157,27 +151,21 @@ int main(int argc, char *argv[])
                                          (unsigned int)strlen(username));
     if(userauthlist) {
         fprintf(stderr, "Authentication methods: %s\n", userauthlist);
-        if(strstr(userauthlist, "password")) {
+        if(strstr(userauthlist, "password"))
             auth_pw |= 1;
-        }
-        if(strstr(userauthlist, "keyboard-interactive")) {
+        if(strstr(userauthlist, "keyboard-interactive"))
             auth_pw |= 2;
-        }
-        if(strstr(userauthlist, "publickey")) {
+        if(strstr(userauthlist, "publickey"))
             auth_pw |= 4;
-        }
 
         /* check for options */
         if(argc > 5) {
-            if((auth_pw & 1) && !strcmp(argv[5], "-p")) {
+            if((auth_pw & 1) && !strcmp(argv[5], "-p"))
                 auth_pw = 1;
-            }
-            if((auth_pw & 2) && !strcmp(argv[5], "-i")) {
+            if((auth_pw & 2) && !strcmp(argv[5], "-i"))
                 auth_pw = 2;
-            }
-            if((auth_pw & 4) && !strcmp(argv[5], "-k")) {
+            if((auth_pw & 4) && !strcmp(argv[5], "-k"))
                 auth_pw = 4;
-            }
         }
 
         if(auth_pw & 1) {
@@ -195,10 +183,9 @@ int main(int argc, char *argv[])
                         "Authentication by keyboard-interactive failed.\n");
                 goto shutdown;
             }
-            else {
+            else
                 fprintf(stderr,
                         "Authentication by keyboard-interactive succeeded.\n");
-            }
         }
         else if(auth_pw & 4) {
             /* Or by public key */
@@ -208,9 +195,8 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "Authentication by public key failed.\n");
                 goto shutdown;
             }
-            else {
+            else
                 fprintf(stderr, "Authentication by public key succeeded.\n");
-            }
         }
         else {
             fprintf(stderr, "No supported authentication methods found.\n");
@@ -249,36 +235,29 @@ int main(int argc, char *argv[])
         if(rc > 0) {
             /* rc is the length of the filename in the mem buffer */
 
-            if(longentry[0] != '\0') {
+            if(longentry[0] != '\0')
                 printf("%s\n", longentry);
-            }
             else {
-                if(attrs.flags & LIBSSH2_SFTP_ATTR_PERMISSIONS) {
+                if(attrs.flags & LIBSSH2_SFTP_ATTR_PERMISSIONS)
                     /* this should check what permissions it
                        is and print the output accordingly */
                     printf("--fix----- ");
-                }
-                else {
+                else
                     printf("---------- ");
-                }
 
-                if(attrs.flags & LIBSSH2_SFTP_ATTR_UIDGID) {
+                if(attrs.flags & LIBSSH2_SFTP_ATTR_UIDGID)
                     printf("%4d %4d ", (int)attrs.uid, (int)attrs.gid);
-                }
-                else {
+                else
                     printf("   -    - ");
-                }
 
-                if(attrs.flags & LIBSSH2_SFTP_ATTR_SIZE) {
+                if(attrs.flags & LIBSSH2_SFTP_ATTR_SIZE)
                     printf("%8" LIBSSH2_FILESIZE_MASK " ", attrs.filesize);
-                }
 
                 printf("%s\n", mem);
             }
         }
-        else {
+        else
             break;
-        }
 
     } while(1);
 

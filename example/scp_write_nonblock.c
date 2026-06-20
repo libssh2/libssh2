@@ -112,24 +112,18 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    if(argc > 1) {
+    if(argc > 1)
         hostaddr = inet_addr(argv[1]);
-    }
-    else {
+    else
         hostaddr = htonl(0x7F000001);
-    }
-    if(argc > 2) {
+    if(argc > 2)
         username = argv[2];
-    }
-    if(argc > 3) {
+    if(argc > 3)
         password = argv[3];
-    }
-    if(argc > 4) {
+    if(argc > 4)
         loclfile = argv[4];
-    }
-    if(argc > 5) {
+    if(argc > 5)
         scppath = argv[5];
-    }
 
     rc = libssh2_init(0);
     if(rc) {
@@ -194,9 +188,8 @@ int main(int argc, char *argv[])
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
-    for(i = 0; i < 20; i++) {
+    for(i = 0; i < 20; i++)
         fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
-    }
     fprintf(stderr, "\n");
 
     if(auth_pw) {
@@ -241,10 +234,8 @@ int main(int argc, char *argv[])
     start = time(NULL);
     do {
         nread = fread(mem, 1, sizeof(mem), local);
-        if(nread <= 0) {
-            /* end of file */
-            break;
-        }
+        if(nread <= 0)
+            break;  /* end of file */
         ptr = mem;
 
         total += (libssh2_struct_stat_size)nread;

@@ -111,24 +111,18 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    if(argc > 1) {
+    if(argc > 1)
         hostaddr = inet_addr(argv[1]);
-    }
-    else {
+    else
         hostaddr = htonl(0x7F000001);
-    }
-    if(argc > 2) {
+    if(argc > 2)
         username = argv[2];
-    }
-    if(argc > 3) {
+    if(argc > 3)
         password = argv[3];
-    }
-    if(argc > 4) {
+    if(argc > 4)
         loclfile = argv[4];
-    }
-    if(argc > 5) {
+    if(argc > 5)
         sftppath = argv[5];
-    }
 
     rc = libssh2_init(0);
     if(rc) {
@@ -188,9 +182,8 @@ int main(int argc, char *argv[])
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
-    for(i = 0; i < 20; i++) {
+    for(i = 0; i < 20; i++)
         fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
-    }
     fprintf(stderr, "\n");
 
     if(auth_pw) {
@@ -254,8 +247,7 @@ int main(int argc, char *argv[])
         if(nread <= 0) {
             /* end of file */
             if(memuse > 0)
-                /* the previous sending is not finished */
-                nread = 0;
+                nread = 0;  /* the previous sending is not finished */
             else
                 break;
         }
@@ -276,8 +268,7 @@ int main(int argc, char *argv[])
             memuse -= (size_t)nwritten;
         }
         else
-            /* 'mem' was consumed fully */
-            memuse = 0;
+            memuse = 0;  /* 'mem' was consumed fully */
 
     } while(nwritten > 0);
 

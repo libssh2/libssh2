@@ -240,9 +240,8 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, libssh2_socket_t sock)
             while(wr < nread) {
                 ssize_t nwritten = libssh2_channel_write(channel, buf + wr,
                                                          (size_t)(nread - wr));
-                if(nwritten == LIBSSH2_ERROR_EAGAIN) {
+                if(nwritten == LIBSSH2_ERROR_EAGAIN)
                     continue;
-                }
                 if(nwritten < 0) {
                     free(fds);
                     free(buf);
@@ -261,9 +260,8 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, libssh2_socket_t sock)
     free(fds);
     free(buf);
 
-    if(libssh2_channel_eof(channel) == 1) {
+    if(libssh2_channel_eof(channel) == 1)
         return -1;
-    }
 
     return 0;
 }
@@ -467,10 +465,9 @@ int main(int argc, char *argv[])
                 fwrite(buf, 1, (size_t)nread, stdout);
                 fflush(stdout);
             }
-            else if(nread < 0 && nread != LIBSSH2_ERROR_EAGAIN) {
+            else if(nread < 0 && nread != LIBSSH2_ERROR_EAGAIN)
                 fprintf(stderr, "libssh2_channel_read returned %ld\n",
                         (long)nread);
-            }
         }
 
         /* Looping on X clients */
@@ -503,9 +500,8 @@ int main(int argc, char *argv[])
             while(wr < nread) {
                 ssize_t nwritten = libssh2_channel_write(channel, buf + wr,
                                                          (size_t)(nread - wr));
-                if(nwritten == LIBSSH2_ERROR_EAGAIN) {
+                if(nwritten == LIBSSH2_ERROR_EAGAIN)
                     continue;
-                }
                 if(nwritten < 0) {
                     fprintf(stderr, "libssh2_channel_write returned %ld\n",
                             (long)nwritten);
@@ -516,9 +512,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        if(libssh2_channel_eof(channel) == 1) {
+        if(libssh2_channel_eof(channel) == 1)
             break;
-        }
     }
 
 shutdown:

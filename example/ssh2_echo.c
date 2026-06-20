@@ -105,15 +105,12 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    if(argc > 1) {
+    if(argc > 1)
         hostname = argv[1];  /* must be ip address only */
-    }
-    if(argc > 2) {
+    if(argc > 2)
         username = argv[2];
-    }
-    if(argc > 3) {
+    if(argc > 3)
         password = argv[3];
-    }
 
     rc = libssh2_init(0);
     if(rc) {
@@ -226,10 +223,10 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Error\n");
         return 1;
     }
+
     while((rc = libssh2_channel_exec(channel, commandline)) ==
-          LIBSSH2_ERROR_EAGAIN) {
+          LIBSSH2_ERROR_EAGAIN)
         waitsocket(sock, session);
-    }
     if(rc) {
         fprintf(stderr, "exec error\n");
         return 1;
@@ -309,9 +306,8 @@ int main(int argc, char *argv[])
                         totwritten += (size_t)n;
                         fprintf(stderr, "wrote %ld bytes (%lu in total)",
                                 (long)n, (unsigned long)totwritten);
-                        if(left >= bufsize && (size_t)n != bufsize) {
+                        if(left >= bufsize && (size_t)n != bufsize)
                             fprintf(stderr, " PARTIAL");
-                        }
                         fprintf(stderr, "\n");
                     }
                 }
@@ -319,9 +315,8 @@ int main(int argc, char *argv[])
                     /* all data written, send EOF */
                     rc = libssh2_channel_send_eof(channel);
 
-                    if(rc == LIBSSH2_ERROR_EAGAIN) {
+                    if(rc == LIBSSH2_ERROR_EAGAIN)
                         fprintf(stderr, "send eof again\n");
-                    }
                     else if(rc < 0) {
                         fprintf(stderr, "send eof failed\n");
                         return 1;
