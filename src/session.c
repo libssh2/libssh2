@@ -276,32 +276,22 @@ static int banner_send(LIBSSH2_SESSION *session)
 static int session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
                             int nonblock /* TRUE or FALSE */ )
 {
-#ifdef HAVE_O_NONBLOCK
-    /* most recent unix versions */
-    int flags;
-
-    flags = fcntl(sockfd, F_GETFL, 0);
+#ifdef HAVE_O_NONBLOCK  /* most recent unix versions */
+    int flags = fcntl(sockfd, F_GETFL, 0);
     if(nonblock)
         return fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
     else
         return fcntl(sockfd, F_SETFL, flags & (~O_NONBLOCK));
-#elif defined(HAVE_FIONBIO)
-    /* older unix versions and VMS */
-    int flags;
-
-    flags = nonblock;
+#elif defined(HAVE_FIONBIO)  /* older unix versions and VMS */
+    int flags = nonblock;
     return ioctl(sockfd, FIONBIO, &flags);
-#elif defined(HAVE_IOCTLSOCKET_CASE)
-    /* presumably for Amiga */
+#elif defined(HAVE_IOCTLSOCKET_CASE)  /* presumably for Amiga */
     return IoctlSocket(sockfd, FIONBIO, (long)nonblock);
-#elif defined(HAVE_SO_NONBLOCK)
-    /* BeOS */
+#elif defined(HAVE_SO_NONBLOCK)  /* BeOS */
     long b = nonblock ? 1 : 0;
     return setsockopt(sockfd, SOL_SOCKET, SO_NONBLOCK, &b, sizeof(b));
 #elif defined(_WIN32)
-    unsigned long flags;
-
-    flags = nonblock;
+    unsigned long flags = nonblock;
     return ioctlsocket(sockfd, FIONBIO, &flags);
 #else
     (void)sockfd;
@@ -315,30 +305,22 @@ static int session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
  */
 static int get_socket_nonblocking(libssh2_socket_t sockfd)
 {                                 /* operate on this */
-#ifdef HAVE_O_NONBLOCK
-    /* most recent unix versions */
+#ifdef HAVE_O_NONBLOCK  /* most recent unix versions */
     int flags = fcntl(sockfd, F_GETFL, 0);
-
     if(flags == -1) {
-        /* Assume blocking on error */
-        return 1;
+        return 1;  /* Assume blocking on error */
     }
     return (flags & O_NONBLOCK);
-#elif defined(HAVE_SO_NONBLOCK)
-    /* BeOS */
+#elif defined(HAVE_SO_NONBLOCK)  /* BeOS */
     long b;
     if(getsockopt(sockfd, SOL_SOCKET, SO_NONBLOCK, &b, sizeof(b))) {
-        /* Assume blocking on error */
-        return 1;
+        return 1;  /* Assume blocking on error */
     }
     return (int)b;
-#elif defined(SO_STATE) && defined(__VMS)
-    /* VMS TCP/IP Services */
-
+#elif defined(SO_STATE) && defined(__VMS)  /* VMS TCP/IP Services */
     size_t sockstat = 0;
     int callstat = 0;
     size_t size = sizeof(int);
-
     callstat = getsockopt(sockfd, SOL_SOCKET, SO_STATE,
                           (char *)&sockstat, &size);
     if(callstat == -1) {
@@ -354,8 +336,7 @@ static int get_socket_nonblocking(libssh2_socket_t sockfd)
 
     if(getsockopt(sockfd, SOL_SOCKET, SO_ERROR,
                   (void *)&option_value, &option_len)) {
-        /* Assume blocking on error */
-        return 1;
+        return 1;  /* Assume blocking on error */
     }
     return (int)option_value;
 #else
