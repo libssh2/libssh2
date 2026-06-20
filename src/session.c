@@ -1346,8 +1346,7 @@ int libssh2_session_flag(LIBSSH2_SESSION *session, int flag, int value)
         session->flag.quote_paths = value;
         break;
     default:
-        /* unknown flag */
-        return LIBSSH2_ERROR_INVAL;
+        return LIBSSH2_ERROR_INVAL;  /* unknown flag */
     }
 
     return LIBSSH2_ERROR_NONE;
