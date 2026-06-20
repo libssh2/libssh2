@@ -58,9 +58,8 @@ static int connect_to_server(void)
 {
     int rc;
     connected_socket = open_socket_to_openssh_server();
-    if(connected_socket == LIBSSH2_INVALID_SOCKET) {
+    if(connected_socket == LIBSSH2_INVALID_SOCKET)
         return LIBSSH2_ERROR_SOCKET_NONE;
-    }
 
     rc = libssh2_session_handshake(connected_session, connected_socket);
     if(rc) {
@@ -145,9 +144,9 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
     }
 
     rc = start_openssh_fixture();
-    if(rc) {
+    if(rc)
         return NULL;
-    }
+
     rc = libssh2_init(0);
     if(rc) {
         fprintf(stderr, "libssh2_init failed (%d)\n", rc);
@@ -201,9 +200,8 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
         return NULL;
     }
 
-    if(getenv("FIXTURE_TRACE_ALL_CONNECT")) {
+    if(getenv("FIXTURE_TRACE_ALL_CONNECT"))
         libssh2_trace(connected_session, 0);
-    }
 
     return connected_session;
 }
@@ -216,9 +214,8 @@ void print_last_session_error(const char *function)
             libssh2_session_last_error(connected_session, &message, NULL, 0);
         fprintf(stderr, "%s failed (%d): %s\n", function, rc, message);
     }
-    else {
+    else
         fprintf(stderr, "No session\n");
-    }
 }
 
 static void srcdir_path_free(void);
@@ -230,9 +227,8 @@ void stop_session_fixture(void)
         libssh2_session_free(connected_session);
         connected_session = NULL;
     }
-    else {
+    else
         fprintf(stderr, "Cannot stop session - none started\n");
-    }
 
     close_socket_to_openssh_server(connected_socket);
     connected_socket = LIBSSH2_INVALID_SOCKET;
@@ -313,10 +309,9 @@ static void kbd_callback(const char *name, int name_len,
 
     fprintf(stdout, "Kb-int name: %.*s\n", name_len, name);
     fprintf(stdout, "Kb-int instruction: %.*s\n", instruct_len, instruct);
-    for(i = 0; i < num_prompts; ++i) {
+    for(i = 0; i < num_prompts; ++i)
         fprintf(stdout, "Kb-int prompt %d: %.*s\n", i,
                 (int)prompts[i].length, prompts[i].text);
-    }
 
     if(num_prompts == 1) {
         responses[0].text = libssh2_strdup(kbd_password);
@@ -527,13 +522,12 @@ int test_auth_pubkey(LIBSSH2_SESSION *session, int flags,
 
         free(buffer);
     }
-    else {
+    else
         rc = libssh2_userauth_publickey_fromfile_ex(session, username,
                                                 (unsigned int)strlen(username),
                                                     srcdir_path(fn_pub),
                                                     srcdir_path(fn_priv),
                                                     password);
-    }
 
     if((flags & TEST_AUTH_SHOULDFAIL) != 0) {
         if(rc == 0) {
