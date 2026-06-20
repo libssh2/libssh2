@@ -2112,23 +2112,27 @@ static int wcng_uncompressed_point_from_publickey(
         NULL,
         0, &ecc_blob_len,
         0);
-    if(BCRYPT_SUCCESS(status) && ecc_blob_len > 0) {
-        ecc_blob = SSH2_ALLOC(session, ecc_blob_len);
-        if(!ecc_blob) {
-            result = LIBSSH2_ERROR_ALLOC;
-            goto cleanup;
-        }
-
-        status = BCryptExportKey(key,
-            NULL,
-            BCRYPT_ECCPUBLIC_BLOB,
-            (PUCHAR)ecc_blob,
-            ecc_blob_len, &ecc_blob_len,
-            0);
-    }
-    else {
+    if(!BCRYPT_SUCCESS(status) || ecc_blob_len == 0) {
         result = ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
-                          "Decoding the ECC public key failed");
+                          "Failed preparing to decode the ECC public key");
+        goto cleanup;
+    }
+
+    ecc_blob = SSH2_ALLOC(session, ecc_blob_len);
+    if(!ecc_blob) {
+        result = LIBSSH2_ERROR_ALLOC;
+        goto cleanup;
+    }
+
+    status = BCryptExportKey(key,
+        NULL,
+        BCRYPT_ECCPUBLIC_BLOB,
+        (PUCHAR)ecc_blob,
+        ecc_blob_len, &ecc_blob_len,
+        0);
+    if(!BCRYPT_SUCCESS(status)) {
+        result = ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
+                          "Failed decoding the ECC public key");
         goto cleanup;
     }
 
