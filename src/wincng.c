@@ -2136,6 +2136,12 @@ static int wcng_uncompressed_point_from_publickey(
         goto cleanup;
     }
 
+    if(ecc_blob_len < sizeof(BCRYPT_ECCKEY_BLOB) + (ecc_blob->cbKey * 2)) {
+        result = ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
+                          "Preparing to decode the ECC public key failed");
+        goto cleanup;
+    }
+
     point_x = (PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB);
     point_y = (PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB) + ecc_blob->cbKey;
 
