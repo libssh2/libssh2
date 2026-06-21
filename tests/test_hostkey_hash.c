@@ -54,12 +54,16 @@ static const size_t SHA256_HASH_SIZE = 32;
 static void calculate_digest(const char *hash, size_t hash_len, char *buffer,
                              size_t buffer_len)
 {
-    size_t i;
-    char *p = buffer;
-    char *end = buffer + buffer_len;
+    if(buffer && buffer_len) {
+        size_t i;
+        char *p = buffer;
+        char *end = buffer + buffer_len;
 
-    for(i = 0; i < hash_len && (end - p) >= 3; ++i)
-        p += snprintf(p, (size_t)(end - p), "%02X", (unsigned char)hash[i]);
+        *p = 0;
+
+        for(i = 0; i < hash_len && (end - p) >= 3; ++i, p += 2)
+            snprintf(p, (size_t)(end - p), "%02X", (unsigned char)hash[i]);
+    }
 }
 
 int test(LIBSSH2_SESSION *session)
