@@ -65,8 +65,8 @@ static void debugdump(LIBSSH2_SESSION *session,
     if(!(session->showmask & LIBSSH2_TRACE_TRANS))
         return;  /* not asked for, bail out */
 
-    used = snprintf(buffer, sizeof(buffer), "=> %s (%lu bytes)\n",
-                    desc, (unsigned long)size);
+    used = ssh2_snprintf(buffer, sizeof(buffer), "=> %s (%lu bytes)\n",
+                         desc, (unsigned long)size);
     if(session->tracehandler)
         (session->tracehandler)(session, session->tracehandler_context,
                                 buffer, used);
@@ -76,7 +76,8 @@ static void debugdump(LIBSSH2_SESSION *session,
 
     for(i = 0; i < size; i += width) {
 
-        used = snprintf(buffer, sizeof(buffer), "%04lx: ", (unsigned long)i);
+        used = ssh2_snprintf(buffer, sizeof(buffer), "%04lx: ",
+                             (unsigned long)i);
 
         /* hex not disabled, show it */
         for(c = 0; c < width; c++) {

@@ -255,7 +255,7 @@ static int process_host_key(LIBSSH2_SESSION *session,
         char *fprint = fingerprint;
         int i;
         for(i = 0; i < MD5_DIGEST_LENGTH; i++, fprint += 3)
-            snprintf(fprint, 4, "%02x:", session->server_hostkey_md5[i]);
+            ssh2_snprintf(fprint, 4, "%02x:", session->server_hostkey_md5[i]);
         *(--fprint) = '\0';
         ssh2_deb((session, LIBSSH2_TRACE_KEX, "Server's MD5 Fingerprint: %s",
                   fingerprint));
@@ -280,7 +280,7 @@ static int process_host_key(LIBSSH2_SESSION *session,
         char *fprint = fingerprint;
         int i;
         for(i = 0; i < SHA1_DIGEST_LENGTH; i++, fprint += 3)
-            snprintf(fprint, 4, "%02x:", session->server_hostkey_sha1[i]);
+            ssh2_snprintf(fprint, 4, "%02x:", session->server_hostkey_sha1[i]);
         *(--fprint) = '\0';
         ssh2_deb((session, LIBSSH2_TRACE_KEX, "Server's SHA1 Fingerprint: %s",
                   fingerprint));

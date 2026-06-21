@@ -307,8 +307,9 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
             return NULL;
         }
 
-        snprintf((char *)session->scpRecv_command,
-                 session->scpRecv_command_len, "scp -%sf ", sb ? "p" : "");
+        ssh2_snprintf((char *)session->scpRecv_command,
+                      session->scpRecv_command_len,
+                      "scp -%sf ", sb ? "p" : "");
 
         cmd_len = strlen((char *)session->scpRecv_command);
 
@@ -851,9 +852,9 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
             return NULL;
         }
 
-        snprintf((char *)session->scpSend_command,
-                 session->scpSend_command_len,
-                 "scp -%st ", (mtime || atime) ? "p" : "");
+        ssh2_snprintf((char *)session->scpSend_command,
+                      session->scpSend_command_len,
+                      "scp -%st ", (mtime || atime) ? "p" : "");
 
         cmd_len = strlen((char *)session->scpSend_command);
 
@@ -951,9 +952,9 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
         if(mtime || atime) {
             /* Send mtime and atime to be used for file */
             session->scpSend_response_len =
-                snprintf((char *)session->scpSend_response,
-                         SSH2_SCP_RESPONSE_BUFLEN, "T%ld 0 %ld 0\n",
-                         (long)mtime, (long)atime);
+                ssh2_snprintf((char *)session->scpSend_response,
+                              SSH2_SCP_RESPONSE_BUFLEN, "T%ld 0 %ld 0\n",
+                              (long)mtime, (long)atime);
             ssh2_deb((session, LIBSSH2_TRACE_SCP, "Sent %s",
                       session->scpSend_response));
         }
@@ -1018,10 +1019,10 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
             base = path;
 
         session->scpSend_response_len =
-            snprintf((char *)session->scpSend_response,
-                     SSH2_SCP_RESPONSE_BUFLEN,
-                     "C0%o %" SSH2_INT64_T_FORMAT " %s\n",
-                     (unsigned int)mode, size, base);
+            ssh2_snprintf((char *)session->scpSend_response,
+                          SSH2_SCP_RESPONSE_BUFLEN,
+                          "C0%o %" SSH2_INT64_T_FORMAT " %s\n",
+                          (unsigned int)mode, size, base);
         ssh2_deb((session, LIBSSH2_TRACE_SCP, "Sent %s",
                   session->scpSend_response));
 
