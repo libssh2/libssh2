@@ -58,7 +58,7 @@
 
 /* snprintf not in Visual Studio CRT and _snprintf dangerously incompatible.
    We provide a safe wrapper if snprintf not found */
-#ifdef LIBSSH2_SNPRINTF
+#ifndef HAVE_SNPRINTF
 #include <stdarg.h>
 
 /* Want safe, 'n += snprintf(b + n ...)' like function. If cp_max_len is 1 then

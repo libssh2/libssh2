@@ -147,10 +147,9 @@
 #endif
 
 /* Use local implementation when not available */
-#ifndef HAVE_SNPRINTF
-#undef snprintf
-#define snprintf ssh2_snprintf
-#define LIBSSH2_SNPRINTF
+#ifdef HAVE_SNPRINTF
+#define ssh2_snprintf snprintf
+#else
 int ssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
     SSH2_PRINTF(3, 4);
 #endif
