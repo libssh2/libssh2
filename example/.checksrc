@@ -8,4 +8,5 @@ allowfunc fstat
 allowfunc printf
 allowfunc recv
 allowfunc send
+allowfunc snprintf
 allowfunc strdup
