@@ -62,7 +62,7 @@
 #include <stdarg.h>
 
 /* Want safe, 'n += snprintf(b + n ...)' like function. Returns number of chars
- * placed in cp excluding the trailing null char. For cp_max_len > 0 the return
+ * placed in cp excluding the null-terminator. For cp_max_len > 0 the return
  * value is always < cp_max_len; for cp_max_len == 0 the return value is 0 (and
  * no chars are written to cp). Always null-terminate the output. */
 int ssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
