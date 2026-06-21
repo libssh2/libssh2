@@ -2112,7 +2112,7 @@ static int wcng_uncompressed_point_from_publickey(
         NULL,
         0, &ecc_blob_len,
         0);
-    if(!BCRYPT_SUCCESS(status) || ecc_blob_len == 0) {
+    if(!BCRYPT_SUCCESS(status) || ecc_blob_len < sizeof(BCRYPT_ECCKEY_BLOB)) {
         result = ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                           "Preparing to decode the ECC public key failed");
         goto cleanup;
@@ -2137,7 +2137,7 @@ static int wcng_uncompressed_point_from_publickey(
     }
 
     point_x = (PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB);
-    point_y = (PUCHAR)ecc_blob + ecc_blob->cbKey + sizeof(BCRYPT_ECCKEY_BLOB);
+    point_y = (PUCHAR)ecc_blob + sizeof(BCRYPT_ECCKEY_BLOB) + ecc_blob->cbKey;
 
     /*
      * Create uncompressed point, which needs to look like the following:
