@@ -265,9 +265,9 @@ const char *srcdir_path(const char *file)
         abort();
     }
 
-    buflen = srclen + 1 /* / */ + filelen + 1 /* \0 */;
+    buflen = srclen + 1 + filelen + 1;  /* srcdir + / + file + nul */
 
-    filepath[curpath] = calloc(1, buflen);
+    filepath[curpath] = malloc(buflen);
     if(!filepath[curpath]) {
         fprintf(stderr, "srcdir_path: failed allocating buffer.\n");
         abort();
