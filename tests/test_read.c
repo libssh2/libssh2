@@ -86,9 +86,9 @@ int test(LIBSSH2_SESSION *session)
     }
 
     /* command to transfer the desired amount of data */
-    snprintf(remote_command, sizeof(remote_command),
-             "dd if=/dev/zero bs=%lu count=%lu status=none",
-             xfer_bs, xfer_count);
+    ssh2_snprintf(remote_command, sizeof(remote_command),
+                  "dd if=/dev/zero bs=%lu count=%lu status=none",
+                  xfer_bs, xfer_count);
 
     /* Send the command to transfer data */
     if(libssh2_channel_exec(channel, remote_command)) {

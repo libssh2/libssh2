@@ -62,7 +62,8 @@ static void calculate_digest(const char *hash, size_t hash_len, char *buffer,
         *p = 0;
 
         for(i = 0; i < hash_len && (end - p) >= 3; ++i, p += 2)
-            snprintf(p, (size_t)(end - p), "%02X", (unsigned char)hash[i]);
+            ssh2_snprintf(p, (size_t)(end - p), "%02X",
+                          (unsigned char)hash[i]);
     }
 }
 

@@ -255,7 +255,7 @@ char *srcdir_path(const char *file)
 
         p = getenv("srcdir");
         if(p) {
-            len = snprintf(NULL, 0, "%s/%s", p, file);
+            len = ssh2_snprintf(NULL, 0, "%s/%s", p, file);
             if(len <= 2)
                 return NULL;
 
@@ -263,10 +263,11 @@ char *srcdir_path(const char *file)
             if(!filepath[curpath])
                 return NULL;
 
-            snprintf(filepath[curpath], (size_t)len + 1, "%s/%s", p, file);
+            ssh2_snprintf(filepath[curpath], (size_t)len + 1, "%s/%s", p,
+                          file);
         }
         else {
-            len = snprintf(NULL, 0, "%s", file);
+            len = ssh2_snprintf(NULL, 0, "%s", file);
             if(len <= 0)
                 return NULL;
 
@@ -274,7 +275,7 @@ char *srcdir_path(const char *file)
             if(!filepath[curpath])
                 return NULL;
 
-            snprintf(filepath[curpath], (size_t)len + 1, "%s", file);
+            ssh2_snprintf(filepath[curpath], (size_t)len + 1, "%s", file);
         }
         return filepath[curpath++];
     }
