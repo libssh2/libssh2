@@ -1010,7 +1010,8 @@ jobs:
             -DCRYPTO_BACKEND="${MATRIX_CRYPTO}" \
             -DENABLE_ZLIB_COMPRESSION="${MATRIX_ZLIB}" \
             -DRUN_DOCKER_TESTS=OFF \
-            -DRUN_SSHD_TESTS=OFF
+            -DRUN_SSHD_TESTS=OFF \
+            -DLIBSSH2_DISABLE_COPY_DEPENDENCIES=ON
 
       - name: 'configure log'
         if: ${{ !cancelled() }}
