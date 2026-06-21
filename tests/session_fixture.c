@@ -245,7 +245,7 @@ static size_t curpath;
 const char *srcdir_path(const char *file)
 {
     const char *srcdir = getenv("srcdir");
-    int len;
+    size_t buflen, srclen, filelen;
 
     if(!srcdir || !*srcdir)
         return file;
@@ -257,19 +257,23 @@ const char *srcdir_path(const char *file)
         abort();
     }
 
-    len = ssh2_snprintf(NULL, 0, "%s/%s", srcdir, file);
-    if(len <= 2) {
-        fprintf(stderr, "srcdir_path: failed determining size.\n");
+    srclen = strlen(srcdir);
+    filelen = strlen(file);
+
+    if(srclen > 8192 || filelen > 8192) {
+        fprintf(stderr, "srcdir_path: input names too large.\n");
         abort();
     }
 
-    filepath[curpath] = calloc(1, (size_t)len + 1);
+    buflen = srclen + 1 /* / */ + filelen + 1 /* \0 */;
+
+    filepath[curpath] = calloc(1, buflen);
     if(!filepath[curpath]) {
         fprintf(stderr, "srcdir_path: failed allocating buffer.\n");
         abort();
     }
 
-    ssh2_snprintf(filepath[curpath], (size_t)len + 1, "%s/%s", srcdir, file);
+    ssh2_snprintf(filepath[curpath], buflen, "%s/%s", srcdir, file);
 
     return filepath[curpath++];
 }
