@@ -199,6 +199,8 @@ int main(int argc, char *argv[])
             char const *h = getenv("HOME");
             if(!h || !*h)
                 h = ".";
+            /* Silence GCC -Wformat-truncation false positives by allocating
+               2 extra bytes for each buffer. */
             fn1sz = strlen(h) + strlen(pubkey) + 4;
             fn2sz = strlen(h) + strlen(privkey) + 4;
             fn1 = malloc(fn1sz);
