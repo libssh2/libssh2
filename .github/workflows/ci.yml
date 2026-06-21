@@ -580,6 +580,9 @@ jobs:
               options+=' -DCMAKE_C_STANDARD=90'
               cflags+=' -D_DEFAULT_SOURCE'  # for glibc ISO mode, in tests: popen(), pclose(), in examples: fileno(), tcsetattr()
             fi
+            if [ "${MATRIX_CRYPTO}" = 'OpenSSL-3-no-deprecated' ]; then
+              options+=' -DENABLE_DEBUG_LOGGING=ON'
+            fi
             cmake -B bld -G Ninja ${options} $TOOLCHAIN_OPTION \
               -DCMAKE_C_FLAGS="${cflags}" \
               -DCMAKE_UNITY_BUILD=ON \
