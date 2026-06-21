@@ -56,14 +56,14 @@
 #define SSH2_SEND_LOW  send
 #endif
 
-/* snprintf not in Visual Studio CRT and _snprintf dangerously incompatible.
-   We provide a safe wrapper if snprintf not found */
+/* snprintf is not in <VS2015 CRT and _snprintf dangerously incompatible.
+   We provide a safe wrapper for these environments */
 #ifndef HAVE_SNPRINTF
 #include <stdarg.h>
 
 /* Want safe, 'n += snprintf(b + n ...)' like function. Returns number of chars
  * placed in cp excluding the trailing null char. For cp_max_len > 0 the return
- * value is always < cp_max_len; for cp_max_len <= 0 the return value is 0 (and
+ * value is always < cp_max_len; for cp_max_len == 0 the return value is 0 (and
  * no chars are written to cp). Always null-terminate the output. */
 int ssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
 {
