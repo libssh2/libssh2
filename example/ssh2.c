@@ -199,8 +199,8 @@ int main(int argc, char *argv[])
             char const *h = getenv("HOME");
             if(!h || !*h)
                 h = ".";
-            fn1sz = strlen(h) + strlen(pubkey) + 3;
-            fn2sz = strlen(h) + strlen(privkey) + 3;
+            fn1sz = strlen(h) + strlen(pubkey) + 4;
+            fn2sz = strlen(h) + strlen(privkey) + 4;
             fn1 = malloc(fn1sz);
             fn2 = malloc(fn2sz);
             if(!fn1 || !fn2) {
