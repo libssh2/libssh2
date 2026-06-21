@@ -239,47 +239,43 @@ void stop_session_fixture(void)
 static char *filepath[32];
 static size_t curpath;
 
-/* Return a static string that contains a file path relative to the srcdir
-   variable, if found. */
-char *srcdir_path(const char *file)
+/* If 'srcdir' env is set, return '$srcdir/<file>' in a dynamic buffer
+   (released automatically on exit), otherwise return the input pointer
+   unchanged. */
+const char *srcdir_path(const char *file)
 {
-    if(file) {
-        char *p;
-        int len;
+    const char *srcdir = getenv("srcdir");
+    size_t buflen, srclen, filelen;
 
-        if(curpath >= SSH2_ARRAYSIZE(filepath)) {
-            fprintf(stderr, "srcdir_path ran out of filepath slots.\n");
-            return NULL;
-        }
-        assert(curpath < SSH2_ARRAYSIZE(filepath));
+    if(!srcdir || !*srcdir)
+        return file;
+    if(!file)
+        return NULL;
 
-        p = getenv("srcdir");
-        if(p) {
-            len = ssh2_snprintf(NULL, 0, "%s/%s", p, file);
-            if(len <= 2)
-                return NULL;
-
-            filepath[curpath] = calloc(1, (size_t)len + 1);
-            if(!filepath[curpath])
-                return NULL;
-
-            ssh2_snprintf(filepath[curpath], (size_t)len + 1, "%s/%s", p,
-                          file);
-        }
-        else {
-            len = ssh2_snprintf(NULL, 0, "%s", file);
-            if(len <= 0)
-                return NULL;
-
-            filepath[curpath] = calloc(1, (size_t)len + 1);
-            if(!filepath[curpath])
-                return NULL;
-
-            ssh2_snprintf(filepath[curpath], (size_t)len + 1, "%s", file);
-        }
-        return filepath[curpath++];
+    if(curpath >= SSH2_ARRAYSIZE(filepath)) {
+        fprintf(stderr, "srcdir_path: ran out of filepath slots.\n");
+        abort();
     }
-    return NULL;
+
+    srclen = strlen(srcdir);
+    filelen = strlen(file);
+
+    if(srclen > 8192 || filelen > 8192) {
+        fprintf(stderr, "srcdir_path: input names too large.\n");
+        abort();
+    }
+
+    buflen = srclen + 1 + filelen + 1;  /* srcdir + / + file + nul */
+
+    filepath[curpath] = malloc(buflen);
+    if(!filepath[curpath]) {
+        fprintf(stderr, "srcdir_path: failed allocating buffer.\n");
+        abort();
+    }
+
+    ssh2_snprintf(filepath[curpath], buflen, "%s/%s", srcdir, file);
+
+    return filepath[curpath++];
 }
 
 static void srcdir_path_free(void)
