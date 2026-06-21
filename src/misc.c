@@ -61,11 +61,10 @@
 #ifndef HAVE_SNPRINTF
 #include <stdarg.h>
 
-/* Want safe, 'n += snprintf(b + n ...)' like function. If cp_max_len is 1 then
- * assume cp is pointing to a null char and do nothing. Returns number of chars
+/* Want safe, 'n += snprintf(b + n ...)' like function. Returns number of chars
  * placed in cp excluding the trailing null char. For cp_max_len > 0 the return
  * value is always < cp_max_len; for cp_max_len <= 0 the return value is 0 (and
- * no chars are written to cp). */
+ * no chars are written to cp). Always null-terminate the output. */
 int ssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
 {
     va_list args;
@@ -73,13 +72,15 @@ int ssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
     if(!cp_max_len)
         return 0;
     if(cp_max_len == 1) {
-        cp[0] = 0;
+        if(cp)
+            cp[0] = 0;
         return 0;
     }
     va_start(args, fmt);
     /* !checksrc! disable BANNEDFUNC 1 */
     n = vsnprintf(cp, cp_max_len, fmt, args);
-    cp[cp_max_len - 1] = 0;
+    if(cp)
+        cp[cp_max_len - 1] = 0;
     va_end(args);
     return (n < (int)cp_max_len) ? n : (int)(cp_max_len - 1);
 }
