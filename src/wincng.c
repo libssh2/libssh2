@@ -2138,7 +2138,7 @@ static int wcng_uncompressed_point_from_publickey(
 
     if(ecc_blob_len < sizeof(BCRYPT_ECCKEY_BLOB) + (ecc_blob->cbKey * 2)) {
         result = ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
-                          "Preparing to decode the ECC public key failed");
+                          "Decoded ECC public key buffer too small");
         goto cleanup;
     }
 
