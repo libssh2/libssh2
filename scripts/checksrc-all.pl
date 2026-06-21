@@ -20,7 +20,6 @@ my @options = (
     "-afree",
     "-amalloc",
     "-arealloc",
-    "-asnprintf",
     "-asocket",
     "-berrno",
 );

@@ -1329,8 +1329,8 @@ static int channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
         }
         else {
             int i;
-            /* note: the snprintf() loop always writes 3 bytes so the
-               last one writes the trailing zero after the
+            /* note: the ssh2_snprintf() loop always writes 3 bytes so
+               the last one writes the trailing zero after the
                LIBSSH2_X11_RANDOM_COOKIE_LEN border in s, but s has extra
                4 bytes of size (for screen_number) */
             unsigned char buffer[LIBSSH2_X11_RANDOM_COOKIE_LEN / 2];
@@ -1341,7 +1341,7 @@ static int channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
                                 "for x11-req cookie");
 
             for(i = 0; i < (LIBSSH2_X11_RANDOM_COOKIE_LEN / 2); i++)
-                snprintf((char *)&s[i * 2], 3, "%02X", buffer[i]);
+                ssh2_snprintf((char *)&s[i * 2], 3, "%02X", buffer[i]);
         }
         s += cookie_len;
 

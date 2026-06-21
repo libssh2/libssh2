@@ -375,7 +375,8 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
     /* if a port number is given, check for a '[host]:port' first before the
        plain 'host' */
     if(port >= 0) {
-        int len = snprintf(hostbuff, sizeof(hostbuff), "[%s]:%d", hostp, port);
+        int len = ssh2_snprintf(hostbuff, sizeof(hostbuff), "[%s]:%d",
+                                hostp, port);
         if(len < 0 || len >= (int)sizeof(hostbuff)) {
             ssh2_err(hosts->session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                      "Known-host write buffer too small");
@@ -1076,17 +1077,18 @@ static int knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
 
         if(required_size <= buflen) {
             if(node->comment && key_type_len)
-                snprintf(buf, buflen, "|1|%s|%s %s %s %s\n", saltalloc,
-                         namealloc, key_type_name, node->key, node->comment);
+                ssh2_snprintf(buf, buflen, "|1|%s|%s %s %s %s\n", saltalloc,
+                              namealloc, key_type_name, node->key,
+                              node->comment);
             else if(node->comment)
-                snprintf(buf, buflen, "|1|%s|%s %s %s\n", saltalloc, namealloc,
-                         node->key, node->comment);
+                ssh2_snprintf(buf, buflen, "|1|%s|%s %s %s\n", saltalloc,
+                              namealloc, node->key, node->comment);
             else if(key_type_len)
-                snprintf(buf, buflen, "|1|%s|%s %s %s\n", saltalloc, namealloc,
-                         key_type_name, node->key);
+                ssh2_snprintf(buf, buflen, "|1|%s|%s %s %s\n", saltalloc,
+                              namealloc, key_type_name, node->key);
             else
-                snprintf(buf, buflen, "|1|%s|%s %s\n", saltalloc, namealloc,
-                         node->key);
+                ssh2_snprintf(buf, buflen, "|1|%s|%s %s\n", saltalloc,
+                              namealloc, node->key);
         }
 
         SSH2_FREE(hosts->session, namealloc);
@@ -1098,16 +1100,16 @@ static int knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
 
         if(required_size <= buflen) {
             if(node->comment && key_type_len)
-                snprintf(buf, buflen, "%s %s %s %s\n", node->name,
-                         key_type_name, node->key, node->comment);
+                ssh2_snprintf(buf, buflen, "%s %s %s %s\n", node->name,
+                              key_type_name, node->key, node->comment);
             else if(node->comment)
-                snprintf(buf, buflen, "%s %s %s\n", node->name, node->key,
-                         node->comment);
+                ssh2_snprintf(buf, buflen, "%s %s %s\n", node->name, node->key,
+                              node->comment);
             else if(key_type_len)
-                snprintf(buf, buflen, "%s %s %s\n", node->name, key_type_name,
-                         node->key);
+                ssh2_snprintf(buf, buflen, "%s %s %s\n", node->name,
+                              key_type_name, node->key);
             else
-                snprintf(buf, buflen, "%s %s\n", node->name, node->key);
+                ssh2_snprintf(buf, buflen, "%s %s\n", node->name, node->key);
         }
     }
 

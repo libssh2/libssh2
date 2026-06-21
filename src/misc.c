@@ -58,7 +58,7 @@
 
 /* snprintf not in Visual Studio CRT and _snprintf dangerously incompatible.
    We provide a safe wrapper if snprintf not found */
-#ifdef LIBSSH2_SNPRINTF
+#ifndef HAVE_SNPRINTF
 #include <stdarg.h>
 
 /* Want safe, 'n += snprintf(b + n ...)' like function. If cp_max_len is 1 then
@@ -563,8 +563,8 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
         firstsec = now.tv_sec;
     now.tv_sec -= firstsec;
 
-    len = snprintf(buffer, buflen, "[libssh2] %d.%06d %s: ",
-                   (int)now.tv_sec, (int)now.tv_usec, contexttext);
+    len = ssh2_snprintf(buffer, buflen, "[libssh2] %d.%06d %s: ",
+                        (int)now.tv_sec, (int)now.tv_usec, contexttext);
 
     if(len >= buflen)
         msglen = buflen - 1;
