@@ -62,7 +62,6 @@
 #include <wincrypt.h>  /* for CryptDecodeObjectEx() */
 #endif
 #include <bcrypt.h>
-#include <math.h>
 
 #include <stdlib.h>
 
@@ -188,7 +187,7 @@ static int wcng_bn_random(ssh2_bn *rnd, int bits, int top, int bottom)
     if(!rnd)
         return -1;
 
-    length = (ULONG)(ceil(((double)bits) / 8.0) * sizeof(unsigned char));
+    length = (ULONG)((bits + 7) / 8);
     if(wcng_bn_resize(rnd, length))
         return -1;
 
@@ -303,7 +302,7 @@ int ssh2_wcng_bn_set_word(ssh2_bn *bn, ULONG word)
         bits++;
     bits++;
 
-    length = (ULONG)(ceil(((double)bits) / 8.0) * sizeof(unsigned char));
+    length = (bits + 7) / 8;
     if(wcng_bn_resize(bn, length))
         return -1;
 
@@ -349,7 +348,7 @@ int ssh2_wcng_bn_from_bin(ssh2_bn *bn, ULONG len, const unsigned char *bin)
     memcpy(bn->bignum, bin, len);
 
     bits = ssh2_wcng_bn_bits(bn);
-    length = (ULONG)(ceil(((double)bits) / 8.0) * sizeof(unsigned char));
+    length = (bits + 7) / 8;
 
     offset = bn->length - length;
     if(offset > 0) {
