@@ -36,8 +36,6 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-include(CopyRuntimeDependencies)
-
 list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
 libssh2_transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
@@ -55,8 +53,3 @@ foreach(_example IN LISTS noinst_PROGRAMS)
   set_property(TARGET ${_example} APPEND PROPERTY COMPILE_OPTIONS "${LIBSSH2_PICKY_C_FLAGS}")
   set_target_properties(${_example} PROPERTIES UNITY_BUILD OFF)
 endforeach()
-
-libssh2_add_target_to_copy_dependencies(
-  TARGET copy_example_dependencies
-  DEPENDENCIES ${LIBSSH2_RUNTIME_DEPENDENCIES}
-  BEFORE_TARGETS ${_example_targets})

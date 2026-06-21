@@ -36,8 +36,6 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-include(CopyRuntimeDependencies)
-
 list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
 libssh2_transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
@@ -169,11 +167,6 @@ add_custom_target(coverage
 
 add_custom_target(clean-coverage COMMAND ${CMAKE_COMMAND} -E rm -rf --
   "${CMAKE_CURRENT_BINARY_DIR}/coverage")
-
-libssh2_add_target_to_copy_dependencies(
-  TARGET copy_test_dependencies
-  DEPENDENCIES ${LIBSSH2_RUNTIME_DEPENDENCIES}
-  BEFORE_TARGETS ${_test_targets})
 
 if(BUILD_OSSFUZZ)
   add_subdirectory(ossfuzz)

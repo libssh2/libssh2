@@ -407,9 +407,6 @@ configure_file("src/libssh2_config_cmake.h.in"
 
 ## Cryptography backend choice
 
-# Files that must be in the same directory as the executables at runtime
-set(LIBSSH2_RUNTIME_DEPENDENCIES "")
-
 set(CRYPTO_BACKEND "" CACHE
   STRING "The backend to use for cryptography: Libgcrypt, mbedTLS, OpenSSL, WinCNG, wolfSSL, or empty to try any available")
 
@@ -438,23 +435,6 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
       # Statically linking to OpenSSL requires crypt32 for some Windows APIs.
       # This should really be handled by FindOpenSSL.cmake.
       list(APPEND LIBSSH2_LIBS "crypt32" "bcrypt")
-
-      #set(CMAKE_FIND_DEBUG_MODE ON)
-
-      find_file(DLL_LIBCRYPTO
-        NAMES "crypto.dll"
-          "libcrypto-1_1.dll" "libcrypto-1_1-x64.dll"
-          "libcrypto-3.dll" "libcrypto-3-x64.dll"
-        HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
-        PATH_SUFFIXES "bin" NO_DEFAULT_PATH)
-      if(DLL_LIBCRYPTO)
-        list(APPEND LIBSSH2_RUNTIME_DEPENDENCIES ${DLL_LIBCRYPTO})
-        message(STATUS "Found libcrypto DLL: ${DLL_LIBCRYPTO}")
-      else()
-        message(WARNING "Unable to find OpenSSL libcrypto DLL, executables may not run")
-      endif()
-
-      #set(CMAKE_FIND_DEBUG_MODE OFF)
     endif()
 
     find_package(ZLIB)
