@@ -56,7 +56,7 @@
 #define SSH2_SEND_LOW  send
 #endif
 
-/* snprintf is not in <VS2015 CRT and _snprintf dangerously incompatible.
+/* snprintf is not in pre-VS2015 CRTs and _snprintf dangerously incompatible.
    We provide a safe wrapper for these environments */
 #ifndef HAVE_SNPRINTF
 #include <stdarg.h>
