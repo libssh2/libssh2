@@ -214,8 +214,6 @@ void print_last_session_error(const char *function)
         fprintf(stderr, "No session\n");
 }
 
-static void srcdir_path_free(void);
-
 void stop_session_fixture(void)
 {
     if(connected_session) {
@@ -231,21 +229,19 @@ void stop_session_fixture(void)
 
     libssh2_exit();
 
-    srcdir_path_free();
-
     stop_openssh_fixture();
 }
 
-static char *filepath[32];
-static size_t curpath;
-
-/* If 'srcdir' env is set, return '$srcdir/<file>' in a dynamic buffer
-   (released automatically on exit), otherwise return the input pointer
+/* If 'srcdir' env is set, return '$srcdir/<file>' in a static buffer
+   (to avoid dynamic memory allocations), otherwise return the input pointer
    unchanged. */
 const char *srcdir_path(const char *file)
 {
+    static char filepath[32][256];
+    static size_t curpath;
+
     const char *srcdir = getenv("srcdir");
-    size_t buflen, srclen, filelen;
+    int len;
 
     if(!srcdir || !*srcdir)
         return file;
@@ -257,35 +253,15 @@ const char *srcdir_path(const char *file)
         abort();
     }
 
-    srclen = strlen(srcdir);
-    filelen = strlen(file);
-
-    if(srclen > 8192 || filelen > 8192) {
-        fprintf(stderr, "srcdir_path: input names too large.\n");
+    len = ssh2_snprintf(filepath[curpath], sizeof(filepath[0]), "%s/%s",
+                        srcdir, file);
+    if(len < 0 || (size_t)len >= sizeof(filepath[0])) {
+        fprintf(stderr, "srcdir_path: path too long. srcdir='%s', fn='%s'\n",
+                srcdir, file);
         abort();
     }
-
-    buflen = srclen + 1 + filelen + 1;  /* srcdir + / + file + nul */
-
-    filepath[curpath] = malloc(buflen);
-    if(!filepath[curpath]) {
-        fprintf(stderr, "srcdir_path: failed allocating buffer.\n");
-        abort();
-    }
-
-    ssh2_snprintf(filepath[curpath], buflen, "%s/%s", srcdir, file);
 
     return filepath[curpath++];
-}
-
-static void srcdir_path_free(void)
-{
-    size_t i;
-    for(i = 0; i < curpath; ++i) {
-        free(filepath[i]);
-        filepath[i] = NULL;
-    }
-    curpath = 0;
 }
 
 static const char *kbd_password;
