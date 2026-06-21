@@ -70,12 +70,16 @@ int ssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
 {
     va_list args;
     int n;
-
-    if(cp_max_len < 2)
+    if(!cp_max_len)
         return 0;
+    if(cp_max_len == 1) {
+        cp[0] = 0;
+        return 0;
+    }
     va_start(args, fmt);
     /* !checksrc! disable BANNEDFUNC 1 */
     n = vsnprintf(cp, cp_max_len, fmt, args);
+    cp[cp_max_len - 1] = 0;
     va_end(args);
     return (n < (int)cp_max_len) ? n : (int)(cp_max_len - 1);
 }
