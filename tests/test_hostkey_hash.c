@@ -46,30 +46,25 @@ static const char *EXPECTED_ED25519_SHA256_HASH_DIGEST =
     "2638B020F6121FA750A7F4754B718419F621814C6E779D68ADF26AA68814ADDF";
 
 #if LIBSSH2_MD5
-static const size_t MD5_HASH_SIZE = 16;
+#define MD5_HASH_SIZE     16
 #endif
-static const size_t SHA1_HASH_SIZE = 20;
-static const size_t SHA256_HASH_SIZE = 32;
+#define SHA1_HASH_SIZE    20
+#define SHA256_HASH_SIZE  32
 
 static void calculate_digest(const char *hash, size_t hash_len, char *buffer,
                              size_t buffer_len)
 {
-    if(buffer && buffer_len) {
-        size_t i;
-        char *p = buffer;
-        char *end = buffer + buffer_len;
+    size_t i;
+    char *p = buffer;
+    char *end = buffer + buffer_len;
 
-        *p = 0;
-
-        for(i = 0; i < hash_len && (end - p) >= 3; ++i, p += 2)
-            ssh2_snprintf(p, (size_t)(end - p), "%02X",
-                          (unsigned char)hash[i]);
-    }
+    for(i = 0; i < hash_len && (end - p) >= 3; ++i, p += 2)
+        ssh2_snprintf(p, (size_t)(end - p), "%02X", (unsigned char)hash[i]);
 }
 
 int test(LIBSSH2_SESSION *session)
 {
-    char buf[BUFSIZ];
+    char buf[SHA256_HASH_SIZE * 2 + 1];
 
     const char *hostkey;
 #if LIBSSH2_MD5
@@ -101,7 +96,7 @@ int test(LIBSSH2_SESSION *session)
             return 1;
         }
 
-        calculate_digest(sha256_hash, SHA256_HASH_SIZE, buf, BUFSIZ);
+        calculate_digest(sha256_hash, SHA256_HASH_SIZE, buf, sizeof(buf));
 
         if(strcmp(buf, EXPECTED_ED25519_SHA256_HASH_DIGEST)) {
             fprintf(stderr,
@@ -120,7 +115,7 @@ int test(LIBSSH2_SESSION *session)
             return 1;
         }
 
-        calculate_digest(md5_hash, MD5_HASH_SIZE, buf, BUFSIZ);
+        calculate_digest(md5_hash, MD5_HASH_SIZE, buf, sizeof(buf));
 
         if(strcmp(buf, EXPECTED_ECDSA_MD5_HASH_DIGEST)) {
             fprintf(stderr,
@@ -137,7 +132,7 @@ int test(LIBSSH2_SESSION *session)
             return 1;
         }
 
-        calculate_digest(sha1_hash, SHA1_HASH_SIZE, buf, BUFSIZ);
+        calculate_digest(sha1_hash, SHA1_HASH_SIZE, buf, sizeof(buf));
 
         if(strcmp(buf, EXPECTED_ECDSA_SHA1_HASH_DIGEST)) {
             fprintf(stderr,
@@ -154,7 +149,7 @@ int test(LIBSSH2_SESSION *session)
             return 1;
         }
 
-        calculate_digest(sha256_hash, SHA256_HASH_SIZE, buf, BUFSIZ);
+        calculate_digest(sha256_hash, SHA256_HASH_SIZE, buf, sizeof(buf));
 
         if(strcmp(buf, EXPECTED_ECDSA_SHA256_HASH_DIGEST)) {
             fprintf(stderr,
@@ -173,7 +168,7 @@ int test(LIBSSH2_SESSION *session)
             return 1;
         }
 
-        calculate_digest(md5_hash, MD5_HASH_SIZE, buf, BUFSIZ);
+        calculate_digest(md5_hash, MD5_HASH_SIZE, buf, sizeof(buf));
 
         if(strcmp(buf, EXPECTED_RSA_MD5_HASH_DIGEST)) {
             fprintf(stderr,
@@ -190,7 +185,7 @@ int test(LIBSSH2_SESSION *session)
             return 1;
         }
 
-        calculate_digest(sha1_hash, SHA1_HASH_SIZE, buf, BUFSIZ);
+        calculate_digest(sha1_hash, SHA1_HASH_SIZE, buf, sizeof(buf));
 
         if(strcmp(buf, EXPECTED_RSA_SHA1_HASH_DIGEST)) {
             fprintf(stderr,
@@ -207,7 +202,7 @@ int test(LIBSSH2_SESSION *session)
             return 1;
         }
 
-        calculate_digest(sha256_hash, SHA256_HASH_SIZE, buf, BUFSIZ);
+        calculate_digest(sha256_hash, SHA256_HASH_SIZE, buf, sizeof(buf));
 
         if(strcmp(buf, EXPECTED_RSA_SHA256_HASH_DIGEST)) {
             fprintf(stderr,
