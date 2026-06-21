@@ -62,9 +62,9 @@
 #include <stdarg.h>
 
 /* Want safe, 'n += snprintf(b + n ...)' like function. Returns number of chars
- * placed in cp excluding the null-terminator. For cp_max_len > 0 the return
- * value is always < cp_max_len; for cp_max_len == 0 the return value is 0 (and
- * no chars are written to cp). Always null-terminate the output. */
+   placed in cp excluding the null-terminator. For cp_max_len > 0 the return
+   value is always < cp_max_len; for cp_max_len == 0 the return value is 0 (and
+   no chars are written to cp). Always null-terminate the output. */
 int ssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
 {
     va_list args;
@@ -426,16 +426,14 @@ int ssh2_base64_decode(LIBSSH2_SESSION *session,
 }
 
 /* ---- Base64 Encoding/Decoding Table --- */
+
 static const char table64[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /*
- * ssh2_base64_encode()
- *
  * Returns the length of the newly created base64 string. The third argument
  * is a pointer to an allocated area holding the base64 data. If something
  * went wrong, 0 is returned.
- *
  */
 size_t ssh2_base64_encode(LIBSSH2_SESSION *session,
                           const char *inp, size_t insize, char **outptr)
@@ -504,6 +502,7 @@ size_t ssh2_base64_encode(LIBSSH2_SESSION *session,
 
     return strlen(base64data); /* return the length of the new data */
 }
+
 /* ---- End of Base64 Encoding ---- */
 
 void libssh2_free(LIBSSH2_SESSION *session, void *ptr)
@@ -931,7 +930,6 @@ int ssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf,
 /* Given the current location in buf, ssh2_check_length() ensures
    callers can read the next len number of bytes out of the buffer
    before reading the buffer content */
-
 int ssh2_check_length(struct string_buf *buf, size_t requested_len)
 {
     unsigned char *endp = &buf->data[buf->len];
