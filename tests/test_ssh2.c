@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     char *userauthlist;
     int rc;
     LIBSSH2_SESSION *session = NULL;
-    LIBSSH2_CHANNEL *channel;
+    LIBSSH2_CHANNEL *channel = NULL;
     unsigned int counter;
 
 #ifdef _WIN32
@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
      */
     if(libssh2_channel_request_pty(channel, "vanilla")) {
         fprintf(stderr, "Failed requesting pty\n");
-        goto skip_shell;
+        goto shutdown;  /* skip shell */
     }
 
     /* Open a SHELL on that pty */
@@ -236,12 +236,10 @@ int main(int argc, char *argv[])
 
     rc = 0;
 
-skip_shell:
+shutdown:
 
     if(channel)
         libssh2_channel_free(channel);
-
-shutdown:
 
     if(session) {
         libssh2_session_disconnect(session, "Normal Shutdown");
