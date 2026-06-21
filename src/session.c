@@ -1129,8 +1129,9 @@ static int session_disconnect(LIBSSH2_SESSION *session, int reason,
 
     if(session->disconnect_state == ssh2_NB_state_idle) {
         ssh2_deb((session, LIBSSH2_TRACE_TRANS,
-                  "Disconnecting: reason=%d, desc=%s, lang=%s",
-                  reason, description, lang));
+                  "Disconnecting: reason=%d, desc=%s, lang=%s", reason,
+                  description ? description : "(null)",
+                  lang ? lang : "(null)"));
         if(description)
             descr_len = strlen(description);
 
