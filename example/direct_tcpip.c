@@ -329,12 +329,12 @@ int main(int argc, char *argv[])
 shutdown:
 
     if(forwardsock != LIBSSH2_INVALID_SOCKET) {
-        shutdown(forwardsock, 2);
+        shutdown(forwardsock, 2 /* SHUT_RDWR */);
         LIBSSH2_SOCKET_CLOSE(forwardsock);
     }
 
     if(listensock != LIBSSH2_INVALID_SOCKET) {
-        shutdown(listensock, 2);
+        shutdown(listensock, 2 /* SHUT_RDWR */);
         LIBSSH2_SOCKET_CLOSE(listensock);
     }
 
@@ -347,7 +347,7 @@ shutdown:
     }
 
     if(sock != LIBSSH2_INVALID_SOCKET) {
-        shutdown(sock, 2);
+        shutdown(sock, 2 /* SHUT_RDWR */);
         LIBSSH2_SOCKET_CLOSE(sock);
     }
 
