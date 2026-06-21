@@ -2364,7 +2364,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
 
-        /*/ verify hash */
+        /* verify hash */
         switch(type) {
         case SSH2_EC_CURVE_NISTP256: {
             ssh2_sha256_ctx k_ctx;
@@ -2718,7 +2718,7 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
             }
         }
 
-        /*/ verify hash */
+        /* verify hash */
         KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(256);
 
         if(rc) {
@@ -3021,7 +3021,7 @@ static int mlkem768x25519_sha256(
             goto clean_exit;
         }
 
-        /*/ verify hash */
+        /* verify hash */
         KEX_METHOD_HYBRID_SHA_HASH_CREATE_VERIFY(256);
 
         if(rc) {
