@@ -393,12 +393,7 @@ jobs:
             --location --proto-redir =https "https://github.com/google/boringssl/releases/download/${BORINGSSL_VERSION}/boringssl-${BORINGSSL_VERSION}.tar.gz" --output pkg.bin
           sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${BORINGSSL_SHA256}" && tar -xzf pkg.bin && rm -f pkg.bin
           cd "boringssl-${BORINGSSL_VERSION}"
-          cmake -B . -G Ninja \
-            -DBUILD_SHARED_LIBS=ON \
-            -DBUILD_TESTING=OFF \
-            -DOPENSSL_SMALL=ON \
-            -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-            -DCMAKE_INSTALL_PREFIX="$HOME"/usr
+          cmake -B . -G Ninja -DCMAKE_INSTALL_PREFIX="$HOME"/usr -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=OFF
           cmake --build .
           cmake --install .
 
@@ -417,10 +412,7 @@ jobs:
             "https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${LIBRESSL_VERSION}.tar.gz" --output pkg.bin
           sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${LIBRESSL_SHA256}" && tar -xzf pkg.bin && rm -f pkg.bin
           cd "libressl-${LIBRESSL_VERSION}"
-          cmake -B . -G Ninja \
-            -DLIBRESSL_APPS=OFF \
-            -DLIBRESSL_TESTS=OFF \
-            -DCMAKE_INSTALL_PREFIX="$HOME"/usr
+          cmake -B . -G Ninja -DCMAKE_INSTALL_PREFIX="$HOME"/usr -DLIBRESSL_APPS=OFF -DLIBRESSL_TESTS=OFF
           cmake --build .
           cmake --install .
 
