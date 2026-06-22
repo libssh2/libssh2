@@ -315,22 +315,22 @@ jobs:
       MATRIX_CRYPTO: '${{ matrix.crypto }}'
       MATRIX_ZLIB: '${{ matrix.zlib }}'
       FIXTURE_TRACE_ALL_CONNECT: 0
-      AWSLC_VERSION: 1.69.0
-      AWSLC_SHA256: cdaa8dcd5f4ead8c82646fabef3c811381c4c7906de4489415e3fdf2558922f8
-      BORINGSSL_VERSION: 0.20251002.0
-      BORINGSSL_SHA256: f96733fc3df03d4195db656d1b7b8c174c33f95d052f811f0ecc8f4e4e3db332
-      LIBRESSL_VERSION: 4.2.1
-      LIBRESSL_SHA256: 6d5c2f58583588ea791f4c8645004071d00dfa554a5bf788a006ca1eb5abd70b
+      AWSLC_VERSION: 5.0.0
+      AWSLC_SHA256: b4e1ea639d526c54243b8fbd9d21e101360423965bca5cbd72b862e7c9efdb12
+      BORINGSSL_VERSION: 0.20260616.0
+      BORINGSSL_SHA256: d1c599485fd1919d75ea2925af5fff81c1d5b21ab2f0d41fee1f788b1d917159
+      LIBRESSL_VERSION: 4.3.2
+      LIBRESSL_SHA256: edf01aee24c65d69e6a9efcb9d44bcda682ff9d4f3bbbd95e794e1dfa90847b5
       MBEDTLS_VERSION: 3.6.6
       MBEDTLS_SHA256: 8fb65fae8dcae5840f793c0a334860a411f884cc537ea290ce1c52bb64ca007a
       MBEDTLS_VERSION_PREV: 3.1.0
       MBEDTLS_SHA256_PREV: b02df6f68dd1537e115a8497d5c173dc71edc55ad084756e57a30f951b725acd
-      OPENSSL_VERSION: 3.6.2
-      OPENSSL_SHA256: aaf51a1fe064384f811daeaeb4ec4dce7340ec8bd893027eee676af31e83a04f
+      OPENSSL_VERSION: 3.6.3
+      OPENSSL_SHA256: 243a86649cf6f23eeb6a2ff2456e09e5d77dd9018a54d3d96b0c6bdd6ba6c7f1
       OPENSSL111_VERSION: 1.1.1w
       OPENSSL111_SHA256: cf3098950cb4d853ad95c0841f1f9c6d3dc102dccfcacd521d93925208b76ac8
-      WOLFSSL_VERSION: 5.9.0
-      WOLFSSL_SHA256: 6efc62b86f145a5c52bfd62294ca66c20ce85b54e9033f5d7e0ee73eb30306c1
+      WOLFSSL_VERSION: 5.9.1
+      WOLFSSL_SHA256: d5ca7af48cd2d9a91d539e9baedeba55a0605a28d7ac8b01dc3d5254a13ca341
       WOLFSSL_VERSION_PREV: 5.5.4
       WOLFSSL_SHA256_PREV: b7ee150e49def77c765bc02aac92ddeb0bebefd4cb12aa263d8f95e405221fb8
     steps:
@@ -413,7 +413,7 @@ jobs:
         if: ${{ matrix.crypto == 'LibreSSL' && !steps.cache-libressl.outputs.cache-hit }}
         run: |
           curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
-            --location "https://github.com/libressl/portable/releases/download/v${LIBRESSL_VERSION}/libressl-${LIBRESSL_VERSION}.tar.gz" --output pkg.bin
+            "https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${LIBRESSL_VERSION}.tar.gz" --output pkg.bin
           sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${LIBRESSL_SHA256}" && tar -xzf pkg.bin && rm -f pkg.bin
           cd "libressl-${LIBRESSL_VERSION}"
           cmake -B . -G Ninja \
