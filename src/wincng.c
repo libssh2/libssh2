@@ -980,7 +980,7 @@ static int wcng_load_private(LIBSSH2_SESSION *session,
                             PEM_RSA_HEADER, PEM_RSA_FOOTER,
                             &data, &datalen);
 #else
-   (void)tryLoadRSA;
+    (void)tryLoadRSA;
 #endif
 
 #if LIBSSH2_DSA
@@ -989,7 +989,7 @@ static int wcng_load_private(LIBSSH2_SESSION *session,
                             PEM_DSA_HEADER, PEM_DSA_FOOTER,
                             &data, &datalen);
 #else
-   (void)tryLoadDSA;
+    (void)tryLoadDSA;
 #endif
 
     if(!ret) {
@@ -1019,7 +1019,7 @@ static int wcng_load_private_memory(LIBSSH2_SESSION *session,
                                     privatekeydata, privatekeydata_len,
                                     &data, &datalen);
 #else
-   (void)tryLoadRSA;
+    (void)tryLoadRSA;
 #endif
 
 #if LIBSSH2_DSA
