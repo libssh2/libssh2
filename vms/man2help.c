@@ -38,10 +38,9 @@ static void fpcopy(char *output, char *input, int size)
 }
 
 /*----------------------------------------------------------*/
-/* give part of filename in partname. See code for proper
-   value of i ( 0 = node, 1 = dev, 2 = dir, 3 = name etc.
-*/
 
+/* give part of filename in partname. See code for proper
+   value of i ( 0 = node, 1 = dev, 2 = dir, 3 = name etc. */
 static int fnamepart(char *inputfile, char *part, int whatpart)
 {
     struct pf_fabnam *pf;

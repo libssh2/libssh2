@@ -328,7 +328,7 @@ static int mbed_bn_random(ssh2_bn *bn, int bits, int top, int bottom)
         return -1;
 
     /* Zero unused bits above the most significant bit */
-    for(i = len * 8 - 1; (size_t)bits <= i; --i) {
+    for(i = (len * 8) - 1; (size_t)bits <= i; --i) {
         err = mbedtls_mpi_set_bit(bn, i, 0);
         if(err)
             return -1;
@@ -835,7 +835,7 @@ int ssh2_mbed_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
                           ssh2_bn *p, int group_order)
 {
     /* Generate x and e */
-    mbed_bn_random(*dhctx, group_order * 8 - 1, 0, -1);
+    mbed_bn_random(*dhctx, (group_order * 8) - 1, 0, -1);
     mbedtls_mpi_exp_mod(pub, g, *dhctx, p, NULL);
     return 0;
 }

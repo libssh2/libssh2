@@ -111,7 +111,7 @@ static int run_command_varg(char **output, const char *command, va_list args)
         return -1;
     }
 
-    /* Rewrite the command to redirect stderr to stdout to we can output it */
+    /* Rewrite the command to redirect stderr to stdout so we can output it */
     if(strlen(command_buf) + strlen(redirect_stderr) >= sizeof(buf)) {
         fprintf(stderr, "Unable to rewrite command (%s)\n", command);
         return -1;

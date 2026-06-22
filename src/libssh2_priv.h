@@ -65,8 +65,7 @@
    those names in libssh2.h, so we need to include the AIX headers first, to
    make sure all code is compiled with consistent names of these fields.
    While arguable the best would to change libssh2.h to use other names, that
-   would break backwards compatibility.
-*/
+   would break backwards compatibility. */
 #ifdef HAVE_POLL
 #include <poll.h>
 #elif defined(HAVE_SELECT) && defined(HAVE_SYS_SELECT_H)
@@ -763,10 +762,10 @@ struct _LIBSSH2_SESSION {
     /* Whether to use the OpenSSH Strict KEX extension */
     int kex_strict;
 
-    /* (remote as source of data -- packet_read ) */
+    /* (remote as source of data -- packet_read) */
     struct endpoint_data remote;
 
-    /* (local as source of data -- packet_write ) */
+    /* (local as source of data -- packet_write) */
     struct endpoint_data local;
 
     /* Inbound Data linked list -- Sometimes the packet that comes in is not

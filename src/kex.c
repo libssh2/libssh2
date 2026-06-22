@@ -256,7 +256,7 @@ static int process_host_key(LIBSSH2_SESSION *session,
                   fingerprint));
     }
 #endif /* LIBSSH2DEBUG */
-#endif /* ! LIBSSH2_MD5 */
+#endif /* !LIBSSH2_MD5 */
 
     {
         ssh2_sha1_ctx fingerprint_ctx;

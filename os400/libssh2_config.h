@@ -45,8 +45,8 @@
 #undef AC_APPLE_UNIVERSAL_BUILD
 
 /* Define to one of `_getb67', `GETB67', `getb67' for Cray-2 and Cray-YMP
-   systems. This function is required for `alloca.c' support on those systems.
-*/
+   systems. This function is required for `alloca.c' support on those
+   systems. */
 #undef CRAY_STACKSEG_END
 
 /* Define to 1 if using `alloca.c'. */
