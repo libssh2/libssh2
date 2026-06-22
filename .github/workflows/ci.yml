@@ -394,6 +394,7 @@ jobs:
           sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${BORINGSSL_SHA256}" && tar -xzf pkg.bin && rm -f pkg.bin
           cd "boringssl-${BORINGSSL_VERSION}"
           cmake -B . -G Ninja \
+            -DBUILD_SHARED_LIBS=ON \
             -DBUILD_TESTING=OFF \
             -DOPENSSL_SMALL=ON \
             -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
