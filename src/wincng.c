@@ -187,7 +187,7 @@ static int wcng_bn_random(ssh2_bn *rnd, int bits, int top, int bottom)
     if(!rnd || bits <= 0)
         return -1;
 
-    length = (ULONG)((bits + 7) / 8);
+    length = ((ULONG)bits + 7) / 8;
     if(wcng_bn_resize(rnd, length))
         return -1;
 
