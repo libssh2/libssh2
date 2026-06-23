@@ -223,8 +223,12 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, libssh2_socket_t sock)
     rc = libssh2_poll(fds, nfds, 0);
     if(rc > 0) {
         nread = libssh2_channel_read(channel, buf, bufsize);
-        if(nread > 0)
-            write(sock, buf, (size_t)nread);
+        if(nread > 0) {
+            ssize_t nwritten = write(sock, buf, (size_t)nread);
+            if(nwritten != nread)
+                fprintf(stderr, "write failed: %ld vs %ld\n",
+                        (long)nread, (long)nwritten);
+        }
     }
 
     rc = select((int)(sock + 1), &set, NULL, NULL, &timeval_out);
