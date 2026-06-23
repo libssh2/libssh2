@@ -1049,14 +1049,14 @@ jobs:
             install: mbedtls@3
             configure: --with-crypto=mbedtls --with-libmbedcrypto-prefix=/opt/homebrew
             cmake: -DCRYPTO_BACKEND=mbedTLS
+          - name: 'OpenSSL 4'
+            install: openssl@4
+            configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl@4
+            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@4
           - name: 'OpenSSL 3'
-            install: openssl
-            configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl
-            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl
-          - name: 'OpenSSL 1.1'
-            install: openssl@1.1
-            configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl@1.1
-            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@1.1
+            install: openssl@3
+            configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl@3
+            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@3
           - name: 'wolfSSL'
             install: wolfssl
             configure: --with-crypto=wolfssl --with-libwolfssl-prefix=/opt/homebrew
