@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
         if(nread > 0) {
             ssize_t nwritten = write(1, mem, (size_t)nread);
             if(nwritten != nread)
-                fprintf(stderr, "write failed: %ld vs %ld\n",
+                fprintf(stderr, "write failed: %ld != %ld\n",
                         (long)nread, (long)nwritten);
         }
         else if(nread < 0) {

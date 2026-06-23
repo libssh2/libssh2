@@ -226,7 +226,7 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, libssh2_socket_t sock)
         if(nread > 0) {
             ssize_t nwritten = write(sock, buf, (size_t)nread);
             if(nwritten != nread)
-                fprintf(stderr, "write failed: %ld vs %ld\n",
+                fprintf(stderr, "write failed: %ld != %ld\n",
                         (long)nread, (long)nwritten);
         }
     }

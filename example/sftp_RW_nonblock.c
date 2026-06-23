@@ -242,7 +242,7 @@ int main(int argc, char *argv[])
                 /* write to stderr */
                 ssize_t nwritten = write(2, mem, (size_t)nread);
                 if(nwritten != nread)
-                    fprintf(stderr, "write failed: %ld vs %ld\n",
+                    fprintf(stderr, "write failed: %ld != %ld\n",
                             (long)nread, (long)nwritten);
                 /* write to temporary storage area */
                 fwrite(mem, (size_t)nread, 1, tempstorage);
