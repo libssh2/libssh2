@@ -1202,7 +1202,7 @@ jobs:
           elif [ "${MATRIX_OS}" = 'freebsd' ]; then
             sudo pkg install -y ${MATRIX_INSTALL}
           elif [ "${MATRIX_OS}" = 'midnightbsd' ]; then
-            sudo mport install | grep -v -E '(Downloading.+%|^/usr/local)' || true
+            sudo mport install ${MATRIX_INSTALL} | grep -v -E '(Downloading.+%|^/usr/local)' || true
           elif [ "${MATRIX_OS}" = 'netbsd' ]; then
             sudo pkgin -y install ${MATRIX_INSTALL}
           elif [ "${MATRIX_OS}" = 'openbsd' ]; then
