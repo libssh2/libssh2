@@ -70,7 +70,8 @@ static void kbd_callback(const char *name, int name_len,
         fprintf(stderr, "'\n");
 
         fprintf(stderr, "Please type response: ");
-        fgets(buf, sizeof(buf), stdin);
+        if(!fgets(buf, sizeof(buf), stdin))
+            fprintf(stderr, "fgets() failed.\n");
         n = strlen(buf);
         while(n > 0 && strchr("\r\n", buf[n - 1]))
             n--;
