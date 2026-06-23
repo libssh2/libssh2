@@ -1140,23 +1140,47 @@ jobs:
       CC: '${{ matrix.cc }}'
       MAKEFLAGS: -j 3
       MATRIX_BUILD: '${{ matrix.build }}'
+      MATRIX_INSTALL: '${{ matrix.install }}'
       MATRIX_OPTIONS: '${{ matrix.options }}'
       MATRIX_OS: '${{ matrix.os }}'
     strategy:
       matrix:
         include:
-          - { os: 'freebsd'     , version: '15.0',  build: 'autotools', arch: 'x86_64', cc: 'clang', desc: 'openssl',
+          # https://github.com/DragonFlyBSD/DPorts
+          # { os: 'dragonflybsd', version: '6.4.2', build: 'autotools', arch: 'x86_64', cc: 'gcc'  , desc: 'libgcrypt skiprun',
+          #   install: 'autoconf automake libtool libgcrypt',
+          #   options: '--with-crypto=libgcrypt --with-libgcrypt-prefix=/usr/local' }
+
+          # https://ports.freebsd.org/
+          - { os: 'freebsd'     , version: '15.1',  build: 'autotools', arch: 'x86_64', cc: 'clang', desc: 'openssl',
+              install: 'autoconf automake libtool gettext',
               options: '--with-crypto=openssl' }
-          - { os: 'freebsd'     , version: '14.3',  build: 'cmake'    , arch: 'arm64' , cc: 'clang', desc: 'openssl !runtests',
+
+          - { os: 'freebsd'     , version: '14.3',  build: 'cmake'    , arch: 'arm64' , cc: 'clang', desc: 'openssl skiprun',
+              install: 'cmake-core ninja',
               options: '-DCRYPTO_BACKEND=OpenSSL' }
-          - { os: 'midnightbsd' , version: '4.0.4', build: 'cmake'    , arch: 'x86_64', cc: 'clang', desc: 'gnutls !runtests',
+
+          # https://app.midnightbsd.org/
+          # https://man.midnightbsd.org/cgi-bin/man.cgi/mport
+          - { os: 'midnightbsd' , version: '4.0.4', build: 'cmake'    , arch: 'x86_64', cc: 'clang', desc: 'gnutls skiprun',
+              install: 'cmake-core ninja',
               options: '-DCRYPTO_BACKEND=OpenSSL' }
-          - { os: 'netbsd'      , version: '10.1' , build: 'cmake'    , arch: 'x86_64', cc: 'gcc'  , desc: 'openssl !runtests',
+
+          # https://pkgsrc.se/
+          - { os: 'netbsd'      , version: '10.1' , build: 'cmake'    , arch: 'x86_64', cc: 'gcc'  , desc: 'openssl skiprun',
+              install: 'cmake ninja-build',
               options: '-DCRYPTO_BACKEND=OpenSSL' }
-          - { os: 'netbsd'      , version: '10.1' , build: 'cmake'    , arch: 'arm64' , cc: 'gcc'  , desc: 'openssl !runtests',
+
+          - { os: 'netbsd'      , version: '10.1' , build: 'cmake'    , arch: 'arm64' , cc: 'gcc'  , desc: 'openssl skiprun',
+              install: 'cmake ninja-build',
               options: '-DCRYPTO_BACKEND=OpenSSL' }
-          - { os: 'openbsd'     , version: '7.8'  , build: 'cmake'    , arch: 'x86_64', cc: 'clang', desc: 'libressl !runtests',
+
+          # https://openbsd.app/
+          # https://www.openbsd.org/faq/faq15.html
+          - { os: 'openbsd'     , version: '7.9'  , build: 'cmake'    , arch: 'x86_64', cc: 'clang', desc: 'libressl skiprun',
+              install: 'cmake ninja',
               options: '-DCRYPTO_BACKEND=OpenSSL' }
+
       fail-fast: false
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -1164,9 +1188,9 @@ jobs:
           persist-credentials: false
 
       - name: 'setup VM'
-        uses: cross-platform-actions/action@0c165ad7eb2d6a7e8552d6af5aad2bbedfc646b0 # v1.1.0
+        uses: cross-platform-actions/action@5ea7e8e4677bd726033a10b094ba1c5762b15dee # v1.3.0
         with:
-          environment_variables: 'CC CURL_CI CURL_TEST_MIN DO_NOT_TRACK MAKEFLAGS MATRIX_BUILD MATRIX_OPTIONS MATRIX_OS'
+          environment_variables: 'CC CURL_CI CURL_TEST_MIN DO_NOT_TRACK MAKEFLAGS MATRIX_BUILD MATRIX_INSTALL MATRIX_OPTIONS MATRIX_OS'
           operating_system: '${{ matrix.os }}'
           version: '${{ matrix.version }}'
           architecture: '${{ matrix.arch }}'
@@ -1174,26 +1198,15 @@ jobs:
       - name: 'install prereqs'
         run: |
           if [ "${MATRIX_OS}" = 'dragonflybsd' ]; then
-            # https://github.com/DragonFlyBSD/DPorts
-            sudo pkg install -y autoconf automake libtool libgcrypt
+            sudo pkg install -y ${MATRIX_INSTALL}
           elif [ "${MATRIX_OS}" = 'freebsd' ]; then
-            # https://ports.freebsd.org/
-            if [ "${MATRIX_BUILD}" = 'cmake' ]; then
-              sudo pkg install -y cmake-core ninja
-            else
-              sudo pkg install -y autoconf automake gettext libtool
-            fi
+            sudo pkg install -y ${MATRIX_INSTALL}
           elif [ "${MATRIX_OS}" = 'midnightbsd' ]; then
-            # https://app.midnightbsd.org/
-            # https://man.midnightbsd.org/cgi-bin/man.cgi/mport
-            sudo mport -q install cmake-core ninja | grep -E '(Downloading.+100|Installing)' || true
+            sudo mport install ${MATRIX_INSTALL} | grep -v -E '(Downloading.+%|^/usr/local)' || true
           elif [ "${MATRIX_OS}" = 'netbsd' ]; then
-            # https://pkgsrc.se/
-            sudo pkgin -y install cmake ninja-build
+            sudo pkgin -y install ${MATRIX_INSTALL}
           elif [ "${MATRIX_OS}" = 'openbsd' ]; then
-            # https://openbsd.app/
-            # https://www.openbsd.org/faq/faq15.html
-            sudo pkg_add cmake ninja
+            sudo pkg_add -I ${MATRIX_INSTALL}
           fi
 
       - name: 'autoreconf'
@@ -1237,7 +1250,7 @@ jobs:
           fi
 
       - name: 'run tests'
-        if: ${{ matrix.arch == 'x86_64' && !contains(matrix.desc, '!runtests') }}  # Slow on emulated CPU
+        if: ${{ matrix.arch == 'x86_64' && !contains(matrix.desc, 'skiprun') }}  # Slow on emulated CPU
         run: |
           export TFLAGS='-j8'
           if [ "${MATRIX_OS}" = 'openbsd' ]; then
