@@ -70,7 +70,8 @@ static void kbd_callback(const char *name, int name_len,
         fprintf(stderr, "'\n");
 
         fprintf(stderr, "Please type response: ");
-        fgets(buf, sizeof(buf), stdin);
+        if(!fgets(buf, sizeof(buf), stdin))
+            fprintf(stderr, "fgets() failed.\n");
         n = strlen(buf);
         while(n > 0 && strchr("\r\n", buf[n - 1]))
             n--;
@@ -260,8 +261,12 @@ int main(int argc, char *argv[])
         /* loop until we fail */
         fprintf(stderr, "libssh2_sftp_read().\n");
         nread = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
-        if(nread > 0)
-            write(1, mem, (size_t)nread);
+        if(nread > 0) {
+            ssize_t nwritten = write(1, mem, (size_t)nread);
+            if(nwritten != nread)
+                fprintf(stderr, "write failed: %ld != %ld\n",
+                        (long)nread, (long)nwritten);
+        }
         else
             break;
     } while(1);

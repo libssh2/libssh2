@@ -262,8 +262,12 @@ int main(int argc, char *argv[])
             waitsocket(sock, session); /* now we wait */
         }
         if(nread > 0) {
+            ssize_t nwritten;
             total += nread;
-            write(1, mem, (size_t)nread);
+            nwritten = write(1, mem, (size_t)nread);
+            if(nwritten != nread)
+                fprintf(stderr, "write failed: %ld != %ld\n",
+                        (long)nread, (long)nwritten);
         }
         else
             break;

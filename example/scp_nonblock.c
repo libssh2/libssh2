@@ -251,7 +251,10 @@ int main(int argc, char *argv[])
             /* loop until we block */
             nread = libssh2_channel_read(channel, mem, (size_t)amount);
             if(nread > 0) {
-                write(1, mem, (size_t)nread);
+                ssize_t nwritten = write(1, mem, (size_t)nread);
+                if(nwritten != nread)
+                    fprintf(stderr, "write failed: %ld != %ld\n",
+                            (long)nread, (long)nwritten);
                 got += nread;
                 total += nread;
             }
