@@ -41,6 +41,8 @@ message(STATUS "Using CMake version ${CMAKE_VERSION}")
 
 list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+set(CMAKE_BUILD_TYPE "RelWithDebInfo")
+
 include(CheckFunctionExists)
 include(CheckSymbolExists)
 include(CheckIncludeFiles)
