@@ -152,8 +152,12 @@ int main(int argc, char *argv[])
             amount = (int)(fileinfo.st_size - got);
 
         nread = libssh2_channel_read(channel, mem, (size_t)amount);
-        if(nread > 0)
-            write(1, mem, (size_t)nread);
+        if(nread > 0) {
+            ssize_t nwritten = write(1, mem, (size_t)nread);
+            if(nwritten != nread)
+                fprintf(stderr, "write failed: %ld vs %ld\n",
+                        (long)nread, (long)nwritten);
+        }
         else if(nread < 0) {
             fprintf(stderr, "libssh2_channel_read() failed: %ld\n",
                     (long)nread);

@@ -240,7 +240,10 @@ int main(int argc, char *argv[])
 
             if(nread > 0) {
                 /* write to stderr */
-                write(2, mem, (size_t)nread);
+                ssize_t nwritten = write(2, mem, (size_t)nread);
+                if(nwritten != nread)
+                    fprintf(stderr, "write failed: %ld vs %ld\n",
+                            (long)nread, (long)nwritten);
                 /* write to temporary storage area */
                 fwrite(mem, (size_t)nread, 1, tempstorage);
             }
