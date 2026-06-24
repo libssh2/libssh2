@@ -1053,10 +1053,10 @@ jobs:
             install: openssl@4
             configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl@4
             cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@4
-          - name: 'OpenSSL 3.5'
-            install: openssl@3.5
-            configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl@3.5
-            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@3.5
+          - name: 'OpenSSL 3'
+            install: openssl@3
+            configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl@3
+            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@3
           - name: 'wolfSSL'
             install: wolfssl
             configure: --with-crypto=wolfssl --with-libwolfssl-prefix=/opt/homebrew
