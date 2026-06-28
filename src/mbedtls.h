@@ -44,6 +44,7 @@
 #include <mbedtls/version.h>
 #include <mbedtls/platform.h>
 #include <mbedtls/md.h>
+#if MBEDTLS_VERSION_NUMBER < 0x04000000
 #include <mbedtls/rsa.h>
 #include <mbedtls/bignum.h>
 #include <mbedtls/cipher.h>
@@ -55,6 +56,7 @@
 #endif
 #include <mbedtls/entropy.h>
 #include <mbedtls/ctr_drbg.h>
+#endif
 #include <mbedtls/pk.h>
 #include <mbedtls/error.h>
 
