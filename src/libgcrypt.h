@@ -69,14 +69,6 @@
 
 #include "crypto_config.h"
 
-#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define MD5_DIGEST_LENGTH 16
-#endif
-#define SHA_DIGEST_LENGTH    20
-#define SHA256_DIGEST_LENGTH 32
-#define SHA384_DIGEST_LENGTH 48
-#define SHA512_DIGEST_LENGTH 64
-
 #define ssh2_random(buf, len) (gcry_randomize(buf, len, GCRY_STRONG_RANDOM), 0)
 
 #define ssh2_prepare_iovec(vec, len)  /* Empty. */
