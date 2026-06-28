@@ -80,7 +80,7 @@
 #define ssh2_sha1_update(ctx, data, len) \
     (gcry_md_write(ctx, data, len), 1)
 #define ssh2_sha1_final(ctx, out) \
-    (memcpy(out, gcry_md_read(ctx, 0), SSH2_SHA_DIG_LEN), \
+    (memcpy(out, gcry_md_read(ctx, 0), SSH2_SHA1_DIG_LEN), \
      gcry_md_close(ctx), 1)
 #define ssh2_sha1(message, len, out) \
     (gcry_md_hash_buffer(GCRY_MD_SHA1, out, message, len), 0)

@@ -268,7 +268,7 @@ static int mac_method_hmac_sha1_96_hash(LIBSSH2_SESSION *session,
                                         const unsigned char *addtl,
                                         size_t addtl_len, void **abstract)
 {
-    unsigned char temp[SSH2_SHA_DIG_LEN];
+    unsigned char temp[SSH2_SHA1_DIG_LEN];
 
     if(mac_method_hmac_sha1_hash(session, temp, seqno, packet, packet_len,
                                  addtl, addtl_len, abstract))

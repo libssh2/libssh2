@@ -73,7 +73,7 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx);
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #define SSH2_MD5_DIG_LEN                16
 #endif
-#define SSH2_SHA_DIG_LEN                20
+#define SSH2_SHA1_DIG_LEN               20
 #define SSH2_SHA256_DIG_LEN             32
 #define SSH2_SHA384_DIG_LEN             48
 #define SSH2_SHA512_DIG_LEN             64

@@ -164,14 +164,14 @@ struct wcng_hash_ctx {
 #define ssh2_sha1_ctx struct wcng_hash_ctx
 #define ssh2_sha1_init(ctx) \
     (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashSHA1, \
-                         SSH2_SHA_DIG_LEN, NULL, 0) == 0)
+                         SSH2_SHA1_DIG_LEN, NULL, 0) == 0)
 #define ssh2_sha1_update(ctx, data, datalen) \
     (ssh2_wcng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
 #define ssh2_sha1_final(ctx, hash) \
     (ssh2_wcng_hash_final(&(ctx), hash) == 0)
 #define ssh2_sha1(data, datalen, hash) \
     ssh2_wcng_hash(data, datalen, ssh2_wcng.hAlgHashSHA1, \
-                   hash, SSH2_SHA_DIG_LEN)
+                   hash, SSH2_SHA1_DIG_LEN)
 
 #define ssh2_sha256_ctx struct wcng_hash_ctx
 #define ssh2_sha256_init(ctx) \

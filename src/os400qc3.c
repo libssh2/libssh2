@@ -173,7 +173,7 @@ static int parse_pbkdf2(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
                         struct pkcs5algo *algo, struct asn1Element *param);
 static const struct pkcs5algo PBKDF2 = {
     OID_id_PBKDF2,  parse_pbkdf2,   0,  0,  '\0',   '\0',   '\0',
-    SSH2_SHA_DIG_LEN,  Qc3_SHA1,   SSH2_SHA_DIG_LEN,  8,  8,  0
+    SSH2_SHA1_DIG_LEN,  Qc3_SHA1,   SSH2_SHA1_DIG_LEN,  8,  8,  0
 };
 
 /* id-hmacWithSHA1 OID: 1.2.840.113549.2.7 */
@@ -186,7 +186,7 @@ static int parse_hmacWithSHA1(LIBSSH2_SESSION *session,
                               struct asn1Element *param);
 static const struct pkcs5algo hmacWithSHA1 = {
     OID_id_hmacWithSHA1,    parse_hmacWithSHA1, 0,  0,  '\0',   '\0',   '\0',
-    SSH2_SHA_DIG_LEN,  Qc3_SHA1,   SSH2_SHA_DIG_LEN,  8,  8,  0
+    SSH2_SHA1_DIG_LEN,  Qc3_SHA1,   SSH2_SHA1_DIG_LEN,  8,  8,  0
 };
 
 /* desCBC OID: 1.3.14.3.2.7 */
@@ -249,7 +249,7 @@ static const unsigned char OID_pbeWithSHA1AndDES_CBC[] = {
 };
 static const struct pkcs5algo pbeWithSHA1AndDES_CBC = {
     OID_pbeWithSHA1AndDES_CBC,   parse_pbes1,    Qc3_DES,    8,  Qc3_CBC,
-    Qc3_Pad_Counter,    '\0',   8,  Qc3_SHA1,   SSH2_SHA_DIG_LEN,  8,  0,  0
+    Qc3_Pad_Counter,    '\0',   8,  Qc3_SHA1,   SSH2_SHA1_DIG_LEN,  8,  0,  0
 };
 
 /* pbeWithSHA1AndRC2-CBC OID: 1.2.840.113549.1.5.11 */
@@ -258,7 +258,7 @@ static const unsigned char OID_pbeWithSHA1AndRC2_CBC[] = {
 };
 static const struct pkcs5algo pbeWithSHA1AndRC2_CBC = {
     OID_pbeWithSHA1AndRC2_CBC,   parse_pbes1,    Qc3_RC2,    8,  Qc3_CBC,
-    Qc3_Pad_Counter,    '\0',   0,  Qc3_SHA1,   SSH2_SHA_DIG_LEN,  8,  0, 64
+    Qc3_Pad_Counter,    '\0',   0,  Qc3_SHA1,   SSH2_SHA1_DIG_LEN,  8,  0, 64
 };
 
 /* rc5-CBC-PAD OID: 1.2.840.113549.3.9: RC5 not implemented in Qc3. */
@@ -1015,7 +1015,7 @@ int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 
 int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    return os400qc3_hmac_init(ctx, Qc3_SHA1, SSH2_SHA_DIG_LEN,
+    return os400qc3_hmac_init(ctx, Qc3_SHA1, SSH2_SHA1_DIG_LEN,
                               key, keylen);
 }
 
@@ -2363,7 +2363,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
     algd.Public_Key_Alg = Qc3_RSA;
     algd.PKA_Block_Format = Qc3_PKCS1_01;
     switch(hash_len) {
-    case SSH2_SHA_DIG_LEN:
+    case SSH2_SHA1_DIG_LEN:
         algd.Signing_Hash_Alg = Qc3_SHA1;
         break;
     case SSH2_SHA256_DIG_LEN:
@@ -2388,7 +2388,7 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return ssh2_rsa_sha2_verify(rsactx, SSH2_SHA_DIG_LEN,
+    return ssh2_rsa_sha2_verify(rsactx, SSH2_SHA1_DIG_LEN,
                                 sig, sig_len, m, m_len);
 }
 

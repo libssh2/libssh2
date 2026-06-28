@@ -372,7 +372,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
     if(!hash)
         return -1;
 
-    if(hash_len == SSH2_SHA_DIG_LEN) {
+    if(hash_len == SSH2_SHA1_DIG_LEN) {
         nid_type = NID_sha1;
         ret = ssh2_ossl_sha1(m, m_len, hash);
     }
@@ -430,7 +430,7 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return ssh2_rsa_sha2_verify(rsactx, SSH2_SHA_DIG_LEN, sig, sig_len, m,
+    return ssh2_rsa_sha2_verify(rsactx, SSH2_SHA1_DIG_LEN, sig, sig_len, m,
                                 m_len);
 }
 #endif
@@ -576,7 +576,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
     int der_len = 0;
 #endif
 
-    unsigned char hash[SSH2_SHA_DIG_LEN];
+    unsigned char hash[SSH2_SHA1_DIG_LEN];
     DSA_SIG *dsasig;
     BIGNUM *r;
     BIGNUM *s;
@@ -597,7 +597,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
     if(ctx && !ssh2_ossl_sha1(m, m_len, hash)) {
         /* ssh2_ossl_sha1() succeeded */
         if(EVP_PKEY_verify_init(ctx) > 0)
-            ret = EVP_PKEY_verify(ctx, der, der_len, hash, SSH2_SHA_DIG_LEN);
+            ret = EVP_PKEY_verify(ctx, der, der_len, hash, SSH2_SHA1_DIG_LEN);
     }
 
     if(ctx)
@@ -608,7 +608,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
 #else
     if(!ssh2_ossl_sha1(m, m_len, hash))
         /* ssh2_ossl_sha1() succeeded */
-        ret = DSA_do_verify(hash, SSH2_SHA_DIG_LEN, dsasig, dsactx);
+        ret = DSA_do_verify(hash, SSH2_SHA1_DIG_LEN, dsasig, dsactx);
 #endif
 
     DSA_SIG_free(dsasig);
@@ -2549,7 +2549,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
         return -1;
 
 #ifdef USE_OPENSSL_3
-    if(hash_len == SSH2_SHA_DIG_LEN)
+    if(hash_len == SSH2_SHA1_DIG_LEN)
         md = EVP_sha1();
     else if(hash_len == SSH2_SHA256_DIG_LEN)
         md = EVP_sha256();
@@ -2572,7 +2572,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
             EVP_PKEY_CTX_free(ctx);
     }
 #else
-    if(hash_len == SSH2_SHA_DIG_LEN)
+    if(hash_len == SSH2_SHA1_DIG_LEN)
         ret = RSA_sign(NID_sha1,
                        hash, (unsigned int)hash_len, sig, &sig_len, rsactx);
     else if(hash_len == SSH2_SHA256_DIG_LEN)
@@ -2645,7 +2645,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
 #else
     (void)hash_len;
 
-    sig = DSA_do_sign(hash, SSH2_SHA_DIG_LEN, dsactx);
+    sig = DSA_do_sign(hash, SSH2_SHA1_DIG_LEN, dsactx);
 #endif
 
     if(!sig)
@@ -2654,20 +2654,20 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
     DSA_SIG_get0(sig, &r, &s);
 
     r_len = BN_num_bytes(r);
-    if(r_len < 1 || r_len > SSH2_SHA_DIG_LEN) {
+    if(r_len < 1 || r_len > SSH2_SHA1_DIG_LEN) {
         DSA_SIG_free(sig);
         return -1;
     }
     s_len = BN_num_bytes(s);
-    if(s_len < 1 || s_len > SSH2_SHA_DIG_LEN) {
+    if(s_len < 1 || s_len > SSH2_SHA1_DIG_LEN) {
         DSA_SIG_free(sig);
         return -1;
     }
 
-    memset(signature, 0, SSH2_SHA_DIG_LEN * 2);
+    memset(signature, 0, SSH2_SHA1_DIG_LEN * 2);
 
-    BN_bn2bin(r, signature + (SSH2_SHA_DIG_LEN - r_len));
-    BN_bn2bin(s, signature + SSH2_SHA_DIG_LEN + (SSH2_SHA_DIG_LEN - s_len));
+    BN_bn2bin(r, signature + (SSH2_SHA1_DIG_LEN - r_len));
+    BN_bn2bin(s, signature + SSH2_SHA1_DIG_LEN + (SSH2_SHA1_DIG_LEN - s_len));
 
     DSA_SIG_free(sig);
 

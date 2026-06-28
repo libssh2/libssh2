@@ -186,7 +186,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
     if(!hash)
         return -1;
 
-    if(hash_len == SSH2_SHA_DIG_LEN) {
+    if(hash_len == SSH2_SHA1_DIG_LEN) {
         algo = "sha1";
         ret = ssh2_sha1(m, m_len, hash);
     }
@@ -237,8 +237,8 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
                          size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return ssh2_rsa_sha2_verify(rsactx, SSH2_SHA_DIG_LEN, sig, sig_len, m,
-                                    m_len);
+    return ssh2_rsa_sha2_verify(rsactx, SSH2_SHA1_DIG_LEN, sig, sig_len, m,
+                                m_len);
 }
 #endif
 #endif
@@ -504,7 +504,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
     unsigned char *out_sig;
     int ret = -1;
 
-    if(hash_len == SSH2_SHA_DIG_LEN)
+    if(hash_len == SSH2_SHA1_DIG_LEN)
         algo = "sha1";
     else if(hash_len == SSH2_SHA256_DIG_LEN)
         algo = "sha256";
@@ -576,14 +576,14 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
                        const unsigned char *hash,
                        size_t hash_len, unsigned char *sig)
 {
-    unsigned char zhash[SSH2_SHA_DIG_LEN + 1];
+    unsigned char zhash[SSH2_SHA1_DIG_LEN + 1];
     gcry_sexp_t sig_sexp;
     gcry_sexp_t data;
     int ret;
     const char *tmp;
     size_t size;
 
-    if(hash_len != SSH2_SHA_DIG_LEN)
+    if(hash_len != SSH2_SHA1_DIG_LEN)
         return -1;
 
     memcpy(zhash + 1, hash, hash_len);
@@ -660,7 +660,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
                          const unsigned char *sig,
                          const unsigned char *m, size_t m_len)
 {
-    unsigned char hash[SSH2_SHA_DIG_LEN + 1];
+    unsigned char hash[SSH2_SHA1_DIG_LEN + 1];
     gcry_sexp_t s_sig, s_hash;
     int rc = -1;
 
@@ -670,7 +670,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
     hash[0] = 0;
 
     if(gcry_sexp_build(&s_hash, NULL, "(data(flags raw)(value %b))",
-                       SSH2_SHA_DIG_LEN + 1, hash))
+                       SSH2_SHA1_DIG_LEN + 1, hash))
         return -1;
 
     if(gcry_sexp_build(&s_sig, NULL, "(sig-val(dsa(r %b)(s %b)))",

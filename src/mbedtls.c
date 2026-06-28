@@ -513,7 +513,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
     if(!hash)
         return -1;
 
-    if(hash_len == SSH2_SHA_DIG_LEN)
+    if(hash_len == SSH2_SHA1_DIG_LEN)
         md_type = MBEDTLS_MD_SHA1;
     else if(hash_len == SSH2_SHA256_DIG_LEN)
         md_type = MBEDTLS_MD_SHA256;
@@ -542,7 +542,7 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return ssh2_rsa_sha2_verify(rsactx, SSH2_SHA_DIG_LEN,
+    return ssh2_rsa_sha2_verify(rsactx, SSH2_SHA1_DIG_LEN,
                                 sig, sig_len, m, m_len);
 }
 
@@ -562,7 +562,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
         return -1;
 
     ret = 0;
-    if(hash_len == SSH2_SHA_DIG_LEN)
+    if(hash_len == SSH2_SHA1_DIG_LEN)
         md_type = MBEDTLS_MD_SHA1;
     else if(hash_len == SSH2_SHA256_DIG_LEN)
         md_type = MBEDTLS_MD_SHA256;

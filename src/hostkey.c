@@ -220,7 +220,7 @@ static int hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION *session,
 #else
     int ret;
     int i;
-    unsigned char hash[SSH2_SHA_DIG_LEN];
+    unsigned char hash[SSH2_SHA1_DIG_LEN];
     ssh2_sha1_ctx ctx;
 
     if(!ssh2_sha1_init(&ctx))
@@ -232,7 +232,7 @@ static int hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION *session,
     if(!ssh2_sha1_final(ctx, hash))
         return -1;
 
-    ret = ssh2_rsa_sha1_sign(session, rsactx, hash, SSH2_SHA_DIG_LEN,
+    ret = ssh2_rsa_sha1_sign(session, rsactx, hash, SSH2_SHA1_DIG_LEN,
                              signature, signature_len);
     if(ret)
         return -1;
@@ -392,7 +392,7 @@ static int hostkey_method_ssh_rsa_dtor(LIBSSH2_SESSION *session,
 
 static const struct hostkey_method hostkey_method_ssh_rsa = {
     "ssh-rsa",
-    SSH2_SHA_DIG_LEN,
+    SSH2_SHA1_DIG_LEN,
     hostkey_method_ssh_rsa_init,
     hostkey_method_ssh_rsa_initPEM,
     hostkey_method_ssh_rsa_initPEMFromMemory,
@@ -436,7 +436,7 @@ static const struct hostkey_method hostkey_method_ssh_rsa_sha2_512 = {
 
 static const struct hostkey_method hostkey_method_ssh_rsa_cert = {
     "ssh-rsa-cert-v01@openssh.com",
-    SSH2_SHA_DIG_LEN,
+    SSH2_SHA1_DIG_LEN,
     NULL,
     hostkey_method_ssh_rsa_initPEM,
     hostkey_method_ssh_rsa_initPEMFromMemory,
@@ -631,7 +631,7 @@ static int hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session,
                                         void **abstract)
 {
     ssh2_dsa_ctx *dsactx = (ssh2_dsa_ctx *)(*abstract);
-    unsigned char hash[SSH2_SHA_DIG_LEN];
+    unsigned char hash[SSH2_SHA1_DIG_LEN];
     ssh2_sha1_ctx ctx;
     int i;
 
@@ -641,11 +641,11 @@ static int hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    *signature = SSH2_CALLOC(session, 2 * SSH2_SHA_DIG_LEN);
+    *signature = SSH2_CALLOC(session, 2 * SSH2_SHA1_DIG_LEN);
     if(!*signature)
         return -1;
 
-    *signature_len = 2 * SSH2_SHA_DIG_LEN;
+    *signature_len = 2 * SSH2_SHA1_DIG_LEN;
 
     for(i = 0; i < veccount; i++) {
         if(!ssh2_sha1_update(ctx, datavec[i].iov_base, datavec[i].iov_len))
@@ -654,7 +654,7 @@ static int hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session,
     if(!ssh2_sha1_final(ctx, hash))
         return -1;
 
-    if(ssh2_dsa_sha1_sign(dsactx, hash, SSH2_SHA_DIG_LEN, *signature)) {
+    if(ssh2_dsa_sha1_sign(dsactx, hash, SSH2_SHA1_DIG_LEN, *signature)) {
         SSH2_FREE(session, *signature);
         return -1;
     }
@@ -680,7 +680,7 @@ static int hostkey_method_ssh_dss_dtor(LIBSSH2_SESSION *session,
 
 static const struct hostkey_method hostkey_method_ssh_dss = {
     "ssh-dss",
-    SSH2_SHA_DIG_LEN,
+    SSH2_SHA1_DIG_LEN,
     hostkey_method_ssh_dss_init,
     hostkey_method_ssh_dss_initPEM,
     hostkey_method_ssh_dss_initPEMFromMemory,

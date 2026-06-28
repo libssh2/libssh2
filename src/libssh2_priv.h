@@ -748,7 +748,7 @@ struct _LIBSSH2_SESSION {
     unsigned char server_hostkey_md5[SSH2_MD5_DIG_LEN];
     int server_hostkey_md5_valid;
 #endif /* !LIBSSH2_MD5 */
-    unsigned char server_hostkey_sha1[SSH2_SHA_DIG_LEN];
+    unsigned char server_hostkey_sha1[SSH2_SHA1_DIG_LEN];
     int server_hostkey_sha1_valid;
 
     unsigned char server_hostkey_sha256[SSH2_SHA256_DIG_LEN];

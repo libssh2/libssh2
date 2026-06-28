@@ -46,11 +46,6 @@
 
 #include <assert.h>
 
-/* define SSH2_SHA1_DIG_LEN for the macro below */
-#ifndef SSH2_SHA1_DIG_LEN
-#define SSH2_SHA1_DIG_LEN SSH2_SHA_DIG_LEN
-#endif
-
 /* TODO: Switch this to an inline and handle alloc() failures */
 /* Helper macro called from
    kex_method_diffie_hellman_group1_sha1_key_exchange */

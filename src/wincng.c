@@ -810,7 +810,7 @@ int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
     int ret = ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHmacSHA1,
-                                  SSH2_SHA_DIG_LEN, key, (ULONG)keylen);
+                                  SSH2_SHA1_DIG_LEN, key, (ULONG)keylen);
 
     return ret == 0 ? 1 : 0;
 }
@@ -876,7 +876,7 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx,
     ULONG datalen;
     int ret;
 
-    if(hashlen == SSH2_SHA_DIG_LEN) {
+    if(hashlen == SSH2_SHA1_DIG_LEN) {
         hAlgHash = ssh2_wcng.hAlgHashSHA1;
         paddingInfoPKCS1.pszAlgId = BCRYPT_SHA1_ALGORITHM;
     }
@@ -1427,7 +1427,7 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return wcng_key_sha_verify(rsactx, SSH2_SHA_DIG_LEN,
+    return wcng_key_sha_verify(rsactx, SSH2_SHA1_DIG_LEN,
                                sig, (ULONG)sig_len,
                                m, (ULONG)m_len,
                                BCRYPT_PAD_PKCS1);
@@ -1459,7 +1459,7 @@ static int wcng_rsa_sha_sign(LIBSSH2_SESSION *session,
     ULONG cbData, datalen, siglen;
     NTSTATUS ret;
 
-    if(hash_len == SSH2_SHA_DIG_LEN)
+    if(hash_len == SSH2_SHA1_DIG_LEN)
         paddingInfo.pszAlgId = BCRYPT_SHA1_ALGORITHM;
     else if(hash_len == SSH2_SHA256_DIG_LEN)
         paddingInfo.pszAlgId = BCRYPT_SHA256_ALGORITHM;
@@ -1721,7 +1721,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
                          const unsigned char *sig_fixed,
                          const unsigned char *m, size_t m_len)
 {
-    return wcng_key_sha_verify(dsa, SSH2_SHA_DIG_LEN, sig_fixed,
+    return wcng_key_sha_verify(dsa, SSH2_SHA1_DIG_LEN, sig_fixed,
                                40, m, (ULONG)m_len, 0);
 }
 
