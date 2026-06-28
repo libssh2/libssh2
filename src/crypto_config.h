@@ -79,13 +79,3 @@
 #undef LIBSSH2_3DES
 #define LIBSSH2_3DES 0
 #endif
-
-/* shared macro definitions */
-
-#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define MD5_DIGEST_LENGTH 16
-#endif
-#define SHA_DIGEST_LENGTH    20
-#define SHA256_DIGEST_LENGTH 32
-#define SHA384_DIGEST_LENGTH 48
-#define SHA512_DIGEST_LENGTH 64
