@@ -762,10 +762,10 @@ struct _LIBSSH2_SESSION {
     /* Whether to use the OpenSSH Strict KEX extension */
     int kex_strict;
 
-    /* (remote as source of data -- packet_read ) */
+    /* (remote as source of data -- packet_read) */
     struct endpoint_data remote;
 
-    /* (local as source of data -- packet_write ) */
+    /* (local as source of data -- packet_write) */
     struct endpoint_data local;
 
     /* Inbound Data linked list -- Sometimes the packet that comes in is not
