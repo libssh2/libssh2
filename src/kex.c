@@ -46,9 +46,9 @@
 
 #include <assert.h>
 
-/* define SHA1_DIGEST_LENGTH for the macro below */
-#ifndef SHA1_DIGEST_LENGTH
-#define SHA1_DIGEST_LENGTH SHA_DIGEST_LENGTH
+/* define SSH2_SHA1_DIG_LEN for the macro below */
+#ifndef SSH2_SHA1_DIG_LEN
+#define SSH2_SHA1_DIG_LEN SSH2_SHA_DIG_LEN
 #endif
 
 /* TODO: Switch this to an inline and handle alloc() failures */
@@ -251,10 +251,10 @@ static int process_host_key(LIBSSH2_SESSION *session,
     }
 #ifdef LIBSSH2DEBUG
     {
-        char fingerprint[MD5_DIGEST_LENGTH * 3 + 1];
+        char fingerprint[SSH2_MD5_DIG_LEN * 3 + 1];
         char *fprint = fingerprint;
         int i;
-        for(i = 0; i < MD5_DIGEST_LENGTH; i++, fprint += 3)
+        for(i = 0; i < SSH2_MD5_DIG_LEN; i++, fprint += 3)
             ssh2_snprintf(fprint, 4, "%02x:", session->server_hostkey_md5[i]);
         *(--fprint) = '\0';
         ssh2_deb((session, LIBSSH2_TRACE_KEX, "Server's MD5 Fingerprint: %s",
@@ -276,10 +276,10 @@ static int process_host_key(LIBSSH2_SESSION *session,
     }
 #ifdef LIBSSH2DEBUG
     {
-        char fingerprint[SHA1_DIGEST_LENGTH * 3 + 1];
+        char fingerprint[SSH2_SHA1_DIG_LEN * 3 + 1];
         char *fprint = fingerprint;
         int i;
-        for(i = 0; i < SHA1_DIGEST_LENGTH; i++, fprint += 3)
+        for(i = 0; i < SSH2_SHA1_DIG_LEN; i++, fprint += 3)
             ssh2_snprintf(fprint, 4, "%02x:", session->server_hostkey_sha1[i]);
         *(--fprint) = '\0';
         ssh2_deb((session, LIBSSH2_TRACE_KEX, "Server's SHA1 Fingerprint: %s",
@@ -304,7 +304,7 @@ static int process_host_key(LIBSSH2_SESSION *session,
         char *base64Fingerprint = NULL;
         ssh2_base64_encode(session,
                            (const char *)session->server_hostkey_sha256,
-                           SHA256_DIGEST_LENGTH, &base64Fingerprint);
+                           SSH2_SHA256_DIG_LEN, &base64Fingerprint);
         if(base64Fingerprint) {
             ssh2_deb((session, LIBSSH2_TRACE_KEX,
                       "Server's SHA256 Fingerprint: %s", base64Fingerprint));
@@ -607,13 +607,13 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
     int digest_len = 0;
 
     if(sha_algo_value == 512)
-        digest_len = SHA512_DIGEST_LENGTH;
+        digest_len = SSH2_SHA512_DIG_LEN;
     else if(sha_algo_value == 384)
-        digest_len = SHA384_DIGEST_LENGTH;
+        digest_len = SSH2_SHA384_DIG_LEN;
     else if(sha_algo_value == 256)
-        digest_len = SHA256_DIGEST_LENGTH;
+        digest_len = SSH2_SHA256_DIG_LEN;
     else if(sha_algo_value == 1)
-        digest_len = SHA1_DIGEST_LENGTH;
+        digest_len = SSH2_SHA1_DIG_LEN;
     else {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                        "SHA algo value is unimplemented");
@@ -2048,15 +2048,15 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
         int sha_algo_value = 0;
 
         if(type == SSH2_EC_CURVE_NISTP256) {
-            digest_len = SHA256_DIGEST_LENGTH;
+            digest_len = SSH2_SHA256_DIG_LEN;
             sha_algo_value = 256;
         }
         else if(type == SSH2_EC_CURVE_NISTP384) {
-            digest_len = SHA384_DIGEST_LENGTH;
+            digest_len = SSH2_SHA384_DIG_LEN;
             sha_algo_value = 384;
         }
         else if(type == SSH2_EC_CURVE_NISTP521) {
-            digest_len = SHA512_DIGEST_LENGTH;
+            digest_len = SSH2_SHA512_DIG_LEN;
             sha_algo_value = 512;
         }
         else {
@@ -2253,14 +2253,14 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
 
     switch(type) {
     case SSH2_EC_CURVE_NISTP256:
-        digest_len = SHA256_DIGEST_LENGTH;
+        digest_len = SSH2_SHA256_DIG_LEN;
         ml_kem_cipher_len = SSH2_MLKEM_768_CIPHERTEXT;
         ml_kem_size = 768;
         public_pq_key_len = SSH2_MLKEM_768_PUBLIC_KEY_LEN;
         sha_algo_value = 256;
         break;
     case SSH2_EC_CURVE_NISTP384:
-        digest_len = SHA384_DIGEST_LENGTH;
+        digest_len = SSH2_SHA384_DIG_LEN;
         ml_kem_cipher_len = SSH2_MLKEM_1024_CIPHERTEXT;
         ml_kem_size = 1024;
         public_pq_key_len = SSH2_MLKEM_1024_PUBLIC_KEY_LEN;
@@ -2745,7 +2745,7 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
     }
 
     if(exchange_state->state == ssh2_NB_state_sent2) {
-        ret = finish_kex(session, exchange_state, SHA256_DIGEST_LENGTH, 256);
+        ret = finish_kex(session, exchange_state, SSH2_SHA256_DIG_LEN, 256);
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
     }
@@ -2964,7 +2964,7 @@ static int mlkem768x25519_sha256(
             goto clean_exit;
         }
 
-        exchange_state->k_value_len = SHA256_DIGEST_LENGTH + 4;
+        exchange_state->k_value_len = SSH2_SHA256_DIG_LEN + 4;
 
         exchange_state->k_value =
             SSH2_ALLOC(session, exchange_state->k_value_len);
@@ -2973,7 +2973,7 @@ static int mlkem768x25519_sha256(
                            "Unable to allocate buffer for K");
             goto clean_exit;
         }
-        ssh2_htonu32(exchange_state->k_value, SHA256_DIGEST_LENGTH);
+        ssh2_htonu32(exchange_state->k_value, SSH2_SHA256_DIG_LEN);
 
         /* Compute the ML-KEM shared secret */
         rc = ssh2_mlkem_get_sk(shared_secret, 768,
@@ -3049,7 +3049,7 @@ static int mlkem768x25519_sha256(
     }
 
     if(exchange_state->state == ssh2_NB_state_sent2) {
-        ret = finish_kex(session, exchange_state, SHA256_DIGEST_LENGTH, 256);
+        ret = finish_kex(session, exchange_state, SSH2_SHA256_DIG_LEN, 256);
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
     }

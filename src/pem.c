@@ -282,7 +282,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         size_t padding = 0;
         int blocksize = method->blocksize;
         void *abstract;
-        unsigned char secret[2 * MD5_DIGEST_LENGTH];
+        unsigned char secret[2 * SSH2_MD5_DIG_LEN];
         ssh2_md5_ctx fingerprint_ctx;
 
         /* Perform key derivation (PBKDF1/MD5) */
@@ -294,15 +294,15 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
             ret = -1;
             goto out;
         }
-        if(method->secret_len > MD5_DIGEST_LENGTH) {
+        if(method->secret_len > SSH2_MD5_DIG_LEN) {
             if(!ssh2_md5_init(&fingerprint_ctx) ||
                !ssh2_md5_update(fingerprint_ctx, secret,
-                                MD5_DIGEST_LENGTH) ||
+                                SSH2_MD5_DIG_LEN) ||
                !ssh2_md5_update(fingerprint_ctx, passphrase,
                                 strlen((const char *)passphrase)) ||
                !ssh2_md5_update(fingerprint_ctx, iv, 8) ||
                !ssh2_md5_final(fingerprint_ctx,
-                               secret + MD5_DIGEST_LENGTH)) {
+                               secret + SSH2_MD5_DIG_LEN)) {
                 ret = -1;
                 goto out;
             }
