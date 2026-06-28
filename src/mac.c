@@ -119,7 +119,7 @@ static int mac_method_hmac_sha2_512_hash(LIBSSH2_SESSION *session,
 
     if(!ssh2_hmac_ctx_init(&ctx))
         return 1;
-    res = ssh2_hmac_sha512_init(&ctx, *abstract, 64) &&
+    res = ssh2_hmac_sha512_init(&ctx, *abstract, SSH2_SHA512_DIG_LEN) &&
           ssh2_hmac_update(&ctx, seqno_buf, 4) &&
           ssh2_hmac_update(&ctx, packet, packet_len);
     if(res && addtl && addtl_len)
@@ -134,7 +134,7 @@ static int mac_method_hmac_sha2_512_hash(LIBSSH2_SESSION *session,
 static const struct mac_method mac_method_hmac_sha2_512 = {
     "hmac-sha2-512",
     64,
-    64,
+    SSH2_SHA512_DIG_LEN,
     mac_method_common_init,
     mac_method_hmac_sha2_512_hash,
     mac_method_common_dtor,
@@ -144,7 +144,7 @@ static const struct mac_method mac_method_hmac_sha2_512 = {
 static const struct mac_method mac_method_hmac_sha2_512_etm = {
     "hmac-sha2-512-etm@openssh.com",
     64,
-    64,
+    SSH2_SHA512_DIG_LEN,
     mac_method_common_init,
     mac_method_hmac_sha2_512_hash,
     mac_method_common_dtor,
@@ -173,7 +173,7 @@ static int mac_method_hmac_sha2_256_hash(LIBSSH2_SESSION *session,
 
     if(!ssh2_hmac_ctx_init(&ctx))
         return 1;
-    res = ssh2_hmac_sha256_init(&ctx, *abstract, 32) &&
+    res = ssh2_hmac_sha256_init(&ctx, *abstract, SSH2_SHA256_DIG_LEN) &&
           ssh2_hmac_update(&ctx, seqno_buf, 4) &&
           ssh2_hmac_update(&ctx, packet, packet_len);
     if(res && addtl && addtl_len)
@@ -188,7 +188,7 @@ static int mac_method_hmac_sha2_256_hash(LIBSSH2_SESSION *session,
 static const struct mac_method mac_method_hmac_sha2_256 = {
     "hmac-sha2-256",
     32,
-    32,
+    SSH2_SHA256_DIG_LEN,
     mac_method_common_init,
     mac_method_hmac_sha2_256_hash,
     mac_method_common_dtor,
@@ -198,7 +198,7 @@ static const struct mac_method mac_method_hmac_sha2_256 = {
 static const struct mac_method mac_method_hmac_sha2_256_etm = {
     "hmac-sha2-256-etm@openssh.com",
     32,
-    32,
+    SSH2_SHA256_DIG_LEN,
     mac_method_common_init,
     mac_method_hmac_sha2_256_hash,
     mac_method_common_dtor,
@@ -226,7 +226,7 @@ static int mac_method_hmac_sha1_hash(LIBSSH2_SESSION *session,
 
     if(!ssh2_hmac_ctx_init(&ctx))
         return 1;
-    res = ssh2_hmac_sha1_init(&ctx, *abstract, 20) &&
+    res = ssh2_hmac_sha1_init(&ctx, *abstract, SSH2_SHA1_DIG_LEN) &&
           ssh2_hmac_update(&ctx, seqno_buf, 4) &&
           ssh2_hmac_update(&ctx, packet, packet_len);
     if(res && addtl && addtl_len)
@@ -241,7 +241,7 @@ static int mac_method_hmac_sha1_hash(LIBSSH2_SESSION *session,
 static const struct mac_method mac_method_hmac_sha1 = {
     "hmac-sha1",
     20,
-    20,
+    SSH2_SHA1_DIG_LEN,
     mac_method_common_init,
     mac_method_hmac_sha1_hash,
     mac_method_common_dtor,
@@ -251,7 +251,7 @@ static const struct mac_method mac_method_hmac_sha1 = {
 static const struct mac_method mac_method_hmac_sha1_etm = {
     "hmac-sha1-etm@openssh.com",
     20,
-    20,
+    SSH2_SHA1_DIG_LEN,
     mac_method_common_init,
     mac_method_hmac_sha1_hash,
     mac_method_common_dtor,
@@ -281,7 +281,7 @@ static int mac_method_hmac_sha1_96_hash(LIBSSH2_SESSION *session,
 static const struct mac_method mac_method_hmac_sha1_96 = {
     "hmac-sha1-96",
     12,
-    20,
+    SSH2_SHA1_DIG_LEN,
     mac_method_common_init,
     mac_method_hmac_sha1_96_hash,
     mac_method_common_dtor,
@@ -308,7 +308,7 @@ static int mac_method_hmac_md5_hash(LIBSSH2_SESSION *session,
 
     if(!ssh2_hmac_ctx_init(&ctx))
         return 1;
-    res = ssh2_hmac_md5_init(&ctx, *abstract, 16) &&
+    res = ssh2_hmac_md5_init(&ctx, *abstract, SSH2_MD5_DIG_LEN) &&
           ssh2_hmac_update(&ctx, seqno_buf, 4) &&
           ssh2_hmac_update(&ctx, packet, packet_len);
     if(res && addtl && addtl_len)
@@ -323,7 +323,7 @@ static int mac_method_hmac_md5_hash(LIBSSH2_SESSION *session,
 static const struct mac_method mac_method_hmac_md5 = {
     "hmac-md5",
     16,
-    16,
+    SSH2_MD5_DIG_LEN,
     mac_method_common_init,
     mac_method_hmac_md5_hash,
     mac_method_common_dtor,
