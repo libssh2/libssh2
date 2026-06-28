@@ -184,10 +184,6 @@ int ssh2_mbed_hash_init(psa_hash_operation_t *ctx,
     const mbedtls_md_info_t *md_info;
     int ret, hmac;
 
-    md_info = mbedtls_md_info_from_type(md_type);
-    if(!md_info)
-        return 0;
-
     hmac = key ? 1 : 0;
 
     mbedtls_md_init(ctx);
@@ -204,27 +200,24 @@ int ssh2_mbed_hash_init(psa_hash_operation_t *ctx,
 
 int ssh2_mbed_hash_final(psa_hash_operation_t *ctx, unsigned char *hash)
 {
-    int ret;
+    size_t actual_length;
+    psa_status_t status;
 
-    ret = mbedtls_md_finish(ctx, hash);
-    mbedtls_md_free(ctx);
+    status = psa_hash_finish(ctx, hash, ..., &actual_length);
 
-    return ret == 0 ? 1 : 0;
-}
+    return ret == PSA_SUCCESS ? 1 : 0;
+ }
 
 int ssh2_mbed_hash(const unsigned char *data, size_t datalen,
                    psa_algorithm_t md_type, unsigned char *hash)
 {
-    const mbedtls_md_info_t *md_info;
-    int ret;
+    size_t actual_length;
+    psa_status_t status;
 
-    md_info = mbedtls_md_info_from_type(md_type);
-    if(!md_info)
-        return 0;
+    status = psa_hash_compute(alg, data, datalen,
+                              hash, sha256len, &actual_length);
 
-    ret = mbedtls_md(md_info, data, datalen, hash);
-
-    return ret == 0 ? 0 : -1;
+    return status == PSA_SUCCESS ? 0 : -1;
 }
 
 int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)

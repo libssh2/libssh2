@@ -66,7 +66,11 @@
 #endif
 
 /* Define which features are supported. */
+#if defined(PSA_WANT_ALG_MD5) && PSA_WANT_ALG_MD5
 #define LIBSSH2_MD5 1
+#else
+#define LIBSSH2_MD5 0
+#endif
 
 #define LIBSSH2_HMAC_RIPEMD 1
 #define LIBSSH2_HMAC_SHA256 1
