@@ -253,21 +253,18 @@ int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 
 int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
 {
-    int ret = mbedtls_md_hmac_update(ctx, data, datalen);
-
-    return ret == 0 ? 1 : 0;
+    return psa_hash_update(ctx, data, datalen) == PSA_SUCCESS ? 1 : 0;
 }
 
 int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *data)
 {
-    int ret = mbedtls_md_hmac_finish(ctx, data);
-
-    return ret == 0 ? 1 : 0;
+    size_t actual_length;
+    return psa_hash_finish(ctx, data, 0, &actual_length) == PSA_SUCCESS ? 1 : 0;
 }
 
 void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
 {
-    mbedtls_md_free(ctx);
+    (void)ctx;
 }
 
 /*******************************************************************/
