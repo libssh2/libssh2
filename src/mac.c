@@ -381,7 +381,7 @@ static int mac_method_hmac_ripemd160_hash(LIBSSH2_SESSION *session,
 
     if(!ssh2_hmac_ctx_init(&ctx))
         return 1;
-    res = ssh2_hmac_ripemd160_init(&ctx, *abstract, 20) &&
+    res = ssh2_hmac_ripemd160_init(&ctx, *abstract, SSH2_RIPEMD160_DIG_LEN) &&
           ssh2_hmac_update(&ctx, seqno_buf, 4) &&
           ssh2_hmac_update(&ctx, packet, packet_len);
     if(res && addtl && addtl_len)
@@ -396,7 +396,7 @@ static int mac_method_hmac_ripemd160_hash(LIBSSH2_SESSION *session,
 static const struct mac_method mac_method_hmac_ripemd160 = {
     "hmac-ripemd160",
     20,
-    20,
+    SSH2_RIPEMD160_DIG_LEN,
     mac_method_common_init,
     mac_method_hmac_ripemd160_hash,
     mac_method_common_dtor,
@@ -406,7 +406,7 @@ static const struct mac_method mac_method_hmac_ripemd160 = {
 static const struct mac_method mac_method_hmac_ripemd160_openssh_com = {
     "hmac-ripemd160@openssh.com",
     20,
-    20,
+    SSH2_RIPEMD160_DIG_LEN,
     mac_method_common_init,
     mac_method_hmac_ripemd160_hash,
     mac_method_common_dtor,
