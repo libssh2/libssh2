@@ -34,3 +34,7 @@ See *libssh2_publickey_remove_ex(3)*
 # ERRORS
 
 See *libssh2_publickey_remove_ex(3)*
+
+# AVAILABILITY
+
+Added in libssh2 0.12
