@@ -202,11 +202,11 @@ int ssh2_random(unsigned char *buf, size_t len);
 #endif
 
 int ssh2_mbed_hash_init(psa_hash_operation_t *ctx,
-                        mbedtls_md_type_t md_type,
+                        psa_algorithm_t md_type,
                         const unsigned char *key, size_t keylen);
 int ssh2_mbed_hash_final(psa_hash_operation_t *ctx, unsigned char *hash);
 int ssh2_mbed_hash(const unsigned char *data, size_t datalen,
-                   mbedtls_md_type_t md_type, unsigned char *hash);
+                   psa_algorithm_t md_type, unsigned char *hash);
 
 /*******************************************************************/
 /*

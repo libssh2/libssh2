@@ -178,7 +178,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 }
 
 int ssh2_mbed_hash_init(psa_hash_operation_t *ctx,
-                        mbedtls_md_type_t md_type,
+                        psa_algorithm_t md_type,
                         const unsigned char *key, size_t keylen)
 {
     const mbedtls_md_info_t *md_info;
@@ -213,7 +213,7 @@ int ssh2_mbed_hash_final(psa_hash_operation_t *ctx, unsigned char *hash)
 }
 
 int ssh2_mbed_hash(const unsigned char *data, size_t datalen,
-                   mbedtls_md_type_t md_type, unsigned char *hash)
+                   psa_algorithm_t md_type, unsigned char *hash)
 {
     const mbedtls_md_info_t *md_info;
     int ret;
@@ -503,7 +503,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
                          const unsigned char *m, size_t m_len)
 {
     int ret;
-    mbedtls_md_type_t md_type;
+    psa_algorithm_t md_type;
     unsigned char *hash;
 
     if(sig_len < mbedtls_rsa_get_len(rsactx))
@@ -554,7 +554,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
     int ret;
     unsigned char *sig;
     size_t sig_len;
-    mbedtls_md_type_t md_type;
+    psa_algorithm_t md_type;
 
     sig_len = mbedtls_rsa_get_len(rsactx);
     sig = SSH2_ALLOC(session, sig_len);
