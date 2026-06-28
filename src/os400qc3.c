@@ -1045,16 +1045,17 @@ int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
     return errcode.Bytes_Available ? 0 : 1;
 }
 
-int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *out)
+int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
     char data;
     Qus_EC_t errcode;
+    (void)keylen;
 
     ctx->hash.Final_Op_Flag = Qc3_Final;
     set_EC_length(errcode, sizeof(errcode));
     Qc3CalculateHMAC((char *)data, &zero, Qc3_Data, (char *)&ctx->hash,
                      Qc3_Alg_Token, ctx->key.Key_Context_Token, Qc3_Key_Token,
-                     anycsp, NULL, (char *)out, (char *)&errcode);
+                     anycsp, NULL, (char *)key, (char *)&errcode);
     return errcode.Bytes_Available ? 0 : 1;
 }
 
@@ -1453,7 +1454,7 @@ static int pbkdf2(LIBSSH2_SESSION *session, char **dk,
         ni = htonl(i);
         if(!ssh2_hmac_update(&hctx, pkcs5->salt, pkcs5->saltlen) ||
            !ssh2_hmac_update(&hctx, &ni, sizeof(ni)) ||
-           !ssh2_hmac_final(&hctx, mac)) {
+           !ssh2_hmac_final(&hctx, mac, pkcs5->hashlen)) {
             SSH2_FREE(session, buf);
             *dk = NULL;
             ssh2_os400qc3_crypto_dtor(&hctx);
@@ -1462,7 +1463,7 @@ static int pbkdf2(LIBSSH2_SESSION *session, char **dk,
         memcpy(buf, mac, pkcs5->hashlen);
         for(j = 1; j < pkcs5->itercount; j++) {
             if(!ssh2_hmac_update(&hctx, mac, pkcs5->hashlen) ||
-               !ssh2_hmac_final(&hctx, mac)) {
+               !ssh2_hmac_final(&hctx, mac, pkcs5->hashlen)) {
                 SSH2_FREE(session, buf);
                 *dk = NULL;
                 ssh2_os400qc3_crypto_dtor(&hctx);

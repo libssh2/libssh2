@@ -125,7 +125,7 @@ static int mac_method_hmac_sha2_512_hash(LIBSSH2_SESSION *session,
     if(res && addtl && addtl_len)
         res = ssh2_hmac_update(&ctx, addtl, addtl_len);
     if(res)
-        res = ssh2_hmac_final(&ctx, buf);
+        res = ssh2_hmac_final(&ctx, buf, SSH2_SHA512_DIG_LEN);
     ssh2_hmac_cleanup(&ctx);
 
     return !res;
@@ -179,7 +179,7 @@ static int mac_method_hmac_sha2_256_hash(LIBSSH2_SESSION *session,
     if(res && addtl && addtl_len)
         res = ssh2_hmac_update(&ctx, addtl, addtl_len);
     if(res)
-        res = ssh2_hmac_final(&ctx, buf);
+        res = ssh2_hmac_final(&ctx, buf, SSH2_SHA256_DIG_LEN);
     ssh2_hmac_cleanup(&ctx);
 
     return !res;
@@ -232,7 +232,7 @@ static int mac_method_hmac_sha1_hash(LIBSSH2_SESSION *session,
     if(res && addtl && addtl_len)
         res = ssh2_hmac_update(&ctx, addtl, addtl_len);
     if(res)
-        res = ssh2_hmac_final(&ctx, buf);
+        res = ssh2_hmac_final(&ctx, buf, SSH2_SHA1_DIG_LEN);
     ssh2_hmac_cleanup(&ctx);
 
     return !res;
@@ -314,7 +314,7 @@ static int mac_method_hmac_md5_hash(LIBSSH2_SESSION *session,
     if(res && addtl && addtl_len)
         res = ssh2_hmac_update(&ctx, addtl, addtl_len);
     if(res)
-        res = ssh2_hmac_final(&ctx, buf);
+        res = ssh2_hmac_final(&ctx, buf, SSH2_MD5_DIG_LEN);
     ssh2_hmac_cleanup(&ctx);
 
     return !res;
@@ -387,7 +387,7 @@ static int mac_method_hmac_ripemd160_hash(LIBSSH2_SESSION *session,
     if(res && addtl && addtl_len)
         res = ssh2_hmac_update(&ctx, addtl, addtl_len);
     if(res)
-        res = ssh2_hmac_final(&ctx, buf);
+        res = ssh2_hmac_final(&ctx, buf, SSH2_RIPEMD160_DIG_LEN);
     ssh2_hmac_cleanup(&ctx);
 
     return !res;

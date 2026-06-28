@@ -256,10 +256,11 @@ int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
     return psa_hash_update(ctx, data, datalen) == PSA_SUCCESS ? 1 : 0;
 }
 
-int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *data)
+int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
     size_t actual_length;
-    return psa_hash_finish(ctx, data, 0, &actual_length) == PSA_SUCCESS ? 1 : 0;
+    return psa_hash_finish(ctx, key, keylen,
+                           &actual_length) == PSA_SUCCESS ? 1 : 0;
 }
 
 void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)

@@ -67,7 +67,7 @@ int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen);
 int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen);
 int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen);
 int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen);
-int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *data);
+int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *key, size_t keylen);
 void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx);
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
