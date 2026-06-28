@@ -905,6 +905,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                     goto err_exit;
                 }
                 list = newlist;
+                memset(&list[keys], 0, sizeof(list[keys]));
             }
             if(pkey->version == 1) {
                 unsigned long comment_len;
