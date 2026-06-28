@@ -43,7 +43,8 @@
 
 #include <mbedtls/version.h>
 #include <mbedtls/platform.h>
-#include <mbedtls/md.h>
+#include <psa/crypto_config.h>
+#include <psa/crypto.h>
 #if MBEDTLS_VERSION_NUMBER < 0x04000000
 #include <mbedtls/rsa.h>
 #include <mbedtls/bignum.h>
