@@ -126,7 +126,7 @@ int ssh2_random(unsigned char *buf, size_t len);
  * mbedTLS backend: HMAC functions
  */
 
-#define ssh2_hmac_ctx psa_hash_operation_t
+#define ssh2_hmac_ctx struct psa_hash_operation_s
 
 /*******************************************************************/
 /*
@@ -135,8 +135,8 @@ int ssh2_random(unsigned char *buf, size_t len);
 
 #define ssh2_sha1_ctx psa_hash_operation_t
 
-#define ssh2_sha1_init(ctx) \
-    ssh2_mbed_hash_init(&(ctx), PSA_ALG_SHA_1)
+#define ssh2_sha1_init(pctx) \
+    ssh2_mbed_hash_init(pctx, PSA_ALG_SHA_1)
 #define ssh2_sha1_update(ctx, data, datalen) \
     ((psa_hash_update(&(ctx), \
                       (const uint8_t *)data, datalen) == PSA_SUCCESS) ? 1 : 0)
