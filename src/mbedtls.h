@@ -64,6 +64,9 @@
 #if MBEDTLS_VERSION_NUMBER < 0x03010000
 #  error "mbedTLS 3.1.0 or greater required"
 #endif
+#if MBEDTLS_VERSION_NUMBER < 0x04000000 && !defined(MBEDTLS_CTR_DRBG_C)
+#  error "MBEDTLS_CTR_DRBG_C is required for mbedTLS 3.x."
+#endif
 
 /* Define which features are supported. */
 #if defined(PSA_WANT_ALG_MD5) && PSA_WANT_ALG_MD5

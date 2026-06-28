@@ -48,8 +48,10 @@
  * mbedTLS backend: Global context handles
  */
 
+#if MBEDTLS_VERSION_NUMBER < 0x04000000
 static mbedtls_entropy_context mbed_entropy;
 static mbedtls_ctr_drbg_context mbed_ctr_drbg;
+#endif
 
 /*******************************************************************/
 /*
@@ -58,6 +60,7 @@ static mbedtls_ctr_drbg_context mbed_ctr_drbg;
 
 void ssh2_crypto_init(void)
 {
+#if MBEDTLS_VERSION_NUMBER < 0x04000000
     int ret;
 
     mbedtls_entropy_init(&mbed_entropy);
@@ -68,19 +71,20 @@ void ssh2_crypto_init(void)
                                 &mbed_entropy, NULL, 0);
     if(ret)
         mbedtls_ctr_drbg_free(&mbed_ctr_drbg);
+#endif
 }
 
 void ssh2_crypto_exit(void)
 {
+#if MBEDTLS_VERSION_NUMBER < 0x04000000
     mbedtls_ctr_drbg_free(&mbed_ctr_drbg);
     mbedtls_entropy_free(&mbed_entropy);
+#endif
 }
 
 int ssh2_random(unsigned char *buf, size_t len)
 {
-    int ret;
-    ret = mbedtls_ctr_drbg_random(&mbed_ctr_drbg, buf, len);
-    return ret == 0 ? 0 : -1;
+    return psa_generate_random(buf, len) == PSA_SUCCESS ? 0 : -1;
 }
 
 static void mbed_safe_free(void *buf, size_t len)
