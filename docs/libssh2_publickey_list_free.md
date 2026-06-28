@@ -24,4 +24,4 @@ libssh2_publickey_list_free - TODO
 
 # AVAILABILITY
 
-Added in libssh2 ?.?.?
+Added in libssh2 0.12
