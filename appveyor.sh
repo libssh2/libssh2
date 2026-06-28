@@ -33,14 +33,17 @@ fi
 
 echo "CMake job options: ${CMAKE_GENERATE:-}"
 options=''
-[ "${SKIP_CTEST:-}" = 'yes' ] && options+=' -DBUILD_TESTING=OFF'
+if [ "${SKIP_CTEST:-}" = 'yes' ]; then
+  options+=' -DBUILD_TESTING=OFF'
+else
+  options+=' -DRUN_SSHD_TESTS=OFF'
+fi
 # FIXME: First sshd test sometimes timeouts, subsequent ones almost always fail:
 #        'libssh2_session_handshake failed (-43): Failed getting banner'
 # shellcheck disable=SC2086
 cmake -B _bld \
   -DCMAKE_UNITY_BUILD=ON -DENABLE_WERROR=ON \
   -DCMAKE_VS_GLOBALS=TrackFileAccess=false \
-  -DRUN_SSHD_TESTS=OFF \
   -DBUILD_EXAMPLES=OFF \
   -DLIBSSH2_BUILD_DOCS=OFF \
   ${CMAKE_GENERATE:-} \
