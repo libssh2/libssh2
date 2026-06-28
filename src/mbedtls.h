@@ -119,14 +119,14 @@ int ssh2_random(unsigned char *buf, size_t len);
  * mbedTLS backend: HMAC functions
  */
 
-#define ssh2_hmac_ctx mbedtls_md_context_t
+#define ssh2_hmac_ctx psa_hash_operation_t
 
 /*******************************************************************/
 /*
  * mbedTLS backend: SHA1 functions
  */
 
-#define ssh2_sha1_ctx mbedtls_md_context_t
+#define ssh2_sha1_ctx psa_hash_operation_t
 
 #define ssh2_sha1_init(pctx) \
     ssh2_mbed_hash_init(pctx, MBEDTLS_MD_SHA1, NULL, 0)
@@ -142,7 +142,7 @@ int ssh2_random(unsigned char *buf, size_t len);
  * mbedTLS backend: SHA256 functions
  */
 
-#define ssh2_sha256_ctx mbedtls_md_context_t
+#define ssh2_sha256_ctx psa_hash_operation_t
 
 #define ssh2_sha256_init(pctx) \
     ssh2_mbed_hash_init(pctx, MBEDTLS_MD_SHA256, NULL, 0)
@@ -158,7 +158,7 @@ int ssh2_random(unsigned char *buf, size_t len);
  * mbedTLS backend: SHA384 functions
  */
 
-#define ssh2_sha384_ctx mbedtls_md_context_t
+#define ssh2_sha384_ctx psa_hash_operation_t
 
 #define ssh2_sha384_init(pctx) \
     ssh2_mbed_hash_init(pctx, MBEDTLS_MD_SHA384, NULL, 0)
@@ -174,7 +174,7 @@ int ssh2_random(unsigned char *buf, size_t len);
  * mbedTLS backend: SHA512 functions
  */
 
-#define ssh2_sha512_ctx mbedtls_md_context_t
+#define ssh2_sha512_ctx psa_hash_operation_t
 
 #define ssh2_sha512_init(pctx) \
     ssh2_mbed_hash_init(pctx, MBEDTLS_MD_SHA512, NULL, 0)
@@ -191,7 +191,7 @@ int ssh2_random(unsigned char *buf, size_t len);
  */
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define ssh2_md5_ctx mbedtls_md_context_t
+#define ssh2_md5_ctx psa_hash_operation_t
 
 #define ssh2_md5_init(pctx) \
     ssh2_mbed_hash_init(pctx, MBEDTLS_MD_MD5, NULL, 0)
@@ -201,10 +201,10 @@ int ssh2_random(unsigned char *buf, size_t len);
     ssh2_mbed_hash_final(&(ctx), hash)
 #endif
 
-int ssh2_mbed_hash_init(mbedtls_md_context_t *ctx,
+int ssh2_mbed_hash_init(psa_hash_operation_t *ctx,
                         mbedtls_md_type_t md_type,
                         const unsigned char *key, size_t keylen);
-int ssh2_mbed_hash_final(mbedtls_md_context_t *ctx, unsigned char *hash);
+int ssh2_mbed_hash_final(psa_hash_operation_t *ctx, unsigned char *hash);
 int ssh2_mbed_hash(const unsigned char *data, size_t datalen,
                    mbedtls_md_type_t md_type, unsigned char *hash);
 

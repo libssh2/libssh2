@@ -177,7 +177,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
     return ret == 0 ? 0 : -1;
 }
 
-int ssh2_mbed_hash_init(mbedtls_md_context_t *ctx,
+int ssh2_mbed_hash_init(psa_hash_operation_t *ctx,
                         mbedtls_md_type_t md_type,
                         const unsigned char *key, size_t keylen)
 {
@@ -202,7 +202,7 @@ int ssh2_mbed_hash_init(mbedtls_md_context_t *ctx,
     return ret == 0 ? 1 : 0;
 }
 
-int ssh2_mbed_hash_final(mbedtls_md_context_t *ctx, unsigned char *hash)
+int ssh2_mbed_hash_final(psa_hash_operation_t *ctx, unsigned char *hash)
 {
     int ret;
 
