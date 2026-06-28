@@ -49,9 +49,7 @@
 
    The point being to make sure that while in non-blocking mode these always
    return no matter what the return code is, but in blocking mode it blocks
-   if EAGAIN is the reason for the return from the underlying function.
-
-*/
+   if EAGAIN is the reason for the return from the underlying function. */
 #define BLOCK_ADJUST(rc, sess, x)                                    \
     do {                                                             \
         time_t entry_time = time(NULL);                              \

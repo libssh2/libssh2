@@ -56,80 +56,79 @@
 /* Max. length of a quoted string after shell_quotearg() processing */
 #define shell_quotedsize(s)  (3 * strlen(s) + 2)
 
-/*
-  This function quotes a string in a way suitable to be used with a
-  shell, e.g. the filename
-  one two
-  becomes
-  'one two'
+/* This function quotes a string in a way suitable to be used with a
+   shell, e.g. the filename
+   one two
+   becomes
+   'one two'
 
-  The resulting output string is crafted in a way that makes it usable
-  with the two most common shell types: Bourne Shell derived shells
-  (sh, ksh, ksh93, bash, zsh) and C-Shell derivates (csh, tcsh).
+   The resulting output string is crafted in a way that makes it usable
+   with the two most common shell types: Bourne Shell derived shells
+   (sh, ksh, ksh93, bash, zsh) and C-Shell derivates (csh, tcsh).
 
-  The following special cases are handled:
-  o  If the string contains an apostrophy itself, the apostrophy
-  character is written in quotation marks, e.g. "'".
-  The shell cannot handle the syntax 'doesn\'t', so we close the
-  current argument word, add the apostrophe in quotation marks "",
-  and open a new argument word instead (_ indicate the input
-  string characters):
-   _____   _   _
-  'doesn' "'" 't'
+   The following special cases are handled:
+   o  If the string contains an apostrophy itself, the apostrophy
+   character is written in quotation marks, e.g. "'".
+   The shell cannot handle the syntax 'doesn\'t', so we close the
+   current argument word, add the apostrophe in quotation marks "",
+   and open a new argument word instead (_ indicate the input
+   string characters):
+    _____   _   _
+   'doesn' "'" 't'
 
-  Sequences of apostrophes are combined in one pair of quotation marks:
-  a'''b
-  becomes
-   _  ___  _
-  'a'"'''"'b'
+   Sequences of apostrophes are combined in one pair of quotation marks:
+   a'''b
+   becomes
+    _  ___  _
+   'a'"'''"'b'
 
-  o  If the string contains an exclamation mark (!), the C-Shell
-  interprets it as an event number. Using \! (not within quotation
-  marks or single quotation marks) is a mechanism understood by
-  both Bourne Shell and C-Shell.
+   o  If the string contains an exclamation mark (!), the C-Shell
+   interprets it as an event number. Using \! (not within quotation
+   marks or single quotation marks) is a mechanism understood by
+   both Bourne Shell and C-Shell.
 
-  If a quotation was already started, the argument word is closed
-  first:
-  a!b
+   If a quotation was already started, the argument word is closed
+   first:
+   a!b
 
-  become
-   _  _ _
-  'a'\!'b'
+   become
+    _  _ _
+   'a'\!'b'
 
-  The result buffer must be large enough for the expanded result. A
-  bad case regarding expansion is alternating characters and
-  apostrophes:
+   The result buffer must be large enough for the expanded result. A
+   bad case regarding expansion is alternating characters and
+   apostrophes:
 
-  a'b'c'd'                   (length 8) gets converted to
-  'a'"'"'b'"'"'c'"'"'d'"'"   (length 24)
+   a'b'c'd'                   (length 8) gets converted to
+   'a'"'"'b'"'"'c'"'"'d'"'"   (length 24)
 
-  This is the worst case.
+   This is the worst case.
 
-  Maximum length of the result:
-  1 + 6 * (length(input) + 1) / 2) + 1
+   Maximum length of the result:
+   1 + 6 * (length(input) + 1) / 2) + 1
 
-  => 3 * length(input) + 2
+   => 3 * length(input) + 2
 
-  Explanation:
-  o  leading apostrophe
-  o  one character / apostrophe pair (two characters) can get
-  represented as 6 characters: a' -> a'"'"'
-  o  String terminator (+1)
+   Explanation:
+   o  leading apostrophe
+   o  one character / apostrophe pair (two characters) can get
+   represented as 6 characters: a' -> a'"'"'
+   o  String terminator (+1)
 
-  A result buffer three times the size of the input buffer + 2
-  characters should be safe.
+   A result buffer three times the size of the input buffer + 2
+   characters should be safe.
 
-  References:
-  o  csh-compatible quotation (special handling for '!' etc.), see
-  https://www.grymoire.com/Unix/Csh.html#toc-uh-10
+   References:
+   o  csh-compatible quotation (special handling for '!' etc.), see
+   https://www.grymoire.com/Unix/Csh.html#toc-uh-10
 
-  Return value:
-  Length of the resulting string (not counting the null-terminator),
-  or 0 in case of errors, e.g. result buffer too small
+   Return value:
+   Length of the resulting string (not counting the null-terminator),
+   or 0 in case of errors, e.g. result buffer too small
 
-  Note: this function could possible be used elsewhere within libssh2, but
-  until then it is kept static and in this source file.
-*/
+   Note: this function could possible be used elsewhere within libssh2, but
+   until then it is kept static and in this source file.
+ */
 static size_t shell_quotearg(const char *path,
                              unsigned char *buf, size_t bufsize)
 {
