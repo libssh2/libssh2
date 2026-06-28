@@ -48,8 +48,10 @@
  * mbedTLS backend: Global context handles
  */
 
+#if MBEDTLS_VERSION_NUMBER < 0x04000000
 static mbedtls_entropy_context mbed_entropy;
 static mbedtls_ctr_drbg_context mbed_ctr_drbg;
+#endif
 
 /*******************************************************************/
 /*
@@ -58,8 +60,13 @@ static mbedtls_ctr_drbg_context mbed_ctr_drbg;
 
 void ssh2_crypto_init(void)
 {
-    int ret;
+#if MBEDTLS_VERSION_NUMBER < 0x04000000
+    int ret = 0;
+#endif
 
+    (void)psa_crypto_init();
+
+#if MBEDTLS_VERSION_NUMBER < 0x04000000
     mbedtls_entropy_init(&mbed_entropy);
     mbedtls_ctr_drbg_init(&mbed_ctr_drbg);
 
@@ -68,19 +75,22 @@ void ssh2_crypto_init(void)
                                 &mbed_entropy, NULL, 0);
     if(ret)
         mbedtls_ctr_drbg_free(&mbed_ctr_drbg);
+#endif
 }
 
 void ssh2_crypto_exit(void)
 {
+    mbedtls_psa_crypto_free();
+
+#if MBEDTLS_VERSION_NUMBER < 0x04000000
     mbedtls_ctr_drbg_free(&mbed_ctr_drbg);
     mbedtls_entropy_free(&mbed_entropy);
+#endif
 }
 
 int ssh2_random(unsigned char *buf, size_t len)
 {
-    int ret;
-    ret = mbedtls_ctr_drbg_random(&mbed_ctr_drbg, buf, len);
-    return ret == 0 ? 0 : -1;
+    return psa_generate_random(buf, len) == PSA_SUCCESS ? 0 : -1;
 }
 
 static void mbed_safe_free(void *buf, size_t len)
@@ -177,108 +187,105 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
     return ret == 0 ? 0 : -1;
 }
 
-int ssh2_mbed_hash_init(mbedtls_md_context_t *ctx,
-                        mbedtls_md_type_t md_type,
-                        const unsigned char *key, size_t keylen)
+int ssh2_mbed_hash_init(psa_hash_operation_t *ctx, psa_algorithm_t alg)
 {
-    const mbedtls_md_info_t *md_info;
-    int ret, hmac;
-
-    md_info = mbedtls_md_info_from_type(md_type);
-    if(!md_info)
-        return 0;
-
-    hmac = key ? 1 : 0;
-
-    mbedtls_md_init(ctx);
-    ret = mbedtls_md_setup(ctx, md_info, hmac);
-    if(!ret) {
-        if(hmac)
-            ret = mbedtls_md_hmac_starts(ctx, key, keylen);
-        else
-            ret = mbedtls_md_starts(ctx);
-    }
-
-    return ret == 0 ? 1 : 0;
+    *ctx = psa_hash_operation_init();
+    return psa_hash_setup(ctx, alg) == PSA_SUCCESS;
 }
 
-int ssh2_mbed_hash_final(mbedtls_md_context_t *ctx, unsigned char *hash)
+int ssh2_mbed_hash_final(psa_hash_operation_t *ctx,
+                         unsigned char *hash, size_t len)
 {
-    int ret;
-
-    ret = mbedtls_md_finish(ctx, hash);
-    mbedtls_md_free(ctx);
-
-    return ret == 0 ? 1 : 0;
+    size_t actual_len;
+    return psa_hash_finish(ctx, hash, len, &actual_len) == PSA_SUCCESS;
 }
 
 int ssh2_mbed_hash(const unsigned char *data, size_t datalen,
-                   mbedtls_md_type_t md_type, unsigned char *hash)
+                   psa_algorithm_t alg, unsigned char *hash)
 {
-    const mbedtls_md_info_t *md_info;
-    int ret;
+    size_t actual_len;
+    psa_status_t status;
 
-    md_info = mbedtls_md_info_from_type(md_type);
-    if(!md_info)
-        return 0;
+    status = psa_hash_compute(alg, data, datalen,
+                              hash, PSA_HASH_LENGTH(alg), &actual_len);
 
-    ret = mbedtls_md(md_info, data, datalen, hash);
-
-    return ret == 0 ? 0 : -1;
+    return status == PSA_SUCCESS ? 0 : -1;
 }
 
 int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 {
-    memset(ctx, 0, sizeof(*ctx));
+    ctx->mac = psa_mac_operation_init();
+    ctx->key_id = PSA_KEY_ID_NULL;
+    return 1;
+}
+
+static int mbed_hmac_init(ssh2_hmac_ctx *ctx, psa_algorithm_t alg,
+                          const unsigned char *key, size_t keylen)
+{
+    psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
+    psa_algorithm_t alg_hmac = PSA_ALG_HMAC(alg);
+
+    psa_set_key_usage_flags(&attributes, PSA_KEY_USAGE_SIGN_MESSAGE);
+    psa_set_key_algorithm(&attributes, alg_hmac);
+    psa_set_key_type(&attributes, PSA_KEY_TYPE_HMAC);
+
+    if(psa_import_key(&attributes, key, keylen, &ctx->key_id) != PSA_SUCCESS)
+        return 0;
+
+    if(psa_mac_sign_setup(&ctx->mac, ctx->key_id, alg_hmac) != PSA_SUCCESS) {
+        ssh2_hmac_cleanup(ctx);
+        return 0;
+    }
+
     return 1;
 }
 
 #if LIBSSH2_MD5
 int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    return ssh2_mbed_hash_init(ctx, MBEDTLS_MD_MD5, key, keylen);
+    return mbed_hmac_init(ctx, PSA_ALG_MD5, key, keylen);
 }
 #endif
 
 #if LIBSSH2_HMAC_RIPEMD
 int ssh2_hmac_ripemd160_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    return ssh2_mbed_hash_init(ctx, MBEDTLS_MD_RIPEMD160, key, keylen);
+    return mbed_hmac_init(ctx, PSA_ALG_RIPEMD160, key, keylen);
 }
 #endif
 
 int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    return ssh2_mbed_hash_init(ctx, MBEDTLS_MD_SHA1, key, keylen);
+    return mbed_hmac_init(ctx, PSA_ALG_SHA_1, key, keylen);
 }
 
 int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    return ssh2_mbed_hash_init(ctx, MBEDTLS_MD_SHA256, key, keylen);
+    return mbed_hmac_init(ctx, PSA_ALG_SHA_256, key, keylen);
 }
 
 int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    return ssh2_mbed_hash_init(ctx, MBEDTLS_MD_SHA512, key, keylen);
+    return mbed_hmac_init(ctx, PSA_ALG_SHA_512, key, keylen);
 }
 
 int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
 {
-    int ret = mbedtls_md_hmac_update(ctx, data, datalen);
-
-    return ret == 0 ? 1 : 0;
+    return psa_mac_update(&ctx->mac, data, datalen) == PSA_SUCCESS;
 }
 
-int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *data)
+int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen)
 {
-    int ret = mbedtls_md_hmac_finish(ctx, data);
-
-    return ret == 0 ? 1 : 0;
+    size_t actual_len;
+    return psa_mac_sign_finish(&ctx->mac, mac, maclen,
+                               &actual_len) == PSA_SUCCESS;
 }
 
 void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
 {
-    mbedtls_md_free(ctx);
+    (void)psa_mac_abort(&ctx->mac);
+    psa_destroy_key(ctx->key_id);
+    ctx->key_id = PSA_KEY_ID_NULL;
 }
 
 /*******************************************************************/
@@ -513,17 +520,22 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
     if(!hash)
         return -1;
 
-    if(hash_len == SSH2_SHA1_DIG_LEN)
+    if(hash_len == SSH2_SHA1_DIG_LEN) {
+        ret = ssh2_mbed_hash(m, m_len, PSA_ALG_SHA_1, hash);
         md_type = MBEDTLS_MD_SHA1;
-    else if(hash_len == SSH2_SHA256_DIG_LEN)
+    }
+    else if(hash_len == SSH2_SHA256_DIG_LEN) {
+        ret = ssh2_mbed_hash(m, m_len, PSA_ALG_SHA_256, hash);
         md_type = MBEDTLS_MD_SHA256;
-    else if(hash_len == SSH2_SHA512_DIG_LEN)
+    }
+    else if(hash_len == SSH2_SHA512_DIG_LEN) {
+        ret = ssh2_mbed_hash(m, m_len, PSA_ALG_SHA_512, hash);
         md_type = MBEDTLS_MD_SHA512;
+    }
     else {
         free(hash);
         return -1; /* unsupported digest */
     }
-    ret = ssh2_mbed_hash(m, m_len, md_type, hash);
 
     if(ret) {
         free(hash);

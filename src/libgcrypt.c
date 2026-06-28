@@ -118,14 +118,15 @@ int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
     return 1;
 }
 
-int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *data)
+int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen)
 {
     unsigned char *res = gcry_md_read(*ctx, 0);
+    (void)maclen;
 
     if(!res)
         return 0;
 
-    memcpy(data, res, gcry_md_get_algo_dlen(gcry_md_get_algo(*ctx)));
+    memcpy(mac, res, gcry_md_get_algo_dlen(gcry_md_get_algo(*ctx)));
 
     return 1;
 }
