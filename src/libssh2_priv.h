@@ -238,7 +238,7 @@ struct iovec {
  * padding length, payload, padding, and MAC.)."
  */
 #define MAX_SSH_PACKET_LEN 35000
-#define MAX_SHA_DIGEST_LEN SHA512_DIGEST_LENGTH
+#define MAX_SHA_DIGEST_LEN SSH2_SHA512_DIG_LEN
 
 #define SSH2_ALLOC(session, count) \
     session->alloc(count, &(session)->abstract)
@@ -745,13 +745,13 @@ struct _LIBSSH2_SESSION {
     unsigned char *server_hostkey;
     uint32_t server_hostkey_len;
 #if LIBSSH2_MD5
-    unsigned char server_hostkey_md5[MD5_DIGEST_LENGTH];
+    unsigned char server_hostkey_md5[SSH2_MD5_DIG_LEN];
     int server_hostkey_md5_valid;
 #endif /* !LIBSSH2_MD5 */
-    unsigned char server_hostkey_sha1[SHA_DIGEST_LENGTH];
+    unsigned char server_hostkey_sha1[SSH2_SHA1_DIG_LEN];
     int server_hostkey_sha1_valid;
 
-    unsigned char server_hostkey_sha256[SHA256_DIGEST_LENGTH];
+    unsigned char server_hostkey_sha256[SSH2_SHA256_DIG_LEN];
     int server_hostkey_sha256_valid;
 
     /* public key algorithms accepted as comma separated list */

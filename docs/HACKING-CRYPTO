@@ -81,7 +81,7 @@ Releases the HMAC computation context at ctx.
 3.1) SHA-1
 Must always be implemented.
 
-SHA_DIGEST_LENGTH
+SSH2_SHA1_DIG_LEN
 #define to 20, the SHA-1 digest length.
 
 ssh2_sha1_ctx
@@ -118,7 +118,7 @@ Returns 1 for success and 0 for failure.
 3.2) SHA-256
 Must always be implemented.
 
-SHA256_DIGEST_LENGTH
+SSH2_SHA256_DIG_LEN
 #define to 32, the SHA-256 digest length.
 
 ssh2_sha256_ctx
@@ -137,7 +137,7 @@ this procedure must be implemented as a macro to map ctx --> &ctx.
 Must return 1 for success and 0 for failure.
 
 int ssh2_sha256_final(ssh2_sha256_ctx ctx,
-                      unsigned char output[SHA256_DIGEST_LENGTH]);
+                      unsigned char output[SSH2_SHA256_DIG_LEN]);
 Gets the computed SHA-256 signature from context ctx into the output buffer.
 Release the context.
 Note: if the ctx parameter is modified by the underlying code,
@@ -146,7 +146,7 @@ Must return 1 for success and 0 for failure.
 
 int ssh2_sha256(const unsigned char *message,
                 size_t len,
-                unsigned char output[SHA256_DIGEST_LENGTH]);
+                unsigned char output[SSH2_SHA256_DIG_LEN]);
 Computes the SHA-256 signature over the given message of length len and
 store the result into the output buffer.
 Return 1 if error, else 0.
@@ -166,7 +166,7 @@ Returns 1 for success and 0 for failure.
 3.3) SHA-384
 Mandatory if ECDSA is implemented. Can be omitted otherwise.
 
-SHA384_DIGEST_LENGTH
+SSH2_SHA384_DIG_LEN
 #define to 48, the SHA-384 digest length.
 
 ssh2_sha384_ctx
@@ -185,7 +185,7 @@ this procedure must be implemented as a macro to map ctx --> &ctx.
 Must return 1 for success and 0 for failure.
 
 int ssh2_sha384_final(ssh2_sha384_ctx ctx,
-                      unsigned char output[SHA384_DIGEST_LENGTH]);
+                      unsigned char output[SSH2_SHA384_DIG_LEN]);
 Gets the computed SHA-384 signature from context ctx into the output buffer.
 Release the context.
 Note: if the ctx parameter is modified by the underlying code,
@@ -194,7 +194,7 @@ Must return 1 for success and 0 for failure.
 
 int ssh2_sha384(const unsigned char *message,
                 size_t len,
-                unsigned char output[SHA384_DIGEST_LENGTH]);
+                unsigned char output[SSH2_SHA384_DIG_LEN]);
 Computes the SHA-384 signature over the given message of length len and
 store the result into the output buffer.
 Return 1 if error, else 0.
@@ -202,7 +202,7 @@ Return 1 if error, else 0.
 3.4) SHA-512
 Must always be implemented.
 
-SHA512_DIGEST_LENGTH
+SSH2_SHA512_DIG_LEN
 #define to 64, the SHA-512 digest length.
 
 ssh2_sha512_ctx
@@ -221,7 +221,7 @@ this procedure must be implemented as a macro to map ctx --> &ctx.
 Must return 1 for success and 0 for failure.
 
 int ssh2_sha512_final(ssh2_sha512_ctx ctx,
-                      unsigned char output[SHA512_DIGEST_LENGTH]);
+                      unsigned char output[SSH2_SHA512_DIG_LEN]);
 Gets the computed SHA-512 signature from context ctx into the output buffer.
 Release the context.
 Note: if the ctx parameter is modified by the underlying code,
@@ -230,7 +230,7 @@ Must return 1 for success and 0 for failure.
 
 int ssh2_sha512(const unsigned char *message,
                 size_t len,
-                unsigned char output[SHA512_DIGEST_LENGTH]);
+                unsigned char output[SSH2_SHA512_DIG_LEN]);
 Computes the SHA-512 signature over the given message of length len and
 store the result into the output buffer.
 Return 1 if error, else 0.
@@ -252,7 +252,7 @@ LIBSSH2_MD5
 #define to 1 if the crypto library supports MD5, else 0.
 If defined as 0, the rest of this section can be omitted.
 
-MD5_DIGEST_LENGTH
+SSH2_MD5_DIG_LEN
 #define to 16, the MD5 digest length.
 
 ssh2_md5_ctx
@@ -272,7 +272,7 @@ this procedure must be implemented as a macro to map ctx --> &ctx.
 Must return 1 for success and 0 for failure.
 
 int ssh2_md5_final(ssh2_md5_ctx ctx,
-                   unsigned char output[MD5_DIGEST_LENGTH]);
+                   unsigned char output[SSH2_MD5_DIG_LEN]);
 Gets the computed MD5 signature from context ctx into the output buffer.
 Release the context.
 Note: if the ctx parameter is modified by the underlying code,

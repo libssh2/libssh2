@@ -513,11 +513,11 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
     if(!hash)
         return -1;
 
-    if(hash_len == SHA_DIGEST_LENGTH)
+    if(hash_len == SSH2_SHA1_DIG_LEN)
         md_type = MBEDTLS_MD_SHA1;
-    else if(hash_len == SHA256_DIGEST_LENGTH)
+    else if(hash_len == SSH2_SHA256_DIG_LEN)
         md_type = MBEDTLS_MD_SHA256;
-    else if(hash_len == SHA512_DIGEST_LENGTH)
+    else if(hash_len == SSH2_SHA512_DIG_LEN)
         md_type = MBEDTLS_MD_SHA512;
     else {
         free(hash);
@@ -542,7 +542,7 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return ssh2_rsa_sha2_verify(rsactx, SHA_DIGEST_LENGTH,
+    return ssh2_rsa_sha2_verify(rsactx, SSH2_SHA1_DIG_LEN,
                                 sig, sig_len, m, m_len);
 }
 
@@ -562,11 +562,11 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
         return -1;
 
     ret = 0;
-    if(hash_len == SHA_DIGEST_LENGTH)
+    if(hash_len == SSH2_SHA1_DIG_LEN)
         md_type = MBEDTLS_MD_SHA1;
-    else if(hash_len == SHA256_DIGEST_LENGTH)
+    else if(hash_len == SSH2_SHA256_DIG_LEN)
         md_type = MBEDTLS_MD_SHA256;
-    else if(hash_len == SHA512_DIGEST_LENGTH)
+    else if(hash_len == SSH2_SHA512_DIG_LEN)
         md_type = MBEDTLS_MD_SHA512;
     else {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -975,11 +975,11 @@ cleanup:
 
 #define SSH2_MBED_ECDSA_VERIFY(digest_type)                                   \
     do {                                                                      \
-        unsigned char hsh[SHA##digest_type##_DIGEST_LENGTH];                  \
+        unsigned char hsh[SSH2_SHA##digest_type##_DIG_LEN];                   \
                                                                               \
         if(ssh2_sha##digest_type(m, m_len, hsh) == 0) {                       \
             rc = mbedtls_ecdsa_verify(&ec_ctx->MBEDTLS_PRIVATE(grp), hsh,     \
-                                      SHA##digest_type##_DIGEST_LENGTH,       \
+                                      SSH2_SHA##digest_type##_DIG_LEN,        \
                                       &ec_ctx->MBEDTLS_PRIVATE(Q), &pr, &ps); \
         }                                                                     \
     } while(0)

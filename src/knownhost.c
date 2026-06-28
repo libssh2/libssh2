@@ -422,12 +422,12 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                        plain input to produce a hash to compare with the
                        stored hash.
                     */
-                    unsigned char hash[SHA_DIGEST_LENGTH];
+                    unsigned char hash[SSH2_SHA1_DIG_LEN];
                     ssh2_hmac_ctx ctx;
                     if(!ssh2_hmac_ctx_init(&ctx))
                         break;
 
-                    if(SHA_DIGEST_LENGTH != node->name_len)
+                    if(SSH2_SHA1_DIG_LEN != node->name_len)
                         /* the name hash length must be the sha1 size or
                            we cannot match it */
                         break;
@@ -440,7 +440,7 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                     }
                     ssh2_hmac_cleanup(&ctx);
 
-                    if(!memcmp(hash, node->name, SHA_DIGEST_LENGTH))
+                    if(!memcmp(hash, node->name, SSH2_SHA1_DIG_LEN))
                         /* this is a node we are interested in */
                         match = 1;
                 }

@@ -69,14 +69,6 @@
 
 #include "crypto_config.h"
 
-#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define MD5_DIGEST_LENGTH 16
-#endif
-#define SHA_DIGEST_LENGTH    20
-#define SHA256_DIGEST_LENGTH 32
-#define SHA384_DIGEST_LENGTH 48
-#define SHA512_DIGEST_LENGTH 64
-
 #define ssh2_random(buf, len) (gcry_randomize(buf, len, GCRY_STRONG_RANDOM), 0)
 
 #define ssh2_prepare_iovec(vec, len)  /* Empty. */
@@ -88,7 +80,7 @@
 #define ssh2_sha1_update(ctx, data, len) \
     (gcry_md_write(ctx, data, len), 1)
 #define ssh2_sha1_final(ctx, out) \
-    (memcpy(out, gcry_md_read(ctx, 0), SHA_DIGEST_LENGTH), \
+    (memcpy(out, gcry_md_read(ctx, 0), SSH2_SHA1_DIG_LEN), \
      gcry_md_close(ctx), 1)
 #define ssh2_sha1(message, len, out) \
     (gcry_md_hash_buffer(GCRY_MD_SHA1, out, message, len), 0)
@@ -99,7 +91,7 @@
 #define ssh2_sha256_update(ctx, data, len) \
     (gcry_md_write(ctx, data, len), 1)
 #define ssh2_sha256_final(ctx, out) \
-    (memcpy(out, gcry_md_read(ctx, 0), SHA256_DIGEST_LENGTH), \
+    (memcpy(out, gcry_md_read(ctx, 0), SSH2_SHA256_DIG_LEN), \
      gcry_md_close(ctx), 1)
 #define ssh2_sha256(message, len, out) \
     (gcry_md_hash_buffer(GCRY_MD_SHA256, out, message, len), 0)
@@ -110,7 +102,7 @@
 #define ssh2_sha384_update(ctx, data, len) \
     (gcry_md_write(ctx, data, len), 1)
 #define ssh2_sha384_final(ctx, out) \
-    (memcpy(out, gcry_md_read(ctx, 0), SHA384_DIGEST_LENGTH), \
+    (memcpy(out, gcry_md_read(ctx, 0), SSH2_SHA384_DIG_LEN), \
      gcry_md_close(ctx), 1)
 #define ssh2_sha384(message, len, out) \
     (gcry_md_hash_buffer(GCRY_MD_SHA384, out, message, len), 0)
@@ -121,7 +113,7 @@
 #define ssh2_sha512_update(ctx, data, len) \
     (gcry_md_write(ctx, data, len), 1)
 #define ssh2_sha512_final(ctx, out) \
-    (memcpy(out, gcry_md_read(ctx, 0), SHA512_DIGEST_LENGTH), \
+    (memcpy(out, gcry_md_read(ctx, 0), SSH2_SHA512_DIG_LEN), \
      gcry_md_close(ctx), 1)
 #define ssh2_sha512(message, len, out) \
     (gcry_md_hash_buffer(GCRY_MD_SHA512, out, message, len), 0)
@@ -133,7 +125,7 @@
 #define ssh2_md5_update(ctx, data, len) \
     (gcry_md_write(ctx, data, len), 1)
 #define ssh2_md5_final(ctx, out) \
-    (memcpy(out, gcry_md_read(ctx, 0), MD5_DIGEST_LENGTH), \
+    (memcpy(out, gcry_md_read(ctx, 0), SSH2_MD5_DIG_LEN), \
      gcry_md_close(ctx), 1)
 #endif
 

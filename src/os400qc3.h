@@ -190,11 +190,6 @@
 
 #include "crypto_config.h"
 
-#define SHA_DIGEST_LENGTH    20
-#define SHA256_DIGEST_LENGTH 32
-#define SHA384_DIGEST_LENGTH 48
-#define SHA512_DIGEST_LENGTH 64
-
 /*******************************************************************
  *
  * OS/400 QC3 crypto-library backend: global handles structures.
@@ -258,7 +253,6 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define ssh2_sha512(d, l, out)        ssh2_os400qc3_hash(d, l, out, Qc3_SHA512)
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define MD5_DIGEST_LENGTH             16
 #define ssh2_md5_ctx                  Qc3_Format_ALGD0100_T
 #define ssh2_md5_init(x)              ssh2_os400qc3_hash_init(x, Qc3_MD5)
 #define ssh2_md5_update(ctx, d, l)    ssh2_os400qc3_hash_update(&(ctx), d, l)
