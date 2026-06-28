@@ -763,25 +763,25 @@ int ssh2_ecdsa_curve_name_with_octal_new(ssh2_ecdsa_ctx **ec_ctx,
 }
 
 #ifdef USE_OPENSSL_3
-#define SSH2_OSSL_ECDSA_VERIFY(digest_type)                              \
-    do {                                                                 \
-        unsigned char hash[SHA##digest_type##_DIGEST_LENGTH];            \
-        if(ssh2_sha##digest_type(m, m_len, hash) == 0) {                 \
-            ret = EVP_PKEY_verify_init(ctx);                             \
-            if(ret > 0) {                                                \
-                ret = EVP_PKEY_verify(ctx, der, der_len, hash,           \
-                                      SHA##digest_type##_DIGEST_LENGTH); \
-            }                                                            \
-        }                                                                \
+#define SSH2_OSSL_ECDSA_VERIFY(digest_type)                             \
+    do {                                                                \
+        unsigned char hash[SSH2_SHA##digest_type##_DIG_LEN];            \
+        if(ssh2_sha##digest_type(m, m_len, hash) == 0) {                \
+            ret = EVP_PKEY_verify_init(ctx);                            \
+            if(ret > 0) {                                               \
+                ret = EVP_PKEY_verify(ctx, der, der_len, hash,          \
+                                      SSH2_SHA##digest_type##_DIG_LEN); \
+            }                                                           \
+        }                                                               \
     } while(0)
 #else
-#define SSH2_OSSL_ECDSA_VERIFY(digest_type)                               \
-    do {                                                                  \
-        unsigned char hash[SHA##digest_type##_DIGEST_LENGTH];             \
-        if(ssh2_sha##digest_type(m, m_len, hash) == 0) {                  \
-            ret = ECDSA_do_verify(hash, SHA##digest_type##_DIGEST_LENGTH, \
-                                  ecdsa_sig, ec_key);                     \
-        }                                                                 \
+#define SSH2_OSSL_ECDSA_VERIFY(digest_type)                              \
+    do {                                                                 \
+        unsigned char hash[SSH2_SHA##digest_type##_DIG_LEN];             \
+        if(ssh2_sha##digest_type(m, m_len, hash) == 0) {                 \
+            ret = ECDSA_do_verify(hash, SSH2_SHA##digest_type##_DIG_LEN, \
+                                  ecdsa_sig, ec_key);                    \
+        }                                                                \
     } while(0)
 #endif
 

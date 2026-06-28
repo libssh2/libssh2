@@ -62,7 +62,7 @@
         if(!(value)) {                                                        \
             (value) = SSH2_ALLOC(session,                                     \
                                  (reqlen) +                                   \
-                                 SHA##digest_type##_DIGEST_LENGTH);           \
+                                 SSH2_SHA##digest_type##_DIG_LEN);            \
         }                                                                     \
         if(value)                                                             \
             while(len < (size_t)(reqlen)) {                                   \
@@ -72,7 +72,7 @@
                                            exchange_state->k_value_len) ||    \
                    !ssh2_sha##digest_type##_update(hash,                      \
                                          exchange_state->h_sig_comp,          \
-                                         SHA##digest_type##_DIGEST_LENGTH)) { \
+                                         SSH2_SHA##digest_type##_DIG_LEN)) {  \
                     SSH2_FREE(session, value);                                \
                     (value) = NULL;                                           \
                     break;                                                    \
@@ -99,7 +99,7 @@
                     (value) = NULL;                                           \
                     break;                                                    \
                 }                                                             \
-                len += SHA##digest_type##_DIGEST_LENGTH;                      \
+                len += SSH2_SHA##digest_type##_DIG_LEN;                       \
             }                                                                 \
     } while(0)
 
@@ -1725,7 +1725,7 @@ static int kex_session_hybrid_curve_type(const char *name,
         if(session->hostkey->sig_verify(session, exchange_state->h_sig,       \
                                         exchange_state->h_sig_len,            \
                                         exchange_state->h_sig_comp,           \
-                                        SHA##digest_type##_DIGEST_LENGTH,     \
+                                        SSH2_SHA##digest_type##_DIG_LEN,      \
                                         &session->server_hostkey_abstract)) { \
             rc = -1;                                                          \
         }                                                                     \
@@ -1843,7 +1843,7 @@ static int kex_session_hybrid_curve_type(const char *name,
         if(session->hostkey->sig_verify(session, exchange_state->h_sig,       \
                                         exchange_state->h_sig_len,            \
                                         exchange_state->h_sig_comp,           \
-                                        SHA##digest_type##_DIGEST_LENGTH,     \
+                                        SSH2_SHA##digest_type##_DIG_LEN,      \
                                         &session->server_hostkey_abstract)) { \
             rc = -1;                                                          \
         }                                                                     \

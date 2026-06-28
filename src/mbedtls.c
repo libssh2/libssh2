@@ -975,11 +975,11 @@ cleanup:
 
 #define SSH2_MBED_ECDSA_VERIFY(digest_type)                                   \
     do {                                                                      \
-        unsigned char hsh[SHA##digest_type##_DIGEST_LENGTH];                  \
+        unsigned char hsh[SSH2_SHA##digest_type##_DIG_LEN];                   \
                                                                               \
         if(ssh2_sha##digest_type(m, m_len, hsh) == 0) {                       \
             rc = mbedtls_ecdsa_verify(&ec_ctx->MBEDTLS_PRIVATE(grp), hsh,     \
-                                      SHA##digest_type##_DIGEST_LENGTH,       \
+                                      SSH2_SHA##digest_type##_DIG_LEN,        \
                                       &ec_ctx->MBEDTLS_PRIVATE(Q), &pr, &ps); \
         }                                                                     \
     } while(0)
