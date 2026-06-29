@@ -187,8 +187,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
     return ret == 0 ? 0 : -1;
 }
 
-int ssh2_mbed_hash_init(psa_hash_operation_t *ctx, psa_algorithm_t alg,
-                        const unsigned char *key, size_t keylen)
+int ssh2_mbed_hash_init(psa_hash_operation_t *ctx, psa_algorithm_t alg)
 {
     memset(ctx, 0, sizeof(*ctx));
     return psa_hash_setup(ctx, alg) == PSA_SUCCESS ? 1 : 0;
@@ -219,33 +218,40 @@ int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
     return 1;
 }
 
+static int mbed_hmac_init(psa_hash_operation_t *ctx, psa_algorithm_t alg,
+                          const unsigned char *key, size_t keylen)
+{
+    memset(ctx, 0, sizeof(*ctx));
+    return psa_hash_setup(ctx, alg) == PSA_SUCCESS ? 1 : 0;
+}
+
 #if LIBSSH2_MD5
 int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    return ssh2_mbed_hash_init(ctx, PSA_ALG_MD5, key, keylen);
+    return mbed_hmac_init(ctx, PSA_ALG_MD5, key, keylen);
 }
 #endif
 
 #if LIBSSH2_HMAC_RIPEMD
 int ssh2_hmac_ripemd160_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    return ssh2_mbed_hash_init(ctx, PSA_ALG_RIPEMD160, key, keylen);
+    return mbed_hmac_init(ctx, PSA_ALG_RIPEMD160, key, keylen);
 }
 #endif
 
 int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    return ssh2_mbed_hash_init(ctx, PSA_ALG_SHA_1, key, keylen);
+    return mbed_hmac_init(ctx, PSA_ALG_SHA_1, key, keylen);
 }
 
 int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    return ssh2_mbed_hash_init(ctx, PSA_ALG_SHA_256, key, keylen);
+    return mbed_hmac_init(ctx, PSA_ALG_SHA_256, key, keylen);
 }
 
 int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    return ssh2_mbed_hash_init(ctx, PSA_ALG_SHA_512, key, keylen);
+    return mbed_hmac_init(ctx, PSA_ALG_SHA_512, key, keylen);
 }
 
 int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
