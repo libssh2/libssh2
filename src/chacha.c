@@ -4,6 +4,8 @@
  * Public domain.
  * Copyright not intended 2024.
  *
+ * Source: https://github.com/openssh/openssh-portable/blob/master/chacha.c
+ *
  * SPDX-License-Identifier: SAX-PD-2.0
  */
 
