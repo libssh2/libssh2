@@ -75,7 +75,11 @@
 #define LIBSSH2_MD5 0
 #endif
 
+#if defined(PSA_WANT_ALG_RIPEMD160) && PSA_WANT_ALG_RIPEMD160
 #define LIBSSH2_HMAC_RIPEMD 1
+#else
+#define LIBSSH2_HMAC_RIPEMD 0
+#endif
 #define LIBSSH2_HMAC_SHA256 1
 #define LIBSSH2_HMAC_SHA512 1
 
