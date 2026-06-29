@@ -215,6 +215,7 @@ int ssh2_mbed_hash(const unsigned char *data, size_t datalen,
 int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 {
     ctx->mac = psa_mac_operation_init();
+    ctx->key_id = PSA_KEY_ID_NULL;
     return 1;
 }
 
