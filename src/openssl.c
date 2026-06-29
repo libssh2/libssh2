@@ -2804,19 +2804,18 @@ int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out)
 int ssh2_ossl_hash(const unsigned char *message, size_t len,
                    unsigned char *out, const EVP_MD *digest)
 {
+    int ret = 1; /* error */
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
 
-    if(!ctx)
-        return 1; /* error */
-
-    if(EVP_DigestInit_ex(ctx, digest, NULL)) {
-        EVP_DigestUpdate(ctx, message, len);
-        EVP_DigestFinal_ex(ctx, out, NULL);
+    if(ctx) {
+        if(EVP_DigestInit_ex(ctx, digest, NULL) &&
+           EVP_DigestUpdate(ctx, message, len) &&
+           EVP_DigestFinal_ex(ctx, out, NULL))
+            ret = 0; /* success */
         EVP_MD_CTX_free(ctx);
-        return 0; /* success */
     }
-    EVP_MD_CTX_free(ctx);
-    return 1; /* error */
+
+    return ret;
 }
 
 #if LIBSSH2_ECDSA
