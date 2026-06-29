@@ -233,9 +233,7 @@ static int mbed_hmac_init(ssh2_hmac_ctx *ctx, psa_algorithm_t alg,
 
     ctx->mac = psa_mac_operation_init();
     if(psa_mac_sign_setup(&ctx->mac, ctx->key_id, alg_hmac) != PSA_SUCCESS) {
-        (void)psa_mac_abort(&ctx->mac);
-        psa_destroy_key(ctx->key_id);
-        ctx->key_id = 0;
+        ssh2_hmac_cleanup(ctx);
         return 0;
     }
 
@@ -285,7 +283,9 @@ int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen)
 
 void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
 {
+    (void)psa_mac_abort(&ctx->mac);
     psa_destroy_key(ctx->key_id);
+    ctx->key_id = PSA_KEY_ID_NULL;
 }
 
 /*******************************************************************/
