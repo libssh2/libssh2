@@ -234,10 +234,10 @@ static int mbed_hmac_init(ssh2_hmac_ctx *ctx, psa_algorithm_t alg,
     ctx->mac = psa_mac_operation_init();
     if(psa_mac_sign_setup(&ctx->mac, ctx->key_id, alg_hmac) != PSA_SUCCESS) {
         psa_destroy_key(ctx->key_id);
-        return -1;
+        return 0;
     }
 
-    return 0;
+    return 1;
 }
 
 #if LIBSSH2_MD5
