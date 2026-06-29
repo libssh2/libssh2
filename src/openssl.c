@@ -594,8 +594,8 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
     ctx = EVP_PKEY_CTX_new(dsactx, NULL);
     der_len = i2d_DSA_SIG(dsasig, &der);
 
-    if(ctx && !ssh2_ossl_sha1(m, m_len, hash)) {
-        /* ssh2_ossl_sha1() succeeded */
+    if(ctx && !ssh2_ossl_hash(m, m_len, hash, "sha1")) {
+        /* ssh2_ossl_hash() succeeded */
         if(EVP_PKEY_verify_init(ctx) > 0)
             ret = EVP_PKEY_verify(ctx, der, der_len, hash, SSH2_SHA1_DIG_LEN);
     }
@@ -606,8 +606,8 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
     if(der)
         OPENSSL_clear_free(der, der_len);
 #else
-    if(!ssh2_ossl_sha1(m, m_len, hash))
-        /* ssh2_ossl_sha1() succeeded */
+    if(!ssh2_ossl_hash(m, m_len, hash, "sha1"))
+        /* ssh2_ossl_hash() succeeded */
         ret = DSA_do_verify(hash, SSH2_SHA1_DIG_LEN, dsasig, dsactx);
 #endif
 
