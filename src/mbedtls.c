@@ -190,18 +190,18 @@ int ssh2_mbed_hash_init(psa_hash_operation_t *ctx, psa_algorithm_t alg)
 int ssh2_mbed_hash_final(psa_hash_operation_t *ctx,
                          unsigned char *hash, size_t len)
 {
-    size_t actual_length;
-    return psa_hash_finish(ctx, hash, len, &actual_length) == PSA_SUCCESS ? 1 : 0;
+    size_t actual_len;
+    return psa_hash_finish(ctx, hash, len, &actual_len) == PSA_SUCCESS ? 1 : 0;
 }
 
 int ssh2_mbed_hash(const unsigned char *data, size_t datalen,
                    psa_algorithm_t alg, unsigned char *hash)
 {
-    size_t actual_length;
+    size_t actual_len;
     psa_status_t status;
 
     status = psa_hash_compute(alg, data, datalen,
-                              hash, PSA_HASH_LENGTH(alg), &actual_length);
+                              hash, PSA_HASH_LENGTH(alg), &actual_len);
 
     return status == PSA_SUCCESS ? 0 : -1;
 }
@@ -258,9 +258,9 @@ int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
 
 int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    size_t actual_length;
+    size_t actual_len;
     return psa_hash_finish(ctx, key, keylen,
-                           &actual_length) == PSA_SUCCESS ? 1 : 0;
+                           &actual_len) == PSA_SUCCESS ? 1 : 0;
 }
 
 void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
