@@ -96,6 +96,11 @@
    some kind of server problem. */
 #define SFTP_PACKET_MAXLEN  (256 * 1024)
 
+/* Readdir responses are allowed to exceed SFTP_PACKET_MAXLEN, but must
+   still have a reasonable upper bound to prevent a malicious server from
+   causing unbounded memory allocation (up to ~4 GB for a uint32_t). */
+#define SFTP_READDIR_MAXLEN (16 * 1024 * 1024)
+
 static int sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
                            uint32_t request_id, unsigned char **data,
                            size_t *data_len);
@@ -311,15 +316,27 @@ static int sftp_packet_read(LIBSSH2_SFTP *sftp)
 
             /* make sure we do not proceed if the packet size is unreasonably
                large */
-            if(sftp->partial_len > SFTP_PACKET_MAXLEN &&
-               /* exception: response to SSH_FXP_READDIR request */
-               !(sftp->readdir_state != ssh2_NB_state_idle &&
-                 sftp->readdir_request_id == request_id &&
-                 packet_type == SSH_FXP_NAME)) {
-                libssh2_channel_flush(channel);
-                sftp->packet_header_len = 0;
-                return ssh2_err(session, LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED,
-                                "SFTP packet too large");
+            if(sftp->partial_len > SFTP_PACKET_MAXLEN) {
+                /* exception: response to SSH_FXP_READDIR request gets a
+                   higher (but still bounded) limit */
+                if(sftp->readdir_state != ssh2_NB_state_idle &&
+                   sftp->readdir_request_id == request_id &&
+                   packet_type == SSH_FXP_NAME) {
+                    if(sftp->partial_len > SFTP_READDIR_MAXLEN) {
+                        libssh2_channel_flush(channel);
+                        sftp->packet_header_len = 0;
+                        return ssh2_err(session,
+                                        LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED,
+                                        "SFTP readdir packet too large");
+                    }
+                }
+                else {
+                    libssh2_channel_flush(channel);
+                    sftp->packet_header_len = 0;
+                    return ssh2_err(session,
+                                    LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED,
+                                    "SFTP packet too large");
+                }
             }
 
             if(sftp->partial_len < 5)
@@ -343,9 +360,13 @@ window_adjust:
             recv_window = libssh2_channel_window_read_ex(channel, NULL, NULL);
 
             if(sftp->partial_len > recv_window) {
-                /* ask for twice the data amount we need at once */
+                /* ask for twice the data amount we need at once, but
+                   cap to UINT32_MAX to prevent integer overflow when
+                   partial_len > 2^31 */
+                uint32_t adjust = (sftp->partial_len > UINT32_MAX / 2) ?
+                    UINT32_MAX : sftp->partial_len * 2;
                 rc = ssh2_channel_receive_window_adjust(channel,
-                                                        sftp->partial_len * 2,
+                                                        adjust,
                                                         1, NULL);
                 /* store the state so that we continue with the correct
                    operation at next invoke */
