@@ -224,7 +224,7 @@ static int mbed_hmac_init(ssh2_hmac_ctx *ctx, psa_algorithm_t alg,
     psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
     psa_algorithm_t alg_hmac = PSA_ALG_HMAC(alg);
 
-    psa_set_key_usage_flags(&attributes, PSA_KEY_USAGE_SIGN_HASH);
+    psa_set_key_usage_flags(&attributes, PSA_KEY_USAGE_SIGN_MESSAGE);
     psa_set_key_algorithm(&attributes, alg_hmac);
     psa_set_key_type(&attributes, PSA_KEY_TYPE_HMAC);
 
