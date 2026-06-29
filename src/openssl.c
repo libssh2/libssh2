@@ -2796,6 +2796,7 @@ int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out)
 {
     int ret = EVP_DigestFinal(*ctx, out, NULL);
     EVP_MD_CTX_free(*ctx);
+    *ctx = NULL;
     return ret;
 }
 
