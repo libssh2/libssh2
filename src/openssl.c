@@ -435,7 +435,7 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
                                 m_len);
 }
 #endif
-#endif /* LIBSSH_RSA */
+#endif /* LIBSSH2_RSA */
 
 #if LIBSSH2_DSA
 int ssh2_dsa_new(ssh2_dsa_ctx **dsactx,
@@ -616,7 +616,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
 
     return (ret == 1) ? 0 : -1;
 }
-#endif /* LIBSSH_DSA */
+#endif /* LIBSSH2_DSA */
 
 #if LIBSSH2_ECDSA
 
@@ -1698,7 +1698,7 @@ int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
 
     return rc;
 }
-#endif /* LIBSSH_DSA */
+#endif /* LIBSSH2_DSA */
 
 #if LIBSSH2_ECDSA
 int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
@@ -2674,7 +2674,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
 
     return 0;
 }
-#endif /* LIBSSH_DSA */
+#endif /* LIBSSH2_DSA */
 
 #if LIBSSH2_ECDSA
 
