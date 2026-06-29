@@ -283,7 +283,7 @@ int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen)
 
 void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
 {
-     psa_destroy_key(ctx->key_id);
+    psa_destroy_key(ctx->key_id);
 }
 
 /*******************************************************************/
