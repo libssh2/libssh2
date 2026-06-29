@@ -231,6 +231,7 @@ int ssh2_random(unsigned char *buf, size_t len);
 int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const char *digest);
 int ssh2_ossl_hash_update(EVP_MD_CTX **ctx, const void *data, size_t len);
 int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out);
+/* returns 1 in case of failure */
 int ssh2_ossl_hash(const unsigned char *message, size_t len,
                    unsigned char *out, const char *digest);
 
