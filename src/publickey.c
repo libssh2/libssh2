@@ -1048,15 +1048,14 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 }
 
                 if(list[keys].num_attrs) {
-                    size_t num_attrs = list[keys].num_attrs;
-                    if(num_attrs > 1024) {
+                    if(list[keys].num_attrs > 1024) {
                         ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                  "Too many publickey attributes");
                         goto err_exit;
                     }
                     list[keys].attrs =
                         SSH2_ALLOC(session,
-                                   num_attrs *
+                                   list[keys].num_attrs *
                                        sizeof(libssh2_publickey_attribute));
                     if(!list[keys].attrs) {
                         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
@@ -1064,7 +1063,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                                  "publickey attributes");
                         goto err_exit;
                     }
-                    for(i = 0; i < num_attrs; i++) {
+                    for(i = 0; i < list[keys].num_attrs; i++) {
                         if(pkey->listFetch_s + 4 <=
                            pkey->listFetch_data + pkey->listFetch_data_len) {
                             list[keys].attrs[i].name_len =
