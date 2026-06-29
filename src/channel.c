@@ -267,7 +267,15 @@ LIBSSH2_CHANNEL *ssh2_channel_open(LIBSSH2_SESSION *session,
         }
 
         if(session->open_data[0] == SSH_MSG_CHANNEL_OPEN_FAILURE) {
-            unsigned int reason_code = ssh2_ntohu32(session->open_data + 5);
+            unsigned int reason_code;
+
+            if(session->open_data_len < 9) {
+                _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                               "Unexpected packet size");
+                goto channel_error;
+            }
+
+            reason_code = ssh2_ntohu32(session->open_data + 5);
             switch(reason_code) {
             case SSH_OPEN_ADMINISTRATIVELY_PROHIBITED:
                 ssh2_err(session, LIBSSH2_ERROR_CHANNEL_FAILURE,
