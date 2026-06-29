@@ -2794,7 +2794,7 @@ int ssh2_ossl_hash_update(EVP_MD_CTX **ctx, const void *data, size_t len)
 
 int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out)
 {
-    int ret = EVP_DigestFinal(*ctx, out, NULL);
+    int ret = EVP_DigestFinal_ex(*ctx, out, NULL);
     EVP_MD_CTX_free(*ctx);
     *ctx = NULL;
     return ret;
@@ -2810,7 +2810,7 @@ int ssh2_ossl_hash(const unsigned char *message, size_t len,
 
     if(EVP_DigestInit_ex(ctx, digest, NULL)) {
         EVP_DigestUpdate(ctx, message, len);
-        EVP_DigestFinal(ctx, out, NULL);
+        EVP_DigestFinal_ex(ctx, out, NULL);
         EVP_MD_CTX_free(ctx);
         return 0; /* success */
     }
