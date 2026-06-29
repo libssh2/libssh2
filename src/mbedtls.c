@@ -189,7 +189,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 
 int ssh2_mbed_hash_init(psa_hash_operation_t *ctx, psa_algorithm_t alg)
 {
-    memset(ctx, 0, sizeof(*ctx));
+    *ctx = psa_hash_operation_init();
     return psa_hash_setup(ctx, alg) == PSA_SUCCESS;
 }
 
@@ -214,7 +214,7 @@ int ssh2_mbed_hash(const unsigned char *data, size_t datalen,
 
 int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 {
-    memset(ctx, 0, sizeof(*ctx));
+    ctx->mac = psa_mac_operation_init();
     return 1;
 }
 
@@ -231,7 +231,6 @@ static int mbed_hmac_init(ssh2_hmac_ctx *ctx, psa_algorithm_t alg,
     if(psa_import_key(&attributes, key, keylen, &ctx->key_id) != PSA_SUCCESS)
         return 0;
 
-    ctx->mac = psa_mac_operation_init();
     if(psa_mac_sign_setup(&ctx->mac, ctx->key_id, alg_hmac) != PSA_SUCCESS) {
         ssh2_hmac_cleanup(ctx);
         return 0;
