@@ -374,15 +374,15 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
 
     if(hash_len == SSH2_SHA1_DIG_LEN) {
         nid_type = NID_sha1;
-        ret = ssh2_ossl_sha1(m, m_len, hash);
+        ret = ssh2_ossl_hash(m, m_len, hash, "sha1");
     }
     else if(hash_len == SSH2_SHA256_DIG_LEN) {
         nid_type = NID_sha256;
-        ret = ssh2_ossl_sha256(m, m_len, hash);
+        ret = ssh2_ossl_hash(m, m_len, hash, "sha256");
     }
     else if(hash_len == SSH2_SHA512_DIG_LEN) {
         nid_type = NID_sha512;
-        ret = ssh2_ossl_sha512(m, m_len, hash);
+        ret = ssh2_ossl_hash(m, m_len, hash, "sha512");
     }
     else {
         nid_type = 0;
@@ -2771,7 +2771,7 @@ clean_exit:
 }
 #endif /* LIBSSH2_ECDSA */
 
-int ssh2_ossl_hash_init(ssh2_hash_ctx *ctx, const char *digest)
+int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const char *digest)
 {
     *ctx = EVP_MD_CTX_new();
 
@@ -2787,12 +2787,12 @@ int ssh2_ossl_hash_init(ssh2_hash_ctx *ctx, const char *digest)
     return 0;
 }
 
-int ssh2_ossl_hash_update(ssh2_sha1_ctx *ctx, const void *data, size_t len)
+int ssh2_ossl_hash_update(EVP_MD_CTX **ctx, const void *data, size_t len)
 {
     return EVP_DigestUpdate(*ctx, data, len);
 }
 
-int ssh2_ossl_hash_final(ssh2_sha1_ctx *ctx, unsigned char *out)
+int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out)
 {
     int ret = EVP_DigestFinal(*ctx, out, NULL);
     EVP_MD_CTX_free(*ctx);
