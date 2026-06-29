@@ -1006,7 +1006,6 @@ int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 
 #if LIBSSH2_MD5
 int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
-                       void *key, size_t keylen)
 {
     return os400qc3_hmac_init(ctx, Qc3_MD5, SSH2_MD5_DIG_LEN,
                               key, keylen);
