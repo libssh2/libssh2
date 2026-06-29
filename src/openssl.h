@@ -273,7 +273,8 @@ int ssh2_ossl_hash(const unsigned char *message, size_t len,
 #if !defined(USE_OPENSSL_3) && \
     !defined(LIBRESSL_VERSION_NUMBER) && \
     !defined(LIBSSH2_WOLFSSL)
-#define ssh2_md5_init(x) \  /* OpenSSL 1.1.1 */
+/* OpenSSL 1.1.1 */
+#define ssh2_md5_init(x) \
     (FIPS_mode() ? (*(x) = NULL, 0) : ssh2_ossl_hash_init(x, EVP_md5()))
 #else
 #define ssh2_md5_init(x)            ssh2_ossl_hash_init(x, EVP_md5())
