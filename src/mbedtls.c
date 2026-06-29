@@ -223,18 +223,17 @@ static int mbed_hmac_init(ssh2_hmac_ctx *ctx, psa_algorithm_t alg,
 {
     psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
     psa_algorithm_t alg_hmac = PSA_ALG_HMAC(alg);
-    psa_key_id_t key_id;
 
     psa_set_key_usage_flags(&attributes, PSA_KEY_USAGE_SIGN_HASH);
     psa_set_key_algorithm(&attributes, alg_hmac);
     psa_set_key_type(&attributes, PSA_KEY_TYPE_HMAC);
 
-    if(psa_import_key(&attributes, key, keylen, &key_id) != PSA_SUCCESS)
+    if(psa_import_key(&attributes, key, keylen, &ctx->key_id) != PSA_SUCCESS)
         return 0;
 
-    *ctx = psa_mac_operation_init();
-    if(psa_mac_sign_setup(ctx, key_id, alg_hmac) != PSA_SUCCESS) {
-        psa_destroy_key(key_id);
+    ctx->mac = psa_mac_operation_init();
+    if(psa_mac_sign_setup(&ctx->mac, ctx->key_id, alg_hmac) != PSA_SUCCESS) {
+        psa_destroy_key(ctx->key_id);
         return -1;
     }
 
@@ -272,19 +271,19 @@ int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 
 int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
 {
-    return psa_mac_update(ctx, data, datalen) == PSA_SUCCESS ? 1 : 0;
+    return psa_mac_update(&ctx->mac, data, datalen) == PSA_SUCCESS ? 1 : 0;
 }
 
 int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
     size_t actual_len;
-    return psa_mac_sign_finish(ctx, key, keylen,
+    return psa_mac_sign_finish(&ctx->mac, key, keylen,
                                &actual_len) == PSA_SUCCESS ? 1 : 0;
 }
 
 void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
 {
-    (void)ctx;
+     psa_destroy_key(ctx->key_id);
 }
 
 /*******************************************************************/

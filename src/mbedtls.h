@@ -126,7 +126,12 @@ int ssh2_random(unsigned char *buf, size_t len);
  * mbedTLS backend: HMAC functions
  */
 
-#define ssh2_hmac_ctx psa_mac_operation_t
+struct mbed_hash_ctx {
+    psa_mac_operation_t mac;
+    psa_key_id_t key_id;
+};
+
+#define ssh2_hmac_ctx struct mbed_hash_ctx
 
 /*******************************************************************/
 /*
