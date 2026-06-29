@@ -228,40 +228,40 @@ int ssh2_random(unsigned char *buf, size_t len);
 #define ssh2_prepare_iovec(vec, len)  /* Empty. */
 
 /* returns 0 in case of failure */
-int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const char *digest);
+int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const EVP_MD *digest);
 int ssh2_ossl_hash_update(EVP_MD_CTX **ctx, const void *data, size_t len);
 int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out);
 /* returns 1 in case of failure */
 int ssh2_ossl_hash(const unsigned char *message, size_t len,
-                   unsigned char *out, const char *digest);
+                   unsigned char *out, const EVP_MD *digest);
 
 #define ssh2_sha1_ctx               EVP_MD_CTX *
-#define ssh2_sha1_init(x)           ssh2_ossl_hash_init(x, "sha1")
+#define ssh2_sha1_init(x)           ssh2_ossl_hash_init(x, EVP_sha1())
 #define ssh2_sha1_update(ctx, data, len) \
     ssh2_ossl_hash_update(&(ctx), data, len)
 #define ssh2_sha1_final(ctx, out)   ssh2_ossl_hash_final(&(ctx), out)
-#define ssh2_sha1(x, y, z)          ssh2_ossl_hash(x, y, z, "sha1")
+#define ssh2_sha1(x, y, z)          ssh2_ossl_hash(x, y, z, EVP_sha1())
 
 #define ssh2_sha256_ctx             EVP_MD_CTX *
-#define ssh2_sha256_init(x)         ssh2_ossl_hash_init(x, "sha256")
+#define ssh2_sha256_init(x)         ssh2_ossl_hash_init(x, EVP_sha256())
 #define ssh2_sha256_update(ctx, data, len) \
     ssh2_ossl_hash_update(&(ctx), data, len)
 #define ssh2_sha256_final(ctx, out) ssh2_ossl_hash_final(&(ctx), out)
-#define ssh2_sha256(x, y, z)        ssh2_ossl_hash(x, y, z, "sha256")
+#define ssh2_sha256(x, y, z)        ssh2_ossl_hash(x, y, z, EVP_sha256())
 
 #define ssh2_sha384_ctx             EVP_MD_CTX *
-#define ssh2_sha384_init(x)         ssh2_ossl_hash_init(x, "sha384")
+#define ssh2_sha384_init(x)         ssh2_ossl_hash_init(x, EVP_sha384())
 #define ssh2_sha384_update(ctx, data, len) \
     ssh2_ossl_hash_update(&(ctx), data, len)
 #define ssh2_sha384_final(ctx, out) ssh2_ossl_hash_final(&(ctx), out)
-#define ssh2_sha384(x, y, z)        ssh2_ossl_hash(x, y, z, "sha384")
+#define ssh2_sha384(x, y, z)        ssh2_ossl_hash(x, y, z, EVP_sha384())
 
 #define ssh2_sha512_ctx             EVP_MD_CTX *
-#define ssh2_sha512_init(x)         ssh2_ossl_hash_init(x, "sha512")
+#define ssh2_sha512_init(x)         ssh2_ossl_hash_init(x, EVP_sha512())
 #define ssh2_sha512_update(ctx, data, len) \
     ssh2_ossl_hash_update(&(ctx), data, len)
 #define ssh2_sha512_final(ctx, out) ssh2_ossl_hash_final(&(ctx), out)
-#define ssh2_sha512(x, y, z)        ssh2_ossl_hash(x, y, z, "sha512")
+#define ssh2_sha512(x, y, z)        ssh2_ossl_hash(x, y, z, EVP_sha512())
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #define ssh2_md5_ctx                EVP_MD_CTX *
@@ -274,9 +274,9 @@ int ssh2_ossl_hash(const unsigned char *message, size_t len,
     !defined(LIBRESSL_VERSION_NUMBER) && \
     !defined(LIBSSH2_WOLFSSL)
 #define ssh2_md5_init(x) \  /* OpenSSL 1.1.1 */
-    (FIPS_mode() ? (*(x) = NULL, 0) : ssh2_ossl_hash_init(x, "md5"))
+    (FIPS_mode() ? (*(x) = NULL, 0) : ssh2_ossl_hash_init(x, EVP_md5()))
 #else
-#define ssh2_md5_init(x)            ssh2_ossl_hash_init(x, "md5")
+#define ssh2_md5_init(x)            ssh2_ossl_hash_init(x, EVP_md5())
 #endif
 #define ssh2_md5_update(ctx, data, len) \
     ssh2_ossl_hash_update(&(ctx), data, len)

@@ -374,15 +374,15 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
 
     if(hash_len == SSH2_SHA1_DIG_LEN) {
         nid_type = NID_sha1;
-        ret = ssh2_ossl_hash(m, m_len, hash, "sha1");
+        ret = ssh2_ossl_hash(m, m_len, hash, EVP_sha1());
     }
     else if(hash_len == SSH2_SHA256_DIG_LEN) {
         nid_type = NID_sha256;
-        ret = ssh2_ossl_hash(m, m_len, hash, "sha256");
+        ret = ssh2_ossl_hash(m, m_len, hash, EVP_sha256());
     }
     else if(hash_len == SSH2_SHA512_DIG_LEN) {
         nid_type = NID_sha512;
-        ret = ssh2_ossl_hash(m, m_len, hash, "sha512");
+        ret = ssh2_ossl_hash(m, m_len, hash, EVP_sha512());
     }
     else {
         nid_type = 0;
@@ -594,7 +594,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
     ctx = EVP_PKEY_CTX_new(dsactx, NULL);
     der_len = i2d_DSA_SIG(dsasig, &der);
 
-    if(ctx && !ssh2_ossl_hash(m, m_len, hash, "sha1")) {
+    if(ctx && !ssh2_ossl_hash(m, m_len, hash, EVP_sha1())) {
         /* ssh2_ossl_hash() succeeded */
         if(EVP_PKEY_verify_init(ctx) > 0)
             ret = EVP_PKEY_verify(ctx, der, der_len, hash, SSH2_SHA1_DIG_LEN);
@@ -606,7 +606,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
     if(der)
         OPENSSL_clear_free(der, der_len);
 #else
-    if(!ssh2_ossl_hash(m, m_len, hash, "sha1"))
+    if(!ssh2_ossl_hash(m, m_len, hash, EVP_sha1()))
         /* ssh2_ossl_hash() succeeded */
         ret = DSA_do_verify(hash, SSH2_SHA1_DIG_LEN, dsasig, dsactx);
 #endif
@@ -2771,14 +2771,14 @@ clean_exit:
 }
 #endif /* LIBSSH2_ECDSA */
 
-int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const char *digest)
+int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const EVP_MD *digest)
 {
     *ctx = EVP_MD_CTX_new();
 
     if(!*ctx)
         return 0;
 
-    if(EVP_DigestInit(*ctx, EVP_get_digestbyname(digest)))
+    if(EVP_DigestInit_ex(*ctx, digest, NULL))
         return 1;
 
     EVP_MD_CTX_free(*ctx);
@@ -2801,14 +2801,14 @@ int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out)
 }
 
 int ssh2_ossl_hash(const unsigned char *message, size_t len,
-                   unsigned char *out, const char *digest)
+                   unsigned char *out, const EVP_MD *digest)
 {
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
 
     if(!ctx)
         return 1; /* error */
 
-    if(EVP_DigestInit(ctx, EVP_get_digestbyname(digest))) {
+    if(EVP_DigestInit_ex(ctx, digest, NULL)) {
         EVP_DigestUpdate(ctx, message, len);
         EVP_DigestFinal(ctx, out, NULL);
         EVP_MD_CTX_free(ctx);
