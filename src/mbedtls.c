@@ -490,7 +490,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
                          const unsigned char *m, size_t m_len)
 {
     int ret;
-    psa_algorithm_t md_type;
+    mbedtls_md_type_t md_type;
     unsigned char *hash;
 
     if(sig_len < mbedtls_rsa_get_len(rsactx))
@@ -500,17 +500,22 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
     if(!hash)
         return -1;
 
-    if(hash_len == SSH2_SHA1_DIG_LEN)
+    if(hash_len == SSH2_SHA1_DIG_LEN) {
+        ret = ssh2_mbed_hash(m, m_len, PSA_ALG_SHA_1, hash);
         md_type = MBEDTLS_MD_SHA1;
-    else if(hash_len == SSH2_SHA256_DIG_LEN)
+    }
+    else if(hash_len == SSH2_SHA256_DIG_LEN) {
+        ret = ssh2_mbed_hash(m, m_len, PSA_ALG_SHA_256, hash);
         md_type = MBEDTLS_MD_SHA256;
-    else if(hash_len == SSH2_SHA512_DIG_LEN)
+    }
+    else if(hash_len == SSH2_SHA512_DIG_LEN) {
+        ret = ssh2_mbed_hash(m, m_len, PSA_ALG_SHA_512, hash);
         md_type = MBEDTLS_MD_SHA512;
+    }
     else {
         free(hash);
         return -1; /* unsupported digest */
     }
-    ret = ssh2_mbed_hash(m, m_len, md_type, hash);
 
     if(ret) {
         free(hash);
@@ -541,7 +546,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
     int ret;
     unsigned char *sig;
     size_t sig_len;
-    psa_algorithm_t md_type;
+    mbedtls_md_type_t md_type;
 
     sig_len = mbedtls_rsa_get_len(rsactx);
     sig = SSH2_ALLOC(session, sig_len);
