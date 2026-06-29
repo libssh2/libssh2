@@ -148,7 +148,7 @@ int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen)
 {
     (void)maclen;
 #ifdef USE_OPENSSL_3
-    return EVP_MAC_final(*ctx, mac, NULL, MAX_MACSIZE);
+    return EVP_MAC_final(*ctx, mac, NULL, maclen);
 #else
     return HMAC_Final(*ctx, mac, NULL);
 #endif
