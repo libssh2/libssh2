@@ -374,15 +374,15 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
 
     if(hash_len == SSH2_SHA1_DIG_LEN) {
         nid_type = NID_sha1;
-        ret = ssh2_ossl_sha1(m, m_len, hash);
+        ret = ssh2_ossl_hash(m, m_len, hash, EVP_sha1());
     }
     else if(hash_len == SSH2_SHA256_DIG_LEN) {
         nid_type = NID_sha256;
-        ret = ssh2_ossl_sha256(m, m_len, hash);
+        ret = ssh2_ossl_hash(m, m_len, hash, EVP_sha256());
     }
     else if(hash_len == SSH2_SHA512_DIG_LEN) {
         nid_type = NID_sha512;
-        ret = ssh2_ossl_sha512(m, m_len, hash);
+        ret = ssh2_ossl_hash(m, m_len, hash, EVP_sha512());
     }
     else {
         nid_type = 0;
@@ -594,8 +594,8 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
     ctx = EVP_PKEY_CTX_new(dsactx, NULL);
     der_len = i2d_DSA_SIG(dsasig, &der);
 
-    if(ctx && !ssh2_ossl_sha1(m, m_len, hash)) {
-        /* ssh2_ossl_sha1() succeeded */
+    if(ctx && !ssh2_ossl_hash(m, m_len, hash, EVP_sha1())) {
+        /* ssh2_ossl_hash() succeeded */
         if(EVP_PKEY_verify_init(ctx) > 0)
             ret = EVP_PKEY_verify(ctx, der, der_len, hash, SSH2_SHA1_DIG_LEN);
     }
@@ -606,8 +606,8 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
     if(der)
         OPENSSL_clear_free(der, der_len);
 #else
-    if(!ssh2_ossl_sha1(m, m_len, hash))
-        /* ssh2_ossl_sha1() succeeded */
+    if(!ssh2_ossl_hash(m, m_len, hash, EVP_sha1()))
+        /* ssh2_ossl_hash() succeeded */
         ret = DSA_do_verify(hash, SSH2_SHA1_DIG_LEN, dsasig, dsactx);
 #endif
 
@@ -2771,14 +2771,14 @@ clean_exit:
 }
 #endif /* LIBSSH2_ECDSA */
 
-int ssh2_ossl_sha1_init(ssh2_sha1_ctx *ctx)
+int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const EVP_MD *digest)
 {
     *ctx = EVP_MD_CTX_new();
 
     if(!*ctx)
         return 0;
 
-    if(EVP_DigestInit(*ctx, EVP_get_digestbyname("sha1")))
+    if(EVP_DigestInit_ex(*ctx, digest, NULL))
         return 1;
 
     EVP_MD_CTX_free(*ctx);
@@ -2787,216 +2787,36 @@ int ssh2_ossl_sha1_init(ssh2_sha1_ctx *ctx)
     return 0;
 }
 
-int ssh2_ossl_sha1_update(ssh2_sha1_ctx *ctx, const void *data, size_t len)
+int ssh2_ossl_hash_update(EVP_MD_CTX **ctx, const void *data, size_t len)
 {
     return EVP_DigestUpdate(*ctx, data, len);
 }
 
-int ssh2_ossl_sha1_final(ssh2_sha1_ctx *ctx, unsigned char *out)
+int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out)
 {
-    int ret = EVP_DigestFinal(*ctx, out, NULL);
+    int ret = EVP_DigestFinal_ex(*ctx, out, NULL);
     EVP_MD_CTX_free(*ctx);
+    *ctx = NULL;
     return ret;
 }
 
-int ssh2_ossl_sha1(const unsigned char *message, size_t len,
-                   unsigned char *out)
+int ssh2_ossl_hash(const unsigned char *message, size_t len,
+                   unsigned char *out, const EVP_MD *digest)
 {
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
 
     if(!ctx)
         return 1; /* error */
 
-    if(EVP_DigestInit(ctx, EVP_get_digestbyname("sha1"))) {
+    if(EVP_DigestInit_ex(ctx, digest, NULL)) {
         EVP_DigestUpdate(ctx, message, len);
-        EVP_DigestFinal(ctx, out, NULL);
+        EVP_DigestFinal_ex(ctx, out, NULL);
         EVP_MD_CTX_free(ctx);
         return 0; /* success */
     }
     EVP_MD_CTX_free(ctx);
     return 1; /* error */
 }
-
-int ssh2_ossl_sha256_init(ssh2_sha256_ctx *ctx)
-{
-    *ctx = EVP_MD_CTX_new();
-
-    if(!*ctx)
-        return 0;
-
-    if(EVP_DigestInit(*ctx, EVP_get_digestbyname("sha256")))
-        return 1;
-
-    EVP_MD_CTX_free(*ctx);
-    *ctx = NULL;
-
-    return 0;
-}
-
-int ssh2_ossl_sha256_update(ssh2_sha256_ctx *ctx, const void *data, size_t len)
-{
-    return EVP_DigestUpdate(*ctx, data, len);
-}
-
-int ssh2_ossl_sha256_final(ssh2_sha256_ctx *ctx, unsigned char *out)
-{
-    int ret = EVP_DigestFinal(*ctx, out, NULL);
-    EVP_MD_CTX_free(*ctx);
-    return ret;
-}
-
-int ssh2_ossl_sha256(const unsigned char *message, size_t len,
-                     unsigned char *out)
-{
-    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
-
-    if(!ctx)
-        return 1; /* error */
-
-    if(EVP_DigestInit(ctx, EVP_get_digestbyname("sha256"))) {
-        EVP_DigestUpdate(ctx, message, len);
-        EVP_DigestFinal(ctx, out, NULL);
-        EVP_MD_CTX_free(ctx);
-        return 0; /* success */
-    }
-    EVP_MD_CTX_free(ctx);
-    return 1; /* error */
-}
-
-int ssh2_ossl_sha384_init(ssh2_sha384_ctx *ctx)
-{
-    *ctx = EVP_MD_CTX_new();
-
-    if(!*ctx)
-        return 0;
-
-    if(EVP_DigestInit(*ctx, EVP_get_digestbyname("sha384")))
-        return 1;
-
-    EVP_MD_CTX_free(*ctx);
-    *ctx = NULL;
-
-    return 0;
-}
-
-int ssh2_ossl_sha384_update(ssh2_sha384_ctx *ctx, const void *data, size_t len)
-{
-    return EVP_DigestUpdate(*ctx, data, len);
-}
-
-int ssh2_ossl_sha384_final(ssh2_sha384_ctx *ctx, unsigned char *out)
-{
-    int ret = EVP_DigestFinal(*ctx, out, NULL);
-    EVP_MD_CTX_free(*ctx);
-    return ret;
-}
-
-int ssh2_ossl_sha384(const unsigned char *message, size_t len,
-                     unsigned char *out)
-{
-    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
-
-    if(!ctx)
-        return 1; /* error */
-
-    if(EVP_DigestInit(ctx, EVP_get_digestbyname("sha384"))) {
-        EVP_DigestUpdate(ctx, message, len);
-        EVP_DigestFinal(ctx, out, NULL);
-        EVP_MD_CTX_free(ctx);
-        return 0; /* success */
-    }
-    EVP_MD_CTX_free(ctx);
-    return 1; /* error */
-}
-
-int ssh2_ossl_sha512_init(ssh2_sha512_ctx *ctx)
-{
-    *ctx = EVP_MD_CTX_new();
-
-    if(!*ctx)
-        return 0;
-
-    if(EVP_DigestInit(*ctx, EVP_get_digestbyname("sha512")))
-        return 1;
-
-    EVP_MD_CTX_free(*ctx);
-    *ctx = NULL;
-
-    return 0;
-}
-
-int ssh2_ossl_sha512_update(ssh2_sha512_ctx *ctx, const void *data, size_t len)
-{
-    return EVP_DigestUpdate(*ctx, data, len);
-}
-
-int ssh2_ossl_sha512_final(ssh2_sha512_ctx *ctx, unsigned char *out)
-{
-    int ret = EVP_DigestFinal(*ctx, out, NULL);
-    EVP_MD_CTX_free(*ctx);
-    return ret;
-}
-
-int ssh2_ossl_sha512(const unsigned char *message, size_t len,
-                     unsigned char *out)
-{
-    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
-
-    if(!ctx)
-        return 1; /* error */
-
-    if(EVP_DigestInit(ctx, EVP_get_digestbyname("sha512"))) {
-        EVP_DigestUpdate(ctx, message, len);
-        EVP_DigestFinal(ctx, out, NULL);
-        EVP_MD_CTX_free(ctx);
-        return 0; /* success */
-    }
-    EVP_MD_CTX_free(ctx);
-    return 1; /* error */
-}
-
-#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-int ssh2_ossl_md5_init(ssh2_md5_ctx *ctx)
-{
-    /* MD5 digest is not supported in OpenSSL FIPS mode
-     * Trying to init it results in a latent OpenSSL error:
-     * "digital envelope routines:FIPS_DIGESTINIT:disabled for fips"
-     * Thus, return 0 in FIPS mode
-     */
-#if !defined(USE_OPENSSL_3) && \
-    !defined(LIBRESSL_VERSION_NUMBER) && \
-    !defined(LIBSSH2_WOLFSSL)
-
-    if(FIPS_mode())
-        return 0;
-#endif
-
-    *ctx = EVP_MD_CTX_new();
-
-    if(!*ctx)
-        return 0;
-
-    if(EVP_DigestInit(*ctx, EVP_get_digestbyname("md5")))
-        return 1;
-
-    EVP_MD_CTX_free(*ctx);
-    *ctx = NULL;
-
-    return 0;
-}
-
-int ssh2_ossl_md5_update(ssh2_md5_ctx *ctx, const void *data, size_t len)
-{
-    return EVP_DigestUpdate(*ctx, data, len);
-}
-
-int ssh2_ossl_md5_final(ssh2_md5_ctx *ctx, unsigned char *out)
-{
-    int ret = EVP_DigestFinal(*ctx, out, NULL);
-    EVP_MD_CTX_free(*ctx);
-    return ret;
-}
-#endif
 
 #if LIBSSH2_ECDSA
 
