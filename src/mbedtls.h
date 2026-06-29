@@ -136,7 +136,7 @@ int ssh2_random(unsigned char *buf, size_t len);
 #define ssh2_sha1_ctx psa_hash_operation_t
 
 #define ssh2_sha1_init(pctx) \
-    ssh2_mbed_hash_init(pctx, PSA_ALG_SHA_1)
+    ssh2_mbed_hash_init(pctx, PSA_ALG_SHA_1, NULL, 0)
 #define ssh2_sha1_update(ctx, data, datalen) \
     ((psa_hash_update(&(ctx), (const uint8_t *)(data), \
                       datalen) == PSA_SUCCESS) ? 1 : 0)
@@ -153,7 +153,7 @@ int ssh2_random(unsigned char *buf, size_t len);
 #define ssh2_sha256_ctx psa_hash_operation_t
 
 #define ssh2_sha256_init(pctx) \
-    ssh2_mbed_hash_init(pctx, PSA_ALG_SHA_256)
+    ssh2_mbed_hash_init(pctx, PSA_ALG_SHA_256, NULL, 0)
 #define ssh2_sha256_update(ctx, data, datalen) \
     ((psa_hash_update(&(ctx), (const uint8_t *)(data), \
                       datalen) == PSA_SUCCESS) ? 1 : 0)
@@ -170,7 +170,7 @@ int ssh2_random(unsigned char *buf, size_t len);
 #define ssh2_sha384_ctx psa_hash_operation_t
 
 #define ssh2_sha384_init(pctx) \
-    ssh2_mbed_hash_init(pctx, PSA_ALG_SHA_384)
+    ssh2_mbed_hash_init(pctx, PSA_ALG_SHA_384, NULL, 0)
 #define ssh2_sha384_update(ctx, data, datalen) \
     ((psa_hash_update(&(ctx), (const uint8_t *)(data), \
                       datalen) == PSA_SUCCESS) ? 1 : 0)
@@ -187,7 +187,7 @@ int ssh2_random(unsigned char *buf, size_t len);
 #define ssh2_sha512_ctx psa_hash_operation_t
 
 #define ssh2_sha512_init(pctx) \
-    ssh2_mbed_hash_init(pctx, PSA_ALG_SHA_512)
+    ssh2_mbed_hash_init(pctx, PSA_ALG_SHA_512, NULL, 0)
 #define ssh2_sha512_update(ctx, data, datalen) \
     ((psa_hash_update(&(ctx), (const uint8_t *)(data), \
                       datalen) == PSA_SUCCESS) ? 1 : 0)
@@ -205,7 +205,7 @@ int ssh2_random(unsigned char *buf, size_t len);
 #define ssh2_md5_ctx psa_hash_operation_t
 
 #define ssh2_md5_init(pctx) \
-    ssh2_mbed_hash_init(pctx, PSA_ALG_MD5)
+    ssh2_mbed_hash_init(pctx, PSA_ALG_MD5, NULL, 0)
 #define ssh2_md5_update(ctx, data, datalen) \
     ((psa_hash_update(&(ctx), (const uint8_t *)(data), \
                       datalen) == PSA_SUCCESS) ? 1 : 0)
@@ -213,7 +213,8 @@ int ssh2_random(unsigned char *buf, size_t len);
     ssh2_mbed_hash_final(&(ctx), hash, MD5_DIGEST_LENGTH)
 #endif
 
-int ssh2_mbed_hash_init(psa_hash_operation_t *ctx, psa_algorithm_t alg);
+int ssh2_mbed_hash_init(psa_hash_operation_t *ctx, psa_algorithm_t alg,
+                        const unsigned char *key, size_t keylen);
 int ssh2_mbed_hash_final(psa_hash_operation_t *ctx,
                          unsigned char *hash, size_t len);
 int ssh2_mbed_hash(const unsigned char *data, size_t datalen,
