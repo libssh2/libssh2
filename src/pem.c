@@ -231,8 +231,6 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         }
     }
 
-    *line = '\0';
-
     do {
         if(*line) {
             char *tmp;
