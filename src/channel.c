@@ -270,8 +270,8 @@ LIBSSH2_CHANNEL *ssh2_channel_open(LIBSSH2_SESSION *session,
             unsigned int reason_code;
 
             if(session->open_data_len < 9) {
-                _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                               "Unexpected packet size");
+                ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                         "Unexpected packet size");
                 goto channel_error;
             }
 
