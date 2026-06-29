@@ -143,8 +143,7 @@ struct mbed_hash_ctx {
 #define ssh2_sha1_init(pctx) \
     ssh2_mbed_hash_init(pctx, PSA_ALG_SHA_1)
 #define ssh2_sha1_update(ctx, data, datalen) \
-    ((psa_hash_update(&(ctx), (const uint8_t *)(data), \
-                      datalen) == PSA_SUCCESS) ? 1 : 0)
+    (psa_hash_update(&(ctx), (const uint8_t *)(data), datalen) == PSA_SUCCESS)
 #define ssh2_sha1_final(ctx, hash) \
     ssh2_mbed_hash_final(&(ctx), hash, SHA_DIGEST_LENGTH)
 #define ssh2_sha1(data, datalen, hash) \
@@ -160,8 +159,7 @@ struct mbed_hash_ctx {
 #define ssh2_sha256_init(pctx) \
     ssh2_mbed_hash_init(pctx, PSA_ALG_SHA_256)
 #define ssh2_sha256_update(ctx, data, datalen) \
-    ((psa_hash_update(&(ctx), (const uint8_t *)(data), \
-                      datalen) == PSA_SUCCESS) ? 1 : 0)
+    (psa_hash_update(&(ctx), (const uint8_t *)(data), datalen) == PSA_SUCCESS)
 #define ssh2_sha256_final(ctx, hash) \
     ssh2_mbed_hash_final(&(ctx), hash, SHA256_DIGEST_LENGTH)
 #define ssh2_sha256(data, datalen, hash) \
@@ -177,8 +175,7 @@ struct mbed_hash_ctx {
 #define ssh2_sha384_init(pctx) \
     ssh2_mbed_hash_init(pctx, PSA_ALG_SHA_384)
 #define ssh2_sha384_update(ctx, data, datalen) \
-    ((psa_hash_update(&(ctx), (const uint8_t *)(data), \
-                      datalen) == PSA_SUCCESS) ? 1 : 0)
+    (psa_hash_update(&(ctx), (const uint8_t *)(data), datalen) == PSA_SUCCESS)
 #define ssh2_sha384_final(ctx, hash) \
     ssh2_mbed_hash_final(&(ctx), hash, SHA384_DIGEST_LENGTH)
 #define ssh2_sha384(data, datalen, hash) \
@@ -194,8 +191,7 @@ struct mbed_hash_ctx {
 #define ssh2_sha512_init(pctx) \
     ssh2_mbed_hash_init(pctx, PSA_ALG_SHA_512)
 #define ssh2_sha512_update(ctx, data, datalen) \
-    ((psa_hash_update(&(ctx), (const uint8_t *)(data), \
-                      datalen) == PSA_SUCCESS) ? 1 : 0)
+    (psa_hash_update(&(ctx), (const uint8_t *)(data), datalen) == PSA_SUCCESS)
 #define ssh2_sha512_final(ctx, hash) \
     ssh2_mbed_hash_final(&(ctx), hash, SHA512_DIGEST_LENGTH)
 #define ssh2_sha512(data, datalen, hash) \
@@ -212,8 +208,7 @@ struct mbed_hash_ctx {
 #define ssh2_md5_init(pctx) \
     ssh2_mbed_hash_init(pctx, PSA_ALG_MD5)
 #define ssh2_md5_update(ctx, data, datalen) \
-    ((psa_hash_update(&(ctx), (const uint8_t *)(data), \
-                      datalen) == PSA_SUCCESS) ? 1 : 0)
+    (psa_hash_update(&(ctx), (const uint8_t *)(data), datalen) == PSA_SUCCESS)
 #define ssh2_md5_final(ctx, hash) \
     ssh2_mbed_hash_final(&(ctx), hash, MD5_DIGEST_LENGTH)
 #endif
