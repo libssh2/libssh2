@@ -121,11 +121,12 @@ int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
 int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
     unsigned char *res = gcry_md_read(*ctx, 0);
+    (void)keylen;
 
     if(!res)
         return 0;
 
-    memcpy(key, res, keylen);
+    memcpy(key, res, gcry_md_get_algo_dlen(gcry_md_get_algo(*ctx)));
 
     return 1;
 }
