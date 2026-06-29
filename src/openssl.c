@@ -144,13 +144,13 @@ int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
 #endif
 }
 
-int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
+int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen)
 {
-    (void)keylen;
+    (void)maclen;
 #ifdef USE_OPENSSL_3
-    return EVP_MAC_final(*ctx, key, NULL, MAX_MACSIZE);
+    return EVP_MAC_final(*ctx, mac, NULL, MAX_MACSIZE);
 #else
-    return HMAC_Final(*ctx, key, NULL);
+    return HMAC_Final(*ctx, mac, NULL);
 #endif
 }
 

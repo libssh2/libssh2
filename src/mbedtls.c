@@ -274,10 +274,10 @@ int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
     return psa_mac_update(&ctx->mac, data, datalen) == PSA_SUCCESS ? 1 : 0;
 }
 
-int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
+int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen)
 {
     size_t actual_len;
-    return psa_mac_sign_finish(&ctx->mac, key, keylen,
+    return psa_mac_sign_finish(&ctx->mac, mac, maclen,
                                &actual_len) == PSA_SUCCESS ? 1 : 0;
 }
 

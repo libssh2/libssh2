@@ -1045,17 +1045,17 @@ int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
     return errcode.Bytes_Available ? 0 : 1;
 }
 
-int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
+int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen)
 {
     char data;
     Qus_EC_t errcode;
-    (void)keylen;
+    (void)maclen;
 
     ctx->hash.Final_Op_Flag = Qc3_Final;
     set_EC_length(errcode, sizeof(errcode));
     Qc3CalculateHMAC((char *)data, &zero, Qc3_Data, (char *)&ctx->hash,
                      Qc3_Alg_Token, ctx->key.Key_Context_Token, Qc3_Key_Token,
-                     anycsp, NULL, (char *)key, (char *)&errcode);
+                     anycsp, NULL, (char *)mac, (char *)&errcode);
     return errcode.Bytes_Available ? 0 : 1;
 }
 

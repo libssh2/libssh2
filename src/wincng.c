@@ -838,10 +838,10 @@ int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
     return ret == 0 ? 1 : 0;
 }
 
-int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
+int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen)
 {
-    int ret = BCryptFinishHash(ctx->hHash, key, ctx->cbHash, 0);
-    (void)keylen;
+    int ret = BCryptFinishHash(ctx->hHash, mac, ctx->cbHash, 0);
+    (void)maclen;
 
     return BCRYPT_SUCCESS(ret) ? 1 : 0;
 }
