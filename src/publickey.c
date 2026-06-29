@@ -755,7 +755,7 @@ int libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
 }
 
 /*
- * Fetch a list of supported public key from a server
+ * Fetch a list of supported public keys from a server
  */
 int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                                  unsigned long *num_keys,
