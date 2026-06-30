@@ -990,6 +990,12 @@ static int agent_list_identities(LIBSSH2_AGENT *agent)
         len -= 4;
         s += 4;
 
+        if(identity->external.blob_len > (256 * 1024) ) {
+            rc = LIBSSH2_ERROR_OUT_OF_BOUNDARY;
+            SSH2_FREE(agent->session, identity);
+            goto error;
+        }
+
         /* Read the blob */
         if((size_t)len < identity->external.blob_len) {
             rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
