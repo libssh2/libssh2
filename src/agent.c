@@ -913,7 +913,8 @@ error:
 static int agent_list_identities(LIBSSH2_AGENT *agent)
 {
     struct agent_transaction_ctx *transctx = &agent->transctx;
-    ssize_t len, num_identities;
+    ssize_t len;
+    size_t num_identities;
     unsigned char *s;
     int rc;
     static const unsigned char c = SSH2_AGENTC_REQUEST_IDENTITIES;
@@ -966,6 +967,11 @@ static int agent_list_identities(LIBSSH2_AGENT *agent)
     len -= 4;
     s += 4;
 
+    if(num_identities > 1024) {
+        rc = LIBSSH2_ERROR_OUT_OF_BOUNDARY;
+        goto error;
+    }
+
     while(num_identities--) {
         struct agent_publickey *identity;
         size_t comment_len;
@@ -984,6 +990,11 @@ static int agent_list_identities(LIBSSH2_AGENT *agent)
         len -= 4;
         s += 4;
 
+        if(identity->external.blob_len > (256 * 1024)) {
+            rc = LIBSSH2_ERROR_OUT_OF_BOUNDARY;
+            SSH2_FREE(agent->session, identity);
+            goto error;
+        }
         /* Read the blob */
         if((size_t)len < identity->external.blob_len) {
             rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
@@ -1013,6 +1024,12 @@ static int agent_list_identities(LIBSSH2_AGENT *agent)
         len -= 4;
         s += 4;
 
+        if(comment_len > (64 * 1024)) {
+            rc = LIBSSH2_ERROR_OUT_OF_BOUNDARY;
+            SSH2_FREE(agent->session, identity->external.blob);
+            SSH2_FREE(agent->session, identity);
+            goto error;
+        }
         if(comment_len > (size_t)len) {
             rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
             SSH2_FREE(agent->session, identity->external.blob);
