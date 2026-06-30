@@ -823,6 +823,10 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
                      ssh2_bn *p, int group_order, ssh2_bn_ctx *bnctx)
 {
     (void)bnctx;
+
+    if(group_order <= 0)
+        return -1;
+
     /* Generate x and e */
     gcry_mpi_randomize(*dhctx, group_order * 8 - 1, GCRY_VERY_STRONG_RANDOM);
     gcry_mpi_powm(pub, g, *dhctx, p);
