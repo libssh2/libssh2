@@ -769,8 +769,12 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         }
 
         /* Compute the shared secret */
-        ssh2_dh_secret(&exchange_state->x, exchange_state->k,
-                       exchange_state->f, p, exchange_state->ctx);
+        if(ssh2_dh_secret(&exchange_state->x, exchange_state->k,
+                          exchange_state->f, p, exchange_state->ctx)) {
+            ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+                           "Invalid DH secret parameters");
+            goto clean_exit;
+        }
         exchange_state->k_value_len = ssh2_bn_bytes(exchange_state->k) + 5;
         if(ssh2_bn_bits(exchange_state->k) % 8)
             exchange_state->k_value_len--;  /* do not need leading 00 */
