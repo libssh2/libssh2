@@ -136,10 +136,9 @@ static int publickey_packet_receive(LIBSSH2_PUBLICKEY *pkey,
                             "Invalid response from publickey subsystem");
 
         pkey->receive_packet_len = ssh2_ntohu32(buffer);
-        if(pkey->receive_packet_len > LIBSSH2_PACKET_MAXPAYLOAD) {
+        if(pkey->receive_packet_len > LIBSSH2_PACKET_MAXPAYLOAD)
             return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                             "Too large publickey packet");
-        }
         pkey->receive_packet = SSH2_ALLOC(session, pkey->receive_packet_len);
         if(!pkey->receive_packet)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
