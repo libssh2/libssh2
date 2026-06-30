@@ -31,15 +31,11 @@ reference to the security nature of the commit if done prior to the public
 announcement.
 
 - The person discovering the issue, the reporter, reports the vulnerability
-  privately to `libssh2-security@haxx.se`. That is an email alias that reaches
-  a handful of selected and trusted people.
+  privately via <https://github.com/libssh2/libssh2/security>.
 
 - Messages that do not relate to the reporting or managing of an undisclosed
   security vulnerability in libssh2 are ignored and no further action is
   required.
-
-- A person in the security team sends an email to the original reporter to
-  acknowledge the report.
 
 - The security team investigates the report and either rejects it or accepts
   it.
@@ -137,9 +133,9 @@ that being the end of the world.
 There need to be more and special circumstances to treat such problems as
 security issues.
 
-# LIBSSH2-SECURITY (at haxx dot se)
+# Security team
 
-Who is on this list? There are a couple of criteria you must meet, and then we
+Who is on the team? There are a couple of criteria you must meet, and then we
 might ask you to join the list or you can ask to join it. It really is not
 formal. We only require that you have a long-term presence in the libssh2
 project and you have shown an understanding for the project and its way of
@@ -148,8 +144,3 @@ plans in vanishing in the near future.
 
 We do not make the list of participants public mostly because it tends to vary
 somewhat over time and a list somewhere only risks getting outdated.
-
-# GitHub Private Vulnerability Reporting
-
-We also accept reports via:
-https://github.com/libssh2/libssh2/security
