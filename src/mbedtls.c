@@ -840,8 +840,9 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
         return -1;
 
     /* Generate x and e */
-    mbed_bn_random(*dhctx, (group_order * 8) - 1, 0, -1);
-    mbedtls_mpi_exp_mod(pub, g, *dhctx, p, NULL);
+    if(mbed_bn_random(*dhctx, (group_order * 8) - 1, 0, -1) ||
+       mbedtls_mpi_exp_mod(pub, g, *dhctx, p, NULL))
+        return -1;
     return 0;
 }
 
@@ -850,7 +851,8 @@ int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
 {
     (void)bnctx;
     /* Compute the shared secret */
-    mbedtls_mpi_exp_mod(secret, f, *dhctx, p, NULL);
+    if(mbedtls_mpi_exp_mod(secret, f, *dhctx, p, NULL))
+        return -1;
     return 0;
 }
 
