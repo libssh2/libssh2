@@ -545,7 +545,7 @@ static LIBSSH2_LISTENER *channel_forward_listen(LIBSSH2_SESSION *session,
             SSH2_ALLOC(session, session->fwdLstn_packet_len);
         if(!session->fwdLstn_packet) {
             ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                     "Unable to allocate memory for setenv packet");
+                     "Unable to allocate memory for tcpip-forward packet");
             return NULL;
         }
 
@@ -704,7 +704,8 @@ int ssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
         s = packet = SSH2_ALLOC(session, packet_len);
         if(!packet) {
             ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                     "Unable to allocate memory for setenv packet");
+                     "Unable to allocate memory "
+                     "for cancel-tcpip-forward packet");
             return LIBSSH2_ERROR_ALLOC;
         }
 
@@ -1318,7 +1319,7 @@ static int channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
             SSH2_ALLOC(session, channel->reqX11_packet_len);
         if(!channel->reqX11_packet)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                            "Unable to allocate memory for pty-request");
+                            "Unable to allocate memory for x11-req");
 
         *(s++) = SSH_MSG_CHANNEL_REQUEST;
         ssh2_store_u32(&s, channel->remote.id);
