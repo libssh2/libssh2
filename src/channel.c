@@ -1613,7 +1613,14 @@ int ssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid)
                               channel->local.id, channel->remote.id));
 
                     /* It is one of the streams we wanted to flush */
-                    channel->flush_refund_bytes += packet->data_len - 13;
+                    if(packet_type == SSH_MSG_CHANNEL_EXTENDED_DATA)
+                        /* 13-byte header =
+                           type(1) + channel(4) + streamid(4) + datalen(4) */
+                        channel->flush_refund_bytes += packet->data_len - 13;
+                    else /* SSH_MSG_CHANNEL_DATA */
+                        /* 9-byte header =
+                           type(1) + channel(4) + datalen(4) */
+                        channel->flush_refund_bytes += packet->data_len - 9;
                     channel->flush_flush_bytes += bytes_to_flush;
 
                     SSH2_FREE(channel->session, packet->data);
