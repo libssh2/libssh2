@@ -209,7 +209,6 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
   LTLIB[]NAME=
   INC[]NAME=
   LIB[]NAME[]_PREFIX=
-  rpathdirs=
   names_already_handled=
   names_next_round='$1 $2'
   while test -n "$names_next_round"; do
@@ -241,179 +240,12 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
             :
           fi
         else
-          dnl Search the library lib$name in $additional_libdir and $LDFLAGS
-          dnl and the already constructed $LIBNAME/$LTLIBNAME.
-          found_dir=
-          found_la=
-          found_so=
-          found_a=
-          shrext=
-          if test $use_additional = yes; then
-            dir="$additional_libdir"
-          fi
-          for x in $LDFLAGS $LTLIB[]NAME; do
-            LIBSSH2_WITH_FINAL_PREFIX([eval x=\"$x\"])
-            case "$x" in
-              -L*)
-                dir=`echo "X$x" | sed -e 's/^X-L//'`
-                ;;
-            esac
-            if test "X$found_dir" != "X"; then
-              break
-            fi
-          done
-          if test "X$found_dir" != "X"; then
-            dnl Found the library.
-            LTLIB[]NAME="${LTLIB[]NAME}${LTLIB[]NAME:+ }-L$found_dir -l$name"
-            if test "X$found_so" != "X"; then
-              dnl Linking with a shared library.
-              dnl With no hardcoding.
-              LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }$found_so"
-            else
-              if test "X$found_a" != "X"; then
-                dnl Linking with a static library.
-                LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }$found_a"
-              else
-                dnl We should not come here, but anyway it is good to have a
-                dnl fallback.
-                LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }-L$found_dir -l$name"
-              fi
-            fi
-            dnl Assume the include files are nearby.
-            additional_includedir=
-            case "$found_dir" in
-              */$acl_libdirstem | */$acl_libdirstem/)
-                basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem/"'*$,,'`
-                LIB[]NAME[]_PREFIX="$basedir"
-                additional_includedir="$basedir/include"
-                ;;
-            esac
-            if test "X$additional_includedir" != "X"; then
-              dnl Potentially add $additional_includedir to $INCNAME.
-              dnl But do not add it
-              dnl   1. if it is the standard /usr/include,
-              dnl   2. if it is /usr/local/include and we are using GCC on Linux,
-              dnl   3. if it is already present in $CPPFLAGS or the already
-              dnl      constructed $INCNAME,
-              dnl   4. if it does not exist as a directory.
-              if test "X$additional_includedir" != "X/usr/include"; then
-                haveit=
-                if test "X$additional_includedir" = "X/usr/local/include"; then
-                  if test -n "$GCC"; then
-                    case $host_os in
-                      linux* | gnu* | k*bsd*-gnu) haveit=yes;;
-                    esac
-                  fi
-                fi
-                if test -z "$haveit"; then
-                  for x in $CPPFLAGS $INC[]NAME; do
-                    LIBSSH2_WITH_FINAL_PREFIX([eval x=\"$x\"])
-                    if test "X$x" = "X-I$additional_includedir"; then
-                      haveit=yes
-                      break
-                    fi
-                  done
-                  if test -z "$haveit"; then
-                    if test -d "$additional_includedir"; then
-                      dnl Really add $additional_includedir to $INCNAME.
-                      INC[]NAME="${INC[]NAME}${INC[]NAME:+ }-I$additional_includedir"
-                    fi
-                  fi
-                fi
-              fi
-            fi
-            dnl Look for dependencies.
-            if test -n "$found_la"; then
-              dnl Read the .la file. It defines the variables
-              dnl dlname, library_names, old_library, dependency_libs, current,
-              dnl age, revision, installed, dlopen, dlpreopen, libdir.
-              save_libdir="$libdir"
-              case "$found_la" in
-                */* | *\\*) . "$found_la" ;;
-                *) . "./$found_la" ;;
-              esac
-              libdir="$save_libdir"
-              dnl We use only dependency_libs.
-              for dep in $dependency_libs; do
-                case "$dep" in
-                  -L*)
-                    additional_libdir=`echo "X$dep" | sed -e 's/^X-L//'`
-                    dnl Potentially add $additional_libdir to $LIBNAME and $LTLIBNAME.
-                    dnl But do not add it
-                    dnl   1. if it is the standard /usr/lib,
-                    dnl   2. if it is /usr/local/lib and we are using GCC on Linux,
-                    dnl   3. if it is already present in $LDFLAGS or the already
-                    dnl      constructed $LIBNAME,
-                    dnl   4. if it does not exist as a directory.
-                    if test "X$additional_libdir" != "X/usr/$acl_libdirstem"; then
-                      haveit=
-                      if test "X$additional_libdir" = "X/usr/local/$acl_libdirstem"; then
-                        if test -n "$GCC"; then
-                          case $host_os in
-                            linux* | gnu* | k*bsd*-gnu) haveit=yes;;
-                          esac
-                        fi
-                      fi
-                      if test -z "$haveit"; then
-                        haveit=
-                        for x in $LDFLAGS $LIB[]NAME; do
-                          LIBSSH2_WITH_FINAL_PREFIX([eval x=\"$x\"])
-                          if test "X$x" = "X-L$additional_libdir"; then
-                            haveit=yes
-                            break
-                          fi
-                        done
-                        if test -z "$haveit"; then
-                          if test -d "$additional_libdir"; then
-                            dnl Really add $additional_libdir to $LIBNAME.
-                            LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }-L$additional_libdir"
-                          fi
-                        fi
-                        haveit=
-                        for x in $LDFLAGS $LTLIB[]NAME; do
-                          LIBSSH2_WITH_FINAL_PREFIX([eval x=\"$x\"])
-                          if test "X$x" = "X-L$additional_libdir"; then
-                            haveit=yes
-                            break
-                          fi
-                        done
-                        if test -z "$haveit"; then
-                          if test -d "$additional_libdir"; then
-                            dnl Really add $additional_libdir to $LTLIBNAME.
-                            LTLIB[]NAME="${LTLIB[]NAME}${LTLIB[]NAME:+ }-L$additional_libdir"
-                          fi
-                        fi
-                      fi
-                    fi
-                    ;;
-                  -R*)
-                    ;;
-                  -l*)
-                    dnl Handle this in the next round.
-                    names_next_round="$names_next_round "`echo "X$dep" | sed -e 's/^X-l//'`
-                    ;;
-                  *.la)
-                    dnl Handle this in the next round. Throw away the .la's
-                    dnl directory; it is already contained in a preceding -L
-                    dnl option.
-                    names_next_round="$names_next_round "`echo "X$dep" | sed -e 's,^X.*/,,' -e 's,^lib,,' -e 's,\.la$,,'`
-                    ;;
-                  *)
-                    dnl Most likely an immediate library name.
-                    LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }$dep"
-                    LTLIB[]NAME="${LTLIB[]NAME}${LTLIB[]NAME:+ }$dep"
-                    ;;
-                esac
-              done
-            fi
-          else
-            dnl Did not find the library; assume it is in the system directories
-            dnl known to the linker and runtime loader. (All the system
-            dnl directories known to the linker should also be known to the
-            dnl runtime loader, otherwise the system is severely misconfigured.)
-            LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }-l$name"
-            LTLIB[]NAME="${LTLIB[]NAME}${LTLIB[]NAME:+ }-l$name"
-          fi
+          dnl Did not find the library; assume it is in the system directories
+          dnl known to the linker and runtime loader. (All the system
+          dnl directories known to the linker should also be known to the
+          dnl runtime loader, otherwise the system is severely misconfigured.)
+          LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }-l$name"
+          LTLIB[]NAME="${LTLIB[]NAME}${LTLIB[]NAME:+ }-l$name"
         fi
       fi
     done
