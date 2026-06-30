@@ -60,20 +60,15 @@ static mbedtls_ctr_drbg_context mbed_ctr_drbg;
 
 void ssh2_crypto_init(void)
 {
-#if MBEDTLS_VERSION_NUMBER < 0x04000000
-    int ret = 0;
-#endif
-
     (void)psa_crypto_init();
 
 #if MBEDTLS_VERSION_NUMBER < 0x04000000
     mbedtls_entropy_init(&mbed_entropy);
     mbedtls_ctr_drbg_init(&mbed_ctr_drbg);
 
-    ret = mbedtls_ctr_drbg_seed(&mbed_ctr_drbg,
-                                mbedtls_entropy_func,
-                                &mbed_entropy, NULL, 0);
-    if(ret)
+    if(mbedtls_ctr_drbg_seed(&mbed_ctr_drbg,
+                             mbedtls_entropy_func,
+                             &mbed_entropy, NULL, 0))
         mbedtls_ctr_drbg_free(&mbed_ctr_drbg);
 #endif
 }
