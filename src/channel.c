@@ -1874,7 +1874,7 @@ int ssh2_channel_extended_data(LIBSSH2_CHANNEL *channel, int ignore_mode)
         channel->extData2_state = ssh2_NB_state_created;
     }
 
-    if(channel->extData2_state == ssh2_NB_state_idle) {
+    if(channel->extData2_state == ssh2_NB_state_created) {
         if(ignore_mode == LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE) {
             int rc = ssh2_channel_flush(channel,
                                         LIBSSH2_CHANNEL_FLUSH_EXTENDED_DATA);
