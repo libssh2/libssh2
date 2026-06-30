@@ -352,6 +352,10 @@ const char *ssh2_supported_key_sign_algs(LIBSSH2_SESSION *session,
                                          size_t key_method_len);
 
 void ssh2_dh_init(ssh2_dh_ctx *dhctx);
+int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
+                     ssh2_bn *p, int group_order, ssh2_bn_ctx *bnctx);
+int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
+                   ssh2_bn *p, ssh2_bn_ctx *bnctx);
 void ssh2_dh_dtor(ssh2_dh_ctx *dhctx);
 
 #if LIBSSH2_RSA

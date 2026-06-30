@@ -819,18 +819,20 @@ void ssh2_dh_init(ssh2_dh_ctx *dhctx)
     *dhctx = gcry_mpi_new(0);                   /* Random from client */
 }
 
-int ssh2_lgcr_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
-                          ssh2_bn *p, int group_order)
+int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
+                     ssh2_bn *p, int group_order, ssh2_bn_ctx *bnctx)
 {
+    (void)bnctx;
     /* Generate x and e */
     gcry_mpi_randomize(*dhctx, group_order * 8 - 1, GCRY_VERY_STRONG_RANDOM);
     gcry_mpi_powm(pub, g, *dhctx, p);
     return 0;
 }
 
-int ssh2_lgcr_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
-                        ssh2_bn *p)
+int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
+                   ssh2_bn *p, ssh2_bn_ctx *bnctx)
 {
+    (void)bnctx;
     /* Compute the shared secret */
     gcry_mpi_powm(secret, f, *dhctx, p);
     return 0;
