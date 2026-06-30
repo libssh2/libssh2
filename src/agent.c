@@ -946,8 +946,7 @@ static int agent_list_identities(LIBSSH2_AGENT *agent)
 
     len = transctx->response_len;
     s = transctx->response;
-    len--;
-    if(len < 0) {
+    if(len < 1) {
         rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
         goto error;
     }
@@ -955,15 +954,16 @@ static int agent_list_identities(LIBSSH2_AGENT *agent)
         rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
         goto error;
     }
+    len--;
     s++;
 
     /* Read the length of identities */
-    len -= 4;
-    if(len < 0) {
+    if(len < 4) {
         rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
         goto error;
     }
     num_identities = ssh2_ntohu32(s);
+    len -= 4;
     s += 4;
 
     while(num_identities--) {
@@ -971,8 +971,7 @@ static int agent_list_identities(LIBSSH2_AGENT *agent)
         size_t comment_len;
 
         /* Read the length of the blob */
-        len -= 4;
-        if(len < 0) {
+        if(len < 4) {
             rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
             goto error;
         }
@@ -982,11 +981,11 @@ static int agent_list_identities(LIBSSH2_AGENT *agent)
             goto error;
         }
         identity->external.blob_len = ssh2_ntohu32(s);
+        len -= 4;
         s += 4;
 
         /* Read the blob */
-        len -= identity->external.blob_len;
-        if(len < 0) {
+        if((size_t)len < identity->external.blob_len) {
             rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
             SSH2_FREE(agent->session, identity);
             goto error;
@@ -1000,17 +999,18 @@ static int agent_list_identities(LIBSSH2_AGENT *agent)
             goto error;
         }
         memcpy(identity->external.blob, s, identity->external.blob_len);
+        len -= identity->external.blob_len;
         s += identity->external.blob_len;
 
         /* Read the length of the comment */
-        len -= 4;
-        if(len < 0) {
+        if(len < 4) {
             rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
             SSH2_FREE(agent->session, identity->external.blob);
             SSH2_FREE(agent->session, identity);
             goto error;
         }
         comment_len = ssh2_ntohu32(s);
+        len -= 4;
         s += 4;
 
         if(comment_len > (size_t)len) {
