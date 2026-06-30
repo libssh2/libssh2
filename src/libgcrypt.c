@@ -828,7 +828,7 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
         return -1;
 
     /* Generate x and e */
-    gcry_mpi_randomize(*dhctx, group_order * 8 - 1, GCRY_VERY_STRONG_RANDOM);
+    gcry_mpi_randomize(*dhctx, (group_order * 8) - 1, GCRY_VERY_STRONG_RANDOM);
     gcry_mpi_powm(pub, g, *dhctx, p);
     return 0;
 }
