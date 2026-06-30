@@ -87,7 +87,6 @@ dnl was found in ${LIB${NAME}_PREFIX}/$acl_libdirstem.
 AC_DEFUN([LIBSSH2_LINKFLAGS],
 [
   AC_REQUIRE([LIBSSH2_PREPARE_PREFIX])
-  AC_REQUIRE([LIBSSH2_RPATH])
   define([Name],[translit([$1],[./-], [___])])
   define([NAME],[translit([$1],[abcdefghijklmnopqrstuvwxyz./-],
                                [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
@@ -126,7 +125,6 @@ dnl was found in ${LIB${NAME}_PREFIX}/$acl_libdirstem.
 AC_DEFUN([LIBSSH2_HAVE_LINKFLAGS],
 [
   AC_REQUIRE([LIBSSH2_PREPARE_PREFIX])
-  AC_REQUIRE([LIBSSH2_RPATH])
   define([Name],[translit([$1],[./-], [___])])
   define([NAME],[translit([$1],[abcdefghijklmnopqrstuvwxyz./-],
                                [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
@@ -167,40 +165,6 @@ AC_DEFUN([LIBSSH2_HAVE_LINKFLAGS],
   AC_SUBST([LIB]NAME[_PREFIX])
   undefine([Name])
   undefine([NAME])
-])
-
-dnl Determine the platform dependent parameters needed to use rpath:
-dnl   acl_libext,
-dnl   acl_shlibext,
-dnl   acl_hardcode_libdir_flag_spec,
-dnl   acl_hardcode_libdir_separator,
-dnl   acl_hardcode_direct,
-dnl   acl_hardcode_minus_L.
-AC_DEFUN([LIBSSH2_RPATH],
-[
-  AC_REQUIRE([AC_PROG_CC])                dnl we use $CC, $GCC, $LDFLAGS
-  AC_REQUIRE([AC_CANONICAL_HOST])         dnl we use $host
-  AC_REQUIRE([AC_CONFIG_AUX_DIR_DEFAULT]) dnl we use $ac_aux_dir
-  AC_CACHE_CHECK([for shared library run path origin], acl_cv_rpath, [
-    CC="$CC" GCC="$GCC" LDFLAGS="$LDFLAGS" \
-    ${CONFIG_SHELL-/bin/sh} "$ac_aux_dir/config.rpath" "$host" > conftest.sh
-    . ./conftest.sh
-    rm -f ./conftest.sh
-    acl_cv_rpath=done
-  ])
-  wl="$acl_cv_wl"
-  acl_libext="$acl_cv_libext"
-  acl_shlibext="$acl_cv_shlibext"
-  acl_libname_spec="$acl_cv_libname_spec"
-  acl_library_names_spec="$acl_cv_library_names_spec"
-  acl_hardcode_libdir_flag_spec="$acl_cv_hardcode_libdir_flag_spec"
-  acl_hardcode_libdir_separator="$acl_cv_hardcode_libdir_separator"
-  acl_hardcode_direct="$acl_cv_hardcode_direct"
-  acl_hardcode_minus_L="$acl_cv_hardcode_minus_L"
-  dnl Determine whether the user wants rpath handling at all.
-  AC_ARG_ENABLE(rpath,
-    [  --disable-rpath         do not hardcode runtime library paths],
-    :, enable_rpath=yes)
 ])
 
 dnl LIBSSH2_LINKFLAGS_BODY(name [, dependencies]) searches for libname and
@@ -246,7 +210,6 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
   INC[]NAME=
   LIB[]NAME[]_PREFIX=
   rpathdirs=
-  ltrpathdirs=
   names_already_handled=
   names_next_round='$1 $2'
   while test -n "$names_next_round"; do
@@ -284,189 +247,28 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
           found_la=
           found_so=
           found_a=
-          eval libname=\"$acl_libname_spec\"    # typically: libname=lib$name
-          if test -n "$acl_shlibext"; then
-            shrext=".$acl_shlibext"             # typically: shrext=.so
-          else
-            shrext=
-          fi
+          shrext=
           if test $use_additional = yes; then
             dir="$additional_libdir"
-            dnl The same code as in the loop below:
-            dnl First look for a shared library.
-            if test -n "$acl_shlibext"; then
-              if test -f "$dir/$libname$shrext"; then
-                found_dir="$dir"
-                found_so="$dir/$libname$shrext"
-              else
-                if test "$acl_library_names_spec" = '$libname$shrext$versuffix'; then
-                  ver=`(cd "$dir" && \
-                        for f in "$libname$shrext".*; do echo "$f"; done \
-                        | sed -e "s,^$libname$shrext\\\\.,," \
-                        | sort -t '.' -n -r -k1,1 -k2,2 -k3,3 -k4,4 -k5,5 \
-                        | sed 1q ) 2>/dev/null`
-                  if test -n "$ver" && test -f "$dir/$libname$shrext.$ver"; then
-                    found_dir="$dir"
-                    found_so="$dir/$libname$shrext.$ver"
-                  fi
-                else
-                  eval library_names=\"$acl_library_names_spec\"
-                  for f in $library_names; do
-                    if test -f "$dir/$f"; then
-                      found_dir="$dir"
-                      found_so="$dir/$f"
-                      break
-                    fi
-                  done
-                fi
-              fi
-            fi
-            dnl Then look for a static library.
-            if test "X$found_dir" = "X"; then
-              if test -f "$dir/$libname.$acl_libext"; then
-                found_dir="$dir"
-                found_a="$dir/$libname.$acl_libext"
-              fi
-            fi
+          fi
+          for x in $LDFLAGS $LTLIB[]NAME; do
+            LIBSSH2_WITH_FINAL_PREFIX([eval x=\"$x\"])
+            case "$x" in
+              -L*)
+                dir=`echo "X$x" | sed -e 's/^X-L//'`
+                ;;
+            esac
             if test "X$found_dir" != "X"; then
-              if test -f "$dir/$libname.la"; then
-                found_la="$dir/$libname.la"
-              fi
+              break
             fi
-          fi
-          if test "X$found_dir" = "X"; then
-            for x in $LDFLAGS $LTLIB[]NAME; do
-              LIBSSH2_WITH_FINAL_PREFIX([eval x=\"$x\"])
-              case "$x" in
-                -L*)
-                  dir=`echo "X$x" | sed -e 's/^X-L//'`
-                  dnl First look for a shared library.
-                  if test -n "$acl_shlibext"; then
-                    if test -f "$dir/$libname$shrext"; then
-                      found_dir="$dir"
-                      found_so="$dir/$libname$shrext"
-                    else
-                      if test "$acl_library_names_spec" = '$libname$shrext$versuffix'; then
-                        ver=`(cd "$dir" && \
-                              for f in "$libname$shrext".*; do echo "$f"; done \
-                              | sed -e "s,^$libname$shrext\\\\.,," \
-                              | sort -t '.' -n -r -k1,1 -k2,2 -k3,3 -k4,4 -k5,5 \
-                              | sed 1q ) 2>/dev/null`
-                        if test -n "$ver" && test -f "$dir/$libname$shrext.$ver"; then
-                          found_dir="$dir"
-                          found_so="$dir/$libname$shrext.$ver"
-                        fi
-                      else
-                        eval library_names=\"$acl_library_names_spec\"
-                        for f in $library_names; do
-                          if test -f "$dir/$f"; then
-                            found_dir="$dir"
-                            found_so="$dir/$f"
-                            break
-                          fi
-                        done
-                      fi
-                    fi
-                  fi
-                  dnl Then look for a static library.
-                  if test "X$found_dir" = "X"; then
-                    if test -f "$dir/$libname.$acl_libext"; then
-                      found_dir="$dir"
-                      found_a="$dir/$libname.$acl_libext"
-                    fi
-                  fi
-                  if test "X$found_dir" != "X"; then
-                    if test -f "$dir/$libname.la"; then
-                      found_la="$dir/$libname.la"
-                    fi
-                  fi
-                  ;;
-              esac
-              if test "X$found_dir" != "X"; then
-                break
-              fi
-            done
-          fi
+          done
           if test "X$found_dir" != "X"; then
             dnl Found the library.
             LTLIB[]NAME="${LTLIB[]NAME}${LTLIB[]NAME:+ }-L$found_dir -l$name"
             if test "X$found_so" != "X"; then
-              dnl Linking with a shared library. We attempt to hardcode its
-              dnl directory into the executable's runpath, unless it is the
-              dnl standard /usr/lib.
-              if test "$enable_rpath" = no || test "X$found_dir" = "X/usr/$acl_libdirstem"; then
-                dnl No hardcoding is needed.
-                LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }$found_so"
-              else
-                dnl Use an explicit option to hardcode DIR into the resulting
-                dnl binary.
-                dnl Potentially add DIR to ltrpathdirs.
-                dnl The ltrpathdirs is appended to $LTLIBNAME at the end.
-                haveit=
-                for x in $ltrpathdirs; do
-                  if test "X$x" = "X$found_dir"; then
-                    haveit=yes
-                    break
-                  fi
-                done
-                if test -z "$haveit"; then
-                  ltrpathdirs="$ltrpathdirs $found_dir"
-                fi
-                dnl The hardcoding into $LIBNAME is system dependent.
-                if test "$acl_hardcode_direct" = yes; then
-                  dnl Using DIR/libNAME.so during linking hardcodes DIR into the
-                  dnl resulting binary.
-                  LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }$found_so"
-                else
-                  if test -n "$acl_hardcode_libdir_flag_spec" && test "$acl_hardcode_minus_L" = no; then
-                    dnl Use an explicit option to hardcode DIR into the resulting
-                    dnl binary.
-                    LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }$found_so"
-                    dnl Potentially add DIR to rpathdirs.
-                    dnl The rpathdirs is appended to $LIBNAME at the end.
-                    haveit=
-                    for x in $rpathdirs; do
-                      if test "X$x" = "X$found_dir"; then
-                        haveit=yes
-                        break
-                      fi
-                    done
-                    if test -z "$haveit"; then
-                      rpathdirs="$rpathdirs $found_dir"
-                    fi
-                  else
-                    dnl Rely on "-L$found_dir".
-                    dnl But do not add it if it is already contained in the LDFLAGS
-                    dnl or the already constructed $LIBNAME
-                    haveit=
-                    for x in $LDFLAGS $LIB[]NAME; do
-                      LIBSSH2_WITH_FINAL_PREFIX([eval x=\"$x\"])
-                      if test "X$x" = "X-L$found_dir"; then
-                        haveit=yes
-                        break
-                      fi
-                    done
-                    if test -z "$haveit"; then
-                      LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }-L$found_dir"
-                    fi
-                    if test "$acl_hardcode_minus_L" != no; then
-                      dnl FIXME: Not sure whether we should use
-                      dnl "-L$found_dir -l$name" or "-L$found_dir $found_so"
-                      dnl here.
-                      LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }$found_so"
-                    else
-                      dnl We cannot use $acl_hardcode_runpath_var and LD_RUN_PATH
-                      dnl here, because this does not fit in flags passed to the
-                      dnl compiler. So give up. No hardcoding. This affects only
-                      dnl old systems.
-                      dnl FIXME: Not sure whether we should use
-                      dnl "-L$found_dir -l$name" or "-L$found_dir $found_so"
-                      dnl here.
-                      LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }-l$name"
-                    fi
-                  fi
-                fi
-              fi
+              dnl Linking with a shared library.
+              dnl With no hardcoding.
+              LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }$found_so"
             else
               if test "X$found_a" != "X"; then
                 dnl Linking with a static library.
@@ -585,33 +387,6 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
                     fi
                     ;;
                   -R*)
-                    dir=`echo "X$dep" | sed -e 's/^X-R//'`
-                    if test "$enable_rpath" != no; then
-                      dnl Potentially add DIR to rpathdirs.
-                      dnl The rpathdirs is appended to $LIBNAME at the end.
-                      haveit=
-                      for x in $rpathdirs; do
-                        if test "X$x" = "X$dir"; then
-                          haveit=yes
-                          break
-                        fi
-                      done
-                      if test -z "$haveit"; then
-                        rpathdirs="$rpathdirs $dir"
-                      fi
-                      dnl Potentially add DIR to ltrpathdirs.
-                      dnl The ltrpathdirs is appended to $LTLIBNAME at the end.
-                      haveit=
-                      for x in $ltrpathdirs; do
-                        if test "X$x" = "X$dir"; then
-                          haveit=yes
-                          break
-                        fi
-                      done
-                      if test -z "$haveit"; then
-                        ltrpathdirs="$ltrpathdirs $dir"
-                      fi
-                    fi
                     ;;
                   -l*)
                     dnl Handle this in the next round.
@@ -643,39 +418,6 @@ AC_DEFUN([LIBSSH2_LINKFLAGS_BODY],
       fi
     done
   done
-  if test "X$rpathdirs" != "X"; then
-    if test -n "$acl_hardcode_libdir_separator"; then
-      dnl Weird platform: only the last -rpath option counts, the user must
-      dnl pass all path elements in one option. We can arrange that for a
-      dnl single library, but not when more than one $LIBNAMEs are used.
-      alldirs=
-      for found_dir in $rpathdirs; do
-        alldirs="${alldirs}${alldirs:+$acl_hardcode_libdir_separator}$found_dir"
-      done
-      dnl Note: acl_hardcode_libdir_flag_spec uses $libdir and $wl.
-      acl_save_libdir="$libdir"
-      libdir="$alldirs"
-      eval flag=\"$acl_hardcode_libdir_flag_spec\"
-      libdir="$acl_save_libdir"
-      LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }$flag"
-    else
-      dnl The -rpath options are cumulative.
-      for found_dir in $rpathdirs; do
-        acl_save_libdir="$libdir"
-        libdir="$found_dir"
-        eval flag=\"$acl_hardcode_libdir_flag_spec\"
-        libdir="$acl_save_libdir"
-        LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }$flag"
-      done
-    fi
-  fi
-  if test "X$ltrpathdirs" != "X"; then
-    dnl When using libtool, the option that works for both libraries and
-    dnl executables is -R. The -R options are cumulative.
-    for found_dir in $ltrpathdirs; do
-      LTLIB[]NAME="${LTLIB[]NAME}${LTLIB[]NAME:+ }-R$found_dir"
-    done
-  fi
 ])
 
 dnl LIBSSH2_APPENDTOVAR(VAR, CONTENTS) appends the elements of CONTENTS to VAR,
@@ -697,80 +439,4 @@ AC_DEFUN([LIBSSH2_APPENDTOVAR],
       [$1]="${[$1]}${[$1]:+ }$element"
     fi
   done
-])
-
-dnl For those cases where a variable contains several -L and -l options
-dnl referring to unknown libraries and directories, this macro determines the
-dnl necessary additional linker options for the runtime path.
-dnl LIBSSH2_LINKFLAGS_FROM_LIBS([LDADDVAR], [LIBSVALUE], [USE-LIBTOOL])
-dnl sets LDADDVAR to linker options needed together with LIBSVALUE.
-dnl If USE-LIBTOOL evaluates to non-empty, linking with libtool is assumed,
-dnl otherwise linking without libtool is assumed.
-AC_DEFUN([LIBSSH2_LINKFLAGS_FROM_LIBS],
-[
-  AC_REQUIRE([LIBSSH2_RPATH])
-  AC_REQUIRE([LIBSSH2_PREPARE_MULTILIB])
-  $1=
-  if test "$enable_rpath" != no; then
-    if test -n "$acl_hardcode_libdir_flag_spec" && test "$acl_hardcode_minus_L" = no; then
-      dnl Use an explicit option to hardcode directories into the resulting
-      dnl binary.
-      rpathdirs=
-      next=
-      for opt in $2; do
-        if test -n "$next"; then
-          dir="$next"
-          dnl No need to hardcode the standard /usr/lib.
-          if test "X$dir" != "X/usr/$acl_libdirstem"; then
-            rpathdirs="$rpathdirs $dir"
-          fi
-          next=
-        else
-          case $opt in
-            -L) next=yes ;;
-            -L*) dir=`echo "X$opt" | sed -e 's,^X-L,,'`
-                 dnl No need to hardcode the standard /usr/lib.
-                 if test "X$dir" != "X/usr/$acl_libdirstem"; then
-                   rpathdirs="$rpathdirs $dir"
-                 fi
-                 next= ;;
-            *) next= ;;
-          esac
-        fi
-      done
-      if test "X$rpathdirs" != "X"; then
-        if test -n ""$3""; then
-          dnl libtool is used for linking. Use -R options.
-          for dir in $rpathdirs; do
-            $1="${$1}${$1:+ }-R$dir"
-          done
-        else
-          dnl The linker is used for linking directly.
-          if test -n "$acl_hardcode_libdir_separator"; then
-            dnl Weird platform: only the last -rpath option counts, the user
-            dnl must pass all path elements in one option.
-            alldirs=
-            for dir in $rpathdirs; do
-              alldirs="${alldirs}${alldirs:+$acl_hardcode_libdir_separator}$dir"
-            done
-            acl_save_libdir="$libdir"
-            libdir="$alldirs"
-            eval flag=\"$acl_hardcode_libdir_flag_spec\"
-            libdir="$acl_save_libdir"
-            $1="$flag"
-          else
-            dnl The -rpath options are cumulative.
-            for dir in $rpathdirs; do
-              acl_save_libdir="$libdir"
-              libdir="$dir"
-              eval flag=\"$acl_hardcode_libdir_flag_spec\"
-              libdir="$acl_save_libdir"
-              $1="${$1}${$1:+ }$flag"
-            done
-          fi
-        fi
-      fi
-    fi
-  fi
-  AC_SUBST([$1])
 ])
