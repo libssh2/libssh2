@@ -236,9 +236,11 @@ static int publickey_response_success(LIBSSH2_PUBLICKEY *pkey)
             /* Error, or processing complete */
             unsigned long status = 0;
 
-            if(data_len < 8)
+            if(data_len < 8) {
+                SSH2_FREE(session, data);
                 return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                 "Publickey response too small");
+            }
 
             status = ssh2_ntohu32(s);
 
