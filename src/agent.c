@@ -410,7 +410,8 @@ static int agent_transact_openssh(LIBSSH2_AGENT *agent,
         transctx->response = SSH2_ALLOC(agent->session,
                                         transctx->response_len);
         if(!transctx->response)
-            return LIBSSH2_ERROR_ALLOC;
+            return ssh2_err(agent->session, LIBSSH2_ERROR_ALLOC,
+                            "agent malloc failed");
 
         transctx->state = agent_NB_state_response_length_received;
     }
@@ -584,7 +585,8 @@ static int agent_transact_unix(LIBSSH2_AGENT *agent,
         transctx->response = SSH2_ALLOC(agent->session,
                                         transctx->response_len);
         if(!transctx->response)
-            return LIBSSH2_ERROR_ALLOC;
+            return ssh2_err(agent->session, LIBSSH2_ERROR_ALLOC,
+                            "agent malloc failed");
 
         transctx->state = agent_NB_state_response_length_received;
     }
@@ -700,7 +702,7 @@ static int agent_transact_pageant(LIBSSH2_AGENT *agent,
             UnmapViewOfFile(p);
             CloseHandle(filemap);
             return ssh2_err(agent->session, LIBSSH2_ERROR_ALLOC,
-                            "agent malloc");
+                            "agent malloc failed");
         }
         memcpy(transctx->response, p + 4, transctx->response_len);
     }
