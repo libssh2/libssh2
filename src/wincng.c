@@ -3272,9 +3272,11 @@ static int wcng_round_down(int number, int multiple)
  * private key is stored as opaque in the Diffie-Hellman context `*dhctx' and
  * the public key is returned in `pub'. 0 is returned upon success, else -1. */
 int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
-                     ssh2_bn *p, int group_order)
+                     ssh2_bn *p, int group_order, ssh2_bn_ctx *bnctx)
 {
     const int hasAlgDHwithKDF = ssh2_wcng.hasAlgDHwithKDF;
+
+    (void)bnctx;
 
     if(group_order < 0)
         return -1;
@@ -3446,8 +3448,10 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
  * used at context creation. The result is stored in `secret'.  0 is returned
  * upon success, else -1.  */
 int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
-                   ssh2_bn *p)
+                   ssh2_bn *p, ssh2_bn_ctx *bnctx)
 {
+    (void)bnctx;
+
     if(ssh2_wcng.hAlgDH && ssh2_wcng.hasAlgDHwithKDF != -1 &&
        dhctx->dh_handle && dhctx->dh_params && f) {
         BCRYPT_KEY_HANDLE peer_public = NULL;
