@@ -106,7 +106,7 @@ static int run_command_varg(char **output, const char *command, va_list args)
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
-    if(ret < 0 || ret >= BUFSIZ) {
+    if(ret < 0 || ret >= sizeof(command_buf)) {
         fprintf(stderr, "Unable to format command (%s)\n", command);
         return -1;
     }
