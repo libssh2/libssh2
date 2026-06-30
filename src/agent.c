@@ -967,6 +967,11 @@ static int agent_list_identities(LIBSSH2_AGENT *agent)
     len -= 4;
     s += 4;
 
+    if(num_identities > 1024) {
+        rc = LIBSSH2_ERROR_OUT_OF_BOUNDARY;
+        goto error;
+    }
+
     while(num_identities--) {
         struct agent_publickey *identity;
         size_t comment_len;
