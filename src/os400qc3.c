@@ -1247,8 +1247,8 @@ void ssh2_dh_init(ssh2_dh_ctx *dhctx)
     memset((char *)dhctx, 0, sizeof(*dhctx));
 }
 
-int ssh2_os400qc3_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub,
-                              ssh2_bn *g, ssh2_bn *p, int group_order)
+int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub,
+                     ssh2_bn *g, ssh2_bn *p, int group_order)
 {
     struct asn1Element *prime;
     struct asn1Element *base;
@@ -1294,8 +1294,8 @@ int ssh2_os400qc3_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub,
     return ssh2_bn_from_bin(pub, pubkeylen, (unsigned char *)pubkey);
 }
 
-int ssh2_os400qc3_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
-                            ssh2_bn *f, ssh2_bn *p)
+int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
+                   ssh2_bn *f, ssh2_bn *p)
 {
     char *pubkey;
     int pubkeysize;
