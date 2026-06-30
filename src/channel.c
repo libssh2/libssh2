@@ -75,7 +75,7 @@ uint32_t ssh2_channel_nextid(LIBSSH2_SESSION *session)
      * have forgotten about, This *could* be a problem if we request and close
      * 4 billion or so channels in too rapid succession for the remote end to
      * respond, but the worst case scenario is that some data meant for
-     * another channel Gets picked up by the new one.... Pretty unlikely all
+     * another channel gets picked up by the new one.... Pretty unlikely all
      * told...
      */
     session->next_channel = id + 1;
@@ -1025,7 +1025,7 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
         else if(rc || data_len < 1) {
             channel->reqPTY_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                            "Failed to require the PTY package");
+                            "Failed to require the PTY packet");
         }
 
         code = data[0];
