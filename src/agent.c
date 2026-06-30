@@ -59,6 +59,8 @@
 #include "userauth.h"
 #include "session.h"
 
+#define AGENT_MAX_MSGLEN  8192
+
 /* Requests from client to agent for protocol 2 key operations */
 #define SSH2_AGENTC_REQUEST_IDENTITIES 11
 #define SSH2_AGENTC_SIGN_REQUEST       13
@@ -401,8 +403,12 @@ static int agent_transact_openssh(LIBSSH2_AGENT *agent,
                             "agent recv failed");
 
         transctx->response_len = ssh2_ntohu32(buf);
+        if(transctx->response_len > AGENT_MAX_MSGLEN - 4) {
+            return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                            "agent response too large");
+        }
         transctx->response = SSH2_ALLOC(agent->session,
-                                           transctx->response_len);
+                                        transctx->response_len);
         if(!transctx->response)
             return LIBSSH2_ERROR_ALLOC;
 
@@ -571,8 +577,12 @@ static int agent_transact_unix(LIBSSH2_AGENT *agent,
                             "agent recv failed");
         }
         transctx->response_len = ssh2_ntohu32(buf);
+        if(transctx->response_len > AGENT_MAX_MSGLEN - 4) {
+            return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                            "agent response too large");
+        }
         transctx->response = SSH2_ALLOC(agent->session,
-                                           transctx->response_len);
+                                        transctx->response_len);
         if(!transctx->response)
             return LIBSSH2_ERROR_ALLOC;
 
@@ -621,7 +631,6 @@ static struct agent_ops agent_ops_unix = {
  * Markus Kuhn, Colin Watson, and CORE SDI S.A.
  */
 #define PAGEANT_COPYDATA_ID 0x804e50ba /* random goop */
-#define PAGEANT_MAX_MSGLEN  8192
 
 static int agent_connect_pageant(LIBSSH2_AGENT *agent)
 {
@@ -645,7 +654,7 @@ static int agent_transact_pageant(LIBSSH2_AGENT *agent,
     LRESULT id;
     COPYDATASTRUCT cds;
 
-    if(!transctx || 4 + transctx->request_len > PAGEANT_MAX_MSGLEN)
+    if(!transctx || 4 + transctx->request_len > AGENT_MAX_MSGLEN)
         return ssh2_err(agent->session, LIBSSH2_ERROR_INVAL, "illegal input");
 
     hwnd = FindWindowA("Pageant", "Pageant");
@@ -656,7 +665,7 @@ static int agent_transact_pageant(LIBSSH2_AGENT *agent,
     ssh2_snprintf(mapname, sizeof(mapname),
                   "PageantRequest%08x", (unsigned)GetCurrentThreadId());
     filemap = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
-                                 0, PAGEANT_MAX_MSGLEN, mapname);
+                                 0, AGENT_MAX_MSGLEN, mapname);
 
     if(!filemap || filemap == INVALID_HANDLE_VALUE)
         return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
@@ -679,11 +688,11 @@ static int agent_transact_pageant(LIBSSH2_AGENT *agent,
     id = SendMessage(hwnd, WM_COPYDATA, (WPARAM)NULL, (LPARAM)&cds);
     if(id > 0) {
         transctx->response_len = ssh2_ntohu32(p);
-        if(transctx->response_len > PAGEANT_MAX_MSGLEN - 4) {
+        if(transctx->response_len > AGENT_MAX_MSGLEN - 4) {
             UnmapViewOfFile(p);
             CloseHandle(filemap);
             return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
-                            "agent setup fail");
+                            "agent response too large");
         }
         transctx->response = SSH2_ALLOC(agent->session,
                                         transctx->response_len);
