@@ -535,7 +535,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
                                    hash, sig);
     free(hash);
 
-    return (ret == 0) ? 0 : -1;
+    return ret == 0 ? 0 : -1;
 }
 
 int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
@@ -588,7 +588,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
     *signature = sig;
     *signature_len = sig_len;
 
-    return (ret == 0) ? 0 : -1;
+    return ret == 0 ? 0 : -1;
 }
 
 int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
