@@ -995,7 +995,6 @@ static int agent_list_identities(LIBSSH2_AGENT *agent)
             SSH2_FREE(agent->session, identity);
             goto error;
         }
-
         /* Read the blob */
         if((size_t)len < identity->external.blob_len) {
             rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
