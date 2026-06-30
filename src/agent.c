@@ -654,7 +654,7 @@ static int agent_transact_pageant(LIBSSH2_AGENT *agent,
     LRESULT id;
     COPYDATASTRUCT cds;
 
-    if(!transctx || 4 + transctx->request_len > AGENT_MAX_MSGLEN)
+    if(!transctx || transctx->request_len > AGENT_MAX_MSGLEN - 4)
         return ssh2_err(agent->session, LIBSSH2_ERROR_INVAL, "illegal input");
 
     hwnd = FindWindowA("Pageant", "Pageant");
