@@ -43,7 +43,7 @@ least 32K of data to this function.
 
 # WRITE AHEAD
 
-Starting in libssh2 version 1.2.8, the default behavior of libssh2 is to
+Starting in libssh2 1.2.8, the default behavior of libssh2 is to
 create several smaller outgoing packets for all data you pass to this function
 and it returns a positive number as soon as the first packet is acknowledged
 from the server.
