@@ -836,7 +836,7 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
 {
     (void)bnctx;
 
-    if(group_order < 0)
+    if(group_order <= 0)
         return -1;
 
     /* Generate x and e */
