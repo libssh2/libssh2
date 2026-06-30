@@ -144,8 +144,10 @@ static int run_command_varg(char **output, const char *command, va_list args)
         /* command output may contain a trailing newline, so we trim
          * whitespace here */
         size_t end = strlen(buf);
-        if(end > 0 && isspace((int)buf[end - 1]))
+        while(end > 0 && isspace((int)buf[end - 1])) {
             buf[end - 1] = '\0';
+            --end;
+        }
 
         *output = libssh2_strdup(buf);
     }
