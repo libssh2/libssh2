@@ -1375,19 +1375,19 @@ ssh2_packet_add_jump_authagent:
                      */
                     if(data[0] == SSH_MSG_CHANNEL_DATA)
                         SSH2_CHANNEL_DATA(session, channelp, 0,
-                                             data + data_head,
-                                             datalen - data_head);
+                                          data + data_head,
+                                          datalen - data_head);
                     else if(data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) {
                         uint32_t sid = ssh2_ntohu32(data + 5);
                         if(channelp->remote.extended_data_ignore_mode ==
                             LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE)
                             SSH2_CHANNEL_DATA(session, channelp, sid,
-                                                 data + data_head,
-                                                 datalen - data_head);
+                                              data + data_head,
+                                              datalen - data_head);
                         else if(sid == SSH_EXTENDED_DATA_STDERR)
                             SSH2_CHANNEL_DATA(session, channelp, 1,
-                                                 data + data_head,
-                                                 datalen - data_head);
+                                              data + data_head,
+                                              datalen - data_head);
                     }
                     rc_cb = 1;
                 }
