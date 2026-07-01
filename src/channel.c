@@ -2936,8 +2936,7 @@ int libssh2_channel_signal_ex(LIBSSH2_CHANNEL *channel,
     return rc;
 }
 
-void **
-libssh2_channel_abstract(LIBSSH2_CHANNEL *channel)
+void **libssh2_channel_abstract(LIBSSH2_CHANNEL *channel)
 {
     return &channel->abstract;
 }
