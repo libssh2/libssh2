@@ -755,9 +755,11 @@ int ssh2_wcng_hash_update(struct wcng_hash_ctx *ctx,
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx, unsigned char *hash)
+int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx, unsigned char *hash,
+                         ULONG hashlen)
 {
     int ret;
+    (void)hashlen;  /* TODO: use this */
 
     ret = BCryptFinishHash(ctx->hHash, hash, ctx->cbHash, 0);
 
