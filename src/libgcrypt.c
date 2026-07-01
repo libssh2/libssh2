@@ -166,16 +166,19 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
         return -1;
 
     if(hash_len == SSH2_SHA1_DIG_LEN) {
+        gcry_md_hash_buffer(GCRY_MD_SHA1, hash, m, m_len);
         algo = "sha1";
-        ret = ssh2_sha1(m, m_len, hash);
+        ret = 0;
     }
     else if(hash_len == SSH2_SHA256_DIG_LEN) {
+        gcry_md_hash_buffer(GCRY_MD_SHA256, hash, m, m_len);
         algo = "sha256";
-        ret = ssh2_sha256(m, m_len, hash);
+        ret = 0;
     }
     else if(hash_len == SSH2_SHA512_DIG_LEN) {
+        gcry_md_hash_buffer(GCRY_MD_SHA512, hash, m, m_len);
         algo = "sha512";
-        ret = ssh2_sha512(m, m_len, hash);
+        ret = 0;
     }
     else
         ret = 1;
@@ -643,8 +646,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
     gcry_sexp_t s_sig, s_hash;
     int rc = -1;
 
-    if(ssh2_sha1(m, m_len, hash + 1))
-        return -1;
+    gcry_md_hash_buffer(GCRY_MD_SHA1, hash + 1, m, m_len);
 
     hash[0] = 0;
 
