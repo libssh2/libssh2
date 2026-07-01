@@ -235,21 +235,20 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 
 #define ssh2_sha1_init(x)             ssh2_os400qc3_hash_init(x, Qc3_SHA1)
 #define ssh2_sha1_update(ctx, d, l)   ssh2_os400qc3_hash_update(&(ctx), d, l)
-#define ssh2_sha1_final(ctx, h, hl)   ssh2_os400qc3_hash_final(&(ctx), h, hl)
+#define ssh2_sha1_final(ctx, h, l)    ssh2_os400qc3_hash_final(&(ctx), h, l)
 #define ssh2_sha256_init(x)           ssh2_os400qc3_hash_init(x, Qc3_SHA256)
 #define ssh2_sha256_update(ctx, d, l) ssh2_os400qc3_hash_update(&(ctx), d, l)
-#define ssh2_sha256_final(ctx, h, hl) ssh2_os400qc3_hash_final(&(ctx), h, hl)
+#define ssh2_sha256_final(ctx, h, l)  ssh2_os400qc3_hash_final(&(ctx), h, l)
 #define ssh2_sha384_init(x)           ssh2_os400qc3_hash_init(x, Qc3_SHA384)
 #define ssh2_sha384_update(ctx, d, l) ssh2_os400qc3_hash_update(&(ctx), d, l)
-#define ssh2_sha384_final(ctx, h, hl) ssh2_os400qc3_hash_final(&(ctx), h, hl)
+#define ssh2_sha384_final(ctx, h, l)  ssh2_os400qc3_hash_final(&(ctx), h, l)
 #define ssh2_sha512_init(x)           ssh2_os400qc3_hash_init(x, Qc3_SHA512)
 #define ssh2_sha512_update(ctx, d, l) ssh2_os400qc3_hash_update(&(ctx), d, l)
-#define ssh2_sha512_final(ctx, h, hl) ssh2_os400qc3_hash_final(&(ctx), h, hl)
-
+#define ssh2_sha512_final(ctx, h, l)  ssh2_os400qc3_hash_final(&(ctx), h, l)
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #define ssh2_md5_init(x)              ssh2_os400qc3_hash_init(x, Qc3_MD5)
 #define ssh2_md5_update(ctx, d, l)    ssh2_os400qc3_hash_update(&(ctx), d, l)
-#define ssh2_md5_final(ctx, h, hl)    ssh2_os400qc3_hash_final(&(ctx), h, hl)
+#define ssh2_md5_final(ctx, h, l)     ssh2_os400qc3_hash_final(&(ctx), h, l)
 #endif
 
 int ssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x, unsigned int algo);
