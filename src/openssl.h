@@ -229,7 +229,6 @@ int ssh2_random(unsigned char *buf, size_t len);
 
 /* returns 0 in case of failure */
 int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const EVP_MD *digest);
-int ssh2_ossl_hash_update(EVP_MD_CTX **ctx, const void *data, size_t len);
 int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out, size_t outlen);
 /* returns 1 in case of failure */
 int ssh2_ossl_hash(const unsigned char *message, size_t len,
@@ -247,7 +246,7 @@ int ssh2_ossl_hash(const unsigned char *message, size_t len,
 #endif
 
 #define ssh2_hash_init(x, alg)        ssh2_ossl_hash_init(x, alg)
-#define ssh2_hash_update(ctx, d, l)   ssh2_ossl_hash_update(&(ctx), d, l)
+#define ssh2_hash_update(ctx, d, l)   EVP_DigestUpdate(ctx, d, l)
 #define ssh2_hash_final(ctx, h, l)    ssh2_ossl_hash_final(&(ctx), h, l)
 
 #ifdef USE_OPENSSL_3
