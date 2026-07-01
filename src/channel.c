@@ -697,7 +697,6 @@ void **libssh2_listener_abstract(LIBSSH2_LISTENER *listener)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wcast-function-type"
 #endif
-
 libssh2_cb_generic *libssh2_listener_callback_set(LIBSSH2_LISTENER *listener,
                                                   int cbtype,
                                                   libssh2_cb_generic *callback)
