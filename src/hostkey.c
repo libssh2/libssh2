@@ -871,7 +871,7 @@ static int hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION *session,
         unsigned char hash[SSH2_SHA##digest_type##_DIG_LEN];          \
         ssh2_hash_ctx ctx;                                            \
         int i;                                                        \
-        if(!ssh2_sha##digest_type##_init(&ctx)) {                     \
+        if(!ssh2_hash_init(&ctx, SSH2_SHA##digest_type##_ALG)) {      \
             ret = -1;                                                 \
             break;                                                    \
         }                                                             \

@@ -60,7 +60,7 @@
             ssh2_hash_ctx hash;                                               \
             size_t len = 0;                                                   \
             while(len < (size_t)(reqlen)) {                                   \
-                if(!ssh2_sha##digest_type##_init(&hash) ||                    \
+                if(!ssh2_hash_init(&hash, SSH2_SHA##digest_type##_ALG) ||     \
                    !ssh2_hash_update(hash,                      \
                                            exchange_state->k_value,           \
                                            exchange_state->k_value_len) ||    \
@@ -1632,7 +1632,7 @@ static int kex_session_hybrid_curve_type(const char *name,
     do {                                                                      \
         ssh2_hash_ctx ctx;                                                    \
         int hok;                                                              \
-        if(!ssh2_sha##digest_type##_init(&ctx)) {                             \
+        if(!ssh2_hash_init(&ctx, SSH2_SHA##digest_type##_ALG)) {              \
             rc = -1;                                                          \
             break;                                                            \
         }                                                                     \
@@ -1748,7 +1748,7 @@ static int kex_session_hybrid_curve_type(const char *name,
     do {                                                                      \
         ssh2_hash_ctx ctx;                                                    \
         int hok;                                                              \
-        if(!ssh2_sha##digest_type##_init(&ctx)) {                             \
+        if(!ssh2_hash_init(&ctx, SSH2_SHA##digest_type##_ALG)) {              \
             rc = -1;                                                          \
             break;                                                            \
         }                                                                     \
