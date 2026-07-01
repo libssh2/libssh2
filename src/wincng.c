@@ -773,8 +773,9 @@ int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx, unsigned char *hash,
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-int ssh2_wcng_hash(const unsigned char *data, ULONG datalen,
-                   BCRYPT_ALG_HANDLE hAlg, unsigned char *hash, ULONG hashlen)
+static int wcng_hash(const unsigned char *data, ULONG datalen,
+                     BCRYPT_ALG_HANDLE hAlg,
+                     unsigned char *hash, ULONG hashlen)
 {
     struct wcng_hash_ctx ctx;
     int ret;
@@ -910,7 +911,7 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx,
     }
     memcpy(data, m, datalen);
 
-    ret = ssh2_wcng_hash(data, datalen, hAlgHash, hash, hashlen);
+    ret = wcng_hash(data, datalen, hAlgHash, hash, hashlen);
     wcng_safe_free(data, datalen);
 
     if(ret) {
@@ -2424,7 +2425,7 @@ int ssh2_ecdsa_verify(IN ssh2_ecdsa_ctx *key,
     }
 
     hash = malloc(hash_len);
-    result = ssh2_wcng_hash(m, (ULONG)m_len, hash_alg, hash, hash_len);
+    result = wcng_hash(m, (ULONG)m_len, hash_alg, hash, hash_len);
     if(result != LIBSSH2_ERROR_NONE)
         goto cleanup;
 
