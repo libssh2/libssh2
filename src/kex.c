@@ -88,7 +88,8 @@
                         break;                                                \
                     }                                                         \
                 }                                                             \
-                if(!ssh2_sha##digest_type##_final(hash, (value) + len)) {     \
+                if(!ssh2_sha##digest_type##_final(hash, (value) + len,        \
+                                          SSH2_SHA##digest_type##_DIG_LEN)) { \
                     SSH2_FREE(session, value);                                \
                     (value) = NULL;                                           \
                     break;                                                    \
@@ -142,18 +143,19 @@ static int sha_algo_ctx_update(int sha_algo, void *ctx,
     return 0;
 }
 
-static int sha_algo_ctx_final(int sha_algo, void *ctx, void *hash)
+static int sha_algo_ctx_final(int sha_algo, void *ctx,
+                              void *hash, size_t hashlen)
 {
     ssh2_hash_ctx *_ctx = (ssh2_hash_ctx *)ctx;
 
     if(sha_algo == 512)
-        return ssh2_sha512_final(*_ctx, hash);
+        return ssh2_sha512_final(*_ctx, hash, hashlen);
     else if(sha_algo == 384)
-        return ssh2_sha384_final(*_ctx, hash);
+        return ssh2_sha384_final(*_ctx, hash, hashlen);
     else if(sha_algo == 256)
-        return ssh2_sha256_final(*_ctx, hash);
+        return ssh2_sha256_final(*_ctx, hash, hashlen);
     else if(sha_algo == 1)
-        return ssh2_sha1_final(*_ctx, hash);
+        return ssh2_sha1_final(*_ctx, hash, hashlen);
 #ifdef LIBSSH2DEBUG
     else
         assert(0);
@@ -227,7 +229,8 @@ static int process_host_key(LIBSSH2_SESSION *session,
         if(ssh2_md5_init(&fingerprint_ctx) &&
            ssh2_md5_update(fingerprint_ctx, session->server_hostkey,
                            session->server_hostkey_len) &&
-           ssh2_md5_final(fingerprint_ctx, session->server_hostkey_md5))
+           ssh2_md5_final(fingerprint_ctx, session->server_hostkey_md5,
+                          sizeof(session->server_hostkey_md5)))
             session->server_hostkey_md5_valid = TRUE;
         else
             session->server_hostkey_md5_valid = FALSE;
@@ -252,7 +255,8 @@ static int process_host_key(LIBSSH2_SESSION *session,
         if(ssh2_sha1_init(&fingerprint_ctx) &&
            ssh2_sha1_update(fingerprint_ctx, session->server_hostkey,
                             session->server_hostkey_len) &&
-           ssh2_sha1_final(fingerprint_ctx, session->server_hostkey_sha1))
+           ssh2_sha1_final(fingerprint_ctx, session->server_hostkey_sha1,
+                           sizeof(session->server_hostkey_sha1)))
             session->server_hostkey_sha1_valid = TRUE;
         else
             session->server_hostkey_sha1_valid = FALSE;
@@ -276,8 +280,8 @@ static int process_host_key(LIBSSH2_SESSION *session,
         if(ssh2_sha256_init(&fingerprint_ctx) &&
            ssh2_sha256_update(fingerprint_ctx, session->server_hostkey,
                               session->server_hostkey_len) &&
-           ssh2_sha256_final(fingerprint_ctx,
-                             session->server_hostkey_sha256))
+           ssh2_sha256_final(fingerprint_ctx, session->server_hostkey_sha256,
+                             sizeof(session->server_hostkey_sha256)))
             session->server_hostkey_sha256_valid = TRUE;
         else
             session->server_hostkey_sha256_valid = FALSE;
@@ -1704,7 +1708,8 @@ static int kex_session_hybrid_curve_type(const char *name,
                                               exchange_state->k_value_len);   \
                                                                               \
         if(!hok ||                                                            \
-           !ssh2_sha##digest_type##_final(ctx, exchange_state->h_sig_comp)) { \
+           !ssh2_sha##digest_type##_final(ctx, exchange_state->h_sig_comp,    \
+                                       sizeof(exchange_state->h_sig_comp))) { \
             rc = -1;                                                          \
             break;                                                            \
         }                                                                     \
@@ -1822,7 +1827,8 @@ static int kex_session_hybrid_curve_type(const char *name,
                                               exchange_state->k_value_len);   \
                                                                               \
         if(!hok ||                                                            \
-           !ssh2_sha##digest_type##_final(ctx, exchange_state->h_sig_comp)) { \
+           !ssh2_sha##digest_type##_final(ctx, exchange_state->h_sig_comp,    \
+                                       sizeof(exchange_state->h_sig_comp))) { \
             rc = -1;                                                          \
             break;                                                            \
         }                                                                     \
@@ -2367,7 +2373,8 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
                 goto clean_exit;
             }
 
-            if(!ssh2_sha256_final(k_ctx, exchange_state->k_value + 4)) {
+            if(!ssh2_sha256_final(k_ctx,
+                                  exchange_state->k_value + 4, digest_len)) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                                "kex: failed to calculate hash");
                 goto clean_exit;
@@ -2389,7 +2396,8 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
                 goto clean_exit;
             }
 
-            if(!ssh2_sha384_final(k_ctx, exchange_state->k_value + 4)) {
+            if(!ssh2_sha384_final(k_ctx,
+                                  exchange_state->k_value + 4, digest_len)) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                                "kex: failed to calculate hash");
                 goto clean_exit;
@@ -3002,7 +3010,9 @@ static int mlkem768x25519_sha256(
             goto clean_exit;
         }
 
-        if(!ssh2_sha256_final(k_ctx, exchange_state->k_value + 4)) {
+        if(!ssh2_sha256_final(k_ctx,
+                              exchange_state->k_value + 4,
+                              SSH2_SHA256_DIG_LEN)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                            "kex: failed to calculate hash");
             goto clean_exit;
