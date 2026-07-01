@@ -782,7 +782,7 @@ int ssh2_wcng_hash(const unsigned char *data, ULONG datalen,
     ret = ssh2_wcng_hash_init(&ctx, hAlg, hashlen, NULL, 0);
     if(!ret) {
         ret = ssh2_wcng_hash_update(&ctx, data, datalen);
-        ret |= ssh2_wcng_hash_final(&ctx, hash);
+        ret |= ssh2_wcng_hash_final(&ctx, hash, hashlen);
     }
 
     return ret;
