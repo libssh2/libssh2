@@ -143,6 +143,7 @@ struct mbed_hash_ctx {
  */
 
 #define ssh2_hash_ctx psa_hash_operation_t
+#define ssh2_hash_alg psa_algorithm_t
 
 #define SSH2_SHA1_ALG   PSA_ALG_SHA_1
 #define SSH2_SHA256_ALG PSA_ALG_SHA_256

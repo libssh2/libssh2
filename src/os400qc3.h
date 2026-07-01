@@ -230,6 +230,7 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define ssh2_crypto_exit()   do {} while(0)
 
 #define ssh2_hash_ctx        Qc3_Format_ALGD0100_T
+#define ssh2_hash_alg        unsigned int
 #define ssh2_hmac_ctx        struct os400qc3_crypto_ctx
 #define ssh2_cipher_ctx      struct os400qc3_crypto_ctx
 
