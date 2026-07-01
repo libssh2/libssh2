@@ -233,6 +233,7 @@ int ssh2_ossl_hash_update(EVP_MD_CTX **ctx, const void *data, size_t len);
 int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out, size_t outlen);
 
 #define ssh2_hash_ctx                 EVP_MD_CTX *
+#define ssh2_hash_alg                 const EVP_MD *
 
 #define SSH2_SHA1_ALG   EVP_sha1()
 #define SSH2_SHA256_ALG EVP_sha256()

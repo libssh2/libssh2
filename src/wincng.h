@@ -162,6 +162,7 @@ struct wcng_hash_ctx {
  */
 
 #define ssh2_hash_ctx struct wcng_hash_ctx
+#define ssh2_hash_alg BCRYPT_ALG_HANDLE
 
 #define SSH2_SHA1_ALG   ssh2_wcng.hAlgHashSHA1
 #define SSH2_SHA256_ALG ssh2_wcng.hAlgHashSHA256

@@ -74,6 +74,7 @@
 #define ssh2_prepare_iovec(vec, len)  /* Empty. */
 
 #define ssh2_hash_ctx gcry_md_hd_t
+#define ssh2_hash_alg int
 
 #define SSH2_SHA1_ALG   GCRY_MD_SHA1
 #define SSH2_SHA256_ALG GCRY_MD_SHA256
