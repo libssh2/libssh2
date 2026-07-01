@@ -284,7 +284,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         ssh2_hash_ctx fingerprint_ctx;
 
         /* Perform key derivation (PBKDF1/MD5) */
-        if(!ssh2_md5_init(&fingerprint_ctx) ||
+        if(!ssh2_hash_init(&fingerprint_ctx, SSH2_MD5_ALG) ||
            !ssh2_hash_update(fingerprint_ctx, passphrase,
                             strlen((const char *)passphrase)) ||
            !ssh2_hash_update(fingerprint_ctx, iv, 8) ||
@@ -293,7 +293,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
             goto out;
         }
         if(method->secret_len > SSH2_MD5_DIG_LEN) {
-            if(!ssh2_md5_init(&fingerprint_ctx) ||
+            if(!ssh2_hash_init(&fingerprint_ctx, SSH2_MD5_ALG) ||
                !ssh2_hash_update(fingerprint_ctx, secret,
                                 SSH2_MD5_DIG_LEN) ||
                !ssh2_hash_update(fingerprint_ctx, passphrase,
