@@ -1538,7 +1538,7 @@ static int kex_session_hybrid_curve_type(const char *name,
 
 #if LIBSSH2_ECDSA || LIBSSH2_ED25519
 /*
- * Create and verify EC SHA hash with a given digest size
+ * Create and verify EC[+PQ hybrid] SHA hash with a given digest size
  *
  * Payload format:
  *
@@ -1554,6 +1554,7 @@ static int kex_session_hybrid_curve_type(const char *name,
 static int kex_method_ec_sha_hash_create_verify(
     LIBSSH2_SESSION *session, struct kmdhgGPshakex_state *exchange_state,
     unsigned char *public_key, size_t public_key_len,
+    unsigned char *public_pq_key, size_t public_pq_key_len,
     unsigned char *server_public_key, size_t server_public_key_len,
     ssh2_hash_alg hash_alg, size_t digest_len)
 {
@@ -1602,8 +1603,13 @@ static int kex_method_ec_sha_hash_create_verify(
     hok &= ssh2_hash_update(ctx, session->server_hostkey,
                                  session->server_hostkey_len);
 
-    ssh2_htonu32(exchange_state->h_sig_comp, (uint32_t)public_key_len);
+    ssh2_htonu32(exchange_state->h_sig_comp,
+                 (uint32_t)(public_pq_key_len + public_key_len));
     hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
+    if(public_pq_key && public_pq_key_len) {
+        hok &= ssh2_hash_update(ctx, public_pq_key,
+                                     public_pq_key_len);
+    }
     hok &= ssh2_hash_update(ctx, public_key,
                                  public_key_len);
 
@@ -1632,106 +1638,6 @@ static int kex_method_ec_sha_hash_create_verify(
 #endif /* LIBSSH2_ECDSA || LIBSSH2_ED25519 */
 
 #if LIBSSH2_ECDSA
-
-#if LIBSSH2_MLKEM
-/*
- * Create and verify HYBRID (EC+PQ) SHA hash with a given digest size
- *
- * Payload format:
- *
- * string   V_C, client's identification string (CR and LF excluded)
- * string   V_S, server's identification string (CR and LF excluded)
- * string   I_C, payload of the client's SSH_MSG_KEXINIT
- * string   I_S, payload of the server's SSH_MSG_KEXINIT
- * string   K_S, server's public host key
- * string   Q_C, client's ephemeral public key octet string
- * string   Q_S, server's ephemeral public key octet string
- * mpint    K,   shared secret
- */
-static int kex_method_hybrid_sha_hash_create_verify(
-    LIBSSH2_SESSION *session, struct kmdhgGPshakex_state *exchange_state,
-    unsigned char *public_t_key, size_t public_t_key_len,
-    unsigned char *public_pq_key, size_t public_pq_key_len,
-    unsigned char *server_public_key, size_t server_public_key_len,
-    ssh2_hash_alg hash_alg, size_t hash_len)
-{
-    ssh2_hash_ctx ctx;
-    int hok;
-
-    if(!ssh2_hash_init(&ctx, hash_alg))
-        return -1;
-
-    hok = 1;
-    if(session->local.banner) {
-        ssh2_htonu32(exchange_state->h_sig_comp,
-                     (uint32_t)(strlen((char *)session->local.banner) - 2));
-        hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-        hok &= ssh2_hash_update(ctx, (char *)session->local.banner,
-                                strlen((char *)session->local.banner) - 2);
-    }
-    else {
-        ssh2_htonu32(exchange_state->h_sig_comp,
-                     sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
-        hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-        hok &= ssh2_hash_update(ctx, LIBSSH2_SSH_DEFAULT_BANNER,
-                                sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
-    }
-
-    ssh2_htonu32(exchange_state->h_sig_comp,
-                 (uint32_t)strlen((char *)session->remote.banner));
-    hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-    hok &= ssh2_hash_update(ctx, session->remote.banner,
-                                 strlen((char *)session->remote.banner));
-
-    ssh2_htonu32(exchange_state->h_sig_comp,
-                 (uint32_t)session->local.kexinit_len);
-    hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-    hok &= ssh2_hash_update(ctx, session->local.kexinit,
-                                 session->local.kexinit_len);
-
-    ssh2_htonu32(exchange_state->h_sig_comp,
-                 (uint32_t)session->remote.kexinit_len);
-    hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-    hok &= ssh2_hash_update(ctx, session->remote.kexinit,
-                                 session->remote.kexinit_len);
-
-    ssh2_htonu32(exchange_state->h_sig_comp, session->server_hostkey_len);
-    hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-    hok &= ssh2_hash_update(ctx, session->server_hostkey,
-                                 session->server_hostkey_len);
-
-    ssh2_htonu32(exchange_state->h_sig_comp,
-                 (uint32_t)(public_pq_key_len + public_t_key_len));
-    hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-    hok &= ssh2_hash_update(ctx, public_pq_key,
-                                 public_pq_key_len);
-    hok &= ssh2_hash_update(ctx, public_t_key,
-                                 public_t_key_len);
-
-    ssh2_htonu32(exchange_state->h_sig_comp, (uint32_t)server_public_key_len);
-    hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-    hok &= ssh2_hash_update(ctx, server_public_key,
-                                 server_public_key_len);
-
-    hok &= ssh2_hash_update(ctx, exchange_state->k_value,
-                                 exchange_state->k_value_len);
-
-    if(!hok ||
-       !ssh2_hash_final(ctx, exchange_state->h_sig_comp,
-                        sizeof(exchange_state->h_sig_comp)))
-        return -1;
-
-    if(session->hostkey->sig_verify(session, exchange_state->h_sig,
-                                    exchange_state->h_sig_len,
-                                    exchange_state->h_sig_comp,
-                                    hash_len,
-                                    &session->server_hostkey_abstract))
-        return -1;
-
-    return 0;
-}
-#endif /* LIBSSH2_MLKEM */
-
 /*
  * returns the EC curve type by name used in key exchange
  */
@@ -1892,19 +1798,19 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
         switch(type) {
         case SSH2_EC_CURVE_NISTP256:
             rc = kex_method_ec_sha_hash_create_verify(session, exchange_state,
-                     public_key, public_key_len,
+                     public_key, public_key_len, NULL, 0,
                      server_public_key, server_public_key_len,
                      SSH2_SHA256_ALG, SSH2_SHA256_DIG_LEN);
             break;
         case SSH2_EC_CURVE_NISTP384:
             rc = kex_method_ec_sha_hash_create_verify(session, exchange_state,
-                     public_key, public_key_len,
+                     public_key, public_key_len, NULL, 0,
                      server_public_key, server_public_key_len,
                      SSH2_SHA384_ALG, SSH2_SHA384_DIG_LEN);
             break;
         case SSH2_EC_CURVE_NISTP521:
             rc = kex_method_ec_sha_hash_create_verify(session, exchange_state,
-                     public_key, public_key_len,
+                     public_key, public_key_len, NULL, 0,
                      server_public_key, server_public_key_len,
                      SSH2_SHA512_ALG, SSH2_SHA512_DIG_LEN);
             break;
@@ -2275,7 +2181,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
                                "kex: failed to calculate hash");
                 goto clean_exit;
             }
-            rc = kex_method_hybrid_sha_hash_create_verify(session,
+            rc = kex_method_ec_sha_hash_create_verify(session,
                      exchange_state,
                      public_t_key, public_t_key_len,
                      public_pq_key, public_pq_key_len,
@@ -2303,7 +2209,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
                                "kex: failed to calculate hash");
                 goto clean_exit;
             }
-            rc = kex_method_hybrid_sha_hash_create_verify(session,
+            rc = kex_method_ec_sha_hash_create_verify(session,
                      exchange_state,
                      public_t_key, public_t_key_len,
                      public_pq_key, public_pq_key_len,
@@ -2620,7 +2526,7 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
 
         /* verify hash */
         rc = kex_method_ec_sha_hash_create_verify(session, exchange_state,
-                 public_key, public_key_len,
+                 public_key, public_key_len, NULL, 0,
                  server_public_key, server_public_key_len,
                  SSH2_SHA256_ALG, SSH2_SHA256_DIG_LEN);
         if(rc) {
@@ -2925,7 +2831,7 @@ static int mlkem768x25519_sha256(
         }
 
         /* verify hash */
-        rc = kex_method_hybrid_sha_hash_create_verify(session,
+        rc = kex_method_ec_sha_hash_create_verify(session,
                  exchange_state,
                  public_t_key, public_t_key_len,
                  public_pq_key, public_pq_key_len,
