@@ -739,7 +739,6 @@ int ssh2_wcng_hash_init(struct wcng_hash_ctx *ctx, BCRYPT_ALG_HANDLE hAlg,
     ctx->hHash = hHash;
     ctx->pbHashObject = pbHashObject;
     ctx->dwHashObject = dwHashObject;
-    ctx->cbHash = dwHash;
 
     return 0;
 }
