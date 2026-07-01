@@ -222,7 +222,7 @@ int ssh2_wcng_hash_init(struct wcng_hash_ctx *ctx, BCRYPT_ALG_HANDLE hAlg,
 int ssh2_wcng_hash_update(struct wcng_hash_ctx *ctx,
                           const void *data, ULONG datalen);
 int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx, unsigned char *hash,
-                         ULONG hashlen);
+                         size_t hashlen);
 int ssh2_wcng_hash(const unsigned char *data, ULONG datalen,
                    BCRYPT_ALG_HANDLE hAlg, unsigned char *hash, ULONG hashlen);
 

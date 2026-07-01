@@ -756,7 +756,7 @@ int ssh2_wcng_hash_update(struct wcng_hash_ctx *ctx,
 }
 
 int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx, unsigned char *hash,
-                         ULONG hashlen)
+                         size_t hashlen)
 {
     int ret;
     (void)hashlen;  /* TODO: use this */
