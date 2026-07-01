@@ -883,7 +883,8 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                                    exchange_state->k_value_len);
 
         if(!hok || !sha_algo_ctx_final(sha_algo_value, exchange_hash_ctx,
-                                       exchange_state->h_sig_comp)) {
+                                       exchange_state->h_sig_comp,
+                                       sizeof(exchange_state->h_sig_comp))) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                            "kex: failed to calculate hash");
             goto clean_exit;
