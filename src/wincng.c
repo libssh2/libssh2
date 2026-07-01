@@ -752,7 +752,7 @@ int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx, unsigned char *hash,
 {
     int ret;
 
-    ret = BCryptFinishHash(ctx->hHash, hash, hashlen, 0);
+    ret = BCryptFinishHash(ctx->hHash, hash, (ULONG)hashlen, 0);
 
     BCryptDestroyHash(ctx->hHash);
     ctx->hHash = NULL;
@@ -830,7 +830,7 @@ int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
 
 int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen)
 {
-    int ret = BCryptFinishHash(ctx->hHash, mac, maclen, 0);
+    int ret = BCryptFinishHash(ctx->hHash, mac, (ULONG)maclen, 0);
 
     return BCRYPT_SUCCESS(ret) ? 1 : 0;
 }
