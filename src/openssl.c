@@ -76,8 +76,8 @@ int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out, size_t outlen)
     return ret;
 }
 
-int ssh2_ossl_hash(const unsigned char *message, size_t len,
-                   unsigned char *out, const EVP_MD *digest)
+static int ossl_hash(const unsigned char *message, size_t len,
+                     unsigned char *out, const EVP_MD *digest)
 {
     int ret = 1; /* error */
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
@@ -422,15 +422,15 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
 
     if(hash_len == SSH2_SHA1_DIG_LEN) {
         nid_type = NID_sha1;
-        ret = ssh2_ossl_hash(m, m_len, hash, EVP_sha1());
+        ret = ossl_hash(m, m_len, hash, EVP_sha1());
     }
     else if(hash_len == SSH2_SHA256_DIG_LEN) {
         nid_type = NID_sha256;
-        ret = ssh2_ossl_hash(m, m_len, hash, EVP_sha256());
+        ret = ossl_hash(m, m_len, hash, EVP_sha256());
     }
     else if(hash_len == SSH2_SHA512_DIG_LEN) {
         nid_type = NID_sha512;
-        ret = ssh2_ossl_hash(m, m_len, hash, EVP_sha512());
+        ret = ossl_hash(m, m_len, hash, EVP_sha512());
     }
     else {
         nid_type = 0;
@@ -642,8 +642,8 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
     ctx = EVP_PKEY_CTX_new(dsactx, NULL);
     der_len = i2d_DSA_SIG(dsasig, &der);
 
-    if(ctx && !ssh2_ossl_hash(m, m_len, hash, EVP_sha1())) {
-        /* ssh2_ossl_hash() succeeded */
+    if(ctx && !ossl_hash(m, m_len, hash, EVP_sha1())) {
+        /* ossl_hash() succeeded */
         if(EVP_PKEY_verify_init(ctx) > 0)
             ret = EVP_PKEY_verify(ctx, der, der_len, hash, SSH2_SHA1_DIG_LEN);
     }
@@ -654,8 +654,8 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
     if(der)
         OPENSSL_clear_free(der, der_len);
 #else
-    if(!ssh2_ossl_hash(m, m_len, hash, EVP_sha1()))
-        /* ssh2_ossl_hash() succeeded */
+    if(!ossl_hash(m, m_len, hash, EVP_sha1()))
+        /* ossl_hash() succeeded */
         ret = DSA_do_verify(hash, SSH2_SHA1_DIG_LEN, dsasig, dsactx);
 #endif
 
