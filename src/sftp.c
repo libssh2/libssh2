@@ -1132,7 +1132,7 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
         LIBSSH2_SFTP_ATTRIBUTES attrs = {
             LIBSSH2_SFTP_ATTR_PERMISSIONS, 0, 0, 0, 0, 0, 0
         };
-        
+
         if(attrs_in)
             memcpy(&attrs, attrs_in, sizeof(LIBSSH2_SFTP_ATTRIBUTES));
 
@@ -1149,7 +1149,7 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
 
         packet_len += (uint32_t)filename_len;
 
-        sftp->last_errno = LIBSSH2_FX_OK;  
+        sftp->last_errno = LIBSSH2_FX_OK;
         sftp->open_packet_len = packet_len;
 
         /* surprise! this starts out with nothing sent */
