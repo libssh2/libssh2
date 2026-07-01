@@ -973,17 +973,6 @@ cleanup:
     return rc;
 }
 
-#define SSH2_MBED_ECDSA_VERIFY(digest_type)                                   \
-    do {                                                                      \
-        unsigned char hsh[SSH2_SHA##digest_type##_DIG_LEN];                   \
-                                                                              \
-        if(ssh2_sha##digest_type(m, m_len, hsh) == 0) {                       \
-            rc = mbedtls_ecdsa_verify(&ec_ctx->MBEDTLS_PRIVATE(grp), hsh,     \
-                                      SSH2_SHA##digest_type##_DIG_LEN,        \
-                                      &ec_ctx->MBEDTLS_PRIVATE(Q), &pr, &ps); \
-        }                                                                     \
-    } while(0)
-
 /*
  * Verifies the ECDSA signature of a hashed message
  */
@@ -1005,15 +994,30 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
         goto cleanup;
 
     switch(ssh2_ecdsa_get_curve_type(ec_ctx)) {
-    case SSH2_EC_CURVE_NISTP256:
-        SSH2_MBED_ECDSA_VERIFY(256);
+    case SSH2_EC_CURVE_NISTP256: {
+        unsigned char hsh[SSH2_SHA256_DIG_LEN];
+        if(mbed_hash(m, m_len, PSA_ALG_SHA_256, hsh, sizeof(hsh)) == 0)
+            rc = mbedtls_ecdsa_verify(&ec_ctx->MBEDTLS_PRIVATE(grp),
+                                      hsh, sizeof(hsh),
+                                      &ec_ctx->MBEDTLS_PRIVATE(Q), &pr, &ps);
         break;
-    case SSH2_EC_CURVE_NISTP384:
-        SSH2_MBED_ECDSA_VERIFY(384);
+    }
+    case SSH2_EC_CURVE_NISTP384: {
+        unsigned char hsh[SSH2_SHA384_DIG_LEN];
+        if(mbed_hash(m, m_len, PSA_ALG_SHA_384, hsh, sizeof(hsh)) == 0)
+            rc = mbedtls_ecdsa_verify(&ec_ctx->MBEDTLS_PRIVATE(grp),
+                                      hsh, sizeof(hsh),
+                                      &ec_ctx->MBEDTLS_PRIVATE(Q), &pr, &ps);
         break;
-    case SSH2_EC_CURVE_NISTP521:
-        SSH2_MBED_ECDSA_VERIFY(512);
+    }
+    case SSH2_EC_CURVE_NISTP521: {
+        unsigned char hsh[SSH2_SHA512_DIG_LEN];
+        if(mbed_hash(m, m_len, PSA_ALG_SHA_512, hsh, sizeof(hsh)) == 0)
+            rc = mbedtls_ecdsa_verify(&ec_ctx->MBEDTLS_PRIVATE(grp),
+                                      hsh, sizeof(hsh),
+                                      &ec_ctx->MBEDTLS_PRIVATE(Q), &pr, &ps);
         break;
+    }
     default:
         rc = -1;
     }

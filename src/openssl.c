@@ -810,29 +810,6 @@ int ssh2_ecdsa_curve_name_with_octal_new(ssh2_ecdsa_ctx **ec_ctx,
     return (ret == 1) ? 0 : -1;
 }
 
-#ifdef USE_OPENSSL_3
-#define SSH2_OSSL_ECDSA_VERIFY(digest_type)                             \
-    do {                                                                \
-        unsigned char hash[SSH2_SHA##digest_type##_DIG_LEN];            \
-        if(ssh2_sha##digest_type(m, m_len, hash) == 0) {                \
-            ret = EVP_PKEY_verify_init(ctx);                            \
-            if(ret > 0) {                                               \
-                ret = EVP_PKEY_verify(ctx, der, der_len, hash,          \
-                                      SSH2_SHA##digest_type##_DIG_LEN); \
-            }                                                           \
-        }                                                               \
-    } while(0)
-#else
-#define SSH2_OSSL_ECDSA_VERIFY(digest_type)                              \
-    do {                                                                 \
-        unsigned char hash[SSH2_SHA##digest_type##_DIG_LEN];             \
-        if(ssh2_sha##digest_type(m, m_len, hash) == 0) {                 \
-            ret = ECDSA_do_verify(hash, SSH2_SHA##digest_type##_DIG_LEN, \
-                                  ecdsa_sig, ec_key);                    \
-        }                                                                \
-    } while(0)
-#endif
-
 int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
                       const unsigned char *r, size_t r_len,
                       const unsigned char *s, size_t s_len,
@@ -869,16 +846,31 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
         ret = -1;
         goto cleanup;
     }
-#endif
 
-    if(type == SSH2_EC_CURVE_NISTP256)
-        SSH2_OSSL_ECDSA_VERIFY(256);
-    else if(type == SSH2_EC_CURVE_NISTP384)
-        SSH2_OSSL_ECDSA_VERIFY(384);
-    else if(type == SSH2_EC_CURVE_NISTP521)
-        SSH2_OSSL_ECDSA_VERIFY(512);
-
-#ifdef USE_OPENSSL_3
+    if(type == SSH2_EC_CURVE_NISTP256) {
+        unsigned char hash[SSH2_SHA256_DIG_LEN];
+        if(ossl_hash(m, m_len, hash, EVP_sha256()) == 0) {
+            ret = EVP_PKEY_verify_init(ctx);
+            if(ret > 0)
+                ret = EVP_PKEY_verify(ctx, der, der_len, hash, sizeof(hash));
+        }
+    }
+    else if(type == SSH2_EC_CURVE_NISTP384) {
+        unsigned char hash[SSH2_SHA384_DIG_LEN];
+        if(ossl_hash(m, m_len, hash, EVP_sha384()) == 0) {
+            ret = EVP_PKEY_verify_init(ctx);
+            if(ret > 0)
+                ret = EVP_PKEY_verify(ctx, der, der_len, hash, sizeof(hash));
+        }
+    }
+    else if(type == SSH2_EC_CURVE_NISTP521) {
+        unsigned char hash[SSH2_SHA512_DIG_LEN];
+        if(ossl_hash(m, m_len, hash, EVP_sha512()) == 0) {
+            ret = EVP_PKEY_verify_init(ctx);
+            if(ret > 0)
+                ret = EVP_PKEY_verify(ctx, der, der_len, hash, sizeof(hash));
+        }
+    }
 cleanup:
 
     if(ctx)
@@ -886,6 +878,22 @@ cleanup:
 
     if(der)
         OPENSSL_free(der);
+#else
+    if(type == SSH2_EC_CURVE_NISTP256) {
+        unsigned char hash[SSH2_SHA256_DIG_LEN];
+        if(ossl_hash(m, m_len, hash, EVP_sha256()) == 0)
+            ret = ECDSA_do_verify(hash, sizeof(hash), ecdsa_sig, ec_key);
+    }
+    else if(type == SSH2_EC_CURVE_NISTP384) {
+        unsigned char hash[SSH2_SHA384_DIG_LEN];
+        if(ossl_hash(m, m_len, hash, EVP_sha384()) == 0)
+            ret = ECDSA_do_verify(hash, sizeof(hash), ecdsa_sig, ec_key);
+    }
+    else if(type == SSH2_EC_CURVE_NISTP521) {
+        unsigned char hash[SSH2_SHA512_DIG_LEN];
+        if(ossl_hash(m, m_len, hash, EVP_sha512()) == 0)
+            ret = ECDSA_do_verify(hash, sizeof(hash), ecdsa_sig, ec_key);
+    }
 #endif
 
     if(ecdsa_sig)
