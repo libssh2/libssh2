@@ -226,7 +226,7 @@ static int process_host_key(LIBSSH2_SESSION *session,
     {
         ssh2_hash_ctx fingerprint_ctx;
 
-        if(ssh2_md5_init(&fingerprint_ctx) &&
+        if(ssh2_hash_init(&fingerprint_ctx, SSH2_MD5_ALG) &&
            ssh2_hash_update(fingerprint_ctx, session->server_hostkey,
                            session->server_hostkey_len) &&
            ssh2_hash_final(fingerprint_ctx, session->server_hostkey_md5,
