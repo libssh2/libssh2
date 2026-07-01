@@ -707,15 +707,8 @@ int ssh2_wcng_hash_init(struct wcng_hash_ctx *ctx, BCRYPT_ALG_HANDLE hAlg,
 {
     BCRYPT_HASH_HANDLE hHash;
     unsigned char *pbHashObject;
-    ULONG dwHashObject, dwHash, cbData;
+    ULONG dwHashObject, cbData;
     int ret;
-
-    ret = BCryptGetProperty(hAlg, BCRYPT_HASH_LENGTH,
-                            (unsigned char *)&dwHash,
-                            sizeof(dwHash),
-                            &cbData, 0);
-    if(!BCRYPT_SUCCESS(ret))
-        return -1;
 
     ret = BCryptGetProperty(hAlg, BCRYPT_OBJECT_LENGTH,
                             (unsigned char *)&dwHashObject,
