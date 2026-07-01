@@ -230,9 +230,6 @@ int ssh2_random(unsigned char *buf, size_t len);
 /* returns 0 in case of failure */
 int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const EVP_MD *digest);
 int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out, size_t outlen);
-/* returns 1 in case of failure */
-int ssh2_ossl_hash(const unsigned char *message, size_t len,
-                   unsigned char *out, const EVP_MD *digest);
 
 #define ssh2_hash_ctx                 EVP_MD_CTX *
 #define ssh2_hash_alg                 const EVP_MD *
