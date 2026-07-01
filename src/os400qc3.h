@@ -242,7 +242,7 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define SSH2_MD5_ALG    Qc3_MD5
 #endif
 
-#define ssh2_hash_init(x, id)        ssh2_os400qc3_hash_init(x, id)
+#define ssh2_hash_init(x, alg)       ssh2_os400qc3_hash_init(x, alg)
 #define ssh2_hash_update(ctx, d, l)  ssh2_os400qc3_hash_update(&(ctx), d, l)
 #define ssh2_hash_final(ctx, h, l)   ssh2_os400qc3_hash_final(&(ctx), h, l)
 

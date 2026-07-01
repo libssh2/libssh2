@@ -246,7 +246,7 @@ int ssh2_ossl_hash(const unsigned char *message, size_t len,
 #define SSH2_MD5_ALG    EVP_md5()
 #endif
 
-#define ssh2_hash_init(x, id)         ssh2_ossl_hash_init(x, id)
+#define ssh2_hash_init(x, alg)        ssh2_ossl_hash_init(x, alg)
 #define ssh2_hash_update(ctx, d, l)   ssh2_ossl_hash_update(&(ctx), d, l)
 #define ssh2_hash_final(ctx, h, l)    ssh2_ossl_hash_final(&(ctx), h, l)
 

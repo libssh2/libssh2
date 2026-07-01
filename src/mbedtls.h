@@ -153,8 +153,8 @@ struct mbed_hash_ctx {
 #define SSH2_MD5_ALG    PSA_ALG_MD5
 #endif
 
-#define ssh2_hash_init(pctx, id) \
-    ssh2_mbed_hash_init(pctx, id)
+#define ssh2_hash_init(pctx, alg) \
+    ssh2_mbed_hash_init(pctx, alg)
 #define ssh2_hash_update(ctx, data, datalen) \
     (psa_hash_update(&(ctx), (const uint8_t *)(data), datalen) == PSA_SUCCESS)
 #define ssh2_hash_final(ctx, hash, hashlen) \
