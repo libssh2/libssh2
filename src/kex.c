@@ -524,16 +524,25 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
     int ret = 0;
     int rc;
 
+    ssh2_hash_alg hash_alg;
     int digest_len = 0;
 
-    if(sha_algo_value == 512)
+    if(sha_algo_value == 512) {
+        hash_alg = SSH2_SHA512_ALG;
         digest_len = SSH2_SHA512_DIG_LEN;
-    else if(sha_algo_value == 384)
+    }
+    else if(sha_algo_value == 384) {
+        hash_alg = SSH2_SHA384_ALG;
         digest_len = SSH2_SHA384_DIG_LEN;
-    else if(sha_algo_value == 256)
+    }
+    else if(sha_algo_value == 256) {
+        hash_alg = SSH2_SHA256_ALG;
         digest_len = SSH2_SHA256_DIG_LEN;
-    else if(sha_algo_value == 1)
+    }
+    else if(sha_algo_value == 1) {
+        hash_alg = SSH2_SHA1_ALG;
         digest_len = SSH2_SHA1_DIG_LEN;
+    }
     else {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                        "SHA algo value is unimplemented");
@@ -731,18 +740,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             }
         }
 
-        if(sha_algo_value == 512)
-            err = ssh2_hash_init(hctx, SSH2_SHA512_ALG);
-        else if(sha_algo_value == 384)
-            err = ssh2_hash_init(hctx, SSH2_SHA384_ALG);
-        else if(sha_algo_value == 256)
-            err = ssh2_hash_init(hctx, SSH2_SHA256_ALG);
-        else if(sha_algo_value == 1)
-            err = ssh2_hash_init(hctx, SSH2_SHA1_ALG);
-        else
-            err = 0;
-
-        if(!err) {
+        if(!ssh2_hash_init(hctx, hash_alg)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
                            "Unable to initialize hash context");
             goto clean_exit;
