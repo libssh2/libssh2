@@ -961,19 +961,6 @@ int ssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx,
     return errcode.Bytes_Available ? 0 : 1;
 }
 
-int ssh2_os400qc3_hash(const unsigned char *message, unsigned long len,
-                       unsigned char *out, unsigned int algo)
-{
-    Qc3_Format_ALGD0100_T ctx;
-
-    if(!ssh2_os400qc3_hash_init(&ctx, algo) ||
-       !ssh2_os400qc3_hash_update(&ctx, message, len) ||
-       !ssh2_os400qc3_hash_final(&ctx, out))
-        return 1;
-
-    return 0;
-}
-
 static int os400qc3_hmac_init(struct os400qc3_crypto_ctx *ctx,
                               int algo, size_t minkeylen,
                               void *key, int keylen)
