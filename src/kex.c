@@ -1559,10 +1559,12 @@ static int kex_method_ec_sha_hash_create_verify(
     ssh2_hash_alg hash_alg, size_t digest_len)
 {
     ssh2_hash_ctx ctx;
+    int err;
     int hok;
 
     if(!ssh2_hash_init(&ctx, hash_alg))
-        return -1;
+        return ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
+                        "Unable to initialize hash context");
 
     hok = 1;
     if(session->local.banner) {
@@ -1623,15 +1625,22 @@ static int kex_method_ec_sha_hash_create_verify(
 
     if(!hok || !ssh2_hash_final(ctx, exchange_state->h_sig_comp,
                                 sizeof(exchange_state->h_sig_comp)))
-        return -1;
+        return ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
+                        "kex: failed to calculate hash");
 
-    if(session->hostkey->sig_verify(session,
-                                    exchange_state->h_sig,
-                                    exchange_state->h_sig_len,
-                                    exchange_state->h_sig_comp,
-                                    digest_len,
-                                    &session->server_hostkey_abstract))
-        return -1;
+    err = session->hostkey->sig_verify(session,
+                                       exchange_state->h_sig,
+                                       exchange_state->h_sig_len,
+                                       exchange_state->h_sig_comp,
+                                       digest_len,
+                                       &session->server_hostkey_abstract);
+    if(err) {
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
+                  "Failed hostkey sig_verify(): %s: %d",
+                  session->hostkey->name, err));
+        return ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
+                        "Unable to verify hostkey signature EC");
+    }
 
     return 0;
 }
