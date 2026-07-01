@@ -450,7 +450,7 @@ static int crypt_encrypt_chacha20_poly_buffer(LIBSSH2_SESSION *session,
         }
     }
 
-    return (ret == 0) ? 0 : 1;
+    return ret == 0 ? 0 : 1;
 }
 
 static int crypt_get_length_chacha20_poly(LIBSSH2_SESSION *session,

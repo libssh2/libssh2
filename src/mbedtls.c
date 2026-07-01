@@ -309,10 +309,9 @@ static int mbed_bn_random(ssh2_bn *bn, int bits, int top, int bottom)
         return -1;
 
     /* Zero unused bits above the most significant bit */
-    for(i = (len * 8) - 1; (size_t)bits <= i; --i) {
+    for(i = (len * 8) - 1; (size_t)bits <= i; --i)
         if(mbedtls_mpi_set_bit(bn, i, 0))
             return -1;
-    }
 
     /* If `top` is -1, the most significant bit of the random number can be
        zero.  If top is 0, the most significant bit of the random number is
@@ -320,12 +319,10 @@ static int mbed_bn_random(ssh2_bn *bn, int bits, int top, int bottom)
        is set to 1, so that the product of two such random numbers always
        have 2 * bits length.
     */
-    if(top >= 0) {
-        for(i = 0; i <= (size_t)top; ++i) {
+    if(top >= 0)
+        for(i = 0; i <= (size_t)top; ++i)
             if(mbedtls_mpi_set_bit(bn, bits - i - 1, 1))
                 return -1;
-        }
-    }
 
     /* make odd by setting first bit in least significant byte */
     if(bottom && mbedtls_mpi_set_bit(bn, 0, 1))
@@ -1033,7 +1030,7 @@ cleanup:
     mbedtls_mpi_free(&pr);
     mbedtls_mpi_free(&ps);
 
-    return (rc == 0) ? 0 : -1;
+    return rc == 0 ? 0 : -1;
 }
 
 static int mbed_parse_eckey(ssh2_ecdsa_ctx **ctx,

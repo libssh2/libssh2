@@ -676,7 +676,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
     gcry_sexp_release(s_sig);
     gcry_sexp_release(s_hash);
 
-    return (rc == 0) ? 0 : -1;
+    return rc == 0 ? 0 : -1;
 }
 #endif
 

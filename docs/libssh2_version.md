@@ -16,8 +16,7 @@ libssh2_version - return the libssh2 version number
 ~~~c
 #include <libssh2.h>
 
-const char *
-libssh2_version(int required_version);
+const char *libssh2_version(int required_version);
 ~~~
 
 # DESCRIPTION
@@ -42,7 +41,7 @@ To make sure you run with the correct libssh2 version:
 
 ~~~c
 if(!libssh2_version(LIBSSH2_VERSION_NUM)) {
-  fprintf(stderr, \&"Runtime libssh2 version too old.\&");
+  fprintf(stderr, "Runtime libssh2 version too old.");
   return -1;  /* return error */
 }
 ~~~
@@ -50,7 +49,7 @@ if(!libssh2_version(LIBSSH2_VERSION_NUM)) {
 Unconditionally get the version number:
 
 ~~~c
-printf(\&"libssh2 version: %s\&", libssh2_version(0));
+printf("libssh2 version: %s", libssh2_version(0));
 ~~~
 
 # AVAILABILITY

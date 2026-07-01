@@ -141,7 +141,7 @@ static int ossl_hmac_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen,
         return 0;
 
     params[0] = OSSL_PARAM_construct_octet_string(
-        OSSL_MAC_PARAM_KEY, (void *)key, keylen);
+        OSSL_MAC_PARAM_KEY, key, keylen);
     params[1] = OSSL_PARAM_construct_utf8_string(
         OSSL_MAC_PARAM_DIGEST, (char *)SSH2_UNCONST(digest_name), 0);
     params[2] = OSSL_PARAM_construct_end();
@@ -380,7 +380,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
 
     EVP_PKEY_CTX_free(ctx);
 
-    return (ret == 1) ? 0 : -1;
+    return ret == 1 ? 0 : -1;
 #else /* !USE_OPENSSL_3 */
     BIGNUM *e;
     BIGNUM *n;
@@ -490,7 +490,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
 
     free(hash);
 
-    return (ret == 1) ? 0 : -1;
+    return ret == 1 ? 0 : -1;
 }
 
 #if LIBSSH2_RSA_SHA1
@@ -600,7 +600,7 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsactx,
 
     EVP_PKEY_CTX_free(ctx);
 
-    return (ret == 1) ? 0 : -1;
+    return ret == 1 ? 0 : -1;
 #else /* !USE_OPENSSL_3 */
     BIGNUM *p_bn;
     BIGNUM *q_bn;
@@ -681,7 +681,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
 
     DSA_SIG_free(dsasig);
 
-    return (ret == 1) ? 0 : -1;
+    return ret == 1 ? 0 : -1;
 }
 #endif /* LIBSSH2_DSA */
 
@@ -830,7 +830,7 @@ int ssh2_ecdsa_curve_name_with_octal_new(
         ret = -1;
 #endif
 
-    return (ret == 1) ? 0 : -1;
+    return ret == 1 ? 0 : -1;
 }
 
 int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
@@ -922,7 +922,7 @@ cleanup:
     if(ecdsa_sig)
         ECDSA_SIG_free(ecdsa_sig);
 
-    return (ret == 1) ? 0 : -1;
+    return ret == 1 ? 0 : -1;
 }
 
 #endif /* LIBSSH2_ECDSA */
@@ -2431,7 +2431,7 @@ int ssh2_ed25519_new_public(ssh2_ed25519_ctx **ed_ctx,
 
 #if LIBSSH2_MLKEM
 
-int ssh2_mlkem_new(LIBSSH2_SESSION *session, int ml_kem_size,
+int ssh2_mlkem_new(LIBSSH2_SESSION *session, int mlkem_size,
                    unsigned char **out_public_key,
                    unsigned char **out_private_key)
 {
@@ -2442,7 +2442,7 @@ int ssh2_mlkem_new(LIBSSH2_SESSION *session, int ml_kem_size,
     size_t privLen, actualPrivLen, pubLen, actualPubLen;
     int rc = -1;
 
-    switch(ml_kem_size) {
+    switch(mlkem_size) {
     case 512:
         evp_name = "ML-KEM-512";
         privLen = SSH2_MLKEM_512_PRIVATE_KEY_LEN;
@@ -2518,7 +2518,7 @@ clean_exit:
     return rc;
 }
 
-int ssh2_mlkem_get_sk(unsigned char *out_shared_key, int ml_kem_size,
+int ssh2_mlkem_get_sk(unsigned char *out_shared_key, int mlkem_size,
                       uint8_t *private_key, uint8_t *server_ciphertext)
 {
     int rc = -1;
@@ -2528,7 +2528,7 @@ int ssh2_mlkem_get_sk(unsigned char *out_shared_key, int ml_kem_size,
     const char *evp_name;
     size_t privLen, ciphertextLen;
 
-    switch(ml_kem_size) {
+    switch(mlkem_size) {
     case 512:
         evp_name = "ML-KEM-512";
         privLen = SSH2_MLKEM_512_PRIVATE_KEY_LEN;
@@ -2585,7 +2585,7 @@ clean_exit:
     if(client_key)
         EVP_PKEY_free(client_key);
 
-    return (rc == 1) ? 0 : -1;
+    return rc == 1 ? 0 : -1;
 }
 
 #endif
@@ -3544,7 +3544,7 @@ clean_exit:
         BN_CTX_free(bn_ctx);
 #endif
 
-    return (ret == 1) ? 0 : -1;
+    return ret == 1 ? 0 : -1;
 }
 
 /*
@@ -3772,7 +3772,7 @@ clean_exit:
     if(md_ctx)
         EVP_MD_CTX_free(md_ctx);
 
-    return (rc == 1) ? 0 : -1;
+    return rc == 1 ? 0 : -1;
 }
 
 int ssh2_curve25519_gen_k(ssh2_bn **k,
@@ -3843,7 +3843,7 @@ clean_exit:
     if(bn_ctx)
         BN_CTX_free(bn_ctx);
 
-    return (rc == 1) ? 0 : -1;
+    return rc == 1 ? 0 : -1;
 }
 
 int ssh2_ed25519_verify(ssh2_ed25519_ctx *ctx, const uint8_t *s,
@@ -3865,7 +3865,7 @@ clean_exit:
 
     EVP_MD_CTX_free(md_ctx);
 
-    return (ret == 1) ? 0 : -1;
+    return ret == 1 ? 0 : -1;
 }
 
 #endif /* LIBSSH2_ED25519 */

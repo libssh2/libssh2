@@ -116,8 +116,10 @@ static void wcng_safe_free(void *buf, size_t len)
 /* Copy a big endian set of bits from src to dest.
  * if the size of src is smaller than dest then pad the "left" (MSB)
  * end with zeroes and copy the bits into the "right" (LSB) end. */
-static void wcng_memcpy_with_be_padding(unsigned char *dest, ULONG dest_len,
-                                        unsigned char *src, ULONG src_len)
+static void wcng_memcpy_with_be_padding(unsigned char *dest,
+                                        ULONG dest_len,
+                                        const unsigned char *src,
+                                        ULONG src_len)
 {
     if(dest_len > src_len)
         memset(dest, 0, dest_len - src_len);
@@ -1326,7 +1328,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     }
 
     *rsa = malloc(sizeof(ssh2_rsa_ctx));
-    if(!(*rsa)) {
+    if(!*rsa) {
         BCryptDestroyKey(hKey);
         wcng_safe_free(rsakey, keylen);
         return -1;
@@ -1367,7 +1369,7 @@ static int wcng_rsa_new_private_parse(ssh2_rsa_ctx **rsa,
     }
 
     *rsa = malloc(sizeof(ssh2_rsa_ctx));
-    if(!(*rsa)) {
+    if(!*rsa) {
         BCryptDestroyKey(hKey);
         wcng_safe_free(pbStructInfo, cbStructInfo);
         return -1;
@@ -1621,7 +1623,7 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
     }
 
     *dsa = malloc(sizeof(ssh2_dsa_ctx));
-    if(!(*dsa)) {
+    if(!*dsa) {
         BCryptDestroyKey(hKey);
         wcng_safe_free(dsakey, keylen);
         return -1;
@@ -1795,7 +1797,7 @@ static int wcng_ecdsa_decode_uncompressed_point(
     if(encoded_point_len == 0 || encoded_point[0] != 4)
         return LIBSSH2_ERROR_INVAL;
 
-    for(curve = 0; curve < SSH2_ARRAYSIZE(wcng_ecdsa_algs); curve++) {
+    for(curve = 0; curve < SSH2_ARRAYSIZE(wcng_ecdsa_algs); curve++)
         if(wcng_ecdsa_algs[curve].point_length ==
            (encoded_point_len - 1) / 2) {
 
@@ -1809,7 +1811,6 @@ static int wcng_ecdsa_decode_uncompressed_point(
 
             return LIBSSH2_ERROR_NONE;
         }
-    }
 
     return LIBSSH2_ERROR_INVAL;
 }
@@ -2353,12 +2354,11 @@ static int wcng_ecdsa_curve_type_from_name(IN const char *name,
     if(!name || !out_curve)
         return LIBSSH2_ERROR_INVAL;
 
-    for(curve = 0; curve < SSH2_ARRAYSIZE(wcng_ecdsa_algs); curve++) {
+    for(curve = 0; curve < SSH2_ARRAYSIZE(wcng_ecdsa_algs); curve++)
         if(!strcmp(name, wcng_ecdsa_algs[curve].name)) {
             *out_curve = (ssh2_curve_type)curve;
             return LIBSSH2_ERROR_NONE;
         }
-    }
 
     return LIBSSH2_ERROR_INVAL;
 }
