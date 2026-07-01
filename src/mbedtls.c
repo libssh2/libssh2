@@ -982,6 +982,7 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
                       const unsigned char *m, size_t m_len)
 {
     mbedtls_mpi pr, ps;
+    size_t actual_len;
     int rc = -1;
 
     mbedtls_mpi_init(&pr);
@@ -996,7 +997,8 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
     switch(ssh2_ecdsa_get_curve_type(ec_ctx)) {
     case SSH2_EC_CURVE_NISTP256: {
         unsigned char hsh[SSH2_SHA256_DIG_LEN];
-        if(mbed_hash(m, m_len, PSA_ALG_SHA_256, hsh, sizeof(hsh)) == 0)
+        if(psa_hash_compute(PSA_ALG_SHA_256, m, m_len, hsh, sizeof(hsh),
+                            &actual_len) == PSA_SUCCESS)
             rc = mbedtls_ecdsa_verify(&ec_ctx->MBEDTLS_PRIVATE(grp),
                                       hsh, sizeof(hsh),
                                       &ec_ctx->MBEDTLS_PRIVATE(Q), &pr, &ps);
@@ -1004,7 +1006,8 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
     }
     case SSH2_EC_CURVE_NISTP384: {
         unsigned char hsh[SSH2_SHA384_DIG_LEN];
-        if(mbed_hash(m, m_len, PSA_ALG_SHA_384, hsh, sizeof(hsh)) == 0)
+        if(psa_hash_compute(PSA_ALG_SHA_384, m, m_len, hsh, sizeof(hsh),
+                            &actual_len) == PSA_SUCCESS)
             rc = mbedtls_ecdsa_verify(&ec_ctx->MBEDTLS_PRIVATE(grp),
                                       hsh, sizeof(hsh),
                                       &ec_ctx->MBEDTLS_PRIVATE(Q), &pr, &ps);
@@ -1012,7 +1015,8 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
     }
     case SSH2_EC_CURVE_NISTP521: {
         unsigned char hsh[SSH2_SHA512_DIG_LEN];
-        if(mbed_hash(m, m_len, PSA_ALG_SHA_512, hsh, sizeof(hsh)) == 0)
+        if(psa_hash_compute(PSA_ALG_SHA_512, m, m_len, hsh, sizeof(hsh),
+                            &actual_len) == PSA_SUCCESS)
             rc = mbedtls_ecdsa_verify(&ec_ctx->MBEDTLS_PRIVATE(grp),
                                       hsh, sizeof(hsh),
                                       &ec_ctx->MBEDTLS_PRIVATE(Q), &pr, &ps);
