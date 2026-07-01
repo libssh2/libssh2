@@ -45,11 +45,12 @@ this is called.
 
 The prototype of the callback:
 
-```c
+~~~c
 void eof_callback(LIBSSH2_SESSION *session, void **session_abstract,
                   LIBSSH2_CHANNEL *channel, void **channel_abstract) {
 }
-```
+~~~
+
 ## LIBSSH2_CALLBACK_CHANNEL_CLOSE
 
 Channel has processed a close, and is no longer open by the time this callback is implemented.
@@ -57,11 +58,11 @@ Do not use this channel after this event.
 
 The prototype of the callback:
 
-```c
+~~~c
 void close_callback(LIBSSH2_SESSION *session, void **session_abstract,
                     LIBSSH2_CHANNEL *channel, void **channel_abstract) {
 }
-```
+~~~
 
 ## LIBSSH2_CALLBACK_CHANNEL_DATA
 
@@ -73,11 +74,11 @@ Stream is 0 or 1 for `stdout`/`stderr`, but depending on options,
 
 The prototype of the callback:
 
-```c
+~~~c
 void channel_data_callback(LIBSSH2_SESSION *session, void **session_abstract,
                            LIBSSH2_CHANNEL *channel, void **channel_abstract
                            int stream,
                            uint8_t const *buffer,
                            size_t length
                            );
-```
+~~~
