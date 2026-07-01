@@ -1033,7 +1033,7 @@ cleanup:
     mbedtls_mpi_free(&pr);
     mbedtls_mpi_free(&ps);
 
-    return (rc == 0) ? 0 : -1;
+    return rc == 0 ? 0 : -1;
 }
 
 static int mbed_parse_eckey(ssh2_ecdsa_ctx **ctx,
