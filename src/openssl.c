@@ -48,6 +48,21 @@
 
 int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const EVP_MD *digest)
 {
+#if !defined(USE_OPENSSL_3) && \
+    !defined(LIBRESSL_VERSION_NUMBER) && \
+    !defined(LIBSSH2_WOLFSSL)
+    /* OpenSSL 1.1.1
+     * MD5 digest is not supported in OpenSSL FIPS mode
+     * Trying to init it results in a latent OpenSSL error:
+     * "digital envelope routines:FIPS_DIGESTINIT:disabled for fips"
+     * Thus, return 0 in FIPS mode
+     */
+    if(digest == EVP_md5() && FIPS_mode()) {
+        *ctx = NULL;
+        return 0;
+    }
+#endif
+
     *ctx = EVP_MD_CTX_new();
 
     if(!*ctx)
