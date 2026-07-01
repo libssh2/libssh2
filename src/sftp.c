@@ -1142,7 +1142,7 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
                      (open_file ? (4 + sftp_attrsize(attrs.flags)) : 0));
 
         if(packet_len + (uint32_t)filename_len < packet_len) {
-            ssh2_err(session, LIBSSH2_ERROR_OUT_OF_PROTO,
+            ssh2_err(session, LIBSSH2_ERROR_PROTO,
                      "Input too large sftp_open");
             return NULL;
         }
