@@ -241,43 +241,13 @@ int ssh2_ossl_hash(const unsigned char *message, size_t len,
 #define SSH2_SHA256_ALG EVP_sha256()
 #define SSH2_SHA384_ALG EVP_sha384()
 #define SSH2_SHA512_ALG EVP_sha512()
+#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #define SSH2_MD5_ALG    EVP_md5()
+#endif
 
 #define ssh2_hash_init(x, id)         ssh2_ossl_hash_init(x, id)
 #define ssh2_hash_update(ctx, d, l)   ssh2_ossl_hash_update(&(ctx), d, l)
 #define ssh2_hash_final(ctx, h, l)    ssh2_ossl_hash_final(&(ctx), h, l)
-
-#define ssh2_sha1_init(x)             ssh2_ossl_hash_init(x, EVP_sha1())
-#define ssh2_sha1_update(ctx, d, l)   ssh2_ossl_hash_update(&(ctx), d, l)
-#define ssh2_sha1_final(ctx, h, l)    ssh2_ossl_hash_final(&(ctx), h, l)
-#define ssh2_sha256_init(x)           ssh2_ossl_hash_init(x, EVP_sha256())
-#define ssh2_sha256_update(ctx, d, l) ssh2_ossl_hash_update(&(ctx), d, l)
-#define ssh2_sha256_final(ctx, h, l)  ssh2_ossl_hash_final(&(ctx), h, l)
-#define ssh2_sha384_init(x)           ssh2_ossl_hash_init(x, EVP_sha384())
-#define ssh2_sha384_update(ctx, d, l) ssh2_ossl_hash_update(&(ctx), d, l)
-#define ssh2_sha384_final(ctx, h, l)  ssh2_ossl_hash_final(&(ctx), h, l)
-#define ssh2_sha512_init(x)           ssh2_ossl_hash_init(x, EVP_sha512())
-#define ssh2_sha512_update(ctx, d, l) ssh2_ossl_hash_update(&(ctx), d, l)
-#define ssh2_sha512_final(ctx, h, l)  ssh2_ossl_hash_final(&(ctx), h, l)
-
-#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-/* MD5 digest is not supported in OpenSSL FIPS mode
- * Trying to init it results in a latent OpenSSL error:
- * "digital envelope routines:FIPS_DIGESTINIT:disabled for fips"
- * Thus, return 0 in FIPS mode
- */
-#if !defined(USE_OPENSSL_3) && \
-    !defined(LIBRESSL_VERSION_NUMBER) && \
-    !defined(LIBSSH2_WOLFSSL)
-/* OpenSSL 1.1.1 */
-#define ssh2_md5_init(x) \
-    (FIPS_mode() ? (*(x) = NULL, 0) : ssh2_ossl_hash_init(x, EVP_md5()))
-#else
-#define ssh2_md5_init(x)              ssh2_ossl_hash_init(x, EVP_md5())
-#endif
-#define ssh2_md5_update(ctx, d, l)    ssh2_ossl_hash_update(&(ctx), d, l)
-#define ssh2_md5_final(ctx, h, l)     ssh2_ossl_hash_final(&(ctx), h, l)
-#endif /* LIBSSH2_MD5 || LIBSSH2_MD5_PEM */
 
 #ifdef USE_OPENSSL_3
 #define ssh2_hmac_ctx EVP_MAC_CTX *
