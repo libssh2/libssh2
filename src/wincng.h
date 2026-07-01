@@ -172,8 +172,8 @@ struct wcng_hash_ctx {
 #endif
 
 /* FIXME: sync worker return values with ssh2_hash_* expectations */
-#define ssh2_hash_init(ctx, id) \
-    (ssh2_wcng_hash_init(ctx, id, NULL, 0) == 0)
+#define ssh2_hash_init(ctx, alg) \
+    (ssh2_wcng_hash_init(ctx, alg, NULL, 0) == 0)
 #define ssh2_hash_update(ctx, data, datalen) \
     (ssh2_wcng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
 #define ssh2_hash_final(ctx, hash, hashlen) \
