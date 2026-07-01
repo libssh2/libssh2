@@ -233,6 +233,16 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define ssh2_hmac_ctx        struct os400qc3_crypto_ctx
 #define ssh2_cipher_ctx      struct os400qc3_crypto_ctx
 
+#define SSH2_SHA1_ALG   Qc3_SHA1
+#define SSH2_SHA256_ALG Qc3_SHA256
+#define SSH2_SHA384_ALG Qc3_SHA384
+#define SSH2_SHA512_ALG Qc3_SHA512
+#define SSH2_MD5_ALG    Qc3_MD5
+
+#define ssh2_hash_init(x, id)         ssh2_os400qc3_hash_init(x, id)
+#define ssh2_hash_update(ctx, d, l)   ssh2_os400qc3_hash_update(&(ctx), d, l)
+#define ssh2_hash_final(ctx, h, l)    ssh2_os400qc3_hash_final(&(ctx), h, l)
+
 #define ssh2_sha1_init(x)             ssh2_os400qc3_hash_init(x, Qc3_SHA1)
 #define ssh2_sha1_update(ctx, d, l)   ssh2_os400qc3_hash_update(&(ctx), d, l)
 #define ssh2_sha1_final(ctx, h, l)    ssh2_os400qc3_hash_final(&(ctx), h, l)

@@ -163,6 +163,19 @@ struct wcng_hash_ctx {
 
 #define ssh2_hash_ctx struct wcng_hash_ctx
 
+#define SSH2_SHA1_ALG   ssh2_wcng.hAlgHashSHA1
+#define SSH2_SHA256_ALG ssh2_wcng.hAlgHashSHA256
+#define SSH2_SHA384_ALG ssh2_wcng.hAlgHashSHA384
+#define SSH2_SHA512_ALG ssh2_wcng.hAlgHashSHA512
+#define SSH2_MD5_ALG    ssh2_wcng.hAlgHashMD5
+
+#define ssh2_hash_init(ctx, id) \
+    (ssh2_wcng_hash_init(ctx, id, NULL, 0) == 0)
+#define ssh2_hash_update(ctx, data, datalen) \
+    (ssh2_wcng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
+#define ssh2_hash_final(ctx, hash, hashlen) \
+    (ssh2_wcng_hash_final(&(ctx), hash, hashlen) == 0)
+
 #define ssh2_sha1_init(ctx) \
     (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashSHA1, NULL, 0) == 0)
 #define ssh2_sha1_update(ctx, data, datalen) \

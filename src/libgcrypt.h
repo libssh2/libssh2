@@ -75,6 +75,20 @@
 
 #define ssh2_hash_ctx gcry_md_hd_t
 
+#define SSH2_SHA1_ALG   GCRY_MD_SHA1
+#define SSH2_SHA256_ALG GCRY_MD_SHA256
+#define SSH2_SHA384_ALG GCRY_MD_SHA384
+#define SSH2_SHA512_ALG GCRY_MD_SHA512
+#define SSH2_MD5_ALG    GCRY_MD_MD5
+
+/* returns 0 in case of failure */
+#define ssh2_hash_init(ctx, id) \
+    (GPG_ERR_NO_ERROR == gcry_md_open(ctx, id, 0))
+#define ssh2_hash_update(ctx, data, len) \
+    (gcry_md_write(ctx, data, len), 1)
+#define ssh2_hash_final(ctx, out, len) \
+    ssh2_lgcr_hash_final(ctx, out, len)
+
 /* returns 0 in case of failure */
 #define ssh2_sha1_init(ctx) \
     (GPG_ERR_NO_ERROR == gcry_md_open(ctx, GCRY_MD_SHA1, 0))
