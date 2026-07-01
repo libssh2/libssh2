@@ -48,68 +48,46 @@ int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
     return 1;
 }
 
-#if LIBSSH2_MD5
-int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
+static int lgcr_hmac_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen,
+                          int algo)
 {
     gcry_error_t err;
-    err = gcry_md_open(ctx, GCRY_MD_MD5, GCRY_MD_FLAG_HMAC);
+    err = gcry_md_open(ctx, algo, GCRY_MD_FLAG_HMAC);
     if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
         return 0;
     err = gcry_md_setkey(*ctx, key, keylen);
     if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
         return 0;
     return 1;
+}
+
+#if LIBSSH2_MD5
+int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
+{
+    return lgcr_hmac_init(ctx, key, keylen, GCRY_MD_MD5);
 }
 #endif
 
 #if LIBSSH2_HMAC_RIPEMD
 int ssh2_hmac_ripemd160_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    gcry_error_t err;
-    err = gcry_md_open(ctx, GCRY_MD_RMD160, GCRY_MD_FLAG_HMAC);
-    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
-        return 0;
-    err = gcry_md_setkey(*ctx, key, keylen);
-    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
-        return 0;
-    return 1;
+    return lgcr_hmac_init(ctx, key, keylen, GCRY_MD_RMD160);
 }
 #endif
 
 int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    gcry_error_t err;
-    err = gcry_md_open(ctx, GCRY_MD_SHA1, GCRY_MD_FLAG_HMAC);
-    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
-        return 0;
-    err = gcry_md_setkey(*ctx, key, keylen);
-    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
-        return 0;
-    return 1;
+    return lgcr_hmac_init(ctx, key, keylen, GCRY_MD_SHA1);
 }
 
 int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    gcry_error_t err;
-    err = gcry_md_open(ctx, GCRY_MD_SHA256, GCRY_MD_FLAG_HMAC);
-    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
-        return 0;
-    err = gcry_md_setkey(*ctx, key, keylen);
-    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
-        return 0;
-    return 1;
+    return lgcr_hmac_init(ctx, key, keylen, GCRY_MD_SHA256);
 }
 
 int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    gcry_error_t err;
-    err = gcry_md_open(ctx, GCRY_MD_SHA512, GCRY_MD_FLAG_HMAC);
-    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
-        return 0;
-    err = gcry_md_setkey(*ctx, key, keylen);
-    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
-        return 0;
-    return 1;
+    return lgcr_hmac_init(ctx, key, keylen, GCRY_MD_SHA512);
 }
 
 int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
