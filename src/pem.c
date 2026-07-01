@@ -281,7 +281,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         int blocksize = method->blocksize;
         void *abstract;
         unsigned char secret[2 * SSH2_MD5_DIG_LEN];
-        ssh2_md5_ctx fingerprint_ctx;
+        ssh2_hash_ctx fingerprint_ctx;
 
         /* Perform key derivation (PBKDF1/MD5) */
         if(!ssh2_md5_init(&fingerprint_ctx) ||

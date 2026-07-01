@@ -221,7 +221,7 @@ static int hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION *session,
     int ret;
     int i;
     unsigned char hash[SSH2_SHA1_DIG_LEN];
-    ssh2_sha1_ctx ctx;
+    ssh2_hash_ctx ctx;
 
     if(!ssh2_sha1_init(&ctx))
         return -1;
@@ -287,7 +287,7 @@ static int hostkey_method_ssh_rsa_sha2_256_signv(LIBSSH2_SESSION *session,
     int ret;
     int i;
     unsigned char hash[SSH2_SHA256_DIG_LEN];
-    ssh2_sha256_ctx ctx;
+    ssh2_hash_ctx ctx;
 
     if(!ssh2_sha256_init(&ctx))
         return -1;
@@ -350,7 +350,7 @@ static int hostkey_method_ssh_rsa_sha2_512_signv(LIBSSH2_SESSION *session,
     int ret;
     int i;
     unsigned char hash[SSH2_SHA512_DIG_LEN];
-    ssh2_sha512_ctx ctx;
+    ssh2_hash_ctx ctx;
 
     if(!ssh2_sha512_init(&ctx))
         return -1;
@@ -632,7 +632,7 @@ static int hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session,
 {
     ssh2_dsa_ctx *dsactx = (ssh2_dsa_ctx *)(*abstract);
     unsigned char hash[SSH2_SHA1_DIG_LEN];
-    ssh2_sha1_ctx ctx;
+    ssh2_hash_ctx ctx;
     int i;
 
     if(!ssh2_sha1_init(&ctx)) {
@@ -869,7 +869,7 @@ static int hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION *session,
 #define HOSTKEY_METHOD_EC_SIGNV_HASH(digest_type)                     \
     do {                                                              \
         unsigned char hash[SSH2_SHA##digest_type##_DIG_LEN];          \
-        ssh2_sha##digest_type##_ctx ctx;                              \
+        ssh2_hash_ctx ctx;                                            \
         int i;                                                        \
         if(!ssh2_sha##digest_type##_init(&ctx)) {                     \
             ret = -1;                                                 \
