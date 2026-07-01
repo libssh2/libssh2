@@ -154,7 +154,6 @@ struct wcng_hash_ctx {
     BCRYPT_HASH_HANDLE hHash;
     unsigned char *pbHashObject;
     ULONG dwHashObject;
-    ULONG cbHash;
 };
 
 /*
@@ -164,32 +163,28 @@ struct wcng_hash_ctx {
 #define ssh2_hash_ctx struct wcng_hash_ctx
 
 #define ssh2_sha1_init(ctx) \
-    (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashSHA1, \
-                         SSH2_SHA1_DIG_LEN, NULL, 0) == 0)
+    (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashSHA1, NULL, 0) == 0)
 #define ssh2_sha1_update(ctx, data, datalen) \
     (ssh2_wcng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
 #define ssh2_sha1_final(ctx, hash, hashlen) \
     (ssh2_wcng_hash_final(&(ctx), hash, hashlen) == 0)
 
 #define ssh2_sha256_init(ctx) \
-    (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashSHA256, \
-                         SSH2_SHA256_DIG_LEN, NULL, 0) == 0)
+    (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashSHA256, NULL, 0) == 0)
 #define ssh2_sha256_update(ctx, data, datalen) \
     (ssh2_wcng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
 #define ssh2_sha256_final(ctx, hash, hashlen) \
     (ssh2_wcng_hash_final(&(ctx), hash, hashlen) == 0)
 
 #define ssh2_sha384_init(ctx) \
-    (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashSHA384, \
-                         SSH2_SHA384_DIG_LEN, NULL, 0) == 0)
+    (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashSHA384, NULL, 0) == 0)
 #define ssh2_sha384_update(ctx, data, datalen) \
     (ssh2_wcng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
 #define ssh2_sha384_final(ctx, hash, hashlen) \
     (ssh2_wcng_hash_final(&(ctx), hash, hashlen) == 0)
 
 #define ssh2_sha512_init(ctx) \
-    (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashSHA512, \
-                         SSH2_SHA512_DIG_LEN, NULL, 0) == 0)
+    (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashSHA512, NULL, 0) == 0)
 #define ssh2_sha512_update(ctx, data, datalen) \
     (ssh2_wcng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
 #define ssh2_sha512_final(ctx, hash, hashlen) \
@@ -197,8 +192,7 @@ struct wcng_hash_ctx {
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #define ssh2_md5_init(ctx) \
-    (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashMD5, \
-                         SSH2_MD5_DIG_LEN, NULL, 0) == 0)
+    (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashMD5, NULL, 0) == 0)
 #define ssh2_md5_update(ctx, data, datalen) \
     (ssh2_wcng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
 #define ssh2_md5_final(ctx, hash, hashlen) \
@@ -206,7 +200,7 @@ struct wcng_hash_ctx {
 #endif
 
 int ssh2_wcng_hash_init(struct wcng_hash_ctx *ctx, BCRYPT_ALG_HANDLE hAlg,
-                        ULONG hashlen, unsigned char *key, ULONG keylen);
+                        unsigned char *key, ULONG keylen);
 int ssh2_wcng_hash_update(struct wcng_hash_ctx *ctx,
                           const void *data, ULONG datalen);
 int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx, unsigned char *hash,
