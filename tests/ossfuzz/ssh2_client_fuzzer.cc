@@ -56,16 +56,13 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     /* Create a session and start the handshake using the fuzz data
        passed in. */
     session = libssh2_session_init();
-    if(session) {
+    if(session)
         libssh2_session_set_blocking(session, 1);
-    }
-    else {
+    else
         goto EXIT_LABEL;
-    }
 
-    if(libssh2_session_handshake(session, socket_fds[0])) {
+    if(libssh2_session_handshake(session, socket_fds[0]))
         goto EXIT_LABEL;
-    }
 
     /* If we get here the handshake actually completed. */
     handshake_completed = 1;
@@ -73,11 +70,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 EXIT_LABEL:
 
     if(session) {
-        if(handshake_completed) {
+        if(handshake_completed)
             libssh2_session_disconnect(session,
                                        "Normal Shutdown, "
                                        "Thank you for playing");
-        }
 
         libssh2_session_free(session);
     }

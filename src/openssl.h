@@ -42,9 +42,6 @@
 
 #define SSH2_CRYPTO_ENGINE libssh2_openssl
 
-/* disable deprecated warnings in OpenSSL 3 */
-#define OPENSSL_SUPPRESS_DEPRECATED
-
 #ifdef LIBSSH2_WOLFSSL
 
 #include <wolfssl/options.h>
@@ -92,6 +89,7 @@
 
 #else /* !LIBSSH2_WOLFSSL */
 
+#include <openssl/opensslv.h>
 #include <openssl/opensslconf.h>
 #include <openssl/sha.h>
 #include <openssl/rsa.h>
@@ -115,12 +113,18 @@
 
 #endif /* LIBSSH2_WOLFSSL */
 
-#if !defined(LIBRESSL_VERSION_NUMBER) || defined(LIBSSH2_WOLFSSL) || \
-    (defined(LIBRESSL_VERSION_NUMBER) && \
-    LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
-/* For wolfSSL, whether the structs are truly opaque or not, it is best to not
- * rely on their internal data members being exposed publicly. */
-# define HAVE_OPAQUE_STRUCTS 1
+#ifdef LIBSSH2_WOLFSSL
+#  if LIBWOLFSSL_VERSION_HEX < 0x05004000
+#    error "wolfSSL 5.4.0 or greater required"
+#  endif
+#elif defined(LIBRESSL_VERSION_NUMBER)
+#  if LIBRESSL_VERSION_NUMBER < 0x3070000fL
+#    error "LibreSSL 3.7.0 or greater required"
+#  endif
+#else /* AWS-LC/BoringSSL advertise themselves as 0x1010107f */
+#  if OPENSSL_VERSION_NUMBER < 0x10101000L
+#    error "OpenSSL 1.1.1 or greater required"
+#  endif
 #endif
 
 #ifdef OPENSSL_NO_RSA
@@ -146,13 +150,10 @@
 # define LIBSSH2_ECDSA 0
 #endif
 
-#if (!defined(LIBSSH2_WOLFSSL) && \
-    !defined(LIBRESSL_VERSION_NUMBER)) || \
-    (defined(LIBRESSL_VERSION_NUMBER) && \
-    LIBRESSL_VERSION_NUMBER >= 0x3070000fL)
-# define LIBSSH2_ED25519 1
-#else
+#ifdef LIBSSH2_WOLFSSL
 # define LIBSSH2_ED25519 0
+#else
+# define LIBSSH2_ED25519 1
 #endif
 
 #if OPENSSL_VERSION_NUMBER >= 0x30500000L && \
@@ -186,15 +187,11 @@
 # define LIBSSH2_AES_CBC 0
 #endif
 
-/* wolfSSL v5.4.0 is required due to possibly this bug:
-   https://github.com/wolfSSL/wolfssl/pull/5205
-   Before this release, all libssh2 tests crash with AES-GCM enabled */
-#if !defined(OPENSSL_NO_AES) || \
-    (defined(LIBSSH2_WOLFSSL) && LIBWOLFSSL_VERSION_HEX >= 0x05004000 && \
-    defined(HAVE_AESGCM) && defined(WOLFSSL_AESGCM_STREAM))
-# define LIBSSH2_AES_GCM 1
-#else
+#if defined(OPENSSL_NO_AES) || (defined(LIBSSH2_WOLFSSL) && \
+    (!defined(HAVE_AESGCM) || !defined(WOLFSSL_AESGCM_STREAM)))
 # define LIBSSH2_AES_GCM 0
+#else
+# define LIBSSH2_AES_GCM 1
 #endif
 
 #ifdef OPENSSL_NO_BF
@@ -224,115 +221,76 @@
 #include "crypto_config.h"
 
 void ssh2_crypto_init(void);
-#define ssh2_crypto_exit()
+#define ssh2_crypto_exit() do {} while(0)
 
 int ssh2_random(unsigned char *buf, size_t len);
 
 #define ssh2_prepare_iovec(vec, len)  /* Empty. */
 
-#ifdef HAVE_OPAQUE_STRUCTS
-#define ssh2_sha1_ctx EVP_MD_CTX *
-#else
-#define ssh2_sha1_ctx EVP_MD_CTX
-#endif
-
 /* returns 0 in case of failure */
-int ssh2_ossl_sha1_init(ssh2_sha1_ctx *ctx);
-int ssh2_ossl_sha1_update(ssh2_sha1_ctx *ctx, const void *data, size_t len);
-int ssh2_ossl_sha1_final(ssh2_sha1_ctx *ctx, unsigned char *out);
-int ssh2_ossl_sha1(const unsigned char *message, size_t len,
-                   unsigned char *out);
-#define ssh2_sha1_init(x)                ssh2_ossl_sha1_init(x)
+int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const EVP_MD *digest);
+int ssh2_ossl_hash_update(EVP_MD_CTX **ctx, const void *data, size_t len);
+int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out);
+/* returns 1 in case of failure */
+int ssh2_ossl_hash(const unsigned char *message, size_t len,
+                   unsigned char *out, const EVP_MD *digest);
+
+#define ssh2_sha1_ctx               EVP_MD_CTX *
+#define ssh2_sha1_init(x)           ssh2_ossl_hash_init(x, EVP_sha1())
 #define ssh2_sha1_update(ctx, data, len) \
-    ssh2_ossl_sha1_update(&(ctx), data, len)
-#define ssh2_sha1_final(ctx, out)        ssh2_ossl_sha1_final(&(ctx), out)
-#define ssh2_sha1(x, y, z)               ssh2_ossl_sha1(x, y, z)
+    ssh2_ossl_hash_update(&(ctx), data, len)
+#define ssh2_sha1_final(ctx, out)   ssh2_ossl_hash_final(&(ctx), out)
+#define ssh2_sha1(x, y, z)          ssh2_ossl_hash(x, y, z, EVP_sha1())
 
-#ifdef HAVE_OPAQUE_STRUCTS
-#define ssh2_sha256_ctx EVP_MD_CTX *
-#else
-#define ssh2_sha256_ctx EVP_MD_CTX
-#endif
-
-/* returns 0 in case of failure */
-int ssh2_ossl_sha256_init(ssh2_sha256_ctx *ctx);
-int ssh2_ossl_sha256_update(ssh2_sha256_ctx *ctx, const void *data,
-                            size_t len);
-int ssh2_ossl_sha256_final(ssh2_sha256_ctx *ctx, unsigned char *out);
-int ssh2_ossl_sha256(const unsigned char *message, size_t len,
-                     unsigned char *out);
-#define ssh2_sha256_init(x) ssh2_ossl_sha256_init(x)
+#define ssh2_sha256_ctx             EVP_MD_CTX *
+#define ssh2_sha256_init(x)         ssh2_ossl_hash_init(x, EVP_sha256())
 #define ssh2_sha256_update(ctx, data, len) \
-    ssh2_ossl_sha256_update(&(ctx), data, len)
-#define ssh2_sha256_final(ctx, out) ssh2_ossl_sha256_final(&(ctx), out)
-#define ssh2_sha256(x, y, z)        ssh2_ossl_sha256(x, y, z)
+    ssh2_ossl_hash_update(&(ctx), data, len)
+#define ssh2_sha256_final(ctx, out) ssh2_ossl_hash_final(&(ctx), out)
+#define ssh2_sha256(x, y, z)        ssh2_ossl_hash(x, y, z, EVP_sha256())
 
-#ifdef HAVE_OPAQUE_STRUCTS
-#define ssh2_sha384_ctx EVP_MD_CTX *
-#else
-#define ssh2_sha384_ctx EVP_MD_CTX
-#endif
-
-/* returns 0 in case of failure */
-int ssh2_ossl_sha384_init(ssh2_sha384_ctx *ctx);
-int ssh2_ossl_sha384_update(ssh2_sha384_ctx *ctx, const void *data,
-                            size_t len);
-int ssh2_ossl_sha384_final(ssh2_sha384_ctx *ctx, unsigned char *out);
-int ssh2_ossl_sha384(const unsigned char *message, size_t len,
-                     unsigned char *out);
-#define ssh2_sha384_init(x) ssh2_ossl_sha384_init(x)
+#define ssh2_sha384_ctx             EVP_MD_CTX *
+#define ssh2_sha384_init(x)         ssh2_ossl_hash_init(x, EVP_sha384())
 #define ssh2_sha384_update(ctx, data, len) \
-    ssh2_ossl_sha384_update(&(ctx), data, len)
-#define ssh2_sha384_final(ctx, out) ssh2_ossl_sha384_final(&(ctx), out)
-#define ssh2_sha384(x, y, z)        ssh2_ossl_sha384(x, y, z)
+    ssh2_ossl_hash_update(&(ctx), data, len)
+#define ssh2_sha384_final(ctx, out) ssh2_ossl_hash_final(&(ctx), out)
+#define ssh2_sha384(x, y, z)        ssh2_ossl_hash(x, y, z, EVP_sha384())
 
-#ifdef HAVE_OPAQUE_STRUCTS
-#define ssh2_sha512_ctx EVP_MD_CTX *
-#else
-#define ssh2_sha512_ctx EVP_MD_CTX
-#endif
-
-/* returns 0 in case of failure */
-int ssh2_ossl_sha512_init(ssh2_sha512_ctx *ctx);
-int ssh2_ossl_sha512_update(ssh2_sha512_ctx *ctx, const void *data,
-                            size_t len);
-int ssh2_ossl_sha512_final(ssh2_sha512_ctx *ctx, unsigned char *out);
-int ssh2_ossl_sha512(const unsigned char *message, size_t len,
-                     unsigned char *out);
-#define ssh2_sha512_init(x) ssh2_ossl_sha512_init(x)
+#define ssh2_sha512_ctx             EVP_MD_CTX *
+#define ssh2_sha512_init(x)         ssh2_ossl_hash_init(x, EVP_sha512())
 #define ssh2_sha512_update(ctx, data, len) \
-    ssh2_ossl_sha512_update(&(ctx), data, len)
-#define ssh2_sha512_final(ctx, out) ssh2_ossl_sha512_final(&(ctx), out)
-#define ssh2_sha512(x, y, z)        ssh2_ossl_sha512(x, y, z)
+    ssh2_ossl_hash_update(&(ctx), data, len)
+#define ssh2_sha512_final(ctx, out) ssh2_ossl_hash_final(&(ctx), out)
+#define ssh2_sha512(x, y, z)        ssh2_ossl_hash(x, y, z, EVP_sha512())
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#ifdef HAVE_OPAQUE_STRUCTS
-#define ssh2_md5_ctx EVP_MD_CTX *
+#define ssh2_md5_ctx                EVP_MD_CTX *
+/* MD5 digest is not supported in OpenSSL FIPS mode
+ * Trying to init it results in a latent OpenSSL error:
+ * "digital envelope routines:FIPS_DIGESTINIT:disabled for fips"
+ * Thus, return 0 in FIPS mode
+ */
+#if !defined(USE_OPENSSL_3) && \
+    !defined(LIBRESSL_VERSION_NUMBER) && \
+    !defined(LIBSSH2_WOLFSSL)
+/* OpenSSL 1.1.1 */
+#define ssh2_md5_init(x) \
+    (FIPS_mode() ? (*(x) = NULL, 0) : ssh2_ossl_hash_init(x, EVP_md5()))
 #else
-#define ssh2_md5_ctx EVP_MD_CTX
+#define ssh2_md5_init(x)            ssh2_ossl_hash_init(x, EVP_md5())
 #endif
-
-/* returns 0 in case of failure */
-int ssh2_ossl_md5_init(ssh2_md5_ctx *ctx);
-int ssh2_ossl_md5_update(ssh2_md5_ctx *ctx, const void *data, size_t len);
-int ssh2_ossl_md5_final(ssh2_md5_ctx *ctx, unsigned char *out);
-#define ssh2_md5_init(x)                ssh2_ossl_md5_init(x)
-#define ssh2_md5_update(ctx, data, len) ssh2_ossl_md5_update(&(ctx), data, len)
-#define ssh2_md5_final(ctx, out)        ssh2_ossl_md5_final(&(ctx), out)
+#define ssh2_md5_update(ctx, data, len) \
+    ssh2_ossl_hash_update(&(ctx), data, len)
+#define ssh2_md5_final(ctx, out)    ssh2_ossl_hash_final(&(ctx), out)
 #endif /* LIBSSH2_MD5 || LIBSSH2_MD5_PEM */
 
 #ifdef USE_OPENSSL_3
 #define ssh2_hmac_ctx EVP_MAC_CTX *
-#elif defined(HAVE_OPAQUE_STRUCTS)
+#else
 #define ssh2_hmac_ctx HMAC_CTX *
-#else /* !HAVE_OPAQUE_STRUCTS */
-#define ssh2_hmac_ctx HMAC_CTX
 #endif /* USE_OPENSSL_3 */
 
-#define ssh2_crypto_exit()
-
 #if LIBSSH2_RSA
-
 #ifdef USE_OPENSSL_3
 #define ssh2_rsa_ctx          EVP_PKEY
 #define ssh2_rsa_free(rsactx) EVP_PKEY_free(rsactx)
@@ -340,11 +298,9 @@ int ssh2_ossl_md5_final(ssh2_md5_ctx *ctx, unsigned char *out);
 #define ssh2_rsa_ctx          RSA
 #define ssh2_rsa_free(rsactx) RSA_free(rsactx)
 #endif
-
 #endif /* LIBSSH2_RSA */
 
 #if LIBSSH2_DSA
-
 #ifdef USE_OPENSSL_3
 #define ssh2_dsa_ctx          EVP_PKEY
 #define ssh2_dsa_free(rsactx) EVP_PKEY_free(rsactx)
@@ -352,13 +308,9 @@ int ssh2_ossl_md5_final(ssh2_md5_ctx *ctx, unsigned char *out);
 #define ssh2_dsa_ctx          DSA
 #define ssh2_dsa_free(dsactx) DSA_free(dsactx)
 #endif
-
 #endif /* LIBSSH2_DSA */
 
 #if LIBSSH2_ECDSA
-
-#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
-
 #ifdef USE_OPENSSL_3
 #define ssh2_ecdsa_ctx            EVP_PKEY
 #define ssh2_ecdsa_free(ecdsactx) EVP_PKEY_free(ecdsactx)
@@ -374,8 +326,6 @@ typedef enum {
     SSH2_EC_CURVE_NISTP384 = NID_secp384r1,
     SSH2_EC_CURVE_NISTP521 = NID_secp521r1
 } ssh2_curve_type;
-#else /* !LIBSSH2_ECDSA */
-#define ssh2_ec_key void
 #endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519
@@ -384,11 +334,8 @@ typedef enum {
 #endif /* LIBSSH2_ED25519 */
 
 #define SSH2_CIPHER_T(name) const EVP_CIPHER *(*(name))(void)
-#ifdef HAVE_OPAQUE_STRUCTS
+
 #define ssh2_cipher_ctx EVP_CIPHER_CTX *
-#else
-#define ssh2_cipher_ctx EVP_CIPHER_CTX
-#endif
 
 #define ssh2_cipher_aes256gcm EVP_aes_256_gcm
 #define ssh2_cipher_aes128gcm EVP_aes_128_gcm
@@ -405,11 +352,7 @@ typedef enum {
 #define ssh2_cipher_3des      EVP_des_ede3_cbc
 #define ssh2_cipher_chacha20  NULL
 
-#ifdef HAVE_OPAQUE_STRUCTS
 #define ssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_free(*(ctx))
-#else
-#define ssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_cleanup(ctx)
-#endif
 
 #define ssh2_bn_ctx               BN_CTX
 #define ssh2_bn_ctx_new()         BN_CTX_new()
@@ -434,14 +377,5 @@ int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *val);
 #define SSH2_DH_MAX_MODULUS_BITS 16384
 
 #define ssh2_dh_ctx BIGNUM *
-#define ssh2_dh_key_pair(dhctx, pub, g, p, group_order, bnctx) \
-    ssh2_ossl_dh_key_pair(dhctx, pub, g, p, group_order, bnctx)
-#define ssh2_dh_secret(dhctx, secret, f, p, bnctx) \
-    ssh2_ossl_dh_secret(dhctx, secret, f, p, bnctx)
-
-int ssh2_ossl_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
-                          ssh2_bn *p, int group_order, ssh2_bn_ctx *bnctx);
-int ssh2_ossl_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
-                        ssh2_bn *p, ssh2_bn_ctx *bnctx);
 
 #endif /* LIBSSH2_OPENSSL_H */

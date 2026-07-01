@@ -42,15 +42,15 @@
 
 struct known_host {
     struct list_node node;
-    char *name;      /* points to the name or the hash (allocated) */
-    size_t name_len; /* needed for hashed data */
-    int port;        /* if non-zero, a specific port this key is for on this
-                        host */
-    int typemask;    /* plain, sha1, custom, ... */
-    char *salt;      /* points to binary salt (allocated) */
-    size_t salt_len; /* size of salt */
-    char *key;       /* the (allocated) associated key. This is kept base64
-                        encoded in memory. */
+    char *name;          /* points to the name or the hash (allocated) */
+    size_t name_len;     /* needed for hashed data */
+    int port;            /* if non-zero, a specific port this key is for on
+                            this host */
+    int typemask;        /* plain, sha1, custom, ... */
+    char *salt;          /* points to binary salt (allocated) */
+    size_t salt_len;     /* size of salt */
+    char *key;           /* the (allocated) associated key. This is kept base64
+                            encoded in memory. */
     char *key_type_name; /* the (allocated) key type name */
     size_t key_type_len; /* size of key_type_name */
     char *comment;       /* the (allocated) optional comment text, may be
@@ -165,12 +165,16 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
             goto error;
 
         if(!ptr || ptrlen == 0) {
+            if(ptr)
+                SSH2_FREE(hosts->session, ptr);
             rc = ssh2_err(hosts->session, LIBSSH2_ERROR_INVAL,
                           "Base64 decoded value is invalid");
             goto error;
         }
 
         if(!salt) {
+            if(ptr)
+                SSH2_FREE(hosts->session, ptr);
             rc = ssh2_err(hosts->session, LIBSSH2_ERROR_INVAL, "Salt is NULL");
             goto error;
         }
@@ -186,6 +190,8 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
             goto error;
 
         if(!ptr || ptrlen == 0) {
+            if(ptr)
+                SSH2_FREE(hosts->session, ptr);
             rc = ssh2_err(hosts->session, LIBSSH2_ERROR_INVAL,
                           "Base64 decoded value is invalid");
             goto error;
@@ -196,7 +202,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         break;
     default:
         rc = ssh2_err(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                      "Unknown hostname type");
+                      "Unrecognized hostname type");
         goto error;
     }
 
@@ -249,9 +255,8 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         entry->comment[commentlen] = 0; /* force a null-terminator */
         entry->comment_len = commentlen;
     }
-    else {
+    else
         entry->comment = NULL;
-    }
 
     /* add this new host to the big list of known hosts */
     ssh2_list_add(&hosts->head, &entry->node);
@@ -370,7 +375,8 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
     /* if a port number is given, check for a '[host]:port' first before the
        plain 'host' */
     if(port >= 0) {
-        int len = snprintf(hostbuff, sizeof(hostbuff), "[%s]:%d", hostp, port);
+        int len = ssh2_snprintf(hostbuff, sizeof(hostbuff), "[%s]:%d",
+                                hostp, port);
         if(len < 0 || len >= (int)sizeof(hostbuff)) {
             ssh2_err(hosts->session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                      "Known-host write buffer too small");
@@ -416,26 +422,25 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                        plain input to produce a hash to compare with the
                        stored hash.
                     */
-                    unsigned char hash[SHA_DIGEST_LENGTH];
+                    unsigned char hash[SSH2_SHA1_DIG_LEN];
                     ssh2_hmac_ctx ctx;
                     if(!ssh2_hmac_ctx_init(&ctx))
                         break;
 
-                    if(SHA_DIGEST_LENGTH != node->name_len) {
+                    if(SSH2_SHA1_DIG_LEN != node->name_len)
                         /* the name hash length must be the sha1 size or
                            we cannot match it */
                         break;
-                    }
                     if(!ssh2_hmac_sha1_init(&ctx, node->salt, node->salt_len))
                         break;
                     if(!ssh2_hmac_update(&ctx, host, strlen(host)) ||
-                       !ssh2_hmac_final(&ctx, hash)) {
+                       !ssh2_hmac_final(&ctx, hash, SSH2_SHA1_DIG_LEN)) {
                         ssh2_hmac_cleanup(&ctx);
                         break;
                     }
                     ssh2_hmac_cleanup(&ctx);
 
-                    if(!memcmp(hash, node->name, SHA_DIGEST_LENGTH))
+                    if(!memcmp(hash, node->name, SSH2_SHA1_DIG_LEN))
                         /* this is a node we are interested in */
                         match = 1;
                 }
@@ -806,22 +811,17 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
     }
 
     /* Figure out host format */
-    if(hostlen < 3 || memcmp(host, "|1|", 3)) {
+    if(hostlen < 3 || memcmp(host, "|1|", 3))
         /* old style plain text: [name]([,][name])*
-
-           for the sake of simplicity, we add them as separate hosts with the
-           same key
-        */
+           for simplicity, we add them as separate hosts with the same key */
         return oldstyle_hostline(hosts, host, hostlen, key_type_name,
                                  key_type_len, key, keylen, key_type,
                                  comment, commentlen);
-    }
-    else {
+    else
         /* |1|[salt]|[hash] */
         return hashed_hostline(hosts, host, hostlen, key_type_name,
                                key_type_len, key, keylen, key_type,
                                comment, commentlen);
-    }
 }
 
 /*
@@ -906,8 +906,8 @@ int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
         len--;
     }
 
-    /* null-terminate where the newline is */
-    if(*cp == '\n')
+    /* null-terminate where the newline or eob is */
+    if(*cp == '\n' || *cp == '\0')
         keylen--; /* do not include this in the count */
 
     /* deal with this one host+key line */
@@ -1077,17 +1077,18 @@ static int knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
 
         if(required_size <= buflen) {
             if(node->comment && key_type_len)
-                snprintf(buf, buflen, "|1|%s|%s %s %s %s\n", saltalloc,
-                         namealloc, key_type_name, node->key, node->comment);
+                ssh2_snprintf(buf, buflen, "|1|%s|%s %s %s %s\n", saltalloc,
+                              namealloc, key_type_name, node->key,
+                              node->comment);
             else if(node->comment)
-                snprintf(buf, buflen, "|1|%s|%s %s %s\n", saltalloc, namealloc,
-                         node->key, node->comment);
+                ssh2_snprintf(buf, buflen, "|1|%s|%s %s %s\n", saltalloc,
+                              namealloc, node->key, node->comment);
             else if(key_type_len)
-                snprintf(buf, buflen, "|1|%s|%s %s %s\n", saltalloc, namealloc,
-                         key_type_name, node->key);
+                ssh2_snprintf(buf, buflen, "|1|%s|%s %s %s\n", saltalloc,
+                              namealloc, key_type_name, node->key);
             else
-                snprintf(buf, buflen, "|1|%s|%s %s\n", saltalloc, namealloc,
-                         node->key);
+                ssh2_snprintf(buf, buflen, "|1|%s|%s %s\n", saltalloc,
+                              namealloc, node->key);
         }
 
         SSH2_FREE(hosts->session, namealloc);
@@ -1099,16 +1100,16 @@ static int knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
 
         if(required_size <= buflen) {
             if(node->comment && key_type_len)
-                snprintf(buf, buflen, "%s %s %s %s\n", node->name,
-                         key_type_name, node->key, node->comment);
+                ssh2_snprintf(buf, buflen, "%s %s %s %s\n", node->name,
+                              key_type_name, node->key, node->comment);
             else if(node->comment)
-                snprintf(buf, buflen, "%s %s %s\n", node->name, node->key,
-                         node->comment);
+                ssh2_snprintf(buf, buflen, "%s %s %s\n", node->name, node->key,
+                              node->comment);
             else if(key_type_len)
-                snprintf(buf, buflen, "%s %s %s\n", node->name, key_type_name,
-                         node->key);
+                ssh2_snprintf(buf, buflen, "%s %s %s\n", node->name,
+                              key_type_name, node->key);
             else
-                snprintf(buf, buflen, "%s %s\n", node->name, node->key);
+                ssh2_snprintf(buf, buflen, "%s %s\n", node->name, node->key);
         }
     }
 

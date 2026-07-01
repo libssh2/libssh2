@@ -62,7 +62,7 @@ static void bcrypt_hash(uint8_t *sha2pass, uint8_t *sha2salt, uint8_t *out)
     uint32_t cdata[BCRYPT_BLOCKS];
     int i;
     uint16_t j;
-    uint16_t shalen = SHA512_DIGEST_LENGTH;
+    uint16_t shalen = SSH2_SHA512_DIG_LEN;
 
     /* key expansion */
     Blowfish_initstate(&state);
@@ -97,8 +97,8 @@ static int bcrypt_pbkdf(const char *pass, size_t passlen,
                         const uint8_t *salt, size_t saltlen,
                         uint8_t *key, size_t keylen, unsigned int rounds)
 {
-    uint8_t sha2pass[SHA512_DIGEST_LENGTH];
-    uint8_t sha2salt[SHA512_DIGEST_LENGTH];
+    uint8_t sha2pass[SSH2_SHA512_DIG_LEN];
+    uint8_t sha2salt[SSH2_SHA512_DIG_LEN];
     uint8_t out[BCRYPT_HASHSIZE];
     uint8_t tmpout[BCRYPT_HASHSIZE];
     uint8_t *countsalt;
@@ -171,9 +171,8 @@ static int bcrypt_pbkdf(const char *pass, size_t passlen,
         amt = SSH2_MIN(amt, keylen);
         for(i = 0; i < amt; i++) {
             size_t dest = i * stride + (count - 1);
-            if(dest >= origkeylen) {
+            if(dest >= origkeylen)
                 break;
-            }
             key[dest] = out[i];
         }
         keylen -= i;

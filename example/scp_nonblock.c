@@ -14,7 +14,7 @@
 #include <libssh2.h>
 
 #ifdef _WIN32
-#define write(f, b, c)  write(f, b, (unsigned int)(c))
+#define write(f, b, c)  _write(f, b, (unsigned int)(c))
 #endif
 
 #ifdef HAVE_SYS_SOCKET_H
@@ -120,21 +120,16 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    if(argc > 1) {
+    if(argc > 1)
         hostaddr = inet_addr(argv[1]);
-    }
-    else {
+    else
         hostaddr = htonl(0x7F000001);
-    }
-    if(argc > 2) {
+    if(argc > 2)
         username = argv[2];
-    }
-    if(argc > 3) {
+    if(argc > 3)
         password = argv[3];
-    }
-    if(argc > 4) {
+    if(argc > 4)
         scppath = argv[4];
-    }
 
     rc = libssh2_init(0);
     if(rc) {
@@ -191,9 +186,8 @@ int main(int argc, char *argv[])
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
-    for(i = 0; i < 20; i++) {
+    for(i = 0; i < 20; i++)
         fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
-    }
     fprintf(stderr, "\n");
 
     if(auth_pw) {
@@ -251,14 +245,16 @@ int main(int argc, char *argv[])
         do {
             int amount = sizeof(mem);
 
-            if((fileinfo.st_size - got) < amount) {
+            if((fileinfo.st_size - got) < amount)
                 amount = (int)(fileinfo.st_size - got);
-            }
 
             /* loop until we block */
             nread = libssh2_channel_read(channel, mem, (size_t)amount);
             if(nread > 0) {
-                write(1, mem, (size_t)nread);
+                ssize_t nwritten = write(1, mem, (size_t)nread);
+                if(nwritten != nread)
+                    fprintf(stderr, "write failed: %ld != %ld\n",
+                            (long)nread, (long)nwritten);
                 got += nread;
                 total += nread;
             }
@@ -287,7 +283,6 @@ int main(int argc, char *argv[])
 #endif
 
     libssh2_channel_free(channel);
-    channel = NULL;
 
 shutdown:
 
@@ -297,7 +292,7 @@ shutdown:
     }
 
     if(sock != LIBSSH2_INVALID_SOCKET) {
-        shutdown(sock, 2);
+        shutdown(sock, 2 /* SHUT_RDWR */);
         LIBSSH2_SOCKET_CLOSE(sock);
     }
 

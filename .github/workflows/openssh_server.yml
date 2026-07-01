@@ -43,7 +43,7 @@ env:
 jobs:
   build-and-push:
     name: 'Image build and push'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: read   # To comply with https://docs.github.com/en/actions/tutorials/publish-packages/publish-docker-images
       packages: write  # To create/update container

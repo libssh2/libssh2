@@ -52,10 +52,9 @@
 
 #ifdef OS400_DEBUG
 /* In debug mode, all system library errors cause an exception. */
-#define set_EC_length(ec, length)  ((ec).Bytes_Provided =      \
-                                    (ec).Bytes_Available = 0)
+#define set_EC_length(ec, len) ((ec).Bytes_Provided = ec).Bytes_Available = 0)
 #else
-#define set_EC_length(ec, length)  ((ec).Bytes_Provided = (length))
+#define set_EC_length(ec, len) ((ec).Bytes_Provided = (len))
 #endif
 
 /* Ensure va_list operations are not on an array. */
@@ -174,7 +173,7 @@ static int parse_pbkdf2(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
                         struct pkcs5algo *algo, struct asn1Element *param);
 static const struct pkcs5algo PBKDF2 = {
     OID_id_PBKDF2,  parse_pbkdf2,   0,  0,  '\0',   '\0',   '\0',
-    SHA_DIGEST_LENGTH,  Qc3_SHA1,   SHA_DIGEST_LENGTH,  8,  8,  0
+    SSH2_SHA1_DIG_LEN,  Qc3_SHA1,   SSH2_SHA1_DIG_LEN,  8,  8,  0
 };
 
 /* id-hmacWithSHA1 OID: 1.2.840.113549.2.7 */
@@ -187,7 +186,7 @@ static int parse_hmacWithSHA1(LIBSSH2_SESSION *session,
                               struct asn1Element *param);
 static const struct pkcs5algo hmacWithSHA1 = {
     OID_id_hmacWithSHA1,    parse_hmacWithSHA1, 0,  0,  '\0',   '\0',   '\0',
-    SHA_DIGEST_LENGTH,  Qc3_SHA1,   SHA_DIGEST_LENGTH,  8,  8,  0
+    SSH2_SHA1_DIG_LEN,  Qc3_SHA1,   SSH2_SHA1_DIG_LEN,  8,  8,  0
 };
 
 /* desCBC OID: 1.3.14.3.2.7 */
@@ -231,7 +230,7 @@ static const unsigned char OID_pbeWithMD5AndDES_CBC[] = {
 };
 static const struct pkcs5algo pbeWithMD5AndDES_CBC = {
     OID_pbeWithMD5AndDES_CBC,   parse_pbes1,    Qc3_DES,    8,  Qc3_CBC,
-    Qc3_Pad_Counter,    '\0',   8,  Qc3_MD5,    MD5_DIGEST_LENGTH,  8,  0,  0
+    Qc3_Pad_Counter,    '\0',   8,  Qc3_MD5,    SSH2_MD5_DIG_LEN,  8,  0,  0
 };
 
 /* pbeWithMD5AndRC2-CBC OID: 1.2.840.113549.1.5.6 */
@@ -240,7 +239,7 @@ static const unsigned char OID_pbeWithMD5AndRC2_CBC[] = {
 };
 static const struct pkcs5algo pbeWithMD5AndRC2_CBC = {
     OID_pbeWithMD5AndRC2_CBC,   parse_pbes1,    Qc3_RC2,    8,  Qc3_CBC,
-    Qc3_Pad_Counter,    '\0',   0,  Qc3_MD5,    MD5_DIGEST_LENGTH,  8,  0, 64
+    Qc3_Pad_Counter,    '\0',   0,  Qc3_MD5,    SSH2_MD5_DIG_LEN,  8,  0, 64
 };
 #endif
 
@@ -250,7 +249,7 @@ static const unsigned char OID_pbeWithSHA1AndDES_CBC[] = {
 };
 static const struct pkcs5algo pbeWithSHA1AndDES_CBC = {
     OID_pbeWithSHA1AndDES_CBC,   parse_pbes1,    Qc3_DES,    8,  Qc3_CBC,
-    Qc3_Pad_Counter,    '\0',   8,  Qc3_SHA1,   SHA_DIGEST_LENGTH,  8,  0,  0
+    Qc3_Pad_Counter,    '\0',   8,  Qc3_SHA1,   SSH2_SHA1_DIG_LEN,  8,  0,  0
 };
 
 /* pbeWithSHA1AndRC2-CBC OID: 1.2.840.113549.1.5.11 */
@@ -259,7 +258,7 @@ static const unsigned char OID_pbeWithSHA1AndRC2_CBC[] = {
 };
 static const struct pkcs5algo pbeWithSHA1AndRC2_CBC = {
     OID_pbeWithSHA1AndRC2_CBC,   parse_pbes1,    Qc3_RC2,    8,  Qc3_CBC,
-    Qc3_Pad_Counter,    '\0',   0,  Qc3_SHA1,   SHA_DIGEST_LENGTH,  8,  0, 64
+    Qc3_Pad_Counter,    '\0',   0,  Qc3_SHA1,   SSH2_SHA1_DIG_LEN,  8,  0, 64
 };
 
 /* rc5-CBC-PAD OID: 1.2.840.113549.3.9: RC5 not implemented in Qc3. */
@@ -317,8 +316,8 @@ static const char beginencprivkeyhdr[] =
 static const char endencprivkeyhdr[] = "-----END ENCRYPTED PRIVATE KEY-----";
 static const char beginprivkeyhdr[] = "-----BEGIN PRIVATE KEY-----";
 static const char endprivkeyhdr[] = "-----END PRIVATE KEY-----";
-static const char beginrsaprivkeyhdr[] = "-----BEGIN RSA PRIVATE KEY-----";
-static const char endrsaprivkeyhdr[] = "-----END RSA PRIVATE KEY-----";
+static const char beginrsaprivkeyhdr[] = PEM_RSA_HEADER;
+static const char endrsaprivkeyhdr[] = PEM_RSA_FOOTER;
 static const char fopenrbmode[] = "rb";
 
 /* The rest of character literals in this module are in EBCDIC. */
@@ -1007,28 +1006,27 @@ int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 
 #if LIBSSH2_MD5
 int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
-                       void *key, size_t keylen)
 {
-    return os400qc3_hmac_init(ctx, Qc3_MD5, MD5_DIGEST_LENGTH,
+    return os400qc3_hmac_init(ctx, Qc3_MD5, SSH2_MD5_DIG_LEN,
                               key, keylen);
 }
 #endif
 
 int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    return os400qc3_hmac_init(ctx, Qc3_SHA1, SHA_DIGEST_LENGTH,
+    return os400qc3_hmac_init(ctx, Qc3_SHA1, SSH2_SHA1_DIG_LEN,
                               key, keylen);
 }
 
 int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    return os400qc3_hmac_init(ctx, Qc3_SHA256, SHA256_DIGEST_LENGTH,
+    return os400qc3_hmac_init(ctx, Qc3_SHA256, SSH2_SHA256_DIG_LEN,
                               key, keylen);
 }
 
 int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    return os400qc3_hmac_init(ctx, Qc3_SHA512, SHA512_DIGEST_LENGTH,
+    return os400qc3_hmac_init(ctx, Qc3_SHA512, SSH2_SHA512_DIG_LEN,
                               key, keylen);
 }
 
@@ -1046,16 +1044,17 @@ int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
     return errcode.Bytes_Available ? 0 : 1;
 }
 
-int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *out)
+int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen)
 {
     char data;
     Qus_EC_t errcode;
+    (void)maclen;
 
     ctx->hash.Final_Op_Flag = Qc3_Final;
     set_EC_length(errcode, sizeof(errcode));
     Qc3CalculateHMAC((char *)data, &zero, Qc3_Data, (char *)&ctx->hash,
                      Qc3_Alg_Token, ctx->key.Key_Context_Token, Qc3_Key_Token,
-                     anycsp, NULL, (char *)out, (char *)&errcode);
+                     anycsp, NULL, (char *)mac, (char *)&errcode);
     return errcode.Bytes_Available ? 0 : 1;
 }
 
@@ -1248,8 +1247,8 @@ void ssh2_dh_init(ssh2_dh_ctx *dhctx)
     memset((char *)dhctx, 0, sizeof(*dhctx));
 }
 
-int ssh2_os400qc3_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub,
-                              ssh2_bn *g, ssh2_bn *p, int group_order)
+int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
+                     ssh2_bn *p, int group_order, ssh2_bn_ctx *bnctx)
 {
     struct asn1Element *prime;
     struct asn1Element *base;
@@ -1262,7 +1261,10 @@ int ssh2_os400qc3_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub,
     int pubkeylen;
     Qus_EC_t errcode;
 
-    (void)group_order;
+    (void)bnctx;
+
+    if(group_order <= 0)
+        return -1;
 
     /* Build the PKCS#3 structure. */
 
@@ -1295,8 +1297,8 @@ int ssh2_os400qc3_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub,
     return ssh2_bn_from_bin(pub, pubkeylen, (unsigned char *)pubkey);
 }
 
-int ssh2_os400qc3_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
-                            ssh2_bn *f, ssh2_bn *p)
+int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
+                   ssh2_bn *p, ssh2_bn_ctx *bnctx)
 {
     char *pubkey;
     int pubkeysize;
@@ -1304,6 +1306,8 @@ int ssh2_os400qc3_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
     int secretbufsize;
     int secretbuflen;
     Qus_EC_t errcode;
+
+    (void)bnctx;
 
     pubkeysize = (ssh2_bn_bits(f) + 7) >> 3;
     pubkey = alloca(pubkeysize);
@@ -1454,7 +1458,7 @@ static int pbkdf2(LIBSSH2_SESSION *session, char **dk,
         ni = htonl(i);
         if(!ssh2_hmac_update(&hctx, pkcs5->salt, pkcs5->saltlen) ||
            !ssh2_hmac_update(&hctx, &ni, sizeof(ni)) ||
-           !ssh2_hmac_final(&hctx, mac)) {
+           !ssh2_hmac_final(&hctx, mac, pkcs5->hashlen)) {
             SSH2_FREE(session, buf);
             *dk = NULL;
             ssh2_os400qc3_crypto_dtor(&hctx);
@@ -1463,7 +1467,7 @@ static int pbkdf2(LIBSSH2_SESSION *session, char **dk,
         memcpy(buf, mac, pkcs5->hashlen);
         for(j = 1; j < pkcs5->itercount; j++) {
             if(!ssh2_hmac_update(&hctx, mac, pkcs5->hashlen) ||
-               !ssh2_hmac_final(&hctx, mac)) {
+               !ssh2_hmac_final(&hctx, mac, pkcs5->hashlen)) {
                 SSH2_FREE(session, buf);
                 *dk = NULL;
                 ssh2_os400qc3_crypto_dtor(&hctx);
@@ -2364,13 +2368,13 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
     algd.Public_Key_Alg = Qc3_RSA;
     algd.PKA_Block_Format = Qc3_PKCS1_01;
     switch(hash_len) {
-    case SHA_DIGEST_LENGTH:
+    case SSH2_SHA1_DIG_LEN:
         algd.Signing_Hash_Alg = Qc3_SHA1;
         break;
-    case SHA256_DIGEST_LENGTH:
+    case SSH2_SHA256_DIG_LEN:
         algd.Signing_Hash_Alg = Qc3_SHA256;
         break;
-    case SHA512_DIGEST_LENGTH:
+    case SSH2_SHA512_DIG_LEN:
         algd.Signing_Hash_Alg = Qc3_SHA512;
         break;
     default:
@@ -2389,7 +2393,7 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return ssh2_rsa_sha2_verify(rsactx, SHA_DIGEST_LENGTH,
+    return ssh2_rsa_sha2_verify(rsactx, SSH2_SHA1_DIG_LEN,
                                 sig, sig_len, m, m_len);
 }
 
@@ -2439,7 +2443,7 @@ const char *ssh2_supported_key_sign_algs(LIBSSH2_SESSION *session,
     (void)session;
 
     if(key_method_len == 7 &&
-       memcmp(key_method, "ssh-rsa", key_method_len) == 0) {
+       !memcmp(key_method, "ssh-rsa", key_method_len)) {
         return "rsa-sha2-512,rsa-sha2-256"
 #if LIBSSH2_RSA_SHA1
             ",ssh-rsa"

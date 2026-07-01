@@ -283,7 +283,7 @@ static int test_case(int num,
         return 1;
     }
 
-    if(strcmp(expected.last_error_message, message) != 0) {
+    if(strcmp(expected.last_error_message, message)) {
         fprintf(stdout,
                 "Test case %d: expected last error message to be "
                 "\"%s\" got \"%s\"\n",

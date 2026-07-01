@@ -36,7 +36,7 @@
 #include <string.h>
 
 #ifndef INADDR_NONE
-#define INADDR_NONE (in_addr_t)~0
+#define INADDR_NONE ((in_addr_t)~0)
 #endif
 
 static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
@@ -186,9 +186,8 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "Authentication by public key failed.\n");
                 goto shutdown;
             }
-            else {
+            else
                 fprintf(stderr, "Authentication by public key succeeded.\n");
-            }
         }
         else {
             fprintf(stderr, "No supported authentication methods found.\n");
@@ -326,7 +325,7 @@ int main(int argc, char *argv[])
 shutdown:
 
     if(forwardsock != LIBSSH2_INVALID_SOCKET) {
-        shutdown(forwardsock, 2);
+        shutdown(forwardsock, 2 /* SHUT_RDWR */);
         LIBSSH2_SOCKET_CLOSE(forwardsock);
     }
 
@@ -342,7 +341,7 @@ shutdown:
     }
 
     if(sock != LIBSSH2_INVALID_SOCKET) {
-        shutdown(sock, 2);
+        shutdown(sock, 2 /* SHUT_RDWR */);
         LIBSSH2_SOCKET_CLOSE(sock);
     }
 

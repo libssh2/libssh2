@@ -53,18 +53,9 @@
 #include <windows.h>
 #include <bcrypt.h>
 
-#ifdef OPENSSL_NO_MD5
-# define LIBSSH2_MD5 0
-#else
-# define LIBSSH2_MD5 1
-#endif
+#define LIBSSH2_MD5 1
 
-#if defined(OPENSSL_NO_RIPEMD) || defined(OPENSSL_NO_RMD160)
-# define LIBSSH2_HMAC_RIPEMD 0
-#else
-# define LIBSSH2_HMAC_RIPEMD 1
-#endif
-
+#define LIBSSH2_HMAC_RIPEMD 0
 #define LIBSSH2_HMAC_SHA256 1
 #define LIBSSH2_HMAC_SHA512 1
 
@@ -72,34 +63,14 @@
 #define LIBSSH2_AES_CTR 1
 #define LIBSSH2_AES_GCM 0
 #define LIBSSH2_BLOWFISH 0
+#define LIBSSH2_RC4 1
 #define LIBSSH2_CAST 0
+#define LIBSSH2_3DES 1
 
-#ifdef OPENSSL_NO_RC4
-# define LIBSSH2_RC4 0
-#else
-# define LIBSSH2_RC4 1
-#endif
-
-#ifdef OPENSSL_NO_DES
-# define LIBSSH2_3DES 0
-#else
-# define LIBSSH2_3DES 1
-#endif
-
-#ifdef OPENSSL_NO_RSA
-# define LIBSSH2_RSA 0
-# define LIBSSH2_RSA_SHA1 0
-# define LIBSSH2_RSA_SHA2 0
-#else
-# define LIBSSH2_RSA 1
-# define LIBSSH2_RSA_SHA1 1
-# define LIBSSH2_RSA_SHA2 1
-#endif
-#ifdef OPENSSL_NO_DSA
-# define LIBSSH2_DSA 0
-#else
-# define LIBSSH2_DSA 1
-#endif
+#define LIBSSH2_RSA 1
+#define LIBSSH2_RSA_SHA1 1
+#define LIBSSH2_RSA_SHA2 1
+#define LIBSSH2_DSA 1
 #define LIBSSH2_ED25519 0
 #define LIBSSH2_MLKEM 0
 
@@ -122,14 +93,6 @@
 #endif
 
 #include "crypto_config.h"
-
-#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define MD5_DIGEST_LENGTH 16
-#endif
-#define SHA_DIGEST_LENGTH    20
-#define SHA256_DIGEST_LENGTH 32
-#define SHA384_DIGEST_LENGTH 48
-#define SHA512_DIGEST_LENGTH 64
 
 /*******************************************************************/
 /*
@@ -161,7 +124,6 @@ struct wcng_ctx {
     BCRYPT_ALG_HANDLE hAlg3DES_CBC;
 #endif
     BCRYPT_ALG_HANDLE hAlgDH;
-    BCRYPT_ALG_HANDLE hAlgChacha20;
 #if LIBSSH2_ECDSA
     BCRYPT_ALG_HANDLE hAlgECDH[3];  /* indexed by ssh2_curve_type */
     BCRYPT_ALG_HANDLE hAlgECDSA[3]; /* indexed by ssh2_curve_type */
@@ -202,56 +164,56 @@ struct wcng_hash_ctx {
 #define ssh2_sha1_ctx struct wcng_hash_ctx
 #define ssh2_sha1_init(ctx) \
     (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashSHA1, \
-                         SHA_DIGEST_LENGTH, NULL, 0) == 0)
+                         SSH2_SHA1_DIG_LEN, NULL, 0) == 0)
 #define ssh2_sha1_update(ctx, data, datalen) \
     (ssh2_wcng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
 #define ssh2_sha1_final(ctx, hash) \
     (ssh2_wcng_hash_final(&(ctx), hash) == 0)
 #define ssh2_sha1(data, datalen, hash) \
     ssh2_wcng_hash(data, datalen, ssh2_wcng.hAlgHashSHA1, \
-                   hash, SHA_DIGEST_LENGTH)
+                   hash, SSH2_SHA1_DIG_LEN)
 
 #define ssh2_sha256_ctx struct wcng_hash_ctx
 #define ssh2_sha256_init(ctx) \
     (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashSHA256, \
-                         SHA256_DIGEST_LENGTH, NULL, 0) == 0)
+                         SSH2_SHA256_DIG_LEN, NULL, 0) == 0)
 #define ssh2_sha256_update(ctx, data, datalen) \
     (ssh2_wcng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
 #define ssh2_sha256_final(ctx, hash) \
     (ssh2_wcng_hash_final(&(ctx), hash) == 0)
 #define ssh2_sha256(data, datalen, hash) \
     ssh2_wcng_hash(data, datalen, ssh2_wcng.hAlgHashSHA256, \
-                   hash, SHA256_DIGEST_LENGTH)
+                   hash, SSH2_SHA256_DIG_LEN)
 
 #define ssh2_sha384_ctx struct wcng_hash_ctx
 #define ssh2_sha384_init(ctx) \
     (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashSHA384, \
-                         SHA384_DIGEST_LENGTH, NULL, 0) == 0)
+                         SSH2_SHA384_DIG_LEN, NULL, 0) == 0)
 #define ssh2_sha384_update(ctx, data, datalen) \
     (ssh2_wcng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
 #define ssh2_sha384_final(ctx, hash) \
     (ssh2_wcng_hash_final(&(ctx), hash) == 0)
 #define ssh2_sha384(data, datalen, hash) \
     ssh2_wcng_hash(data, datalen, ssh2_wcng.hAlgHashSHA384, \
-                   hash, SHA384_DIGEST_LENGTH)
+                   hash, SSH2_SHA384_DIG_LEN)
 
 #define ssh2_sha512_ctx struct wcng_hash_ctx
 #define ssh2_sha512_init(ctx) \
     (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashSHA512, \
-                         SHA512_DIGEST_LENGTH, NULL, 0) == 0)
+                         SSH2_SHA512_DIG_LEN, NULL, 0) == 0)
 #define ssh2_sha512_update(ctx, data, datalen) \
     (ssh2_wcng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
 #define ssh2_sha512_final(ctx, hash) \
     (ssh2_wcng_hash_final(&(ctx), hash) == 0)
 #define ssh2_sha512(data, datalen, hash) \
     ssh2_wcng_hash(data, datalen, ssh2_wcng.hAlgHashSHA512, \
-                   hash, SHA512_DIGEST_LENGTH)
+                   hash, SSH2_SHA512_DIG_LEN)
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #define ssh2_md5_ctx struct wcng_hash_ctx
 #define ssh2_md5_init(ctx) \
     (ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHashMD5, \
-                         MD5_DIGEST_LENGTH, NULL, 0) == 0)
+                         SSH2_MD5_DIG_LEN, NULL, 0) == 0)
 #define ssh2_md5_update(ctx, data, datalen) \
     (ssh2_wcng_hash_update(&(ctx), data, (ULONG)(datalen)) == 0)
 #define ssh2_md5_final(ctx, hash) \
@@ -306,8 +268,6 @@ void ssh2_dsa_free(ssh2_dsa_ctx *dsa);
  */
 
 #if LIBSSH2_ECDSA
-#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
-
 typedef enum {
     SSH2_EC_CURVE_NISTP256 = 0,
     SSH2_EC_CURVE_NISTP384 = 1,
@@ -323,8 +283,6 @@ struct wcng_ecdsa_ctx {
 #define ssh2_ec_key    struct wcng_ecdsa_ctx
 
 void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ctx);
-#else
-#define ssh2_ec_key void
 #endif
 
 /*******************************************************************/
@@ -352,8 +310,9 @@ struct wcng_cipher_ctx {
 struct wcng_cipher_t {
     BCRYPT_ALG_HANDLE *phAlg;
     ULONG dwKeyLength;
-    int useIV;      /* TODO: Convert to bool when a C89-compatible bool type
-                       is defined */
+    /* TODO: Convert boolean flags to bool when a C89-compatible bool type is
+             defined */
+    int useIV;
     int ctrMode;
 };
 
@@ -371,7 +330,7 @@ struct wcng_cipher_t {
 #if LIBSSH2_3DES
 #define ssh2_cipher_3des      { &ssh2_wcng.hAlg3DES_CBC, 24, 1, 0 }
 #endif
-#define ssh2_cipher_chacha20  { &ssh2_wcng.hAlgChacha20, 24, 1, 0 }
+#define ssh2_cipher_chacha20  { NULL /* unused */, 24, 1, 0 }
 
 void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx);
 
@@ -441,14 +400,5 @@ struct wcng_dh_ctx {
 };
 
 #define ssh2_dh_ctx struct wcng_dh_ctx
-#define ssh2_dh_key_pair(dhctx, pub, g, p, group_order, bnctx) \
-    ssh2_wcng_dh_key_pair(dhctx, pub, g, p, group_order)
-#define ssh2_dh_secret(dhctx, secret, f, p, bnctx) \
-    ssh2_wcng_dh_secret(dhctx, secret, f, p)
-
-int ssh2_wcng_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
-                          ssh2_bn *p, int group_order);
-int ssh2_wcng_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
-                        ssh2_bn *p);
 
 #endif /* LIBSSH2_WINCNG_H */

@@ -182,8 +182,6 @@ if(NOT LIBSSH2_DISABLE_INSTALL)
     DESTINATION ${CMAKE_INSTALL_DOCDIR})
 endif()
 
-include(PickyWarnings)
-
 set(LIBSSH2_LIBS_SOCKET "")
 set(LIBSSH2_LIBS "")
 
@@ -291,6 +289,8 @@ if(LIBSSH2_CLANG_TIDY)
     list(APPEND CMAKE_C_CLANG_TIDY ${_tidy_flags_list})
   endif()
 endif()
+
+include(PickyWarnings)
 
 # Auto-detection
 
@@ -407,8 +407,6 @@ configure_file("src/libssh2_config_cmake.h.in"
 
 ## Cryptography backend choice
 
-set(__runtime_dependencies "")
-
 set(CRYPTO_BACKEND "" CACHE
   STRING "The backend to use for cryptography: Libgcrypt, mbedTLS, OpenSSL, WinCNG, wolfSSL, or empty to try any available")
 
@@ -437,23 +435,6 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
       # Statically linking to OpenSSL requires crypt32 for some Windows APIs.
       # This should really be handled by FindOpenSSL.cmake.
       list(APPEND LIBSSH2_LIBS "crypt32" "bcrypt")
-
-      #set(CMAKE_FIND_DEBUG_MODE ON)
-
-      find_file(DLL_LIBCRYPTO
-        NAMES "crypto.dll"
-          "libcrypto-1_1.dll" "libcrypto-1_1-x64.dll"
-          "libcrypto-3.dll" "libcrypto-3-x64.dll"
-        HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
-        PATH_SUFFIXES "bin" NO_DEFAULT_PATH)
-      if(DLL_LIBCRYPTO)
-        list(APPEND __runtime_dependencies ${DLL_LIBCRYPTO})
-        message(STATUS "Found libcrypto DLL: ${DLL_LIBCRYPTO}")
-      else()
-        message(WARNING "Unable to find OpenSSL libcrypto DLL, executables may not run")
-      endif()
-
-      #set(CMAKE_FIND_DEBUG_MODE OFF)
     endif()
 
     find_package(ZLIB)
@@ -466,6 +447,9 @@ endif()
 if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
   find_package(WolfSSL ${_specific_crypto_requirement})
   if(WOLFSSL_FOUND)
+    if(WOLFSSL_VERSION VERSION_LESS 5.4.0)
+      message(FATAL_ERROR "wolfSSL 5.4.0 or greater required")
+    endif()
     set(CRYPTO_BACKEND "wolfSSL")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_WOLFSSL")
     list(APPEND LIBSSH2_LIBS libssh2::wolfssl)
@@ -490,7 +474,7 @@ if(CRYPTO_BACKEND STREQUAL "mbedTLS" OR NOT CRYPTO_BACKEND)
   find_package(MbedTLS ${_specific_crypto_requirement})
   if(MBEDTLS_FOUND)
     if(MBEDTLS_VERSION VERSION_LESS 3.1.0)
-      message(FATAL_ERROR "mbedTLS v3.1.0 or upper required.")
+      message(FATAL_ERROR "mbedTLS 3.1.0 or greater required")
     endif()
     set(CRYPTO_BACKEND "mbedTLS")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_MBEDTLS")

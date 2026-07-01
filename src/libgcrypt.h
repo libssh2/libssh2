@@ -69,14 +69,6 @@
 
 #include "crypto_config.h"
 
-#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define MD5_DIGEST_LENGTH 16
-#endif
-#define SHA_DIGEST_LENGTH    20
-#define SHA256_DIGEST_LENGTH 32
-#define SHA384_DIGEST_LENGTH 48
-#define SHA512_DIGEST_LENGTH 64
-
 #define ssh2_random(buf, len) (gcry_randomize(buf, len, GCRY_STRONG_RANDOM), 0)
 
 #define ssh2_prepare_iovec(vec, len)  /* Empty. */
@@ -88,7 +80,7 @@
 #define ssh2_sha1_update(ctx, data, len) \
     (gcry_md_write(ctx, data, len), 1)
 #define ssh2_sha1_final(ctx, out) \
-    (memcpy(out, gcry_md_read(ctx, 0), SHA_DIGEST_LENGTH), \
+    (memcpy(out, gcry_md_read(ctx, 0), SSH2_SHA1_DIG_LEN), \
      gcry_md_close(ctx), 1)
 #define ssh2_sha1(message, len, out) \
     (gcry_md_hash_buffer(GCRY_MD_SHA1, out, message, len), 0)
@@ -99,7 +91,7 @@
 #define ssh2_sha256_update(ctx, data, len) \
     (gcry_md_write(ctx, data, len), 1)
 #define ssh2_sha256_final(ctx, out) \
-    (memcpy(out, gcry_md_read(ctx, 0), SHA256_DIGEST_LENGTH), \
+    (memcpy(out, gcry_md_read(ctx, 0), SSH2_SHA256_DIG_LEN), \
      gcry_md_close(ctx), 1)
 #define ssh2_sha256(message, len, out) \
     (gcry_md_hash_buffer(GCRY_MD_SHA256, out, message, len), 0)
@@ -110,7 +102,7 @@
 #define ssh2_sha384_update(ctx, data, len) \
     (gcry_md_write(ctx, data, len), 1)
 #define ssh2_sha384_final(ctx, out) \
-    (memcpy(out, gcry_md_read(ctx, 0), SHA384_DIGEST_LENGTH), \
+    (memcpy(out, gcry_md_read(ctx, 0), SSH2_SHA384_DIG_LEN), \
      gcry_md_close(ctx), 1)
 #define ssh2_sha384(message, len, out) \
     (gcry_md_hash_buffer(GCRY_MD_SHA384, out, message, len), 0)
@@ -121,7 +113,7 @@
 #define ssh2_sha512_update(ctx, data, len) \
     (gcry_md_write(ctx, data, len), 1)
 #define ssh2_sha512_final(ctx, out) \
-    (memcpy(out, gcry_md_read(ctx, 0), SHA512_DIGEST_LENGTH), \
+    (memcpy(out, gcry_md_read(ctx, 0), SSH2_SHA512_DIG_LEN), \
      gcry_md_close(ctx), 1)
 #define ssh2_sha512(message, len, out) \
     (gcry_md_hash_buffer(GCRY_MD_SHA512, out, message, len), 0)
@@ -133,26 +125,20 @@
 #define ssh2_md5_update(ctx, data, len) \
     (gcry_md_write(ctx, data, len), 1)
 #define ssh2_md5_final(ctx, out) \
-    (memcpy(out, gcry_md_read(ctx, 0), MD5_DIGEST_LENGTH), \
+    (memcpy(out, gcry_md_read(ctx, 0), SSH2_MD5_DIG_LEN), \
      gcry_md_close(ctx), 1)
 #endif
 
 #define ssh2_hmac_ctx         gcry_md_hd_t
 
 #define ssh2_crypto_init()    gcry_control(GCRYCTL_DISABLE_SECMEM)
-#define ssh2_crypto_exit()
+#define ssh2_crypto_exit()    do {} while(0)
 
 #define ssh2_rsa_ctx          struct gcry_sexp
 #define ssh2_rsa_free(rsactx) gcry_sexp_release(rsactx)
 
 #define ssh2_dsa_ctx          struct gcry_sexp
 #define ssh2_dsa_free(dsactx) gcry_sexp_release(dsactx)
-
-#if LIBSSH2_ECDSA
-#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
-#else
-#define ssh2_ec_key void
-#endif
 
 #define SSH2_CIPHER_T(name)   int name
 #define ssh2_cipher_ctx       gcry_cipher_hd_t
@@ -202,14 +188,5 @@
 #define SSH2_DH_MAX_MODULUS_BITS 16384
 
 #define ssh2_dh_ctx struct gcry_mpi *
-#define ssh2_dh_key_pair(dhctx, pub, g, p, group_order, bnctx) \
-    ssh2_lgcr_dh_key_pair(dhctx, pub, g, p, group_order)
-#define ssh2_dh_secret(dhctx, secret, f, p, bnctx) \
-    ssh2_lgcr_dh_secret(dhctx, secret, f, p)
-
-int ssh2_lgcr_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
-                          ssh2_bn *p, int group_order);
-int ssh2_lgcr_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
-                        ssh2_bn *p);
 
 #endif /* LIBSSH2_LIBGCRYPT_H */

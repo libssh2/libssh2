@@ -15,7 +15,7 @@
 #include <libssh2_sftp.h>
 
 #ifdef _WIN32
-#define write(f, b, c)  write(f, b, (unsigned int)(c))
+#define write(f, b, c)  _write(f, b, (unsigned int)(c))
 #endif
 
 #ifdef HAVE_SYS_SOCKET_H
@@ -70,7 +70,8 @@ static void kbd_callback(const char *name, int name_len,
         fprintf(stderr, "'\n");
 
         fprintf(stderr, "Please type response: ");
-        fgets(buf, sizeof(buf), stdin);
+        if(!fgets(buf, sizeof(buf), stdin))
+            fprintf(stderr, "fgets() failed.\n");
         n = strlen(buf);
         while(n > 0 && strchr("\r\n", buf[n - 1]))
             n--;
@@ -111,21 +112,16 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    if(argc > 1) {
+    if(argc > 1)
         hostaddr = inet_addr(argv[1]);
-    }
-    else {
+    else
         hostaddr = htonl(0x7F000001);
-    }
-    if(argc > 2) {
+    if(argc > 2)
         username = argv[2];
-    }
-    if(argc > 3) {
+    if(argc > 3)
         password = argv[3];
-    }
-    if(argc > 4) {
+    if(argc > 4)
         sftppath = argv[4];
-    }
 
     rc = libssh2_init(0);
     if(rc) {
@@ -177,9 +173,8 @@ int main(int argc, char *argv[])
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
-    for(i = 0; i < 20; i++) {
+    for(i = 0; i < 20; i++)
         fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
-    }
     fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
@@ -187,27 +182,21 @@ int main(int argc, char *argv[])
                                          (unsigned int)strlen(username));
     if(userauthlist) {
         fprintf(stderr, "Authentication methods: %s\n", userauthlist);
-        if(strstr(userauthlist, "password")) {
+        if(strstr(userauthlist, "password"))
             auth_pw |= 1;
-        }
-        if(strstr(userauthlist, "keyboard-interactive")) {
+        if(strstr(userauthlist, "keyboard-interactive"))
             auth_pw |= 2;
-        }
-        if(strstr(userauthlist, "publickey")) {
+        if(strstr(userauthlist, "publickey"))
             auth_pw |= 4;
-        }
 
         /* check for options */
         if(argc > 5) {
-            if((auth_pw & 1) && !strcmp(argv[5], "-p")) {
+            if((auth_pw & 1) && !strcmp(argv[5], "-p"))
                 auth_pw = 1;
-            }
-            if((auth_pw & 2) && !strcmp(argv[5], "-i")) {
+            if((auth_pw & 2) && !strcmp(argv[5], "-i"))
                 auth_pw = 2;
-            }
-            if((auth_pw & 4) && !strcmp(argv[5], "-k")) {
+            if((auth_pw & 4) && !strcmp(argv[5], "-k"))
                 auth_pw = 4;
-            }
         }
 
         if(auth_pw & 1) {
@@ -225,10 +214,9 @@ int main(int argc, char *argv[])
                         "Authentication by keyboard-interactive failed.\n");
                 goto shutdown;
             }
-            else {
+            else
                 fprintf(stderr,
                         "Authentication by keyboard-interactive succeeded.\n");
-            }
         }
         else if(auth_pw & 4) {
             /* Or by public key */
@@ -238,9 +226,8 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "Authentication by public key failed.\n");
                 goto shutdown;
             }
-            else {
+            else
                 fprintf(stderr, "Authentication by public key succeeded.\n");
-            }
         }
         else {
             fprintf(stderr, "No supported authentication methods found.\n");
@@ -275,11 +262,13 @@ int main(int argc, char *argv[])
         fprintf(stderr, "libssh2_sftp_read().\n");
         nread = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
         if(nread > 0) {
-            write(1, mem, (size_t)nread);
+            ssize_t nwritten = write(1, mem, (size_t)nread);
+            if(nwritten != nread)
+                fprintf(stderr, "write failed: %ld != %ld\n",
+                        (long)nread, (long)nwritten);
         }
-        else {
+        else
             break;
-        }
     } while(1);
 
     libssh2_sftp_close(sftp_handle);
@@ -293,7 +282,7 @@ shutdown:
     }
 
     if(sock != LIBSSH2_INVALID_SOCKET) {
-        shutdown(sock, 2);
+        shutdown(sock, 2 /* SHUT_RDWR */);
         LIBSSH2_SOCKET_CLOSE(sock);
     }
 

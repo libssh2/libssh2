@@ -15,7 +15,7 @@
 #include <libssh2_sftp.h>
 
 #ifdef _WIN32
-#define write(f, b, c)  write(f, b, (unsigned int)(c))
+#define write(f, b, c)  _write(f, b, (unsigned int)(c))
 #endif
 
 #ifdef HAVE_SYS_SOCKET_H
@@ -108,18 +108,14 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    if(argc > 1) {
+    if(argc > 1)
         username = argv[1];
-    }
-    if(argc > 2) {
+    if(argc > 2)
         password = argv[2];
-    }
-    if(argc > 3) {
+    if(argc > 3)
         sftppath = argv[3];
-    }
-    if(argc > 4) {
+    if(argc > 4)
         dest = argv[4];
-    }
 
     rc = libssh2_init(0);
     if(rc) {
@@ -169,9 +165,8 @@ int main(int argc, char *argv[])
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
-    for(i = 0; i < 20; i++) {
+    for(i = 0; i < 20; i++)
         fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
-    }
     fprintf(stderr, "\n");
 
     tempstorage = fopen(storage, "wb");
@@ -245,16 +240,17 @@ int main(int argc, char *argv[])
 
             if(nread > 0) {
                 /* write to stderr */
-                write(2, mem, (size_t)nread);
+                ssize_t nwritten = write(2, mem, (size_t)nread);
+                if(nwritten != nread)
+                    fprintf(stderr, "write failed: %ld != %ld\n",
+                            (long)nread, (long)nwritten);
                 /* write to temporary storage area */
                 fwrite(mem, (size_t)nread, 1, tempstorage);
             }
         } while(nread > 0);
 
-        if(nread != LIBSSH2_ERROR_EAGAIN) {
-            /* error or end of file */
-            break;
-        }
+        if(nread != LIBSSH2_ERROR_EAGAIN)
+            break;  /* error or end of file */
 
         timeout.tv_sec = 10;
         timeout.tv_usec = 0;
@@ -306,10 +302,8 @@ int main(int argc, char *argv[])
         do {
             ssize_t nwritten;
             nread = fread(mem, 1, sizeof(mem), tempstorage);
-            if(nread <= 0) {
-                /* end of file */
-                break;
-            }
+            if(nread <= 0)
+                break;  /* end of file */
             ptr = mem;
 
             do {
@@ -321,10 +315,8 @@ int main(int argc, char *argv[])
                 nread -= (size_t)nwritten;
             } while(nwritten >= 0);
 
-            if(nwritten != LIBSSH2_ERROR_EAGAIN) {
-                /* error or end of file */
-                break;
-            }
+            if(nwritten != LIBSSH2_ERROR_EAGAIN)
+                break;  /* error or end of file */
 
             timeout.tv_sec = 10;
             timeout.tv_usec = 0;
@@ -352,9 +344,8 @@ int main(int argc, char *argv[])
         } while(1);
         fprintf(stderr, "SFTP upload done.\n");
     }
-    else {
+    else
         fprintf(stderr, "SFTP failed to open destination path: %s\n", dest);
-    }
 
     libssh2_sftp_shutdown(sftp_session);
 
@@ -366,7 +357,7 @@ shutdown:
     }
 
     if(sock != LIBSSH2_INVALID_SOCKET) {
-        shutdown(sock, 2);
+        shutdown(sock, 2 /* SHUT_RDWR */);
         LIBSSH2_SOCKET_CLOSE(sock);
     }
 

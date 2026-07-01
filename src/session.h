@@ -49,9 +49,7 @@
 
    The point being to make sure that while in non-blocking mode these always
    return no matter what the return code is, but in blocking mode it blocks
-   if EAGAIN is the reason for the return from the underlying function.
-
-*/
+   if EAGAIN is the reason for the return from the underlying function. */
 #define BLOCK_ADJUST(rc, sess, x)                                    \
     do {                                                             \
         time_t entry_time = time(NULL);                              \
@@ -78,7 +76,7 @@
         int rc;                                                          \
         do {                                                             \
             (ptr) = (x);                                                 \
-            if(!(sess) || !(sess)->api_block_mode || (ptr) != NULL ||    \
+            if(!(sess) || !(sess)->api_block_mode || (ptr) ||            \
                libssh2_session_last_errno(sess) != LIBSSH2_ERROR_EAGAIN) \
                 break;                                                   \
             (rc) = ssh2_wait_socket(sess, entry_time);                   \

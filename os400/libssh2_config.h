@@ -45,18 +45,12 @@
 #undef AC_APPLE_UNIVERSAL_BUILD
 
 /* Define to one of `_getb67', `GETB67', `getb67' for Cray-2 and Cray-YMP
-   systems. This function is required for `alloca.c' support on those systems.
-*/
+   systems. This function is required for `alloca.c' support on those
+   systems. */
 #undef CRAY_STACKSEG_END
 
 /* Define to 1 if using `alloca.c'. */
 #undef C_ALLOCA
-
-/* Define to 1 if you have `alloca', as a function or macro. */
-#define HAVE_ALLOCA 1
-
-/* Define to 1 if you have <alloca.h> and it should be used (not on Ultrix). */
-#define HAVE_ALLOCA_H 1
 
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #define HAVE_ARPA_INET_H 1

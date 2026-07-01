@@ -56,80 +56,79 @@
 /* Max. length of a quoted string after shell_quotearg() processing */
 #define shell_quotedsize(s)  (3 * strlen(s) + 2)
 
-/*
-  This function quotes a string in a way suitable to be used with a
-  shell, e.g. the filename
-  one two
-  becomes
-  'one two'
+/* This function quotes a string in a way suitable to be used with a
+   shell, e.g. the filename
+   one two
+   becomes
+   'one two'
 
-  The resulting output string is crafted in a way that makes it usable
-  with the two most common shell types: Bourne Shell derived shells
-  (sh, ksh, ksh93, bash, zsh) and C-Shell derivates (csh, tcsh).
+   The resulting output string is crafted in a way that makes it usable
+   with the two most common shell types: Bourne Shell derived shells
+   (sh, ksh, ksh93, bash, zsh) and C-Shell derivates (csh, tcsh).
 
-  The following special cases are handled:
-  o  If the string contains an apostrophy itself, the apostrophy
-  character is written in quotation marks, e.g. "'".
-  The shell cannot handle the syntax 'doesn\'t', so we close the
-  current argument word, add the apostrophe in quotation marks "",
-  and open a new argument word instead (_ indicate the input
-  string characters):
-   _____   _   _
-  'doesn' "'" 't'
+   The following special cases are handled:
+   o  If the string contains an apostrophy itself, the apostrophy
+   character is written in quotation marks, e.g. "'".
+   The shell cannot handle the syntax 'doesn\'t', so we close the
+   current argument word, add the apostrophe in quotation marks "",
+   and open a new argument word instead (_ indicate the input
+   string characters):
+    _____   _   _
+   'doesn' "'" 't'
 
-  Sequences of apostrophes are combined in one pair of quotation marks:
-  a'''b
-  becomes
-   _  ___  _
-  'a'"'''"'b'
+   Sequences of apostrophes are combined in one pair of quotation marks:
+   a'''b
+   becomes
+    _  ___  _
+   'a'"'''"'b'
 
-  o  If the string contains an exclamation mark (!), the C-Shell
-  interprets it as an event number. Using \! (not within quotation
-  marks or single quotation marks) is a mechanism understood by
-  both Bourne Shell and C-Shell.
+   o  If the string contains an exclamation mark (!), the C-Shell
+   interprets it as an event number. Using \! (not within quotation
+   marks or single quotation marks) is a mechanism understood by
+   both Bourne Shell and C-Shell.
 
-  If a quotation was already started, the argument word is closed
-  first:
-  a!b
+   If a quotation was already started, the argument word is closed
+   first:
+   a!b
 
-  become
-   _  _ _
-  'a'\!'b'
+   become
+    _  _ _
+   'a'\!'b'
 
-  The result buffer must be large enough for the expanded result. A
-  bad case regarding expansion is alternating characters and
-  apostrophes:
+   The result buffer must be large enough for the expanded result. A
+   bad case regarding expansion is alternating characters and
+   apostrophes:
 
-  a'b'c'd'                   (length 8) gets converted to
-  'a'"'"'b'"'"'c'"'"'d'"'"   (length 24)
+   a'b'c'd'                   (length 8) gets converted to
+   'a'"'"'b'"'"'c'"'"'d'"'"   (length 24)
 
-  This is the worst case.
+   This is the worst case.
 
-  Maximum length of the result:
-  1 + 6 * (length(input) + 1) / 2) + 1
+   Maximum length of the result:
+   1 + 6 * (length(input) + 1) / 2) + 1
 
-  => 3 * length(input) + 2
+   => 3 * length(input) + 2
 
-  Explanation:
-  o  leading apostrophe
-  o  one character / apostrophe pair (two characters) can get
-  represented as 6 characters: a' -> a'"'"'
-  o  String terminator (+1)
+   Explanation:
+   o  leading apostrophe
+   o  one character / apostrophe pair (two characters) can get
+   represented as 6 characters: a' -> a'"'"'
+   o  String terminator (+1)
 
-  A result buffer three times the size of the input buffer + 2
-  characters should be safe.
+   A result buffer three times the size of the input buffer + 2
+   characters should be safe.
 
-  References:
-  o  csh-compatible quotation (special handling for '!' etc.), see
-  https://www.grymoire.com/Unix/Csh.html#toc-uh-10
+   References:
+   o  csh-compatible quotation (special handling for '!' etc.), see
+   https://www.grymoire.com/Unix/Csh.html#toc-uh-10
 
-  Return value:
-  Length of the resulting string (not counting the null-terminator),
-  or 0 in case of errors, e.g. result buffer too small
+   Return value:
+   Length of the resulting string (not counting the null-terminator),
+   or 0 in case of errors, e.g. result buffer too small
 
-  Note: this function could possible be used elsewhere within libssh2, but
-  until then it is kept static and in this source file.
-*/
+   Note: this function could possible be used elsewhere within libssh2, but
+   until then it is kept static and in this source file.
+ */
 static size_t shell_quotearg(const char *path,
                              unsigned char *buf, size_t bufsize)
 {
@@ -307,8 +306,9 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
             return NULL;
         }
 
-        snprintf((char *)session->scpRecv_command,
-                 session->scpRecv_command_len, "scp -%sf ", sb ? "p" : "");
+        ssh2_snprintf((char *)session->scpRecv_command,
+                      session->scpRecv_command_len,
+                      "scp -%sf ", sb ? "p" : "");
 
         cmd_len = strlen((char *)session->scpRecv_command);
 
@@ -321,11 +321,10 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
             memcpy(&session->scpRecv_command[cmd_len], path, path_len);
             cmd_len += path_len;
         }
-        else {
+        else
             cmd_len += shell_quotearg(path,
                                       &session->scpRecv_command[cmd_len],
                                       session->scpRecv_command_len - cmd_len);
-        }
 
         /* the command to exec should _not_ be null-terminated */
         session->scpRecv_command_len = cmd_len;
@@ -349,10 +348,9 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 session->scpRecv_command = NULL;
                 session->scpRecv_state = ssh2_NB_state_idle;
             }
-            else {
+            else
                 ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
                          "Would block starting up channel");
-            }
             return NULL;
         }
 
@@ -393,9 +391,8 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                      "Would block sending initial wakeup");
             return NULL;
         }
-        else if(rc != 1) {
+        else if(rc != 1)
             goto scp_recv_error;
-        }
 
         /* Parse SCP response */
         session->scpRecv_response_len = 0;
@@ -570,9 +567,8 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                              "Would block waiting to send SCP ACK");
                     return NULL;
                 }
-                else if(rc != 1) {
+                else if(rc != 1)
                     goto scp_recv_error;
-                }
 
                 ssh2_deb((session, LIBSSH2_TRACE_SCP,
                           "mtime = %ld, atime = %ld",
@@ -724,9 +720,9 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                              "Would block sending SCP ACK");
                     return NULL;
                 }
-                else if(rc != 1) {
+                else if(rc != 1)
                     goto scp_recv_error;
-                }
+
                 ssh2_deb((session, LIBSSH2_TRACE_SCP, "mode = 0%lo size = %ld",
                           (unsigned long)session->scpRecv_mode,
                           (long)session->scpRecv_size));
@@ -855,9 +851,9 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
             return NULL;
         }
 
-        snprintf((char *)session->scpSend_command,
-                 session->scpSend_command_len,
-                 "scp -%st ", (mtime || atime) ? "p" : "");
+        ssh2_snprintf((char *)session->scpSend_command,
+                      session->scpSend_command_len,
+                      "scp -%st ", (mtime || atime) ? "p" : "");
 
         cmd_len = strlen((char *)session->scpSend_command);
 
@@ -870,10 +866,9 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
             memcpy(&session->scpSend_command[cmd_len], path, path_len);
             cmd_len += path_len;
         }
-        else {
+        else
             cmd_len += shell_quotearg(path, &session->scpSend_command[cmd_len],
                                       session->scpSend_command_len - cmd_len);
-        }
 
         /* the command to exec should _not_ be null-terminated */
         session->scpSend_command_len = cmd_len;
@@ -897,10 +892,9 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
                 session->scpSend_command = NULL;
                 session->scpSend_state = ssh2_NB_state_idle;
             }
-            else {
+            else
                 ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
                          "Would block starting up channel");
-            }
             return NULL;
         }
 
@@ -957,9 +951,9 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
         if(mtime || atime) {
             /* Send mtime and atime to be used for file */
             session->scpSend_response_len =
-                snprintf((char *)session->scpSend_response,
-                         SSH2_SCP_RESPONSE_BUFLEN, "T%ld 0 %ld 0\n",
-                         (long)mtime, (long)atime);
+                ssh2_snprintf((char *)session->scpSend_response,
+                              SSH2_SCP_RESPONSE_BUFLEN, "T%ld 0 %ld 0\n",
+                              (long)mtime, (long)atime);
             ssh2_deb((session, LIBSSH2_TRACE_SCP, "Sent %s",
                       session->scpSend_response));
         }
@@ -1012,11 +1006,8 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
             session->scpSend_state = ssh2_NB_state_sent4;
         }
     }
-    else {
-        if(session->scpSend_state == ssh2_NB_state_sent2) {
-            session->scpSend_state = ssh2_NB_state_sent4;
-        }
-    }
+    else if(session->scpSend_state == ssh2_NB_state_sent2)
+        session->scpSend_state = ssh2_NB_state_sent4;
 
     if(session->scpSend_state == ssh2_NB_state_sent4) {
         /* Send mode, size, and basename */
@@ -1027,10 +1018,10 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
             base = path;
 
         session->scpSend_response_len =
-            snprintf((char *)session->scpSend_response,
-                     SSH2_SCP_RESPONSE_BUFLEN,
-                     "C0%o %" SSH2_INT64_T_FORMAT " %s\n",
-                     (unsigned int)mode, size, base);
+            ssh2_snprintf((char *)session->scpSend_response,
+                          SSH2_SCP_RESPONSE_BUFLEN,
+                          "C0%o %" SSH2_INT64_T_FORMAT " %s\n",
+                          (unsigned int)mode, size, base);
         ssh2_deb((session, LIBSSH2_TRACE_SCP, "Sent %s",
                   session->scpSend_response));
 
@@ -1105,10 +1096,9 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
 scp_send_empty_channel:
     /* the code only jumps here as a result of a zero read from channel_read()
        so we check EOF status to avoid getting stuck in a loop */
-    if(libssh2_channel_eof(session->scpSend_channel)) {
+    if(libssh2_channel_eof(session->scpSend_channel))
         ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                  "Unexpected channel close");
-    }
     else
         return session->scpSend_channel;
     /* fall-through */

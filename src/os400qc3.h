@@ -190,17 +190,6 @@
 
 #include "crypto_config.h"
 
-#define SHA_DIGEST_LENGTH    20
-#define SHA256_DIGEST_LENGTH 32
-#define SHA384_DIGEST_LENGTH 48
-#define SHA512_DIGEST_LENGTH 64
-
-#if LIBSSH2_ECDSA
-#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
-#else
-#define ssh2_ec_key void
-#endif
-
 /*******************************************************************
  *
  * OS/400 QC3 crypto-library backend: global handles structures.
@@ -237,8 +226,8 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
  *
  *******************************************************************/
 
-#define ssh2_crypto_init()
-#define ssh2_crypto_exit()
+#define ssh2_crypto_init()   do {} while(0)
+#define ssh2_crypto_exit()   do {} while(0)
 
 #define ssh2_sha1_ctx        Qc3_Format_ALGD0100_T
 #define ssh2_sha256_ctx      Qc3_Format_ALGD0100_T
@@ -264,7 +253,6 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define ssh2_sha512(d, l, out)        ssh2_os400qc3_hash(d, l, out, Qc3_SHA512)
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define MD5_DIGEST_LENGTH             16
 #define ssh2_md5_ctx                  Qc3_Format_ALGD0100_T
 #define ssh2_md5_init(x)              ssh2_os400qc3_hash_init(x, Qc3_MD5)
 #define ssh2_md5_update(ctx, d, l)    ssh2_os400qc3_hash_update(&(ctx), d, l)
@@ -340,15 +328,6 @@ int ssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session, int algo,
 #define SSH2_DH_MAX_MODULUS_BITS 2048
 
 #define ssh2_dh_ctx struct os400qc3_dh_ctx
-#define ssh2_dh_key_pair(dhctx, pub, g, p, group_order, bnctx) \
-    ssh2_os400qc3_dh_key_pair(dhctx, pub, g, p, group_order)
-#define ssh2_dh_secret(dhctx, secret, f, p, bnctx) \
-    ssh2_os400qc3_dh_secret(dhctx, secret, f, p)
-
-int ssh2_os400qc3_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub,
-                              ssh2_bn *g, ssh2_bn *p, int group_order);
-int ssh2_os400qc3_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
-                            ssh2_bn *f, ssh2_bn *p);
 
 /*******************************************************************
  *

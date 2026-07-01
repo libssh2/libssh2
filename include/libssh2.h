@@ -71,8 +71,7 @@
 
    This 6-digit (24 bits) hexadecimal number does not show pre-release number,
    and it is always a greater number in a more recent release. It makes
-   comparisons with greater than and less than work.
-*/
+   comparisons with greater than and less than work. */
 #define LIBSSH2_VERSION_NUM                         0x010b01
 
 /*

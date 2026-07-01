@@ -62,7 +62,7 @@ is not really a failure per se.
 # BUG
 
 Passing in a too small buffer for 'buffer' or 'longentry' when receiving data
-only results in libssh2 1.2.7 or earlier to not copy the entire data amount,
+only results in libssh2 1.2.7 or earlier not to copy the entire data amount,
 and it is not possible for the application to tell when it happens!
 
 # ERRORS

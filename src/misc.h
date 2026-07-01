@@ -39,6 +39,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <errno.h>
+
 #ifdef LIBSSH2_NO_CLEAR_MEMORY
 #define ssh2_explicit_zero(buf, size) \
     do {                              \
@@ -83,6 +85,9 @@ int ssh2_err(LIBSSH2_SESSION *session, int errcode, const char *errmsg);
 #ifdef _WIN32
 /* Convert Win32 WSAGetLastError to errno equivalent */
 int ssh2_wsa2errno(void);
+#define SSH2_ERRNO() ssh2_wsa2errno()
+#else
+#define SSH2_ERRNO() errno
 #endif
 
 void ssh2_list_init(struct list_head *head);

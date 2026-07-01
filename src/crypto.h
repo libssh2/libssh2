@@ -67,8 +67,19 @@ int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen);
 int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen);
 int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen);
 int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen);
-int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *data);
+int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen);
 void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx);
+
+#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
+#define SSH2_MD5_DIG_LEN                16
+#endif
+#if LIBSSH2_HMAC_RIPEMD
+#define SSH2_RIPEMD160_DIG_LEN          20
+#endif
+#define SSH2_SHA1_DIG_LEN               20
+#define SSH2_SHA256_DIG_LEN             32
+#define SSH2_SHA384_DIG_LEN             48
+#define SSH2_SHA512_DIG_LEN             64
 
 #define SSH2_ED25519_KEY_LEN            32
 #define SSH2_ED25519_PRIVATE_KEY_LEN    64
@@ -159,6 +170,11 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
 #endif
 
 #if LIBSSH2_ECDSA
+/* Maximum uncompressed EC point length for NIST P-521:
+ * two 521-bit coordinates rounded up to bytes, plus 1-byte format prefix.
+ */
+#define EC_MAX_POINT_LEN ((((521 + 7) / 8) * 2) + 1)
+
 int ssh2_ecdsa_curve_name_with_octal_new(ssh2_ecdsa_ctx **ec_ctx,
                                          const unsigned char *k,
                                          size_t k_len,
@@ -260,16 +276,15 @@ int ssh2_ed25519_new_private_frommemory(ssh2_ed25519_ctx **ed_ctx,
                                         size_t filedata_len,
                                         const unsigned char *passphrase);
 
-int ssh2_ed25519_new_private_frommemory_sk(
-    ssh2_ed25519_ctx **ed_ctx,
-    unsigned char *flags,
-    const char **application,
-    const unsigned char **key_handle,
-    size_t *handle_len,
-    LIBSSH2_SESSION *session,
-    const char *filedata,
-    size_t filedata_len,
-    const unsigned char *passphrase);
+int ssh2_ed25519_new_private_frommemory_sk(ssh2_ed25519_ctx **ed_ctx,
+                                           unsigned char *flags,
+                                           const char **application,
+                                           const unsigned char **key_handle,
+                                           size_t *handle_len,
+                                           LIBSSH2_SESSION *session,
+                                           const char *filedata,
+                                           size_t filedata_len,
+                                           const unsigned char *passphrase);
 #endif /* LIBSSH2_ED25519 */
 
 #if LIBSSH2_MLKEM
@@ -337,6 +352,22 @@ const char *ssh2_supported_key_sign_algs(LIBSSH2_SESSION *session,
                                          size_t key_method_len);
 
 void ssh2_dh_init(ssh2_dh_ctx *dhctx);
+int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
+                     ssh2_bn *p, int group_order, ssh2_bn_ctx *bnctx);
+int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
+                   ssh2_bn *p, ssh2_bn_ctx *bnctx);
 void ssh2_dh_dtor(ssh2_dh_ctx *dhctx);
+
+#if LIBSSH2_RSA
+#define PEM_RSA_HEADER "-----BEGIN RSA PRIVATE KEY-----"
+#define PEM_RSA_FOOTER "-----END RSA PRIVATE KEY-----"
+#endif
+#if LIBSSH2_DSA
+#define PEM_DSA_HEADER "-----BEGIN DSA PRIVATE KEY-----"
+#define PEM_DSA_FOOTER "-----END DSA PRIVATE KEY-----"
+#endif
+#define OPENSSH_PRIVKEY_HEADER     "-----BEGIN OPENSSH PRIVATE KEY-----"
+#define OPENSSH_PRIVKEY_FOOTER     "-----END OPENSSH PRIVATE KEY-----"
+#define OPENSSH_PRIVKEY_AUTH_MAGIC "openssh-key-v1"
 
 #endif /* LIBSSH2_CRYPTO_H */

@@ -43,7 +43,9 @@
 
 #include <mbedtls/version.h>
 #include <mbedtls/platform.h>
-#include <mbedtls/md.h>
+#include <psa/crypto_config.h>
+#include <psa/crypto.h>
+#if MBEDTLS_VERSION_NUMBER < 0x04000000
 #include <mbedtls/rsa.h>
 #include <mbedtls/bignum.h>
 #include <mbedtls/cipher.h>
@@ -55,13 +57,29 @@
 #endif
 #include <mbedtls/entropy.h>
 #include <mbedtls/ctr_drbg.h>
+#endif
 #include <mbedtls/pk.h>
 #include <mbedtls/error.h>
 
-/* Define which features are supported. */
-#define LIBSSH2_MD5 1
+#if MBEDTLS_VERSION_NUMBER < 0x03010000
+#  error "mbedTLS 3.1.0 or greater required"
+#endif
+#if MBEDTLS_VERSION_NUMBER < 0x04000000 && !defined(MBEDTLS_CTR_DRBG_C)
+#  error "MBEDTLS_CTR_DRBG_C is required for mbedTLS 3.x."
+#endif
 
+/* Define which features are supported. */
+#if defined(PSA_WANT_ALG_MD5) && PSA_WANT_ALG_MD5
+#define LIBSSH2_MD5 1
+#else
+#define LIBSSH2_MD5 0
+#endif
+
+#if defined(PSA_WANT_ALG_RIPEMD160) && PSA_WANT_ALG_RIPEMD160
 #define LIBSSH2_HMAC_RIPEMD 1
+#else
+#define LIBSSH2_HMAC_RIPEMD 0
+#endif
 #define LIBSSH2_HMAC_SHA256 1
 #define LIBSSH2_HMAC_SHA512 1
 
@@ -95,14 +113,6 @@
 
 #include "crypto_config.h"
 
-#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define MD5_DIGEST_LENGTH 16
-#endif
-#define SHA_DIGEST_LENGTH    20
-#define SHA256_DIGEST_LENGTH 32
-#define SHA384_DIGEST_LENGTH 48
-#define SHA512_DIGEST_LENGTH 64
-
 /*******************************************************************/
 /*
  * mbedTLS backend: Generic functions
@@ -120,71 +130,76 @@ int ssh2_random(unsigned char *buf, size_t len);
  * mbedTLS backend: HMAC functions
  */
 
-#define ssh2_hmac_ctx mbedtls_md_context_t
+struct mbed_hash_ctx {
+    psa_mac_operation_t mac;
+    psa_key_id_t key_id;
+};
+
+#define ssh2_hmac_ctx struct mbed_hash_ctx
 
 /*******************************************************************/
 /*
  * mbedTLS backend: SHA1 functions
  */
 
-#define ssh2_sha1_ctx mbedtls_md_context_t
+#define ssh2_sha1_ctx psa_hash_operation_t
 
 #define ssh2_sha1_init(pctx) \
-    ssh2_mbed_hash_init(pctx, MBEDTLS_MD_SHA1, NULL, 0)
+    ssh2_mbed_hash_init(pctx, PSA_ALG_SHA_1)
 #define ssh2_sha1_update(ctx, data, datalen) \
-    (mbedtls_md_update(&(ctx), (const unsigned char *)(data), datalen) == 0)
+    (psa_hash_update(&(ctx), (const uint8_t *)(data), datalen) == PSA_SUCCESS)
 #define ssh2_sha1_final(ctx, hash) \
-    ssh2_mbed_hash_final(&(ctx), hash)
+    ssh2_mbed_hash_final(&(ctx), hash, SSH2_SHA1_DIG_LEN)
 #define ssh2_sha1(data, datalen, hash) \
-    ssh2_mbed_hash(data, datalen, MBEDTLS_MD_SHA1, hash)
+    ssh2_mbed_hash(data, datalen, PSA_ALG_SHA_1, hash)
 
 /*******************************************************************/
 /*
  * mbedTLS backend: SHA256 functions
  */
 
-#define ssh2_sha256_ctx mbedtls_md_context_t
+#define ssh2_sha256_ctx psa_hash_operation_t
 
 #define ssh2_sha256_init(pctx) \
-    ssh2_mbed_hash_init(pctx, MBEDTLS_MD_SHA256, NULL, 0)
+    ssh2_mbed_hash_init(pctx, PSA_ALG_SHA_256)
 #define ssh2_sha256_update(ctx, data, datalen) \
-    (mbedtls_md_update(&(ctx), (const unsigned char *)(data), datalen) == 0)
+    (psa_hash_update(&(ctx), (const uint8_t *)(data), datalen) == PSA_SUCCESS)
 #define ssh2_sha256_final(ctx, hash) \
-    ssh2_mbed_hash_final(&(ctx), hash)
+    ssh2_mbed_hash_final(&(ctx), hash, SSH2_SHA256_DIG_LEN)
 #define ssh2_sha256(data, datalen, hash) \
-    ssh2_mbed_hash(data, datalen, MBEDTLS_MD_SHA256, hash)
+    ssh2_mbed_hash(data, datalen, PSA_ALG_SHA_256, hash)
 
 /*******************************************************************/
 /*
  * mbedTLS backend: SHA384 functions
  */
 
-#define ssh2_sha384_ctx mbedtls_md_context_t
+#define ssh2_sha384_ctx psa_hash_operation_t
 
 #define ssh2_sha384_init(pctx) \
-    ssh2_mbed_hash_init(pctx, MBEDTLS_MD_SHA384, NULL, 0)
+    ssh2_mbed_hash_init(pctx, PSA_ALG_SHA_384)
 #define ssh2_sha384_update(ctx, data, datalen) \
-    (mbedtls_md_update(&(ctx), (const unsigned char *)(data), datalen) == 0)
+    (psa_hash_update(&(ctx), (const uint8_t *)(data), datalen) == PSA_SUCCESS)
 #define ssh2_sha384_final(ctx, hash) \
-    ssh2_mbed_hash_final(&(ctx), hash)
+    ssh2_mbed_hash_final(&(ctx), hash, SSH2_SHA384_DIG_LEN)
 #define ssh2_sha384(data, datalen, hash) \
-    ssh2_mbed_hash(data, datalen, MBEDTLS_MD_SHA384, hash)
+    ssh2_mbed_hash(data, datalen, PSA_ALG_SHA_384, hash)
 
 /*******************************************************************/
 /*
  * mbedTLS backend: SHA512 functions
  */
 
-#define ssh2_sha512_ctx mbedtls_md_context_t
+#define ssh2_sha512_ctx psa_hash_operation_t
 
 #define ssh2_sha512_init(pctx) \
-    ssh2_mbed_hash_init(pctx, MBEDTLS_MD_SHA512, NULL, 0)
+    ssh2_mbed_hash_init(pctx, PSA_ALG_SHA_512)
 #define ssh2_sha512_update(ctx, data, datalen) \
-    (mbedtls_md_update(&(ctx), (const unsigned char *)(data), datalen) == 0)
+    (psa_hash_update(&(ctx), (const uint8_t *)(data), datalen) == PSA_SUCCESS)
 #define ssh2_sha512_final(ctx, hash) \
-    ssh2_mbed_hash_final(&(ctx), hash)
+    ssh2_mbed_hash_final(&(ctx), hash, SSH2_SHA512_DIG_LEN)
 #define ssh2_sha512(data, datalen, hash) \
-    ssh2_mbed_hash(data, datalen, MBEDTLS_MD_SHA512, hash)
+    ssh2_mbed_hash(data, datalen, PSA_ALG_SHA_512, hash)
 
 /*******************************************************************/
 /*
@@ -192,22 +207,21 @@ int ssh2_random(unsigned char *buf, size_t len);
  */
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define ssh2_md5_ctx mbedtls_md_context_t
+#define ssh2_md5_ctx psa_hash_operation_t
 
 #define ssh2_md5_init(pctx) \
-    ssh2_mbed_hash_init(pctx, MBEDTLS_MD_MD5, NULL, 0)
+    ssh2_mbed_hash_init(pctx, PSA_ALG_MD5)
 #define ssh2_md5_update(ctx, data, datalen) \
-    (mbedtls_md_update(&(ctx), (const unsigned char *)(data), datalen) == 0)
+    (psa_hash_update(&(ctx), (const uint8_t *)(data), datalen) == PSA_SUCCESS)
 #define ssh2_md5_final(ctx, hash) \
-    ssh2_mbed_hash_final(&(ctx), hash)
+    ssh2_mbed_hash_final(&(ctx), hash, SSH2_MD5_DIG_LEN)
 #endif
 
-int ssh2_mbed_hash_init(mbedtls_md_context_t *ctx,
-                        mbedtls_md_type_t mdtype,
-                        const unsigned char *key, size_t keylen);
-int ssh2_mbed_hash_final(mbedtls_md_context_t *ctx, unsigned char *hash);
+int ssh2_mbed_hash_init(psa_hash_operation_t *ctx, psa_algorithm_t alg);
+int ssh2_mbed_hash_final(psa_hash_operation_t *ctx,
+                         unsigned char *hash, size_t len);
 int ssh2_mbed_hash(const unsigned char *data, size_t datalen,
-                   mbedtls_md_type_t mdtype, unsigned char *hash);
+                   psa_algorithm_t alg, unsigned char *hash);
 
 /*******************************************************************/
 /*
@@ -224,9 +238,6 @@ void ssh2_rsa_free(ssh2_rsa_ctx *ctx);
  */
 
 #if LIBSSH2_ECDSA
-
-#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
-
 typedef enum {
 #ifdef MBEDTLS_ECP_DP_SECP256R1_ENABLED
     SSH2_EC_CURVE_NISTP256 = MBEDTLS_ECP_DP_SECP256R1,
@@ -249,8 +260,6 @@ typedef enum {
 #define ssh2_ec_key mbedtls_ecp_keypair
 
 void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ctx);
-#else
-#define ssh2_ec_key void
 #endif /* LIBSSH2_ECDSA */
 
 /*******************************************************************/
@@ -320,14 +329,5 @@ void ssh2_mbed_bn_free(ssh2_bn *bn);
 #define SSH2_DH_MAX_MODULUS_BITS 16384
 
 #define ssh2_dh_ctx mbedtls_mpi *
-#define ssh2_dh_key_pair(dhctx, pub, g, p, group_order, bnctx) \
-    ssh2_mbed_dh_key_pair(dhctx, pub, g, p, group_order)
-#define ssh2_dh_secret(dhctx, secret, f, p, bnctx) \
-    ssh2_mbed_dh_secret(dhctx, secret, f, p)
-
-int ssh2_mbed_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
-                          ssh2_bn *p, int group_order);
-int ssh2_mbed_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
-                        ssh2_bn *p);
 
 #endif /* LIBSSH2_MBEDTLS_H */

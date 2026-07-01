@@ -15,7 +15,7 @@
 #include <libssh2_sftp.h>
 
 #ifdef _WIN32
-#define write(f, b, c)  write(f, b, (unsigned int)(c))
+#define write(f, b, c)  _write(f, b, (unsigned int)(c))
 #endif
 
 #ifdef HAVE_SYS_SOCKET_H
@@ -120,21 +120,16 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    if(argc > 1) {
+    if(argc > 1)
         hostaddr = inet_addr(argv[1]);
-    }
-    else {
+    else
         hostaddr = htonl(0x7F000001);
-    }
-    if(argc > 2) {
+    if(argc > 2)
         username = argv[2];
-    }
-    if(argc > 3) {
+    if(argc > 3)
         password = argv[3];
-    }
-    if(argc > 4) {
+    if(argc > 4)
         sftppath = argv[4];
-    }
 
     rc = libssh2_init(0);
     if(rc) {
@@ -192,9 +187,8 @@ int main(int argc, char *argv[])
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
-    for(i = 0; i < 20; i++) {
+    for(i = 0; i < 20; i++)
         fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
-    }
     fprintf(stderr, "\n");
 
     if(auth_pw) {
@@ -268,12 +262,15 @@ int main(int argc, char *argv[])
             waitsocket(sock, session); /* now we wait */
         }
         if(nread > 0) {
+            ssize_t nwritten;
             total += nread;
-            write(1, mem, (size_t)nread);
+            nwritten = write(1, mem, (size_t)nread);
+            if(nwritten != nread)
+                fprintf(stderr, "write failed: %ld != %ld\n",
+                        (long)nread, (long)nwritten);
         }
-        else {
+        else
             break;
-        }
     } while(1);
 
 #ifdef HAVE_GETTIMEOFDAY
@@ -300,7 +297,7 @@ shutdown:
     }
 
     if(sock != LIBSSH2_INVALID_SOCKET) {
-        shutdown(sock, 2);
+        shutdown(sock, 2 /* SHUT_RDWR */);
         LIBSSH2_SOCKET_CLOSE(sock);
     }
 

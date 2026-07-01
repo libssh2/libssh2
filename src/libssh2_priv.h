@@ -65,8 +65,7 @@
    those names in libssh2.h, so we need to include the AIX headers first, to
    make sure all code is compiled with consistent names of these fields.
    While arguable the best would to change libssh2.h to use other names, that
-   would break backwards compatibility.
-*/
+   would break backwards compatibility. */
 #ifdef HAVE_POLL
 #include <poll.h>
 #elif defined(HAVE_SELECT) && defined(HAVE_SYS_SELECT_H)
@@ -147,10 +146,9 @@
 #endif
 
 /* Use local implementation when not available */
-#ifndef HAVE_SNPRINTF
-#undef snprintf
-#define snprintf ssh2_snprintf
-#define LIBSSH2_SNPRINTF
+#ifdef HAVE_SNPRINTF
+#define ssh2_snprintf snprintf
+#else
 int ssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
     SSH2_PRINTF(3, 4);
 #endif
@@ -239,7 +237,7 @@ struct iovec {
  * padding length, payload, padding, and MAC.)."
  */
 #define MAX_SSH_PACKET_LEN 35000
-#define MAX_SHA_DIGEST_LEN SHA512_DIGEST_LENGTH
+#define MAX_SHA_DIGEST_LEN SSH2_SHA512_DIG_LEN
 
 #define SSH2_ALLOC(session, count) \
     session->alloc(count, &(session)->abstract)
@@ -383,7 +381,9 @@ struct key_exchange_state_low {
     unsigned char *data;
     size_t request_len;
     size_t data_len;
+#if LIBSSH2_ECDSA
     ssh2_ec_key *private_key;       /* SSH2 ecdh private key */
+#endif
     unsigned char *public_key_oct;  /* SSH2 ecdh public key octal value */
     size_t public_key_oct_len;      /* SSH2 ecdh public key octal value
                                        length */
@@ -765,13 +765,13 @@ struct _LIBSSH2_SESSION {
     unsigned char *server_hostkey;
     uint32_t server_hostkey_len;
 #if LIBSSH2_MD5
-    unsigned char server_hostkey_md5[MD5_DIGEST_LENGTH];
+    unsigned char server_hostkey_md5[SSH2_MD5_DIG_LEN];
     int server_hostkey_md5_valid;
 #endif /* !LIBSSH2_MD5 */
-    unsigned char server_hostkey_sha1[SHA_DIGEST_LENGTH];
+    unsigned char server_hostkey_sha1[SSH2_SHA1_DIG_LEN];
     int server_hostkey_sha1_valid;
 
-    unsigned char server_hostkey_sha256[SHA256_DIGEST_LENGTH];
+    unsigned char server_hostkey_sha256[SSH2_SHA256_DIG_LEN];
     int server_hostkey_sha256_valid;
 
     /* public key algorithms accepted as comma separated list */
@@ -783,10 +783,10 @@ struct _LIBSSH2_SESSION {
     /* Whether to use the OpenSSH Strict KEX extension */
     int kex_strict;
 
-    /* (remote as source of data -- packet_read ) */
+    /* (remote as source of data -- packet_read) */
     struct endpoint_data remote;
 
-    /* (local as source of data -- packet_write ) */
+    /* (local as source of data -- packet_write) */
     struct endpoint_data local;
 
     /* Inbound Data linked list -- Sometimes the packet that comes in is not

@@ -45,9 +45,8 @@ static int s_init_flags = 0;
 
 int libssh2_init(int flags)
 {
-    if(s_initialized == 0 && !(flags & LIBSSH2_INIT_NO_CRYPTO)) {
+    if(s_initialized == 0 && !(flags & LIBSSH2_INIT_NO_CRYPTO))
         ssh2_crypto_init();
-    }
 
     s_initialized++;
     s_init_flags |= flags;
@@ -62,10 +61,8 @@ void libssh2_exit(void)
 
     s_initialized--;
 
-    if(s_initialized == 0 &&
-       !(s_init_flags & LIBSSH2_INIT_NO_CRYPTO)) {
+    if(s_initialized == 0 && !(s_init_flags & LIBSSH2_INIT_NO_CRYPTO))
         ssh2_crypto_exit();
-    }
 }
 
 void ssh2_init_if_needed(void)
