@@ -759,9 +759,8 @@ int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx, unsigned char *hash,
                          size_t hashlen)
 {
     int ret;
-    (void)hashlen;  /* TODO: use this */
 
-    ret = BCryptFinishHash(ctx->hHash, hash, ctx->cbHash, 0);
+    ret = BCryptFinishHash(ctx->hHash, hash, hashlen, 0);
 
     BCryptDestroyHash(ctx->hHash);
     ctx->hHash = NULL;
