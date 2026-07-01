@@ -74,44 +74,23 @@
 #define ssh2_prepare_iovec(vec, len)  /* Empty. */
 
 #define ssh2_hash_ctx gcry_md_hd_t
+#define ssh2_hash_alg int
+
+#define SSH2_SHA1_ALG   GCRY_MD_SHA1
+#define SSH2_SHA256_ALG GCRY_MD_SHA256
+#define SSH2_SHA384_ALG GCRY_MD_SHA384
+#define SSH2_SHA512_ALG GCRY_MD_SHA512
+#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
+#define SSH2_MD5_ALG    GCRY_MD_MD5
+#endif
 
 /* returns 0 in case of failure */
-#define ssh2_sha1_init(ctx) \
-    (GPG_ERR_NO_ERROR == gcry_md_open(ctx, GCRY_MD_SHA1, 0))
-#define ssh2_sha1_update(ctx, data, len) \
-    (gcry_md_write(ctx, data, len), 1)
-#define ssh2_sha1_final(ctx, out, len) \
-    ssh2_lgcr_hash_final(ctx, out, len)
-
-#define ssh2_sha256_init(ctx) \
-    (GPG_ERR_NO_ERROR == gcry_md_open(ctx, GCRY_MD_SHA256, 0))
-#define ssh2_sha256_update(ctx, data, len) \
-    (gcry_md_write(ctx, data, len), 1)
-#define ssh2_sha256_final(ctx, out, len) \
-    ssh2_lgcr_hash_final(ctx, out, len)
-
-#define ssh2_sha384_init(ctx) \
-    (GPG_ERR_NO_ERROR == gcry_md_open(ctx, GCRY_MD_SHA384, 0))
-#define ssh2_sha384_update(ctx, data, len) \
-    (gcry_md_write(ctx, data, len), 1)
-#define ssh2_sha384_final(ctx, out, len) \
-    ssh2_lgcr_hash_final(ctx, out, len)
-
-#define ssh2_sha512_init(ctx) \
-    (GPG_ERR_NO_ERROR == gcry_md_open(ctx, GCRY_MD_SHA512, 0))
-#define ssh2_sha512_update(ctx, data, len) \
-    (gcry_md_write(ctx, data, len), 1)
-#define ssh2_sha512_final(ctx, out, len) \
-    ssh2_lgcr_hash_final(ctx, out, len)
-
-#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define ssh2_md5_init(ctx) \
-    (GPG_ERR_NO_ERROR == gcry_md_open(ctx, GCRY_MD_MD5, 0))
-#define ssh2_md5_update(ctx, data, len) \
-    (gcry_md_write(ctx, data, len), 1)
-#define ssh2_md5_final(ctx, out, len) \
-    ssh2_lgcr_hash_final(ctx, out, len)
-#endif
+#define ssh2_hash_init(pctx, alg) \
+    (gcry_md_open(pctx, alg, 0) == GPG_ERR_NO_ERROR)
+#define ssh2_hash_update(ctx, d, l) \
+    (gcry_md_write(ctx, d, l), 1)
+#define ssh2_hash_final(ctx, h, l) \
+    ssh2_lgcr_hash_final(ctx, h, l)
 
 int ssh2_lgcr_hash_final(gcry_md_hd_t ctx, void *hash, size_t len);
 
