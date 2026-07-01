@@ -87,11 +87,6 @@ int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const EVP_MD *digest)
     return 0;
 }
 
-int ssh2_ossl_hash_update(EVP_MD_CTX **ctx, const void *data, size_t len)
-{
-    return EVP_DigestUpdate(*ctx, data, len);
-}
-
 int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out, size_t outlen)
 {
     int ret = EVP_DigestFinal_ex(*ctx, out, NULL);
