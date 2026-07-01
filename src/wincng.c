@@ -703,7 +703,7 @@ int ssh2_random(unsigned char *buf, size_t len)
  */
 
 int ssh2_wcng_hash_init(struct wcng_hash_ctx *ctx, BCRYPT_ALG_HANDLE hAlg,
-                        ULONG hashlen, unsigned char *key, ULONG keylen)
+                        unsigned char *key, ULONG keylen)
 {
     BCRYPT_HASH_HANDLE hHash;
     unsigned char *pbHashObject;
@@ -714,7 +714,7 @@ int ssh2_wcng_hash_init(struct wcng_hash_ctx *ctx, BCRYPT_ALG_HANDLE hAlg,
                             (unsigned char *)&dwHash,
                             sizeof(dwHash),
                             &cbData, 0);
-    if(!BCRYPT_SUCCESS(ret) || dwHash != hashlen)
+    if(!BCRYPT_SUCCESS(ret))
         return -1;
 
     ret = BCryptGetProperty(hAlg, BCRYPT_OBJECT_LENGTH,
@@ -780,7 +780,7 @@ static int wcng_hash(const unsigned char *data, ULONG datalen,
     struct wcng_hash_ctx ctx;
     int ret;
 
-    ret = ssh2_wcng_hash_init(&ctx, hAlg, hashlen, NULL, 0);
+    ret = ssh2_wcng_hash_init(&ctx, hAlg, NULL, 0);
     if(!ret) {
         ret = ssh2_wcng_hash_update(&ctx, data, datalen);
         ret |= ssh2_wcng_hash_final(&ctx, hash, hashlen);
@@ -804,8 +804,7 @@ int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
     int ret = ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHmacMD5,
-                                  SSH2_MD5_DIG_LEN, key, (ULONG)keylen);
-
+                                  key, (ULONG)keylen);
     return ret == 0 ? 1 : 0;
 }
 #endif
@@ -813,24 +812,21 @@ int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
     int ret = ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHmacSHA1,
-                                  SSH2_SHA1_DIG_LEN, key, (ULONG)keylen);
-
+                                  key, (ULONG)keylen);
     return ret == 0 ? 1 : 0;
 }
 
 int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
     int ret = ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHmacSHA256,
-                                  SSH2_SHA256_DIG_LEN, key, (ULONG)keylen);
-
+                                  key, (ULONG)keylen);
     return ret == 0 ? 1 : 0;
 }
 
 int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
     int ret = ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHmacSHA512,
-                                  SSH2_SHA512_DIG_LEN, key, (ULONG)keylen);
-
+                                  key, (ULONG)keylen);
     return ret == 0 ? 1 : 0;
 }
 
