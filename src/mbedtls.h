@@ -144,6 +144,19 @@ struct mbed_hash_ctx {
 
 #define ssh2_hash_ctx psa_hash_operation_t
 
+#define SSH2_SHA1_ALG   PSA_ALG_SHA_1
+#define SSH2_SHA256_ALG PSA_ALG_SHA_256
+#define SSH2_SHA384_ALG PSA_ALG_SHA_384
+#define SSH2_SHA512_ALG PSA_ALG_SHA_512
+#define SSH2_MD5_ALG    PSA_ALG_MD5
+
+#define ssh2_hash_init(pctx, id) \
+    ssh2_mbed_hash_init(pctx, id)
+#define ssh2_hash_update(ctx, data, datalen) \
+    (psa_hash_update(&(ctx), (const uint8_t *)(data), datalen) == PSA_SUCCESS)
+#define ssh2_hash_final(ctx, hash, hashlen) \
+    ssh2_mbed_hash_final(&(ctx), hash, hashlen)
+
 #define ssh2_sha1_init(pctx) \
     ssh2_mbed_hash_init(pctx, PSA_ALG_SHA_1)
 #define ssh2_sha1_update(ctx, data, datalen) \

@@ -237,6 +237,16 @@ int ssh2_ossl_hash(const unsigned char *message, size_t len,
 
 #define ssh2_hash_ctx                 EVP_MD_CTX *
 
+#define SSH2_SHA1_ALG   EVP_sha1()
+#define SSH2_SHA256_ALG EVP_sha256()
+#define SSH2_SHA384_ALG EVP_sha384()
+#define SSH2_SHA512_ALG EVP_sha512()
+#define SSH2_MD5_ALG    EVP_md5()
+
+#define ssh2_hash_init(x, id)         ssh2_ossl_hash_init(x, id)
+#define ssh2_hash_update(ctx, d, l)   ssh2_ossl_hash_update(&(ctx), d, l)
+#define ssh2_hash_final(ctx, h, l)    ssh2_ossl_hash_final(&(ctx), h, l)
+
 #define ssh2_sha1_init(x)             ssh2_ossl_hash_init(x, EVP_sha1())
 #define ssh2_sha1_update(ctx, d, l)   ssh2_ossl_hash_update(&(ctx), d, l)
 #define ssh2_sha1_final(ctx, h, l)    ssh2_ossl_hash_final(&(ctx), h, l)
