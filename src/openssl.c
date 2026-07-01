@@ -46,6 +46,53 @@
 #include <stdlib.h>
 #include <assert.h>
 
+int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const EVP_MD *digest)
+{
+    *ctx = EVP_MD_CTX_new();
+
+    if(!*ctx)
+        return 0;
+
+    if(EVP_DigestInit_ex(*ctx, digest, NULL))
+        return 1;
+
+    EVP_MD_CTX_free(*ctx);
+    *ctx = NULL;
+
+    return 0;
+}
+
+int ssh2_ossl_hash_update(EVP_MD_CTX **ctx, const void *data, size_t len)
+{
+    return EVP_DigestUpdate(*ctx, data, len);
+}
+
+int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out, size_t outlen)
+{
+    int ret = EVP_DigestFinal_ex(*ctx, out, NULL);
+    (void)outlen;
+    EVP_MD_CTX_free(*ctx);
+    *ctx = NULL;
+    return ret;
+}
+
+int ssh2_ossl_hash(const unsigned char *message, size_t len,
+                   unsigned char *out, const EVP_MD *digest)
+{
+    int ret = 1; /* error */
+    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+
+    if(ctx) {
+        if(EVP_DigestInit_ex(ctx, digest, NULL) &&
+           EVP_DigestUpdate(ctx, message, len) &&
+           EVP_DigestFinal_ex(ctx, out, NULL))
+            ret = 0; /* success */
+        EVP_MD_CTX_free(ctx);
+    }
+
+    return ret;
+}
+
 int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 {
 #ifdef USE_OPENSSL_3
@@ -2771,53 +2818,6 @@ clean_exit:
     return rc;
 }
 #endif /* LIBSSH2_ECDSA */
-
-int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const EVP_MD *digest)
-{
-    *ctx = EVP_MD_CTX_new();
-
-    if(!*ctx)
-        return 0;
-
-    if(EVP_DigestInit_ex(*ctx, digest, NULL))
-        return 1;
-
-    EVP_MD_CTX_free(*ctx);
-    *ctx = NULL;
-
-    return 0;
-}
-
-int ssh2_ossl_hash_update(EVP_MD_CTX **ctx, const void *data, size_t len)
-{
-    return EVP_DigestUpdate(*ctx, data, len);
-}
-
-int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out, size_t outlen)
-{
-    int ret = EVP_DigestFinal_ex(*ctx, out, NULL);
-    (void)outlen;
-    EVP_MD_CTX_free(*ctx);
-    *ctx = NULL;
-    return ret;
-}
-
-int ssh2_ossl_hash(const unsigned char *message, size_t len,
-                   unsigned char *out, const EVP_MD *digest)
-{
-    int ret = 1; /* error */
-    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
-
-    if(ctx) {
-        if(EVP_DigestInit_ex(ctx, digest, NULL) &&
-           EVP_DigestUpdate(ctx, message, len) &&
-           EVP_DigestFinal_ex(ctx, out, NULL))
-            ret = 0; /* success */
-        EVP_MD_CTX_free(ctx);
-    }
-
-    return ret;
-}
 
 #if LIBSSH2_ECDSA
 
