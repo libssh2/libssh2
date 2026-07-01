@@ -46,74 +46,75 @@
 
 #include <assert.h>
 
-/* TODO: Switch this to an inline and handle alloc() failures */
-/* Helper macro called from
-   kex_method_diffie_hellman_group1_sha1_key_exchange */
-
-#define KEX_METHOD_SHA_VALUE_HASH(digest_type, value, reqlen, version)        \
-    do {                                                                      \
-        if(!(value))                                                          \
-            (value) = SSH2_ALLOC(session,                                     \
-                                 (reqlen) +                                   \
-                                 SSH2_SHA##digest_type##_DIG_LEN);            \
-        if(value) {                                                           \
-            ssh2_hash_ctx hash;                                               \
-            size_t len = 0;                                                   \
-            while(len < (size_t)(reqlen)) {                                   \
-                if(!ssh2_hash_init(&hash, SSH2_SHA##digest_type##_ALG) ||     \
-                   !ssh2_hash_update(hash, exchange_state->k_value,           \
-                                           exchange_state->k_value_len) ||    \
-                   !ssh2_hash_update(hash, exchange_state->h_sig_comp,        \
-                                          SSH2_SHA##digest_type##_DIG_LEN)) { \
-                    SSH2_FREE(session, value);                                \
-                    (value) = NULL;                                           \
-                    break;                                                    \
-                }                                                             \
-                if(len > 0) {                                                 \
-                    if(!ssh2_hash_update(hash, value, len)) {                 \
-                        SSH2_FREE(session, value);                            \
-                        (value) = NULL;                                       \
-                        break;                                                \
-                    }                                                         \
-                }                                                             \
-                else {                                                        \
-                    if(!ssh2_hash_update(hash, version, 1) ||                 \
-                       !ssh2_hash_update(hash, session->session_id,           \
-                                               session->session_id_len)) {    \
-                        SSH2_FREE(session, value);                            \
-                        (value) = NULL;                                       \
-                        break;                                                \
-                    }                                                         \
-                }                                                             \
-                if(!ssh2_hash_final(hash, (value) + len,                      \
-                                    SSH2_SHA##digest_type##_DIG_LEN)) {       \
-                    SSH2_FREE(session, value);                                \
-                    (value) = NULL;                                           \
-                    break;                                                    \
-                }                                                             \
-                len += SSH2_SHA##digest_type##_DIG_LEN;                       \
-            }                                                                 \
-        }                                                                     \
-    } while(0)
-
 static void sha_algo_value_hash(int sha_algo,
                                 LIBSSH2_SESSION *session,
                                 struct kmdhgGPshakex_state *exchange_state,
                                 unsigned char **data, size_t data_len,
                                 const unsigned char *version)
 {
-    if(sha_algo == 512)
-        KEX_METHOD_SHA_VALUE_HASH(512, *data, data_len, version);
-    else if(sha_algo == 384)
-        KEX_METHOD_SHA_VALUE_HASH(384, *data, data_len, version);
-    else if(sha_algo == 256)
-        KEX_METHOD_SHA_VALUE_HASH(256, *data, data_len, version);
-    else if(sha_algo == 1)
-        KEX_METHOD_SHA_VALUE_HASH(1, *data, data_len, version);
-#ifdef LIBSSH2DEBUG
-    else
-        assert(0);
-#endif
+    ssh2_hash_alg hash_alg;
+    size_t hash_len;
+
+    if(sha_algo == 512) {
+        hash_alg = SSH2_SHA512_ALG;
+        hash_len = SSH2_SHA512_DIG_LEN;
+    }
+    else if(sha_algo == 384) {
+        hash_alg = SSH2_SHA384_ALG;
+        hash_len = SSH2_SHA384_DIG_LEN;
+    }
+    else if(sha_algo == 256) {
+        hash_alg = SSH2_SHA256_ALG;
+        hash_len = SSH2_SHA256_DIG_LEN;
+    }
+    else if(sha_algo == 1) {
+        hash_alg = SSH2_SHA1_ALG;
+        hash_len = SSH2_SHA1_DIG_LEN;
+    }
+    else {
+        *data = NULL;
+        return;
+    }
+
+    if(!*data)
+        *data = SSH2_ALLOC(session, data_len + hash_len);
+
+    if(*data) {
+        ssh2_hash_ctx hash;
+        size_t len = 0;
+        while(len < data_len) {
+            if(!ssh2_hash_init(&hash, hash_alg) ||
+               !ssh2_hash_update(hash, exchange_state->k_value,
+                                       exchange_state->k_value_len) ||
+               !ssh2_hash_update(hash, exchange_state->h_sig_comp, hash_len)) {
+                SSH2_FREE(session, *data);
+                *data = NULL;
+                break;
+            }
+            if(len > 0) {
+                if(!ssh2_hash_update(hash, *data, len)) {
+                    SSH2_FREE(session, *data);
+                    *data = NULL;
+                    break;
+                }
+            }
+            else {
+                if(!ssh2_hash_update(hash, version, 1) ||
+                   !ssh2_hash_update(hash, session->session_id,
+                                           session->session_id_len)) {
+                    SSH2_FREE(session, *data);
+                    *data = NULL;
+                    break;
+                }
+            }
+            if(!ssh2_hash_final(hash, *data + len, hash_len)) {
+                SSH2_FREE(session, *data);
+                *data = NULL;
+                break;
+            }
+            len += hash_len;
+        }
+    }
 }
 
 static int process_host_key(LIBSSH2_SESSION *session,
@@ -416,7 +417,6 @@ static int finish_kex(LIBSSH2_SESSION *session,
 
         session->remote.mac->init(session, key, &free_key,
                                   &session->remote.mac_abstract);
-
         if(free_key) {
             ssh2_explicit_zero(key, session->remote.mac->key_len);
             SSH2_FREE(session, key);
