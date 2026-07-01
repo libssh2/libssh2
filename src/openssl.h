@@ -274,11 +274,11 @@ int ssh2_ossl_hash(const unsigned char *message, size_t len,
 #define ssh2_md5_init(x) \
     (FIPS_mode() ? (*(x) = NULL, 0) : ssh2_ossl_hash_init(x, EVP_md5()))
 #else
-#define ssh2_md5_init(x)            ssh2_ossl_hash_init(x, EVP_md5())
+#define ssh2_md5_init(x)              ssh2_ossl_hash_init(x, EVP_md5())
 #endif
 #define ssh2_md5_update(ctx, data, len) \
     ssh2_ossl_hash_update(&(ctx), data, len)
-#define ssh2_md5_final(ctx, out)    ssh2_ossl_hash_final(&(ctx), out)
+#define ssh2_md5_final(ctx, h, hl)    ssh2_ossl_hash_final(&(ctx), h, hl)
 #endif /* LIBSSH2_MD5 || LIBSSH2_MD5_PEM */
 
 #ifdef USE_OPENSSL_3
