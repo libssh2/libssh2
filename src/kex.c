@@ -52,14 +52,13 @@
 
 #define KEX_METHOD_SHA_VALUE_HASH(digest_type, value, reqlen, version)        \
     do {                                                                      \
-        ssh2_hash_ctx hash;                                                   \
-        size_t len = 0;                                                       \
-        if(!(value)) {                                                        \
+        if(!(value))                                                          \
             (value) = SSH2_ALLOC(session,                                     \
                                  (reqlen) +                                   \
                                  SSH2_SHA##digest_type##_DIG_LEN);            \
-        }                                                                     \
-        if(value)                                                             \
+        if(value) {                                                           \
+            ssh2_hash_ctx hash;                                               \
+            size_t len = 0;                                                   \
             while(len < (size_t)(reqlen)) {                                   \
                 if(!ssh2_sha##digest_type##_init(&hash) ||                    \
                    !ssh2_sha##digest_type##_update(hash,                      \
@@ -96,6 +95,7 @@
                 }                                                             \
                 len += SSH2_SHA##digest_type##_DIG_LEN;                       \
             }                                                                 \
+        }                                                                     \
     } while(0)
 
 /*
