@@ -2825,9 +2825,6 @@ clean_exit:
 
     return rc;
 }
-#endif /* LIBSSH2_ECDSA */
-
-#if LIBSSH2_ECDSA
 
 static int ossl_ecdsa_evp_to_pubkey(LIBSSH2_SESSION *session,
                                     unsigned char **method, size_t *method_len,
