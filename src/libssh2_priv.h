@@ -601,7 +601,7 @@ struct _LIBSSH2_LISTENER {
     size_t chanFwdCncl_data_len;
 
     void *abstract;
-    LIBSSH2_LISTENER_CONNECT_FUNC((*connect_cb));
+    LIBSSH2_LISTENER_CONNECT_FUNC(*connect_cb);
 };
 #if defined(__clang__) && __clang_major__ >= 13
 #pragma clang diagnostic pop
