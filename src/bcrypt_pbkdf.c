@@ -125,8 +125,8 @@ static int bcrypt_pbkdf(const char *pass, size_t passlen,
 
     /* collapse password */
     if(!ssh2_sha512_init(&ctx) ||
-       !ssh2_sha512_update(ctx, pass, passlen) ||
-       !ssh2_sha512_final(ctx, sha2pass, sizeof(sha2pass))) {
+       !ssh2_hash_update(ctx, pass, passlen) ||
+       !ssh2_hash_final(ctx, sha2pass, sizeof(sha2pass))) {
         free(countsalt);
         return -1;
     }
@@ -140,8 +140,8 @@ static int bcrypt_pbkdf(const char *pass, size_t passlen,
 
         /* first round, salt is salt */
         if(!ssh2_sha512_init(&ctx) ||
-           !ssh2_sha512_update(ctx, countsalt, saltlen + 4) ||
-           !ssh2_sha512_final(ctx, sha2salt, sizeof(sha2salt))) {
+           !ssh2_hash_update(ctx, countsalt, saltlen + 4) ||
+           !ssh2_hash_final(ctx, sha2salt, sizeof(sha2salt))) {
             ssh2_explicit_zero(out, sizeof(out));
             free(countsalt);
             return -1;
@@ -153,8 +153,8 @@ static int bcrypt_pbkdf(const char *pass, size_t passlen,
         for(i = 1; i < rounds; i++) {
             /* subsequent rounds, salt is previous output */
             if(!ssh2_sha512_init(&ctx) ||
-               !ssh2_sha512_update(ctx, tmpout, sizeof(tmpout)) ||
-               !ssh2_sha512_final(ctx, sha2salt, sizeof(sha2salt))) {
+               !ssh2_hash_update(ctx, tmpout, sizeof(tmpout)) ||
+               !ssh2_hash_final(ctx, sha2salt, sizeof(sha2salt))) {
                 ssh2_explicit_zero(out, sizeof(out));
                 free(countsalt);
                 return -1;
