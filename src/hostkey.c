@@ -866,34 +866,6 @@ static int hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION *session,
     return ssh2_ecdsa_verify(ctx, r, r_len, s, s_len, m, m_len);
 }
 
-#define HOSTKEY_METHOD_EC_SIGNV_HASH(digest_type)                     \
-    do {                                                              \
-        unsigned char hash[SSH2_SHA##digest_type##_DIG_LEN];          \
-        ssh2_hash_ctx ctx;                                            \
-        int i;                                                        \
-        if(!ssh2_hash_init(&ctx, SSH2_SHA##digest_type##_ALG)) {      \
-            ret = -1;                                                 \
-            break;                                                    \
-        }                                                             \
-        for(i = 0; i < veccount; i++) {                               \
-            if(!ssh2_hash_update(ctx, datavec[i].iov_base,            \
-                                      datavec[i].iov_len)) {          \
-                ret = -1;                                             \
-                break;                                                \
-            }                                                         \
-        }                                                             \
-        if(ret == -1) {                                               \
-            break;                                                    \
-        }                                                             \
-        if(!ssh2_hash_final(ctx, hash, sizeof(hash))) {               \
-            ret = -1;                                                 \
-            break;                                                    \
-        }                                                             \
-        ret = ssh2_ecdsa_sign(session, ec_ctx, hash,                  \
-                              SSH2_SHA##digest_type##_DIG_LEN,        \
-                              signature, signature_len);              \
-    } while(0)
-
 /*
  * Construct a signature from an array of vectors
  */
@@ -906,18 +878,39 @@ static int hostkey_method_ssh_ecdsa_signv(LIBSSH2_SESSION *session,
 {
     ssh2_ecdsa_ctx *ec_ctx = (ssh2_ecdsa_ctx *)(*abstract);
     ssh2_curve_type type = ssh2_ecdsa_get_curve_type(ec_ctx);
-    int ret = 0;
+    unsigned char hash[MAX_SHA_DIGEST_LEN];
+    ssh2_hash_ctx ctx;
+    ssh2_hash_alg hash_alg;
+    size_t hash_len;
+    int i;
 
-    if(type == SSH2_EC_CURVE_NISTP256)
-        HOSTKEY_METHOD_EC_SIGNV_HASH(256);
-    else if(type == SSH2_EC_CURVE_NISTP384)
-        HOSTKEY_METHOD_EC_SIGNV_HASH(384);
-    else if(type == SSH2_EC_CURVE_NISTP521)
-        HOSTKEY_METHOD_EC_SIGNV_HASH(512);
+    if(type == SSH2_EC_CURVE_NISTP256) {
+        hash_alg = SSH2_SHA256_ALG;
+        hash_len = SSH2_SHA256_DIG_LEN;
+    }
+    else if(type == SSH2_EC_CURVE_NISTP384) {
+        hash_alg = SSH2_SHA384_ALG;
+        hash_len = SSH2_SHA384_DIG_LEN;
+    }
+    else if(type == SSH2_EC_CURVE_NISTP521) {
+        hash_alg = SSH2_SHA512_ALG;
+        hash_len = SSH2_SHA512_DIG_LEN;
+    }
     else
         return -1;
 
-    return ret;
+    if(!ssh2_hash_init(&ctx, hash_alg))
+        return -1;
+
+    for(i = 0; i < veccount; i++)
+        if(!ssh2_hash_update(ctx, datavec[i].iov_base, datavec[i].iov_len))
+            return -1;
+
+    if(!ssh2_hash_final(ctx, hash, sizeof(hash)))
+        return -1;
+
+    return ssh2_ecdsa_sign(session, ec_ctx, hash, hash_len,
+                           signature, signature_len);
 }
 
 /*
