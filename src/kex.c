@@ -109,13 +109,13 @@
 static int sha_algo_ctx_init(int sha_algo, void *ctx)
 {
     if(sha_algo == 512)
-        return ssh2_sha512_init((ssh2_hash_ctx *)ctx);
+        return ssh2_hash_init((ssh2_hash_ctx *)ctx, SSH2_SHA512_ALG);
     else if(sha_algo == 384)
-        return ssh2_sha384_init((ssh2_hash_ctx *)ctx);
+        return ssh2_hash_init((ssh2_hash_ctx *)ctx, SSH2_SHA384_ALG);
     else if(sha_algo == 256)
-        return ssh2_sha256_init((ssh2_hash_ctx *)ctx);
+        return ssh2_hash_init((ssh2_hash_ctx *)ctx, SSH2_SHA256_ALG);
     else if(sha_algo == 1)
-        return ssh2_sha1_init((ssh2_hash_ctx *)ctx);
+        return ssh2_hash_init((ssh2_hash_ctx *)ctx, SSH2_SHA1_ALG);
 #ifdef LIBSSH2DEBUG
     else
         assert(0);
@@ -252,7 +252,7 @@ static int process_host_key(LIBSSH2_SESSION *session,
     {
         ssh2_hash_ctx fingerprint_ctx;
 
-        if(ssh2_sha1_init(&fingerprint_ctx) &&
+        if(ssh2_hash_init(&fingerprint_ctx, SSH2_SHA1_ALG) &&
            ssh2_hash_update(fingerprint_ctx, session->server_hostkey,
                             session->server_hostkey_len) &&
            ssh2_hash_final(fingerprint_ctx, session->server_hostkey_sha1,
@@ -277,7 +277,7 @@ static int process_host_key(LIBSSH2_SESSION *session,
     {
         ssh2_hash_ctx fingerprint_ctx;
 
-        if(ssh2_sha256_init(&fingerprint_ctx) &&
+        if(ssh2_hash_init(&fingerprint_ctx, SSH2_SHA256_ALG) &&
            ssh2_hash_update(fingerprint_ctx, session->server_hostkey,
                               session->server_hostkey_len) &&
            ssh2_hash_final(fingerprint_ctx, session->server_hostkey_sha256,
@@ -2362,7 +2362,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
         switch(type) {
         case SSH2_EC_CURVE_NISTP256: {
             ssh2_hash_ctx k_ctx;
-            if(!ssh2_sha256_init(&k_ctx)) {
+            if(!ssh2_hash_init(&k_ctx, SSH2_SHA256_ALG)) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
                                "kex: failed to initialize hash");
                 goto clean_exit;
@@ -2385,7 +2385,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
         }
         case SSH2_EC_CURVE_NISTP384: {
             ssh2_hash_ctx k_ctx;
-            if(!ssh2_sha384_init(&k_ctx)) {
+            if(!ssh2_hash_init(&k_ctx, SSH2_SHA384_ALG)) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
                                "kex: failed to initialize hash");
                 goto clean_exit;
@@ -2997,7 +2997,7 @@ static int mlkem768x25519_sha256(
             goto clean_exit;
         }
 
-        if(!ssh2_sha256_init(&k_ctx)) {
+        if(!ssh2_hash_init(&k_ctx, SSH2_SHA256_ALG)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
                            "kex: failed to initialize hash");
             goto clean_exit;
