@@ -44,11 +44,14 @@
 
 int ssh2_lgcr_hash_final(gcry_md_hd_t ctx, void *hash, size_t len)
 {
-    (void)len;
-    memcpy(hash, gcry_md_read(ctx, 0),
-           gcry_md_get_algo_dlen(gcry_md_get_algo(ctx)));
+    int ret = 0;
+    unsigned int digest_len = gcry_md_get_algo_dlen(gcry_md_get_algo(ctx));
+    if(len >= digest_len) {
+        memcpy(hash, gcry_md_read(ctx, 0), digest_len);
+        ret = 1;
+    }
     gcry_md_close(ctx);
-    return 1;
+    return ret;
 }
 
 int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
