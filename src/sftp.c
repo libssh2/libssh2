@@ -352,7 +352,7 @@ static int sftp_packet_read(LIBSSH2_SFTP *sftp)
                                 "Unable to allocate SFTP packet");
             sftp->packet_header_len = 0;
             sftp->partial_packet = packet;
-            /* copy over packet type(4) and request id(1) */
+            /* copy over packet type(1) and request id(4) */
             sftp->partial_received = 5;
             memcpy(packet, sftp->packet_header + 4, 5);
 
@@ -1414,10 +1414,10 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
        but the state machine ensures we skip the first phase on the next call
        and resume sending.
 
-       ssh2_NB_state_sent2: In the third phase (indicated by ) we read the
-       data from the responses that have arrived so far.  Reading can be
-       interrupted with EAGAIN but the state machine ensures we skip the first
-       and second phases on the next call and resume sending.
+       ssh2_NB_state_sent2: In the third phase we read the data from
+       the responses that have arrived so far.  Reading can be interrupted with
+       EAGAIN but the state machine ensures we skip the first and second phases
+       on the next call and resume sending.
     */
 
     switch(sftp->read_state) {
