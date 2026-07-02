@@ -28,8 +28,9 @@ enabled/disabled statuses.
 
 # RETURN VALUE
 
-A read-only string with the build options. Each supported option followed by
-either `on` or `off` reflecting its status.
+A read-only, space-separated list of key:value pairs describing build options.
+Most options use `on` or `off`; `crypto` reports the selected crypto backend
+name.
 
 # EXAMPLE
 
