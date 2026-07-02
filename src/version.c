@@ -164,6 +164,13 @@ static const char *ssh2_build_options =
     "off"
 #endif
     " "
+    "clear-memory:"
+#ifndef LIBSSH2_NO_CLEAR_MEMORY
+    "on"
+#else
+    "off"
+#endif
+    " "
     "debug-logging:"
 #ifdef LIBSSH2DEBUG
     "on"
