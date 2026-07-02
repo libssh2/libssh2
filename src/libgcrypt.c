@@ -44,13 +44,9 @@
 
 int ssh2_lgcr_hash_final(gcry_md_hd_t ctx, void *hash, size_t len)
 {
-    unsigned char *res = gcry_md_read(ctx, 0);
     (void)len;
-
-    if(!res)
-        return 0;
-
-    memcpy(hash, res, gcry_md_get_algo_dlen(gcry_md_get_algo(ctx)));
+    memcpy(hash, gcry_md_read(ctx, 0),
+           gcry_md_get_algo_dlen(gcry_md_get_algo(ctx)));
     gcry_md_close(ctx);
     return 1;
 }
