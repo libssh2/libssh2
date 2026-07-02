@@ -1085,7 +1085,7 @@ ssh2_curve_type ssh2_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ec_ctx)
  * returns 0 for success, key curve type that maps to ssh2_curve_type
  */
 static int mbed_ecdsa_curve_type_from_name(const char *name,
-                                           ssh2_curve_type *out_type)
+                                           ssh2_curve_type *out_curve)
 {
     ssh2_curve_type type;
 
@@ -1101,8 +1101,8 @@ static int mbed_ecdsa_curve_type_from_name(const char *name,
     else
         return -1;
 
-    if(out_type)
-        *out_type = type;
+    if(out_curve)
+        *out_curve = type;
 
     return 0;
 }
