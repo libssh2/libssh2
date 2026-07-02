@@ -227,7 +227,7 @@ jobs:
 
   build_linux:
     name: 'linux'
-    runs-on: ${{ matrix.compiler == 'clang-tidy' && 'ubuntu-26.04' || (matrix.image || 'ubuntu-latest') }}
+    runs-on: ${{ (matrix.compiler == 'clang-tidy' && matrix.crypto != 'Libgcrypt') && 'ubuntu-26.04' || (matrix.image || 'ubuntu-latest') }}
     timeout-minutes: 10
     strategy:
       fail-fast: false
