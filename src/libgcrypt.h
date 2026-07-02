@@ -82,6 +82,8 @@
     (gcry_md_write(ctx, data, len), 1)
 #define ssh2_sha1_final(ctx, out, len) \
     (memcpy(out, gcry_md_read(ctx, 0), len), gcry_md_close(ctx), 1)
+#define ssh2_sha1(message, len, out) \
+    (gcry_md_hash_buffer(GCRY_MD_SHA1, out, message, len), 0)
 
 #define ssh2_sha256_init(ctx) \
     (GPG_ERR_NO_ERROR == gcry_md_open(ctx, GCRY_MD_SHA256, 0))
@@ -89,6 +91,8 @@
     (gcry_md_write(ctx, data, len), 1)
 #define ssh2_sha256_final(ctx, out, len) \
     (memcpy(out, gcry_md_read(ctx, 0), len), gcry_md_close(ctx), 1)
+#define ssh2_sha256(message, len, out) \
+    (gcry_md_hash_buffer(GCRY_MD_SHA256, out, message, len), 0)
 
 #define ssh2_sha384_init(ctx) \
     (GPG_ERR_NO_ERROR == gcry_md_open(ctx, GCRY_MD_SHA384, 0))
@@ -96,6 +100,8 @@
     (gcry_md_write(ctx, data, len), 1)
 #define ssh2_sha384_final(ctx, out, len) \
     (memcpy(out, gcry_md_read(ctx, 0), len), gcry_md_close(ctx), 1)
+#define ssh2_sha384(message, len, out) \
+    (gcry_md_hash_buffer(GCRY_MD_SHA384, out, message, len), 0)
 
 #define ssh2_sha512_init(ctx) \
     (GPG_ERR_NO_ERROR == gcry_md_open(ctx, GCRY_MD_SHA512, 0))
@@ -103,6 +109,8 @@
     (gcry_md_write(ctx, data, len), 1)
 #define ssh2_sha512_final(ctx, out, len) \
     (memcpy(out, gcry_md_read(ctx, 0), len), gcry_md_close(ctx), 1)
+#define ssh2_sha512(message, len, out) \
+    (gcry_md_hash_buffer(GCRY_MD_SHA512, out, message, len), 0)
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #define ssh2_md5_init(ctx) \
