@@ -699,8 +699,8 @@ ssh2_curve_type ssh2_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ec_ctx)
 /*
  * returns 0 for success, key curve type that maps to ssh2_curve_type
  */
-int ssh2_ecdsa_curve_type_from_name(const char *name,
-                                    ssh2_curve_type *out_curve)
+static int ossl_ecdsa_curve_type_from_name(const char *name,
+                                           ssh2_curve_type *out_curve)
 {
     ssh2_curve_type type;
 
@@ -3291,7 +3291,7 @@ static int ossl_ecdsa_openssh_priv_new(ssh2_ecdsa_ctx **ec_ctx,
         return -1;
     }
 
-    rc = ssh2_ecdsa_curve_type_from_name((const char *)buf, &type);
+    rc = ossl_ecdsa_curve_type_from_name((const char *)buf, &type);
 
     if(rc == 0)
         rc = ossl_ecdsa_openssh_priv_to_pubkey(session, type, decrypted,
@@ -3934,7 +3934,7 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
                                              NULL);
 #endif
 #if LIBSSH2_ECDSA
-    if(ssh2_ecdsa_curve_type_from_name((const char *)buf, &type) == 0)
+    if(ossl_ecdsa_curve_type_from_name((const char *)buf, &type) == 0)
         rc = ossl_ecdsa_openssh_priv_to_pubkey(session, type, decrypted,
                                                method, method_len,
                                                pubkeydata, pubkeydata_len,
@@ -4120,7 +4120,7 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
                                                   pubkeydata, pubkeydata_len,
                                                   NULL, NULL, NULL, NULL,
                                                   (ssh2_ecdsa_ctx **)key_ctx);
-    else if(ssh2_ecdsa_curve_type_from_name((const char *)buf, &type) == 0 &&
+    else if(ossl_ecdsa_curve_type_from_name((const char *)buf, &type) == 0 &&
             (!key_type || !strcmp("ssh-ecdsa", key_type)))
         rc = ossl_ecdsa_openssh_priv_to_pubkey(session, type, decrypted,
                                                method, method_len,
