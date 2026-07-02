@@ -154,6 +154,7 @@ struct wcng_hash_ctx {
     BCRYPT_HASH_HANDLE hHash;
     unsigned char *pbHashObject;
     ULONG dwHashObject;
+    ULONG cbHash;
 };
 
 /*
