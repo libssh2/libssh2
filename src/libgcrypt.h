@@ -42,7 +42,7 @@
  */
 
 #define SSH2_CRYPTO_ENGINE libssh2_gcrypt
-#define SSH2_CRYPTO_ENGINE_NAME "Libgrcypt"
+#define SSH2_CRYPTO_ENGINE_NAME "Libgcrypt"
 
 #include <gcrypt.h>
 
