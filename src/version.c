@@ -52,6 +52,9 @@ libssh2_crypto_engine_t libssh2_crypto_engine(void)
 }
 
 static const char *ssh2_build_options =
+    "crypto:"
+    SSH2_CRYPTO_ENGINE_NAME
+    " "
     "MD5:"
 #if LIBSSH2_MD5
     "on"

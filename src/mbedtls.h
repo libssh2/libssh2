@@ -40,6 +40,7 @@
  */
 
 #define SSH2_CRYPTO_ENGINE libssh2_mbedtls
+#define SSH2_CRYPTO_ENGINE_NAME "mbedTLS"
 
 #include <mbedtls/version.h>
 #include <mbedtls/platform.h>

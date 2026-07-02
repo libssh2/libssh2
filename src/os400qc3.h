@@ -41,6 +41,7 @@
  */
 
 #define SSH2_CRYPTO_ENGINE libssh2_os400qc3
+#define SSH2_CRYPTO_ENGINE_NAME "OS400QC3"
 
 #include <stdlib.h>
 #include <string.h>
