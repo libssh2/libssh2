@@ -16,8 +16,7 @@ libssh2_version - return the libssh2 version number
 ~~~c
 #include <libssh2.h>
 
-const char *
-libssh2_version(int required_version);
+const char *libssh2_version(int required_version);
 ~~~
 
 # DESCRIPTION
