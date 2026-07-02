@@ -227,7 +227,7 @@ jobs:
 
   build_linux:
     name: 'linux'
-    runs-on: ${{ matrix.compiler == 'clang-tidy' && 'ubuntu-26.04' || (matrix.image || 'ubuntu-latest') }}
+    runs-on: ${{ matrix.compiler == 'clang-tidy' && 'ubuntu-26.04' || (matrix.image || (matrix.crypto == 'Libgcrypt' && 'ubuntu-24.04' || 'ubuntu-latest')) }}
     timeout-minutes: 10
     strategy:
       fail-fast: false
@@ -573,6 +573,9 @@ jobs:
               options+=' -DCMAKE_C_STANDARD=90'
               cflags+=' -D_DEFAULT_SOURCE'  # for glibc ISO mode, in tests: popen(), pclose(), in examples: fileno(), tcsetattr()
             fi
+            if [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && [ "${MATRIX_COMPILER}" = 'clang-tidy' ]; then
+              options+=' -DRUN_SSHD_TESTS=OFF'  # fails on due to lack of support for modern algos offered by sshd on Ubuntu 26.04 used with clang-tidy
+            fi
             if [ "${MATRIX_CRYPTO}" = 'OpenSSL-3-no-deprecated' ]; then
               options+=' -DENABLE_DEBUG_LOGGING=ON'
             fi
@@ -617,14 +620,20 @@ jobs:
           fi
 
       - name: 'tests'
-        if: ${{ !matrix.target && matrix.crypto != 'Libgcrypt' }}
+        if: ${{ !matrix.target }}
         timeout-minutes: 10
         run: |
           if [ "${MATRIX_CRYPTO}" = 'OpenSSL-3-no-deprecated' ]; then
             export FIXTURE_TRACE_ALL_CONNECT=1  # try to close in on flaky CI failures
           fi
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
-            export OPENSSH_SERVER_IMAGE; OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
+            export OPENSSH_SERVER_IMAGE
+            if [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ]; then
+              # use debian:bookworm for diffie-hellman-group* KEXs
+              OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:98199e448a94451491c4
+            else
+              OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
+            fi
             [ -d "$HOME"/usr ] && export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/usr/lib"
             cd bld && ctest -VV --output-on-failure
           else
