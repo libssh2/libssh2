@@ -61,32 +61,25 @@ static void kex_value_hash(ssh2_hash_alg hash_alg, size_t digest_len,
         *data = SSH2_ALLOC(session, data_len + digest_len);
 
     if(*data) {
-        ssh2_hash_ctx hash;
         size_t len = 0;
         while(len < data_len) {
-            if(!ssh2_hash_init(&hash, hash_alg) ||
-               !ssh2_hash_update(hash, exchange_state->k_value,
-                                       exchange_state->k_value_len) ||
-               !ssh2_hash_update(hash, exchange_state->h_sig_comp,
-                                       digest_len)) {
-                SSH2_SAFEFREE(session, *data);
-                return;
-            }
-            if(len > 0) {
-                if(!ssh2_hash_update(hash, *data, len)) {
-                    SSH2_SAFEFREE(session, *data);
-                    return;
+            ssh2_hash_ctx ctx;
+            int hok = ssh2_hash_init(&ctx, hash_alg);
+            if(hok) {
+                hok &= ssh2_hash_update(ctx, exchange_state->k_value,
+                                        exchange_state->k_value_len);
+                hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp,
+                                        digest_len);
+                if(len)
+                    hok &= ssh2_hash_update(ctx, *data, len);
+                else {
+                    hok &= ssh2_hash_update(ctx, version, 1);
+                    hok &= ssh2_hash_update(ctx, session->session_id,
+                                            session->session_id_len);
                 }
+                hok &= ssh2_hash_final(ctx, *data + len, digest_len);
             }
-            else {
-                if(!ssh2_hash_update(hash, version, 1) ||
-                   !ssh2_hash_update(hash, session->session_id,
-                                           session->session_id_len)) {
-                    SSH2_SAFEFREE(session, *data);
-                    return;
-                }
-            }
-            if(!ssh2_hash_final(hash, *data + len, digest_len)) {
+            if(!hok) {
                 SSH2_SAFEFREE(session, *data);
                 return;
             }
@@ -649,12 +642,12 @@ static int kex_diffie_hellman_sha(LIBSSH2_SESSION *session,
             }
         }
 
-        if(!ssh2_hash_init(ctx, hash_alg)) {
+        hok = ssh2_hash_init(ctx, hash_alg);
+        if(!hok) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
                            "Unable to initialize hash context DH-SHA");
             goto clean_exit;
         }
-        hok = 1;
         if(session->local.banner) {
             ssh2_htonu32(exchange_state->h_sig_comp,
                 (uint32_t)(strlen((char *)session->local.banner) - 2));
@@ -716,8 +709,9 @@ static int kex_diffie_hellman_sha(LIBSSH2_SESSION *session,
         hok &= ssh2_hash_update(*ctx, exchange_state->k_value,
                                       exchange_state->k_value_len);
 
-        if(!hok || !ssh2_hash_final(*ctx, exchange_state->h_sig_comp,
-                                    sizeof(exchange_state->h_sig_comp))) {
+        hok &= ssh2_hash_final(*ctx, exchange_state->h_sig_comp,
+                                     sizeof(exchange_state->h_sig_comp));
+        if(!hok) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                            "Failed to calculate hash DH-SHA");
             goto clean_exit;
@@ -1479,11 +1473,11 @@ static int kex_method_ec_sha_hash_create_verify(
     int err;
     int hok;
 
-    if(!ssh2_hash_init(&ctx, hash_alg))
+    hok = ssh2_hash_init(&ctx, hash_alg);
+    if(!hok)
         return ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
                         "Unable to initialize hash context EC/ED");
 
-    hok = 1;
     if(session->local.banner) {
         ssh2_htonu32(exchange_state->h_sig_comp,
                      (uint32_t)(strlen((char *)session->local.banner) - 2));
@@ -1540,8 +1534,9 @@ static int kex_method_ec_sha_hash_create_verify(
     hok &= ssh2_hash_update(ctx, exchange_state->k_value,
                                  exchange_state->k_value_len);
 
-    if(!hok || !ssh2_hash_final(ctx, exchange_state->h_sig_comp,
-                                sizeof(exchange_state->h_sig_comp)))
+    hok &= ssh2_hash_final(ctx, exchange_state->h_sig_comp,
+                                sizeof(exchange_state->h_sig_comp));
+    if(!hok)
         return ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                         "Failed to calculate hash EC/ED");
 

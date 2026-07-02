@@ -281,25 +281,32 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         int blocksize = method->blocksize;
         void *abstract;
         unsigned char secret[2 * SSH2_MD5_DIG_LEN];
-        ssh2_hash_ctx fingerprint_ctx;
+        ssh2_hash_ctx ctx;  /* fingerprint */
+        int hok;
 
         /* Perform key derivation (PBKDF1/MD5) */
-        if(!ssh2_hash_init(&fingerprint_ctx, SSH2_MD5_ALG) ||
-           !ssh2_hash_update(fingerprint_ctx, passphrase,
-                             strlen((const char *)passphrase)) ||
-           !ssh2_hash_update(fingerprint_ctx, iv, 8) ||
-           !ssh2_hash_final(fingerprint_ctx, secret, SSH2_MD5_DIG_LEN)) {
+        hok = ssh2_hash_init(&ctx, SSH2_MD5_ALG);
+        if(hok) {
+            hok &= ssh2_hash_update(ctx, passphrase,
+                                    strlen((const char *)passphrase));
+            hok &= ssh2_hash_update(ctx, iv, 8);
+            hok &= ssh2_hash_final(ctx, secret, SSH2_MD5_DIG_LEN);
+        }
+        if(!hok) {
             ret = -1;
             goto out;
         }
         if(method->secret_len > SSH2_MD5_DIG_LEN) {
-            if(!ssh2_hash_init(&fingerprint_ctx, SSH2_MD5_ALG) ||
-               !ssh2_hash_update(fingerprint_ctx, secret, SSH2_MD5_DIG_LEN) ||
-               !ssh2_hash_update(fingerprint_ctx, passphrase,
-                                 strlen((const char *)passphrase)) ||
-               !ssh2_hash_update(fingerprint_ctx, iv, 8) ||
-               !ssh2_hash_final(fingerprint_ctx,
-                                secret + SSH2_MD5_DIG_LEN, SSH2_MD5_DIG_LEN)) {
+            hok = ssh2_hash_init(&ctx, SSH2_MD5_ALG);
+            if(hok) {
+                hok &= ssh2_hash_update(ctx, secret, SSH2_MD5_DIG_LEN);
+                hok &= ssh2_hash_update(ctx, passphrase,
+                                        strlen((const char *)passphrase));
+                hok &= ssh2_hash_update(ctx, iv, 8);
+                hok &= ssh2_hash_final(ctx, secret + SSH2_MD5_DIG_LEN,
+                                       SSH2_MD5_DIG_LEN);
+            }
+            if(!hok) {
                 ret = -1;
                 goto out;
             }

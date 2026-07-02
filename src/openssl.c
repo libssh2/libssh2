@@ -88,8 +88,10 @@ int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const EVP_MD *digest)
 
 int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out, size_t outlen)
 {
-    int ret = EVP_DigestFinal_ex(*ctx, out, NULL);
+    int ret = 0;
     (void)outlen;
+    if(out)
+        ret = EVP_DigestFinal_ex(*ctx, out, NULL);
     EVP_MD_CTX_free(*ctx);
     *ctx = NULL;
     return ret;
