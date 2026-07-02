@@ -712,6 +712,8 @@ jobs:
               -DCMAKE_C_COMPILER_TARGET="${TRIPLET}" \
               -DCMAKE_UNITY_BUILD=ON \
               -DENABLE_WERROR=ON \
+              -DENABLE_DEBUG_LOGGING=ON \
+              -DENABLE_ECDSA_WINCNG=ON \
               ${options}
           else
             mkdir bld && cd bld
