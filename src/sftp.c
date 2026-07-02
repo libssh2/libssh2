@@ -1122,33 +1122,34 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
     LIBSSH2_SFTP_HANDLE *fp;
-    LIBSSH2_SFTP_ATTRIBUTES attrs = {
-        LIBSSH2_SFTP_ATTR_PERMISSIONS, 0, 0, 0, 0, 0, 0
-    };
     unsigned char *s;
     ssize_t rc;
-    uint32_t packet_len;
     int open_file = (open_type == LIBSSH2_SFTP_OPENFILE) ? 1 : 0;
-
-    /* packet_len(4) + packet_type(1) + request_id(4) + filename_len(4) +
-       flags(4) */
-    packet_len = (13 + (open_file ? (4 + sftp_attrsize(attrs.flags)) : 0));
-
-    if(packet_len + (uint32_t)filename_len < packet_len) {
-        ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                 "Input too large sftp_open");
-        return NULL;
-    }
-
-    packet_len += (uint32_t)filename_len;
 
     if(sftp->open_state == ssh2_NB_state_idle) {
 
-        sftp->last_errno = LIBSSH2_FX_OK;
+        uint32_t packet_len;
+        LIBSSH2_SFTP_ATTRIBUTES attrs = {
+            LIBSSH2_SFTP_ATTR_PERMISSIONS, 0, 0, 0, 0, 0, 0
+        };
 
         if(attrs_in)
             memcpy(&attrs, attrs_in, sizeof(LIBSSH2_SFTP_ATTRIBUTES));
 
+        /* packet_len(4) + packet_type(1) + request_id(4) + filename_len(4) +
+           flags(4) */
+        packet_len = (13 +
+                     (open_file ? (4 + sftp_attrsize(attrs.flags)) : 0));
+
+        if(packet_len + (uint32_t)filename_len < packet_len) {
+            ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                     "Input too large sftp_open");
+            return NULL;
+        }
+
+        packet_len += (uint32_t)filename_len;
+
+        sftp->last_errno = LIBSSH2_FX_OK;
         sftp->open_packet_len = packet_len;
 
         /* surprise! this starts out with nothing sent */
