@@ -229,7 +229,10 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define ssh2_crypto_init()   do {} while(0)
 #define ssh2_crypto_exit()   do {} while(0)
 
-#define ssh2_hash_ctx        Qc3_Format_ALGD0100_T
+#define ssh2_sha1_ctx        Qc3_Format_ALGD0100_T
+#define ssh2_sha256_ctx      Qc3_Format_ALGD0100_T
+#define ssh2_sha384_ctx      Qc3_Format_ALGD0100_T
+#define ssh2_sha512_ctx      Qc3_Format_ALGD0100_T
 #define ssh2_hmac_ctx        struct os400qc3_crypto_ctx
 #define ssh2_cipher_ctx      struct os400qc3_crypto_ctx
 
@@ -250,6 +253,7 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define ssh2_sha512(d, l, out)        ssh2_os400qc3_hash(d, l, out, Qc3_SHA512)
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
+#define ssh2_md5_ctx                  Qc3_Format_ALGD0100_T
 #define ssh2_md5_init(x)              ssh2_os400qc3_hash_init(x, Qc3_MD5)
 #define ssh2_md5_update(ctx, d, l)    ssh2_os400qc3_hash_update(&(ctx), d, l)
 #define ssh2_md5_final(ctx, out)      ssh2_os400qc3_hash_final(&(ctx), out)
