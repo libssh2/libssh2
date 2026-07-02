@@ -50,3 +50,129 @@ libssh2_crypto_engine_t libssh2_crypto_engine(void)
 {
     return SSH2_CRYPTO_ENGINE;
 }
+
+static const char *ssh2_build_options =
+    "MD5:"
+#if LIBSSH2_MD5
+    "on"
+#else
+    "off"
+#endif
+    " "
+    "MD5-PEM:"
+#if LIBSSH2_MD5_PEM
+    "on"
+#else
+    "off"
+#endif
+    " "
+    "RIPEMD160:"
+#if LIBSSH2_HMAC_RIPEMD
+    "on"
+#else
+    "off"
+#endif
+    " "
+    "DSA:"
+#if LIBSSH2_DSA
+    "on"
+#else
+    "off"
+#endif
+    " "
+    "RSA:"
+#if LIBSSH2_RSA
+    "on"
+#else
+    "off"
+#endif
+    " "
+    "RSA-SHA1:"
+#if LIBSSH2_RSA_SHA1
+    "on"
+#else
+    "off"
+#endif
+    " "
+    "ECDSA:"
+#if LIBSSH2_ECDSA
+    "on"
+#else
+    "off"
+#endif
+    " "
+    "ED25519:"
+#if LIBSSH2_ED25519
+    "on"
+#else
+    "off"
+#endif
+    " "
+    "ML-KEM:"
+#if LIBSSH2_MLKEM
+    "on"
+#else
+    "off"
+#endif
+    " "
+    "AES-CTR:"
+#if LIBSSH2_AES_CTR
+    "on"
+#else
+    "off"
+#endif
+    " "
+    "AES-CBC:"
+#if LIBSSH2_AES_CBC
+    "on"
+#else
+    "off"
+#endif
+    " "
+    "BLOWFISH:"
+#if LIBSSH2_BLOWFISH
+    "on"
+#else
+    "off"
+#endif
+    " "
+    "RC4:"
+#if LIBSSH2_RC4
+    "on"
+#else
+    "off"
+#endif
+    " "
+    "CAST:"
+#if LIBSSH2_CAST
+    "on"
+#else
+    "off"
+#endif
+    " "
+    "3DES:"
+#if LIBSSH2_3DES
+    "on"
+#else
+    "off"
+#endif
+    " "
+    "zlib:"
+#ifdef LIBSSH2_HAVE_ZLIB
+    "on"
+#else
+    "off"
+#endif
+    " "
+    "debug-logging:"
+#ifdef LIBSSH2DEBUG
+    "on"
+#else
+    "off"
+#endif
+    ;
+
+const char *libssh2_build_options(void)
+{
+    return ssh2_build_options;
+}

@@ -1060,6 +1060,7 @@ typedef enum {
 } libssh2_crypto_engine_t;
 
 LIBSSH2_API libssh2_crypto_engine_t libssh2_crypto_engine(void);
+LIBSSH2_API const char *libssh2_build_options(void);
 
 #define HAVE_LIBSSH2_KNOWNHOST_API 0x010101 /* since 1.1.1 */
 #define HAVE_LIBSSH2_VERSION_API   0x010100 /* libssh2_version since 1.1 */
