@@ -1015,7 +1015,7 @@ jobs:
             -DBUILD_SHARED_LIBS="${MATRIX_SHARED}" \
             -DCRYPTO_BACKEND="${MATRIX_CRYPTO}" \
             -DENABLE_ZLIB_COMPRESSION="${MATRIX_ZLIB}" \
-            -DRUN_DOCKER_TESTS=OFF \
+            -DRUN_DOCKER_TESTS=ON \
             -DRUN_SSHD_TESTS=OFF
 
       - name: 'configure log'
