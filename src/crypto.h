@@ -230,9 +230,6 @@ int ssh2_ecdsa_new_private_frommemory_sk(ssh2_ecdsa_ctx **ec_ctx,
                                          const unsigned char *passphrase);
 
 ssh2_curve_type ssh2_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ec_ctx);
-
-int ssh2_ecdsa_curve_type_from_name(const char *name,
-                                    ssh2_curve_type *out_curve);
 #endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519
