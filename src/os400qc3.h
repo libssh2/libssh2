@@ -254,7 +254,8 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 int ssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x, unsigned int algo);
 int ssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
                               const unsigned char *data, int len);
-int ssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx, unsigned char *out);
+int ssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx,
+                             unsigned char *out, size_t outlen);
 
 /* Bignum */
 
