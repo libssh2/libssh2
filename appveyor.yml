@@ -42,6 +42,11 @@ environment:
   SKIP_CTEST: 'no'  # Connection to test server has been failing consistently since 2024-08-29
 
   matrix:
+    - job_name: 'VS2015, OpenSSL 1.1, x86, Server 2016, Static-only, Debug-logging'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
+      CMAKE_GENERATOR: 'Visual Studio 14 2015'
+      CMAKE_GENERATE: '-A Win32 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64 -DBUILD_SHARED_LIBS=OFF -DENABLE_DEBUG_LOGGING=ON'
+
     - job_name: 'VS2026, OpenSSL 3.6, x64, Server 2019, clang-cl'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2026'
       CMAKE_GENERATOR: 'Visual Studio 18 2026'
@@ -51,11 +56,6 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
       CMAKE_GENERATOR: 'Visual Studio 17 2022'
       CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v30-Win64 -DBUILD_STATIC_LIBS=OFF -DLIBSSH2_BUILD_DOCS=ON'
-
-    - job_name: 'VS2015, OpenSSL 1.1, x86, Server 2016, Static-only, Debug-logging'
-      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
-      CMAKE_GENERATOR: 'Visual Studio 14 2015'
-      CMAKE_GENERATE: '-A Win32 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64 -DBUILD_SHARED_LIBS=OFF -DENABLE_DEBUG_LOGGING=ON'
 
     - job_name: 'VS2013, OpenSSL 1.1, x64, Server 2012 R2'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
@@ -84,8 +84,9 @@ matrix:
 
 install:
   - ps: $env:PATH = "C:/my-cmake/bin;C:/my-docker/docker;$env:PATH"
-  - ps: 'Restart-Service docker'
-  - ps: '& $Env:ProgramFiles\Docker\Docker\DockerCli.exe -SwitchLinuxEngine'
+  - ps: docker-switch-linux
+  - ps: Switch-DockerLinux
+  - ps: docker run --rm -v D:/user-tmp:/user-tmp busybox ls /user-tmp
 
 build_script:
   - cmd: sh -c ./appveyor.sh
