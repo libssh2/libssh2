@@ -707,8 +707,15 @@ int ssh2_wcng_hash_init(struct wcng_hash_ctx *ctx, BCRYPT_ALG_HANDLE hAlg,
 {
     BCRYPT_HASH_HANDLE hHash;
     unsigned char *pbHashObject;
-    ULONG dwHashObject, cbData;
+    ULONG dwHashObject, dwHash, cbData;
     int ret;
+
+    ret = BCryptGetProperty(hAlg, BCRYPT_HASH_LENGTH,
+                            (unsigned char *)&dwHash,
+                            sizeof(dwHash),
+                            &cbData, 0);
+    if(!BCRYPT_SUCCESS(ret))
+        return -1;
 
     ret = BCryptGetProperty(hAlg, BCRYPT_OBJECT_LENGTH,
                             (unsigned char *)&dwHashObject,
@@ -732,6 +739,7 @@ int ssh2_wcng_hash_init(struct wcng_hash_ctx *ctx, BCRYPT_ALG_HANDLE hAlg,
     ctx->hHash = hHash;
     ctx->pbHashObject = pbHashObject;
     ctx->dwHashObject = dwHashObject;
+    ctx->cbHash = dwHash;
 
     return 0;
 }
@@ -750,9 +758,11 @@ int ssh2_wcng_hash_update(struct wcng_hash_ctx *ctx,
 int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx, unsigned char *hash,
                          size_t hashlen)
 {
-    int ret;
+    int ret = -1;
 
-    ret = BCryptFinishHash(ctx->hHash, hash, (ULONG)hashlen, 0);
+    if(hashlen >= ctx->cbHash &&
+       BCRYPT_SUCCESS(BCryptFinishHash(ctx->hHash, hash, ctx->cbHash, 0)))
+        ret = 0;
 
     BCryptDestroyHash(ctx->hHash);
     ctx->hHash = NULL;
@@ -760,8 +770,9 @@ int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx, unsigned char *hash,
     wcng_safe_free(ctx->pbHashObject, ctx->dwHashObject);
     ctx->pbHashObject = NULL;
     ctx->dwHashObject = 0;
+    ctx->cbHash = 0;
 
-    return BCRYPT_SUCCESS(ret) ? 0 : -1;
+    return ret;
 }
 
 static int wcng_hash(const unsigned char *data, ULONG datalen,
