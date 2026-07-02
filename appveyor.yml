@@ -39,7 +39,7 @@ environment:
   DOCKER_CLI_VERSION: 29.4.1
   DOCKER_CLI_SHA256: 927cb16737c6b7916db15ce31789c0864cf86264a56f2655bae41faa25628d5b
   FIXTURE_XFER_COUNT: 35020
-  SKIP_CTEST: 'yes'  # Connection to test server has been failing consistently since 2024-08-29
+  SKIP_CTEST: 'no'  # Connection to test server has been failing consistently since 2024-08-29
 
   matrix:
     - job_name: 'VS2026, OpenSSL 3.6, x64, Server 2019, clang-cl'
@@ -66,7 +66,7 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       CMAKE_GENERATOR: 'Visual Studio 10 2010'
       CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=WinCNG -DCMAKE_UNITY_BUILD=OFF -DBUILD_EXAMPLES=ON -DLIBSSH2_BUILD_DOCS=ON'
-      #SKIP_CTEST: 'yes'
+      SKIP_CTEST: 'yes'
 
   # Re-enable when tests work again
   # - job_name: 'VS2026, WinCNG, x64, Server 2019, Debug-logging'
@@ -84,28 +84,7 @@ matrix:
 
 install:
   - ps: $env:PATH = "C:/my-cmake/bin;C:/my-docker/docker;$env:PATH"
-  - ps: |
-      # prepare local SSH server for reverse tunneling from GitHub Actions hosting our docker container
-      $env:OPENSSH_SERVER_PORT = Get-Random -Minimum 2000 -Maximum 2300
-      [System.Environment]::SetEnvironmentVariable('OPENSSH_SERVER_PORT', $env:OPENSSH_SERVER_PORT)
-      ./scripts/appveyor/docker-bridge.ps1
-
-      if($env:SKIP_CTEST -ne 'yes') {
-        Write-Host 'Waiting for SSH connection from GitHub Actions' -NoNewline
-        $endDate = (Get-Date).AddMinutes(5)
-        while((Get-Process -Name 'sshd' -ErrorAction SilentlyContinue).Count -eq 1 -and (Get-Date) -lt $endDate) {
-          Write-Host '.' -NoNewline
-          Start-Sleep -Seconds 1
-        }
-        if((Get-Process -Name 'sshd' -ErrorAction SilentlyContinue).Count -gt 1) {
-          $env:DOCKER_HOST = 'tcp://127.0.0.1:2375'
-          [System.Environment]::SetEnvironmentVariable('DOCKER_HOST', $env:DOCKER_HOST)
-          Write-Host '... ready.'
-        }
-        else {
-          Write-Host '... failed.'
-        }
-      }
+  - ps: '& $Env:ProgramFiles\Docker\Docker\DockerCli.exe -SwitchLinuxEngine'
 
 build_script:
   - cmd: sh -c ./appveyor.sh

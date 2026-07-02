@@ -993,6 +993,9 @@ jobs:
           MATRIX_ZLIB: '${{ matrix.zlib }}'
           MATRIX_UNITY: '${{ matrix.unity }}'
         run: |
+          echo '---------------'
+          docker info --format '{{.OSType}} {{.Architecture}}'
+          echo '---------------'
           options=''
           archgen="${MATRIX_ARCH}"; [ "${archgen}" = 'x86' ] && archgen='Win32'
           if [ "${MATRIX_PLAT}" = 'uwp' ]; then
