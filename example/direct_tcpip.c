@@ -153,8 +153,10 @@ int main(int argc, char *argv[])
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
-    if(!fingerprint)
+    if(!fingerprint) {
         fprintf(stderr, "(null)");
+        goto shutdown;
+    }
     else
         for(i = 0; i < 20; i++)
             fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
