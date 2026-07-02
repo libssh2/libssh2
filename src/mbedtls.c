@@ -900,7 +900,7 @@ failed:
  */
 int ssh2_ecdsa_curve_name_with_octal_new(
     ssh2_ecdsa_ctx **ec_ctx,
-    const unsigned char *pubkey_encoded, size_t pubkey_encoded_len,
+    const unsigned char *publickey_encoded, size_t publickey_encoded_len,
     ssh2_curve_type curve)
 {
     *ec_ctx = mbedtls_calloc(1, sizeof(mbedtls_ecp_keypair));
@@ -916,7 +916,7 @@ int ssh2_ecdsa_curve_name_with_octal_new(
 
     if(mbedtls_ecp_point_read_binary(&(*ec_ctx)->MBEDTLS_PRIVATE(grp),
                                      &(*ec_ctx)->MBEDTLS_PRIVATE(Q),
-                                     pubkey_encoded, pubkey_encoded_len))
+                                     publickey_encoded, publickey_encoded_len))
         goto failed;
 
     if(mbedtls_ecp_check_pubkey(&(*ec_ctx)->MBEDTLS_PRIVATE(grp),
