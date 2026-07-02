@@ -180,6 +180,15 @@ static const char *ssh2_build_options =
 #else
     "off"
 #endif
+#ifdef LIBSSH2_WOLFSSL
+    " "
+    "debug-wolfSSL:"
+#ifdef DEBUG_WOLFSSL
+    "on"
+#else
+    "off"
+#endif
+#endif /* LIBSSH2_WOLFSSL */
     ;
 
 const char *libssh2_build_options(void)
