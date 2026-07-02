@@ -1,7 +1,7 @@
 ---
 c: Copyright (C) The libssh2 project and its contributors.
 SPDX-License-Identifier: BSD-3-Clause
-Title: libssh2_version
+Title: libssh2_build_options
 Section: 3
 Source: libssh2
 See-also:
