@@ -4373,9 +4373,8 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
         return -1;
 
     /* Generate x and e */
-    if(!BN_rand(*dhctx, (group_order * 8) - 1, 0, -1) ||
-       !BN_mod_exp(pub, g, *dhctx, p, bnctx))
-        return -1;
+    BN_rand(*dhctx, group_order * 8 - 1, 0, -1);
+    BN_mod_exp(pub, g, *dhctx, p, bnctx);
     return 0;
 }
 
@@ -4383,8 +4382,7 @@ int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
                    ssh2_bn *p, ssh2_bn_ctx *bnctx)
 {
     /* Compute the shared secret */
-    if(!BN_mod_exp(secret, f, *dhctx, p, bnctx))
-        return -1;
+    BN_mod_exp(secret, f, *dhctx, p, bnctx);
     return 0;
 }
 
