@@ -114,16 +114,26 @@
 #endif /* LIBSSH2_WOLFSSL */
 
 #ifdef LIBSSH2_WOLFSSL
+#  define SSH2_CRYPTO_ENGINE_NAME "wolfSSL"
 #  if LIBWOLFSSL_VERSION_HEX < 0x05004000
 #    error "wolfSSL 5.4.0 or greater required"
 #  endif
 #elif defined(LIBRESSL_VERSION_NUMBER)
+#  define SSH2_CRYPTO_ENGINE_NAME "LibreSSL"
 #  if LIBRESSL_VERSION_NUMBER < 0x3070000fL
 #    error "LibreSSL 3.7.0 or greater required"
 #  endif
 #else /* AWS-LC/BoringSSL advertise themselves as 0x1010107f */
 #  if OPENSSL_VERSION_NUMBER < 0x10101000L
 #    error "OpenSSL 1.1.1 or greater required"
+#  elif defined(OPENSSL_IS_AWSLC)
+#    define SSH2_CRYPTO_ENGINE_NAME "AWS-LC"
+#  elif defined(OPENSSL_IS_BORINGSSL)
+#    define SSH2_CRYPTO_ENGINE_NAME "BoringSSL"
+#  elif !defined(USE_OPENSSL_3)
+#    define SSH2_CRYPTO_ENGINE_NAME "OpenSSL/1.1.1"
+#  else
+#    define SSH2_CRYPTO_ENGINE_NAME "OpenSSL"
 #  endif
 #endif
 

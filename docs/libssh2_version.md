@@ -5,6 +5,8 @@ Title: libssh2_version
 Section: 3
 Source: libssh2
 See-also:
+  - libssh2_build_options(3)
+  - libssh2_crypto_engine(3)
 ---
 
 # NAME
