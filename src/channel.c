@@ -1941,6 +1941,20 @@ ssize_t ssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
               "channel_read() wants %ld bytes from channel %u/%u stream #%d",
               (long)buflen, channel->local.id, channel->remote.id, stream_id));
 
+    /* Zero-length reads are a no-op. Without this short-circuit, the
+     * packet-drain loop below is gated on `bytes_read < buflen` and
+     * never enters; transport_read then sets BLOCK_INBOUND on its way
+     * back, and the terminal !bytes_read branch returns EAGAIN. The
+     * caller is then told to wait for inbound bytes they never asked
+     * for, and spins until they give up. Common trigger: an HTTP client
+     * over a forwarded channel where a bounded-body reader ends up
+     * asking for 0 bytes once the body length is fully accounted for. */
+    if(buflen == 0) {
+        if(channel->remote.eof || channel->remote.close)
+            return 0;
+        return 0;
+    }
+
     /* expand the receiving window first if it has become too narrow */
     if(channel->read_state == ssh2_NB_state_jump1 ||
        (channel->remote.window_size <
