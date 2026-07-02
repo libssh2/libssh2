@@ -175,10 +175,10 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
  */
 #define EC_MAX_POINT_LEN ((((521 + 7) / 8) * 2) + 1)
 
-int ssh2_ecdsa_curve_name_with_octal_new(ssh2_ecdsa_ctx **ec_ctx,
-                                         const unsigned char *k,
-                                         size_t k_len,
-                                         ssh2_curve_type curve);
+int ssh2_ecdsa_curve_name_with_octal_new(
+    ssh2_ecdsa_ctx **ec_ctx,
+    const unsigned char *publickey_encoded, size_t publickey_encoded_len,
+    ssh2_curve_type curve);
 
 int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
                            LIBSSH2_SESSION *session,
@@ -203,7 +203,7 @@ int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
                           ssh2_ec_key **out_private_key,
                           unsigned char **out_public_key_octal,
                           size_t *out_public_key_octal_len,
-                          ssh2_curve_type curve_type);
+                          ssh2_curve_type curve);
 
 int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
                     const unsigned char *server_public_key,
@@ -230,9 +230,6 @@ int ssh2_ecdsa_new_private_frommemory_sk(ssh2_ecdsa_ctx **ec_ctx,
                                          const unsigned char *passphrase);
 
 ssh2_curve_type ssh2_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ec_ctx);
-
-int ssh2_ecdsa_curve_type_from_name(const char *name,
-                                    ssh2_curve_type *out_type);
 #endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519
