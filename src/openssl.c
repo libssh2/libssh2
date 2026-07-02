@@ -46,6 +46,16 @@
 #include <stdlib.h>
 #include <assert.h>
 
+void ssh2_crypto_init(void)
+{
+#if defined(LIBSSH2_WOLFSSL) && defined(DEBUG_WOLFSSL)
+#define OSSL_INIT_IF_NEEDED() ssh2_init_if_needed()
+    wolfSSL_Debugging_ON();
+#else
+#define OSSL_INIT_IF_NEEDED() do {} while(0)
+#endif
+}
+
 int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const EVP_MD *digest)
 {
     *ctx = EVP_MD_CTX_new();
@@ -1029,13 +1039,6 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo), int encrypt,
     return rc;
 }
 
-void ssh2_crypto_init(void)
-{
-#if defined(LIBSSH2_WOLFSSL) && defined(DEBUG_WOLFSSL)
-    wolfSSL_Debugging_ON();
-#endif
-}
-
 #if LIBSSH2_RSA || LIBSSH2_DSA || LIBSSH2_ECDSA || LIBSSH2_ED25519
 /* TODO: Optionally call a passphrase callback specified by the calling program
  */
@@ -1065,7 +1068,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
     int rc = 0;
     BIO *bp;
 
-    ssh2_init_if_needed();
+    OSSL_INIT_IF_NEEDED();
 
     bp = BIO_new_mem_buf(filedata, (int)filedata_len);
     if(bp)
@@ -1379,7 +1382,7 @@ static int ossl_rsa_openssh_priv_new(ssh2_rsa_ctx **rsa,
         return -1;
     }
 
-    ssh2_init_if_needed();
+    OSSL_INIT_IF_NEEDED();
 
     fp = fopen(filename, "r");
     if(!fp) {
@@ -1422,7 +1425,7 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
     int rc = 0;
     BIO *bp;
 
-    ssh2_init_if_needed();
+    OSSL_INIT_IF_NEEDED();
 
     bp = BIO_new_file(filename, "r");
     if(bp)
@@ -1451,7 +1454,7 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
     int rc = 0;
     BIO *bp;
 
-    ssh2_init_if_needed();
+    OSSL_INIT_IF_NEEDED();
 
     bp = BIO_new_mem_buf(filedata, (int)filedata_len);
     if(bp)
@@ -1693,7 +1696,7 @@ static int ossl_dsa_openssh_priv_new(ssh2_dsa_ctx **dsa,
         return -1;
     }
 
-    ssh2_init_if_needed();
+    OSSL_INIT_IF_NEEDED();
 
     fp = fopen(filename, "r");
     if(!fp) {
@@ -1736,7 +1739,7 @@ int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
     int rc = 0;
     BIO *bp;
 
-    ssh2_init_if_needed();
+    OSSL_INIT_IF_NEEDED();
 
     bp = BIO_new_file(filename, "r");
     if(bp)
@@ -1765,7 +1768,7 @@ int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
     int rc = 0;
     BIO *bp;
 
-    ssh2_init_if_needed();
+    OSSL_INIT_IF_NEEDED();
 
     bp = BIO_new_mem_buf(filedata, (int)filedata_len);
     if(bp)
@@ -2228,7 +2231,7 @@ int ssh2_ed25519_new_private(ssh2_ed25519_ctx **ed_ctx,
         return -1;
     }
 
-    ssh2_init_if_needed();
+    OSSL_INIT_IF_NEEDED();
 
     fp = fopen(filename, "r");
     if(!fp) {
@@ -2290,7 +2293,7 @@ int ssh2_ed25519_new_private_sk(ssh2_ed25519_ctx **ed_ctx,
         return -1;
     }
 
-    ssh2_init_if_needed();
+    OSSL_INIT_IF_NEEDED();
 
     fp = fopen(filename, "r");
     if(!fp) {
@@ -2344,7 +2347,7 @@ int ssh2_ed25519_new_private_frommemory(ssh2_ed25519_ctx **ed_ctx,
     ssh2_ed25519_ctx *ctx = NULL;
     BIO *bp;
 
-    ssh2_init_if_needed();
+    OSSL_INIT_IF_NEEDED();
 
     bp = BIO_new_mem_buf(filedata, (int)filedata_len);
     if(bp) {
@@ -3265,7 +3268,7 @@ static int ossl_ecdsa_openssh_priv_new(ssh2_ecdsa_ctx **ec_ctx,
         return -1;
     }
 
-    ssh2_init_if_needed();
+    OSSL_INIT_IF_NEEDED();
 
     fp = fopen(filename, "r");
     if(!fp) {
@@ -3321,7 +3324,7 @@ static int ossl_ecdsa_sk_openssh_priv_new(ssh2_ecdsa_ctx **ec_ctx,
         return -1;
     }
 
-    ssh2_init_if_needed();
+    OSSL_INIT_IF_NEEDED();
 
     fp = fopen(filename, "r");
     if(!fp) {
@@ -3367,7 +3370,7 @@ int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
     int rc = 0;
     BIO *bp;
 
-    ssh2_init_if_needed();
+    OSSL_INIT_IF_NEEDED();
 
     bp = BIO_new_file(filename, "r");
     if(bp)
@@ -3398,7 +3401,7 @@ int ssh2_ecdsa_new_private_sk(ssh2_ecdsa_ctx **ec_ctx,
     int rc = 0;
     BIO *bp;
 
-    ssh2_init_if_needed();
+    OSSL_INIT_IF_NEEDED();
 
     bp = BIO_new_file(filename, "r");
     if(bp)
@@ -3875,7 +3878,7 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    ssh2_init_if_needed();
+    OSSL_INIT_IF_NEEDED();
 
     fp = fopen(privatekey, "r");
     if(!fp) {
@@ -4054,7 +4057,7 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
     if(key_type && (strlen(key_type) > 11 || strlen(key_type) < 7))
         return ssh2_err(session, LIBSSH2_ERROR_PROTO, "type is invalid");
 
-    ssh2_init_if_needed();
+    OSSL_INIT_IF_NEEDED();
 
     rc = ssh2_openssh_pem_parse_memory(session, passphrase,
                                        privatekeydata,
@@ -4165,7 +4168,7 @@ static int ossl_key_sk_from_openssh_blob(LIBSSH2_SESSION *session,
     if(key_type && strlen(key_type) < 7)
         return ssh2_err(session, LIBSSH2_ERROR_PROTO, "type is invalid");
 
-    ssh2_init_if_needed();
+    OSSL_INIT_IF_NEEDED();
 
     rc = ssh2_openssh_pem_parse_memory(session, passphrase,
                                        privatekeydata,
