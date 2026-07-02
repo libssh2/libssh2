@@ -617,14 +617,20 @@ jobs:
           fi
 
       - name: 'tests'
-        if: ${{ !matrix.target && matrix.crypto != 'Libgcrypt' }}
+        if: ${{ !matrix.target }}
         timeout-minutes: 10
         run: |
           if [ "${MATRIX_CRYPTO}" = 'OpenSSL-3-no-deprecated' ]; then
             export FIXTURE_TRACE_ALL_CONNECT=1  # try to close in on flaky CI failures
           fi
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
-            export OPENSSH_SERVER_IMAGE; OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
+            export OPENSSH_SERVER_IMAGE
+            if [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ]; then
+              # use debian:bookworm for diffie-hellman-group* KEXs
+              OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:98199e448a94451491c4
+            else
+              OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
+            fi
             [ -d "$HOME"/usr ] && export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/usr/lib"
             cd bld && ctest -VV --output-on-failure
           else
