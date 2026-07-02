@@ -154,10 +154,10 @@ struct mbed_hash_ctx {
 
 #define ssh2_hash_init(pctx, alg) \
     ssh2_mbed_hash_init(pctx, alg)
-#define ssh2_hash_update(ctx, data, datalen) \
-    (psa_hash_update(&(ctx), (const uint8_t *)(data), datalen) == PSA_SUCCESS)
-#define ssh2_hash_final(ctx, hash, hashlen) \
-    ssh2_mbed_hash_final(&(ctx), hash, hashlen)
+#define ssh2_hash_update(ctx, d, l) \
+    (psa_hash_update(&(ctx), (const uint8_t *)(d), l) == PSA_SUCCESS)
+#define ssh2_hash_final(ctx, h, l) \
+    ssh2_mbed_hash_final(&(ctx), h, l)
 
 int ssh2_mbed_hash_init(psa_hash_operation_t *ctx, psa_algorithm_t alg);
 int ssh2_mbed_hash_final(psa_hash_operation_t *ctx,
