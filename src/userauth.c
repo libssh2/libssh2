@@ -816,10 +816,10 @@ struct privkey_mem {
     size_t data_len;
 };
 
-static int sign_frommemory(LIBSSH2_SESSION *session,
-                           unsigned char **sig, size_t *sig_len,
-                           const unsigned char *data, size_t data_len,
-                           void **abstract)
+static int userauth_sign_fromblob(LIBSSH2_SESSION *session,
+                                  unsigned char **sig, size_t *sig_len,
+                                  const unsigned char *data, size_t data_len,
+                                  void **abstract)
 {
     struct privkey_mem *pk_mem = (struct privkey_mem *)(*abstract);
     const struct hostkey_method *privkeyobj;
@@ -855,10 +855,10 @@ static int sign_frommemory(LIBSSH2_SESSION *session,
     return 0;
 }
 
-static int sign_fromfile(LIBSSH2_SESSION *session,
-                         unsigned char **sig, size_t *sig_len,
-                         const unsigned char *data, size_t data_len,
-                         void **abstract)
+static int userauth_sign_fromfile(LIBSSH2_SESSION *session,
+                                  unsigned char **sig, size_t *sig_len,
+                                  const unsigned char *data, size_t data_len,
+                                  void **abstract)
 {
     struct privkey_file *privkey_file = (struct privkey_file *)(*abstract);
     const struct hostkey_method *privkeyobj;
@@ -1936,7 +1936,7 @@ static int userauth_publickey_frommemory(LIBSSH2_SESSION *session,
 
     rc = ssh2_userauth_publickey(session, username, username_len,
                                  pubkeydata, pubkeydata_len,
-                                 sign_frommemory, &abstract);
+                                 userauth_sign_fromblob, &abstract);
     if(pubkeydata)
         SSH2_FREE(session, pubkeydata);
 
@@ -1986,7 +1986,7 @@ static int userauth_publickey_fromfile(LIBSSH2_SESSION *session,
 
     rc = ssh2_userauth_publickey(session, username, username_len,
                                  pubkeydata, pubkeydata_len,
-                                 sign_fromfile, &abstract);
+                                 userauth_sign_fromfile, &abstract);
     if(pubkeydata)
         SSH2_FREE(session, pubkeydata);
 

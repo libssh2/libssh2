@@ -66,7 +66,8 @@ struct _LIBSSH2_KNOWNHOSTS {
     struct list_head head;
 };
 
-static void free_host(LIBSSH2_SESSION *session, struct known_host *entry)
+static void knownhost_entry_free(LIBSSH2_SESSION *session,
+                                 struct known_host *entry)
 {
     if(entry) {
         if(entry->comment)
@@ -266,7 +267,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
 
     return LIBSSH2_ERROR_NONE;
 error:
-    free_host(hosts->session, entry);
+    knownhost_entry_free(hosts->session, entry);
     return rc;
 }
 
@@ -575,7 +576,7 @@ int libssh2_knownhost_del(LIBSSH2_KNOWNHOSTS *hosts,
     memset(entry, 0, sizeof(struct libssh2_knownhost));
 
     /* free all resources */
-    free_host(hosts->session, node);
+    knownhost_entry_free(hosts->session, node);
 
     return 0;
 }
@@ -590,7 +591,7 @@ void libssh2_knownhost_free(LIBSSH2_KNOWNHOSTS *hosts)
 
     for(node = ssh2_list_first(&hosts->head); node; node = next) {
         next = ssh2_list_next(&node->node);
-        free_host(hosts->session, node);
+        knownhost_entry_free(hosts->session, node);
     }
     SSH2_FREE(hosts->session, hosts);
 }

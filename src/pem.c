@@ -395,7 +395,7 @@ out:
 
 /* OpenSSH formatted keys */
 
-static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
+static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
                                   const unsigned char *passphrase,
                                   const char *b64data, size_t b64datalen,
                                   struct string_buf **decrypted_buf)
@@ -763,7 +763,7 @@ int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
     if(!b64data)
         return -1;
 
-    ret = openssh_pem_parse_data(session, passphrase,
+    ret = pem_parse_data_openssh(session, passphrase,
                                  b64data, b64datalen, decrypted_buf);
 
     if(b64data) {
@@ -841,7 +841,7 @@ int ssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
         return ssh2_err(session, LIBSSH2_ERROR_PROTO,
                         "Error parsing PEM: base 64 data missing");
 
-    ret = openssh_pem_parse_data(session, passphrase,
+    ret = pem_parse_data_openssh(session, passphrase,
                                  b64data, b64datalen, decrypted_buf);
 
 out:
@@ -852,8 +852,8 @@ out:
     return ret;
 }
 
-static int read_asn1_length(const unsigned char *data,
-                            size_t datalen, size_t *len)
+static int pem_read_asn1_length(const unsigned char *data,
+                                size_t datalen, size_t *len)
 {
     unsigned int lenlen;
     int nextpos;
@@ -898,7 +898,7 @@ int ssh2_pem_decode_sequence(unsigned char **data, size_t *datalen)
     (*data)++;
     (*datalen)--;
 
-    lenlen = read_asn1_length(*data, *datalen, &len);
+    lenlen = pem_read_asn1_length(*data, *datalen, &len);
     if(lenlen < 0 || lenlen + len != *datalen)
         return -1;
 
@@ -923,7 +923,7 @@ int ssh2_pem_decode_integer(unsigned char **data, size_t *datalen,
     (*data)++;
     (*datalen)--;
 
-    lenlen = read_asn1_length(*data, *datalen, &len);
+    lenlen = pem_read_asn1_length(*data, *datalen, &len);
     if(lenlen < 0 || lenlen + len > *datalen)
         return -1;
 
