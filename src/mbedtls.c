@@ -60,15 +60,20 @@ static mbedtls_ctr_drbg_context mbed_ctr_drbg;
 
 void ssh2_crypto_init(void)
 {
+#if MBEDTLS_VERSION_NUMBER < 0x04000000
+    int ret = 0;
+#endif
+
     (void)psa_crypto_init();
 
 #if MBEDTLS_VERSION_NUMBER < 0x04000000
     mbedtls_entropy_init(&mbed_entropy);
     mbedtls_ctr_drbg_init(&mbed_ctr_drbg);
 
-    if(mbedtls_ctr_drbg_seed(&mbed_ctr_drbg,
-                             mbedtls_entropy_func,
-                             &mbed_entropy, NULL, 0))
+    ret = mbedtls_ctr_drbg_seed(&mbed_ctr_drbg,
+                                mbedtls_entropy_func,
+                                &mbed_entropy, NULL, 0);
+    if(ret)
         mbedtls_ctr_drbg_free(&mbed_ctr_drbg);
 #endif
 }
@@ -310,19 +315,22 @@ void ssh2_mbed_bn_free(ssh2_bn *bn)
 static int mbed_bn_random(ssh2_bn *bn, int bits, int top, int bottom)
 {
     size_t len;
+    int err;
     size_t i;
 
     if(!bn || bits <= 0)
         return -1;
 
     len = (bits + 7) >> 3;
-    if(mbedtls_mpi_fill_random(bn, len, mbedtls_ctr_drbg_random,
-                               &mbed_ctr_drbg))
+    err = mbedtls_mpi_fill_random(bn, len, mbedtls_ctr_drbg_random,
+                                  &mbed_ctr_drbg);
+    if(err)
         return -1;
 
     /* Zero unused bits above the most significant bit */
     for(i = (len * 8) - 1; (size_t)bits <= i; --i) {
-        if(mbedtls_mpi_set_bit(bn, i, 0))
+        err = mbedtls_mpi_set_bit(bn, i, 0);
+        if(err)
             return -1;
     }
 
@@ -334,14 +342,18 @@ static int mbed_bn_random(ssh2_bn *bn, int bits, int top, int bottom)
     */
     if(top >= 0) {
         for(i = 0; i <= (size_t)top; ++i) {
-            if(mbedtls_mpi_set_bit(bn, bits - i - 1, 1))
+            err = mbedtls_mpi_set_bit(bn, bits - i - 1, 1);
+            if(err)
                 return -1;
         }
     }
 
     /* make odd by setting first bit in least significant byte */
-    if(bottom && mbedtls_mpi_set_bit(bn, 0, 1))
-        return -1;
+    if(bottom) {
+        err = mbedtls_mpi_set_bit(bn, 0, 1);
+        if(err)
+            return -1;
+    }
 
     return 0;
 }
