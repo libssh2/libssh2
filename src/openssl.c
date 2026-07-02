@@ -725,9 +725,10 @@ int ssh2_ecdsa_curve_type_from_name(const char *name,
 /*
  * Creates a new public key given an octal string, length and type
  */
-int ssh2_ecdsa_curve_name_with_octal_new(ssh2_ecdsa_ctx **ec_ctx,
-                                         const unsigned char *k, size_t k_len,
-                                         ssh2_curve_type curve)
+int ssh2_ecdsa_curve_name_with_octal_new(
+    ssh2_ecdsa_ctx **ec_ctx,
+    const unsigned char *publickey_encoded, size_t publickey_encoded_len,
+    ssh2_curve_type curve)
 {
     int ret = 0;
 
@@ -743,21 +744,21 @@ int ssh2_ecdsa_curve_name_with_octal_new(ssh2_ecdsa_ctx **ec_ctx,
     if(n)
         group_name = OPENSSL_zalloc(strlen(n) + 1);
 
-    if(k_len > 0)
-        data = OPENSSL_malloc(k_len);
+    if(publickey_encoded_len > 0)
+        data = OPENSSL_malloc(publickey_encoded_len);
 
     if(group_name && data) {
         OSSL_PARAM params[3] = { 0 };
 
         /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
         memcpy(group_name, n, strlen(n));
-        memcpy(data, k, k_len);
+        memcpy(data, publickey_encoded, publickey_encoded_len);
 
         params[0] = OSSL_PARAM_construct_utf8_string(
             OSSL_PKEY_PARAM_GROUP_NAME, group_name, 0);
 
         params[1] = OSSL_PARAM_construct_octet_string(
-            OSSL_PKEY_PARAM_PUB_KEY, data, k_len);
+            OSSL_PKEY_PARAM_PUB_KEY, data, publickey_encoded_len);
 
         params[2] = OSSL_PARAM_construct_end();
 
@@ -773,7 +774,7 @@ int ssh2_ecdsa_curve_name_with_octal_new(ssh2_ecdsa_ctx **ec_ctx,
         OPENSSL_clear_free(group_name, strlen(n));
 
     if(data)
-        OPENSSL_clear_free(data, k_len);
+        OPENSSL_clear_free(data, publickey_encoded_len);
 
     EVP_PKEY_CTX_free(ctx);
 #else
@@ -787,7 +788,9 @@ int ssh2_ecdsa_curve_name_with_octal_new(ssh2_ecdsa_ctx **ec_ctx,
         point = EC_POINT_new(ec_group);
 
         if(point) {
-            ret = EC_POINT_oct2point(ec_group, point, k, k_len, NULL);
+            ret = EC_POINT_oct2point(ec_group, point,
+                                     publickey_encoded, publickey_encoded_len,
+                                     NULL);
             if(ret == 1)
                 ret = EC_KEY_set_public_key(ec_key, point);
 
@@ -3426,7 +3429,7 @@ int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
                           ssh2_ec_key **out_private_key,
                           unsigned char **out_public_key_octal,
                           size_t *out_public_key_octal_len,
-                          ssh2_curve_type curve_type)
+                          ssh2_curve_type curve)
 {
     int ret = 1;
     size_t octal_len = 0;
@@ -3438,7 +3441,7 @@ int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
 
     if(ctx &&
        EVP_PKEY_keygen_init(ctx) > 0 &&
-       EVP_PKEY_CTX_set_ec_paramgen_curve_nid(ctx, curve_type) > 0) {
+       EVP_PKEY_CTX_set_ec_paramgen_curve_nid(ctx, curve) > 0) {
         ret = EVP_PKEY_keygen(ctx, &private_key);
     }
 
@@ -3480,7 +3483,7 @@ int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
     if(!bn_ctx)
         return -1;
 
-    private_key = EC_KEY_new_by_curve_name(curve_type);
+    private_key = EC_KEY_new_by_curve_name(curve);
     group = EC_KEY_get0_group(private_key);
 
     EC_KEY_generate_key(private_key);
