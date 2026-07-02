@@ -350,10 +350,10 @@ struct wcng_dh_ctx {
     /* holds our private and public key components */
     BCRYPT_KEY_HANDLE dh_handle;
     /* records the parsed out modulus and generator
-     * parameters that are shared  with the peer */
+       parameters that are shared with the peer */
     BCRYPT_DH_PARAMETER_HEADER *dh_params;
     /* records the parsed out private key component for
-     * fallback if the DH API raw KDF is not supported */
+       fallback if the DH API raw KDF is not supported */
     struct wcng_bn *dh_privbn;
 };
 
