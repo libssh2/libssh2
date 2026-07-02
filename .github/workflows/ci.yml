@@ -573,9 +573,8 @@ jobs:
               options+=' -DCMAKE_C_STANDARD=90'
               cflags+=' -D_DEFAULT_SOURCE'  # for glibc ISO mode, in tests: popen(), pclose(), in examples: fileno(), tcsetattr()
             fi
-            if [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ]; then
-              #options+=' -DRUN_SSHD_TESTS=OFF'  # they crash on Ubuntu 26.04
-              options+=' -DENABLE_DEBUG_LOGGING=ON'
+            if [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && [ "${MATRIX_COMPILER}" = 'clang-tidy' ]; then
+              options+=' -DRUN_SSHD_TESTS=OFF'  # fails on due to lack of support for modern algos offered by sshd on Ubuntu 26.04 used with clang-tidy
             fi
             if [ "${MATRIX_CRYPTO}" = 'OpenSSL-3-no-deprecated' ]; then
               options+=' -DENABLE_DEBUG_LOGGING=ON'
@@ -625,9 +624,6 @@ jobs:
         timeout-minutes: 10
         run: |
           if [ "${MATRIX_CRYPTO}" = 'OpenSSL-3-no-deprecated' ]; then
-            export FIXTURE_TRACE_ALL_CONNECT=1  # try to close in on flaky CI failures
-          fi
-          if [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ]; then
             export FIXTURE_TRACE_ALL_CONNECT=1  # try to close in on flaky CI failures
           fi
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
