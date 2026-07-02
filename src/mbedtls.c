@@ -857,7 +857,7 @@ int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
                           ssh2_ec_key **out_private_key,
                           unsigned char **out_public_key_octal,
                           size_t *out_public_key_octal_len,
-                          ssh2_curve_type curve_type)
+                          ssh2_curve_type curve)
 {
     size_t plen = 0;
 
@@ -868,7 +868,7 @@ int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
 
     mbedtls_ecdsa_init(*out_private_key);
 
-    if(mbedtls_ecdsa_genkey(*out_private_key, (mbedtls_ecp_group_id)curve_type,
+    if(mbedtls_ecdsa_genkey(*out_private_key, (mbedtls_ecp_group_id)curve,
                             mbedtls_ctr_drbg_random, &mbed_ctr_drbg))
         goto failed;
 
@@ -898,9 +898,10 @@ failed:
 /*
  * Creates a new public key given an octal string, length and type
  */
-int ssh2_ecdsa_curve_name_with_octal_new(ssh2_ecdsa_ctx **ec_ctx,
-                                         const unsigned char *k, size_t k_len,
-                                         ssh2_curve_type curve)
+int ssh2_ecdsa_curve_name_with_octal_new(
+    ssh2_ecdsa_ctx **ec_ctx,
+    const unsigned char *publickey_encoded, size_t publickey_encoded_len,
+    ssh2_curve_type curve)
 {
     *ec_ctx = mbedtls_calloc(1, sizeof(mbedtls_ecp_keypair));
 
@@ -914,7 +915,8 @@ int ssh2_ecdsa_curve_name_with_octal_new(ssh2_ecdsa_ctx **ec_ctx,
         goto failed;
 
     if(mbedtls_ecp_point_read_binary(&(*ec_ctx)->MBEDTLS_PRIVATE(grp),
-                                     &(*ec_ctx)->MBEDTLS_PRIVATE(Q), k, k_len))
+                                     &(*ec_ctx)->MBEDTLS_PRIVATE(Q),
+                                     publickey_encoded, publickey_encoded_len))
         goto failed;
 
     if(mbedtls_ecp_check_pubkey(&(*ec_ctx)->MBEDTLS_PRIVATE(grp),
@@ -1083,7 +1085,7 @@ ssh2_curve_type ssh2_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ec_ctx)
  * returns 0 for success, key curve type that maps to ssh2_curve_type
  */
 static int mbed_ecdsa_curve_type_from_name(const char *name,
-                                           ssh2_curve_type *out_type)
+                                           ssh2_curve_type *out_curve)
 {
     ssh2_curve_type type;
 
@@ -1099,8 +1101,8 @@ static int mbed_ecdsa_curve_type_from_name(const char *name,
     else
         return -1;
 
-    if(out_type)
-        *out_type = type;
+    if(out_curve)
+        *out_curve = type;
 
     return 0;
 }

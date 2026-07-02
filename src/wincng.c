@@ -2115,9 +2115,9 @@ void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ctx)
  * and returns the public key in uncompressed point encoding.
  */
 int ssh2_ecdsa_create_key(IN LIBSSH2_SESSION *session,
-                          OUT struct wcng_ecdsa_ctx **privatekey,
-                          OUT unsigned char **encoded_publickey,
-                          OUT size_t *encoded_publickey_len,
+                          OUT struct wcng_ecdsa_ctx **out_private_key,
+                          OUT unsigned char **out_public_key_octal,
+                          OUT size_t *out_public_key_octal_len,
                           IN ssh2_curve_type curve)
 {
     int result = LIBSSH2_ERROR_NONE;
@@ -2132,12 +2132,12 @@ int ssh2_ecdsa_create_key(IN LIBSSH2_SESSION *session,
     if(!ssh2_wcng.hAlgECDH[curve])
         return LIBSSH2_ERROR_INVAL;
 
-    if(!privatekey || !encoded_publickey || !encoded_publickey_len)
+    if(!out_private_key || !out_public_key_octal || !out_public_key_octal_len)
         return LIBSSH2_ERROR_INVAL;
 
-    *privatekey = NULL;
-    *encoded_publickey = NULL;
-    *encoded_publickey_len = 0;
+    *out_private_key = NULL;
+    *out_public_key_octal = NULL;
+    *out_public_key_octal_len = 0;
 
     /* Create an ECDH key pair using the requested curve */
     status = BCryptGenerateKeyPair(
@@ -2162,27 +2162,27 @@ int ssh2_ecdsa_create_key(IN LIBSSH2_SESSION *session,
         session,
         curve,
         key_handle,
-        encoded_publickey,
-        encoded_publickey_len);
+        out_public_key_octal,
+        out_public_key_octal_len);
     if(result != LIBSSH2_ERROR_NONE)
         result = ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                           "Exporting ECDH key pair failed");
 
-    *privatekey = malloc(sizeof(struct wcng_ecdsa_ctx));
-    if(!*privatekey) {
+    *out_private_key = malloc(sizeof(struct wcng_ecdsa_ctx));
+    if(!*out_private_key) {
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
     }
 
-    (*privatekey)->curve = curve;
-    (*privatekey)->handle = key_handle;
+    (*out_private_key)->curve = curve;
+    (*out_private_key)->handle = key_handle;
 
 cleanup:
     if(result != LIBSSH2_ERROR_NONE && key_handle)
         (void)BCryptDestroyKey(key_handle);
 
-    if(result != LIBSSH2_ERROR_NONE && *privatekey)
-        free(*privatekey);
+    if(result != LIBSSH2_ERROR_NONE && *out_private_key)
+        free(*out_private_key);
 
     return result;
 }
@@ -2191,9 +2191,8 @@ cleanup:
  * Creates an ECDSA public key from an uncompressed point.
  */
 int ssh2_ecdsa_curve_name_with_octal_new(
-    OUT ssh2_ecdsa_ctx **key,
-    IN const unsigned char *publickey_encoded,
-    IN size_t publickey_encoded_len,
+    OUT ssh2_ecdsa_ctx **ec_ctx,
+    IN const unsigned char *publickey_encoded, IN size_t publickey_encoded_len,
     IN ssh2_curve_type curve)
 {
     int result = LIBSSH2_ERROR_NONE;
@@ -2205,10 +2204,10 @@ int ssh2_ecdsa_curve_name_with_octal_new(
     if(curve >= SSH2_ARRAYSIZE(wcng_ecdsa_algs))
         return LIBSSH2_ERROR_INVAL;
 
-    if(!key)
+    if(!ec_ctx)
         return LIBSSH2_ERROR_INVAL;
 
-    *key = NULL;
+    *ec_ctx = NULL;
 
     result = wcng_ecdsa_decode_uncompressed_point(
         publickey_encoded,
@@ -2224,14 +2223,14 @@ int ssh2_ecdsa_curve_name_with_octal_new(
     if(result != LIBSSH2_ERROR_NONE)
         goto cleanup;
 
-    *key = malloc(sizeof(struct wcng_ecdsa_ctx));
-    if(!*key) {
+    *ec_ctx = malloc(sizeof(struct wcng_ecdsa_ctx));
+    if(!*ec_ctx) {
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
     }
 
-    (*key)->handle = publickey_handle;
-    (*key)->curve = curve;
+    (*ec_ctx)->handle = publickey_handle;
+    (*ec_ctx)->curve = curve;
 
 cleanup:
 
@@ -2242,10 +2241,10 @@ cleanup:
  * Computes the shared secret K given a local private key,
  * remote public key and length
  */
-int ssh2_ecdh_gen_k(OUT ssh2_bn **secret,
-                    IN ssh2_ecdsa_ctx *privatekey,
-                    IN const unsigned char *server_publickey_encoded,
-                    IN size_t server_publickey_encoded_len)
+int ssh2_ecdh_gen_k(OUT ssh2_bn **k,
+                    IN ssh2_ecdsa_ctx *private_key,
+                    IN const unsigned char *server_public_key,
+                    IN size_t server_public_key_len)
 {
     int result = LIBSSH2_ERROR_NONE;
     NTSTATUS status;
@@ -2256,15 +2255,15 @@ int ssh2_ecdh_gen_k(OUT ssh2_bn **secret,
     struct ecdsa_point server_publickey;
 
     /* Validate parameters */
-    if(!secret)
+    if(!k)
         return LIBSSH2_ERROR_INVAL;
 
-    *secret = NULL;
+    *k = NULL;
 
     /* Decode the public key */
     result = wcng_ecdsa_decode_uncompressed_point(
-        server_publickey_encoded,
-        server_publickey_encoded_len,
+        server_public_key,
+        server_public_key_len,
         &server_publickey);
     if(result != LIBSSH2_ERROR_NONE)
         return result;
@@ -2278,7 +2277,7 @@ int ssh2_ecdh_gen_k(OUT ssh2_bn **secret,
 
     /* Establish the shared secret between ourselves and the peer */
     status = BCryptSecretAgreement(
-        privatekey->handle,
+        private_key->handle,
         publickey_handle,
         &agreed_secret_handle,
         0);
@@ -2307,13 +2306,13 @@ int ssh2_ecdh_gen_k(OUT ssh2_bn **secret,
     }
 
     /* Allocate a secret bignum to be ready to receive the derived secret */
-    *secret = ssh2_wcng_bn_init();
-    if(!*secret) {
+    *k = ssh2_wcng_bn_init();
+    if(!*k) {
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
     }
 
-    if(wcng_bn_resize(*secret, secret_len)) {
+    if(wcng_bn_resize(*k, secret_len)) {
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
     }
@@ -2323,7 +2322,7 @@ int ssh2_ecdh_gen_k(OUT ssh2_bn **secret,
         agreed_secret_handle,
         BCRYPT_KDF_RAW_SECRET,
         NULL,
-        (*secret)->bignum,
+        (*k)->bignum,
         secret_len,
         &secret_len,
         0);
@@ -2336,14 +2335,14 @@ int ssh2_ecdh_gen_k(OUT ssh2_bn **secret,
      * raw secret, so we need to swap it to big endian order.
      */
 
-    wcng_reverse_bytes((*secret)->bignum, secret_len);
+    wcng_reverse_bytes((*k)->bignum, secret_len);
 
     result = LIBSSH2_ERROR_NONE;
 
 cleanup:
-    if(result != LIBSSH2_ERROR_NONE && *secret) {
-        ssh2_wcng_bn_free(*secret);
-        *secret = NULL;
+    if(result != LIBSSH2_ERROR_NONE && *k) {
+        ssh2_wcng_bn_free(*k);
+        *k = NULL;
     }
 
     if(result != LIBSSH2_ERROR_NONE && agreed_secret_handle)
@@ -2374,7 +2373,7 @@ static int wcng_ecdsa_curve_type_from_name(IN const char *name,
 /*
  * Verifies the ECDSA signature of a hashed message
  */
-int ssh2_ecdsa_verify(IN ssh2_ecdsa_ctx *key,
+int ssh2_ecdsa_verify(IN ssh2_ecdsa_ctx *ec_ctx,
                       IN const unsigned char *r, IN size_t r_len,
                       IN const unsigned char *s, IN size_t s_len,
                       IN const unsigned char *m, IN size_t m_len)
@@ -2394,14 +2393,14 @@ int ssh2_ecdsa_verify(IN ssh2_ecdsa_ctx *key,
         r_len,
         s,
         s_len,
-        ssh2_ecdsa_get_curve_type(key),
+        ssh2_ecdsa_get_curve_type(ec_ctx),
         &signature_p1363,
         &signature_p1363_len);
     if(result != LIBSSH2_ERROR_NONE)
         goto cleanup;
 
     /* Create hash over m */
-    switch(ssh2_ecdsa_get_curve_type(key)) {
+    switch(ssh2_ecdsa_get_curve_type(ec_ctx)) {
     case SSH2_EC_CURVE_NISTP256:
         hash_len = 256 / 8;
         hash_alg = ssh2_wcng.hAlgHashSHA256;
@@ -2428,7 +2427,7 @@ int ssh2_ecdsa_verify(IN ssh2_ecdsa_ctx *key,
 
     /* Verify signature over hash */
     status = BCryptVerifySignature(
-        key->handle,
+        ec_ctx->handle,
         NULL,
         hash,
         hash_len,
@@ -2460,7 +2459,7 @@ cleanup:
 /*
  * Creates a new private key given a file path and password
  */
-int ssh2_ecdsa_new_private(OUT ssh2_ecdsa_ctx **key,
+int ssh2_ecdsa_new_private(OUT ssh2_ecdsa_ctx **ec_ctx,
                            IN LIBSSH2_SESSION *session,
                            IN const char *filename,
                            IN const unsigned char *passphrase)
@@ -2472,10 +2471,10 @@ int ssh2_ecdsa_new_private(OUT ssh2_ecdsa_ctx **key,
     size_t datalen = 0;
 
     /* Validate parameters */
-    if(!key || !session || !filename)
+    if(!ec_ctx || !session || !filename)
         return LIBSSH2_ERROR_INVAL;
 
-    *key = NULL;
+    *ec_ctx = NULL;
 
     if(passphrase && strlen((const char *)passphrase) > 0)
         return ssh2_err(session, LIBSSH2_ERROR_INVAL,
@@ -2499,7 +2498,7 @@ int ssh2_ecdsa_new_private(OUT ssh2_ecdsa_ctx **key,
     if(result != LIBSSH2_ERROR_NONE)
         goto cleanup;
 
-    result = ssh2_ecdsa_new_private_frommemory(key, session,
+    result = ssh2_ecdsa_new_private_frommemory(ec_ctx, session,
                                                (const char *)data, datalen,
                                                passphrase);
     if(result != LIBSSH2_ERROR_NONE)
@@ -2629,10 +2628,10 @@ cleanup:
  * ECDSA private key files use the decoding defined in PROTOCOL.key
  * in the OpenSSL source tree.
  */
-int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **key,
+int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **ec_ctx,
                                       IN LIBSSH2_SESSION *session,
-                                      IN const char *data,
-                                      IN size_t data_len,
+                                      IN const char *filedata,
+                                      IN size_t filedata_len,
                                       IN const unsigned char *passphrase)
 {
     int result;
@@ -2644,10 +2643,10 @@ int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **key,
     size_t privatekey_len;
 
     /* Validate parameters */
-    if(!key || !session || !data)
+    if(!ec_ctx || !session || !filedata)
         return LIBSSH2_ERROR_INVAL;
 
-    *key = NULL;
+    *ec_ctx = NULL;
 
     if(passphrase && strlen((const char *)passphrase) > 0)
         return ssh2_err(session, LIBSSH2_ERROR_INVAL,
@@ -2655,15 +2654,15 @@ int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **key,
                         "files are unsupported");
 
     /* Read OPENSSH_PRIVKEY_AUTH_MAGIC */
-    if(data_len < sizeof(OPENSSH_PRIVKEY_AUTH_MAGIC) ||
-       memcmp(data, OPENSSH_PRIVKEY_AUTH_MAGIC,
+    if(filedata_len < sizeof(OPENSSH_PRIVKEY_AUTH_MAGIC) ||
+       memcmp(filedata, OPENSSH_PRIVKEY_AUTH_MAGIC,
               sizeof(OPENSSH_PRIVKEY_AUTH_MAGIC))) {
         result = -1;
         goto cleanup;
     }
 
-    data_buffer.len = data_len;
-    data_buffer.data = (unsigned char *)SSH2_UNCONST(data);
+    data_buffer.len = filedata_len;
+    data_buffer.data = (unsigned char *)SSH2_UNCONST(filedata);
     data_buffer.dataptr = data_buffer.data +
                           sizeof(OPENSSH_PRIVKEY_AUTH_MAGIC);
 
@@ -2707,7 +2706,7 @@ int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **key,
     if(result != LIBSSH2_ERROR_NONE)
         goto cleanup;
 
-    result = wcng_parse_ecdsa_privatekey(key, privatekey, privatekey_len);
+    result = wcng_parse_ecdsa_privatekey(ec_ctx, privatekey, privatekey_len);
 
 cleanup:
     if(result != LIBSSH2_ERROR_NONE)
@@ -2720,7 +2719,7 @@ cleanup:
  * Computes the ECDSA signature of a previously-hashed message
  */
 int ssh2_ecdsa_sign(IN LIBSSH2_SESSION *session,
-                    IN struct wcng_ecdsa_ctx *key,
+                    IN struct wcng_ecdsa_ctx *ec_ctx,
                     IN const unsigned char *hash,
                     IN size_t hash_len,
                     OUT unsigned char **signature,
@@ -2750,7 +2749,7 @@ int ssh2_ecdsa_sign(IN LIBSSH2_SESSION *session,
     memcpy(hash_buffer, hash, hash_len);
 
     status = BCryptSignHash(
-        key->handle,
+        ec_ctx->handle,
         NULL,
         hash_buffer,
         (ULONG)hash_len,
@@ -2770,7 +2769,7 @@ int ssh2_ecdsa_sign(IN LIBSSH2_SESSION *session,
     }
 
     status = BCryptSignHash(
-        key->handle,
+        ec_ctx->handle,
         NULL,
         hash_buffer,
         (ULONG)hash_len,
@@ -2828,9 +2827,9 @@ cleanup:
 /*
  * returns key curve type that maps to ssh2_curve_type
  */
-ssh2_curve_type ssh2_ecdsa_get_curve_type(IN ssh2_ecdsa_ctx *key)
+ssh2_curve_type ssh2_ecdsa_get_curve_type(IN ssh2_ecdsa_ctx *ec_ctx)
 {
-    return key->curve;
+    return ec_ctx->curve;
 }
 
 #endif
