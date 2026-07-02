@@ -173,17 +173,14 @@ struct wcng_hash_ctx {
 #endif
 
 /* returns 0 in case of failure */
-#define ssh2_hash_init(pctx, alg) \
-    ssh2_wcng_hash_init(pctx, alg, NULL, 0)
-#define ssh2_hash_update(ctx, d, l) \
-    ssh2_wcng_hash_update(&(ctx), d, (ULONG)(l))
-#define ssh2_hash_final(ctx, h, l) \
-    ssh2_wcng_hash_final(&(ctx), h, l)
+#define ssh2_hash_init(pctx, alg)   ssh2_wcng_hash_init(pctx, alg, NULL, 0)
+#define ssh2_hash_update(ctx, d, l) ssh2_wcng_hash_update(&(ctx), d, l)
+#define ssh2_hash_final(ctx, h, l)  ssh2_wcng_hash_final(&(ctx), h, l)
 
 int ssh2_wcng_hash_init(struct wcng_hash_ctx *ctx, BCRYPT_ALG_HANDLE hAlg,
                         unsigned char *key, ULONG keylen);
 int ssh2_wcng_hash_update(struct wcng_hash_ctx *ctx,
-                          const void *data, ULONG datalen);
+                          const void *data, size_t datalen);
 int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx, unsigned char *hash,
                          size_t hashlen);
 int ssh2_wcng_hash(const unsigned char *data, ULONG datalen,
