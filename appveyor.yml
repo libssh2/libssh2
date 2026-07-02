@@ -84,6 +84,7 @@ matrix:
 
 install:
   - ps: $env:PATH = "C:/my-cmake/bin;C:/my-docker/docker;$env:PATH"
+  - ps: 'Restart-Service docker'
   - ps: '& $Env:ProgramFiles\Docker\Docker\DockerCli.exe -SwitchLinuxEngine'
 
 build_script:
@@ -104,12 +105,6 @@ on_failure:
       if(Test-Path _bld/CMakeFiles/CMakeConfigureLog.yaml) { cat _bld/CMakeFiles/CMakeConfigureLog.yaml }
       if(Test-Path _bld/CMakeFiles/CMakeOutput.log) { cat _bld/CMakeFiles/CMakeOutput.log }
       if(Test-Path _bld/CMakeFiles/CMakeError.log) { cat _bld/CMakeFiles/CMakeError.log }
-
-on_finish:
-  - ps: |
-      Get-Process -Name 'sleep' -ErrorAction SilentlyContinue | Stop-Process
-      Start-Sleep -Seconds 3
-      Get-Process -Name 'sshd' -ErrorAction SilentlyContinue | Stop-Process
 
 skip_commits:
   files:
