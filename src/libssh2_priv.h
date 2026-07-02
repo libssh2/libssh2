@@ -801,7 +801,8 @@ struct _LIBSSH2_SESSION {
     void *tracehandler_context; /* context for the trace handler */
 #endif
 
-    /* State variables used in banner_receive()/banner_send() */
+    /* State variables used in session_banner_receive(),
+       session_banner_send() */
     ssh2_NB_states banner_TxRx_state;
     char banner_TxRx_banner[8192];
     ssize_t banner_TxRx_total_send;
@@ -1264,9 +1265,6 @@ int ssh2_pem_decode_integer(unsigned char **data, size_t *datalen,
 
 /* global.c */
 void ssh2_init_if_needed(void);
-
-/* Utility function for certificate auth */
-size_t plain_method(char *method, size_t method_len);
 
 #define SSH2_ARRAYSIZE(a) (sizeof(a) / sizeof((a)[0]))
 

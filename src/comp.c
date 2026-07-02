@@ -357,7 +357,7 @@ static const struct comp_method *comp_methods[] = {
 };
 
 /* If compression is disabled by the API, then this array is used */
-static const struct comp_method *no_comp_methods[] = {
+static const struct comp_method *comp_methods_none[] = {
     &comp_method_none,
     NULL
 };
@@ -367,5 +367,5 @@ const struct comp_method **ssh2_comp_methods(LIBSSH2_SESSION *session)
     if(session->flag.compress)
         return comp_methods;
     else
-        return no_comp_methods;
+        return comp_methods_none;
 }

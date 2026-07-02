@@ -734,7 +734,7 @@ static struct agent_ops agent_ops_pageant = {
 static struct {
     const char *name;
     struct agent_ops *ops;
-} supported_backends[] = {
+} agent_supported_backends[] = {
 #ifdef HAVE_WIN32_AGENTS
     { "Pageant", &agent_ops_pageant },
     { "OpenSSH", &agent_ops_openssh },
@@ -858,8 +858,9 @@ static int agent_sign(LIBSSH2_SESSION *session,
     len -= method_len;
     s += method_len;
 
-    plain_len = plain_method((char *)session->userauth_pblc_method,
-                             session->userauth_pblc_method_len);
+    plain_len = ssh2_userauth_plain_method(
+        (char *)session->userauth_pblc_method,
+        session->userauth_pblc_method_len);
 
     /* check to see if we match requested */
     if((method_len != session->userauth_pblc_method_len &&
@@ -1124,8 +1125,8 @@ LIBSSH2_AGENT *libssh2_agent_init(LIBSSH2_SESSION *session)
 int libssh2_agent_connect(LIBSSH2_AGENT *agent)
 {
     int i, rc = LIBSSH2_ERROR_METHOD_NOT_SUPPORTED;
-    for(i = 0; supported_backends[i].name; i++) {
-        agent->ops = supported_backends[i].ops;
+    for(i = 0; agent_supported_backends[i].name; i++) {
+        agent->ops = agent_supported_backends[i].ops;
         rc = agent->ops->connect(agent);
         if(!rc)
             return LIBSSH2_ERROR_NONE;

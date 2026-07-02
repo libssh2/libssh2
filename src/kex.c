@@ -3390,7 +3390,7 @@ static uint32_t kex_method_list(unsigned char *buf, uint32_t list_strlen,
 /*
  * Send SSH_MSG_KEXINIT packet
  */
-static int kexinit(LIBSSH2_SESSION *session)
+static int kex_init(LIBSSH2_SESSION *session)
 {
     /* 62 = packet_type(1) + cookie(16) + first_packet_follows(1) +
        reserved(4) + length longs(40) */
@@ -4070,7 +4070,7 @@ int ssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
         }
 
         if(key_state->state == ssh2_NB_state_sent) {
-            retcode = kexinit(session);
+            retcode = kex_init(session);
             if(retcode == LIBSSH2_ERROR_EAGAIN) {
                 session->state &= ~SSH2_STATE_KEX_ACTIVE;
                 return retcode;

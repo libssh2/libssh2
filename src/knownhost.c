@@ -600,11 +600,13 @@ void libssh2_knownhost_free(LIBSSH2_KNOWNHOSTS *hosts)
  * for the sake of simplicity, we add them as separate hosts with the same
  * key
  */
-static int oldstyle_hostline(LIBSSH2_KNOWNHOSTS *hosts,
-                             const char *host, size_t hostlen,
-                             const char *key_type_name, size_t key_type_len,
-                             const char *key, size_t keylen, int key_type,
-                             const char *comment, size_t commentlen)
+static int knownhost_line_legacy(LIBSSH2_KNOWNHOSTS *hosts,
+                                 const char *host, size_t hostlen,
+                                 const char *key_type_name,
+                                 size_t key_type_len,
+                                 const char *key, size_t keylen,
+                                 int key_type,
+                                 const char *comment, size_t commentlen)
 {
     int rc = 0;
     size_t namelen = 0;
@@ -655,11 +657,13 @@ static int oldstyle_hostline(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /* |1|[salt]|[hash] */
-static int hashed_hostline(LIBSSH2_KNOWNHOSTS *hosts,
-                           const char *host, size_t hostlen,
-                           const char *key_type_name, size_t key_type_len,
-                           const char *key, size_t keylen, int key_type,
-                           const char *comment, size_t commentlen)
+static int knownhost_line_hashed(LIBSSH2_KNOWNHOSTS *hosts,
+                                 const char *host, size_t hostlen,
+                                 const char *key_type_name,
+                                 size_t key_type_len,
+                                 const char *key, size_t keylen,
+                                 int key_type,
+                                 const char *comment, size_t commentlen)
 {
     const char *p;
     char saltbuf[32];
@@ -718,9 +722,9 @@ static int hashed_hostline(LIBSSH2_KNOWNHOSTS *hosts,
  *
  * The function assumes new-lines have already been removed from the arguments.
  */
-static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
-                    const char *host, size_t hostlen,
-                    const char *key, size_t keylen)
+static int knownhost_line(LIBSSH2_KNOWNHOSTS *hosts,
+                          const char *host, size_t hostlen,
+                          const char *key, size_t keylen)
 {
     const char *comment = NULL;
     const char *key_type_name = NULL;
@@ -814,14 +818,14 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
     if(hostlen < 3 || memcmp(host, "|1|", 3))
         /* old style plain text: [name]([,][name])*
            for simplicity, we add them as separate hosts with the same key */
-        return oldstyle_hostline(hosts, host, hostlen, key_type_name,
-                                 key_type_len, key, keylen, key_type,
-                                 comment, commentlen);
+        return knownhost_line_legacy(hosts, host, hostlen, key_type_name,
+                                     key_type_len, key, keylen, key_type,
+                                     comment, commentlen);
     else
         /* |1|[salt]|[hash] */
-        return hashed_hostline(hosts, host, hostlen, key_type_name,
-                               key_type_len, key, keylen, key_type,
-                               comment, commentlen);
+        return knownhost_line_hashed(hosts, host, hostlen, key_type_name,
+                                     key_type_len, key, keylen, key_type,
+                                     comment, commentlen);
 }
 
 /*
@@ -911,7 +915,7 @@ int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
         keylen--; /* do not include this in the count */
 
     /* deal with this one host+key line */
-    rc = hostline(hosts, hostp, hostlen, keyp, keylen);
+    rc = knownhost_line(hosts, hostp, hostlen, keyp, keylen);
     if(rc)
         return rc; /* failed */
 

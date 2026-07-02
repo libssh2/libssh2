@@ -94,7 +94,7 @@ static LIBSSH2_REALLOC_FUNC(ssh2_default_realloc)
  * Returns: 0 on success, LIBSSH2_ERROR_EAGAIN if read would block, negative
  * on failure
  */
-static int banner_receive(LIBSSH2_SESSION *session)
+static int session_banner_receive(LIBSSH2_SESSION *session)
 {
     ssize_t ret;
     size_t banner_len;
@@ -193,7 +193,7 @@ static int banner_receive(LIBSSH2_SESSION *session)
  * be sent, and this function should then be called with the same argument set
  * (same data pointer and same data_len) until zero or failure is returned.
  */
-static int banner_send(LIBSSH2_SESSION *session)
+static int session_banner_send(LIBSSH2_SESSION *session)
 {
     const char *banner = LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF;
     size_t banner_len = sizeof(LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF) - 1;
@@ -699,7 +699,7 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
     }
 
     if(session->startup_state == ssh2_NB_state_created) {
-        rc = banner_send(session);
+        rc = session_banner_send(session);
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return rc;
         else if(rc)
@@ -711,7 +711,7 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 
     if(session->startup_state == ssh2_NB_state_sent) {
         do {
-            rc = banner_receive(session);
+            rc = session_banner_receive(session);
             if(rc == LIBSSH2_ERROR_EAGAIN)
                 return rc;
             else if(rc)
