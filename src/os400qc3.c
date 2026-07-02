@@ -945,12 +945,10 @@ int ssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
     return errcode.Bytes_Available ? 0 : 1;
 }
 
-int ssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx,
-                             unsigned char *out, size_t outlen)
+int ssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx, unsigned char *out)
 {
     char data;
     Qus_EC_t errcode;
-    (void)outlen;
 
     ctx->Final_Op_Flag = Qc3_Final;
     set_EC_length(errcode, sizeof(errcode));

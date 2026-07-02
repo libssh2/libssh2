@@ -288,7 +288,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
            !ssh2_md5_update(fingerprint_ctx, passphrase,
                             strlen((const char *)passphrase)) ||
            !ssh2_md5_update(fingerprint_ctx, iv, 8) ||
-           !ssh2_md5_final(fingerprint_ctx, secret, SSH2_MD5_DIG_LEN)) {
+           !ssh2_md5_final(fingerprint_ctx, secret)) {
             ret = -1;
             goto out;
         }
@@ -300,7 +300,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
                                 strlen((const char *)passphrase)) ||
                !ssh2_md5_update(fingerprint_ctx, iv, 8) ||
                !ssh2_md5_final(fingerprint_ctx,
-                               secret + SSH2_MD5_DIG_LEN, SSH2_MD5_DIG_LEN)) {
+                               secret + SSH2_MD5_DIG_LEN)) {
                 ret = -1;
                 goto out;
             }

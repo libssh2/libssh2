@@ -755,11 +755,9 @@ int ssh2_wcng_hash_update(struct wcng_hash_ctx *ctx,
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx, unsigned char *hash,
-                         size_t hashlen)
+int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx, unsigned char *hash)
 {
     int ret;
-    (void)hashlen;  /* TODO: use this */
 
     ret = BCryptFinishHash(ctx->hHash, hash, ctx->cbHash, 0);
 
@@ -782,7 +780,7 @@ int ssh2_wcng_hash(const unsigned char *data, ULONG datalen,
     ret = ssh2_wcng_hash_init(&ctx, hAlg, hashlen, NULL, 0);
     if(!ret) {
         ret = ssh2_wcng_hash_update(&ctx, data, datalen);
-        ret |= ssh2_wcng_hash_final(&ctx, hash, hashlen);
+        ret |= ssh2_wcng_hash_final(&ctx, hash);
     }
 
     return ret;
