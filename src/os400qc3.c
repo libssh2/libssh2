@@ -1261,10 +1261,8 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
     int pubkeylen;
     Qus_EC_t errcode;
 
+    (void)group_order;
     (void)bnctx;
-
-    if(group_order <= 0)
-        return -1;
 
     /* Build the PKCS#3 structure. */
 
