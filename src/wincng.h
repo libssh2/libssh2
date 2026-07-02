@@ -172,13 +172,13 @@ struct wcng_hash_ctx {
 #define SSH2_MD5_ALG    ssh2_wcng.hAlgHashMD5
 #endif
 
-/* FIXME: sync worker return values with ssh2_hash_* expectations */
+/* returns 0 in case of failure */
 #define ssh2_hash_init(pctx, alg) \
-    (ssh2_wcng_hash_init(pctx, alg, NULL, 0) == 0)
+    ssh2_wcng_hash_init(pctx, alg, NULL, 0)
 #define ssh2_hash_update(ctx, d, l) \
-    (ssh2_wcng_hash_update(&(ctx), d, (ULONG)(l)) == 0)
+    ssh2_wcng_hash_update(&(ctx), d, (ULONG)(l))
 #define ssh2_hash_final(ctx, h, l) \
-    (ssh2_wcng_hash_final(&(ctx), h, l) == 0)
+    ssh2_wcng_hash_final(&(ctx), h, l)
 
 int ssh2_wcng_hash_init(struct wcng_hash_ctx *ctx, BCRYPT_ALG_HANDLE hAlg,
                         unsigned char *key, ULONG keylen);
