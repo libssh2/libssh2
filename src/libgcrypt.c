@@ -42,29 +42,44 @@
 
 #ifdef LIBSSH2_LIBGCRYPT
 
-int ssh2_lgcr_hash_final(gcry_md_hd_t ctx, void *hash, size_t len)
-{
-    int ret = 0;
-    unsigned int digest_len = gcry_md_get_algo_dlen(gcry_md_get_algo(ctx));
-    if(len >= digest_len) {
-        memcpy(hash, gcry_md_read(ctx, 0), digest_len);
-        ret = 1;
-    }
-    gcry_md_close(ctx);
-    return ret;
-}
-
 int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 {
     *ctx = NULL;
     return 1;
 }
 
-static int lgcr_hmac_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen,
-                          int algo)
+#if LIBSSH2_MD5
+int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
     gcry_error_t err;
-    err = gcry_md_open(ctx, algo, GCRY_MD_FLAG_HMAC);
+    err = gcry_md_open(ctx, GCRY_MD_MD5, GCRY_MD_FLAG_HMAC);
+    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
+        return 0;
+    err = gcry_md_setkey(*ctx, key, keylen);
+    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
+        return 0;
+    return 1;
+}
+#endif
+
+#if LIBSSH2_HMAC_RIPEMD
+int ssh2_hmac_ripemd160_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
+{
+    gcry_error_t err;
+    err = gcry_md_open(ctx, GCRY_MD_RMD160, GCRY_MD_FLAG_HMAC);
+    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
+        return 0;
+    err = gcry_md_setkey(*ctx, key, keylen);
+    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
+        return 0;
+    return 1;
+}
+#endif
+
+int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
+{
+    gcry_error_t err;
+    err = gcry_md_open(ctx, GCRY_MD_SHA1, GCRY_MD_FLAG_HMAC);
     if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
         return 0;
     err = gcry_md_setkey(*ctx, key, keylen);
@@ -73,33 +88,28 @@ static int lgcr_hmac_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen,
     return 1;
 }
 
-#if LIBSSH2_MD5
-int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
-{
-    return lgcr_hmac_init(ctx, key, keylen, GCRY_MD_MD5);
-}
-#endif
-
-#if LIBSSH2_HMAC_RIPEMD
-int ssh2_hmac_ripemd160_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
-{
-    return lgcr_hmac_init(ctx, key, keylen, GCRY_MD_RMD160);
-}
-#endif
-
-int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
-{
-    return lgcr_hmac_init(ctx, key, keylen, GCRY_MD_SHA1);
-}
-
 int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    return lgcr_hmac_init(ctx, key, keylen, GCRY_MD_SHA256);
+    gcry_error_t err;
+    err = gcry_md_open(ctx, GCRY_MD_SHA256, GCRY_MD_FLAG_HMAC);
+    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
+        return 0;
+    err = gcry_md_setkey(*ctx, key, keylen);
+    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
+        return 0;
+    return 1;
 }
 
 int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    return lgcr_hmac_init(ctx, key, keylen, GCRY_MD_SHA512);
+    gcry_error_t err;
+    err = gcry_md_open(ctx, GCRY_MD_SHA512, GCRY_MD_FLAG_HMAC);
+    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
+        return 0;
+    err = gcry_md_setkey(*ctx, key, keylen);
+    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
+        return 0;
+    return 1;
 }
 
 int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
@@ -178,19 +188,16 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
         return -1;
 
     if(hash_len == SSH2_SHA1_DIG_LEN) {
-        gcry_md_hash_buffer(GCRY_MD_SHA1, hash, m, m_len);
         algo = "sha1";
-        ret = 0;
+        ret = ssh2_sha1(m, m_len, hash);
     }
     else if(hash_len == SSH2_SHA256_DIG_LEN) {
-        gcry_md_hash_buffer(GCRY_MD_SHA256, hash, m, m_len);
         algo = "sha256";
-        ret = 0;
+        ret = ssh2_sha256(m, m_len, hash);
     }
     else if(hash_len == SSH2_SHA512_DIG_LEN) {
-        gcry_md_hash_buffer(GCRY_MD_SHA512, hash, m, m_len);
         algo = "sha512";
-        ret = 0;
+        ret = ssh2_sha512(m, m_len, hash);
     }
     else
         ret = 1;
@@ -658,7 +665,8 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
     gcry_sexp_t s_sig, s_hash;
     int rc = -1;
 
-    gcry_md_hash_buffer(GCRY_MD_SHA1, hash + 1, m, m_len);
+    if(ssh2_sha1(m, m_len, hash + 1))
+        return -1;
 
     hash[0] = 0;
 
@@ -815,12 +823,8 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
                      ssh2_bn *p, int group_order, ssh2_bn_ctx *bnctx)
 {
     (void)bnctx;
-
-    if(group_order <= 0)
-        return -1;
-
     /* Generate x and e */
-    gcry_mpi_randomize(*dhctx, (group_order * 8) - 1, GCRY_VERY_STRONG_RANDOM);
+    gcry_mpi_randomize(*dhctx, group_order * 8 - 1, GCRY_WEAK_RANDOM);
     gcry_mpi_powm(pub, g, *dhctx, p);
     return 0;
 }

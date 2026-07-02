@@ -703,7 +703,7 @@ int ssh2_random(unsigned char *buf, size_t len)
  */
 
 int ssh2_wcng_hash_init(struct wcng_hash_ctx *ctx, BCRYPT_ALG_HANDLE hAlg,
-                        unsigned char *key, ULONG keylen)
+                        ULONG hashlen, unsigned char *key, ULONG keylen)
 {
     BCRYPT_HASH_HANDLE hHash;
     unsigned char *pbHashObject;
@@ -714,7 +714,7 @@ int ssh2_wcng_hash_init(struct wcng_hash_ctx *ctx, BCRYPT_ALG_HANDLE hAlg,
                             (unsigned char *)&dwHash,
                             sizeof(dwHash),
                             &cbData, 0);
-    if(!BCRYPT_SUCCESS(ret))
+    if(!BCRYPT_SUCCESS(ret) || dwHash != hashlen)
         return -1;
 
     ret = BCryptGetProperty(hAlg, BCRYPT_OBJECT_LENGTH,
@@ -755,14 +755,11 @@ int ssh2_wcng_hash_update(struct wcng_hash_ctx *ctx,
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx, unsigned char *hash,
-                         size_t hashlen)
+int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx, unsigned char *hash)
 {
-    int ret = -1;
+    int ret;
 
-    if(hashlen >= ctx->cbHash &&
-       BCRYPT_SUCCESS(BCryptFinishHash(ctx->hHash, hash, ctx->cbHash, 0)))
-        ret = 0;
+    ret = BCryptFinishHash(ctx->hHash, hash, ctx->cbHash, 0);
 
     BCryptDestroyHash(ctx->hHash);
     ctx->hHash = NULL;
@@ -770,22 +767,20 @@ int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx, unsigned char *hash,
     wcng_safe_free(ctx->pbHashObject, ctx->dwHashObject);
     ctx->pbHashObject = NULL;
     ctx->dwHashObject = 0;
-    ctx->cbHash = 0;
 
-    return ret;
+    return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-static int wcng_hash(const unsigned char *data, ULONG datalen,
-                     BCRYPT_ALG_HANDLE hAlg,
-                     unsigned char *hash, ULONG hashlen)
+int ssh2_wcng_hash(const unsigned char *data, ULONG datalen,
+                   BCRYPT_ALG_HANDLE hAlg, unsigned char *hash, ULONG hashlen)
 {
     struct wcng_hash_ctx ctx;
     int ret;
 
-    ret = ssh2_wcng_hash_init(&ctx, hAlg, NULL, 0);
+    ret = ssh2_wcng_hash_init(&ctx, hAlg, hashlen, NULL, 0);
     if(!ret) {
         ret = ssh2_wcng_hash_update(&ctx, data, datalen);
-        ret |= ssh2_wcng_hash_final(&ctx, hash, hashlen);
+        ret |= ssh2_wcng_hash_final(&ctx, hash);
     }
 
     return ret;
@@ -806,7 +801,8 @@ int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
     int ret = ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHmacMD5,
-                                  key, (ULONG)keylen);
+                                  SSH2_MD5_DIG_LEN, key, (ULONG)keylen);
+
     return ret == 0 ? 1 : 0;
 }
 #endif
@@ -814,21 +810,24 @@ int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
     int ret = ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHmacSHA1,
-                                  key, (ULONG)keylen);
+                                  SSH2_SHA1_DIG_LEN, key, (ULONG)keylen);
+
     return ret == 0 ? 1 : 0;
 }
 
 int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
     int ret = ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHmacSHA256,
-                                  key, (ULONG)keylen);
+                                  SSH2_SHA256_DIG_LEN, key, (ULONG)keylen);
+
     return ret == 0 ? 1 : 0;
 }
 
 int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
     int ret = ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHmacSHA512,
-                                  key, (ULONG)keylen);
+                                  SSH2_SHA512_DIG_LEN, key, (ULONG)keylen);
+
     return ret == 0 ? 1 : 0;
 }
 
@@ -841,7 +840,8 @@ int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
 
 int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen)
 {
-    int ret = BCryptFinishHash(ctx->hHash, mac, (ULONG)maclen, 0);
+    int ret = BCryptFinishHash(ctx->hHash, mac, ctx->cbHash, 0);
+    (void)maclen;
 
     return BCRYPT_SUCCESS(ret) ? 1 : 0;
 }
@@ -908,7 +908,7 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx,
     }
     memcpy(data, m, datalen);
 
-    ret = wcng_hash(data, datalen, hAlgHash, hash, hashlen);
+    ret = ssh2_wcng_hash(data, datalen, hAlgHash, hash, hashlen);
     wcng_safe_free(data, datalen);
 
     if(ret) {
@@ -2422,7 +2422,7 @@ int ssh2_ecdsa_verify(IN ssh2_ecdsa_ctx *key,
     }
 
     hash = malloc(hash_len);
-    result = wcng_hash(m, (ULONG)m_len, hash_alg, hash, hash_len);
+    result = ssh2_wcng_hash(m, (ULONG)m_len, hash_alg, hash, hash_len);
     if(result != LIBSSH2_ERROR_NONE)
         goto cleanup;
 
@@ -3278,7 +3278,7 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
 
     (void)bnctx;
 
-    if(group_order <= 0)
+    if(group_order < 0)
         return -1;
 
     while(ssh2_wcng.hAlgDH && hasAlgDHwithKDF != -1) {

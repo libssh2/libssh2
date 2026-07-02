@@ -139,51 +139,89 @@ struct mbed_hash_ctx {
 
 /*******************************************************************/
 /*
- * mbedTLS backend: hash functions
+ * mbedTLS backend: SHA1 functions
  */
 
-#define ssh2_hash_ctx psa_hash_operation_t
+#define ssh2_sha1_ctx psa_hash_operation_t
 
 #define ssh2_sha1_init(pctx) \
     ssh2_mbed_hash_init(pctx, PSA_ALG_SHA_1)
 #define ssh2_sha1_update(ctx, data, datalen) \
     (psa_hash_update(&(ctx), (const uint8_t *)(data), datalen) == PSA_SUCCESS)
-#define ssh2_sha1_final(ctx, hash, hashlen) \
-    ssh2_mbed_hash_final(&(ctx), hash, hashlen)
+#define ssh2_sha1_final(ctx, hash) \
+    ssh2_mbed_hash_final(&(ctx), hash, SSH2_SHA1_DIG_LEN)
+#define ssh2_sha1(data, datalen, hash) \
+    ssh2_mbed_hash(data, datalen, PSA_ALG_SHA_1, hash)
+
+/*******************************************************************/
+/*
+ * mbedTLS backend: SHA256 functions
+ */
+
+#define ssh2_sha256_ctx psa_hash_operation_t
 
 #define ssh2_sha256_init(pctx) \
     ssh2_mbed_hash_init(pctx, PSA_ALG_SHA_256)
 #define ssh2_sha256_update(ctx, data, datalen) \
     (psa_hash_update(&(ctx), (const uint8_t *)(data), datalen) == PSA_SUCCESS)
-#define ssh2_sha256_final(ctx, hash, hashlen) \
-    ssh2_mbed_hash_final(&(ctx), hash, hashlen)
+#define ssh2_sha256_final(ctx, hash) \
+    ssh2_mbed_hash_final(&(ctx), hash, SSH2_SHA256_DIG_LEN)
+#define ssh2_sha256(data, datalen, hash) \
+    ssh2_mbed_hash(data, datalen, PSA_ALG_SHA_256, hash)
+
+/*******************************************************************/
+/*
+ * mbedTLS backend: SHA384 functions
+ */
+
+#define ssh2_sha384_ctx psa_hash_operation_t
 
 #define ssh2_sha384_init(pctx) \
     ssh2_mbed_hash_init(pctx, PSA_ALG_SHA_384)
 #define ssh2_sha384_update(ctx, data, datalen) \
     (psa_hash_update(&(ctx), (const uint8_t *)(data), datalen) == PSA_SUCCESS)
-#define ssh2_sha384_final(ctx, hash, hashlen) \
-    ssh2_mbed_hash_final(&(ctx), hash, hashlen)
+#define ssh2_sha384_final(ctx, hash) \
+    ssh2_mbed_hash_final(&(ctx), hash, SSH2_SHA384_DIG_LEN)
+#define ssh2_sha384(data, datalen, hash) \
+    ssh2_mbed_hash(data, datalen, PSA_ALG_SHA_384, hash)
+
+/*******************************************************************/
+/*
+ * mbedTLS backend: SHA512 functions
+ */
+
+#define ssh2_sha512_ctx psa_hash_operation_t
 
 #define ssh2_sha512_init(pctx) \
     ssh2_mbed_hash_init(pctx, PSA_ALG_SHA_512)
 #define ssh2_sha512_update(ctx, data, datalen) \
     (psa_hash_update(&(ctx), (const uint8_t *)(data), datalen) == PSA_SUCCESS)
-#define ssh2_sha512_final(ctx, hash, hashlen) \
-    ssh2_mbed_hash_final(&(ctx), hash, hashlen)
+#define ssh2_sha512_final(ctx, hash) \
+    ssh2_mbed_hash_final(&(ctx), hash, SSH2_SHA512_DIG_LEN)
+#define ssh2_sha512(data, datalen, hash) \
+    ssh2_mbed_hash(data, datalen, PSA_ALG_SHA_512, hash)
+
+/*******************************************************************/
+/*
+ * mbedTLS backend: MD5 functions
+ */
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
+#define ssh2_md5_ctx psa_hash_operation_t
+
 #define ssh2_md5_init(pctx) \
     ssh2_mbed_hash_init(pctx, PSA_ALG_MD5)
 #define ssh2_md5_update(ctx, data, datalen) \
     (psa_hash_update(&(ctx), (const uint8_t *)(data), datalen) == PSA_SUCCESS)
-#define ssh2_md5_final(ctx, hash, hashlen) \
-    ssh2_mbed_hash_final(&(ctx), hash, hashlen)
+#define ssh2_md5_final(ctx, hash) \
+    ssh2_mbed_hash_final(&(ctx), hash, SSH2_MD5_DIG_LEN)
 #endif
 
 int ssh2_mbed_hash_init(psa_hash_operation_t *ctx, psa_algorithm_t alg);
 int ssh2_mbed_hash_final(psa_hash_operation_t *ctx,
                          unsigned char *hash, size_t len);
+int ssh2_mbed_hash(const unsigned char *data, size_t datalen,
+                   psa_algorithm_t alg, unsigned char *hash);
 
 /*******************************************************************/
 /*

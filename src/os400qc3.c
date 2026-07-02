@@ -945,12 +945,10 @@ int ssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
     return errcode.Bytes_Available ? 0 : 1;
 }
 
-int ssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx,
-                             unsigned char *out, size_t outlen)
+int ssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx, unsigned char *out)
 {
     char data;
     Qus_EC_t errcode;
-    (void)outlen;
 
     ctx->Final_Op_Flag = Qc3_Final;
     set_EC_length(errcode, sizeof(errcode));
@@ -959,6 +957,19 @@ int ssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx,
     Qc3DestroyAlgorithmContext(ctx->Alg_Context_Token, (char *)&ecnull);
     memset(ctx->Alg_Context_Token, 0, sizeof(ctx->Alg_Context_Token));
     return errcode.Bytes_Available ? 0 : 1;
+}
+
+int ssh2_os400qc3_hash(const unsigned char *message, unsigned long len,
+                       unsigned char *out, unsigned int algo)
+{
+    Qc3_Format_ALGD0100_T ctx;
+
+    if(!ssh2_os400qc3_hash_init(&ctx, algo) ||
+       !ssh2_os400qc3_hash_update(&ctx, message, len) ||
+       !ssh2_os400qc3_hash_final(&ctx, out))
+        return 1;
+
+    return 0;
 }
 
 static int os400qc3_hmac_init(struct os400qc3_crypto_ctx *ctx,
@@ -1250,10 +1261,8 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
     int pubkeylen;
     Qus_EC_t errcode;
 
+    (void)group_order;
     (void)bnctx;
-
-    if(group_order <= 0)
-        return -1;
 
     /* Build the PKCS#3 structure. */
 

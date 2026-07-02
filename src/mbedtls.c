@@ -60,15 +60,20 @@ static mbedtls_ctr_drbg_context mbed_ctr_drbg;
 
 void ssh2_crypto_init(void)
 {
+#if MBEDTLS_VERSION_NUMBER < 0x04000000
+    int ret = 0;
+#endif
+
     (void)psa_crypto_init();
 
 #if MBEDTLS_VERSION_NUMBER < 0x04000000
     mbedtls_entropy_init(&mbed_entropy);
     mbedtls_ctr_drbg_init(&mbed_ctr_drbg);
 
-    if(mbedtls_ctr_drbg_seed(&mbed_ctr_drbg,
-                             mbedtls_entropy_func,
-                             &mbed_entropy, NULL, 0))
+    ret = mbedtls_ctr_drbg_seed(&mbed_ctr_drbg,
+                                mbedtls_entropy_func,
+                                &mbed_entropy, NULL, 0);
+    if(ret)
         mbedtls_ctr_drbg_free(&mbed_ctr_drbg);
 #endif
 }
@@ -195,6 +200,18 @@ int ssh2_mbed_hash_final(psa_hash_operation_t *ctx,
     return psa_hash_finish(ctx, hash, len, &actual_len) == PSA_SUCCESS;
 }
 
+int ssh2_mbed_hash(const unsigned char *data, size_t datalen,
+                   psa_algorithm_t alg, unsigned char *hash)
+{
+    size_t actual_len;
+    psa_status_t status;
+
+    status = psa_hash_compute(alg, data, datalen,
+                              hash, PSA_HASH_LENGTH(alg), &actual_len);
+
+    return status == PSA_SUCCESS ? 0 : -1;
+}
+
 int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 {
     ctx->mac = psa_mac_operation_init();
@@ -298,19 +315,22 @@ void ssh2_mbed_bn_free(ssh2_bn *bn)
 static int mbed_bn_random(ssh2_bn *bn, int bits, int top, int bottom)
 {
     size_t len;
+    int err;
     size_t i;
 
     if(!bn || bits <= 0)
         return -1;
 
     len = (bits + 7) >> 3;
-    if(mbedtls_mpi_fill_random(bn, len, mbedtls_ctr_drbg_random,
-                               &mbed_ctr_drbg))
+    err = mbedtls_mpi_fill_random(bn, len, mbedtls_ctr_drbg_random,
+                                  &mbed_ctr_drbg);
+    if(err)
         return -1;
 
     /* Zero unused bits above the most significant bit */
     for(i = (len * 8) - 1; (size_t)bits <= i; --i) {
-        if(mbedtls_mpi_set_bit(bn, i, 0))
+        err = mbedtls_mpi_set_bit(bn, i, 0);
+        if(err)
             return -1;
     }
 
@@ -322,14 +342,18 @@ static int mbed_bn_random(ssh2_bn *bn, int bits, int top, int bottom)
     */
     if(top >= 0) {
         for(i = 0; i <= (size_t)top; ++i) {
-            if(mbedtls_mpi_set_bit(bn, bits - i - 1, 1))
+            err = mbedtls_mpi_set_bit(bn, bits - i - 1, 1);
+            if(err)
                 return -1;
         }
     }
 
     /* make odd by setting first bit in least significant byte */
-    if(bottom && mbedtls_mpi_set_bit(bn, 0, 1))
-        return -1;
+    if(bottom) {
+        err = mbedtls_mpi_set_bit(bn, 0, 1);
+        if(err)
+            return -1;
+    }
 
     return 0;
 }
@@ -486,7 +510,6 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
                          const unsigned char *m, size_t m_len)
 {
     int ret;
-    size_t actual_len;
     mbedtls_md_type_t md_type;
     unsigned char *hash;
 
@@ -498,18 +521,15 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
         return -1;
 
     if(hash_len == SSH2_SHA1_DIG_LEN) {
-        ret = psa_hash_compute(PSA_ALG_SHA_1, m, m_len, hash, hash_len,
-                               &actual_len) == PSA_SUCCESS ? 0 : -1;
+        ret = ssh2_mbed_hash(m, m_len, PSA_ALG_SHA_1, hash);
         md_type = MBEDTLS_MD_SHA1;
     }
     else if(hash_len == SSH2_SHA256_DIG_LEN) {
-        ret = psa_hash_compute(PSA_ALG_SHA_256, m, m_len, hash, hash_len,
-                               &actual_len) == PSA_SUCCESS ? 0 : -1;
+        ret = ssh2_mbed_hash(m, m_len, PSA_ALG_SHA_256, hash);
         md_type = MBEDTLS_MD_SHA256;
     }
     else if(hash_len == SSH2_SHA512_DIG_LEN) {
-        ret = psa_hash_compute(PSA_ALG_SHA_512, m, m_len, hash, hash_len,
-                               &actual_len) == PSA_SUCCESS ? 0 : -1;
+        ret = ssh2_mbed_hash(m, m_len, PSA_ALG_SHA_512, hash);
         md_type = MBEDTLS_MD_SHA512;
     }
     else {
@@ -527,7 +547,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
                                    hash, sig);
     free(hash);
 
-    return ret == 0 ? 0 : -1;
+    return (ret == 0) ? 0 : -1;
 }
 
 int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
@@ -580,7 +600,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
     *signature = sig;
     *signature_len = sig_len;
 
-    return ret == 0 ? 0 : -1;
+    return (ret == 0) ? 0 : -1;
 }
 
 int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
@@ -815,14 +835,9 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
                      ssh2_bn *p, int group_order, ssh2_bn_ctx *bnctx)
 {
     (void)bnctx;
-
-    if(group_order <= 0)
-        return -1;
-
     /* Generate x and e */
-    if(mbed_bn_random(*dhctx, (group_order * 8) - 1, 0, -1) ||
-       mbedtls_mpi_exp_mod(pub, g, *dhctx, p, NULL))
-        return -1;
+    mbed_bn_random(*dhctx, (group_order * 8) - 1, 0, -1);
+    mbedtls_mpi_exp_mod(pub, g, *dhctx, p, NULL);
     return 0;
 }
 
@@ -831,8 +846,7 @@ int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
 {
     (void)bnctx;
     /* Compute the shared secret */
-    if(mbedtls_mpi_exp_mod(secret, f, *dhctx, p, NULL))
-        return -1;
+    mbedtls_mpi_exp_mod(secret, f, *dhctx, p, NULL);
     return 0;
 }
 
@@ -973,6 +987,17 @@ cleanup:
     return rc;
 }
 
+#define SSH2_MBED_ECDSA_VERIFY(digest_type)                                   \
+    do {                                                                      \
+        unsigned char hsh[SSH2_SHA##digest_type##_DIG_LEN];                   \
+                                                                              \
+        if(ssh2_sha##digest_type(m, m_len, hsh) == 0) {                       \
+            rc = mbedtls_ecdsa_verify(&ec_ctx->MBEDTLS_PRIVATE(grp), hsh,     \
+                                      SSH2_SHA##digest_type##_DIG_LEN,        \
+                                      &ec_ctx->MBEDTLS_PRIVATE(Q), &pr, &ps); \
+        }                                                                     \
+    } while(0)
+
 /*
  * Verifies the ECDSA signature of a hashed message
  */
@@ -982,7 +1007,6 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
                       const unsigned char *m, size_t m_len)
 {
     mbedtls_mpi pr, ps;
-    size_t actual_len;
     int rc = -1;
 
     mbedtls_mpi_init(&pr);
@@ -995,33 +1019,15 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
         goto cleanup;
 
     switch(ssh2_ecdsa_get_curve_type(ec_ctx)) {
-    case SSH2_EC_CURVE_NISTP256: {
-        unsigned char hsh[SSH2_SHA256_DIG_LEN];
-        if(psa_hash_compute(PSA_ALG_SHA_256, m, m_len, hsh, sizeof(hsh),
-                            &actual_len) == PSA_SUCCESS)
-            rc = mbedtls_ecdsa_verify(&ec_ctx->MBEDTLS_PRIVATE(grp),
-                                      hsh, sizeof(hsh),
-                                      &ec_ctx->MBEDTLS_PRIVATE(Q), &pr, &ps);
+    case SSH2_EC_CURVE_NISTP256:
+        SSH2_MBED_ECDSA_VERIFY(256);
         break;
-    }
-    case SSH2_EC_CURVE_NISTP384: {
-        unsigned char hsh[SSH2_SHA384_DIG_LEN];
-        if(psa_hash_compute(PSA_ALG_SHA_384, m, m_len, hsh, sizeof(hsh),
-                            &actual_len) == PSA_SUCCESS)
-            rc = mbedtls_ecdsa_verify(&ec_ctx->MBEDTLS_PRIVATE(grp),
-                                      hsh, sizeof(hsh),
-                                      &ec_ctx->MBEDTLS_PRIVATE(Q), &pr, &ps);
+    case SSH2_EC_CURVE_NISTP384:
+        SSH2_MBED_ECDSA_VERIFY(384);
         break;
-    }
-    case SSH2_EC_CURVE_NISTP521: {
-        unsigned char hsh[SSH2_SHA512_DIG_LEN];
-        if(psa_hash_compute(PSA_ALG_SHA_512, m, m_len, hsh, sizeof(hsh),
-                            &actual_len) == PSA_SUCCESS)
-            rc = mbedtls_ecdsa_verify(&ec_ctx->MBEDTLS_PRIVATE(grp),
-                                      hsh, sizeof(hsh),
-                                      &ec_ctx->MBEDTLS_PRIVATE(Q), &pr, &ps);
+    case SSH2_EC_CURVE_NISTP521:
+        SSH2_MBED_ECDSA_VERIFY(512);
         break;
-    }
     default:
         rc = -1;
     }

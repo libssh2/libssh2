@@ -229,33 +229,43 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define ssh2_crypto_init()   do {} while(0)
 #define ssh2_crypto_exit()   do {} while(0)
 
-#define ssh2_hash_ctx        Qc3_Format_ALGD0100_T
+#define ssh2_sha1_ctx        Qc3_Format_ALGD0100_T
+#define ssh2_sha256_ctx      Qc3_Format_ALGD0100_T
+#define ssh2_sha384_ctx      Qc3_Format_ALGD0100_T
+#define ssh2_sha512_ctx      Qc3_Format_ALGD0100_T
 #define ssh2_hmac_ctx        struct os400qc3_crypto_ctx
 #define ssh2_cipher_ctx      struct os400qc3_crypto_ctx
 
 #define ssh2_sha1_init(x)             ssh2_os400qc3_hash_init(x, Qc3_SHA1)
 #define ssh2_sha1_update(ctx, d, l)   ssh2_os400qc3_hash_update(&(ctx), d, l)
-#define ssh2_sha1_final(ctx, h, l)    ssh2_os400qc3_hash_final(&(ctx), h, l)
+#define ssh2_sha1_final(ctx, out)     ssh2_os400qc3_hash_final(&(ctx), out)
 #define ssh2_sha256_init(x)           ssh2_os400qc3_hash_init(x, Qc3_SHA256)
 #define ssh2_sha256_update(ctx, d, l) ssh2_os400qc3_hash_update(&(ctx), d, l)
-#define ssh2_sha256_final(ctx, h, l)  ssh2_os400qc3_hash_final(&(ctx), h, l)
+#define ssh2_sha256_final(ctx, out)   ssh2_os400qc3_hash_final(&(ctx), out)
+#define ssh2_sha256(d, l, out)        ssh2_os400qc3_hash(d, l, out, Qc3_SHA256)
 #define ssh2_sha384_init(x)           ssh2_os400qc3_hash_init(x, Qc3_SHA384)
 #define ssh2_sha384_update(ctx, d, l) ssh2_os400qc3_hash_update(&(ctx), d, l)
-#define ssh2_sha384_final(ctx, h, l)  ssh2_os400qc3_hash_final(&(ctx), h, l)
+#define ssh2_sha384_final(ctx, out)   ssh2_os400qc3_hash_final(&(ctx), out)
+#define ssh2_sha384(d, l, out)        ssh2_os400qc3_hash(d, l, out, Qc3_SHA384)
 #define ssh2_sha512_init(x)           ssh2_os400qc3_hash_init(x, Qc3_SHA512)
 #define ssh2_sha512_update(ctx, d, l) ssh2_os400qc3_hash_update(&(ctx), d, l)
-#define ssh2_sha512_final(ctx, h, l)  ssh2_os400qc3_hash_final(&(ctx), h, l)
+#define ssh2_sha512_final(ctx, out)   ssh2_os400qc3_hash_final(&(ctx), out)
+#define ssh2_sha512(d, l, out)        ssh2_os400qc3_hash(d, l, out, Qc3_SHA512)
+
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
+#define ssh2_md5_ctx                  Qc3_Format_ALGD0100_T
 #define ssh2_md5_init(x)              ssh2_os400qc3_hash_init(x, Qc3_MD5)
 #define ssh2_md5_update(ctx, d, l)    ssh2_os400qc3_hash_update(&(ctx), d, l)
-#define ssh2_md5_final(ctx, h, l)     ssh2_os400qc3_hash_final(&(ctx), h, l)
+#define ssh2_md5_final(ctx, out)      ssh2_os400qc3_hash_final(&(ctx), out)
 #endif
 
 int ssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x, unsigned int algo);
 int ssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
                               const unsigned char *data, int len);
-int ssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx,
-                             unsigned char *out, size_t outlen);
+int ssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx, unsigned char *out);
+int ssh2_os400qc3_hash(const unsigned char *message,
+                       unsigned long len, unsigned char *out,
+                       unsigned int algo);
 
 /* Bignum */
 
