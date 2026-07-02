@@ -49,4 +49,7 @@ int ssh2_userauth_publickey(
     LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC(*sign_callback),
     void *abstract);
 
+/* Utility function for certificate auth */
+size_t ssh2_userauth_plain_method(char *method, size_t method_len);
+
 #endif /* LIBSSH2_USERAUTH_H */

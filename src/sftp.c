@@ -111,8 +111,8 @@ static void sftp_packet_flush(LIBSSH2_SFTP *sftp);
  *
  * Returns NULL if ID not in list.
  */
-static struct sftp_zombie_requests *find_zombie_request(LIBSSH2_SFTP *sftp,
-                                                        uint32_t request_id)
+static struct sftp_zombie_requests *sftp_zombie_request_find(
+    LIBSSH2_SFTP *sftp, uint32_t request_id)
 {
     struct sftp_zombie_requests *zombie =
         ssh2_list_first(&sftp->zombie_requests);
@@ -127,12 +127,12 @@ static struct sftp_zombie_requests *find_zombie_request(LIBSSH2_SFTP *sftp,
     return zombie;
 }
 
-static void remove_zombie_request(LIBSSH2_SFTP *sftp, uint32_t request_id)
+static void sftp_zombie_request_remove(LIBSSH2_SFTP *sftp, uint32_t request_id)
 {
     LIBSSH2_SESSION *session = sftp->channel->session;
 
-    struct sftp_zombie_requests *zombie = find_zombie_request(sftp,
-                                                              request_id);
+    struct sftp_zombie_requests *zombie = sftp_zombie_request_find(sftp,
+                                                                   request_id);
     if(zombie) {
         ssh2_deb((session, LIBSSH2_TRACE_SFTP,
                   "Removing request ID %u from the list of zombie requests",
@@ -143,7 +143,7 @@ static void remove_zombie_request(LIBSSH2_SFTP *sftp, uint32_t request_id)
     }
 }
 
-static int add_zombie_request(LIBSSH2_SFTP *sftp, uint32_t request_id)
+static int sftp_zombie_request_add(LIBSSH2_SFTP *sftp, uint32_t request_id)
 {
     LIBSSH2_SESSION *session = sftp->channel->session;
 
@@ -229,14 +229,14 @@ static int sftp_packet_add(LIBSSH2_SFTP *sftp,
 
     /* Do not add the packet if it answers a request we have given up on. */
     if((data[0] == SSH_FXP_STATUS || data[0] == SSH_FXP_DATA) &&
-       find_zombie_request(sftp, request_id)) {
+       sftp_zombie_request_find(sftp, request_id)) {
 
         /* If we get here, the file ended before the response arrived. We
            are no longer interested in the request so we discard it */
 
         SSH2_FREE(session, data);
 
-        remove_zombie_request(sftp, request_id);
+        sftp_zombie_request_remove(sftp, request_id);
         return LIBSSH2_ERROR_NONE;
     }
 
@@ -449,7 +449,7 @@ static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
         else if(chunk->sent)
             /* there was no incoming packet for this request, mark this
                request as a zombie if it ever sent the request */
-            add_zombie_request(sftp, chunk->request_id);
+            sftp_zombie_request_add(sftp, chunk->request_id);
 
         ssh2_list_remove(&chunk->node);
         SSH2_FREE(session, chunk);

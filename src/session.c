@@ -94,7 +94,7 @@ static LIBSSH2_REALLOC_FUNC(ssh2_default_realloc)
  * Returns: 0 on success, LIBSSH2_ERROR_EAGAIN if read would block, negative
  * on failure
  */
-static int banner_receive(LIBSSH2_SESSION *session)
+static int session_banner_receive(LIBSSH2_SESSION *session)
 {
     ssize_t ret;
     size_t banner_len;
@@ -193,7 +193,7 @@ static int banner_receive(LIBSSH2_SESSION *session)
  * be sent, and this function should then be called with the same argument set
  * (same data pointer and same data_len) until zero or failure is returned.
  */
-static int banner_send(LIBSSH2_SESSION *session)
+static int session_banner_send(LIBSSH2_SESSION *session)
 {
     const char *banner = LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF;
     size_t banner_len = sizeof(LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF) - 1;
@@ -699,7 +699,7 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
     }
 
     if(session->startup_state == ssh2_NB_state_created) {
-        rc = banner_send(session);
+        rc = session_banner_send(session);
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return rc;
         else if(rc)
@@ -711,7 +711,7 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 
     if(session->startup_state == ssh2_NB_state_sent) {
         do {
-            rc = banner_receive(session);
+            rc = session_banner_receive(session);
             if(rc == LIBSSH2_ERROR_EAGAIN)
                 return rc;
             else if(rc)
@@ -1396,7 +1396,7 @@ int libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended)
  * Returns 0 if writing to channel would block,
  * non-0 if data can be written without blocking
  */
-static SSH2_INLINE int poll_channel_write(LIBSSH2_CHANNEL *channel)
+static SSH2_INLINE int session_poll_channel_write(LIBSSH2_CHANNEL *channel)
 {
     return channel->local.window_size ? 1 : 0;
 }
@@ -1405,7 +1405,7 @@ static SSH2_INLINE int poll_channel_write(LIBSSH2_CHANNEL *channel)
  * Returns 0 if no connections are waiting to be accepted
  * non-0 if one or more connections are available
  */
-static SSH2_INLINE int poll_listener_queued(LIBSSH2_LISTENER *listener)
+static SSH2_INLINE int session_poll_listener_queued(LIBSSH2_LISTENER *listener)
 {
     return ssh2_list_first(&listener->queue) ? 1 : 0;
 }
@@ -1577,7 +1577,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                        ((fds[i].revents & LIBSSH2_POLLFD_POLLOUT) == 0)) {
                         /* Not yet known to be ready for write */
                         fds[i].revents |=
-                            poll_channel_write(fds[i].fd.channel) ?
+                            session_poll_channel_write(fds[i].fd.channel) ?
                             LIBSSH2_POLLFD_POLLOUT : 0;
                     }
                     if(fds[i].fd.channel->remote.close ||
@@ -1598,7 +1598,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                        ((fds[i].revents & LIBSSH2_POLLFD_POLLIN) == 0)) {
                         /* No connections known of yet */
                         fds[i].revents |=
-                            poll_listener_queued(fds[i].fd.listener) ?
+                            session_poll_listener_queued(fds[i].fd.listener) ?
                             LIBSSH2_POLLFD_POLLIN : 0;
                     }
                     if(fds[i].fd.listener->session->socket_state ==

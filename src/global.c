@@ -40,33 +40,34 @@
 
 #include "libssh2_priv.h"
 
-static int s_initialized = 0;
-static int s_init_flags = 0;
+static int ssh2_s_initialized = 0;
+static int ssh2_s_init_flags = 0;
 
 int libssh2_init(int flags)
 {
-    if(s_initialized == 0 && !(flags & LIBSSH2_INIT_NO_CRYPTO))
+    if(ssh2_s_initialized == 0 && !(flags & LIBSSH2_INIT_NO_CRYPTO))
         ssh2_crypto_init();
 
-    s_initialized++;
-    s_init_flags |= flags;
+    ssh2_s_initialized++;
+    ssh2_s_init_flags |= flags;
 
     return 0;
 }
 
 void libssh2_exit(void)
 {
-    if(s_initialized == 0)
+    if(ssh2_s_initialized == 0)
         return;
 
-    s_initialized--;
+    ssh2_s_initialized--;
 
-    if(s_initialized == 0 && !(s_init_flags & LIBSSH2_INIT_NO_CRYPTO))
+    if(ssh2_s_initialized == 0 &&
+       !(ssh2_s_init_flags & LIBSSH2_INIT_NO_CRYPTO))
         ssh2_crypto_exit();
 }
 
 void ssh2_init_if_needed(void)
 {
-    if(s_initialized == 0)
+    if(ssh2_s_initialized == 0)
         (void)libssh2_init(0);
 }

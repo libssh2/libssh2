@@ -816,10 +816,10 @@ struct privkey_mem {
     size_t data_len;
 };
 
-static int sign_frommemory(LIBSSH2_SESSION *session,
-                           unsigned char **sig, size_t *sig_len,
-                           const unsigned char *data, size_t data_len,
-                           void **abstract)
+static int userauth_sign_fromblob(LIBSSH2_SESSION *session,
+                                  unsigned char **sig, size_t *sig_len,
+                                  const unsigned char *data, size_t data_len,
+                                  void **abstract)
 {
     struct privkey_mem *pk_mem = (struct privkey_mem *)(*abstract);
     const struct hostkey_method *privkeyobj;
@@ -855,10 +855,10 @@ static int sign_frommemory(LIBSSH2_SESSION *session,
     return 0;
 }
 
-static int sign_fromfile(LIBSSH2_SESSION *session,
-                         unsigned char **sig, size_t *sig_len,
-                         const unsigned char *data, size_t data_len,
-                         void **abstract)
+static int userauth_sign_fromfile(LIBSSH2_SESSION *session,
+                                  unsigned char **sig, size_t *sig_len,
+                                  const unsigned char *data, size_t data_len,
+                                  void **abstract)
 {
     struct privkey_file *privkey_file = (struct privkey_file *)(*abstract);
     const struct hostkey_method *privkeyobj;
@@ -1259,7 +1259,7 @@ int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
     return rc;
 }
 
-size_t plain_method(char *method, size_t method_len)
+size_t ssh2_userauth_plain_method(char *method, size_t method_len)
 {
     if(!strncmp("ssh-rsa-cert-v01@openssh.com",
                 method, method_len))
@@ -1307,7 +1307,7 @@ size_t plain_method(char *method, size_t method_len)
  * (x being openssh major and y being openssh minor version)
  * Returns 1 if the version is less than OpenSSH_7.8, 0 otherwise
  */
-static int is_version_less_than_78(const char *version)
+static int userauth_is_version_less_than_78(const char *version)
 {
     char *endptr_major = NULL;
     char *endptr_minor = NULL;
@@ -1344,9 +1344,9 @@ static int is_version_less_than_78(const char *version)
  * @param key_method_len length of the key method buffer
  * @result error code or zero on success
  */
-static int key_sign_algorithm(LIBSSH2_SESSION *session,
-                              unsigned char **key_method,
-                              size_t *key_method_len)
+static int userauth_key_sign_algs(LIBSSH2_SESSION *session,
+                                  unsigned char **key_method,
+                                  size_t *key_method_len)
 {
     const char *s = NULL;
     const char *a = NULL;
@@ -1383,7 +1383,7 @@ static int key_sign_algorithm(LIBSSH2_SESSION *session,
         const char *remote_ver_start = strstr(remote_banner, remote_ver_pre);
         if(remote_ver_start) {
             const char *remote_ver = remote_ver_start + strlen(remote_ver_pre);
-            int SSH_BUG_SIGTYPE = is_version_less_than_78(remote_ver);
+            int SSH_BUG_SIGTYPE = userauth_is_version_less_than_78(remote_ver);
             if(SSH_BUG_SIGTYPE &&
                *key_method && *key_method_len == method_len &&
                !memcmp(*key_method, method, method_len)) {
@@ -1575,9 +1575,9 @@ retry_auth:
          * it is our first auth attempt, otherwise fallback to
          * the key default algo */
         if(auth_attempts == 1) {
-            rc = key_sign_algorithm(session,
-                                    &session->userauth_pblc_method,
-                                    &session->userauth_pblc_method_len);
+            rc = userauth_key_sign_algs(session,
+                                        &session->userauth_pblc_method,
+                                        &session->userauth_pblc_method_len);
 
             if(rc)
                 return rc;
@@ -1792,8 +1792,8 @@ retry_auth:
         session->userauth_pblc_b = NULL;
 
         session->userauth_pblc_method_len =
-            plain_method((char *)session->userauth_pblc_method,
-                         session->userauth_pblc_method_len);
+            ssh2_userauth_plain_method((char *)session->userauth_pblc_method,
+                                       session->userauth_pblc_method_len);
 
         if(!strncmp((const char *)session->userauth_pblc_method,
                     "sk-ecdsa-sha2-nistp256@openssh.com",
@@ -1936,7 +1936,7 @@ static int userauth_publickey_frommemory(LIBSSH2_SESSION *session,
 
     rc = ssh2_userauth_publickey(session, username, username_len,
                                  pubkeydata, pubkeydata_len,
-                                 sign_frommemory, &abstract);
+                                 userauth_sign_fromblob, &abstract);
     if(pubkeydata)
         SSH2_FREE(session, pubkeydata);
 
@@ -1986,7 +1986,7 @@ static int userauth_publickey_fromfile(LIBSSH2_SESSION *session,
 
     rc = ssh2_userauth_publickey(session, username, username_len,
                                  pubkeydata, pubkeydata_len,
-                                 sign_fromfile, &abstract);
+                                 userauth_sign_fromfile, &abstract);
     if(pubkeydata)
         SSH2_FREE(session, pubkeydata);
 
