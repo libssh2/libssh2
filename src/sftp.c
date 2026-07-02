@@ -1259,6 +1259,7 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
                 ssh2_deb((session, LIBSSH2_TRACE_SFTP, "got HANDLE FXOK"));
 
                 SSH2_FREE(session, data);
+                data = NULL;
 
                 /* silly situation, but check for a HANDLE */
                 rc = sftp_packet_require(sftp, SSH_FXP_HANDLE,
