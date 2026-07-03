@@ -3729,7 +3729,7 @@ clean_exit:
 
 #if LIBSSH2_ED25519
 
-int ssh2_ed25519_sign(ssh2_ed25519_ctx *ctx, LIBSSH2_SESSION *session,
+int ssh2_ed25519_sign(ssh2_ed25519_ctx *ed_ctx, LIBSSH2_SESSION *session,
                       uint8_t **out_sig, size_t *out_sig_len,
                       const uint8_t *message, size_t message_len)
 {
@@ -3739,7 +3739,7 @@ int ssh2_ed25519_sign(ssh2_ed25519_ctx *ctx, LIBSSH2_SESSION *session,
     unsigned char *sig = NULL;
 
     if(md_ctx) {
-        if(EVP_DigestSignInit(md_ctx, NULL, NULL, NULL, ctx) != 1)
+        if(EVP_DigestSignInit(md_ctx, NULL, NULL, NULL, ed_ctx) != 1)
             goto clean_exit;
         if(EVP_DigestSign(md_ctx, NULL, &sig_len, message, message_len) != 1)
             goto clean_exit;
@@ -3843,7 +3843,7 @@ clean_exit:
     return rc == 1 ? 0 : -1;
 }
 
-int ssh2_ed25519_verify(ssh2_ed25519_ctx *ctx, const uint8_t *s,
+int ssh2_ed25519_verify(ssh2_ed25519_ctx *ed_ctx, const uint8_t *s,
                         size_t s_len, const uint8_t *m, size_t m_len)
 {
     int ret = -1;
@@ -3852,7 +3852,7 @@ int ssh2_ed25519_verify(ssh2_ed25519_ctx *ctx, const uint8_t *s,
     if(!md_ctx)
         return -1;
 
-    ret = EVP_DigestVerifyInit(md_ctx, NULL, NULL, NULL, ctx);
+    ret = EVP_DigestVerifyInit(md_ctx, NULL, NULL, NULL, ed_ctx);
     if(ret != 1)
         goto clean_exit;
 
