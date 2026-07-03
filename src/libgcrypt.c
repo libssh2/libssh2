@@ -267,13 +267,12 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
 #if LIBSSH2_RSA
 int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                     LIBSSH2_SESSION *session,
-                                    const char *filedata,
-                                    size_t filedata_len,
+                                    const char *blob, size_t blob_len,
                                     const unsigned char *passphrase)
 {
     (void)rsa;
-    (void)filedata;
-    (void)filedata_len;
+    (void)blob;
+    (void)blob_len;
     (void)passphrase;
 
     return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
@@ -382,13 +381,12 @@ fail:
 #if LIBSSH2_DSA
 int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
                                     LIBSSH2_SESSION *session,
-                                    const char *filedata,
-                                    size_t filedata_len,
+                                    const char *blob, size_t blob_len,
                                     const unsigned char *passphrase)
 {
     (void)dsa;
-    (void)filedata;
-    (void)filedata_len;
+    (void)blob;
+    (void)blob_len;
     (void)passphrase;
 
     return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,

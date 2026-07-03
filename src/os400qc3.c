@@ -2161,8 +2161,7 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
 
 int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                     LIBSSH2_SESSION *session,
-                                    const char *filedata,
-                                    size_t filedata_len,
+                                    const char *blob, size_t blob_len,
                                     unsigned const char *passphrase)
 {
     ssh2_rsa_ctx *ctx = init_crypto_ctx(NULL);
@@ -2178,7 +2177,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
     ret = ssh2_pem_parse_memory(session,
                                 beginencprivkeyhdr, endencprivkeyhdr,
                                 passphrase,
-                                filedata, filedata_len, &data, &datalen);
+                                blob, blob_len, &data, &datalen);
 
     /* Try with "PRIVATE KEY" PEM armor.
        --> PKCS#8 PrivateKeyInfo or EncryptedPrivateKeyInfo */
@@ -2186,7 +2185,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
         ret = ssh2_pem_parse_memory(session,
                                     beginprivkeyhdr, endprivkeyhdr,
                                     passphrase,
-                                    filedata, filedata_len,
+                                    blob, blob_len,
                                     &data, &datalen);
 
     if(!ret) {
@@ -2200,7 +2199,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
         ret = ssh2_pem_parse_memory(session,
                                     beginrsaprivkeyhdr, endrsaprivkeyhdr,
                                     passphrase,
-                                    filedata, filedata_len,
+                                    blob, blob_len,
                                     &data, &datalen);
         if(!ret)
             ret = rsapkcs1privkey(session,
@@ -2210,13 +2209,13 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
     if(ret) {
         /* Try as PKCS#8 DER data.
            --> PKCS#8 PrivateKeyInfo or EncryptedPrivateKeyInfo */
-        ret = rsapkcs8privkey(session, filedata, filedata_len,
+        ret = rsapkcs8privkey(session, blob, blob_len,
                               passphrase, (void *)&ctx);
 
         /* Try as PKCS#1 DER data.
            --> PKCS#1 RSAPrivateKey */
         if(ret)
-            ret = rsapkcs1privkey(session, filedata, filedata_len,
+            ret = rsapkcs1privkey(session, blob, blob_len,
                                   passphrase, (void *)&ctx);
     }
 

@@ -1398,14 +1398,14 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
 
 int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                     LIBSSH2_SESSION *session,
-                                    const char *filedata, size_t filedata_len,
+                                    const char *blob, size_t blob_len,
                                     const unsigned char *passphrase)
 {
     unsigned char *pbEncoded;
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_private_memory(session, filedata, filedata_len,
+    ret = wcng_load_private_memory(session, blob, blob_len,
                                    passphrase, &pbEncoded, &cbEncoded, 1, 0);
     if(ret)
         return -1;
@@ -1687,14 +1687,14 @@ int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
 
 int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
                                     LIBSSH2_SESSION *session,
-                                    const char *filedata, size_t filedata_len,
+                                    const char *blob, size_t blob_len,
                                     const unsigned char *passphrase)
 {
     unsigned char *pbEncoded;
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_private_memory(session, filedata, filedata_len,
+    ret = wcng_load_private_memory(session, blob, blob_len,
                                    passphrase, &pbEncoded, &cbEncoded, 0, 1);
     if(ret)
         return -1;
@@ -2619,8 +2619,7 @@ cleanup:
  */
 int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **ec_ctx,
                                       IN LIBSSH2_SESSION *session,
-                                      IN const char *filedata,
-                                      IN size_t filedata_len,
+                                      IN const char *blob, IN size_t blob_len,
                                       IN const unsigned char *passphrase)
 {
     int result;
@@ -2632,7 +2631,7 @@ int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **ec_ctx,
     size_t privatekey_len;
 
     /* Validate parameters */
-    if(!ec_ctx || !session || !filedata)
+    if(!ec_ctx || !session || !blob)
         return LIBSSH2_ERROR_INVAL;
 
     *ec_ctx = NULL;
@@ -2643,15 +2642,15 @@ int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **ec_ctx,
                         "files are unsupported");
 
     /* Read OPENSSH_PRIVKEY_AUTH_MAGIC */
-    if(filedata_len < sizeof(OPENSSH_PRIVKEY_AUTH_MAGIC) ||
-       memcmp(filedata, OPENSSH_PRIVKEY_AUTH_MAGIC,
+    if(blob_len < sizeof(OPENSSH_PRIVKEY_AUTH_MAGIC) ||
+       memcmp(blob, OPENSSH_PRIVKEY_AUTH_MAGIC,
               sizeof(OPENSSH_PRIVKEY_AUTH_MAGIC))) {
         result = -1;
         goto cleanup;
     }
 
-    data_buffer.len = filedata_len;
-    data_buffer.data = (unsigned char *)SSH2_UNCONST(filedata);
+    data_buffer.len = blob_len;
+    data_buffer.data = (unsigned char *)SSH2_UNCONST(blob);
     data_buffer.dataptr = data_buffer.data +
                           sizeof(OPENSSH_PRIVKEY_AUTH_MAGIC);
 
