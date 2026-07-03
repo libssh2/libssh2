@@ -465,7 +465,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                passphrase, pwd_len,
                                mbedtls_ctr_drbg_random,
                                &mbed_ctr_drbg);
-    mbed_safe_free(blob_nullterm, blob_len);
+    mbed_safe_free(blob_nullterm, blob_len + 1);
 
     if(ret || mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_RSA) {
         mbedtls_pk_free(&pkey);
