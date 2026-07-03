@@ -1139,8 +1139,7 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
 
         /* packet_len(4) + packet_type(1) + request_id(4) + filename_len(4) +
            flags(4) */
-        packet_len = (13 +
-                     (open_file ? (4 + sftp_attrsize(attrs.flags)) : 0));
+        packet_len = 13 + (open_file ? (4 + sftp_attrsize(attrs.flags)) : 0);
 
         if(packet_len + (uint32_t)filename_len < packet_len) {
             ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -1414,8 +1413,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
        ssh2_NB_state_sent2: In the third phase we read the data from
        the responses that have arrived so far.  Reading can be interrupted with
        EAGAIN but the state machine ensures we skip the first and second phases
-       on the next call and resume sending.
-    */
+       on the next call and resume sending. */
 
     switch(sftp->read_state) {
     case ssh2_NB_state_idle:
@@ -1477,8 +1475,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                away multiple read requests guessing that the client reads
                more than only this 'buffer_size' amount of memory. We thus ask
                for maximum buffer_size*4 amount of data so that we can return
-               them fast in subsequent calls.
-            */
+               them fast in subsequent calls. */
 
             recv_window = libssh2_channel_window_read_ex(sftp->channel,
                                                          NULL, NULL);
@@ -2002,7 +1999,7 @@ int libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle,
  *
  * - Detect how much of the given buffer that was already sent in a previous
  *   call by inspecting the linked list of outgoing chunks. Make sure to skip
- *   passed the data that has already been taken care of.
+ *   past the data that has already been taken care of.
  *
  * - Split all (new) outgoing data in chunks no larger than N.
  *
@@ -2054,8 +2051,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
 
            Also, add up the number of bytes that actually already have been
            acked but we have not been able to return as such yet, so we
-           get that data as well passed in here again.
-        */
+           get that data as well passed in here again. */
         already = (size_t)(handle->u.file.offset_sent -
                            handle->u.file.offset) + handle->u.file.acked;
 
@@ -3231,7 +3227,7 @@ static int sftp_statvfs(LIBSSH2_SFTP *sftp,
         if(data_len > 0)
             SSH2_FREE(session, data);
         return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-                        "SFTP fstat packet too short");
+                        "SFTP statvfs packet too short");
     }
     else if(rc) {
         sftp->statvfs_state = ssh2_NB_state_idle;

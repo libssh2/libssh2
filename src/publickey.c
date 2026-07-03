@@ -308,10 +308,10 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
 
     if(session->pkeyInit_state == ssh2_NB_state_sent) {
         rc = ssh2_channel_process_startup(session->pkeyInit_channel,
-                                              "subsystem",
-                                              sizeof("subsystem") - 1,
-                                              "publickey",
-                                              sizeof("publickey") - 1);
+                                          "subsystem",
+                                          sizeof("subsystem") - 1,
+                                          "publickey",
+                                          sizeof("publickey") - 1);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
                      "Would block starting publickey subsystem");
@@ -547,8 +547,8 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
 {
     LIBSSH2_CHANNEL *channel;
     LIBSSH2_SESSION *session;
-    /*  19 = packet_len(4) + add_len(4) + "add"(3) + name_len(4) + {name}
-        blob_len(4) + {blob} */
+    /* 19 = packet_len(4) + add_len(4) + "add"(3) + name_len(4) + {name}
+       blob_len(4) + {blob} */
     unsigned long i, packet_len = 19 + name_len + blob_len;
     const unsigned char *comment = NULL;
     unsigned long comment_len = 0;
@@ -581,15 +581,15 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
         else {
             packet_len += 5; /* overwrite(1) + attribute_count(4) */
             for(i = 0; i < num_attrs; i++)
-                packet_len += 9 + attrs[i].name_len + attrs[i].value_len;
                 /* name_len(4) + value_len(4) + mandatory(1) */
+                packet_len += 9 + attrs[i].name_len + attrs[i].value_len;
         }
 
         pkey->add_packet = SSH2_ALLOC(session, packet_len);
         if(!pkey->add_packet)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate memory for "
-                            "publickey \"add\" packet");
+                            "publickey 'add' packet");
 
         pkey->add_s = pkey->add_packet;
         ssh2_htonu32(pkey->add_s, (uint32_t)(packet_len - 4));
@@ -643,7 +643,7 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
         }
 
         ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
-                  "Sending publickey \"add\" packet: "
+                  "Sending publickey 'add' packet: "
                   "type=%s blob_len=%lu num_attrs=%lu",
                   name, blob_len, num_attrs));
 
@@ -704,7 +704,7 @@ int libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
         if(!pkey->remove_packet)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate memory for "
-                            "publickey \"remove\" packet");
+                            "publickey 'remove' packet");
 
         pkey->remove_s = pkey->remove_packet;
         ssh2_htonu32(pkey->remove_s, (uint32_t)(packet_len - 4));
@@ -723,7 +723,7 @@ int libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
         pkey->remove_s += blob_len;
 
         ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
-                  "Sending publickey \"remove\" packet: "
+                  "Sending publickey 'remove' packet: "
                   "type=%s blob_len=%lu", name, blob_len));
 
         pkey->remove_state = ssh2_NB_state_created;
@@ -764,8 +764,8 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
     LIBSSH2_CHANNEL *channel;
     LIBSSH2_SESSION *session;
     libssh2_publickey_list *list = NULL;
-    unsigned long buffer_len = 12, keys = 0, max_keys = 0, i;
     /* 12 = packet_len(4) + list_len(4) + "list"(4) */
+    unsigned long buffer_len = 12, keys = 0, max_keys = 0, i;
     int response;
     int rc;
 
@@ -787,7 +787,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
         pkey->listFetch_s += sizeof("list") - 1;
 
         ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
-                  "Sending publickey \"list\" packet"));
+                  "Sending publickey 'list' packet"));
 
         pkey->listFetch_state = ssh2_NB_state_created;
     }

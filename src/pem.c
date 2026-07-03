@@ -65,8 +65,8 @@ static int pem_readline_file(char *line, int line_size, FILE *fp)
 }
 
 static int pem_readline_blob(char *line, size_t line_size,
-                           const char *filedata, size_t filedata_len,
-                           size_t *filedata_offset)
+                             const char *filedata, size_t filedata_len,
+                             size_t *filedata_offset)
 {
     size_t off, len;
 

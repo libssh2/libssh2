@@ -724,11 +724,11 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
         switch(msg) {
 
             /*
-              byte      SSH_MSG_DISCONNECT
-              uint32    reason code
-              string    description in ISO-10646 UTF-8 encoding [RFC3629]
-              string    language tag [RFC3066]
-            */
+               byte      SSH_MSG_DISCONNECT
+               uint32    reason code
+               string    description in ISO-10646 UTF-8 encoding [RFC3629]
+               string    language tag [RFC3066]
+             */
 
         case SSH_MSG_DISCONNECT:
             if(datalen >= 5) {
@@ -760,9 +760,9 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
                             "socket disconnect");
             /*
-              byte      SSH_MSG_IGNORE
-              string    data
-            */
+               byte      SSH_MSG_IGNORE
+               string    data
+             */
 
         case SSH_MSG_IGNORE:
             if(datalen >= 2) {
@@ -777,11 +777,11 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
             return 0;
 
             /*
-              byte      SSH_MSG_DEBUG
-              boolean   always_display
-              string    message in ISO-10646 UTF-8 encoding [RFC3629]
-              string    language tag [RFC3066]
-            */
+               byte      SSH_MSG_DEBUG
+               boolean   always_display
+               string    message in ISO-10646 UTF-8 encoding [RFC3629]
+               string    language tag [RFC3066]
+             */
 
         case SSH_MSG_DEBUG:
             if(datalen >= 2) {
@@ -811,12 +811,12 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
             return 0;
 
             /*
-              byte      SSH_MSG_EXT_INFO
-              uint32    nr-extensions
-              [repeat   "nr-extensions" times]
-              string    extension-name  [RFC8308]
-              string    extension-value (binary)
-            */
+               byte      SSH_MSG_EXT_INFO
+               uint32    nr-extensions
+               [repeat   "nr-extensions" times]
+               string    extension-name  [RFC8308]
+               string    extension-value (binary)
+             */
 
         case SSH_MSG_EXT_INFO:
             if(datalen >= 5) {
@@ -877,11 +877,11 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
             return rc;
 
             /*
-              byte      SSH_MSG_GLOBAL_REQUEST
-              string    request name in US-ASCII only
-              boolean   want reply
-              ....      request-specific data follows
-            */
+               byte      SSH_MSG_GLOBAL_REQUEST
+               string    request name in US-ASCII only
+               boolean   want reply
+               ....      request-specific data follows
+             */
 
         case SSH_MSG_GLOBAL_REQUEST:
             if(datalen >= 5) {
@@ -909,11 +909,11 @@ ssh2_packet_add_jump_point5:
             return 0;
 
             /*
-              byte      SSH_MSG_CHANNEL_EXTENDED_DATA
-              uint32    recipient channel
-              uint32    data_type_code
-              string    data
-            */
+               byte      SSH_MSG_CHANNEL_EXTENDED_DATA
+               uint32    recipient channel
+               uint32    data_type_code
+               string    data
+             */
 
         case SSH_MSG_CHANNEL_EXTENDED_DATA:
             /* streamid(4) */
@@ -922,10 +922,10 @@ ssh2_packet_add_jump_point5:
             SSH2_FALLTHROUGH();
 
             /*
-              byte      SSH_MSG_CHANNEL_DATA
-              uint32    recipient channel
-              string    data
-            */
+               byte      SSH_MSG_CHANNEL_DATA
+               uint32    recipient channel
+               string    data
+             */
 
         case SSH_MSG_CHANNEL_DATA:
             /* packet_type(1) + channelno(4) + datalen(4) */
@@ -1046,9 +1046,9 @@ ssh2_packet_add_jump_point1:
             break;
 
             /*
-              byte      SSH_MSG_CHANNEL_EOF
-              uint32    recipient channel
-            */
+               byte      SSH_MSG_CHANNEL_EOF
+               uint32    recipient channel
+             */
 
         case SSH_MSG_CHANNEL_EOF:
             if(datalen >= 5)
@@ -1068,12 +1068,12 @@ ssh2_packet_add_jump_point1:
             return 0;
 
             /*
-              byte      SSH_MSG_CHANNEL_REQUEST
-              uint32    recipient channel
-              string    request type in US-ASCII characters only
-              boolean   want reply
-              ....      type-specific data follows
-            */
+               byte      SSH_MSG_CHANNEL_REQUEST
+               uint32    recipient channel
+               string    request type in US-ASCII characters only
+               boolean   want reply
+               ....      type-specific data follows
+             */
 
         case SSH_MSG_CHANNEL_REQUEST:
             if(datalen >= 9) {
@@ -1198,9 +1198,9 @@ clean_exit:
             return rc;
 
             /*
-              byte      SSH_MSG_CHANNEL_CLOSE
-              uint32    recipient channel
-            */
+               byte      SSH_MSG_CHANNEL_CLOSE
+               uint32    recipient channel
+             */
 
         case SSH_MSG_CHANNEL_CLOSE:
             if(datalen >= 5)
@@ -1224,12 +1224,12 @@ clean_exit:
             return 0;
 
             /*
-              byte      SSH_MSG_CHANNEL_OPEN
-              string    "session"
-              uint32    sender channel
-              uint32    initial window size
-              uint32    maximum packet size
-            */
+               byte      SSH_MSG_CHANNEL_OPEN
+               string    "session"
+               uint32    sender channel
+               uint32    initial window size
+               uint32    maximum packet size
+             */
 
         case SSH_MSG_CHANNEL_OPEN:
             if(datalen < 17)
@@ -1284,10 +1284,10 @@ ssh2_packet_add_jump_authagent:
             return rc;
 
             /*
-              byte      SSH_MSG_CHANNEL_WINDOW_ADJUST
-              uint32    recipient channel
-              uint32    bytes to add
-            */
+               byte      SSH_MSG_CHANNEL_WINDOW_ADJUST
+               uint32    recipient channel
+               uint32    bytes to add
+             */
         case SSH_MSG_CHANNEL_WINDOW_ADJUST:
             if(datalen < 9)
                 ;

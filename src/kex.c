@@ -1843,7 +1843,6 @@ static int kex_method_ecdh_key_exchange(
         rc = ssh2_ecdsa_create_key(session, &key_state->private_key,
                                    &key_state->public_key_oct,
                                    &key_state->public_key_oct_len, type);
-
         if(rc) {
             ret = ssh2_err(session, rc, "Unable to create private key");
             goto ecdh_clean_exit;

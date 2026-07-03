@@ -530,7 +530,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                 /* we cannot act on anything less than blocksize, but this
                    check is only done for the initial block since once we have
                    got the start of a block we can in fact deal with fractions
-                */
+                 */
                 session->socket_block_directions |=
                     LIBSSH2_SESSION_BLOCK_INBOUND;
                 return LIBSSH2_ERROR_EAGAIN;

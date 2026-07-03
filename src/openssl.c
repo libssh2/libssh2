@@ -74,7 +74,6 @@ int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const EVP_MD *digest)
 #endif
 
     *ctx = EVP_MD_CTX_new();
-
     if(!*ctx)
         return 0;
 
@@ -771,10 +770,8 @@ int ssh2_ecdsa_curve_name_with_octal_new(
 
         params[0] = OSSL_PARAM_construct_utf8_string(
             OSSL_PKEY_PARAM_GROUP_NAME, group_name, 0);
-
         params[1] = OSSL_PARAM_construct_octet_string(
             OSSL_PKEY_PARAM_PUB_KEY, data, publickey_encoded_len);
-
         params[2] = OSSL_PARAM_construct_end();
 
         if(EVP_PKEY_fromdata_init(ctx) > 0)
@@ -1092,7 +1089,6 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
         rc = ossl_key_from_openssh_blob(session, (void **)rsa, "ssh-rsa",
                                         NULL, NULL, NULL, NULL,
                                         blob, blob_len, passphrase);
-
     return rc;
 }
 
@@ -1445,6 +1441,7 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
                                           SSH2_UNCONST(passphrase));
 #endif
     BIO_free(bp);
+
     if(!*rsa)
         rc = ossl_rsa_openssh_priv_new(rsa, session, filename, passphrase);
 
@@ -1473,11 +1470,11 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
                                           SSH2_UNCONST(passphrase));
 #endif
     BIO_free(bp);
+
     if(!*dsa)
         rc = ossl_key_from_openssh_blob(session, (void **)dsa, "ssh-dsa",
                                         NULL, NULL, NULL, NULL,
                                         blob, blob_len, passphrase);
-
     return rc;
 }
 
@@ -1760,6 +1757,7 @@ int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
                                           SSH2_UNCONST(passphrase));
 #endif
     BIO_free(bp);
+
     if(!*dsa)
         rc = ossl_dsa_openssh_priv_new(dsa, session, filename, passphrase);
 
@@ -1788,11 +1786,11 @@ int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
                                             SSH2_UNCONST(passphrase));
 #endif
     BIO_free(bp);
+
     if(!*ec_ctx)
         rc = ossl_key_from_openssh_blob(session, (void **)ec_ctx, "ssh-ecdsa",
                                         NULL, NULL, NULL, NULL,
                                         blob, blob_len, passphrase);
-
     return rc;
 }
 
@@ -2545,7 +2543,6 @@ int ssh2_mlkem_get_sk(unsigned char *out_shared_key, int mlkem_size,
 
     client_key = EVP_PKEY_new_raw_private_key_ex(NULL, evp_name,
                                                  NULL, private_key, privLen);
-
     if(!client_key)
         goto clean_exit;
 
@@ -2608,7 +2605,6 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
     sig_len = RSA_size(rsa);
     sig = SSH2_ALLOC(session, sig_len);
 #endif
-
     if(!sig)
         return -1;
 
@@ -2711,7 +2707,6 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
 
     sig = DSA_do_sign(hash, SSH2_SHA1_DIG_LEN, dsa);
 #endif
-
     if(!sig)
         return -1;
 
@@ -3034,12 +3029,10 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
         return -1;
 
     fromdata_ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
-
     if(!fromdata_ctx)
         goto fail;
 
     group_name = OPENSSL_zalloc(strlen(n) + 1);
-
     if(!group_name)
         goto fail;
 
@@ -3049,13 +3042,10 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
 
     params[0] = OSSL_PARAM_construct_utf8_string(OSSL_PKEY_PARAM_GROUP_NAME,
                                                  group_name, 0);
-
     params[1] = OSSL_PARAM_construct_octet_string(OSSL_PKEY_PARAM_PUB_KEY,
                                                   point_buf, pointlen);
-
     params[2] = OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_PRIV_KEY, exponent,
                                         exponentlen);
-
     params[3] = OSSL_PARAM_construct_end();
 
     if(EVP_PKEY_fromdata_init(fromdata_ctx) <= 0)
@@ -3211,7 +3201,6 @@ static int ossl_ecdsa_sk_openssh_priv_to_pubkey(
     if(rc == 0 && pubkeydata) {
         key_len = *pubkeydata_len + app_len + 4;
         key = SSH2_ALLOC(session, key_len);
-
         if(!key) {
             rc = -1;
             goto fail;
@@ -3387,10 +3376,10 @@ int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
                                             SSH2_UNCONST(passphrase));
 #endif
     BIO_free(bp);
+
     if(!*ec_ctx)
         rc = ossl_ecdsa_openssh_priv_new(ec_ctx, session, filename,
                                          passphrase);
-
     return rc;
 }
 
@@ -3418,11 +3407,11 @@ int ssh2_ecdsa_new_private_sk(ssh2_ecdsa_ctx **ec_ctx,
                                             SSH2_UNCONST(passphrase));
 #endif
     BIO_free(bp);
+
     if(!*ec_ctx)
         rc = ossl_ecdsa_sk_openssh_priv_new(ec_ctx, flags, application,
                                             key_handle, handle_len, session,
                                             filename, passphrase);
-
     return rc;
 }
 
@@ -3443,7 +3432,6 @@ int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
 
 #ifdef USE_OPENSSL_3
     EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
-
     if(ctx &&
        EVP_PKEY_keygen_init(ctx) > 0 &&
        EVP_PKEY_CTX_set_ec_paramgen_curve_nid(ctx, curve) > 0) {
@@ -3458,12 +3446,10 @@ int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
 
     ret = EVP_PKEY_get_octet_string_param(private_key, OSSL_PKEY_PARAM_PUB_KEY,
                                           NULL, 0, &octal_len);
-
     if(ret <= 0)
         goto clean_exit;
 
     *out_public_key_octal = SSH2_ALLOC(session, octal_len);
-
     if(!*out_public_key_octal) {
         ret = -1;
         goto clean_exit;
@@ -3471,7 +3457,6 @@ int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
 
     ret = EVP_PKEY_get_octet_string_param(private_key, OSSL_PKEY_PARAM_PUB_KEY,
                                           octal_value, octal_len, &octal_len);
-
     if(ret <= 0)
         goto clean_exit;
 
@@ -3575,13 +3560,11 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
     ret = EVP_PKEY_get_utf8_string_param(private_key,
                                          OSSL_PKEY_PARAM_GROUP_NAME,
                                          NULL, 0, &group_name_len);
-
     if(ret <= 0)
         goto clean_exit;
 
     group_name_len += 1;
     group_name = OPENSSL_zalloc(group_name_len);
-
     if(!group_name)
         goto clean_exit;
 
@@ -3589,12 +3572,10 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
                                          OSSL_PKEY_PARAM_GROUP_NAME,
                                          group_name, group_name_len,
                                          &group_name_len);
-
     if(ret <= 0)
         goto clean_exit;
 
     out_shared_key = OPENSSL_malloc(server_public_key_len);
-
     if(!out_shared_key)
         goto clean_exit;
 
@@ -3602,11 +3583,9 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
 
     params[0] = OSSL_PARAM_construct_utf8_string(OSSL_PKEY_PARAM_GROUP_NAME,
                                                  group_name, 0);
-
     params[1] = OSSL_PARAM_construct_octet_string(OSSL_PKEY_PARAM_PUB_KEY,
                                                   out_shared_key,
                                                   server_public_key_len);
-
     params[2] = OSSL_PARAM_construct_end();
 
     ret = EVP_PKEY_fromdata_init(key_fromdata_ctx);
@@ -3615,12 +3594,10 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
 
     ret = EVP_PKEY_fromdata(key_fromdata_ctx, &peer_key,
                             EVP_PKEY_PUBLIC_KEY, params);
-
     if(ret <= 0)
         goto clean_exit;
 
     server_key = private_key;
-
     if(!peer_key || !server_key)
         goto clean_exit;
 
@@ -3654,7 +3631,6 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
     EC_POINT *server_public_key_point;
 
     bn_ctx = BN_CTX_new();
-
     if(!bn_ctx)
         return -1;
 
@@ -3788,11 +3764,9 @@ int ssh2_curve25519_gen_k(ssh2_bn **k,
     peer_key = EVP_PKEY_new_raw_public_key(EVP_PKEY_X25519, NULL,
                                            server_public_key,
                                            SSH2_ED25519_KEY_LEN);
-
     server_key = EVP_PKEY_new_raw_private_key(EVP_PKEY_X25519, NULL,
                                               private_key,
                                               SSH2_ED25519_KEY_LEN);
-
     if(!peer_key || !server_key)
         goto clean_exit;
 
@@ -4371,7 +4345,6 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                                            key_handle, handle_len,
                                            privatekeydata, privatekeydata_len,
                                            (const unsigned char *)passphrase);
-
     return st;
 }
 

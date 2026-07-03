@@ -99,8 +99,8 @@ LIBSSH2_CHANNEL *ssh2_channel_locate(LIBSSH2_SESSION *session,
     }
 
     /* We did not find the channel in the session, let us then check its
-       listeners since each listener may have its own set of pending channels
-    */
+       listeners since each listener may have its own set of pending
+       channels */
     for(l = ssh2_list_first(&session->listeners); l;
         l = ssh2_list_next(&l->node)) {
         for(channel = ssh2_list_first(&l->queue); channel;
@@ -137,7 +137,7 @@ LIBSSH2_CHANNEL *ssh2_channel_open(LIBSSH2_SESSION *session,
         session->open_packet = NULL;
         session->open_data = NULL;
         /* 17 = packet_type(1) + channel_type_len(4) + sender_channel(4) +
-         * window_size(4) + packet_size(4) */
+           window_size(4) + packet_size(4) */
         session->open_packet_len = channel_type_len + 17;
         session->open_local_channel = ssh2_channel_nextid(session);
 
@@ -829,7 +829,7 @@ static int channel_setenv(LIBSSH2_CHANNEL *channel,
 
     if(channel->setenv_state == ssh2_NB_state_idle) {
         /* 21 = packet_type(1) + channel_id(4) + request_len(4) +
-         * request(3)"env" + want_reply(1) + varname_len(4) + value_len(4) */
+           request(3)"env" + want_reply(1) + varname_len(4) + value_len(4) */
         channel->setenv_packet_len = varname_len + value_len + 21;
 
         /* Zero the whole thing out */
@@ -945,8 +945,8 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
 
     if(channel->reqPTY_state == ssh2_NB_state_idle) {
         /* 41 = packet_type(1) + channel(4) + pty_req_len(4) + "pty_req"(7) +
-         * want_reply(1) + term_len(4) + width(4) + height(4) + width_px(4) +
-         * height_px(4) + modes_len(4) */
+           want_reply(1) + term_len(4) + width(4) + height(4) + width_px(4) +
+           height_px(4) + modes_len(4) */
         if(term_len + modes_len > 256)
             return ssh2_err(session, LIBSSH2_ERROR_INVAL,
                             "term + mode lengths too large");
@@ -1038,15 +1038,14 @@ static int channel_request_auth_agent(LIBSSH2_CHANNEL *channel,
 
     if(channel->req_auth_agent_state == ssh2_NB_state_idle) {
         /* Only valid options are "auth-agent-req" and
-         * "auth-agent-req_at_openssh.com" so we make sure it is not
-         * actually longer than the longest possible. */
+           "auth-agent-req_at_openssh.com" so we make sure it is not
+           actually longer than the longest possible. */
         if(request_str_len > 26)
             return ssh2_err(session, LIBSSH2_ERROR_INVAL,
                             "request_str length too large");
 
-        /*
-         *  Length: 24 or 36 = packet_type(1) + channel(4) + req_len(4) +
-         *    request_str (variable) + want_reply (1) */
+        /* Length: 24 or 36 = packet_type(1) + channel(4) + req_len(4) +
+           request_str (variable) + want_reply (1) */
         channel->req_auth_agent_packet_len = 10 + request_str_len;
 
         /* Zero out the requireev state to reset */
@@ -1058,11 +1057,11 @@ static int channel_request_auth_agent(LIBSSH2_CHANNEL *channel,
                   channel->local.id, channel->remote.id));
 
         /*
-         *  byte      SSH_MSG_CHANNEL_REQUEST
-         *  uint32    recipient channel
-         *  string    "auth-agent-req"
-         *  boolean   want reply
-         * */
+         * byte      SSH_MSG_CHANNEL_REQUEST
+         * uint32    recipient channel
+         * string    "auth-agent-req"
+         * boolean   want reply
+         */
         s = channel->req_auth_agent_packet;
         *(s++) = SSH_MSG_CHANNEL_REQUEST;
         ssh2_store_u32(&s, channel->remote.id);
@@ -1074,7 +1073,7 @@ static int channel_request_auth_agent(LIBSSH2_CHANNEL *channel,
 
     if(channel->req_auth_agent_state == ssh2_NB_state_created) {
         /* Send the packet, we can use sizeof() on the packet because it
-         * is always completely filled; there are no variable length fields. */
+           is always completely filled; there are no variable length fields. */
         rc = ssh2_transport_send(session, channel->req_auth_agent_packet,
                                  channel->req_auth_agent_packet_len, NULL, 0);
 
@@ -1145,7 +1144,7 @@ int libssh2_channel_request_auth_agent(LIBSSH2_CHANNEL *channel)
                                                 26));
 
         /* If we failed (but not with EAGAIN), then we move onto
-         * the next step to try another request type. */
+           the next step to try another request type. */
         if(rc != LIBSSH2_ERROR_NONE &&
            rc != LIBSSH2_ERROR_EAGAIN)
             channel->req_auth_agent_try_state = ssh2_NB_state_sent;
@@ -1157,7 +1156,7 @@ int libssh2_channel_request_auth_agent(LIBSSH2_CHANNEL *channel)
                                                 "auth-agent-req", 14));
 
         /* If we failed without an EAGAIN, then move on with this
-         * state machine. */
+           state machine. */
         if(rc != LIBSSH2_ERROR_NONE &&
            rc != LIBSSH2_ERROR_EAGAIN)
             channel->req_auth_agent_try_state = ssh2_NB_state_sent1;
@@ -1282,8 +1281,8 @@ static int channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
 
     if(channel->reqX11_state == ssh2_NB_state_idle) {
         /* 30 = packet_type(1) + channel(4) + x11_req_len(4) + "x11-req"(7) +
-         * want_reply(1) + single_cnx(1) + proto_len(4) + cookie_len(4) +
-         * screen_num(4) */
+           want_reply(1) + single_cnx(1) + proto_len(4) + cookie_len(4) +
+           screen_num(4) */
         channel->reqX11_packet_len = proto_len + cookie_len + 30;
 
         /* Zero the whole thing out */
@@ -1955,8 +1954,7 @@ ssize_t ssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
 
            We may have a series of packets to read that are still pending even
            if a close has been received. Acknowledging the close too early
-           makes us flush buffers prematurely and loose data.
-        */
+           makes us flush buffers prematurely and loose data. */
 
         struct packet *readpkt = read_packet;
 
@@ -2189,7 +2187,7 @@ ssize_t ssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
                             "data might be ignored");
 
         /* drain the incoming flow first, mostly to make sure we get all
-         * pending window adjust packets */
+           pending window adjust packets */
         do
             rc = ssh2_transport_read(session);
         while(rc > 0);
@@ -2441,7 +2439,7 @@ int ssh2_channel_close(LIBSSH2_CHANNEL *channel)
 
     if(channel->local.close) {
         /* Already closed, act like we sent another close,
-         * even though we did not... shhhhhh */
+           even though we did not... shhhhhh */
         channel->close_state = ssh2_NB_state_idle;
         return 0;
     }
@@ -2487,7 +2485,6 @@ int ssh2_channel_close(LIBSSH2_CHANNEL *channel)
 
     if(channel->close_state == ssh2_NB_state_sent) {
         /* We must wait for the remote SSH_MSG_CHANNEL_CLOSE message */
-
         while(!channel->remote.close && !rc &&
               (session->socket_state != SSH2_SOCKET_DISCONNECTED))
             rc = ssh2_transport_read(session);
@@ -2545,10 +2542,8 @@ static int channel_wait_closed(LIBSSH2_CHANNEL *channel)
         channel->wait_closed_state = ssh2_NB_state_created;
     }
 
-    /*
-     * While channel is not closed, read more packets from the network.
-     * Either the channel is closed or network timeout occurs.
-     */
+    /* While channel is not closed, read more packets from the network.
+       Either the channel is closed or network timeout occurs. */
     if(!channel->remote.close) {
         do {
             rc = ssh2_transport_read(session);
@@ -2771,7 +2766,7 @@ unsigned long libssh2_channel_window_write_ex(
 
     if(window_size_initial)
         /* For locally initiated channels this is often 0, so it is not
-         * *that* useful as information goes */
+           *that* useful as information goes */
         *window_size_initial = channel->local.window_size_initial;
 
     return channel->local.window_size;
