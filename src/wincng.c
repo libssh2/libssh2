@@ -2155,9 +2155,11 @@ int ssh2_ecdsa_create_key(IN LIBSSH2_SESSION *session,
         key_handle,
         out_public_key_octal,
         out_public_key_octal_len);
-    if(result != LIBSSH2_ERROR_NONE)
+    if(result != LIBSSH2_ERROR_NONE) {
         result = ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                           "Exporting ECDH key pair failed");
+        goto cleanup;
+    }
 
     *out_private_key = malloc(sizeof(struct wcng_ecdsa_ctx));
     if(!*out_private_key) {
