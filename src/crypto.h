@@ -152,10 +152,10 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
                                     const char *filedata,
                                     size_t filedata_len,
                                     const unsigned char *passphrase);
-int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
+int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char *signature);
-int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
+int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
                         const unsigned char *sig,
                         const unsigned char *m, size_t m_len);
 #endif

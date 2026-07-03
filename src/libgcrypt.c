@@ -547,18 +547,18 @@ out:
 }
 
 #if LIBSSH2_RSA_SHA1
-int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
-    return ssh2_rsa_sha2_sign(session, rsactx, hash, hash_len,
+    return ssh2_rsa_sha2_sign(session, rsa, hash, hash_len,
                               signature, signature_len);
 }
 #endif
 #endif
 
 #if LIBSSH2_DSA
-int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
+int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char *signature)
 {
@@ -579,7 +579,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
                        (int)(hash_len + 1), zhash))
         return -1;
 
-    ret = gcry_pk_sign(&sig_sexp, data, dsactx);
+    ret = gcry_pk_sign(&sig_sexp, data, dsa);
 
     gcry_sexp_release(data);
 
@@ -642,7 +642,7 @@ out:
     return ret;
 }
 
-int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
+int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
                          const unsigned char *sig,
                          const unsigned char *m, size_t m_len)
 {
@@ -664,7 +664,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
         return -1;
     }
 
-    rc = gcry_pk_verify(s_sig, s_hash, dsactx);
+    rc = gcry_pk_verify(s_sig, s_hash, dsa);
     gcry_sexp_release(s_sig);
     gcry_sexp_release(s_hash);
 

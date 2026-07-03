@@ -1702,15 +1702,15 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
     return wcng_dsa_new_private_parse(dsa, session, pbEncoded, cbEncoded);
 }
 
-int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
+int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
                          const unsigned char *sig,
                          const unsigned char *m, size_t m_len)
 {
-    return wcng_key_sha_verify(dsactx, SSH2_SHA1_DIG_LEN, sig,
+    return wcng_key_sha_verify(dsa, SSH2_SHA1_DIG_LEN, sig,
                                40, m, (ULONG)m_len, 0);
 }
 
-int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
+int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char *signature)
 {
@@ -1725,14 +1725,14 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
 
     memcpy(data, hash, datalen);
 
-    ret = BCryptSignHash(dsactx->hKey, NULL, data, datalen,
+    ret = BCryptSignHash(dsa->hKey, NULL, data, datalen,
                          NULL, 0, &cbData, 0);
     if(BCRYPT_SUCCESS(ret)) {
         siglen = cbData;
         if(siglen == 40) {
             sig = malloc(siglen);
             if(sig) {
-                ret = BCryptSignHash(dsactx->hKey, NULL, data, datalen,
+                ret = BCryptSignHash(dsa->hKey, NULL, data, datalen,
                                      sig, siglen, &cbData, 0);
                 if(BCRYPT_SUCCESS(ret))
                     memcpy(signature, sig, siglen);

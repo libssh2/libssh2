@@ -629,7 +629,7 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
 #endif /* USE_OPENSSL_3 */
 }
 
-int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
+int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
                          const unsigned char *sig,
                          const unsigned char *m, size_t m_len)
 {
@@ -654,7 +654,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
     DSA_SIG_set0(dsasig, r, s);
 
 #ifdef USE_OPENSSL_3
-    ctx = EVP_PKEY_CTX_new(dsactx, NULL);
+    ctx = EVP_PKEY_CTX_new(dsa, NULL);
     der_len = i2d_DSA_SIG(dsasig, &der);
 
     if(ctx && !ossl_hash(m, m_len, hash, EVP_sha1())) {
@@ -671,7 +671,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
 #else
     if(!ossl_hash(m, m_len, hash, EVP_sha1()))
         /* ossl_hash() succeeded */
-        ret = DSA_do_verify(hash, SSH2_SHA1_DIG_LEN, dsasig, dsactx);
+        ret = DSA_do_verify(hash, SSH2_SHA1_DIG_LEN, dsasig, dsa);
 #endif
 
     DSA_SIG_free(dsasig);
@@ -2680,7 +2680,7 @@ int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
 #endif
 
 #if LIBSSH2_DSA
-int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
+int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char *signature)
 {
@@ -2690,12 +2690,12 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
     int r_len, s_len;
 
 #ifdef USE_OPENSSL_3
-    EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new(dsactx, NULL);
+    EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new(dsa, NULL);
     unsigned char *buf = NULL;
     size_t sig_len = 0;
     int size = 0;
 
-    if(EVP_PKEY_get_int_param(dsactx, OSSL_PKEY_PARAM_MAX_SIZE, &size) > 0) {
+    if(EVP_PKEY_get_int_param(dsa, OSSL_PKEY_PARAM_MAX_SIZE, &size) > 0) {
         sig_len = size;
         buf = OPENSSL_malloc(size);
     }
@@ -2714,7 +2714,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
 #else
     (void)hash_len;
 
-    sig = DSA_do_sign(hash, SSH2_SHA1_DIG_LEN, dsactx);
+    sig = DSA_do_sign(hash, SSH2_SHA1_DIG_LEN, dsa);
 #endif
 
     if(!sig)
