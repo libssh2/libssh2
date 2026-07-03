@@ -447,8 +447,11 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
     /* mbedtls checks in "mbedtls/pkparse.c:1184" if "key[keylen - 1] != '\0'"
        private-key from memory fails if the last byte is not a null byte */
     blob_nullterm = mbedtls_calloc(blob_len + 1, 1);
-    if(!blob_nullterm)
+    if(!blob_nullterm) {
+        ssh2_rsa_free(*rsa);
+        *rsa = NULL;
         return -1;
+    }
 
     memcpy(blob_nullterm, blob, blob_len);
 
