@@ -438,6 +438,8 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
     unsigned char *blob_nullterm;
     size_t pwd_len;
 
+    (void)session;
+
     *rsa = mbedtls_calloc(1, sizeof(ssh2_rsa_ctx));
     if(!*rsa)
         return -1;
@@ -466,8 +468,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
 
     if(ret || mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_RSA) {
         mbedtls_pk_free(&pkey);
-        mbedtls_rsa_free(*rsa);
-        SSH2_FREE(session, *rsa);
+        ssh2_rsa_free(*rsa);
         *rsa = NULL;
         return -1;
     }
