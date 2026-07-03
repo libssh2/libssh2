@@ -275,11 +275,11 @@ int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out, size_t outlen);
 #if LIBSSH2_ECDSA
 #ifdef USE_OPENSSL_3
 #define ssh2_ecdsa_ctx            EVP_PKEY
-#define ssh2_ecdsa_free(ecdsactx) EVP_PKEY_free(ecdsactx)
+#define ssh2_ecdsa_free(ec_ctx)   EVP_PKEY_free(ec_ctx)
 #define ssh2_ec_key               EVP_PKEY
 #else
 #define ssh2_ecdsa_ctx            EC_KEY
-#define ssh2_ecdsa_free(ecdsactx) EC_KEY_free(ecdsactx)
+#define ssh2_ecdsa_free(ec_ctx)   EC_KEY_free(ec_ctx)
 #define ssh2_ec_key               EC_KEY
 #endif
 
