@@ -237,22 +237,23 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
 
 #if LIBSSH2_DSA
 int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
-                 const unsigned char *p, unsigned long p_len,
-                 const unsigned char *q, unsigned long q_len,
-                 const unsigned char *g, unsigned long g_len,
-                 const unsigned char *y, unsigned long y_len,
-                 const unsigned char *x, unsigned long x_len)
+                 const unsigned char *pdata, unsigned long plen,
+                 const unsigned char *qdata, unsigned long qlen,
+                 const unsigned char *gdata, unsigned long glen,
+                 const unsigned char *ydata, unsigned long ylen,
+                 const unsigned char *xdata, unsigned long xlen)
 {
     int rc;
 
-    if(x_len)
+    if(xlen)
         rc = gcry_sexp_build(dsa, NULL,
                              "(private-key(dsa(p%b)(q%b)(g%b)(y%b)(x%b)))",
-                             p_len, p, q_len, q, g_len, g, y_len, y, x_len, x);
+                             plen, pdata, qlen, qdata, glen, gdata, ylen, ydata,
+                             xlen, xdata);
     else
         rc = gcry_sexp_build(dsa, NULL,
                              "(public-key(dsa(p%b)(q%b)(g%b)(y%b)))",
-                             p_len, p, q_len, q, g_len, g, y_len, y);
+                             plen, pdata, qlen, qdata, glen, gdata, ylen, ydata);
 
     if(rc) {
         *dsa = NULL;
