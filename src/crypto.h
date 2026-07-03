@@ -166,22 +166,22 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
  */
 #define EC_MAX_POINT_LEN ((((521 + 7) / 8) * 2) + 1)
 
-ssh2_curve_type ssh2_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ec_ctx);
-
-int ssh2_ecdsa_curve_name_with_octal_new(
-    ssh2_ecdsa_ctx **ec_ctx,
-    const unsigned char *publickey_encoded, size_t publickey_encoded_len,
-    ssh2_curve_type curve);
-
 int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
                     const unsigned char *server_public_key,
                     size_t server_public_key_len);
+
+ssh2_curve_type ssh2_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ec_ctx);
 
 int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
                           ssh2_ec_key **out_private_key,
                           unsigned char **out_public_key_octal,
                           size_t *out_public_key_octal_len,
                           ssh2_curve_type curve);
+
+int ssh2_ecdsa_curve_name_with_octal_new(
+    ssh2_ecdsa_ctx **ec_ctx,
+    const unsigned char *publickey_encoded, size_t publickey_encoded_len,
+    ssh2_curve_type curve);
 
 int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
                            LIBSSH2_SESSION *session,
@@ -216,7 +216,6 @@ int ssh2_ecdsa_new_private_frommemory_sk(ssh2_ecdsa_ctx **ec_ctx,
 int ssh2_ecdsa_sign(LIBSSH2_SESSION *session, ssh2_ecdsa_ctx *ec_ctx,
                     const unsigned char *hash, size_t hash_len,
                     unsigned char **signature, size_t *signature_len);
-
 int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
                       const unsigned char *r, size_t r_len,
                       const unsigned char *s, size_t s_len,
@@ -270,7 +269,6 @@ int ssh2_ed25519_new_private_frommemory_sk(ssh2_ed25519_ctx **ed_ctx,
 int ssh2_ed25519_sign(ssh2_ed25519_ctx *ctx, LIBSSH2_SESSION *session,
                       uint8_t **out_sig, size_t *out_sig_len,
                       const uint8_t *message, size_t message_len);
-
 int ssh2_ed25519_verify(ssh2_ed25519_ctx *ctx,
                         const uint8_t *s, size_t s_len,
                         const uint8_t *m, size_t m_len);
