@@ -132,6 +132,13 @@ static const char *ssh2_build_options =
     "off"
 #endif
     " "
+    "AES-GCM:"
+#if LIBSSH2_AES_GCM
+    "on"
+#else
+    "off"
+#endif
+    " "
     "BLOWFISH:"
 #if LIBSSH2_BLOWFISH
     "on"
