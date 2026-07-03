@@ -716,8 +716,8 @@ static int kex_diffie_hellman_sha(LIBSSH2_SESSION *session,
         hok &= ssh2_hash_update(*ctx, exchange_state->k_value,
                                       exchange_state->k_value_len);
 
-        if(!hok || !ssh2_hash_final(*ctx, exchange_state->h_sig_comp,
-                                    sizeof(exchange_state->h_sig_comp))) {
+        if(!(hok & ssh2_hash_final(*ctx, exchange_state->h_sig_comp,
+                                   sizeof(exchange_state->h_sig_comp)))) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                            "Failed to calculate hash DH-SHA");
             goto clean_exit;
@@ -1540,8 +1540,8 @@ static int kex_method_ec_sha_hash_create_verify(
     hok &= ssh2_hash_update(ctx, exchange_state->k_value,
                                  exchange_state->k_value_len);
 
-    if(!hok || !ssh2_hash_final(ctx, exchange_state->h_sig_comp,
-                                sizeof(exchange_state->h_sig_comp)))
+    if(!(hok & ssh2_hash_final(ctx, exchange_state->h_sig_comp,
+                               sizeof(exchange_state->h_sig_comp))))
         return ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                         "Failed to calculate hash EC/ED");
 
