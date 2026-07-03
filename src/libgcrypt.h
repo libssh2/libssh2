@@ -103,7 +103,7 @@ int ssh2_lgcr_hash_final(gcry_md_hd_t ctx, void *hash, size_t len);
 #define ssh2_rsa_free(rsactx) gcry_sexp_release(rsactx)
 
 #define ssh2_dsa_ctx          struct gcry_sexp
-#define ssh2_dsa_free(dsactx) gcry_sexp_release(dsactx)
+#define ssh2_dsa_free(dsa)    gcry_sexp_release(dsa)
 
 #define SSH2_CIPHER_T(name)   int name
 #define ssh2_cipher_ctx       gcry_cipher_hd_t
