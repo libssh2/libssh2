@@ -2414,8 +2414,10 @@ int ssh2_ecdsa_verify(IN ssh2_ecdsa_ctx *ec_ctx,
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
     }
-    if(!wcng_hash(m, (ULONG)m_len, hash_alg, hash, hash_len))
+    if(!wcng_hash(m, (ULONG)m_len, hash_alg, hash, hash_len)) {
+        result = LIBSSH2_ERROR_PUBLICKEY_PROTOCOL;
         goto cleanup;
+    }
 
     /* Verify signature over hash */
     status = BCryptVerifySignature(
