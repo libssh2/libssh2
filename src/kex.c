@@ -46,8 +46,7 @@
 
 #include <assert.h>
 
-static void sha_algo_value_hash(ssh2_hash_alg hash_alg,
-                                size_t digest_len,
+static void sha_algo_value_hash(ssh2_hash_alg hash_alg, size_t digest_len,
                                 LIBSSH2_SESSION *session,
                                 struct kmdhgGPshakex_state *exchange_state,
                                 unsigned char **data, size_t data_len,
@@ -100,8 +99,7 @@ static void sha_algo_value_hash(ssh2_hash_alg hash_alg,
     }
 }
 
-static int process_host_key(LIBSSH2_SESSION *session,
-                            struct string_buf *buf,
+static int process_host_key(LIBSSH2_SESSION *session, struct string_buf *buf,
                             const struct kmdhgGPshakex_state *exchange_state,
                             unsigned char *data, size_t data_len)
 {
@@ -3579,8 +3577,8 @@ static int kex_agree_crypt(LIBSSH2_SESSION *session,
             if(ssh2_kex_agree_instr(crypt, crypt_len, s, method_len)) {
                 const struct crypt_method *method =
                     (const struct crypt_method *)kex_get_method_by_name(
-                         (char *)s, method_len,
-                         (const struct common_method **)cryptp);
+                        (char *)s, method_len,
+                        (const struct common_method **)cryptp);
 
                 if(!method)
                     return -1;  /* Invalid method -- Should never be reached */
