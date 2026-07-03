@@ -1968,7 +1968,7 @@ static void kex_method_mlkem_nistp_cleanup(
     }
 
     if(key_state->private_key) {
-        SSH2_FREE(session, key_state->private_key);
+        ssh2_ecdsa_free(key_state->private_key);
         key_state->private_key = NULL;
     }
 
