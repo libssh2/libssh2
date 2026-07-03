@@ -410,12 +410,6 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                 goto err_exit;
             }
 
-            if(session->pkeyInit_data_len < 4) {
-                ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
-                         "Public key init data too small");
-                goto err_exit;
-            }
-
             switch(response) {
             case SSH2_PUBLICKEY_RESPONSE_STATUS: {
                 /* Error */
@@ -476,6 +470,12 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
 
             case SSH2_PUBLICKEY_RESPONSE_VERSION:
                 /* What we want */
+                if(session->pkeyInit_data_len <
+                   (size_t)(s - session->pkeyInit_data) + 4) {
+                    ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                             "Public key version response too small");
+                    goto err_exit;
+                }
                 session->pkeyInit_pkey->version = ssh2_ntohu32(s);
                 if(session->pkeyInit_pkey->version > SSH2_PUBLICKEY_VERSION) {
                     ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
