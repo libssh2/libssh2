@@ -860,7 +860,6 @@ int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
     size_t plen = 0;
 
     *out_private_key = SSH2_ALLOC(session, sizeof(mbedtls_ecp_keypair));
-
     if(!*out_private_key)
         goto failed;
 
@@ -872,8 +871,8 @@ int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
 
     plen = 2 * mbedtls_mpi_size(
         &(*out_private_key)->MBEDTLS_PRIVATE(grp).P) + 1;
-    *out_public_key_octal = SSH2_ALLOC(session, plen);
 
+    *out_public_key_octal = SSH2_ALLOC(session, plen);
     if(!*out_public_key_octal)
         goto failed;
 
@@ -903,7 +902,6 @@ int ssh2_ecdsa_curve_name_with_octal_new(
     ssh2_curve_type curve)
 {
     *ec_ctx = mbedtls_calloc(1, sizeof(mbedtls_ecp_keypair));
-
     if(!*ec_ctx)
         goto failed;
 
@@ -1048,14 +1046,12 @@ static int mbed_parse_eckey(ssh2_ecdsa_ctx **ctx,
 
     if(mbedtls_pk_parse_key(pkey, data, data_len, pwd, pwd_len,
                             mbedtls_ctr_drbg_random, &mbed_ctr_drbg))
-
         goto failed;
 
     if(mbedtls_pk_get_type(pkey) != MBEDTLS_PK_ECKEY)
         goto failed;
 
     *ctx = SSH2_ALLOC(session, sizeof(ssh2_ecdsa_ctx));
-
     if(!*ctx)
         goto failed;
 
@@ -1139,7 +1135,6 @@ static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
         goto failed;
 
     *ctx = SSH2_ALLOC(session, sizeof(ssh2_ecdsa_ctx));
-
     if(!*ctx)
         goto failed;
 
@@ -1321,7 +1316,6 @@ int ssh2_ecdsa_sign(LIBSSH2_SESSION *session, ssh2_ecdsa_ctx *ec_ctx,
     tmp_sign_len = r_len + s_len + 8;
 
     tmp_sign = SSH2_CALLOC(session, tmp_sign_len);
-
     if(!tmp_sign)
         goto cleanup;
 
@@ -1332,7 +1326,6 @@ int ssh2_ecdsa_sign(LIBSSH2_SESSION *session, ssh2_ecdsa_ctx *ec_ctx,
     *signature_len = (size_t)(sp - tmp_sign);
 
     *signature = SSH2_CALLOC(session, *signature_len);
-
     if(!*signature)
         goto cleanup;
 
