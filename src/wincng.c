@@ -116,8 +116,10 @@ static void wcng_safe_free(void *buf, size_t len)
 /* Copy a big endian set of bits from src to dest.
  * if the size of src is smaller than dest then pad the "left" (MSB)
  * end with zeroes and copy the bits into the "right" (LSB) end. */
-static void wcng_memcpy_with_be_padding(unsigned char *dest, ULONG dest_len,
-                                        unsigned char *src, ULONG src_len)
+static void wcng_memcpy_with_be_padding(unsigned char *dest,
+                                        ULONG dest_len,
+                                        const unsigned char *src,
+                                        ULONG src_len)
 {
     if(dest_len > src_len)
         memset(dest, 0, dest_len - src_len);
