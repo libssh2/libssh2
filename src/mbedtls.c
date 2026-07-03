@@ -435,7 +435,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
     int ret;
     mbedtls_pk_context pkey;
     mbedtls_rsa_context *pk_rsa;
-    void *blob_nullterm;
+    unsigned char *blob_nullterm;
     size_t pwd_len;
 
     *rsa = (ssh2_rsa_ctx *)mbedtls_calloc(1, sizeof(ssh2_rsa_ctx));
@@ -455,8 +455,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
     mbedtls_pk_init(&pkey);
 
     pwd_len = passphrase ? strlen((const char *)passphrase) : 0;
-    ret = mbedtls_pk_parse_key(&pkey, (unsigned char *)blob_nullterm,
-                               blob_len + 1,
+    ret = mbedtls_pk_parse_key(&pkey, blob_nullterm, blob_len + 1,
                                passphrase, pwd_len,
                                mbedtls_ctr_drbg_random,
                                &mbed_ctr_drbg);
