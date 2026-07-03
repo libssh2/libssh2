@@ -750,7 +750,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                (const unsigned char *)passphrase, pwd_len,
                                mbedtls_ctr_drbg_random,
                                &mbed_ctr_drbg);
-    mbed_safe_free(privatekeydata_nullterm, privatekeydata_len);
+    mbed_safe_free(privatekeydata_nullterm, privatekeydata_len + 1);
 
     if(ret) {
         mbedtls_strerror(ret, (char *)buf, sizeof(buf));
