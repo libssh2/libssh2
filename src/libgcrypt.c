@@ -248,12 +248,13 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
     if(xlen)
         rc = gcry_sexp_build(dsa, NULL,
                              "(private-key(dsa(p%b)(q%b)(g%b)(y%b)(x%b)))",
-                             plen, pdata, qlen, qdata, glen, gdata, ylen, ydata,
-                             xlen, xdata);
+                             plen, pdata, qlen, qdata, glen, gdata,
+                             ylen, ydata, xlen, xdata);
     else
         rc = gcry_sexp_build(dsa, NULL,
                              "(public-key(dsa(p%b)(q%b)(g%b)(y%b)))",
-                             plen, pdata, qlen, qdata, glen, gdata, ylen, ydata);
+                             plen, pdata, qlen, qdata, glen, gdata,
+                             ylen, ydata);
 
     if(rc) {
         *dsa = NULL;
