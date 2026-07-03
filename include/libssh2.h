@@ -56,7 +56,7 @@
    defines: */
 #define LIBSSH2_VERSION_MAJOR                       1
 #define LIBSSH2_VERSION_MINOR                       11
-#define LIBSSH2_VERSION_PATCH                       1
+#define LIBSSH2_VERSION_PATCH                       2
 
 /* This is the numeric version of the libssh2 version number, meant for easier
    parsing and comparisons by programs. The LIBSSH2_VERSION_NUM define
