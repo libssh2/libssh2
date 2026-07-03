@@ -855,12 +855,9 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
  */
 
 #if LIBSSH2_RSA || LIBSSH2_DSA
-static int wcng_key_sha_verify(struct wcng_key_ctx *ctx,
-                               ULONG hashlen,
-                               const unsigned char *sig,
-                               ULONG sig_len,
-                               const unsigned char *m,
-                               ULONG m_len,
+static int wcng_key_sha_verify(struct wcng_key_ctx *ctx, ULONG hashlen,
+                               const unsigned char *sig, ULONG sig_len,
+                               const unsigned char *m, ULONG m_len,
                                ULONG flags)
 {
     BCRYPT_PKCS1_PADDING_INFO paddingInfoPKCS1;
@@ -1401,14 +1398,14 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
 
 int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                     LIBSSH2_SESSION *session,
-                                    const char *filedata, size_t filedata_len,
+                                    const char *blob, size_t blob_len,
                                     const unsigned char *passphrase)
 {
     unsigned char *pbEncoded;
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_private_memory(session, filedata, filedata_len,
+    ret = wcng_load_private_memory(session, blob, blob_len,
                                    passphrase, &pbEncoded, &cbEncoded, 1, 0);
     if(ret)
         return -1;
@@ -1417,11 +1414,11 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
 }
 
 #if LIBSSH2_RSA_SHA1
-int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return wcng_key_sha_verify(rsactx, SSH2_SHA1_DIG_LEN,
+    return wcng_key_sha_verify(rsa, SSH2_SHA1_DIG_LEN,
                                sig, (ULONG)sig_len,
                                m, (ULONG)m_len,
                                BCRYPT_PAD_PKCS1);
@@ -1429,24 +1426,20 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
 #endif
 
 #if LIBSSH2_RSA_SHA2
-int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
-                         size_t hash_len,
+int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return wcng_key_sha_verify(rsactx, (ULONG)hash_len,
+    return wcng_key_sha_verify(rsa, (ULONG)hash_len,
                                sig, (ULONG)sig_len,
                                m, (ULONG)m_len,
                                BCRYPT_PAD_PKCS1);
 }
 #endif
 
-static int wcng_rsa_sha_sign(LIBSSH2_SESSION *session,
-                             ssh2_rsa_ctx *rsa,
-                             const unsigned char *hash,
-                             size_t hash_len,
-                             unsigned char **signature,
-                             size_t *signature_len)
+static int wcng_rsa_sha_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
+                             const unsigned char *hash, size_t hash_len,
+                             unsigned char **signature, size_t *signature_len)
 {
     BCRYPT_PKCS1_PADDING_INFO paddingInfo;
     unsigned char *data, *sig;
@@ -1499,22 +1492,20 @@ static int wcng_rsa_sha_sign(LIBSSH2_SESSION *session,
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
-                       ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
-    return wcng_rsa_sha_sign(session, rsactx,
+    return wcng_rsa_sha_sign(session, rsa,
                              hash, hash_len,
                              signature, signature_len);
 }
 
-int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
-                       ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
-    return wcng_rsa_sha_sign(session, rsactx,
+    return wcng_rsa_sha_sign(session, rsa,
                              hash, hash_len,
                              signature, signature_len);
 }
@@ -1696,14 +1687,14 @@ int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
 
 int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
                                     LIBSSH2_SESSION *session,
-                                    const char *filedata, size_t filedata_len,
+                                    const char *blob, size_t blob_len,
                                     const unsigned char *passphrase)
 {
     unsigned char *pbEncoded;
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_private_memory(session, filedata, filedata_len,
+    ret = wcng_load_private_memory(session, blob, blob_len,
                                    passphrase, &pbEncoded, &cbEncoded, 0, 1);
     if(ret)
         return -1;
@@ -1712,16 +1703,16 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
 }
 
 int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
-                         const unsigned char *sig_fixed,
+                         const unsigned char *sig,
                          const unsigned char *m, size_t m_len)
 {
-    return wcng_key_sha_verify(dsa, SSH2_SHA1_DIG_LEN, sig_fixed,
+    return wcng_key_sha_verify(dsa, SSH2_SHA1_DIG_LEN, sig,
                                40, m, (ULONG)m_len, 0);
 }
 
 int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
                        const unsigned char *hash, size_t hash_len,
-                       unsigned char *sig_fixed)
+                       unsigned char *signature)
 {
     unsigned char *data, *sig;
     ULONG cbData, datalen, siglen;
@@ -1744,7 +1735,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
                 ret = BCryptSignHash(dsa->hKey, NULL, data, datalen,
                                      sig, siglen, &cbData, 0);
                 if(BCRYPT_SUCCESS(ret))
-                    memcpy(sig_fixed, sig, siglen);
+                    memcpy(signature, sig, siglen);
 
                 wcng_safe_free(sig, siglen);
             }
@@ -2628,8 +2619,7 @@ cleanup:
  */
 int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **ec_ctx,
                                       IN LIBSSH2_SESSION *session,
-                                      IN const char *filedata,
-                                      IN size_t filedata_len,
+                                      IN const char *blob, IN size_t blob_len,
                                       IN const unsigned char *passphrase)
 {
     int result;
@@ -2641,7 +2631,7 @@ int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **ec_ctx,
     size_t privatekey_len;
 
     /* Validate parameters */
-    if(!ec_ctx || !session || !filedata)
+    if(!ec_ctx || !session || !blob)
         return LIBSSH2_ERROR_INVAL;
 
     *ec_ctx = NULL;
@@ -2652,15 +2642,15 @@ int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **ec_ctx,
                         "files are unsupported");
 
     /* Read OPENSSH_PRIVKEY_AUTH_MAGIC */
-    if(filedata_len < sizeof(OPENSSH_PRIVKEY_AUTH_MAGIC) ||
-       memcmp(filedata, OPENSSH_PRIVKEY_AUTH_MAGIC,
+    if(blob_len < sizeof(OPENSSH_PRIVKEY_AUTH_MAGIC) ||
+       memcmp(blob, OPENSSH_PRIVKEY_AUTH_MAGIC,
               sizeof(OPENSSH_PRIVKEY_AUTH_MAGIC))) {
         result = -1;
         goto cleanup;
     }
 
-    data_buffer.len = filedata_len;
-    data_buffer.data = (unsigned char *)SSH2_UNCONST(filedata);
+    data_buffer.len = blob_len;
+    data_buffer.data = (unsigned char *)SSH2_UNCONST(blob);
     data_buffer.dataptr = data_buffer.data +
                           sizeof(OPENSSH_PRIVKEY_AUTH_MAGIC);
 
@@ -2718,10 +2708,8 @@ cleanup:
  */
 int ssh2_ecdsa_sign(IN LIBSSH2_SESSION *session,
                     IN struct wcng_ecdsa_ctx *ec_ctx,
-                    IN const unsigned char *hash,
-                    IN size_t hash_len,
-                    OUT unsigned char **signature,
-                    OUT size_t *signature_len)
+                    IN const unsigned char *hash, IN size_t hash_len,
+                    OUT unsigned char **signature, OUT size_t *signature_len)
 {
     NTSTATUS status;
     int result = LIBSSH2_ERROR_NONE;

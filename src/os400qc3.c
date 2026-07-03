@@ -2161,8 +2161,7 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
 
 int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                     LIBSSH2_SESSION *session,
-                                    const char *filedata,
-                                    size_t filedata_len,
+                                    const char *blob, size_t blob_len,
                                     unsigned const char *passphrase)
 {
     ssh2_rsa_ctx *ctx = init_crypto_ctx(NULL);
@@ -2178,7 +2177,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
     ret = ssh2_pem_parse_memory(session,
                                 beginencprivkeyhdr, endencprivkeyhdr,
                                 passphrase,
-                                filedata, filedata_len, &data, &datalen);
+                                blob, blob_len, &data, &datalen);
 
     /* Try with "PRIVATE KEY" PEM armor.
        --> PKCS#8 PrivateKeyInfo or EncryptedPrivateKeyInfo */
@@ -2186,7 +2185,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
         ret = ssh2_pem_parse_memory(session,
                                     beginprivkeyhdr, endprivkeyhdr,
                                     passphrase,
-                                    filedata, filedata_len,
+                                    blob, blob_len,
                                     &data, &datalen);
 
     if(!ret) {
@@ -2200,7 +2199,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
         ret = ssh2_pem_parse_memory(session,
                                     beginrsaprivkeyhdr, endrsaprivkeyhdr,
                                     passphrase,
-                                    filedata, filedata_len,
+                                    blob, blob_len,
                                     &data, &datalen);
         if(!ret)
             ret = rsapkcs1privkey(session,
@@ -2210,13 +2209,13 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
     if(ret) {
         /* Try as PKCS#8 DER data.
            --> PKCS#8 PrivateKeyInfo or EncryptedPrivateKeyInfo */
-        ret = rsapkcs8privkey(session, filedata, filedata_len,
+        ret = rsapkcs8privkey(session, blob, blob_len,
                               passphrase, (void *)&ctx);
 
         /* Try as PKCS#1 DER data.
            --> PKCS#1 RSAPrivateKey */
         if(ret)
-            ret = rsapkcs1privkey(session, filedata, filedata_len,
+            ret = rsapkcs1privkey(session, blob, blob_len,
                                   passphrase, (void *)&ctx);
     }
 
@@ -2344,7 +2343,7 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                     "file: Method unimplemented in OS/400 QC3 backend");
 }
 
-int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
+int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
@@ -2373,16 +2372,16 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
     set_EC_length(errcode, sizeof(errcode));
     Qc3VerifySignature((char *)sig, &slen, (char *)m, &mlen, Qc3_Data,
                        (char *)&algd, Qc3_Alg_Public_Key,
-                       (char *)&rsactx->key, Qc3_Key_Token, anycsp,
+                       (char *)&rsa->key, Qc3_Key_Token, anycsp,
                        NULL, (char *)&errcode);
     return errcode.Bytes_Available ? -1 : 0;
 }
 
-int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return ssh2_rsa_sha2_verify(rsactx, SSH2_SHA1_DIG_LEN,
+    return ssh2_rsa_sha2_verify(rsa, SSH2_SHA1_DIG_LEN,
                                 sig, sig_len, m, m_len);
 }
 

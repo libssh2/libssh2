@@ -426,7 +426,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
 #endif /* USE_OPENSSL_3 */
 }
 
-int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
+int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
@@ -463,7 +463,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
     }
 
 #ifdef USE_OPENSSL_3
-    ctx = EVP_PKEY_CTX_new(rsactx, NULL);
+    ctx = EVP_PKEY_CTX_new(rsa, NULL);
 
     if(nid_type == NID_sha1)
         md = EVP_sha1();
@@ -483,9 +483,10 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
     if(ctx)
         EVP_PKEY_CTX_free(ctx);
 #else
-    ret = RSA_verify(nid_type, hash, (unsigned int)hash_len,
-                     (const unsigned char *)sig,
-                     (unsigned int)sig_len, rsactx);
+    ret = RSA_verify(nid_type,
+                     hash, (unsigned int)hash_len,
+                     (const unsigned char *)sig, (unsigned int)sig_len,
+                     rsa);
 #endif
 
     free(hash);
@@ -494,23 +495,23 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
 }
 
 #if LIBSSH2_RSA_SHA1
-int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return ssh2_rsa_sha2_verify(rsactx, SSH2_SHA1_DIG_LEN, sig, sig_len, m,
+    return ssh2_rsa_sha2_verify(rsa, SSH2_SHA1_DIG_LEN, sig, sig_len, m,
                                 m_len);
 }
 #endif
 #endif /* LIBSSH2_RSA */
 
 #if LIBSSH2_DSA
-int ssh2_dsa_new(ssh2_dsa_ctx **dsactx,
-                 const unsigned char *p, unsigned long p_len,
-                 const unsigned char *q, unsigned long q_len,
-                 const unsigned char *g, unsigned long g_len,
-                 const unsigned char *y, unsigned long y_len,
-                 const unsigned char *x, unsigned long x_len)
+int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
+                 const unsigned char *pdata, unsigned long plen,
+                 const unsigned char *qdata, unsigned long qlen,
+                 const unsigned char *gdata, unsigned long glen,
+                 const unsigned char *ydata, unsigned long ylen,
+                 const unsigned char *xdata, unsigned long xlen)
 {
 #ifdef USE_OPENSSL_3
     int ret = 0;
@@ -523,80 +524,74 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsactx,
     unsigned char *y_buf = NULL;
     unsigned char *x_buf = NULL;
 
-    if(p && p_len > 0) {
-        p_buf = OPENSSL_malloc(p_len);
-
+    if(pdata && plen > 0) {
+        p_buf = OPENSSL_malloc(plen);
         if(p_buf) {
-            memcpy(p_buf, p, p_len);
-            ossl_swap_bytes(p_buf, p_len);
+            memcpy(p_buf, pdata, plen);
+            ossl_swap_bytes(p_buf, plen);
             params[param_num++] =
-                OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_FFC_P, p_buf, p_len);
+                OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_FFC_P, p_buf, plen);
         }
     }
 
-    if(q && q_len > 0) {
-        q_buf = OPENSSL_malloc(q_len);
-
+    if(qdata && qlen > 0) {
+        q_buf = OPENSSL_malloc(qlen);
         if(q_buf) {
-            memcpy(q_buf, q, q_len);
-            ossl_swap_bytes(q_buf, q_len);
+            memcpy(q_buf, qdata, qlen);
+            ossl_swap_bytes(q_buf, qlen);
             params[param_num++] =
-                OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_FFC_Q, q_buf, q_len);
+                OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_FFC_Q, q_buf, qlen);
         }
     }
 
-    if(g && g_len > 0) {
-        g_buf = OPENSSL_malloc(g_len);
-
+    if(gdata && glen > 0) {
+        g_buf = OPENSSL_malloc(glen);
         if(g_buf) {
-            memcpy(g_buf, g, g_len);
-            ossl_swap_bytes(g_buf, g_len);
+            memcpy(g_buf, gdata, glen);
+            ossl_swap_bytes(g_buf, glen);
             params[param_num++] =
-                OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_FFC_G, g_buf, g_len);
+                OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_FFC_G, g_buf, glen);
         }
     }
 
-    if(y && y_len > 0) {
-        y_buf = OPENSSL_malloc(y_len);
-
+    if(ydata && ylen > 0) {
+        y_buf = OPENSSL_malloc(ylen);
         if(y_buf) {
-            memcpy(y_buf, y, y_len);
-            ossl_swap_bytes(y_buf, y_len);
+            memcpy(y_buf, ydata, ylen);
+            ossl_swap_bytes(y_buf, ylen);
             params[param_num++] =
-                OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_PUB_KEY, y_buf, y_len);
+                OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_PUB_KEY, y_buf, ylen);
         }
     }
 
-    if(x && x_len > 0) {
-        x_buf = OPENSSL_malloc(x_len);
-
+    if(xdata && xlen > 0) {
+        x_buf = OPENSSL_malloc(xlen);
         if(x_buf) {
-            memcpy(x_buf, x, x_len);
-            ossl_swap_bytes(x_buf, x_len);
+            memcpy(x_buf, xdata, xlen);
+            ossl_swap_bytes(x_buf, xlen);
             params[param_num++] =
-                OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_PRIV_KEY,
-                                        x_buf, x_len);
+                OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_PRIV_KEY, x_buf, xlen);
         }
     }
 
     params[param_num] = OSSL_PARAM_construct_end();
 
-    *dsactx = NULL;
+    *dsa = NULL;
     ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_DSA, NULL);
 
     if(EVP_PKEY_fromdata_init(ctx) > 0)
-        ret = EVP_PKEY_fromdata(ctx, dsactx, EVP_PKEY_KEYPAIR, params);
+        ret = EVP_PKEY_fromdata(ctx, dsa, EVP_PKEY_KEYPAIR, params);
 
     if(p_buf)
-        OPENSSL_clear_free(p_buf, p_len);
+        OPENSSL_clear_free(p_buf, plen);
     if(q_buf)
-        OPENSSL_clear_free(q_buf, q_len);
+        OPENSSL_clear_free(q_buf, qlen);
     if(g_buf)
-        OPENSSL_clear_free(g_buf, g_len);
+        OPENSSL_clear_free(g_buf, glen);
     if(x_buf)
-        OPENSSL_clear_free(x_buf, x_len);
+        OPENSSL_clear_free(x_buf, xlen);
     if(y_buf)
-        OPENSSL_clear_free(y_buf, y_len);
+        OPENSSL_clear_free(y_buf, ylen);
 
     EVP_PKEY_CTX_free(ctx);
 
@@ -609,32 +604,32 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsactx,
     BIGNUM *priv_key = NULL;
 
     p_bn = BN_new();
-    BN_bin2bn(p, (int)p_len, p_bn);
+    BN_bin2bn(pdata, (int)plen, p_bn);
 
     q_bn = BN_new();
-    BN_bin2bn(q, (int)q_len, q_bn);
+    BN_bin2bn(qdata, (int)qlen, q_bn);
 
     g_bn = BN_new();
-    BN_bin2bn(g, (int)g_len, g_bn);
+    BN_bin2bn(gdata, (int)glen, g_bn);
 
     pub_key = BN_new();
-    BN_bin2bn(y, (int)y_len, pub_key);
+    BN_bin2bn(ydata, (int)ylen, pub_key);
 
-    if(x_len) {
+    if(xlen) {
         priv_key = BN_new();
-        BN_bin2bn(x, (int)x_len, priv_key);
+        BN_bin2bn(xdata, (int)xlen, priv_key);
     }
 
-    *dsactx = DSA_new();
+    *dsa = DSA_new();
 
-    DSA_set0_pqg(*dsactx, p_bn, q_bn, g_bn);
-    DSA_set0_key(*dsactx, pub_key, priv_key);
+    DSA_set0_pqg(*dsa, p_bn, q_bn, g_bn);
+    DSA_set0_key(*dsa, pub_key, priv_key);
 
     return 0;
 #endif /* USE_OPENSSL_3 */
 }
 
-int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
+int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
                          const unsigned char *sig,
                          const unsigned char *m, size_t m_len)
 {
@@ -659,7 +654,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
     DSA_SIG_set0(dsasig, r, s);
 
 #ifdef USE_OPENSSL_3
-    ctx = EVP_PKEY_CTX_new(dsactx, NULL);
+    ctx = EVP_PKEY_CTX_new(dsa, NULL);
     der_len = i2d_DSA_SIG(dsasig, &der);
 
     if(ctx && !ossl_hash(m, m_len, hash, EVP_sha1())) {
@@ -676,7 +671,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
 #else
     if(!ossl_hash(m, m_len, hash, EVP_sha1()))
         /* ossl_hash() succeeded */
-        ret = DSA_do_verify(hash, SSH2_SHA1_DIG_LEN, dsasig, dsactx);
+        ret = DSA_do_verify(hash, SSH2_SHA1_DIG_LEN, dsasig, dsa);
 #endif
 
     DSA_SIG_free(dsasig);
@@ -1075,7 +1070,7 @@ static int ossl_passphrase_cb(char *buf, int size, int rwflag,
 #if LIBSSH2_RSA
 int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                     LIBSSH2_SESSION *session,
-                                    const char *filedata, size_t filedata_len,
+                                    const char *blob, size_t blob_len,
                                     const unsigned char *passphrase)
 {
     int rc = 0;
@@ -1083,7 +1078,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
 
     OSSL_INIT_IF_NEEDED();
 
-    bp = BIO_new_mem_buf(filedata, (int)filedata_len);
+    bp = BIO_new_mem_buf(blob, (int)blob_len);
     if(bp)
 #ifdef USE_OPENSSL_3
         *rsa = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
@@ -1096,7 +1091,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
     if(!*rsa)
         rc = ossl_key_from_openssh_blob(session, (void **)rsa, "ssh-rsa",
                                         NULL, NULL, NULL, NULL,
-                                        filedata, filedata_len, passphrase);
+                                        blob, blob_len, passphrase);
 
     return rc;
 }
@@ -1460,8 +1455,7 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
 #if LIBSSH2_DSA
 int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
                                     LIBSSH2_SESSION *session,
-                                    const char *filedata,
-                                    size_t filedata_len,
+                                    const char *blob, size_t blob_len,
                                     const unsigned char *passphrase)
 {
     int rc = 0;
@@ -1469,7 +1463,7 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
 
     OSSL_INIT_IF_NEEDED();
 
-    bp = BIO_new_mem_buf(filedata, (int)filedata_len);
+    bp = BIO_new_mem_buf(blob, (int)blob_len);
     if(bp)
 #ifdef USE_OPENSSL_3
         *dsa = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
@@ -1482,7 +1476,7 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
     if(!*dsa)
         rc = ossl_key_from_openssh_blob(session, (void **)dsa, "ssh-dsa",
                                         NULL, NULL, NULL, NULL,
-                                        filedata, filedata_len, passphrase);
+                                        blob, blob_len, passphrase);
 
     return rc;
 }
@@ -1531,6 +1525,7 @@ static unsigned char *ossl_dsa_to_pubkey(LIBSSH2_SESSION *session,
 
     ssh2_htonu32(p, 7); /* Key type. */
     p += 4;
+    /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
     memcpy(p, "ssh-dss", 7);
     p += 7;
 
@@ -1585,6 +1580,7 @@ static int ossl_dsa_evp_to_pubkey(LIBSSH2_SESSION *session,
     DSA_free(dsa);
 #endif
 
+    /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
     memcpy(method_buf, "ssh-dss", 7);
     *method = method_buf;
     if(method_len)
@@ -1774,8 +1770,7 @@ int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
 #if LIBSSH2_ECDSA
 int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
                                       LIBSSH2_SESSION *session,
-                                      const char *filedata,
-                                      size_t filedata_len,
+                                      const char *blob, size_t blob_len,
                                       const unsigned char *passphrase)
 {
     int rc = 0;
@@ -1783,7 +1778,7 @@ int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
 
     OSSL_INIT_IF_NEEDED();
 
-    bp = BIO_new_mem_buf(filedata, (int)filedata_len);
+    bp = BIO_new_mem_buf(blob, (int)blob_len);
     if(bp)
 #ifdef USE_OPENSSL_3
         *ec_ctx = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
@@ -1796,7 +1791,7 @@ int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
     if(!*ec_ctx)
         rc = ossl_key_from_openssh_blob(session, (void **)ec_ctx, "ssh-ecdsa",
                                         NULL, NULL, NULL, NULL,
-                                        filedata, filedata_len, passphrase);
+                                        blob, blob_len, passphrase);
 
     return rc;
 }
@@ -1807,8 +1802,7 @@ int ssh2_ecdsa_new_private_frommemory_sk(ssh2_ecdsa_ctx **ec_ctx,
                                          const unsigned char **key_handle,
                                          size_t *handle_len,
                                          LIBSSH2_SESSION *session,
-                                         const char *filedata,
-                                         size_t filedata_len,
+                                         const char *blob, size_t blob_len,
                                          const unsigned char *passphrase)
 {
     int algorithm;
@@ -1817,7 +1811,7 @@ int ssh2_ecdsa_new_private_frommemory_sk(ssh2_ecdsa_ctx **ec_ctx,
                                          NULL, NULL, NULL, NULL,
                                          &algorithm, flags, application,
                                          key_handle, handle_len,
-                                         filedata, filedata_len,
+                                         blob, blob_len,
                                          passphrase);
 }
 
@@ -2353,8 +2347,7 @@ int ssh2_ed25519_new_private_sk(ssh2_ed25519_ctx **ed_ctx,
 
 int ssh2_ed25519_new_private_frommemory(ssh2_ed25519_ctx **ed_ctx,
                                         LIBSSH2_SESSION *session,
-                                        const char *filedata,
-                                        size_t filedata_len,
+                                        const char *blob, size_t blob_len,
                                         const unsigned char *passphrase)
 {
     ssh2_ed25519_ctx *ctx = NULL;
@@ -2362,7 +2355,7 @@ int ssh2_ed25519_new_private_frommemory(ssh2_ed25519_ctx **ed_ctx,
 
     OSSL_INIT_IF_NEEDED();
 
-    bp = BIO_new_mem_buf(filedata, (int)filedata_len);
+    bp = BIO_new_mem_buf(blob, (int)blob_len);
     if(bp) {
         ctx = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
                                       SSH2_UNCONST(passphrase));
@@ -2381,7 +2374,7 @@ int ssh2_ed25519_new_private_frommemory(ssh2_ed25519_ctx **ed_ctx,
 
     return ossl_key_from_openssh_blob(session, (void **)ed_ctx, "ssh-ed25519",
                                       NULL, NULL, NULL, NULL,
-                                      filedata, filedata_len, passphrase);
+                                      blob, blob_len, passphrase);
 }
 
 int ssh2_ed25519_new_private_frommemory_sk(ssh2_ed25519_ctx **ed_ctx,
@@ -2390,8 +2383,7 @@ int ssh2_ed25519_new_private_frommemory_sk(ssh2_ed25519_ctx **ed_ctx,
                                            const unsigned char **key_handle,
                                            size_t *handle_len,
                                            LIBSSH2_SESSION *session,
-                                           const char *filedata,
-                                           size_t filedata_len,
+                                           const char *blob, size_t blob_len,
                                            const unsigned char *passphrase)
 {
     int algorithm;
@@ -2400,7 +2392,7 @@ int ssh2_ed25519_new_private_frommemory_sk(ssh2_ed25519_ctx **ed_ctx,
                                          NULL, NULL, NULL, NULL,
                                          &algorithm, flags, application,
                                          key_handle, handle_len,
-                                         filedata, filedata_len,
+                                         blob, blob_len,
                                          passphrase);
 }
 
@@ -2591,7 +2583,7 @@ clean_exit:
 #endif
 
 #if LIBSSH2_RSA
-int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
@@ -2603,7 +2595,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
     BIGNUM *n = NULL;
     const EVP_MD *md = NULL;
 
-    if(EVP_PKEY_get_bn_param(rsactx, OSSL_PKEY_PARAM_RSA_N, &n) > 0) {
+    if(EVP_PKEY_get_bn_param(rsa, OSSL_PKEY_PARAM_RSA_N, &n) > 0) {
         sig_len = BN_num_bytes(n);
         BN_clear_free(n);
     }
@@ -2613,7 +2605,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
 #else
     unsigned int sig_len = 0;
 
-    sig_len = RSA_size(rsactx);
+    sig_len = RSA_size(rsa);
     sig = SSH2_ALLOC(session, sig_len);
 #endif
 
@@ -2632,7 +2624,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
                  "Unsupported hash digest length");
 
     if(md) {
-        EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new(rsactx, NULL);
+        EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new(rsa, NULL);
         if(ctx &&
            EVP_PKEY_sign_init(ctx) > 0 &&
            EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_PADDING) > 0 &&
@@ -2646,13 +2638,13 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
 #else
     if(hash_len == SSH2_SHA1_DIG_LEN)
         ret = RSA_sign(NID_sha1,
-                       hash, (unsigned int)hash_len, sig, &sig_len, rsactx);
+                       hash, (unsigned int)hash_len, sig, &sig_len, rsa);
     else if(hash_len == SSH2_SHA256_DIG_LEN)
         ret = RSA_sign(NID_sha256,
-                       hash, (unsigned int)hash_len, sig, &sig_len, rsactx);
+                       hash, (unsigned int)hash_len, sig, &sig_len, rsa);
     else if(hash_len == SSH2_SHA512_DIG_LEN)
         ret = RSA_sign(NID_sha512,
-                       hash, (unsigned int)hash_len, sig, &sig_len, rsactx);
+                       hash, (unsigned int)hash_len, sig, &sig_len, rsa);
     else {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
                  "Unsupported hash digest length");
@@ -2672,20 +2664,20 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
 }
 
 #if LIBSSH2_RSA_SHA1
-int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
-    return ssh2_rsa_sha2_sign(session, rsactx, hash, hash_len,
+    return ssh2_rsa_sha2_sign(session, rsa, hash, hash_len,
                               signature, signature_len);
 }
 #endif
 #endif
 
 #if LIBSSH2_DSA
-int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
-                       const unsigned char *hash,
-                       size_t hash_len, unsigned char *signature)
+int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
+                       const unsigned char *hash, size_t hash_len,
+                       unsigned char *signature)
 {
     DSA_SIG *sig = NULL;
     const BIGNUM *r;
@@ -2693,12 +2685,12 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
     int r_len, s_len;
 
 #ifdef USE_OPENSSL_3
-    EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new(dsactx, NULL);
+    EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new(dsa, NULL);
     unsigned char *buf = NULL;
     size_t sig_len = 0;
     int size = 0;
 
-    if(EVP_PKEY_get_int_param(dsactx, OSSL_PKEY_PARAM_MAX_SIZE, &size) > 0) {
+    if(EVP_PKEY_get_int_param(dsa, OSSL_PKEY_PARAM_MAX_SIZE, &size) > 0) {
         sig_len = size;
         buf = OPENSSL_malloc(size);
     }
@@ -2717,7 +2709,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
 #else
     (void)hash_len;
 
-    sig = DSA_do_sign(hash, SSH2_SHA1_DIG_LEN, dsactx);
+    sig = DSA_do_sign(hash, SSH2_SHA1_DIG_LEN, dsa);
 #endif
 
     if(!sig)
@@ -3732,7 +3724,7 @@ clean_exit:
 
 #if LIBSSH2_ED25519
 
-int ssh2_ed25519_sign(ssh2_ed25519_ctx *ctx, LIBSSH2_SESSION *session,
+int ssh2_ed25519_sign(ssh2_ed25519_ctx *ed_ctx, LIBSSH2_SESSION *session,
                       uint8_t **out_sig, size_t *out_sig_len,
                       const uint8_t *message, size_t message_len)
 {
@@ -3742,7 +3734,7 @@ int ssh2_ed25519_sign(ssh2_ed25519_ctx *ctx, LIBSSH2_SESSION *session,
     unsigned char *sig = NULL;
 
     if(md_ctx) {
-        if(EVP_DigestSignInit(md_ctx, NULL, NULL, NULL, ctx) != 1)
+        if(EVP_DigestSignInit(md_ctx, NULL, NULL, NULL, ed_ctx) != 1)
             goto clean_exit;
         if(EVP_DigestSign(md_ctx, NULL, &sig_len, message, message_len) != 1)
             goto clean_exit;
@@ -3846,7 +3838,7 @@ clean_exit:
     return rc == 1 ? 0 : -1;
 }
 
-int ssh2_ed25519_verify(ssh2_ed25519_ctx *ctx, const uint8_t *s,
+int ssh2_ed25519_verify(ssh2_ed25519_ctx *ed_ctx, const uint8_t *s,
                         size_t s_len, const uint8_t *m, size_t m_len)
 {
     int ret = -1;
@@ -3855,7 +3847,7 @@ int ssh2_ed25519_verify(ssh2_ed25519_ctx *ctx, const uint8_t *s,
     if(!md_ctx)
         return -1;
 
-    ret = EVP_DigestVerifyInit(md_ctx, NULL, NULL, NULL, ctx);
+    ret = EVP_DigestVerifyInit(md_ctx, NULL, NULL, NULL, ed_ctx);
     if(ret != 1)
         goto clean_exit;
 

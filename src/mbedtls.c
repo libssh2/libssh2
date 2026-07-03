@@ -429,13 +429,13 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
 
 int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                     LIBSSH2_SESSION *session,
-                                    const char *filedata, size_t filedata_len,
+                                    const char *blob, size_t blob_len,
                                     const unsigned char *passphrase)
 {
     int ret;
     mbedtls_pk_context pkey;
     mbedtls_rsa_context *pk_rsa;
-    void *filedata_nullterm;
+    unsigned char *blob_nullterm;
     size_t pwd_len;
 
     *rsa = (ssh2_rsa_ctx *)mbedtls_calloc(1, sizeof(ssh2_rsa_ctx));
@@ -446,21 +446,20 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
 
     /* mbedtls checks in "mbedtls/pkparse.c:1184" if "key[keylen - 1] != '\0'"
        private-key from memory fails if the last byte is not a null byte */
-    filedata_nullterm = mbedtls_calloc(filedata_len + 1, 1);
-    if(!filedata_nullterm)
+    blob_nullterm = mbedtls_calloc(blob_len + 1, 1);
+    if(!blob_nullterm)
         return -1;
 
-    memcpy(filedata_nullterm, filedata, filedata_len);
+    memcpy(blob_nullterm, blob, blob_len);
 
     mbedtls_pk_init(&pkey);
 
     pwd_len = passphrase ? strlen((const char *)passphrase) : 0;
-    ret = mbedtls_pk_parse_key(&pkey, (unsigned char *)filedata_nullterm,
-                               filedata_len + 1,
+    ret = mbedtls_pk_parse_key(&pkey, blob_nullterm, blob_len + 1,
                                passphrase, pwd_len,
                                mbedtls_ctr_drbg_random,
                                &mbed_ctr_drbg);
-    mbed_safe_free(filedata_nullterm, filedata_len);
+    mbed_safe_free(blob_nullterm, blob_len);
 
     if(ret || mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_RSA) {
         mbedtls_pk_free(&pkey);
@@ -477,8 +476,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
     return 0;
 }
 
-int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
-                         size_t hash_len,
+int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
@@ -487,7 +485,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
     mbedtls_md_type_t md_type;
     unsigned char *hash;
 
-    if(sig_len < mbedtls_rsa_get_len(rsactx))
+    if(sig_len < mbedtls_rsa_get_len(rsa))
         return -1;
 
     hash = malloc(hash_len);
@@ -519,7 +517,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
         return -1; /* failure */
     }
 
-    ret = mbedtls_rsa_pkcs1_verify(rsactx,
+    ret = mbedtls_rsa_pkcs1_verify(rsa,
                                    md_type, (unsigned int)hash_len,
                                    hash, sig);
     free(hash);
@@ -527,16 +525,15 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
     return ret == 0 ? 0 : -1;
 }
 
-int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return ssh2_rsa_sha2_verify(rsactx, SSH2_SHA1_DIG_LEN,
+    return ssh2_rsa_sha2_verify(rsa, SSH2_SHA1_DIG_LEN,
                                 sig, sig_len, m, m_len);
 }
 
-int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
-                       ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
@@ -545,7 +542,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
     size_t sig_len;
     mbedtls_md_type_t md_type;
 
-    sig_len = mbedtls_rsa_get_len(rsactx);
+    sig_len = mbedtls_rsa_get_len(rsa);
     sig = SSH2_ALLOC(session, sig_len);
     if(!sig)
         return -1;
@@ -564,7 +561,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
         ret = -1;
     }
     if(ret == 0)
-        ret = mbedtls_rsa_pkcs1_sign(rsactx,
+        ret = mbedtls_rsa_pkcs1_sign(rsa,
                                      mbedtls_ctr_drbg_random,
                                      &mbed_ctr_drbg,
                                      md_type, (unsigned int)hash_len,
@@ -580,12 +577,11 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
     return ret == 0 ? 0 : -1;
 }
 
-int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
-                       ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
-    return ssh2_rsa_sha2_sign(session, rsactx, hash, hash_len,
+    return ssh2_rsa_sha2_sign(session, rsa, hash, hash_len,
                               signature, signature_len);
 }
 
@@ -1235,8 +1231,7 @@ cleanup:
  */
 int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
                                       LIBSSH2_SESSION *session,
-                                      const char *filedata,
-                                      size_t filedata_len,
+                                      const char *blob, size_t blob_len,
                                       const unsigned char *passphrase)
 {
     unsigned char *ntdata;
@@ -1244,25 +1239,25 @@ int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
 
     mbedtls_pk_init(&pkey);
 
-    ntdata = SSH2_ALLOC(session, filedata_len + 1);
+    ntdata = SSH2_ALLOC(session, blob_len + 1);
 
     if(!ntdata)
         goto cleanup;
 
-    memcpy(ntdata, filedata, filedata_len);
+    memcpy(ntdata, blob, blob_len);
 
     if(mbed_parse_eckey(ec_ctx, &pkey, session,
-                        ntdata, filedata_len + 1, passphrase) == 0)
+                        ntdata, blob_len + 1, passphrase) == 0)
         goto cleanup;
 
     mbed_parse_openssh_key(ec_ctx, session,
-                           ntdata, filedata_len + 1, passphrase);
+                           ntdata, blob_len + 1, passphrase);
 
 cleanup:
 
     mbedtls_pk_free(&pkey);
 
-    mbed_safe_free(ntdata, filedata_len);
+    mbed_safe_free(ntdata, blob_len);
 
     return *ec_ctx ? 0 : -1;
 }
@@ -1296,8 +1291,7 @@ done:
 /*
  * Computes the ECDSA signature of a previously-hashed message
  */
-int ssh2_ecdsa_sign(LIBSSH2_SESSION *session,
-                    ssh2_ecdsa_ctx *ec_ctx,
+int ssh2_ecdsa_sign(LIBSSH2_SESSION *session, ssh2_ecdsa_ctx *ec_ctx,
                     const unsigned char *hash, size_t hash_len,
                     unsigned char **signature, size_t *signature_len)
 {
