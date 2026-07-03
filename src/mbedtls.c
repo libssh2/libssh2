@@ -731,7 +731,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     mbedtls_pk_context pkey;
     char buf[1024];
     int ret;
-    void *privatekeydata_nullterm;
+    unsigned char *privatekeydata_nullterm;
     size_t pwd_len;
 
     /* mbedtls checks in "mbedtls/pkparse.c:1184" if "key[keylen - 1] != '\0'"
@@ -747,8 +747,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
 
     pwd_len = passphrase ? strlen((const char *)passphrase) : 0;
     ret = mbedtls_pk_parse_key(&pkey,
-                               (unsigned char *)privatekeydata_nullterm,
-                               privatekeydata_len + 1,
+                               privatekeydata_nullterm, privatekeydata_len + 1,
                                (const unsigned char *)passphrase, pwd_len,
                                mbedtls_ctr_drbg_random,
                                &mbed_ctr_drbg);
