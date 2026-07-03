@@ -1240,10 +1240,11 @@ int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
     unsigned char *ntdata;
     mbedtls_pk_context pkey;
 
+    (void)session;
+
     mbedtls_pk_init(&pkey);
 
-    ntdata = SSH2_ALLOC(session, blob_len + 1);
-
+    ntdata = mbedtls_calloc(1, blob_len + 1);
     if(!ntdata)
         goto cleanup;
 
