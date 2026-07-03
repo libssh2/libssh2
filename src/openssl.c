@@ -141,7 +141,7 @@ static int ossl_hmac_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen,
         return 0;
 
     params[0] = OSSL_PARAM_construct_octet_string(
-        OSSL_MAC_PARAM_KEY, (void *)key, keylen);
+        OSSL_MAC_PARAM_KEY, key, keylen);
     params[1] = OSSL_PARAM_construct_utf8_string(
         OSSL_MAC_PARAM_DIGEST, (char *)SSH2_UNCONST(digest_name), 0);
     params[2] = OSSL_PARAM_construct_end();
