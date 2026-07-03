@@ -677,8 +677,10 @@ void ssh2_crypto_exit(void)
 
 #if LIBSSH2_ECDSA
     for(curve = 0; curve < SSH2_ARRAYSIZE(wcng_ecdsa_algs); curve++) {
-        (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgECDSA[curve], 0);
-        (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgECDH[curve], 0);
+        if(ssh2_wcng.hAlgECDSA[curve])
+            (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgECDSA[curve], 0);
+        if(ssh2_wcng.hAlgECDH[curve])
+            (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgECDH[curve], 0);
     }
 #endif
 
