@@ -1326,7 +1326,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     }
 
     *rsa = malloc(sizeof(ssh2_rsa_ctx));
-    if(!(*rsa)) {
+    if(!*rsa) {
         BCryptDestroyKey(hKey);
         wcng_safe_free(rsakey, keylen);
         return -1;
@@ -1367,7 +1367,7 @@ static int wcng_rsa_new_private_parse(ssh2_rsa_ctx **rsa,
     }
 
     *rsa = malloc(sizeof(ssh2_rsa_ctx));
-    if(!(*rsa)) {
+    if(!*rsa) {
         BCryptDestroyKey(hKey);
         wcng_safe_free(pbStructInfo, cbStructInfo);
         return -1;
@@ -1621,7 +1621,7 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
     }
 
     *dsa = malloc(sizeof(ssh2_dsa_ctx));
-    if(!(*dsa)) {
+    if(!*dsa) {
         BCryptDestroyKey(hKey);
         wcng_safe_free(dsakey, keylen);
         return -1;
