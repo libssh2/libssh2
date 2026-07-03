@@ -506,11 +506,11 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
 
 #if LIBSSH2_DSA
 int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
-                 const unsigned char *p, unsigned long p_len,
-                 const unsigned char *q, unsigned long q_len,
-                 const unsigned char *g, unsigned long g_len,
-                 const unsigned char *y, unsigned long y_len,
-                 const unsigned char *x, unsigned long x_len)
+                 const unsigned char *pdata, unsigned long plen,
+                 const unsigned char *qdata, unsigned long qlen,
+                 const unsigned char *gdata, unsigned long glen,
+                 const unsigned char *ydata, unsigned long ylen,
+                 const unsigned char *xdata, unsigned long xlen)
 {
 #ifdef USE_OPENSSL_3
     int ret = 0;
@@ -523,59 +523,53 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
     unsigned char *y_buf = NULL;
     unsigned char *x_buf = NULL;
 
-    if(p && p_len > 0) {
-        p_buf = OPENSSL_malloc(p_len);
-
+    if(pdata && plen > 0) {
+        p_buf = OPENSSL_malloc(plen);
         if(p_buf) {
-            memcpy(p_buf, p, p_len);
-            ossl_swap_bytes(p_buf, p_len);
+            memcpy(p_buf, pdata, plen);
+            ossl_swap_bytes(p_buf, plen);
             params[param_num++] =
-                OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_FFC_P, p_buf, p_len);
+                OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_FFC_P, p_buf, plen);
         }
     }
 
-    if(q && q_len > 0) {
-        q_buf = OPENSSL_malloc(q_len);
-
+    if(qdata && qlen > 0) {
+        q_buf = OPENSSL_malloc(qlen);
         if(q_buf) {
-            memcpy(q_buf, q, q_len);
-            ossl_swap_bytes(q_buf, q_len);
+            memcpy(q_buf, qdata, qlen);
+            ossl_swap_bytes(q_buf, qlen);
             params[param_num++] =
-                OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_FFC_Q, q_buf, q_len);
+                OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_FFC_Q, q_buf, qlen);
         }
     }
 
-    if(g && g_len > 0) {
-        g_buf = OPENSSL_malloc(g_len);
-
+    if(gdata && glen > 0) {
+        g_buf = OPENSSL_malloc(glen);
         if(g_buf) {
-            memcpy(g_buf, g, g_len);
-            ossl_swap_bytes(g_buf, g_len);
+            memcpy(g_buf, gdata, glen);
+            ossl_swap_bytes(g_buf, glen);
             params[param_num++] =
-                OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_FFC_G, g_buf, g_len);
+                OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_FFC_G, g_buf, glen);
         }
     }
 
-    if(y && y_len > 0) {
-        y_buf = OPENSSL_malloc(y_len);
-
+    if(ydata && ylen > 0) {
+        y_buf = OPENSSL_malloc(ylen);
         if(y_buf) {
-            memcpy(y_buf, y, y_len);
-            ossl_swap_bytes(y_buf, y_len);
+            memcpy(y_buf, ydata, ylen);
+            ossl_swap_bytes(y_buf, ylen);
             params[param_num++] =
-                OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_PUB_KEY, y_buf, y_len);
+                OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_PUB_KEY, y_buf, ylen);
         }
     }
 
-    if(x && x_len > 0) {
-        x_buf = OPENSSL_malloc(x_len);
-
+    if(xdata && xlen > 0) {
+        x_buf = OPENSSL_malloc(xlen);
         if(x_buf) {
-            memcpy(x_buf, x, x_len);
-            ossl_swap_bytes(x_buf, x_len);
+            memcpy(x_buf, xdata, xlen);
+            ossl_swap_bytes(x_buf, xlen);
             params[param_num++] =
-                OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_PRIV_KEY,
-                                        x_buf, x_len);
+                OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_PRIV_KEY, x_buf, xlen);
         }
     }
 
@@ -588,15 +582,15 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
         ret = EVP_PKEY_fromdata(ctx, dsa, EVP_PKEY_KEYPAIR, params);
 
     if(p_buf)
-        OPENSSL_clear_free(p_buf, p_len);
+        OPENSSL_clear_free(p_buf, plen);
     if(q_buf)
-        OPENSSL_clear_free(q_buf, q_len);
+        OPENSSL_clear_free(q_buf, qlen);
     if(g_buf)
-        OPENSSL_clear_free(g_buf, g_len);
+        OPENSSL_clear_free(g_buf, glen);
     if(x_buf)
-        OPENSSL_clear_free(x_buf, x_len);
+        OPENSSL_clear_free(x_buf, xlen);
     if(y_buf)
-        OPENSSL_clear_free(y_buf, y_len);
+        OPENSSL_clear_free(y_buf, ylen);
 
     EVP_PKEY_CTX_free(ctx);
 
@@ -609,20 +603,20 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
     BIGNUM *priv_key = NULL;
 
     p_bn = BN_new();
-    BN_bin2bn(p, (int)p_len, p_bn);
+    BN_bin2bn(pdata, (int)plen, p_bn);
 
     q_bn = BN_new();
-    BN_bin2bn(q, (int)q_len, q_bn);
+    BN_bin2bn(qdata, (int)qlen, q_bn);
 
     g_bn = BN_new();
-    BN_bin2bn(g, (int)g_len, g_bn);
+    BN_bin2bn(gdata, (int)glen, g_bn);
 
     pub_key = BN_new();
-    BN_bin2bn(y, (int)y_len, pub_key);
+    BN_bin2bn(ydata, (int)ylen, pub_key);
 
-    if(x_len) {
+    if(xlen) {
         priv_key = BN_new();
-        BN_bin2bn(x, (int)x_len, priv_key);
+        BN_bin2bn(xdata, (int)xlen, priv_key);
     }
 
     *dsa = DSA_new();
