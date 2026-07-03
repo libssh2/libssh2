@@ -378,7 +378,9 @@ struct key_exchange_state_low {
     unsigned char *curve25519_private_key; /* curve25519 private key, 32
                                               bytes */
     unsigned char *mlkem_public_key; /* ML-KEM public key */
+    size_t mlkem_public_key_len;
     unsigned char *mlkem_private_key; /* ML-KEM private key */
+    size_t mlkem_private_key_len;
 };
 
 struct key_exchange_state {
