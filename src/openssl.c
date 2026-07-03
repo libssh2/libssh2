@@ -505,7 +505,7 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
 #endif /* LIBSSH2_RSA */
 
 #if LIBSSH2_DSA
-int ssh2_dsa_new(ssh2_dsa_ctx **dsactx,
+int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
                  const unsigned char *p, unsigned long p_len,
                  const unsigned char *q, unsigned long q_len,
                  const unsigned char *g, unsigned long g_len,
@@ -581,11 +581,11 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsactx,
 
     params[param_num] = OSSL_PARAM_construct_end();
 
-    *dsactx = NULL;
+    *dsa = NULL;
     ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_DSA, NULL);
 
     if(EVP_PKEY_fromdata_init(ctx) > 0)
-        ret = EVP_PKEY_fromdata(ctx, dsactx, EVP_PKEY_KEYPAIR, params);
+        ret = EVP_PKEY_fromdata(ctx, dsa, EVP_PKEY_KEYPAIR, params);
 
     if(p_buf)
         OPENSSL_clear_free(p_buf, p_len);
@@ -625,10 +625,10 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsactx,
         BN_bin2bn(x, (int)x_len, priv_key);
     }
 
-    *dsactx = DSA_new();
+    *dsa = DSA_new();
 
-    DSA_set0_pqg(*dsactx, p_bn, q_bn, g_bn);
-    DSA_set0_key(*dsactx, pub_key, priv_key);
+    DSA_set0_pqg(*dsa, p_bn, q_bn, g_bn);
+    DSA_set0_key(*dsa, pub_key, priv_key);
 
     return 0;
 #endif /* USE_OPENSSL_3 */
