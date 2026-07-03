@@ -53,6 +53,11 @@ static void sha_algo_value_hash(ssh2_hash_alg hash_alg,
                                 unsigned char **data, size_t data_len,
                                 const unsigned char *version)
 {
+    if(!digest_len || digest_len > MAX_SHA_DIGEST_LEN) {
+        *data = NULL;
+        return;
+    }
+
     if(!*data)
         *data = SSH2_ALLOC(session, data_len + digest_len);
 
@@ -67,13 +72,13 @@ static void sha_algo_value_hash(ssh2_hash_alg hash_alg,
                                        digest_len)) {
                 SSH2_FREE(session, *data);
                 *data = NULL;
-                break;
+                return;
             }
             if(len > 0) {
                 if(!ssh2_hash_update(hash, *data, len)) {
                     SSH2_FREE(session, *data);
                     *data = NULL;
-                    break;
+                    return;
                 }
             }
             else {
@@ -82,13 +87,13 @@ static void sha_algo_value_hash(ssh2_hash_alg hash_alg,
                                            session->session_id_len)) {
                     SSH2_FREE(session, *data);
                     *data = NULL;
-                    break;
+                    return;
                 }
             }
             if(!ssh2_hash_final(hash, *data + len, digest_len)) {
                 SSH2_FREE(session, *data);
                 *data = NULL;
-                break;
+                return;
             }
             len += digest_len;
         }
