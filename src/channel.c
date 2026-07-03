@@ -1456,7 +1456,7 @@ int ssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
         ssh2_deb((session, LIBSSH2_TRACE_CONN,
                   "starting request(%s) on channel %u/%u, message=%s",
                   request, channel->local.id, channel->remote.id,
-                  message ? message : "<null>"));
+                  message ? message : "(null)"));
         s = channel->process_packet =
             SSH2_ALLOC(session, channel->process_packet_len);
         if(!channel->process_packet)
