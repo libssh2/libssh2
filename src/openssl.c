@@ -1526,6 +1526,7 @@ static unsigned char *ossl_dsa_to_pubkey(LIBSSH2_SESSION *session,
 
     ssh2_htonu32(p, 7); /* Key type. */
     p += 4;
+    /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
     memcpy(p, "ssh-dss", 7);
     p += 7;
 
@@ -1580,6 +1581,7 @@ static int ossl_dsa_evp_to_pubkey(LIBSSH2_SESSION *session,
     DSA_free(dsa);
 #endif
 
+    /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
     memcpy(method_buf, "ssh-dss", 7);
     *method = method_buf;
     if(method_len)
