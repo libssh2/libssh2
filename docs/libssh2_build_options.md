@@ -29,8 +29,9 @@ enabled/disabled statuses.
 # RETURN VALUE
 
 A read-only, space-separated list of key:value pairs describing build options.
-Most options use `on` or `off`; `crypto` reports the selected crypto backend
-name.
+Options use `on` or `off`, except `crypto` which may report these values:
+`AWS-LC`, `BoringSSL`, `Libgcrypt`, `LibreSSL`, `mbedTLS`, `OpenSSL`,
+`OpenSSL/1.1.1`, `OS400QC3`, `WinCNG`, `wolfSSL`.
 
 # EXAMPLE
 
