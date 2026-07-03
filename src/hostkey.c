@@ -615,7 +615,6 @@ static int hostkey_method_ssh_dss_sig_verify(LIBSSH2_SESSION *session,
                         "Invalid DSS signature length");
 
     sig += 15;
-    sig_len -= 15;
 
     return ssh2_dsa_sha1_verify(dsactx, sig, m, m_len);
 }
