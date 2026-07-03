@@ -95,7 +95,7 @@ static void sha_algo_value_hash(ssh2_hash_alg hash_alg, size_t digest_len,
     }
 }
 
-static int process_host_key(LIBSSH2_SESSION *session, struct string_buf *buf,
+static int kex_proc_hostkey(LIBSSH2_SESSION *session, struct string_buf *buf,
                             const struct kmdhgGPshakex_state *exchange_state,
                             unsigned char *data, size_t data_len)
 {
@@ -618,7 +618,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
 
-        ret = process_host_key(session, &buf, exchange_state, NULL, 0);
+        ret = kex_proc_hostkey(session, &buf, exchange_state, NULL, 0);
         if(ret)
             goto clean_exit;
 
@@ -1687,7 +1687,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
             goto clean_exit;
         }
 
-        ret = process_host_key(session, &buf, exchange_state, data, data_len);
+        ret = kex_proc_hostkey(session, &buf, exchange_state, data, data_len);
         if(ret)
             goto clean_exit;
 
@@ -2033,7 +2033,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
 
-        ret = process_host_key(session, &buf, exchange_state, data, data_len);
+        ret = kex_proc_hostkey(session, &buf, exchange_state, data, data_len);
         if(ret)
             goto clean_exit;
 
@@ -2401,7 +2401,7 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
             goto clean_exit;
         }
 
-        ret = process_host_key(session, &buf, exchange_state, data, data_len);
+        ret = kex_proc_hostkey(session, &buf, exchange_state, data, data_len);
         if(ret)
             goto clean_exit;
 
@@ -2679,7 +2679,7 @@ static int mlkem768x25519_sha256(
         struct string_buf buf;
         ssh2_hash_ctx k_ctx;
 
-        ret = process_host_key(session, &buf, exchange_state, data, data_len);
+        ret = kex_proc_hostkey(session, &buf, exchange_state, data, data_len);
         if(ret)
             goto clean_exit;
 
