@@ -161,7 +161,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     return 0;
 }
 
-int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa,
                          size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
@@ -211,7 +211,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
         goto out;
     }
 
-    ret = (gcry_pk_verify(s_sig, s_hash, rsactx) == 0) ? 0 : -1;
+    ret = (gcry_pk_verify(s_sig, s_hash, rsa) == 0) ? 0 : -1;
 
 out:
     if(s_sig)
@@ -225,11 +225,11 @@ out:
 }
 
 #if LIBSSH2_RSA_SHA1
-int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return ssh2_rsa_sha2_verify(rsactx, SSH2_SHA1_DIG_LEN, sig, sig_len, m,
+    return ssh2_rsa_sha2_verify(rsa, SSH2_SHA1_DIG_LEN, sig, sig_len, m,
                                 m_len);
 }
 #endif
@@ -480,7 +480,7 @@ fail:
 #endif
 
 #if LIBSSH2_RSA
-int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
@@ -510,7 +510,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
                        algo, hash_len, hash))
         return -1;
 
-    err = gcry_pk_sign(&s_sig, s_tmp, rsactx);
+    err = gcry_pk_sign(&s_sig, s_tmp, rsa);
     gcry_sexp_release(s_tmp);
     if(err)
         return -1;

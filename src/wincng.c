@@ -1414,11 +1414,11 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
 }
 
 #if LIBSSH2_RSA_SHA1
-int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return wcng_key_sha_verify(rsactx, SSH2_SHA1_DIG_LEN,
+    return wcng_key_sha_verify(rsa, SSH2_SHA1_DIG_LEN,
                                sig, (ULONG)sig_len,
                                m, (ULONG)m_len,
                                BCRYPT_PAD_PKCS1);
@@ -1426,11 +1426,11 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
 #endif
 
 #if LIBSSH2_RSA_SHA2
-int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
+int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return wcng_key_sha_verify(rsactx, (ULONG)hash_len,
+    return wcng_key_sha_verify(rsa, (ULONG)hash_len,
                                sig, (ULONG)sig_len,
                                m, (ULONG)m_len,
                                BCRYPT_PAD_PKCS1);
@@ -1492,20 +1492,20 @@ static int wcng_rsa_sha_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
-    return wcng_rsa_sha_sign(session, rsactx,
+    return wcng_rsa_sha_sign(session, rsa,
                              hash, hash_len,
                              signature, signature_len);
 }
 
-int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
-    return wcng_rsa_sha_sign(session, rsactx,
+    return wcng_rsa_sha_sign(session, rsa,
                              hash, hash_len,
                              signature, signature_len);
 }

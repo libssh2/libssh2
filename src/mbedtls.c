@@ -477,7 +477,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
     return 0;
 }
 
-int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
+int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
@@ -486,7 +486,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
     mbedtls_md_type_t md_type;
     unsigned char *hash;
 
-    if(sig_len < mbedtls_rsa_get_len(rsactx))
+    if(sig_len < mbedtls_rsa_get_len(rsa))
         return -1;
 
     hash = malloc(hash_len);
@@ -518,7 +518,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
         return -1; /* failure */
     }
 
-    ret = mbedtls_rsa_pkcs1_verify(rsactx,
+    ret = mbedtls_rsa_pkcs1_verify(rsa,
                                    md_type, (unsigned int)hash_len,
                                    hash, sig);
     free(hash);
@@ -526,15 +526,15 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
     return ret == 0 ? 0 : -1;
 }
 
-int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return ssh2_rsa_sha2_verify(rsactx, SSH2_SHA1_DIG_LEN,
+    return ssh2_rsa_sha2_verify(rsa, SSH2_SHA1_DIG_LEN,
                                 sig, sig_len, m, m_len);
 }
 
-int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
@@ -543,7 +543,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
     size_t sig_len;
     mbedtls_md_type_t md_type;
 
-    sig_len = mbedtls_rsa_get_len(rsactx);
+    sig_len = mbedtls_rsa_get_len(rsa);
     sig = SSH2_ALLOC(session, sig_len);
     if(!sig)
         return -1;
@@ -562,7 +562,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
         ret = -1;
     }
     if(ret == 0)
-        ret = mbedtls_rsa_pkcs1_sign(rsactx,
+        ret = mbedtls_rsa_pkcs1_sign(rsa,
                                      mbedtls_ctr_drbg_random,
                                      &mbed_ctr_drbg,
                                      md_type, (unsigned int)hash_len,
@@ -578,11 +578,11 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
     return ret == 0 ? 0 : -1;
 }
 
-int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
-    return ssh2_rsa_sha2_sign(session, rsactx, hash, hash_len,
+    return ssh2_rsa_sha2_sign(session, rsa, hash, hash_len,
                               signature, signature_len);
 }
 

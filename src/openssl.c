@@ -426,7 +426,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
 #endif /* USE_OPENSSL_3 */
 }
 
-int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
+int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
@@ -463,7 +463,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
     }
 
 #ifdef USE_OPENSSL_3
-    ctx = EVP_PKEY_CTX_new(rsactx, NULL);
+    ctx = EVP_PKEY_CTX_new(rsa, NULL);
 
     if(nid_type == NID_sha1)
         md = EVP_sha1();
@@ -486,7 +486,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
     ret = RSA_verify(nid_type,
                      hash, (unsigned int)hash_len,
                      (const unsigned char *)sig, (unsigned int)sig_len,
-                     rsactx);
+                     rsa);
 #endif
 
     free(hash);
@@ -495,11 +495,11 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
 }
 
 #if LIBSSH2_RSA_SHA1
-int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return ssh2_rsa_sha2_verify(rsactx, SSH2_SHA1_DIG_LEN, sig, sig_len, m,
+    return ssh2_rsa_sha2_verify(rsa, SSH2_SHA1_DIG_LEN, sig, sig_len, m,
                                 m_len);
 }
 #endif
@@ -2588,7 +2588,7 @@ clean_exit:
 #endif
 
 #if LIBSSH2_RSA
-int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
@@ -2600,7 +2600,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
     BIGNUM *n = NULL;
     const EVP_MD *md = NULL;
 
-    if(EVP_PKEY_get_bn_param(rsactx, OSSL_PKEY_PARAM_RSA_N, &n) > 0) {
+    if(EVP_PKEY_get_bn_param(rsa, OSSL_PKEY_PARAM_RSA_N, &n) > 0) {
         sig_len = BN_num_bytes(n);
         BN_clear_free(n);
     }
@@ -2610,7 +2610,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
 #else
     unsigned int sig_len = 0;
 
-    sig_len = RSA_size(rsactx);
+    sig_len = RSA_size(rsa);
     sig = SSH2_ALLOC(session, sig_len);
 #endif
 
@@ -2629,7 +2629,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
                  "Unsupported hash digest length");
 
     if(md) {
-        EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new(rsactx, NULL);
+        EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new(rsa, NULL);
         if(ctx &&
            EVP_PKEY_sign_init(ctx) > 0 &&
            EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_PADDING) > 0 &&
@@ -2643,13 +2643,13 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
 #else
     if(hash_len == SSH2_SHA1_DIG_LEN)
         ret = RSA_sign(NID_sha1,
-                       hash, (unsigned int)hash_len, sig, &sig_len, rsactx);
+                       hash, (unsigned int)hash_len, sig, &sig_len, rsa);
     else if(hash_len == SSH2_SHA256_DIG_LEN)
         ret = RSA_sign(NID_sha256,
-                       hash, (unsigned int)hash_len, sig, &sig_len, rsactx);
+                       hash, (unsigned int)hash_len, sig, &sig_len, rsa);
     else if(hash_len == SSH2_SHA512_DIG_LEN)
         ret = RSA_sign(NID_sha512,
-                       hash, (unsigned int)hash_len, sig, &sig_len, rsactx);
+                       hash, (unsigned int)hash_len, sig, &sig_len, rsa);
     else {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
                  "Unsupported hash digest length");
@@ -2669,11 +2669,11 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
 }
 
 #if LIBSSH2_RSA_SHA1
-int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
-    return ssh2_rsa_sha2_sign(session, rsactx, hash, hash_len,
+    return ssh2_rsa_sha2_sign(session, rsa, hash, hash_len,
                               signature, signature_len);
 }
 #endif
