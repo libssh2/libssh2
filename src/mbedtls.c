@@ -1263,7 +1263,7 @@ cleanup:
 
     mbedtls_pk_free(&pkey);
 
-    mbed_safe_free(ntdata, blob_len);
+    mbed_safe_free(ntdata, blob_len + 1);
 
     return *ec_ctx ? 0 : -1;
 }
