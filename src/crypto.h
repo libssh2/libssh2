@@ -151,7 +151,7 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
                  const unsigned char *qdata, unsigned long qlen,
                  const unsigned char *gdata, unsigned long glen,
                  const unsigned char *ydata, unsigned long ylen,
-                 const unsigned char *x, unsigned long x_len);
+                 const unsigned char *xdata, unsigned long xlen);
 int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
                         LIBSSH2_SESSION *session,
                         const char *filename,
