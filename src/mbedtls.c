@@ -133,8 +133,7 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
     if(!ret)
         ret = mbedtls_cipher_setkey(h,
                   secret,
-                  (int)mbedtls_cipher_info_get_key_bitlen(cipher_info),
-                  op);
+                  (int)mbedtls_cipher_info_get_key_bitlen(cipher_info), op);
 
     if(!ret)
         ret = mbedtls_cipher_set_iv(h, iv,
