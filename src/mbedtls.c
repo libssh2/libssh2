@@ -859,7 +859,7 @@ int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
 {
     size_t plen = 0;
 
-    *out_private_key = SSH2_ALLOC(session, sizeof(mbedtls_ecp_keypair));
+    *out_private_key = mbedtls_calloc(1, sizeof(mbedtls_ecp_keypair));
     if(!*out_private_key)
         goto failed;
 
