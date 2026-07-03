@@ -1139,8 +1139,7 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
 
         /* packet_len(4) + packet_type(1) + request_id(4) + filename_len(4) +
            flags(4) */
-        packet_len = (13 +
-                     (open_file ? (4 + sftp_attrsize(attrs.flags)) : 0));
+        packet_len = 13 + (open_file ? (4 + sftp_attrsize(attrs.flags)) : 0);
 
         if(packet_len + (uint32_t)filename_len < packet_len) {
             ssh2_err(session, LIBSSH2_ERROR_PROTO,
