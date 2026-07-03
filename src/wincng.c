@@ -747,9 +747,9 @@ int ssh2_wcng_hash_init(struct wcng_hash_ctx *ctx, BCRYPT_ALG_HANDLE hAlg,
 int ssh2_wcng_hash_update(struct wcng_hash_ctx *ctx,
                           const void *data, size_t datalen)
 {
-    int ret = BCryptHashData(ctx->hHash,
-                             SSH2_UNCONST(data), (ULONG)datalen, 0);
-    return BCRYPT_SUCCESS(ret);
+    return datalen <= ULONG_MAX &&
+        BCRYPT_SUCCESS(BCryptHashData(ctx->hHash,
+                                      SSH2_UNCONST(data), (ULONG)datalen, 0));
 }
 
 int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx, unsigned char *hash,
