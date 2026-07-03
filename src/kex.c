@@ -3121,8 +3121,8 @@ struct common_method {
 
 /*
  * Calculate the length of a particular method list's resulting string
- * Includes SUM(strlen() of each individual method plus 1 (for coma)) - 1
- * (because the last coma is not used)
+ * Includes SUM(strlen() of each individual method plus 1 (for comma)) - 1
+ * (because the last comma is not used)
  * Another sign of bad coding practices gone mad. Pretend you do not see this.
  */
 static size_t kex_method_strlen(const struct common_method **method)
@@ -4145,18 +4145,16 @@ int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
     if(!mlist)
         return ssh2_err(session, LIBSSH2_ERROR_INVAL, "No algorithm found");
 
-    /*
-      mlist is looped through twice. The first time to find the number od
-      supported algorithms (needed to allocate the proper size of array) and
-      the second time to actually copy the pointers.  Typically this function
-      it not called often (typically at the beginning of a session) and
-      the number of algorithms (i.e. number of iterations in one loop) are
-      not expected to become high (typically it does not exceed 20) for quite
-      a long time.
+    /* mlist is looped through twice. The first time to find the number of
+       supported algorithms (needed to allocate the proper size of array) and
+       the second time to actually copy the pointers.  Typically this function
+       it not called often (typically at the beginning of a session) and
+       the number of algorithms (i.e. number of iterations in one loop) are
+       not expected to become high (typically it does not exceed 20) for quite
+       a long time.
 
-      Thus double looping really should not be an issue and it is definitely
-      a better solution than reallocation several times.
-    */
+       Thus double looping really should not be an issue and it is definitely
+       a better solution than reallocation several times. */
 
     /* count the number of supported algorithms */
     for(i = 0, ialg = 0; mlist[i]; i++) {
