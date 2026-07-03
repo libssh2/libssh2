@@ -300,7 +300,7 @@ static int session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
 /*
  * gets the given blocking or non-blocking state of the socket.
  */
-static int get_socket_nonblocking(libssh2_socket_t sockfd)
+static int session_get_socket_nonblocking(libssh2_socket_t sockfd)
 {                                 /* operate on this */
 #ifdef HAVE_O_NONBLOCK  /* most recent unix versions */
     int flags = fcntl(sockfd, F_GETFL, 0);
@@ -682,7 +682,7 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
         session->socket_fd = sock;
 
         session->socket_prev_blockstate =
-            !get_socket_nonblocking(session->socket_fd);
+            !session_get_socket_nonblocking(session->socket_fd);
 
         if(session->socket_prev_blockstate) {
             /* If in blocking state change to non-blocking */
