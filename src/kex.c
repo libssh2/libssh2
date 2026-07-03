@@ -2769,7 +2769,7 @@ static int mlkem768x25519_sha256(
             goto clean_exit;
         }
 
-        /* Compute the x2559 shared secret K */
+        /* Compute the x25519 shared secret K */
         rc = ssh2_curve25519_gen_k(&exchange_state->k, private_t_key,
                                    server_public_key +
                                        SSH2_MLKEM_768_CIPHERTEXT);
@@ -3235,7 +3235,7 @@ static int kex_init(LIBSSH2_SESSION *session)
         }
         s += 16;
 
-        /* Ennumerating through these lists twice is probably (certainly?)
+        /* Enumerating through these lists twice is probably (certainly?)
            inefficient from a CPU standpoint, but it saves multiple
            malloc/realloc calls */
         KEX_METHOD_PREFS_STR(s, kex_len, session->kex_prefs, kex_methods);
@@ -3368,11 +3368,11 @@ unsigned char *ssh2_kex_agree_instr(unsigned char *haystack,
        (needle_len == haystack_len || haystack[needle_len] == ','))
         return haystack;
 
-    /* Search until we run out of comas or we run out of haystack,
+    /* Search until we run out of commas or we run out of haystack,
        whichever comes first */
     /* !checksrc! disable EQUALSNULL 1 */
     while((s = (unsigned char *)memchr((char *)s, ',', left)) != NULL) {
-        /* Advance buffer past coma if we can */
+        /* Advance buffer past comma if we can */
         left = end_haystack - s;
         if(left >= 1 && left <= haystack_len && left > needle_len) {
             s++;
