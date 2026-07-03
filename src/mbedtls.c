@@ -887,9 +887,11 @@ failed:
 
     ssh2_ecdsa_free(*out_private_key);
     *out_private_key = NULL;
-    ssh2_explicit_zero(*out_public_key_octal, plen);
-    SSH2_FREE(session, *out_public_key_octal);
-    *out_public_key_octal = NULL;
+    if(*out_public_key_octal) {
+        ssh2_explicit_zero(*out_public_key_octal, plen);
+        SSH2_FREE(session, *out_public_key_octal);
+        *out_public_key_octal = NULL;
+    }
 
     return -1;
 }
