@@ -246,7 +246,7 @@ static int transport_fullpacket(LIBSSH2_SESSION *session,
 
                 /* we need buffer for decrypt */
                 decrypt_size = p->total_num - mac_len - 4;
-                if(decrypt_size < (ssize_t)(blocksize - 1))
+                if(decrypt_size < blocksize - 1)
                     return LIBSSH2_ERROR_DECRYPT;
                 decrypt_buffer = SSH2_ALLOC(session, decrypt_size);
                 if(!decrypt_buffer)
