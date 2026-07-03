@@ -157,7 +157,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 
     osize = blocksize + mbedtls_cipher_get_block_size(ctx);
 
-    output = (unsigned char *)mbedtls_calloc(osize, sizeof(char));
+    output = mbedtls_calloc(osize, sizeof(char));
     if(output) {
         size_t olen = 0, finish_olen = 0;
 
@@ -280,7 +280,7 @@ ssh2_bn *ssh2_mbed_bn_init(void)
 {
     ssh2_bn *bignum;
 
-    bignum = (ssh2_bn *)mbedtls_calloc(1, sizeof(ssh2_bn));
+    bignum = mbedtls_calloc(1, sizeof(ssh2_bn));
     if(bignum)
         mbedtls_mpi_init(bignum);
 
@@ -350,7 +350,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     int ret;
     ssh2_rsa_ctx *ctx;
 
-    ctx = (ssh2_rsa_ctx *)mbedtls_calloc(1, sizeof(ssh2_rsa_ctx));
+    ctx = mbedtls_calloc(1, sizeof(ssh2_rsa_ctx));
     if(!ctx)
         return -1;
 
@@ -438,7 +438,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
     unsigned char *blob_nullterm;
     size_t pwd_len;
 
-    *rsa = (ssh2_rsa_ctx *)mbedtls_calloc(1, sizeof(ssh2_rsa_ctx));
+    *rsa = mbedtls_calloc(1, sizeof(ssh2_rsa_ctx));
     if(!*rsa)
         return -1;
 
