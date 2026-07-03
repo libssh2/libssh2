@@ -1056,7 +1056,7 @@ static int mbed_parse_eckey(ssh2_ecdsa_ctx **ctx,
     if(mbedtls_pk_get_type(pkey) != MBEDTLS_PK_ECKEY)
         goto failed;
 
-    *ctx = SSH2_ALLOC(session, sizeof(ssh2_ecdsa_ctx));
+    *ctx = mbedtls_calloc(1, sizeof(ssh2_ecdsa_ctx));
     if(!*ctx)
         goto failed;
 
@@ -1139,7 +1139,7 @@ static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
     if(ssh2_get_bignum_bytes(decrypted, &exponent, &exponentlen))
         goto failed;
 
-    *ctx = SSH2_ALLOC(session, sizeof(ssh2_ecdsa_ctx));
+    *ctx = mbedtls_calloc(1, sizeof(ssh2_ecdsa_ctx));
     if(!*ctx)
         goto failed;
 
