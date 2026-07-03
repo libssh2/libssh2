@@ -2009,10 +2009,10 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
                        struct kmdhgGPshakex_state *exchange_state)
 {
     int ret = 0;
-    int rc, ml_kem_size;
+    int rc, mlkem_size;
     ssh2_hash_alg hash_alg;
     ssh2_curve_type type;
-    size_t digest_len, ml_kem_cipher_len, public_pq_key_len;
+    size_t digest_len, mlkem_cipher_len, public_pq_key_len;
     unsigned char *shared_secret = NULL;
 
     if(kex_session_hybrid_curve_type(session->kex->name, &type)) {
@@ -2025,15 +2025,15 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
     case SSH2_EC_CURVE_NISTP256:
         hash_alg = SSH2_SHA256_ALG;
         digest_len = SSH2_SHA256_DIG_LEN;
-        ml_kem_cipher_len = SSH2_MLKEM_768_CIPHERTEXT;
-        ml_kem_size = 768;
+        mlkem_cipher_len = SSH2_MLKEM_768_CIPHERTEXT;
+        mlkem_size = 768;
         public_pq_key_len = SSH2_MLKEM_768_PUBLIC_KEY_LEN;
         break;
     case SSH2_EC_CURVE_NISTP384:
         hash_alg = SSH2_SHA384_ALG;
         digest_len = SSH2_SHA384_DIG_LEN;
-        ml_kem_cipher_len = SSH2_MLKEM_1024_CIPHERTEXT;
-        ml_kem_size = 1024;
+        mlkem_cipher_len = SSH2_MLKEM_1024_CIPHERTEXT;
+        mlkem_size = 1024;
         public_pq_key_len = SSH2_MLKEM_1024_PUBLIC_KEY_LEN;
         break;
     default:
@@ -2073,7 +2073,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
 
-        if(server_public_key_len <= ml_kem_cipher_len) {
+        if(server_public_key_len <= mlkem_cipher_len) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                            "Unexpected mlkemnistp server public key length");
             goto clean_exit;
@@ -2100,8 +2100,8 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
 
         /* Compute the ecdh shared secret K */
         rc = ssh2_ecdh_gen_k(&exchange_state->k, private_t_key,
-                             server_public_key + ml_kem_cipher_len,
-                             server_public_key_len - ml_kem_cipher_len);
+                             server_public_key + mlkem_cipher_len,
+                             server_public_key_len - mlkem_cipher_len);
         if(rc) {
             ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                            "Unable to create ECDH shared secret");
@@ -2119,7 +2119,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
         }
 
         /* Compute the ML-KEM shared secret */
-        rc = ssh2_mlkem_get_sk(shared_secret, ml_kem_size, private_pq_key,
+        rc = ssh2_mlkem_get_sk(shared_secret, mlkem_size, private_pq_key,
                                server_public_key);
         if(rc) {
             ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
@@ -2247,7 +2247,7 @@ static int kex_method_mlkem_nistp_key_exchange(
 
     if(key_state->state == ssh2_NB_state_created) {
         ssh2_curve_type type;
-        int ml_kem_size;
+        int mlkem_size;
         size_t mlkem_public_key_len;
         size_t mlkem_private_key_len;
         unsigned char *s = NULL;
@@ -2260,12 +2260,12 @@ static int kex_method_mlkem_nistp_key_exchange(
 
         switch(type) {
         case SSH2_EC_CURVE_NISTP256:
-            ml_kem_size = 768;
+            mlkem_size = 768;
             mlkem_public_key_len = SSH2_MLKEM_768_PUBLIC_KEY_LEN;
             mlkem_private_key_len = SSH2_MLKEM_768_PRIVATE_KEY_LEN;
             break;
         case SSH2_EC_CURVE_NISTP384:
-            ml_kem_size = 1024;
+            mlkem_size = 1024;
             mlkem_public_key_len = SSH2_MLKEM_1024_PUBLIC_KEY_LEN;
             mlkem_private_key_len = SSH2_MLKEM_1024_PRIVATE_KEY_LEN;
             break;
@@ -2283,7 +2283,7 @@ static int kex_method_mlkem_nistp_key_exchange(
             goto clean_exit;
         }
 
-        rc = ssh2_mlkem_new(session, ml_kem_size,
+        rc = ssh2_mlkem_new(session, mlkem_size,
                             &key_state->mlkem_public_key,
                             &key_state->mlkem_private_key);
         if(rc) {

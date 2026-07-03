@@ -286,12 +286,12 @@ int ssh2_ed25519_new_private_frommemory_sk(ssh2_ed25519_ctx **ed_ctx,
 
 #if LIBSSH2_MLKEM
 int ssh2_mlkem_new(LIBSSH2_SESSION *session,
-                   int ml_kem_size,
+                   int mlkem_size,
                    unsigned char **out_public_key,
                    unsigned char **out_private_key);
 
 int ssh2_mlkem_get_sk(unsigned char *out_shared_key,
-                      int ml_kem_size,
+                      int mlkem_size,
                       uint8_t *private_key,
                       uint8_t *server_ciphertext);
 #endif /* LIBSSH2_MLKEM */

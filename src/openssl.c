@@ -2431,7 +2431,7 @@ int ssh2_ed25519_new_public(ssh2_ed25519_ctx **ed_ctx,
 
 #if LIBSSH2_MLKEM
 
-int ssh2_mlkem_new(LIBSSH2_SESSION *session, int ml_kem_size,
+int ssh2_mlkem_new(LIBSSH2_SESSION *session, int mlkem_size,
                    unsigned char **out_public_key,
                    unsigned char **out_private_key)
 {
@@ -2442,7 +2442,7 @@ int ssh2_mlkem_new(LIBSSH2_SESSION *session, int ml_kem_size,
     size_t privLen, actualPrivLen, pubLen, actualPubLen;
     int rc = -1;
 
-    switch(ml_kem_size) {
+    switch(mlkem_size) {
     case 512:
         evp_name = "ML-KEM-512";
         privLen = SSH2_MLKEM_512_PRIVATE_KEY_LEN;
@@ -2518,7 +2518,7 @@ clean_exit:
     return rc;
 }
 
-int ssh2_mlkem_get_sk(unsigned char *out_shared_key, int ml_kem_size,
+int ssh2_mlkem_get_sk(unsigned char *out_shared_key, int mlkem_size,
                       uint8_t *private_key, uint8_t *server_ciphertext)
 {
     int rc = -1;
@@ -2528,7 +2528,7 @@ int ssh2_mlkem_get_sk(unsigned char *out_shared_key, int ml_kem_size,
     const char *evp_name;
     size_t privLen, ciphertextLen;
 
-    switch(ml_kem_size) {
+    switch(mlkem_size) {
     case 512:
         evp_name = "ML-KEM-512";
         privLen = SSH2_MLKEM_512_PRIVATE_KEY_LEN;
