@@ -2679,8 +2679,8 @@ int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
 
 #if LIBSSH2_DSA
 int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
-                       const unsigned char *hash,
-                       size_t hash_len, unsigned char *signature)
+                       const unsigned char *hash, size_t hash_len,
+                       unsigned char *signature)
 {
     DSA_SIG *sig = NULL;
     const BIGNUM *r;

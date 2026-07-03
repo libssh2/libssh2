@@ -1703,16 +1703,16 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
 }
 
 int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
-                         const unsigned char *sig_fixed,
+                         const unsigned char *sig,
                          const unsigned char *m, size_t m_len)
 {
-    return wcng_key_sha_verify(dsa, SSH2_SHA1_DIG_LEN, sig_fixed,
+    return wcng_key_sha_verify(dsa, SSH2_SHA1_DIG_LEN, sig,
                                40, m, (ULONG)m_len, 0);
 }
 
 int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
                        const unsigned char *hash, size_t hash_len,
-                       unsigned char *sig_fixed)
+                       unsigned char *signature)
 {
     unsigned char *data, *sig;
     ULONG cbData, datalen, siglen;
@@ -1735,7 +1735,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
                 ret = BCryptSignHash(dsa->hKey, NULL, data, datalen,
                                      sig, siglen, &cbData, 0);
                 if(BCRYPT_SUCCESS(ret))
-                    memcpy(sig_fixed, sig, siglen);
+                    memcpy(signature, sig, siglen);
 
                 wcng_safe_free(sig, siglen);
             }

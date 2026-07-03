@@ -560,7 +560,7 @@ int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
 #if LIBSSH2_DSA
 int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
                        const unsigned char *hash, size_t hash_len,
-                       unsigned char *sig)
+                       unsigned char *signature)
 {
     unsigned char zhash[SSH2_SHA1_DIG_LEN + 1];
     gcry_sexp_t sig_sexp;
@@ -586,7 +586,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
     if(ret)
         return -1;
 
-    memset(sig, 0, 40);
+    memset(signature, 0, 40);
 
     /* Extract R. */
 
@@ -606,7 +606,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
     if(size < 1 || size > 20)
         goto err;
 
-    memcpy(sig + (20 - size), tmp, size);
+    memcpy(signature + (20 - size), tmp, size);
 
     gcry_sexp_release(data);
 
@@ -628,7 +628,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
     if(size < 1 || size > 20)
         goto err;
 
-    memcpy(sig + 20 + (20 - size), tmp, size);
+    memcpy(signature + 20 + (20 - size), tmp, size);
     goto out;
 
 err:
