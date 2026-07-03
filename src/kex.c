@@ -1976,16 +1976,18 @@ static void kex_method_mlkem_nistp_cleanup(
 
     if(key_state->mlkem_public_key) {
         ssh2_explicit_zero(key_state->mlkem_public_key,
-                           SSH2_MLKEM_768_PUBLIC_KEY_LEN);
+                           key_state->mlkem_public_key_len);
         SSH2_FREE(session, key_state->mlkem_public_key);
         key_state->mlkem_public_key = NULL;
+        key_state->mlkem_public_key_len = 0;
     }
 
     if(key_state->mlkem_private_key) {
         ssh2_explicit_zero(key_state->mlkem_private_key,
-                           SSH2_MLKEM_768_PRIVATE_KEY_LEN);
+                           key_state->mlkem_private_key_len);
         SSH2_FREE(session, key_state->mlkem_private_key);
         key_state->mlkem_private_key = NULL;
+        key_state->mlkem_private_key_len = 0;
     }
 
     if(key_state->data) {
@@ -2239,9 +2241,6 @@ static int kex_method_mlkem_nistp_key_exchange(
 {
     int ret = 0;
     int rc = 0;
-    ssh2_curve_type type;
-    int ml_kem_size;
-    size_t ml_kem_key_len;
 
     if(key_state->state == ssh2_NB_state_idle) {
         key_state->public_key_oct = NULL;
@@ -2249,6 +2248,10 @@ static int kex_method_mlkem_nistp_key_exchange(
     }
 
     if(key_state->state == ssh2_NB_state_created) {
+        ssh2_curve_type type;
+        int ml_kem_size;
+        size_t mlkem_public_key_len;
+        size_t mlkem_private_key_len;
         unsigned char *s = NULL;
 
         if(kex_session_hybrid_curve_type(session->kex->name, &type)) {
@@ -2260,11 +2263,13 @@ static int kex_method_mlkem_nistp_key_exchange(
         switch(type) {
         case SSH2_EC_CURVE_NISTP256:
             ml_kem_size = 768;
-            ml_kem_key_len = SSH2_MLKEM_768_PUBLIC_KEY_LEN;
+            mlkem_public_key_len = SSH2_MLKEM_768_PUBLIC_KEY_LEN;
+            mlkem_private_key_len = SSH2_MLKEM_768_PRIVATE_KEY_LEN;
             break;
         case SSH2_EC_CURVE_NISTP384:
             ml_kem_size = 1024;
-            ml_kem_key_len = SSH2_MLKEM_1024_PUBLIC_KEY_LEN;
+            mlkem_public_key_len = SSH2_MLKEM_1024_PUBLIC_KEY_LEN;
+            mlkem_private_key_len = SSH2_MLKEM_1024_PRIVATE_KEY_LEN;
             break;
         default:
             ret = ssh2_err(session, -1,
@@ -2275,7 +2280,6 @@ static int kex_method_mlkem_nistp_key_exchange(
         rc = ssh2_ecdsa_create_key(session, &key_state->private_key,
                                    &key_state->public_key_oct,
                                    &key_state->public_key_oct_len, type);
-
         if(rc) {
             ret = ssh2_err(session, rc, "Unable to create ecdh private key");
             goto clean_exit;
@@ -2284,20 +2288,22 @@ static int kex_method_mlkem_nistp_key_exchange(
         rc = ssh2_mlkem_new(session, ml_kem_size,
                             &key_state->mlkem_public_key,
                             &key_state->mlkem_private_key);
-
         if(rc) {
             ret = ssh2_err(session, rc, "Unable to create mlkem private key");
             goto clean_exit;
         }
 
+        key_state->mlkem_public_key_len = mlkem_public_key_len;
+        key_state->mlkem_private_key_len = mlkem_private_key_len;
+
         key_state->request[0] = SSH2_MSG_KEX_ECDH_INIT;
         s = key_state->request + 1;
         ssh2_store_hybrid_str(&s,
                               (const char *)key_state->mlkem_public_key,
-                              ml_kem_key_len,
+                              mlkem_public_key_len,
                               (const char *)key_state->public_key_oct,
                               key_state->public_key_oct_len);
-        key_state->request_len = ml_kem_key_len +
+        key_state->request_len = mlkem_public_key_len +
                                  key_state->public_key_oct_len + 5;
 
         ssh2_deb((session, LIBSSH2_TRACE_KEX,
@@ -2663,16 +2669,18 @@ static void kex_method_mlkem768x25519_cleanup(
 
     if(key_state->mlkem_public_key) {
         ssh2_explicit_zero(key_state->mlkem_public_key,
-                           SSH2_MLKEM_768_PUBLIC_KEY_LEN);
+                           key_state->mlkem_public_key_len);
         SSH2_FREE(session, key_state->mlkem_public_key);
         key_state->mlkem_public_key = NULL;
+        key_state->mlkem_public_key_len = 0;
     }
 
     if(key_state->mlkem_private_key) {
         ssh2_explicit_zero(key_state->mlkem_private_key,
-                           SSH2_MLKEM_768_PRIVATE_KEY_LEN);
+                           key_state->mlkem_private_key_len);
         SSH2_FREE(session, key_state->mlkem_private_key);
         key_state->mlkem_private_key = NULL;
+        key_state->mlkem_private_key_len = 0;
     }
 
     if(key_state->data) {
@@ -2854,34 +2862,38 @@ static int kex_method_mlkem768x25519_key_exchange(
     }
 
     if(key_state->state == ssh2_NB_state_created) {
+        int mlkem_size = 768;
+        size_t mlkem_public_key_len = SSH2_MLKEM_768_PUBLIC_KEY_LEN;
+        size_t mlkem_private_key_len = SSH2_MLKEM_768_PRIVATE_KEY_LEN;
         unsigned char *s = NULL;
 
         rc = ssh2_curve25519_new(session,
                                  &key_state->curve25519_public_key,
                                  &key_state->curve25519_private_key);
-
         if(rc) {
             ret = ssh2_err(session, rc, "Unable to create x25519 private key");
             goto clean_exit;
         }
 
-        rc = ssh2_mlkem_new(session, 768,
+        rc = ssh2_mlkem_new(session, mlkem_size,
                             &key_state->mlkem_public_key,
                             &key_state->mlkem_private_key);
-
         if(rc) {
             ret = ssh2_err(session, rc, "Unable to create mlkem private key");
             goto clean_exit;
         }
 
+        key_state->mlkem_public_key_len = mlkem_public_key_len;
+        key_state->mlkem_private_key_len = mlkem_private_key_len;
+
         key_state->request[0] = SSH2_MSG_KEX_ECDH_INIT;
         s = key_state->request + 1;
         ssh2_store_hybrid_str(&s,
                               (const char *)key_state->mlkem_public_key,
-                              SSH2_MLKEM_768_PUBLIC_KEY_LEN,
+                              mlkem_public_key_len,
                               (const char *)key_state->curve25519_public_key,
                               SSH2_ED25519_KEY_LEN);
-        key_state->request_len = SSH2_MLKEM_768_PUBLIC_KEY_LEN +
+        key_state->request_len = mlkem_public_key_len +
                                  SSH2_ED25519_KEY_LEN + 5;
 
         ssh2_deb((session, LIBSSH2_TRACE_KEX,
