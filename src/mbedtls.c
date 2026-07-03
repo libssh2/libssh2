@@ -886,7 +886,8 @@ int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
 failed:
 
     ssh2_ecdsa_free(*out_private_key);
-    mbed_safe_free(*out_public_key_octal, plen);
+    ssh2_explicit_zero(*out_public_key_octal, plen);
+    SSH2_FREE(session, *out_public_key_octal);
     *out_private_key = NULL;
     *out_public_key_octal = NULL;
 
