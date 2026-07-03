@@ -889,6 +889,7 @@ failed:
     ssh2_ecdsa_free(*out_private_key);
     mbed_safe_free(*out_public_key_octal, plen);
     *out_private_key = NULL;
+    *out_public_key_octal = NULL;
 
     return -1;
 }
