@@ -100,7 +100,7 @@ int ssh2_lgcr_hash_final(gcry_md_hd_t ctx, void *hash, size_t len);
 #define ssh2_crypto_exit()    do {} while(0)
 
 #define ssh2_rsa_ctx          struct gcry_sexp
-#define ssh2_rsa_free(rsactx) gcry_sexp_release(rsactx)
+#define ssh2_rsa_free(rsa)    gcry_sexp_release(rsa)
 
 #define ssh2_dsa_ctx          struct gcry_sexp
 #define ssh2_dsa_free(dsa)    gcry_sexp_release(dsa)

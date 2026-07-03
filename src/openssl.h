@@ -255,10 +255,10 @@ int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out, size_t outlen);
 #if LIBSSH2_RSA
 #ifdef USE_OPENSSL_3
 #define ssh2_rsa_ctx          EVP_PKEY
-#define ssh2_rsa_free(rsactx) EVP_PKEY_free(rsactx)
+#define ssh2_rsa_free(rsa)    EVP_PKEY_free(rsa)
 #else
 #define ssh2_rsa_ctx          RSA
-#define ssh2_rsa_free(rsactx) RSA_free(rsactx)
+#define ssh2_rsa_free(rsa)    RSA_free(rsa)
 #endif
 #endif /* LIBSSH2_RSA */
 
