@@ -855,12 +855,9 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
  */
 
 #if LIBSSH2_RSA || LIBSSH2_DSA
-static int wcng_key_sha_verify(struct wcng_key_ctx *ctx,
-                               ULONG hashlen,
-                               const unsigned char *sig,
-                               ULONG sig_len,
-                               const unsigned char *m,
-                               ULONG m_len,
+static int wcng_key_sha_verify(struct wcng_key_ctx *ctx, ULONG hashlen,
+                               const unsigned char *sig, ULONG sig_len,
+                               const unsigned char *m, ULONG m_len,
                                ULONG flags)
 {
     BCRYPT_PKCS1_PADDING_INFO paddingInfoPKCS1;
@@ -1429,8 +1426,7 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
 #endif
 
 #if LIBSSH2_RSA_SHA2
-int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
-                         size_t hash_len,
+int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx, size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
@@ -1441,12 +1437,9 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
 }
 #endif
 
-static int wcng_rsa_sha_sign(LIBSSH2_SESSION *session,
-                             ssh2_rsa_ctx *rsa,
-                             const unsigned char *hash,
-                             size_t hash_len,
-                             unsigned char **signature,
-                             size_t *signature_len)
+static int wcng_rsa_sha_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
+                             const unsigned char *hash, size_t hash_len,
+                             unsigned char **signature, size_t *signature_len)
 {
     BCRYPT_PKCS1_PADDING_INFO paddingInfo;
     unsigned char *data, *sig;
@@ -1499,8 +1492,7 @@ static int wcng_rsa_sha_sign(LIBSSH2_SESSION *session,
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
-                       ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
@@ -1509,8 +1501,7 @@ int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
                              signature, signature_len);
 }
 
-int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
-                       ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsactx,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
@@ -2718,10 +2709,8 @@ cleanup:
  */
 int ssh2_ecdsa_sign(IN LIBSSH2_SESSION *session,
                     IN struct wcng_ecdsa_ctx *ec_ctx,
-                    IN const unsigned char *hash,
-                    IN size_t hash_len,
-                    OUT unsigned char **signature,
-                    OUT size_t *signature_len)
+                    IN const unsigned char *hash, IN size_t hash_len,
+                    OUT unsigned char **signature, OUT size_t *signature_len)
 {
     NTSTATUS status;
     int result = LIBSSH2_ERROR_NONE;
