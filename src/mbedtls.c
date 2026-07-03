@@ -457,6 +457,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
     }
 
     memcpy(blob_nullterm, blob, blob_len);
+    blob_nullterm[blob_len] = 0;
 
     mbedtls_pk_init(&pkey);
 
@@ -740,6 +741,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
         return -1;
 
     memcpy(privatekeydata_nullterm, privatekeydata, privatekeydata_len);
+    privatekeydata_nullterm[privatekeydata_len] = 0;
 
     mbedtls_pk_init(&pkey);
 
@@ -1250,6 +1252,7 @@ int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
         goto cleanup;
 
     memcpy(ntdata, blob, blob_len);
+    ntdata[blob_len] = 0;
 
     if(mbed_parse_eckey(ec_ctx, &pkey, session,
                         ntdata, blob_len + 1, passphrase) == 0)
