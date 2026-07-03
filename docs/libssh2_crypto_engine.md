@@ -23,7 +23,7 @@ libssh2_crypto_engine_t libssh2_crypto_engine(void);
 
 # DESCRIPTION
 
-Returns currently used crypto engine, as en enum value.
+Returns currently used crypto engine, as an enum value.
 
 # AVAILABILITY
 
