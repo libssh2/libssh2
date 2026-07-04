@@ -439,8 +439,8 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                 descr_len = ssh2_ntohu32(s);
                 s += 4;
 
-                if(s + descr_len + 4 >
-                   session->pkeyInit_data + session->pkeyInit_data_len) {
+                if(session->pkeyInit_data_len <
+                   (size_t)(s - session->pkeyInit_data) + descr_len + 4) {
                     ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                              "Public key init data too small");
                     goto err_exit;
@@ -450,8 +450,8 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                 lang_len = ssh2_ntohu32(s);
                 s += 4;
 
-                if(s + lang_len >
-                   session->pkeyInit_data + session->pkeyInit_data_len) {
+                if(session->pkeyInit_data_len <
+                   (size_t)(s - session->pkeyInit_data) + lang_len) {
                     ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                              "Public key init data too small");
                     goto err_exit;
@@ -459,7 +459,8 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                 /* lang starts here */
                 s += lang_len;
 
-                if(s > session->pkeyInit_data + session->pkeyInit_data_len) {
+                if(session->pkeyInit_data_len <
+                   (size_t)(s - session->pkeyInit_data)) {
                     ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                              "Malformed publickey subsystem packet");
                     goto err_exit;
