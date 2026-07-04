@@ -439,6 +439,11 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                 descr_len = ssh2_ntohu32(s);
                 s += 4;
 
+                if(descr_len > LIBSSH2_PACKET_MAXPAYLOAD) {
+                    ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                             "Public key description too large");
+                    goto err_exit;
+                }
                 if(session->pkeyInit_data_len <
                    (size_t)(s - session->pkeyInit_data) + descr_len + 4) {
                     ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
@@ -450,6 +455,11 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                 lang_len = ssh2_ntohu32(s);
                 s += 4;
 
+                if(lang_len > LIBSSH2_PACKET_MAXPAYLOAD) {
+                    ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                             "Public key language too large");
+                    goto err_exit;
+                }
                 if(session->pkeyInit_data_len <
                    (size_t)(s - session->pkeyInit_data) + lang_len) {
                     ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
@@ -848,6 +858,11 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
             descr_len = ssh2_ntohu32(pkey->listFetch_s);
             pkey->listFetch_s += 4;
 
+            if(descr_len > LIBSSH2_PACKET_MAXPAYLOAD) {
+                ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                         "Public key description too large");
+                goto err_exit;
+            }
             if(pkey->listFetch_data_len <
                (size_t)(pkey->listFetch_s - pkey->listFetch_data) +
                descr_len + 4) {
@@ -860,6 +875,11 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
             lang_len = ssh2_ntohu32(pkey->listFetch_s);
             pkey->listFetch_s += 4;
 
+            if(lang_len > LIBSSH2_PACKET_MAXPAYLOAD) {
+                ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                         "Public key language too large");
+                goto err_exit;
+            }
             if(pkey->listFetch_data_len <
                (size_t)(pkey->listFetch_s - pkey->listFetch_data) + lang_len) {
                 ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
@@ -918,6 +938,11 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 pkey->listFetch_s += 4;
 
                 if(comment_len) {
+                    if(comment_len > LIBSSH2_PACKET_MAXPAYLOAD) {
+                        ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                 "Public key comment too large");
+                        goto err_exit;
+                    }
                     if(pkey->listFetch_data_len <
                        (size_t)(pkey->listFetch_s - pkey->listFetch_data) +
                        comment_len) {
@@ -958,6 +983,11 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 list[keys].name_len = ssh2_ntohu32(pkey->listFetch_s);
                 pkey->listFetch_s += 4;
 
+                if(list[keys].name_len > LIBSSH2_PACKET_MAXPAYLOAD) {
+                    ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                             "Public key name too large");
+                    goto err_exit;
+                }
                 if(pkey->listFetch_data_len <
                    (size_t)(pkey->listFetch_s - pkey->listFetch_data) +
                    list[keys].name_len) {
@@ -977,6 +1007,11 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 list[keys].blob_len = ssh2_ntohu32(pkey->listFetch_s);
                 pkey->listFetch_s += 4;
 
+                if(list[keys].blob_len > LIBSSH2_PACKET_MAXPAYLOAD) {
+                    ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                             "Public key blob too large");
+                    goto err_exit;
+                }
                 if(pkey->listFetch_data_len <
                    (size_t)(pkey->listFetch_s - pkey->listFetch_data) +
                    list[keys].blob_len) {
@@ -999,6 +1034,11 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 list[keys].name_len = ssh2_ntohu32(pkey->listFetch_s);
                 pkey->listFetch_s += 4;
 
+                if(list[keys].name_len > LIBSSH2_PACKET_MAXPAYLOAD) {
+                    ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                             "Public key name too large");
+                    goto err_exit;
+                }
                 if(pkey->listFetch_data_len <
                    (size_t)(pkey->listFetch_s - pkey->listFetch_data) +
                    list[keys].name_len) {
@@ -1018,6 +1058,11 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 list[keys].blob_len = ssh2_ntohu32(pkey->listFetch_s);
                 pkey->listFetch_s += 4;
 
+                if(list[keys].blob_len > LIBSSH2_PACKET_MAXPAYLOAD) {
+                    ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                             "Public key blob too large");
+                    goto err_exit;
+                }
                 if(pkey->listFetch_data_len <
                    (size_t)(pkey->listFetch_s - pkey->listFetch_data) +
                    list[keys].blob_len) {
@@ -1065,6 +1110,12 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                             ssh2_ntohu32(pkey->listFetch_s);
                         pkey->listFetch_s += 4;
 
+                        if(list[keys].attrs[i].name_len >
+                           LIBSSH2_PACKET_MAXPAYLOAD) {
+                            ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                     "Public key attribute name too large");
+                            goto err_exit;
+                        }
                         if(pkey->listFetch_data_len <
                            (size_t)(pkey->listFetch_s - pkey->listFetch_data) +
                            list[keys].attrs[i].name_len) {
@@ -1086,6 +1137,12 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                             ssh2_ntohu32(pkey->listFetch_s);
                         pkey->listFetch_s += 4;
 
+                        if(list[keys].attrs[i].value_len >
+                           LIBSSH2_PACKET_MAXPAYLOAD) {
+                            ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                     "Public key attribute value too large");
+                            goto err_exit;
+                        }
                         if(pkey->listFetch_data_len <
                            (size_t)(pkey->listFetch_s - pkey->listFetch_data) +
                            list[keys].attrs[i].value_len) {
