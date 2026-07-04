@@ -428,8 +428,8 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                 /* Error */
                 unsigned long status, descr_len, lang_len;
 
-                if(s + 8 >
-                   session->pkeyInit_data + session->pkeyInit_data_len) {
+                if(session->pkeyInit_data_len <
+                   (size_t)(s - session->pkeyInit_data) + 8) {
                     ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                              "Public key init data too small");
                     goto err_exit;
@@ -439,8 +439,8 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                 descr_len = ssh2_ntohu32(s);
                 s += 4;
 
-                if(s + descr_len + 4 >
-                   session->pkeyInit_data + session->pkeyInit_data_len) {
+                if(session->pkeyInit_data_len <
+                   (size_t)(s - session->pkeyInit_data) + descr_len + 4) {
                     ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                              "Public key init data too small");
                     goto err_exit;
@@ -450,8 +450,8 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                 lang_len = ssh2_ntohu32(s);
                 s += 4;
 
-                if(s + lang_len >
-                   session->pkeyInit_data + session->pkeyInit_data_len) {
+                if(session->pkeyInit_data_len <
+                   (size_t)(s - session->pkeyInit_data) + lang_len) {
                     ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                              "Public key init data too small");
                     goto err_exit;
@@ -459,7 +459,8 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                 /* lang starts here */
                 s += lang_len;
 
-                if(s > session->pkeyInit_data + session->pkeyInit_data_len) {
+                if(session->pkeyInit_data_len <
+                   (size_t)(s - session->pkeyInit_data)) {
                     ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                              "Malformed publickey subsystem packet");
                     goto err_exit;
@@ -836,8 +837,8 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
             /* Error, or processing complete */
             unsigned long status, descr_len, lang_len;
 
-            if(pkey->listFetch_s + 8 >
-               pkey->listFetch_data + pkey->listFetch_data_len) {
+            if(pkey->listFetch_data_len <
+               (size_t)(pkey->listFetch_s - pkey->listFetch_data) + 8) {
                 ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                          "ListFetch data too short");
                 goto err_exit;
@@ -847,8 +848,9 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
             descr_len = ssh2_ntohu32(pkey->listFetch_s);
             pkey->listFetch_s += 4;
 
-            if(pkey->listFetch_s + descr_len + 4 >
-               pkey->listFetch_data + pkey->listFetch_data_len) {
+            if(pkey->listFetch_data_len <
+               (size_t)(pkey->listFetch_s - pkey->listFetch_data) +
+               descr_len + 4) {
                 ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                          "ListFetch data too short");
                 goto err_exit;
@@ -858,8 +860,8 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
             lang_len = ssh2_ntohu32(pkey->listFetch_s);
             pkey->listFetch_s += 4;
 
-            if(pkey->listFetch_s + lang_len >
-               pkey->listFetch_data + pkey->listFetch_data_len) {
+            if(pkey->listFetch_data_len <
+               (size_t)(pkey->listFetch_s - pkey->listFetch_data) + lang_len) {
                 ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                          "ListFetch data too short");
                 goto err_exit;
@@ -867,8 +869,8 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
             /* lang starts at pkey->listFetch_s */
             pkey->listFetch_s += lang_len;
 
-            if(pkey->listFetch_s >
-               pkey->listFetch_data + pkey->listFetch_data_len) {
+            if(pkey->listFetch_data_len <
+               (size_t)(pkey->listFetch_s - pkey->listFetch_data)) {
                 ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                          "Malformed publickey subsystem packet");
                 goto err_exit;
@@ -906,8 +908,8 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
             if(pkey->version == 1) {
                 unsigned long comment_len;
 
-                if(pkey->listFetch_s + 4 >
-                   pkey->listFetch_data + pkey->listFetch_data_len) {
+                if(pkey->listFetch_data_len <
+                   (size_t)(pkey->listFetch_s - pkey->listFetch_data) + 4) {
                     ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                              "ListFetch data too short");
                     goto err_exit;
@@ -916,8 +918,9 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 pkey->listFetch_s += 4;
 
                 if(comment_len) {
-                    if(pkey->listFetch_s + comment_len >
-                       pkey->listFetch_data + pkey->listFetch_data_len) {
+                    if(pkey->listFetch_data_len <
+                       (size_t)(pkey->listFetch_s - pkey->listFetch_data) +
+                       comment_len) {
                         ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                  "ListFetch data too short");
                         goto err_exit;
@@ -946,8 +949,8 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                     list[keys].attrs = NULL;
                 }
 
-                if(pkey->listFetch_s + 4 >
-                   pkey->listFetch_data + pkey->listFetch_data_len) {
+                if(pkey->listFetch_data_len <
+                   (size_t)(pkey->listFetch_s - pkey->listFetch_data) + 4) {
                     ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                              "ListFetch data too short");
                     goto err_exit;
@@ -955,8 +958,9 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 list[keys].name_len = ssh2_ntohu32(pkey->listFetch_s);
                 pkey->listFetch_s += 4;
 
-                if(pkey->listFetch_s + list[keys].name_len >
-                   pkey->listFetch_data + pkey->listFetch_data_len) {
+                if(pkey->listFetch_data_len <
+                   (size_t)(pkey->listFetch_s - pkey->listFetch_data) +
+                   list[keys].name_len) {
                     ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                              "ListFetch data too short");
                     goto err_exit;
@@ -964,8 +968,8 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 list[keys].name = pkey->listFetch_s;
                 pkey->listFetch_s += list[keys].name_len;
 
-                if(pkey->listFetch_s + 4 >
-                   pkey->listFetch_data + pkey->listFetch_data_len) {
+                if(pkey->listFetch_data_len <
+                   (size_t)(pkey->listFetch_s - pkey->listFetch_data) + 4) {
                     ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                              "ListFetch data too short");
                     goto err_exit;
@@ -973,8 +977,9 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 list[keys].blob_len = ssh2_ntohu32(pkey->listFetch_s);
                 pkey->listFetch_s += 4;
 
-                if(pkey->listFetch_s + list[keys].blob_len >
-                   pkey->listFetch_data + pkey->listFetch_data_len) {
+                if(pkey->listFetch_data_len <
+                   (size_t)(pkey->listFetch_s - pkey->listFetch_data) +
+                   list[keys].blob_len) {
                     ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                              "ListFetch data too short");
                     goto err_exit;
@@ -985,8 +990,8 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
             else {
                 /* Version == 2 */
 
-                if(pkey->listFetch_s + 4 >
-                   pkey->listFetch_data + pkey->listFetch_data_len) {
+                if(pkey->listFetch_data_len <
+                   (size_t)(pkey->listFetch_s - pkey->listFetch_data) + 4) {
                     ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                              "ListFetch data too short");
                     goto err_exit;
@@ -994,8 +999,9 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 list[keys].name_len = ssh2_ntohu32(pkey->listFetch_s);
                 pkey->listFetch_s += 4;
 
-                if(pkey->listFetch_s + list[keys].name_len >
-                   pkey->listFetch_data + pkey->listFetch_data_len) {
+                if(pkey->listFetch_data_len <
+                   (size_t)(pkey->listFetch_s - pkey->listFetch_data) +
+                   list[keys].name_len) {
                     ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                              "ListFetch data too short");
                     goto err_exit;
@@ -1003,8 +1009,8 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 list[keys].name = pkey->listFetch_s;
                 pkey->listFetch_s += list[keys].name_len;
 
-                if(pkey->listFetch_s + 4 >
-                   pkey->listFetch_data + pkey->listFetch_data_len) {
+                if(pkey->listFetch_data_len <
+                   (size_t)(pkey->listFetch_s - pkey->listFetch_data) + 4) {
                     ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                              "ListFetch data too short");
                     goto err_exit;
@@ -1012,8 +1018,9 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 list[keys].blob_len = ssh2_ntohu32(pkey->listFetch_s);
                 pkey->listFetch_s += 4;
 
-                if(pkey->listFetch_s + list[keys].blob_len >
-                   pkey->listFetch_data + pkey->listFetch_data_len) {
+                if(pkey->listFetch_data_len <
+                   (size_t)(pkey->listFetch_s - pkey->listFetch_data) +
+                   list[keys].blob_len) {
                     ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                              "ListFetch data too short");
                     goto err_exit;
@@ -1021,8 +1028,8 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 list[keys].blob = pkey->listFetch_s;
                 pkey->listFetch_s += list[keys].blob_len;
 
-                if(pkey->listFetch_s + 4 >
-                   pkey->listFetch_data + pkey->listFetch_data_len) {
+                if(pkey->listFetch_data_len <
+                   (size_t)(pkey->listFetch_s - pkey->listFetch_data) + 4) {
                     ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                              "ListFetch data too short");
                     goto err_exit;
@@ -1047,8 +1054,9 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                         goto err_exit;
                     }
                     for(i = 0; i < list[keys].num_attrs; i++) {
-                        if(pkey->listFetch_s + 4 >
-                           pkey->listFetch_data + pkey->listFetch_data_len) {
+                        if(pkey->listFetch_data_len <
+                           (size_t)(pkey->listFetch_s - pkey->listFetch_data) +
+                           4) {
                             ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                      "ListFetch data too short");
                             goto err_exit;
@@ -1057,8 +1065,9 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                             ssh2_ntohu32(pkey->listFetch_s);
                         pkey->listFetch_s += 4;
 
-                        if(pkey->listFetch_s + list[keys].attrs[i].name_len >
-                           pkey->listFetch_data + pkey->listFetch_data_len) {
+                        if(pkey->listFetch_data_len <
+                           (size_t)(pkey->listFetch_s - pkey->listFetch_data) +
+                           list[keys].attrs[i].name_len) {
                             ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                      "ListFetch data too short");
                             goto err_exit;
@@ -1066,8 +1075,9 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                         list[keys].attrs[i].name = (char *)pkey->listFetch_s;
                         pkey->listFetch_s += list[keys].attrs[i].name_len;
 
-                        if(pkey->listFetch_s + 4 >
-                           pkey->listFetch_data + pkey->listFetch_data_len) {
+                        if(pkey->listFetch_data_len <
+                           (size_t)(pkey->listFetch_s - pkey->listFetch_data) +
+                           4) {
                             ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                      "ListFetch data too short");
                             goto err_exit;
@@ -1076,8 +1086,9 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                             ssh2_ntohu32(pkey->listFetch_s);
                         pkey->listFetch_s += 4;
 
-                        if(pkey->listFetch_s + list[keys].attrs[i].value_len >
-                           pkey->listFetch_data + pkey->listFetch_data_len) {
+                        if(pkey->listFetch_data_len <
+                           (size_t)(pkey->listFetch_s - pkey->listFetch_data) +
+                           list[keys].attrs[i].value_len) {
                             ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                      "ListFetch data too short");
                             goto err_exit;
