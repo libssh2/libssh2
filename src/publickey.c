@@ -308,10 +308,10 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
 
     if(session->pkeyInit_state == ssh2_NB_state_sent) {
         rc = ssh2_channel_process_startup(session->pkeyInit_channel,
-                                              "subsystem",
-                                              sizeof("subsystem") - 1,
-                                              "publickey",
-                                              sizeof("publickey") - 1);
+                                          "subsystem",
+                                          sizeof("subsystem") - 1,
+                                          "publickey",
+                                          sizeof("publickey") - 1);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
                      "Would block starting publickey subsystem");
