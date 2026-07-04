@@ -589,7 +589,7 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
         if(!pkey->add_packet)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate memory for "
-                            "publickey \"add\" packet");
+                            "publickey 'add' packet");
 
         pkey->add_s = pkey->add_packet;
         ssh2_htonu32(pkey->add_s, (uint32_t)(packet_len - 4));
@@ -643,7 +643,7 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
         }
 
         ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
-                  "Sending publickey \"add\" packet: "
+                  "Sending publickey 'add' packet: "
                   "type=%s blob_len=%lu num_attrs=%lu",
                   name, blob_len, num_attrs));
 
@@ -704,7 +704,7 @@ int libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
         if(!pkey->remove_packet)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate memory for "
-                            "publickey \"remove\" packet");
+                            "publickey 'remove' packet");
 
         pkey->remove_s = pkey->remove_packet;
         ssh2_htonu32(pkey->remove_s, (uint32_t)(packet_len - 4));
@@ -723,7 +723,7 @@ int libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
         pkey->remove_s += blob_len;
 
         ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
-                  "Sending publickey \"remove\" packet: "
+                  "Sending publickey 'remove' packet: "
                   "type=%s blob_len=%lu", name, blob_len));
 
         pkey->remove_state = ssh2_NB_state_created;
@@ -787,7 +787,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
         pkey->listFetch_s += sizeof("list") - 1;
 
         ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
-                  "Sending publickey \"list\" packet"));
+                  "Sending publickey 'list' packet"));
 
         pkey->listFetch_state = ssh2_NB_state_created;
     }
