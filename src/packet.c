@@ -397,8 +397,7 @@ static SSH2_INLINE int packet_x11_open(
             if(rc == LIBSSH2_ERROR_EAGAIN)
                 return rc;
             else if(rc) {
-                SSH2_FREE(session, x11open_state->shost);
-                x11open_state->shost = NULL;
+                SSH2_FREENULL(session, x11open_state->shost);
                 x11open_state->state = ssh2_NB_state_idle;
                 return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                                 "Unable to send channel open confirmation");
@@ -414,8 +413,7 @@ static SSH2_INLINE int packet_x11_open(
             SSH2_X11_OPEN(channel, (char *)x11open_state->shost,
                           x11open_state->sport);
 
-            SSH2_FREE(session, x11open_state->shost);
-            x11open_state->shost = NULL;
+            SSH2_FREENULL(session, x11open_state->shost);
             x11open_state->state = ssh2_NB_state_idle;
             return 0;
         }
@@ -424,8 +422,7 @@ static SSH2_INLINE int packet_x11_open(
         failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
     /* fall-through */
 x11_exit:
-    SSH2_FREE(session, x11open_state->shost);
-    x11open_state->shost = NULL;
+    SSH2_FREENULL(session, x11open_state->shost);
 
     p = x11open_state->packet;
     *(p++) = SSH_MSG_CHANNEL_OPEN_FAILURE;

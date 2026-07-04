@@ -416,8 +416,7 @@ int ssh2_base64_decode(LIBSSH2_SESSION *session,
     if((i % 4) == 1) {
         /* Invalid -- We have a byte which belongs exclusively to a partial
            octet */
-        SSH2_FREE(session, *data);
-        *data = NULL;
+        SSH2_FREENULL(session, *data);
         return ssh2_err(session, LIBSSH2_ERROR_INVAL, "Invalid base64");
     }
 
