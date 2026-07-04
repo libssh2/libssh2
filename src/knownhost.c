@@ -421,8 +421,7 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                 if(type == LIBSSH2_KNOWNHOST_TYPE_PLAIN) {
                     /* when we have the sha1 version stored, we can use a
                        plain input to produce a hash to compare with the
-                       stored hash.
-                    */
+                       stored hash. */
                     unsigned char hash[SSH2_SHA1_DIG_LEN];
                     ssh2_hmac_ctx ctx;
                     if(!ssh2_hmac_ctx_init(&ctx))
@@ -457,7 +456,7 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                    - never match on an unknown key type
                    - if key_type is set to zero, ignore it an match always
                    - otherwise match when both key types are equal
-                */
+                 */
                 if(host_key_type != LIBSSH2_KNOWNHOST_KEY_UNKNOWN &&
                    (host_key_type == 0 ||
                     host_key_type == known_key_type)) {

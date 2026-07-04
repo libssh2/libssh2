@@ -432,7 +432,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                        02 for errors
 
                        The following string MUST be newline terminated
-                    */
+                     */
                     err_len =
                         ssh2_channel_packet_data_len(session->scpRecv_channel,
                                                      0);

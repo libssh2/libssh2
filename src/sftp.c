@@ -1413,8 +1413,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
        ssh2_NB_state_sent2: In the third phase we read the data from
        the responses that have arrived so far.  Reading can be interrupted with
        EAGAIN but the state machine ensures we skip the first and second phases
-       on the next call and resume sending.
-    */
+       on the next call and resume sending. */
 
     switch(sftp->read_state) {
     case ssh2_NB_state_idle:
@@ -1476,8 +1475,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                away multiple read requests guessing that the client reads
                more than only this 'buffer_size' amount of memory. We thus ask
                for maximum buffer_size*4 amount of data so that we can return
-               them fast in subsequent calls.
-            */
+               them fast in subsequent calls. */
 
             recv_window = libssh2_channel_window_read_ex(sftp->channel,
                                                          NULL, NULL);
@@ -2053,8 +2051,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
 
            Also, add up the number of bytes that actually already have been
            acked but we have not been able to return as such yet, so we
-           get that data as well passed in here again.
-        */
+           get that data as well passed in here again. */
         already = (size_t)(handle->u.file.offset_sent -
                            handle->u.file.offset) + handle->u.file.acked;
 

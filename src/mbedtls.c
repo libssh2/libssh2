@@ -119,9 +119,9 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
     ret = mbedtls_cipher_setup(h, cipher_info);
 
     /* libssh2 computes and adds SSH packet padding itself, so for CBC
-     * tell mbedTLS to expect no padding on the cipher layer. Only call
-     * set_padding_mode for CBC ciphers since other modes (CTR, stream)
-     * are not applicable and causes an error. */
+       tell mbedTLS to expect no padding on the cipher layer. Only call
+       set_padding_mode for CBC ciphers since other modes (CTR, stream)
+       are not applicable and causes an error. */
     if(!ret &&
        (algo == MBEDTLS_CIPHER_AES_128_CBC ||
         algo == MBEDTLS_CIPHER_AES_192_CBC ||
@@ -316,8 +316,7 @@ static int mbed_bn_random(ssh2_bn *bn, int bits, int top, int bottom)
        zero.  If top is 0, the most significant bit of the random number is
        set to 1, and if top is 1, the two most significant bits of the number
        is set to 1, so that the product of two such random numbers always
-       have 2 * bits length.
-    */
+       have 2 * bits length. */
     if(top >= 0)
         for(i = 0; i <= (size_t)top; ++i)
             if(mbedtls_mpi_set_bit(bn, bits - i - 1, 1))
