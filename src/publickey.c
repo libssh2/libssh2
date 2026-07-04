@@ -547,8 +547,8 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
 {
     LIBSSH2_CHANNEL *channel;
     LIBSSH2_SESSION *session;
-    /*  19 = packet_len(4) + add_len(4) + "add"(3) + name_len(4) + {name}
-        blob_len(4) + {blob} */
+    /* 19 = packet_len(4) + add_len(4) + "add"(3) + name_len(4) + {name}
+       blob_len(4) + {blob} */
     unsigned long i, packet_len = 19 + name_len + blob_len;
     const unsigned char *comment = NULL;
     unsigned long comment_len = 0;
@@ -764,8 +764,8 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
     LIBSSH2_CHANNEL *channel;
     LIBSSH2_SESSION *session;
     libssh2_publickey_list *list = NULL;
-    unsigned long buffer_len = 12, keys = 0, max_keys = 0, i;
     /* 12 = packet_len(4) + list_len(4) + "list"(4) */
+    unsigned long buffer_len = 12, keys = 0, max_keys = 0, i;
     int response;
     int rc;
 
