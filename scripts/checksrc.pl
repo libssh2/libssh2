@@ -984,9 +984,13 @@ sub scanfile {
             }
         }
         if($l) {
-            if($l =~ /^( *)(curlx_free|SSH2_FREE)\(([^)]+)\);/) {
+            if($l =~ /^( *)curlx_free\(([^)]+)\);/) {
                 $prevfreeindent = $1;
                 $prevfreevar = $2;
+            }
+            elsif($l =~ /^( *)SSH2_FREE\(([^)]+), ([^)]+)\);/) {
+                $prevfreeindent = $1;
+                $prevfreevar = $3;
             }
             else {
                 $prevfreeindent = "";
