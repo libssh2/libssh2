@@ -428,8 +428,8 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                 /* Error */
                 unsigned long status, descr_len, lang_len;
 
-                if(s + 8 >
-                   session->pkeyInit_data + session->pkeyInit_data_len) {
+                if(session->pkeyInit_data_len <
+                   (size_t)(s - session->pkeyInit_data) + 8) {
                     ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                              "Public key init data too small");
                     goto err_exit;
