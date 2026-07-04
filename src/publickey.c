@@ -581,8 +581,8 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
         else {
             packet_len += 5; /* overwrite(1) + attribute_count(4) */
             for(i = 0; i < num_attrs; i++)
-                packet_len += 9 + attrs[i].name_len + attrs[i].value_len;
                 /* name_len(4) + value_len(4) + mandatory(1) */
+                packet_len += 9 + attrs[i].name_len + attrs[i].value_len;
         }
 
         pkey->add_packet = SSH2_ALLOC(session, packet_len);
