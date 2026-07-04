@@ -929,6 +929,13 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 }
 
                 if(comment_len) {
+                    if(pkey->listFetch_s + comment_len >
+                       pkey->listFetch_data + pkey->listFetch_data_len) {
+                        ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                 "ListFetch data too short");
+                        goto err_exit;
+                    }
+
                     list[keys].num_attrs = 1;
                     list[keys].attrs =
                         SSH2_ALLOC(session,
