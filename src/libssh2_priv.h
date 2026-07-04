@@ -247,6 +247,11 @@ struct iovec {
              (session)->alloc(count, &(session)->abstract))
 #define SSH2_FREE(session, ptr) \
     session->free(ptr, &(session)->abstract)
+#define SSH2_SAFEFREE(session, ptr) \
+    do {                            \
+        SSH2_FREE(session, ptr);    \
+        (ptr) = NULL;               \
+    } while(0)
 #define SSH2_IGNORE(session, data, datalen) \
     session->ssh_msg_ignore(session, data, (int)(datalen), \
                             &(session)->abstract)

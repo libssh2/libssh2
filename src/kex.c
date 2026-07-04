@@ -69,14 +69,12 @@ static void sha_algo_value_hash(ssh2_hash_alg hash_alg, size_t digest_len,
                                        exchange_state->k_value_len) ||
                !ssh2_hash_update(hash, exchange_state->h_sig_comp,
                                        digest_len)) {
-                SSH2_FREE(session, *data);
-                *data = NULL;
+                SSH2_SAFEFREE(session, *data);
                 return;
             }
             if(len > 0) {
                 if(!ssh2_hash_update(hash, *data, len)) {
-                    SSH2_FREE(session, *data);
-                    *data = NULL;
+                    SSH2_SAFEFREE(session, *data);
                     return;
                 }
             }
@@ -84,14 +82,12 @@ static void sha_algo_value_hash(ssh2_hash_alg hash_alg, size_t digest_len,
                 if(!ssh2_hash_update(hash, version, 1) ||
                    !ssh2_hash_update(hash, session->session_id,
                                            session->session_id_len)) {
-                    SSH2_FREE(session, *data);
-                    *data = NULL;
+                    SSH2_SAFEFREE(session, *data);
                     return;
                 }
             }
             if(!ssh2_hash_final(hash, *data + len, digest_len)) {
-                SSH2_FREE(session, *data);
-                *data = NULL;
+                SSH2_SAFEFREE(session, *data);
                 return;
             }
             len += digest_len;
@@ -125,8 +121,7 @@ static int process_host_key(LIBSSH2_SESSION *session, struct string_buf *buf,
     buf->dataptr++; /* advance past type */
 
     if(session->server_hostkey) {
-        SSH2_FREE(session, session->server_hostkey);
-        session->server_hostkey = NULL;
+        SSH2_SAFEFREE(session, session->server_hostkey);
         session->server_hostkey_len = 0;
     }
 
@@ -447,20 +442,12 @@ static void diffie_hellman_state_cleanup(
     ssh2_bn_ctx_free(exchange_state->ctx);
     exchange_state->ctx = NULL;
 
-    if(exchange_state->e_packet) {
-        SSH2_FREE(session, exchange_state->e_packet);
-        exchange_state->e_packet = NULL;
-    }
-
-    if(exchange_state->s_packet) {
-        SSH2_FREE(session, exchange_state->s_packet);
-        exchange_state->s_packet = NULL;
-    }
-
-    if(exchange_state->k_value) {
-        SSH2_FREE(session, exchange_state->k_value);
-        exchange_state->k_value = NULL;
-    }
+    if(exchange_state->e_packet)
+        SSH2_SAFEFREE(session, exchange_state->e_packet);
+    if(exchange_state->s_packet)
+        SSH2_SAFEFREE(session, exchange_state->s_packet);
+    if(exchange_state->k_value)
+        SSH2_SAFEFREE(session, exchange_state->k_value);
 
     exchange_state->state = ssh2_NB_state_idle;
 }
@@ -474,10 +461,8 @@ static void kex_diffie_hellman_cleanup(
         ssh2_bn_free(key_state->g);
         key_state->g = NULL;
 
-        if(key_state->data) {
-            SSH2_FREE(session, key_state->data);
-            key_state->data = NULL;
-        }
+        if(key_state->data)
+            SSH2_SAFEFREE(session, key_state->data);
         key_state->state = ssh2_NB_state_idle;
     }
 
@@ -1642,10 +1627,8 @@ static void ecdh_exchange_state_cleanup(
     ssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
 
-    if(exchange_state->k_value) {
-        SSH2_FREE(session, exchange_state->k_value);
-        exchange_state->k_value = NULL;
-    }
+    if(exchange_state->k_value)
+        SSH2_SAFEFREE(session, exchange_state->k_value);
 
     exchange_state->state = ssh2_NB_state_idle;
 }
@@ -1653,20 +1636,16 @@ static void ecdh_exchange_state_cleanup(
 static void kex_method_ecdh_cleanup(LIBSSH2_SESSION *session,
                                     struct key_exchange_state_low *key_state)
 {
-    if(key_state->public_key_oct) {
-        SSH2_FREE(session, key_state->public_key_oct);
-        key_state->public_key_oct = NULL;
-    }
+    if(key_state->public_key_oct)
+        SSH2_SAFEFREE(session, key_state->public_key_oct);
 
     if(key_state->private_key) {
         ssh2_ecdsa_free(key_state->private_key);
         key_state->private_key = NULL;
     }
 
-    if(key_state->data) {
-        SSH2_FREE(session, key_state->data);
-        key_state->data = NULL;
-    }
+    if(key_state->data)
+        SSH2_SAFEFREE(session, key_state->data);
 
     key_state->state = ssh2_NB_state_idle;
 
@@ -1951,10 +1930,8 @@ static void mlkem_nistp_exchange_state_cleanup(
     ssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
 
-    if(exchange_state->k_value) {
-        SSH2_FREE(session, exchange_state->k_value);
-        exchange_state->k_value = NULL;
-    }
+    if(exchange_state->k_value)
+        SSH2_SAFEFREE(session, exchange_state->k_value);
 
     exchange_state->state = ssh2_NB_state_idle;
 }
@@ -1962,10 +1939,8 @@ static void mlkem_nistp_exchange_state_cleanup(
 static void kex_method_mlkem_nistp_cleanup(
     LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
-    if(key_state->public_key_oct) {
-        SSH2_FREE(session, key_state->public_key_oct);
-        key_state->public_key_oct = NULL;
-    }
+    if(key_state->public_key_oct)
+        SSH2_SAFEFREE(session, key_state->public_key_oct);
 
     if(key_state->private_key) {
         ssh2_ecdsa_free(key_state->private_key);
@@ -1975,23 +1950,19 @@ static void kex_method_mlkem_nistp_cleanup(
     if(key_state->mlkem_public_key) {
         ssh2_explicit_zero(key_state->mlkem_public_key,
                            key_state->mlkem_public_key_len);
-        SSH2_FREE(session, key_state->mlkem_public_key);
-        key_state->mlkem_public_key = NULL;
+        SSH2_SAFEFREE(session, key_state->mlkem_public_key);
         key_state->mlkem_public_key_len = 0;
     }
 
     if(key_state->mlkem_private_key) {
         ssh2_explicit_zero(key_state->mlkem_private_key,
                            key_state->mlkem_private_key_len);
-        SSH2_FREE(session, key_state->mlkem_private_key);
-        key_state->mlkem_private_key = NULL;
+        SSH2_SAFEFREE(session, key_state->mlkem_private_key);
         key_state->mlkem_private_key_len = 0;
     }
 
-    if(key_state->data) {
-        SSH2_FREE(session, key_state->data);
-        key_state->data = NULL;
-    }
+    if(key_state->data)
+        SSH2_SAFEFREE(session, key_state->data);
 
     key_state->state = ssh2_NB_state_idle;
 
@@ -2368,10 +2339,8 @@ static void curve25519_exchange_state_cleanup(
     ssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
 
-    if(exchange_state->k_value) {
-        SSH2_FREE(session, exchange_state->k_value);
-        exchange_state->k_value = NULL;
-    }
+    if(exchange_state->k_value)
+        SSH2_SAFEFREE(session, exchange_state->k_value);
 
     exchange_state->state = ssh2_NB_state_idle;
 }
@@ -2382,21 +2351,17 @@ static void kex_method_curve25519_cleanup(
     if(key_state->curve25519_public_key) {
         ssh2_explicit_zero(key_state->curve25519_public_key,
                            SSH2_ED25519_KEY_LEN);
-        SSH2_FREE(session, key_state->curve25519_public_key);
-        key_state->curve25519_public_key = NULL;
+        SSH2_SAFEFREE(session, key_state->curve25519_public_key);
     }
 
     if(key_state->curve25519_private_key) {
         ssh2_explicit_zero(key_state->curve25519_private_key,
                            SSH2_ED25519_KEY_LEN);
-        SSH2_FREE(session, key_state->curve25519_private_key);
-        key_state->curve25519_private_key = NULL;
+        SSH2_SAFEFREE(session, key_state->curve25519_private_key);
     }
 
-    if(key_state->data) {
-        SSH2_FREE(session, key_state->data);
-        key_state->data = NULL;
-    }
+    if(key_state->data)
+        SSH2_SAFEFREE(session, key_state->data);
 
     key_state->state = ssh2_NB_state_idle;
 
@@ -2640,10 +2605,8 @@ static void mlkem768x25519_exchange_state_cleanup(
     ssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
 
-    if(exchange_state->k_value) {
-        SSH2_FREE(session, exchange_state->k_value);
-        exchange_state->k_value = NULL;
-    }
+    if(exchange_state->k_value)
+        SSH2_SAFEFREE(session, exchange_state->k_value);
 
     exchange_state->state = ssh2_NB_state_idle;
 }
@@ -2654,37 +2617,31 @@ static void kex_method_mlkem768x25519_cleanup(
     if(key_state->curve25519_public_key) {
         ssh2_explicit_zero(key_state->curve25519_public_key,
                            SSH2_ED25519_KEY_LEN);
-        SSH2_FREE(session, key_state->curve25519_public_key);
-        key_state->curve25519_public_key = NULL;
+        SSH2_SAFEFREE(session, key_state->curve25519_public_key);
     }
 
     if(key_state->curve25519_private_key) {
         ssh2_explicit_zero(key_state->curve25519_private_key,
                            SSH2_ED25519_KEY_LEN);
-        SSH2_FREE(session, key_state->curve25519_private_key);
-        key_state->curve25519_private_key = NULL;
+        SSH2_SAFEFREE(session, key_state->curve25519_private_key);
     }
 
     if(key_state->mlkem_public_key) {
         ssh2_explicit_zero(key_state->mlkem_public_key,
                            key_state->mlkem_public_key_len);
-        SSH2_FREE(session, key_state->mlkem_public_key);
-        key_state->mlkem_public_key = NULL;
+        SSH2_SAFEFREE(session, key_state->mlkem_public_key);
         key_state->mlkem_public_key_len = 0;
     }
 
     if(key_state->mlkem_private_key) {
         ssh2_explicit_zero(key_state->mlkem_private_key,
                            key_state->mlkem_private_key_len);
-        SSH2_FREE(session, key_state->mlkem_private_key);
-        key_state->mlkem_private_key = NULL;
+        SSH2_SAFEFREE(session, key_state->mlkem_private_key);
         key_state->mlkem_private_key_len = 0;
     }
 
-    if(key_state->data) {
-        SSH2_FREE(session, key_state->data);
-        key_state->data = NULL;
-    }
+    if(key_state->data)
+        SSH2_SAFEFREE(session, key_state->data);
 
     key_state->state = ssh2_NB_state_idle;
 
@@ -3935,14 +3892,10 @@ int ssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
     }
 
     /* Done with kexinit buffers */
-    if(session->local.kexinit) {
-        SSH2_FREE(session, session->local.kexinit);
-        session->local.kexinit = NULL;
-    }
-    if(session->remote.kexinit) {
-        SSH2_FREE(session, session->remote.kexinit);
-        session->remote.kexinit = NULL;
-    }
+    if(session->local.kexinit)
+        SSH2_SAFEFREE(session, session->local.kexinit);
+    if(session->remote.kexinit)
+        SSH2_SAFEFREE(session, session->remote.kexinit);
 
     session->state &= ~SSH2_STATE_INITIAL_KEX;
     session->state &= ~SSH2_STATE_KEX_ACTIVE;
@@ -4188,10 +4141,8 @@ int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
 
     /* correct number of pointers copied? (test the code above) */
     if(j != ialg) {
-        /* deallocate buffer */
-        SSH2_FREE(session, (void *)*algs);
+        SSH2_FREE(session, (void *)*algs);  /* deallocate buffer */
         *algs = NULL;
-
         return ssh2_err(session, LIBSSH2_ERROR_BAD_USE, "Internal error");
     }
 

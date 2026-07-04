@@ -160,8 +160,7 @@ LIBSSH2_CHANNEL *ssh2_channel_open(LIBSSH2_SESSION *session,
         if(!session->open_channel->channel_type) {
             ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                      "Failed allocating memory for channel type name");
-            SSH2_FREE(session, session->open_channel);
-            session->open_channel = NULL;
+            SSH2_SAFEFREE(session, session->open_channel);
             return NULL;
         }
         memcpy(session->open_channel->channel_type, channel_type,
@@ -257,11 +256,8 @@ LIBSSH2_CHANNEL *ssh2_channel_open(LIBSSH2_SESSION *session,
                       session->open_channel->remote.window_size,
                       session->open_channel->local.packet_size,
                       session->open_channel->remote.packet_size));
-            SSH2_FREE(session, session->open_packet);
-            session->open_packet = NULL;
-            SSH2_FREE(session, session->open_data);
-            session->open_data = NULL;
-
+            SSH2_SAFEFREE(session, session->open_packet);
+            SSH2_SAFEFREE(session, session->open_data);
             session->open_state = ssh2_NB_state_idle;
             return session->open_channel;
         }
@@ -302,14 +298,10 @@ LIBSSH2_CHANNEL *ssh2_channel_open(LIBSSH2_SESSION *session,
 
 channel_error:
 
-    if(session->open_data) {
-        SSH2_FREE(session, session->open_data);
-        session->open_data = NULL;
-    }
-    if(session->open_packet) {
-        SSH2_FREE(session, session->open_packet);
-        session->open_packet = NULL;
-    }
+    if(session->open_data)
+        SSH2_SAFEFREE(session, session->open_data);
+    if(session->open_packet)
+        SSH2_SAFEFREE(session, session->open_packet);
     if(session->open_channel) {
         unsigned char channel_id[4];
         SSH2_FREE(session, session->open_channel->channel_type);
@@ -324,12 +316,10 @@ channel_error:
               ssh2_packet_ask(session, SSH_MSG_CHANNEL_EXTENDED_DATA,
                               &session->open_data, &session->open_data_len, 1,
                               channel_id, 4) >= 0) {
-            SSH2_FREE(session, session->open_data);
-            session->open_data = NULL;
+            SSH2_SAFEFREE(session, session->open_data);
         }
 
-        SSH2_FREE(session, session->open_channel);
-        session->open_channel = NULL;
+        SSH2_SAFEFREE(session, session->open_channel);
     }
 
     session->open_state = ssh2_NB_state_idle;
@@ -412,8 +402,7 @@ static LIBSSH2_CHANNEL *channel_direct_tcpip(LIBSSH2_SESSION *session,
     /* by default we set (keep?) idle state... */
     session->direct_state = ssh2_NB_state_idle;
 
-    SSH2_FREE(session, session->direct_message);
-    session->direct_message = NULL;
+    SSH2_SAFEFREE(session, session->direct_message);
 
     return channel;
 }
@@ -486,8 +475,7 @@ static LIBSSH2_CHANNEL *channel_direct_streamlocal(LIBSSH2_SESSION *session,
     /* by default we set (keep?) idle state... */
     session->direct_state = ssh2_NB_state_idle;
 
-    SSH2_FREE(session, session->direct_message);
-    session->direct_message = NULL;
+    SSH2_SAFEFREE(session, session->direct_message);
 
     return channel;
 }
@@ -574,14 +562,11 @@ static LIBSSH2_LISTENER *channel_forward_listen(LIBSSH2_SESSION *session,
             ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                      "Unable to send global-request packet for forward "
                      "listen request");
-            SSH2_FREE(session, session->fwdLstn_packet);
-            session->fwdLstn_packet = NULL;
+            SSH2_SAFEFREE(session, session->fwdLstn_packet);
             session->fwdLstn_state = ssh2_NB_state_idle;
             return NULL;
         }
-        SSH2_FREE(session, session->fwdLstn_packet);
-        session->fwdLstn_packet = NULL;
-
+        SSH2_SAFEFREE(session, session->fwdLstn_packet);
         session->fwdLstn_state = ssh2_NB_state_sent;
     }
 
@@ -614,8 +599,7 @@ static LIBSSH2_LISTENER *channel_forward_listen(LIBSSH2_SESSION *session,
                 if(!listener->host) {
                     ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                              "Unable to allocate memory for listener queue");
-                    SSH2_FREE(session, listener);
-                    listener = NULL;
+                    SSH2_SAFEFREE(session, listener);
                 }
                 else {
                     listener->session = session;
@@ -882,15 +866,13 @@ static int channel_setenv(LIBSSH2_CHANNEL *channel,
             return rc;
         }
         else if(rc) {
-            SSH2_FREE(session, channel->setenv_packet);
-            channel->setenv_packet = NULL;
+            SSH2_SAFEFREE(session, channel->setenv_packet);
             channel->setenv_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             "Unable to send channel-request packet for "
                             "setenv request");
         }
-        SSH2_FREE(session, channel->setenv_packet);
-        channel->setenv_packet = NULL;
+        SSH2_SAFEFREE(session, channel->setenv_packet);
 
         ssh2_htonu32(channel->setenv_local_channel, channel->local.id);
 
@@ -1366,13 +1348,11 @@ static int channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
             return rc;
         }
         if(rc) {
-            SSH2_FREE(session, channel->reqX11_packet);
-            channel->reqX11_packet = NULL;
+            SSH2_SAFEFREE(session, channel->reqX11_packet);
             channel->reqX11_state = ssh2_NB_state_idle;
             return ssh2_err(session, rc, "Unable to send x11-req packet");
         }
-        SSH2_FREE(session, channel->reqX11_packet);
-        channel->reqX11_packet = NULL;
+        SSH2_SAFEFREE(session, channel->reqX11_packet);
 
         ssh2_htonu32(channel->reqX11_local_channel, channel->local.id);
 
@@ -1486,13 +1466,11 @@ int ssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
             return rc;
         }
         else if(rc) {
-            SSH2_FREE(session, channel->process_packet);
-            channel->process_packet = NULL;
+            SSH2_SAFEFREE(session, channel->process_packet);
             channel->process_state = ssh2_NB_state_end;
             return ssh2_err(session, rc, "Unable to send channel request");
         }
-        SSH2_FREE(session, channel->process_packet);
-        channel->process_packet = NULL;
+        SSH2_SAFEFREE(session, channel->process_packet);
 
         ssh2_htonu32(channel->process_local_channel, channel->local.id);
 
@@ -2677,22 +2655,16 @@ int ssh2_channel_free(LIBSSH2_CHANNEL *channel)
     if(session->open_channel == channel) {
         session->open_channel = NULL;
         session->open_state = ssh2_NB_state_idle;
-        if(session->open_packet) {
-            SSH2_FREE(session, session->open_packet);
-            session->open_packet = NULL;
-        }
-        if(session->open_data) {
-            SSH2_FREE(session, session->open_data);
-            session->open_data = NULL;
-        }
+        if(session->open_packet)
+            SSH2_SAFEFREE(session, session->open_packet);
+        if(session->open_data)
+            SSH2_SAFEFREE(session, session->open_data);
     }
     if(session->pkeyInit_channel == channel) {
         session->pkeyInit_channel = NULL;
         session->pkeyInit_state = ssh2_NB_state_idle;
-        if(session->pkeyInit_data) {
-            SSH2_FREE(session, session->pkeyInit_data);
-            session->pkeyInit_data = NULL;
-        }
+        if(session->pkeyInit_data)
+            SSH2_SAFEFREE(session, session->pkeyInit_data);
     }
     if(session->packAdd_channelp == channel) {
         session->packAdd_channelp = NULL;
@@ -2701,18 +2673,14 @@ int ssh2_channel_free(LIBSSH2_CHANNEL *channel)
     if(session->scpSend_channel == channel) {
         session->scpSend_channel = NULL;
         session->scpSend_state = ssh2_NB_state_idle;
-        if(session->scpSend_command) {
-            SSH2_FREE(session, session->scpSend_command);
-            session->scpSend_command = NULL;
-        }
+        if(session->scpSend_command)
+            SSH2_SAFEFREE(session, session->scpSend_command);
     }
     if(session->scpRecv_channel == channel) {
         session->scpRecv_channel = NULL;
         session->scpRecv_state = ssh2_NB_state_idle;
-        if(session->scpRecv_command) {
-            SSH2_FREE(session, session->scpRecv_command);
-            session->scpRecv_command = NULL;
-        }
+        if(session->scpRecv_command)
+            SSH2_SAFEFREE(session, session->scpRecv_command);
     }
 
     SSH2_FREE(session, channel);
