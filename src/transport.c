@@ -996,12 +996,35 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
     size_t orgdata_len = data_len;
     size_t crypt_offset, etm_crypt_offset;
 
+    debugdump(session, "ssh2_transport_send() plain", data, data_len);
+    if(data2)
+        debugdump(session, "ssh2_transport_send() plain2", data2, data2_len);
+
+    /* Finish flushing any partially-sent packet BEFORE redirecting into a key
+     * re-exchange. A packet already in transmission can only be completed by a
+     * transport_send call with that same packet (send_existing rejects a
+     * different data pointer with EAGAIN). If rekey runs first, a packet
+     * caught mid-send when rekey starts can never be flushed and the session
+     * deadlocks. RFC 4253 7.1 requires completing the in-flight packet; only
+     * NEW packets are withheld, which the rekey redirect (reached only once
+     * nothing is pending) still does.
+     *
+     * send_existing only sanity-checks data and data_len, not data2/data2_len.
+     */
+    rc = send_existing(session, data, data_len, &ret);
+    if(rc)
+        return rc;
+
+    session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_OUTBOUND;
+
+    if(ret)
+        /* set by send_existing if data was sent */
+        return rc;
+
     /*
      * If the last read operation was interrupted in the middle of a key
-     * exchange, we must complete that key exchange before continuing to write
-     * further data.
-     *
-     * See the similar block in ssh2_transport_read() for more details.
+     * exchange, we must complete that key exchange before writing further
+     * *new* data. See the similar block in ssh2_transport_read().
      */
     if(session->state & SSH2_STATE_EXCHANGING_KEYS &&
        !(session->state & SSH2_STATE_KEX_ACTIVE)) {
@@ -1013,22 +1036,6 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
         if(rc)
             return rc;
     }
-
-    debugdump(session, "ssh2_transport_send() plain", data, data_len);
-    if(data2)
-        debugdump(session, "ssh2_transport_send() plain2", data2, data2_len);
-
-    /* FIRST, check if we have a pending write to complete. send_existing
-       only sanity-check data and data_len and not data2 and data2_len! */
-    rc = send_existing(session, data, data_len, &ret);
-    if(rc)
-        return rc;
-
-    session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_OUTBOUND;
-
-    if(ret)
-        /* set by send_existing if data was sent */
-        return rc;
 
     encrypted = (session->state & SSH2_STATE_NEWKEYS) ? 1 : 0;
 
