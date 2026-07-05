@@ -286,7 +286,7 @@ int libssh2_userauth_authenticated(LIBSSH2_SESSION *session)
 }
 
 /*
- * Plain ol' login
+ * Plain old login
  */
 static int userauth_password(LIBSSH2_SESSION *session,
                              const char *username,
@@ -309,10 +309,9 @@ static int userauth_password(LIBSSH2_SESSION *session,
         memset(&session->userauth_pswd_packet_requirev_state, 0,
                sizeof(session->userauth_pswd_packet_requirev_state));
 
-        /*
-         * 40 = packet_type(1) + username_len(4) + service_len(4) +
-         * service(14)"ssh-connection" + method_len(4) + method(8)"password" +
-         * chgpwdbool(1) + password_len(4) */
+        /* 40 = packet_type(1) + username_len(4) + service_len(4) +
+           service(14)"ssh-connection" + method_len(4) + method(8)"password" +
+           chgpwdbool(1) + password_len(4) */
         if(username_len > UINT32_MAX - 40)
             return ssh2_err(session, LIBSSH2_ERROR_PROTO,
                             "username_len out of bounds");
@@ -527,7 +526,7 @@ password_response:
 }
 
 /*
- * Plain ol' login
+ * Plain old login
  */
 int libssh2_userauth_password_ex(
     LIBSSH2_SESSION *session,
@@ -599,9 +598,8 @@ static int userauth_read_blob_pubkey(
     }
 
     /* Wasting some bytes here (okay, more than some), but since it is likely
-     * to be freed soon anyway, we avoid the extra free/alloc and call
-     * it a wash
-     */
+       to be freed soon anyway, we avoid the extra free/alloc and call
+       it a wash */
     *method = pubkey;
     *method_len = sp1 - pubkey - 1;
 
@@ -698,8 +696,8 @@ static int userauth_read_file_pubkey(
     }
 
     /* Wasting some bytes here (okay, more than some), but since it is likely
-     * to be freed soon anyway, we avoid the extra free/alloc and call
-     * it a wash */
+       to be freed soon anyway, we avoid the extra free/alloc and call
+       it a wash */
     *method = pubkey;
     *method_len = sp1 - pubkey - 1;
 
@@ -1548,12 +1546,10 @@ retry_auth:
                       (int)session->userauth_pblc_method_len,
                       session->userauth_pblc_method));
 
-        /*
-         * 45 = packet_type(1) + username_len(4) + servicename_len(4) +
-         * service_name(14)"ssh-connection" + authmethod_len(4) +
-         * authmethod(9)"publickey" + sig_included(1)'\0' + algmethod_len(4) +
-         * publickey_len(4)
-         */
+        /* 45 = packet_type(1) + username_len(4) + servicename_len(4) +
+           service_name(14)"ssh-connection" + authmethod_len(4) +
+           authmethod(9)"publickey" + sig_included(1)'\0' + algmethod_len(4) +
+           publickey_len(4) */
         session->userauth_pblc_packet_len =
             username_len + session->userauth_pblc_method_len + pubkeydata_len +
             45;
