@@ -1615,7 +1615,7 @@ static int kex_session_ecdh_curve_type(const char *name,
     return 0;
 }
 
-static void ecdh_exchange_state_cleanup(
+static void kex_ecdh_exchange_state_cleanup(
     LIBSSH2_SESSION *session, struct kmdhgGPshakex_state *exchange_state)
 {
     ssh2_bn_free(exchange_state->k);
@@ -1644,7 +1644,7 @@ static void kex_method_ecdh_cleanup(LIBSSH2_SESSION *session,
     key_state->state = ssh2_NB_state_idle;
 
     if(key_state->exchange_state.state != ssh2_NB_state_idle)
-        ecdh_exchange_state_cleanup(session, &key_state->exchange_state);
+        kex_ecdh_exchange_state_cleanup(session, &key_state->exchange_state);
 }
 
 /*
@@ -1810,7 +1810,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
     }
 
 clean_exit:
-    ecdh_exchange_state_cleanup(session, exchange_state);
+    kex_ecdh_exchange_state_cleanup(session, exchange_state);
 
     return ret;
 }
@@ -1961,7 +1961,7 @@ static void kex_method_mlkem_nistp_cleanup(
     key_state->state = ssh2_NB_state_idle;
 
     if(key_state->exchange_state.state != ssh2_NB_state_idle)
-        ecdh_exchange_state_cleanup(session, &key_state->exchange_state);
+        kex_ecdh_exchange_state_cleanup(session, &key_state->exchange_state);
 }
 
 static int mlkem_nistp(LIBSSH2_SESSION *session,
