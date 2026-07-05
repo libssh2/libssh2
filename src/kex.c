@@ -469,18 +469,18 @@ static void kex_diffie_hellman_cleanup(
  * SHA Algorithm Agnostic
  * @result 0 on success, error code on failure
  */
-static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
-                                   ssh2_bn *g,
-                                   ssh2_bn *p,
-                                   int group_order,
-                                   ssh2_hash_alg hash_alg,
-                                   size_t digest_len,
-                                   ssh2_hash_ctx *exchange_hash_ctx,
-                                   unsigned char packet_type_init,
-                                   unsigned char packet_type_reply,
-                                   unsigned char *midhash,
-                                   size_t midhash_len,
-                                   struct kmdhgGPshakex_state *exchange_state)
+static int kex_diffie_hellman_sha(LIBSSH2_SESSION *session,
+                                  ssh2_bn *g,
+                                  ssh2_bn *p,
+                                  int group_order,
+                                  ssh2_hash_alg hash_alg,
+                                  size_t digest_len,
+                                  ssh2_hash_ctx *exchange_hash_ctx,
+                                  unsigned char packet_type_init,
+                                  unsigned char packet_type_reply,
+                                  unsigned char *midhash,
+                                  size_t midhash_len,
+                                  struct kmdhgGPshakex_state *exchange_state)
 {
     int ret = 0;
     int rc;
@@ -848,11 +848,11 @@ static int kex_method_diffie_hellman_group1_sha1_key_exchange(
         key_state->state = ssh2_NB_state_created;
     }
 
-    ret = diffie_hellman_sha_algo(session, key_state->g, key_state->p, 128,
-                                  SSH2_SHA1_ALG, SSH2_SHA1_DIG_LEN,
-                                  &exchange_hash_ctx,
-                                  SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
-                                  NULL, 0, &key_state->exchange_state);
+    ret = kex_diffie_hellman_sha(session, key_state->g, key_state->p, 128,
+                                 SSH2_SHA1_ALG, SSH2_SHA1_DIG_LEN,
+                                 &exchange_hash_ctx,
+                                 SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
+                                 NULL, 0, &key_state->exchange_state);
     if(ret == LIBSSH2_ERROR_EAGAIN)
         return ret;
 
@@ -966,7 +966,7 @@ static int kex_method_diffie_hellman_group14_sha1_key_exchange(
 {
     ssh2_hash_ctx ctx;
     return kex_method_diffie_hellman_group14_key_exchange(session, key_state,
-        SSH2_SHA1_ALG, SSH2_SHA1_DIG_LEN, &ctx, diffie_hellman_sha_algo);
+        SSH2_SHA1_ALG, SSH2_SHA1_DIG_LEN, &ctx, kex_diffie_hellman_sha);
 }
 
 /*
@@ -977,7 +977,7 @@ static int kex_method_diffie_hellman_group14_sha256_key_exchange(
 {
     ssh2_hash_ctx ctx;
     return kex_method_diffie_hellman_group14_key_exchange(session, key_state,
-        SSH2_SHA256_ALG, SSH2_SHA256_DIG_LEN, &ctx, diffie_hellman_sha_algo);
+        SSH2_SHA256_ALG, SSH2_SHA256_DIG_LEN, &ctx, kex_diffie_hellman_sha);
 }
 
 /*
@@ -1058,11 +1058,11 @@ static int kex_method_diffie_hellman_group16_sha512_key_exchange(
         key_state->state = ssh2_NB_state_created;
     }
 
-    ret = diffie_hellman_sha_algo(session, key_state->g, key_state->p, 512,
-                                  SSH2_SHA512_ALG, SSH2_SHA512_DIG_LEN,
-                                  &exchange_hash_ctx,
-                                  SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
-                                  NULL, 0, &key_state->exchange_state);
+    ret = kex_diffie_hellman_sha(session, key_state->g, key_state->p, 512,
+                                 SSH2_SHA512_ALG, SSH2_SHA512_DIG_LEN,
+                                 &exchange_hash_ctx,
+                                 SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
+                                 NULL, 0, &key_state->exchange_state);
     if(ret == LIBSSH2_ERROR_EAGAIN)
         return ret;
 
@@ -1194,11 +1194,11 @@ static int kex_method_diffie_hellman_group18_sha512_key_exchange(
         key_state->state = ssh2_NB_state_created;
     }
 
-    ret = diffie_hellman_sha_algo(session, key_state->g, key_state->p, 1024,
-                                  SSH2_SHA512_ALG, SSH2_SHA512_DIG_LEN,
-                                  &exchange_hash_ctx,
-                                  SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
-                                  NULL, 0, &key_state->exchange_state);
+    ret = kex_diffie_hellman_sha(session, key_state->g, key_state->p, 1024,
+                                 SSH2_SHA512_ALG, SSH2_SHA512_DIG_LEN,
+                                 &exchange_hash_ctx,
+                                 SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
+                                 NULL, 0, &key_state->exchange_state);
     if(ret == LIBSSH2_ERROR_EAGAIN)
         return ret;
 
@@ -1310,15 +1310,15 @@ static int kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
             goto dh_gex_clean_exit;
         }
 
-        ret = diffie_hellman_sha_algo(session, key_state->g, key_state->p,
-                                      (int)p_len,
-                                      SSH2_SHA1_ALG, SSH2_SHA1_DIG_LEN,
-                                      &exchange_hash_ctx,
-                                      SSH_MSG_KEX_DH_GEX_INIT,
-                                      SSH_MSG_KEX_DH_GEX_REPLY,
-                                      key_state->data + 1,
-                                      key_state->data_len - 1,
-                                      &key_state->exchange_state);
+        ret = kex_diffie_hellman_sha(session, key_state->g, key_state->p,
+                                     (int)p_len,
+                                     SSH2_SHA1_ALG, SSH2_SHA1_DIG_LEN,
+                                     &exchange_hash_ctx,
+                                     SSH_MSG_KEX_DH_GEX_INIT,
+                                     SSH_MSG_KEX_DH_GEX_REPLY,
+                                     key_state->data + 1,
+                                     key_state->data_len - 1,
+                                     &key_state->exchange_state);
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
     }
@@ -1434,15 +1434,15 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
             goto dh_gex_clean_exit;
         }
 
-        ret = diffie_hellman_sha_algo(session, key_state->g, key_state->p,
-                                      (int)p_len,
-                                      SSH2_SHA256_ALG, SSH2_SHA256_DIG_LEN,
-                                      &exchange_hash_ctx,
-                                      SSH_MSG_KEX_DH_GEX_INIT,
-                                      SSH_MSG_KEX_DH_GEX_REPLY,
-                                      key_state->data + 1,
-                                      key_state->data_len - 1,
-                                      &key_state->exchange_state);
+        ret = kex_diffie_hellman_sha(session, key_state->g, key_state->p,
+                                     (int)p_len,
+                                     SSH2_SHA256_ALG, SSH2_SHA256_DIG_LEN,
+                                     &exchange_hash_ctx,
+                                     SSH_MSG_KEX_DH_GEX_INIT,
+                                     SSH_MSG_KEX_DH_GEX_REPLY,
+                                     key_state->data + 1,
+                                     key_state->data_len - 1,
+                                     &key_state->exchange_state);
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
     }
