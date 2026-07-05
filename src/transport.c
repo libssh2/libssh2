@@ -52,8 +52,8 @@
 
 #ifdef LIBSSH2DEBUG
 #define UNPRINTABLE_CHAR '.'
-static void debugdump(LIBSSH2_SESSION *session,
-                      const char *desc, const unsigned char *ptr, size_t size)
+static void transport_debugdump(LIBSSH2_SESSION *session, const char *desc,
+                                const unsigned char *ptr, size_t size)
 {
     size_t i;
     size_t c;
@@ -113,7 +113,7 @@ static void debugdump(LIBSSH2_SESSION *session,
     }
 }
 #else
-#define debugdump(a, x, y, z) do {} while(0)
+#define transport_debugdump(a, x, y, z) do {} while(0)
 #endif
 
 /* transport_decrypt() decrypts 'len' bytes from 'source' to 'dest' in units of
@@ -316,8 +316,8 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
 
         session->fullpacket_packet_type = p->payload[0];
 
-        debugdump(session, "ssh2_transport_read() plain",
-                  p->payload, session->fullpacket_payload_len);
+        transport_debugdump(session, "ssh2_transport_read() plain",
+                            p->payload, session->fullpacket_payload_len);
 
         session->fullpacket_state = ssh2_NB_state_created;
     }
@@ -500,8 +500,8 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                       (long)(PACKETBUFSIZE - remainbuf), (void *)p->buf,
                       (long)remainbuf));
 
-            debugdump(session, "ssh2_transport_read() raw",
-                      &p->buf[remainbuf], nread);
+            transport_debugdump(session, "ssh2_transport_read() raw",
+                                &p->buf[remainbuf], nread);
             /* advance write pointer */
             p->writeidx += nread;
 
@@ -923,8 +923,8 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
         ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
                   "Sent %ld/%ld bytes at %p+%lu", (long)rc, (long)length,
                   (void *)p->outbuf, (unsigned long)p->osent));
-        debugdump(session, "ssh2_transport_send()",
-                  &p->outbuf[p->osent], rc);
+        transport_debugdump(session, "ssh2_transport_send()",
+                            &p->outbuf[p->osent], rc);
     }
 
     if(rc == length) {
@@ -993,9 +993,11 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
     size_t orgdata_len = data_len;
     size_t crypt_offset, etm_crypt_offset;
 
-    debugdump(session, "ssh2_transport_send() plain", data, data_len);
+    transport_debugdump(session, "ssh2_transport_send() plain",
+                        data, data_len);
     if(data2)
-        debugdump(session, "ssh2_transport_send() plain2", data2, data2_len);
+        transport_debugdump(session, "ssh2_transport_send() plain2",
+                            data2, data2_len);
 
     /* Finish flushing any partially-sent packet BEFORE redirecting into a key
      * re-exchange. A packet already in transmission can only be completed by
@@ -1263,7 +1265,7 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
         ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
                   "Sent %ld/%ld bytes at %p",
                   (long)ret, (long)total_length, (void *)p->outbuf));
-        debugdump(session, "ssh2_transport_send()", p->outbuf, ret);
+        transport_debugdump(session, "ssh2_transport_send()", p->outbuf, ret);
     }
 
     if(ret != total_length) {
