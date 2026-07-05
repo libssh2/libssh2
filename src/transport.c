@@ -886,8 +886,9 @@ ssh2_transport_read_point1:
     return LIBSSH2_ERROR_SOCKET_RECV; /* we never reach this point */
 }
 
-static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
-                         size_t data_len, ssize_t *ret)
+static int transport_send_existing(LIBSSH2_SESSION *session,
+                                   const unsigned char *data,
+                                   size_t data_len, ssize_t *ret)
 {
     ssize_t rc;
     ssize_t length;
@@ -1002,23 +1003,24 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
 
     /* Finish flushing any partially-sent packet BEFORE redirecting into a key
      * re-exchange. A packet already in transmission can only be completed by
-     * a transport_send call with that same packet (send_existing rejects
-     * a different data pointer with EAGAIN). If rekey runs first, a packet
-     * caught mid-send when rekey starts can never be flushed and the session
-     * deadlocks. RFC 4253 7.1 requires completing the in-flight packet; only
-     * NEW packets are withheld, which the rekey redirect (reached only once
-     * nothing is pending) still does.
+     * a transport_send call with that same packet (transport_send_existing()
+     * rejects a different data pointer with EAGAIN). If rekey runs first,
+     * a packet caught mid-send when rekey starts can never be flushed and
+     * the session deadlocks. RFC 4253 7.1 requires completing the in-flight
+     * packet; only NEW packets are withheld, which the rekey redirect (reached
+     * only once nothing is pending) still does.
      *
-     * send_existing only sanity-checks data and data_len, not data2/data2_len.
+     * transport_send_existing() only sanity-checks data and data_len, not
+     * data2/data2_len.
      */
-    rc = send_existing(session, data, data_len, &ret);
+    rc = transport_send_existing(session, data, data_len, &ret);
     if(rc)
         return rc;
 
     session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_OUTBOUND;
 
     if(ret)
-        /* set by send_existing if data was sent */
+        /* set by transport_send_existing() if data was sent */
         return rc;
 
     /*
