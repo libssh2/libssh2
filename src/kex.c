@@ -1964,14 +1964,14 @@ static void kex_method_mlkem_nistp_cleanup(
         kex_ecdh_exchange_state_cleanup(session, &key_state->exchange_state);
 }
 
-static int mlkem_nistp(LIBSSH2_SESSION *session,
-                       unsigned char *data, size_t data_len,
-                       unsigned char *public_t_key,
-                       size_t public_t_key_len,
-                       ssh2_ec_key *private_t_key,
-                       unsigned char *public_pq_key,
-                       unsigned char *private_pq_key,
-                       struct kmdhgGPshakex_state *exchange_state)
+static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
+                           unsigned char *data, size_t data_len,
+                           unsigned char *public_t_key,
+                           size_t public_t_key_len,
+                           ssh2_ec_key *private_t_key,
+                           unsigned char *public_pq_key,
+                           unsigned char *private_pq_key,
+                           struct kmdhgGPshakex_state *exchange_state)
 {
     int ret = 0;
     int rc, mlkem_size;
@@ -2304,13 +2304,13 @@ static int kex_method_mlkem_nistp_key_exchange(
     }
 
     if(key_state->state == ssh2_NB_state_sent2) {
-        ret = mlkem_nistp(session, key_state->data, key_state->data_len,
-                          (unsigned char *)key_state->public_key_oct,
-                          key_state->public_key_oct_len,
-                          key_state->private_key,
-                          key_state->mlkem_public_key,
-                          key_state->mlkem_private_key,
-                          &key_state->exchange_state);
+        ret = kex_mlkem_nistp(session, key_state->data, key_state->data_len,
+                              (unsigned char *)key_state->public_key_oct,
+                              key_state->public_key_oct_len,
+                              key_state->private_key,
+                              key_state->mlkem_public_key,
+                              key_state->mlkem_private_key,
+                              &key_state->exchange_state);
 
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
