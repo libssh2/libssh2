@@ -101,11 +101,6 @@
    causing unbounded memory allocation (up to ~4 GB for a uint32_t). */
 #define SFTP_READDIR_MAXLEN (16 * 1024 * 1024)
 
-static int sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
-                           uint32_t request_id, unsigned char **data,
-                           size_t *data_len);
-static void sftp_packet_flush(LIBSSH2_SFTP *sftp);
-
 /*
  * Search list of zombied FXP_READ request IDs.
  *
@@ -420,44 +415,6 @@ window_adjust:
 }
 
 /*
- * Remove all pending packets in the packet_list and the corresponding one(s)
- * in the SFTP packet brigade.
- */
-static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
-{
-    struct sftp_pipeline_chunk *chunk;
-    LIBSSH2_SFTP *sftp = handle->sftp;
-    LIBSSH2_SESSION *session = sftp->channel->session;
-
-    /* remove pending packets, if any */
-    chunk = ssh2_list_first(&handle->packet_list);
-    while(chunk) {
-        unsigned char *data;
-        size_t data_len;
-        int rc;
-        struct sftp_pipeline_chunk *next = ssh2_list_next(&chunk->node);
-
-        rc = sftp_packet_ask(sftp, SSH_FXP_STATUS,
-                             chunk->request_id, &data, &data_len);
-        if(rc)
-            rc = sftp_packet_ask(sftp, SSH_FXP_DATA,
-                                 chunk->request_id, &data, &data_len);
-
-        if(!rc)
-            /* we found a packet, free it */
-            SSH2_FREE(session, data);
-        else if(chunk->sent)
-            /* there was no incoming packet for this request, mark this
-               request as a zombie if it ever sent the request */
-            sftp_zombie_request_add(sftp, chunk->request_id);
-
-        ssh2_list_remove(&chunk->node);
-        SSH2_FREE(session, chunk);
-        chunk = next;
-    }
-}
-
-/*
  * Checks if there is a matching SFTP packet available.
  */
 static int sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
@@ -603,6 +560,44 @@ static int sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
 
     /* Only reached if the socket died */
     return LIBSSH2_ERROR_SOCKET_DISCONNECT;
+}
+
+/*
+ * Remove all pending packets in the packet_list and the corresponding one(s)
+ * in the SFTP packet brigade.
+ */
+static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
+{
+    struct sftp_pipeline_chunk *chunk;
+    LIBSSH2_SFTP *sftp = handle->sftp;
+    LIBSSH2_SESSION *session = sftp->channel->session;
+
+    /* remove pending packets, if any */
+    chunk = ssh2_list_first(&handle->packet_list);
+    while(chunk) {
+        unsigned char *data;
+        size_t data_len;
+        int rc;
+        struct sftp_pipeline_chunk *next = ssh2_list_next(&chunk->node);
+
+        rc = sftp_packet_ask(sftp, SSH_FXP_STATUS,
+                             chunk->request_id, &data, &data_len);
+        if(rc)
+            rc = sftp_packet_ask(sftp, SSH_FXP_DATA,
+                                 chunk->request_id, &data, &data_len);
+
+        if(!rc)
+            /* we found a packet, free it */
+            SSH2_FREE(session, data);
+        else if(chunk->sent)
+            /* there was no incoming packet for this request, mark this
+               request as a zombie if it ever sent the request */
+            sftp_zombie_request_add(sftp, chunk->request_id);
+
+        ssh2_list_remove(&chunk->node);
+        SSH2_FREE(session, chunk);
+        chunk = next;
+    }
 }
 
 /*
@@ -1019,6 +1014,40 @@ LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session)
 
     BLOCK_ADJUST_ERRNO(ptr, session, sftp_init(session));
     return ptr;
+}
+
+/*
+ * Flush all remaining incoming SFTP packets and zombies.
+ */
+static void sftp_packet_flush(LIBSSH2_SFTP *sftp)
+{
+    LIBSSH2_CHANNEL *channel = sftp->channel;
+    LIBSSH2_SESSION *session = channel->session;
+    struct sftp_packet *packet = ssh2_list_first(&sftp->packets);
+    struct sftp_zombie_requests *zombie =
+        ssh2_list_first(&sftp->zombie_requests);
+
+    while(packet) {
+        struct sftp_packet *next;
+
+        /* check next struct in the list */
+        next = ssh2_list_next(&packet->node);
+        ssh2_list_remove(&packet->node);
+        SSH2_FREE(session, packet->data);
+        SSH2_FREE(session, packet);
+
+        packet = next;
+    }
+
+    while(zombie) {
+        /* figure out the next node */
+        struct sftp_zombie_requests *next = ssh2_list_next(&zombie->node);
+        /* unlink the current one */
+        ssh2_list_remove(&zombie->node);
+        /* free the memory */
+        SSH2_FREE(session, zombie);
+        zombie = next;
+    }
 }
 
 /*
@@ -2492,40 +2521,6 @@ libssh2_uint64_t libssh2_sftp_tell64(LIBSSH2_SFTP_HANDLE *handle)
         return 0; /* no handle, no size */
 
     return handle->u.file.offset;
-}
-
-/*
- * Flush all remaining incoming SFTP packets and zombies.
- */
-static void sftp_packet_flush(LIBSSH2_SFTP *sftp)
-{
-    LIBSSH2_CHANNEL *channel = sftp->channel;
-    LIBSSH2_SESSION *session = channel->session;
-    struct sftp_packet *packet = ssh2_list_first(&sftp->packets);
-    struct sftp_zombie_requests *zombie =
-        ssh2_list_first(&sftp->zombie_requests);
-
-    while(packet) {
-        struct sftp_packet *next;
-
-        /* check next struct in the list */
-        next = ssh2_list_next(&packet->node);
-        ssh2_list_remove(&packet->node);
-        SSH2_FREE(session, packet->data);
-        SSH2_FREE(session, packet);
-
-        packet = next;
-    }
-
-    while(zombie) {
-        /* figure out the next node */
-        struct sftp_zombie_requests *next = ssh2_list_next(&zombie->node);
-        /* unlink the current one */
-        ssh2_list_remove(&zombie->node);
-        /* free the memory */
-        SSH2_FREE(session, zombie);
-        zombie = next;
-    }
 }
 
 /*
