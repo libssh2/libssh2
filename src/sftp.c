@@ -2899,7 +2899,7 @@ static int sftp_posix_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
     uint32_t retcode;
 
     if(sftp->posix_rename_version != 1)
-        return ssh2_err(session, LIBSSH2_FX_OP_UNSUPPORTED,
+        return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                         "Server does not support posix-rename@openssh.com");
 
     /* 45 = packet_len(4) + packet_type(1) + request_id(4) +
