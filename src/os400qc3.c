@@ -952,6 +952,9 @@ int ssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx,
     Qus_EC_t errcode;
     (void)outlen;
 
+    if(!out)
+        return 0;
+
     ctx->Final_Op_Flag = Qc3_Final;
     set_EC_length(errcode, sizeof(errcode));
     Qc3CalculateHash(&data, &zero, Qc3_Data, (char *)ctx, Qc3_Alg_Token,
