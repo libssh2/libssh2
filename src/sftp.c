@@ -335,7 +335,7 @@ static int sftp_packet_read(LIBSSH2_SFTP *sftp)
             }
 
             if(sftp->partial_len < 5)
-                return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
+                return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                 "Invalid SFTP packet size");
 
             ssh2_deb((session, LIBSSH2_TRACE_SFTP,
