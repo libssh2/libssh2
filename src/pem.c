@@ -308,7 +308,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         /* Initialize the decryption */
         if(method->init(session, method, iv, &free_iv, secret, &free_secret, 0,
                         &abstract)) {
-            ssh2_explicit_zero((char *)secret, sizeof(secret));
+            ssh2_explicit_zero(secret, sizeof(secret));
             ssh2_explicit_zero(*data, *datalen);
             SSH2_FREE(session, *data);
             ret = -1;
@@ -316,11 +316,11 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         }
 
         if(free_secret)
-            ssh2_explicit_zero((char *)secret, sizeof(secret));
+            ssh2_explicit_zero(secret, sizeof(secret));
 
         /* Do the actual decryption */
         if((*datalen % blocksize) != 0) {
-            ssh2_explicit_zero((char *)secret, sizeof(secret));
+            ssh2_explicit_zero(secret, sizeof(secret));
             method->dtor(session, &abstract);
             ssh2_explicit_zero(*data, *datalen);
             SSH2_FREE(session, *data);
@@ -331,7 +331,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         if(method->flags & SSH2_CRYPT_FLAG_REQUIRES_FULL_PACKET) {
             if(method->crypt(session, 0, *data, *datalen, &abstract, 0)) {
                 ret = LIBSSH2_ERROR_DECRYPT;
-                ssh2_explicit_zero((char *)secret, sizeof(secret));
+                ssh2_explicit_zero(secret, sizeof(secret));
                 method->dtor(session, &abstract);
                 ssh2_explicit_zero(*data, *datalen);
                 SSH2_FREE(session, *data);
@@ -349,7 +349,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
                                             ? LAST_BLOCK
                                             : MIDDLE_BLOCK))) {
                     ret = LIBSSH2_ERROR_DECRYPT;
-                    ssh2_explicit_zero((char *)secret, sizeof(secret));
+                    ssh2_explicit_zero(secret, sizeof(secret));
                     method->dtor(session, &abstract);
                     ssh2_explicit_zero(*data, *datalen);
                     SSH2_FREE(session, *data);
@@ -373,7 +373,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         *datalen -= padding;
 
         /* Clean up */
-        ssh2_explicit_zero((char *)secret, sizeof(secret));
+        ssh2_explicit_zero(secret, sizeof(secret));
         method->dtor(session, &abstract);
 #else
         ssh2_err(session, LIBSSH2_ERROR_ALGO_UNSUPPORTED,
