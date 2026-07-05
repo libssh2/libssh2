@@ -544,13 +544,13 @@ int libssh2_userauth_password_ex(
     return rc;
 }
 
-static int memory_read_publickey(LIBSSH2_SESSION *session,
-                                 unsigned char **method,
-                                 size_t *method_len,
-                                 unsigned char **pubkeydata,
-                                 size_t *pubkeydata_len,
-                                 const char *pubkeyfiledata,
-                                 size_t pubkeyfiledata_len)
+static int userauth_read_blob_pubkey(LIBSSH2_SESSION *session,
+                                     unsigned char **method,
+                                     size_t *method_len,
+                                     unsigned char **pubkeydata,
+                                     size_t *pubkeydata_len,
+                                     const char *pubkeyfiledata,
+                                     size_t pubkeyfiledata_len)
 {
     unsigned char *pubkey = NULL, *sp1, *sp2, *tmp;
     size_t pubkey_len = pubkeyfiledata_len;
@@ -1858,10 +1858,11 @@ static int userauth_publickey_frommemory(LIBSSH2_SESSION *session,
 
     if(session->userauth_pblc_state == ssh2_NB_state_idle) {
         if(publickeydata_len && publickeydata) {
-            rc = memory_read_publickey(session, &session->userauth_pblc_method,
-                                       &session->userauth_pblc_method_len,
-                                       &pubkeydata, &pubkeydata_len,
-                                       publickeydata, publickeydata_len);
+            rc = userauth_read_blob_pubkey(session,
+                                           &session->userauth_pblc_method,
+                                           &session->userauth_pblc_method_len,
+                                           &pubkeydata, &pubkeydata_len,
+                                           publickeydata, publickeydata_len);
             if(rc)
                 return rc;
         }
@@ -2349,12 +2350,12 @@ int libssh2_userauth_publickey_sk(
                        session->userauth_pblc_method_len);
             }
 
-            rc = memory_read_publickey(session,
-                                       &session->userauth_pblc_method,
-                                       &session->userauth_pblc_method_len,
-                                       &pubkeydata, &pubkeydata_len,
-                                       (const char *)publickeydata,
-                                       publickeydata_len);
+            rc = userauth_read_blob_pubkey(session,
+                                           &session->userauth_pblc_method,
+                                           &session->userauth_pblc_method_len,
+                                           &pubkeydata, &pubkeydata_len,
+                                           (const char *)publickeydata,
+                                           publickeydata_len);
         }
     }
     else {
