@@ -448,15 +448,19 @@ password_response:
                                          &session->userauth_pswd_newpw,
                                          &session->userauth_pswd_newpw_len,
                                          &session->abstract);
-                        if(!session->userauth_pswd_newpw)
+                        if(!session->userauth_pswd_newpw) {
+                            session->userauth_pswd_state = ssh2_NB_state_idle;
+                            session->userauth_pswd_data_len = 0;
                             return ssh2_err(session,
                                             LIBSSH2_ERROR_PASSWORD_EXPIRED,
                                             "Password expired, and "
                                             "callback failed");
+                        }
 
                         session->userauth_pswd_data_len = 0;
                         if(username_len > MAX_INPUT_LEN ||
                            password_len > MAX_INPUT_LEN) {
+                            session->userauth_pswd_state = ssh2_NB_state_idle;
                             SSH2_SAFEFREE(session,
                                           session->userauth_pswd_newpw);
                             return ssh2_err(session,
@@ -470,6 +474,7 @@ password_response:
                         session->userauth_pswd_data = s =
                             SSH2_ALLOC(session, data_len);
                         if(!session->userauth_pswd_data) {
+                            session->userauth_pswd_state = ssh2_NB_state_idle;
                             SSH2_SAFEFREE(session,
                                           session->userauth_pswd_newpw);
                             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
