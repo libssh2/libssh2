@@ -88,7 +88,7 @@ int ssh2_random(unsigned char *buf, size_t len)
     return psa_generate_random(buf, len) == PSA_SUCCESS ? 0 : -1;
 }
 
-static void mbed_safe_free(void *buf, size_t len)
+static void mbed_zero_free(void *buf, size_t len)
 {
     if(!buf)
         return;
@@ -174,7 +174,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
             memcpy(block, output, olen);
         }
 
-        mbed_safe_free(output, osize);
+        mbed_zero_free(output, osize);
     }
     else
         ret = -1;
@@ -466,7 +466,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                passphrase, pwd_len,
                                mbedtls_ctr_drbg_random,
                                &mbed_ctr_drbg);
-    mbed_safe_free(blob_nullterm, blob_len + 1);
+    mbed_zero_free(blob_nullterm, blob_len + 1);
 
     if(ret || mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_RSA) {
         mbedtls_pk_free(&pkey);
@@ -751,7 +751,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                (const unsigned char *)passphrase, pwd_len,
                                mbedtls_ctr_drbg_random,
                                &mbed_ctr_drbg);
-    mbed_safe_free(privatekeydata_nullterm, privatekeydata_len + 1);
+    mbed_zero_free(privatekeydata_nullterm, privatekeydata_len + 1);
 
     if(ret) {
         mbedtls_strerror(ret, (char *)buf, sizeof(buf));
@@ -1259,7 +1259,7 @@ cleanup:
 
     mbedtls_pk_free(&pkey);
 
-    mbed_safe_free(ntdata, blob_len + 1);
+    mbed_zero_free(ntdata, blob_len + 1);
 
     return *ec_ctx ? 0 : -1;
 }
@@ -1336,7 +1336,7 @@ cleanup:
     mbedtls_mpi_free(&pr);
     mbedtls_mpi_free(&ps);
 
-    mbed_safe_free(tmp_sign, tmp_sign_len);
+    mbed_zero_free(tmp_sign, tmp_sign_len);
 
     return *signature ? 0 : -1;
 }
