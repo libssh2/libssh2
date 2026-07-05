@@ -2366,11 +2366,12 @@ static void kex_method_curve25519_cleanup(
 /*
  * Elliptic Curve Key Exchange
  */
-static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
-                             size_t data_len,
-                             unsigned char public_key[SSH2_ED25519_KEY_LEN],
-                             unsigned char private_key[SSH2_ED25519_KEY_LEN],
-                             struct kmdhgGPshakex_state *exchange_state)
+static int kex_curve25519_sha256(
+    LIBSSH2_SESSION *session,
+    unsigned char *data, size_t data_len,
+    unsigned char public_key[SSH2_ED25519_KEY_LEN],
+    unsigned char private_key[SSH2_ED25519_KEY_LEN],
+    struct kmdhgGPshakex_state *exchange_state)
 {
     int ret = 0;
     int rc;
@@ -2575,10 +2576,11 @@ static int kex_method_curve25519_key_exchange(
 
     if(key_state->state == ssh2_NB_state_sent2) {
 
-        ret = curve25519_sha256(session, key_state->data, key_state->data_len,
-                                key_state->curve25519_public_key,
-                                key_state->curve25519_private_key,
-                                &key_state->exchange_state);
+        ret = kex_curve25519_sha256(session,
+                                    key_state->data, key_state->data_len,
+                                    key_state->curve25519_public_key,
+                                    key_state->curve25519_private_key,
+                                    &key_state->exchange_state);
 
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
