@@ -1999,7 +1999,7 @@ int libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle,
  *
  * - Detect how much of the given buffer that was already sent in a previous
  *   call by inspecting the linked list of outgoing chunks. Make sure to skip
- *   passed the data that has already been taken care of.
+ *   past the data that has already been taken care of.
  *
  * - Split all (new) outgoing data in chunks no larger than N.
  *
