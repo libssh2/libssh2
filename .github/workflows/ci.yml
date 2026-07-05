@@ -1267,5 +1267,8 @@ jobs:
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
             cmake --build bld --verbose --target test-ci
           else
-            make -C bld check V=1 || { cat tests/*.log; false; }
+            make -C bld check V=1
+            echo '-----------------'
+            find . | sort
+            echo '-----------------'
           fi
