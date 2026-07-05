@@ -896,7 +896,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
         }
         session->sftpInit_channel = NULL;
         if(session->sftpInit_sftp)
-            SSH2_FREENULL(session, session->sftpInit_sftp);
+            SSH2_SAFEFREE(session, session->sftpInit_sftp);
         session->sftpInit_state = ssh2_NB_state_idle;
         return NULL;
     }
@@ -1032,31 +1032,31 @@ static int sftp_shutdown(LIBSSH2_SFTP *sftp)
      * Make sure all memory used in the state variables are free
      */
     if(sftp->partial_packet)
-        SSH2_FREENULL(session, sftp->partial_packet);
+        SSH2_SAFEFREE(session, sftp->partial_packet);
     if(sftp->open_packet)
-        SSH2_FREENULL(session, sftp->open_packet);
+        SSH2_SAFEFREE(session, sftp->open_packet);
     if(sftp->readdir_packet)
-        SSH2_FREENULL(session, sftp->readdir_packet);
+        SSH2_SAFEFREE(session, sftp->readdir_packet);
     if(sftp->fstat_packet)
-        SSH2_FREENULL(session, sftp->fstat_packet);
+        SSH2_SAFEFREE(session, sftp->fstat_packet);
     if(sftp->unlink_packet)
-        SSH2_FREENULL(session, sftp->unlink_packet);
+        SSH2_SAFEFREE(session, sftp->unlink_packet);
     if(sftp->rename_packet)
-        SSH2_FREENULL(session, sftp->rename_packet);
+        SSH2_SAFEFREE(session, sftp->rename_packet);
     if(sftp->fstatvfs_packet)
-        SSH2_FREENULL(session, sftp->fstatvfs_packet);
+        SSH2_SAFEFREE(session, sftp->fstatvfs_packet);
     if(sftp->statvfs_packet)
-        SSH2_FREENULL(session, sftp->statvfs_packet);
+        SSH2_SAFEFREE(session, sftp->statvfs_packet);
     if(sftp->mkdir_packet)
-        SSH2_FREENULL(session, sftp->mkdir_packet);
+        SSH2_SAFEFREE(session, sftp->mkdir_packet);
     if(sftp->rmdir_packet)
-        SSH2_FREENULL(session, sftp->rmdir_packet);
+        SSH2_SAFEFREE(session, sftp->rmdir_packet);
     if(sftp->stat_packet)
-        SSH2_FREENULL(session, sftp->stat_packet);
+        SSH2_SAFEFREE(session, sftp->stat_packet);
     if(sftp->symlink_packet)
-        SSH2_FREENULL(session, sftp->symlink_packet);
+        SSH2_SAFEFREE(session, sftp->symlink_packet);
     if(sftp->fsync_packet)
-        SSH2_FREENULL(session, sftp->fsync_packet);
+        SSH2_SAFEFREE(session, sftp->fsync_packet);
 
     sftp_packet_flush(sftp);
 
@@ -1167,7 +1167,7 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
         }
         else if(rc < 0) {
             ssh2_err(session, (int)rc, "Unable to send FXP_OPEN*");
-            SSH2_FREENULL(session, sftp->open_packet);
+            SSH2_SAFEFREE(session, sftp->open_packet);
             sftp->open_state = ssh2_NB_state_idle;
             return NULL;
         }
@@ -1177,7 +1177,7 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
         sftp->open_packet_sent += rc;
 
         if(sftp->open_packet_len == sftp->open_packet_sent) {
-            SSH2_FREENULL(session, sftp->open_packet);
+            SSH2_SAFEFREE(session, sftp->open_packet);
             sftp->open_state = ssh2_NB_state_sent;
         }
     }
@@ -1228,7 +1228,7 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
             if(LIBSSH2_FX_OK == sftp->last_errno) {
                 ssh2_deb((session, LIBSSH2_TRACE_SFTP, "got HANDLE FXOK"));
 
-                SSH2_FREENULL(session, data);
+                SSH2_SAFEFREE(session, data);
 
                 /* silly situation, but check for a HANDLE */
                 rc = sftp_packet_require(sftp, SSH_FXP_HANDLE,
@@ -1406,7 +1406,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
             filep->offset += copy;
 
             if(!filep->data_left)
-                SSH2_FREENULL(session, filep->data);
+                SSH2_SAFEFREE(session, filep->data);
 
             return copy;
         }
@@ -1884,13 +1884,13 @@ end:
         if(retcode == LIBSSH2_ERROR_EAGAIN)
             return retcode;
         else if((ssize_t)packet_len != retcode) {
-            SSH2_FREENULL(session, sftp->readdir_packet);
+            SSH2_SAFEFREE(session, sftp->readdir_packet);
             sftp->readdir_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             "ssh2_channel_write() failed");
         }
 
-        SSH2_FREENULL(session, sftp->readdir_packet);
+        SSH2_SAFEFREE(session, sftp->readdir_packet);
         sftp->readdir_state = ssh2_NB_state_sent;
     }
 
@@ -2364,13 +2364,13 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return (int)rc;
         else if((ssize_t)packet_len != rc) {
-            SSH2_FREENULL(session, sftp->fstat_packet);
+            SSH2_SAFEFREE(session, sftp->fstat_packet);
             sftp->fstat_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             (setstat ? "Unable to send FXP_FSETSTAT"
                                      : "Unable to send FXP_FSTAT command"));
         }
-        SSH2_FREENULL(session, sftp->fstat_packet);
+        SSH2_SAFEFREE(session, sftp->fstat_packet);
         sftp->fstat_state = ssh2_NB_state_sent;
     }
 
@@ -2447,7 +2447,7 @@ void libssh2_sftp_seek64(LIBSSH2_SFTP_HANDLE *handle, libssh2_uint64_t offset)
 
     /* free the left received buffered data */
     if(handle->u.file.data_left) {
-        SSH2_FREENULL(handle->sftp->channel->session, handle->u.file.data);
+        SSH2_SAFEFREE(handle->sftp->channel->session, handle->u.file.data);
         handle->u.file.data_left = handle->u.file.data_len = 0;
     }
 
@@ -2573,7 +2573,7 @@ static int sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
         if(nwritten == LIBSSH2_ERROR_EAGAIN)
             return (int)nwritten;
         else if((ssize_t)packet_len != nwritten) {
-            SSH2_FREENULL(session, handle->close_packet);
+            SSH2_SAFEFREE(session, handle->close_packet);
             handle->close_state = ssh2_NB_state_idle;
             rc = ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                           "Unable to send FXP_CLOSE command");
@@ -2581,7 +2581,7 @@ static int sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
         else
             handle->close_state = ssh2_NB_state_sent;
 
-        SSH2_FREENULL(session, handle->close_packet);
+        SSH2_SAFEFREE(session, handle->close_packet);
     }
 
     if(handle->close_state == ssh2_NB_state_sent) {
@@ -2701,12 +2701,12 @@ static int sftp_unlink(LIBSSH2_SFTP *sftp,
         if(nwritten == LIBSSH2_ERROR_EAGAIN)
             return (int)nwritten;
         else if((ssize_t)packet_len != nwritten) {
-            SSH2_FREENULL(session, sftp->unlink_packet);
+            SSH2_SAFEFREE(session, sftp->unlink_packet);
             sftp->unlink_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             "Unable to send FXP_REMOVE command");
         }
-        SSH2_FREENULL(session, sftp->unlink_packet);
+        SSH2_SAFEFREE(session, sftp->unlink_packet);
         sftp->unlink_state = ssh2_NB_state_sent;
     }
 
@@ -2818,12 +2818,12 @@ static int sftp_rename(LIBSSH2_SFTP *sftp,
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return (int)rc;
         else if((ssize_t)packet_len != rc) {
-            SSH2_FREENULL(session, sftp->rename_packet);
+            SSH2_SAFEFREE(session, sftp->rename_packet);
             sftp->rename_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             "Unable to send FXP_RENAME command");
         }
-        SSH2_FREENULL(session, sftp->rename_packet);
+        SSH2_SAFEFREE(session, sftp->rename_packet);
         sftp->rename_state = ssh2_NB_state_sent;
     }
 
@@ -3463,12 +3463,12 @@ static int sftp_rmdir(LIBSSH2_SFTP *sftp, const char *path,
         if(nwritten == LIBSSH2_ERROR_EAGAIN)
             return (int)nwritten;
         else if((ssize_t)packet_len != nwritten) {
-            SSH2_FREENULL(session, sftp->rmdir_packet);
+            SSH2_SAFEFREE(session, sftp->rmdir_packet);
             sftp->rmdir_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             "Unable to send FXP_RMDIR command");
         }
-        SSH2_FREENULL(session, sftp->rmdir_packet);
+        SSH2_SAFEFREE(session, sftp->rmdir_packet);
         sftp->rmdir_state = ssh2_NB_state_sent;
     }
 
@@ -3583,12 +3583,12 @@ static int sftp_stat(LIBSSH2_SFTP *sftp,
         if(nwritten == LIBSSH2_ERROR_EAGAIN)
             return (int)nwritten;
         else if((ssize_t)packet_len != nwritten) {
-            SSH2_FREENULL(session, sftp->stat_packet);
+            SSH2_SAFEFREE(session, sftp->stat_packet);
             sftp->stat_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             "Unable to send STAT/LSTAT/SETSTAT command");
         }
-        SSH2_FREENULL(session, sftp->stat_packet);
+        SSH2_SAFEFREE(session, sftp->stat_packet);
         sftp->stat_state = ssh2_NB_state_sent;
     }
 
@@ -3742,12 +3742,12 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp,
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return (int)rc;
         else if((ssize_t)packet_len != rc) {
-            SSH2_FREENULL(session, sftp->symlink_packet);
+            SSH2_SAFEFREE(session, sftp->symlink_packet);
             sftp->symlink_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             "Unable to send SYMLINK/READLINK command");
         }
-        SSH2_FREENULL(session, sftp->symlink_packet);
+        SSH2_SAFEFREE(session, sftp->symlink_packet);
         sftp->symlink_state = ssh2_NB_state_sent;
     }
 

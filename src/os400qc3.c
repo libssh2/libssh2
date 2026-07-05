@@ -1394,7 +1394,7 @@ static int pbkdf1(LIBSSH2_SESSION *session, char **dk,
     }
 
     if(errcode.Bytes_Available) {
-        SSH2_FREENULL(session, *dk);
+        SSH2_SAFEFREE(session, *dk);
         return -1;
     }
 
@@ -1447,7 +1447,7 @@ static int pbkdf2(LIBSSH2_SESSION *session, char **dk,
         if(!ssh2_hmac_update(&hctx, pkcs5->salt, pkcs5->saltlen) ||
            !ssh2_hmac_update(&hctx, &ni, sizeof(ni)) ||
            !ssh2_hmac_final(&hctx, mac, pkcs5->hashlen)) {
-            SSH2_FREENULL(session, *dk);
+            SSH2_SAFEFREE(session, *dk);
             ssh2_os400qc3_crypto_dtor(&hctx);
             return -1;
         }
@@ -2017,7 +2017,7 @@ static int try_pem_load(LIBSSH2_SESSION *session, FILE *fp,
         }
 
         if(data)
-            SSH2_FREENULL(session, data);
+            SSH2_SAFEFREE(session, data);
         c = getc(fp);
 
         if(c == EOF)
@@ -2140,7 +2140,7 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
 
     if(ret) {
         if(*method)
-            SSH2_FREENULL(session, *method);
+            SSH2_SAFEFREE(session, *method);
         *method_len = 0;
         if(p.data)
             SSH2_FREE(session, (void *)p.data);
@@ -2304,7 +2304,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     }
     if(ret) {
         if(*method)
-            SSH2_FREENULL(session, *method);
+            SSH2_SAFEFREE(session, *method);
         *method_len = 0;
         if(p.data)
             SSH2_FREE(session, (void *)p.data);

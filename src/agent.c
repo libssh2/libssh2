@@ -808,7 +808,7 @@ static int agent_sign(LIBSSH2_SESSION *session,
     if(rc)
         goto error;
 
-    SSH2_FREENULL(session, transctx->request);
+    SSH2_SAFEFREE(session, transctx->request);
 
     len = transctx->response_len;
     s = transctx->response;
@@ -899,8 +899,8 @@ error:
     if(method_name)
         SSH2_FREE(session, method_name);
 
-    SSH2_FREENULL(session, transctx->request);
-    SSH2_FREENULL(session, transctx->response);
+    SSH2_SAFEFREE(session, transctx->request);
+    SSH2_SAFEFREE(session, transctx->response);
 
     transctx->state = agent_NB_state_init;
 
@@ -936,7 +936,7 @@ static int agent_list_identities(LIBSSH2_AGENT *agent)
 
     rc = agent->ops->transact(agent, transctx);
     if(rc) {
-        SSH2_FREENULL(agent->session, transctx->response);
+        SSH2_SAFEFREE(agent->session, transctx->response);
         return rc;
     }
     transctx->request = NULL;
@@ -1050,7 +1050,7 @@ static int agent_list_identities(LIBSSH2_AGENT *agent)
         ssh2_list_add(&agent->head, &identity->node);
     }
 error:
-    SSH2_FREENULL(agent->session, transctx->response);
+    SSH2_SAFEFREE(agent->session, transctx->response);
 
     return ssh2_err(agent->session, rc, "agent list id failed");
 }
@@ -1243,7 +1243,7 @@ int libssh2_agent_sign(LIBSSH2_AGENT *agent,
 
     rc = agent_sign(agent->session, sig, s_len, data, d_len, &abstract);
 
-    SSH2_FREENULL(agent->session, agent->session->userauth_pblc_method);
+    SSH2_SAFEFREE(agent->session, agent->session->userauth_pblc_method);
     agent->session->userauth_pblc_method_len = 0;
 
     return rc;
@@ -1284,7 +1284,7 @@ void libssh2_agent_free(LIBSSH2_AGENT *agent)
 void libssh2_agent_set_identity_path(LIBSSH2_AGENT *agent, const char *path)
 {
     if(agent->identity_agent_path)
-        SSH2_FREENULL(agent->session, agent->identity_agent_path);
+        SSH2_SAFEFREE(agent->session, agent->identity_agent_path);
 
     if(path) {
         size_t path_len = strlen(path);

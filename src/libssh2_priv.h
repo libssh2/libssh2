@@ -247,7 +247,7 @@ struct iovec {
              (session)->alloc(count, &(session)->abstract))
 #define SSH2_FREE(session, ptr) \
     session->free(ptr, &(session)->abstract)
-#define SSH2_FREENULL(ptr) \
+#define SSH2_SAFEFREE(ptr) \
     do {                   \
         SSH2_FREE(ptr);    \
         (ptr) = NULL;      \

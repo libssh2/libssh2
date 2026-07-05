@@ -890,8 +890,7 @@ failed:
     *out_private_key = NULL;
     if(*out_public_key_octal) {
         ssh2_explicit_zero(*out_public_key_octal, plen);
-        SSH2_FREE(session, *out_public_key_octal);
-        *out_public_key_octal = NULL;
+        SSH2_SAFEFREE(session, *out_public_key_octal);
     }
 
     return -1;

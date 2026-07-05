@@ -2797,7 +2797,7 @@ int ssh2_ecdsa_sign(IN LIBSSH2_SESSION *session,
 
 cleanup:
     if(result != LIBSSH2_ERROR_NONE && *signature) {
-        SSH2_FREENULL(session, *signature);
+        SSH2_SAFEFREE(session, *signature);
         *signature_len = 0;
     }
 

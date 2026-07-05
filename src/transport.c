@@ -154,7 +154,7 @@ static int decrypt(LIBSSH2_SESSION *session, unsigned char *source,
         if(session->remote.crypt->crypt(session, 0, source, decryptlen,
                                         &session->remote.crypt_abstract,
                                         lowerfirstlast)) {
-            SSH2_FREENULL(session, p->payload);
+            SSH2_SAFEFREE(session, p->payload);
             return LIBSSH2_ERROR_DECRYPT;
         }
 
@@ -304,7 +304,7 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
                                               p->payload,
                                               session->fullpacket_payload_len,
                                               &session->remote.comp_abstract);
-            SSH2_FREENULL(session, p->payload);
+            SSH2_SAFEFREE(session, p->payload);
             if(rc)
                 return rc;
 
@@ -552,7 +552,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                 if(rc != LIBSSH2_ERROR_NONE) {
                     p->total_num = 0; /* no packet buffer available */
                     if(p->payload)
-                        SSH2_FREENULL(session, p->payload);
+                        SSH2_SAFEFREE(session, p->payload);
                     return rc;
                 }
 
@@ -680,7 +680,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                     }
                     else {
                         if(p->payload)
-                            SSH2_FREENULL(session, p->payload);
+                            SSH2_SAFEFREE(session, p->payload);
                         return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
                     }
                 }
@@ -835,7 +835,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                 memcpy(p->wptr, &p->buf[p->readidx], numbytes);
             else {
                 if(p->payload)
-                    SSH2_FREENULL(session, p->payload);
+                    SSH2_SAFEFREE(session, p->payload);
                 return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
             }
 

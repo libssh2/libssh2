@@ -153,7 +153,7 @@ static int publickey_packet_receive(LIBSSH2_PUBLICKEY *pkey,
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return (int)rc;
         else if(rc != (ssize_t)pkey->receive_packet_len) {
-            SSH2_FREENULL(session, pkey->receive_packet);
+            SSH2_SAFEFREE(session, pkey->receive_packet);
             pkey->receive_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
                             "Timeout waiting for publickey subsystem "
@@ -492,7 +492,7 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                 ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
                           "Enabling publickey subsystem version %u",
                           session->pkeyInit_pkey->version));
-                SSH2_FREENULL(session, session->pkeyInit_data);
+                SSH2_SAFEFREE(session, session->pkeyInit_data);
                 session->pkeyInit_state = ssh2_NB_state_idle;
                 return session->pkeyInit_pkey;
 
@@ -500,7 +500,7 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                 /* Unknown/Unexpected */
                 ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                          "Unexpected publickey subsystem response, ignoring");
-                SSH2_FREENULL(session, session->pkeyInit_data);
+                SSH2_SAFEFREE(session, session->pkeyInit_data);
             }
         }
     }
@@ -517,9 +517,9 @@ err_exit:
         }
     }
     if(session->pkeyInit_pkey)
-        SSH2_FREENULL(session, session->pkeyInit_pkey);
+        SSH2_SAFEFREE(session, session->pkeyInit_pkey);
     if(session->pkeyInit_data)
-        SSH2_FREENULL(session, session->pkeyInit_data);
+        SSH2_SAFEFREE(session, session->pkeyInit_data);
     session->pkeyInit_state = ssh2_NB_state_idle;
     return NULL;
 }
@@ -657,11 +657,11 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
         if(nwritten == LIBSSH2_ERROR_EAGAIN)
             return (int)nwritten;
         else if((pkey->add_s - pkey->add_packet) != nwritten) {
-            SSH2_FREENULL(session, pkey->add_packet);
+            SSH2_SAFEFREE(session, pkey->add_packet);
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             "Unable to send publickey add packet");
         }
-        SSH2_FREENULL(session, pkey->add_packet);
+        SSH2_SAFEFREE(session, pkey->add_packet);
         pkey->add_state = ssh2_NB_state_sent;
     }
 
@@ -736,12 +736,12 @@ int libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
         if(nwritten == LIBSSH2_ERROR_EAGAIN)
             return (int)nwritten;
         else if((pkey->remove_s - pkey->remove_packet) != nwritten) {
-            SSH2_FREENULL(session, pkey->remove_packet);
+            SSH2_SAFEFREE(session, pkey->remove_packet);
             pkey->remove_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             "Unable to send publickey remove packet");
         }
-        SSH2_FREENULL(session, pkey->remove_packet);
+        SSH2_SAFEFREE(session, pkey->remove_packet);
         pkey->remove_state = ssh2_NB_state_sent;
     }
 
@@ -884,7 +884,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
             }
 
             if(status == SSH2_PUBLICKEY_SUCCESS) {
-                SSH2_FREENULL(session, pkey->listFetch_data);
+                SSH2_SAFEFREE(session, pkey->listFetch_data);
                 *pkey_list = list;
                 *num_keys = keys;
                 pkey->listFetch_state = ssh2_NB_state_idle;
@@ -1157,14 +1157,14 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
             /* Unknown/Unexpected */
             ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                      "Unexpected publickey subsystem response");
-            SSH2_FREENULL(session, pkey->listFetch_data);
+            SSH2_SAFEFREE(session, pkey->listFetch_data);
         }
     }
 
     /* Only reached via explicit goto */
 err_exit:
     if(pkey->listFetch_data)
-        SSH2_FREENULL(session, pkey->listFetch_data);
+        SSH2_SAFEFREE(session, pkey->listFetch_data);
     if(list)
         libssh2_publickey_list_free(pkey, list);
     pkey->listFetch_state = ssh2_NB_state_idle;
@@ -1212,13 +1212,13 @@ int libssh2_publickey_shutdown(LIBSSH2_PUBLICKEY *pkey)
      * Make sure all memory used in the state variables are free
      */
     if(pkey->receive_packet)
-        SSH2_FREENULL(session, pkey->receive_packet);
+        SSH2_SAFEFREE(session, pkey->receive_packet);
     if(pkey->add_packet)
-        SSH2_FREENULL(session, pkey->add_packet);
+        SSH2_SAFEFREE(session, pkey->add_packet);
     if(pkey->remove_packet)
-        SSH2_FREENULL(session, pkey->remove_packet);
+        SSH2_SAFEFREE(session, pkey->remove_packet);
     if(pkey->listFetch_data)
-        SSH2_FREENULL(session, pkey->listFetch_data);
+        SSH2_SAFEFREE(session, pkey->listFetch_data);
 
     rc = ssh2_channel_free(pkey->channel);
     if(rc == LIBSSH2_ERROR_EAGAIN)

@@ -345,7 +345,7 @@ int libssh2_session_banner_set(LIBSSH2_SESSION *session, const char *banner)
     size_t banner_len = banner ? strlen(banner) : 0;
 
     if(session->local.banner)
-        SSH2_FREENULL(session, session->local.banner);
+        SSH2_SAFEFREE(session, session->local.banner);
 
     if(!banner_len)
         return 0;
@@ -773,14 +773,14 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
         buf.dataptr++;
 
         if(ssh2_match_string(&buf, "ssh-userauth")) {
-            SSH2_FREENULL(session, session->startup_data);
+            SSH2_SAFEFREE(session, session->startup_data);
             return ssh2_err(session, LIBSSH2_ERROR_PROTO,
                             "Invalid response received from server");
         }
 
         session->startup_service_length = (sizeof("ssh-userauth") - 1);
 
-        SSH2_FREENULL(session, session->startup_data);
+        SSH2_SAFEFREE(session, session->startup_data);
 
         session->startup_state = ssh2_NB_state_idle;
 
@@ -994,7 +994,7 @@ static int session_free(LIBSSH2_SESSION *session)
 
     /* Free payload buffer */
     if(session->packet.payload)
-        SSH2_FREENULL(session, session->packet.payload);
+        SSH2_SAFEFREE(session, session->packet.payload);
 
     /* Cleanup all remaining packets */
     /* !checksrc! disable EQUALSNULL 1 */
