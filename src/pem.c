@@ -64,7 +64,7 @@ static int pem_readline_file(char *line, int line_size, FILE *fp)
     return 0;
 }
 
-static int readline_memory(char *line, size_t line_size,
+static int pem_readline_blob(char *line, size_t line_size,
                            const char *filedata, size_t filedata_len,
                            size_t *filedata_offset)
 {
@@ -181,11 +181,11 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
     do {
         *line = '\0';
 
-        if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off))
+        if(pem_readline_blob(line, LINE_SIZE, filedata, filedata_len, &off))
             return -1;
     } while(strcmp(line, headerbegin));
 
-    if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off))
+    if(pem_readline_blob(line, LINE_SIZE, filedata, filedata_len, &off))
         return -1;
 
     if(passphrase &&
@@ -193,7 +193,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         const struct crypt_method **all_methods, *cur_method;
         int i;
 
-        if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
+        if(pem_readline_blob(line, LINE_SIZE, filedata, filedata_len, &off)) {
             ret = -1;
             goto out;
         }
@@ -225,7 +225,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         }
 
         /* skip to the next line */
-        if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
+        if(pem_readline_blob(line, LINE_SIZE, filedata, filedata_len, &off)) {
             ret = -1;
             goto out;
         }
@@ -251,7 +251,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
 
         *line = '\0';
 
-        if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
+        if(pem_readline_blob(line, LINE_SIZE, filedata, filedata_len, &off)) {
             ret = -1;
             goto out;
         }
@@ -799,7 +799,7 @@ int ssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
             return ssh2_err(session, LIBSSH2_ERROR_PROTO,
                             "Error parsing PEM: OpenSSH header not found");
 
-        if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off))
+        if(pem_readline_blob(line, LINE_SIZE, filedata, filedata_len, &off))
             return -1;
     } while(strcmp(line, OPENSSH_PRIVKEY_HEADER));
 
@@ -830,7 +830,7 @@ int ssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
             goto out;
         }
 
-        if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
+        if(pem_readline_blob(line, LINE_SIZE, filedata, filedata_len, &off)) {
             ret = -1;
             goto out;
         }
