@@ -695,9 +695,6 @@ struct flags {
     int quote_paths; /* LIBSSH2_FLAG_QUOTE_PATHS */
 };
 
-/* 19 = packet_len(4) + version_len(4) + "version"(7) + version_num(4) */
-#define SSH2_PUBLICKEY_VERSION_MSG_LEN  (4 + 4 + (sizeof("version") - 1) + 4)
-
 #if defined(__clang__) && __clang_major__ >= 13
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wreserved-identifier"
@@ -928,7 +925,9 @@ struct _LIBSSH2_SESSION {
     LIBSSH2_CHANNEL *pkeyInit_channel;
     unsigned char *pkeyInit_data;
     size_t pkeyInit_data_len;
-    unsigned char pkeyInit_buffer[SSH2_PUBLICKEY_VERSION_MSG_LEN];
+
+    /* 19 = packet_len(4) + version_len(4) + "version"(7) + version_num(4) */
+    unsigned char pkeyInit_buffer[4 + 4 + (sizeof("version") - 1) + 4];
     size_t pkeyInit_buffer_sent; /* how much of buffer that has been sent */
 
     /* State variables used in ssh2_packet_add() */
