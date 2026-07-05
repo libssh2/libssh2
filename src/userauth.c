@@ -81,6 +81,8 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
     int rc;
 
     if(session->userauth_list_state == ssh2_NB_state_idle) {
+        size_t data_len;
+
         /* Zero the whole thing out */
         memset(&session->userauth_list_packet_requirev_state, 0,
                sizeof(session->userauth_list_packet_requirev_state));
@@ -91,18 +93,19 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
             return NULL;
         }
 
-        session->userauth_list_data_len = username_len + 27;
-
         if(session->userauth_list_data)
             SSH2_FREE(session, session->userauth_list_data);
 
-        s = session->userauth_list_data =
-            SSH2_ALLOC(session, session->userauth_list_data_len);
+        data_len = username_len + 27;
+
+        session->userauth_list_data_len = 0;
+        session->userauth_list_data = s = SSH2_ALLOC(session, data_len);
         if(!session->userauth_list_data) {
             ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                      "Unable to allocate memory for userauth_list");
             return NULL;
         }
+        session->userauth_list_data_len = data_len;
 
         *(s++) = SSH_MSG_USERAUTH_REQUEST;
         ssh2_store_str(&s, username, username_len);
@@ -305,6 +308,7 @@ static int userauth_password(LIBSSH2_SESSION *session,
 
     int rc;
     unsigned char *s;
+    size_t data_len;
 
     if(session->userauth_pswd_state == ssh2_NB_state_idle) {
         /* Zero the whole thing out */
@@ -321,19 +325,20 @@ static int userauth_password(LIBSSH2_SESSION *session,
             return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                             "Password length out of bounds");
 
-        session->userauth_pswd_data_len = username_len + 40;
+        data_len = username_len + 40;
 
         session->userauth_pswd_data0 =
             (unsigned char)~SSH_MSG_USERAUTH_PASSWD_CHANGEREQ;
 
         /* TODO: remove this alloc with a fixed buffer in the session
            struct */
-        s = session->userauth_pswd_data =
-            SSH2_ALLOC(session, session->userauth_pswd_data_len);
+        session->userauth_pswd_data_len = 0;
+        session->userauth_pswd_data = s = SSH2_ALLOC(session, data_len);
         if(!session->userauth_pswd_data)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate memory for "
                             "userauth-password request");
+        session->userauth_pswd_data_len = data_len;
 
         *(s++) = SSH_MSG_USERAUTH_REQUEST;
         ssh2_store_str(&s, username, username_len);
@@ -449,20 +454,21 @@ password_response:
                                             "Password expired, and "
                                             "callback failed");
 
-                        /* basic data_len + newpw_len(4) */
-                        if(username_len <= MAX_INPUT_LEN &&
-                           password_len <= MAX_INPUT_LEN) {
-                            session->userauth_pswd_data_len =
-                                username_len + password_len + 44;
-                            s = session->userauth_pswd_data =
-                                SSH2_ALLOC(session,
-                                           session->userauth_pswd_data_len);
-                        }
-                        else {
-                            s = session->userauth_pswd_data = NULL;
-                            session->userauth_pswd_data_len = 0;
+                        session->userauth_pswd_data_len = 0;
+                        if(username_len > MAX_INPUT_LEN ||
+                           password_len > MAX_INPUT_LEN) {
+                            SSH2_SAFEFREE(session,
+                                          session->userauth_pswd_newpw);
+                            return ssh2_err(session,
+                                            LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                            "Username or password too large");
                         }
 
+                        /* basic data_len + newpw_len(4) */
+                        data_len = username_len + password_len + 44;
+                        session->userauth_pswd_data_len = 0;
+                        session->userauth_pswd_data = s =
+                            SSH2_ALLOC(session, data_len);
                         if(!session->userauth_pswd_data) {
                             SSH2_SAFEFREE(session,
                                           session->userauth_pswd_newpw);
@@ -471,6 +477,7 @@ password_response:
                                             "for userauth password "
                                             "change request");
                         }
+                        session->userauth_pswd_data_len = data_len;
 
                         *(s++) = SSH_MSG_USERAUTH_REQUEST;
                         ssh2_store_str(&s, username, username_len);
@@ -1567,24 +1574,24 @@ retry_auth:
          * For other uses, we allocate and populate it here.
          */
         if(!session->userauth_pblc_method) {
-            session->userauth_pblc_method_len = ssh2_ntohu32(pubkeydata);
+            size_t method_len = ssh2_ntohu32(pubkeydata);
 
-            if(session->userauth_pblc_method_len > MAX_INPUT_LEN ||
-               session->userauth_pblc_method_len > pubkeydata_len - 4)
+            if(method_len == 0 ||
+               method_len > MAX_INPUT_LEN ||
+               method_len > pubkeydata_len - 4)
                 /* the method length cannot be longer than the entire passed
                    in data, so we use this to detect crazy input data */
                 return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                 "Invalid public key");
 
-            session->userauth_pblc_method =
-                SSH2_ALLOC(session, session->userauth_pblc_method_len);
+            session->userauth_pblc_method_len = 0;
+            session->userauth_pblc_method = SSH2_ALLOC(session, method_len);
             if(!session->userauth_pblc_method)
                 return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                 "Unable to allocate memory "
                                 "for public key data");
-
-            memcpy(session->userauth_pblc_method, pubkeydata + 4,
-                   session->userauth_pblc_method_len);
+            session->userauth_pblc_method_len = method_len;
+            memcpy(session->userauth_pblc_method, pubkeydata + 4, method_len);
         }
 
         /* upgrade key signing algo if it is supported and
@@ -1621,7 +1628,7 @@ retry_auth:
          * used in this first send, but are used in the later one where
          * this same allocation is reused.
          */
-        s = session->userauth_pblc_packet =
+        session->userauth_pblc_packet = s =
             SSH2_ALLOC(session,
                        4 + session->userauth_pblc_packet_len +
                        4 + session->userauth_pblc_method_len +
@@ -2086,6 +2093,7 @@ static int userauth_keyboard_interactive(
     int rc;
     unsigned char *s;
     unsigned int i;
+    size_t packet_len;
 
     if(session->userauth_kybd_state == ssh2_NB_state_idle) {
         session->userauth_kybd_auth_name = NULL;
@@ -2103,7 +2111,7 @@ static int userauth_keyboard_interactive(
             return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                             "Username too long");
 
-        session->userauth_kybd_packet_len =
+        packet_len =
             1                   /* byte    SSH_MSG_USERAUTH_REQUEST */
             + 4 + username_len  /* string  username (ISO-10646 UTF-8, as
                                    defined in [RFC-3629]) */
@@ -2114,12 +2122,13 @@ static int userauth_keyboard_interactive(
             + 4 + 0             /* string  submethods (ISO-10646 UTF-8) */
             ;
 
-        session->userauth_kybd_data = s =
-            SSH2_ALLOC(session, session->userauth_kybd_packet_len);
+        session->userauth_kybd_packet_len = 0;
+        session->userauth_kybd_data = s = SSH2_ALLOC(session, packet_len);
         if(!s)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate memory for "
                             "keyboard-interactive authentication");
+        session->userauth_kybd_packet_len = packet_len;
 
         *s++ = SSH_MSG_USERAUTH_REQUEST;
 
@@ -2213,7 +2222,7 @@ static int userauth_keyboard_interactive(
                       "Keyboard-interactive response callback function"
                       " invoked"));
 
-            session->userauth_kybd_packet_len =
+            packet_len =
                 1    /* byte      SSH_MSG_USERAUTH_INFO_RESPONSE */
                 + 4  /* int       num-responses */
                 ;
@@ -2221,13 +2230,12 @@ static int userauth_keyboard_interactive(
             for(i = 0; i < session->userauth_kybd_num_prompts; i++) {
                 /* string    response[1] (ISO-10646 UTF-8) */
                 if(session->userauth_kybd_responses[i].length <=
-                   (SIZE_MAX - 4 - session->userauth_kybd_packet_len))
-                    session->userauth_kybd_packet_len +=
+                   (SIZE_MAX - 4 - packet_len))
+                    packet_len +=
                         4 + (size_t)session->userauth_kybd_responses[i].length;
                 else {
-                    ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                             "Unable to allocate memory for keyboard-"
-                             "interactive response packet");
+                    ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                             "keyboard-interactive response packet too large");
                     goto cleanup;
                 }
             }
@@ -2235,15 +2243,15 @@ static int userauth_keyboard_interactive(
             /* A new userauth_kybd_data area is to be allocated, free the
                former one. */
             SSH2_FREE(session, session->userauth_kybd_data);
-
-            session->userauth_kybd_data = s =
-                SSH2_ALLOC(session, session->userauth_kybd_packet_len);
+            session->userauth_kybd_packet_len = 0;
+            session->userauth_kybd_data = s = SSH2_ALLOC(session, packet_len);
             if(!s) {
                 ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                         "Unable to allocate memory for keyboard-"
-                         "interactive response packet");
+                         "Unable to allocate memory for "
+                         "keyboard-interactive response packet");
                 goto cleanup;
             }
+            session->userauth_kybd_packet_len = packet_len;
 
             *s = SSH_MSG_USERAUTH_INFO_RESPONSE;
             s++;
@@ -2264,8 +2272,7 @@ static int userauth_keyboard_interactive(
                 return ssh2_err(session, LIBSSH2_ERROR_EAGAIN, "Would block");
             if(rc) {
                 ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
-                         "Unable to send userauth-keyboard-interactive"
-                         " request");
+                         "Unable to send keyboard-interactive response");
                 goto cleanup;
             }
 
