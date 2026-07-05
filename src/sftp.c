@@ -3227,7 +3227,7 @@ static int sftp_statvfs(LIBSSH2_SFTP *sftp,
         if(data_len > 0)
             SSH2_FREE(session, data);
         return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-                        "SFTP fstat packet too short");
+                        "SFTP statvfs packet too short");
     }
     else if(rc) {
         sftp->statvfs_state = ssh2_NB_state_idle;
