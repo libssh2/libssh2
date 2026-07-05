@@ -2676,6 +2676,12 @@ static int kex_mlkem768x25519_sha256(
         struct string_buf buf;
         ssh2_hash_ctx k_ctx;
 
+        if(!data) {
+            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                           "Missing host key data");
+            goto clean_exit;
+        }
+
         ret = kex_proc_hostkey(session, &buf, exchange_state, data, data_len);
         if(ret)
             goto clean_exit;
