@@ -2235,7 +2235,7 @@ cleanup:
                 SSH2_SAFEFREE(session, session->userauth_kybd_prompts[i].text);
 
         if(session->userauth_kybd_responses)
-            for(i = 0; i < session->userauth_kybd_num_prompts; i++) {
+            for(i = 0; i < session->userauth_kybd_num_prompts; i++)
                 SSH2_SAFEFREE(session,
                               session->userauth_kybd_responses[i].text);
 
