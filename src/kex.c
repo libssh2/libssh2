@@ -4141,7 +4141,8 @@ int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
 
     /* correct number of pointers copied? (test the code above) */
     if(j != ialg) {
-        SSH2_SAFEFREE(session, *algs);  /* deallocate buffer */
+        SSH2_FREE(session, (void *)*algs);  /* deallocate buffer */
+        *algs = NULL;
         return ssh2_err(session, LIBSSH2_ERROR_BAD_USE, "Internal error");
     }
 
