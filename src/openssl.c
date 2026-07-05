@@ -3453,7 +3453,6 @@ int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
 
     ret = EVP_PKEY_get_octet_string_param(private_key, OSSL_PKEY_PARAM_PUB_KEY,
                                           NULL, 0, &octal_len);
-
     if(ret <= 0)
         goto clean_exit;
 
@@ -3466,7 +3465,6 @@ int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
 
     ret = EVP_PKEY_get_octet_string_param(private_key, OSSL_PKEY_PARAM_PUB_KEY,
                                           octal_value, octal_len, &octal_len);
-
     if(ret <= 0)
         goto clean_exit;
 
@@ -3570,7 +3568,6 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
     ret = EVP_PKEY_get_utf8_string_param(private_key,
                                          OSSL_PKEY_PARAM_GROUP_NAME,
                                          NULL, 0, &group_name_len);
-
     if(ret <= 0)
         goto clean_exit;
 
@@ -3584,7 +3581,6 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
                                          OSSL_PKEY_PARAM_GROUP_NAME,
                                          group_name, group_name_len,
                                          &group_name_len);
-
     if(ret <= 0)
         goto clean_exit;
 
@@ -3608,7 +3604,6 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
 
     ret = EVP_PKEY_fromdata(key_fromdata_ctx, &peer_key,
                             EVP_PKEY_PUBLIC_KEY, params);
-
     if(ret <= 0)
         goto clean_exit;
 
