@@ -221,7 +221,7 @@ static int kex_proc_hostkey(LIBSSH2_SESSION *session, struct string_buf *buf,
     return 0;
 }
 
-static int finish_kex(LIBSSH2_SESSION *session,
+static int kex_finish(LIBSSH2_SESSION *session,
                       struct kmdhgGPshakex_state *exchange_state,
                       ssh2_hash_alg hash_alg, size_t digest_len)
 {
@@ -785,7 +785,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
     }
 
     if(exchange_state->state == ssh2_NB_state_sent3) {
-        ret = finish_kex(session, exchange_state, hash_alg, digest_len);
+        ret = kex_finish(session, exchange_state, hash_alg, digest_len);
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
     }
@@ -1804,7 +1804,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
                            "Unrecognized SHA digest for EC curve");
             goto clean_exit;
         }
-        ret = finish_kex(session, exchange_state, hash_alg, digest_len);
+        ret = kex_finish(session, exchange_state, hash_alg, digest_len);
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
     }
@@ -2185,7 +2185,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
     }
 
     if(exchange_state->state == ssh2_NB_state_sent2) {
-        ret = finish_kex(session, exchange_state, hash_alg, digest_len);
+        ret = kex_finish(session, exchange_state, hash_alg, digest_len);
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
     }
@@ -2486,7 +2486,7 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
     }
 
     if(exchange_state->state == ssh2_NB_state_sent2) {
-        ret = finish_kex(session, exchange_state,
+        ret = kex_finish(session, exchange_state,
                          SSH2_SHA256_ALG, SSH2_SHA256_DIG_LEN);
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
@@ -2787,7 +2787,7 @@ static int mlkem768x25519_sha256(
     }
 
     if(exchange_state->state == ssh2_NB_state_sent2) {
-        ret = finish_kex(session, exchange_state,
+        ret = kex_finish(session, exchange_state,
                          SSH2_SHA256_ALG, SSH2_SHA256_DIG_LEN);
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
