@@ -40,7 +40,7 @@
 
 #include "libssh2_priv.h"
 
-static int readline(char *line, int line_size, FILE *fp)
+static int pem_readline_file(char *line, int line_size, FILE *fp)
 {
     size_t len;
 
@@ -726,11 +726,11 @@ int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
     do {
         *line = '\0';
 
-        if(readline(line, LINE_SIZE, fp))
+        if(pem_readline_file(line, LINE_SIZE, fp))
             return -1;
     } while(strcmp(line, OPENSSH_PRIVKEY_HEADER));
 
-    if(readline(line, LINE_SIZE, fp))
+    if(pem_readline_file(line, LINE_SIZE, fp))
         return -1;
 
     do {
@@ -753,7 +753,7 @@ int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
 
         *line = '\0';
 
-        if(readline(line, LINE_SIZE, fp)) {
+        if(pem_readline_file(line, LINE_SIZE, fp)) {
             ret = -1;
             goto out;
         }
