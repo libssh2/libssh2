@@ -64,16 +64,21 @@ static void kex_value_hash(ssh2_hash_alg hash_alg, size_t digest_len,
         ssh2_hash_ctx hash;
         size_t len = 0;
         while(len < data_len) {
-            if(!ssh2_hash_init(&hash, hash_alg) ||
-               !ssh2_hash_update(hash, exchange_state->k_value,
+            if(!ssh2_hash_init(&hash, hash_alg)) {
+                SSH2_SAFEFREE(session, *data);
+                return;
+            }
+            if(!ssh2_hash_update(hash, exchange_state->k_value,
                                        exchange_state->k_value_len) ||
                !ssh2_hash_update(hash, exchange_state->h_sig_comp,
                                        digest_len)) {
+                (void)ssh2_hash_final(hash, NULL, 0);
                 SSH2_SAFEFREE(session, *data);
                 return;
             }
             if(len > 0) {
                 if(!ssh2_hash_update(hash, *data, len)) {
+                    (void)ssh2_hash_final(hash, NULL, 0);
                     SSH2_SAFEFREE(session, *data);
                     return;
                 }
@@ -82,6 +87,7 @@ static void kex_value_hash(ssh2_hash_alg hash_alg, size_t digest_len,
                 if(!ssh2_hash_update(hash, version, 1) ||
                    !ssh2_hash_update(hash, session->session_id,
                                            session->session_id_len)) {
+                    (void)ssh2_hash_final(hash, NULL, 0);
                     SSH2_SAFEFREE(session, *data);
                     return;
                 }
