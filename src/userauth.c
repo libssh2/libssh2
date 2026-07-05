@@ -544,13 +544,11 @@ int libssh2_userauth_password_ex(
     return rc;
 }
 
-static int userauth_read_blob_pubkey(LIBSSH2_SESSION *session,
-                                     unsigned char **method,
-                                     size_t *method_len,
-                                     unsigned char **pubkeydata,
-                                     size_t *pubkeydata_len,
-                                     const char *pubkeyfiledata,
-                                     size_t pubkeyfiledata_len)
+static int userauth_read_blob_pubkey(
+    LIBSSH2_SESSION *session,
+    unsigned char **method, size_t *method_len,
+    unsigned char **pubkeydata, size_t *pubkeydata_len,
+    const char *pubkeyfiledata, size_t pubkeyfiledata_len)
 {
     unsigned char *pubkey = NULL, *sp1, *sp2, *tmp;
     size_t pubkey_len = pubkeyfiledata_len;
@@ -712,14 +710,12 @@ static int file_read_publickey(LIBSSH2_SESSION *session,
     return 0;
 }
 
-static int memory_read_privatekey(LIBSSH2_SESSION *session,
-                                  const struct hostkey_method **hostkey_method,
-                                  void **hostkey_abstract,
-                                  const unsigned char *method,
-                                  size_t method_len,
-                                  const char *privkeyfiledata,
-                                  size_t privkeyfiledata_len,
-                                  const char *passphrase)
+static int userauth_read_blob_privkey(
+    LIBSSH2_SESSION *session,
+    const struct hostkey_method **hostkey_method, void **hostkey_abstract,
+    const unsigned char *method, size_t method_len,
+    const char *privkeyfiledata, size_t privkeyfiledata_len,
+    const char *passphrase)
 {
     const struct hostkey_method **hostkey_methods_avail =
         ssh2_hostkey_methods();
@@ -813,12 +809,12 @@ static int userauth_sign_fromblob(LIBSSH2_SESSION *session,
     struct iovec datavec;
     int rc;
 
-    rc = memory_read_privatekey(session, &privkeyobj, &hostkey_abstract,
-                                session->userauth_pblc_method,
-                                session->userauth_pblc_method_len,
-                                pk_mem->data,
-                                pk_mem->data_len,
-                                pk_mem->passphrase);
+    rc = userauth_read_blob_privkey(session, &privkeyobj, &hostkey_abstract,
+                                    session->userauth_pblc_method,
+                                    session->userauth_pblc_method_len,
+                                    pk_mem->data,
+                                    pk_mem->data_len,
+                                    pk_mem->passphrase);
     if(rc)
         return rc;
 
