@@ -116,13 +116,13 @@ static void debugdump(LIBSSH2_SESSION *session,
 #define debugdump(a, x, y, z) do {} while(0)
 #endif
 
-/* decrypt() decrypts 'len' bytes from 'source' to 'dest' in units of
+/* transport_decrypt() decrypts 'len' bytes from 'source' to 'dest' in units of
  * blocksize.
  *
  * returns 0 on success and negative on failure
  */
-static int decrypt(LIBSSH2_SESSION *session, unsigned char *source,
-                   unsigned char *dest, ssize_t len, int firstlast)
+static int transport_decrypt(LIBSSH2_SESSION *session, unsigned char *source,
+                             unsigned char *dest, ssize_t len, int firstlast)
 {
     struct transportpacket *p = &session->packet;
     int blocksize = session->remote.crypt->blocksize;
@@ -235,8 +235,8 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
 
                 first_block[0] = 0;
 
-                rc = decrypt(session, p->payload + 4,
-                             first_block, blocksize, FIRST_BLOCK);
+                rc = transport_decrypt(session, p->payload + 4,
+                                       first_block, blocksize, FIRST_BLOCK);
                 if(rc)
                     return rc;
 
@@ -260,9 +260,11 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
 
                 /* decrypt all other blocks packet */
                 if(blocksize < decrypt_size) {
-                    rc = decrypt(session, p->payload + blocksize + 4,
-                                 decrypt_buffer + blocksize - 1,
-                                 decrypt_size - blocksize, LAST_BLOCK);
+                    rc = transport_decrypt(session,
+                                           p->payload + blocksize + 4,
+                                           decrypt_buffer + blocksize - 1,
+                                           decrypt_size - blocksize,
+                                           LAST_BLOCK);
                     if(rc) {
                         SSH2_FREE(session, decrypt_buffer);
                         return rc;
@@ -566,8 +568,8 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
             else {
                 if(encrypted) {
                     /* first decrypted block */
-                    rc = decrypt(session, &p->buf[p->readidx],
-                                 block, blocksize, FIRST_BLOCK);
+                    rc = transport_decrypt(session, &p->buf[p->readidx],
+                                           block, blocksize, FIRST_BLOCK);
                     if(rc != LIBSSH2_ERROR_NONE)
                         return rc;
                     /* Save the first 5 bytes of the decrypted package, to be
@@ -807,8 +809,8 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                     return LIBSSH2_ERROR_DECRYPT;
             }
             else {
-                rc = decrypt(session, &p->buf[p->readidx], p->wptr, numdecrypt,
-                             firstlast);
+                rc = transport_decrypt(session, &p->buf[p->readidx], p->wptr,
+                                       numdecrypt, firstlast);
 
                 if(rc != LIBSSH2_ERROR_NONE) {
                     p->total_num = 0; /* no packet buffer available */
