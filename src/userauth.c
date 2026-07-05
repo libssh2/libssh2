@@ -60,7 +60,8 @@
  * limit. Bounds packet-size arithmetic to prevent size_t wrap
  * and undersized allocations on 32-bit (or any) platforms.
  * Packets with multiple near-cap fields may still exceed the
- * transport limit and be rejected later with LIBSSH2_ERROR_INVAL.
+ * transport limit and be rejected later with
+ * LIBSSH2_ERROR_OUT_OF_BOUNDARY.
  */
 #define MAX_INPUT_LEN (MAX_SSH_PACKET_LEN - 0x100)
 
@@ -91,8 +92,8 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
         memset(&session->userauth_list_packet_requirev_state, 0,
                sizeof(session->userauth_list_packet_requirev_state));
 
-        if(username_len > UINT32_MAX - 27) {
-            ssh2_err(session, LIBSSH2_ERROR_PROTO,
+        if(username_len > MAX_INPUT_LEN) {
+            ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                      "username_len out of bounds");
             return NULL;
         }
@@ -312,8 +313,8 @@ static int userauth_password(LIBSSH2_SESSION *session,
         /* 40 = packet_type(1) + username_len(4) + service_len(4) +
            service(14)"ssh-connection" + method_len(4) + method(8)"password" +
            chgpwdbool(1) + password_len(4) */
-        if(username_len > UINT32_MAX - 40)
-            return ssh2_err(session, LIBSSH2_ERROR_PROTO,
+        if(username_len > MAX_INPUT_LEN)
+            return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                             "username_len out of bounds");
 
         session->userauth_pswd_data_len = username_len + 40;
@@ -445,7 +446,8 @@ password_response:
                                             "callback failed");
 
                         /* basic data_len + newpw_len(4) */
-                        if(username_len <= UINT32_MAX - password_len - 44) {
+                        if(username_len <= MAX_INPUT_LEN &&
+                           password_len <= MAX_INPUT_LEN) {
                             session->userauth_pswd_data_len =
                                 username_len + password_len + 44;
                             s = session->userauth_pswd_data =
@@ -1028,7 +1030,7 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
            pubkeydata_len > MAX_INPUT_LEN) {
             SSH2_SAFEFREE(session, session->userauth_host_method);
             SSH2_FREE(session, pubkeydata);
-            return ssh2_err(session, LIBSSH2_ERROR_INVAL,
+            return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                             "Input parameter length too large");
         }
 
@@ -1495,7 +1497,7 @@ retry_auth:
          */
         if(username_len > MAX_INPUT_LEN ||
            pubkeydata_len > MAX_INPUT_LEN)
-            return ssh2_err(session, LIBSSH2_ERROR_INVAL,
+            return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                             "Username or public key length too large");
 
         /* Zero the whole thing out */
@@ -1515,7 +1517,7 @@ retry_auth:
                session->userauth_pblc_method_len > pubkeydata_len - 4)
                 /* the method length cannot be longer than the entire passed
                    in data, so we use this to detect crazy input data */
-                return ssh2_err(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
+                return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                 "Invalid public key");
 
             session->userauth_pblc_method =
@@ -2035,7 +2037,8 @@ static int userauth_keyboard_interactive(
                sizeof(session->userauth_kybd_packet_requirev_state));
 
         if(username_len > MAX_INPUT_LEN)
-            return ssh2_err(session, LIBSSH2_ERROR_INVAL, "Username too long");
+            return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                            "Username too long");
 
         session->userauth_kybd_packet_len =
             1                   /* byte    SSH_MSG_USERAUTH_REQUEST */
