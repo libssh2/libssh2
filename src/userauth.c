@@ -737,10 +737,9 @@ static int userauth_read_blob_privkey(
     if((*hostkey_method)->initPEMFromMemory(session, privkeyfiledata,
                                             privkeyfiledata_len,
                                             (const unsigned char *)passphrase,
-                                            hostkey_abstract)) {
+                                            hostkey_abstract))
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
                         "Unable to initialize private key from memory");
-    }
 
     return 0;
 }
@@ -777,10 +776,9 @@ static int userauth_read_file_privkey(
 
     if((*hostkey_method)->initPEM(session, privkeyfile,
                                   (const unsigned char *)passphrase,
-                                  hostkey_abstract)) {
+                                  hostkey_abstract))
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
                         "Unable to initialize private key from file");
-    }
 
     return 0;
 }
@@ -1354,9 +1352,8 @@ static int userauth_key_sign_algs(LIBSSH2_SESSION *session,
             int SSH_BUG_SIGTYPE = userauth_is_version_less_than_78(remote_ver);
             if(SSH_BUG_SIGTYPE &&
                *key_method && *key_method_len == method_len &&
-               !memcmp(*key_method, method, method_len)) {
+               !memcmp(*key_method, method, method_len))
                 return LIBSSH2_ERROR_NONE;
-            }
         }
     }
 
@@ -1421,9 +1418,8 @@ static int userauth_key_sign_algs(LIBSSH2_SESSION *session,
                 match = s;
                 match_len = p_len;
             }
-            else {
+            else
                 a = f ? (f + 1) : NULL;
-            }
         }
 
         s = p ? (p + 1) : NULL;
@@ -1455,11 +1451,9 @@ static int userauth_key_sign_algs(LIBSSH2_SESSION *session,
                           "Unable to allocate key method upgrade");
         }
     }
-    else {
-        /* no match was found */
+    else /* no match was found */
         rc = ssh2_err(session, LIBSSH2_ERROR_METHOD_NONE,
                       "No signing signature matched");
-    }
 
     SSH2_FREE(session, filtered_algs);
 
@@ -1544,7 +1538,6 @@ retry_auth:
             rc = userauth_key_sign_algs(session,
                                         &session->userauth_pblc_method,
                                         &session->userauth_pblc_method_len);
-
             if(rc)
                 return rc;
         }
@@ -1871,10 +1864,9 @@ static int userauth_publickey_frommemory(LIBSSH2_SESSION *session,
             if(rc)
                 return rc;
         }
-        else {
+        else
             return ssh2_err(session, LIBSSH2_ERROR_FILE,
                             "Invalid data in public and private key.");
-        }
     }
 
     rc = ssh2_userauth_publickey(session, username, username_len,
@@ -2167,10 +2159,9 @@ static int userauth_keyboard_interactive(
             for(i = 0; i < session->userauth_kybd_num_prompts; i++) {
                 /* string    response[1] (ISO-10646 UTF-8) */
                 if(session->userauth_kybd_responses[i].length <=
-                   (SIZE_MAX - 4 - session->userauth_kybd_packet_len)) {
+                   (SIZE_MAX - 4 - session->userauth_kybd_packet_len))
                     session->userauth_kybd_packet_len +=
                         4 + (size_t)session->userauth_kybd_responses[i].length;
-                }
                 else {
                     ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                              "Unable to allocate memory for keyboard-"
@@ -2354,10 +2345,9 @@ int libssh2_userauth_publickey_sk(
                                            publickeydata_len);
         }
     }
-    else {
+    else
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
                         "Invalid data in public and private key.");
-    }
 
     if(rc == LIBSSH2_ERROR_NONE) {
         rc = ssh2_userauth_publickey(session, username, username_len,
