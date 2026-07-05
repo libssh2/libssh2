@@ -903,7 +903,7 @@ static int hostkey_method_ssh_ecdsa_signv(LIBSSH2_SESSION *session,
 
     for(i = 0; i < veccount; i++)
         if(!ssh2_hash_update(ctx, datavec[i].iov_base, datavec[i].iov_len)) {
-            (void)ssh2_hash_final(ctx, hash, sizeof(hash));
+            (void)ssh2_hash_final(ctx, NULL, 0);
             return -1;
         }
 
