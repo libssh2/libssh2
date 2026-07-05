@@ -97,7 +97,7 @@ static int pem_readline_blob(char *line, size_t line_size,
 
 static const char *crypt_annotation = "Proc-Type: 4,ENCRYPTED";
 
-static unsigned char hex_decode(char digit)
+static unsigned char pem_hex_decode(char digit)
 {
     return (unsigned char)
         ((digit >= 'A') ? (0xA + (digit - 'A')) : (digit - '0'));
@@ -220,8 +220,8 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
 
         /* Decode IV from hex */
         for(i = 0; i < method->iv_len; ++i) {
-            iv[i] = (unsigned char)(hex_decode(iv[2 * i]) << 4);
-            iv[i] |= hex_decode(iv[2 * i + 1]);
+            iv[i] = (unsigned char)(pem_hex_decode(iv[2 * i]) << 4);
+            iv[i] |= pem_hex_decode(iv[2 * i + 1]);
         }
 
         /* skip to the next line */
