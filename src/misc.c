@@ -333,7 +333,7 @@ int ssh2_store_bignum_bytes(unsigned char **buf,
 
 /* Base64 Conversion */
 
-static const short base64_reverse_table[256] = {
+static const short ssh2_base64_reverse_table[256] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, -1, -1, -1, 63,
@@ -392,7 +392,7 @@ int ssh2_base64_decode(LIBSSH2_SESSION *session,
                         "Unable to allocate memory for base64 decoding");
 
     for(s = src; s < (src + src_len); s++) {
-        v = base64_reverse_table[(unsigned char)*s];
+        v = ssh2_base64_reverse_table[(unsigned char)*s];
         if(v < 0)
             continue;
         switch(i % 4) {
