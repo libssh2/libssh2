@@ -2061,6 +2061,7 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
         if(!ssh2_hash_update(k_ctx, shared_secret, shared_secret_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                            "kex: failed to calculate hash");
+            (void)ssh2_hash_final(k_ctx, NULL, 0);
             goto clean_exit;
         }
 
@@ -2670,6 +2671,7 @@ static int kex_mlkem768x25519_sha256(
                                  SSH2_ED25519_KEY_LEN)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                            "kex: failed to calculate hash");
+            (void)ssh2_hash_final(k_ctx, NULL, 0);
             goto clean_exit;
         }
 
