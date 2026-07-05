@@ -423,7 +423,7 @@ static int kex_finish(LIBSSH2_SESSION *session,
     return 0;
 }
 
-static void diffie_hellman_state_cleanup(
+static void kex_diffie_hellman_state_cleanup(
     LIBSSH2_SESSION *session, struct kmdhgGPshakex_state *exchange_state)
 {
     ssh2_dh_dtor(&exchange_state->x);
@@ -461,7 +461,7 @@ static void kex_diffie_hellman_cleanup(
     }
 
     if(key_state->exchange_state.state != ssh2_NB_state_idle)
-        diffie_hellman_state_cleanup(session, &key_state->exchange_state);
+        kex_diffie_hellman_state_cleanup(session, &key_state->exchange_state);
 }
 
 /*
@@ -791,7 +791,7 @@ static int kex_diffie_hellman_sha(LIBSSH2_SESSION *session,
     }
 
 clean_exit:
-    diffie_hellman_state_cleanup(session, exchange_state);
+    kex_diffie_hellman_state_cleanup(session, exchange_state);
 
     return ret;
 }
