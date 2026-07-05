@@ -455,8 +455,7 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                 /* match on key type as follows:
                    - never match on an unknown key type
                    - if key_type is set to zero, ignore it an match always
-                   - otherwise match when both key types are equal
-                 */
+                   - otherwise match when both key types are equal */
                 if(host_key_type != LIBSSH2_KNOWNHOST_KEY_UNKNOWN &&
                    (host_key_type == 0 ||
                     host_key_type == known_key_type)) {
