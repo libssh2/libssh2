@@ -1918,7 +1918,7 @@ ecdh_clean_exit:
 
 #if LIBSSH2_MLKEM
 
-static void mlkem_nistp_exchange_state_cleanup(
+static void kex_mlkem_nistp_exchange_state_cleanup(
     LIBSSH2_SESSION *session, struct kmdhgGPshakex_state *exchange_state)
 {
     ssh2_bn_free(exchange_state->k);
@@ -2191,7 +2191,7 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
     }
 
 clean_exit:
-    mlkem_nistp_exchange_state_cleanup(session, exchange_state);
+    kex_mlkem_nistp_exchange_state_cleanup(session, exchange_state);
 
     if(shared_secret)
         SSH2_FREE(session, shared_secret);
