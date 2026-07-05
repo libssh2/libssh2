@@ -1650,11 +1650,11 @@ static void kex_method_ecdh_cleanup(LIBSSH2_SESSION *session,
 /*
  * Elliptic Curve Diffie Hellman Key Exchange
  */
-static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
-                           unsigned char *data, size_t data_len,
-                           unsigned char *public_key,
-                           size_t public_key_len, ssh2_ec_key *private_key,
-                           struct kmdhgGPshakex_state *exchange_state)
+static int kex_ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
+                               unsigned char *data, size_t data_len,
+                               unsigned char *public_key,
+                               size_t public_key_len, ssh2_ec_key *private_key,
+                               struct kmdhgGPshakex_state *exchange_state)
 {
     int ret = 0;
     int rc;
@@ -1898,12 +1898,12 @@ static int kex_method_ecdh_key_exchange(
             goto ecdh_clean_exit;
         }
 
-        ret = ecdh_sha2_nistp(session, type, key_state->data,
-                              key_state->data_len,
-                              (unsigned char *)key_state->public_key_oct,
-                              key_state->public_key_oct_len,
-                              key_state->private_key,
-                              &key_state->exchange_state);
+        ret = kex_ecdh_sha2_nistp(session, type, key_state->data,
+                                  key_state->data_len,
+                                  (unsigned char *)key_state->public_key_oct,
+                                  key_state->public_key_oct_len,
+                                  key_state->private_key,
+                                  &key_state->exchange_state);
 
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
