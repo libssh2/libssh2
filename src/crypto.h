@@ -99,6 +99,9 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx);
 #define SSH2_MLKEM_1024_PUBLIC_KEY_LEN  1568
 #define SSH2_MLKEM_1024_CIPHERTEXT      1568
 
+int ssh2_hash(ssh2_hash_alg alg, const void *input, size_t input_len,
+              unsigned char *digest, size_t digest_len);
+
 #if LIBSSH2_RSA
 int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
                  const unsigned char *edata, unsigned long elen,

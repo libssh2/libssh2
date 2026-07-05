@@ -133,18 +133,9 @@ static int kex_proc_hostkey(LIBSSH2_SESSION *session, struct string_buf *buf,
     session->server_hostkey_len = (uint32_t)host_key_len;
 
 #if LIBSSH2_MD5
-    {
-        ssh2_hash_ctx fingerprint_ctx;
-
-        if(ssh2_hash_init(&fingerprint_ctx, SSH2_MD5_ALG) &&
-           ssh2_hash_update(fingerprint_ctx, session->server_hostkey,
-                            session->server_hostkey_len) &&
-           ssh2_hash_final(fingerprint_ctx, session->server_hostkey_md5,
-                           sizeof(session->server_hostkey_md5)))
-            session->server_hostkey_md5_valid = TRUE;
-        else
-            session->server_hostkey_md5_valid = FALSE;
-    }
+    session->server_hostkey_md5_valid = ssh2_hash(SSH2_MD5_ALG,
+        session->server_hostkey, session->server_hostkey_len,
+        session->server_hostkey_md5, sizeof(session->server_hostkey_md5));
 #ifdef LIBSSH2DEBUG
     {
         char fingerprint[SSH2_MD5_DIG_LEN * 3 + 1];
@@ -159,18 +150,9 @@ static int kex_proc_hostkey(LIBSSH2_SESSION *session, struct string_buf *buf,
 #endif /* LIBSSH2DEBUG */
 #endif /* !LIBSSH2_MD5 */
 
-    {
-        ssh2_hash_ctx fingerprint_ctx;
-
-        if(ssh2_hash_init(&fingerprint_ctx, SSH2_SHA1_ALG) &&
-           ssh2_hash_update(fingerprint_ctx, session->server_hostkey,
-                            session->server_hostkey_len) &&
-           ssh2_hash_final(fingerprint_ctx, session->server_hostkey_sha1,
-                           sizeof(session->server_hostkey_sha1)))
-            session->server_hostkey_sha1_valid = TRUE;
-        else
-            session->server_hostkey_sha1_valid = FALSE;
-    }
+    session->server_hostkey_sha1_valid = ssh2_hash(SSH2_SHA1_ALG,
+        session->server_hostkey, session->server_hostkey_len,
+        session->server_hostkey_sha1, sizeof(session->server_hostkey_sha1));
 #ifdef LIBSSH2DEBUG
     {
         char fingerprint[SSH2_SHA1_DIG_LEN * 3 + 1];
@@ -184,18 +166,10 @@ static int kex_proc_hostkey(LIBSSH2_SESSION *session, struct string_buf *buf,
     }
 #endif /* LIBSSH2DEBUG */
 
-    {
-        ssh2_hash_ctx fingerprint_ctx;
-
-        if(ssh2_hash_init(&fingerprint_ctx, SSH2_SHA256_ALG) &&
-           ssh2_hash_update(fingerprint_ctx, session->server_hostkey,
-                            session->server_hostkey_len) &&
-           ssh2_hash_final(fingerprint_ctx, session->server_hostkey_sha256,
-                           sizeof(session->server_hostkey_sha256)))
-            session->server_hostkey_sha256_valid = TRUE;
-        else
-            session->server_hostkey_sha256_valid = FALSE;
-    }
+    session->server_hostkey_sha256_valid = ssh2_hash(SSH2_SHA256_ALG,
+        session->server_hostkey, session->server_hostkey_len,
+        session->server_hostkey_sha256,
+        sizeof(session->server_hostkey_sha256));
 #ifdef LIBSSH2DEBUG
     {
         char *base64Fingerprint = NULL;
@@ -1997,7 +1971,6 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
         size_t shared_secret_len;
         size_t server_public_key_len;
         struct string_buf buf;
-        ssh2_hash_ctx k_ctx;
 
         if(!data) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -2078,20 +2051,8 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
         }
 
         /* verify hash */
-        if(!ssh2_hash_init(&k_ctx, hash_alg)) {
-            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
-                           "kex: failed to initialize hash");
-            goto clean_exit;
-        }
-
-        if(!ssh2_hash_update(k_ctx, shared_secret, shared_secret_len)) {
-            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
-                           "kex: failed to calculate hash");
-            goto clean_exit;
-        }
-
-        if(!ssh2_hash_final(k_ctx,
-                            exchange_state->k_value + 4, digest_len)) {
+        if(!ssh2_hash(hash_alg, shared_secret, shared_secret_len,
+                      exchange_state->k_value + 4, digest_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                            "kex: failed to calculate hash");
             goto clean_exit;
@@ -2613,7 +2574,6 @@ static int kex_mlkem768x25519_sha256(
                                     SSH2_ED25519_KEY_LEN];
         size_t server_public_key_len;
         struct string_buf buf;
-        ssh2_hash_ctx k_ctx;
 
         if(!data) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -2686,22 +2646,9 @@ static int kex_mlkem768x25519_sha256(
         }
 
         /* verify hash */
-        if(!ssh2_hash_init(&k_ctx, SSH2_SHA256_ALG)) {
-            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
-                           "kex: failed to initialize hash");
-            goto clean_exit;
-        }
-
-        if(!ssh2_hash_update(k_ctx, shared_secret,
-                             SSH2_MLKEM_SHARED_SECRET_LEN +
-                                 SSH2_ED25519_KEY_LEN)) {
-            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
-                           "kex: failed to calculate hash");
-            goto clean_exit;
-        }
-
-        if(!ssh2_hash_final(k_ctx, exchange_state->k_value + 4,
-                            SSH2_SHA256_DIG_LEN)) {
+        if(!ssh2_hash(SSH2_SHA256_ALG, shared_secret,
+                      SSH2_MLKEM_SHARED_SECRET_LEN + SSH2_ED25519_KEY_LEN,
+                      exchange_state->k_value + 4, SSH2_SHA256_DIG_LEN)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                            "kex: failed to calculate hash");
             goto clean_exit;
