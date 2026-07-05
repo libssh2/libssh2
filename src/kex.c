@@ -133,18 +133,9 @@ static int kex_proc_hostkey(LIBSSH2_SESSION *session, struct string_buf *buf,
     session->server_hostkey_len = (uint32_t)host_key_len;
 
 #if LIBSSH2_MD5
-    {
-        ssh2_hash_ctx fingerprint_ctx;
-
-        if(ssh2_hash_init(&fingerprint_ctx, SSH2_MD5_ALG) &&
-           ssh2_hash_update(fingerprint_ctx, session->server_hostkey,
-                            session->server_hostkey_len) &&
-           ssh2_hash_final(fingerprint_ctx, session->server_hostkey_md5,
-                           sizeof(session->server_hostkey_md5)))
-            session->server_hostkey_md5_valid = TRUE;
-        else
-            session->server_hostkey_md5_valid = FALSE;
-    }
+    session->server_hostkey_md5_valid = ssh2_hash(SSH2_MD5_ALG,
+        session->server_hostkey, session->server_hostkey_len,
+        session->server_hostkey_md5, sizeof(session->server_hostkey_md5));
 #ifdef LIBSSH2DEBUG
     {
         char fingerprint[SSH2_MD5_DIG_LEN * 3 + 1];
@@ -159,18 +150,9 @@ static int kex_proc_hostkey(LIBSSH2_SESSION *session, struct string_buf *buf,
 #endif /* LIBSSH2DEBUG */
 #endif /* !LIBSSH2_MD5 */
 
-    {
-        ssh2_hash_ctx fingerprint_ctx;
-
-        if(ssh2_hash_init(&fingerprint_ctx, SSH2_SHA1_ALG) &&
-           ssh2_hash_update(fingerprint_ctx, session->server_hostkey,
-                            session->server_hostkey_len) &&
-           ssh2_hash_final(fingerprint_ctx, session->server_hostkey_sha1,
-                           sizeof(session->server_hostkey_sha1)))
-            session->server_hostkey_sha1_valid = TRUE;
-        else
-            session->server_hostkey_sha1_valid = FALSE;
-    }
+    session->server_hostkey_sha1_valid = ssh2_hash(SSH2_SHA1_ALG,
+        session->server_hostkey, session->server_hostkey_len,
+        session->server_hostkey_sha1, sizeof(session->server_hostkey_sha1));
 #ifdef LIBSSH2DEBUG
     {
         char fingerprint[SSH2_SHA1_DIG_LEN * 3 + 1];
@@ -184,18 +166,10 @@ static int kex_proc_hostkey(LIBSSH2_SESSION *session, struct string_buf *buf,
     }
 #endif /* LIBSSH2DEBUG */
 
-    {
-        ssh2_hash_ctx fingerprint_ctx;
-
-        if(ssh2_hash_init(&fingerprint_ctx, SSH2_SHA256_ALG) &&
-           ssh2_hash_update(fingerprint_ctx, session->server_hostkey,
-                            session->server_hostkey_len) &&
-           ssh2_hash_final(fingerprint_ctx, session->server_hostkey_sha256,
-                           sizeof(session->server_hostkey_sha256)))
-            session->server_hostkey_sha256_valid = TRUE;
-        else
-            session->server_hostkey_sha256_valid = FALSE;
-    }
+    session->server_hostkey_sha256_valid = ssh2_hash(SSH2_SHA256_ALG,
+        session->server_hostkey, session->server_hostkey_len,
+        session->server_hostkey_sha256,
+        sizeof(session->server_hostkey_sha256));
 #ifdef LIBSSH2DEBUG
     {
         char *base64Fingerprint = NULL;
