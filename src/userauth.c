@@ -459,6 +459,7 @@ password_response:
                            password_len > MAX_INPUT_LEN) {
                             SSH2_SAFEFREE(session,
                                           session->userauth_pswd_newpw);
+                            session->userauth_pswd_state = ssh2_NB_state_idle;
                             return ssh2_err(session,
                                             LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                             "Username or password too large");
@@ -472,6 +473,7 @@ password_response:
                         if(!session->userauth_pswd_data) {
                             SSH2_SAFEFREE(session,
                                           session->userauth_pswd_newpw);
+                            session->userauth_pswd_state = ssh2_NB_state_idle;
                             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                             "Unable to allocate memory "
                                             "for userauth password "
