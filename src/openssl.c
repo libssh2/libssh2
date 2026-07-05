@@ -771,10 +771,8 @@ int ssh2_ecdsa_curve_name_with_octal_new(
 
         params[0] = OSSL_PARAM_construct_utf8_string(
             OSSL_PKEY_PARAM_GROUP_NAME, group_name, 0);
-
         params[1] = OSSL_PARAM_construct_octet_string(
             OSSL_PKEY_PARAM_PUB_KEY, data, publickey_encoded_len);
-
         params[2] = OSSL_PARAM_construct_end();
 
         if(EVP_PKEY_fromdata_init(ctx) > 0)
@@ -3049,13 +3047,10 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
 
     params[0] = OSSL_PARAM_construct_utf8_string(OSSL_PKEY_PARAM_GROUP_NAME,
                                                  group_name, 0);
-
     params[1] = OSSL_PARAM_construct_octet_string(OSSL_PKEY_PARAM_PUB_KEY,
                                                   point_buf, pointlen);
-
     params[2] = OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_PRIV_KEY, exponent,
                                         exponentlen);
-
     params[3] = OSSL_PARAM_construct_end();
 
     if(EVP_PKEY_fromdata_init(fromdata_ctx) <= 0)
@@ -3602,11 +3597,9 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
 
     params[0] = OSSL_PARAM_construct_utf8_string(OSSL_PKEY_PARAM_GROUP_NAME,
                                                  group_name, 0);
-
     params[1] = OSSL_PARAM_construct_octet_string(OSSL_PKEY_PARAM_PUB_KEY,
                                                   out_shared_key,
                                                   server_public_key_len);
-
     params[2] = OSSL_PARAM_construct_end();
 
     ret = EVP_PKEY_fromdata_init(key_fromdata_ctx);
