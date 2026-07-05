@@ -180,8 +180,7 @@ static unsigned char *ossl_write_bn(unsigned char *buf, const BIGNUM *bn,
 {
     unsigned char *p = buf;
 
-    /* Left space for bn size which is written below. */
-    p += 4;
+    p += 4;  /* Left space for bn size which is written below. */
 
     *p = 0;
     BN_bn2bin(bn, p + 1);
