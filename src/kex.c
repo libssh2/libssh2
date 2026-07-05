@@ -2186,12 +2186,13 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
     if(exchange_state->state == ssh2_NB_state_sent2) {
         ret = kex_finish(session, exchange_state, hash_alg, digest_len);
         if(ret == LIBSSH2_ERROR_EAGAIN)
-            return ret;
+            goto clean_free;
     }
 
 clean_exit:
     kex_mlkem_nistp_exchange_state_cleanup(session, exchange_state);
 
+clean_free:
     if(shared_secret)
         SSH2_FREE(session, shared_secret);
 
