@@ -269,8 +269,6 @@ err_exit:
  * Publickey API *
  *************** */
 
-#define SSH2_PUBLICKEY_VERSION_MSG_LEN  (4 + 4 + (sizeof("version") - 1) + 4)
-
 /*
  * Startup the publickey subsystem
  */
