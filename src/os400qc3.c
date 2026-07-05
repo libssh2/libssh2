@@ -1976,7 +1976,7 @@ static int rsapkcs1privkey(LIBSSH2_SESSION *session,
     if(pkcs1topkcs8(session, &data8, &datalen8, data, datalen))
         return -1;
     ret = rsapkcs8privkey(session, data8, datalen8, passphrase, loadkeydata);
-    SSH2_FREE(session, (char *)data8);
+    SSH2_FREE(session, SSH2_UNCONST(data8));
     return ret;
 }
 
@@ -1991,7 +1991,7 @@ static int rsapkcs1pubkey(LIBSSH2_SESSION *session,
     if(pkcs1topkcs8(session, &data8, &datalen8, data, datalen))
         return -1;
     ret = rsapkcs8pubkey(session, data8, datalen8, passphrase, loadkeydata);
-    SSH2_FREE(session, (char *)data8);
+    SSH2_FREE(session, SSH2_UNCONST(data8));
     return ret;
 }
 

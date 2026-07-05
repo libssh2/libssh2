@@ -1026,7 +1026,7 @@ static int session_free(LIBSSH2_SESSION *session)
 
     /* error string */
     if(session->err_msg && ((session->err_flags & SSH2_ERR_FLAG_DUP) != 0))
-        SSH2_FREE(session, (char *)SSH2_UNCONST(session->err_msg));
+        SSH2_FREE(session, SSH2_UNCONST(session->err_msg));
 
     SSH2_FREE(session, session);
 
