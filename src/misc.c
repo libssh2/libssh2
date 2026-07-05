@@ -331,6 +331,20 @@ int ssh2_store_bignum_bytes(unsigned char **buf,
     return len_stored == len;
 }
 
+int ssh2_hash(ssh2_hash_alg alg, const void *input, size_t input_len,
+              unsigned char *digest, size_t digest_len)
+{
+    ssh2_hash_ctx ctx;
+    int success = 0;
+
+    if(ssh2_hash_init(&ctx, alg)) {
+        success = ssh2_hash_update(ctx, input, input_len);
+        success &= ssh2_hash_final(ctx, digest, digest_len);
+    }
+
+    return success;
+}
+
 /* Base64 Conversion */
 
 static const short ssh2_base64_reverse_table[256] = {
