@@ -368,7 +368,8 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
         ssize_t nwritten;
         nwritten = ssh2_channel_write(session->pkeyInit_channel, 0,
                                       session->pkeyInit_buffer,
-                                      19 - session->pkeyInit_buffer_sent);
+                                      sizeof(session->pkeyInit_buffer) -
+                                      session->pkeyInit_buffer_sent);
         if(nwritten == LIBSSH2_ERROR_EAGAIN) {
             ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
                      "Would block sending publickey version packet");
@@ -380,7 +381,7 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
             goto err_exit;
         }
         session->pkeyInit_buffer_sent += nwritten;
-        if(session->pkeyInit_buffer_sent < 19) {
+        if(session->pkeyInit_buffer_sent < sizeof(session->pkeyInit_buffer)) {
             ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
                      "Need to be called again to complete this");
             return NULL;

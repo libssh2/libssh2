@@ -926,7 +926,7 @@ struct _LIBSSH2_SESSION {
     unsigned char *pkeyInit_data;
     size_t pkeyInit_data_len;
     /* 19 = packet_len(4) + version_len(4) + "version"(7) + version_num(4) */
-    unsigned char pkeyInit_buffer[19];
+    unsigned char pkeyInit_buffer[4 + 4 + (sizeof("version") - 1) + 4];
     size_t pkeyInit_buffer_sent; /* how much of buffer that has been sent */
 
     /* State variables used in ssh2_packet_add() */
