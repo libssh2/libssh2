@@ -937,7 +937,7 @@ struct _LIBSSH2_SESSION {
     struct packet_x11_open_state packAdd_x11open_state;
     struct packet_authagent_state packAdd_authagent_state;
 
-    /* State variables used in fullpacket() */
+    /* State variables used in transport_fullpacket() */
     ssh2_NB_states fullpacket_state;
     int fullpacket_macstate;
     size_t fullpacket_payload_len;

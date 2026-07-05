@@ -171,10 +171,11 @@ static int transport_decrypt(LIBSSH2_SESSION *session, unsigned char *source,
 }
 
 /*
- * fullpacket() gets called when a full packet has been received and properly
- * collected.
+ * transport_fullpacket() gets called when a full packet has been received and
+ * properly collected.
  */
-static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
+static int transport_fullpacket(LIBSSH2_SESSION *session,
+                                int encrypted /* 1 or 0 */)
 {
     unsigned char macbuf[MAX_MACSIZE];
     struct transportpacket *p = &session->packet;
@@ -856,12 +857,12 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
         if(!remainpack) {
             /* we have a full packet */
 ssh2_transport_read_point1:
-            rc = fullpacket(session, encrypted);
+            rc = transport_fullpacket(session, encrypted);
             if(rc == LIBSSH2_ERROR_EAGAIN) {
 
                 if(session->packAdd_state != ssh2_NB_state_idle) {
-                    /* fullpacket only returns LIBSSH2_ERROR_EAGAIN if
-                     * ssh2_packet_add() returns LIBSSH2_ERROR_EAGAIN. If
+                    /* transport_fullpacket() only returns LIBSSH2_ERROR_EAGAIN
+                     * if ssh2_packet_add() returns LIBSSH2_ERROR_EAGAIN. If
                      * that returns LIBSSH2_ERROR_EAGAIN but the packAdd_state
                      * is idle, then the packet has been added to the brigade,
                      * but some immediate action that was taken based on the
