@@ -925,7 +925,6 @@ struct _LIBSSH2_SESSION {
     LIBSSH2_CHANNEL *pkeyInit_channel;
     unsigned char *pkeyInit_data;
     size_t pkeyInit_data_len;
-
     /* 19 = packet_len(4) + version_len(4) + "version"(7) + version_num(4) */
     unsigned char pkeyInit_buffer[4 + 4 + (sizeof("version") - 1) + 4];
     size_t pkeyInit_buffer_sent; /* how much of buffer that has been sent */
