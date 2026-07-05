@@ -2327,7 +2327,7 @@ clean_exit:
 
 #if LIBSSH2_ED25519
 
-static void curve25519_exchange_state_cleanup(
+static void kex_curve25519_exchange_state_cleanup(
     LIBSSH2_SESSION *session, struct kmdhgGPshakex_state *exchange_state)
 {
     ssh2_bn_free(exchange_state->k);
@@ -2360,7 +2360,8 @@ static void kex_method_curve25519_cleanup(
     key_state->state = ssh2_NB_state_idle;
 
     if(key_state->exchange_state.state != ssh2_NB_state_idle)
-        curve25519_exchange_state_cleanup(session, &key_state->exchange_state);
+        kex_curve25519_exchange_state_cleanup(session,
+                                              &key_state->exchange_state);
 }
 
 /*
@@ -2494,7 +2495,7 @@ static int kex_curve25519_sha256(
     }
 
 clean_exit:
-    curve25519_exchange_state_cleanup(session, exchange_state);
+    kex_curve25519_exchange_state_cleanup(session, exchange_state);
 
     return ret;
 }
@@ -2642,7 +2643,8 @@ static void kex_method_mlkem768x25519_cleanup(
     key_state->state = ssh2_NB_state_idle;
 
     if(key_state->exchange_state.state != ssh2_NB_state_idle)
-        curve25519_exchange_state_cleanup(session, &key_state->exchange_state);
+        kex_curve25519_exchange_state_cleanup(session,
+                                              &key_state->exchange_state);
 }
 
 static int mlkem768x25519_sha256(
