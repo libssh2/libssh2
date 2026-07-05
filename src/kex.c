@@ -2596,7 +2596,7 @@ clean_exit:
 
 #if LIBSSH2_MLKEM
 
-static void mlkem768x25519_exchange_state_cleanup(
+static void kex_mlkem768x25519_exchange_state_cleanup(
     LIBSSH2_SESSION *session, struct kmdhgGPshakex_state *exchange_state)
 {
     ssh2_bn_free(exchange_state->k);
@@ -2798,7 +2798,7 @@ static int mlkem768x25519_sha256(
     }
 
 clean_exit:
-    mlkem768x25519_exchange_state_cleanup(session, exchange_state);
+    kex_mlkem768x25519_exchange_state_cleanup(session, exchange_state);
 
     return ret;
 }
