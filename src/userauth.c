@@ -2317,7 +2317,7 @@ int libssh2_userauth_publickey_sk(
 
             if(!strncmp((const char *)publickeydata, ecdsa, strlen(ecdsa))) {
                 if(session->userauth_pblc_method)
-                    SSH2_FREE(session->userauth_pblc_method);
+                    SSH2_FREE(session, session->userauth_pblc_method);
                 session->userauth_pblc_method_len = strlen(ecdsa);
                 session->userauth_pblc_method =
                     SSH2_ALLOC(session, session->userauth_pblc_method_len);
@@ -2332,7 +2332,7 @@ int libssh2_userauth_publickey_sk(
             else if(!strncmp((const char *)publickeydata, ed25519,
                              strlen(ed25519))) {
                 if(session->userauth_pblc_method)
-                    SSH2_FREE(session->userauth_pblc_method);
+                    SSH2_FREE(session, session->userauth_pblc_method);
                 session->userauth_pblc_method_len = strlen(ed25519);
                 session->userauth_pblc_method =
                     SSH2_ALLOC(session, session->userauth_pblc_method_len);
