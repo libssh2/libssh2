@@ -1263,12 +1263,9 @@ jobs:
       - name: 'run tests'
         if: ${{ matrix.arch == 'x86_64' && !contains(matrix.desc, 'skiprun') }}  # Slow on emulated CPU
         run: |
-          export TFLAGS='-j8'
-          if [ "${MATRIX_OS}" = 'openbsd' ]; then
-            TFLAGS="$TFLAGS !2707"  # Skip 2707 'ws: Peculiar frame sizes' on suspicion of hangs
-          fi
+          export FIXTURE_TRACE_ALL_CONNECT=1  # try to close in on flaky CI failures on FreeBSD
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
             cmake --build bld --verbose --target test-ci
           else
-            make -C bld check V=1 || { cat tests/*.log; false; }
+            make -C bld check V=1 || { cat bld/tests/*.log; false; }
           fi
