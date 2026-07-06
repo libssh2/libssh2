@@ -630,7 +630,6 @@ static int hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session,
 {
     ssh2_dsa_ctx *dsactx = (ssh2_dsa_ctx *)(*abstract);
 
-    int ret = -1;
     int i;
     unsigned char hash[SSH2_SHA1_DIG_LEN];
     ssh2_hash_ctx ctx;
@@ -655,7 +654,7 @@ static int hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session,
     if(ssh2_dsa_sha1_sign(dsactx, hash, SSH2_SHA1_DIG_LEN, *signature))
         goto cleanup;
 
-    ret = 0;
+    return 0;
 
 cleanup:
 
@@ -663,7 +662,7 @@ cleanup:
         SSH2_SAFEFREE(session, *signature);
     *signature_len = 0;
 
-    return ret;
+    return -1;
 }
 
 static const struct hostkey_method hostkey_method_ssh_dss = {
