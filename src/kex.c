@@ -2707,7 +2707,6 @@ static int kex_mlkem768x25519_sha256(
             goto clean_exit;
         }
 
-        /* verify hash */
         ret = kex_method_ec_sha_hash_create_verify(session, exchange_state,
                  public_t_key, public_t_key_len,
                  public_pq_key, public_pq_key_len,
