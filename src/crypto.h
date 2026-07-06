@@ -227,7 +227,8 @@ int ssh2_curve25519_gen_k(
     uint8_t private_key[SSH2_ED25519_KEY_LEN],
     uint8_t server_public_key[SSH2_ED25519_KEY_LEN]);
 
-int ssh2_curve25519_new(LIBSSH2_SESSION *session, uint8_t **out_public_key,
+int ssh2_curve25519_new(LIBSSH2_SESSION *session,
+                        uint8_t **out_public_key,
                         uint8_t **out_private_key);
 
 int ssh2_ed25519_new_public(ssh2_ed25519_ctx **ed_ctx,

@@ -612,7 +612,7 @@ This procedure is already prototyped in crypto.h.
 int ssh2_rsa_sha1_signv(LIBSSH2_SESSION *session,
                         unsigned char **sig, size_t *siglen,
                         int count, const struct iovec vector[],
-                        ssh2_rsa_ctx *ctx);
+                        ssh2_rsa_ctx *rsa);
 RSA signs the SHA-1 hash computed over the count data chunks in vector.
 Signature is stored at (sig, siglen).
 Signature buffer must be allocated from the given session.
@@ -620,7 +620,7 @@ Returns 0 if OK, else -1.
 Note: this procedure is optional: if provided, it MUST be defined as a macro.
 
 int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
-                       ssh2_rsa_ctx *rsactx,
+                       ssh2_rsa_ctx *ctx,
                        const unsigned char *hash,
                        size_t hash_len,
                        unsigned char **signature,
@@ -632,15 +632,15 @@ Returns 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
 Note: this procedure is not used if macro ssh2_rsa_sha1_signv() is defined.
 
-void ssh2_rsa_free(ssh2_rsa_ctx *rsactx);
-Releases the RSA computation context at rsactx.
+void ssh2_rsa_free(ssh2_rsa_ctx *rsa);
+Releases the RSA computation context at ctx.
 
 LIBSSH2_RSA_SHA2
 #define as 1 if the crypto library supports RSA SHA2 256/512, else 0.
 If defined as 0, the rest of this section can be omitted.
 
 int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
-                       ssh2_rsa_ctx *rsactx,
+                       ssh2_rsa_ctx *ctx,
                        const unsigned char *hash,
                        size_t hash_len,
                        unsigned char **signature,
@@ -656,7 +656,7 @@ and ssh2_rsa_sha2_512_signv are defined.
 int ssh2_rsa_sha2_256_signv(LIBSSH2_SESSION *session,
                             unsigned char **sig, size_t *siglen,
                             int count, const struct iovec vector[],
-                            ssh2_rsa_ctx *ctx);
+                            ssh2_rsa_ctx *rsa);
 RSA signs the SHA-256 hash computed over the count data chunks in vector.
 Signature is stored at (sig, siglen).
 Signature buffer must be allocated from the given session.
@@ -666,7 +666,7 @@ Note: this procedure is optional: if provided, it MUST be defined as a macro.
 int ssh2_rsa_sha2_512_signv(LIBSSH2_SESSION *session,
                             unsigned char **sig, size_t *siglen,
                             int count, const struct iovec vector[],
-                            ssh2_rsa_ctx *ctx);
+                            ssh2_rsa_ctx *rsa);
 RSA signs the SHA-512 hash computed over the count data chunks in vector.
 Signature is stored at (sig, siglen).
 Signature buffer must be allocated from the given session.
@@ -725,7 +725,7 @@ Must call ssh2_init_if_needed().
 Returns 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
 
-int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
+int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
                          const unsigned char *sig,
                          const unsigned char *m, size_t m_len);
 Verify (sig, siglen) signature of (m, m_len) using an SHA-1 hash and the
@@ -733,14 +733,14 @@ DSA context.
 Returns 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
 
-int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
+int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
                        const unsigned char *hash,
                        size_t hash_len, unsigned char *sig);
 DSA signs the (hash, hash_len) data using SHA-1 and store the signature at sig.
 Returns 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
 
-void ssh2_dsa_free(ssh2_dsa_ctx *dsactx);
+void ssh2_dsa_free(ssh2_dsa_ctx *dsa);
 Releases the DSA computation context at dsactx.
 
 7.3) ECDSA
@@ -795,7 +795,7 @@ Must call ssh2_init_if_needed().
 Return 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
 
-int ssh2_ecdsa_curve_name_with_octal_new(ssh2_ecdsa_ctx **ecdsactx,
+int ssh2_ecdsa_curve_name_with_octal_new(ssh2_ecdsa_ctx **ec_ctx,
                                          const unsigned char *k,
                                          size_t k_len,
                                          ssh2_curve_type type);
@@ -824,7 +824,7 @@ Signature buffer must be allocated from the given session.
 Returns 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
 
-int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ctx,
+int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
                       const unsigned char *r, size_t r_len,
                       const unsigned char *s, size_t s_len,
                       const unsigned char *m, size_t m_len);
@@ -833,7 +833,7 @@ using the hash algorithm configured in the ECDSA context ctx.
 Return 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
 
-ssh2_curve_type ssh2_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ecdsactx);
+ssh2_curve_type ssh2_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ec_ctx);
 Returns the curve type associated with given context.
 This procedure is already prototyped in crypto.h.
 
@@ -845,7 +845,7 @@ Return 0 if OK, else -1.
 Currently used only from openssl backend (ought to be private).
 This procedure is already prototyped in crypto.h.
 
-void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ecdsactx);
+void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ec_ctx);
 Releases the ECDSA computation context at ecdsactx.
 
 7.4) ED25519
@@ -856,7 +856,7 @@ If defined as 0, the rest of this section can be omitted.
 ssh2_ed25519_ctx
 Type of an ED25519 computation context. Generally a struct.
 
-int ssh2_curve25519_new(LIBSSH2_SESSION *session, ssh2_ed25519_ctx **ctx,
+int ssh2_curve25519_new(LIBSSH2_SESSION *session,
                         uint8_t **out_public_key,
                         uint8_t **out_private_key);
 Generates an ED25519 key pair, stores a pointer to them at out_private_key
@@ -898,7 +898,7 @@ Must call ssh2_init_if_needed().
 Return 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
 
-int ssh2_ed25519_sign(ssh2_ed25519_ctx *ctx, LIBSSH2_SESSION *session,
+int ssh2_ed25519_sign(ssh2_ed25519_ctx *ed_ctx, LIBSSH2_SESSION *session,
                       uint8_t **out_sig, size_t *out_sig_len,
                       const uint8_t *message, size_t message_len);
 ED25519 signs the (message, message_len) bytes and stores the allocated
@@ -907,7 +907,7 @@ Signature buffer is allocated from the given session.
 Returns 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
 
-int ssh2_ed25519_verify(ssh2_ed25519_ctx *ctx, const uint8_t *s,
+int ssh2_ed25519_verify(ssh2_ed25519_ctx *ed_ctx, const uint8_t *s,
                         size_t s_len, const uint8_t *m, size_t m_len);
 Verify (s, s_len) signature of (m, m_len) using the given ED25519 context.
 Return 0 if OK, else -1.
@@ -922,8 +922,8 @@ have been initialized before calling this function.
 Returns 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
 
-void ssh2_ed25519_free(ssh2_ed25519_ctx *ed25519ctx);
-Releases the ED25519 computation context at ed25519ctx.
+void ssh2_ed25519_free(ssh2_ed25519_ctx *ed_ctx);
+Releases the ED25519 computation context at ed_ctx.
 
 8) Miscellaneous
 

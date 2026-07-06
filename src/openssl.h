@@ -301,8 +301,8 @@ typedef enum {
 #endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519
-#define ssh2_ed25519_ctx       EVP_PKEY
-#define ssh2_ed25519_free(ctx) EVP_PKEY_free(ctx)
+#define ssh2_ed25519_ctx          EVP_PKEY
+#define ssh2_ed25519_free(ed_ctx) EVP_PKEY_free(ed_ctx)
 #endif /* LIBSSH2_ED25519 */
 
 #define SSH2_CIPHER_T(name) const EVP_CIPHER *(*(name))(void)
