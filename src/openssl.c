@@ -3735,31 +3735,33 @@ int ssh2_ed25519_verify(LIBSSH2_SESSION *session, ssh2_ed25519_ctx *ed_ctx,
                         const uint8_t *m, size_t m_len)
 {
     int ret = -1;
+    (void)session;
 
     EVP_MD_CTX *md_ctx = EVP_MD_CTX_new();
     if(!md_ctx) {
         ssh2_deb((session, LIBSSH2_TRACE_KEX,
-                  "ssh2_ed25519_verify(): !md_ctx"));
+                  "ssh2_ed25519_verify(): EVP_MD_CTX_new() failed"));
         return -1;
     }
 
     ret = EVP_DigestVerifyInit(md_ctx, NULL, NULL, NULL, ed_ctx);
     if(ret != 1) {
         ssh2_deb((session, LIBSSH2_TRACE_KEX,
-                  "ssh2_ed25519_verify(): init: %d", ret));
+                  "ssh2_ed25519_verify(): EVP_DigestVerifyInit()->%d", ret));
         goto clean_exit;
     }
 
-    (void)session;
+#ifdef LIBSSH2_DEBUG_MLKEM
     ssh2_deb((session, LIBSSH2_TRACE_KEX,
               "ssh2_ed25519_verify(%p, %lu, %p, %lu)",
               (const void *)s, (unsigned long)s_len,
               (const void *)m, (unsigned long)m_len));
+#endif
 
     ret = EVP_DigestVerify(md_ctx, s, s_len, m, m_len);
     if(ret != 1)
         ssh2_deb((session, LIBSSH2_TRACE_KEX,
-                  "ssh2_ed25519_verify(): verify: %d (OSSL: %lu)",
+                  "ssh2_ed25519_verify(): EVP_DigestVerify()->%d (ossl: %lu)",
                   ret, ERR_get_error()));
 
 clean_exit:
