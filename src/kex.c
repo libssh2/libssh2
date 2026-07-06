@@ -1548,7 +1548,7 @@ static int kex_method_ec_sha_hash_create_verify(
                                        &session->server_hostkey_abstract);
     if(err) {
         ssh2_deb((session, LIBSSH2_TRACE_KEX,
-                  "Failed hostkey sig_verify(): %s: %d",
+                  "Failed hostkey sig_verify() EC/ED: %s: %d",
                   session->hostkey->name, err));
         return ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_SIGN, signerr);
     }
