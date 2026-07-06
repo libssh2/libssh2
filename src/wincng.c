@@ -761,7 +761,7 @@ int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx, unsigned char *hash,
 {
     int ret = 0;
 
-    if(hash && hashlen >= ctx->cbHash &&
+    if(hashlen >= ctx->cbHash &&
        BCRYPT_SUCCESS(BCryptFinishHash(ctx->hHash, hash, ctx->cbHash, 0)))
         ret = 1;
 
