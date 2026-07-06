@@ -3730,20 +3730,37 @@ clean_exit:
     return rc == 1 ? 0 : -1;
 }
 
-int ssh2_ed25519_verify(ssh2_ed25519_ctx *ed_ctx, const uint8_t *s,
-                        size_t s_len, const uint8_t *m, size_t m_len)
+int ssh2_ed25519_verify(LIBSSH2_SESSION *session, ssh2_ed25519_ctx *ed_ctx,
+                        const uint8_t *s, size_t s_len,
+                        const uint8_t *m, size_t m_len)
 {
     int ret = -1;
 
     EVP_MD_CTX *md_ctx = EVP_MD_CTX_new();
-    if(!md_ctx)
+    if(!md_ctx) {
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
+                  "ssh2_ed25519_verify(): !md_ctx"));
         return -1;
+    }
 
     ret = EVP_DigestVerifyInit(md_ctx, NULL, NULL, NULL, ed_ctx);
-    if(ret != 1)
+    if(ret != 1) {
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
+                  "ssh2_ed25519_verify(): init: %d", ret));
         goto clean_exit;
+    }
+
+    (void)session;
+    ssh2_deb((session, LIBSSH2_TRACE_KEX,
+              "ssh2_ed25519_verify(%p, %lu, %p, %lu)",
+              (const void *)s, (unsigned long)s_len,
+              (const void *)m, (unsigned long)m_len));
 
     ret = EVP_DigestVerify(md_ctx, s, s_len, m, m_len);
+    if(ret != 1)
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
+                  "ssh2_ed25519_verify(): verify: %d (OSSL: %lu)",
+                  ret, ERR_get_error()));
 
 clean_exit:
 
