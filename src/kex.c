@@ -642,12 +642,12 @@ static int kex_diffie_hellman_sha(LIBSSH2_SESSION *session,
             }
         }
 
-        if(!ssh2_hash_init(ctx, hash_alg)) {
+        hok = ssh2_hash_init(ctx, hash_alg);
+        if(!hok) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
                            "Unable to initialize hash context DH-SHA");
             goto clean_exit;
         }
-        hok = 1;
         if(session->local.banner) {
             ssh2_htonu32(exchange_state->h_sig_comp,
                 (uint32_t)(strlen((char *)session->local.banner) - 2));
@@ -1473,11 +1473,11 @@ static int kex_method_ec_sha_hash_create_verify(
     int err;
     int hok;
 
-    if(!ssh2_hash_init(&ctx, hash_alg))
+    hok = ssh2_hash_init(&ctx, hash_alg);
+    if(!hok)
         return ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
                         "Unable to initialize hash context EC/ED");
 
-    hok = 1;
     if(session->local.banner) {
         ssh2_htonu32(exchange_state->h_sig_comp,
                      (uint32_t)(strlen((char *)session->local.banner) - 2));
