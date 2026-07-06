@@ -578,6 +578,7 @@ jobs:
             fi
             if [ "${MATRIX_CRYPTO}" = 'OpenSSL-3-no-deprecated' ]; then
               options+=' -DENABLE_DEBUG_LOGGING=ON'
+              cflags+=' -DLIBSSH2_DEBUG_MLKEM'
             fi
             cmake -B bld -G Ninja ${options} $TOOLCHAIN_OPTION \
               -DCMAKE_C_FLAGS="${cflags}" \
