@@ -310,7 +310,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                       session->scpRecv_command_len,
                       "scp -%sf ", sb ? "p" : "");
 
-        cmd_len = strlen((char *)session->scpRecv_command);
+        cmd_len = strlen((const char *)session->scpRecv_command);
 
         if(!session->flag.quote_paths) {
             size_t path_len;
@@ -853,7 +853,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
                       session->scpSend_command_len,
                       "scp -%st ", (mtime || atime) ? "p" : "");
 
-        cmd_len = strlen((char *)session->scpSend_command);
+        cmd_len = strlen((const char *)session->scpSend_command);
 
         if(!session->flag.quote_paths) {
             size_t path_len;

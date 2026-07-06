@@ -202,7 +202,7 @@ static int session_banner_send(LIBSSH2_SESSION *session)
     if(session->banner_TxRx_state == ssh2_NB_state_idle) {
         if(session->local.banner) {
             /* setopt_string has given us our \r\n characters */
-            banner_len = strlen((char *)session->local.banner);
+            banner_len = strlen((const char *)session->local.banner);
             banner = (char *)session->local.banner;
         }
 #ifdef LIBSSH2DEBUG

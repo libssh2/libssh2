@@ -649,10 +649,10 @@ static int kex_diffie_hellman_sha(LIBSSH2_SESSION *session,
         }
         if(session->local.banner) {
             ssh2_htonu32(exchange_state->h_sig_comp,
-                (uint32_t)(strlen((char *)session->local.banner) - 2));
+                (uint32_t)(strlen((const char *)session->local.banner) - 2));
             hok &= ssh2_hash_update(*ctx, exchange_state->h_sig_comp, 4);
             hok &= ssh2_hash_update(*ctx, session->local.banner,
-                                    strlen((char *)session->local.banner) - 2);
+                              strlen((const char *)session->local.banner) - 2);
         }
         else {
             ssh2_htonu32(exchange_state->h_sig_comp,
@@ -663,10 +663,10 @@ static int kex_diffie_hellman_sha(LIBSSH2_SESSION *session,
         }
 
         ssh2_htonu32(exchange_state->h_sig_comp,
-                     (uint32_t)strlen((char *)session->remote.banner));
+                     (uint32_t)strlen((const char *)session->remote.banner));
         hok &= ssh2_hash_update(*ctx, exchange_state->h_sig_comp, 4);
         hok &= ssh2_hash_update(*ctx, session->remote.banner,
-                                      strlen((char *)session->remote.banner));
+                                 strlen((const char *)session->remote.banner));
 
         ssh2_htonu32(exchange_state->h_sig_comp,
                      (uint32_t)session->local.kexinit_len);
@@ -1479,10 +1479,10 @@ static int kex_method_ec_sha_hash_create_verify(
 
     if(session->local.banner) {
         ssh2_htonu32(exchange_state->h_sig_comp,
-                     (uint32_t)(strlen((char *)session->local.banner) - 2));
+                  (uint32_t)(strlen((const char *)session->local.banner) - 2));
         hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
         hok &= ssh2_hash_update(ctx, session->local.banner,
-                                strlen((char *)session->local.banner) - 2);
+                              strlen((const char *)session->local.banner) - 2);
     }
     else {
         ssh2_htonu32(exchange_state->h_sig_comp,
@@ -1493,10 +1493,10 @@ static int kex_method_ec_sha_hash_create_verify(
     }
 
     ssh2_htonu32(exchange_state->h_sig_comp,
-                 (uint32_t)strlen((char *)session->remote.banner));
+                 (uint32_t)strlen((const char *)session->remote.banner));
     hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
     hok &= ssh2_hash_update(ctx, session->remote.banner,
-                            strlen((char *)session->remote.banner));
+                            strlen((const char *)session->remote.banner));
 
     ssh2_htonu32(exchange_state->h_sig_comp,
                  (uint32_t)session->local.kexinit_len);
@@ -3259,7 +3259,7 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session,
 
         while(s && *s) {
             unsigned char *p = (unsigned char *)strchr((char *)s, ',');
-            size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
+            size_t method_len = p ? (size_t)(p - s) : strlen((const char *)s);
             if(ssh2_kex_agree_instr(hostkey, hostkey_len, s, method_len)) {
                 const struct hostkey_method *method =
                     (const struct hostkey_method *)kex_get_method_by_name(
@@ -3336,7 +3336,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
 
         while(s && *s) {
             unsigned char *q, *p = (unsigned char *)strchr((char *)s, ',');
-            size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
+            size_t method_len = p ? (size_t)(p - s) : strlen((const char *)s);
             q = ssh2_kex_agree_instr(kex, kex_len, s, method_len);
             if(q) {
                 const struct kex_method *method =
@@ -3411,7 +3411,7 @@ static int kex_agree_crypt(LIBSSH2_SESSION *session,
 
         while(s && *s) {
             unsigned char *p = (unsigned char *)strchr((char *)s, ',');
-            size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
+            size_t method_len = p ? (size_t)(p - s) : strlen((const char *)s);
 
             if(ssh2_kex_agree_instr(crypt, crypt_len, s, method_len)) {
                 const struct crypt_method *method =
@@ -3470,7 +3470,7 @@ static int kex_agree_mac(LIBSSH2_SESSION *session,
 
         while(s && *s) {
             unsigned char *p = (unsigned char *)strchr((char *)s, ',');
-            size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
+            size_t method_len = p ? (size_t)(p - s) : strlen((const char *)s);
 
             if(ssh2_kex_agree_instr(mac, mac_len, s, method_len)) {
                 const struct mac_method *method =
@@ -3520,7 +3520,7 @@ static int kex_agree_comp(LIBSSH2_SESSION *session,
 
         while(s && *s) {
             unsigned char *p = (unsigned char *)strchr((char *)s, ',');
-            size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
+            size_t method_len = p ? (size_t)(p - s) : strlen((const char *)s);
 
             if(ssh2_kex_agree_instr(comp, comp_len, s, method_len)) {
                 const struct comp_method *method =
