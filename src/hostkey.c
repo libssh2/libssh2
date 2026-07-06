@@ -766,19 +766,19 @@ static int hostkey_method_ssh_ecdsa_initPEM(LIBSSH2_SESSION *session,
                                             void **abstract)
 {
     ssh2_ecdsa_ctx *ec_ctx = NULL;
-    int ret;
 
     if(abstract && *abstract) {
         hostkey_method_ssh_ecdsa_dtor(session, abstract);
         *abstract = NULL;
     }
 
-    ret = ssh2_ecdsa_new_private(&ec_ctx, session, privkeyfile, passphrase);
+    if(ssh2_ecdsa_new_private(&ec_ctx, session, privkeyfile, passphrase))
+        return -1;
 
     if(abstract)
         *abstract = ec_ctx;
 
-    return ret;
+    return 0;
 }
 
 /*
