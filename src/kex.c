@@ -66,18 +66,18 @@ static void kex_value_hash(ssh2_hash_alg hash_alg, size_t digest_len,
             ssh2_hash_ctx ctx;
             int hok = ssh2_hash_init(&ctx, hash_alg);
             if(hok) {
-                hok &= ssh2_hash_update(ctx, exchange_state->k_value,
-                                        exchange_state->k_value_len);
-                hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp,
-                                        digest_len);
+                hok &= ssh2_hash_update(&ctx, exchange_state->k_value,
+                                              exchange_state->k_value_len);
+                hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp,
+                                              digest_len);
                 if(len)
-                    hok &= ssh2_hash_update(ctx, *data, len);
+                    hok &= ssh2_hash_update(&ctx, *data, len);
                 else {
-                    hok &= ssh2_hash_update(ctx, version, 1);
-                    hok &= ssh2_hash_update(ctx, session->session_id,
-                                            session->session_id_len);
+                    hok &= ssh2_hash_update(&ctx, version, 1);
+                    hok &= ssh2_hash_update(&ctx, session->session_id,
+                                                  session->session_id_len);
                 }
-                hok &= ssh2_hash_final(ctx, *data + len, digest_len);
+                hok &= ssh2_hash_final(&ctx, *data + len, digest_len);
             }
             if(!hok) {
                 SSH2_SAFEFREE(session, *data);
@@ -649,66 +649,66 @@ static int kex_diffie_hellman_sha(LIBSSH2_SESSION *session,
         if(session->local.banner) {
             ssh2_htonu32(exchange_state->h_sig_comp,
                 (uint32_t)(strlen((const char *)session->local.banner) - 2));
-            hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-            hok &= ssh2_hash_update(ctx, session->local.banner,
+            hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+            hok &= ssh2_hash_update(&ctx, session->local.banner,
                               strlen((const char *)session->local.banner) - 2);
         }
         else {
             ssh2_htonu32(exchange_state->h_sig_comp,
                          sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
-            hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-            hok &= ssh2_hash_update(ctx, LIBSSH2_SSH_DEFAULT_BANNER,
+            hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+            hok &= ssh2_hash_update(&ctx, LIBSSH2_SSH_DEFAULT_BANNER,
                                     sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
         }
 
         ssh2_htonu32(exchange_state->h_sig_comp,
                      (uint32_t)strlen((const char *)session->remote.banner));
-        hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-        hok &= ssh2_hash_update(ctx, session->remote.banner,
+        hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+        hok &= ssh2_hash_update(&ctx, session->remote.banner,
                                 strlen((const char *)session->remote.banner));
 
         ssh2_htonu32(exchange_state->h_sig_comp,
                      (uint32_t)session->local.kexinit_len);
-        hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-        hok &= ssh2_hash_update(ctx, session->local.kexinit,
-                                     session->local.kexinit_len);
+        hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+        hok &= ssh2_hash_update(&ctx, session->local.kexinit,
+                                      session->local.kexinit_len);
 
         ssh2_htonu32(exchange_state->h_sig_comp,
                      (uint32_t)session->remote.kexinit_len);
-        hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-        hok &= ssh2_hash_update(ctx, session->remote.kexinit,
-                                     session->remote.kexinit_len);
+        hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+        hok &= ssh2_hash_update(&ctx, session->remote.kexinit,
+                                      session->remote.kexinit_len);
 
         ssh2_htonu32(exchange_state->h_sig_comp, session->server_hostkey_len);
-        hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-        hok &= ssh2_hash_update(ctx, session->server_hostkey,
-                                     session->server_hostkey_len);
+        hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+        hok &= ssh2_hash_update(&ctx, session->server_hostkey,
+                                      session->server_hostkey_len);
 
         if(packet_type_init == SSH_MSG_KEX_DH_GEX_INIT) {
             /* diffie-hellman-group-exchange hashes additional fields */
             ssh2_htonu32(exchange_state->h_sig_comp, SSH2_DH_GEX_MINGROUP);
             ssh2_htonu32(exchange_state->h_sig_comp + 4, SSH2_DH_GEX_OPTGROUP);
             ssh2_htonu32(exchange_state->h_sig_comp + 8, SSH2_DH_GEX_MAXGROUP);
-            hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 12);
+            hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 12);
         }
 
         if(midhash)
-            hok &= ssh2_hash_update(ctx, midhash, midhash_len);
+            hok &= ssh2_hash_update(&ctx, midhash, midhash_len);
 
-        hok &= ssh2_hash_update(ctx, exchange_state->e_packet + 1,
-                                     exchange_state->e_packet_len - 1);
+        hok &= ssh2_hash_update(&ctx, exchange_state->e_packet + 1,
+                                      exchange_state->e_packet_len - 1);
 
         ssh2_htonu32(exchange_state->h_sig_comp,
                      (uint32_t)exchange_state->f_value_len);
-        hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-        hok &= ssh2_hash_update(ctx, exchange_state->f_value,
-                                     exchange_state->f_value_len);
+        hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+        hok &= ssh2_hash_update(&ctx, exchange_state->f_value,
+                                      exchange_state->f_value_len);
 
-        hok &= ssh2_hash_update(ctx, exchange_state->k_value,
-                                     exchange_state->k_value_len);
+        hok &= ssh2_hash_update(&ctx, exchange_state->k_value,
+                                      exchange_state->k_value_len);
 
-        hok &= ssh2_hash_final(ctx, exchange_state->h_sig_comp,
-                                    sizeof(exchange_state->h_sig_comp));
+        hok &= ssh2_hash_final(&ctx, exchange_state->h_sig_comp,
+                                     sizeof(exchange_state->h_sig_comp));
         if(!hok) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                            "Failed to calculate hash DH-SHA");
@@ -1465,61 +1465,60 @@ static int kex_method_ec_sha_hash_create_verify(
     if(session->local.banner) {
         ssh2_htonu32(exchange_state->h_sig_comp,
                   (uint32_t)(strlen((const char *)session->local.banner) - 2));
-        hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-        hok &= ssh2_hash_update(ctx, session->local.banner,
+        hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+        hok &= ssh2_hash_update(&ctx, session->local.banner,
                               strlen((const char *)session->local.banner) - 2);
     }
     else {
         ssh2_htonu32(exchange_state->h_sig_comp,
                      sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
-        hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-        hok &= ssh2_hash_update(ctx, LIBSSH2_SSH_DEFAULT_BANNER,
+        hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+        hok &= ssh2_hash_update(&ctx, LIBSSH2_SSH_DEFAULT_BANNER,
                                 sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
     }
 
     ssh2_htonu32(exchange_state->h_sig_comp,
                  (uint32_t)strlen((const char *)session->remote.banner));
-    hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-    hok &= ssh2_hash_update(ctx, session->remote.banner,
+    hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+    hok &= ssh2_hash_update(&ctx, session->remote.banner,
                             strlen((const char *)session->remote.banner));
 
     ssh2_htonu32(exchange_state->h_sig_comp,
                  (uint32_t)session->local.kexinit_len);
-    hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-    hok &= ssh2_hash_update(ctx, session->local.kexinit,
-                                 session->local.kexinit_len);
+    hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+    hok &= ssh2_hash_update(&ctx, session->local.kexinit,
+                                  session->local.kexinit_len);
 
     ssh2_htonu32(exchange_state->h_sig_comp,
                  (uint32_t)session->remote.kexinit_len);
-    hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-    hok &= ssh2_hash_update(ctx, session->remote.kexinit,
-                                 session->remote.kexinit_len);
+    hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+    hok &= ssh2_hash_update(&ctx, session->remote.kexinit,
+                                  session->remote.kexinit_len);
 
     ssh2_htonu32(exchange_state->h_sig_comp, session->server_hostkey_len);
-    hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-    hok &= ssh2_hash_update(ctx, session->server_hostkey,
-                                 session->server_hostkey_len);
+    hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+    hok &= ssh2_hash_update(&ctx, session->server_hostkey,
+                                  session->server_hostkey_len);
 
     ssh2_htonu32(exchange_state->h_sig_comp,
                  (uint32_t)(public_pq_key_len + public_key_len));
-    hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-    if(public_pq_key && public_pq_key_len) {
-        hok &= ssh2_hash_update(ctx, public_pq_key,
-                                     public_pq_key_len);
-    }
-    hok &= ssh2_hash_update(ctx, public_key,
-                                 public_key_len);
+    hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+    if(public_pq_key && public_pq_key_len)
+        hok &= ssh2_hash_update(&ctx, public_pq_key,
+                                      public_pq_key_len);
+    hok &= ssh2_hash_update(&ctx, public_key,
+                                  public_key_len);
 
     ssh2_htonu32(exchange_state->h_sig_comp, (uint32_t)server_public_key_len);
-    hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-    hok &= ssh2_hash_update(ctx, server_public_key,
-                                 server_public_key_len);
+    hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+    hok &= ssh2_hash_update(&ctx, server_public_key,
+                                  server_public_key_len);
 
-    hok &= ssh2_hash_update(ctx, exchange_state->k_value,
-                                 exchange_state->k_value_len);
+    hok &= ssh2_hash_update(&ctx, exchange_state->k_value,
+                                  exchange_state->k_value_len);
 
-    hok &= ssh2_hash_final(ctx, exchange_state->h_sig_comp,
-                                sizeof(exchange_state->h_sig_comp));
+    hok &= ssh2_hash_final(&ctx, exchange_state->h_sig_comp,
+                                 sizeof(exchange_state->h_sig_comp));
     if(!hok)
         return ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                         "Failed to calculate hash EC/ED");
@@ -2999,10 +2998,9 @@ static uint32_t kex_method_list(unsigned char *buf, uint32_t list_strlen,
             memcpy(buf, prefvar, prefvarlen);                                 \
             (buf) += (prefvarlen);                                            \
         }                                                                     \
-        else {                                                                \
+        else                                                                  \
             (buf) += kex_method_list(buf, prefvarlen,                         \
                                 (const struct common_method **)(defaultvar)); \
-        }                                                                     \
     } while(0)
 
 /*
