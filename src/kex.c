@@ -1503,10 +1503,9 @@ static int kex_method_ec_sha_hash_create_verify(
     ssh2_htonu32(exchange_state->h_sig_comp,
                  (uint32_t)(public_pq_key_len + public_key_len));
     hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
-    if(public_pq_key && public_pq_key_len) {
+    if(public_pq_key && public_pq_key_len)
         hok &= ssh2_hash_update(ctx, public_pq_key,
                                      public_pq_key_len);
-    }
     hok &= ssh2_hash_update(ctx, public_key,
                                  public_key_len);
 
@@ -2999,10 +2998,9 @@ static uint32_t kex_method_list(unsigned char *buf, uint32_t list_strlen,
             memcpy(buf, prefvar, prefvarlen);                                 \
             (buf) += (prefvarlen);                                            \
         }                                                                     \
-        else {                                                                \
+        else                                                                  \
             (buf) += kex_method_list(buf, prefvarlen,                         \
                                 (const struct common_method **)(defaultvar)); \
-        }                                                                     \
     } while(0)
 
 /*
