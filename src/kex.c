@@ -2016,10 +2016,6 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
 
-        ssh2_deb((session, LIBSSH2_TRACE_KEX,
-                  "kex_mlkem_nistp(): server_public_key_len=%lu",
-                  (unsigned long)server_public_key_len));
-
         if(server_public_key_len <= mlkem_cipher_len ||
            server_public_key_len > (256 * 1024)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
