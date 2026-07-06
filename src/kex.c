@@ -1971,7 +1971,6 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
         size_t shared_secret_len;
         size_t server_public_key_len;
         struct string_buf buf;
-        ssh2_hash_ctx k_ctx;
 
         if(!data) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -2052,20 +2051,8 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
         }
 
         /* verify hash */
-        if(!ssh2_hash_init(&k_ctx, hash_alg)) {
-            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
-                           "kex: failed to initialize hash");
-            goto clean_exit;
-        }
-
-        if(!ssh2_hash_update(k_ctx, shared_secret, shared_secret_len)) {
-            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
-                           "kex: failed to calculate hash");
-            (void)ssh2_hash_final(k_ctx, NULL, 0);
-            goto clean_exit;
-        }
-
-        if(!ssh2_hash_final(k_ctx, exchange_state->k_value + 4, digest_len)) {
+        if(!ssh2_hash(hash_alg, shared_secret, shared_secret_len,
+                      exchange_state->k_value + 4, digest_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                            "kex: failed to calculate hash");
             goto clean_exit;
@@ -2587,7 +2574,6 @@ static int kex_mlkem768x25519_sha256(
                                     SSH2_ED25519_KEY_LEN];
         size_t server_public_key_len;
         struct string_buf buf;
-        ssh2_hash_ctx k_ctx;
 
         if(!data) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -2660,23 +2646,9 @@ static int kex_mlkem768x25519_sha256(
         }
 
         /* verify hash */
-        if(!ssh2_hash_init(&k_ctx, SSH2_SHA256_ALG)) {
-            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
-                           "kex: failed to initialize hash");
-            goto clean_exit;
-        }
-
-        if(!ssh2_hash_update(k_ctx, shared_secret,
-                             SSH2_MLKEM_SHARED_SECRET_LEN +
-                                 SSH2_ED25519_KEY_LEN)) {
-            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
-                           "kex: failed to calculate hash");
-            (void)ssh2_hash_final(k_ctx, NULL, 0);
-            goto clean_exit;
-        }
-
-        if(!ssh2_hash_final(k_ctx, exchange_state->k_value + 4,
-                            SSH2_SHA256_DIG_LEN)) {
+        if(!ssh2_hash(SSH2_SHA256_ALG, shared_secret,
+                      SSH2_MLKEM_SHARED_SECRET_LEN + SSH2_ED25519_KEY_LEN,
+                      exchange_state->k_value + 4, SSH2_SHA256_DIG_LEN)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                            "kex: failed to calculate hash");
             goto clean_exit;
