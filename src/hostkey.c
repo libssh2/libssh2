@@ -636,37 +636,41 @@ static int hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session,
                                         void **abstract)
 {
     ssh2_dsa_ctx *dsactx = (ssh2_dsa_ctx *)(*abstract);
+
+    int ret = -1;
+    int i;
     unsigned char hash[SSH2_SHA1_DIG_LEN];
     ssh2_hash_ctx ctx;
-    int i;
-
-    if(!ssh2_hash_init(&ctx, SSH2_SHA1_ALG)) {
-        *signature = NULL;
-        *signature_len = 0;
-        return -1;
-    }
 
     *signature = SSH2_CALLOC(session, 2 * SSH2_SHA1_DIG_LEN);
     if(!*signature)
-        return -1;
+        goto cleanup;
 
     *signature_len = 2 * SSH2_SHA1_DIG_LEN;
 
+    if(!ssh2_hash_init(&ctx, SSH2_SHA1_ALG))
+        goto cleanup;
     for(i = 0; i < veccount; i++) {
         if(!ssh2_hash_update(ctx, datavec[i].iov_base, datavec[i].iov_len)) {
             (void)ssh2_hash_final(ctx, hash, sizeof(hash));
-            return -1;
+            goto cleanup;
         }
     }
     if(!ssh2_hash_final(ctx, hash, sizeof(hash)))
-        return -1;
+        goto cleanup;
 
-    if(ssh2_dsa_sha1_sign(dsactx, hash, SSH2_SHA1_DIG_LEN, *signature)) {
-        SSH2_FREE(session, *signature);
-        return -1;
-    }
+    if(ssh2_dsa_sha1_sign(dsactx, hash, SSH2_SHA1_DIG_LEN, *signature))
+        goto cleanup;
 
-    return 0;
+    ret = 0;
+
+cleanup:
+
+    if(*signature)
+        SSH2_SAFEFREE(session, *signature);
+    *signature_len = 0;
+
+    return ret;
 }
 
 /*
