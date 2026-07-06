@@ -670,7 +670,7 @@ static ssize_t sftp_bin2attr(LIBSSH2_SFTP_ATTRIBUTES *attrs,
     attrs->flags = flags;
 
     if(attrs->flags & LIBSSH2_SFTP_ATTR_SIZE) {
-        if(ssh2_get_u64(&buf, &(attrs->filesize)))
+        if(ssh2_get_u64(&buf, &attrs->filesize))
             return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
     }
 
@@ -921,7 +921,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
     buf.len = data_len;
     endp = &buf.data[data_len];
 
-    if(ssh2_get_u32(&buf, &(sftp_handle->version))) {
+    if(ssh2_get_u32(&buf, &sftp_handle->version)) {
         SSH2_FREE(session, data);
         ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                  "Data too short when extracting version");

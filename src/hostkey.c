@@ -50,8 +50,21 @@
  * ssh-rsa *
  ********* */
 
+/*
+ * Shutdown the hostkey
+ */
 static int hostkey_method_ssh_rsa_dtor(LIBSSH2_SESSION *session,
-                                       void **abstract);
+                                       void **abstract)
+{
+    ssh2_rsa_ctx *rsactx = (ssh2_rsa_ctx *)(*abstract);
+    (void)session;
+
+    ssh2_rsa_free(rsactx);
+
+    *abstract = NULL;
+
+    return 0;
+}
 
 /*
  * Initialize the server hostkey working area with e/n pair
@@ -213,7 +226,6 @@ static int hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION *session,
                                         void **abstract)
 {
     ssh2_rsa_ctx *rsactx = (ssh2_rsa_ctx *)(*abstract);
-
 #ifdef ssh2_rsa_sha1_signv
     return ssh2_rsa_sha1_signv(session, signature, signature_len,
                                veccount, datavec, rsactx);
@@ -242,13 +254,12 @@ static int hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION *session,
     return 0;
 #endif
 }
-#endif
+#endif /* LIBSSH2_RSA_SHA1 */
 
+#if LIBSSH2_RSA_SHA2
 /*
  * Verify signature created by remote
  */
-#if LIBSSH2_RSA_SHA2
-
 static int hostkey_method_ssh_rsa_sha2_256_sig_verify(
     LIBSSH2_SESSION *session,
     const unsigned char *sig,
@@ -281,7 +292,6 @@ static int hostkey_method_ssh_rsa_sha2_256_signv(LIBSSH2_SESSION *session,
                                                  void **abstract)
 {
     ssh2_rsa_ctx *rsactx = (ssh2_rsa_ctx *)(*abstract);
-
 #ifdef ssh2_rsa_sha2_256_signv
     return ssh2_rsa_sha2_256_signv(session, signature, signature_len,
                                    veccount, datavec, rsactx);
@@ -346,7 +356,6 @@ static int hostkey_method_ssh_rsa_sha2_512_signv(LIBSSH2_SESSION *session,
                                                  void **abstract)
 {
     ssh2_rsa_ctx *rsactx = (ssh2_rsa_ctx *)(*abstract);
-
 #ifdef ssh2_rsa_sha2_512_signv
     return ssh2_rsa_sha2_512_signv(session, signature, signature_len,
                                    veccount, datavec, rsactx);
@@ -375,27 +384,9 @@ static int hostkey_method_ssh_rsa_sha2_512_signv(LIBSSH2_SESSION *session,
     return 0;
 #endif
 }
-
 #endif /* LIBSSH2_RSA_SHA2 */
 
-/*
- * Shutdown the hostkey
- */
-static int hostkey_method_ssh_rsa_dtor(LIBSSH2_SESSION *session,
-                                       void **abstract)
-{
-    ssh2_rsa_ctx *rsactx = (ssh2_rsa_ctx *)(*abstract);
-    (void)session;
-
-    ssh2_rsa_free(rsactx);
-
-    *abstract = NULL;
-
-    return 0;
-}
-
 #if LIBSSH2_RSA_SHA1
-
 static const struct hostkey_method hostkey_method_ssh_rsa = {
     "ssh-rsa",
     SSH2_SHA1_DIG_LEN,
@@ -407,11 +398,8 @@ static const struct hostkey_method hostkey_method_ssh_rsa = {
     NULL, /* encrypt */
     hostkey_method_ssh_rsa_dtor,
 };
-
 #endif /* LIBSSH2_RSA_SHA1 */
-
 #if LIBSSH2_RSA_SHA2
-
 static const struct hostkey_method hostkey_method_ssh_rsa_sha2_256 = {
     "rsa-sha2-256",
     SSH2_SHA256_DIG_LEN,
@@ -435,11 +423,8 @@ static const struct hostkey_method hostkey_method_ssh_rsa_sha2_512 = {
     NULL, /* encrypt */
     hostkey_method_ssh_rsa_dtor,
 };
-
 #endif /* LIBSSH2_RSA_SHA2 */
-
 #if LIBSSH2_RSA_SHA1
-
 static const struct hostkey_method hostkey_method_ssh_rsa_cert = {
     "ssh-rsa-cert-v01@openssh.com",
     SSH2_SHA1_DIG_LEN,
@@ -451,11 +436,8 @@ static const struct hostkey_method hostkey_method_ssh_rsa_cert = {
     NULL, /* encrypt */
     hostkey_method_ssh_rsa_dtor,
 };
-
 #endif /* LIBSSH2_RSA_SHA1 */
-
 #if LIBSSH2_RSA_SHA2
-
 static const struct hostkey_method hostkey_method_ssh_rsa_sha2_256_cert = {
     "rsa-sha2-256-cert-v01@openssh.com",
     SSH2_SHA256_DIG_LEN,
@@ -479,9 +461,7 @@ static const struct hostkey_method hostkey_method_ssh_rsa_sha2_512_cert = {
     NULL, /* encrypt */
     hostkey_method_ssh_rsa_dtor,
 };
-
 #endif /* LIBSSH2_RSA_SHA2 */
-
 #endif /* LIBSSH2_RSA */
 
 #if LIBSSH2_DSA
@@ -489,8 +469,21 @@ static const struct hostkey_method hostkey_method_ssh_rsa_sha2_512_cert = {
  * ssh-dss *
  ********* */
 
+/*
+ * Shutdown the hostkey method
+ */
 static int hostkey_method_ssh_dss_dtor(LIBSSH2_SESSION *session,
-                                       void **abstract);
+                                       void **abstract)
+{
+    ssh2_dsa_ctx *dsactx = (ssh2_dsa_ctx *)(*abstract);
+    (void)session;
+
+    ssh2_dsa_free(dsactx);
+
+    *abstract = NULL;
+
+    return 0;
+}
 
 /*
  * Initialize the server hostkey working area with p/q/g/y set
@@ -673,22 +666,6 @@ cleanup:
     return ret;
 }
 
-/*
- * Shutdown the hostkey method
- */
-static int hostkey_method_ssh_dss_dtor(LIBSSH2_SESSION *session,
-                                       void **abstract)
-{
-    ssh2_dsa_ctx *dsactx = (ssh2_dsa_ctx *)(*abstract);
-    (void)session;
-
-    ssh2_dsa_free(dsactx);
-
-    *abstract = NULL;
-
-    return 0;
-}
-
 static const struct hostkey_method hostkey_method_ssh_dss = {
     "ssh-dss",
     SSH2_SHA1_DIG_LEN,
@@ -708,8 +685,22 @@ static const struct hostkey_method hostkey_method_ssh_dss = {
  * ecdsa-sha2-nistp256/384/521 *
  ***************************** */
 
+/*
+ * Shutdown the hostkey by freeing EC_KEY context
+ */
 static int hostkey_method_ssh_ecdsa_dtor(LIBSSH2_SESSION *session,
-                                         void **abstract);
+                                         void **abstract)
+{
+    ssh2_ecdsa_ctx *keyctx = (ssh2_ecdsa_ctx *)(*abstract);
+    (void)session;
+
+    if(keyctx)
+        ssh2_ecdsa_free(keyctx);
+
+    *abstract = NULL;
+
+    return 0;
+}
 
 /*
  * Initialize the server hostkey working area with e/n pair
@@ -742,11 +733,11 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
     if(ssh2_get_string(&buf, &type_str, &len) || len != 19)
         return -1;
 
-    if(!strncmp((char *)type_str, "ecdsa-sha2-nistp256", 19))
+    if(!strncmp((const char *)type_str, "ecdsa-sha2-nistp256", 19))
         type = SSH2_EC_CURVE_NISTP256;
-    else if(!strncmp((char *)type_str, "ecdsa-sha2-nistp384", 19))
+    else if(!strncmp((const char *)type_str, "ecdsa-sha2-nistp384", 19))
         type = SSH2_EC_CURVE_NISTP384;
-    else if(!strncmp((char *)type_str, "ecdsa-sha2-nistp521", 19))
+    else if(!strncmp((const char *)type_str, "ecdsa-sha2-nistp521", 19))
         type = SSH2_EC_CURVE_NISTP521;
     else
         return -1;
@@ -755,13 +746,13 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
         return -1;
 
     if(type == SSH2_EC_CURVE_NISTP256 &&
-       strncmp((char *)domain, "nistp256", 8))
+       strncmp((const char *)domain, "nistp256", 8))
         return -1;
     else if(type == SSH2_EC_CURVE_NISTP384 &&
-            strncmp((char *)domain, "nistp384", 8))
+            strncmp((const char *)domain, "nistp384", 8))
         return -1;
     else if(type == SSH2_EC_CURVE_NISTP521 &&
-            strncmp((char *)domain, "nistp521", 8))
+            strncmp((const char *)domain, "nistp521", 8))
         return -1;
 
     /* public key */
@@ -926,23 +917,6 @@ static int hostkey_method_ssh_ecdsa_signv(LIBSSH2_SESSION *session,
                            signature, signature_len);
 }
 
-/*
- * Shutdown the hostkey by freeing EC_KEY context
- */
-static int hostkey_method_ssh_ecdsa_dtor(LIBSSH2_SESSION *session,
-                                         void **abstract)
-{
-    ssh2_ecdsa_ctx *keyctx = (ssh2_ecdsa_ctx *)(*abstract);
-    (void)session;
-
-    if(keyctx)
-        ssh2_ecdsa_free(keyctx);
-
-    *abstract = NULL;
-
-    return 0;
-}
-
 static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp256 = {
     "ecdsa-sha2-nistp256",
     SSH2_SHA256_DIG_LEN,
@@ -1023,8 +997,22 @@ static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp521_cert = {
  * ed25519 *
  ********* */
 
+/*
+ * Shutdown the hostkey by freeing key context
+ */
 static int hostkey_method_ssh_ed25519_dtor(LIBSSH2_SESSION *session,
-                                           void **abstract);
+                                           void **abstract)
+{
+    ssh2_ed25519_ctx *keyctx = (ssh2_ed25519_ctx *)(*abstract);
+    (void)session;
+
+    if(keyctx)
+        ssh2_ed25519_free(keyctx);
+
+    *abstract = NULL;
+
+    return 0;
+}
 
 /*
  * Initialize the server hostkey working area with e/n pair
@@ -1225,23 +1213,6 @@ static int hostkey_method_ssh_ed25519_signv(LIBSSH2_SESSION *session,
     return ssh2_ed25519_sign(ctx, session, signature, signature_len,
                              (const uint8_t *)datavec[0].iov_base,
                              datavec[0].iov_len);
-}
-
-/*
- * Shutdown the hostkey by freeing key context
- */
-static int hostkey_method_ssh_ed25519_dtor(LIBSSH2_SESSION *session,
-                                           void **abstract)
-{
-    ssh2_ed25519_ctx *keyctx = (ssh2_ed25519_ctx *)(*abstract);
-    (void)session;
-
-    if(keyctx)
-        ssh2_ed25519_free(keyctx);
-
-    *abstract = NULL;
-
-    return 0;
 }
 
 static const struct hostkey_method hostkey_method_ssh_ed25519 = {

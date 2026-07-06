@@ -861,7 +861,7 @@ int ssh2_match_string(struct string_buf *buf, const char *match)
     unsigned char *out;
     size_t len = 0;
     if(ssh2_get_string(buf, &out, &len) || len != strlen(match) ||
-       strncmp((char *)out, match, strlen(match)))
+       strncmp((const char *)out, match, strlen(match)))
         return -1;
     return 0;
 }
