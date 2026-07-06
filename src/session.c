@@ -484,7 +484,8 @@ libssh2_cb_generic *libssh2_session_callback_set2(LIBSSH2_SESSION *session,
         session->agentSignCallback = (LIBSSH2_AUTHAGENT_SIGN_FUNC(*))callback;
         return oldcb;
     }
-    ssh2_deb((session, LIBSSH2_TRACE_TRANS, "Setting Callback %d", cbtype));
+    ssh2_deb((session, LIBSSH2_TRACE_TRANS, "Unrecognized callback type %d",
+              cbtype));
 
     return NULL;
 }
