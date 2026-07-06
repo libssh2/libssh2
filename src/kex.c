@@ -2101,8 +2101,7 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
 
-        ret = kex_method_ec_sha_hash_create_verify(session,
-                 exchange_state,
+        ret = kex_method_ec_sha_hash_create_verify(session, exchange_state,
                  public_t_key, public_t_key_len,
                  public_pq_key, public_pq_key_len,
                  server_public_key, server_public_key_len,
@@ -2714,8 +2713,7 @@ static int kex_mlkem768x25519_sha256(
         }
 
         /* verify hash */
-        ret = kex_method_ec_sha_hash_create_verify(session,
-                 exchange_state,
+        ret = kex_method_ec_sha_hash_create_verify(session, exchange_state,
                  public_t_key, public_t_key_len,
                  public_pq_key, public_pq_key_len,
                  server_public_key, server_public_key_len,
