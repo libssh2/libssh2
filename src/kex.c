@@ -1676,7 +1676,7 @@ static int kex_ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
     }
     else {
         ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
-                       "Unrecognized SHA digest for EC curve");
+                       "Unexpected ecdh-sha2-nistp curve type");
         goto clean_exit;
     }
 
