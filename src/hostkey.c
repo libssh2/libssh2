@@ -1154,22 +1154,14 @@ static int hostkey_method_ssh_ed25519_sig_verify(LIBSSH2_SESSION *session,
 
     /* Skip past keyname_len(4) + keyname(11){"ssh-ed25519"} +
        signature_len(4) */
-    if(sig_len <= 19) {
-        ssh2_deb((session, LIBSSH2_TRACE_KEX,
-                  "hostkey_method_ssh_ed25519_sig_verify(): %u < 19",
-                  (unsigned int)sig_len));
+    if(sig_len <= 19)
         return -1;
-    }
 
     sig += 19;
     sig_len -= 19;
 
-    if(sig_len != SSH2_ED25519_SIG_LEN) {
-        ssh2_deb((session, LIBSSH2_TRACE_KEX,
-                  "hostkey_method_ssh_ed25519_sig_verify(): %u != %d",
-                  (unsigned int)sig_len, SSH2_ED25519_SIG_LEN));
+    if(sig_len != SSH2_ED25519_SIG_LEN)
         return -1;
-    }
 
     return ssh2_ed25519_verify(session, ctx, sig, sig_len, m, m_len);
 }
