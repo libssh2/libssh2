@@ -1547,7 +1547,7 @@ static int kex_method_ec_sha_hash_create_verify(
                                        &session->server_hostkey_abstract);
     if(err) {
         ssh2_deb((session, LIBSSH2_TRACE_KEX,
-                  "Failed hostkey sig_verify(): %s: %d",
+                  "Failed hostkey sig_verify() EC/ED: %s: %d",
                   session->hostkey->name, err));
         return ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_SIGN, signerr);
     }
@@ -1675,7 +1675,7 @@ static int kex_ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
         /* server public key Q_S */
         if(ssh2_get_string(&buf, &server_public_key, &server_public_key_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                           "Unexpected key length ECDH");
+                           "Unexpected ECDH server public key");
             goto clean_exit;
         }
 
@@ -1979,7 +1979,7 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
         /* server public key Q_S */
         if(ssh2_get_string(&buf, &server_public_key, &server_public_key_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                           "Unexpected mlkemnistp key length");
+                           "Unexpected mlkemnistp server public key");
             goto clean_exit;
         }
 
@@ -2298,7 +2298,7 @@ static int kex_curve25519_sha256(
         /* server public key Q_S */
         if(ssh2_get_string(&buf, &server_public_key, &server_public_key_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                           "Unexpected curve25519 key length");
+                           "Unexpected curve25519 server public key");
             goto clean_exit;
         }
 
@@ -2582,7 +2582,7 @@ static int kex_mlkem768x25519_sha256(
         /* server public key Q_S */
         if(ssh2_get_string(&buf, &server_public_key, &server_public_key_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                           "Unexpected mlkem768x25519 key length");
+                           "Unexpected mlkem768x25519 server public key");
             goto clean_exit;
         }
 
