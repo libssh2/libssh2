@@ -1816,7 +1816,8 @@ static int kex_method_ecdh_key_exchange(
         rc = kex_session_ecdh_curve_type(session->kex->name, &type);
 
         if(rc) {
-            ret = ssh2_err(session, -1, "Unrecognized KEX nistp curve type");
+            ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
+                           "Unrecognized KEX nistp curve type");
             goto ecdh_clean_exit;
         }
 
@@ -1873,7 +1874,8 @@ static int kex_method_ecdh_key_exchange(
         rc = kex_session_ecdh_curve_type(session->kex->name, &type);
 
         if(rc) {
-            ret = ssh2_err(session, -1, "Unrecognized KEX nistp curve type");
+            ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
+                           "Unrecognized KEX nistp curve type");
             goto ecdh_clean_exit;
         }
 
@@ -1960,7 +1962,7 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
     unsigned char *shared_secret = NULL;
 
     if(kex_session_hybrid_curve_type(session->kex->name, &type)) {
-        ret = ssh2_err(session, -1,
+        ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                        "Unrecognized KEX hybrid nistp curve type");
         goto clean_exit;
     }
@@ -1981,7 +1983,8 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
         public_pq_key_len = SSH2_MLKEM_1024_PUBLIC_KEY_LEN;
         break;
     default:
-        ret = ssh2_err(session, -1, "Unexpected KEX hybrid nistp curve type");
+        ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
+                       "Unexpected KEX hybrid nistp curve type");
         goto clean_exit;
     }
 
@@ -2158,7 +2161,7 @@ static int kex_method_mlkem_nistp_key_exchange(
         unsigned char *s = NULL;
 
         if(kex_session_hybrid_curve_type(session->kex->name, &type)) {
-            ret = ssh2_err(session, -1,
+            ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                            "Unrecognized KEX hybrid nistp curve type");
             goto clean_exit;
         }
@@ -2175,7 +2178,7 @@ static int kex_method_mlkem_nistp_key_exchange(
             mlkem_private_key_len = SSH2_MLKEM_1024_PRIVATE_KEY_LEN;
             break;
         default:
-            ret = ssh2_err(session, -1,
+            ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                            "Unexpected KEX hybrid nistp curve type");
             goto clean_exit;
         }
@@ -2461,7 +2464,7 @@ static int kex_method_curve25519_key_exchange(
             rc = strcmp(session->kex->name, "curve25519-sha256");
 
         if(rc) {
-            ret = ssh2_err(session, -1,
+            ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                            "Unrecognized KEX curve25519 curve type");
             goto clean_exit;
         }
