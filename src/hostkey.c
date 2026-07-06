@@ -148,15 +148,13 @@ static int hostkey_method_ssh_rsa_initPEM(LIBSSH2_SESSION *session,
                                           void **abstract)
 {
     ssh2_rsa_ctx *rsactx;
-    int ret;
 
     if(*abstract) {
         hostkey_method_ssh_rsa_dtor(session, abstract);
         *abstract = NULL;
     }
 
-    ret = ssh2_rsa_new_private(&rsactx, session, privkeyfile, passphrase);
-    if(ret)
+    if(ssh2_rsa_new_private(&rsactx, session, privkeyfile, passphrase))
         return -1;
 
     *abstract = rsactx;
@@ -175,17 +173,15 @@ static int hostkey_method_ssh_rsa_initPEMFromMemory(
     void **abstract)
 {
     ssh2_rsa_ctx *rsactx;
-    int ret;
 
     if(*abstract) {
         hostkey_method_ssh_rsa_dtor(session, abstract);
         *abstract = NULL;
     }
 
-    ret = ssh2_rsa_new_private_frommemory(&rsactx, session,
+    if(ssh2_rsa_new_private_frommemory(&rsactx, session,
                                           privkeyfiledata,
-                                          privkeyfiledata_len, passphrase);
-    if(ret)
+                                          privkeyfiledata_len, passphrase))
         return -1;
 
     *abstract = rsactx;
@@ -230,7 +226,6 @@ static int hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION *session,
     return ssh2_rsa_sha1_signv(session, signature, signature_len,
                                veccount, datavec, rsactx);
 #else
-    int ret;
     int i;
     unsigned char hash[SSH2_SHA1_DIG_LEN];
     ssh2_hash_ctx ctx;
@@ -246,9 +241,8 @@ static int hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION *session,
     if(!ssh2_hash_final(ctx, hash, sizeof(hash)))
         return -1;
 
-    ret = ssh2_rsa_sha1_sign(session, rsactx, hash, SSH2_SHA1_DIG_LEN,
-                             signature, signature_len);
-    if(ret)
+    if(ssh2_rsa_sha1_sign(session, rsactx, hash, SSH2_SHA1_DIG_LEN,
+                             signature, signature_len))
         return -1;
 
     return 0;
@@ -296,7 +290,6 @@ static int hostkey_method_ssh_rsa_sha2_256_signv(LIBSSH2_SESSION *session,
     return ssh2_rsa_sha2_256_signv(session, signature, signature_len,
                                    veccount, datavec, rsactx);
 #else
-    int ret;
     int i;
     unsigned char hash[SSH2_SHA256_DIG_LEN];
     ssh2_hash_ctx ctx;
@@ -312,9 +305,8 @@ static int hostkey_method_ssh_rsa_sha2_256_signv(LIBSSH2_SESSION *session,
     if(!ssh2_hash_final(ctx, hash, sizeof(hash)))
         return -1;
 
-    ret = ssh2_rsa_sha2_sign(session, rsactx, hash, SSH2_SHA256_DIG_LEN,
-                             signature, signature_len);
-    if(ret)
+    if(ssh2_rsa_sha2_sign(session, rsactx, hash, SSH2_SHA256_DIG_LEN,
+                             signature, signature_len))
         return -1;
 
     return 0;
@@ -360,7 +352,6 @@ static int hostkey_method_ssh_rsa_sha2_512_signv(LIBSSH2_SESSION *session,
     return ssh2_rsa_sha2_512_signv(session, signature, signature_len,
                                    veccount, datavec, rsactx);
 #else
-    int ret;
     int i;
     unsigned char hash[SSH2_SHA512_DIG_LEN];
     ssh2_hash_ctx ctx;
@@ -376,9 +367,8 @@ static int hostkey_method_ssh_rsa_sha2_512_signv(LIBSSH2_SESSION *session,
     if(!ssh2_hash_final(ctx, hash, sizeof(hash)))
         return -1;
 
-    ret = ssh2_rsa_sha2_sign(session, rsactx, hash, SSH2_SHA512_DIG_LEN,
-                             signature, signature_len);
-    if(ret)
+    if(ssh2_rsa_sha2_sign(session, rsactx, hash, SSH2_SHA512_DIG_LEN,
+                             signature, signature_len))
         return -1;
 
     return 0;
@@ -552,15 +542,13 @@ static int hostkey_method_ssh_dss_initPEM(LIBSSH2_SESSION *session,
                                           void **abstract)
 {
     ssh2_dsa_ctx *dsactx;
-    int ret;
 
     if(*abstract) {
         hostkey_method_ssh_dss_dtor(session, abstract);
         *abstract = NULL;
     }
 
-    ret = ssh2_dsa_new_private(&dsactx, session, privkeyfile, passphrase);
-    if(ret)
+    if(ssh2_dsa_new_private(&dsactx, session, privkeyfile, passphrase))
         return -1;
 
     *abstract = dsactx;
@@ -579,17 +567,15 @@ static int hostkey_method_ssh_dss_initPEMFromMemory(
     void **abstract)
 {
     ssh2_dsa_ctx *dsactx;
-    int ret;
 
     if(*abstract) {
         hostkey_method_ssh_dss_dtor(session, abstract);
         *abstract = NULL;
     }
 
-    ret = ssh2_dsa_new_private_frommemory(&dsactx, session,
+    if(ssh2_dsa_new_private_frommemory(&dsactx, session,
                                           privkeyfiledata,
-                                          privkeyfiledata_len, passphrase);
-    if(ret)
+                                          privkeyfiledata_len, passphrase))
         return -1;
 
     *abstract = dsactx;
@@ -806,18 +792,16 @@ static int hostkey_method_ssh_ecdsa_initPEMFromMemory(
     void **abstract)
 {
     ssh2_ecdsa_ctx *ec_ctx = NULL;
-    int ret;
 
     if(abstract && *abstract) {
         hostkey_method_ssh_ecdsa_dtor(session, abstract);
         *abstract = NULL;
     }
 
-    ret = ssh2_ecdsa_new_private_frommemory(&ec_ctx, session,
+    if(ssh2_ecdsa_new_private_frommemory(&ec_ctx, session,
                                             privkeyfiledata,
                                             privkeyfiledata_len,
-                                            passphrase);
-    if(ret)
+                                            passphrase))
         return -1;
 
     if(abstract)
@@ -1121,20 +1105,18 @@ static int hostkey_method_ssh_ed25519_initPEM(LIBSSH2_SESSION *session,
                                               void **abstract)
 {
     ssh2_ed25519_ctx *ec_ctx = NULL;
-    int ret;
 
     if(*abstract) {
         hostkey_method_ssh_ed25519_dtor(session, abstract);
         *abstract = NULL;
     }
 
-    ret = ssh2_ed25519_new_private(&ec_ctx, session, privkeyfile, passphrase);
-    if(ret)
+    if(ssh2_ed25519_new_private(&ec_ctx, session, privkeyfile, passphrase))
         return -1;
 
     *abstract = ec_ctx;
 
-    return ret;
+    return 0;
 }
 
 /*
@@ -1148,18 +1130,16 @@ static int hostkey_method_ssh_ed25519_initPEMFromMemory(
     void **abstract)
 {
     ssh2_ed25519_ctx *ed_ctx = NULL;
-    int ret;
 
     if(abstract && *abstract) {
         hostkey_method_ssh_ed25519_dtor(session, abstract);
         *abstract = NULL;
     }
 
-    ret = ssh2_ed25519_new_private_frommemory(&ed_ctx, session,
+    if(ssh2_ed25519_new_private_frommemory(&ed_ctx, session,
                                               privkeyfiledata,
                                               privkeyfiledata_len,
-                                              passphrase);
-    if(ret)
+                                              passphrase))
         return -1;
 
     if(abstract)
