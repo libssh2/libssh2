@@ -2019,6 +2019,7 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
         size_t shared_secret_len;
         size_t server_public_key_len;
         struct string_buf buf;
+        ssh2_hash_ctx k_ctx;
 
         if(!data) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -2099,70 +2100,32 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
         }
 
         /* verify hash */
-        switch(type) {
-        case SSH2_EC_CURVE_NISTP256: {
-            ssh2_hash_ctx k_ctx;
-            if(!ssh2_hash_init(&k_ctx, SSH2_SHA256_ALG)) {
-                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
-                               "kex: failed to initialize hash");
-                goto clean_exit;
-            }
-
-            if(!ssh2_hash_update(k_ctx, shared_secret, shared_secret_len)) {
-                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
-                               "kex: failed to calculate hash");
-                goto clean_exit;
-            }
-
-            if(!ssh2_hash_final(k_ctx,
-                                exchange_state->k_value + 4, digest_len)) {
-                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
-                               "kex: failed to calculate hash");
-                goto clean_exit;
-            }
-            ret = kex_method_ec_sha_hash_create_verify(session,
-                     exchange_state,
-                     public_t_key, public_t_key_len,
-                     public_pq_key, public_pq_key_len,
-                     server_public_key, server_public_key_len,
-                     SSH2_SHA256_ALG, SSH2_SHA256_DIG_LEN,
-                     "Unable to verify hostkey signature mlkemnistp");
-            break;
-        }
-        case SSH2_EC_CURVE_NISTP384: {
-            ssh2_hash_ctx k_ctx;
-            if(!ssh2_hash_init(&k_ctx, SSH2_SHA384_ALG)) {
-                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
-                               "kex: failed to initialize hash");
-                goto clean_exit;
-            }
-
-            if(!ssh2_hash_update(k_ctx, shared_secret, shared_secret_len)) {
-                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
-                               "kex: failed to calculate hash");
-                goto clean_exit;
-            }
-
-            if(!ssh2_hash_final(k_ctx,
-                                exchange_state->k_value + 4, digest_len)) {
-                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
-                               "kex: failed to calculate hash");
-                goto clean_exit;
-            }
-            ret = kex_method_ec_sha_hash_create_verify(session,
-                     exchange_state,
-                     public_t_key, public_t_key_len,
-                     public_pq_key, public_pq_key_len,
-                     server_public_key, server_public_key_len,
-                     SSH2_SHA384_ALG, SSH2_SHA384_DIG_LEN,
-                     "Unable to verify hostkey signature mlkemnistp");
-            break;
-        }
-        default:
-            ret = ssh2_err(session, -1,
-                           "Unexpected KEX hybrid nistp curve type");
+        if(!ssh2_hash_init(&k_ctx, hash_alg)) {
+            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
+                           "kex: failed to initialize hash");
+            goto clean_exit;
         }
 
+        if(!ssh2_hash_update(k_ctx, shared_secret, shared_secret_len)) {
+            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
+                           "kex: failed to calculate hash");
+            goto clean_exit;
+        }
+
+        if(!ssh2_hash_final(k_ctx,
+                            exchange_state->k_value + 4, digest_len)) {
+            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
+                           "kex: failed to calculate hash");
+            goto clean_exit;
+        }
+
+        ret = kex_method_ec_sha_hash_create_verify(session,
+                 exchange_state,
+                 public_t_key, public_t_key_len,
+                 public_pq_key, public_pq_key_len,
+                 server_public_key, server_public_key_len,
+                 hash_alg, digest_len,
+                 "Unable to verify hostkey signature mlkemnistp");
         if(ret)
             goto clean_exit;
 
