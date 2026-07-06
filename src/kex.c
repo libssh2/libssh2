@@ -2685,6 +2685,7 @@ static int kex_mlkem768x25519_sha256(
             goto clean_exit;
         }
 
+        /* verify hash */
         if(!ssh2_hash_init(&k_ctx, SSH2_SHA256_ALG)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
                            "kex: failed to initialize hash");
