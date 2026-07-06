@@ -1659,6 +1659,27 @@ static int kex_ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
     int ret = 0;
     int rc;
 
+    ssh2_hash_alg hash_alg;
+    size_t digest_len = 0;
+
+    if(type == SSH2_EC_CURVE_NISTP256) {
+        hash_alg = SSH2_SHA256_ALG;
+        digest_len = SSH2_SHA256_DIG_LEN;
+    }
+    else if(type == SSH2_EC_CURVE_NISTP384) {
+        hash_alg = SSH2_SHA384_ALG;
+        digest_len = SSH2_SHA384_DIG_LEN;
+    }
+    else if(type == SSH2_EC_CURVE_NISTP521) {
+        hash_alg = SSH2_SHA512_ALG;
+        digest_len = SSH2_SHA512_DIG_LEN;
+    }
+    else {
+        ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
+                       "Unrecognized SHA digest for EC curve");
+        goto clean_exit;
+    }
+
     if(exchange_state->state == ssh2_NB_state_idle) {
 
         /* Setup initial values */
@@ -1740,30 +1761,11 @@ static int kex_ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
         }
 
         /* verify hash */
-        switch(type) {
-        case SSH2_EC_CURVE_NISTP256:
-            ret = kex_method_ec_sha_hash_create_verify(session, exchange_state,
-                     public_key, public_key_len, NULL, 0,
-                     server_public_key, server_public_key_len,
-                     SSH2_SHA256_ALG, SSH2_SHA256_DIG_LEN,
-                     "Unable to verify hostkey signature ECDH");
-            break;
-        case SSH2_EC_CURVE_NISTP384:
-            ret = kex_method_ec_sha_hash_create_verify(session, exchange_state,
-                     public_key, public_key_len, NULL, 0,
-                     server_public_key, server_public_key_len,
-                     SSH2_SHA384_ALG, SSH2_SHA384_DIG_LEN,
-                     "Unable to verify hostkey signature ECDH");
-            break;
-        case SSH2_EC_CURVE_NISTP521:
-            ret = kex_method_ec_sha_hash_create_verify(session, exchange_state,
-                     public_key, public_key_len, NULL, 0,
-                     server_public_key, server_public_key_len,
-                     SSH2_SHA512_ALG, SSH2_SHA512_DIG_LEN,
-                     "Unable to verify hostkey signature ECDH");
-            break;
-        }
-
+        ret = kex_method_ec_sha_hash_create_verify(session, exchange_state,
+                 public_key, public_key_len, NULL, 0,
+                 server_public_key, server_public_key_len,
+                 hash_alg, digest_len,
+                 "Unable to verify hostkey signature ECDH");
         if(ret)
             goto clean_exit;
 
@@ -1784,26 +1786,6 @@ static int kex_ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
     }
 
     if(exchange_state->state == ssh2_NB_state_sent2) {
-        ssh2_hash_alg hash_alg;
-        size_t digest_len = 0;
-
-        if(type == SSH2_EC_CURVE_NISTP256) {
-            hash_alg = SSH2_SHA256_ALG;
-            digest_len = SSH2_SHA256_DIG_LEN;
-        }
-        else if(type == SSH2_EC_CURVE_NISTP384) {
-            hash_alg = SSH2_SHA384_ALG;
-            digest_len = SSH2_SHA384_DIG_LEN;
-        }
-        else if(type == SSH2_EC_CURVE_NISTP521) {
-            hash_alg = SSH2_SHA512_ALG;
-            digest_len = SSH2_SHA512_DIG_LEN;
-        }
-        else {
-            ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
-                           "Unrecognized SHA digest for EC curve");
-            goto clean_exit;
-        }
         ret = kex_finish(session, exchange_state, hash_alg, digest_len);
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
