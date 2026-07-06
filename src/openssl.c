@@ -4283,9 +4283,43 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
     return 0;
 }
 
+int ssh2_dh_is_valid(ssh2_bn *f, ssh2_bn *p)
+{
+    BIGNUM *tmp;
+    int n, i, bits_set;
+
+    if(BN_cmp(f, BN_value_one()) != 1)
+        return -1;  /* f <= 1 */
+
+    tmp = BN_new();
+    if(!tmp)
+        return -4;
+    if(!BN_sub(tmp, p, BN_value_one())) {
+        BN_clear_free(tmp);
+        return -4;
+    }
+    if(BN_cmp(f, tmp) != -1) {
+        BN_clear_free(tmp);
+        return -2;  /* f >= p - 1 (== f > p - 2) */
+    }
+    BN_clear_free(tmp);
+
+    for(i = 0, n = BN_num_bits(f), bits_set = 0; i < n; ++i)
+        if(BN_is_bit_set(f, i))
+            ++bits_set;
+
+    if(bits_set < 4)
+        return -3;
+
+    return 0;
+}
+
 int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
                    ssh2_bn *p, ssh2_bn_ctx *bnctx)
 {
+    if(ssh2_dh_is_valid(f, p))  /* Verify if parameters are valid */
+        return -1;
+
     /* Compute the shared secret */
     if(!BN_mod_exp(secret, f, *dhctx, p, bnctx))
         return -1;

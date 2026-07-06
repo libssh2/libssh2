@@ -788,10 +788,42 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
     return 0;
 }
 
+int ssh2_dh_is_valid(ssh2_bn *f, ssh2_bn *p)
+{
+    gcry_mpi_t tmp;
+    unsigned int n, i, bits_set;
+
+    if(gcry_mpi_cmp_ui(f, 1) <= 0)
+        return -1;  /* f <= 1 */
+
+    tmp = gcry_mpi_new(0);
+    if(!tmp)
+        return -4;
+    gcry_mpi_sub_ui(tmp, p, 1);
+    if(gcry_mpi_cmp(f, tmp) >= 0) {
+        gcry_mpi_release(tmp);
+        return -2;  /* f >= p - 1 (== f > p - 2) */
+    }
+    gcry_mpi_release(tmp);
+
+    for(i = 0, n = gcry_mpi_get_nbits(f), bits_set = 0; i < n; ++i)
+        if(gcry_mpi_test_bit(f, i))
+            ++bits_set;
+
+    if(bits_set < 4)
+        return -3;
+
+    return 0;
+}
+
 int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
                    ssh2_bn *p, ssh2_bn_ctx *bnctx)
 {
     (void)bnctx;
+
+    if(ssh2_dh_is_valid(f, p))  /* Verify if parameters are valid */
+        return -1;
+
     /* Compute the shared secret */
     gcry_mpi_powm(secret, f, *dhctx, p);
     return 0;

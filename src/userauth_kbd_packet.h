@@ -34,6 +34,6 @@
 #define LIBSSH2_USERAUTH_KBD_PACKET_H
 
 int userauth_keyboard_interactive_decode_info_request(
-    LIBSSH2_SESSION *session);
+    LIBSSH2_SESSION *session); /* for unit tests */
 
 #endif /* LIBSSH2_USERAUTH_KBD_PACKET_H */

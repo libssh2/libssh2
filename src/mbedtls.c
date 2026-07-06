@@ -777,10 +777,56 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
     return 0;
 }
 
+int ssh2_dh_is_valid(ssh2_bn *f, ssh2_bn *p)
+{
+    mbedtls_mpi one, tmp;
+    size_t n, i, bits_set;
+
+    /* Verify if valid */
+    mbedtls_mpi_init(&one);
+    if(mbedtls_mpi_lset(&one, 1)) {
+        mbedtls_mpi_free(&one);
+        return -4;
+    }
+    if(mbedtls_mpi_cmp_mpi(f, &one) != 1) {
+        mbedtls_mpi_free(&one);
+        return -1;  /* f <= 1 */
+    }
+
+    mbedtls_mpi_init(&tmp);
+    if(mbedtls_mpi_copy(&tmp, p) ||  /* tmp = p */
+       mbedtls_mpi_sub_int(&tmp, &tmp, 2)) {  /* tmp -= 2 */
+        mbedtls_mpi_free(&tmp);
+        mbedtls_mpi_free(&one);
+        return -5;
+    }
+    if(mbedtls_mpi_cmp_mpi(f, &tmp) == 1) {
+        mbedtls_mpi_free(&tmp);
+        mbedtls_mpi_free(&one);
+        return -2;  /* f >= p - 1 (== f > p - 2) */
+    }
+
+    mbedtls_mpi_free(&tmp);
+    mbedtls_mpi_free(&one);
+
+    for(i = 0, n = mbedtls_mpi_bitlen(f), bits_set = 0; i < n; ++i)
+        if(mbedtls_mpi_get_bit(f, i))
+            ++bits_set;
+
+    if(bits_set < 4)
+        return -3;
+
+    return 0;
+}
+
 int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
                    ssh2_bn *p, ssh2_bn_ctx *bnctx)
 {
     (void)bnctx;
+
+    if(ssh2_dh_is_valid(f, p))  /* Verify if parameters are valid */
+        return -1;
+
     /* Compute the shared secret */
     if(mbedtls_mpi_exp_mod(secret, f, *dhctx, p, NULL))
         return -1;
