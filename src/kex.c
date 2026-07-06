@@ -61,38 +61,25 @@ static void kex_value_hash(ssh2_hash_alg hash_alg, size_t digest_len,
         *data = SSH2_ALLOC(session, data_len + digest_len);
 
     if(*data) {
-        ssh2_hash_ctx hash;
         size_t len = 0;
         while(len < data_len) {
-            if(!ssh2_hash_init(&hash, hash_alg)) {
-                SSH2_SAFEFREE(session, *data);
-                return;
-            }
-            if(!ssh2_hash_update(hash, exchange_state->k_value,
-                                       exchange_state->k_value_len) ||
-               !ssh2_hash_update(hash, exchange_state->h_sig_comp,
-                                       digest_len)) {
-                (void)ssh2_hash_final(hash, NULL, 0);
-                SSH2_SAFEFREE(session, *data);
-                return;
-            }
-            if(len > 0) {
-                if(!ssh2_hash_update(hash, *data, len)) {
-                    (void)ssh2_hash_final(hash, NULL, 0);
-                    SSH2_SAFEFREE(session, *data);
-                    return;
+            ssh2_hash_ctx ctx;
+            int hok = ssh2_hash_init(&ctx, hash_alg);
+            if(hok) {
+                hok &= ssh2_hash_update(ctx, exchange_state->k_value,
+                                        exchange_state->k_value_len);
+                hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp,
+                                        digest_len);
+                if(len)
+                    hok &= ssh2_hash_update(ctx, *data, len);
+                else {
+                    hok &= ssh2_hash_update(ctx, version, 1);
+                    hok &= ssh2_hash_update(ctx, session->session_id,
+                                            session->session_id_len);
                 }
+                hok &= ssh2_hash_final(ctx, *data + len, digest_len);
             }
-            else {
-                if(!ssh2_hash_update(hash, version, 1) ||
-                   !ssh2_hash_update(hash, session->session_id,
-                                           session->session_id_len)) {
-                    (void)ssh2_hash_final(hash, NULL, 0);
-                    SSH2_SAFEFREE(session, *data);
-                    return;
-                }
-            }
-            if(!ssh2_hash_final(hash, *data + len, digest_len)) {
+            if(!hok) {
                 SSH2_SAFEFREE(session, *data);
                 return;
             }
