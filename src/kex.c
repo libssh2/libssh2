@@ -1659,11 +1659,30 @@ static int kex_ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
     int ret = 0;
     int rc;
 
-    if(exchange_state->state == ssh2_NB_state_idle) {
+    ssh2_hash_alg hash_alg;
+    size_t digest_len = 0;
 
+    if(type == SSH2_EC_CURVE_NISTP256) {
+        hash_alg = SSH2_SHA256_ALG;
+        digest_len = SSH2_SHA256_DIG_LEN;
+    }
+    else if(type == SSH2_EC_CURVE_NISTP384) {
+        hash_alg = SSH2_SHA384_ALG;
+        digest_len = SSH2_SHA384_DIG_LEN;
+    }
+    else if(type == SSH2_EC_CURVE_NISTP521) {
+        hash_alg = SSH2_SHA512_ALG;
+        digest_len = SSH2_SHA512_DIG_LEN;
+    }
+    else {
+        ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
+                       "Unexpected ecdh-sha2-nistp curve type");
+        goto clean_exit;
+    }
+
+    if(exchange_state->state == ssh2_NB_state_idle) {
         /* Setup initial values */
         exchange_state->k = ssh2_bn_init();
-
         exchange_state->state = ssh2_NB_state_created;
     }
 
@@ -1740,30 +1759,11 @@ static int kex_ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
         }
 
         /* verify hash */
-        switch(type) {
-        case SSH2_EC_CURVE_NISTP256:
-            ret = kex_method_ec_sha_hash_create_verify(session, exchange_state,
-                     public_key, public_key_len, NULL, 0,
-                     server_public_key, server_public_key_len,
-                     SSH2_SHA256_ALG, SSH2_SHA256_DIG_LEN,
-                     "Unable to verify hostkey signature ECDH");
-            break;
-        case SSH2_EC_CURVE_NISTP384:
-            ret = kex_method_ec_sha_hash_create_verify(session, exchange_state,
-                     public_key, public_key_len, NULL, 0,
-                     server_public_key, server_public_key_len,
-                     SSH2_SHA384_ALG, SSH2_SHA384_DIG_LEN,
-                     "Unable to verify hostkey signature ECDH");
-            break;
-        case SSH2_EC_CURVE_NISTP521:
-            ret = kex_method_ec_sha_hash_create_verify(session, exchange_state,
-                     public_key, public_key_len, NULL, 0,
-                     server_public_key, server_public_key_len,
-                     SSH2_SHA512_ALG, SSH2_SHA512_DIG_LEN,
-                     "Unable to verify hostkey signature ECDH");
-            break;
-        }
-
+        ret = kex_method_ec_sha_hash_create_verify(session, exchange_state,
+                 public_key, public_key_len, NULL, 0,
+                 server_public_key, server_public_key_len,
+                 hash_alg, digest_len,
+                 "Unable to verify hostkey signature ECDH");
         if(ret)
             goto clean_exit;
 
@@ -1784,26 +1784,6 @@ static int kex_ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
     }
 
     if(exchange_state->state == ssh2_NB_state_sent2) {
-        ssh2_hash_alg hash_alg;
-        size_t digest_len = 0;
-
-        if(type == SSH2_EC_CURVE_NISTP256) {
-            hash_alg = SSH2_SHA256_ALG;
-            digest_len = SSH2_SHA256_DIG_LEN;
-        }
-        else if(type == SSH2_EC_CURVE_NISTP384) {
-            hash_alg = SSH2_SHA384_ALG;
-            digest_len = SSH2_SHA384_DIG_LEN;
-        }
-        else if(type == SSH2_EC_CURVE_NISTP521) {
-            hash_alg = SSH2_SHA512_ALG;
-            digest_len = SSH2_SHA512_DIG_LEN;
-        }
-        else {
-            ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
-                           "Unrecognized SHA digest for EC curve");
-            goto clean_exit;
-        }
         ret = kex_finish(session, exchange_state, hash_alg, digest_len);
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
@@ -2006,10 +1986,8 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
     }
 
     if(exchange_state->state == ssh2_NB_state_idle) {
-
         /* Setup initial values */
         exchange_state->k = ssh2_bn_init();
-
         exchange_state->state = ssh2_NB_state_created;
     }
 
@@ -2019,6 +1997,7 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
         size_t shared_secret_len;
         size_t server_public_key_len;
         struct string_buf buf;
+        ssh2_hash_ctx k_ctx;
 
         if(!data) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -2099,70 +2078,31 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
         }
 
         /* verify hash */
-        switch(type) {
-        case SSH2_EC_CURVE_NISTP256: {
-            ssh2_hash_ctx k_ctx;
-            if(!ssh2_hash_init(&k_ctx, SSH2_SHA256_ALG)) {
-                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
-                               "kex: failed to initialize hash");
-                goto clean_exit;
-            }
-
-            if(!ssh2_hash_update(k_ctx, shared_secret, shared_secret_len)) {
-                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
-                               "kex: failed to calculate hash");
-                goto clean_exit;
-            }
-
-            if(!ssh2_hash_final(k_ctx,
-                                exchange_state->k_value + 4, digest_len)) {
-                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
-                               "kex: failed to calculate hash");
-                goto clean_exit;
-            }
-            ret = kex_method_ec_sha_hash_create_verify(session,
-                     exchange_state,
-                     public_t_key, public_t_key_len,
-                     public_pq_key, public_pq_key_len,
-                     server_public_key, server_public_key_len,
-                     SSH2_SHA256_ALG, SSH2_SHA256_DIG_LEN,
-                     "Unable to verify hostkey signature mlkemnistp");
-            break;
-        }
-        case SSH2_EC_CURVE_NISTP384: {
-            ssh2_hash_ctx k_ctx;
-            if(!ssh2_hash_init(&k_ctx, SSH2_SHA384_ALG)) {
-                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
-                               "kex: failed to initialize hash");
-                goto clean_exit;
-            }
-
-            if(!ssh2_hash_update(k_ctx, shared_secret, shared_secret_len)) {
-                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
-                               "kex: failed to calculate hash");
-                goto clean_exit;
-            }
-
-            if(!ssh2_hash_final(k_ctx,
-                                exchange_state->k_value + 4, digest_len)) {
-                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
-                               "kex: failed to calculate hash");
-                goto clean_exit;
-            }
-            ret = kex_method_ec_sha_hash_create_verify(session,
-                     exchange_state,
-                     public_t_key, public_t_key_len,
-                     public_pq_key, public_pq_key_len,
-                     server_public_key, server_public_key_len,
-                     SSH2_SHA384_ALG, SSH2_SHA384_DIG_LEN,
-                     "Unable to verify hostkey signature mlkemnistp");
-            break;
-        }
-        default:
-            ret = ssh2_err(session, -1,
-                           "Unexpected KEX hybrid nistp curve type");
+        if(!ssh2_hash_init(&k_ctx, hash_alg)) {
+            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
+                           "kex: failed to initialize hash");
+            goto clean_exit;
         }
 
+        if(!ssh2_hash_update(k_ctx, shared_secret, shared_secret_len)) {
+            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
+                           "kex: failed to calculate hash");
+            goto clean_exit;
+        }
+
+        if(!ssh2_hash_final(k_ctx,
+                            exchange_state->k_value + 4, digest_len)) {
+            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
+                           "kex: failed to calculate hash");
+            goto clean_exit;
+        }
+
+        ret = kex_method_ec_sha_hash_create_verify(session, exchange_state,
+                 public_t_key, public_t_key_len,
+                 public_pq_key, public_pq_key_len,
+                 server_public_key, server_public_key_len,
+                 hash_alg, digest_len,
+                 "Unable to verify hostkey signature mlkemnistp");
         if(ret)
             goto clean_exit;
 
@@ -2380,7 +2320,6 @@ static int kex_curve25519_sha256(
     if(exchange_state->state == ssh2_NB_state_idle) {
         /* Setup initial values */
         exchange_state->k = ssh2_bn_init();
-
         exchange_state->state = ssh2_NB_state_created;
     }
 
@@ -2662,7 +2601,6 @@ static int kex_mlkem768x25519_sha256(
     if(exchange_state->state == ssh2_NB_state_idle) {
         /* Setup initial values */
         exchange_state->k = ssh2_bn_init();
-
         exchange_state->state = ssh2_NB_state_created;
     }
 
@@ -2747,6 +2685,7 @@ static int kex_mlkem768x25519_sha256(
             goto clean_exit;
         }
 
+        /* verify hash */
         if(!ssh2_hash_init(&k_ctx, SSH2_SHA256_ALG)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
                            "kex: failed to initialize hash");
@@ -2768,9 +2707,7 @@ static int kex_mlkem768x25519_sha256(
             goto clean_exit;
         }
 
-        /* verify hash */
-        ret = kex_method_ec_sha_hash_create_verify(session,
-                 exchange_state,
+        ret = kex_method_ec_sha_hash_create_verify(session, exchange_state,
                  public_t_key, public_t_key_len,
                  public_pq_key, public_pq_key_len,
                  server_public_key, server_public_key_len,
