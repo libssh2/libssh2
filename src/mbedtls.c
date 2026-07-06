@@ -191,8 +191,10 @@ int ssh2_mbed_hash_final(psa_hash_operation_t *ctx,
                          unsigned char *hash, size_t len)
 {
     size_t actual_len;
-    if(!hash)
+    if(!hash) {
+        (void)psa_hash_abort(ctx);
         return 0;
+    }
     return psa_hash_finish(ctx, hash, len, &actual_len) == PSA_SUCCESS;
 }
 
