@@ -118,8 +118,7 @@ static int kex_proc_hostkey(LIBSSH2_SESSION *session, struct string_buf *buf,
         session->server_hostkey_len = 0;
     }
 
-    if(ssh2_copy_string(session, buf, &(session->server_hostkey),
-                        &host_key_len))
+    if(ssh2_copy_string(session, buf, &session->server_hostkey, &host_key_len))
         return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                         "Could not copy host key");
 
@@ -583,8 +582,8 @@ static int kex_diffie_hellman_sha(LIBSSH2_SESSION *session,
         if(ret)
             goto clean_exit;
 
-        if(ssh2_get_string(&buf, &(exchange_state->f_value),
-                           &(exchange_state->f_value_len))) {
+        if(ssh2_get_string(&buf, &exchange_state->f_value,
+                           &exchange_state->f_value_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                            "Unable to get DH-SHA f value");
             goto clean_exit;
@@ -598,8 +597,8 @@ static int kex_diffie_hellman_sha(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
 
-        if(ssh2_get_string(&buf, &(exchange_state->h_sig),
-                           &(exchange_state->h_sig_len))) {
+        if(ssh2_get_string(&buf, &exchange_state->h_sig,
+                           &exchange_state->h_sig_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                            "Unable to get DH-SHA h sig");
             goto clean_exit;
@@ -1682,7 +1681,7 @@ static int kex_ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
 
         /* server signature */
         if(ssh2_get_string(&buf, &exchange_state->h_sig,
-                           &(exchange_state->h_sig_len))) {
+                           &exchange_state->h_sig_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                            "Unexpected ECDH server sig length");
             goto clean_exit;
@@ -1992,7 +1991,7 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
 
         /* server signature */
         if(ssh2_get_string(&buf, &exchange_state->h_sig,
-                           &(exchange_state->h_sig_len))) {
+                           &exchange_state->h_sig_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                            "Unexpected mlkemnistp server sig length");
             goto clean_exit;
@@ -2311,7 +2310,7 @@ static int kex_curve25519_sha256(
 
         /* server signature */
         if(ssh2_get_string(&buf, &exchange_state->h_sig,
-                           &(exchange_state->h_sig_len))) {
+                           &exchange_state->h_sig_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                            "Unexpected curve25519 server sig length");
             goto clean_exit;
@@ -2597,7 +2596,7 @@ static int kex_mlkem768x25519_sha256(
 
         /* server signature */
         if(ssh2_get_string(&buf, &exchange_state->h_sig,
-                           &(exchange_state->h_sig_len))) {
+                           &exchange_state->h_sig_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                            "Unexpected mlkem768x25519 server sig length");
             goto clean_exit;

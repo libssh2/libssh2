@@ -89,29 +89,29 @@ static SSH2_INLINE int packet_queue_listener(
 
         buf.dataptr += offset;
 
-        if(ssh2_get_u32(&buf, &(listen_state->sender_channel)))
+        if(ssh2_get_u32(&buf, &listen_state->sender_channel))
             return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                             "Data too short extracting channel");
-        if(ssh2_get_u32(&buf, &(listen_state->initial_window_size)))
+        if(ssh2_get_u32(&buf, &listen_state->initial_window_size))
             return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                             "Data too short extracting window size");
-        if(ssh2_get_u32(&buf, &(listen_state->packet_size)))
+        if(ssh2_get_u32(&buf, &listen_state->packet_size))
             return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                             "Data too short extracting packet");
-        if(ssh2_get_string(&buf, &(listen_state->host), &temp_len))
+        if(ssh2_get_string(&buf, &listen_state->host, &temp_len))
             return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                             "Data too short extracting host");
         listen_state->host_len = (uint32_t)temp_len;
 
-        if(ssh2_get_u32(&buf, &(listen_state->port)))
+        if(ssh2_get_u32(&buf, &listen_state->port))
             return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                             "Data too short extracting port");
-        if(ssh2_get_string(&buf, &(listen_state->shost), &temp_len))
+        if(ssh2_get_string(&buf, &listen_state->shost, &temp_len))
             return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                             "Data too short extracting shost");
         listen_state->shost_len = (uint32_t)temp_len;
 
-        if(ssh2_get_u32(&buf, &(listen_state->sport)))
+        if(ssh2_get_u32(&buf, &listen_state->sport))
             return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                             "Data too short extracting sport");
 
@@ -289,18 +289,18 @@ static SSH2_INLINE int packet_x11_open(
 
         buf.dataptr += offset;
 
-        if(ssh2_get_u32(&buf, &(x11open_state->sender_channel))) {
+        if(ssh2_get_u32(&buf, &x11open_state->sender_channel)) {
             ssh2_err(session, LIBSSH2_ERROR_INVAL,
                      "unexpected sender channel size");
             failure_code = SSH_OPEN_CONNECT_FAILED;
             goto x11_exit;
         }
-        if(ssh2_get_u32(&buf, &(x11open_state->initial_window_size))) {
+        if(ssh2_get_u32(&buf, &x11open_state->initial_window_size)) {
             ssh2_err(session, LIBSSH2_ERROR_INVAL, "unexpected window size");
             failure_code = SSH_OPEN_CONNECT_FAILED;
             goto x11_exit;
         }
-        if(ssh2_get_u32(&buf, &(x11open_state->packet_size))) {
+        if(ssh2_get_u32(&buf, &x11open_state->packet_size)) {
             ssh2_err(session, LIBSSH2_ERROR_INVAL, "unexpected packet size");
             failure_code = SSH_OPEN_CONNECT_FAILED;
             goto x11_exit;
@@ -323,7 +323,7 @@ static SSH2_INLINE int packet_x11_open(
         memcpy(x11open_state->shost, temp_buf, x11open_state->shost_len);
         x11open_state->shost[x11open_state->shost_len] = '\0';
 
-        if(ssh2_get_u32(&buf, &(x11open_state->sport))) {
+        if(ssh2_get_u32(&buf, &x11open_state->sport)) {
             ssh2_err(session, LIBSSH2_ERROR_INVAL, "unexpected port size");
             failure_code = SSH_OPEN_CONNECT_FAILED;
             goto x11_exit;
@@ -471,13 +471,13 @@ static SSH2_INLINE int packet_authagent_open(
     buf.dataptr += offset;
 
     if(authagent_state->state == ssh2_NB_state_idle) {
-        if(ssh2_get_u32(&buf, &(authagent_state->sender_channel)))
+        if(ssh2_get_u32(&buf, &authagent_state->sender_channel))
             return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                             "Data too short extracting channel");
-        if(ssh2_get_u32(&buf, &(authagent_state->initial_window_size)))
+        if(ssh2_get_u32(&buf, &authagent_state->initial_window_size))
             return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                             "Data too short extracting window size");
-        if(ssh2_get_u32(&buf, &(authagent_state->packet_size)))
+        if(ssh2_get_u32(&buf, &authagent_state->packet_size))
             return ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                             "Data too short extracting packet");
 
