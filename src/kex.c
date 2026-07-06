@@ -2064,8 +2064,7 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
 
-        if(!ssh2_hash_final(k_ctx,
-                            exchange_state->k_value + 4, digest_len)) {
+        if(!ssh2_hash_final(k_ctx, exchange_state->k_value + 4, digest_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                            "kex: failed to calculate hash");
             goto clean_exit;
