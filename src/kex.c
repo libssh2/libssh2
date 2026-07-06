@@ -1681,10 +1681,8 @@ static int kex_ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
     }
 
     if(exchange_state->state == ssh2_NB_state_idle) {
-
         /* Setup initial values */
         exchange_state->k = ssh2_bn_init();
-
         exchange_state->state = ssh2_NB_state_created;
     }
 
@@ -1988,10 +1986,8 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
     }
 
     if(exchange_state->state == ssh2_NB_state_idle) {
-
         /* Setup initial values */
         exchange_state->k = ssh2_bn_init();
-
         exchange_state->state = ssh2_NB_state_created;
     }
 
@@ -2324,7 +2320,6 @@ static int kex_curve25519_sha256(
     if(exchange_state->state == ssh2_NB_state_idle) {
         /* Setup initial values */
         exchange_state->k = ssh2_bn_init();
-
         exchange_state->state = ssh2_NB_state_created;
     }
 
@@ -2606,7 +2601,6 @@ static int kex_mlkem768x25519_sha256(
     if(exchange_state->state == ssh2_NB_state_idle) {
         /* Setup initial values */
         exchange_state->k = ssh2_bn_init();
-
         exchange_state->state = ssh2_NB_state_created;
     }
 
