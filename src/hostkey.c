@@ -180,8 +180,8 @@ static int hostkey_method_ssh_rsa_initPEMFromMemory(
     }
 
     if(ssh2_rsa_new_private_frommemory(&rsactx, session,
-                                          privkeyfiledata,
-                                          privkeyfiledata_len, passphrase))
+                                       privkeyfiledata, privkeyfiledata_len,
+                                       passphrase))
         return -1;
 
     *abstract = rsactx;
@@ -242,7 +242,7 @@ static int hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION *session,
         return -1;
 
     if(ssh2_rsa_sha1_sign(session, rsactx, hash, SSH2_SHA1_DIG_LEN,
-                             signature, signature_len))
+                          signature, signature_len))
         return -1;
 
     return 0;
@@ -306,7 +306,7 @@ static int hostkey_method_ssh_rsa_sha2_256_signv(LIBSSH2_SESSION *session,
         return -1;
 
     if(ssh2_rsa_sha2_sign(session, rsactx, hash, SSH2_SHA256_DIG_LEN,
-                             signature, signature_len))
+                          signature, signature_len))
         return -1;
 
     return 0;
@@ -368,7 +368,7 @@ static int hostkey_method_ssh_rsa_sha2_512_signv(LIBSSH2_SESSION *session,
         return -1;
 
     if(ssh2_rsa_sha2_sign(session, rsactx, hash, SSH2_SHA512_DIG_LEN,
-                             signature, signature_len))
+                          signature, signature_len))
         return -1;
 
     return 0;
@@ -574,8 +574,8 @@ static int hostkey_method_ssh_dss_initPEMFromMemory(
     }
 
     if(ssh2_dsa_new_private_frommemory(&dsactx, session,
-                                          privkeyfiledata,
-                                          privkeyfiledata_len, passphrase))
+                                       privkeyfiledata, privkeyfiledata_len,
+                                       passphrase))
         return -1;
 
     *abstract = dsactx;
@@ -799,9 +799,8 @@ static int hostkey_method_ssh_ecdsa_initPEMFromMemory(
     }
 
     if(ssh2_ecdsa_new_private_frommemory(&ec_ctx, session,
-                                            privkeyfiledata,
-                                            privkeyfiledata_len,
-                                            passphrase))
+                                         privkeyfiledata, privkeyfiledata_len,
+                                         passphrase))
         return -1;
 
     if(abstract)
@@ -1137,9 +1136,9 @@ static int hostkey_method_ssh_ed25519_initPEMFromMemory(
     }
 
     if(ssh2_ed25519_new_private_frommemory(&ed_ctx, session,
-                                              privkeyfiledata,
-                                              privkeyfiledata_len,
-                                              passphrase))
+                                           privkeyfiledata,
+                                           privkeyfiledata_len,
+                                           passphrase))
         return -1;
 
     if(abstract)
