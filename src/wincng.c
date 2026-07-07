@@ -754,9 +754,9 @@ int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg alg)
 }
 
 int ssh2_hash_update(ssh2_hash_ctx *ctx,
-                     const unsigned char *input, int input_len)
+                     const unsigned char *input, size_t input_len)
 {
-    return (ULONG)input_len <= ULONG_MAX &&
+    return input_len <= ULONG_MAX &&
         BCRYPT_SUCCESS(BCryptHashData(ctx->hHash, SSH2_UNCONST(input),
                                       (ULONG)input_len, 0));
 }

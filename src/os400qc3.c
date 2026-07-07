@@ -933,15 +933,16 @@ int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg alg)
 }
 
 int ssh2_hash_update(ssh2_hash_ctx *ctx,
-                     const unsigned char *input, int input_len)
+                     const unsigned char *input, size_t input_len)
 {
     char dummy[64];
     Qus_EC_t errcode;
+    int len = (int)input_len;
 
     ctx->Final_Op_Flag = Qc3_Continue;
     set_EC_length(errcode, sizeof(errcode));
-    Qc3CalculateHash((char *)input, &input_len, Qc3_Data, (char *)ctx,
-                     Qc3_Alg_Token, anycsp, NULL, dummy, &errcode);
+    Qc3CalculateHash((char *)input, &len, Qc3_Data, (char *)ctx, Qc3_Alg_Token,
+                     anycsp, NULL, dummy, &errcode);
     return errcode.Bytes_Available ? 0 : 1;
 }
 

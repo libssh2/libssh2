@@ -103,7 +103,7 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx);
 int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg alg);
 #ifndef ssh2_hash_update
 int ssh2_hash_update(ssh2_hash_ctx *ctx,
-                     const unsigned char *input, int input_len);
+                     const unsigned char *input, size_t input_len);
 #endif
 int ssh2_hash_final(ssh2_hash_ctx *ctx,
                     unsigned char *digest, size_t digest_len);
