@@ -241,8 +241,9 @@ int ssh2_random(unsigned char *buf, size_t len);
 int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const EVP_MD *digest);
 int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out, size_t outlen);
 
-#define ssh2_hash_ctx                 EVP_MD_CTX *
-#define ssh2_hash_alg                 const EVP_MD *
+#define ssh2_hash_ctx                EVP_MD_CTX *
+#define ssh2_hash_alg                const EVP_MD *
+#define ssh2_hash_update(ctx, d, l)  EVP_DigestUpdate(*(ctx), d, l)
 
 #define SSH2_SHA1_ALG   EVP_sha1()
 #define SSH2_SHA256_ALG EVP_sha256()
@@ -251,8 +252,6 @@ int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out, size_t outlen);
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #define SSH2_MD5_ALG    EVP_md5()
 #endif
-
-#define ssh2_hash_update(ctx, d, l)  EVP_DigestUpdate(*(ctx), d, l)
 
 #ifdef USE_OPENSSL_3
 #define ssh2_hmac_ctx EVP_MAC_CTX *
