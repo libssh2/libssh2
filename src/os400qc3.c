@@ -995,7 +995,18 @@ int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
                    void *key, size_t keylen)
 {
-    return os400qc3_hmac_init(ctx, alg, keylen, key, keylen);
+    size_t minkeylen;
+    if(alg == SSH2_MD5_HMAC)
+        minkeylen = SSH2_MD5_DIG_LEN;
+    else if(alg == SSH2_SHA1_HMAC)
+        minkeylen = SSH2_SHA1_DIG_LEN;
+    else if(alg == SSH2_SHA256_HMAC)
+        minkeylen = SSH2_SHA256_DIG_LEN;
+    else if(alg == SSH2_SHA512_HMAC)
+        minkeylen = SSH2_SHA512_DIG_LEN;
+    else
+        return 0;
+    return os400qc3_hmac_init(ctx, alg, minkeylen, key, keylen);
 }
 
 int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
