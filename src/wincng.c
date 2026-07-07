@@ -706,22 +706,22 @@ int ssh2_random(unsigned char *buf, size_t len)
  * Windows CNG backend: Hash functions
  */
 
-int ssh2_wcng_hash_init(struct wcng_hash_ctx *ctx, BCRYPT_ALG_HANDLE hAlg,
-                        unsigned char *key, ULONG keylen)
+static int ssh2_hash_init_low(ssh2_hash_ctx *ctx, ssh2_hash_alg alg,
+                              unsigned char *key, ULONG keylen)
 {
     BCRYPT_HASH_HANDLE hHash;
     unsigned char *pbHashObject;
     ULONG dwHashObject, dwHash, cbData;
     int ret;
 
-    ret = BCryptGetProperty(hAlg, BCRYPT_HASH_LENGTH,
+    ret = BCryptGetProperty(alg, BCRYPT_HASH_LENGTH,
                             (unsigned char *)&dwHash,
                             sizeof(dwHash),
                             &cbData, 0);
     if(!BCRYPT_SUCCESS(ret))
         return 0;
 
-    ret = BCryptGetProperty(hAlg, BCRYPT_OBJECT_LENGTH,
+    ret = BCryptGetProperty(alg, BCRYPT_OBJECT_LENGTH,
                             (unsigned char *)&dwHashObject,
                             sizeof(dwHashObject),
                             &cbData, 0);
@@ -732,7 +732,7 @@ int ssh2_wcng_hash_init(struct wcng_hash_ctx *ctx, BCRYPT_ALG_HANDLE hAlg,
     if(!pbHashObject)
         return 0;
 
-    ret = BCryptCreateHash(hAlg, &hHash,
+    ret = BCryptCreateHash(alg, &hHash,
                            pbHashObject, dwHashObject,
                            key, keylen, 0);
     if(!BCRYPT_SUCCESS(ret)) {
@@ -748,21 +748,24 @@ int ssh2_wcng_hash_init(struct wcng_hash_ctx *ctx, BCRYPT_ALG_HANDLE hAlg,
     return 1;
 }
 
-int ssh2_wcng_hash_update(struct wcng_hash_ctx *ctx,
-                          const void *data, size_t datalen)
+int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg alg)
 {
-    return datalen <= ULONG_MAX &&
-        BCRYPT_SUCCESS(BCryptHashData(ctx->hHash,
-                                      SSH2_UNCONST(data), (ULONG)datalen, 0));
+    return ssh2_hash_init_low(ctx, alg, NULL, 0);
 }
 
-int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx, unsigned char *hash,
-                         size_t hashlen)
+int ssh2_hash_update(ssh2_hash_ctx *ctx, const void *input, size_t input_len)
+{
+    return input_len <= ULONG_MAX &&
+        BCRYPT_SUCCESS(BCryptHashData(ctx->hHash, SSH2_UNCONST(input),
+                                      (ULONG)input_len, 0));
+}
+
+int ssh2_hash_final(ssh2_hash_ctx *ctx, void *digest, size_t digest_len)
 {
     int ret = 0;
 
-    if(hashlen >= ctx->cbHash &&
-       BCRYPT_SUCCESS(BCryptFinishHash(ctx->hHash, hash, ctx->cbHash, 0)))
+    if(digest_len >= ctx->cbHash &&
+       BCRYPT_SUCCESS(BCryptFinishHash(ctx->hHash, digest, ctx->cbHash, 0)))
         ret = 1;
 
     BCryptDestroyHash(ctx->hHash);
@@ -772,22 +775,6 @@ int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx, unsigned char *hash,
     ctx->pbHashObject = NULL;
     ctx->dwHashObject = 0;
     ctx->cbHash = 0;
-
-    return ret;
-}
-
-static int wcng_hash(const unsigned char *data, ULONG datalen,
-                     BCRYPT_ALG_HANDLE hAlg,
-                     unsigned char *hash, ULONG hashlen)
-{
-    struct wcng_hash_ctx ctx;
-    int ret;
-
-    ret = ssh2_wcng_hash_init(&ctx, hAlg, NULL, 0);
-    if(ret) {
-        ret = ssh2_wcng_hash_update(&ctx, data, datalen);
-        ret &= ssh2_wcng_hash_final(&ctx, hash, hashlen);
-    }
 
     return ret;
 }
@@ -806,32 +793,32 @@ int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 #if LIBSSH2_MD5
 int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    return ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHmacMD5,
-                               key, (ULONG)keylen);
+    return ssh2_hash_init_low(ctx, ssh2_wcng.hAlgHmacMD5,
+                              key, (ULONG)keylen);
 }
 #endif
 
 int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    return ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHmacSHA1,
-                               key, (ULONG)keylen);
+    return ssh2_hash_init_low(ctx, ssh2_wcng.hAlgHmacSHA1,
+                              key, (ULONG)keylen);
 }
 
 int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    return ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHmacSHA256,
-                               key, (ULONG)keylen);
+    return ssh2_hash_init_low(ctx, ssh2_wcng.hAlgHmacSHA256,
+                              key, (ULONG)keylen);
 }
 
 int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
-    return ssh2_wcng_hash_init(ctx, ssh2_wcng.hAlgHmacSHA512,
-                               key, (ULONG)keylen);
+    return ssh2_hash_init_low(ctx, ssh2_wcng.hAlgHmacSHA512,
+                              key, (ULONG)keylen);
 }
 
 int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
 {
-    return ssh2_wcng_hash_update(ctx, data, datalen);
+    return ssh2_hash_update(ctx, data, datalen);
 }
 
 int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen)
@@ -861,26 +848,26 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx, ULONG hashlen,
                                ULONG flags)
 {
     BCRYPT_PKCS1_PADDING_INFO paddingInfoPKCS1;
-    BCRYPT_ALG_HANDLE hAlgHash;
+    ssh2_hash_alg hash_alg;
     void *pPaddingInfo;
     unsigned char *data, *hash;
     ULONG datalen;
     int ret;
 
     if(hashlen == SSH2_SHA1_DIG_LEN) {
-        hAlgHash = ssh2_wcng.hAlgHashSHA1;
+        hash_alg = SSH2_SHA1_ALG;
         paddingInfoPKCS1.pszAlgId = BCRYPT_SHA1_ALGORITHM;
     }
     else if(hashlen == SSH2_SHA256_DIG_LEN) {
-        hAlgHash = ssh2_wcng.hAlgHashSHA256;
+        hash_alg = SSH2_SHA256_ALG;
         paddingInfoPKCS1.pszAlgId = BCRYPT_SHA256_ALGORITHM;
     }
     else if(hashlen == SSH2_SHA384_DIG_LEN) {
-        hAlgHash = ssh2_wcng.hAlgHashSHA384;
+        hash_alg = SSH2_SHA384_ALG;
         paddingInfoPKCS1.pszAlgId = BCRYPT_SHA384_ALGORITHM;
     }
     else if(hashlen == SSH2_SHA512_DIG_LEN) {
-        hAlgHash = ssh2_wcng.hAlgHashSHA512;
+        hash_alg = SSH2_SHA512_ALG;
         paddingInfoPKCS1.pszAlgId = BCRYPT_SHA512_ALGORITHM;
     }
     else
@@ -898,7 +885,7 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx, ULONG hashlen,
     }
     memcpy(data, m, datalen);
 
-    ret = wcng_hash(data, datalen, hAlgHash, hash, hashlen);
+    ret = ssh2_hash(hash_alg, data, datalen, hash, hashlen);
     wcng_zero_free(data, datalen);
 
     if(!ret) {
@@ -2367,16 +2354,14 @@ int ssh2_ecdsa_verify(IN ssh2_ecdsa_ctx *ec_ctx,
 
     PUCHAR signature_p1363 = NULL;
     size_t signature_p1363_len;
-    ULONG hash_len;
+    size_t hash_len;
     PUCHAR hash = NULL;
-    BCRYPT_ALG_HANDLE hash_alg;
+    ssh2_hash_alg hash_alg;
 
     /* CNG expects signatures in IEEE P-1363 format. */
     result = wcng_p1363signature_from_point(
-        r,
-        r_len,
-        s,
-        s_len,
+        r, r_len,
+        s, s_len,
         ssh2_ecdsa_get_curve_type(ec_ctx),
         &signature_p1363,
         &signature_p1363_len);
@@ -2386,18 +2371,18 @@ int ssh2_ecdsa_verify(IN ssh2_ecdsa_ctx *ec_ctx,
     /* Create hash over m */
     switch(ssh2_ecdsa_get_curve_type(ec_ctx)) {
     case SSH2_EC_CURVE_NISTP256:
-        hash_len = 256 / 8;
-        hash_alg = ssh2_wcng.hAlgHashSHA256;
+        hash_len = SSH2_SHA256_DIG_LEN;
+        hash_alg = SSH2_SHA256_ALG;
         break;
 
     case SSH2_EC_CURVE_NISTP384:
-        hash_len = 384 / 8;
-        hash_alg = ssh2_wcng.hAlgHashSHA384;
+        hash_len = SSH2_SHA384_DIG_LEN;
+        hash_alg = SSH2_SHA384_ALG;
         break;
 
     case SSH2_EC_CURVE_NISTP521:
-        hash_len = 512 / 8;
-        hash_alg = ssh2_wcng.hAlgHashSHA512;
+        hash_len = SSH2_SHA512_DIG_LEN;
+        hash_alg = SSH2_SHA512_ALG;
         break;
 
     default:
@@ -2409,7 +2394,7 @@ int ssh2_ecdsa_verify(IN ssh2_ecdsa_ctx *ec_ctx,
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
     }
-    if(!wcng_hash(m, (ULONG)m_len, hash_alg, hash, hash_len)) {
+    if(!ssh2_hash(hash_alg, m, m_len, hash, hash_len)) {
         result = LIBSSH2_ERROR_PUBLICKEY_PROTOCOL;
         goto cleanup;
     }
@@ -2419,7 +2404,7 @@ int ssh2_ecdsa_verify(IN ssh2_ecdsa_ctx *ec_ctx,
         ec_ctx->handle,
         NULL,
         hash,
-        hash_len,
+        (ULONG)hash_len,
         signature_p1363,
         (ULONG)signature_p1363_len,
         0);

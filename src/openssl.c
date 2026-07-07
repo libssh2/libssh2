@@ -56,18 +56,19 @@ void ssh2_crypto_init(void)
 #endif
 }
 
-int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const EVP_MD *digest)
+int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg alg)
 {
 #if !defined(USE_OPENSSL_3) && \
     !defined(LIBRESSL_VERSION_NUMBER) && \
-    !defined(LIBSSH2_WOLFSSL)
+    !defined(LIBSSH2_WOLFSSL) && \
+    (LIBSSH2_MD5 || LIBSSH2_MD5_PEM)
     /* OpenSSL 1.1.1
      * MD5 digest is not supported in OpenSSL FIPS mode
      * Trying to init it results in a latent OpenSSL error:
      * "digital envelope routines:FIPS_DIGESTINIT:disabled for fips"
      * Thus, return 0 in FIPS mode
      */
-    if(digest == EVP_md5() && FIPS_mode()) {
+    if(alg == SSH2_MD5_ALG && FIPS_mode()) {
         *ctx = NULL;
         return 0;
     }
@@ -77,7 +78,7 @@ int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const EVP_MD *digest)
     if(!*ctx)
         return 0;
 
-    if(EVP_DigestInit_ex(*ctx, digest, NULL))
+    if(EVP_DigestInit_ex(*ctx, alg, NULL))
         return 1;
 
     EVP_MD_CTX_free(*ctx);
@@ -86,29 +87,12 @@ int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const EVP_MD *digest)
     return 0;
 }
 
-int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out, size_t outlen)
+int ssh2_hash_final(ssh2_hash_ctx *ctx, void *digest, size_t digest_len)
 {
-    int ret = EVP_DigestFinal_ex(*ctx, out, NULL);
-    (void)outlen;
+    int ret = EVP_DigestFinal_ex(*ctx, digest, NULL);
+    (void)digest_len;
     EVP_MD_CTX_free(*ctx);
     *ctx = NULL;
-    return ret;
-}
-
-static int ossl_hash(const unsigned char *message, size_t len,
-                     unsigned char *out, const EVP_MD *digest)
-{
-    int ret = 1; /* error */
-    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
-
-    if(ctx) {
-        if(EVP_DigestInit_ex(ctx, digest, NULL) &&
-           EVP_DigestUpdate(ctx, message, len) &&
-           EVP_DigestFinal_ex(ctx, out, NULL))
-            ret = 0; /* success */
-        EVP_MD_CTX_free(ctx);
-    }
-
     return ret;
 }
 
@@ -441,27 +425,29 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
 
     if(hash_len == SSH2_SHA1_DIG_LEN) {
         nid_type = NID_sha1;
-        ret = ossl_hash(m, m_len, hash, EVP_sha1());
+        ret = ssh2_hash(SSH2_SHA1_ALG, m, m_len, hash, hash_len);
     }
     else if(hash_len == SSH2_SHA256_DIG_LEN) {
         nid_type = NID_sha256;
-        ret = ossl_hash(m, m_len, hash, EVP_sha256());
+        ret = ssh2_hash(SSH2_SHA256_ALG, m, m_len, hash, hash_len);
     }
     else if(hash_len == SSH2_SHA512_DIG_LEN) {
         nid_type = NID_sha512;
-        ret = ossl_hash(m, m_len, hash, EVP_sha512());
+        ret = ssh2_hash(SSH2_SHA512_ALG, m, m_len, hash, hash_len);
     }
     else {
         nid_type = 0;
-        ret = -1; /* unsupported digest */
+        ret = 0; /* unsupported digest */
     }
 
-    if(ret) {
+    if(!ret) {
         free(hash);
         return -1; /* failure */
     }
 
 #ifdef USE_OPENSSL_3
+    ret = 0;
+
     ctx = EVP_PKEY_CTX_new(rsa, NULL);
 
     if(nid_type == NID_sha1)
@@ -656,11 +642,9 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
     ctx = EVP_PKEY_CTX_new(dsa, NULL);
     der_len = i2d_DSA_SIG(dsasig, &der);
 
-    if(ctx && !ossl_hash(m, m_len, hash, EVP_sha1())) {
-        /* ossl_hash() succeeded */
+    if(ctx && ssh2_hash(SSH2_SHA1_ALG, m, m_len, hash, sizeof(hash)))
         if(EVP_PKEY_verify_init(ctx) > 0)
             ret = EVP_PKEY_verify(ctx, der, der_len, hash, SSH2_SHA1_DIG_LEN);
-    }
 
     if(ctx)
         EVP_PKEY_CTX_free(ctx);
@@ -668,8 +652,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
     if(der)
         OPENSSL_clear_free(der, der_len);
 #else
-    if(!ossl_hash(m, m_len, hash, EVP_sha1()))
-        /* ossl_hash() succeeded */
+    if(ssh2_hash(SSH2_SHA1_ALG, m, m_len, hash, sizeof(hash)))
         ret = DSA_do_verify(hash, SSH2_SHA1_DIG_LEN, dsasig, dsa);
 #endif
 
@@ -864,7 +847,7 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
 
     if(type == SSH2_EC_CURVE_NISTP256) {
         unsigned char hash[SSH2_SHA256_DIG_LEN];
-        if(ossl_hash(m, m_len, hash, EVP_sha256()) == 0) {
+        if(ssh2_hash(SSH2_SHA256_ALG, m, m_len, hash, sizeof(hash))) {
             ret = EVP_PKEY_verify_init(ctx);
             if(ret > 0)
                 ret = EVP_PKEY_verify(ctx, der, der_len, hash, sizeof(hash));
@@ -872,7 +855,7 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
     }
     else if(type == SSH2_EC_CURVE_NISTP384) {
         unsigned char hash[SSH2_SHA384_DIG_LEN];
-        if(ossl_hash(m, m_len, hash, EVP_sha384()) == 0) {
+        if(ssh2_hash(SSH2_SHA384_ALG, m, m_len, hash, sizeof(hash))) {
             ret = EVP_PKEY_verify_init(ctx);
             if(ret > 0)
                 ret = EVP_PKEY_verify(ctx, der, der_len, hash, sizeof(hash));
@@ -880,7 +863,7 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
     }
     else if(type == SSH2_EC_CURVE_NISTP521) {
         unsigned char hash[SSH2_SHA512_DIG_LEN];
-        if(ossl_hash(m, m_len, hash, EVP_sha512()) == 0) {
+        if(ssh2_hash(SSH2_SHA512_ALG, m, m_len, hash, sizeof(hash))) {
             ret = EVP_PKEY_verify_init(ctx);
             if(ret > 0)
                 ret = EVP_PKEY_verify(ctx, der, der_len, hash, sizeof(hash));
@@ -896,17 +879,17 @@ cleanup:
 #else
     if(type == SSH2_EC_CURVE_NISTP256) {
         unsigned char hash[SSH2_SHA256_DIG_LEN];
-        if(ossl_hash(m, m_len, hash, EVP_sha256()) == 0)
+        if(ssh2_hash(SSH2_SHA256_ALG, m, m_len, hash, sizeof(hash)))
             ret = ECDSA_do_verify(hash, sizeof(hash), ecdsa_sig, ec_key);
     }
     else if(type == SSH2_EC_CURVE_NISTP384) {
         unsigned char hash[SSH2_SHA384_DIG_LEN];
-        if(ossl_hash(m, m_len, hash, EVP_sha384()) == 0)
+        if(ssh2_hash(SSH2_SHA384_ALG, m, m_len, hash, sizeof(hash)))
             ret = ECDSA_do_verify(hash, sizeof(hash), ecdsa_sig, ec_key);
     }
     else if(type == SSH2_EC_CURVE_NISTP521) {
         unsigned char hash[SSH2_SHA512_DIG_LEN];
-        if(ossl_hash(m, m_len, hash, EVP_sha512()) == 0)
+        if(ssh2_hash(SSH2_SHA512_ALG, m, m_len, hash, sizeof(hash)))
             ret = ECDSA_do_verify(hash, sizeof(hash), ecdsa_sig, ec_key);
     }
 #endif

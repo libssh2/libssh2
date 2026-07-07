@@ -145,6 +145,8 @@ struct mbed_hash_ctx {
 
 #define ssh2_hash_ctx   psa_hash_operation_t
 #define ssh2_hash_alg   psa_algorithm_t
+#define ssh2_hash_update(ctx, d, l) \
+    (psa_hash_update(ctx, (const uint8_t *)(d), l) == PSA_SUCCESS)
 
 #define SSH2_SHA1_ALG   PSA_ALG_SHA_1
 #define SSH2_SHA256_ALG PSA_ALG_SHA_256
@@ -153,15 +155,6 @@ struct mbed_hash_ctx {
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #define SSH2_MD5_ALG    PSA_ALG_MD5
 #endif
-
-#define ssh2_hash_init(ctx, alg)    ssh2_mbed_hash_init(ctx, alg)
-#define ssh2_hash_update(ctx, d, l) \
-    (psa_hash_update(ctx, (const uint8_t *)(d), l) == PSA_SUCCESS)
-#define ssh2_hash_final(ctx, h, l)  ssh2_mbed_hash_final(ctx, h, l)
-
-int ssh2_mbed_hash_init(psa_hash_operation_t *ctx, psa_algorithm_t alg);
-int ssh2_mbed_hash_final(psa_hash_operation_t *ctx,
-                         unsigned char *hash, size_t len);
 
 /*******************************************************************/
 /*
