@@ -285,25 +285,25 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         int hok;
 
         /* Perform key derivation (PBKDF1/MD5) */
-        hok = ssh2_hash_init(ctx, SSH2_MD5_ALG);
+        hok = ssh2_hash_init(&ctx, SSH2_MD5_ALG);
         if(hok) {
-            hok &= ssh2_hash_update(ctx, passphrase,
+            hok &= ssh2_hash_update(&ctx, passphrase,
                                     strlen((const char *)passphrase));
-            hok &= ssh2_hash_update(ctx, iv, 8);
-            hok &= ssh2_hash_final(ctx, secret, SSH2_MD5_DIG_LEN);
+            hok &= ssh2_hash_update(&ctx, iv, 8);
+            hok &= ssh2_hash_final(&ctx, secret, SSH2_MD5_DIG_LEN);
         }
         if(!hok) {
             ret = -1;
             goto out;
         }
         if(method->secret_len > SSH2_MD5_DIG_LEN) {
-            hok = ssh2_hash_init(ctx, SSH2_MD5_ALG);
+            hok = ssh2_hash_init(&ctx, SSH2_MD5_ALG);
             if(hok) {
-                hok &= ssh2_hash_update(ctx, secret, SSH2_MD5_DIG_LEN);
-                hok &= ssh2_hash_update(ctx, passphrase,
+                hok &= ssh2_hash_update(&ctx, secret, SSH2_MD5_DIG_LEN);
+                hok &= ssh2_hash_update(&ctx, passphrase,
                                         strlen((const char *)passphrase));
-                hok &= ssh2_hash_update(ctx, iv, 8);
-                hok &= ssh2_hash_final(ctx, secret + SSH2_MD5_DIG_LEN,
+                hok &= ssh2_hash_update(&ctx, iv, 8);
+                hok &= ssh2_hash_final(&ctx, secret + SSH2_MD5_DIG_LEN,
                                        SSH2_MD5_DIG_LEN);
             }
             if(!hok) {
