@@ -252,7 +252,7 @@ int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out, size_t outlen);
 #define SSH2_MD5_ALG    EVP_md5()
 #endif
 
-#define ssh2_hash_init(pctx, alg)     ssh2_ossl_hash_init(pctx, alg)
+#define ssh2_hash_init(ctx, alg)      ssh2_ossl_hash_init(&(ctx), alg)
 #define ssh2_hash_update(ctx, d, l)   EVP_DigestUpdate(ctx, d, l)
 #define ssh2_hash_final(ctx, h, l)    ssh2_ossl_hash_final(&(ctx), h, l)
 

@@ -335,7 +335,7 @@ int ssh2_hash(ssh2_hash_alg alg, const void *input, size_t input_len,
               unsigned char *digest, size_t digest_len)
 {
     ssh2_hash_ctx ctx;
-    int success = ssh2_hash_init(&ctx, alg);
+    int success = ssh2_hash_init(ctx, alg);
     if(success) {
         success &= ssh2_hash_update(ctx, input, input_len);
         success &= ssh2_hash_final(ctx, digest, digest_len);

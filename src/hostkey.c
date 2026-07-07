@@ -230,7 +230,7 @@ static int hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION *session,
     unsigned char hash[SSH2_SHA1_DIG_LEN];
     ssh2_hash_ctx ctx;
 
-    if(!ssh2_hash_init(&ctx, SSH2_SHA1_ALG))
+    if(!ssh2_hash_init(ctx, SSH2_SHA1_ALG))
         return -1;
     for(i = 0; i < veccount; i++) {
         if(!ssh2_hash_update(ctx, datavec[i].iov_base, datavec[i].iov_len)) {
@@ -294,7 +294,7 @@ static int hostkey_method_ssh_rsa_sha2_256_signv(LIBSSH2_SESSION *session,
     unsigned char hash[SSH2_SHA256_DIG_LEN];
     ssh2_hash_ctx ctx;
 
-    if(!ssh2_hash_init(&ctx, SSH2_SHA256_ALG))
+    if(!ssh2_hash_init(ctx, SSH2_SHA256_ALG))
         return -1;
     for(i = 0; i < veccount; i++) {
         if(!ssh2_hash_update(ctx, datavec[i].iov_base, datavec[i].iov_len)) {
@@ -356,7 +356,7 @@ static int hostkey_method_ssh_rsa_sha2_512_signv(LIBSSH2_SESSION *session,
     unsigned char hash[SSH2_SHA512_DIG_LEN];
     ssh2_hash_ctx ctx;
 
-    if(!ssh2_hash_init(&ctx, SSH2_SHA512_ALG))
+    if(!ssh2_hash_init(ctx, SSH2_SHA512_ALG))
         return -1;
     for(i = 0; i < veccount; i++) {
         if(!ssh2_hash_update(ctx, datavec[i].iov_base, datavec[i].iov_len)) {
@@ -626,7 +626,7 @@ static int hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session,
 
     *signature_len = 2 * SSH2_SHA1_DIG_LEN;
 
-    if(!ssh2_hash_init(&ctx, SSH2_SHA1_ALG))
+    if(!ssh2_hash_init(ctx, SSH2_SHA1_ALG))
         goto cleanup;
     for(i = 0; i < veccount; i++) {
         if(!ssh2_hash_update(ctx, datavec[i].iov_base, datavec[i].iov_len)) {
@@ -883,7 +883,7 @@ static int hostkey_method_ssh_ecdsa_signv(LIBSSH2_SESSION *session,
     else
         return -1;
 
-    if(!ssh2_hash_init(&ctx, hash_alg))
+    if(!ssh2_hash_init(ctx, hash_alg))
         return -1;
 
     for(i = 0; i < veccount; i++)

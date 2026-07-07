@@ -64,7 +64,7 @@ static void kex_value_hash(ssh2_hash_alg hash_alg, size_t digest_len,
         size_t len = 0;
         while(len < data_len) {
             ssh2_hash_ctx ctx;
-            int hok = ssh2_hash_init(&ctx, hash_alg);
+            int hok = ssh2_hash_init(ctx, hash_alg);
             if(hok) {
                 hok &= ssh2_hash_update(ctx, exchange_state->k_value,
                                         exchange_state->k_value_len);
@@ -640,7 +640,7 @@ static int kex_diffie_hellman_sha(LIBSSH2_SESSION *session,
             }
         }
 
-        hok = ssh2_hash_init(&ctx, hash_alg);
+        hok = ssh2_hash_init(ctx, hash_alg);
         if(!hok) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
                            "Unable to initialize hash context DH-SHA");
@@ -1457,7 +1457,7 @@ static int kex_method_ec_sha_hash_create_verify(
     int err;
     int hok;
 
-    hok = ssh2_hash_init(&ctx, hash_alg);
+    hok = ssh2_hash_init(ctx, hash_alg);
     if(!hok)
         return ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
                         "Unable to initialize hash context EC/ED");

@@ -86,8 +86,8 @@
 #endif
 
 /* returns 0 in case of failure */
-#define ssh2_hash_init(pctx, alg) \
-    (gcry_md_open(pctx, alg, 0) == GPG_ERR_NO_ERROR)
+#define ssh2_hash_init(ctx, alg) \
+    (gcry_md_open(&(ctx), alg, 0) == GPG_ERR_NO_ERROR)
 #define ssh2_hash_update(ctx, d, l) (gcry_md_write(ctx, d, l), 1)
 #define ssh2_hash_final(ctx, h, l)  ssh2_lgcr_hash_final(ctx, h, l)
 
