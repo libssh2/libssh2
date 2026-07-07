@@ -42,7 +42,12 @@
 
 #ifdef LIBSSH2_LIBGCRYPT
 
-int ssh2_lgcr_hash_final(gcry_md_hd_t ctx, void *hash, size_t len)
+int ssh2_hash_init(gcry_md_hd_t ctx, ssh2_hash_alg alg)
+{
+    return gcry_md_open(ctx, alg, 0) == GPG_ERR_NO_ERROR;
+}
+
+int ssh2_hash_final(gcry_md_hd_t ctx, void *hash, size_t len)
 {
     int ret = 0;
     unsigned int digest_len = gcry_md_get_algo_dlen(gcry_md_get_algo(ctx));

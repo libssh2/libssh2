@@ -243,16 +243,6 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define SSH2_MD5_ALG    Qc3_MD5
 #endif
 
-#define ssh2_hash_init(ctx, alg)     ssh2_os400qc3_hash_init(ctx, alg)
-#define ssh2_hash_update(ctx, d, l)  ssh2_os400qc3_hash_update(ctx, d, l)
-#define ssh2_hash_final(ctx, h, l)   ssh2_os400qc3_hash_final(ctx, h, l)
-
-int ssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x, unsigned int algo);
-int ssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
-                              const unsigned char *data, int len);
-int ssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx,
-                             unsigned char *out, size_t outlen);
-
 /* Bignum */
 
 #define ssh2_bn_ctx              int /* not used */

@@ -173,20 +173,6 @@ struct wcng_hash_ctx {
 #define SSH2_MD5_ALG    ssh2_wcng.hAlgHashMD5
 #endif
 
-/* returns 0 in case of failure */
-#define ssh2_hash_init(ctx, alg)    ssh2_wcng_hash_init(ctx, alg, NULL, 0)
-#define ssh2_hash_update(ctx, d, l) ssh2_wcng_hash_update(ctx, d, l)
-#define ssh2_hash_final(ctx, h, l)  ssh2_wcng_hash_final(ctx, h, l)
-
-int ssh2_wcng_hash_init(struct wcng_hash_ctx *ctx, BCRYPT_ALG_HANDLE hAlg,
-                        unsigned char *key, ULONG keylen);
-int ssh2_wcng_hash_update(struct wcng_hash_ctx *ctx,
-                          const void *data, size_t datalen);
-int ssh2_wcng_hash_final(struct wcng_hash_ctx *ctx, unsigned char *hash,
-                         size_t hashlen);
-int ssh2_wcng_hash(const unsigned char *data, ULONG datalen,
-                   BCRYPT_ALG_HANDLE hAlg, unsigned char *hash, ULONG hashlen);
-
 /*
  * Windows CNG backend: HMAC functions
  */

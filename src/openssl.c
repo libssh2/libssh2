@@ -56,7 +56,7 @@ void ssh2_crypto_init(void)
 #endif
 }
 
-int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const EVP_MD *digest)
+int ssh2_hash_init(EVP_MD_CTX **ctx, const EVP_MD *digest)
 {
 #if !defined(USE_OPENSSL_3) && \
     !defined(LIBRESSL_VERSION_NUMBER) && \
@@ -86,7 +86,7 @@ int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const EVP_MD *digest)
     return 0;
 }
 
-int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out, size_t outlen)
+int ssh2_hash_final(EVP_MD_CTX **ctx, unsigned char *out, size_t outlen)
 {
     int ret = EVP_DigestFinal_ex(*ctx, out, NULL);
     (void)outlen;
