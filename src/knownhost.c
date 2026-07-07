@@ -424,12 +424,12 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                        stored hash. */
                     unsigned char hash[SSH2_SHA1_DIG_LEN];
                     ssh2_hmac_ctx ctx;
-                    if(!ssh2_hmac_ctx_init(&ctx))
-                        break;
 
                     if(SSH2_SHA1_DIG_LEN != node->name_len)
                         /* the name hash length must be the sha1 size or
                            we cannot match it */
+                        break;
+                    if(!ssh2_hmac_ctx_init(&ctx))
                         break;
                     if(!ssh2_hmac_sha1_init(&ctx, node->salt, node->salt_len))
                         break;
