@@ -177,7 +177,7 @@ struct wcng_hash_ctx {
  * Windows CNG backend: HMAC functions
  */
 
-#define ssh2_hmac_ctx struct wcng_hash_ctx
+#define ssh2_hmac_ctx    struct wcng_hash_ctx
 
 #define SSH2_SHA1_HMAC   ssh2_wcng.hAlgHmacSHA1
 #define SSH2_SHA256_HMAC ssh2_wcng.hAlgHmacSHA256
