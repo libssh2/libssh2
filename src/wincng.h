@@ -173,6 +173,12 @@ struct wcng_hash_ctx {
 #define SSH2_MD5_ALG     ssh2_wcng.hAlgHashMD5
 #endif
 
+/*
+ * Windows CNG backend: HMAC functions
+ */
+
+#define ssh2_hmac_ctx struct wcng_hash_ctx
+
 #define SSH2_SHA1_HMAC   ssh2_wcng.hAlgHmacSHA1
 #define SSH2_SHA256_HMAC ssh2_wcng.hAlgHmacSHA256
 #define SSH2_SHA384_HMAC ssh2_wcng.hAlgHmacSHA384
@@ -180,12 +186,6 @@ struct wcng_hash_ctx {
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #define SSH2_MD5_HMAC    ssh2_wcng.hAlgHmacMD5
 #endif
-
-/*
- * Windows CNG backend: HMAC functions
- */
-
-#define ssh2_hmac_ctx struct wcng_hash_ctx
 
 /*******************************************************************/
 /*
