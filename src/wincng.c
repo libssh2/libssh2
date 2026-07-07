@@ -291,7 +291,7 @@ static int wcng_bn_mod_exp(ssh2_bn *r, ssh2_bn *a, ssh2_bn *p, ssh2_bn *m)
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-int ssh2_bn_set_word(ssh2_bn *bn, size_t word)
+int ssh2_bn_set_word(ssh2_bn *bn, unsigned long word)
 {
     ULONG offset, number, bits, length;
 
@@ -299,7 +299,7 @@ int ssh2_bn_set_word(ssh2_bn *bn, size_t word)
         return -1;
 
     bits = 0;
-    number = (ULONG)word;
+    number = word;
     while(number >>= 1)
         bits++;
     bits++;
@@ -309,16 +309,15 @@ int ssh2_bn_set_word(ssh2_bn *bn, size_t word)
         return -1;
 
     for(offset = 0; offset < length; offset++)
-        bn->bignum[offset] = ((ULONG)word >> (offset * 8)) & 0xff;
+        bn->bignum[offset] = (word >> (offset * 8)) & 0xff;
 
     return 0;
 }
 
-size_t ssh2_bn_bits(const ssh2_bn *bn)
+unsigned long ssh2_bn_bits(const ssh2_bn *bn)
 {
     unsigned char number;
-    ULONG offset, length;
-    size_t bits;
+    ULONG offset, length, bits;
 
     if(!bn || !bn->bignum || !bn->length)
         return 0;
