@@ -327,7 +327,6 @@ typedef enum {
 #define ssh2_bn_init()            BN_new()
 #define ssh2_bn_init_from_bin()   ssh2_bn_init()
 #define ssh2_bn_set_word(bn, val) !BN_set_word(bn, val)
-int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *val);
 #define ssh2_bn_to_bin(bn, val)   (BN_bn2bin(bn, val) <= 0)
 #define ssh2_bn_bytes(bn)         BN_num_bytes(bn)
 #define ssh2_bn_bits(bn)          BN_num_bits(bn)

@@ -347,12 +347,18 @@ const char *ssh2_supported_key_sign_algs(LIBSSH2_SESSION *session,
 #define ssh2_bn_bytes(bn)              ((bn)->length)
 #endif
 
+#ifndef ssh2_bn_init
 ssh2_bn *ssh2_bn_init(void);
+void ssh2_bn_free(ssh2_bn *bn);
+#endif
+#ifndef ssh2_bn_set_word
 int ssh2_bn_set_word(ssh2_bn *bn, size_t word);
 size_t ssh2_bn_bits(const ssh2_bn *bn);
-int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *bin);
 int ssh2_bn_to_bin(const ssh2_bn *bn, unsigned char *bin);
-void ssh2_bn_free(ssh2_bn *bn);
+#endif
+#ifndef ssh2_bn_from_bin
+int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *bin);
+#endif
 
 void ssh2_dh_init(ssh2_dh_ctx *dhctx);
 int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
