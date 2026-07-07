@@ -797,7 +797,7 @@ static int mbed_dh_is_valid(ssh2_bn *f, ssh2_bn *p)
     if(mbedtls_mpi_cmp_mpi(f, &tmp) == 1) {
         mbedtls_mpi_free(&tmp);
         mbedtls_mpi_free(&one);
-        return -1;  /* f > p - 2 */
+        return -3;  /* f > p - 2 */
     }
 
     mbedtls_mpi_free(&tmp);
@@ -808,7 +808,7 @@ static int mbed_dh_is_valid(ssh2_bn *f, ssh2_bn *p)
             ++bits_set;
 
     if(bits_set < 4)
-        return -1;
+        return -3;
 
     return 0;
 }
