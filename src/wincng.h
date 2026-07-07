@@ -136,18 +136,6 @@ extern struct wcng_ctx ssh2_wcng;
 
 /*******************************************************************/
 /*
- * Windows CNG backend: Generic functions
- */
-
-void ssh2_crypto_init(void);
-void ssh2_crypto_exit(void);
-
-int ssh2_random(unsigned char *buf, size_t len);
-
-#define ssh2_prepare_iovec(vec, len)  /* Empty. */
-
-/*******************************************************************/
-/*
  * Windows CNG backend: Hash structure
  */
 
@@ -204,16 +192,12 @@ struct wcng_key_ctx {
 
 #define ssh2_rsa_ctx struct wcng_key_ctx
 
-void ssh2_rsa_free(ssh2_rsa_ctx *rsa);
-
 /*
  * Windows CNG backend: DSA functions
  */
 
 #if LIBSSH2_DSA
 #define ssh2_dsa_ctx struct wcng_key_ctx
-
-void ssh2_dsa_free(ssh2_dsa_ctx *dsa);
 #endif
 
 /*
@@ -234,8 +218,6 @@ struct wcng_ecdsa_ctx {
 
 #define ssh2_ecdsa_ctx struct wcng_ecdsa_ctx
 #define ssh2_ec_key    struct wcng_ecdsa_ctx
-
-void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ctx);
 #endif
 
 /*******************************************************************/
@@ -284,8 +266,6 @@ struct wcng_cipher_t {
 #define ssh2_cipher_3des      { &ssh2_wcng.hAlg3DES_CBC, 24, 1, 0 }
 #endif
 #define ssh2_cipher_chacha20  { NULL /* unused */, 24, 1, 0 }
-
-void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx);
 
 /*******************************************************************/
 /*

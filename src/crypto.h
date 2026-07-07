@@ -55,6 +55,20 @@
 #error "no cryptography backend selected"
 #endif
 
+#ifndef ssh2_crypto_init
+void ssh2_crypto_init(void);
+#endif
+#ifndef ssh2_crypto_exit
+void ssh2_crypto_exit(void);
+#endif
+#ifndef ssh2_random
+int ssh2_random(unsigned char *buf, size_t len);
+#endif
+
+#ifndef ssh2_prepare_iovec
+#define ssh2_prepare_iovec(vec, len)  /* no-op */
+#endif
+
 /* return: success = 1, error = 0 */
 int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg alg);
 #ifndef ssh2_hash_update
@@ -148,6 +162,9 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len);
 #endif
+#ifndef ssh2_rsa_free
+void ssh2_rsa_free(ssh2_rsa_ctx *rsa);
+#endif
 #endif
 
 #if LIBSSH2_DSA
@@ -171,6 +188,9 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
 int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
                         const unsigned char *sig,
                         const unsigned char *m, size_t m_len);
+#ifndef ssh2_dsa_free
+void ssh2_dsa_free(ssh2_dsa_ctx *dsa);
+#endif
 #endif
 
 #if LIBSSH2_ECDSA
@@ -231,6 +251,9 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
                       const unsigned char *r, size_t r_len,
                       const unsigned char *s, size_t s_len,
                       const unsigned char *m, size_t m_len);
+#ifndef ssh2_ecdsa_free
+void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ec_ctx);
+#endif
 #endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519
@@ -298,10 +321,12 @@ int ssh2_mlkem_get_sk(unsigned char *out_shared_key,
 
 int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt);
-
 int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                       int encrypt, unsigned char *block, size_t blocksize,
                       int firstlast);
+#ifndef ssh2_cipher_dtor
+void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx);
+#endif
 
 int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                           unsigned char **method,

@@ -2051,13 +2051,13 @@ cleanup:
 /*
  * Windows CNG backend: ECDSA functions
  */
-void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ctx)
+void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ec_ctx)
 {
-    if(!ctx)
+    if(!ec_ctx)
         return;
 
-    (void)BCryptDestroyKey(ctx->handle);
-    free(ctx);
+    (void)BCryptDestroyKey(ec_ctx->handle);
+    free(ec_ctx);
 }
 
 /*
