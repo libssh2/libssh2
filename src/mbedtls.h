@@ -167,8 +167,6 @@ struct mbed_hash_ctx {
 
 #define ssh2_rsa_ctx mbedtls_rsa_context
 
-void ssh2_rsa_free(ssh2_rsa_ctx *ctx);
-
 /*******************************************************************/
 /*
  * mbedTLS backend: ECDSA structures
@@ -195,8 +193,6 @@ typedef enum {
 
 #define ssh2_ecdsa_ctx mbedtls_ecdsa_context
 #define ssh2_ec_key mbedtls_ecp_keypair
-
-void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ctx);
 #endif /* LIBSSH2_ECDSA */
 
 /*******************************************************************/

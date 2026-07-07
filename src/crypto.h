@@ -148,6 +148,9 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len);
 #endif
+#ifndef ssh2_rsa_free
+void ssh2_rsa_free(ssh2_rsa_ctx *rsa);
+#endif
 #endif
 
 #if LIBSSH2_DSA
@@ -171,6 +174,9 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
 int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
                         const unsigned char *sig,
                         const unsigned char *m, size_t m_len);
+#ifndef ssh2_rsa_free
+void ssh2_dsa_free(ssh2_dsa_ctx *dsa);
+#endif
 #endif
 
 #if LIBSSH2_ECDSA
@@ -231,6 +237,9 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
                       const unsigned char *r, size_t r_len,
                       const unsigned char *s, size_t s_len,
                       const unsigned char *m, size_t m_len);
+#ifndef ssh2_ecdsa_free
+void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ec_ctx);
+#endif
 #endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519
