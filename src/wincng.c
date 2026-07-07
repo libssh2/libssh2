@@ -818,7 +818,7 @@ int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 
 int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
 {
-    return ssh2_hash_update(ctx, data, (int)datalen);
+    return ssh2_hash_update(ctx, data, datalen);
 }
 
 int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen)
