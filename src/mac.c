@@ -119,7 +119,8 @@ static int mac_method_hmac_sha2_512_hash(LIBSSH2_SESSION *session,
 
     if(!ssh2_hmac_ctx_init(&ctx))
         return 1;
-    res = ssh2_hmac_sha512_init(&ctx, *abstract, SSH2_SHA512_DIG_LEN) &&
+    res = ssh2_hmac_init(&ctx, SSH2_SHA512_HMAC,
+                         *abstract, SSH2_SHA512_DIG_LEN) &&
           ssh2_hmac_update(&ctx, seqno_buf, 4) &&
           ssh2_hmac_update(&ctx, packet, packet_len);
     if(res && addtl && addtl_len)
@@ -173,7 +174,8 @@ static int mac_method_hmac_sha2_256_hash(LIBSSH2_SESSION *session,
 
     if(!ssh2_hmac_ctx_init(&ctx))
         return 1;
-    res = ssh2_hmac_sha256_init(&ctx, *abstract, SSH2_SHA256_DIG_LEN) &&
+    res = ssh2_hmac_init(&ctx, SSH2_SHA256_HMAC,
+                         *abstract, SSH2_SHA256_DIG_LEN) &&
           ssh2_hmac_update(&ctx, seqno_buf, 4) &&
           ssh2_hmac_update(&ctx, packet, packet_len);
     if(res && addtl && addtl_len)
@@ -226,7 +228,8 @@ static int mac_method_hmac_sha1_hash(LIBSSH2_SESSION *session,
 
     if(!ssh2_hmac_ctx_init(&ctx))
         return 1;
-    res = ssh2_hmac_sha1_init(&ctx, *abstract, SSH2_SHA1_DIG_LEN) &&
+    res = ssh2_hmac_init(&ctx, SSH2_SHA1_HMAC,
+                         *abstract, SSH2_SHA1_DIG_LEN) &&
           ssh2_hmac_update(&ctx, seqno_buf, 4) &&
           ssh2_hmac_update(&ctx, packet, packet_len);
     if(res && addtl && addtl_len)
@@ -308,7 +311,8 @@ static int mac_method_hmac_md5_hash(LIBSSH2_SESSION *session,
 
     if(!ssh2_hmac_ctx_init(&ctx))
         return 1;
-    res = ssh2_hmac_md5_init(&ctx, *abstract, SSH2_MD5_DIG_LEN) &&
+    res = ssh2_hmac_init(&ctx, SSH2_MD5_HMAC,
+                         *abstract, SSH2_MD5_DIG_LEN) &&
           ssh2_hmac_update(&ctx, seqno_buf, 4) &&
           ssh2_hmac_update(&ctx, packet, packet_len);
     if(res && addtl && addtl_len)
@@ -381,7 +385,8 @@ static int mac_method_hmac_ripemd160_hash(LIBSSH2_SESSION *session,
 
     if(!ssh2_hmac_ctx_init(&ctx))
         return 1;
-    res = ssh2_hmac_ripemd160_init(&ctx, *abstract, SSH2_RIPEMD160_DIG_LEN) &&
+    res = ssh2_hmac_init(&ctx, SSH2_RIPEMD160_HMAC,
+                         *abstract, SSH2_RIPEMD160_DIG_LEN) &&
           ssh2_hmac_update(&ctx, seqno_buf, 4) &&
           ssh2_hmac_update(&ctx, packet, packet_len);
     if(res && addtl && addtl_len)
