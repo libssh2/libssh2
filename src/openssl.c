@@ -4296,7 +4296,7 @@ static int ossl_dh_is_valid(ssh2_bn *f, ssh2_bn *p)
         return -1;
     if(!BN_sub(tmp, p, BN_value_one()) || BN_cmp(f, tmp) != -1) {
         BN_clear_free(tmp);
-        return -1;  /* f > p - 2 */
+        return -2;  /* f > p - 2 */
     }
     BN_clear_free(tmp);
 
@@ -4305,7 +4305,7 @@ static int ossl_dh_is_valid(ssh2_bn *f, ssh2_bn *p)
             ++bits_set;
 
     if(bits_set < 4)
-        return -1;
+        return -3;
 
     return 0;
 }
