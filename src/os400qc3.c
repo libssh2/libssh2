@@ -960,9 +960,14 @@ int ssh2_hash_final(ssh2_hash_ctx *ctx, void *digest, size_t digest_len)
     return errcode.Bytes_Available ? 0 : 1;
 }
 
-static int os400qc3_hmac_init(struct os400qc3_crypto_ctx *ctx,
-                              int algo, size_t minkeylen,
-                              void *key, int keylen)
+int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
+{
+    memset((char *)ctx, 0, sizeof(ssh2_hmac_ctx));
+    return 1;
+}
+
+static int os400qc3_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
+                              size_t minkeylen, void *key, int keylen)
 {
     Qus_EC_t errcode;
 
@@ -977,19 +982,13 @@ static int os400qc3_hmac_init(struct os400qc3_crypto_ctx *ctx,
         key = (void *)lkey;
         keylen = minkeylen;
     }
-    if(!ssh2_hash_init(&ctx->hash, algo))
+    if(!ssh2_hash_init(&ctx->hash, alg))
         return 0;
     set_EC_length(errcode, sizeof(errcode));
-    Qc3CreateKeyContext((char *)key, &keylen, binstring, &algo, qc3clear,
+    Qc3CreateKeyContext((char *)key, &keylen, binstring, &alg, qc3clear,
                         NULL, NULL, ctx->key.Key_Context_Token,
                         (char *)&errcode);
     return errcode.Bytes_Available ? 0 : 1;
-}
-
-int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
-{
-    memset((char *)ctx, 0, sizeof(ssh2_hmac_ctx));
-    return 1;
 }
 
 int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
