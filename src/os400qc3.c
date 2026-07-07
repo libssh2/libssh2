@@ -429,7 +429,7 @@ static int bn_resize(ssh2_bn *bn, size_t newlen)
     return 0;
 }
 
-unsigned long ssh2_bn_bits(ssh2_bn *bn)
+unsigned long ssh2_bn_bits(const ssh2_bn *bn)
 {
     unsigned int i;
     unsigned char b;
@@ -475,7 +475,7 @@ int ssh2_bn_set_word(ssh2_bn *bn, unsigned long val)
     return ssh2_bn_from_bin(bn, sizeof(val), (unsigned char *)&val);
 }
 
-int ssh2_bn_to_bin(ssh2_bn *bn, unsigned char *val)
+int ssh2_bn_to_bin(const ssh2_bn *bn, unsigned char *val)
 {
     int i;
 
