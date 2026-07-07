@@ -138,6 +138,8 @@ struct mbed_hash_ctx {
 
 #define ssh2_hmac_ctx struct mbed_hash_ctx
 
+#define SSH2_RIPMD160_HMAC PSA_ALG_RIPEMD160
+
 /*******************************************************************/
 /*
  * mbedTLS backend: hash functions
