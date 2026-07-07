@@ -848,26 +848,26 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx, ULONG hashlen,
                                ULONG flags)
 {
     BCRYPT_PKCS1_PADDING_INFO paddingInfoPKCS1;
-    BCRYPT_ALG_HANDLE hAlgHash;
+    ssh2_hash_alg hash_alg;
     void *pPaddingInfo;
     unsigned char *data, *hash;
     ULONG datalen;
     int ret;
 
     if(hashlen == SSH2_SHA1_DIG_LEN) {
-        hAlgHash = ssh2_wcng.hAlgHashSHA1;
+        hash_alg = SSH2_SHA1_ALG;
         paddingInfoPKCS1.pszAlgId = BCRYPT_SHA1_ALGORITHM;
     }
     else if(hashlen == SSH2_SHA256_DIG_LEN) {
-        hAlgHash = ssh2_wcng.hAlgHashSHA256;
+        hash_alg = SSH2_SHA256_ALG;
         paddingInfoPKCS1.pszAlgId = BCRYPT_SHA256_ALGORITHM;
     }
     else if(hashlen == SSH2_SHA384_DIG_LEN) {
-        hAlgHash = ssh2_wcng.hAlgHashSHA384;
+        hash_alg = SSH2_SHA384_ALG;
         paddingInfoPKCS1.pszAlgId = BCRYPT_SHA384_ALGORITHM;
     }
     else if(hashlen == SSH2_SHA512_DIG_LEN) {
-        hAlgHash = ssh2_wcng.hAlgHashSHA512;
+        hash_alg = SSH2_SHA512_ALG;
         paddingInfoPKCS1.pszAlgId = BCRYPT_SHA512_ALGORITHM;
     }
     else
@@ -885,7 +885,7 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx, ULONG hashlen,
     }
     memcpy(data, m, datalen);
 
-    ret = ssh2_hash(hAlgHash, data, datalen, hash, hashlen);
+    ret = ssh2_hash(hash_alg, data, datalen, hash, hashlen);
     wcng_zero_free(data, datalen);
 
     if(!ret) {
@@ -2354,16 +2354,14 @@ int ssh2_ecdsa_verify(IN ssh2_ecdsa_ctx *ec_ctx,
 
     PUCHAR signature_p1363 = NULL;
     size_t signature_p1363_len;
-    ULONG hash_len;
+    size_t hash_len;
     PUCHAR hash = NULL;
-    BCRYPT_ALG_HANDLE hash_alg;
+    ssh2_hash_alg hash_alg;
 
     /* CNG expects signatures in IEEE P-1363 format. */
     result = wcng_p1363signature_from_point(
-        r,
-        r_len,
-        s,
-        s_len,
+        r, r_len,
+        s, s_len,
         ssh2_ecdsa_get_curve_type(ec_ctx),
         &signature_p1363,
         &signature_p1363_len);
@@ -2373,18 +2371,18 @@ int ssh2_ecdsa_verify(IN ssh2_ecdsa_ctx *ec_ctx,
     /* Create hash over m */
     switch(ssh2_ecdsa_get_curve_type(ec_ctx)) {
     case SSH2_EC_CURVE_NISTP256:
-        hash_len = 256 / 8;
-        hash_alg = ssh2_wcng.hAlgHashSHA256;
+        hash_len = SSH2_SHA256_DIG_LEN;
+        hash_alg = SSH2_SHA256_ALG;
         break;
 
     case SSH2_EC_CURVE_NISTP384:
-        hash_len = 384 / 8;
-        hash_alg = ssh2_wcng.hAlgHashSHA384;
+        hash_len = SSH2_SHA384_DIG_LEN;
+        hash_alg = SSH2_SHA384_ALG;
         break;
 
     case SSH2_EC_CURVE_NISTP521:
-        hash_len = 512 / 8;
-        hash_alg = ssh2_wcng.hAlgHashSHA512;
+        hash_len = SSH2_SHA512_DIG_LEN;
+        hash_alg = SSH2_SHA512_ALG;
         break;
 
     default:
@@ -2396,7 +2394,7 @@ int ssh2_ecdsa_verify(IN ssh2_ecdsa_ctx *ec_ctx,
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
     }
-    if(!ssh2_hash(hash_alg, m, (ULONG)m_len, hash, hash_len)) {
+    if(!ssh2_hash(hash_alg, m, m_len, hash, hash_len)) {
         result = LIBSSH2_ERROR_PUBLICKEY_PROTOCOL;
         goto cleanup;
     }
@@ -2406,7 +2404,7 @@ int ssh2_ecdsa_verify(IN ssh2_ecdsa_ctx *ec_ctx,
         ec_ctx->handle,
         NULL,
         hash,
-        hash_len,
+        (ULONG)hash_len,
         signature_p1363,
         (ULONG)signature_p1363_len,
         0);
