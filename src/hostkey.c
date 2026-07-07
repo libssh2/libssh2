@@ -326,8 +326,8 @@ static int hostkey_method_ssh_rsa_sha2_512_sig_verify(
 
     sig += 20;
     sig_len -= 20;
-    return ssh2_rsa_sha2_verify(rsactx, SSH2_SHA512_DIG_LEN, sig,
-                                sig_len, m, m_len);
+    return ssh2_rsa_sha2_verify(rsactx, SSH2_SHA512_DIG_LEN, sig, sig_len,
+                                m, m_len);
 }
 
 /*

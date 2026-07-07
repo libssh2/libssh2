@@ -92,14 +92,14 @@ static void mbed_zero_free(void *buf, size_t len)
     mbedtls_free(buf);
 }
 
-int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
+int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
     const mbedtls_cipher_info_t *cipher_info;
     mbedtls_operation_t op;
     int ret;
 
-    if(!h)
+    if(!ctx)
         return -1;
 
     op = encrypt ? MBEDTLS_ENCRYPT : MBEDTLS_DECRYPT;
@@ -108,8 +108,8 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
     if(!cipher_info)
         return -1;
 
-    mbedtls_cipher_init(h);
-    ret = mbedtls_cipher_setup(h, cipher_info);
+    mbedtls_cipher_init(ctx);
+    ret = mbedtls_cipher_setup(ctx, cipher_info);
 
     /* libssh2 computes and adds SSH packet padding itself, so for CBC
        tell mbedTLS to expect no padding on the cipher layer. Only call
@@ -120,16 +120,16 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
         algo == MBEDTLS_CIPHER_AES_192_CBC ||
         algo == MBEDTLS_CIPHER_AES_256_CBC ||
         algo == MBEDTLS_CIPHER_DES_EDE3_CBC)) {
-        ret = mbedtls_cipher_set_padding_mode(h, MBEDTLS_PADDING_NONE);
+        ret = mbedtls_cipher_set_padding_mode(ctx, MBEDTLS_PADDING_NONE);
     }
 
     if(!ret)
-        ret = mbedtls_cipher_setkey(h,
+        ret = mbedtls_cipher_setkey(ctx,
                   secret,
                   (int)mbedtls_cipher_info_get_key_bitlen(cipher_info), op);
 
     if(!ret)
-        ret = mbedtls_cipher_set_iv(h, iv,
+        ret = mbedtls_cipher_set_iv(ctx, iv,
                   mbedtls_cipher_info_get_iv_size(cipher_info));
 
     return ret == 0 ? 0 : -1;
@@ -195,7 +195,7 @@ int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 }
 
 int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
-                   void *key, size_t keylen)
+                   void *key, size_t key_len)
 {
     psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
     psa_algorithm_t alg_hmac = PSA_ALG_HMAC(alg);
@@ -204,7 +204,7 @@ int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
     psa_set_key_algorithm(&attributes, alg_hmac);
     psa_set_key_type(&attributes, PSA_KEY_TYPE_HMAC);
 
-    if(psa_import_key(&attributes, key, keylen, &ctx->key_id) != PSA_SUCCESS)
+    if(psa_import_key(&attributes, key, key_len, &ctx->key_id) != PSA_SUCCESS)
         return 0;
 
     if(psa_mac_sign_setup(&ctx->mac, ctx->key_id, alg_hmac) != PSA_SUCCESS) {
@@ -215,10 +215,10 @@ int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
     return 1;
 }
 
-int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen)
+int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t mac_len)
 {
     size_t actual_len;
-    return psa_mac_sign_finish(&ctx->mac, mac, maclen,
+    return psa_mac_sign_finish(&ctx->mac, mac, mac_len,
                                &actual_len) == PSA_SUCCESS;
 }
 

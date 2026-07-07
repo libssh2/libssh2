@@ -87,11 +87,11 @@ int ssh2_hash(ssh2_hash_alg alg, const void *input, size_t input_len,
 /* return: success = 1, error = 0 */
 int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx);
 int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
-                   void *key, size_t keylen);
+                   void *key, size_t key_len);
 #ifndef ssh2_hmac_update
-int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen);
+int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *input, size_t input_len);
 #endif
-int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen);
+int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t mac_len);
 void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx);
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
@@ -314,7 +314,7 @@ int ssh2_mlkem_get_sk(unsigned char *out_shared_key,
                       uint8_t *server_ciphertext);
 #endif /* LIBSSH2_MLKEM */
 
-int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
+int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt);
 int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                       int encrypt, unsigned char *block, size_t blocksize,

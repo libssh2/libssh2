@@ -68,15 +68,15 @@
 
 #define ssh2_random(buf, len) (gcry_randomize(buf, len, GCRY_STRONG_RANDOM), 0)
 
-#define ssh2_hash_ctx gcry_md_hd_t
-#define ssh2_hash_alg int
+#define ssh2_hash_ctx         gcry_md_hd_t
+#define ssh2_hash_alg         int
 
-#define SSH2_SHA1_ALG   GCRY_MD_SHA1
-#define SSH2_SHA256_ALG GCRY_MD_SHA256
-#define SSH2_SHA384_ALG GCRY_MD_SHA384
-#define SSH2_SHA512_ALG GCRY_MD_SHA512
+#define SSH2_SHA1_ALG         GCRY_MD_SHA1
+#define SSH2_SHA256_ALG       GCRY_MD_SHA256
+#define SSH2_SHA384_ALG       GCRY_MD_SHA384
+#define SSH2_SHA512_ALG       GCRY_MD_SHA512
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define SSH2_MD5_ALG    GCRY_MD_MD5
+#define SSH2_MD5_ALG          GCRY_MD_MD5
 #endif
 
 #define ssh2_hmac_ctx         gcry_md_hd_t
@@ -130,6 +130,8 @@
 #define ssh2_bn_bits(bn)               gcry_mpi_get_nbits(bn)
 #define ssh2_bn_free(bn)               gcry_mpi_release(bn)
 
+#define ssh2_dh_ctx                    struct gcry_mpi *
+
 /* Default generate and safe prime sizes for
    diffie-hellman-group-exchange-sha1 */
 #define SSH2_DH_GEX_MINGROUP     2048
@@ -137,7 +139,5 @@
 #define SSH2_DH_GEX_MAXGROUP     8192
 
 #define SSH2_DH_MAX_MODULUS_BITS 16384
-
-#define ssh2_dh_ctx struct gcry_mpi *
 
 #endif /* LIBSSH2_LIBGCRYPT_H */

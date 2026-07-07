@@ -60,29 +60,29 @@ int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 }
 
 int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
-                   void *key, size_t keylen)
+                   void *key, size_t key_len)
 {
     gcry_error_t err;
     err = gcry_md_open(ctx, alg, GCRY_MD_FLAG_HMAC);
     if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
         return 0;
-    err = gcry_md_setkey(*ctx, key, keylen);
+    err = gcry_md_setkey(*ctx, key, key_len);
     if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
         return 0;
     return 1;
 }
 
-int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
+int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *input, size_t input_len)
 {
-    gcry_md_write(*ctx, data, datalen);
+    gcry_md_write(*ctx, input, input_len);
     return 1;
 }
 
-int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen)
+int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t mac_len)
 {
     int ret = 0;
     unsigned int actual_len = gcry_md_get_algo_dlen(gcry_md_get_algo(*ctx));
-    if(maclen >= actual_len) {
+    if(mac_len >= actual_len) {
         unsigned char *res = gcry_md_read(*ctx, 0);
         if(res) {
             memcpy(mac, res, actual_len);
@@ -643,7 +643,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
 }
 #endif
 
-int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
+int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
     int ret;
@@ -653,24 +653,24 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
 
     (void)encrypt;
 
-    ret = gcry_cipher_open(h, cipher, mode, 0);
+    ret = gcry_cipher_open(ctx, cipher, mode, 0);
     if(ret)
         return -1;
 
-    ret = gcry_cipher_setkey(*h, secret, keylen);
+    ret = gcry_cipher_setkey(*ctx, secret, keylen);
     if(ret) {
-        gcry_cipher_close(*h);
+        gcry_cipher_close(*ctx);
         return -1;
     }
 
     if(mode != GCRY_CIPHER_MODE_STREAM) {
         size_t blklen = gcry_cipher_get_algo_blklen(cipher);
         if(mode == GCRY_CIPHER_MODE_CTR)
-            ret = gcry_cipher_setctr(*h, iv, blklen);
+            ret = gcry_cipher_setctr(*ctx, iv, blklen);
         else
-            ret = gcry_cipher_setiv(*h, iv, blklen);
+            ret = gcry_cipher_setiv(*ctx, iv, blklen);
         if(ret) {
-            gcry_cipher_close(*h);
+            gcry_cipher_close(*ctx);
             return -1;
         }
     }
