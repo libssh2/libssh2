@@ -915,47 +915,47 @@ void ssh2_os400qc3_crypto_dtor(struct os400qc3_crypto_ctx *x)
  *
  *******************************************************************/
 
-int ssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x, unsigned int algorithm)
+int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg alg)
 {
     Qc3_Format_ALGD0500_T algd;
     Qus_EC_t errcode;
 
-    if(!x)
+    if(!ctx)
         return 0;
 
-    memset((char *)x, 0, sizeof(*x));
-    x->Final_Op_Flag = Qc3_Continue;
-    algd.Hash_Alg = algorithm;
+    memset((char *)ctx, 0, sizeof(*ctx));
+    ctx->Final_Op_Flag = Qc3_Continue;
+    algd.Hash_Alg = alg;
     set_EC_length(errcode, sizeof(errcode));
     Qc3CreateAlgorithmContext((char *)&algd, Qc3_Alg_Hash,
-                              x->Alg_Context_Token, &errcode);
+                              ctx->Alg_Context_Token, &errcode);
     return errcode.Bytes_Available ? 0 : 1;
 }
 
-int ssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
-                              const unsigned char *data, int len)
+int ssh2_hash_update(ssh2_hash_ctx *ctx,
+                     const unsigned char *input, int input_len)
 {
     char dummy[64];
     Qus_EC_t errcode;
 
     ctx->Final_Op_Flag = Qc3_Continue;
     set_EC_length(errcode, sizeof(errcode));
-    Qc3CalculateHash((char *)data, &len, Qc3_Data, (char *)ctx, Qc3_Alg_Token,
-                     anycsp, NULL, dummy, &errcode);
+    Qc3CalculateHash((char *)input, &input_len, Qc3_Data, (char *)ctx,
+                     Qc3_Alg_Token, anycsp, NULL, dummy, &errcode);
     return errcode.Bytes_Available ? 0 : 1;
 }
 
-int ssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx,
-                             unsigned char *out, size_t outlen)
+int ssh2_hash_final(ssh2_hash_ctx *ctx,
+                    unsigned char *digest, size_t digest_len)
 {
     char data;
     Qus_EC_t errcode;
-    (void)outlen;
+    (void)digest_len;
 
     ctx->Final_Op_Flag = Qc3_Final;
     set_EC_length(errcode, sizeof(errcode));
     Qc3CalculateHash(&data, &zero, Qc3_Data, (char *)ctx, Qc3_Alg_Token,
-                     anycsp, NULL, (char *)out, &errcode);
+                     anycsp, NULL, (char *)digest, &errcode);
     Qc3DestroyAlgorithmContext(ctx->Alg_Context_Token, (char *)&ecnull);
     memset(ctx->Alg_Context_Token, 0, sizeof(ctx->Alg_Context_Token));
     return errcode.Bytes_Available ? 0 : 1;
@@ -978,7 +978,7 @@ static int os400qc3_hmac_init(struct os400qc3_crypto_ctx *ctx,
         key = (void *)lkey;
         keylen = minkeylen;
     }
-    if(!ssh2_os400qc3_hash_init(&ctx->hash, algo))
+    if(!ssh2_hash_init(&ctx->hash, algo))
         return 0;
     set_EC_length(errcode, sizeof(errcode));
     Qc3CreateKeyContext((char *)key, &keylen, binstring, &algo, qc3clear,
@@ -1375,8 +1375,8 @@ static int pbkdf1(LIBSSH2_SESSION *session, char **dk,
     errcode.Bytes_Available = 1; /* Defaults to error flagging. */
 
     /* Initial hash. */
-    if(ssh2_os400qc3_hash_init(&hctx, pkcs5->hash)) {
-        if(ssh2_os400qc3_hash_update(&hctx, passphrase, strlen(passphrase))) {
+    if(ssh2_hash_init(&hctx, pkcs5->hash)) {
+        if(ssh2_hash_update(&hctx, passphrase, strlen(passphrase))) {
             hctx.Final_Op_Flag = Qc3_Final;
             Qc3CalculateHash((char *)pkcs5->salt, &len, Qc3_Data,
                              (char *)&hctx, Qc3_Alg_Token, anycsp, NULL, *dk,
