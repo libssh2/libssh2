@@ -222,6 +222,12 @@ static int mbed_hmac_init(ssh2_hmac_ctx *ctx, psa_algorithm_t alg,
     return 1;
 }
 
+int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
+                   void *key, size_t keylen)
+{
+    return mbed_hmac_init(ctx, alg, key, keylen);
+}
+
 #if LIBSSH2_MD5
 int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {

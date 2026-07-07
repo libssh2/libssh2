@@ -133,6 +133,16 @@ static int ossl_hmac_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen,
 }
 #endif
 
+int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
+                   void *key, size_t keylen)
+{
+#ifdef USE_OPENSSL_3
+    return ossl_hmac_init(ctx, key, keylen, alg);
+#else
+    return HMAC_Init_ex(*ctx, key, (int)keylen, alg, NULL);
+#endif
+}
+
 #if LIBSSH2_MD5
 int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {

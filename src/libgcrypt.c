@@ -84,6 +84,12 @@ static int lgcr_hmac_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen,
     return 1;
 }
 
+int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
+                   void *key, size_t keylen)
+{
+    return lgcr_hmac_init(ctx, key, keylen, alg);
+}
+
 #if LIBSSH2_MD5
 int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
