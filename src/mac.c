@@ -163,7 +163,6 @@ static const struct mac_method mac_method_hmac_sha2_512_etm = {
     mac_method_common_dtor,
     1
 };
-
 #endif
 
 #if LIBSSH2_HMAC_SHA256
@@ -201,7 +200,6 @@ static const struct mac_method mac_method_hmac_sha2_256_etm = {
     mac_method_common_dtor,
     1
 };
-
 #endif
 
 /*
