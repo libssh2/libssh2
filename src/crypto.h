@@ -56,6 +56,15 @@
 #endif
 
 /* return: success = 1, error = 0 */
+int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg alg);
+#ifndef ssh2_hash_update
+int ssh2_hash_update(ssh2_hash_ctx *ctx, const void *input, size_t input_len);
+#endif
+int ssh2_hash_final(ssh2_hash_ctx *ctx, void *digest, size_t digest_len);
+int ssh2_hash(ssh2_hash_alg alg, const void *input, size_t input_len,
+              void *digest, size_t digest_len);
+
+/* return: success = 1, error = 0 */
 int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx);
 #if LIBSSH2_MD5
 int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen);
@@ -98,15 +107,6 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx);
 #define SSH2_MLKEM_1024_PRIVATE_KEY_LEN 3168
 #define SSH2_MLKEM_1024_PUBLIC_KEY_LEN  1568
 #define SSH2_MLKEM_1024_CIPHERTEXT      1568
-
-/* returns 0 in case of failure */
-int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg alg);
-#ifndef ssh2_hash_update
-int ssh2_hash_update(ssh2_hash_ctx *ctx, const void *input, size_t input_len);
-#endif
-int ssh2_hash_final(ssh2_hash_ctx *ctx, void *digest, size_t digest_len);
-int ssh2_hash(ssh2_hash_alg alg, const void *input, size_t input_len,
-              void *digest, size_t digest_len);
 
 #if LIBSSH2_RSA
 int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
