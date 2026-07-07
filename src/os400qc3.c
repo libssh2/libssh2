@@ -998,32 +998,6 @@ int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
     return os400qc3_hmac_init(ctx, alg, keylen, key, keylen);
 }
 
-#if LIBSSH2_MD5
-int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
-{
-    return os400qc3_hmac_init(ctx, Qc3_MD5, SSH2_MD5_DIG_LEN,
-                              key, keylen);
-}
-#endif
-
-int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
-{
-    return os400qc3_hmac_init(ctx, Qc3_SHA1, SSH2_SHA1_DIG_LEN,
-                              key, keylen);
-}
-
-int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
-{
-    return os400qc3_hmac_init(ctx, Qc3_SHA256, SSH2_SHA256_DIG_LEN,
-                              key, keylen);
-}
-
-int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
-{
-    return os400qc3_hmac_init(ctx, Qc3_SHA512, SSH2_SHA512_DIG_LEN,
-                              key, keylen);
-}
-
 int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
 {
     char dummy[64];

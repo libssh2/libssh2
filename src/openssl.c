@@ -143,55 +143,6 @@ int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
 #endif
 }
 
-#if LIBSSH2_MD5
-int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
-{
-#ifdef USE_OPENSSL_3
-    return ossl_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_MD5);
-#else
-    return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_md5(), NULL);
-#endif
-}
-#endif
-
-#if LIBSSH2_HMAC_RIPEMD
-int ssh2_hmac_ripemd160_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
-{
-#ifdef USE_OPENSSL_3
-    return ossl_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_RIPEMD160);
-#else
-    return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_ripemd160(), NULL);
-#endif
-}
-#endif
-
-int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
-{
-#ifdef USE_OPENSSL_3
-    return ossl_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_SHA1);
-#else
-    return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_sha1(), NULL);
-#endif
-}
-
-int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
-{
-#ifdef USE_OPENSSL_3
-    return ossl_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_SHA2_256);
-#else
-    return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_sha256(), NULL);
-#endif
-}
-
-int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
-{
-#ifdef USE_OPENSSL_3
-    return ossl_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_SHA2_512);
-#else
-    return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_sha512(), NULL);
-#endif
-}
-
 int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
 {
 #ifdef USE_OPENSSL_3
