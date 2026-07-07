@@ -84,33 +84,10 @@ static int lgcr_hmac_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen,
     return 1;
 }
 
-#if LIBSSH2_MD5
-int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
+int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
+                   void *key, size_t keylen)
 {
-    return lgcr_hmac_init(ctx, key, keylen, GCRY_MD_MD5);
-}
-#endif
-
-#if LIBSSH2_HMAC_RIPEMD
-int ssh2_hmac_ripemd160_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
-{
-    return lgcr_hmac_init(ctx, key, keylen, GCRY_MD_RMD160);
-}
-#endif
-
-int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
-{
-    return lgcr_hmac_init(ctx, key, keylen, GCRY_MD_SHA1);
-}
-
-int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
-{
-    return lgcr_hmac_init(ctx, key, keylen, GCRY_MD_SHA256);
-}
-
-int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
-{
-    return lgcr_hmac_init(ctx, key, keylen, GCRY_MD_SHA512);
+    return lgcr_hmac_init(ctx, key, keylen, alg);
 }
 
 int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)

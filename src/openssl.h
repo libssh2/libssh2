@@ -241,18 +241,31 @@ int ssh2_random(unsigned char *buf, size_t len);
 #define ssh2_hash_alg                const EVP_MD *
 #define ssh2_hash_update(ctx, d, l)  EVP_DigestUpdate(*(ctx), d, l)
 
-#define SSH2_SHA1_ALG   EVP_sha1()
-#define SSH2_SHA256_ALG EVP_sha256()
-#define SSH2_SHA384_ALG EVP_sha384()
-#define SSH2_SHA512_ALG EVP_sha512()
+#define SSH2_SHA1_ALG       EVP_sha1()
+#define SSH2_SHA256_ALG     EVP_sha256()
+#define SSH2_SHA384_ALG     EVP_sha384()
+#define SSH2_SHA512_ALG     EVP_sha512()
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define SSH2_MD5_ALG    EVP_md5()
+#define SSH2_MD5_ALG        EVP_md5()
 #endif
 
 #ifdef USE_OPENSSL_3
-#define ssh2_hmac_ctx EVP_MAC_CTX *
+#define ssh2_hmac_ctx       EVP_MAC_CTX *
+#define ssh2_hmac_alg       const char *
+#define SSH2_SHA1_HMAC      OSSL_DIGEST_NAME_SHA1
+#define SSH2_SHA256_HMAC    OSSL_DIGEST_NAME_SHA2_256
+#define SSH2_SHA512_HMAC    OSSL_DIGEST_NAME_SHA2_512
+#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
+#define SSH2_MD5_HMAC       OSSL_DIGEST_NAME_MD5
+#endif
+#if LIBSSH2_HMAC_RIPEMD
+#define SSH2_RIPEMD160_HMAC OSSL_DIGEST_NAME_RIPEMD160
+#endif
 #else
-#define ssh2_hmac_ctx HMAC_CTX *
+#define ssh2_hmac_ctx       HMAC_CTX *
+#if LIBSSH2_HMAC_RIPEMD
+#define SSH2_RIPEMD160_HMAC EVP_ripemd160()
+#endif
 #endif /* USE_OPENSSL_3 */
 
 #if LIBSSH2_RSA

@@ -790,30 +790,10 @@ int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
     return 1;
 }
 
-#if LIBSSH2_MD5
-int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
+int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
+                   void *key, size_t keylen)
 {
-    return ssh2_hash_init_low(ctx, ssh2_wcng.hAlgHmacMD5,
-                              key, (ULONG)keylen);
-}
-#endif
-
-int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
-{
-    return ssh2_hash_init_low(ctx, ssh2_wcng.hAlgHmacSHA1,
-                              key, (ULONG)keylen);
-}
-
-int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
-{
-    return ssh2_hash_init_low(ctx, ssh2_wcng.hAlgHmacSHA256,
-                              key, (ULONG)keylen);
-}
-
-int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
-{
-    return ssh2_hash_init_low(ctx, ssh2_wcng.hAlgHmacSHA512,
-                              key, (ULONG)keylen);
+    return ssh2_hash_init_low(ctx, alg, key, (ULONG)keylen);
 }
 
 int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)

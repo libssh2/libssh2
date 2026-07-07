@@ -87,6 +87,10 @@
 
 #define ssh2_hmac_ctx         gcry_md_hd_t
 
+#if LIBSSH2_HMAC_RIPEMD
+#define SSH2_RIPEMD160_HMAC   GCRY_MD_RMD160
+#endif
+
 #define ssh2_crypto_init()    gcry_control(GCRYCTL_DISABLE_SECMEM)
 #define ssh2_crypto_exit()    do {} while(0)
 

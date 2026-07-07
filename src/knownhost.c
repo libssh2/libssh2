@@ -431,8 +431,8 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                         break;
                     if(!ssh2_hmac_ctx_init(&ctx))
                         break;
-                    if(!ssh2_hmac_sha1_init(&ctx,
-                                            node->salt, node->salt_len) ||
+                    if(!ssh2_hmac_init(&ctx, SSH2_SHA1_HMAC,
+                                       node->salt, node->salt_len) ||
                        !ssh2_hmac_update(&ctx, host, strlen(host)) ||
                        !ssh2_hmac_final(&ctx, hash, SSH2_SHA1_DIG_LEN)) {
                         ssh2_hmac_cleanup(&ctx);

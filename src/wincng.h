@@ -162,22 +162,30 @@ struct wcng_hash_ctx {
  * Windows CNG backend: Hash functions
  */
 
-#define ssh2_hash_ctx struct wcng_hash_ctx
-#define ssh2_hash_alg BCRYPT_ALG_HANDLE
+#define ssh2_hash_ctx    struct wcng_hash_ctx
+#define ssh2_hash_alg    BCRYPT_ALG_HANDLE
 
-#define SSH2_SHA1_ALG   ssh2_wcng.hAlgHashSHA1
-#define SSH2_SHA256_ALG ssh2_wcng.hAlgHashSHA256
-#define SSH2_SHA384_ALG ssh2_wcng.hAlgHashSHA384
-#define SSH2_SHA512_ALG ssh2_wcng.hAlgHashSHA512
+#define SSH2_SHA1_ALG    ssh2_wcng.hAlgHashSHA1
+#define SSH2_SHA256_ALG  ssh2_wcng.hAlgHashSHA256
+#define SSH2_SHA384_ALG  ssh2_wcng.hAlgHashSHA384
+#define SSH2_SHA512_ALG  ssh2_wcng.hAlgHashSHA512
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define SSH2_MD5_ALG    ssh2_wcng.hAlgHashMD5
+#define SSH2_MD5_ALG     ssh2_wcng.hAlgHashMD5
 #endif
 
 /*
  * Windows CNG backend: HMAC functions
  */
 
-#define ssh2_hmac_ctx struct wcng_hash_ctx
+#define ssh2_hmac_ctx    struct wcng_hash_ctx
+
+#define SSH2_SHA1_HMAC   ssh2_wcng.hAlgHmacSHA1
+#define SSH2_SHA256_HMAC ssh2_wcng.hAlgHmacSHA256
+#define SSH2_SHA384_HMAC ssh2_wcng.hAlgHmacSHA384
+#define SSH2_SHA512_HMAC ssh2_wcng.hAlgHmacSHA512
+#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
+#define SSH2_MD5_HMAC    ssh2_wcng.hAlgHmacMD5
+#endif
 
 /*******************************************************************/
 /*
