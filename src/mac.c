@@ -112,6 +112,7 @@ static int mac_method_hmac(LIBSSH2_SESSION *session,
     ssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
     int res;
+    (void)session;
 
     ssh2_htonu32(seqno_buf, seqno);
 
