@@ -79,7 +79,8 @@ int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen);
 int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen);
 void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx);
 
-#ifndef SSH2_SHA256_HMAC
+#ifndef ssh2_hmac_alg
+#define ssh2_hmac_alg    ssh2_hash_alg
 #define SSH2_SHA1_HMAC   SSH2_SHA1_ALG
 #define SSH2_SHA256_HMAC SSH2_SHA256_ALG
 #define SSH2_SHA384_HMAC SSH2_SHA384_ALG

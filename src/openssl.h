@@ -252,6 +252,7 @@ int ssh2_random(unsigned char *buf, size_t len);
 #ifdef USE_OPENSSL_3
 #define ssh2_hmac_ctx      EVP_MAC_CTX *
 
+#define ssh2_hmac_alg      const char *
 #define SSH2_RIPMD160_HMAC OSSL_DIGEST_NAME_RIPEMD160
 #define SSH2_SHA1_HMAC     OSSL_DIGEST_NAME_SHA1
 #define SSH2_SHA256_HMAC   OSSL_DIGEST_NAME_SHA2_256

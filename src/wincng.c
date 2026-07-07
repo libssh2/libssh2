@@ -790,6 +790,12 @@ int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
     return 1;
 }
 
+int ssh2_hmac_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
+{
+    return ssh2_hash_init_low(ctx, ssh2_wcng.hAlgHmacMD5,
+                              key, (ULONG)keylen);
+}
+
 #if LIBSSH2_MD5
 int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
 {
