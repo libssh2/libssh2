@@ -444,9 +444,9 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
         return -1; /* failure */
     }
 
+#ifdef USE_OPENSSL_3
     ret = 0;
 
-#ifdef USE_OPENSSL_3
     ctx = EVP_PKEY_CTX_new(rsa, NULL);
 
     if(nid_type == NID_sha1)
