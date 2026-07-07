@@ -794,7 +794,7 @@ static int mbed_dh_is_valid(ssh2_bn *f, ssh2_bn *p)
     mbedtls_mpi_copy(&tmp, p);  /* tmp = p */
     mbedtls_mpi_sub_int(&tmp, &tmp, 2);  /* tmp -= 2 */
 
-    if(mbedtls_mpi_cmp_mpi(f, &tmp)) {
+    if(mbedtls_mpi_cmp_mpi(f, &tmp) == 1) {
         mbedtls_mpi_free(&tmp);
         mbedtls_mpi_free(&one);
         return -1;  /* f > p - 2 */
