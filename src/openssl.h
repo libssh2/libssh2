@@ -237,10 +237,6 @@ int ssh2_random(unsigned char *buf, size_t len);
 
 #define ssh2_prepare_iovec(vec, len)  /* Empty. */
 
-/* returns 0 in case of failure */
-int ssh2_ossl_hash_init(EVP_MD_CTX **ctx, const EVP_MD *digest);
-int ssh2_ossl_hash_final(EVP_MD_CTX **ctx, unsigned char *out, size_t outlen);
-
 #define ssh2_hash_ctx                EVP_MD_CTX *
 #define ssh2_hash_alg                const EVP_MD *
 #define ssh2_hash_update(ctx, d, l)  EVP_DigestUpdate(*(ctx), d, l)
