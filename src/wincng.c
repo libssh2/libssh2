@@ -147,7 +147,7 @@ static void wcng_reverse_bytes(IN PUCHAR buffer, IN size_t buffer_len)
  * Windows CNG backend: BigNumber functions
  */
 
-ssh2_bn *ssh2_wcng_bn_init(void)
+ssh2_bn *ssh2_bn_init(void)
 {
     ssh2_bn *bignum = malloc(sizeof(ssh2_bn));
     if(bignum) {
@@ -291,7 +291,7 @@ static int wcng_bn_mod_exp(ssh2_bn *r, ssh2_bn *a, ssh2_bn *p, ssh2_bn *m)
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-int ssh2_wcng_bn_set_word(ssh2_bn *bn, ULONG word)
+int ssh2_bn_set_word(ssh2_bn *bn, unsigned long word)
 {
     ULONG offset, number, bits, length;
 
@@ -314,7 +314,7 @@ int ssh2_wcng_bn_set_word(ssh2_bn *bn, ULONG word)
     return 0;
 }
 
-ULONG ssh2_wcng_bn_bits(const ssh2_bn *bn)
+unsigned long ssh2_bn_bits(const ssh2_bn *bn)
 {
     unsigned char number;
     ULONG offset, length, bits;
@@ -336,7 +336,7 @@ ULONG ssh2_wcng_bn_bits(const ssh2_bn *bn)
     return bits;
 }
 
-int ssh2_wcng_bn_from_bin(ssh2_bn *bn, ULONG len, const unsigned char *bin)
+int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *bin)
 {
     unsigned char *bignum;
     ULONG offset, length, bits;
@@ -344,12 +344,12 @@ int ssh2_wcng_bn_from_bin(ssh2_bn *bn, ULONG len, const unsigned char *bin)
     if(!bn || !bin || !len)
         return -1;
 
-    if(wcng_bn_resize(bn, len))
+    if(wcng_bn_resize(bn, (ULONG)len))
         return -1;
 
     memcpy(bn->bignum, bin, len);
 
-    bits = ssh2_wcng_bn_bits(bn);
+    bits = ssh2_bn_bits(bn);
     length = (bits + 7) / 8;
 
     offset = bn->length - length;
@@ -370,7 +370,7 @@ int ssh2_wcng_bn_from_bin(ssh2_bn *bn, ULONG len, const unsigned char *bin)
     return 0;
 }
 
-int ssh2_wcng_bn_to_bin(const ssh2_bn *bn, unsigned char *bin)
+int ssh2_bn_to_bin(const ssh2_bn *bn, unsigned char *bin)
 {
     if(bin && bn && bn->bignum && bn->length > 0) {
         memcpy(bin, bn->bignum, bn->length);
@@ -380,7 +380,7 @@ int ssh2_wcng_bn_to_bin(const ssh2_bn *bn, unsigned char *bin)
     return -1;
 }
 
-void ssh2_wcng_bn_free(ssh2_bn *bn)
+void ssh2_bn_free(ssh2_bn *bn)
 {
     if(bn) {
         if(bn->bignum) {
@@ -2278,7 +2278,7 @@ int ssh2_ecdh_gen_k(OUT ssh2_bn **k,
     }
 
     /* Allocate a secret bignum to be ready to receive the derived secret */
-    *k = ssh2_wcng_bn_init();
+    *k = ssh2_bn_init();
     if(!*k) {
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
@@ -2313,7 +2313,7 @@ int ssh2_ecdh_gen_k(OUT ssh2_bn **k,
 
 cleanup:
     if(result != LIBSSH2_ERROR_NONE && *k) {
-        ssh2_wcng_bn_free(*k);
+        ssh2_bn_free(*k);
         *k = NULL;
     }
 
@@ -3224,7 +3224,7 @@ void ssh2_dh_dtor(ssh2_dh_ctx *dhctx)
         dhctx->dh_params = NULL;
     }
     if(dhctx->dh_privbn) {
-        ssh2_wcng_bn_free(dhctx->dh_privbn);
+        ssh2_bn_free(dhctx->dh_privbn);
         dhctx->dh_privbn = NULL;
     }
 }
@@ -3365,7 +3365,7 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
 
         if(dh_key_blob->dwMagic == BCRYPT_DH_PRIVATE_MAGIC) {
             /* BCRYPT_DH_PRIVATE_BLOB additionally contains the Private data */
-            dhctx->dh_privbn = ssh2_wcng_bn_init();
+            dhctx->dh_privbn = ssh2_bn_init();
             if(!dhctx->dh_privbn) {
                 wcng_zero_free(dh_key_blob, key_length_bytes);
                 return -1;
@@ -3399,7 +3399,7 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
     }
 
     /* Generate x and e */
-    dhctx->dh_privbn = ssh2_wcng_bn_init();
+    dhctx->dh_privbn = ssh2_bn_init();
     if(!dhctx->dh_privbn)
         return -1;
     if(wcng_bn_random(dhctx->dh_privbn, (group_order * 8) - 1, 0, -1))

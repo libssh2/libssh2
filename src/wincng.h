@@ -281,45 +281,20 @@ void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx);
 
 /*******************************************************************/
 /*
- * Windows CNG backend: BigNumber Context
+ * Windows CNG backend: BigNumber support
  */
 
-#define ssh2_bn_ctx             int /* not used */
-#define ssh2_bn_ctx_new()       0 /* not used */
-#define ssh2_bn_ctx_free(bnctx) ((void)0) /* not used */
-
-/*******************************************************************/
-/*
- * Windows CNG backend: BigNumber structure
- */
+#define ssh2_bn_ctx              int /* not used */
+#define ssh2_bn_ctx_new()        0 /* not used */
+#define ssh2_bn_ctx_free(bnctx)  ((void)0) /* not used */
 
 struct wcng_bn {
     unsigned char *bignum;
     ULONG length;
 };
 
-#define ssh2_bn struct wcng_bn
-
-/*
- * Windows CNG backend: BigNumber functions
- */
-
-#define ssh2_bn_init()                 ssh2_wcng_bn_init()
-#define ssh2_bn_init_from_bin()        ssh2_bn_init()
-#define ssh2_bn_set_word(bn, word)     ssh2_wcng_bn_set_word(bn, word)
-#define ssh2_bn_from_bin(bn, len, bin) \
-    ssh2_wcng_bn_from_bin(bn, (ULONG)(len), bin)
-#define ssh2_bn_to_bin(bn, bin)        ssh2_wcng_bn_to_bin(bn, bin)
-#define ssh2_bn_bytes(bn)              ((bn)->length)
-#define ssh2_bn_bits(bn)               ssh2_wcng_bn_bits(bn)
-#define ssh2_bn_free(bn)               ssh2_wcng_bn_free(bn)
-
-ssh2_bn *ssh2_wcng_bn_init(void);
-int ssh2_wcng_bn_set_word(ssh2_bn *bn, ULONG word);
-ULONG ssh2_wcng_bn_bits(const ssh2_bn *bn);
-int ssh2_wcng_bn_from_bin(ssh2_bn *bn, ULONG len, const unsigned char *bin);
-int ssh2_wcng_bn_to_bin(const ssh2_bn *bn, unsigned char *bin);
-void ssh2_wcng_bn_free(ssh2_bn *bn);
+#define ssh2_bn                  struct wcng_bn
+#define ssh2_bn_bytes(bn)        ((bn)->length)
 
 /*
  * Windows CNG backend: Diffie-Hellman support

@@ -275,7 +275,7 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
  * mbedTLS backend: BigNumber functions
  */
 
-ssh2_bn *ssh2_mbed_bn_init(void)
+ssh2_bn *ssh2_bn_init(void)
 {
     ssh2_bn *bignum;
 
@@ -286,7 +286,7 @@ ssh2_bn *ssh2_mbed_bn_init(void)
     return bignum;
 }
 
-void ssh2_mbed_bn_free(ssh2_bn *bn)
+void ssh2_bn_free(ssh2_bn *bn)
 {
     if(bn) {
         mbedtls_mpi_free(bn);
@@ -800,7 +800,7 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
 
 void ssh2_dh_init(ssh2_dh_ctx *dhctx)
 {
-    *dhctx = ssh2_mbed_bn_init(); /* Random from client */
+    *dhctx = ssh2_bn_init(); /* Random from client */
 }
 
 int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
@@ -830,7 +830,7 @@ int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
 
 void ssh2_dh_dtor(ssh2_dh_ctx *dhctx)
 {
-    ssh2_mbed_bn_free(*dhctx);
+    ssh2_bn_free(*dhctx);
     *dhctx = NULL;
 }
 
