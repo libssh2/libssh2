@@ -281,17 +281,12 @@ void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx);
 
 /*******************************************************************/
 /*
- * Windows CNG backend: BigNumber Context
+ * Windows CNG backend: BigNumber support
  */
 
 #define ssh2_bn_ctx             int /* not used */
 #define ssh2_bn_ctx_new()       0 /* not used */
 #define ssh2_bn_ctx_free(bnctx) ((void)0) /* not used */
-
-/*******************************************************************/
-/*
- * Windows CNG backend: BigNumber structure
- */
 
 struct wcng_bn {
     unsigned char *bignum;
