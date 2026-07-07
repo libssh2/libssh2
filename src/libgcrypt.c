@@ -53,12 +53,12 @@ int ssh2_hash_update(ssh2_hash_ctx *ctx, const void *input, size_t input_len)
     return 1;
 }
 
-int ssh2_hash_final(ssh2_hash_ctx *ctx, void *digest, size_t len)
+int ssh2_hash_final(ssh2_hash_ctx *ctx, void *digest, size_t digest_len)
 {
     int ret = 0;
-    unsigned int digest_len = gcry_md_get_algo_dlen(gcry_md_get_algo(*ctx));
-    if(len >= digest_len) {
-        memcpy(digest, gcry_md_read(*ctx, 0), digest_len);
+    unsigned int actual_len = gcry_md_get_algo_dlen(gcry_md_get_algo(*ctx));
+    if(digest_len >= actual_len) {
+        memcpy(digest, gcry_md_read(*ctx, 0), actual_len);
         ret = 1;
     }
     gcry_md_close(*ctx);
