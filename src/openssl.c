@@ -107,10 +107,10 @@ int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 #endif
 }
 
-#ifdef USE_OPENSSL_3
-static int ossl_hmac_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen,
-                          const char *digest_name)
+int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
+                   void *key, size_t keylen)
 {
+#ifdef USE_OPENSSL_3
     EVP_MAC *mac;
     OSSL_PARAM params[3];
 
@@ -126,18 +126,10 @@ static int ossl_hmac_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen,
     params[0] = OSSL_PARAM_construct_octet_string(
         OSSL_MAC_PARAM_KEY, key, keylen);
     params[1] = OSSL_PARAM_construct_utf8_string(
-        OSSL_MAC_PARAM_DIGEST, (char *)SSH2_UNCONST(digest_name), 0);
+        OSSL_MAC_PARAM_DIGEST, (char *)SSH2_UNCONST(alg), 0);
     params[2] = OSSL_PARAM_construct_end();
 
     return EVP_MAC_init(*ctx, NULL, 0, params);
-}
-#endif
-
-int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
-                   void *key, size_t keylen)
-{
-#ifdef USE_OPENSSL_3
-    return ossl_hmac_init(ctx, key, keylen, alg);
 #else
     return HMAC_Init_ex(*ctx, key, (int)keylen, alg, NULL);
 #endif
