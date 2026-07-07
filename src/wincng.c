@@ -339,8 +339,7 @@ unsigned long ssh2_bn_bits(const ssh2_bn *bn)
 int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *bin)
 {
     unsigned char *bignum;
-    ULONG offset, length;
-    size_t bits;
+    ULONG offset, length, bits;
 
     if(!bn || !bin || !len)
         return -1;
@@ -351,7 +350,7 @@ int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *bin)
     memcpy(bn->bignum, bin, len);
 
     bits = ssh2_bn_bits(bn);
-    length = ((ULONG)bits + 7) / 8;
+    length = (bits + 7) / 8;
 
     offset = bn->length - length;
     if(offset > 0) {
