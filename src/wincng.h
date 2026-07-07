@@ -294,7 +294,6 @@ struct wcng_bn {
 };
 
 #define ssh2_bn                  struct wcng_bn
-
 #define ssh2_bn_init_from_bin()  ssh2_bn_init()
 #define ssh2_bn_bytes(bn)        ((bn)->length)
 
