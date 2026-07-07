@@ -79,15 +79,6 @@ int ssh2_hash(ssh2_hash_alg alg, const void *input, size_t input_len,
 int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx);
 int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
                    void *key, size_t keylen);
-#if LIBSSH2_MD5
-int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen);
-#endif
-#if LIBSSH2_HMAC_RIPEMD
-int ssh2_hmac_ripemd160_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen);
-#endif
-int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen);
-int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen);
-int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen);
 int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen);
 int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen);
 void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx);
