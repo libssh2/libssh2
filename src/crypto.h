@@ -79,6 +79,16 @@ int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen);
 int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen);
 void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx);
 
+#ifndef SSH2_SHA256_HMAC
+#define SSH2_SHA1_HMAC   SSH2_SHA1_ALG
+#define SSH2_SHA256_HMAC SSH2_SHA256_ALG
+#define SSH2_SHA384_HMAC SSH2_SHA384_ALG
+#define SSH2_SHA512_HMAC SSH2_SHA512_ALG
+#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
+#define SSH2_MD5_HMAC    SSH2_MD5_ALG
+#endif
+#endif
+
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #define SSH2_MD5_DIG_LEN                16
 #endif
