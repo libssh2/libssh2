@@ -99,6 +99,35 @@ static int mac_method_common_dtor(LIBSSH2_SESSION *session, void **abstract)
     return 0;
 }
 
+/*
+ * Calculate hash
+ */
+static int mac_method_hmac(ssh2_hmac_alg alg, size_t digest_len,
+                           unsigned char *buf, uint32_t seqno,
+                           const unsigned char *packet, size_t packet_len,
+                           const unsigned char *addtl, size_t addtl_len,
+                           void **abstract)
+{
+    ssh2_hmac_ctx ctx;
+    unsigned char seqno_buf[4];
+    int res;
+
+    ssh2_htonu32(seqno_buf, seqno);
+
+    if(!ssh2_hmac_ctx_init(&ctx))
+        return 1;
+    res = ssh2_hmac_init(&ctx, alg, *abstract, digest_len) &&
+          ssh2_hmac_update(&ctx, seqno_buf, 4) &&
+          ssh2_hmac_update(&ctx, packet, packet_len);
+    if(res && addtl && addtl_len)
+        res = ssh2_hmac_update(&ctx, addtl, addtl_len);
+    if(res)
+        res = ssh2_hmac_final(&ctx, buf, digest_len);
+    ssh2_hmac_cleanup(&ctx);
+
+    return !res;
+}
+
 #if LIBSSH2_HMAC_SHA512
 /*
  * Calculate hash using full sha512 value
@@ -110,26 +139,8 @@ static int mac_method_hmac_sha2_512_hash(LIBSSH2_SESSION *session,
                                          const unsigned char *addtl,
                                          size_t addtl_len, void **abstract)
 {
-    ssh2_hmac_ctx ctx;
-    unsigned char seqno_buf[4];
-    int res;
-    (void)session;
-
-    ssh2_htonu32(seqno_buf, seqno);
-
-    if(!ssh2_hmac_ctx_init(&ctx))
-        return 1;
-    res = ssh2_hmac_init(&ctx, SSH2_SHA512_HMAC,
-                         *abstract, SSH2_SHA512_DIG_LEN) &&
-          ssh2_hmac_update(&ctx, seqno_buf, 4) &&
-          ssh2_hmac_update(&ctx, packet, packet_len);
-    if(res && addtl && addtl_len)
-        res = ssh2_hmac_update(&ctx, addtl, addtl_len);
-    if(res)
-        res = ssh2_hmac_final(&ctx, buf, SSH2_SHA512_DIG_LEN);
-    ssh2_hmac_cleanup(&ctx);
-
-    return !res;
+    return mac_method_hmac(SSH2_SHA512_HMAC, SSH2_SHA512_DIG_LEN, buf, seqno,
+                           packet, packet_len, addtl, addtl_len, abstract);
 }
 
 static const struct mac_method mac_method_hmac_sha2_512 = {
@@ -165,26 +176,8 @@ static int mac_method_hmac_sha2_256_hash(LIBSSH2_SESSION *session,
                                          const unsigned char *addtl,
                                          size_t addtl_len, void **abstract)
 {
-    ssh2_hmac_ctx ctx;
-    unsigned char seqno_buf[4];
-    int res;
-    (void)session;
-
-    ssh2_htonu32(seqno_buf, seqno);
-
-    if(!ssh2_hmac_ctx_init(&ctx))
-        return 1;
-    res = ssh2_hmac_init(&ctx, SSH2_SHA256_HMAC,
-                         *abstract, SSH2_SHA256_DIG_LEN) &&
-          ssh2_hmac_update(&ctx, seqno_buf, 4) &&
-          ssh2_hmac_update(&ctx, packet, packet_len);
-    if(res && addtl && addtl_len)
-        res = ssh2_hmac_update(&ctx, addtl, addtl_len);
-    if(res)
-        res = ssh2_hmac_final(&ctx, buf, SSH2_SHA256_DIG_LEN);
-    ssh2_hmac_cleanup(&ctx);
-
-    return !res;
+    return mac_method_hmac(SSH2_SHA256_HMAC, SSH2_SHA256_DIG_LEN, buf, seqno,
+                           packet, packet_len, addtl, addtl_len, abstract);
 }
 
 static const struct mac_method mac_method_hmac_sha2_256 = {
@@ -219,26 +212,8 @@ static int mac_method_hmac_sha1_hash(LIBSSH2_SESSION *session,
                                      const unsigned char *addtl,
                                      size_t addtl_len, void **abstract)
 {
-    ssh2_hmac_ctx ctx;
-    unsigned char seqno_buf[4];
-    int res;
-    (void)session;
-
-    ssh2_htonu32(seqno_buf, seqno);
-
-    if(!ssh2_hmac_ctx_init(&ctx))
-        return 1;
-    res = ssh2_hmac_init(&ctx, SSH2_SHA1_HMAC,
-                         *abstract, SSH2_SHA1_DIG_LEN) &&
-          ssh2_hmac_update(&ctx, seqno_buf, 4) &&
-          ssh2_hmac_update(&ctx, packet, packet_len);
-    if(res && addtl && addtl_len)
-        res = ssh2_hmac_update(&ctx, addtl, addtl_len);
-    if(res)
-        res = ssh2_hmac_final(&ctx, buf, SSH2_SHA1_DIG_LEN);
-    ssh2_hmac_cleanup(&ctx);
-
-    return !res;
+    return mac_method_hmac(SSH2_SHA1_HMAC, SSH2_SHA1_DIG_LEN, buf, seqno,
+                           packet, packet_len, addtl, addtl_len, abstract);
 }
 
 static const struct mac_method mac_method_hmac_sha1 = {
@@ -302,26 +277,8 @@ static int mac_method_hmac_md5_hash(LIBSSH2_SESSION *session,
                                     const unsigned char *addtl,
                                     size_t addtl_len, void **abstract)
 {
-    ssh2_hmac_ctx ctx;
-    unsigned char seqno_buf[4];
-    int res;
-    (void)session;
-
-    ssh2_htonu32(seqno_buf, seqno);
-
-    if(!ssh2_hmac_ctx_init(&ctx))
-        return 1;
-    res = ssh2_hmac_init(&ctx, SSH2_MD5_HMAC,
-                         *abstract, SSH2_MD5_DIG_LEN) &&
-          ssh2_hmac_update(&ctx, seqno_buf, 4) &&
-          ssh2_hmac_update(&ctx, packet, packet_len);
-    if(res && addtl && addtl_len)
-        res = ssh2_hmac_update(&ctx, addtl, addtl_len);
-    if(res)
-        res = ssh2_hmac_final(&ctx, buf, SSH2_MD5_DIG_LEN);
-    ssh2_hmac_cleanup(&ctx);
-
-    return !res;
+    return mac_method_hmac(SSH2_MD5_HMAC, SSH2_MD5_DIG_LEN, buf, seqno,
+                           packet, packet_len, addtl, addtl_len, abstract);
 }
 
 static const struct mac_method mac_method_hmac_md5 = {
@@ -376,26 +333,9 @@ static int mac_method_hmac_ripemd160_hash(LIBSSH2_SESSION *session,
                                           const unsigned char *addtl,
                                           size_t addtl_len, void **abstract)
 {
-    ssh2_hmac_ctx ctx;
-    unsigned char seqno_buf[4];
-    int res;
-    (void)session;
-
-    ssh2_htonu32(seqno_buf, seqno);
-
-    if(!ssh2_hmac_ctx_init(&ctx))
-        return 1;
-    res = ssh2_hmac_init(&ctx, SSH2_RIPEMD160_HMAC,
-                         *abstract, SSH2_RIPEMD160_DIG_LEN) &&
-          ssh2_hmac_update(&ctx, seqno_buf, 4) &&
-          ssh2_hmac_update(&ctx, packet, packet_len);
-    if(res && addtl && addtl_len)
-        res = ssh2_hmac_update(&ctx, addtl, addtl_len);
-    if(res)
-        res = ssh2_hmac_final(&ctx, buf, SSH2_RIPEMD160_DIG_LEN);
-    ssh2_hmac_cleanup(&ctx);
-
-    return !res;
+    return mac_method_hmac(SSH2_RIPEMD160_HMAC, SSH2_RIPEMD160_DIG_LEN, buf,
+                           seqno,
+                           packet, packet_len, addtl, addtl_len, abstract);
 }
 
 static const struct mac_method mac_method_hmac_ripemd160 = {
