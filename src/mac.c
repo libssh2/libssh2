@@ -248,8 +248,8 @@ static int mac_method_hmac_sha1_96_hash(LIBSSH2_SESSION *session,
 {
     unsigned char temp[SSH2_SHA1_DIG_LEN];
 
-    if(mac_method_hmac_sha1_hash(session, temp, seqno, packet, packet_len,
-                                 addtl, addtl_len, abstract))
+    if(mac_method_hmac(SSH2_SHA1_HMAC, SSH2_SHA1_DIG_LEN, temp, seqno,
+                       packet, packet_len, addtl, addtl_len, abstract))
         return 1;
 
     memcpy(buf, (char *)temp, 96 / 8);
@@ -303,8 +303,8 @@ static int mac_method_hmac_md5_96_hash(LIBSSH2_SESSION *session,
 {
     unsigned char temp[SSH2_MD5_DIG_LEN];
 
-    if(mac_method_hmac_md5_hash(session, temp, seqno, packet, packet_len,
-                                addtl, addtl_len, abstract))
+    if(mac_method_hmac(SSH2_MD5_HMAC, SSH2_MD5_DIG_LEN, temp, seqno,
+                       packet, packet_len, addtl, addtl_len, abstract))
         return 1;
 
     memcpy(buf, (char *)temp, 96 / 8);
