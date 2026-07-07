@@ -56,7 +56,7 @@ void ssh2_crypto_init(void)
 #endif
 }
 
-int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg digest)
+int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg alg)
 {
 #if !defined(USE_OPENSSL_3) && \
     !defined(LIBRESSL_VERSION_NUMBER) && \
@@ -67,7 +67,7 @@ int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg digest)
      * "digital envelope routines:FIPS_DIGESTINIT:disabled for fips"
      * Thus, return 0 in FIPS mode
      */
-    if(digest == EVP_md5() && FIPS_mode()) {
+    if(alg == SSH2_MD5_ALG && FIPS_mode()) {
         *ctx = NULL;
         return 0;
     }
@@ -77,7 +77,7 @@ int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg digest)
     if(!*ctx)
         return 0;
 
-    if(EVP_DigestInit_ex(*ctx, digest, NULL))
+    if(EVP_DigestInit_ex(*ctx, alg, NULL))
         return 1;
 
     EVP_MD_CTX_free(*ctx);
