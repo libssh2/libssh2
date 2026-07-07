@@ -441,7 +441,6 @@ static int kex_diffie_hellman_sha(LIBSSH2_SESSION *session,
                                   int group_order,
                                   ssh2_hash_alg hash_alg,
                                   size_t digest_len,
-                                  ssh2_hash_ctx *exchange_hash_ctx,
                                   unsigned char packet_type_init,
                                   unsigned char packet_type_reply,
                                   unsigned char *midhash,
@@ -560,7 +559,7 @@ static int kex_diffie_hellman_sha(LIBSSH2_SESSION *session,
     }
 
     if(exchange_state->state == ssh2_NB_state_sent1) {
-        ssh2_hash_ctx *ctx = (ssh2_hash_ctx *)exchange_hash_ctx;
+        ssh2_hash_ctx ctx;
         /* Wait for KEX reply */
         struct string_buf buf;
         int err;
@@ -641,7 +640,7 @@ static int kex_diffie_hellman_sha(LIBSSH2_SESSION *session,
             }
         }
 
-        hok = ssh2_hash_init(ctx, hash_alg);
+        hok = ssh2_hash_init(&ctx, hash_alg);
         if(!hok) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
                            "Unable to initialize hash context DH-SHA");
@@ -650,66 +649,66 @@ static int kex_diffie_hellman_sha(LIBSSH2_SESSION *session,
         if(session->local.banner) {
             ssh2_htonu32(exchange_state->h_sig_comp,
                 (uint32_t)(strlen((const char *)session->local.banner) - 2));
-            hok &= ssh2_hash_update(*ctx, exchange_state->h_sig_comp, 4);
-            hok &= ssh2_hash_update(*ctx, session->local.banner,
+            hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
+            hok &= ssh2_hash_update(ctx, session->local.banner,
                               strlen((const char *)session->local.banner) - 2);
         }
         else {
             ssh2_htonu32(exchange_state->h_sig_comp,
                          sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
-            hok &= ssh2_hash_update(*ctx, exchange_state->h_sig_comp, 4);
-            hok &= ssh2_hash_update(*ctx, LIBSSH2_SSH_DEFAULT_BANNER,
+            hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
+            hok &= ssh2_hash_update(ctx, LIBSSH2_SSH_DEFAULT_BANNER,
                                     sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
         }
 
         ssh2_htonu32(exchange_state->h_sig_comp,
                      (uint32_t)strlen((const char *)session->remote.banner));
-        hok &= ssh2_hash_update(*ctx, exchange_state->h_sig_comp, 4);
-        hok &= ssh2_hash_update(*ctx, session->remote.banner,
-                                 strlen((const char *)session->remote.banner));
+        hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
+        hok &= ssh2_hash_update(ctx, session->remote.banner,
+                                strlen((const char *)session->remote.banner));
 
         ssh2_htonu32(exchange_state->h_sig_comp,
                      (uint32_t)session->local.kexinit_len);
-        hok &= ssh2_hash_update(*ctx, exchange_state->h_sig_comp, 4);
-        hok &= ssh2_hash_update(*ctx, session->local.kexinit,
-                                      session->local.kexinit_len);
+        hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
+        hok &= ssh2_hash_update(ctx, session->local.kexinit,
+                                     session->local.kexinit_len);
 
         ssh2_htonu32(exchange_state->h_sig_comp,
                      (uint32_t)session->remote.kexinit_len);
-        hok &= ssh2_hash_update(*ctx, exchange_state->h_sig_comp, 4);
-        hok &= ssh2_hash_update(*ctx, session->remote.kexinit,
-                                      session->remote.kexinit_len);
+        hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
+        hok &= ssh2_hash_update(ctx, session->remote.kexinit,
+                                     session->remote.kexinit_len);
 
         ssh2_htonu32(exchange_state->h_sig_comp, session->server_hostkey_len);
-        hok &= ssh2_hash_update(*ctx, exchange_state->h_sig_comp, 4);
-        hok &= ssh2_hash_update(*ctx, session->server_hostkey,
-                                      session->server_hostkey_len);
+        hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
+        hok &= ssh2_hash_update(ctx, session->server_hostkey,
+                                     session->server_hostkey_len);
 
         if(packet_type_init == SSH_MSG_KEX_DH_GEX_INIT) {
             /* diffie-hellman-group-exchange hashes additional fields */
             ssh2_htonu32(exchange_state->h_sig_comp, SSH2_DH_GEX_MINGROUP);
             ssh2_htonu32(exchange_state->h_sig_comp + 4, SSH2_DH_GEX_OPTGROUP);
             ssh2_htonu32(exchange_state->h_sig_comp + 8, SSH2_DH_GEX_MAXGROUP);
-            hok &= ssh2_hash_update(*ctx, exchange_state->h_sig_comp, 12);
+            hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 12);
         }
 
         if(midhash)
-            hok &= ssh2_hash_update(*ctx, midhash, midhash_len);
+            hok &= ssh2_hash_update(ctx, midhash, midhash_len);
 
-        hok &= ssh2_hash_update(*ctx, exchange_state->e_packet + 1,
-                                      exchange_state->e_packet_len - 1);
+        hok &= ssh2_hash_update(ctx, exchange_state->e_packet + 1,
+                                     exchange_state->e_packet_len - 1);
 
         ssh2_htonu32(exchange_state->h_sig_comp,
                      (uint32_t)exchange_state->f_value_len);
-        hok &= ssh2_hash_update(*ctx, exchange_state->h_sig_comp, 4);
-        hok &= ssh2_hash_update(*ctx, exchange_state->f_value,
-                                      exchange_state->f_value_len);
+        hok &= ssh2_hash_update(ctx, exchange_state->h_sig_comp, 4);
+        hok &= ssh2_hash_update(ctx, exchange_state->f_value,
+                                     exchange_state->f_value_len);
 
-        hok &= ssh2_hash_update(*ctx, exchange_state->k_value,
-                                      exchange_state->k_value_len);
+        hok &= ssh2_hash_update(ctx, exchange_state->k_value,
+                                     exchange_state->k_value_len);
 
-        hok &= ssh2_hash_final(*ctx, exchange_state->h_sig_comp,
-                                     sizeof(exchange_state->h_sig_comp));
+        hok &= ssh2_hash_final(ctx, exchange_state->h_sig_comp,
+                                    sizeof(exchange_state->h_sig_comp));
         if(!hok) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                            "Failed to calculate hash DH-SHA");
@@ -789,7 +788,6 @@ static int kex_method_diffie_hellman_group1_sha1_key_exchange(
     };
 
     int ret;
-    ssh2_hash_ctx exchange_hash_ctx;
 
     if(key_state->state == ssh2_NB_state_idle) {
         /* g == 2 */
@@ -817,7 +815,6 @@ static int kex_method_diffie_hellman_group1_sha1_key_exchange(
 
     ret = kex_diffie_hellman_sha(session, key_state->g, key_state->p, 128,
                                  SSH2_SHA1_ALG, SSH2_SHA1_DIG_LEN,
-                                 &exchange_hash_ctx,
                                  SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
                                  NULL, 0, &key_state->exchange_state);
     if(ret == LIBSSH2_ERROR_EAGAIN)
@@ -839,7 +836,6 @@ typedef int (*diffie_hellman_hash_func_t)(
     int group_order,
     ssh2_hash_alg hash_alg,
     size_t digest_len,
-    ssh2_hash_ctx *exchange_hash_ctx,
     unsigned char packet_type_init,
     unsigned char packet_type_reply,
     unsigned char *midhash,
@@ -850,7 +846,6 @@ static int kex_method_diffie_hellman_group14_key_exchange(
     LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state,
     ssh2_hash_alg hash_alg,
     size_t digest_len,
-    ssh2_hash_ctx *exchange_hash_ctx,
     diffie_hellman_hash_func_t hashfunc)
 {
     static const unsigned char p_value[256] = {
@@ -914,7 +909,7 @@ static int kex_method_diffie_hellman_group14_key_exchange(
         key_state->state = ssh2_NB_state_created;
     }
     ret = hashfunc(session, key_state->g, key_state->p, 256,
-                   hash_alg, digest_len, exchange_hash_ctx, SSH_MSG_KEXDH_INIT,
+                   hash_alg, digest_len, SSH_MSG_KEXDH_INIT,
                    SSH_MSG_KEXDH_REPLY, NULL, 0, &key_state->exchange_state);
     if(ret == LIBSSH2_ERROR_EAGAIN)
         return ret;
@@ -931,9 +926,8 @@ clean_exit:
 static int kex_method_diffie_hellman_group14_sha1_key_exchange(
     LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
-    ssh2_hash_ctx ctx;
     return kex_method_diffie_hellman_group14_key_exchange(session, key_state,
-        SSH2_SHA1_ALG, SSH2_SHA1_DIG_LEN, &ctx, kex_diffie_hellman_sha);
+        SSH2_SHA1_ALG, SSH2_SHA1_DIG_LEN, kex_diffie_hellman_sha);
 }
 
 /*
@@ -942,9 +936,8 @@ static int kex_method_diffie_hellman_group14_sha1_key_exchange(
 static int kex_method_diffie_hellman_group14_sha256_key_exchange(
     LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
-    ssh2_hash_ctx ctx;
     return kex_method_diffie_hellman_group14_key_exchange(session, key_state,
-        SSH2_SHA256_ALG, SSH2_SHA256_DIG_LEN, &ctx, kex_diffie_hellman_sha);
+        SSH2_SHA256_ALG, SSH2_SHA256_DIG_LEN, kex_diffie_hellman_sha);
 }
 
 /*
@@ -999,7 +992,6 @@ static int kex_method_diffie_hellman_group16_sha512_key_exchange(
         0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
     };
     int ret;
-    ssh2_hash_ctx exchange_hash_ctx;
 
     if(key_state->state == ssh2_NB_state_idle) {
         key_state->p = ssh2_bn_init_from_bin(); /* SSH2 defined value
@@ -1027,7 +1019,6 @@ static int kex_method_diffie_hellman_group16_sha512_key_exchange(
 
     ret = kex_diffie_hellman_sha(session, key_state->g, key_state->p, 512,
                                  SSH2_SHA512_ALG, SSH2_SHA512_DIG_LEN,
-                                 &exchange_hash_ctx,
                                  SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
                                  NULL, 0, &key_state->exchange_state);
     if(ret == LIBSSH2_ERROR_EAGAIN)
@@ -1134,7 +1125,6 @@ static int kex_method_diffie_hellman_group18_sha512_key_exchange(
         0xFF, 0xFF, 0xFF, 0xFF
     };
     int ret;
-    ssh2_hash_ctx exchange_hash_ctx;
 
     if(key_state->state == ssh2_NB_state_idle) {
         key_state->p = ssh2_bn_init_from_bin(); /* SSH2 defined value
@@ -1163,7 +1153,6 @@ static int kex_method_diffie_hellman_group18_sha512_key_exchange(
 
     ret = kex_diffie_hellman_sha(session, key_state->g, key_state->p, 1024,
                                  SSH2_SHA512_ALG, SSH2_SHA512_DIG_LEN,
-                                 &exchange_hash_ctx,
                                  SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
                                  NULL, 0, &key_state->exchange_state);
     if(ret == LIBSSH2_ERROR_EAGAIN)
@@ -1232,7 +1221,6 @@ static int kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
         size_t p_len, g_len;
         unsigned char *p, *g;
         struct string_buf buf;
-        ssh2_hash_ctx exchange_hash_ctx;
         int bits;
 
         if(key_state->data_len < 9) {
@@ -1280,7 +1268,6 @@ static int kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
         ret = kex_diffie_hellman_sha(session, key_state->g, key_state->p,
                                      (int)p_len,
                                      SSH2_SHA1_ALG, SSH2_SHA1_DIG_LEN,
-                                     &exchange_hash_ctx,
                                      SSH_MSG_KEX_DH_GEX_INIT,
                                      SSH_MSG_KEX_DH_GEX_REPLY,
                                      key_state->data + 1,
@@ -1354,7 +1341,6 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
         unsigned char *p, *g;
         size_t p_len, g_len;
         struct string_buf buf;
-        ssh2_hash_ctx exchange_hash_ctx;
         int bits;
 
         if(key_state->data_len < 9) {
@@ -1404,7 +1390,6 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
         ret = kex_diffie_hellman_sha(session, key_state->g, key_state->p,
                                      (int)p_len,
                                      SSH2_SHA256_ALG, SSH2_SHA256_DIG_LEN,
-                                     &exchange_hash_ctx,
                                      SSH_MSG_KEX_DH_GEX_INIT,
                                      SSH_MSG_KEX_DH_GEX_REPLY,
                                      key_state->data + 1,
