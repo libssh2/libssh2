@@ -66,6 +66,8 @@ int ssh2_hash(ssh2_hash_alg alg, const void *input, size_t input_len,
 
 #ifndef ssh2_hmac_alg
 #define ssh2_hmac_alg    ssh2_hash_alg
+#endif
+#ifndef SSH2_SHA256_HMAC
 #define SSH2_SHA1_HMAC   SSH2_SHA1_ALG
 #define SSH2_SHA256_HMAC SSH2_SHA256_ALG
 #define SSH2_SHA384_HMAC SSH2_SHA384_ALG
