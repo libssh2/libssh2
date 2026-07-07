@@ -98,7 +98,7 @@ int ssh2_hash_final(ssh2_hash_ctx *ctx, void *digest, size_t digest_len)
 static int ossl_hash(ssh2_hash_alg alg, const void *input, size_t input_len,
                      void *digest, size_t digest_len)
 {
-    int ret = 1; /* error */
+    int ret = 0; /* error */
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
     (void)digest_len;
 
@@ -106,7 +106,7 @@ static int ossl_hash(ssh2_hash_alg alg, const void *input, size_t input_len,
         if(EVP_DigestInit_ex(ctx, alg, NULL) &&
            EVP_DigestUpdate(ctx, input, input_len) &&
            EVP_DigestFinal_ex(ctx, digest, NULL))
-            ret = 0; /* success */
+            ret = 1; /* success */
         EVP_MD_CTX_free(ctx);
     }
 
@@ -454,13 +454,15 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
     }
     else {
         nid_type = 0;
-        ret = -1; /* unsupported digest */
+        ret = 0; /* unsupported digest */
     }
 
-    if(ret) {
+    if(!ret) {
         free(hash);
         return -1; /* failure */
     }
+
+    ret = 0;
 
 #ifdef USE_OPENSSL_3
     ctx = EVP_PKEY_CTX_new(rsa, NULL);
@@ -657,11 +659,9 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
     ctx = EVP_PKEY_CTX_new(dsa, NULL);
     der_len = i2d_DSA_SIG(dsasig, &der);
 
-    if(ctx && !ossl_hash(SSH2_SHA1_ALG, m, m_len, hash, sizeof(hash))) {
-        /* ossl_hash() succeeded */
+    if(ctx && ossl_hash(SSH2_SHA1_ALG, m, m_len, hash, sizeof(hash)))
         if(EVP_PKEY_verify_init(ctx) > 0)
             ret = EVP_PKEY_verify(ctx, der, der_len, hash, SSH2_SHA1_DIG_LEN);
-    }
 
     if(ctx)
         EVP_PKEY_CTX_free(ctx);
@@ -669,8 +669,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
     if(der)
         OPENSSL_clear_free(der, der_len);
 #else
-    if(!ossl_hash(SSH2_SHA1_ALG, m, m_len, hash, sizeof(hash)))
-        /* ossl_hash() succeeded */
+    if(ossl_hash(SSH2_SHA1_ALG, m, m_len, hash, sizeof(hash)))
         ret = DSA_do_verify(hash, SSH2_SHA1_DIG_LEN, dsasig, dsa);
 #endif
 
@@ -865,7 +864,7 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
 
     if(type == SSH2_EC_CURVE_NISTP256) {
         unsigned char hash[SSH2_SHA256_DIG_LEN];
-        if(ossl_hash(SSH2_SHA256_ALG, m, m_len, hash, sizeof(hash)) == 0) {
+        if(ossl_hash(SSH2_SHA256_ALG, m, m_len, hash, sizeof(hash))) {
             ret = EVP_PKEY_verify_init(ctx);
             if(ret > 0)
                 ret = EVP_PKEY_verify(ctx, der, der_len, hash, sizeof(hash));
@@ -873,7 +872,7 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
     }
     else if(type == SSH2_EC_CURVE_NISTP384) {
         unsigned char hash[SSH2_SHA384_DIG_LEN];
-        if(ossl_hash(SSH2_SHA384_ALG, m, m_len, hash, sizeof(hash)) == 0) {
+        if(ossl_hash(SSH2_SHA384_ALG, m, m_len, hash, sizeof(hash))) {
             ret = EVP_PKEY_verify_init(ctx);
             if(ret > 0)
                 ret = EVP_PKEY_verify(ctx, der, der_len, hash, sizeof(hash));
@@ -881,7 +880,7 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
     }
     else if(type == SSH2_EC_CURVE_NISTP521) {
         unsigned char hash[SSH2_SHA512_DIG_LEN];
-        if(ossl_hash(SSH2_SHA512_ALG, m, m_len, hash, sizeof(hash)) == 0) {
+        if(ossl_hash(SSH2_SHA512_ALG, m, m_len, hash, sizeof(hash))) {
             ret = EVP_PKEY_verify_init(ctx);
             if(ret > 0)
                 ret = EVP_PKEY_verify(ctx, der, der_len, hash, sizeof(hash));
@@ -897,17 +896,17 @@ cleanup:
 #else
     if(type == SSH2_EC_CURVE_NISTP256) {
         unsigned char hash[SSH2_SHA256_DIG_LEN];
-        if(ossl_hash(SSH2_SHA256_ALG, m, m_len, hash, sizeof(hash)) == 0)
+        if(ossl_hash(SSH2_SHA256_ALG, m, m_len, hash, sizeof(hash)))
             ret = ECDSA_do_verify(hash, sizeof(hash), ecdsa_sig, ec_key);
     }
     else if(type == SSH2_EC_CURVE_NISTP384) {
         unsigned char hash[SSH2_SHA384_DIG_LEN];
-        if(ossl_hash(SSH2_SHA384_ALG, m, m_len, hash, sizeof(hash)) == 0)
+        if(ossl_hash(SSH2_SHA384_ALG, m, m_len, hash, sizeof(hash)))
             ret = ECDSA_do_verify(hash, sizeof(hash), ecdsa_sig, ec_key);
     }
     else if(type == SSH2_EC_CURVE_NISTP521) {
         unsigned char hash[SSH2_SHA512_DIG_LEN];
-        if(ossl_hash(SSH2_SHA512_ALG, m, m_len, hash, sizeof(hash)) == 0)
+        if(ossl_hash(SSH2_SHA512_ALG, m, m_len, hash, sizeof(hash)))
             ret = ECDSA_do_verify(hash, sizeof(hash), ecdsa_sig, ec_key);
     }
 #endif
