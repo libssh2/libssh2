@@ -138,7 +138,9 @@ struct mbed_hash_ctx {
 
 #define ssh2_hmac_ctx struct mbed_hash_ctx
 
-#define SSH2_RIPMD160_HMAC PSA_ALG_RIPEMD160
+#if LIBSSH2_HMAC_RIPEMD
+#define SSH2_RIPEMD160_HMAC PSA_ALG_RIPEMD160
+#endif
 
 /*******************************************************************/
 /*
