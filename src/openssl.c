@@ -95,8 +95,8 @@ int ssh2_hash_final(ssh2_hash_ctx *ctx, void *digest, size_t digest_len)
     return ret;
 }
 
-static int ossl_hash(ssh2_hash_alg alg,
-                     const void *input, size_t input_len, void *digest)
+static int ossl_hash(ssh2_hash_alg alg, const void *input, size_t input_len,
+                     void *digest)
 {
     int ret = 1; /* error */
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
