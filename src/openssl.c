@@ -61,7 +61,7 @@ int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg alg)
 #if !defined(USE_OPENSSL_3) && \
     !defined(LIBRESSL_VERSION_NUMBER) && \
     !defined(LIBSSH2_WOLFSSL) && \
-    LIBSSH2_MD5
+    (LIBSSH2_MD5 || LIBSSH2_MD5_PEM)
     /* OpenSSL 1.1.1
      * MD5 digest is not supported in OpenSSL FIPS mode
      * Trying to init it results in a latent OpenSSL error:
