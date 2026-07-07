@@ -342,11 +342,6 @@ const char *ssh2_supported_key_sign_algs(LIBSSH2_SESSION *session,
                                          unsigned char *key_method,
                                          size_t key_method_len);
 
-#if 0
-#define ssh2_bn_init_from_bin()        ssh2_bn_init()
-#define ssh2_bn_bytes(bn)              ((bn)->length)
-#endif
-
 #ifndef ssh2_bn_init
 ssh2_bn *ssh2_bn_init(void);
 void ssh2_bn_free(ssh2_bn *bn);
