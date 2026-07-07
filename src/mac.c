@@ -317,7 +317,7 @@ static int mac_method_hmac_md5_96_hash(LIBSSH2_SESSION *session,
 static const struct mac_method mac_method_hmac_md5_96 = {
     "hmac-md5-96",
     12,
-    16,
+    SSH2_MD5_DIG_LEN,
     mac_method_common_init,
     mac_method_hmac_md5_96_hash,
     mac_method_common_dtor,
