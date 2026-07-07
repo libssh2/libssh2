@@ -189,8 +189,9 @@ int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg alg)
 
 int ssh2_hash_final(ssh2_hash_ctx *ctx, void *digest, size_t digest_len)
 {
-    size_t act_len;
-    return psa_hash_finish(ctx, digest, digest_len, &act_len) == PSA_SUCCESS;
+    size_t actual_len;
+    return psa_hash_finish(ctx, digest, digest_len,
+                           &actual_len) == PSA_SUCCESS;
 }
 
 int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
