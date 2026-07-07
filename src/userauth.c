@@ -893,7 +893,7 @@ int libssh2_sign_sk(LIBSSH2_SESSION *session,
 
     sk_info = (LIBSSH2_PRIVKEY_SK *)(*abstract);
 
-    if(sk_info->handle_len <= 0)
+    if(!sk_info->handle_len)
         return LIBSSH2_ERROR_DECRYPT;
 
     rc = sk_info->sign_callback(session,

@@ -134,7 +134,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         return ssh2_err(hosts->session, LIBSSH2_ERROR_INVAL,
                         "No key type set");
 
-    entry = SSH2_CALLOC(hosts->session, sizeof(struct known_host));
+    entry = SSH2_CALLOC(hosts->session, sizeof(*entry));
     if(!entry)
         return ssh2_err(hosts->session, LIBSSH2_ERROR_ALLOC,
                         "Unable to allocate memory for known host entry");
@@ -418,7 +418,7 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                     unsigned char hash[SSH2_SHA1_DIG_LEN];
                     ssh2_hmac_ctx ctx;
 
-                    if(SSH2_SHA1_DIG_LEN != node->name_len)
+                    if(node->name_len != sizeof(hash))
                         /* the name hash length must be the SHA1 size or
                            we cannot match it */
                         break;
@@ -427,13 +427,13 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                     if(!ssh2_hmac_init(&ctx, SSH2_SHA1_HMAC,
                                        node->salt, node->salt_len) ||
                        !ssh2_hmac_update(&ctx, host, strlen(host)) ||
-                       !ssh2_hmac_final(&ctx, hash, SSH2_SHA1_DIG_LEN)) {
+                       !ssh2_hmac_final(&ctx, hash, sizeof(hash))) {
                         ssh2_hmac_cleanup(&ctx);
                         break;
                     }
                     ssh2_hmac_cleanup(&ctx);
 
-                    if(!memcmp(hash, node->name, SSH2_SHA1_DIG_LEN))
+                    if(!memcmp(hash, node->name, sizeof(hash)))
                         /* this is a node we are interested in */
                         match = 1;
                 }
@@ -564,7 +564,7 @@ int libssh2_knownhost_del(LIBSSH2_KNOWNHOSTS *hosts,
 
     /* clear the struct now since the memory in which it is allocated is
        about to be freed! */
-    memset(entry, 0, sizeof(struct libssh2_knownhost));
+    memset(entry, 0, sizeof(*entry));
 
     /* free all resources */
     knownhost_entry_free(hosts->session, node);

@@ -2089,7 +2089,7 @@ clean_exit:
 int ssh2_ed25519_new_private(ssh2_ed25519_ctx **ed_ctx,
                              LIBSSH2_SESSION *session,
                              const char *filename,
-                             const uint8_t *passphrase)
+                             const unsigned char *passphrase)
 {
     int rc;
     FILE *fp;
@@ -2240,10 +2240,10 @@ int ssh2_mlkem_new(LIBSSH2_SESSION *session, int mlkem_size,
 
     if(out_private_key) {
         priv = SSH2_ALLOC(session, privLen);
-        actualPrivLen = privLen;
         if(!priv)
             goto clean_exit;
 
+        actualPrivLen = privLen;
         if(EVP_PKEY_get_raw_private_key(key, priv, &actualPrivLen) != 1 ||
            privLen != actualPrivLen) {
             goto clean_exit;
@@ -2255,10 +2255,10 @@ int ssh2_mlkem_new(LIBSSH2_SESSION *session, int mlkem_size,
 
     if(out_public_key) {
         pub = SSH2_ALLOC(session, pubLen);
-        actualPubLen = pubLen;
         if(!pub)
             goto clean_exit;
 
+        actualPubLen = pubLen;
         if(EVP_PKEY_get_raw_public_key(key, pub, &actualPubLen) != 1 ||
            pubLen != actualPubLen) {
             goto clean_exit;
@@ -2903,7 +2903,7 @@ static int ossl_ecdsa_sk_openssh_priv_to_pubkey(
     size_t *method_len,
     unsigned char **pubkeydata,
     size_t *pubkeydata_len,
-    uint8_t *flags,
+    unsigned char *flags,
     const char **application,
     const unsigned char **key_handle,
     size_t *handle_len,
