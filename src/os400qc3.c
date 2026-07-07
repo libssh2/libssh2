@@ -932,8 +932,7 @@ int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg alg)
     return errcode.Bytes_Available ? 0 : 1;
 }
 
-int ssh2_hash_update(ssh2_hash_ctx *ctx,
-                     const unsigned char *input, size_t input_len)
+int ssh2_hash_update(ssh2_hash_ctx *ctx, const void *input, size_t input_len)
 {
     char dummy[64];
     Qus_EC_t errcode;
@@ -946,8 +945,7 @@ int ssh2_hash_update(ssh2_hash_ctx *ctx,
     return errcode.Bytes_Available ? 0 : 1;
 }
 
-int ssh2_hash_final(ssh2_hash_ctx *ctx,
-                    unsigned char *digest, size_t digest_len)
+int ssh2_hash_final(ssh2_hash_ctx *ctx, void *digest, size_t digest_len)
 {
     char data;
     Qus_EC_t errcode;

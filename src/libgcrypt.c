@@ -47,7 +47,7 @@ int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg alg)
     return gcry_md_open(ctx, alg, 0) == GPG_ERR_NO_ERROR;
 }
 
-int ssh2_hash_final(ssh2_hash_ctx *ctx, unsigned char *digest, size_t len)
+int ssh2_hash_final(ssh2_hash_ctx *ctx, void *digest, size_t len)
 {
     int ret = 0;
     unsigned int digest_len = gcry_md_get_algo_dlen(gcry_md_get_algo(*ctx));

@@ -102,13 +102,11 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx);
 /* returns 0 in case of failure */
 int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg alg);
 #ifndef ssh2_hash_update
-int ssh2_hash_update(ssh2_hash_ctx *ctx,
-                     const unsigned char *input, size_t input_len);
+int ssh2_hash_update(ssh2_hash_ctx *ctx, const void *input, size_t input_len);
 #endif
-int ssh2_hash_final(ssh2_hash_ctx *ctx,
-                    unsigned char *digest, size_t digest_len);
+int ssh2_hash_final(ssh2_hash_ctx *ctx, void *digest, size_t digest_len);
 int ssh2_hash(ssh2_hash_alg alg, const void *input, size_t input_len,
-              unsigned char *digest, size_t digest_len);
+              void *digest, size_t digest_len);
 
 #if LIBSSH2_RSA
 int ssh2_rsa_new(ssh2_rsa_ctx **rsa,

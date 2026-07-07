@@ -753,16 +753,14 @@ int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg alg)
     return ssh2_hash_init_low(ctx, alg, NULL, 0);
 }
 
-int ssh2_hash_update(ssh2_hash_ctx *ctx,
-                     const unsigned char *input, size_t input_len)
+int ssh2_hash_update(ssh2_hash_ctx *ctx, const void *input, size_t input_len)
 {
     return input_len <= ULONG_MAX &&
         BCRYPT_SUCCESS(BCryptHashData(ctx->hHash, SSH2_UNCONST(input),
                                       (ULONG)input_len, 0));
 }
 
-int ssh2_hash_final(ssh2_hash_ctx *ctx,
-                    unsigned char *digest, size_t digest_len)
+int ssh2_hash_final(ssh2_hash_ctx *ctx, void *digest, size_t digest_len)
 {
     int ret = 0;
 

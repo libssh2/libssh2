@@ -86,8 +86,7 @@ int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg digest)
     return 0;
 }
 
-int ssh2_hash_final(ssh2_hash_ctx *ctx,
-                    unsigned char *digest, size_t digest_len)
+int ssh2_hash_final(ssh2_hash_ctx *ctx, void *digest, size_t digest_len)
 {
     int ret = EVP_DigestFinal_ex(*ctx, digest, NULL);
     (void)digest_len;
@@ -96,8 +95,8 @@ int ssh2_hash_final(ssh2_hash_ctx *ctx,
     return ret;
 }
 
-static int ossl_hash(const unsigned char *message, size_t len,
-                     unsigned char *out, const EVP_MD *digest)
+static int ossl_hash(const void *message, size_t len,
+                     void *out, const EVP_MD *digest)
 {
     int ret = 1; /* error */
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
