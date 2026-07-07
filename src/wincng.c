@@ -291,7 +291,7 @@ static int wcng_bn_mod_exp(ssh2_bn *r, ssh2_bn *a, ssh2_bn *p, ssh2_bn *m)
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-int ssh2_bn_set_word(ssh2_bn *bn, ULONG word)
+int ssh2_bn_set_word(ssh2_bn *bn, size_t word)
 {
     ULONG offset, number, bits, length;
 
@@ -299,7 +299,7 @@ int ssh2_bn_set_word(ssh2_bn *bn, ULONG word)
         return -1;
 
     bits = 0;
-    number = word;
+    number = (ULONG)word;
     while(number >>= 1)
         bits++;
     bits++;
@@ -309,15 +309,16 @@ int ssh2_bn_set_word(ssh2_bn *bn, ULONG word)
         return -1;
 
     for(offset = 0; offset < length; offset++)
-        bn->bignum[offset] = (word >> (offset * 8)) & 0xff;
+        bn->bignum[offset] = ((ULONG)word >> (offset * 8)) & 0xff;
 
     return 0;
 }
 
-ULONG ssh2_bn_bits(const ssh2_bn *bn)
+size_t ssh2_bn_bits(const ssh2_bn *bn)
 {
     unsigned char number;
-    ULONG offset, length, bits;
+    ULONG offset, length;
+    size_t bits;
 
     if(!bn || !bn->bignum || !bn->length)
         return 0;
@@ -336,21 +337,22 @@ ULONG ssh2_bn_bits(const ssh2_bn *bn)
     return bits;
 }
 
-int ssh2_bn_from_bin(ssh2_bn *bn, ULONG len, const unsigned char *bin)
+int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *bin)
 {
     unsigned char *bignum;
-    ULONG offset, length, bits;
+    ULONG offset, length;
+    size_t bits;
 
     if(!bn || !bin || !len)
         return -1;
 
-    if(wcng_bn_resize(bn, len))
+    if(wcng_bn_resize(bn, (ULONG)len))
         return -1;
 
     memcpy(bn->bignum, bin, len);
 
     bits = ssh2_bn_bits(bn);
-    length = (bits + 7) / 8;
+    length = ((ULONG)bits + 7) / 8;
 
     offset = bn->length - length;
     if(offset > 0) {

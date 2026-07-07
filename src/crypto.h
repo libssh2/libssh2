@@ -348,9 +348,9 @@ const char *ssh2_supported_key_sign_algs(LIBSSH2_SESSION *session,
 #endif
 
 ssh2_bn *ssh2_bn_init(void);
-int ssh2_bn_set_word(ssh2_bn *bn, ULONG word);
-ULONG ssh2_bn_bits(const ssh2_bn *bn);
-int ssh2_bn_from_bin(ssh2_bn *bn, ULONG len, const unsigned char *bin);
+int ssh2_bn_set_word(ssh2_bn *bn, size_t word);
+size_t ssh2_bn_bits(const ssh2_bn *bn);
+int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *bin);
 int ssh2_bn_to_bin(const ssh2_bn *bn, unsigned char *bin);
 void ssh2_bn_free(ssh2_bn *bn);
 
