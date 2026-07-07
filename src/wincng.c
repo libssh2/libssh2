@@ -816,7 +816,7 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
  */
 
 #if LIBSSH2_RSA || LIBSSH2_DSA
-static int wcng_key_sha_verify(struct wcng_key_ctx *ctx, ULONG hashlen,
+static int wcng_key_sha_verify(struct wcng_key_ctx *ctx, ULONG hash_len,
                                const unsigned char *sig, ULONG sig_len,
                                const unsigned char *m, ULONG m_len,
                                ULONG flags)
@@ -828,19 +828,19 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx, ULONG hashlen,
     ULONG datalen;
     int ret;
 
-    if(hashlen == SSH2_SHA1_DIG_LEN) {
+    if(hash_len == SSH2_SHA1_DIG_LEN) {
         hash_alg = SSH2_SHA1_ALG;
         paddingInfoPKCS1.pszAlgId = BCRYPT_SHA1_ALGORITHM;
     }
-    else if(hashlen == SSH2_SHA256_DIG_LEN) {
+    else if(hash_len == SSH2_SHA256_DIG_LEN) {
         hash_alg = SSH2_SHA256_ALG;
         paddingInfoPKCS1.pszAlgId = BCRYPT_SHA256_ALGORITHM;
     }
-    else if(hashlen == SSH2_SHA384_DIG_LEN) {
+    else if(hash_len == SSH2_SHA384_DIG_LEN) {
         hash_alg = SSH2_SHA384_ALG;
         paddingInfoPKCS1.pszAlgId = BCRYPT_SHA384_ALGORITHM;
     }
-    else if(hashlen == SSH2_SHA512_DIG_LEN) {
+    else if(hash_len == SSH2_SHA512_DIG_LEN) {
         hash_alg = SSH2_SHA512_ALG;
         paddingInfoPKCS1.pszAlgId = BCRYPT_SHA512_ALGORITHM;
     }
@@ -852,25 +852,25 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx, ULONG hashlen,
     if(!data)
         return -1;
 
-    hash = malloc(hashlen);
+    hash = malloc(hash_len);
     if(!hash) {
         free(data);
         return -1;
     }
     memcpy(data, m, datalen);
 
-    ret = ssh2_hash(hash_alg, data, datalen, hash, hashlen);
+    ret = ssh2_hash(hash_alg, data, datalen, hash, hash_len);
     wcng_zero_free(data, datalen);
 
     if(!ret) {
-        wcng_zero_free(hash, hashlen);
+        wcng_zero_free(hash, hash_len);
         return -1;
     }
 
     datalen = sig_len;
     data = malloc(datalen);
     if(!data) {
-        wcng_zero_free(hash, hashlen);
+        wcng_zero_free(hash, hash_len);
         return -1;
     }
 
@@ -882,9 +882,9 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx, ULONG hashlen,
     memcpy(data, sig, datalen);
 
     ret = BCryptVerifySignature(ctx->hKey, pPaddingInfo,
-                                hash, hashlen, data, datalen, flags);
+                                hash, hash_len, data, datalen, flags);
 
-    wcng_zero_free(hash, hashlen);
+    wcng_zero_free(hash, hash_len);
     wcng_zero_free(data, datalen);
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
@@ -1453,7 +1453,7 @@ static int wcng_rsa_sha_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
+int ssh2_rsa_sha1_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
@@ -1462,7 +1462,7 @@ int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
                              signature, signature_len);
 }
 
-int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
+int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
@@ -2665,8 +2665,8 @@ cleanup:
 /*
  * Computes the ECDSA signature of a previously-hashed message
  */
-int ssh2_ecdsa_sign(IN LIBSSH2_SESSION *session,
-                    IN struct wcng_ecdsa_ctx *ec_ctx,
+int ssh2_ecdsa_sign(IN ssh2_ecdsa_ctx *ec_ctx,
+                    IN LIBSSH2_SESSION *session,
                     IN const unsigned char *hash, IN size_t hash_len,
                     OUT unsigned char **signature, OUT size_t *signature_len)
 {

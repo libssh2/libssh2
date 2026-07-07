@@ -2368,7 +2368,7 @@ int ssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session,
                             size_t *signature_len,
                             int veccount,
                             const struct iovec vector[],
-                            ssh2_rsa_ctx *ctx)
+                            ssh2_rsa_ctx *rsa)
 {
     Qus_EC_t errcode;
     Qc3_Format_ALGD0400_T algd;
@@ -2384,7 +2384,7 @@ int ssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session,
     set_EC_length(errcode, sizeof(errcode));
     Qc3CalculateSignature((char *)vector, &veccount, Qc3_Array,
                           (char *)&algd, Qc3_Alg_Public_Key,
-                          (char *)&ctx->key, Qc3_Key_Token,
+                          (char *)&rsa->key, Qc3_Key_Token,
                           anycsp, NULL, sigbuf, &sigbufsize, &siglen,
                           (char *)&errcode);
     if(errcode.Bytes_Available)

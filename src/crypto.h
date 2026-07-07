@@ -142,7 +142,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                     const char *blob, size_t blob_len,
                                     const unsigned char *passphrase);
 #if LIBSSH2_RSA_SHA1
-int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
+int ssh2_rsa_sha1_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len);
 int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
@@ -150,7 +150,7 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
                          const unsigned char *m, size_t m_len);
 #endif
 #if LIBSSH2_RSA_SHA2
-int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
+int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len);
 int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
@@ -170,9 +170,9 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
                  const unsigned char *ydata, unsigned long ylen,
                  const unsigned char *xdata, unsigned long xlen);
 int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
-                        LIBSSH2_SESSION *session,
-                        const char *filename,
-                        const unsigned char *passphrase);
+                         LIBSSH2_SESSION *session,
+                         const char *filename,
+                         const unsigned char *passphrase);
 int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
                                     LIBSSH2_SESSION *session,
                                     const char *blob, size_t blob_len,
@@ -181,8 +181,8 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char *signature);
 int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
-                        const unsigned char *sig,
-                        const unsigned char *m, size_t m_len);
+                         const unsigned char *sig,
+                         const unsigned char *m, size_t m_len);
 #ifndef ssh2_dsa_free
 void ssh2_dsa_free(ssh2_dsa_ctx *dsa);
 #endif
@@ -222,24 +222,24 @@ int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
                                       const unsigned char *passphrase);
 
 int ssh2_ecdsa_new_private_sk(ssh2_ecdsa_ctx **ec_ctx,
+                              LIBSSH2_SESSION *session,
                               unsigned char *flags,
                               const char **application,
                               const unsigned char **key_handle,
                               size_t *handle_len,
-                              LIBSSH2_SESSION *session,
                               const char *filename,
                               const unsigned char *passphrase);
 
 int ssh2_ecdsa_new_private_frommemory_sk(ssh2_ecdsa_ctx **ec_ctx,
+                                         LIBSSH2_SESSION *session,
                                          unsigned char *flags,
                                          const char **application,
                                          const unsigned char **key_handle,
                                          size_t *handle_len,
-                                         LIBSSH2_SESSION *session,
                                          const char *blob, size_t blob_len,
                                          const unsigned char *passphrase);
 
-int ssh2_ecdsa_sign(LIBSSH2_SESSION *session, ssh2_ecdsa_ctx *ec_ctx,
+int ssh2_ecdsa_sign(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
                     const unsigned char *hash, size_t hash_len,
                     unsigned char **signature, size_t *signature_len);
 int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,

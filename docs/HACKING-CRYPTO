@@ -619,8 +619,8 @@ Signature buffer must be allocated from the given session.
 Returns 0 if OK, else -1.
 Note: this procedure is optional: if provided, it MUST be defined as a macro.
 
-int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
-                       ssh2_rsa_ctx *ctx,
+int ssh2_rsa_sha1_sign(ssh2_rsa_ctx *rsa,
+                       LIBSSH2_SESSION *session,
                        const unsigned char *hash,
                        size_t hash_len,
                        unsigned char **signature,
@@ -639,8 +639,8 @@ LIBSSH2_RSA_SHA2
 #define as 1 if the crypto library supports RSA SHA2 256/512, else 0.
 If defined as 0, the rest of this section can be omitted.
 
-int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
-                       ssh2_rsa_ctx *ctx,
+int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa,
+                       LIBSSH2_SESSION *session,
                        const unsigned char *hash,
                        size_t hash_len,
                        unsigned char **signature,
@@ -814,7 +814,7 @@ Return 0 if OK, else -1.
 Currently used only from openssl backend (ought to be private).
 This procedure is already prototyped in crypto.h.
 
-int ssh2_ecdsa_sign(LIBSSH2_SESSION *session, ssh2_ecdsa_ctx *ec_ctx,
+int ssh2_ecdsa_sign(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
                     const unsigned char *hash, unsigned long hash_len,
                     unsigned char **signature, size_t *signature_len);
 ECDSA signs the (hash, hashlen) hash bytes and stores the allocated

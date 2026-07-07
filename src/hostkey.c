@@ -234,7 +234,7 @@ static int hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION *session,
     if(!ssh2_hash_final(&ctx, hash, sizeof(hash)))
         return -1;
 
-    if(ssh2_rsa_sha1_sign(session, rsactx, hash, SSH2_SHA1_DIG_LEN,
+    if(ssh2_rsa_sha1_sign(rsactx, session, hash, SSH2_SHA1_DIG_LEN,
                           signature, signature_len))
         return -1;
 
@@ -298,7 +298,7 @@ static int hostkey_method_ssh_rsa_sha2_256_signv(LIBSSH2_SESSION *session,
     if(!ssh2_hash_final(&ctx, hash, sizeof(hash)))
         return -1;
 
-    if(ssh2_rsa_sha2_sign(session, rsactx, hash, SSH2_SHA256_DIG_LEN,
+    if(ssh2_rsa_sha2_sign(rsactx, session, hash, SSH2_SHA256_DIG_LEN,
                           signature, signature_len))
         return -1;
 
@@ -360,7 +360,7 @@ static int hostkey_method_ssh_rsa_sha2_512_signv(LIBSSH2_SESSION *session,
     if(!ssh2_hash_final(&ctx, hash, sizeof(hash)))
         return -1;
 
-    if(ssh2_rsa_sha2_sign(session, rsactx, hash, SSH2_SHA512_DIG_LEN,
+    if(ssh2_rsa_sha2_sign(rsactx, session, hash, SSH2_SHA512_DIG_LEN,
                           signature, signature_len))
         return -1;
 
@@ -888,7 +888,7 @@ static int hostkey_method_ssh_ecdsa_signv(LIBSSH2_SESSION *session,
     if(!ssh2_hash_final(&ctx, hash, sizeof(hash)))
         return -1;
 
-    return ssh2_ecdsa_sign(session, ec_ctx, hash, hash_len,
+    return ssh2_ecdsa_sign(ec_ctx, session, hash, hash_len,
                            signature, signature_len);
 }
 
