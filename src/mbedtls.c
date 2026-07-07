@@ -181,17 +181,17 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
     return ret == 0 ? 0 : -1;
 }
 
-int ssh2_mbed_hash_init(psa_hash_operation_t *ctx, psa_algorithm_t alg)
+int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg alg)
 {
     *ctx = psa_hash_operation_init();
     return psa_hash_setup(ctx, alg) == PSA_SUCCESS;
 }
 
-int ssh2_mbed_hash_final(psa_hash_operation_t *ctx,
-                         unsigned char *hash, size_t len)
+int ssh2_hash_final(ssh2_hash_ctx *ctx,
+                    unsigned char *digest, size_t digest_len)
 {
-    size_t actual_len;
-    return psa_hash_finish(ctx, hash, len, &actual_len) == PSA_SUCCESS;
+    size_t act_len;
+    return psa_hash_finish(ctx, digest, digest_len, &act_len) == PSA_SUCCESS;
 }
 
 int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
