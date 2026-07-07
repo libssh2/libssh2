@@ -425,15 +425,15 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
 
     if(hash_len == SSH2_SHA1_DIG_LEN) {
         nid_type = NID_sha1;
-        ret = ssh2_hash(SSH2_SHA1_ALG, m, m_len, hash, sizeof(hash));
+        ret = ssh2_hash(SSH2_SHA1_ALG, m, m_len, hash, hash_len);
     }
     else if(hash_len == SSH2_SHA256_DIG_LEN) {
         nid_type = NID_sha256;
-        ret = ssh2_hash(SSH2_SHA256_ALG, m, m_len, hash, sizeof(hash));
+        ret = ssh2_hash(SSH2_SHA256_ALG, m, m_len, hash, hash_len);
     }
     else if(hash_len == SSH2_SHA512_DIG_LEN) {
         nid_type = NID_sha512;
-        ret = ssh2_hash(SSH2_SHA512_ALG, m, m_len, hash, sizeof(hash));
+        ret = ssh2_hash(SSH2_SHA512_ALG, m, m_len, hash, hash_len);
     }
     else {
         nid_type = 0;
