@@ -559,9 +559,9 @@ static int kex_diffie_hellman_sha(LIBSSH2_SESSION *session,
     }
 
     if(exchange_state->state == ssh2_NB_state_sent1) {
-        ssh2_hash_ctx ctx;
         /* Wait for KEX reply */
         struct string_buf buf;
+        ssh2_hash_ctx ctx;
         int err;
         int hok;
 
