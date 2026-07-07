@@ -235,7 +235,6 @@ void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ctx);
 #define ssh2_bn_ctx_free(bnctx)        ((void)0) /* not used */
 
 #define ssh2_bn                        mbedtls_mpi
-#define ssh2_bn_init_from_bin()        ssh2_bn_init()
 #define ssh2_bn_set_word(bn, word)     mbedtls_mpi_lset(bn, word)
 #define ssh2_bn_from_bin(bn, len, bin) mbedtls_mpi_read_binary(bn, bin, len)
 #define ssh2_bn_to_bin(bn, bin) \

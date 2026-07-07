@@ -250,7 +250,6 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define ssh2_bn_ctx_free(bnctx)  ((void)0) /* not used */
 
 #define ssh2_bn                  struct os400qc3_bn
-#define ssh2_bn_init_from_bin()  ssh2_bn_init()
 #define ssh2_bn_bytes(bn)        ((bn)->length)
 
 /* Cipher */

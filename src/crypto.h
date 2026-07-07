@@ -352,6 +352,9 @@ unsigned long ssh2_bn_bits(const ssh2_bn *bn);
 int ssh2_bn_to_bin(const ssh2_bn *bn, unsigned char *bin);
 int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *bin);
 #endif
+#ifndef ssh2_bn_init_from_bin
+#define ssh2_bn_init_from_bin()  ssh2_bn_init()
+#endif
 
 void ssh2_dh_init(ssh2_dh_ctx *dhctx);
 int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
