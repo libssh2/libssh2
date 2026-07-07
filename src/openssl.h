@@ -319,18 +319,18 @@ typedef enum {
 
 #define ssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_free(*(ctx))
 
-#define ssh2_bn_ctx                    BN_CTX
-#define ssh2_bn_ctx_new()              BN_CTX_new()
-#define ssh2_bn_ctx_free(bnctx)        BN_CTX_free(bnctx)
+#define ssh2_bn_ctx                  BN_CTX
+#define ssh2_bn_ctx_new()            BN_CTX_new()
+#define ssh2_bn_ctx_free(bnctx)      BN_CTX_free(bnctx)
 
-#define ssh2_bn                        BIGNUM
-#define ssh2_bn_init()                 BN_new()
-#define ssh2_bn_set_word(bn, val)      !BN_set_word(bn, val)
-#define ssh2_bn_to_bin(bn, val)        (BN_bn2bin(bn, val) <= 0)
-#define ssh2_bn_from_bin(bn, l, bin)   (BN_bin2bn(bin, (int)(l), bn) ? 0 : -1)
-#define ssh2_bn_bytes(bn)              BN_num_bytes(bn)
-#define ssh2_bn_bits(bn)               BN_num_bits(bn)
-#define ssh2_bn_free(bn)               BN_clear_free(bn)
+#define ssh2_bn                      BIGNUM
+#define ssh2_bn_init()               BN_new()
+#define ssh2_bn_set_word(bn, val)    !BN_set_word(bn, val)
+#define ssh2_bn_to_bin(bn, val)      (BN_bn2bin(bn, val) <= 0)
+#define ssh2_bn_from_bin(bn, l, bin) (BN_bin2bn(bin, (int)(l), bn) ? 0 : -1)
+#define ssh2_bn_bytes(bn)            BN_num_bytes(bn)
+#define ssh2_bn_bits(bn)             BN_num_bits(bn)
+#define ssh2_bn_free(bn)             BN_clear_free(bn)
 
 /* Default generate and safe prime sizes for
    diffie-hellman-group-exchange-sha1 */
