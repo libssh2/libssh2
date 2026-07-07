@@ -201,8 +201,8 @@ int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
     return 1;
 }
 
-static int mbed_hmac_init(ssh2_hmac_ctx *ctx, psa_algorithm_t alg,
-                          const unsigned char *key, size_t keylen)
+int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
+                   void *key, size_t keylen)
 {
     psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
     psa_algorithm_t alg_hmac = PSA_ALG_HMAC(alg);
@@ -220,12 +220,6 @@ static int mbed_hmac_init(ssh2_hmac_ctx *ctx, psa_algorithm_t alg,
     }
 
     return 1;
-}
-
-int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
-                   void *key, size_t keylen)
-{
-    return mbed_hmac_init(ctx, alg, key, keylen);
 }
 
 int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
