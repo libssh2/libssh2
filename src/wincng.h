@@ -284,19 +284,19 @@ void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx);
  * Windows CNG backend: BigNumber support
  */
 
-#define ssh2_bn_ctx             int /* not used */
-#define ssh2_bn_ctx_new()       0 /* not used */
-#define ssh2_bn_ctx_free(bnctx) ((void)0) /* not used */
+#define ssh2_bn_ctx              int /* not used */
+#define ssh2_bn_ctx_new()        0 /* not used */
+#define ssh2_bn_ctx_free(bnctx)  ((void)0) /* not used */
 
 struct wcng_bn {
     unsigned char *bignum;
     ULONG length;
 };
 
-#define ssh2_bn struct wcng_bn
+#define ssh2_bn                  struct wcng_bn
 
-#define ssh2_bn_init_from_bin()        ssh2_bn_init()
-#define ssh2_bn_bytes(bn)              ((bn)->length)
+#define ssh2_bn_init_from_bin()  ssh2_bn_init()
+#define ssh2_bn_bytes(bn)        ((bn)->length)
 
 /*
  * Windows CNG backend: Diffie-Hellman support
