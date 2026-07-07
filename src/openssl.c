@@ -4283,13 +4283,11 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
     return 0;
 }
 
-int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
-                   ssh2_bn *p, ssh2_bn_ctx *bnctx)
+static int ossl_dh_is_valid(ssh2_bn *f, ssh2_bn *p)
 {
     BIGNUM *tmp;
     int n, i, bits_set;
 
-    /* Verify if valid */
     if(BN_cmp(f, BN_value_one()) != 1)
         return -1;  /* f <= 1 */
 
@@ -4307,6 +4305,15 @@ int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
             ++bits_set;
 
     if(bits_set < 4)
+        return -1;
+
+    return 0;
+}
+
+int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
+                   ssh2_bn *p, ssh2_bn_ctx *bnctx)
+{
+    if(ossl_dh_is_valid(f, p))  /* Verify if parameters are valid */
         return -1;
 
     /* Compute the shared secret */
