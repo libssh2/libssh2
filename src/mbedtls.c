@@ -720,38 +720,6 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     return ret;
 }
 
-int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
-                              unsigned char **method,
-                              size_t *method_len,
-                              unsigned char **pubkeydata,
-                              size_t *pubkeydata_len,
-                              int *algorithm,
-                              unsigned char *flags,
-                              const char **application,
-                              const unsigned char **key_handle,
-                              size_t *handle_len,
-                              const char *privatekeydata,
-                              size_t privatekeydata_len,
-                              const char *passphrase)
-{
-    (void)method;
-    (void)method_len;
-    (void)pubkeydata;
-    (void)pubkeydata_len;
-    (void)algorithm;
-    (void)flags;
-    (void)application;
-    (void)key_handle;
-    (void)handle_len;
-    (void)privatekeydata;
-    (void)privatekeydata_len;
-    (void)passphrase;
-
-    return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                    "Unable to extract public SK key from private key "
-                    "file: Method unimplemented in mbedTLS backend");
-}
-
 /*******************************************************************/
 /*
  * mbedTLS backend: Diffie-Hellman functions
