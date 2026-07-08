@@ -128,18 +128,6 @@ int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
 #endif
 }
 
-int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
-{
-#ifdef USE_OPENSSL_3
-    return EVP_MAC_update(*ctx, data, datalen);
-#elif defined(LIBSSH2_WOLFSSL)
-    /* As of wolfSSL v5.9.1 datalen is int, not size_t */
-    return HMAC_Update(*ctx, data, (int)datalen);
-#else
-    return HMAC_Update(*ctx, data, datalen);
-#endif
-}
-
 int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen)
 {
 #ifdef USE_OPENSSL_3
