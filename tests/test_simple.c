@@ -66,7 +66,6 @@ static int test_ssh2_dh_is_valid(void)
     static const struct tbn tests[] = {
         {  "-1",  "10", -1 },
         {   "2",  "10", -3 },
-        {   "9",  "10", -2 },
         {   "1",  "10", -1 },
         {   "0",  "10", -1 },
         {   "9",  "10", -2 },  /* f=9; p=10 => p-2=8, f > 8 */
