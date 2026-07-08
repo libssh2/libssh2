@@ -267,8 +267,6 @@ struct wcng_cipher_t {
 #endif
 #define ssh2_cipher_chacha20  { NULL /* unused */, 24, 1, 0 }
 
-void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx);
-
 /*******************************************************************/
 /*
  * Windows CNG backend: BigNumber support

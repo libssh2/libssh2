@@ -321,10 +321,12 @@ int ssh2_mlkem_get_sk(unsigned char *out_shared_key,
 
 int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt);
-
 int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                       int encrypt, unsigned char *block, size_t blocksize,
                       int firstlast);
+#ifndef ssh2_cipher_dtor
+void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx);
+#endif
 
 int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                           unsigned char **method,
