@@ -240,6 +240,8 @@
 #ifdef USE_OPENSSL_3
 #define ssh2_hmac_ctx       EVP_MAC_CTX *
 #define ssh2_hmac_alg       const char *
+#define ssh2_hmac_update(ctx, d, l) \
+    EVP_MAC_update(*(ctx), (const unsigned char *)(d), l)
 #define SSH2_SHA1_HMAC      OSSL_DIGEST_NAME_SHA1
 #define SSH2_SHA256_HMAC    OSSL_DIGEST_NAME_SHA2_256
 #define SSH2_SHA512_HMAC    OSSL_DIGEST_NAME_SHA2_512
@@ -251,6 +253,13 @@
 #endif
 #else
 #define ssh2_hmac_ctx       HMAC_CTX *
+#ifdef LIBSSH2_WOLFSSL /* In wolfSSL length is int, not size_t */
+#define ssh2_hmac_update(ctx, d, l) \
+    HMAC_Update(*(ctx), (const unsigned char *)(d), (int)(l))
+#else
+#define ssh2_hmac_update(ctx, d, l) \
+    HMAC_Update(*(ctx), (const unsigned char *)(d), l)
+#endif
 #if LIBSSH2_HMAC_RIPEMD
 #define SSH2_RIPEMD160_HMAC EVP_ripemd160()
 #endif
