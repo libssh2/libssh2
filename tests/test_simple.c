@@ -105,7 +105,7 @@ static int test_ssh2_dh_is_valid(void)
         mbedtls_mpi_free(&f);
         mbedtls_mpi_free(&p);
 #elif defined(LIBSSH2_OPENSSL) || defined(LIBSSH2_WOLFSSL)
-        BIGNUM *f = NULL, *p = NULL;
+        BIGNUM *f = BN_new(), *p = BN_new();
         if(!BN_dec2bn(&f, tests[i].f) ||
            !BN_dec2bn(&p, tests[i].p)) {
             fprintf(stderr,
