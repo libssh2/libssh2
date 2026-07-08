@@ -810,7 +810,7 @@ int ssh2_dh_is_valid(ssh2_bn *f, ssh2_bn *p)
     mbedtls_mpi_free(&one);
 
     for(i = 0, n = mbedtls_mpi_bitlen(f), bits_set = 0; i < n; ++i)
-        if(mbedtls_mpi_get_bit(f, (int)i))
+        if(mbedtls_mpi_get_bit(f, i))
             ++bits_set;
 
     if(bits_set < 4)
