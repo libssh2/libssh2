@@ -960,47 +960,47 @@ int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 }
 
 static int os400qc3_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
-                              size_t minkeylen, void *key, int keylen)
+                              size_t min_key_len, void *key, int key_len)
 {
     Qus_EC_t errcode;
 
-    if(keylen < minkeylen) {
-        char *lkey = alloca(minkeylen);
+    if(key_len < min_key_len) {
+        char *lkey = alloca(min_key_len);
 
         /* Pad key with zeroes if too short. */
         if(!lkey)
             return 0;
-        memcpy(lkey, (char *)key, keylen);
-        memset(lkey + keylen, 0, minkeylen - keylen);
+        memcpy(lkey, (char *)key, key_len);
+        memset(lkey + key_len, 0, min_key_len - key_len);
         key = (void *)lkey;
-        keylen = minkeylen;
+        key_len = min_key_len;
     }
     if(!ssh2_hash_init(&ctx->hash, alg))
         return 0;
     set_EC_length(errcode, sizeof(errcode));
-    Qc3CreateKeyContext((char *)key, &keylen, binstring, &alg, qc3clear,
+    Qc3CreateKeyContext((char *)key, &key_len, binstring, &alg, qc3clear,
                         NULL, NULL, ctx->key.Key_Context_Token,
                         (char *)&errcode);
     return errcode.Bytes_Available ? 0 : 1;
 }
 
 int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
-                   void *key, size_t keylen)
+                   void *key, size_t key_len)
 {
-    size_t minkeylen;
+    size_t min_key_len;
     if(alg == SSH2_SHA1_HMAC)
-        minkeylen = SSH2_SHA1_DIG_LEN;
+        min_key_len = SSH2_SHA1_DIG_LEN;
     else if(alg == SSH2_SHA256_HMAC)
-        minkeylen = SSH2_SHA256_DIG_LEN;
+        min_key_len = SSH2_SHA256_DIG_LEN;
     else if(alg == SSH2_SHA512_HMAC)
-        minkeylen = SSH2_SHA512_DIG_LEN;
+        min_key_len = SSH2_SHA512_DIG_LEN;
 #if LIBSSH2_MD5
     else if(alg == SSH2_MD5_HMAC)
-        minkeylen = SSH2_MD5_DIG_LEN;
+        min_key_len = SSH2_MD5_DIG_LEN;
 #endif
     else
         return 0;
-    return os400qc3_hmac_init(ctx, alg, minkeylen, key, keylen);
+    return os400qc3_hmac_init(ctx, alg, min_key_len, key, key_len);
 }
 
 int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *input, size_t input_len)
@@ -1017,11 +1017,11 @@ int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *input, size_t input_len)
     return errcode.Bytes_Available ? 0 : 1;
 }
 
-int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen)
+int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t mac_len)
 {
     char data;
     Qus_EC_t errcode;
-    (void)maclen;
+    (void)mac_len;
 
     ctx->hash.Final_Op_Flag = Qc3_Final;
     set_EC_length(errcode, sizeof(errcode));

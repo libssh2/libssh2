@@ -700,7 +700,7 @@ int ssh2_random(unsigned char *buf, size_t len)
  */
 
 static int ssh2_hash_init_low(ssh2_hash_ctx *ctx, ssh2_hash_alg alg,
-                              unsigned char *key, ULONG keylen)
+                              unsigned char *key, ULONG key_len)
 {
     BCRYPT_HASH_HANDLE hHash;
     unsigned char *pbHashObject;
@@ -727,7 +727,7 @@ static int ssh2_hash_init_low(ssh2_hash_ctx *ctx, ssh2_hash_alg alg,
 
     ret = BCryptCreateHash(alg, &hHash,
                            pbHashObject, dwHashObject,
-                           key, keylen, 0);
+                           key, key_len, 0);
     if(!BCRYPT_SUCCESS(ret)) {
         wcng_zero_free(pbHashObject, dwHashObject);
         return 0;
@@ -784,9 +784,9 @@ int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 }
 
 int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
-                   void *key, size_t keylen)
+                   void *key, size_t key_len)
 {
-    return ssh2_hash_init_low(ctx, alg, key, (ULONG)keylen);
+    return ssh2_hash_init_low(ctx, alg, key, (ULONG)key_len);
 }
 
 int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *input, size_t input_len)
@@ -794,9 +794,10 @@ int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *input, size_t input_len)
     return ssh2_hash_update(ctx, input, input_len);
 }
 
-int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen)
+int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t mac_len)
 {
-    return BCRYPT_SUCCESS(BCryptFinishHash(ctx->hHash, mac, (ULONG)maclen, 0));
+    return BCRYPT_SUCCESS(BCryptFinishHash(ctx->hHash,
+                                           mac, (ULONG)mac_len, 0));
 }
 
 void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)

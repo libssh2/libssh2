@@ -60,13 +60,13 @@ int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 }
 
 int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
-                   void *key, size_t keylen)
+                   void *key, size_t key_len)
 {
     gcry_error_t err;
     err = gcry_md_open(ctx, alg, GCRY_MD_FLAG_HMAC);
     if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
         return 0;
-    err = gcry_md_setkey(*ctx, key, keylen);
+    err = gcry_md_setkey(*ctx, key, key_len);
     if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
         return 0;
     return 1;
@@ -78,11 +78,11 @@ int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *input, size_t input_len)
     return 1;
 }
 
-int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen)
+int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t mac_len)
 {
     int ret = 0;
     unsigned int actual_len = gcry_md_get_algo_dlen(gcry_md_get_algo(*ctx));
-    if(maclen >= actual_len) {
+    if(mac_len >= actual_len) {
         unsigned char *res = gcry_md_read(*ctx, 0);
         if(res) {
             memcpy(mac, res, actual_len);
