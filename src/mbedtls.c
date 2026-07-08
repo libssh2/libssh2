@@ -818,7 +818,7 @@ int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
 {
     (void)bnctx;
 
-     if(ssh2_dh_is_valid(f, p))  /* Verify if parameters are valid */
+    if(ssh2_dh_is_valid(f, p))  /* Verify if parameters are valid */
         return -1;
 
     /* Compute the shared secret */
