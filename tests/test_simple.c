@@ -94,13 +94,8 @@ static int test_ssh2_dh_is_valid(void)
         mbedtls_mpi_init(&f);
         mbedtls_mpi_init(&p);
         if(mbedtls_mpi_read_string(&f, 10, tests[i].f) ||
-           mbedtls_mpi_read_string(&p, 10, tests[i].p)) {
-            fprintf(stderr,
-                    "ssh2_dh_is_valid/%lu: mbedtls_mpi_read_string() failed\n",
-                    (unsigned long)i);
-            err++;
+           mbedtls_mpi_read_string(&p, 10, tests[i].p))
             got = -9;
-        }
         else
             got = ssh2_dh_is_valid(&f, &p);
         mbedtls_mpi_free(&f);
@@ -108,13 +103,8 @@ static int test_ssh2_dh_is_valid(void)
 #elif defined(LIBSSH2_OPENSSL) || defined(LIBSSH2_WOLFSSL)
         BIGNUM *f = BN_new(), *p = BN_new();
         if(!BN_dec2bn(&f, tests[i].f) ||
-           !BN_dec2bn(&p, tests[i].p)) {
-            fprintf(stderr,
-                    "ssh2_dh_is_valid/%lu: BN_dec2bn() failed\n",
-                    (unsigned long)i);
-            err++;
+           !BN_dec2bn(&p, tests[i].p))
             got = -9;
-        }
         else
             got = ssh2_dh_is_valid(f, p);
         BN_free(f);
