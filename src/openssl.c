@@ -3735,7 +3735,6 @@ int ssh2_ed25519_verify(ssh2_ed25519_ctx *ed_ctx, LIBSSH2_SESSION *session,
                         const uint8_t *m, size_t m_len)
 {
     int ret = -1;
-    (void)session;
 
     EVP_MD_CTX *md_ctx = EVP_MD_CTX_new();
     if(!md_ctx) {
@@ -3751,6 +3750,7 @@ int ssh2_ed25519_verify(ssh2_ed25519_ctx *ed_ctx, LIBSSH2_SESSION *session,
         goto clean_exit;
     }
 
+    (void)session;
 #ifdef LIBSSH2_DEBUG_MLKEM
     ssh2_deb((session, LIBSSH2_TRACE_KEX,
               "ssh2_ed25519_verify(%p, %lu, %p, %lu)",
