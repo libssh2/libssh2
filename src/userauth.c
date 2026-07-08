@@ -1293,8 +1293,15 @@ static int userauth_is_version_less_than_78(const char *version)
     return 0;
 }
 
-/*
- * Return supported key hash algo upgrades, see crypto.h
+/**
+ * @abstract Returns supported algorithms used for upgrading public
+ * key signing RFC 8332
+ * @discussion Based on the incoming key_method value, this function
+ * returns supported algorithms that can upgrade the key method
+ * @param key_method current key method, usually the default key sig method
+ * @param key_method_len length of the key method buffer
+ * @result comma separated list of supported upgrade options per RFC 8332, if
+ * there is no upgrade option return NULL
  */
 static const char *userauth_supported_key_sign_algs(LIBSSH2_SESSION *session,
                                                     unsigned char *key_method,

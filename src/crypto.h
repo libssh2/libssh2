@@ -352,20 +352,6 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                               size_t privatekeydata_len,
                               const char *passphrase);
 
-/**
- * @abstract Returns supported algorithms used for upgrading public
- * key signing RFC 8332
- * @discussion Based on the incoming key_method value, this function
- * returns supported algorithms that can upgrade the key method
- * @param key_method current key method, usually the default key sig method
- * @param key_method_len length of the key method buffer
- * @result comma separated list of supported upgrade options per RFC 8332, if
- * there is no upgrade option return NULL
- */
-const char *ssh2_supported_key_sign_algs(LIBSSH2_SESSION *session,
-                                         unsigned char *key_method,
-                                         size_t key_method_len);
-
 #ifndef ssh2_bn_init
 ssh2_bn *ssh2_bn_init(void);
 void ssh2_bn_free(ssh2_bn *bn);
