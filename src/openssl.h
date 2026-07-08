@@ -224,36 +224,36 @@
 
 #include "crypto_config.h"
 
-#define ssh2_crypto_exit() do {} while(0)
+#define ssh2_crypto_exit()           do {} while(0)
 
 #define ssh2_hash_ctx                EVP_MD_CTX *
 #define ssh2_hash_alg                const EVP_MD *
 #define ssh2_hash_update(ctx, d, l)  EVP_DigestUpdate(*(ctx), d, l)
 
-#define SSH2_SHA1_ALG       EVP_sha1()
-#define SSH2_SHA256_ALG     EVP_sha256()
-#define SSH2_SHA384_ALG     EVP_sha384()
-#define SSH2_SHA512_ALG     EVP_sha512()
+#define SSH2_SHA1_ALG                EVP_sha1()
+#define SSH2_SHA256_ALG              EVP_sha256()
+#define SSH2_SHA384_ALG              EVP_sha384()
+#define SSH2_SHA512_ALG              EVP_sha512()
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define SSH2_MD5_ALG        EVP_md5()
+#define SSH2_MD5_ALG                 EVP_md5()
 #endif
 
 #ifdef USE_OPENSSL_3
-#define ssh2_hmac_ctx       EVP_MAC_CTX *
-#define ssh2_hmac_alg       const char *
+#define ssh2_hmac_ctx                EVP_MAC_CTX *
+#define ssh2_hmac_alg                const char *
 #define ssh2_hmac_update(ctx, d, l) \
     EVP_MAC_update(*(ctx), (const unsigned char *)(d), l)
-#define SSH2_SHA1_HMAC      OSSL_DIGEST_NAME_SHA1
-#define SSH2_SHA256_HMAC    OSSL_DIGEST_NAME_SHA2_256
-#define SSH2_SHA512_HMAC    OSSL_DIGEST_NAME_SHA2_512
+#define SSH2_SHA1_HMAC               OSSL_DIGEST_NAME_SHA1
+#define SSH2_SHA256_HMAC             OSSL_DIGEST_NAME_SHA2_256
+#define SSH2_SHA512_HMAC             OSSL_DIGEST_NAME_SHA2_512
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define SSH2_MD5_HMAC       OSSL_DIGEST_NAME_MD5
+#define SSH2_MD5_HMAC                OSSL_DIGEST_NAME_MD5
 #endif
 #if LIBSSH2_HMAC_RIPEMD
-#define SSH2_RIPEMD160_HMAC OSSL_DIGEST_NAME_RIPEMD160
+#define SSH2_RIPEMD160_HMAC          OSSL_DIGEST_NAME_RIPEMD160
 #endif
 #else
-#define ssh2_hmac_ctx       HMAC_CTX *
+#define ssh2_hmac_ctx                HMAC_CTX *
 #ifdef LIBSSH2_WOLFSSL /* In wolfSSL length is int, not size_t */
 #define ssh2_hmac_update(ctx, d, l) \
     HMAC_Update(*(ctx), (const unsigned char *)(d), (int)(l))
@@ -262,39 +262,39 @@
     HMAC_Update(*(ctx), (const unsigned char *)(d), l)
 #endif
 #if LIBSSH2_HMAC_RIPEMD
-#define SSH2_RIPEMD160_HMAC EVP_ripemd160()
+#define SSH2_RIPEMD160_HMAC          EVP_ripemd160()
 #endif
 #endif /* USE_OPENSSL_3 */
 
 #if LIBSSH2_RSA
 #ifdef USE_OPENSSL_3
-#define ssh2_rsa_ctx             EVP_PKEY
-#define ssh2_rsa_free(rsa)       EVP_PKEY_free(rsa)
+#define ssh2_rsa_ctx                 EVP_PKEY
+#define ssh2_rsa_free(rsa)           EVP_PKEY_free(rsa)
 #else
-#define ssh2_rsa_ctx             RSA
-#define ssh2_rsa_free(rsa)       RSA_free(rsa)
+#define ssh2_rsa_ctx                 RSA
+#define ssh2_rsa_free(rsa)           RSA_free(rsa)
 #endif
 #endif /* LIBSSH2_RSA */
 
 #if LIBSSH2_DSA
 #ifdef USE_OPENSSL_3
-#define ssh2_dsa_ctx             EVP_PKEY
-#define ssh2_dsa_free(dsa)       EVP_PKEY_free(dsa)
+#define ssh2_dsa_ctx                 EVP_PKEY
+#define ssh2_dsa_free(dsa)           EVP_PKEY_free(dsa)
 #else
-#define ssh2_dsa_ctx             DSA
-#define ssh2_dsa_free(dsa)       DSA_free(dsa)
+#define ssh2_dsa_ctx                 DSA
+#define ssh2_dsa_free(dsa)           DSA_free(dsa)
 #endif
 #endif /* LIBSSH2_DSA */
 
 #if LIBSSH2_ECDSA
 #ifdef USE_OPENSSL_3
-#define ssh2_ecdsa_ctx           EVP_PKEY
-#define ssh2_ecdsa_free(ec_ctx)  EVP_PKEY_free(ec_ctx)
-#define ssh2_ec_key              EVP_PKEY
+#define ssh2_ecdsa_ctx               EVP_PKEY
+#define ssh2_ecdsa_free(ec_ctx)      EVP_PKEY_free(ec_ctx)
+#define ssh2_ec_key                  EVP_PKEY
 #else
-#define ssh2_ecdsa_ctx           EC_KEY
-#define ssh2_ecdsa_free(ec_ctx)  EC_KEY_free(ec_ctx)
-#define ssh2_ec_key              EC_KEY
+#define ssh2_ecdsa_ctx               EC_KEY
+#define ssh2_ecdsa_free(ec_ctx)      EC_KEY_free(ec_ctx)
+#define ssh2_ec_key                  EC_KEY
 #endif
 
 typedef enum {
@@ -305,30 +305,30 @@ typedef enum {
 #endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519
-#define ssh2_ed25519_ctx          EVP_PKEY
-#define ssh2_ed25519_free(ed_ctx) EVP_PKEY_free(ed_ctx)
+#define ssh2_ed25519_ctx             EVP_PKEY
+#define ssh2_ed25519_free(ed_ctx)    EVP_PKEY_free(ed_ctx)
 #endif /* LIBSSH2_ED25519 */
 
-#define SSH2_CIPHER_T(name) const EVP_CIPHER *(*(name))(void)
+#define SSH2_CIPHER_T(name)          const EVP_CIPHER *(*(name))(void)
 
-#define ssh2_cipher_ctx EVP_CIPHER_CTX *
+#define ssh2_cipher_ctx              EVP_CIPHER_CTX *
 
-#define ssh2_cipher_aes256gcm EVP_aes_256_gcm
-#define ssh2_cipher_aes128gcm EVP_aes_128_gcm
+#define ssh2_cipher_aes256gcm        EVP_aes_256_gcm
+#define ssh2_cipher_aes128gcm        EVP_aes_128_gcm
 
-#define ssh2_cipher_aes256    EVP_aes_256_cbc
-#define ssh2_cipher_aes192    EVP_aes_192_cbc
-#define ssh2_cipher_aes128    EVP_aes_128_cbc
-#define ssh2_cipher_aes128ctr EVP_aes_128_ctr
-#define ssh2_cipher_aes192ctr EVP_aes_192_ctr
-#define ssh2_cipher_aes256ctr EVP_aes_256_ctr
-#define ssh2_cipher_blowfish  EVP_bf_cbc
-#define ssh2_cipher_arcfour   EVP_rc4
-#define ssh2_cipher_cast5     EVP_cast5_cbc
-#define ssh2_cipher_3des      EVP_des_ede3_cbc
-#define ssh2_cipher_chacha20  NULL
+#define ssh2_cipher_aes256           EVP_aes_256_cbc
+#define ssh2_cipher_aes192           EVP_aes_192_cbc
+#define ssh2_cipher_aes128           EVP_aes_128_cbc
+#define ssh2_cipher_aes128ctr        EVP_aes_128_ctr
+#define ssh2_cipher_aes192ctr        EVP_aes_192_ctr
+#define ssh2_cipher_aes256ctr        EVP_aes_256_ctr
+#define ssh2_cipher_blowfish         EVP_bf_cbc
+#define ssh2_cipher_arcfour          EVP_rc4
+#define ssh2_cipher_cast5            EVP_cast5_cbc
+#define ssh2_cipher_3des             EVP_des_ede3_cbc
+#define ssh2_cipher_chacha20         NULL
 
-#define ssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_free(*(ctx))
+#define ssh2_cipher_dtor(ctx)        EVP_CIPHER_CTX_free(*(ctx))
 
 #define ssh2_bn_ctx                  BN_CTX
 #define ssh2_bn_ctx_new()            BN_CTX_new()
