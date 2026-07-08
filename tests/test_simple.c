@@ -79,7 +79,6 @@ static int test_ssh2_dh_is_valid(void)
 
     for(i = 0; i < SSH2_ARRAYSIZE(tests); i++) {
         int got;
-
 #ifdef LIBSSH2_LIBGCRYPT
         int fi = atoi(tests[i].f);
         gcry_mpi_t f = gcry_mpi_set_ui(NULL, fi >= 0 ? fi : -fi);
