@@ -136,13 +136,6 @@ extern struct wcng_ctx ssh2_wcng;
 
 /*******************************************************************/
 /*
- * Windows CNG backend: Generic functions
- */
-
-#define ssh2_prepare_iovec(vec, len)  /* Empty. */
-
-/*******************************************************************/
-/*
  * Windows CNG backend: Hash structure
  */
 

@@ -232,8 +232,6 @@
 
 #define ssh2_crypto_exit() do {} while(0)
 
-#define ssh2_prepare_iovec(vec, len)  /* Empty. */
-
 #define ssh2_hash_ctx                EVP_MD_CTX *
 #define ssh2_hash_alg                const EVP_MD *
 #define ssh2_hash_update(ctx, d, l)  EVP_DigestUpdate(*(ctx), d, l)

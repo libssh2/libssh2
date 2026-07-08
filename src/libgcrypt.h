@@ -75,8 +75,6 @@
 
 #define ssh2_random(buf, len) (gcry_randomize(buf, len, GCRY_STRONG_RANDOM), 0)
 
-#define ssh2_prepare_iovec(vec, len)  /* Empty. */
-
 #define ssh2_hash_ctx gcry_md_hd_t
 #define ssh2_hash_alg int
 

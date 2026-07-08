@@ -116,13 +116,6 @@
 
 /*******************************************************************/
 /*
- * mbedTLS backend: Generic functions
- */
-
-#define ssh2_prepare_iovec(vec, len)  /* Empty. */
-
-/*******************************************************************/
-/*
  * mbedTLS backend: HMAC functions
  */
 
