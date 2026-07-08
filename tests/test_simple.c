@@ -81,8 +81,8 @@ static int test_ssh2_dh_is_valid(void)
         int got;
 
 #ifdef LIBSSH2_LIBGCRYPT
-        int fl = atoi(tests[i].f);
-        gcry_mpi_t f = gcry_mpi_set_ui(NULL, fl >= 0 ? fl : -fl);
+        int fi = atoi(tests[i].f);
+        gcry_mpi_t f = gcry_mpi_set_ui(NULL, fi >= 0 ? fi : -fi);
         gcry_mpi_t p = gcry_mpi_set_ui(NULL, atoi(tests[i].p));
         if(tests[i].f[0] == '-')
             gcry_mpi_neg(f, f);
