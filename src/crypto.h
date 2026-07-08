@@ -221,24 +221,6 @@ int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
                                       const char *blob, size_t blob_len,
                                       const unsigned char *passphrase);
 
-int ssh2_ecdsa_new_private_sk(ssh2_ecdsa_ctx **ec_ctx,
-                              LIBSSH2_SESSION *session,
-                              unsigned char *flags,
-                              const char **application,
-                              const unsigned char **key_handle,
-                              size_t *handle_len,
-                              const char *filename,
-                              const unsigned char *passphrase);
-
-int ssh2_ecdsa_new_private_frommemory_sk(ssh2_ecdsa_ctx **ec_ctx,
-                                         LIBSSH2_SESSION *session,
-                                         unsigned char *flags,
-                                         const char **application,
-                                         const unsigned char **key_handle,
-                                         size_t *handle_len,
-                                         const char *blob, size_t blob_len,
-                                         const unsigned char *passphrase);
-
 int ssh2_ecdsa_sign(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
                     const unsigned char *hash, size_t hash_len,
                     unsigned char **signature, size_t *signature_len);

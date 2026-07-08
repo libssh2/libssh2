@@ -1710,26 +1710,6 @@ int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
                                         blob, blob_len, passphrase);
     return rc;
 }
-
-int ssh2_ecdsa_new_private_frommemory_sk(ssh2_ecdsa_ctx **ec_ctx,
-                                         LIBSSH2_SESSION *session,
-                                         unsigned char *flags,
-                                         const char **application,
-                                         const unsigned char **key_handle,
-                                         size_t *handle_len,
-                                         const char *blob, size_t blob_len,
-                                         const unsigned char *passphrase)
-{
-    int algorithm;
-    return ossl_key_sk_from_openssh_blob(session, (void **)ec_ctx,
-                                         "sk-ecdsa-sha2-nistp256@openssh.com",
-                                         NULL, NULL, NULL, NULL,
-                                         &algorithm, flags, application,
-                                         key_handle, handle_len,
-                                         blob, blob_len,
-                                         passphrase);
-}
-
 #endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519
@@ -3216,63 +3196,6 @@ static int ossl_ecdsa_openssh_priv_new(ssh2_ecdsa_ctx **ec_ctx,
     return rc;
 }
 
-static int ossl_ecdsa_sk_openssh_priv_new(ssh2_ecdsa_ctx **ec_ctx,
-                                          LIBSSH2_SESSION *session,
-                                          uint8_t *flags,
-                                          const char **application,
-                                          const unsigned char **key_handle,
-                                          size_t *handle_len,
-                                          const char *filename,
-                                          const unsigned char *passphrase)
-{
-    FILE *fp;
-    int rc;
-    unsigned char *buf = NULL;
-    struct string_buf *decrypted = NULL;
-
-    if(!session) {
-        ssh2_err(session, LIBSSH2_ERROR_PROTO, "Session is required");
-        return -1;
-    }
-
-    OSSL_INIT_IF_NEEDED();
-
-    fp = fopen(filename, "r");
-    if(!fp) {
-        ssh2_err(session, LIBSSH2_ERROR_FILE,
-                 "Unable to open OpenSSH ECDSA private key file");
-        return -1;
-    }
-
-    rc = ssh2_openssh_pem_parse(session, passphrase, fp, &decrypted);
-    fclose(fp);
-    if(rc)
-        return rc;
-
-    /* We have a new key file, now try and parse it using supported types  */
-    rc = ssh2_get_string(decrypted, &buf, NULL);
-
-    if(rc || !buf) {
-        ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                 "Public key type in decrypted key data not found");
-        return -1;
-    }
-
-    if(!strcmp("sk-ecdsa-sha2-nistp256@openssh.com", (const char *)buf))
-        rc = ossl_ecdsa_sk_openssh_priv_to_pubkey(session, decrypted,
-                                                  NULL, NULL, NULL, NULL,
-                                                  flags, application,
-                                                  key_handle, handle_len,
-                                                  ec_ctx);
-    else
-        rc = -1;
-
-    if(decrypted)
-        ssh2_string_buf_free(session, decrypted);
-
-    return rc;
-}
-
 int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
                            LIBSSH2_SESSION *session,
                            const char *filename,
@@ -3297,39 +3220,6 @@ int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
     if(!*ec_ctx)
         rc = ossl_ecdsa_openssh_priv_new(ec_ctx, session, filename,
                                          passphrase);
-    return rc;
-}
-
-int ssh2_ecdsa_new_private_sk(ssh2_ecdsa_ctx **ec_ctx,
-                              LIBSSH2_SESSION *session,
-                              unsigned char *flags,
-                              const char **application,
-                              const unsigned char **key_handle,
-                              size_t *handle_len,
-                              const char *filename,
-                              const unsigned char *passphrase)
-{
-    int rc = 0;
-    BIO *bp;
-
-    OSSL_INIT_IF_NEEDED();
-
-    bp = BIO_new_file(filename, "r");
-    if(bp)
-#ifdef USE_OPENSSL_3
-        *ec_ctx = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
-                                          SSH2_UNCONST(passphrase));
-#else
-        *ec_ctx = PEM_read_bio_ECPrivateKey(bp, NULL, ossl_passphrase_cb,
-                                            SSH2_UNCONST(passphrase));
-#endif
-    BIO_free(bp);
-
-    if(!*ec_ctx)
-        rc = ossl_ecdsa_sk_openssh_priv_new(ec_ctx, session,
-                                            flags, application,
-                                            key_handle, handle_len,
-                                            filename, passphrase);
     return rc;
 }
 
