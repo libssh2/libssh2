@@ -89,7 +89,7 @@ int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx);
 int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
                    void *key, size_t keylen);
 #ifndef ssh2_hmac_update
-int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen);
+int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *input, size_t input_len);
 #endif
 int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen);
 void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx);

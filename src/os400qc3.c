@@ -1003,15 +1003,15 @@ int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
     return os400qc3_hmac_init(ctx, alg, minkeylen, key, keylen);
 }
 
-int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
+int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *input, size_t input_len)
 {
     char dummy[64];
-    int len = (int)datalen;
+    int len = (int)input_len;
     Qus_EC_t errcode;
 
     ctx->hash.Final_Op_Flag = Qc3_Continue;
     set_EC_length(errcode, sizeof(errcode));
-    Qc3CalculateHMAC((char *)data, &len, Qc3_Data, (char *)&ctx->hash,
+    Qc3CalculateHMAC((char *)input, &len, Qc3_Data, (char *)&ctx->hash,
                      Qc3_Alg_Token, ctx->key.Key_Context_Token, Qc3_Key_Token,
                      anycsp, NULL, dummy, (char *)&errcode);
     return errcode.Bytes_Available ? 0 : 1;

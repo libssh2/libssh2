@@ -72,9 +72,9 @@ int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
     return 1;
 }
 
-int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
+int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *input, size_t input_len)
 {
-    gcry_md_write(*ctx, data, datalen);
+    gcry_md_write(*ctx, input, input_len);
     return 1;
 }
 
