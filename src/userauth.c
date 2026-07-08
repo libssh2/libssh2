@@ -1293,6 +1293,37 @@ static int userauth_is_version_less_than_78(const char *version)
     return 0;
 }
 
+/*
+ * Return supported key hash algo upgrades, see crypto.h
+ */
+static const char *userauth_supported_key_sign_algs(LIBSSH2_SESSION *session,
+                                                    unsigned char *key_method,
+                                                    size_t key_method_len)
+{
+    (void)session;
+
+#if LIBSSH2_RSA_SHA2
+    if((key_method_len == 7 &&
+        !memcmp(key_method, "ssh-rsa", key_method_len))
+#if defined(LIBSSH2_OPENSSL) || defined(LIBSSH2_WOLFSSL)
+       || (key_method_len == 28 &&
+          !memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", key_method_len))
+#endif
+      ) {
+        return "rsa-sha2-512,rsa-sha2-256"
+#if LIBSSH2_RSA_SHA1
+            ",ssh-rsa"
+#endif
+            ;
+    }
+#else
+    (void)key_method;
+    (void)key_method_len;
+#endif
+
+    return NULL;
+}
+
 /**
  * @abstract Upgrades the algorithm used for public key signing RFC 8332
  * @discussion Based on the incoming key_method value, this function
@@ -1326,7 +1357,7 @@ static int userauth_key_sign_algs(LIBSSH2_SESSION *session,
     const char * const remote_ver_pre = "OpenSSH_";
 
     const char *supported_algs =
-        ssh2_supported_key_sign_algs(session, *key_method, *key_method_len);
+        userauth_supported_key_sign_algs(session, *key_method, *key_method_len);
 
     if(!supported_algs || !session->server_sign_algorithms)
         /* no upgrading key algorithm supported, do nothing */
