@@ -86,7 +86,16 @@ static int test_ssh2_dh_is_valid(void)
     for(i = 0; i < (sizeof(tests) / sizeof(tests[0])); i++) {
         int got;
 
-#ifdef LIBSSH2_MBEDTLS
+#ifdef LIBSSH2_LIBGCRYPT
+        gcry_mpi_t f, p;
+        f = gcry_mpi_set_ui(NULL, atol(tests[i].f));
+        p = gcry_mpi_set_ui(NULL, atol(tests[i].p));
+        if(tests[i].f[0] == '-')
+            gcry_mpi_neg(f, f);
+        got = ssh2_dh_is_valid(f, p);
+        gcry_mpi_release(f);
+        gcry_mpi_release(p);
+#elif defined(LIBSSH2_MBEDTLS)
         mbedtls_mpi_init(&f);
         mbedtls_mpi_init(&p);
         if(mbedtls_mpi_read_string(&f, 10, tests[i].f) ||
