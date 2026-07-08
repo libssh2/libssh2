@@ -957,3 +957,38 @@ int ssh2_timingsafe_bcmp(const void *b1, const void *b2, size_t n)
         ret |= *p1++ ^ *p2++;
     return ret != 0;
 }
+
+#ifndef LIBSSH2_KEY_SK
+int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
+                              unsigned char **method,
+                              size_t *method_len,
+                              unsigned char **pubkeydata,
+                              size_t *pubkeydata_len,
+                              int *algorithm,
+                              unsigned char *flags,
+                              const char **application,
+                              const unsigned char **key_handle,
+                              size_t *handle_len,
+                              const char *privatekeydata,
+                              size_t privatekeydata_len,
+                              const char *passphrase)
+{
+    (void)method;
+    (void)method_len;
+    (void)pubkeydata;
+    (void)pubkeydata_len;
+    (void)algorithm;
+    (void)flags;
+    (void)application;
+    (void)key_handle;
+    (void)handle_len;
+    (void)privatekeydata;
+    (void)privatekeydata_len;
+    (void)passphrase;
+
+    return ssh2_err(session, LIBSSH2_ERROR_FILE,
+                    "Unable to extract public SK key from private key file: "
+                    "Method unimplemented in "
+                    SSH2_CRYPTO_ENGINE_NAME " backend");
+}
+#endif

@@ -222,6 +222,8 @@
 # define LIBSSH2_3DES 1
 #endif
 
+#define LIBSSH2_KEY_SK  /* implements ssh2_sk_pub_keyfilememory() */
+
 #include "crypto_config.h"
 
 #define ssh2_crypto_exit()           do {} while(0)
