@@ -2175,71 +2175,6 @@ int ssh2_ed25519_new_private(ssh2_ed25519_ctx **ed_ctx,
     return rc;
 }
 
-int ssh2_ed25519_new_private_sk(ssh2_ed25519_ctx **ed_ctx,
-                                LIBSSH2_SESSION *session,
-                                unsigned char *flags,
-                                const char **application,
-                                const unsigned char **key_handle,
-                                size_t *handle_len,
-                                const char *filename,
-                                const uint8_t *passphrase)
-{
-    int rc;
-    FILE *fp;
-    unsigned char *buf;
-    struct string_buf *decrypted = NULL;
-    ssh2_ed25519_ctx *ctx = NULL;
-
-    if(!session) {
-        ssh2_err(session, LIBSSH2_ERROR_PROTO, "Session is required");
-        return -1;
-    }
-
-    OSSL_INIT_IF_NEEDED();
-
-    fp = fopen(filename, "r");
-    if(!fp) {
-        ssh2_err(session, LIBSSH2_ERROR_FILE,
-                 "Unable to open ED25519 SK private key file");
-        return -1;
-    }
-
-    rc = ssh2_openssh_pem_parse(session, passphrase, fp, &decrypted);
-    fclose(fp);
-    if(rc)
-        return rc;
-
-    /* We have a new key file, now try and parse it using supported types  */
-    rc = ssh2_get_string(decrypted, &buf, NULL);
-
-    if(rc || !buf) {
-        ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                 "Public key type in decrypted key data not found");
-        return -1;
-    }
-
-    if(!strcmp("sk-ssh-ed25519@openssh.com", (const char *)buf))
-        rc = ossl_ed25519_sk_openssh_priv_to_pubkey(session, decrypted,
-                                                    NULL, NULL, NULL, NULL,
-                                                    flags, application,
-                                                    key_handle, handle_len,
-                                                    &ctx);
-    else
-        rc = -1;
-
-    if(decrypted)
-        ssh2_string_buf_free(session, decrypted);
-
-    if(rc == 0) {
-        if(ed_ctx)
-            *ed_ctx = ctx;
-        else if(ctx)
-            ssh2_ed25519_free(ctx);
-    }
-
-    return rc;
-}
-
 int ssh2_ed25519_new_private_frommemory(ssh2_ed25519_ctx **ed_ctx,
                                         LIBSSH2_SESSION *session,
                                         const char *blob, size_t blob_len,
@@ -2270,25 +2205,6 @@ int ssh2_ed25519_new_private_frommemory(ssh2_ed25519_ctx **ed_ctx,
     return ossl_key_from_openssh_blob(session, (void **)ed_ctx, "ssh-ed25519",
                                       NULL, NULL, NULL, NULL,
                                       blob, blob_len, passphrase);
-}
-
-int ssh2_ed25519_new_private_frommemory_sk(ssh2_ed25519_ctx **ed_ctx,
-                                           LIBSSH2_SESSION *session,
-                                           unsigned char *flags,
-                                           const char **application,
-                                           const unsigned char **key_handle,
-                                           size_t *handle_len,
-                                           const char *blob, size_t blob_len,
-                                           const unsigned char *passphrase)
-{
-    int algorithm;
-    return ossl_key_sk_from_openssh_blob(session, (void **)ed_ctx,
-                                         "sk-ssh-ed25519@openssh.com",
-                                         NULL, NULL, NULL, NULL,
-                                         &algorithm, flags, application,
-                                         key_handle, handle_len,
-                                         blob, blob_len,
-                                         passphrase);
 }
 
 int ssh2_ed25519_new_public(ssh2_ed25519_ctx **ed_ctx,

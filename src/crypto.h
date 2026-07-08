@@ -258,24 +258,6 @@ int ssh2_ed25519_new_private_frommemory(ssh2_ed25519_ctx **ed_ctx,
                                         const char *blob, size_t blob_len,
                                         const unsigned char *passphrase);
 
-int ssh2_ed25519_new_private_sk(ssh2_ed25519_ctx **ed_ctx,
-                                LIBSSH2_SESSION *session,
-                                unsigned char *flags,
-                                const char **application,
-                                const unsigned char **key_handle,
-                                size_t *handle_len,
-                                const char *filename,
-                                const uint8_t *passphrase);
-
-int ssh2_ed25519_new_private_frommemory_sk(ssh2_ed25519_ctx **ed_ctx,
-                                           LIBSSH2_SESSION *session,
-                                           unsigned char *flags,
-                                           const char **application,
-                                           const unsigned char **key_handle,
-                                           size_t *handle_len,
-                                           const char *blob, size_t blob_len,
-                                           const unsigned char *passphrase);
-
 int ssh2_ed25519_sign(ssh2_ed25519_ctx *ed_ctx, LIBSSH2_SESSION *session,
                       uint8_t **out_sig, size_t *out_sig_len,
                       const uint8_t *message, size_t message_len);
