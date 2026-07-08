@@ -244,7 +244,7 @@ struct wcng_cipher_t {
     int ctrMode;
 };
 
-#define SSH2_CIPHER_T(type) struct wcng_cipher_t type
+#define SSH2_CIPHER_T(type)   struct wcng_cipher_t type
 
 #define ssh2_cipher_aes256ctr { &ssh2_wcng.hAlgAES_ECB, 32, 0, 1 }
 #define ssh2_cipher_aes192ctr { &ssh2_wcng.hAlgAES_ECB, 24, 0, 1 }
