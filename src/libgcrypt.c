@@ -791,7 +791,7 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
 int ssh2_dh_is_valid(ssh2_bn *f, ssh2_bn *p)
 {
     gcry_mpi_t tmp;
-    int n, i, bits_set;
+    unsigned int n, i, bits_set;
 
     if(gcry_mpi_cmp_ui(f, 1) <= 0)
         return -1;  /* f <= 1 */
