@@ -820,6 +820,10 @@ int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
                    ssh2_bn *p, ssh2_bn_ctx *bnctx)
 {
     (void)bnctx;
+
+    if(ssh2_dh_is_valid(f, p))  /* Verify if parameters are valid */
+        return -1;
+
     /* Compute the shared secret */
     gcry_mpi_powm(secret, f, *dhctx, p);
     return 0;
