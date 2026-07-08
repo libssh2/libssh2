@@ -222,20 +222,20 @@ int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
                                       const unsigned char *passphrase);
 
 int ssh2_ecdsa_new_private_sk(ssh2_ecdsa_ctx **ec_ctx,
+                              LIBSSH2_SESSION *session,
                               unsigned char *flags,
                               const char **application,
                               const unsigned char **key_handle,
                               size_t *handle_len,
-                              LIBSSH2_SESSION *session,
                               const char *filename,
                               const unsigned char *passphrase);
 
 int ssh2_ecdsa_new_private_frommemory_sk(ssh2_ecdsa_ctx **ec_ctx,
+                                         LIBSSH2_SESSION *session,
                                          unsigned char *flags,
                                          const char **application,
                                          const unsigned char **key_handle,
                                          size_t *handle_len,
-                                         LIBSSH2_SESSION *session,
                                          const char *blob, size_t blob_len,
                                          const unsigned char *passphrase);
 

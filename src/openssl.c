@@ -1712,11 +1712,11 @@ int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
 }
 
 int ssh2_ecdsa_new_private_frommemory_sk(ssh2_ecdsa_ctx **ec_ctx,
+                                         LIBSSH2_SESSION *session,
                                          unsigned char *flags,
                                          const char **application,
                                          const unsigned char **key_handle,
                                          size_t *handle_len,
-                                         LIBSSH2_SESSION *session,
                                          const char *blob, size_t blob_len,
                                          const unsigned char *passphrase)
 {
@@ -3217,11 +3217,11 @@ static int ossl_ecdsa_openssh_priv_new(ssh2_ecdsa_ctx **ec_ctx,
 }
 
 static int ossl_ecdsa_sk_openssh_priv_new(ssh2_ecdsa_ctx **ec_ctx,
+                                          LIBSSH2_SESSION *session,
                                           uint8_t *flags,
                                           const char **application,
                                           const unsigned char **key_handle,
                                           size_t *handle_len,
-                                          LIBSSH2_SESSION *session,
                                           const char *filename,
                                           const unsigned char *passphrase)
 {
@@ -3301,11 +3301,11 @@ int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
 }
 
 int ssh2_ecdsa_new_private_sk(ssh2_ecdsa_ctx **ec_ctx,
+                              LIBSSH2_SESSION *session,
                               unsigned char *flags,
                               const char **application,
                               const unsigned char **key_handle,
                               size_t *handle_len,
-                              LIBSSH2_SESSION *session,
                               const char *filename,
                               const unsigned char *passphrase)
 {
@@ -3326,8 +3326,9 @@ int ssh2_ecdsa_new_private_sk(ssh2_ecdsa_ctx **ec_ctx,
     BIO_free(bp);
 
     if(!*ec_ctx)
-        rc = ossl_ecdsa_sk_openssh_priv_new(ec_ctx, flags, application,
-                                            key_handle, handle_len, session,
+        rc = ossl_ecdsa_sk_openssh_priv_new(ec_ctx, session,
+                                            flags, application,
+                                            key_handle, handle_len,
                                             filename, passphrase);
     return rc;
 }
