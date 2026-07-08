@@ -777,7 +777,7 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
     return 0;
 }
 
-int ssh2_dh_is_valid(const ssh2_bn *f, const ssh2_bn *p)
+int ssh2_dh_is_valid(ssh2_bn *f, ssh2_bn *p)
 {
     mbedtls_mpi one, tmp;
     size_t n, i, bits_set;
