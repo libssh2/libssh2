@@ -1453,7 +1453,7 @@ static int wcng_rsa_sha_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
+int ssh2_rsa_sha1_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
@@ -1462,7 +1462,7 @@ int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
                              signature, signature_len);
 }
 
-int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
+int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
@@ -2665,8 +2665,8 @@ cleanup:
 /*
  * Computes the ECDSA signature of a previously-hashed message
  */
-int ssh2_ecdsa_sign(IN LIBSSH2_SESSION *session,
-                    IN struct wcng_ecdsa_ctx *ec_ctx,
+int ssh2_ecdsa_sign(IN ssh2_ecdsa_ctx *ec_ctx,
+                    IN LIBSSH2_SESSION *session,
                     IN const unsigned char *hash, IN size_t hash_len,
                     OUT unsigned char **signature, OUT size_t *signature_len)
 {

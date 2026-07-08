@@ -2497,7 +2497,7 @@ clean_exit:
 #endif
 
 #if LIBSSH2_RSA
-int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
+int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
@@ -2577,11 +2577,11 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
 }
 
 #if LIBSSH2_RSA_SHA1
-int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
+int ssh2_rsa_sha1_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
-    return ssh2_rsa_sha2_sign(session, rsa, hash, hash_len,
+    return ssh2_rsa_sha2_sign(rsa, session, hash, hash_len,
                               signature, signature_len);
 }
 #endif
@@ -2653,7 +2653,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
 
 #if LIBSSH2_ECDSA
 
-int ssh2_ecdsa_sign(LIBSSH2_SESSION *session, ssh2_ecdsa_ctx *ec_ctx,
+int ssh2_ecdsa_sign(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
                     const unsigned char *hash, size_t hash_len,
                     unsigned char **signature, size_t *signature_len)
 {

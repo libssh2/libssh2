@@ -495,7 +495,7 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
                                 sig, sig_len, m, m_len);
 }
 
-int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
+int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
@@ -538,11 +538,11 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
     return ret == 0 ? 0 : -1;
 }
 
-int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
+int ssh2_rsa_sha1_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
-    return ssh2_rsa_sha2_sign(session, rsa, hash, hash_len,
+    return ssh2_rsa_sha2_sign(rsa, session, hash, hash_len,
                               signature, signature_len);
 }
 
@@ -1290,7 +1290,7 @@ done:
 /*
  * Computes the ECDSA signature of a previously-hashed message
  */
-int ssh2_ecdsa_sign(LIBSSH2_SESSION *session, ssh2_ecdsa_ctx *ec_ctx,
+int ssh2_ecdsa_sign(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
                     const unsigned char *hash, size_t hash_len,
                     unsigned char **signature, size_t *signature_len)
 {
