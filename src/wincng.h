@@ -281,14 +281,6 @@ struct wcng_bn {
  * Windows CNG backend: Diffie-Hellman support
  */
 
-/* Default generate and safe prime sizes for
-   diffie-hellman-group-exchange-sha1 */
-#define SSH2_DH_GEX_MINGROUP     2048
-#define SSH2_DH_GEX_OPTGROUP     4096
-#define SSH2_DH_GEX_MAXGROUP     4096
-
-#define SSH2_DH_MAX_MODULUS_BITS 16384
-
 struct wcng_dh_ctx {
     /* holds our private and public key components */
     BCRYPT_KEY_HANDLE dh_handle;
@@ -300,6 +292,14 @@ struct wcng_dh_ctx {
     struct wcng_bn *dh_privbn;
 };
 
-#define ssh2_dh_ctx struct wcng_dh_ctx
+#define ssh2_dh_ctx              struct wcng_dh_ctx
+
+/* Default generate and safe prime sizes for
+   diffie-hellman-group-exchange-sha1 */
+#define SSH2_DH_GEX_MINGROUP     2048
+#define SSH2_DH_GEX_OPTGROUP     4096
+#define SSH2_DH_GEX_MAXGROUP     4096
+
+#define SSH2_DH_MAX_MODULUS_BITS 16384
 
 #endif /* LIBSSH2_WINCNG_H */

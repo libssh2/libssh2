@@ -130,6 +130,8 @@
 #define ssh2_bn_bits(bn)               gcry_mpi_get_nbits(bn)
 #define ssh2_bn_free(bn)               gcry_mpi_release(bn)
 
+#define ssh2_dh_ctx                    struct gcry_mpi *
+
 /* Default generate and safe prime sizes for
    diffie-hellman-group-exchange-sha1 */
 #define SSH2_DH_GEX_MINGROUP     2048
@@ -137,7 +139,5 @@
 #define SSH2_DH_GEX_MAXGROUP     8192
 
 #define SSH2_DH_MAX_MODULUS_BITS 16384
-
-#define ssh2_dh_ctx struct gcry_mpi *
 
 #endif /* LIBSSH2_LIBGCRYPT_H */

@@ -220,20 +220,20 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
  *
  *******************************************************************/
 
-#define ssh2_crypto_init()   do {} while(0)
-#define ssh2_crypto_exit()   do {} while(0)
+#define ssh2_crypto_init()       do {} while(0)
+#define ssh2_crypto_exit()       do {} while(0)
 
-#define ssh2_hash_ctx        Qc3_Format_ALGD0100_T
-#define ssh2_hash_alg        unsigned int
-#define ssh2_hmac_ctx        struct os400qc3_crypto_ctx
-#define ssh2_cipher_ctx      struct os400qc3_crypto_ctx
+#define ssh2_hash_ctx            Qc3_Format_ALGD0100_T
+#define ssh2_hash_alg            unsigned int
+#define ssh2_hmac_ctx            struct os400qc3_crypto_ctx
+#define ssh2_cipher_ctx          struct os400qc3_crypto_ctx
 
-#define SSH2_SHA1_ALG   Qc3_SHA1
-#define SSH2_SHA256_ALG Qc3_SHA256
-#define SSH2_SHA384_ALG Qc3_SHA384
-#define SSH2_SHA512_ALG Qc3_SHA512
+#define SSH2_SHA1_ALG            Qc3_SHA1
+#define SSH2_SHA256_ALG          Qc3_SHA256
+#define SSH2_SHA384_ALG          Qc3_SHA384
+#define SSH2_SHA512_ALG          Qc3_SHA512
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define SSH2_MD5_ALG    Qc3_MD5
+#define SSH2_MD5_ALG             Qc3_MD5
 #endif
 
 /* Bignum */
@@ -247,21 +247,22 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 
 /* Cipher */
 
-#define SSH2_CIPHER_T(name)   struct os400qc3_cipher name
-#define ssh2_cipher_aes128    {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 16}
-#define ssh2_cipher_aes192    {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 24}
-#define ssh2_cipher_aes256    {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 32}
-#define ssh2_cipher_aes128ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CTR, 16}
-#define ssh2_cipher_aes192ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CTR, 24}
-#define ssh2_cipher_aes256ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CTR, 32}
-#define ssh2_cipher_3des      {Qc3_Alg_Block_Cipher, Qc3_TDES, 8, Qc3_CBC, 24}
+#define SSH2_CIPHER_T(name)      struct os400qc3_cipher name
+
+#define ssh2_cipher_aes128     {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 16}
+#define ssh2_cipher_aes192     {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 24}
+#define ssh2_cipher_aes256     {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 32}
+#define ssh2_cipher_aes128ctr  {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CTR, 16}
+#define ssh2_cipher_aes192ctr  {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CTR, 24}
+#define ssh2_cipher_aes256ctr  {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CTR, 32}
+#define ssh2_cipher_3des       {Qc3_Alg_Block_Cipher, Qc3_TDES, 8, Qc3_CBC, 24}
 /* Nonsense values for chacha20-poly1305 */
-#define ssh2_cipher_chacha20  {Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16}
-#define ssh2_cipher_arcfour   {Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16}
+#define ssh2_cipher_chacha20   {Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16}
+#define ssh2_cipher_arcfour    {Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16}
 
-#define ssh2_cipher_dtor(ctx) ssh2_os400qc3_crypto_dtor(ctx)
+#define ssh2_cipher_dtor(ctx)    ssh2_os400qc3_crypto_dtor(ctx)
 
-#define ssh2_rsa_ctx         struct os400qc3_crypto_ctx
+#define ssh2_rsa_ctx             struct os400qc3_crypto_ctx
 #define ssh2_rsa_free(ctx) \
     (ssh2_os400qc3_crypto_dtor(ctx), free((char *)ctx))
 #define ssh2_prepare_iovec(vec, len) \
@@ -280,6 +281,8 @@ int ssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session, int algo,
                             const struct iovec vector[],
                             ssh2_rsa_ctx *ctx);
 
+#define ssh2_dh_ctx              struct os400qc3_dh_ctx
+
 /* Default generate and safe prime sizes for diffie-hellman-group-exchange-sha1
    Qc3 is limited to a maximum 2048-bit modulus/key size. */
 #define SSH2_DH_GEX_MINGROUP     1024
@@ -287,8 +290,6 @@ int ssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session, int algo,
 #define SSH2_DH_GEX_MAXGROUP     2048
 
 #define SSH2_DH_MAX_MODULUS_BITS 2048
-
-#define ssh2_dh_ctx struct os400qc3_dh_ctx
 
 /*******************************************************************
  *

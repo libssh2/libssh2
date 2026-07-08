@@ -231,6 +231,8 @@ typedef enum {
  * mbedTLS backend: Diffie-Hellman support.
  */
 
+#define ssh2_dh_ctx                    mbedtls_mpi *
+
 /* Default generate and safe prime sizes for
    diffie-hellman-group-exchange-sha1 */
 #define SSH2_DH_GEX_MINGROUP     2048
@@ -238,7 +240,5 @@ typedef enum {
 #define SSH2_DH_GEX_MAXGROUP     8192
 
 #define SSH2_DH_MAX_MODULUS_BITS 16384
-
-#define ssh2_dh_ctx mbedtls_mpi *
 
 #endif /* LIBSSH2_MBEDTLS_H */

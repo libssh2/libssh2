@@ -343,6 +343,8 @@ typedef enum {
 #define ssh2_bn_bits(bn)             BN_num_bits(bn)
 #define ssh2_bn_free(bn)             BN_clear_free(bn)
 
+#define ssh2_dh_ctx                  BIGNUM *
+
 /* Default generate and safe prime sizes for
    diffie-hellman-group-exchange-sha1 */
 #define SSH2_DH_GEX_MINGROUP     2048
@@ -350,7 +352,5 @@ typedef enum {
 #define SSH2_DH_GEX_MAXGROUP     8192
 
 #define SSH2_DH_MAX_MODULUS_BITS 16384
-
-#define ssh2_dh_ctx BIGNUM *
 
 #endif /* LIBSSH2_OPENSSL_H */
