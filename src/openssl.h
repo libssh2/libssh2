@@ -222,7 +222,7 @@
 # define LIBSSH2_3DES 1
 #endif
 
-#define LIBSSH2_ECDSA_SK  /* implements ssh2_sk_pub_keyfilememory() */
+#define LIBSSH2_ECDSA_SK  1 /* implements ssh2_sk_pub_keyfilememory() */
 
 #include "crypto_config.h"
 
