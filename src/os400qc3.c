@@ -1042,7 +1042,7 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
  *
  *******************************************************************/
 
-int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
+int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
     Qc3_Format_ALGD0200_T algd;
@@ -1050,10 +1050,10 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
 
     (void)encrypt;
 
-    if(!h)
+    if(!ctx)
         return -1;
 
-    init_crypto_ctx(h);
+    init_crypto_ctx(ctx);
     algd.Block_Cipher_Alg = algo.algo;
     algd.Block_Length = algo.size;
     algd.Mode = algo.mode;
@@ -1067,14 +1067,14 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
         memcpy(algd.Init_Vector, iv, algo.size);
     set_EC_length(errcode, sizeof(errcode));
     Qc3CreateAlgorithmContext((char *)&algd, algo.fmt,
-                              h->hash.Alg_Context_Token, &errcode);
+                              ctx->hash.Alg_Context_Token, &errcode);
     if(errcode.Bytes_Available)
         return -1;
     Qc3CreateKeyContext((char *)secret, &algo.keylen, binstring,
                         &algo.algo, qc3clear, NULL, NULL,
-                        h->key.Key_Context_Token, (char *)&errcode);
+                        ctx->key.Key_Context_Token, (char *)&errcode);
     if(errcode.Bytes_Available) {
-        ssh2_os400qc3_crypto_dtor(h);
+        ssh2_os400qc3_crypto_dtor(ctx);
         return -1;
     }
 

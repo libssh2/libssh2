@@ -2988,7 +2988,7 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
 /*
  * Windows CNG backend: Cipher functions
  */
-int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
+int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
     BCRYPT_KEY_HANDLE hKey;
@@ -3066,14 +3066,14 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
         }
     }
 
-    h->hKey = hKey;
-    h->pbKeyObject = pbKeyObject;
-    h->pbIV = pbIV;
-    h->pbCtr = pbCtr;
-    h->dwKeyObject = dwKeyObject;
-    h->dwIV = dwIV;
-    h->dwBlockLength = dwBlockLength;
-    h->dwCtrLength = dwCtrLength;
+    ctx->hKey = hKey;
+    ctx->pbKeyObject = pbKeyObject;
+    ctx->pbIV = pbIV;
+    ctx->pbCtr = pbCtr;
+    ctx->dwKeyObject = dwKeyObject;
+    ctx->dwIV = dwIV;
+    ctx->dwBlockLength = dwBlockLength;
+    ctx->dwCtrLength = dwCtrLength;
 
     return 0;
 }

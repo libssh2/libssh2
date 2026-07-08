@@ -643,7 +643,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
 }
 #endif
 
-int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
+int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
     int ret;
@@ -653,24 +653,24 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
 
     (void)encrypt;
 
-    ret = gcry_cipher_open(h, cipher, mode, 0);
+    ret = gcry_cipher_open(ctx, cipher, mode, 0);
     if(ret)
         return -1;
 
-    ret = gcry_cipher_setkey(*h, secret, keylen);
+    ret = gcry_cipher_setkey(*ctx, secret, keylen);
     if(ret) {
-        gcry_cipher_close(*h);
+        gcry_cipher_close(*ctx);
         return -1;
     }
 
     if(mode != GCRY_CIPHER_MODE_STREAM) {
         size_t blklen = gcry_cipher_get_algo_blklen(cipher);
         if(mode == GCRY_CIPHER_MODE_CTR)
-            ret = gcry_cipher_setctr(*h, iv, blklen);
+            ret = gcry_cipher_setctr(*ctx, iv, blklen);
         else
-            ret = gcry_cipher_setiv(*h, iv, blklen);
+            ret = gcry_cipher_setiv(*ctx, iv, blklen);
         if(ret) {
-            gcry_cipher_close(*h);
+            gcry_cipher_close(*ctx);
             return -1;
         }
     }

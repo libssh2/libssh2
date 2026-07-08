@@ -836,7 +836,7 @@ cleanup:
 
 #endif /* LIBSSH2_ECDSA */
 
-int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
+int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
 #if LIBSSH2_AES_GCM
@@ -845,12 +845,12 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
 #endif /* LIBSSH2_AES_GCM */
     int rc;
 
-    *h = EVP_CIPHER_CTX_new();
-    rc = !EVP_CipherInit(*h, algo(), secret, iv, encrypt);
+    *ctx = EVP_CIPHER_CTX_new();
+    rc = !EVP_CipherInit(*ctx, algo(), secret, iv, encrypt);
 #if LIBSSH2_AES_GCM
     if(is_aesgcm)
         /* Sets both fixed and invocation_counter parts of IV */
-        rc |= !EVP_CIPHER_CTX_ctrl(*h, EVP_CTRL_AEAD_SET_IV_FIXED, -1, iv);
+        rc |= !EVP_CIPHER_CTX_ctrl(*ctx, EVP_CTRL_AEAD_SET_IV_FIXED, -1, iv);
 #endif /* LIBSSH2_AES_GCM */
 
     return rc;

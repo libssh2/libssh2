@@ -92,14 +92,14 @@ static void mbed_zero_free(void *buf, size_t len)
     mbedtls_free(buf);
 }
 
-int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
+int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
     const mbedtls_cipher_info_t *cipher_info;
     mbedtls_operation_t op;
     int ret;
 
-    if(!h)
+    if(!ctx)
         return -1;
 
     op = encrypt ? MBEDTLS_ENCRYPT : MBEDTLS_DECRYPT;
@@ -108,8 +108,8 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
     if(!cipher_info)
         return -1;
 
-    mbedtls_cipher_init(h);
-    ret = mbedtls_cipher_setup(h, cipher_info);
+    mbedtls_cipher_init(ctx);
+    ret = mbedtls_cipher_setup(ctx, cipher_info);
 
     /* libssh2 computes and adds SSH packet padding itself, so for CBC
        tell mbedTLS to expect no padding on the cipher layer. Only call
@@ -120,16 +120,16 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
         algo == MBEDTLS_CIPHER_AES_192_CBC ||
         algo == MBEDTLS_CIPHER_AES_256_CBC ||
         algo == MBEDTLS_CIPHER_DES_EDE3_CBC)) {
-        ret = mbedtls_cipher_set_padding_mode(h, MBEDTLS_PADDING_NONE);
+        ret = mbedtls_cipher_set_padding_mode(ctx, MBEDTLS_PADDING_NONE);
     }
 
     if(!ret)
-        ret = mbedtls_cipher_setkey(h,
+        ret = mbedtls_cipher_setkey(ctx,
                   secret,
                   (int)mbedtls_cipher_info_get_key_bitlen(cipher_info), op);
 
     if(!ret)
-        ret = mbedtls_cipher_set_iv(h, iv,
+        ret = mbedtls_cipher_set_iv(ctx, iv,
                   mbedtls_cipher_info_get_iv_size(cipher_info));
 
     return ret == 0 ? 0 : -1;
