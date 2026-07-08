@@ -799,7 +799,7 @@ int ssh2_dh_is_valid(ssh2_bn *f, ssh2_bn *p)
 
     tmp = gcry_mpi_new(0);
     if(!tmp)
-      return -2;
+      return -4;
     gcry_mpi_sub_ui(tmp, p, 1);
     if(gcry_mpi_cmp(f, tmp) > 0) {
       gcry_mpi_release(tmp);
