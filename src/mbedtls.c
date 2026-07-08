@@ -798,7 +798,7 @@ int ssh2_dh_is_valid(ssh2_bn *f, ssh2_bn *p)
        mbedtls_mpi_sub_int(&tmp, &tmp, 2)) {  /* tmp -= 2 */
         mbedtls_mpi_free(&tmp);
         mbedtls_mpi_free(&one);
-       return -5;
+        return -5;
     }
     if(mbedtls_mpi_cmp_mpi(f, &tmp) == 1) {
         mbedtls_mpi_free(&tmp);
