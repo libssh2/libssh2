@@ -2407,6 +2407,7 @@ const char *ssh2_supported_key_sign_algs(LIBSSH2_SESSION *session,
 {
     (void)session;
 
+#if LIBSSH2_RSA_SHA2
     if(key_method_len == 7 &&
        !memcmp(key_method, "ssh-rsa", key_method_len)) {
         return "rsa-sha2-512,rsa-sha2-256"
@@ -2415,6 +2416,10 @@ const char *ssh2_supported_key_sign_algs(LIBSSH2_SESSION *session,
 #endif
             ;
     }
+#else
+    (void)key_method;
+    (void)key_method_len;
+#endif
 
     return NULL;
 }
