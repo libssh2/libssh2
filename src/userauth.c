@@ -1357,7 +1357,8 @@ static int userauth_key_sign_algs(LIBSSH2_SESSION *session,
     const char * const remote_ver_pre = "OpenSSH_";
 
     const char *supported_algs =
-        userauth_supported_key_sign_algs(session, *key_method, *key_method_len);
+        userauth_supported_key_sign_algs(session,
+                                         *key_method, *key_method_len);
 
     if(!supported_algs || !session->server_sign_algorithms)
         /* no upgrading key algorithm supported, do nothing */
