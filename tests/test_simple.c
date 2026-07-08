@@ -34,7 +34,7 @@
 #include "libssh2_priv.h"
 
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdlib.h>  /* for atoi() */
 
 static int test_ssh2_base64_decode(LIBSSH2_SESSION *session)
 {
@@ -77,13 +77,13 @@ static int test_ssh2_dh_is_valid(void)
     size_t i;
     int err = 0;
 
-    for(i = 0; i < (sizeof(tests) / sizeof(tests[0])); i++) {
+    for(i = 0; i < SSH2_ARRAYSIZE(tests); i++) {
         int got;
 
 #ifdef LIBSSH2_LIBGCRYPT
-        long fl = atol(tests[i].f);
+        int fl = atoi(tests[i].f);
         gcry_mpi_t f = gcry_mpi_set_ui(NULL, fl >= 0 ? fl : -fl);
-        gcry_mpi_t p = gcry_mpi_set_ui(NULL, atol(tests[i].p));
+        gcry_mpi_t p = gcry_mpi_set_ui(NULL, atoi(tests[i].p));
         if(tests[i].f[0] == '-')
             gcry_mpi_neg(f, f);
         got = ssh2_dh_is_valid(f, p);
