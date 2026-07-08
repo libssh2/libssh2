@@ -791,19 +791,18 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
 int ssh2_dh_is_valid(ssh2_bn *f, ssh2_bn *p)
 {
     gcry_mpi_t tmp;
-    unsigned int n, i;
-    unsigned int bits_set;
+    int n, i, bits_set;
 
     if(gcry_mpi_cmp_ui(f, 1) <= 0)
-      return -1;  /* f <= 1 */
+        return -1;  /* f <= 1 */
 
     tmp = gcry_mpi_new(0);
     if(!tmp)
       return -4;
     gcry_mpi_sub_ui(tmp, p, 1);
-    if(gcry_mpi_cmp(f, tmp) > 0) {
-      gcry_mpi_release(tmp);
-      return -2;  /* f > p - 2 */
+    if(gcry_mpi_cmp(f, tmp) >= 0) {
+        gcry_mpi_release(tmp);
+        return -2;  /* f > p - 2 */
     }
     gcry_mpi_release(tmp);
 
