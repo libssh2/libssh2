@@ -61,18 +61,18 @@ static int test_ssh2_base64_decode(LIBSSH2_SESSION *session)
 static int test_ssh2_dh_is_valid(void)
 {
     struct tbn {
-        int f; int p; int expected;
+        const char *f; int p; int expected;
     };
     static const struct tbn tests[] = {
-        {  -1,  10, -1 },
-        {   2,  10, -3 },
-        {   9,  10, -2 },
-        {   1,  10, -1 },
-        {   0,  10, -1 },
-        {   9,  10, -2 },  /* f=9; p=10 => p-2=8, f > 8 */
-        {   6,  20, -3 },  /* f=6 (0b110); p=20 => p-2=18, and 6 <= 18 */
-        {  27, 100,  0 },  /* f=27 (0b11011); p=100 => p-2=98, and 27 <= 98 */
-        { 240, 242,  0 },  /* f=p-2, f=240 (0b11110000); p = f+2 = 242 */
+        {  "-1",  10, -1 },
+        {   "2",  10, -3 },
+        {   "9",  10, -2 },
+        {   "1",  10, -1 },
+        {   "0",  10, -1 },
+        {   "9",  10, -2 },  /* f=9; p=10 => p-2=8, f > 8 */
+        {   "6",  20, -3 },  /* f=6 (0b110); p=20 => p-2=18, and 6 <= 18 */
+        {  "27", 100,  0 },  /* f=27 (0b11011); p=100 => p-2=98, and 27 <= 98 */
+        { "240", 242,  0 },  /* f=p-2, f=240 (0b11110000); p = f+2 = 242 */
     };
 
     size_t i;
@@ -90,7 +90,7 @@ static int test_ssh2_dh_is_valid(void)
 #ifdef LIBSSH2_MBEDTLS
         mbedtls_mpi_init(&f);
         mbedtls_mpi_init(&p);
-        if(mbedtls_mpi_lset(&f, (mbedtls_mpi_uint)tests[i].f) ||
+        if(mbedtls_mpi_read_string(&f, 10, tests[i].f) ||
            mbedtls_mpi_lset(&p, (mbedtls_mpi_uint)tests[i].p)) {
             fprintf(stderr,
                     "ssh2_dh_is_valid/%lu: mbedtls_mpi_lset() failed\n",
@@ -100,8 +100,7 @@ static int test_ssh2_dh_is_valid(void)
         }
         got = ssh2_dh_is_valid(&f, &p);
 #elif defined(LIBSSH2_OPENSSL) || defined(LIBSSH2_WOLFSSL)
-        if(!BN_set_word(f, (BN_ULONG)(tests[i].f < 0 ? -tests[i].f
-                                                     : tests[i].f)) ||
+        if(!BN_dec2bn(&f, tests[i].f) ||
            !BN_set_word(p, (BN_ULONG)tests[i].p)) {
             fprintf(stderr,
                     "ssh2_dh_is_valid/%lu: BN_set_word() failed\n",
@@ -109,16 +108,13 @@ static int test_ssh2_dh_is_valid(void)
             err++;
             continue;
         }
-        if(tests[i].f < 0)
-            BN_set_negative(f, 1);
-
         got = ssh2_dh_is_valid(f, p);
 #else
         got = tests[i].expected;
 #endif
         if(got != tests[i].expected) {
             fprintf(stderr,
-                    "ssh2_dh_is_valid/%lu: f=%d p=%d: expected %d got %d\n",
+                    "ssh2_dh_is_valid/%lu: f=%s p=%d: expected %d got %d\n",
                     (unsigned long)i,
                     tests[i].f, tests[i].p, tests[i].expected, got);
             err++;
