@@ -91,15 +91,16 @@ int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
 
 int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen)
 {
-    unsigned char *res = gcry_md_read(*ctx, 0);
-    (void)maclen;
-
-    if(!res)
-        return 0;
-
-    memcpy(mac, res, gcry_md_get_algo_dlen(gcry_md_get_algo(*ctx)));
-
-    return 1;
+    int ret = 0;
+    unsigned int actual_len = gcry_md_get_algo_dlen(gcry_md_get_algo(*ctx));
+    if(maclen >= actual_len) {
+        unsigned char *res = gcry_md_read(*ctx, 0);
+        if(res) {
+            memcpy(mac, res, actual_len);
+            ret = 1;
+        }
+    }
+    return ret;
 }
 
 void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
