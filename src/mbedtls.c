@@ -784,16 +784,22 @@ int ssh2_dh_is_valid(ssh2_bn *f, ssh2_bn *p)
 
     /* Verify if valid */
     mbedtls_mpi_init(&one);
-    mbedtls_mpi_lset(&one, 1);
+    if(mbedtls_mpi_lset(&one, 1)) {
+        mbedtls_mpi_free(&one);
+        return -4;
+    }
     if(mbedtls_mpi_cmp_mpi(f, &one) != 1) {
         mbedtls_mpi_free(&one);
         return -1;  /* f <= 1 */
     }
 
     mbedtls_mpi_init(&tmp);
-    mbedtls_mpi_copy(&tmp, p);  /* tmp = p */
-    mbedtls_mpi_sub_int(&tmp, &tmp, 2);  /* tmp -= 2 */
-
+    if(mbedtls_mpi_copy(&tmp, p) ||  /* tmp = p */
+       mbedtls_mpi_sub_int(&tmp, &tmp, 2)) {  /* tmp -= 2 */
+        mbedtls_mpi_free(&tmp);
+        mbedtls_mpi_free(&one);
+       return -5;
+    }
     if(mbedtls_mpi_cmp_mpi(f, &tmp) == 1) {
         mbedtls_mpi_free(&tmp);
         mbedtls_mpi_free(&one);
