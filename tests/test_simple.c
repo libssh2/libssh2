@@ -112,7 +112,7 @@ static int test_ssh2_dh_is_valid(void)
             continue;
         }
         if(tests[i].f < 0)
-          BN_set_negative(f, 1);
+            BN_set_negative(f, 1);
 
         got = ssh2_dh_is_valid(f, p);
 #else
