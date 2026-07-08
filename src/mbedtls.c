@@ -1321,6 +1321,9 @@ const char *ssh2_supported_key_sign_algs(LIBSSH2_SESSION *session,
 #endif
             ;
     }
+#else
+    (void)key_method;
+    (void)key_method_len;
 #endif
 
     return NULL;
