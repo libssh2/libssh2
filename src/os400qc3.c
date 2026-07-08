@@ -1928,7 +1928,7 @@ static int pkcs1topkcs8(LIBSSH2_SESSION *session,
         return -1;
     pkcs8 = rsaprivatekeyinfo(prvk);
     asn1delete(prvk);
-    if(!prvk) {
+    if(!prvk) {  /* FIXME: always false condition */
         asn1delete(pkcs8);
         pkcs8 = NULL;
     }
