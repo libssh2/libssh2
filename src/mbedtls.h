@@ -119,11 +119,6 @@
  * mbedTLS backend: Generic functions
  */
 
-void ssh2_crypto_init(void);
-void ssh2_crypto_exit(void);
-
-int ssh2_random(unsigned char *buf, size_t len);
-
 #define ssh2_prepare_iovec(vec, len)  /* Empty. */
 
 /*******************************************************************/

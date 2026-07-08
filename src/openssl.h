@@ -230,10 +230,7 @@
 
 #include "crypto_config.h"
 
-void ssh2_crypto_init(void);
 #define ssh2_crypto_exit() do {} while(0)
-
-int ssh2_random(unsigned char *buf, size_t len);
 
 #define ssh2_prepare_iovec(vec, len)  /* Empty. */
 

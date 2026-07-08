@@ -70,6 +70,9 @@
 
 #include "crypto_config.h"
 
+#define ssh2_crypto_init()    gcry_control(GCRYCTL_DISABLE_SECMEM)
+#define ssh2_crypto_exit()    do {} while(0)
+
 #define ssh2_random(buf, len) (gcry_randomize(buf, len, GCRY_STRONG_RANDOM), 0)
 
 #define ssh2_prepare_iovec(vec, len)  /* Empty. */
@@ -90,9 +93,6 @@
 #if LIBSSH2_HMAC_RIPEMD
 #define SSH2_RIPEMD160_HMAC   GCRY_MD_RMD160
 #endif
-
-#define ssh2_crypto_init()    gcry_control(GCRYCTL_DISABLE_SECMEM)
-#define ssh2_crypto_exit()    do {} while(0)
 
 #define ssh2_rsa_ctx          struct gcry_sexp
 #define ssh2_rsa_free(rsa)    gcry_sexp_release(rsa)

@@ -55,6 +55,16 @@
 #error "no cryptography backend selected"
 #endif
 
+#ifdef ssh2_crypto_init
+void ssh2_crypto_init(void);
+#endif
+#ifdef ssh2_crypto_exit
+void ssh2_crypto_exit(void);
+#endif
+#ifdef ssh2_random
+int ssh2_random(unsigned char *buf, size_t len);
+#endif
+
 /* return: success = 1, error = 0 */
 int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg alg);
 #ifndef ssh2_hash_update
