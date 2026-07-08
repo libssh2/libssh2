@@ -4300,7 +4300,7 @@ int ssh2_dh_is_valid(ssh2_bn *f, ssh2_bn *p)
     }
     BN_clear_free(tmp);
 
-    for(i = 0, n = BN_num_bits(f), bits_set = 0; i <= n; ++i)
+    for(i = 0, n = BN_num_bits(f), bits_set = 0; i < n; ++i)
         if(BN_is_bit_set(f, i))
             ++bits_set;
 

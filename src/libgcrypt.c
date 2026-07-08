@@ -807,7 +807,7 @@ int ssh2_dh_is_valid(ssh2_bn *f, ssh2_bn *p)
     }
     gcry_mpi_release(tmp);
 
-    for(i = 0, n = gcry_mpi_get_nbits(f), bits_set = 0; i <= n; ++i)
+    for(i = 0, n = gcry_mpi_get_nbits(f), bits_set = 0; i < n; ++i)
         if(gcry_mpi_test_bit(f, i))
             ++bits_set;
 
