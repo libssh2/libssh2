@@ -4293,7 +4293,7 @@ int ssh2_dh_is_valid(ssh2_bn *f, ssh2_bn *p)
 
     tmp = BN_new();
     if(!tmp)
-        return -1;
+        return -2;
     if(!BN_sub(tmp, p, BN_value_one()) || BN_cmp(f, tmp) != -1) {
         BN_clear_free(tmp);
         return -2;  /* f > p - 2 */
