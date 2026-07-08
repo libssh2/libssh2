@@ -77,25 +77,19 @@ static int test_ssh2_dh_is_valid(void)
     size_t i;
     int err = 0;
 
-#ifdef LIBSSH2_MBEDTLS
-    mbedtls_mpi f, p;
-#elif defined(LIBSSH2_OPENSSL) || defined(LIBSSH2_WOLFSSL)
-    BIGNUM *f = BN_new(), *p = BN_new();
-#endif
-
     for(i = 0; i < (sizeof(tests) / sizeof(tests[0])); i++) {
         int got;
 
 #ifdef LIBSSH2_LIBGCRYPT
-        gcry_mpi_t f, p;
-        f = gcry_mpi_set_ui(NULL, atol(tests[i].f));
-        p = gcry_mpi_set_ui(NULL, atol(tests[i].p));
+        gcry_mpi_t f = gcry_mpi_set_ui(NULL, atol(tests[i].f));
+        gcry_mpi_t p = gcry_mpi_set_ui(NULL, atol(tests[i].p));
         if(tests[i].f[0] == '-')
             gcry_mpi_neg(f, f);
         got = ssh2_dh_is_valid(f, p);
         gcry_mpi_release(f);
         gcry_mpi_release(p);
 #elif defined(LIBSSH2_MBEDTLS)
+        mbedtls_mpi f, p;
         mbedtls_mpi_init(&f);
         mbedtls_mpi_init(&p);
         if(mbedtls_mpi_read_string(&f, 10, tests[i].f) ||
@@ -107,7 +101,10 @@ static int test_ssh2_dh_is_valid(void)
             continue;
         }
         got = ssh2_dh_is_valid(&f, &p);
+        mbedtls_mpi_free(&f);
+        mbedtls_mpi_free(&p);
 #elif defined(LIBSSH2_OPENSSL) || defined(LIBSSH2_WOLFSSL)
+        BIGNUM *f = BN_new(), *p = BN_new();
         if(!BN_dec2bn(&f, tests[i].f) ||
            !BN_dec2bn(&p, tests[i].p)) {
             fprintf(stderr,
@@ -117,6 +114,8 @@ static int test_ssh2_dh_is_valid(void)
             continue;
         }
         got = ssh2_dh_is_valid(f, p);
+        BN_free(f);
+        BN_free(p);
 #else
         got = tests[i].expected;
 #endif
@@ -128,14 +127,6 @@ static int test_ssh2_dh_is_valid(void)
             err++;
         }
     }
-
-#ifdef LIBSSH2_MBEDTLS
-    mbedtls_mpi_free(&f);
-    mbedtls_mpi_free(&p);
-#elif defined(LIBSSH2_OPENSSL) || defined(LIBSSH2_WOLFSSL)
-    BN_free(f);
-    BN_free(p);
-#endif
 
     return err > 0;
 }
