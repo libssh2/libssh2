@@ -1336,7 +1336,7 @@ static const char *userauth_supported_key_sign_algs(LIBSSH2_SESSION *session,
  * @discussion Based on the incoming key_method value, this function
  * Upgrades the key method input based on user preferences,
  * server support algos and crypto backend support
- * @related ssh2_supported_key_sign_algs()
+ * @related userauth_supported_key_sign_algs()
  * @param key_method current key method, usually the default key sig method
  * @param key_method_len length of the key method buffer
  * @result error code or zero on success
