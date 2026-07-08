@@ -987,7 +987,7 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
     (void)passphrase;
 
     return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                    "Unable to extract public SK key from private key file:"
+                    "Unable to extract public SK key from private key file: "
                     "Method unimplemented in "
                     SSH2_CRYPTO_ENGINE_NAME " backend");
 }
