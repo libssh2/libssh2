@@ -119,6 +119,9 @@ struct mbed_hash_ctx {
 
 #define ssh2_hmac_ctx struct mbed_hash_ctx
 
+#define ssh2_hmac_update(ctx, d, l) \
+    (psa_mac_update(ctx.mac, (const uint8_t *)(d), l) == PSA_SUCCESS)
+
 #if LIBSSH2_HMAC_RIPEMD
 #define SSH2_RIPEMD160_HMAC PSA_ALG_RIPEMD160
 #endif
