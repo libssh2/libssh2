@@ -889,7 +889,7 @@ static int null_token(const char *token)
                    sizeof(nulltoken.Key_Context_Token));
 }
 
-void ssh2_crypto_dtor(ssh2_cipher_ctx *x)
+void ssh2_os400qc3_crypto_dtor(struct os400qc3_crypto_ctx *x)
 {
     if(!x)
         return;
@@ -903,7 +903,7 @@ void ssh2_crypto_dtor(ssh2_cipher_ctx *x)
         memset(x->key.Key_Context_Token, 0, sizeof(x->key.Key_Context_Token));
     }
     if(x->kek) {
-        ssh2_crypto_dtor(x->kek);
+        ssh2_os400qc3_crypto_dtor(x->kek);
         free((char *)x->kek);
         x->kek = NULL;
     }
@@ -1040,7 +1040,7 @@ int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen)
 
 void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
 {
-    ssh2_crypto_dtor(ctx);
+    ssh2_os400qc3_crypto_dtor(ctx);
 }
 
 /*******************************************************************
@@ -1081,7 +1081,7 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
                         &algo.algo, qc3clear, NULL, NULL,
                         h->key.Key_Context_Token, (char *)&errcode);
     if(errcode.Bytes_Available) {
-        ssh2_crypto_dtor(h);
+        ssh2_os400qc3_crypto_dtor(h);
         return -1;
     }
 
@@ -1439,7 +1439,7 @@ static int pbkdf2(LIBSSH2_SESSION *session, char **dk,
            !ssh2_hmac_update(&hctx, &ni, sizeof(ni)) ||
            !ssh2_hmac_final(&hctx, mac, pkcs5->hashlen)) {
             SSH2_SAFEFREE(session, *dk);
-            ssh2_crypto_dtor(&hctx);
+            ssh2_os400qc3_crypto_dtor(&hctx);
             return -1;
         }
         memcpy(buf, mac, pkcs5->hashlen);
@@ -1447,7 +1447,7 @@ static int pbkdf2(LIBSSH2_SESSION *session, char **dk,
             if(!ssh2_hmac_update(&hctx, mac, pkcs5->hashlen) ||
                !ssh2_hmac_final(&hctx, mac, pkcs5->hashlen)) {
                 SSH2_FREE(session, *dk);
-                ssh2_crypto_dtor(&hctx);
+                ssh2_os400qc3_crypto_dtor(&hctx);
                 return -1;
             }
             for(k = 0; k < pkcs5->hashlen; k++)
@@ -1457,7 +1457,7 @@ static int pbkdf2(LIBSSH2_SESSION *session, char **dk,
     }
 
     /* Computation done. Release HMAC context. */
-    ssh2_crypto_dtor(&hctx);
+    ssh2_os400qc3_crypto_dtor(&hctx);
     return 0;
 }
 
@@ -1804,7 +1804,7 @@ static int rsapkcs8privkey(LIBSSH2_SESSION *session,
                         ctx->key.Key_Context_Token, (char *)&errcode);
     if(errcode.Bytes_Available) {
         if(kekctx)
-            ssh2_crypto_dtor(kekctx);
+            ssh2_os400qc3_crypto_dtor(kekctx);
         return -1;
     }
     ctx->kek = kekctx;
@@ -1891,7 +1891,7 @@ static int rsapkcs8pubkey(LIBSSH2_SESSION *session,
     pkilen = pki.end - pki.beg;
     Qc3ExtractPublicKey(pki.beg, &pkilen, berstring, &keyform,
                         kek, kea, buf, (int *)&datalen, &len, &errcode);
-    ssh2_crypto_dtor(kekctx);
+    ssh2_os400qc3_crypto_dtor(kekctx);
     if(errcode.Bytes_Available)
         return -1;
     /* Get the algorithm OID and key data from SubjectPublicKeyInfo. */
@@ -2097,7 +2097,7 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
                                 rsapkcs1privkey, rsapkcs8privkey,
                                 (void *)ctx);
     if(ret) {
-        ssh2_crypto_dtor(ctx);
+        ssh2_os400qc3_crypto_dtor(ctx);
         ctx = NULL;
     }
     *rsa = ctx;
@@ -2208,7 +2208,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
         SSH2_FREE(session, data);
 
     if(ret) {
-        ssh2_crypto_dtor(ctx);
+        ssh2_os400qc3_crypto_dtor(ctx);
         ctx = NULL;
     }
 

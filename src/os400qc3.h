@@ -266,8 +266,11 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 #define ssh2_cipher_chacha20  {Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16}
 #define ssh2_cipher_arcfour   {Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16}
 
+#define ssh2_cipher_dtor(ctx) ssh2_os400qc3_crypto_dtor(ctx)
+
 #define ssh2_rsa_ctx         struct os400qc3_crypto_ctx
-#define ssh2_rsa_free(ctx)   (ssh2_crypto_dtor(ctx), free((char *)ctx))
+#define ssh2_rsa_free(ctx) \
+    (ssh2_os400qc3_crypto_dtor(ctx), free((char *)ctx))
 #define ssh2_prepare_iovec(vec, len) \
     memset((char *)(vec), 0, (len) * sizeof(struct iovec))
 #define ssh2_rsa_sha1_signv(session, sig, siglen, count, vector, ctx) \
@@ -293,6 +296,14 @@ int ssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session, int algo,
 #define SSH2_DH_MAX_MODULUS_BITS 2048
 
 #define ssh2_dh_ctx struct os400qc3_dh_ctx
+
+/*******************************************************************
+ *
+ * OS/400 QC3 crypto-library backend: Support procedure prototypes.
+ *
+ *******************************************************************/
+
+void ssh2_os400qc3_crypto_dtor(struct os400qc3_crypto_ctx *x);
 
 #endif /* LIBSSH2_OS400QC3_H */
 
