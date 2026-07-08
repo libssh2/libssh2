@@ -99,7 +99,8 @@ static int test_ssh2_dh_is_valid(void)
             got = ssh2_dh_is_valid(&f, &p);
         mbedtls_mpi_free(&f);
         mbedtls_mpi_free(&p);
-#elif defined(LIBSSH2_OPENSSL) || defined(LIBSSH2_WOLFSSL)
+#elif defined(LIBSSH2_OPENSSL) || \
+    (defined(LIBSSH2_WOLFSSL) && LIBWOLFSSL_VERSION_HEX >= 0x05006000)
         BIGNUM *f = BN_new(), *p = BN_new();
         if(!BN_dec2bn(&f, tests[i].f) ||
            !BN_dec2bn(&p, tests[i].p))
