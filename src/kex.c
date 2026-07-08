@@ -901,6 +901,7 @@ static int kex_method_diffie_hellman_group14_key_exchange(
 
         key_state->state = ssh2_NB_state_created;
     }
+
     ret = hashfunc(session, key_state->g, key_state->p, 256,
                    hash_alg, digest_len, SSH_MSG_KEXDH_INIT,
                    SSH_MSG_KEXDH_REPLY, NULL, 0, &key_state->exchange_state);
@@ -1772,7 +1773,6 @@ static int kex_method_ecdh_key_exchange(
 
     if(key_state->state == ssh2_NB_state_created) {
         rc = kex_session_curve_type(session->kex->name, &type);
-
         if(rc) {
             ret = ssh2_err(session, -1, "Unrecognized KEX nistp curve type");
             goto ecdh_clean_exit;
@@ -1827,9 +1827,7 @@ static int kex_method_ecdh_key_exchange(
     }
 
     if(key_state->state == ssh2_NB_state_sent2) {
-
         rc = kex_session_curve_type(session->kex->name, &type);
-
         if(rc) {
             ret = ssh2_err(session, -1, "Unrecognized KEX nistp curve type");
             goto ecdh_clean_exit;
@@ -1841,7 +1839,6 @@ static int kex_method_ecdh_key_exchange(
                                   key_state->public_key_oct_len,
                                   key_state->private_key,
                                   &key_state->exchange_state);
-
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
     }
@@ -2195,7 +2192,6 @@ static int kex_method_mlkem_nistp_key_exchange(
                               key_state->mlkem_public_key,
                               key_state->mlkem_private_key,
                               &key_state->exchange_state);
-
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
     }
@@ -2412,7 +2408,6 @@ static int kex_method_curve25519_key_exchange(
         rc = ssh2_curve25519_new(session,
                                  &key_state->curve25519_public_key,
                                  &key_state->curve25519_private_key);
-
         if(rc) {
             ret = ssh2_err(session, rc, "Unable to create private key");
             goto clean_exit;
@@ -2458,13 +2453,11 @@ static int kex_method_curve25519_key_exchange(
     }
 
     if(key_state->state == ssh2_NB_state_sent2) {
-
         ret = kex_curve25519_sha256(session,
                                     key_state->data, key_state->data_len,
                                     key_state->curve25519_public_key,
                                     key_state->curve25519_private_key,
                                     &key_state->exchange_state);
-
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
     }
@@ -2755,7 +2748,6 @@ static int kex_method_mlkem768x25519_key_exchange(
     }
 
     if(key_state->state == ssh2_NB_state_sent2) {
-
         ret = kex_mlkem768x25519_sha256(session, key_state->data,
                                         key_state->data_len,
                                         key_state->curve25519_public_key,
@@ -3856,7 +3848,7 @@ int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
 
     while(s && *s && mlist) {
         char *p = strchr(s, ',');
-        size_t method_len = (p ? (size_t)(p - s) : strlen(s));
+        size_t method_len = p ? (size_t)(p - s) : strlen(s);
 
         if(!kex_get_method_by_name(s, method_len, mlist)) {
             /* Strip out unsupported method */

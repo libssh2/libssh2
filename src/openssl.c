@@ -159,8 +159,8 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
                                       const unsigned char *passphrase);
 
 #if LIBSSH2_RSA || LIBSSH2_DSA || LIBSSH2_ECDSA
-static unsigned char *ossl_write_bn(unsigned char *buf, const BIGNUM *bn,
-                                    int bn_bytes)
+static unsigned char *ossl_write_bn(unsigned char *buf,
+                                    const BIGNUM *bn, int bn_bytes)
 {
     unsigned char *p = buf;
 
@@ -3642,7 +3642,6 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                           const char *privatekey,
                           const char *passphrase)
 {
-    int st;
     BIO *bp;
     EVP_PKEY *pk;
     int pktype;
@@ -3681,37 +3680,37 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     switch(pktype) {
 #if LIBSSH2_ED25519
     case EVP_PKEY_ED25519:
-        st = ossl_ed25519_evp_to_pubkey(session, method, method_len,
+        rc = ossl_ed25519_evp_to_pubkey(session, method, method_len,
                                         pubkeydata, pubkeydata_len, pk);
         break;
 #endif /* LIBSSH2_ED25519 */
 #if LIBSSH2_RSA
     case EVP_PKEY_RSA:
-        st = ossl_rsa_evp_to_pubkey(session, method, method_len,
+        rc = ossl_rsa_evp_to_pubkey(session, method, method_len,
                                     pubkeydata, pubkeydata_len, pk);
         break;
 #endif /* LIBSSH2_RSA */
 #if LIBSSH2_DSA
     case EVP_PKEY_DSA:
-        st = ossl_dsa_evp_to_pubkey(session, method, method_len,
+        rc = ossl_dsa_evp_to_pubkey(session, method, method_len,
                                     pubkeydata, pubkeydata_len, pk);
         break;
 #endif /* LIBSSH2_DSA */
 #if LIBSSH2_ECDSA
     case EVP_PKEY_EC:
-        st = ossl_ecdsa_evp_to_pubkey(session, method, method_len,
+        rc = ossl_ecdsa_evp_to_pubkey(session, method, method_len,
                                       pubkeydata, pubkeydata_len, 0, pk);
         break;
 #endif /* LIBSSH2_ECDSA */
     default:
-        st = ssh2_err(session, LIBSSH2_ERROR_FILE,
+        rc = ssh2_err(session, LIBSSH2_ERROR_FILE,
                       "Unable to extract public key from private key file: "
                       "Unsupported private key file format");
         break;
     }
 
     EVP_PKEY_free(pk);
-    return st;
+    return rc;
 }
 
 static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
@@ -3923,7 +3922,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                 size_t privatekeydata_len,
                                 const char *passphrase)
 {
-    int st;
+    int rc;
     BIO *bp;
     EVP_PKEY *pk;
     int pktype;
@@ -3947,12 +3946,12 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
 
     if(!pk) {
         /* Try OpenSSH format */
-        st = ossl_key_from_openssh_blob(session, NULL, NULL,
+        rc = ossl_key_from_openssh_blob(session, NULL, NULL,
                                         method, method_len,
                                         pubkeydata, pubkeydata_len,
                                         privatekeydata, privatekeydata_len,
                                         (const unsigned char *)passphrase);
-        if(st == 0)
+        if(rc == 0)
             return 0;
 
 #ifdef HAVE_SSLERROR_BAD_DECRYPT
@@ -3973,37 +3972,37 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     switch(pktype) {
 #if LIBSSH2_ED25519
     case EVP_PKEY_ED25519:
-        st = ossl_ed25519_evp_to_pubkey(session, method, method_len,
+        rc = ossl_ed25519_evp_to_pubkey(session, method, method_len,
                                         pubkeydata, pubkeydata_len, pk);
         break;
 #endif /* LIBSSH2_ED25519 */
 #if LIBSSH2_RSA
     case EVP_PKEY_RSA:
-        st = ossl_rsa_evp_to_pubkey(session, method, method_len,
+        rc = ossl_rsa_evp_to_pubkey(session, method, method_len,
                                     pubkeydata, pubkeydata_len, pk);
         break;
 #endif /* LIBSSH2_RSA */
 #if LIBSSH2_DSA
     case EVP_PKEY_DSA:
-        st = ossl_dsa_evp_to_pubkey(session, method, method_len,
+        rc = ossl_dsa_evp_to_pubkey(session, method, method_len,
                                     pubkeydata, pubkeydata_len, pk);
         break;
 #endif /* LIBSSH2_DSA */
 #if LIBSSH2_ECDSA
     case EVP_PKEY_EC:
-        st = ossl_ecdsa_evp_to_pubkey(session, method, method_len,
+        rc = ossl_ecdsa_evp_to_pubkey(session, method, method_len,
                                       pubkeydata, pubkeydata_len, 0, pk);
         break;
 #endif /* LIBSSH2_ECDSA */
     default:
-        st = ssh2_err(session, LIBSSH2_ERROR_FILE,
+        rc = ssh2_err(session, LIBSSH2_ERROR_FILE,
                       "Unable to extract public key from private key file: "
                       "Unsupported private key file format");
         break;
     }
 
     EVP_PKEY_free(pk);
-    return st;
+    return rc;
 }
 
 void ssh2_dh_init(ssh2_dh_ctx *dhctx)

@@ -113,13 +113,13 @@ struct mbed_hash_ctx {
     psa_key_id_t key_id;
 };
 
-#define ssh2_hmac_ctx struct mbed_hash_ctx
+#define ssh2_hmac_ctx          struct mbed_hash_ctx
 
 #define ssh2_hmac_update(ctx, d, l) \
     (psa_mac_update(&((ctx)->mac), (const uint8_t *)(d), l) == PSA_SUCCESS)
 
 #if LIBSSH2_HMAC_RIPEMD
-#define SSH2_RIPEMD160_HMAC PSA_ALG_RIPEMD160
+#define SSH2_RIPEMD160_HMAC    PSA_ALG_RIPEMD160
 #endif
 
 /*******************************************************************/
@@ -127,17 +127,17 @@ struct mbed_hash_ctx {
  * mbedTLS backend: hash functions
  */
 
-#define ssh2_hash_ctx   psa_hash_operation_t
-#define ssh2_hash_alg   psa_algorithm_t
+#define ssh2_hash_ctx          psa_hash_operation_t
+#define ssh2_hash_alg          psa_algorithm_t
 #define ssh2_hash_update(ctx, d, l) \
     (psa_hash_update(ctx, (const uint8_t *)(d), l) == PSA_SUCCESS)
 
-#define SSH2_SHA1_ALG   PSA_ALG_SHA_1
-#define SSH2_SHA256_ALG PSA_ALG_SHA_256
-#define SSH2_SHA384_ALG PSA_ALG_SHA_384
-#define SSH2_SHA512_ALG PSA_ALG_SHA_512
+#define SSH2_SHA1_ALG          PSA_ALG_SHA_1
+#define SSH2_SHA256_ALG        PSA_ALG_SHA_256
+#define SSH2_SHA384_ALG        PSA_ALG_SHA_384
+#define SSH2_SHA512_ALG        PSA_ALG_SHA_512
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define SSH2_MD5_ALG    PSA_ALG_MD5
+#define SSH2_MD5_ALG           PSA_ALG_MD5
 #endif
 
 /*******************************************************************/
@@ -145,7 +145,7 @@ struct mbed_hash_ctx {
  * mbedTLS backend: RSA functions
  */
 
-#define ssh2_rsa_ctx mbedtls_rsa_context
+#define ssh2_rsa_ctx           mbedtls_rsa_context
 
 /*******************************************************************/
 /*
@@ -171,8 +171,8 @@ typedef enum {
 #endif
 } ssh2_curve_type;
 
-#define ssh2_ecdsa_ctx mbedtls_ecdsa_context
-#define ssh2_ec_key mbedtls_ecp_keypair
+#define ssh2_ecdsa_ctx         mbedtls_ecdsa_context
+#define ssh2_ec_key            mbedtls_ecp_keypair
 #endif /* LIBSSH2_ECDSA */
 
 /*******************************************************************/
@@ -219,7 +219,7 @@ typedef enum {
  * mbedTLS backend: Diffie-Hellman support.
  */
 
-#define ssh2_dh_ctx                    mbedtls_mpi *
+#define ssh2_dh_ctx            mbedtls_mpi *
 
 /* Default generate and safe prime sizes for
    diffie-hellman-group-exchange-sha1 */

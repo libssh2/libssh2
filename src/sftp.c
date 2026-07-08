@@ -2497,7 +2497,7 @@ size_t libssh2_sftp_tell(LIBSSH2_SFTP_HANDLE *handle)
     /* NOTE: this may well truncate the size if it is larger than what
        size_t can hold, so libssh2_sftp_tell64() is really the function you
        should use */
-    return (size_t)(handle->u.file.offset);
+    return (size_t)handle->u.file.offset;
 }
 #endif
 

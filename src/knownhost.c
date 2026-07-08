@@ -39,7 +39,7 @@ struct known_host {
     size_t name_len;     /* needed for hashed data */
     int port;            /* if non-zero, a specific port this key is for on
                             this host */
-    int typemask;        /* plain, sha1, custom, ... */
+    int typemask;        /* plain, SHA1, custom, ... */
     char *salt;          /* points to binary salt (allocated) */
     size_t salt_len;     /* size of salt */
     char *key;           /* the (allocated) associated key. This is kept base64
@@ -363,7 +363,7 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
     int match = 0;
 
     if(type == LIBSSH2_KNOWNHOST_TYPE_SHA1)
-        /* we cannot work with a sha1 as given input */
+        /* we cannot work with a SHA1 as given input */
         return LIBSSH2_KNOWNHOST_CHECK_MISMATCH;
 
     /* if a port number is given, check for a '[host]:port' first before the
@@ -412,14 +412,14 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                 break;
             case LIBSSH2_KNOWNHOST_TYPE_SHA1:
                 if(type == LIBSSH2_KNOWNHOST_TYPE_PLAIN) {
-                    /* when we have the sha1 version stored, we can use a
+                    /* when we have the SHA1 version stored, we can use a
                        plain input to produce a hash to compare with the
                        stored hash. */
                     unsigned char hash[SSH2_SHA1_DIG_LEN];
                     ssh2_hmac_ctx ctx;
 
                     if(SSH2_SHA1_DIG_LEN != node->name_len)
-                        /* the name hash length must be the sha1 size or
+                        /* the name hash length must be the SHA1 size or
                            we cannot match it */
                         break;
                     if(!ssh2_hmac_ctx_init(&ctx))

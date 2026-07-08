@@ -2727,7 +2727,7 @@ int ssh2_ecdsa_sign(IN ssh2_ecdsa_ctx *ec_ctx,
         goto cleanup;
     }
 
-    /* cng_signature is in IEEE P-1163 format: r || s.
+    /* cng_signature is in IEEE P-1363 format: r || s.
        Convert to ecdsa_signature_blob: mpint(r) || mpint(s) */
 
     signature_maxlen =
