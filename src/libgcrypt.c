@@ -64,23 +64,17 @@ int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
     return 1;
 }
 
-static int lgcr_hmac_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen,
-                          int algo)
+int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
+                   void *key, size_t keylen)
 {
     gcry_error_t err;
-    err = gcry_md_open(ctx, algo, GCRY_MD_FLAG_HMAC);
+    err = gcry_md_open(ctx, alg, GCRY_MD_FLAG_HMAC);
     if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
         return 0;
     err = gcry_md_setkey(*ctx, key, keylen);
     if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
         return 0;
     return 1;
-}
-
-int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
-                   void *key, size_t keylen)
-{
-    return lgcr_hmac_init(ctx, key, keylen, alg);
 }
 
 int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
