@@ -159,7 +159,8 @@
 # define LIBSSH2_ED25519 1
 #endif
 
-#if OPENSSL_VERSION_NUMBER >= 0x30500000L && \
+#if !defined(LIBSSH2_WOLFSSL) && \
+    OPENSSL_VERSION_NUMBER >= 0x30500000L && \
     !defined(LIBRESSL_VERSION_NUMBER)
 # define LIBSSH2_MLKEM 1
 #else
