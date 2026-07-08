@@ -958,7 +958,7 @@ int ssh2_timingsafe_bcmp(const void *b1, const void *b2, size_t n)
     return ret != 0;
 }
 
-#if LIBSSH2_ECDSA_SK
+#ifndef LIBSSH2_ECDSA_SK
 int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                               unsigned char **method,
                               size_t *method_len,
