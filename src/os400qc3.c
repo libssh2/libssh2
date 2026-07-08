@@ -45,7 +45,7 @@
 
 #ifdef OS400_DEBUG
 /* In debug mode, all system library errors cause an exception. */
-#define set_EC_length(ec, len) ((ec).Bytes_Provided = ec).Bytes_Available = 0)
+#define set_EC_length(ec, len) ((ec).Bytes_Provided = (ec).Bytes_Available = 0)
 #else
 #define set_EC_length(ec, len) ((ec).Bytes_Provided = (len))
 #endif
