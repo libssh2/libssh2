@@ -1314,7 +1314,7 @@ static const char *userauth_supported_key_sign_algs(LIBSSH2_SESSION *session,
         !memcmp(key_method, "ssh-rsa", key_method_len))
 #if defined(LIBSSH2_OPENSSL) || defined(LIBSSH2_WOLFSSL)
        || (key_method_len == 28 &&
-          !memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", key_method_len))
+           !memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", key_method_len))
 #endif
       ) {
         return "rsa-sha2-512,rsa-sha2-256"
