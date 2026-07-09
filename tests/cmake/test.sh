@@ -7,7 +7,7 @@
 
 set -eu
 
-cd "$(dirname "$0")"
+cd -- "$(dirname "$0")"
 
 mode="${1:-all}"; shift
 
@@ -31,8 +31,8 @@ runresults() {
 
 if [ "${mode}" = 'all' ] || [ "${mode}" = 'ExternalProject' ]; then
   (cd "${src}"; git archive --format=tar HEAD) | gzip > source.tar.gz
-  src="${PWD}/source.tar.gz"
-  sha="$(openssl dgst -sha256 "${src}" | grep -a -i -o -E '[0-9a-f]{64}$')"
+  src="$(pwd)/source.tar.gz"
+  sha="$(sha256sum "${src}" | grep -a -i -o -w -E '[0-9a-f]{64}')"
   bldc='bld-externalproject'
   rm -rf "${bldc}"
   "${cmake_consumer}" -B "${bldc}" -G "${gen}" ${TEST_CMAKE_FLAGS:-} -DLIBSSH2_TEST_OPTS="${cmake_opts} -DCMAKE_UNITY_BUILD=ON $*" \
@@ -43,7 +43,7 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'ExternalProject' ]; then
 fi
 
 if [ "${mode}" = 'all' ] || [ "${mode}" = 'FetchContent' ]; then
-  src="${PWD}/${src}"
+  src="$(pwd)/${src}"
   bldc='bld-fetchcontent'
   rm -rf "${bldc}"
   "${cmake_consumer}" -B "${bldc}" -G "${gen}" ${cmake_opts} -DCMAKE_UNITY_BUILD=ON ${TEST_CMAKE_FLAGS:-} "$@" \
@@ -70,14 +70,16 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'add_subdirectory' ]; then
 fi
 
 if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
-  src="${PWD}/${src}"
+  src="$(pwd)/${src}"
   bldp='bld-libssh2'
-  prefix="${PWD}/${bldp}/_pkg"
+  prefix="$(pwd)/${bldp}/_pkg"
   rm -rf "${bldp}"
   "${cmake_provider}" -B "${bldp}" -S "${src}" -G "${gen}" ${cmake_opts} -DCMAKE_UNITY_BUILD=ON ${TEST_CMAKE_FLAGS:-} ${TEST_CMAKE_FLAGS_PROVIDER:-} "$@" \
     -DCMAKE_INSTALL_PREFIX="${prefix}"
   "${cmake_provider}" --build "${bldp}" --verbose
   "${cmake_provider}" --install "${bldp}"
+  echo '::group::libssh2.pc'; cat "${prefix}"/lib/pkgconfig/*.pc || true; echo '::endgroup::'
+  echo '::group::libssh2-config.cmake'; cat "${prefix}"/lib/cmake/libssh2/libssh2* || true; echo '::endgroup::'
   bldc='bld-find_package'
   rm -rf "${bldc}"
   "${cmake_consumer}" -B "${bldc}" -G "${gen}" ${TEST_CMAKE_FLAGS:-} ${TEST_CMAKE_FLAGS_CONSUMER:-} \
