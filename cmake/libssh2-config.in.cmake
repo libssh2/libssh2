@@ -1,6 +1,8 @@
 # Copyright (C) The libssh2 project and its contributors.
 # SPDX-License-Identifier: BSD-3-Clause
 
+option(CURL_USE_CMAKECONFIG "Enable detecting @PROJECT_NAME@ dependencies via CMake Config. Default: @LIBSSH2_USE_CMAKECONFIG@"
+  "@LIBSSH2_USE_CMAKECONFIG@")
 option(LIBSSH2_USE_PKGCONFIG "Enable pkg-config to detect @PROJECT_NAME@ dependencies. Default: @LIBSSH2_USE_PKGCONFIG@"
   "@LIBSSH2_USE_PKGCONFIG@")
 
