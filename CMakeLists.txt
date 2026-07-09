@@ -217,6 +217,14 @@ else()
   set(LIB_SELECTED ${LIB_STATIC})
 endif()
 
+# Override to force-disable or force-enable the use of CMake Configs.
+if(MSVC AND NOT VCPKG_TOOLCHAIN AND NOT CMAKE_CROSSCOMPILING)
+  set(_libssh2_use_cmakeconfig_default ON)
+else()
+  set(_libssh2_use_cmakeconfig_default OFF)
+endif()
+option(LIBSSH2_USE_CMAKECONFIG "Enable detecting dependencies via CMake Config" ${_libssh2_use_cmakeconfig_default})
+
 # Override to force-disable or force-enable the use of pkg-config.
 if((UNIX AND NOT ANDROID AND (NOT APPLE OR CMAKE_SYSTEM_NAME MATCHES "Darwin")) OR
    VCPKG_TOOLCHAIN OR
