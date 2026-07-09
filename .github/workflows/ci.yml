@@ -197,7 +197,7 @@ jobs:
         run: |
           export TEST_CMAKE_FLAGS_PROVIDER='-DCMAKE_FIND_PACKAGE_PREFER_CONFIG=ON'
           export TEST_CMAKE_FLAGS_CONSUMER="${TEST_CMAKE_FLAGS_PROVIDER}"
-          ./tests/cmake/test.sh find_package ${TESTOPTS} -DCURL_USE_OPENSSL=ON
+          ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=mbedTLS
 
       - name: 'via ExternalProject (old cmake)'
         if: ${{ contains(matrix.image, 'ubuntu') }}
