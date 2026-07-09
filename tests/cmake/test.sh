@@ -78,9 +78,8 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
     -DCMAKE_INSTALL_PREFIX="${prefix}"
   "${cmake_provider}" --build "${bldp}" --verbose
   "${cmake_provider}" --install "${bldp}"
-  echo '::group::libcurl.pc'; cat "${prefix}"/lib/pkgconfig/*.pc || true; echo '::endgroup::'
-  echo '::group::curl-config.cmake'; cat "${prefix}"/lib/cmake/CURL/CURL* || true; echo '::endgroup::'
-  echo '::group::curl-config'; cat "${prefix}"/bin/curl-config || true; echo '::endgroup::'
+  echo '::group::libssh2.pc'; cat "${prefix}"/lib/pkgconfig/*.pc || true; echo '::endgroup::'
+  echo '::group::libssh2-config.cmake'; cat "${prefix}"/lib/cmake/libssh2/libssh2* || true; echo '::endgroup::'
   bldc='bld-find_package'
   rm -rf "${bldc}"
   "${cmake_consumer}" -B "${bldc}" -G "${gen}" ${TEST_CMAKE_FLAGS:-} ${TEST_CMAKE_FLAGS_CONSUMER:-} \
