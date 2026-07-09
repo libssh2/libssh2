@@ -1456,6 +1456,12 @@ static int kex_method_ec_sha_hash_create_verify(
                         "Unable to initialize hash context EC/ED");
 
     if(session->local.banner) {
+#ifdef LIBSSH2_DEBUG_MLKEM
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
+                  "kex_method_ec_sha_hash_create_verify: %s "
+                  "session->local.banner=|%s|", session->hostkey->name,
+                  session->local.banner));
+#endif
         ssh2_htonu32(exchange_state->h_sig_comp,
                   (uint32_t)(strlen((const char *)session->local.banner) - 2));
         hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
@@ -1463,6 +1469,12 @@ static int kex_method_ec_sha_hash_create_verify(
                               strlen((const char *)session->local.banner) - 2);
     }
     else {
+#ifdef LIBSSH2_DEBUG_MLKEM
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
+                  "kex_method_ec_sha_hash_create_verify: %s "
+                  "default_banner=|%s|", session->hostkey->name,
+                  LIBSSH2_SSH_DEFAULT_BANNER));
+#endif
         ssh2_htonu32(exchange_state->h_sig_comp,
                      sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
         hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
@@ -1470,12 +1482,37 @@ static int kex_method_ec_sha_hash_create_verify(
                                 sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
     }
 
+#ifdef LIBSSH2_DEBUG_MLKEM
+    ssh2_deb((session, LIBSSH2_TRACE_KEX,
+              "kex_method_ec_sha_hash_create_verify: %s "
+              "session->remote.banner=|%s|", session->hostkey->name,
+              session->remote.banner));
+#endif
     ssh2_htonu32(exchange_state->h_sig_comp,
                  (uint32_t)strlen((const char *)session->remote.banner));
     hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
     hok &= ssh2_hash_update(&ctx, session->remote.banner,
                             strlen((const char *)session->remote.banner));
 
+#ifdef LIBSSH2_DEBUG_MLKEM
+    ssh2_deb((session, LIBSSH2_TRACE_KEX,
+              "kex_method_ec_sha_hash_create_verify: %s "
+              "session->local.kexinit_len=|%lu| "
+              "session->remote.kexinit_len=|%lu| "
+              "session->server_hostkey_len=|%lu| "
+              "public_pq_key_len=|%lu| "
+              "public_key_len=|%lu| "
+              "server_public_key_len=|%lu| "
+              "exchange_state->k_value_len=|%lu|",
+              session->hostkey->name,
+              (unsigned long)session->local.kexinit_len,
+              (unsigned long)session->remote.kexinit_len,
+              (unsigned long)session->server_hostkey_len,
+              (unsigned long)public_pq_key_len,
+              (unsigned long)public_key_len,
+              (unsigned long)server_public_key_len,
+              (unsigned long)exchange_state->k_value_len));
+#endif
     ssh2_htonu32(exchange_state->h_sig_comp,
                  (uint32_t)session->local.kexinit_len);
     hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
