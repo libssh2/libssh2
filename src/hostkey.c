@@ -111,13 +111,9 @@ static int hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    if(ssh2_get_string(&buf, &e, &e_len))
-        return -1;
-
-    if(ssh2_get_string(&buf, &n, &n_len))
-        return -1;
-
-    if(!ssh2_eob(&buf))
+    if(ssh2_get_string(&buf, &e, &e_len) ||
+       ssh2_get_string(&buf, &n, &n_len) ||
+       !ssh2_eob(&buf))
         return -1;
 
     if(ssh2_rsa_new(&rsactx, e, e_len, n, n_len,
@@ -492,22 +488,12 @@ static int hostkey_method_ssh_dss_init(LIBSSH2_SESSION *session,
     buf.dataptr = buf.data;
     buf.len = hostkey_data_len;
 
-    if(ssh2_match_string(&buf, "ssh-dss"))
-        return -1;
-
-    if(ssh2_get_string(&buf, &p, &p_len))
-        return -1;
-
-    if(ssh2_get_string(&buf, &q, &q_len))
-        return -1;
-
-    if(ssh2_get_string(&buf, &g, &g_len))
-        return -1;
-
-    if(ssh2_get_string(&buf, &y, &y_len))
-        return -1;
-
-    if(!ssh2_eob(&buf))
+    if(ssh2_match_string(&buf, "ssh-dss") ||
+       ssh2_get_string(&buf, &p, &p_len) ||
+       ssh2_get_string(&buf, &q, &q_len) ||
+       ssh2_get_string(&buf, &g, &g_len) ||
+       ssh2_get_string(&buf, &y, &y_len) ||
+       !ssh2_eob(&buf))
         return -1;
 
     if(ssh2_dsa_new(&dsactx, p, p_len, q, q_len, g, g_len, y, y_len, NULL, 0))
