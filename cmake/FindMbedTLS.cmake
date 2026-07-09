@@ -6,14 +6,15 @@
 #
 # Input variables:
 #
-# - `MBEDTLS_INCLUDE_DIR`:  Absolute path to mbedTLS include directory.
-# - `MBEDCRYPTO_LIBRARY`:   Absolute path to `mbedcrypto` library.
+# - `MBEDTLS_INCLUDE_DIR`:      Absolute path to mbedTLS include directory.
+# - `MBEDCRYPTO_LIBRARY`:       Absolute path to `mbedcrypto` library.
+# - `MBEDTLS_USE_STATIC_LIBS`:  Configure for static mbedTLS libraries.
 #
 # Defines:
 #
-# - `MBEDTLS_FOUND`:        System has mbedTLS.
-# - `MBEDTLS_VERSION`:      Version of mbedTLS.
-# - `libssh2::mbedcrypto`:  mbedcrypto library target.
+# - `MBEDTLS_FOUND`:            System has mbedTLS.
+# - `MBEDTLS_VERSION`:          Version of mbedTLS.
+# - `libssh2::mbedcrypto`:      mbedcrypto library target.
 
 set(_mbedtls_pc_requires "mbedcrypto")
 
@@ -28,12 +29,22 @@ if(_mbedtls_FOUND)
   set(MbedTLS_FOUND TRUE)
   set(MBEDTLS_FOUND TRUE)
   set(MBEDTLS_VERSION ${_mbedtls_VERSION})
+  if(MBEDTLS_USE_STATIC_LIBS)
+    set(_mbedtls_CFLAGS       "${_mbedtls_STATIC_CFLAGS}")
+    set(_mbedtls_INCLUDE_DIRS "${_mbedtls_STATIC_INCLUDE_DIRS}")
+    set(_mbedtls_LIBRARY_DIRS "${_mbedtls_STATIC_LIBRARY_DIRS}")
+    set(_mbedtls_LIBRARIES    "${_mbedtls_STATIC_LIBRARIES}")
+  endif()
   message(STATUS "Found MbedTLS (via pkg-config): ${_mbedtls_INCLUDE_DIRS} (found version \"${MBEDTLS_VERSION}\")")
 else()
   set(_mbedtls_pc_requires "")
 
   find_path(MBEDTLS_INCLUDE_DIR NAMES "mbedtls/version.h")
-  find_library(MBEDCRYPTO_LIBRARY NAMES "mbedcrypto" "libmbedcrypto")
+  if(MBEDTLS_USE_STATIC_LIBS)
+    find_library(MBEDCRYPTO_LIBRARY NAMES "mbedcrypto_static" "libmbedcrypto_static" "mbedcrypto" "libmbedcrypto")
+  else()
+    find_library(MBEDCRYPTO_LIBRARY NAMES "mbedcrypto" "libmbedcrypto")
+  endif()
 
   unset(MBEDTLS_VERSION CACHE)
   if(MBEDTLS_INCLUDE_DIR AND EXISTS "${MBEDTLS_INCLUDE_DIR}/mbedtls/build_info.h")
