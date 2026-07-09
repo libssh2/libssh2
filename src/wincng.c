@@ -1176,8 +1176,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
                  const unsigned char *qdata, unsigned long qlen,
                  const unsigned char *e1data, unsigned long e1len,
                  const unsigned char *e2data, unsigned long e2len,
-                 const unsigned char *coeffdata,
-                 unsigned long coefflen)
+                 const unsigned char *coeffdata, unsigned long coefflen)
 {
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_RSAKEY_BLOB *rsakey;
