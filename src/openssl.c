@@ -1992,7 +1992,7 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
 
         if(*handle_len > 0) {
             *key_handle = SSH2_ALLOC(session, *handle_len);
-            if(key_handle && *key_handle)
+            if(*key_handle)
                 memcpy(SSH2_UNCONST(*key_handle), handle, *handle_len);
         }
     }
@@ -2031,6 +2031,11 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
 
         if(application && app_len > 0) {
             *application = SSH2_ALLOC(session, app_len + 1);
+            if(!*application) {
+                ssh2_err(session, LIBSSH2_ERROR_ALLOC,
+                         "Unable to allocate memory for ED25519 application");
+                goto clean_exit;
+            }
             ssh2_explicit_zero(SSH2_UNCONST(*application), app_len + 1);
             memcpy(SSH2_UNCONST(*application), app, app_len);
         }
@@ -2993,6 +2998,12 @@ static int ossl_ecdsa_sk_openssh_priv_to_pubkey(
 
         if(application && app_len > 0) {
             *application = SSH2_ALLOC(session, app_len + 1);
+            if(!*application) {
+                ssh2_err(session, LIBSSH2_ERROR_ALLOC,
+                         "Unable to allocate memory for ECDSA application");
+                rc = -1;
+                goto fail;
+            }
             ssh2_explicit_zero(SSH2_UNCONST(*application), app_len + 1);
             memcpy(SSH2_UNCONST(*application), app, app_len);
         }
