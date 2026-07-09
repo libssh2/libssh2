@@ -18,11 +18,15 @@
 
 set(_mbedtls_pc_requires "mbedcrypto")
 
-if(LIBSSH2_USE_PKGCONFIG AND
-   NOT DEFINED MBEDTLS_INCLUDE_DIR AND
+if(NOT DEFINED MBEDTLS_INCLUDE_DIR AND
    NOT DEFINED MBEDCRYPTO_LIBRARY)
-  find_package(PkgConfig QUIET)
-  pkg_check_modules(_mbedtls ${_mbedtls_pc_requires})
+  if(LIBSSH2_USE_PKGCONFIG)
+    find_package(PkgConfig QUIET)
+    pkg_check_modules(_mbedtls ${_mbedtls_pc_requires})
+  endif()
+  if(NOT _mbedtls_FOUND AND LIBSSH2_USE_CMAKECONFIG)
+    find_package(MbedTLS CONFIG QUIET)
+  endif()
 endif()
 
 if(_mbedtls_FOUND)
@@ -36,6 +40,17 @@ if(_mbedtls_FOUND)
     set(_mbedtls_LIBRARIES    "${_mbedtls_STATIC_LIBRARIES}")
   endif()
   message(STATUS "Found MbedTLS (via pkg-config): ${_mbedtls_INCLUDE_DIRS} (found version \"${MBEDTLS_VERSION}\")")
+elseif(MbedTLS_CONFIG)
+  set(MbedTLS_FOUND TRUE)
+  set(MBEDTLS_FOUND TRUE)
+  set(MBEDTLS_VERSION ${MbedTLS_VERSION})
+  if(MBEDTLS_VERSION GREATER_EQUAL 4.0.0)
+    set(_mbedtls_LIBRARIES MbedTLS::tfpsacrypto)
+  else()
+    set(_mbedtls_LIBRARIES MbedTLS::mbedcrypto)
+  endif()
+  list(APPEND _mbedtls_LIBRARIES MbedTLS::mbedx509 MbedTLS::mbedtls)
+  message(STATUS "Found MbedTLS (via CMake Config): ${MbedTLS_CONFIG} (found version \"${MBEDTLS_VERSION}\")")
 else()
   set(_mbedtls_pc_requires "")
 
@@ -54,7 +69,6 @@ else()
     set(MBEDTLS_VERSION "${_version_str}")
     unset(_version_regex)
     unset(_version_str)
-    unset(_version_header)
   endif()
 
   include(FindPackageHandleStandardArgs)
