@@ -74,13 +74,13 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
   bldp='bld-libssh2'
   prefix="${PWD}/${bldp}/_pkg"
   rm -rf "${bldp}"
-  "${cmake_provider}" -B "${bldp}" -S "${src}" -G "${gen}" ${cmake_opts} -DCMAKE_UNITY_BUILD=ON ${TEST_CMAKE_FLAGS:-} "$@" \
+  "${cmake_provider}" -B "${bldp}" -S "${src}" -G "${gen}" ${cmake_opts} -DCMAKE_UNITY_BUILD=ON ${TEST_CMAKE_FLAGS:-} ${TEST_CMAKE_FLAGS_PROVIDER:-} "$@" \
     -DCMAKE_INSTALL_PREFIX="${prefix}"
   "${cmake_provider}" --build "${bldp}" --verbose
   "${cmake_provider}" --install "${bldp}"
   bldc='bld-find_package'
   rm -rf "${bldc}"
-  "${cmake_consumer}" -B "${bldc}" -G "${gen}" ${TEST_CMAKE_FLAGS:-} \
+  "${cmake_consumer}" -B "${bldc}" -G "${gen}" ${TEST_CMAKE_FLAGS:-} ${TEST_CMAKE_FLAGS_CONSUMER:-} \
     -DTEST_INTEGRATION_MODE=find_package \
     -DCMAKE_PREFIX_PATH="${prefix}/lib/cmake/libssh2"
   "${cmake_consumer}" --build "${bldc}" --verbose
