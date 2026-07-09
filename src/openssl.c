@@ -196,13 +196,12 @@ static unsigned char *ossl_write_bn(unsigned char *buf, const BIGNUM *bn,
 #endif
 
 #ifdef USE_OPENSSL_3
-static SSH2_INLINE void ossl_swap_bytes(unsigned char *buf, unsigned long len)
+static SSH2_INLINE void ossl_swap_bytes(unsigned char *buf, size_t len)
 {
 #if !defined(WORDS_BIGENDIAN) || !WORDS_BIGENDIAN
-    unsigned long i, j;
-    unsigned char temp;
+    size_t i, j;
     for(i = 0, j = len - 1; i < j; i++, j--) {
-        temp = buf[i];
+        unsigned char temp = buf[i];
         buf[i] = buf[j];
         buf[j] = temp;
     }
@@ -220,14 +219,14 @@ int ssh2_random(unsigned char *buf, size_t len)
 
 #if LIBSSH2_RSA
 int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
-                 const unsigned char *edata, unsigned long elen,
-                 const unsigned char *ndata, unsigned long nlen,
-                 const unsigned char *ddata, unsigned long dlen,
-                 const unsigned char *pdata, unsigned long plen,
-                 const unsigned char *qdata, unsigned long qlen,
-                 const unsigned char *e1data, unsigned long e1len,
-                 const unsigned char *e2data, unsigned long e2len,
-                 const unsigned char *coeffdata, unsigned long coefflen)
+                 const unsigned char *edata, size_t elen,
+                 const unsigned char *ndata, size_t nlen,
+                 const unsigned char *ddata, size_t dlen,
+                 const unsigned char *pdata, size_t plen,
+                 const unsigned char *qdata, size_t qlen,
+                 const unsigned char *e1data, size_t e1len,
+                 const unsigned char *e2data, size_t e2len,
+                 const unsigned char *coeffdata, size_t coefflen)
 {
 #ifdef USE_OPENSSL_3
     int ret = 0;
@@ -426,11 +425,11 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
 
 #if LIBSSH2_DSA
 int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
-                 const unsigned char *pdata, unsigned long plen,
-                 const unsigned char *qdata, unsigned long qlen,
-                 const unsigned char *gdata, unsigned long glen,
-                 const unsigned char *ydata, unsigned long ylen,
-                 const unsigned char *xdata, unsigned long xlen)
+                 const unsigned char *pdata, size_t plen,
+                 const unsigned char *qdata, size_t qlen,
+                 const unsigned char *gdata, size_t glen,
+                 const unsigned char *ydata, size_t ylen,
+                 const unsigned char *xdata, size_t xlen)
 {
 #ifdef USE_OPENSSL_3
     int ret = 0;
@@ -1013,7 +1012,7 @@ static unsigned char *ossl_rsa_to_pubkey(LIBSSH2_SESSION *session,
                                          ssh2_rsa_ctx *rsa, size_t *key_len)
 {
     int e_bytes, n_bytes;
-    unsigned long len;
+    size_t len;
     unsigned char *key = NULL;
     unsigned char *p;
 
@@ -1236,14 +1235,8 @@ static int ossl_rsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    rc = ssh2_rsa_new(&rsa,
-                      e, (unsigned long)elen,
-                      n, (unsigned long)nlen,
-                      d, (unsigned long)dlen,
-                      p, (unsigned long)plen,
-                      q, (unsigned long)qlen,
-                      NULL, 0, NULL, 0,
-                      coeff, (unsigned long)coefflen);
+    rc = ssh2_rsa_new(&rsa, e, elen, n, nlen, d, dlen,
+                      p, plen, q, qlen, NULL, 0, NULL, 0, coeff, coefflen);
     if(rc) {
         ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                   "Could not create RSA private key"));
@@ -1399,7 +1392,7 @@ static unsigned char *ossl_dsa_to_pubkey(LIBSSH2_SESSION *session,
                                          ssh2_dsa_ctx *dsa, size_t *key_len)
 {
     int p_bytes, q_bytes, g_bytes, k_bytes;
-    unsigned long len;
+    size_t len;
     unsigned char *key = NULL;
     unsigned char *p;
 
@@ -1448,7 +1441,7 @@ static unsigned char *ossl_dsa_to_pubkey(LIBSSH2_SESSION *session,
     p = ossl_write_bn(p, g, g_bytes);
     p = ossl_write_bn(p, pub_key, k_bytes);
 
-    *key_len = (size_t)(p - key);
+    *key_len = p - key;
 fail:
 #ifdef USE_OPENSSL_3
     BN_clear_free(p_bn);
@@ -1559,12 +1552,8 @@ static int ossl_dsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    rc = ssh2_dsa_new(&dsa,
-                      p, (unsigned long)plen,
-                      q, (unsigned long)qlen,
-                      g, (unsigned long)glen,
-                      pub_key, (unsigned long)pub_len,
-                      priv_key, (unsigned long)priv_len);
+    rc = ssh2_dsa_new(&dsa, p, plen, q, qlen, g, glen,
+                      pub_key, pub_len, priv_key, priv_len);
     if(rc) {
         ssh2_deb((session, LIBSSH2_ERROR_PROTO,
                   "Could not create DSA private key"));
@@ -2851,7 +2840,7 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
 
     /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
     memcpy(group_name, n, strlen(n));
-    ossl_swap_bytes(exponent, (unsigned long)exponentlen);
+    ossl_swap_bytes(exponent, exponentlen);
 
     params[0] = OSSL_PARAM_construct_utf8_string(OSSL_PKEY_PARAM_GROUP_NAME,
                                                  group_name, 0);
