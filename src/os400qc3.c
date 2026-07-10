@@ -463,7 +463,7 @@ int ssh2_bn_from_bin(ssh2_bn *bn, const unsigned char *bin, size_t len)
 int ssh2_bn_set_word(ssh2_bn *bn, uint32_t word)
 {
     word = htonl(word);
-    return ssh2_bn_from_bin(bn, sizeof(word), (unsigned char *)&word);
+    return ssh2_bn_from_bin(bn, (unsigned char *)&word, sizeof(word));
 }
 
 int ssh2_bn_to_bin(const ssh2_bn *bn, unsigned char *bin)
@@ -1139,25 +1139,25 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     if(!ctx)
         ret = -1;
     if(!ret) {
-        ssh2_bn_from_bin(e, elen, edata);
-        ssh2_bn_from_bin(n, nlen, ndata);
+        ssh2_bn_from_bin(e, edata, elen);
+        ssh2_bn_from_bin(n, ndata, nlen);
         if(!e || !n)
             ret = -1;
     }
     if(!ret && ddata) {
         /* Private key. */
         d = ssh2_bn_init_from_bin();
-        ssh2_bn_from_bin(d, dlen, ddata);
+        ssh2_bn_from_bin(d, ddata, dlen);
         p = ssh2_bn_init_from_bin();
-        ssh2_bn_from_bin(p, plen, pdata);
+        ssh2_bn_from_bin(p, pdata, plen);
         q = ssh2_bn_init_from_bin();
-        ssh2_bn_from_bin(q, qlen, qdata);
+        ssh2_bn_from_bin(q, qdata, qlen);
         e1 = ssh2_bn_init_from_bin();
-        ssh2_bn_from_bin(e1, e1len, e1data);
+        ssh2_bn_from_bin(e1, e1data, e1len);
         e2 = ssh2_bn_init_from_bin();
-        ssh2_bn_from_bin(e2, e2len, e2data);
+        ssh2_bn_from_bin(e2, e2data, e2len);
         coeff = ssh2_bn_init_from_bin();
-        ssh2_bn_from_bin(coeff, coefflen, coeffdata);
+        ssh2_bn_from_bin(coeff, coeffdata, coefflen);
         if(!d || !p || !q || !e1 || !e2 || !coeff)
             ret = -1;
 
@@ -1265,7 +1265,7 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
     asn1delete(pkcs3);
     if(errcode.Bytes_Available)
         return -1;
-    return ssh2_bn_from_bin(pub, pubkeylen, (unsigned char *)pubkey);
+    return ssh2_bn_from_bin(pub, (unsigned char *)pubkey, pubkeylen);
 }
 
 int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
@@ -1290,7 +1290,7 @@ int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
                             &secretbufsize, &secretbuflen, &errcode);
     if(errcode.Bytes_Available)
         return -1;
-    return ssh2_bn_from_bin(secret, secretbuflen, (unsigned char *)secretbuf);
+    return ssh2_bn_from_bin(secret, (unsigned char *)secretbuf, secretbuflen);
 }
 
 void ssh2_dh_dtor(ssh2_dh_ctx *dhctx)
