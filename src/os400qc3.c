@@ -422,14 +422,12 @@ static int bn_resize(ssh2_bn *bn, size_t newlen)
     return 0;
 }
 
-unsigned long ssh2_bn_bits(const ssh2_bn *bn)
+size_t ssh2_bn_bits(const ssh2_bn *bn)
 {
-    unsigned int i;
-    unsigned char b;
-
     if(bn && bn->bignum) {
+        size_t i;
         for(i = bn->length; i--;) {
-            b = bn->bignum[i];
+            unsigned char b = bn->bignum[i];
             if(b) {
                 i *= 8;
                 do {

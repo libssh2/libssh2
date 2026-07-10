@@ -271,7 +271,7 @@ struct wcng_cipher_t {
 
 struct wcng_bn {
     unsigned char *bignum;
-    ULONG length;
+    size_t length;
 };
 
 #define ssh2_bn                  struct wcng_bn
