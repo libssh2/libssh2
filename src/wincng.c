@@ -285,7 +285,7 @@ static int wcng_bn_mod_exp(ssh2_bn *r, ssh2_bn *a, ssh2_bn *p, ssh2_bn *m)
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-int ssh2_bn_set_word(ssh2_bn *bn, unsigned long word)
+int ssh2_bn_set_word(ssh2_bn *bn, uint32_t word)
 {
     size_t offset, number, bits, length;
 

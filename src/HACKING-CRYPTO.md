@@ -356,7 +356,7 @@ size_t ssh2_bn_bits(ssh2_bn *bn);
 Returns the number of bits of multiple precision number at `bn`.
 
 ```c
-int ssh2_bn_set_word(ssh2_bn *bn, unsigned long val);
+int ssh2_bn_set_word(ssh2_bn *bn, uint32_t val);
 ```
 Sets the value of `bn` to `val`.
 Returns 1 on success, 0 otherwise.
