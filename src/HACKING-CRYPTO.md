@@ -373,9 +373,9 @@ created.
 Returns a pointer to target `ssh2_bn` or NULL if error.
 
 ```c
-int ssh2_bn_to_bin(ssh2_bn *bn, unsigned char *val);
+int ssh2_bn_to_bin(ssh2_bn *bn, unsigned char *bin);
 ```
-Converts the absolute value of bn into big-endian form and store it at `val`.
+Converts the absolute value of bn into big-endian form and store it at `bin`.
 val must point to `ssh2_bn_bytes(bn)` bytes of memory.
 Returns the length of the big-endian number.
 

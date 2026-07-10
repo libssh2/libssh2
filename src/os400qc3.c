@@ -466,15 +466,15 @@ int ssh2_bn_set_word(ssh2_bn *bn, uint32_t word)
     return ssh2_bn_from_bin(bn, sizeof(word), (unsigned char *)&word);
 }
 
-int ssh2_bn_to_bin(const ssh2_bn *bn, unsigned char *val)
+int ssh2_bn_to_bin(const ssh2_bn *bn, unsigned char *bin)
 {
     int i;
 
-    if(!bn || !val)
+    if(!bn || !bin)
         return -1;
 
     for(i = bn->length; i--;)
-        *val++ = bn->bignum[i];
+        *bin++ = bn->bignum[i];
 
     return 0;
 }
