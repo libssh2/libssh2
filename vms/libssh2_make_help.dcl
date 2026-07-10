@@ -30,9 +30,7 @@ $ man2help -a [-]RELEASE-NOTES.; libssh2.hlp -b 2
 $ man2help -a [-.docs]AUTHORS.; libssh2.hlp  -b 2
 $ copy [-.docs]BINDINGS.md; []BINDINGS.md
 $ copy [-.docs]HACKING.md; []HACKING.md
-$ if f$search("[]HACKING_CRYPTO.") .nes. "" then delete []HACKING_CRYPTO.;*
-$ copy [-.docs]HACKING-CRYPTO; []HACKING_CRYPTO.
-$ man2help -a []HACKING_CRYPTO.; libssh2.hlp -b 2
+$ copy [-.src]HACKING-CRYPTO.md; []HACKING-CRYPTO.md
 $ man2help -a [-.docs]TODO.; libssh2.hlp     -b 2
 $!
 $ man2help -a sys$input: libssh2.hlp         -b 2
