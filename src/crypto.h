@@ -59,7 +59,7 @@ int ssh2_random(unsigned char *buf, size_t len);
 #endif
 
 #ifndef ssh2_prepare_iovec
-#define ssh2_prepare_iovec(vec, len)  /* no-op */
+#define ssh2_prepare_iovec(vec, len)  do {} while(0)
 #endif
 
 /* return: success = 1, error = 0 */
