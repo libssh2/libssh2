@@ -1236,14 +1236,8 @@ static int ossl_rsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    rc = ssh2_rsa_new(&rsa,
-                      e, (unsigned long)elen,
-                      n, (unsigned long)nlen,
-                      d, (unsigned long)dlen,
-                      p, (unsigned long)plen,
-                      q, (unsigned long)qlen,
-                      NULL, 0, NULL, 0,
-                      coeff, (unsigned long)coefflen);
+    rc = ssh2_rsa_new(&rsa, e, elen, n, nlen, d, dlen,
+                      p, plen, q, qlen, NULL, 0, NULL, 0, coeff, coefflen);
     if(rc) {
         ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                   "Could not create RSA private key"));
@@ -1559,12 +1553,8 @@ static int ossl_dsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    rc = ssh2_dsa_new(&dsa,
-                      p, (unsigned long)plen,
-                      q, (unsigned long)qlen,
-                      g, (unsigned long)glen,
-                      pub_key, (unsigned long)pub_len,
-                      priv_key, (unsigned long)priv_len);
+    rc = ssh2_dsa_new(&dsa, p, plen, q, qlen, g, glen,
+                      pub_key, pub_len, priv_key, priv_len);
     if(rc) {
         ssh2_deb((session, LIBSSH2_ERROR_PROTO,
                   "Could not create DSA private key"));
