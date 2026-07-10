@@ -294,14 +294,14 @@ static int mbed_bn_random(ssh2_bn *bn, int bits, int top, int bottom)
  */
 
 int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
-                 const unsigned char *edata, unsigned long elen,
-                 const unsigned char *ndata, unsigned long nlen,
-                 const unsigned char *ddata, unsigned long dlen,
-                 const unsigned char *pdata, unsigned long plen,
-                 const unsigned char *qdata, unsigned long qlen,
-                 const unsigned char *e1data, unsigned long e1len,
-                 const unsigned char *e2data, unsigned long e2len,
-                 const unsigned char *coeffdata, unsigned long coefflen)
+                 const unsigned char *edata, size_t elen,
+                 const unsigned char *ndata, size_t nlen,
+                 const unsigned char *ddata, size_t dlen,
+                 const unsigned char *pdata, size_t plen,
+                 const unsigned char *qdata, size_t qlen,
+                 const unsigned char *e1data, size_t e1len,
+                 const unsigned char *e2data, size_t e2len,
+                 const unsigned char *coeffdata, size_t coefflen)
 {
     int ret;
     ssh2_rsa_ctx *ctx;

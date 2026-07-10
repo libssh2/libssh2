@@ -99,14 +99,14 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
 
 #if LIBSSH2_RSA
 int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
-                 const unsigned char *edata, unsigned long elen,
-                 const unsigned char *ndata, unsigned long nlen,
-                 const unsigned char *ddata, unsigned long dlen,
-                 const unsigned char *pdata, unsigned long plen,
-                 const unsigned char *qdata, unsigned long qlen,
-                 const unsigned char *e1data, unsigned long e1len,
-                 const unsigned char *e2data, unsigned long e2len,
-                 const unsigned char *coeffdata, unsigned long coefflen)
+                 const unsigned char *edata, size_t elen,
+                 const unsigned char *ndata, size_t nlen,
+                 const unsigned char *ddata, size_t dlen,
+                 const unsigned char *pdata, size_t plen,
+                 const unsigned char *qdata, size_t qlen,
+                 const unsigned char *e1data, size_t e1len,
+                 const unsigned char *e2data, size_t e2len,
+                 const unsigned char *coeffdata, size_t coefflen)
 {
     int rc;
 
@@ -118,11 +118,11 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     if(ddata)
         rc = gcry_sexp_build(rsa, NULL,
                  "(private-key(rsa(n%b)(e%b)(d%b)(q%b)(p%b)(u%b)))",
-                 nlen, ndata, elen, edata, dlen, ddata, plen, pdata,
-                 qlen, qdata, coefflen, coeffdata);
+                 (int)nlen, ndata, (int)elen, edata, (int)dlen, ddata,
+                 (int)plen, pdata, (int)qlen, qdata, (int)coefflen, coeffdata);
     else
         rc = gcry_sexp_build(rsa, NULL, "(public-key(rsa(n%b)(e%b)))",
-                             nlen, ndata, elen, edata);
+                             (int)nlen, ndata, (int)elen, edata);
 
     if(rc) {
         *rsa = NULL;
@@ -208,24 +208,25 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
 
 #if LIBSSH2_DSA
 int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
-                 const unsigned char *pdata, unsigned long plen,
-                 const unsigned char *qdata, unsigned long qlen,
-                 const unsigned char *gdata, unsigned long glen,
-                 const unsigned char *ydata, unsigned long ylen,
-                 const unsigned char *xdata, unsigned long xlen)
+                 const unsigned char *pdata, size_t plen,
+                 const unsigned char *qdata, size_t qlen,
+                 const unsigned char *gdata, size_t glen,
+                 const unsigned char *ydata, size_t ylen,
+                 const unsigned char *xdata, size_t xlen)
 {
     int rc;
 
     if(xlen)
         rc = gcry_sexp_build(dsa, NULL,
                              "(private-key(dsa(p%b)(q%b)(g%b)(y%b)(x%b)))",
-                             plen, pdata, qlen, qdata, glen, gdata,
-                             ylen, ydata, xlen, xdata);
+                             (int)plen, pdata, (int)qlen, qdata,
+                             (int)glen, gdata, (int)ylen, ydata,
+                             (int)xlen, xdata);
     else
         rc = gcry_sexp_build(dsa, NULL,
                              "(public-key(dsa(p%b)(q%b)(g%b)(y%b)))",
-                             plen, pdata, qlen, qdata, glen, gdata,
-                             ylen, ydata);
+                             (int)plen, pdata, (int)qlen, qdata,
+                             (int)glen, gdata, (int)ylen, ydata);
 
     if(rc) {
         *dsa = NULL;

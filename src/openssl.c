@@ -220,14 +220,14 @@ int ssh2_random(unsigned char *buf, size_t len)
 
 #if LIBSSH2_RSA
 int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
-                 const unsigned char *edata, unsigned long elen,
-                 const unsigned char *ndata, unsigned long nlen,
-                 const unsigned char *ddata, unsigned long dlen,
-                 const unsigned char *pdata, unsigned long plen,
-                 const unsigned char *qdata, unsigned long qlen,
-                 const unsigned char *e1data, unsigned long e1len,
-                 const unsigned char *e2data, unsigned long e2len,
-                 const unsigned char *coeffdata, unsigned long coefflen)
+                 const unsigned char *edata, size_t elen,
+                 const unsigned char *ndata, size_t nlen,
+                 const unsigned char *ddata, size_t dlen,
+                 const unsigned char *pdata, size_t plen,
+                 const unsigned char *qdata, size_t qlen,
+                 const unsigned char *e1data, size_t e1len,
+                 const unsigned char *e2data, size_t e2len,
+                 const unsigned char *coeffdata, size_t coefflen)
 {
 #ifdef USE_OPENSSL_3
     int ret = 0;
@@ -426,11 +426,11 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
 
 #if LIBSSH2_DSA
 int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
-                 const unsigned char *pdata, unsigned long plen,
-                 const unsigned char *qdata, unsigned long qlen,
-                 const unsigned char *gdata, unsigned long glen,
-                 const unsigned char *ydata, unsigned long ylen,
-                 const unsigned char *xdata, unsigned long xlen)
+                 const unsigned char *pdata, size_t plen,
+                 const unsigned char *qdata, size_t qlen,
+                 const unsigned char *gdata, size_t glen,
+                 const unsigned char *ydata, size_t ylen,
+                 const unsigned char *xdata, size_t xlen)
 {
 #ifdef USE_OPENSSL_3
     int ret = 0;

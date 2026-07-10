@@ -1143,9 +1143,9 @@ static int wcng_asn_decode_bns(unsigned char *pbEncoded,
     return ret;
 }
 
-static ULONG wcng_bn_size(const unsigned char *bignum, ULONG length)
+static size_t wcng_bn_size(const unsigned char *bignum, size_t length)
 {
-    ULONG offset;
+    size_t offset;
 
     if(!bignum || length == 0)
         return 0;
@@ -1169,19 +1169,19 @@ static ULONG wcng_bn_size(const unsigned char *bignum, ULONG length)
  */
 
 int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
-                 const unsigned char *edata, unsigned long elen,
-                 const unsigned char *ndata, unsigned long nlen,
-                 const unsigned char *ddata, unsigned long dlen,
-                 const unsigned char *pdata, unsigned long plen,
-                 const unsigned char *qdata, unsigned long qlen,
-                 const unsigned char *e1data, unsigned long e1len,
-                 const unsigned char *e2data, unsigned long e2len,
-                 const unsigned char *coeffdata, unsigned long coefflen)
+                 const unsigned char *edata, size_t elen,
+                 const unsigned char *ndata, size_t nlen,
+                 const unsigned char *ddata, size_t dlen,
+                 const unsigned char *pdata, size_t plen,
+                 const unsigned char *qdata, size_t qlen,
+                 const unsigned char *e1data, size_t e1len,
+                 const unsigned char *e2data, size_t e2len,
+                 const unsigned char *coeffdata, size_t coefflen)
 {
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_RSAKEY_BLOB *rsakey;
     LPCWSTR lpszBlobType;
-    ULONG keylen, offset, mlen, p1len = 0, p2len = 0;
+    size_t keylen, offset, mlen, p1len = 0, p2len = 0;
     int ret;
 
     mlen = max(wcng_bn_size(ndata, nlen),
@@ -1278,7 +1278,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     }
 
     ret = BCryptImportKeyPair(ssh2_wcng.hAlgRSA, NULL, lpszBlobType,
-                              &hKey, (PUCHAR)rsakey, keylen, 0);
+                              &hKey, (PUCHAR)rsakey, (ULONG)keylen, 0);
     if(!BCRYPT_SUCCESS(ret)) {
         wcng_zero_free(rsakey, keylen);
         return -1;
@@ -1293,7 +1293,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
 
     (*rsa)->hKey = hKey;
     (*rsa)->pbKeyObject = rsakey;
-    (*rsa)->cbKeyObject = keylen;
+    (*rsa)->cbKeyObject = (DWORD)keylen;
 
     return 0;
 }
@@ -1490,16 +1490,16 @@ void ssh2_rsa_free(ssh2_rsa_ctx *rsa)
 
 #if LIBSSH2_DSA
 int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
-                 const unsigned char *pdata, unsigned long plen,
-                 const unsigned char *qdata, unsigned long qlen,
-                 const unsigned char *gdata, unsigned long glen,
-                 const unsigned char *ydata, unsigned long ylen,
-                 const unsigned char *xdata, unsigned long xlen)
+                 const unsigned char *pdata, size_t plen,
+                 const unsigned char *qdata, size_t qlen,
+                 const unsigned char *gdata, size_t glen,
+                 const unsigned char *ydata, size_t ylen,
+                 const unsigned char *xdata, size_t xlen)
 {
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_DSA_KEY_BLOB *dsakey;
     LPCWSTR lpszBlobType;
-    ULONG keylen, offset, length;
+    size_t keylen, offset, length;
     int ret;
 
     length = max(max(wcng_bn_size(pdata, plen),
@@ -1567,7 +1567,7 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
     }
 
     ret = BCryptImportKeyPair(ssh2_wcng.hAlgDSA, NULL, lpszBlobType,
-                              &hKey, (PUCHAR)dsakey, keylen, 0);
+                              &hKey, (PUCHAR)dsakey, (ULONG)keylen, 0);
     if(!BCRYPT_SUCCESS(ret)) {
         wcng_zero_free(dsakey, keylen);
         return -1;
@@ -1582,7 +1582,7 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
 
     (*dsa)->hKey = hKey;
     (*dsa)->pbKeyObject = dsakey;
-    (*dsa)->cbKeyObject = keylen;
+    (*dsa)->cbKeyObject = (DWORD)keylen;
 
     return 0;
 }
