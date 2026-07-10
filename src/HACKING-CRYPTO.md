@@ -362,11 +362,10 @@ Sets the value of `bn` to `word`.
 Returns 1 on success, 0 otherwise.
 
 ```c
-ssh2_bn *ssh2_bn_from_bin(ssh2_bn *bn, int len,
-                          const unsigned char *val);
+ssh2_bn *ssh2_bn_from_bin(ssh2_bn *bn, int len, const unsigned char *bin);
 ```
 
-Converts the positive integer in big-endian form of length `len` at `val` into
+Converts the positive integer in big-endian form of length `len` at `bin` into
 an `ssh2_bn` and place it in `bn`. If `bn` is NULL, a new `ssh2_bn` is
 created.
 

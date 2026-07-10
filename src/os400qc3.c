@@ -441,21 +441,21 @@ size_t ssh2_bn_bits(const ssh2_bn *bn)
     return 0;
 }
 
-int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *val)
+int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *bin)
 {
     size_t i;
 
-    if(!bn || (len && !val))
+    if(!bn || (len && !bin))
         return -1;
 
-    for(; len && !*val; len--)
-        val++;
+    for(; len && !*bin; len--)
+        bin++;
 
     if(bn_resize(bn, len))
         return -1;
 
     for(i = len; i--;)
-        bn->bignum[i] = *val++;
+        bn->bignum[i] = *bin++;
 
     return 0;
 }
