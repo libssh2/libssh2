@@ -213,8 +213,8 @@ static int hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION *session,
 {
     ssh2_rsa_ctx *rsactx = (ssh2_rsa_ctx *)(*abstract);
 #ifdef ssh2_rsa_sha1_signv
-    return ssh2_rsa_sha1_signv(session, signature, signature_len,
-                               veccount, datavec, rsactx);
+    return ssh2_rsa_sha1_signv(rsactx, session, signature, signature_len,
+                               veccount, datavec);
 #else
     int i;
     unsigned char hash[SSH2_SHA1_DIG_LEN];
@@ -277,8 +277,8 @@ static int hostkey_method_ssh_rsa_sha2_256_signv(LIBSSH2_SESSION *session,
 {
     ssh2_rsa_ctx *rsactx = (ssh2_rsa_ctx *)(*abstract);
 #ifdef ssh2_rsa_sha2_256_signv
-    return ssh2_rsa_sha2_256_signv(session, signature, signature_len,
-                                   veccount, datavec, rsactx);
+    return ssh2_rsa_sha2_256_signv(rsactx, session, signature, signature_len,
+                                   veccount, datavec);
 #else
     int i;
     unsigned char hash[SSH2_SHA256_DIG_LEN];
@@ -339,8 +339,8 @@ static int hostkey_method_ssh_rsa_sha2_512_signv(LIBSSH2_SESSION *session,
 {
     ssh2_rsa_ctx *rsactx = (ssh2_rsa_ctx *)(*abstract);
 #ifdef ssh2_rsa_sha2_512_signv
-    return ssh2_rsa_sha2_512_signv(session, signature, signature_len,
-                                   veccount, datavec, rsactx);
+    return ssh2_rsa_sha2_512_signv(rsactx, session, signature, signature_len,
+                                   veccount, datavec);
 #else
     int i;
     unsigned char hash[SSH2_SHA512_DIG_LEN];

@@ -517,10 +517,9 @@ Return 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-int ssh2_rsa_sha1_signv(LIBSSH2_SESSION *session,
+int ssh2_rsa_sha1_signv(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                         unsigned char **sig, size_t *siglen,
-                        int count, const struct iovec vector[],
-                        ssh2_rsa_ctx *rsa);
+                        int count, const struct iovec vector[]);
 ```
 RSA signs the SHA-1 hash computed over the count data chunks in vector.
 Signature is stored at (`sig`, `siglen`).
@@ -565,10 +564,9 @@ Note: this procedure is not used if both macros `ssh2_rsa_sha2_256_signv()`
 and `ssh2_rsa_sha2_512_signv()` are defined.
 
 ```c
-int ssh2_rsa_sha2_256_signv(LIBSSH2_SESSION *session,
+int ssh2_rsa_sha2_256_signv(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                             unsigned char **sig, size_t *siglen,
-                            int count, const struct iovec vector[],
-                            ssh2_rsa_ctx *rsa);
+                            int count, const struct iovec vector[]);
 ```
 RSA signs the SHA-256 hash computed over the count data chunks in vector.
 Signature is stored at (`sig`, `siglen`).
@@ -577,10 +575,9 @@ Returns 0 if OK, else -1.
 Note: this procedure is optional: if provided, it MUST be defined as a macro.
 
 ```c
-int ssh2_rsa_sha2_512_signv(LIBSSH2_SESSION *session,
+int ssh2_rsa_sha2_512_signv(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                             unsigned char **sig, size_t *siglen,
-                            int count, const struct iovec vector[],
-                            ssh2_rsa_ctx *rsa);
+                            int count, const struct iovec vector[]);
 ```
 RSA signs the SHA-512 hash computed over the count data chunks in vector.
 Signature is stored at (`sig`, `siglen`).

@@ -2343,13 +2343,10 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
                                 sig, sig_len, m, m_len);
 }
 
-int ssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session,
+int ssh2_os400qc3_rsa_signv(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                             int algo,
-                            unsigned char **signature,
-                            size_t *signature_len,
-                            int veccount,
-                            const struct iovec vector[],
-                            ssh2_rsa_ctx *rsa)
+                            unsigned char **signature, size_t *signature_len,
+                            int veccount, const struct iovec vector[])
 {
     Qus_EC_t errcode;
     Qc3_Format_ALGD0400_T algd;
