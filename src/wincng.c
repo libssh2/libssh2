@@ -2124,11 +2124,14 @@ int ssh2_ecdsa_create_key(OUT ssh2_ecdsa_ctx **ec_ctx,
     (*ec_ctx)->handle = key_handle;
 
 cleanup:
-    if(result != LIBSSH2_ERROR_NONE && key_handle)
-        (void)BCryptDestroyKey(key_handle);
-
-    if(result != LIBSSH2_ERROR_NONE && *ec_ctx)
-        free(*ec_ctx);
+    if(result != LIBSSH2_ERROR_NONE) {
+        if(key_handle)
+            (void)BCryptDestroyKey(key_handle);
+        if(*out_private_key)
+            free(*out_private_key);
+        if(*ec_ctx)
+            free(*ec_ctx);
+    }
 
     return result;
 }
