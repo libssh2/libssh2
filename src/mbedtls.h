@@ -214,10 +214,6 @@ typedef enum {
  * mbedTLS backend: BigNumber Support
  */
 
-#define ssh2_bn_ctx                    int /* not used */
-#define ssh2_bn_ctx_new()              0 /* not used */
-#define ssh2_bn_ctx_free(bnctx)        ((void)0) /* not used */
-
 #define ssh2_bn                        mbedtls_mpi
 #define ssh2_bn_set_word(bn, word)     mbedtls_mpi_lset(bn, word)
 #define ssh2_bn_from_bin(bn, bin, len) mbedtls_mpi_read_binary(bn, bin, len)

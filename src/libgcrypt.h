@@ -112,10 +112,6 @@
 
 #define ssh2_cipher_dtor(ctx) gcry_cipher_close(*(ctx))
 
-#define ssh2_bn_ctx                    int /* not used */
-#define ssh2_bn_ctx_new()              0 /* not used */
-#define ssh2_bn_ctx_free(bnctx)        ((void)0) /* not used */
-
 #define ssh2_bn                        struct gcry_mpi
 #define ssh2_bn_init()                 gcry_mpi_new(0)
 #define ssh2_bn_init_from_bin()        NULL  /* because gcry_mpi_scan()
