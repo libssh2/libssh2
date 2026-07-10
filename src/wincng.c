@@ -58,6 +58,10 @@
 
 #include <stdlib.h>
 
+#ifndef STATUS_INVALID_PARAMETER
+#define STATUS_INVALID_PARAMETER ((NTSTATUS)0xC000000D)
+#endif
+
 #if LIBSSH2_ECDSA
 /* Define these manually to avoid including <ntstatus.h> and thus
    clashing with <windows.h> symbols. */
@@ -1704,7 +1708,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
                 ret = (NTSTATUS)STATUS_NO_MEMORY;
         }
         else
-            ret = (NTSTATUS)STATUS_NO_MEMORY;
+            ret = (NTSTATUS)STATUS_INVALID_PARAMETER;
     }
 
     wcng_zero_free(data, datalen);
