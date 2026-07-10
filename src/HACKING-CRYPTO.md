@@ -46,7 +46,7 @@ elif test "$found_crypto" = "newname"; then
 
 ### 0.5) Add CMake detection logic to `CMakeLists.txt`
 
-## 1) Crypto library initialization/termination.
+## 1) Crypto library initialization/termination
 
 ```c
 void ssh2_crypto_init(void);
@@ -106,7 +106,7 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx);
 ```
 Releases the HMAC computation context at `ctx`.
 
-## 3) Hash algorithms.
+## 3) Hash algorithms
 
 `ssh2_hash_ctx`: Type of a hash computation context. Generally a struct.
 
@@ -141,7 +141,7 @@ Get the computed hash digest from context `ctx` and store it into the `digest`
 output buffer. Release the context.
 Must return 1 for success and 0 for failure.
 
-## 4) Bidirectional key ciphers.
+## 4) Bidirectional key ciphers
 
 `ssh2_cipher_ctx`: Type of a cipher computation context.
 
@@ -184,7 +184,7 @@ Release cipher context at ctx.
 
 ### 4.1) AES
 
-#### 4.1.1) AES in CBC block mode.
+#### 4.1.1) AES in CBC block mode
 
 `LIBSSH2_AES`: define as 1 if the crypto library supports AES in CBC mode,
 else 0. If defined as 0, the rest of this section can be omitted.
@@ -198,7 +198,7 @@ with constant value of type SSH2_CIPHER_T().
 `ssh2_cipher_aes256`: AES-256-CBC algorithm identifier initializer. define
 with constant value of type SSH2_CIPHER_T().
 
-#### 4.1.2) AES in CTR block mode.
+#### 4.1.2) AES in CTR block mode
 
 `LIBSSH2_AES_CTR`: define as 1 if the crypto library supports AES in CTR mode,
 else 0. If defined as 0, the rest of this section can be omitted.
@@ -212,7 +212,7 @@ with constant value of type SSH2_CIPHER_T().
 `ssh2_cipher_aes256ctr`: AES-256-CTR algorithm identifier initializer. define
 with constant value of type SSH2_CIPHER_T().
 
-### 4.2) Blowfish in CBC block mode.
+### 4.2) Blowfish in CBC block mode
 
 `LIBSSH2_BLOWFISH`: define as 1 if the crypto library supports blowfish in CBC
 mode, else 0. If defined as 0, the rest of this section can be omitted.
@@ -245,7 +245,7 @@ mode, else 0. If defined as 0, the rest of this section can be omitted.
 `ssh2_cipher_3des`: TripleDES-CBC algorithm identifier initializer. define
 with constant value of type SSH2_CIPHER_T().
 
-## 5) Diffie-Hellman support.
+## 5) Diffie-Hellman support
 
 `SSH2_DH_GEX_MINGROUP`: The minimum Diffie-Hellman group length in bits
 supported by the backend. Usually defined as 2048.
@@ -298,7 +298,7 @@ void ssh2_dh_dtor(ssh2_dh_ctx *dhctx)
 ```
 Destroys Diffie-Hellman context at `dhctx` and resets its storage.
 
-## 6) Big numbers.
+## 6) Big numbers
 
 Positive multi-byte integers support is sufficient.
 
@@ -379,7 +379,7 @@ Converts the absolute value of bn into big-endian form and store it at `val`.
 val must point to `ssh2_bn_bytes(bn)` bytes of memory.
 Returns the length of the big-endian number.
 
-## 7) Private key algorithms.
+## 7) Private key algorithms
 
 Format of an RSA public key:
 
