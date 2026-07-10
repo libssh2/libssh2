@@ -4,4 +4,4 @@ Copyright (C) The libssh2 project and its contributors.
 SPDX-License-Identifier: BSD-3-Clause
 -->
 
-see src/HACKING-CRYPTO
+see src/HACKING-CRYPTO.md

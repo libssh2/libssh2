@@ -11,7 +11,7 @@ libssh2_la_SOURCES += libssh2.rc
 endif
 
 EXTRA_DIST += libssh2_config.h.in libssh2_config_cmake.h.in CMakeLists.txt \
-  HACKING-CRYPTO
+  HACKING-CRYPTO.md
 
 lib_LTLIBRARIES = libssh2.la
 

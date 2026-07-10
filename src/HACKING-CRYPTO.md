@@ -1,3 +1,9 @@
+<!--
+Copyright (C) The libssh2 project and its contributors.
+
+SPDX-License-Identifier: BSD-3-Clause
+-->
+
 # Definitions needed to implement a specific crypto library
 
 This document offers some hints about implementing a new crypto library

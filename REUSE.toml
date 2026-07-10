@@ -21,7 +21,6 @@ path = [
   "RELEASE-NOTES",
   "docs/AUTHORS",
   "os400/README400",
-  "src/HACKING-CRYPTO",
   "tests/key_*",
   "tests/openssh_server/authorized_keys",
   "tests/openssh_server/ca_*",
