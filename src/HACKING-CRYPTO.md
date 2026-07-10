@@ -4,8 +4,8 @@ This document offers some hints about implementing a new crypto library
 interface.
 
 A crypto library interface consists of at least a header file, defining
-entities referenced from the libssh2 core modules.
-Real code implementation (if needed), is left at the implementor's choice.
+entities referenced from the libssh2 core modules. Real code implementation
+(if needed), is left at the implementor's choice.
 
 This document lists the entities that must/may be defined in the header file.
 
@@ -14,7 +14,7 @@ indicates the libssh2 core modules never use the function result.
 
 0) Build system.
 
-Adding a crypto backend to the autotools build system (./configure) is easy:
+Adding a crypto backend to the autotools build system (`./configure`) is easy:
 
 0.1) Add logic to configure.ac
 
@@ -27,7 +27,7 @@ This must check for all required libraries, and if found set and AC_SUBST a
 variable with the library linking flags. The recommended method is to use
 LIBSSH2_LIB_HAVE_LINKFLAGS from LIBSSH2_CRYPTO_CHECK, which automatically
 creates and handles a `--with-$newname-prefix` option and sets an
-LTLIBNEWNAME variable on success.
+`LTLIBNEWNAME` variable on success.
 
 0.3) Add new header to src/Makefile.inc
 
@@ -60,28 +60,39 @@ The `libssh2_crypto_engine_t` enum must include the new engine, and
 2) HMAC
 
 `ssh2_hmac_ctx`
-Type of an HMAC computation context. Generally a struct.
-Used for all hash algorithms.
+Type of an HMAC computation context. Generally a struct. Used for all hash
+algorithms.
+
+`ssh2_hmac_alg`
+Type of a HMAC algorithm.
+
+Algorithm constants:
+- `SSH2_SHA1_HMAC` (optional)
+- `SSH2_SHA256_HMAC`
+- `SSH2_SHA512_HMAC`
+- `SSH2_MD5_HMAC` (optional)
+- `SSH2_RIPEMD160_HMAC` (optional)
 
 ```c
-int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx);
+int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
+                   void *key, size_t key_len);
 ```
-Initializes the HMAC computation context ctx.
-Called before setting-up the hash algorithm.
+Initializes the HMAC computation context ctx. Called before setting-up the
+hash algorithm. Must return 1 for success and 0 for failure.
+
+```c
+int ssh2_hmac_update(ssh2_hmac_ctx *ctx,
+                     const void *input, int input_len);
+```
+Continue computation of an HMAC on datalen bytes at `input` using context ctx.
 Must return 1 for success and 0 for failure.
 
 ```c
-int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, int datalen);
+int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t mac_len);
 ```
-Continue computation of an HMAC on datalen bytes at data using context ctx.
-Must return 1 for success and 0 for failure.
-
-```c
-int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void output[]);
-```
-Get the computed HMAC from context ctx into the output buffer. The
-minimum data buffer size depends on the HMAC hash algorithm.
-Must return 1 for success and 0 for failure.
+Get the computed HMAC from context ctx into the `mac` output buffer. The
+minimum data buffer size depends on the HMAC hash algorithm. Must return 1 for
+success and 0 for failure.
 
 ```c
 void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx);
@@ -93,34 +104,35 @@ Releases the HMAC computation context at ctx.
 `ssh2_hash_ctx`
 Type of a hash computation context. Generally a struct.
 
-3.1) SHA-1
-Must always be implemented.
+`ssh2_hash_alg`
+Type of a hash algorithm.
+
+Algorithm constants:
+- `SSH2_SHA1_ALG` (optional)
+- `SSH2_SHA256_ALG`
+- `SSH2_SHA384_ALG`
+- `SSH2_SHA512_ALG`
+- `SSH2_MD5_ALG` (optional)
 
 ```c
-int ssh2_sha1_init(ssh2_hash_ctx *x);
+int ssh2_hash_init(ssh2_hash_ctx *x, ssh2_hash_alg alg);
 ```
-Initializes the SHA-1 computation context at x.
+Initializes the hash computation context at x.
 Returns 1 for success and 0 for failure
 
 ```c
-int ssh2_sha1_update(ssh2_hash_ctx ctx,
-                     const unsigned char *data,
-                     size_t len);
+int ssh2_hash_update(ssh2_hash_ctx ctx,
+                     const unsigned char *input, size_t input_len);
 ```
-Continue computation of SHA-1 on len bytes at data using context ctx.
-Note: if the ctx parameter is modified by the underlying code,
-this procedure must be implemented as a macro to map ctx --> &ctx.
-Must return 1 for success and 0 for failure.
+Continue computation of hash on `input_len` bytes at `input` using context
+ctx. Must return 1 for success and 0 for failure.
 
 ```c
-int ssh2_sha1_final(ssh2_hash_ctx ctx,
-                    unsigned char output[SHA_DIGEST_LEN]);
+int ssh2_hash_final(ssh2_hash_ctx ctx,
+                    unsigned char *digest, size_t digest_len);
 ```
-Get the computed SHA-1 signature from context ctx and store it into the
-output buffer.
-Release the context.
-Note: if the ctx parameter is modified by the underlying code,
-this procedure must be implemented as a macro to map ctx --> &ctx.
+Get the computed hash digest from context ctx and store it into the `digest`
+output buffer. Release the context.
 Must return 1 for success and 0 for failure.
 
 ```c
@@ -132,211 +144,14 @@ Setup the HMAC computation context ctx for an HMAC-SHA-1 computation using the
 keylen-byte key. Is invoked right after `ssh2_hmac_ctx_init()`.
 Returns 1 for success and 0 for failure.
 
-3.2) SHA-256
-Must always be implemented.
-
-```c
-int ssh2_sha256_init(ssh2_hash_ctx *x);
-```
-Initializes the SHA-256 computation context at x.
-Returns 1 for success and 0 for failure
-
-```c
-int ssh2_sha256_update(ssh2_hash_ctx ctx,
-                       const unsigned char *data,
-                       size_t len);
-```
-Continue computation of SHA-256 on len bytes at data using context ctx.
-Note: if the ctx parameter is modified by the underlying code,
-this procedure must be implemented as a macro to map ctx --> &ctx.
-Must return 1 for success and 0 for failure.
-
-```c
-int ssh2_sha256_final(ssh2_hash_ctx ctx,
-                      unsigned char output[SSH2_SHA256_DIG_LEN]);
-```
-Gets the computed SHA-256 signature from context ctx into the output buffer.
-Release the context.
-Note: if the ctx parameter is modified by the underlying code,
-this procedure must be implemented as a macro to map ctx --> &ctx.
-Must return 1 for success and 0 for failure.
-
-```c
-int ssh2_sha256(const unsigned char *message,
-                size_t len,
-                unsigned char output[SSH2_SHA256_DIG_LEN]);
-```
-Computes the SHA-256 signature over the given message of length len and
-store the result into the output buffer.
-Return 1 if error, else 0.
-Note: Seems unused in current code, but defined in each crypto library backend.
-
-`LIBSSH2_HMAC_SHA256`
-#define as 1 if the crypto library supports HMAC-SHA-256, else 0.
-If defined as 0, the rest of this section can be omitted.
-
-```c
-int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx,
-                          const void *key,
-                          int keylen);
-```
-Setup the HMAC computation context ctx for an HMAC-256 computation using the
-keylen-byte key. Is invoked right after ssh2_hmac_ctx_init().
-Returns 1 for success and 0 for failure.
-
-3.3) SHA-384
-Mandatory if ECDSA is implemented. Can be omitted otherwise.
-
-```c
-int ssh2_sha384_init(ssh2_hash_ctx *x);
-```
-Initializes the SHA-384 computation context at x.
-Returns 1 for success and 0 for failure
-
-```c
-int ssh2_sha384_update(ssh2_hash_ctx ctx,
-                       const unsigned char *data,
-                       size_t len);
-```
-Continue computation of SHA-384 on len bytes at data using context ctx.
-Note: if the ctx parameter is modified by the underlying code,
-this procedure must be implemented as a macro to map ctx --> &ctx.
-Must return 1 for success and 0 for failure.
-
-```c
-int ssh2_sha384_final(ssh2_hash_ctx ctx,
-                      unsigned char output[SSH2_SHA384_DIG_LEN]);
-```
-Gets the computed SHA-384 signature from context ctx into the output buffer.
-Release the context.
-Note: if the ctx parameter is modified by the underlying code,
-this procedure must be implemented as a macro to map ctx --> &ctx.
-Must return 1 for success and 0 for failure.
-
-```c
-int ssh2_sha384(const unsigned char *message,
-                size_t len,
-                unsigned char output[SSH2_SHA384_DIG_LEN]);
-```
-Computes the SHA-384 signature over the given message of length len and
-store the result into the output buffer.
-Return 1 if error, else 0.
-
-3.4) SHA-512
-Must always be implemented.
-
-```c
-int ssh2_sha512_init(ssh2_hash_ctx *x);
-```
-Initializes the SHA-512 computation context at x.
-Returns 1 for success and 0 for failure
-
-```c
-int ssh2_sha512_update(ssh2_hash_ctx ctx,
-                       const unsigned char *data,
-                       size_t len);
-```
-Continue computation of SHA-512 on len bytes at data using context ctx.
-Note: if the ctx parameter is modified by the underlying code,
-this procedure must be implemented as a macro to map ctx --> &ctx.
-Must return 1 for success and 0 for failure.
-
-```c
-int ssh2_sha512_final(ssh2_hash_ctx ctx,
-                      unsigned char output[SSH2_SHA512_DIG_LEN]);
-```
-Gets the computed SHA-512 signature from context ctx into the output buffer.
-Release the context.
-Note: if the ctx parameter is modified by the underlying code,
-this procedure must be implemented as a macro to map ctx --> &ctx.
-Must return 1 for success and 0 for failure.
-
-```c
-int ssh2_sha512(const unsigned char *message,
-                size_t len,
-                unsigned char output[SSH2_SHA512_DIG_LEN]);
-```
-Computes the SHA-512 signature over the given message of length len and
-store the result into the output buffer.
-Return 1 if error, else 0.
-Note: Seems unused in current code, but defined in each crypto library backend.
-
-`LIBSSH2_HMAC_SHA512`
-#define as 1 if the crypto library supports HMAC-SHA-512, else 0.
-If defined as 0, the rest of this section can be omitted.
-
-```c
-int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx,
-                          const void *key,
-                          int keylen);
-```
-Setup the HMAC computation context ctx for an HMAC-512 computation using the
-keylen-byte key. Is invoked right after ssh2_hmac_ctx_init().
-Returns 1 for success and 0 for failure.
-
-3.5) MD5
-`LIBSSH2_MD5`
-#define to 1 if the crypto library supports MD5, else 0.
-If defined as 0, the rest of this section can be omitted.
-
-```c
-int ssh2_md5_init(ssh2_hash_ctx *x);
-```
-Initializes the MD5 computation context at x.
-Returns 1 for success and 0 for failure
-
-```c
-int ssh2_md5_update(ssh2_hash_ctx ctx,
-                    const unsigned char *data,
-                    size_t len);
-```
-Continues computation of MD5 on len bytes at data using context ctx.
-Returns 1 for success and 0 for failure.
-Note: if the ctx parameter is modified by the underlying code,
-this procedure must be implemented as a macro to map ctx --> &ctx.
-Must return 1 for success and 0 for failure.
-
-```c
-int ssh2_md5_final(ssh2_hash_ctx ctx,
-                   unsigned char output[SSH2_MD5_DIG_LEN]);
-```
-Gets the computed MD5 signature from context ctx into the output buffer.
-Release the context.
-Note: if the ctx parameter is modified by the underlying code,
-this procedure must be implemented as a macro to map ctx --> &ctx.
-Must return 1 for success and 0 for failure.
-
-```c
-int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx,
-                       const void *key,
-                       int keylen);
-```
-Setup the HMAC computation context ctx for an HMAC-MD5 computation using the
-keylen-byte key. Is invoked right after ssh2_hmac_ctx_init().
-Returns 1 for success and 0 for failure.
-
-3.6) RIPEMD-160
-`LIBSSH2_HMAC_RIPEMD`
-#define as 1 if the crypto library supports HMAC-RIPEMD-160, else 0.
-If defined as 0, the rest of this section can be omitted.
-
-```c
-int ssh2_hmac_ripemd160_init(ssh2_hmac_ctx *ctx,
-                             const void *key,
-                             int keylen);
-```
-Setup the HMAC computation context ctx for an HMAC-RIPEMD-160 computation using
-the keylen-byte key. Is invoked right after ssh2_hmac_ctx_init().
-Returns 1 for success and 0 for failure.
-
 4) Bidirectional key ciphers.
 
 `ssh2_cipher_ctx`
 Type of a cipher computation context.
 
 `SSH2_CIPHER_T(name);`
-Macro defining name as storage identifying a cipher algorithm for
-the crypto library interface. No trailing semicolon.
+Macro defining name as storage identifying a cipher algorithm for the crypto
+library interface. No trailing semicolon.
 
 ```c
 int ssh2_cipher_init(ssh2_cipher_ctx *h,
@@ -482,9 +297,9 @@ the public key is returned in `public`.
 int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
                    ssh2_bn *f, ssh2_bn *p, ssh2_bn_ctx *bnctx)
 ```
-Computes the Diffie-Hellman secret from the previously created context `*dhctx`,
-the public key `f` from the other party and the same prime `p` used at
-context creation. The result is stored in `secret`.
+Computes the Diffie-Hellman secret from the previously created context
+`*dhctx`, the public key `f` from the other party and the same prime `p` used
+at context creation. The result is stored in `secret`.
 0 is returned upon success, else -1.
 
 ```c
@@ -527,9 +342,9 @@ Creates a multiple precision number (preset to zero).
 ssh2_bn *ssh2_bn_init_from_bin(void);
 ```
 Create a multiple precision number intended to be set by the
-ssh2_bn_from_bin() function (see below). Unlike ssh2_bn_init(), this
-code may be a dummy initializer if the ssh2_bn_from_bin() actually
-allocates the number. Returns a value of type ssh2_bn *.
+ssh2_bn_from_bin() function (see below). Unlike ssh2_bn_init(), this code may
+be a dummy initializer if the ssh2_bn_from_bin() actually allocates the
+number. Returns a value of type ssh2_bn *.
 
 ```c
 void ssh2_bn_free(ssh2_bn *bn);
@@ -540,7 +355,7 @@ Destroys the multiple precision number at bn.
 unsigned long ssh2_bn_bytes(ssh2_bn *bn);
 ```
 Get the number of bytes needed to store the bits of the multiple precision
-number at bn.
+number at `bn`.
 
 ```c
 unsigned long ssh2_bn_bits(ssh2_bn *bn);
@@ -557,16 +372,18 @@ Returns 1 on success, 0 otherwise.
 ssh2_bn *ssh2_bn_from_bin(ssh2_bn *bn, int len,
                           const unsigned char *val);
 ```
-Converts the positive integer in big-endian form of length len at val
-into a ssh2_bn and place it in bn. If bn is NULL, a new ssh2_bn is
+
+Converts the positive integer in big-endian form of length `len` at `val` into
+an `ssh2_bn` and place it in `bn`. If `bn` is NULL, a new `ssh2_bn` is
 created.
-Returns a pointer to target ssh2_bn or NULL if error.
+
+Returns a pointer to target `ssh2_bn` or NULL if error.
 
 ```c
 int ssh2_bn_to_bin(ssh2_bn *bn, unsigned char *val);
 ```
-Converts the absolute value of bn into big-endian form and store it at
-val. val must point to ssh2_bn_bytes(bn) bytes of memory.
+Converts the absolute value of bn into big-endian form and store it at val.
+val must point to ssh2_bn_bytes(bn) bytes of memory.
 Returns the length of the big-endian number.
 
 7) Private key algorithms.
@@ -1074,13 +891,17 @@ Releases the ED25519 computation context at ed_ctx.
 
 8) Miscellaneous
 
+```c
 void ssh2_prepare_iovec(struct iovec *vector, unsigned int len);
+```
 Prepare len consecutive iovec slots before using them.
 In example, this is needed to preset unused structure slacks on platforms
 requiring it.
 If this is not needed, it should be defined as an empty macro.
 
+```c
 int ssh2_random(unsigned char *buf, size_t len);
+```
 Store len random bytes at buf.
 Returns 0 if OK, else -1.
 
