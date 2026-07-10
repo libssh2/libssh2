@@ -93,7 +93,7 @@ int ssh2_hmac_update(ssh2_hmac_ctx *ctx,
                      const void *input, int input_len);
 ```
 Continue computation of an HMAC on datalen bytes at `input` using context
-`ctx`. This may be provided as a macro.
+`ctx`. May be provided as a macro.
 Must return 1 for success and 0 for failure.
 
 ```c
@@ -134,7 +134,7 @@ int ssh2_hash_update(ssh2_hash_ctx ctx,
                      const unsigned char *input, size_t input_len);
 ```
 Continue computation of hash on `input_len` bytes at `input` using context
-ctx. This may be provided as a macro.
+ctx. May be provided as a macro.
 Must return 1 for success and 0 for failure.
 
 ```c
