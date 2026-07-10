@@ -330,7 +330,7 @@ size_t ssh2_bn_bits(const ssh2_bn *bn)
     return bits;
 }
 
-int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *bin)
+int ssh2_bn_from_bin(ssh2_bn *bn, const unsigned char *bin, size_t len)
 {
     unsigned char *bignum;
     size_t offset, length, bits;

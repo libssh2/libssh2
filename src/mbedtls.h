@@ -220,7 +220,7 @@ typedef enum {
 
 #define ssh2_bn                        mbedtls_mpi
 #define ssh2_bn_set_word(bn, word)     mbedtls_mpi_lset(bn, word)
-#define ssh2_bn_from_bin(bn, len, bin) mbedtls_mpi_read_binary(bn, bin, len)
+#define ssh2_bn_from_bin(bn, bin, len) mbedtls_mpi_read_binary(bn, bin, len)
 #define ssh2_bn_to_bin(bn, bin) \
     mbedtls_mpi_write_binary(bn, bin, mbedtls_mpi_size(bn))
 #define ssh2_bn_bytes(bn)              mbedtls_mpi_size(bn)

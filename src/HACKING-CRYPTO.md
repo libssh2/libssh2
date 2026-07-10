@@ -356,26 +356,25 @@ size_t ssh2_bn_bits(ssh2_bn *bn);
 Returns the number of bits of multiple precision number at `bn`.
 
 ```c
-int ssh2_bn_set_word(ssh2_bn *bn, uint32_t val);
+int ssh2_bn_set_word(ssh2_bn *bn, uint32_t word);
 ```
-Sets the value of `bn` to `val`.
+Sets the value of `bn` to `word`.
 Returns 1 on success, 0 otherwise.
 
 ```c
-ssh2_bn *ssh2_bn_from_bin(ssh2_bn *bn, int len,
-                          const unsigned char *val);
+ssh2_bn *ssh2_bn_from_bin(ssh2_bn *bn, const unsigned char *bin, size_t len);
 ```
 
-Converts the positive integer in big-endian form of length `len` at `val` into
+Converts the positive integer in big-endian form of length `len` at `bin` into
 an `ssh2_bn` and place it in `bn`. If `bn` is NULL, a new `ssh2_bn` is
 created.
 
 Returns a pointer to target `ssh2_bn` or NULL if error.
 
 ```c
-int ssh2_bn_to_bin(ssh2_bn *bn, unsigned char *val);
+int ssh2_bn_to_bin(ssh2_bn *bn, unsigned char *bin);
 ```
-Converts the absolute value of bn into big-endian form and store it at `val`.
+Converts the absolute value of bn into big-endian form and store it at `bin`.
 val must point to `ssh2_bn_bytes(bn)` bytes of memory.
 Returns the length of the big-endian number.
 

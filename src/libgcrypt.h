@@ -120,11 +120,11 @@
 #define ssh2_bn_init()                 gcry_mpi_new(0)
 #define ssh2_bn_init_from_bin()        NULL  /* because gcry_mpi_scan()
                                                 creates a new bignum */
-#define ssh2_bn_set_word(bn, val)      gcry_mpi_set_ui(bn, val)
-#define ssh2_bn_from_bin(bn, len, val) \
-    gcry_mpi_scan(&(bn), GCRYMPI_FMT_USG, val, len, NULL)
-#define ssh2_bn_to_bin(bn, val) \
-    gcry_mpi_print(GCRYMPI_FMT_USG, val, ssh2_bn_bytes(bn), NULL, bn)
+#define ssh2_bn_set_word(bn, word)     gcry_mpi_set_ui(bn, word)
+#define ssh2_bn_from_bin(bn, bin, len) \
+    gcry_mpi_scan(&(bn), GCRYMPI_FMT_USG, bin, len, NULL)
+#define ssh2_bn_to_bin(bn, bin) \
+    gcry_mpi_print(GCRYMPI_FMT_USG, bin, ssh2_bn_bytes(bn), NULL, bn)
 #define ssh2_bn_bytes(bn) \
     (gcry_mpi_get_nbits(bn) / 8 + ((gcry_mpi_get_nbits(bn) % 8 == 0) ? 0 : 1))
 #define ssh2_bn_bits(bn)               gcry_mpi_get_nbits(bn)
