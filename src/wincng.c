@@ -2291,7 +2291,7 @@ cleanup:
         *k = NULL;
     }
 
-    if(result != LIBSSH2_ERROR_NONE && agreed_secret_handle)
+    if(agreed_secret_handle)
         BCryptDestroySecret(agreed_secret_handle);
 
     return result;
