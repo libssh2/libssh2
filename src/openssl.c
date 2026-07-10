@@ -1012,7 +1012,7 @@ static unsigned char *ossl_rsa_to_pubkey(LIBSSH2_SESSION *session,
                                          ssh2_rsa_ctx *rsa, size_t *key_len)
 {
     int e_bytes, n_bytes;
-    unsigned long len;
+    size_t len;
     unsigned char *key = NULL;
     unsigned char *p;
 
@@ -1392,7 +1392,7 @@ static unsigned char *ossl_dsa_to_pubkey(LIBSSH2_SESSION *session,
                                          ssh2_dsa_ctx *dsa, size_t *key_len)
 {
     int p_bytes, q_bytes, g_bytes, k_bytes;
-    unsigned long len;
+    size_t len;
     unsigned char *key = NULL;
     unsigned char *p;
 
@@ -1441,7 +1441,7 @@ static unsigned char *ossl_dsa_to_pubkey(LIBSSH2_SESSION *session,
     p = ossl_write_bn(p, g, g_bytes);
     p = ossl_write_bn(p, pub_key, k_bytes);
 
-    *key_len = (size_t)(p - key);
+    *key_len = p - key;
 fail:
 #ifdef USE_OPENSSL_3
     BN_clear_free(p_bn);
