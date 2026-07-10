@@ -27,7 +27,7 @@ Adding a crypto backend to the autotools build system (`./configure`) is easy:
 Search for an existing backend (e.g. 'openssl'), duplicate each occurrence and
 use the new backend's name in them.
 
-### 0.2) Add an m4_case stanza to LIBSSH2_CRYPTO_CHECK in acinclude.m4
+### 0.2) Add an `m4_case` stanza to `LIBSSH2_CRYPTO_CHECK` in `acinclude.m4`
 
 This must check for all required libraries, and if found set and `AC_SUBST` a
 variable with the library linking flags. The recommended method is to use
@@ -82,7 +82,7 @@ int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
                    void *key, size_t key_len);
 ```
 Initializes the HMAC computation context `ctx` for a computation using the
-`key_len`-byte key.. Is invoked right after `ssh2_hmac_ctx_init()`. Called
+`key_len`-byte key. Is invoked right after `ssh2_hmac_ctx_init()`. Called
 before setting-up the hash algorithm.
 Must return 1 for success and 0 for failure.
 
@@ -120,9 +120,9 @@ Algorithm constants:
 - `SSH2_MD5_ALG` (optional)
 
 ```c
-int ssh2_hash_init(ssh2_hash_ctx *x, ssh2_hash_alg alg);
+int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg alg);
 ```
-Initializes the hash computation context at x.
+Initializes the hash computation context at `ctx`.
 Returns 1 for success and 0 for failure
 
 ```c
@@ -130,7 +130,7 @@ int ssh2_hash_update(ssh2_hash_ctx ctx,
                      const unsigned char *input, size_t input_len);
 ```
 Continue computation of hash on `input_len` bytes at `input` using context
-ctx. May be provided as a macro.
+`ctx`. May be provided as a macro.
 Must return 1 for success and 0 for failure.
 
 ```c
@@ -162,7 +162,7 @@ Creates a cipher context for the given algorithm with the initialization vector
 iv and the secret key secret. Prepare for encryption or decryption depending on
 encrypt.
 Return 0 if OK, else -1.
-This procedure is already prototyped in crypto.h.
+This procedure is already prototyped in `crypto.h`.
 
 ```c
 int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx,
@@ -175,12 +175,12 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx,
 Encrypt or decrypt in-place data at (block, blocksize) using the given
 context and/or algorithm.
 Return 0 if OK, else -1.
-This procedure is already prototyped in crypto.h.
+This procedure is already prototyped in `crypto.h`.
 
 ```c
 void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx);
 ```
-Release cipher context at ctx.
+Release cipher context at `ctx`.
 
 ### 4.1) AES
 
@@ -471,8 +471,8 @@ Creates a new context for RSA computations from key source values:
 - `ndata`, `nlen` Modulus n.
 - `edata`, `elen` Exponent e.
 - `ddata`, `dlen` e^-1 % phi(n) = private key. May be NULL if unknown.
-- `e1data`, `e1len` dp = d % (p-1). Only used if private key known (`dtata`).
-- `e2data`, `e2len` dq = d % (q-1). Only used if private key known (`dtata`).
+- `e1data`, `e1len` dp = d % (p-1). Only used if private key known (`ddata`).
+- `e2data`, `e2len` dq = d % (q-1). Only used if private key known (`ddata`).
 - `coeffdata`, `coefflen` q^-1 % p. Only used if private key known.
 
 Returns 0 if OK.
@@ -488,7 +488,7 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
                          const char *filename,
                          const unsigned char *passphrase);
 ```
-Reads an RSA private key from file filename into a new RSA context.
+Reads an RSA private key from file `filename` into a new RSA context.
 Must call `ssh2_init_if_needed()`.
 Return 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
@@ -520,7 +520,7 @@ int ssh2_rsa_sha1_signv(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                         unsigned char **sig, size_t *siglen,
                         int count, const struct iovec vector[]);
 ```
-RSA signs the SHA-1 hash computed over the count data chunks in vector.
+RSA signs the SHA-1 hash computed over the `count` data chunks in `vector`.
 Signature is stored at (`sig`, `siglen`).
 Signature buffer must be allocated from the given session.
 Returns 0 if OK, else -1.
@@ -542,7 +542,7 @@ Note: this procedure is not used if macro `ssh2_rsa_sha1_signv()` is defined.
 ```c
 void ssh2_rsa_free(ssh2_rsa_ctx *rsa);
 ```
-Releases the RSA computation context at ctx.
+Releases the RSA computation context at `rsa`.
 
 `LIBSSH2_RSA_SHA2`
 define as 1 if the crypto library supports RSA SHA2 256/512, else 0.
@@ -558,7 +558,7 @@ RSA signs the (`hash`, `hashlen`) SHA-2 hash bytes based on hash length and
 stores the allocated signature at (`signature`, `signature_len`).
 Signature buffer must be allocated from the given session.
 Returns 0 if OK, else -1.
-This procedure is already prototyped in crypto.h.
+This procedure is already prototyped in `crypto.h`.
 Note: this procedure is not used if both macros `ssh2_rsa_sha2_256_signv()`
 and `ssh2_rsa_sha2_512_signv()` are defined.
 
@@ -567,7 +567,7 @@ int ssh2_rsa_sha2_256_signv(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                             unsigned char **sig, size_t *siglen,
                             int count, const struct iovec vector[]);
 ```
-RSA signs the SHA-256 hash computed over the count data chunks in vector.
+RSA signs the SHA-256 hash computed over the `count` data chunks in `vector`.
 Signature is stored at (`sig`, `siglen`).
 Signature buffer must be allocated from the given session.
 Returns 0 if OK, else -1.
@@ -578,7 +578,7 @@ int ssh2_rsa_sha2_512_signv(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                             unsigned char **sig, size_t *siglen,
                             int count, const struct iovec vector[]);
 ```
-RSA signs the SHA-512 hash computed over the count data chunks in vector.
+RSA signs the SHA-512 hash computed over the `count` data chunks in `vector`.
 Signature is stored at (`sig`, `siglen`).
 Signature buffer must be allocated from the given session.
 Returns 0 if OK, else -1.
@@ -628,7 +628,7 @@ int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
                          const char *filename,
                          const unsigned char *passphrase);
 ```
-Gets a DSA private key from file filename into a new DSA context.
+Gets a DSA private key from file `filename` into a new DSA context.
 Must call `ssh2_init_if_needed()`.
 Return 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
@@ -666,7 +666,7 @@ This procedure is already prototyped in `crypto.h`.
 ```c
 void ssh2_dsa_free(ssh2_dsa_ctx *dsa);
 ```
-Releases the DSA computation context at dsactx.
+Releases the DSA computation context at `dsa`.
 
 ### 7.3) ECDSA
 
@@ -704,7 +704,7 @@ int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
                            const char *filename,
                            const unsigned char *passphrase);
 ```
-Reads an ECDSA private key from PEM file filename into a new ECDSA context.
+Reads an ECDSA private key from PEM file `filename` into a new ECDSA context.
 Must call `ssh2_init_if_needed()`.
 Return 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
@@ -727,7 +727,7 @@ int ssh2_ecdsa_curve_name_with_octal_new(ssh2_ecdsa_ctx **ec_ctx,
                                          size_t k_len,
                                          ssh2_curve_type curve);
 ```
-Stores at ecdsactx a new ECDSA context associated with the given curve type
+Stores at `ec_ctx` a new ECDSA context associated with the given curve type
 and with "octal" form public key (`k`, `k_len`).
 Return 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
@@ -764,7 +764,7 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
                       const unsigned char *m, size_t m_len);
 ```
 Verify the ECDSA signature made of (`r`, `r_len`) and (`s`, `s_len`) of (`m`,
-`m_len`) using the hash algorithm configured in the ECDSA context ctx.
+`m_len`) using the hash algorithm configured in the ECDSA context `ec_ctx`.
 Return 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
@@ -777,7 +777,7 @@ This procedure is already prototyped in `crypto.h`.
 ```c
 void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ec_ctx);
 ```
-Releases the ECDSA computation context at ecdsactx.
+Releases the ECDSA computation context at `ec_ctx`.
 
 ### 7.4) ED25519
 
@@ -793,7 +793,7 @@ int ssh2_curve25519_new(LIBSSH2_SESSION *session,
                         uint8_t **out_private_key);
 ```
 Generates an ED25519 key pair, stores a pointer to them at `out_private_key`
-and `out_public_key` respectively and stores at ctx a new ED25519 context for
+and `out_public_key` respectively and stores at `ctx` a new ED25519 context for
 this key.
 Argument `ctx`, `out_private_key` and `out_public` key may be NULL to disable
 storing the corresponding value.
@@ -808,7 +808,8 @@ int ssh2_ed25519_new_private(ssh2_ed25519_ctx **ed_ctx,
                              const char *filename,
                              const uint8_t *passphrase);
 ```
-Reads an ED25519 private key from PEM file filename into a new ED25519 context.
+Reads an ED25519 private key from PEM file `filename` into a new ED25519
+context.
 Must call `ssh2_init_if_needed()`.
 Return 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
