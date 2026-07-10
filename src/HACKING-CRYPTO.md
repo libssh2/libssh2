@@ -698,12 +698,12 @@ An enum type defining curve types. Current supported identifiers are:
 int ssh2_ecdsa_create_key(ssh2_ec_key **out_private_key,
                           unsigned char **out_public_key_octal,
                           size_t *out_public_key_octal_len,
-                          ssh2_curve_type curve_type);
+                          ssh2_curve_type curve);
 ```
-Create a new ECDSA private key of type curve_type and return it at
-out_private_key. If out_public_key_octal is not NULL, store an allocated
-pointer to the associated public key in "octal" form in it and its length
-at `out_public_key_octal_len`.
+Create a new ECDSA private key of type `curve` and return it at
+`out_private_key`. If `out_public_key_octal` is not NULL, store an allocated
+pointer to the associated public key in "octal" form in it and its length at
+`out_public_key_octal_len`.
 Return 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
@@ -781,16 +781,6 @@ This procedure is already prototyped in `crypto.h`.
 ssh2_curve_type ssh2_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ec_ctx);
 ```
 Returns the curve type associated with given context.
-This procedure is already prototyped in `crypto.h`.
-
-```c
-int ssh2_ecdsa_curve_type_from_name(const char *name,
-                                    ssh2_curve_type *out_type);
-```
-Stores in out_type the curve type matching string name of the form
-`ecdsa-sha2-nistpxxx`.
-Return 0 if OK, else -1.
-Currently used only from openssl backend (ought to be private).
 This procedure is already prototyped in `crypto.h`.
 
 ```c
