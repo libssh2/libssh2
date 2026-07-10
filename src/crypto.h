@@ -318,6 +318,12 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                               size_t privatekeydata_len,
                               const char *passphrase);
 
+#ifndef ssh2_bn_ctx
+#define ssh2_bn_ctx              int
+#define ssh2_bn_ctx_new()        0
+#define ssh2_bn_ctx_free(bnctx)  ((void)0)
+#endif
+
 #ifndef ssh2_bn_init
 ssh2_bn *ssh2_bn_init(void);
 void ssh2_bn_free(ssh2_bn *bn);

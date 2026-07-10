@@ -265,10 +265,6 @@ struct wcng_cipher_t {
  * Windows CNG backend: BigNumber support
  */
 
-#define ssh2_bn_ctx              int /* not used */
-#define ssh2_bn_ctx_new()        0 /* not used */
-#define ssh2_bn_ctx_free(bnctx)  ((void)0) /* not used */
-
 struct wcng_bn {
     unsigned char *bignum;
     size_t length;
