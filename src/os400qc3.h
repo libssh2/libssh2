@@ -199,7 +199,7 @@ struct os400qc3_crypto_ctx {
 
 struct os400qc3_bn {  /* Big number. */
     unsigned char *bignum;                  /* Number bits, little-endian. */
-    unsigned int length;                    /* Length of bignum (# bytes). */
+    size_t length;                          /* Length of bignum (# bytes). */
 };
 
 struct os400qc3_cipher {  /* Algorithm description. */

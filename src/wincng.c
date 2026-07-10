@@ -110,9 +110,9 @@ static void wcng_zero_free(void *buf, size_t len)
  * if the size of src is smaller than dest then pad the "left" (MSB)
  * end with zeroes and copy the bits into the "right" (LSB) end. */
 static void wcng_memcpy_with_be_padding(unsigned char *dest,
-                                        ULONG dest_len,
+                                        size_t dest_len,
                                         const unsigned char *src,
-                                        ULONG src_len)
+                                        size_t src_len)
 {
     if(dest_len > src_len)
         memset(dest, 0, dest_len - src_len);
@@ -151,7 +151,7 @@ ssh2_bn *ssh2_bn_init(void)
     return bignum;
 }
 
-static int wcng_bn_resize(ssh2_bn *bn, ULONG length)
+static int wcng_bn_resize(ssh2_bn *bn, size_t length)
 {
     unsigned char *bignum;
 
@@ -177,12 +177,12 @@ static int wcng_bn_resize(ssh2_bn *bn, ULONG length)
 static int wcng_bn_random(ssh2_bn *rnd, int bits, int top, int bottom)
 {
     unsigned char *bignum;
-    ULONG length;
+    size_t length;
 
     if(!rnd || bits <= 0)
         return -1;
 
-    length = ((ULONG)bits + 7) / 8;
+    length = (bits + 7) / 8;
     if(wcng_bn_resize(rnd, length))
         return -1;
 
@@ -220,7 +220,8 @@ static int wcng_bn_mod_exp(ssh2_bn *r, ssh2_bn *a, ssh2_bn *p, ssh2_bn *m)
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_RSAKEY_BLOB *rsakey;
     unsigned char *bignum;
-    ULONG keylen, offset, length;
+    size_t keylen;
+    ULONG offset, length;
     NTSTATUS ret;
 
     if(!r || !a || !p || !m)
@@ -235,33 +236,33 @@ static int wcng_bn_mod_exp(ssh2_bn *r, ssh2_bn *a, ssh2_bn *p, ssh2_bn *m)
 
     /* https://learn.microsoft.com/windows/win32/api/bcrypt/ns-bcrypt-bcrypt_rsakey_blob */
     rsakey->Magic = BCRYPT_RSAPUBLIC_MAGIC;
-    rsakey->BitLength = m->length * 8;
-    rsakey->cbPublicExp = p->length;
-    rsakey->cbModulus = m->length;
+    rsakey->BitLength = (ULONG)(m->length * 8);
+    rsakey->cbPublicExp = (ULONG)p->length;
+    rsakey->cbModulus = (ULONG)m->length;
     rsakey->cbPrime1 = 0;
     rsakey->cbPrime2 = 0;
 
     memcpy((unsigned char *)rsakey + offset, p->bignum, p->length);
-    offset += p->length;
+    offset += (ULONG)p->length;
 
     memcpy((unsigned char *)rsakey + offset, m->bignum, m->length);
     offset = 0;
 
     ret = BCryptImportKeyPair(ssh2_wcng.hAlgRSA, NULL, BCRYPT_RSAPUBLIC_BLOB,
-                              &hKey, (PUCHAR)rsakey, keylen, 0);
+                              &hKey, (PUCHAR)rsakey, (ULONG)keylen, 0);
     if(BCRYPT_SUCCESS(ret)) {
-        ret = BCryptEncrypt(hKey, a->bignum, a->length, NULL, NULL, 0,
+        ret = BCryptEncrypt(hKey, a->bignum, (ULONG)a->length, NULL, NULL, 0,
                             NULL, 0, &length, BCRYPT_PAD_NONE);
         if(BCRYPT_SUCCESS(ret)) {
             if(!wcng_bn_resize(r, length)) {
-                length = max(a->length, length);
+                length = max((ULONG)a->length, length);
                 bignum = malloc(length);
                 if(bignum) {
                     wcng_memcpy_with_be_padding(bignum, length,
-                                                a->bignum, a->length);
+                                                a->bignum, (ULONG)a->length);
 
                     ret = BCryptEncrypt(hKey, bignum, length, NULL, NULL, 0,
-                                        r->bignum, r->length, &offset,
+                                        r->bignum, (ULONG)r->length, &offset,
                                         BCRYPT_PAD_NONE);
 
                     wcng_zero_free(bignum, length);
@@ -284,9 +285,9 @@ static int wcng_bn_mod_exp(ssh2_bn *r, ssh2_bn *a, ssh2_bn *p, ssh2_bn *m)
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-int ssh2_bn_set_word(ssh2_bn *bn, unsigned long word)
+int ssh2_bn_set_word(ssh2_bn *bn, uint32_t word)
 {
-    ULONG offset, number, bits, length;
+    size_t offset, number, bits, length;
 
     if(!bn)
         return -1;
@@ -307,10 +308,10 @@ int ssh2_bn_set_word(ssh2_bn *bn, unsigned long word)
     return 0;
 }
 
-unsigned long ssh2_bn_bits(const ssh2_bn *bn)
+size_t ssh2_bn_bits(const ssh2_bn *bn)
 {
     unsigned char number;
-    ULONG offset, length, bits;
+    size_t offset, length, bits;
 
     if(!bn || !bn->bignum || !bn->length)
         return 0;
@@ -332,12 +333,12 @@ unsigned long ssh2_bn_bits(const ssh2_bn *bn)
 int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *bin)
 {
     unsigned char *bignum;
-    ULONG offset, length, bits;
+    size_t offset, length, bits;
 
     if(!bn || !bin || !len)
         return -1;
 
-    if(wcng_bn_resize(bn, (ULONG)len))
+    if(wcng_bn_resize(bn, len))
         return -1;
 
     memcpy(bn->bignum, bin, len);
@@ -3170,7 +3171,7 @@ void ssh2_dh_dtor(ssh2_dh_ctx *dhctx)
     }
 }
 
-static int wcng_round_down(int number, int multiple)
+static size_t wcng_round_down(size_t number, size_t multiple)
 {
     return (number / multiple) * multiple;
 }
@@ -3197,8 +3198,9 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
          * group_order can be values like 257, we round down to the nearest
          * multiple of 8 bytes (64 bits / 8) to meet this requirement for key
          * exchange success. */
-        ULONG key_length_bytes = max((ULONG)wcng_round_down(group_order, 8),
-                                     max(g->length, p->length));
+        size_t group_order_round = wcng_round_down(group_order, 8);
+        ULONG key_length_bytes = (ULONG)max(group_order_round,
+                                            max(g->length, p->length));
         BCRYPT_DH_KEY_BLOB *dh_key_blob;
         LPCWSTR key_type;
 
@@ -3367,7 +3369,8 @@ int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
         ULONG secret_len_bytes = 0;
         NTSTATUS status;
         BCRYPT_DH_KEY_BLOB *public_blob;
-        ULONG key_length_bytes = max(f->length, dhctx->dh_params->cbKeyLength);
+        ULONG key_length_bytes = (ULONG)max(f->length,
+                                            dhctx->dh_params->cbKeyLength);
         ULONG public_blob_len = (ULONG)(sizeof(*public_blob) +
                                         3 * key_length_bytes);
 

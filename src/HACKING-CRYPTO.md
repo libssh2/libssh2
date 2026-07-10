@@ -345,18 +345,18 @@ void ssh2_bn_free(ssh2_bn *bn);
 Destroys the multiple precision number at `bn`.
 
 ```c
-unsigned long ssh2_bn_bytes(ssh2_bn *bn);
+size_t ssh2_bn_bytes(ssh2_bn *bn);
 ```
 Get the number of bytes needed to store the bits of the multiple precision
 number at `bn`.
 
 ```c
-unsigned long ssh2_bn_bits(ssh2_bn *bn);
+size_t ssh2_bn_bits(ssh2_bn *bn);
 ```
 Returns the number of bits of multiple precision number at `bn`.
 
 ```c
-int ssh2_bn_set_word(ssh2_bn *bn, unsigned long val);
+int ssh2_bn_set_word(ssh2_bn *bn, uint32_t val);
 ```
 Sets the value of `bn` to `val`.
 Returns 1 on success, 0 otherwise.

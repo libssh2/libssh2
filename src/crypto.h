@@ -323,8 +323,8 @@ ssh2_bn *ssh2_bn_init(void);
 void ssh2_bn_free(ssh2_bn *bn);
 #endif
 #ifndef ssh2_bn_set_word
-int ssh2_bn_set_word(ssh2_bn *bn, unsigned long word);
-unsigned long ssh2_bn_bits(const ssh2_bn *bn);
+int ssh2_bn_set_word(ssh2_bn *bn, uint32_t word);
+size_t ssh2_bn_bits(const ssh2_bn *bn);
 int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *bin);
 int ssh2_bn_to_bin(const ssh2_bn *bn, unsigned char *bin);
 #endif
