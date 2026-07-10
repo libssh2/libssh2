@@ -1703,7 +1703,7 @@ static int pkcs8kek(LIBSSH2_SESSION *session, struct os400qc3_crypto_ctx **ctx,
     switch(*pkcs5alg.header) {
     case ASN1_INTEGER: /* Version. */
         return 0; /* This is a PrivateKeyInfo --> not encrypted. */
-    case ASN1_SEQ | ASN1_CONSTRUCTED: /* AlgorithIdentifier. */
+    case ASN1_SEQ | ASN1_CONSTRUCTED: /* AlgorithmIdentifier. */
         break; /* This is an EncryptedPrivateKeyInfo --> encrypted. */
     default:
         return -1; /* Unrecognized: error. */
