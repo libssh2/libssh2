@@ -531,10 +531,8 @@ Note: this procedure is optional: if provided, it MUST be defined as a macro.
 ```c
 int ssh2_rsa_sha1_sign(ssh2_rsa_ctx *rsa,
                        LIBSSH2_SESSION *session,
-                       const unsigned char *hash,
-                       size_t hash_len,
-                       unsigned char **signature,
-                       size_t *signature_len);
+                       const unsigned char *hash, size_t hash_len,
+                       unsigned char **signature, size_t *signature_len);
 ```
 RSA signs the (`hash`, `hashlen`) SHA-1 hash bytes and stores the allocated
 signature at (`signature`, `signature_len`).
@@ -555,10 +553,8 @@ If defined as 0, the rest of this section can be omitted.
 ```c
 int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa,
                        LIBSSH2_SESSION *session,
-                       const unsigned char *hash,
-                       size_t hash_len,
-                       unsigned char **signature,
-                       size_t *signature_len);
+                       const unsigned char *hash, size_t hash_len,
+                       unsigned char **signature, size_t *signature_len);
 ```
 RSA signs the (`hash`, `hashlen`) SHA-2 hash bytes based on hash length and
 stores the allocated signature at (`signature`, `signature_len`).
@@ -595,8 +591,7 @@ Note: this procedure is optional: if provided, it MUST be defined as a macro.
 ```c
 int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa,
                          size_t hash_len,
-                         const unsigned char *sig,
-                         size_t sig_len,
+                         const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len);
 ```
 Verify (`sig`, `sig_len`) signature of (`m`, `m_len`) using an SHA-2 hash
