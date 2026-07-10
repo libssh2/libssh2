@@ -196,13 +196,12 @@ static unsigned char *ossl_write_bn(unsigned char *buf, const BIGNUM *bn,
 #endif
 
 #ifdef USE_OPENSSL_3
-static SSH2_INLINE void ossl_swap_bytes(unsigned char *buf, unsigned long len)
+static SSH2_INLINE void ossl_swap_bytes(unsigned char *buf, size_t len)
 {
 #if !defined(WORDS_BIGENDIAN) || !WORDS_BIGENDIAN
-    unsigned long i, j;
-    unsigned char temp;
+    size_t i, j;
     for(i = 0, j = len - 1; i < j; i++, j--) {
-        temp = buf[i];
+        unsigned char temp = buf[i];
         buf[i] = buf[j];
         buf[j] = temp;
     }
@@ -2841,7 +2840,7 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
 
     /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
     memcpy(group_name, n, strlen(n));
-    ossl_swap_bytes(exponent, (unsigned long)exponentlen);
+    ossl_swap_bytes(exponent, exponentlen);
 
     params[0] = OSSL_PARAM_construct_utf8_string(OSSL_PKEY_PARAM_GROUP_NAME,
                                                  group_name, 0);
