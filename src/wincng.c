@@ -1203,9 +1203,9 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     memset(rsakey, 0, keylen);
 
     /* https://learn.microsoft.com/windows/win32/api/bcrypt/ns-bcrypt-bcrypt_rsakey_blob */
-    rsakey->BitLength = mlen * 8;
-    rsakey->cbPublicExp = elen;
-    rsakey->cbModulus = mlen;
+    rsakey->BitLength = (ULONG)(mlen * 8);
+    rsakey->cbPublicExp = (ULONG)elen;
+    rsakey->cbModulus = (ULONG)mlen;
 
     memcpy((unsigned char *)rsakey + offset, edata, elen);
     offset += elen;
@@ -1267,8 +1267,8 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
 
         lpszBlobType = BCRYPT_RSAFULLPRIVATE_BLOB;
         rsakey->Magic = BCRYPT_RSAFULLPRIVATE_MAGIC;
-        rsakey->cbPrime1 = p1len;
-        rsakey->cbPrime2 = p2len;
+        rsakey->cbPrime1 = (ULONG)p1len;
+        rsakey->cbPrime2 = (ULONG)p2len;
     }
     else {
         lpszBlobType = BCRYPT_RSAPUBLIC_BLOB;
@@ -1517,7 +1517,7 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
     memset(dsakey, 0, keylen);
 
     /* https://learn.microsoft.com/windows/win32/api/bcrypt/ns-bcrypt-bcrypt_dsa_key_blob */
-    dsakey->cbKey = length;
+    dsakey->cbKey = (ULONG)length;
 
     memset(dsakey->Count, -1, sizeof(dsakey->Count));
     memset(dsakey->Seed, -1, sizeof(dsakey->Seed));
