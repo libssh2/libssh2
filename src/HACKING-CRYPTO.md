@@ -18,16 +18,16 @@ This document lists the entities that must/may be defined in the header file.
 Procedures listed as "void" may indeed have a result type: the void indication
 indicates the libssh2 core modules never use the function result.
 
-0) Build system.
+## 0) Build system.
 
 Adding a crypto backend to the autotools build system (`./configure`) is easy:
 
-0.1) Add logic to `configure.ac`
+### 0.1) Add logic to `configure.ac`
 
 Search for an existing backend (e.g. 'openssl'), duplicate each occurrence and
 use the new backend's name in them.
 
-0.2) Add an m4_case stanza to LIBSSH2_CRYPTO_CHECK in acinclude.m4
+### 0.2) Add an m4_case stanza to LIBSSH2_CRYPTO_CHECK in acinclude.m4
 
 This must check for all required libraries, and if found set and `AC_SUBST` a
 variable with the library linking flags. The recommended method is to use
@@ -35,18 +35,18 @@ variable with the library linking flags. The recommended method is to use
 creates and handles a `--with-$newname-prefix` option and sets an
 `LTLIBNEWNAME` variable on success.
 
-0.3) Add new header to `src/Makefile.inc`
+### 0.3) Add new header to `src/Makefile.inc`
 
-0.4) Add a new block in `configure.ac`
+### 0.4) Add a new block in `configure.ac`
 
 ```shell
 elif test "$found_crypto" = "newname"; then
   LIBS="${LIBS} ${LTLIBNEWNAME}"
 ```
 
-0.5) Add CMake detection logic to `CMakeLists.txt`
+### 0.5) Add CMake detection logic to `CMakeLists.txt`
 
-1) Crypto library initialization/termination.
+## 1) Crypto library initialization/termination.
 
 ```c
 void ssh2_crypto_init(void);
@@ -58,19 +58,17 @@ void ssh2_crypto_exit(void);
 ```
 Terminates the crypto library use. May be an empty macro if not needed.
 
-1.1) Crypto runtime detection
+### 1.1) Crypto runtime detection
 
 The `libssh2_crypto_engine_t` enum must include the new engine, and
 `libssh2_crypto_engine()` must return it when it is built in.
 
-2) HMAC
+## 2) HMAC
 
-`ssh2_hmac_ctx`
-Type of an HMAC computation context. Generally a struct. Used for all hash
-algorithms.
+`ssh2_hmac_ctx`: Type of an HMAC computation context. Generally a struct. Used
+for all hash algorithms.
 
-`ssh2_hmac_alg`
-Type of a HMAC algorithm.
+`ssh2_hmac_alg`: Type of a HMAC algorithm.
 
 Algorithm constants:
 - `SSH2_SHA1_HMAC` (optional)
@@ -108,13 +106,11 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx);
 ```
 Releases the HMAC computation context at `ctx`.
 
-3) Hash algorithms.
+## 3) Hash algorithms.
 
-`ssh2_hash_ctx`
-Type of a hash computation context. Generally a struct.
+`ssh2_hash_ctx`: Type of a hash computation context. Generally a struct.
 
-`ssh2_hash_alg`
-Type of a hash algorithm.
+`ssh2_hash_alg`: Type of a hash algorithm.
 
 Algorithm constants:
 - `SSH2_SHA1_ALG` (optional)
@@ -145,12 +141,13 @@ Get the computed hash digest from context `ctx` and store it into the `digest`
 output buffer. Release the context.
 Must return 1 for success and 0 for failure.
 
-4) Bidirectional key ciphers.
+## 4) Bidirectional key ciphers.
 
-`ssh2_cipher_ctx`
-Type of a cipher computation context.
+`ssh2_cipher_ctx`: Type of a cipher computation context.
 
-`SSH2_CIPHER_T(name);`
+```
+SSH2_CIPHER_T(name);
+```
 Macro defining name as storage identifying a cipher algorithm for the crypto
 library interface. No trailing semicolon.
 
@@ -185,100 +182,91 @@ void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx);
 ```
 Release cipher context at ctx.
 
-4.1) AES
-4.1.1) AES in CBC block mode.
-`LIBSSH2_AES`
-#define as 1 if the crypto library supports AES in CBC mode, else 0.
-If defined as 0, the rest of this section can be omitted.
+### 4.1) AES
 
-`ssh2_cipher_aes128`
-AES-128-CBC algorithm identifier initializer.
-#define with constant value of type SSH2_CIPHER_T().
+#### 4.1.1) AES in CBC block mode.
 
-`ssh2_cipher_aes192`
-AES-192-CBC algorithm identifier initializer.
-#define with constant value of type SSH2_CIPHER_T().
+`LIBSSH2_AES`: define as 1 if the crypto library supports AES in CBC mode,
+else 0. If defined as 0, the rest of this section can be omitted.
 
-`ssh2_cipher_aes256`
-AES-256-CBC algorithm identifier initializer.
-#define with constant value of type SSH2_CIPHER_T().
+`ssh2_cipher_aes128`: AES-128-CBC algorithm identifier initializer. define
+with constant value of type SSH2_CIPHER_T().
 
-4.1.2) AES in CTR block mode.
-`LIBSSH2_AES_CTR`
-#define as 1 if the crypto library supports AES in CTR mode, else 0.
-If defined as 0, the rest of this section can be omitted.
+`ssh2_cipher_aes192`: AES-192-CBC algorithm identifier initializer. define
+with constant value of type SSH2_CIPHER_T().
 
-`ssh2_cipher_aes128ctr`
-AES-128-CTR algorithm identifier initializer.
-#define with constant value of type SSH2_CIPHER_T().
+`ssh2_cipher_aes256`: AES-256-CBC algorithm identifier initializer. define
+with constant value of type SSH2_CIPHER_T().
 
-`ssh2_cipher_aes192ctr`
-AES-192-CTR algorithm identifier initializer.
-#define with constant value of type SSH2_CIPHER_T().
+#### 4.1.2) AES in CTR block mode.
 
-`ssh2_cipher_aes256ctr`
-AES-256-CTR algorithm identifier initializer.
-#define with constant value of type SSH2_CIPHER_T().
+`LIBSSH2_AES_CTR`: define as 1 if the crypto library supports AES in CTR mode,
+else 0. If defined as 0, the rest of this section can be omitted.
 
-4.2) Blowfish in CBC block mode.
-`LIBSSH2_BLOWFISH`
-#define as 1 if the crypto library supports blowfish in CBC mode, else 0.
-If defined as 0, the rest of this section can be omitted.
+`ssh2_cipher_aes128ctr`: AES-128-CTR algorithm identifier initializer. define
+with constant value of type SSH2_CIPHER_T().
 
-`ssh2_cipher_blowfish`
-Blowfish-CBC algorithm identifier initializer.
-#define with constant value of type SSH2_CIPHER_T().
+`ssh2_cipher_aes192ctr`: AES-192-CTR algorithm identifier initializer. define
+with constant value of type SSH2_CIPHER_T().
 
-4.3) RC4.
-`LIBSSH2_RC4`
-#define as 1 if the crypto library supports RC4 (arcfour), else 0.
-If defined as 0, the rest of this section can be omitted.
+`ssh2_cipher_aes256ctr`: AES-256-CTR algorithm identifier initializer. define
+with constant value of type SSH2_CIPHER_T().
 
-`ssh2_cipher_arcfour`
-RC4 algorithm identifier initializer.
-#define with constant value of type SSH2_CIPHER_T().
+### 4.2) Blowfish in CBC block mode.
 
-4.4) CAST5 in CBC block mode.
-`LIBSSH2_CAST`
-#define 1 if the crypto library supports cast, else 0.
-If defined as 0, the rest of this section can be omitted.
+`LIBSSH2_BLOWFISH`: define as 1 if the crypto library supports blowfish in CBC
+mode, else 0. If defined as 0, the rest of this section can be omitted.
+
+`ssh2_cipher_blowfish`: Blowfish-CBC algorithm identifier initializer. define
+with constant value of type SSH2_CIPHER_T().
+
+### 4.3) RC4
+
+`LIBSSH2_RC4`: define as 1 if the crypto library supports RC4 (arcfour), else
+0. If defined as 0, the rest of this section can be omitted.
+
+`ssh2_cipher_arcfour`: RC4 algorithm identifier initializer. define with
+constant value of type SSH2_CIPHER_T().
+
+### 4.4) CAST5 in CBC block mode
+
+`LIBSSH2_CAST`: define 1 if the crypto library supports cast, else 0. If
+defined as 0, the rest of this section can be omitted.
 
 `ssh2_cipher_cast5`
 CAST5-CBC algorithm identifier initializer.
-#define with constant value of type SSH2_CIPHER_T().
+define with constant value of type SSH2_CIPHER_T().
 
-4.5) Triple DES in CBC block mode.
-`LIBSSH2_3DES`
-#define as 1 if the crypto library supports TripleDES in CBC mode, else 0.
-If defined as 0, the rest of this section can be omitted.
+### 4.5) Triple DES in CBC block mode
 
-`ssh2_cipher_3des`
-TripleDES-CBC algorithm identifier initializer.
-#define with constant value of type SSH2_CIPHER_T().
+`LIBSSH2_3DES`: define as 1 if the crypto library supports TripleDES in CBC
+mode, else 0. If defined as 0, the rest of this section can be omitted.
 
-5) Diffie-Hellman support.
+`ssh2_cipher_3des`: TripleDES-CBC algorithm identifier initializer. define
+with constant value of type SSH2_CIPHER_T().
 
-`SSH2_DH_GEX_MINGROUP`
-The minimum Diffie-Hellman group length in bits supported by the backend.
-Usually defined as 2048.
+## 5) Diffie-Hellman support.
 
-`SSH2_DH_GEX_OPTGROUP`
-The preferred Diffie-Hellman group length in bits. Usually defined as 4096.
+`SSH2_DH_GEX_MINGROUP`: The minimum Diffie-Hellman group length in bits
+supported by the backend. Usually defined as 2048.
 
-`SSH2_DH_GEX_MAXGROUP`
-The maximum Diffie-Hellman group length in bits supported by the backend.
-Usually defined as 8192.
+`SSH2_DH_GEX_OPTGROUP`: The preferred Diffie-Hellman group length in bits.
+Usually defined as 4096.
 
-`SSH2_DH_MAX_MODULUS_BITS`
-The maximum Diffie-Hellman modulus bit count accepted from the server. This
-value must be supported by the backend. Usually 16384.
+`SSH2_DH_GEX_MAXGROUP`: The maximum Diffie-Hellman group length in bits
+supported by the backend. Usually defined as 8192.
 
-5.1) Diffie-Hellman context.
-`ssh2_dh_ctx`
-Type of a Diffie-Hellman computation context.
-Must always be defined.
+`SSH2_DH_MAX_MODULUS_BITS`: The maximum Diffie-Hellman modulus bit count
+accepted from the server. This value must be supported by the backend. Usually
+16384.
 
-5.2) Diffie-Hellman computation procedures.
+### 5.1) Diffie-Hellman context
+
+`ssh2_dh_ctx`: Type of a Diffie-Hellman computation context. Must always be
+defined.
+
+### 5.2) Diffie-Hellman computation procedures
+
 ```c
 void ssh2_dh_init(ssh2_dh_ctx *dhctx);
 ```
@@ -310,16 +298,17 @@ void ssh2_dh_dtor(ssh2_dh_ctx *dhctx)
 ```
 Destroys Diffie-Hellman context at `dhctx` and resets its storage.
 
-6) Big numbers.
+## 6) Big numbers.
+
 Positive multi-byte integers support is sufficient.
 
-6.1) Computation contexts.
+### 6.1) Computation contexts
+
 This has a real meaning if the big numbers computations need some context
 storage. If not, use a dummy type and functions (macros).
 
-`ssh2_bn_ctx`
-Type of multiple precision computation context. May not be empty. if not used,
-#define as char, for example.
+`ssh2_bn_ctx`: Type of multiple precision computation context. May not be
+empty. if not used, define as char, for example.
 
 ```c
 ssh2_bn_ctx ssh2_bn_ctx_new(void);
@@ -331,10 +320,10 @@ void ssh2_bn_ctx_free(ssh2_bn_ctx ctx);
 ```
 Releases a multiple precision computation context.
 
-6.2) Computation support.
-`ssh2_bn`
-Type of multiple precision numbers (aka bignumbers or huge integers) for the
-crypto library.
+### 6.2) Computation support
+
+`ssh2_bn`: Type of multiple precision numbers (aka bignumbers or huge
+integers) for the crypto library.
 
 ```c
 ssh2_bn *ssh2_bn_init(void);
@@ -390,30 +379,39 @@ Converts the absolute value of bn into big-endian form and store it at `val`.
 val must point to `ssh2_bn_bytes(bn)` bytes of memory.
 Returns the length of the big-endian number.
 
-7) Private key algorithms.
+## 7) Private key algorithms.
+
 Format of an RSA public key:
-a) "ssh-rsa".
-b) RSA exponent, MSB first, with high order bit = 0.
-c) RSA modulus, MSB first, with high order bit = 0.
+
+1. "ssh-rsa".
+2. RSA exponent, MSB first, with high order bit = 0.
+3. RSA modulus, MSB first, with high order bit = 0.
+
 Each item is preceded by its 32-bit byte length, MSB first.
 
 Format of a DSA public key:
-a) "ssh-dss".
-b) p, MSB first, with high order bit = 0.
-c) q, MSB first, with high order bit = 0.
-d) g, MSB first, with high order bit = 0.
-e) pub_key, MSB first, with high order bit = 0.
+
+1. "ssh-dss".
+2. p, MSB first, with high order bit = 0.
+3. q, MSB first, with high order bit = 0.
+4. g, MSB first, with high order bit = 0.
+5. pub_key, MSB first, with high order bit = 0.
+
 Each item is preceded by its 32-bit byte length, MSB first.
 
 Format of an ECDSA public key:
-a) `ecdsa-sha2-nistp256` or `ecdsa-sha2-nistp384` or `ecdsa-sha2-nistp521`.
-b) domain: `nistp256`, `nistp384` or `nistp521` matching a).
-c) raw public key ("octal").
+
+1. `ecdsa-sha2-nistp256` or `ecdsa-sha2-nistp384` or `ecdsa-sha2-nistp521`.
+2. domain: `nistp256`, `nistp384` or `nistp521` matching a).
+3. raw public key ("octal").
+
 Each item is preceded by its 32-bit byte length, MSB first.
 
 Format of an ED25519 public key:
-a) "ssh-ed25519".
-b) raw key (32 bytes).
+
+1. "ssh-ed25519".
+2. raw key (32 bytes).
+
 Each item is preceded by its 32-bit byte length, MSB first.
 
 ```c
@@ -449,13 +447,12 @@ Both buffers have to be allocated using `SSH2_ALLOC()`.
 Returns 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
-7.1) RSA
-`LIBSSH2_RSA`
-#define as 1 if the crypto library supports RSA, else 0.
+### 7.1) RSA
+
+`LIBSSH2_RSA`: define as 1 if the crypto library supports RSA, else 0.
 If defined as 0, the rest of this section can be omitted.
 
-`ssh2_rsa_ctx`
-Type of an RSA computation context. Generally a struct.
+`ssh2_rsa_ctx`: Type of an RSA computation context. Generally a struct.
 
 ```c
 int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
@@ -469,14 +466,16 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
                  const unsigned char *coeffdata, size_t coefflen);
 ```
 Creates a new context for RSA computations from key source values:
-- pdata, plen    Prime number p. Only used if private key known (ddata).
-- qdata, qlen    Prime number q. Only used if private key known (ddata).
-- ndata, nlen    Modulus n.
-- edata, elen    Exponent e.
-- ddata, dlen    e^-1 % phi(n) = private key. May be NULL if unknown.
-- e1data, e1len    dp = d % (p-1). Only used if private key known (dtata).
-- e2data, e2len    dq = d % (q-1). Only used if private key known (dtata).
-- coeffdata, coefflen    q^-1 % p. Only used if private key known.
+
+- `pdata`, `plen` Prime number p. Only used if private key known (`ddata`).
+- `qdata`, `qlen` Prime number q. Only used if private key known (`ddata`).
+- `ndata`, `nlen` Modulus n.
+- `edata`, `elen` Exponent e.
+- `ddata`, `dlen` e^-1 % phi(n) = private key. May be NULL if unknown.
+- `e1data`, `e1len` dp = d % (p-1). Only used if private key known (`dtata`).
+- `e2data`, `e2len` dq = d % (q-1). Only used if private key known (`dtata`).
+- `coeffdata`, `coefflen` q^-1 % p. Only used if private key known.
+
 Returns 0 if OK.
 This procedure is already prototyped in `crypto.h`.
 
@@ -550,7 +549,7 @@ void ssh2_rsa_free(ssh2_rsa_ctx *rsa);
 Releases the RSA computation context at ctx.
 
 `LIBSSH2_RSA_SHA2`
-#define as 1 if the crypto library supports RSA SHA2 256/512, else 0.
+define as 1 if the crypto library supports RSA SHA2 256/512, else 0.
 If defined as 0, the rest of this section can be omitted.
 
 ```c
@@ -605,13 +604,12 @@ based on hash length and the RSA context.
 Return 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
-7.2) DSA
-`LIBSSH2_DSA`
-#define as 1 if the crypto library supports DSA, else 0.
-If defined as 0, the rest of this section can be omitted.
+### 7.2) DSA
 
-`ssh2_dsa_ctx`
-Type of a DSA computation context. Generally a struct.
+`LIBSSH2_DSA`: define as 1 if the crypto library supports DSA, else 0. If
+defined as 0, the rest of this section can be omitted.
+
+`ssh2_dsa_ctx`: Type of a DSA computation context. Generally a struct.
 
 ```c
 int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
@@ -621,12 +619,15 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
                  const unsigned char *ydata, size_t ylen,
                  const unsigned char *x, size_t x_len);
 ```
+
 Creates a new context for DSA computations from source key values:
-- pdata, plen    Prime number p. Only used if private key known (ddata).
-- qdata, qlen    Prime number q. Only used if private key known (ddata).
-- gdata, glen    G number.
-- ydata, ylen    Public key.
-- xdata, xlen    Private key. Only taken if xlen non-zero.
+
+- `pdata`, `plen` Prime number p. Only used if private key known (`ddata`).
+- `qdata`, `qlen` Prime number q. Only used if private key known (`ddata`).
+- `gdata`, `glen` G number.
+- `ydata`, `ylen` Public key.
+- `xdata`, `xlen` Private key. Only taken if xlen non-zero.
+
 Returns 0 if OK.
 This procedure is already prototyped in `crypto.h`.
 
@@ -676,20 +677,19 @@ void ssh2_dsa_free(ssh2_dsa_ctx *dsa);
 ```
 Releases the DSA computation context at dsactx.
 
-7.3) ECDSA
-`LIBSSH2_ECDSA`
-#define as 1 if the crypto library supports ECDSA, else 0.
-If defined as 0, `ssh2_ec_key` should be defined as void and the rest of this
+### 7.3) ECDSA
+
+`LIBSSH2_ECDSA`: define as 1 if the crypto library supports ECDSA, else 0. If
+defined as 0, `ssh2_ec_key` should be defined as void and the rest of this
 section can be omitted.
 
-`ssh2_ecdsa_ctx`
-Type of an ECDSA computation context. Generally a struct.
+`ssh2_ecdsa_ctx`: Type of an ECDSA computation context. Generally a struct.
 
-`ssh2_ec_key`
-Type of an elliptic curve key.
+`ssh2_ec_key`: Type of an elliptic curve key.
 
-`ssh2_curve_type`
-An enum type defining curve types. Current supported identifiers are:
+`ssh2_curve_type`: An enum type defining curve types. Current supported
+identifiers are:
+
 - `SSH2_EC_CURVE_NISTP256`
 - `SSH2_EC_CURVE_NISTP384`
 - `SSH2_EC_CURVE_NISTP521`
@@ -772,8 +772,8 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
                       const unsigned char *s, size_t s_len,
                       const unsigned char *m, size_t m_len);
 ```
-Verify the ECDSA signature made of (r, r_len) and (s, s_len) of (m, m_len)
-using the hash algorithm configured in the ECDSA context ctx.
+Verify the ECDSA signature made of (`r`, `r_len`) and (`s`, `s_len`) of (`m`,
+`m_len`) using the hash algorithm configured in the ECDSA context ctx.
 Return 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
@@ -788,9 +788,9 @@ void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ec_ctx);
 ```
 Releases the ECDSA computation context at ecdsactx.
 
-7.4) ED25519
-LIBSSH2_ED25519
-#define as 1 if the crypto library supports ED25519, else 0.
+### 7.4) ED25519
+
+`LIBSSH2_ED25519`: define as 1 if the crypto library supports ED25519, else 0.
 If defined as 0, the rest of this section can be omitted.
 
 `ssh2_ed25519_ctx`
@@ -881,7 +881,7 @@ void ssh2_ed25519_free(ssh2_ed25519_ctx *ed_ctx);
 ```
 Releases the ED25519 computation context at `ed_ctx`.
 
-8) Miscellaneous
+## 8) Miscellaneous
 
 ```c
 void ssh2_prepare_iovec(struct iovec *vector, unsigned int len);
