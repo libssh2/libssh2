@@ -177,12 +177,12 @@ static int wcng_bn_resize(ssh2_bn *bn, size_t length)
 static int wcng_bn_random(ssh2_bn *rnd, int bits, int top, int bottom)
 {
     unsigned char *bignum;
-    ULONG length;
+    size_t length;
 
     if(!rnd || bits <= 0)
         return -1;
 
-    length = ((ULONG)bits + 7) / 8;
+    length = (bits + 7) / 8;
     if(wcng_bn_resize(rnd, length))
         return -1;
 
@@ -338,7 +338,7 @@ int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *bin)
     if(!bn || !bin || !len)
         return -1;
 
-    if(wcng_bn_resize(bn, (ULONG)len))
+    if(wcng_bn_resize(bn, len))
         return -1;
 
     memcpy(bn->bignum, bin, len);
