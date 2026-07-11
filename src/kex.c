@@ -1398,36 +1398,6 @@ dh_gex_clean_exit:
     return ret;
 }
 
-#if LIBSSH2_ECDSA
-/*
- * returns the EC curve type by name used in key exchange
- */
-static int kex_session_curve_type(const char *name,
-                                  ssh2_curve_type *out_type)
-{
-    ssh2_curve_type type;
-
-    if(!name)
-        return -1;
-
-    if(!strcmp(name, "mlkem768nistp256-sha256") ||
-       !strcmp(name, "ecdh-sha2-nistp256"))
-        type = SSH2_EC_CURVE_NISTP256;
-    else if(!strcmp(name, "mlkem1024nistp384-sha384") ||
-            !strcmp(name, "ecdh-sha2-nistp384"))
-        type = SSH2_EC_CURVE_NISTP384;
-    else if(!strcmp(name, "ecdh-sha2-nistp521"))
-        type = SSH2_EC_CURVE_NISTP521;
-    else
-        return -1;
-
-    if(out_type)
-        *out_type = type;
-
-    return 0;
-}
-#endif
-
 #if LIBSSH2_ECDSA || LIBSSH2_ED25519
 /*
  * Create and verify EC[+PQ hybrid] SHA hash with a given digest size
@@ -1756,6 +1726,34 @@ clean_exit:
 }
 
 /*
+ * returns the EC curve type by name used in key exchange
+ */
+static int kex_session_curve_type(const char *name,
+                                  ssh2_curve_type *out_type)
+{
+    ssh2_curve_type type;
+
+    if(!name)
+        return -1;
+
+    if(!strcmp(name, "mlkem768nistp256-sha256") ||
+       !strcmp(name, "ecdh-sha2-nistp256"))
+        type = SSH2_EC_CURVE_NISTP256;
+    else if(!strcmp(name, "mlkem1024nistp384-sha384") ||
+            !strcmp(name, "ecdh-sha2-nistp384"))
+        type = SSH2_EC_CURVE_NISTP384;
+    else if(!strcmp(name, "ecdh-sha2-nistp521"))
+        type = SSH2_EC_CURVE_NISTP521;
+    else
+        return -1;
+
+    if(out_type)
+        *out_type = type;
+
+    return 0;
+}
+
+/*
  * Elliptic Curve Diffie Hellman Key Exchange
  * supports SHA256/384/512 hashes based on negotiated ecdh method
  */
@@ -1856,7 +1854,6 @@ ecdh_clean_exit:
 }
 
 #if LIBSSH2_MLKEM
-
 static void kex_mlkem_nistp_exchange_state_cleanup(
     LIBSSH2_SESSION *session, struct kmdhgGPshakex_state *exchange_state)
 {
@@ -2209,11 +2206,10 @@ clean_exit:
 
     return ret;
 }
-#endif
+#endif /* LIBSSH2_MLKEM */
 #endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519
-
 static void kex_curve25519_exchange_state_cleanup(
     LIBSSH2_SESSION *session, struct kmdhgGPshakex_state *exchange_state)
 {
@@ -2481,7 +2477,6 @@ clean_exit:
 }
 
 #if LIBSSH2_MLKEM
-
 static void kex_mlkem768x25519_exchange_state_cleanup(
     LIBSSH2_SESSION *session, struct kmdhgGPshakex_state *exchange_state)
 {
@@ -2779,8 +2774,7 @@ clean_exit:
 
     return ret;
 }
-#endif
-
+#endif /* LIBSSH2_MLKEM */
 #endif /* LIBSSH2_ED25519 */
 
 #define KEX_METHOD_FLAG_REQ_ENC_HOSTKEY  0x0001
@@ -2871,8 +2865,8 @@ static const struct kex_method kex_method_ssh_mlkem1024_nistp384_sha384 = {
     kex_method_mlkem_nistp_cleanup,
     KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
-#endif
-#endif
+#endif /* LIBSSH2_MLKEM */
+#endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519
 static const struct kex_method kex_method_ssh_curve25519_sha256_libssh = {
@@ -2894,8 +2888,8 @@ static const struct kex_method kex_method_ssh_mlkem768_x25519_sha256 = {
     kex_method_mlkem768x25519_cleanup,
     KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
-#endif
-#endif
+#endif /* LIBSSH2_MLKEM */
+#endif /* LIBSSH2_ED25519 */
 
 /* this kex method signals that client can receive extensions
  * as described in https://datatracker.ietf.org/doc/html/rfc8308
@@ -2924,7 +2918,7 @@ static const struct kex_method *kex_methods[] = {
     &kex_method_ssh_mlkem768_nistp256_sha256,
     &kex_method_ssh_mlkem1024_nistp384_sha384,
 #endif
-#endif
+#endif /* LIBSSH2_MLKEM */
 #if LIBSSH2_ED25519
     &kex_method_ssh_curve25519_sha256,
     &kex_method_ssh_curve25519_sha256_libssh,
