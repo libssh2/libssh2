@@ -1398,7 +1398,7 @@ dh_gex_clean_exit:
     return ret;
 }
 
-#if LIBSSH2_ECDSA || LIBSSH2_ED25519
+#if LIBSSH2_ECDSA
 /*
  * returns the EC curve type by name used in key exchange
  */
@@ -1426,7 +1426,9 @@ static int kex_session_curve_type(const char *name,
 
     return 0;
 }
+#endif
 
+#if LIBSSH2_ECDSA || LIBSSH2_ED25519
 /*
  * Create and verify EC[+PQ hybrid] SHA hash with a given digest size
  *
