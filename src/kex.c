@@ -1398,22 +1398,26 @@ dh_gex_clean_exit:
     return ret;
 }
 
-#if (LIBSSH2_ECDSA || LIBSSH2_ED25519) && LIBSSH2_MLKEM
+#if LIBSSH2_ECDSA || LIBSSH2_ED25519
 /*
- * returns the EC curve type by name used in hybrid key exchange
+ * returns the EC curve type by name used in key exchange
  */
-static int kex_session_hybrid_curve_type(const char *name,
-                                         ssh2_curve_type *out_type)
+static int kex_session_curve_type(const char *name,
+                                  ssh2_curve_type *out_type)
 {
     ssh2_curve_type type;
 
     if(!name)
         return -1;
 
-    if(!strcmp(name, "mlkem768nistp256-sha256"))
+    if(!strcmp(name, "mlkem768nistp256-sha256") ||
+       !strcmp(name, "ecdh-sha2-nistp256"))
         type = SSH2_EC_CURVE_NISTP256;
-    else if(!strcmp(name, "mlkem1024nistp384-sha384"))
+    else if(!strcmp(name, "mlkem1024nistp384-sha384") ||
+            !strcmp(name, "ecdh-sha2-nistp384"))
         type = SSH2_EC_CURVE_NISTP384;
+    else if(!strcmp(name, "ecdh-sha2-nistp521"))
+        type = SSH2_EC_CURVE_NISTP521;
     else
         return -1;
 
@@ -1422,9 +1426,7 @@ static int kex_session_hybrid_curve_type(const char *name,
 
     return 0;
 }
-#endif
 
-#if LIBSSH2_ECDSA || LIBSSH2_ED25519
 /*
  * Create and verify EC[+PQ hybrid] SHA hash with a given digest size
  *
@@ -1571,32 +1573,6 @@ static int kex_method_ec_sha_hash_create_verify(
 #endif /* LIBSSH2_ECDSA || LIBSSH2_ED25519 */
 
 #if LIBSSH2_ECDSA
-/*
- * returns the EC curve type by name used in key exchange
- */
-static int kex_session_ecdh_curve_type(const char *name,
-                                       ssh2_curve_type *out_type)
-{
-    ssh2_curve_type type;
-
-    if(!name)
-        return -1;
-
-    if(!strcmp(name, "ecdh-sha2-nistp256"))
-        type = SSH2_EC_CURVE_NISTP256;
-    else if(!strcmp(name, "ecdh-sha2-nistp384"))
-        type = SSH2_EC_CURVE_NISTP384;
-    else if(!strcmp(name, "ecdh-sha2-nistp521"))
-        type = SSH2_EC_CURVE_NISTP521;
-    else
-        return -1;
-
-    if(out_type)
-        *out_type = type;
-
-    return 0;
-}
-
 static void kex_ecdh_exchange_state_cleanup(
     LIBSSH2_SESSION *session, struct kmdhgGPshakex_state *exchange_state)
 {
@@ -1795,7 +1771,7 @@ static int kex_method_ecdh_key_exchange(
     }
 
     if(key_state->state == ssh2_NB_state_created) {
-        rc = kex_session_ecdh_curve_type(session->kex->name, &type);
+        rc = kex_session_curve_type(session->kex->name, &type);
 
         if(rc) {
             ret = ssh2_err(session, -1, "Unrecognized KEX nistp curve type");
@@ -1852,7 +1828,7 @@ static int kex_method_ecdh_key_exchange(
 
     if(key_state->state == ssh2_NB_state_sent2) {
 
-        rc = kex_session_ecdh_curve_type(session->kex->name, &type);
+        rc = kex_session_curve_type(session->kex->name, &type);
 
         if(rc) {
             ret = ssh2_err(session, -1, "Unrecognized KEX nistp curve type");
@@ -1941,7 +1917,7 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
     size_t digest_len, mlkem_cipher_len, public_pq_key_len;
     unsigned char *shared_secret = NULL;
 
-    if(kex_session_hybrid_curve_type(session->kex->name, &type)) {
+    if(kex_session_curve_type(session->kex->name, &type)) {
         ret = ssh2_err(session, -1,
                        "Unrecognized KEX hybrid nistp curve type");
         goto clean_exit;
@@ -2126,7 +2102,7 @@ static int kex_method_mlkem_nistp_key_exchange(
         size_t mlkem_private_key_len;
         unsigned char *s = NULL;
 
-        if(kex_session_hybrid_curve_type(session->kex->name, &type)) {
+        if(kex_session_curve_type(session->kex->name, &type)) {
             ret = ssh2_err(session, -1,
                            "Unrecognized KEX hybrid nistp curve type");
             goto clean_exit;
