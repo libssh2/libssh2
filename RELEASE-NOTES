@@ -80,7 +80,7 @@ This release includes the following enhancements and bugfixes:
 - appveyor: fix PowerShell warning (df2b206c #1514)
 - appveyor: use `-A` option with all MSVC versions (25d3a092 #1513)
 - AUTHORS: update (4ea1cc6d #1874)
-- badwords: add checker script, fix issues found (9538c99f #1959 #793 #771 #1929 #1869 #1838 #1793 #1770 #1641 #1629 #1628 #1600 #1578 #1518 #1517 #1511 #1510 #1509 #1500 #1496 #149 #1480 #1478 #1477 #1475 #1473 #1469 #1450 #1266)
+- badwords: add checker script, fix issues found (9538c99f #1959)
 - blowfish: drop unused macro guards (635dd1d4 #1937)
 - build: stop redefining system symbol `snprintf` (dcd0dbab #2103)
 - build: update picky warning options, fix fallouts (04ecdb22 #1972)
