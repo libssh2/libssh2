@@ -2058,8 +2058,8 @@ void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ec_ctx)
  * Creates a local private ECDH key based on input curve
  * and returns the public key in uncompressed point encoding.
  */
-int ssh2_ecdsa_create_key(IN LIBSSH2_SESSION *session,
-                          OUT struct wcng_ecdsa_ctx **out_private_key,
+int ssh2_ecdsa_create_key(OUT ssh2_ecdsa_ctx **ec_ctx,
+                          IN LIBSSH2_SESSION *session,
                           OUT unsigned char **out_public_key_octal,
                           OUT size_t *out_public_key_octal_len,
                           IN ssh2_curve_type curve)
@@ -2076,10 +2076,10 @@ int ssh2_ecdsa_create_key(IN LIBSSH2_SESSION *session,
     if(!ssh2_wcng.hAlgECDH[curve])
         return LIBSSH2_ERROR_INVAL;
 
-    if(!out_private_key || !out_public_key_octal || !out_public_key_octal_len)
+    if(!ec_ctx || !out_public_key_octal || !out_public_key_octal_len)
         return LIBSSH2_ERROR_INVAL;
 
-    *out_private_key = NULL;
+    *ec_ctx = NULL;
     *out_public_key_octal = NULL;
     *out_public_key_octal_len = 0;
 
@@ -2114,21 +2114,21 @@ int ssh2_ecdsa_create_key(IN LIBSSH2_SESSION *session,
         goto cleanup;
     }
 
-    *out_private_key = malloc(sizeof(struct wcng_ecdsa_ctx));
-    if(!*out_private_key) {
+    *ec_ctx = malloc(sizeof(struct wcng_ecdsa_ctx));
+    if(!*ec_ctx) {
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
     }
 
-    (*out_private_key)->curve = curve;
-    (*out_private_key)->handle = key_handle;
+    (*ec_ctx)->curve = curve;
+    (*ec_ctx)->handle = key_handle;
 
 cleanup:
     if(result != LIBSSH2_ERROR_NONE && key_handle)
         (void)BCryptDestroyKey(key_handle);
 
-    if(result != LIBSSH2_ERROR_NONE && *out_private_key)
-        free(*out_private_key);
+    if(result != LIBSSH2_ERROR_NONE && *ec_ctx)
+        free(*ec_ctx);
 
     return result;
 }

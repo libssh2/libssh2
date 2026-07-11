@@ -817,42 +817,41 @@ void ssh2_dh_dtor(ssh2_dh_ctx *dhctx)
  * Creates a local private key based on input curve
  * and returns octal value and octal length
  */
-int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
-                          ssh2_ec_key **out_private_key,
+int ssh2_ecdsa_create_key(ssh2_ec_key **ec_ctx, LIBSSH2_SESSION *session,
                           unsigned char **out_public_key_octal,
                           size_t *out_public_key_octal_len,
                           ssh2_curve_type curve)
 {
     size_t plen = 0;
 
-    *out_private_key = mbedtls_calloc(1, sizeof(mbedtls_ecp_keypair));
-    if(!*out_private_key)
+    *ec_ctx = mbedtls_calloc(1, sizeof(mbedtls_ecp_keypair));
+    if(!*ec_ctx)
         goto failed;
 
-    mbedtls_ecdsa_init(*out_private_key);
+    mbedtls_ecdsa_init(*ec_ctx);
 
-    if(mbedtls_ecdsa_genkey(*out_private_key, (mbedtls_ecp_group_id)curve,
+    if(mbedtls_ecdsa_genkey(*ec_ctx, (mbedtls_ecp_group_id)curve,
                             mbedtls_ctr_drbg_random, &mbed_ctr_drbg))
         goto failed;
 
     plen = 2 * mbedtls_mpi_size(
-        &(*out_private_key)->MBEDTLS_PRIVATE(grp).P) + 1;
+        &(*ec_ctx)->MBEDTLS_PRIVATE(grp).P) + 1;
 
     *out_public_key_octal = SSH2_ALLOC(session, plen);
     if(!*out_public_key_octal)
         goto failed;
 
     if(mbedtls_ecp_point_write_binary(
-          &(*out_private_key)->MBEDTLS_PRIVATE(grp),
-          &(*out_private_key)->MBEDTLS_PRIVATE(Q),
+          &(*ec_ctx)->MBEDTLS_PRIVATE(grp),
+          &(*ec_ctx)->MBEDTLS_PRIVATE(Q),
           MBEDTLS_ECP_PF_UNCOMPRESSED,
           out_public_key_octal_len, *out_public_key_octal, plen) == 0)
         return 0;
 
 failed:
 
-    ssh2_ecdsa_free(*out_private_key);
-    *out_private_key = NULL;
+    ssh2_ecdsa_free(*ec_ctx);
+    *ec_ctx = NULL;
     if(*out_public_key_octal) {
         ssh2_explicit_zero(*out_public_key_octal, plen);
         SSH2_SAFEFREE(session, *out_public_key_octal);

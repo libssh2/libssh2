@@ -686,14 +686,14 @@ identifiers are:
 - `SSH2_EC_CURVE_NISTP521`
 
 ```c
-int ssh2_ecdsa_create_key(ssh2_ec_key **out_private_key,
+int ssh2_ecdsa_create_key(ssh2_ec_key **ec_ctx, LIBSSH2_SESSION *session,
                           unsigned char **out_public_key_octal,
                           size_t *out_public_key_octal_len,
                           ssh2_curve_type curve);
 ```
-Create a new ECDSA private key of type `curve` and return it at
-`out_private_key`. If `out_public_key_octal` is not NULL, store an allocated
-pointer to the associated public key in "octal" form in it and its length at
+Create a new ECDSA private key of type `curve` and return it at `ec_ctx`. If
+`out_public_key_octal` is not NULL, store an allocated pointer to the
+associated public key in "octal" form in it and its length at
 `out_public_key_octal_len`.
 Return 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
