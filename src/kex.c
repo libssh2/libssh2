@@ -1398,7 +1398,7 @@ dh_gex_clean_exit:
     return ret;
 }
 
-#if LIBSSH2_ECDSA || LIBSSH2_MLKEM
+#if LIBSSH2_ECDSA
 /*
  * returns the EC curve type by name used in key exchange
  */
