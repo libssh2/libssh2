@@ -1729,26 +1729,26 @@ clean_exit:
  * returns the EC curve type by name used in key exchange
  */
 static int kex_session_curve_type(const char *name,
-                                  ssh2_curve_type *out_type)
+                                  ssh2_curve_type *out_curve)
 {
-    ssh2_curve_type type;
+    ssh2_curve_type curve;
 
     if(!name)
         return -1;
 
     if(!strcmp(name, "mlkem768nistp256-sha256") ||
        !strcmp(name, "ecdh-sha2-nistp256"))
-        type = SSH2_EC_CURVE_NISTP256;
+        curve = SSH2_EC_CURVE_NISTP256;
     else if(!strcmp(name, "mlkem1024nistp384-sha384") ||
             !strcmp(name, "ecdh-sha2-nistp384"))
-        type = SSH2_EC_CURVE_NISTP384;
+        curve = SSH2_EC_CURVE_NISTP384;
     else if(!strcmp(name, "ecdh-sha2-nistp521"))
-        type = SSH2_EC_CURVE_NISTP521;
+        curve = SSH2_EC_CURVE_NISTP521;
     else
         return -1;
 
-    if(out_type)
-        *out_type = type;
+    if(out_curve)
+        *out_curve = curve;
 
     return 0;
 }
