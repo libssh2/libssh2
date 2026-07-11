@@ -1802,7 +1802,7 @@ static int kex_method_ecdh_key_exchange(
             goto ecdh_clean_exit;
         }
 
-        rc = ssh2_ecdsa_create_key(session, &key_state->private_key,
+        rc = ssh2_ecdsa_create_key(&key_state->private_key, session,
                                    &key_state->public_key_oct,
                                    &key_state->public_key_oct_len, type);
         if(rc) {
@@ -2149,7 +2149,7 @@ static int kex_method_mlkem_nistp_key_exchange(
             goto clean_exit;
         }
 
-        rc = ssh2_ecdsa_create_key(session, &key_state->private_key,
+        rc = ssh2_ecdsa_create_key(&key_state->private_key, session,
                                    &key_state->public_key_oct,
                                    &key_state->public_key_oct_len, type);
         if(rc) {

@@ -3132,8 +3132,7 @@ int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
  * Creates a local private key based on input curve
  * and returns octal value and octal length
  */
-int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
-                          ssh2_ec_key **out_private_key,
+int ssh2_ecdsa_create_key(ssh2_ec_key **ec_ctx, LIBSSH2_SESSION *session,
                           unsigned char **out_public_key_octal,
                           size_t *out_public_key_octal_len,
                           ssh2_curve_type curve)
@@ -3154,8 +3153,8 @@ int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
     if(ret <= 0)
         goto clean_exit;
 
-    if(out_private_key)
-        *out_private_key = private_key;
+    if(ec_ctx)
+        *ec_ctx = private_key;
 
     ret = EVP_PKEY_get_octet_string_param(private_key, OSSL_PKEY_PARAM_PUB_KEY,
                                           NULL, 0, &octal_len);
@@ -3208,8 +3207,8 @@ int ssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
         goto clean_exit;
     }
 
-    if(out_private_key)
-        *out_private_key = private_key;
+    if(ec_ctx)
+        *ec_ctx = private_key;
 
     if(out_public_key_octal) {
         *out_public_key_octal = SSH2_ALLOC(session, octal_len);
