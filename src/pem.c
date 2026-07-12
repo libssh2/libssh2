@@ -394,6 +394,10 @@ out:
 
 /* OpenSSH formatted keys */
 
+#define OPENSSH_PRIVKEY_HEADER     "-----BEGIN OPENSSH PRIVATE KEY-----"
+#define OPENSSH_PRIVKEY_FOOTER     "-----END OPENSSH PRIVATE KEY-----"
+#define OPENSSH_PRIVKEY_AUTH_MAGIC "openssh-key-v1"
+
 static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
                                   const unsigned char *passphrase,
                                   const char *b64data, size_t b64datalen,

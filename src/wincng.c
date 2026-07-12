@@ -899,29 +899,6 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx, ULONG hash_len,
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-static int wcng_load_pem(LIBSSH2_SESSION *session,
-                         const char *filename,
-                         const unsigned char *passphrase,
-                         const char *headerbegin,
-                         const char *headerend,
-                         unsigned char **data,
-                         size_t *datalen)
-{
-    FILE *fp;
-    int ret;
-
-    fp = ssh2_fopen(filename, "rb");
-    if(!fp)
-        return -1;
-
-    ret = ssh2_pem_parse(session, headerbegin, headerend,
-                         passphrase, fp, data, datalen);
-
-    fclose(fp);
-
-    return ret;
-}
-
 static int wcng_load_private(LIBSSH2_SESSION *session,
                              const char *filename,
                              const unsigned char *passphrase,
@@ -929,27 +906,32 @@ static int wcng_load_private(LIBSSH2_SESSION *session,
                              size_t *pcbEncoded,
                              int tryLoadRSA, int tryLoadDSA)
 {
+    int ret = -1;
+    FILE *fp;
     unsigned char *data = NULL;
     size_t datalen = 0;
-    int ret = -1;
+
+    fp = ssh2_fopen(filename, "rb");
+    if(!fp)
+        return -1;
 
 #if LIBSSH2_RSA
     if(ret && tryLoadRSA)
-        ret = wcng_load_pem(session, filename, passphrase,
-                            PEM_RSA_HEADER, PEM_RSA_FOOTER,
-                            &data, &datalen);
+        ret = ssh2_pem_parse(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
+                             passphrase, fp, &data, &datalen);
 #else
     (void)tryLoadRSA;
 #endif
 
 #if LIBSSH2_DSA
     if(ret && tryLoadDSA)
-        ret = wcng_load_pem(session, filename, passphrase,
-                            PEM_DSA_HEADER, PEM_DSA_FOOTER,
-                            &data, &datalen);
+        ret = ssh2_pem_parse(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
+                             passphrase, fp, &data, &datalen);
 #else
     (void)tryLoadDSA;
 #endif
+
+    fclose(fp);
 
     if(!ret) {
         *ppbEncoded = data;
@@ -2416,64 +2398,9 @@ cleanup:
     return result;
 }
 
-/*
- * Creates a new private key given a file path and password
- */
-int ssh2_ecdsa_new_private(OUT ssh2_ecdsa_ctx **ec_ctx,
-                           IN LIBSSH2_SESSION *session,
-                           IN const char *filename,
-                           IN const unsigned char *passphrase)
-{
-    int result;
-
-    FILE *fp = NULL;
-    unsigned char *data = NULL;
-    size_t datalen = 0;
-
-    /* Validate parameters */
-    if(!ec_ctx || !session || !filename)
-        return LIBSSH2_ERROR_INVAL;
-
-    *ec_ctx = NULL;
-
-    if(passphrase && strlen((const char *)passphrase) > 0)
-        return ssh2_err(session, LIBSSH2_ERROR_INVAL,
-                        "Passphrase-protected ECDSA private key "
-                        "files are unsupported");
-
-    fp = ssh2_fopen(filename, "rb");
-    if(!fp) {
-        result = ssh2_err(session, LIBSSH2_ERROR_INVAL,
-                          "Opening the private key file failed");
-        goto cleanup;
-    }
-
-    result = ssh2_pem_parse(session,
-                            OPENSSH_PRIVKEY_HEADER,
-                            OPENSSH_PRIVKEY_FOOTER,
-                            passphrase, fp, &data, &datalen);
-    if(result != LIBSSH2_ERROR_NONE)
-        goto cleanup;
-
-    result = ssh2_ecdsa_new_private_frommemory(ec_ctx, session,
-                                               (const char *)data, datalen,
-                                               passphrase);
-    if(result != LIBSSH2_ERROR_NONE)
-        goto cleanup;
-
-cleanup:
-    if(fp)
-        fclose(fp);
-
-    if(data)
-        SSH2_FREE(session, data);
-
-    return result;
-}
-
-static int wcng_parse_ecdsa_privatekey(OUT ssh2_ecdsa_ctx **ec_ctx,
-                                       IN unsigned char *privatekey,
-                                       IN size_t privatekey_len)
+static int wcng_ecdsa_new_private_parse(OUT ssh2_ecdsa_ctx **ec_ctx,
+                                        IN const unsigned char *privatekey,
+                                        IN size_t privatekey_len)
 {
     char *keytype = NULL;
     size_t keytype_len;
@@ -2501,8 +2428,8 @@ static int wcng_parse_ecdsa_privatekey(OUT ssh2_ecdsa_ctx **ec_ctx,
         goto cleanup;
     }
 
-    data_buffer.data = privatekey;
-    data_buffer.dataptr = privatekey;
+    data_buffer.data = SSH2_UNCONST(privatekey);
+    data_buffer.dataptr = SSH2_UNCONST(privatekey);
     data_buffer.len = privatekey_len;
 
     /* Read the 2 checkints and check that they match */
@@ -2586,6 +2513,49 @@ cleanup:
 }
 
 /*
+ * Creates a new private key given a file path and password
+ */
+int ssh2_ecdsa_new_private(OUT ssh2_ecdsa_ctx **ec_ctx,
+                           IN LIBSSH2_SESSION *session,
+                           IN const char *filename,
+                           IN const unsigned char *passphrase)
+{
+    int result;
+
+    FILE *fp = NULL;
+    struct string_buf *decrypted = NULL;
+
+    /* Validate parameters */
+    if(!ec_ctx || !session || !filename)
+        return LIBSSH2_ERROR_INVAL;
+
+    *ec_ctx = NULL;
+
+    fp = ssh2_fopen(filename, "rb");
+    if(!fp) {
+        result = ssh2_err(session, LIBSSH2_ERROR_INVAL,
+                          "Opening the private key file failed");
+        goto cleanup;
+    }
+
+    result = ssh2_openssh_pem_parse(session, passphrase, fp, &decrypted);
+    if(result)
+        goto cleanup;
+
+    result = wcng_ecdsa_new_private_parse(ec_ctx,
+                                          decrypted->data, decrypted->len);
+
+cleanup:
+    if(decrypted)
+        ssh2_string_buf_free(session, decrypted);
+
+    if(fp)
+        fclose(fp);
+
+    return result;
+}
+
+/*
  * Creates a new private key given a file data and password.
  * ECDSA private key files use the decoding defined in PROTOCOL.key
  * in the OpenSSH source tree.
@@ -2596,12 +2566,7 @@ int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **ec_ctx,
                                       IN const unsigned char *passphrase)
 {
     int result;
-
-    struct string_buf data_buffer;
-    uint32_t index;
-    uint32_t key_count;
-    unsigned char *privatekey;
-    size_t privatekey_len;
+    struct string_buf *decrypted = NULL;
 
     /* Validate parameters */
     if(!ec_ctx || !session || !blob)
@@ -2609,69 +2574,17 @@ int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **ec_ctx,
 
     *ec_ctx = NULL;
 
-    if(passphrase && strlen((const char *)passphrase) > 0)
-        return ssh2_err(session, LIBSSH2_ERROR_INVAL,
-                        "Passphrase-protected ECDSA private key "
-                        "files are unsupported");
-
-    /* Read OPENSSH_PRIVKEY_AUTH_MAGIC */
-    if(blob_len < sizeof(OPENSSH_PRIVKEY_AUTH_MAGIC) ||
-       memcmp(blob, OPENSSH_PRIVKEY_AUTH_MAGIC,
-              sizeof(OPENSSH_PRIVKEY_AUTH_MAGIC))) {
-        result = -1;
-        goto cleanup;
-    }
-
-    data_buffer.len = blob_len;
-    data_buffer.data = (unsigned char *)SSH2_UNCONST(blob);
-    data_buffer.dataptr = data_buffer.data +
-                          sizeof(OPENSSH_PRIVKEY_AUTH_MAGIC);
-
-    /* Read ciphername, should be 'none' as we do not support passphrases */
-    result = ssh2_match_string(&data_buffer, "none");
-    if(result != LIBSSH2_ERROR_NONE)
+    result = ssh2_openssh_pem_parse_memory(session, passphrase,
+                                           blob, blob_len, &decrypted);
+    if(result)
         goto cleanup;
 
-    /* Read kdfname, should be 'none' as we do not support passphrases */
-    result = ssh2_match_string(&data_buffer, "none");
-    if(result != LIBSSH2_ERROR_NONE)
-        goto cleanup;
-
-    /* Read kdfoptions, should be empty */
-    result = ssh2_match_string(&data_buffer, "");
-    if(result != LIBSSH2_ERROR_NONE)
-        goto cleanup;
-
-    /* Read number of keys N */
-    result = ssh2_get_u32(&data_buffer, &key_count);
-    if(result != LIBSSH2_ERROR_NONE)
-        goto cleanup;
-
-    if(key_count == 0) {
-        result = LIBSSH2_ERROR_FILE;
-        goto cleanup;
-    }
-
-    /* Skip all public keys */
-    for(index = 0; index < key_count; index++) {
-        unsigned char *publickey;
-        size_t publickey_len;
-
-        result = ssh2_get_string(&data_buffer, &publickey, &publickey_len);
-        if(result != LIBSSH2_ERROR_NONE)
-            goto cleanup;
-    }
-
-    /* Read first private key */
-    result = ssh2_get_string(&data_buffer, &privatekey, &privatekey_len);
-    if(result != LIBSSH2_ERROR_NONE)
-        goto cleanup;
-
-    result = wcng_parse_ecdsa_privatekey(ec_ctx, privatekey, privatekey_len);
+    result = wcng_ecdsa_new_private_parse(ec_ctx,
+                                          decrypted->data, decrypted->len);
 
 cleanup:
-    if(result != LIBSSH2_ERROR_NONE)
-        return ssh2_err(session, result, "The key is malformed");
+    if(decrypted)
+        ssh2_string_buf_free(session, decrypted);
 
     return result;
 }
