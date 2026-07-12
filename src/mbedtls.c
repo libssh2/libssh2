@@ -1234,22 +1234,22 @@ cleanup:
 
 static unsigned char *mbed_mpi_write_binary(unsigned char *buf,
                                             const mbedtls_mpi *bn,
-                                            size_t bytes)
+                                            size_t bn_size)
 {
     unsigned char *p = buf;
-    uint32_t size = (uint32_t)bytes;
+    uint32_t bn_bytes = (uint32_t)bn_size;
 
     p += 4;  /* Left space for bn size which is written below. */
 
     *p = 0;
-    mbedtls_mpi_write_binary(bn, p + 1, size - 1);
+    mbedtls_mpi_write_binary(bn, p + 1, bn_bytes - 1);
 
     if(!(p[1] & 0x80))
-        memmove(p, p + 1, --size);
+        memmove(p, p + 1, --bn_bytes);
 
-    ssh2_htonu32(p - 4, size);
+    ssh2_htonu32(p - 4, bn_bytes);
 
-    return p + size;
+    return p + bn_bytes;
 }
 
 /*
