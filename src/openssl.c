@@ -158,22 +158,6 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
                                       size_t privatekeydata_len,
                                       const unsigned char *passphrase);
 
-static int ossl_key_sk_from_openssh_blob(LIBSSH2_SESSION *session,
-                                         void **key_ctx,
-                                         const char *key_type,
-                                         unsigned char **method,
-                                         size_t *method_len,
-                                         unsigned char **pubkeydata,
-                                         size_t *pubkeydata_len,
-                                         int *algorithm,
-                                         unsigned char *flags,
-                                         const char **application,
-                                         const unsigned char **key_handle,
-                                         size_t *handle_len,
-                                         const char *privatekeydata,
-                                         size_t privatekeydata_len,
-                                         const unsigned char *passphrase);
-
 #if LIBSSH2_RSA || LIBSSH2_DSA || LIBSSH2_ECDSA
 static unsigned char *ossl_write_bn(unsigned char *buf, const BIGNUM *bn,
                                     int bn_bytes)
@@ -1000,6 +984,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                           SSH2_UNCONST(passphrase));
 #endif
     BIO_free(bp);
+
     if(!*rsa)
         rc = ossl_key_from_openssh_blob(session, (void **)rsa, "ssh-rsa",
                                         NULL, NULL, NULL, NULL,
@@ -3848,34 +3833,29 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
     return rc;
 }
 
-static int ossl_key_sk_from_openssh_blob(LIBSSH2_SESSION *session,
-                                         void **key_ctx,
-                                         const char *key_type,
-                                         unsigned char **method,
-                                         size_t *method_len,
-                                         unsigned char **pubkeydata,
-                                         size_t *pubkeydata_len,
-                                         int *algorithm,
-                                         unsigned char *flags,
-                                         const char **application,
-                                         const unsigned char **key_handle,
-                                         size_t *handle_len,
-                                         const char *privatekeydata,
-                                         size_t privatekeydata_len,
-                                         const unsigned char *passphrase)
+int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
+                              unsigned char **method,
+                              size_t *method_len,
+                              unsigned char **pubkeydata,
+                              size_t *pubkeydata_len,
+                              int *algorithm,
+                              unsigned char *flags,
+                              const char **application,
+                              const unsigned char **key_handle,
+                              size_t *handle_len,
+                              const char *privatekeydata,
+                              size_t privatekeydata_len,
+                              const unsigned char *passphrase)
 {
     int rc;
     unsigned char *buf = NULL;
     struct string_buf *decrypted = NULL;
 
-    if(key_ctx)
-        *key_ctx = NULL;
-
     if(!session)
         return ssh2_err(session, LIBSSH2_ERROR_PROTO, "Session is required");
 
-    if(key_type && strlen(key_type) < 7)
-        return ssh2_err(session, LIBSSH2_ERROR_PROTO, "type is invalid");
+    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
+              "Computing public key from private key."));
 
     OSSL_INIT_IF_NEEDED();
 
@@ -3909,14 +3889,13 @@ static int ossl_key_sk_from_openssh_blob(LIBSSH2_SESSION *session,
 #if LIBSSH2_ED25519
     if(!strcmp("sk-ssh-ed25519@openssh.com", (const char *)buf)) {
         *algorithm = LIBSSH2_HOSTKEY_TYPE_ED25519;
-        if(!key_type || !strcmp("sk-ssh-ed25519@openssh.com", key_type))
-            rc = ossl_ed25519_sk_openssh_priv_to_pubkey(session, decrypted,
-                                                        method, method_len,
-                                                        pubkeydata,
-                                                        pubkeydata_len,
-                                                        flags, application,
-                                                        key_handle, handle_len,
-                                                 (ssh2_ed25519_ctx **)key_ctx);
+        rc = ossl_ed25519_sk_openssh_priv_to_pubkey(session, decrypted,
+                                                    method, method_len,
+                                                    pubkeydata,
+                                                    pubkeydata_len,
+                                                    flags, application,
+                                                    key_handle, handle_len,
+                                                    NULL);
     }
 #endif
 #if LIBSSH2_ECDSA
@@ -3927,14 +3906,14 @@ static int ossl_key_sk_from_openssh_blob(LIBSSH2_SESSION *session,
                                                   pubkeydata, pubkeydata_len,
                                                   flags, application,
                                                   key_handle, handle_len,
-                                                  (ssh2_ecdsa_ctx **)key_ctx);
+                                                  NULL);
     }
 #endif
 
     if(rc == LIBSSH2_ERROR_FILE)
         rc = ssh2_err(session, LIBSSH2_ERROR_FILE,
-                      "Unable to extract public key from private key "
-                      "file: invalid/unrecognized private key file format");
+                      "Unable to extract public key from private key file: "
+                      "invalid/unrecognized private key file format");
 
     if(decrypted)
         ssh2_string_buf_free(session, decrypted);
@@ -4034,47 +4013,6 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     }
 
     EVP_PKEY_free(pk);
-    return st;
-}
-
-int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
-                              unsigned char **method,
-                              size_t *method_len,
-                              unsigned char **pubkeydata,
-                              size_t *pubkeydata_len,
-                              int *algorithm,
-                              unsigned char *flags,
-                              const char **application,
-                              const unsigned char **key_handle,
-                              size_t *handle_len,
-                              const char *privatekeydata,
-                              size_t privatekeydata_len,
-                              const char *passphrase)
-{
-    int st = -1;
-    BIO *bp;
-    EVP_PKEY *pk;
-
-    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
-              "Computing public key from private key."));
-
-    bp = BIO_new_mem_buf(privatekeydata, (int)privatekeydata_len);
-    if(!bp)
-        return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                        "Unable to allocate memory when computing public key");
-    (void)BIO_reset(bp);
-    pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, SSH2_UNCONST(passphrase));
-    BIO_free(bp);
-
-    if(!pk)
-        /* Try OpenSSH format */
-        st = ossl_key_sk_from_openssh_blob(session, NULL, NULL,
-                                           method, method_len,
-                                           pubkeydata, pubkeydata_len,
-                                           algorithm, flags, application,
-                                           key_handle, handle_len,
-                                           privatekeydata, privatekeydata_len,
-                                           (const unsigned char *)passphrase);
     return st;
 }
 

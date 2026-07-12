@@ -2333,7 +2333,7 @@ int libssh2_userauth_publickey_sk(
                                      &sk_info.key_handle,
                                      &sk_info.handle_len,
                                      privatekeydata, privatekeydata_len,
-                                     passphrase))
+                                     (const unsigned char *)passphrase))
             return ssh2_err(session, LIBSSH2_ERROR_FILE,
                             "Unable to extract public key from private key.");
         else if(publickeydata_len == 0 || !publickeydata) {
