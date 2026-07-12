@@ -3851,11 +3851,11 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
     unsigned char *buf = NULL;
     struct string_buf *decrypted = NULL;
 
-    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
-              "Computing public key from private key."));
-
     if(!session)
         return ssh2_err(session, LIBSSH2_ERROR_PROTO, "Session is required");
+
+    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
+              "Computing public key from private key."));
 
     OSSL_INIT_IF_NEEDED();
 
