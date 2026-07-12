@@ -3848,7 +3848,7 @@ int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
 
     while(s && *s && mlist) {
         char *p = strchr(s, ',');
-        size_t method_len = (p ? (size_t)(p - s) : strlen(s));
+        size_t method_len = p ? (size_t)(p - s) : strlen(s);
 
         if(!kex_get_method_by_name(s, method_len, mlist)) {
             /* Strip out unsupported method */
