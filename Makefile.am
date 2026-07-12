@@ -6,8 +6,6 @@ SUBDIRS = src docs
 SUBDIRS += tests
 if BUILD_EXAMPLES
 SUBDIRS += example
-else
-DIST_SUBDIRS = $(SUBDIRS) example
 endif
 
 pkgconfigdir = $(libdir)/pkgconfig
