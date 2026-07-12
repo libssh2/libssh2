@@ -159,8 +159,8 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
                                       const unsigned char *passphrase);
 
 #if LIBSSH2_RSA || LIBSSH2_DSA || LIBSSH2_ECDSA
-static unsigned char *ossl_write_bn(unsigned char *buf, const BIGNUM *bn,
-                                    int bn_bytes)
+static unsigned char *ossl_write_bn(unsigned char *buf,
+                                    const BIGNUM *bn, int bn_bytes)
 {
     unsigned char *p = buf;
 
