@@ -320,6 +320,7 @@ jobs:
       MATRIX_BUILD: '${{ matrix.build }}'
       MATRIX_COMPILER: '${{ matrix.compiler }}'
       MATRIX_CRYPTO: '${{ matrix.crypto }}'
+      MATRIX_TARGET: '${{ matrix.target }}'
       MATRIX_ZLIB: '${{ matrix.zlib }}'
       FIXTURE_TRACE_ALL_CONNECT: 0
       AWSLC_VERSION: 5.0.0
@@ -604,9 +605,12 @@ jobs:
             else
               options+=' --with-libz'
             fi
+            if [ "${MATRIX_TARGET}" != 'distcheck' ]; then
+              options+=' --disable-examples-build'
+            fi
             ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
               ${options} \
-              --disable-dependency-tracking --disable-examples-build
+              --disable-dependency-tracking
           fi
 
       - name: 'configure log'
@@ -649,6 +653,7 @@ jobs:
           fi
 
       - name: 'build examples'
+        if: ${{ !matrix.target }}
         run: |
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             cmake --build bld --verbose --target libssh2-examples-build
