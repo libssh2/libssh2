@@ -189,12 +189,10 @@ int ssh2_gettimeofday(struct timeval *tp, void *tzp);
 
 /* 3DS does not seem to have iovec */
 #if defined(_WIN32) || defined(_3DS)
-
 struct iovec {
     size_t iov_len;
     void *iov_base;
 };
-
 #endif
 
 #ifdef __OS400__
