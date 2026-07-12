@@ -1873,6 +1873,18 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                 SSH2_FREE(session, handle->u.dir.names_packet);
 
 end:
+            /* Parse failure with names_left still > 0 would otherwise stick
+             * forever: each later call re-enters this branch and fails again
+             * without ever freeing names_packet (see issue #2018). */
+            if((ssize_t)filename_len < 0) {
+                if(handle->u.dir.names_packet) {
+                    SSH2_FREE(session, handle->u.dir.names_packet);
+                    handle->u.dir.names_packet = NULL;
+                }
+                handle->u.dir.names_left = 0;
+                handle->u.dir.names_packet_len = 0;
+                handle->u.dir.next_name = NULL;
+            }
             ssh2_deb((session, LIBSSH2_TRACE_SFTP,
                       "libssh2_sftp_readdir_ex() return %lu",
                       (unsigned long)filename_len));
@@ -1954,6 +1966,13 @@ end:
     if(!num_names) {
         SSH2_FREE(session, data);
         return 0;
+    }
+    /* Each name needs at least two u32 length fields (8 bytes). Cap the
+     * server-supplied count so names_left cannot outlive the packet body. */
+    if(data_len < 9 || num_names > (data_len - 9) / 8) {
+        SSH2_FREE(session, data);
+        return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                        "SFTP Protocol Error: invalid readdir name count");
     }
 
     handle->u.dir.names_left = num_names;
