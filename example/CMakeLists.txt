@@ -36,14 +36,34 @@ libssh2_transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makef
 # Get noinst_PROGRAMS variable
 include("${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
 
-foreach(_example IN LISTS noinst_PROGRAMS)
-  add_executable(${_example} "${_example}.c")
-  list(APPEND _example_targets ${_example})
-  # to find generated header
-  target_include_directories(${_example} PRIVATE
+add_custom_target(libssh2-examples)
+
+set(_all_src "")
+set(_all_canary "")
+set(_all "all")
+foreach(_target IN LISTS noinst_PROGRAMS _all)  # keep '_all' last
+  if(_target STREQUAL "all")
+    set(_target "libssh2-example-${_all}")
+    add_library(${_target} OBJECT EXCLUDE_FROM_ALL ${_all_src})
+    if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")  # MSVC but exclude clang-cl
+      # CMake generates a static library for the OBJECT target. Silence these 'lib.exe' warnings:
+      # warning LNK4006: main already defined in ....obj; second definition ignored
+      # warning LNK4221: This object file does not define any previously undefined public symbols,
+      #                  [...] not be used by any link operation that consumes this library
+      set_target_properties(${_target} PROPERTIES STATIC_LIBRARY_OPTIONS "-ignore:4006;-ignore:4221")
+    endif()
+    add_custom_target(libssh2-examples-build)  # Special target to compile all tests quickly and build a single test to probe linkage
+    add_dependencies(libssh2-examples-build ${_target} ${_all_canary})  # Include a full build of a single test
+  else()
+    set(_all_canary ${_target})  # Save the last test for the libssh2-examples-build target
+    list(APPEND _all_src "${_target}.c")
+    add_executable(${_target} EXCLUDE_FROM_ALL "${_target}.c")
+    add_dependencies(libssh2-examples ${_target})
+  endif()
+  target_include_directories(${_target} PRIVATE
     "${PROJECT_BINARY_DIR}/src"
     "${PROJECT_SOURCE_DIR}/src")
-  target_link_libraries(${_example} ${LIB_SELECTED} ${LIBSSH2_LIBS})
-  set_property(TARGET ${_example} APPEND PROPERTY COMPILE_OPTIONS "${LIBSSH2_PICKY_C_FLAGS}")
-  set_target_properties(${_example} PROPERTIES UNITY_BUILD OFF)
+  target_link_libraries(${_target} ${LIB_SELECTED} ${LIBSSH2_LIBS})
+  set_property(TARGET ${_target} APPEND PROPERTY COMPILE_OPTIONS "${LIBSSH2_PICKY_C_FLAGS}")
+  set_target_properties(${_target} PROPERTIES UNITY_BUILD OFF)
 endforeach()
