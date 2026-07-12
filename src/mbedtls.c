@@ -118,8 +118,12 @@ int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
     if(!ret &&
        (algo == MBEDTLS_CIPHER_AES_128_CBC ||
         algo == MBEDTLS_CIPHER_AES_192_CBC ||
-        algo == MBEDTLS_CIPHER_AES_256_CBC ||
-        algo == MBEDTLS_CIPHER_DES_EDE3_CBC)) {
+        algo == MBEDTLS_CIPHER_AES_256_CBC
+#if LIBSSH2_3DES
+        || algo == MBEDTLS_CIPHER_DES_EDE3_CBC
+#endif
+       )
+      ) {
         ret = mbedtls_cipher_set_padding_mode(ctx, MBEDTLS_PADDING_NONE);
     }
 

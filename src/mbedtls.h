@@ -80,18 +80,14 @@
 #define LIBSSH2_AES_CBC 1
 #define LIBSSH2_AES_CTR 1
 #define LIBSSH2_AES_GCM 0
-#ifdef MBEDTLS_CIPHER_BLOWFISH_CBC
-# define LIBSSH2_BLOWFISH 1
-#else
-# define LIBSSH2_BLOWFISH 0
-#endif
-#ifdef MBEDTLS_CIPHER_ARC4_128
-# define LIBSSH2_RC4 1
-#else
-# define LIBSSH2_RC4 0
-#endif
+#define LIBSSH2_BLOWFISH 0
+#define LIBSSH2_RC4 0
 #define LIBSSH2_CAST 0
-#define LIBSSH2_3DES 1
+#ifdef MBEDTLS_CIPHER_DES_EDE3_CBC
+# define LIBSSH2_3DES 1
+#else
+# define LIBSSH2_3DES 0
+#endif
 
 #define LIBSSH2_RSA 1
 #define LIBSSH2_RSA_SHA1 1
@@ -194,13 +190,9 @@ typedef enum {
 #define ssh2_cipher_aes256     MBEDTLS_CIPHER_AES_256_CBC
 #define ssh2_cipher_aes192     MBEDTLS_CIPHER_AES_192_CBC
 #define ssh2_cipher_aes128     MBEDTLS_CIPHER_AES_128_CBC
-#ifdef MBEDTLS_CIPHER_BLOWFISH_CBC
-#define ssh2_cipher_blowfish   MBEDTLS_CIPHER_BLOWFISH_CBC
-#endif
-#ifdef MBEDTLS_CIPHER_ARC4_128
-#define ssh2_cipher_arcfour    MBEDTLS_CIPHER_ARC4_128
-#endif
+#if LIBSSH2_3DES
 #define ssh2_cipher_3des       MBEDTLS_CIPHER_DES_EDE3_CBC
+#endif
 #define ssh2_cipher_chacha20   MBEDTLS_CIPHER_CHACHA20_POLY1305
 
 /*******************************************************************/
