@@ -554,7 +554,7 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
     const char *contexttext = contexts[0];
     unsigned int contextindex;
 
-    if(!(session->showmask & context))
+    if(session && !(session->showmask & context))
         return;  /* no such output asked for */
 
     /* Find the first matching context string for this message */
@@ -593,7 +593,7 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
         msglen += len < buflen ? len : buflen - 1;
     }
 
-    if(session->tracehandler)
+    if(session && session->tracehandler)
         (session->tracehandler)(session, session->tracehandler_context, buffer,
                                 msglen);
     else
