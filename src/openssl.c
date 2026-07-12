@@ -682,7 +682,7 @@ int ssh2_ecdsa_curve_name_with_octal_new(
         ret = -1;
 
     if(group_name)
-        OPENSSL_clear_free(group_name, strlen(n));
+        OPENSSL_clear_free(group_name, strlen(n) + 1);
 
     if(data)
         OPENSSL_clear_free(data, publickey_encoded_len);
@@ -2835,7 +2835,7 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     rc = rc != 1;
 
     if(group_name)
-        OPENSSL_clear_free(group_name, strlen(n));
+        OPENSSL_clear_free(group_name, strlen(n) + 1);
 #else
     rc = ssh2_ecdsa_curve_name_with_octal_new(&ec_key, point_buf, pointlen,
                                               curve_type);
