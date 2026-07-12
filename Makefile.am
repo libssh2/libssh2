@@ -6,6 +6,8 @@ SUBDIRS = src docs
 SUBDIRS += tests
 if BUILD_EXAMPLES
 SUBDIRS += example
+else
+DIST_SUBDIRS = $(SUBDIRS) example
 endif
 
 pkgconfigdir = $(libdir)/pkgconfig
@@ -95,3 +97,6 @@ coverage: init-coverage build-coverage gen-coverage
 
 checksrc:
 	scripts/checksrc-all.pl
+
+examples:
+	@(cd example; $(MAKE))
