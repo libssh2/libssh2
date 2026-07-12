@@ -2448,12 +2448,9 @@ int ssh2_ecdsa_new_private(OUT ssh2_ecdsa_ctx **ec_ctx,
     }
 
     result = ssh2_pem_parse(session,
-        OPENSSH_PRIVKEY_HEADER,
-        OPENSSH_PRIVKEY_FOOTER,
-        passphrase,
-        file_handle,
-        &data,
-        &datalen);
+                            OPENSSH_PRIVKEY_HEADER,
+                            OPENSSH_PRIVKEY_FOOTER,
+                            passphrase, file_handle, &data, &datalen);
     if(result != LIBSSH2_ERROR_NONE)
         goto cleanup;
 
