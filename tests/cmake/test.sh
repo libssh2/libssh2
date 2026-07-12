@@ -16,7 +16,7 @@ cmake_provider="${TEST_CMAKE_PROVIDER:-${cmake_consumer}}"
 
 gen="${TEST_CMAKE_GENERATOR:-Ninja}"
 
-cmake_opts='-DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DENABLE_ZLIB_COMPRESSION=ON'
+cmake_opts='-DBUILD_TESTING=OFF -DENABLE_ZLIB_COMPRESSION=ON'
 
 src='../..'
 
