@@ -65,7 +65,7 @@ environment:
     - job_name: 'VS2010, WinCNG, x64, Server 2012 R2, Build-only, non-unity, examples, docs'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       CMAKE_GENERATOR: 'Visual Studio 10 2010'
-      CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=WinCNG -DCMAKE_UNITY_BUILD=OFF -DBUILD_EXAMPLES=ON -DLIBSSH2_BUILD_DOCS=ON'
+      CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=WinCNG -DCMAKE_UNITY_BUILD=OFF -DLIBSSH2_BUILD_DOCS=ON'
       #SKIP_CTEST: 'yes'
 
   # Re-enable when tests work again

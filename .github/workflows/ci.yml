@@ -320,6 +320,7 @@ jobs:
       MATRIX_BUILD: '${{ matrix.build }}'
       MATRIX_COMPILER: '${{ matrix.compiler }}'
       MATRIX_CRYPTO: '${{ matrix.crypto }}'
+      MATRIX_TARGET: '${{ matrix.target }}'
       MATRIX_ZLIB: '${{ matrix.zlib }}'
       FIXTURE_TRACE_ALL_CONNECT: 0
       AWSLC_VERSION: 5.0.0
@@ -604,6 +605,9 @@ jobs:
             else
               options+=' --with-libz'
             fi
+            if [ "${MATRIX_TARGET}" != 'distcheck' ]; then
+              options+=' --disable-examples-build'
+            fi
             ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
               ${options} \
               --disable-dependency-tracking
@@ -646,6 +650,15 @@ jobs:
             cd bld && ctest -VV --output-on-failure
           else
             make -C bld check V=1 || { cat bld/tests/*.log; false; }
+          fi
+
+      - name: 'build examples'
+        if: ${{ !matrix.target }}
+        run: |
+          if [ "${MATRIX_BUILD}" = 'CM' ]; then
+            cmake --build bld --verbose --target libssh2-examples-build
+          else
+            make -C bld V=1 examples
           fi
 
       - name: 'autotools distcheck'
@@ -736,7 +749,7 @@ jobs:
             mkdir bld && cd bld
             ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
               --host="${TRIPLET}" \
-              --disable-dependency-tracking
+              --disable-dependency-tracking --disable-examples-build
           fi
 
       - name: 'configure log'
@@ -754,6 +767,14 @@ jobs:
             cmake --build bld
           else
             make -C bld
+          fi
+
+      - name: 'build examples'
+        run: |
+          if [ "${MATRIX_BUILD}" = 'CM' ]; then
+            cmake --build bld --verbose --target libssh2-examples-build
+          else
+            make -C bld V=1 examples
           fi
 
   build_cygwin:
@@ -808,7 +829,7 @@ jobs:
             ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
               --with-crypto=openssl \
               --disable-docker-tests \
-              --disable-dependency-tracking
+              --disable-dependency-tracking --disable-examples-build
           fi
 
       - name: 'configure log'
@@ -838,6 +859,14 @@ jobs:
             cd bld && ctest -VV --output-on-failure
           else
             make -C bld check V=1 || { cat bld/tests/*.log; false; }
+          fi
+
+      - name: 'build examples'
+        run: |
+          if [ "${MATRIX_BUILD}" = 'CM' ]; then
+            cmake --build bld --verbose --target libssh2-examples-build
+          else
+            make -C bld V=1 examples
           fi
 
   build_msys2:
@@ -934,7 +963,7 @@ jobs:
               --disable-docker-tests \
               --disable-sshd-tests \
               ${options} \
-              --disable-dependency-tracking
+              --disable-dependency-tracking --disable-examples-build
           fi
 
       - name: 'configure log'
@@ -963,6 +992,14 @@ jobs:
             fi
           else
             make -C bld check V=1 || { cat bld/tests/*.log; false; }
+          fi
+
+      - name: 'build examples'
+        run: |
+          if [ "${MATRIX_BUILD}" = 'CM' ]; then
+            cmake --build bld --verbose --target libssh2-examples-build
+          else
+            make -C bld V=1 examples
           fi
 
   build_msvc:
@@ -1044,6 +1081,9 @@ jobs:
         timeout-minutes: 10
         run: cd bld && ctest -VV -C Release --output-on-failure
 
+      - name: 'build examples'
+        run: cmake --build bld --verbose --target libssh2-examples-build
+
   build_macos:
     name: 'macOS (${{ matrix.build }}, ${{ matrix.crypto.name }})'
     runs-on: macos-latest
@@ -1119,7 +1159,7 @@ jobs:
               --with-libz ${MATRIX_CONFIGURE} \
               --disable-docker-tests \
               --disable-sshd-tests \
-              --disable-dependency-tracking
+              --disable-dependency-tracking --disable-examples-build
           fi
 
       - name: 'configure log'
@@ -1148,8 +1188,16 @@ jobs:
             make -C bld check V=1 || { cat bld/tests/*.log; false; }
           fi
 
+      - name: 'build examples'
+        run: |
+          if [ "${MATRIX_BUILD}" = 'CM' ]; then
+            cmake --build bld --verbose --target libssh2-examples-build
+          else
+            make -C bld V=1 examples
+          fi
+
   cross:
-    name: "${{ matrix.os }} ${{ matrix.version }}, ${{ matrix.build == 'cmake' && 'CM' || 'AM' }} ${{ matrix.cc }} ${{ matrix.desc }} ${{ matrix.arch }}"
+    name: "${{ matrix.os }} ${{ matrix.version }}, ${{ matrix.build }} ${{ matrix.cc }} ${{ matrix.desc }} ${{ matrix.arch }}"
     runs-on: ubuntu-26.04
     timeout-minutes: 10
     defaults:
@@ -1166,37 +1214,37 @@ jobs:
       matrix:
         include:
           # https://github.com/DragonFlyBSD/DPorts
-          # { os: 'dragonflybsd', version: '6.4.2', build: 'autotools', arch: 'x86_64', cc: 'gcc'  , desc: 'libgcrypt skiprun',
+          # { os: 'dragonflybsd', version: '6.4.2', build: 'AM', arch: 'x86_64', cc: 'gcc'  , desc: 'libgcrypt skiprun',
           #   install: 'autoconf automake libtool libgcrypt',
           #   options: '--with-crypto=libgcrypt --with-libgcrypt-prefix=/usr/local' }
 
           # https://ports.freebsd.org/
-          - { os: 'freebsd'     , version: '15.1',  build: 'autotools', arch: 'x86_64', cc: 'clang', desc: 'openssl',
+          - { os: 'freebsd'     , version: '15.1',  build: 'AM', arch: 'x86_64', cc: 'clang', desc: 'openssl',
               install: 'autoconf automake libtool gettext',
               options: '--with-crypto=openssl' }
 
-          - { os: 'freebsd'     , version: '14.3',  build: 'cmake'    , arch: 'arm64' , cc: 'clang', desc: 'openssl skiprun',
+          - { os: 'freebsd'     , version: '14.3',  build: 'CM', arch: 'arm64' , cc: 'clang', desc: 'openssl skiprun',
               install: 'cmake-core ninja',
               options: '-DCRYPTO_BACKEND=OpenSSL' }
 
           # https://app.midnightbsd.org/
           # https://man.midnightbsd.org/cgi-bin/man.cgi/mport
-          - { os: 'midnightbsd' , version: '4.0.4', build: 'cmake'    , arch: 'x86_64', cc: 'clang', desc: 'gnutls skiprun',
+          - { os: 'midnightbsd' , version: '4.0.4', build: 'CM', arch: 'x86_64', cc: 'clang', desc: 'gnutls skiprun',
               install: 'cmake-core ninja',
               options: '-DCRYPTO_BACKEND=OpenSSL' }
 
           # https://pkgsrc.se/
-          - { os: 'netbsd'      , version: '10.1' , build: 'cmake'    , arch: 'x86_64', cc: 'gcc'  , desc: 'openssl skiprun',
+          - { os: 'netbsd'      , version: '10.1' , build: 'CM', arch: 'x86_64', cc: 'gcc'  , desc: 'openssl skiprun',
               install: 'cmake ninja-build',
               options: '-DCRYPTO_BACKEND=OpenSSL' }
 
-          - { os: 'netbsd'      , version: '10.1' , build: 'cmake'    , arch: 'arm64' , cc: 'gcc'  , desc: 'openssl skiprun',
+          - { os: 'netbsd'      , version: '10.1' , build: 'CM', arch: 'arm64' , cc: 'gcc'  , desc: 'openssl skiprun',
               install: 'cmake ninja-build',
               options: '-DCRYPTO_BACKEND=OpenSSL' }
 
           # https://openbsd.app/
           # https://www.openbsd.org/faq/faq15.html
-          - { os: 'openbsd'     , version: '7.9'  , build: 'cmake'    , arch: 'x86_64', cc: 'clang', desc: 'libressl skiprun',
+          - { os: 'openbsd'     , version: '7.9'  , build: 'CM', arch: 'x86_64', cc: 'clang', desc: 'libressl skiprun',
               install: 'cmake ninja',
               options: '-DCRYPTO_BACKEND=OpenSSL' }
 
@@ -1229,12 +1277,12 @@ jobs:
           fi
 
       - name: 'autoreconf'
-        if: ${{ matrix.build == 'autotools' }}
+        if: ${{ matrix.build == 'AM' }}
         run: autoreconf -fi
 
       - name: 'configure'
         run: |
-          if [ "${MATRIX_BUILD}" = 'cmake' ]; then
+          if [ "${MATRIX_BUILD}" = 'CM' ]; then
             cmake -B bld -G Ninja \
               -DCMAKE_UNITY_BUILD=ON \
               -DENABLE_WERROR=ON \
@@ -1247,7 +1295,7 @@ jobs:
             mkdir bld && cd bld
             ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
               --disable-docker-tests \
-              --disable-dependency-tracking \
+              --disable-dependency-tracking --disable-examples-build \
               ${MATRIX_OPTIONS}
           fi
 
@@ -1262,18 +1310,26 @@ jobs:
 
       - name: 'build'
         run: |
-          if [ "${MATRIX_BUILD}" = 'cmake' ]; then
+          if [ "${MATRIX_BUILD}" = 'CM' ]; then
             cmake --build bld
           else
             make -C bld
           fi
 
-      - name: 'run tests'
+      - name: 'tests'
         if: ${{ matrix.arch == 'x86_64' && !contains(matrix.desc, 'skiprun') }}  # Slow on emulated CPU
         run: |
           export FIXTURE_TRACE_ALL_CONNECT=1  # try to close in on flaky CI failures on FreeBSD
-          if [ "${MATRIX_BUILD}" = 'cmake' ]; then
+          if [ "${MATRIX_BUILD}" = 'CM' ]; then
             cmake --build bld --verbose --target test-ci
           else
             make -C bld check V=1 || { cat bld/tests/*.log; false; }
+          fi
+
+      - name: 'build examples'
+        run: |
+          if [ "${MATRIX_BUILD}" = 'CM' ]; then
+            cmake --build bld --verbose --target libssh2-examples-build
+          else
+            make -C bld V=1 examples
           fi
