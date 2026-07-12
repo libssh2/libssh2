@@ -304,11 +304,10 @@ static struct {
 };
 
 /* Define ASCII strings. */
-static const char beginencprivkeyhdr[] =
-    "-----BEGIN ENCRYPTED PRIVATE KEY-----";
-static const char endencprivkeyhdr[] = "-----END ENCRYPTED PRIVATE KEY-----";
-static const char beginprivkeyhdr[] = "-----BEGIN PRIVATE KEY-----";
-static const char endprivkeyhdr[] = "-----END PRIVATE KEY-----";
+static const char beginencprivkeyhdr[] = PKCS8_ENCRYPTED_HEADER;
+static const char endencprivkeyhdr[] = PKCS8_ENCRYPTED_FOOTER;
+static const char beginprivkeyhdr[] = PKCS8_HEADER;
+static const char endprivkeyhdr[] = PKCS8_FOOTER;
 static const char beginrsaprivkeyhdr[] = PEM_RSA_HEADER;
 static const char endrsaprivkeyhdr[] = PEM_RSA_FOOTER;
 static const char fopenrbmode[] = "rb";
