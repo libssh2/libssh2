@@ -52,7 +52,7 @@ foreach(_target IN LISTS noinst_PROGRAMS _all)  # keep '_all' last
       #                  [...] not be used by any link operation that consumes this library
       set_target_properties(${_target} PROPERTIES STATIC_LIBRARY_OPTIONS "-ignore:4006;-ignore:4221")
     endif()
-    add_custom_target(libssh2-examples-build)  # Special target to compile all tests quickly and build a single test to probe linkage
+    add_custom_target(libssh2-examples-build) # Special target to compile all tests quickly and build a single test to probe linkage
     add_dependencies(libssh2-examples-build ${_target} ${_all_canary})  # Include a full build of a single test
   else()
     set(_all_canary ${_target})  # Save the last test for the libssh2-examples-build target
