@@ -660,11 +660,8 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 {
     int rc;
 
-    if(!session) {
-        ssh2_deb((session, LIBSSH2_TRACE_TRANS,
-                  "session_startup: session is NULL"));
-        return LIBSSH2_ERROR_PROTO;
-    }
+    if(!session)
+        return LIBSSH2_ERROR_BAD_USE;
 
     if(session->startup_state == ssh2_NB_state_idle) {
         ssh2_deb((session, LIBSSH2_TRACE_TRANS,

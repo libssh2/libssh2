@@ -66,4 +66,4 @@ Public Key debugging
 
 # RETURN VALUE
 
-Currently always 0, no error.
+0 on success, `LIBSSH2_ERROR_BAD_USE` if the session is invalid.

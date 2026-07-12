@@ -519,16 +519,20 @@ void libssh2_free(LIBSSH2_SESSION *session, void *ptr)
 
 int libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
 {
+    if(!session)
+        return LIBSSH2_ERROR_BAD_USE;
     session->showmask = bitmask;
-    return 0;
+    return LIBSSH2_ERROR_NONE;
 }
 
 int libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *context,
                              libssh2_trace_handler_func callback)
 {
+    if(!session)
+        return LIBSSH2_ERROR_BAD_USE;
     session->tracehandler = callback;
     session->tracehandler_context = context;
-    return 0;
+    return LIBSSH2_ERROR_NONE;
 }
 
 void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
@@ -606,7 +610,7 @@ int libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
 {
     (void)session;
     (void)bitmask;
-    return 0;
+    return LIBSSH2_ERROR_NONE;
 }
 
 int libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *context,
@@ -615,7 +619,7 @@ int libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *context,
     (void)session;
     (void)context;
     (void)callback;
-    return 0;
+    return LIBSSH2_ERROR_NONE;
 }
 #endif
 
