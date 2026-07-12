@@ -1233,7 +1233,7 @@ cleanup:
 }
 
 static unsigned char *mbed_mpi_write_binary(unsigned char *buf,
-                                            const mbedtls_mpi *mpi,
+                                            const mbedtls_mpi *bn,
                                             size_t bytes)
 {
     unsigned char *p = buf;
@@ -1242,7 +1242,7 @@ static unsigned char *mbed_mpi_write_binary(unsigned char *buf,
     p += 4;  /* Left space for bn size which is written below. */
 
     *p = 0;
-    mbedtls_mpi_write_binary(mpi, p + 1, size - 1);
+    mbedtls_mpi_write_binary(bn, p + 1, size - 1);
 
     if(!(p[1] & 0x80))
         memmove(p, p + 1, --size);
