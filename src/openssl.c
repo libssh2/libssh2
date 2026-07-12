@@ -2190,10 +2190,7 @@ int ssh2_ed25519_new_public(ssh2_ed25519_ctx **ed_ctx,
         return ssh2_err(session, LIBSSH2_ERROR_PROTO,
                         "could not create ED25519 public key");
 
-    if(ed_ctx)
-        *ed_ctx = ctx;
-    else if(ctx)
-        ssh2_ed25519_free(ctx);
+    *ed_ctx = ctx;
 
     return 0;
 }
