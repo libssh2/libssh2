@@ -1275,10 +1275,8 @@ static int ossl_rsa_openssh_priv_new(ssh2_rsa_ctx **rsa,
     unsigned char *buf = NULL;
     struct string_buf *decrypted = NULL;
 
-    if(!session) {
-        ssh2_err(session, LIBSSH2_ERROR_PROTO, "Session is required");
+    if(!session)
         return -1;
-    }
 
     OSSL_INIT_IF_NEEDED();
 
@@ -1587,10 +1585,8 @@ static int ossl_dsa_openssh_priv_new(ssh2_dsa_ctx **dsa,
     unsigned char *buf = NULL;
     struct string_buf *decrypted = NULL;
 
-    if(!session) {
-        ssh2_err(session, LIBSSH2_ERROR_PROTO, "Session is required");
+    if(!session)
         return -1;
-    }
 
     OSSL_INIT_IF_NEEDED();
 
@@ -2101,10 +2097,8 @@ int ssh2_ed25519_new_private(ssh2_ed25519_ctx **ed_ctx,
     struct string_buf *decrypted = NULL;
     ssh2_ed25519_ctx *ctx = NULL;
 
-    if(!session) {
-        ssh2_err(session, LIBSSH2_ERROR_PROTO, "Session is required");
+    if(!session)
         return -1;
-    }
 
     OSSL_INIT_IF_NEEDED();
 
@@ -3043,10 +3037,8 @@ static int ossl_ecdsa_openssh_priv_new(ssh2_ecdsa_ctx **ec_ctx,
     struct string_buf *decrypted = NULL;
     ssh2_curve_type type;
 
-    if(!session) {
-        ssh2_err(session, LIBSSH2_ERROR_PROTO, "Session is required");
+    if(!session)
         return -1;
-    }
 
     OSSL_INIT_IF_NEEDED();
 
@@ -3567,10 +3559,8 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
     ssh2_curve_type type;
 #endif
 
-    if(!session) {
-        ssh2_err(session, LIBSSH2_ERROR_PROTO, "Session is required");
+    if(!session)
         return -1;
-    }
 
     OSSL_INIT_IF_NEEDED();
 
@@ -3746,7 +3736,7 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
         *key_ctx = NULL;
 
     if(!session)
-        return ssh2_err(session, LIBSSH2_ERROR_PROTO, "Session is required");
+        return LIBSSH2_ERROR_BAD_USE;
 
     if(key_type && (strlen(key_type) > 11 || strlen(key_type) < 7))
         return ssh2_err(session, LIBSSH2_ERROR_PROTO, "type is invalid");
@@ -3852,7 +3842,7 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
     struct string_buf *decrypted = NULL;
 
     if(!session)
-        return ssh2_err(session, LIBSSH2_ERROR_PROTO, "Session is required");
+        return LIBSSH2_ERROR_BAD_USE;
 
     ssh2_deb((session, LIBSSH2_TRACE_AUTH,
               "Computing public key from private key."));

@@ -258,7 +258,7 @@ char *libssh2_userauth_list(LIBSSH2_SESSION *session,
 int libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner)
 {
     if(!session)
-        return LIBSSH2_ERROR_MISSING_USERAUTH_BANNER;
+        return LIBSSH2_ERROR_BAD_USE;
 
     if(!session->userauth_banner)
         return ssh2_err(session, LIBSSH2_ERROR_MISSING_USERAUTH_BANNER,

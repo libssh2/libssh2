@@ -39,6 +39,10 @@ and a typical "release build" might not.
 
 **context** can be used to pass arbitrary user defined data back into the callback when invoked.
 
+# RETURN VALUE
+
+0 on success, `LIBSSH2_ERROR_BAD_USE` if the session is invalid.
+
 # AVAILABILITY
 
 Added in libssh2 version 1.2.3
