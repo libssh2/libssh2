@@ -343,12 +343,21 @@ int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
 void ssh2_dh_dtor(ssh2_dh_ctx *dhctx);
 
 #if LIBSSH2_RSA
-#define PEM_RSA_HEADER "-----BEGIN RSA PRIVATE KEY-----"
-#define PEM_RSA_FOOTER "-----END RSA PRIVATE KEY-----"
+#define PEM_RSA_HEADER          "-----BEGIN RSA PRIVATE KEY-----"
+#define PEM_RSA_FOOTER          "-----END RSA PRIVATE KEY-----"
 #endif
 #if LIBSSH2_DSA
-#define PEM_DSA_HEADER "-----BEGIN DSA PRIVATE KEY-----"
-#define PEM_DSA_FOOTER "-----END DSA PRIVATE KEY-----"
+#define PEM_DSA_HEADER          "-----BEGIN DSA PRIVATE KEY-----"
+#define PEM_DSA_FOOTER          "-----END DSA PRIVATE KEY-----"
 #endif
+#if LIBSSH2_ECDSA
+#define PEM_ECDSA_HEADER        "-----BEGIN EC PRIVATE KEY-----"
+#define PEM_ECDSA_FOOTER        "-----END EC PRIVATE KEY-----"
+#endif
+
+#define PKCS8_HEADER            "-----BEGIN PRIVATE KEY-----"
+#define PKCS8_FOOTER            "-----END PRIVATE KEY-----"
+#define PKCS8_ENCRYPTED_HEADER  "-----BEGIN ENCRYPTED PRIVATE KEY-----"
+#define PKCS8_ENCRYPTED_FOOTER  "-----END ENCRYPTED PRIVATE KEY-----"
 
 #endif /* LIBSSH2_CRYPTO_H */

@@ -795,7 +795,7 @@ static int hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION *session,
     size_t r_len, s_len, name_len;
     uint32_t len;
     struct string_buf buf;
-    ssh2_ecdsa_ctx *ctx = (ssh2_ecdsa_ctx *)(*abstract);
+    ssh2_ecdsa_ctx *ec_ctx = (ssh2_ecdsa_ctx *)(*abstract);
 
     (void)session;
 
@@ -820,7 +820,7 @@ static int hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION *session,
     if(ssh2_get_string(&buf, &s, &s_len))
         return -1;
 
-    return ssh2_ecdsa_verify(ctx, r, r_len, s, s_len, m, m_len);
+    return ssh2_ecdsa_verify(ec_ctx, r, r_len, s, s_len, m, m_len);
 }
 
 /*
@@ -979,7 +979,7 @@ static int hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION *session,
 {
     size_t key_len;
     unsigned char *key;
-    ssh2_ed25519_ctx *ctx = NULL;
+    ssh2_ed25519_ctx *ed_ctx = NULL;
     struct string_buf buf;
 
     if(*abstract) {
@@ -1006,10 +1006,10 @@ static int hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION *session,
     if(!ssh2_eob(&buf))
         return -1;
 
-    if(ssh2_ed25519_new_public(&ctx, session, key, key_len) != 0)
+    if(ssh2_ed25519_new_public(&ed_ctx, session, key, key_len) != 0)
         return -1;
 
-    *abstract = ctx;
+    *abstract = ed_ctx;
 
     return 0;
 }
@@ -1025,7 +1025,7 @@ static int hostkey_method_ssh_ed25519_init_cert(
 {
     size_t key_len, nonce_len;
     unsigned char *key;
-    ssh2_ed25519_ctx *ctx = NULL;
+    ssh2_ed25519_ctx *ed_ctx = NULL;
     struct string_buf buf;
     unsigned char *nonce;
 
@@ -1060,10 +1060,10 @@ static int hostkey_method_ssh_ed25519_init_cert(
      * have more meta data we do not read
      */
 
-    if(ssh2_ed25519_new_public(&ctx, session, key, key_len) != 0)
+    if(ssh2_ed25519_new_public(&ed_ctx, session, key, key_len) != 0)
         return -1;
 
-    *abstract = ctx;
+    *abstract = ed_ctx;
 
     return 0;
 }
@@ -1076,17 +1076,17 @@ static int hostkey_method_ssh_ed25519_initPEM(LIBSSH2_SESSION *session,
                                               const unsigned char *passphrase,
                                               void **abstract)
 {
-    ssh2_ed25519_ctx *ec_ctx = NULL;
+    ssh2_ed25519_ctx *ed_ctx = NULL;
 
     if(*abstract) {
         hostkey_method_ssh_ed25519_dtor(session, abstract);
         *abstract = NULL;
     }
 
-    if(ssh2_ed25519_new_private(&ec_ctx, session, privkeyfile, passphrase))
+    if(ssh2_ed25519_new_private(&ed_ctx, session, privkeyfile, passphrase))
         return -1;
 
-    *abstract = ec_ctx;
+    *abstract = ed_ctx;
 
     return 0;
 }
@@ -1129,7 +1129,7 @@ static int hostkey_method_ssh_ed25519_sig_verify(LIBSSH2_SESSION *session,
                                                  const unsigned char *m,
                                                  size_t m_len, void **abstract)
 {
-    ssh2_ed25519_ctx *ctx = (ssh2_ed25519_ctx *)(*abstract);
+    ssh2_ed25519_ctx *ed_ctx = (ssh2_ed25519_ctx *)(*abstract);
     (void)session;
 
     /* Skip past keyname_len(4) + keyname(11){"ssh-ed25519"} +
@@ -1143,7 +1143,7 @@ static int hostkey_method_ssh_ed25519_sig_verify(LIBSSH2_SESSION *session,
     if(sig_len != SSH2_ED25519_SIG_LEN)
         return -1;
 
-    return ssh2_ed25519_verify(ctx, session, sig, sig_len, m, m_len);
+    return ssh2_ed25519_verify(ed_ctx, session, sig, sig_len, m, m_len);
 }
 
 /*
@@ -1156,12 +1156,12 @@ static int hostkey_method_ssh_ed25519_signv(LIBSSH2_SESSION *session,
                                             const struct iovec datavec[],
                                             void **abstract)
 {
-    ssh2_ed25519_ctx *ctx = (ssh2_ed25519_ctx *)(*abstract);
+    ssh2_ed25519_ctx *ed_ctx = (ssh2_ed25519_ctx *)(*abstract);
 
     if(veccount != 1)
         return -1;
 
-    return ssh2_ed25519_sign(ctx, session, signature, signature_len,
+    return ssh2_ed25519_sign(ed_ctx, session, signature, signature_len,
                              (const uint8_t *)datavec[0].iov_base,
                              datavec[0].iov_len);
 }
