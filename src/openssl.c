@@ -984,6 +984,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                           SSH2_UNCONST(passphrase));
 #endif
     BIO_free(bp);
+
     if(!*rsa)
         rc = ossl_key_from_openssh_blob(session, (void **)rsa, "ssh-rsa",
                                         NULL, NULL, NULL, NULL,
@@ -3844,7 +3845,7 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                               size_t *handle_len,
                               const char *privatekeydata,
                               size_t privatekeydata_len,
-                              const char *passphrase)
+                              const unsigned char *passphrase)
 {
     int rc;
     unsigned char *buf = NULL;
@@ -3858,8 +3859,7 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
 
     OSSL_INIT_IF_NEEDED();
 
-    rc = ssh2_openssh_pem_parse_memory(session,
-                                       (const unsigned char *)passphrase,
+    rc = ssh2_openssh_pem_parse_memory(session, passphrase,
                                        privatekeydata,
                                        privatekeydata_len, &decrypted);
 
@@ -3912,8 +3912,8 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
 
     if(rc == LIBSSH2_ERROR_FILE)
         rc = ssh2_err(session, LIBSSH2_ERROR_FILE,
-                      "Unable to extract public key from private key "
-                      "file: invalid/unrecognized private key file format");
+                      "Unable to extract public key from private key file: "
+                      "invalid/unrecognized private key file format");
 
     if(decrypted)
         ssh2_string_buf_free(session, decrypted);
