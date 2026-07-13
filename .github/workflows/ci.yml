@@ -584,7 +584,7 @@ jobs:
             if [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && [ "${MATRIX_COMPILER}" = 'clang-tidy' ]; then
               options+=' -DRUN_SSHD_TESTS=OFF'  # fails on due to lack of support for modern algos offered by sshd on Ubuntu 26.04 used with clang-tidy
             fi
-            if [ "${MATRIX_CRYPTO}" = 'OpenSSL-3-no-deprecated' ]; then
+            if [ "${MATRIX_CRYPTO}" = 'OpenSSL-3-no-deprecated' ] || [[ "${MATRIX_CRYPTO}" = 'mbedTLS-'* ]]; then
               options+=' -DENABLE_DEBUG_LOGGING=ON'
               cflags+=' -DLIBSSH2_DEBUG_MLKEM'
             fi
@@ -635,7 +635,7 @@ jobs:
         if: ${{ !matrix.target }}
         timeout-minutes: 10
         run: |
-          if [ "${MATRIX_CRYPTO}" = 'OpenSSL-3-no-deprecated' ]; then
+          if [ "${MATRIX_CRYPTO}" = 'OpenSSL-3-no-deprecated' ] || [[ "${MATRIX_CRYPTO}" = 'mbedTLS-'* ]]; then
             export FIXTURE_TRACE_ALL_CONNECT=1  # try to close in on flaky CI failures
           fi
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
