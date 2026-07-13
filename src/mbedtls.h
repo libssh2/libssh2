@@ -51,11 +51,11 @@
 #include <mbedtls/asn1write.h>
 #include <mbedtls/pk.h>
 
-#if MBEDTLS_VERSION_NUMBER < 0x03010000
-#  error "mbedTLS 3.1.0 or greater required"
+#if MBEDTLS_VERSION_NUMBER < 0x03060000
+#  error "mbedTLS 3.6.0 or greater required"
 #endif
 #if MBEDTLS_VERSION_NUMBER < 0x04000000 && !defined(MBEDTLS_CTR_DRBG_C)
-#  error "MBEDTLS_CTR_DRBG_C is required for mbedTLS 3.x."
+#  error "MBEDTLS_CTR_DRBG_C is required for mbedTLS 3.6.x."
 #endif
 
 /* Define which features are supported. */
