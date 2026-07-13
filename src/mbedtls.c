@@ -875,8 +875,6 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, LIBSSH2_SESSION *session,
         return -1;
     }
 
-    *k = ssh2_bn_init();
-
     ms = mbedtls_mpi_read_binary(*k, shared_k, shared_k_len);
     if(ms == 0)
         return 0;
@@ -884,9 +882,6 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, LIBSSH2_SESSION *session,
     ssh2_deb((session, LIBSSH2_TRACE_ERROR,
               "ssh2_ecdh_gen_k(): mbedtls_mpi_read_binary()->|%d| "
               "shared_k_len=|%lu|", ms, (unsigned long)shared_k_len));
-
-    ssh2_bn_free(*k);
-    *k = NULL;
 
     return -1;
 }
