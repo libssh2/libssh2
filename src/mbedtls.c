@@ -316,8 +316,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
     mbedtls_mpi mpi;
 
-    unsigned char buf[PSA_EXPORT_KEY_OUTPUT_SIZE(PSA_KEY_TYPE_RSA_KEY_PAIR,
-                                                 2048)];
+    unsigned char buf[PSA_EXPORT_KEY_PAIR_MAX_SIZE];
     unsigned char *start = buf;
     unsigned char *p = buf + sizeof(buf); /* write backwards ending at p */
 
