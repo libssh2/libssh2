@@ -281,7 +281,7 @@ int libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner)
 int libssh2_userauth_authenticated(LIBSSH2_SESSION *session)
 {
     if(!session)
-        return LIBSSH2_ERROR_BAD_USE;
+        return 0;
 
     return (session->state & SSH2_STATE_AUTHENTICATED) ? 1 : 0;
 }
