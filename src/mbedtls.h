@@ -43,7 +43,6 @@
 #include <psa/crypto.h>
 #if MBEDTLS_VERSION_NUMBER < 0x04000000
 #include <mbedtls/bignum.h>
-#include <mbedtls/cipher.h>
 #include <mbedtls/entropy.h>
 #include <mbedtls/ctr_drbg.h>
 #endif
