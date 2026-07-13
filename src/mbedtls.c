@@ -123,13 +123,11 @@ int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
         || algo == MBEDTLS_CIPHER_DES_EDE3_CBC
 #endif
        )
-      ) {
+      )
         ret = mbedtls_cipher_set_padding_mode(ctx, MBEDTLS_PADDING_NONE);
-    }
 
     if(!ret)
-        ret = mbedtls_cipher_setkey(ctx,
-                  secret,
+        ret = mbedtls_cipher_setkey(ctx, secret,
                   (int)mbedtls_cipher_info_get_key_bitlen(cipher_info), op);
 
     if(!ret)
@@ -158,13 +156,10 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
         size_t olen = 0, finish_olen = 0;
 
         ret = mbedtls_cipher_reset(ctx);
-
         if(!ret)
             ret = mbedtls_cipher_update(ctx, block, blocksize, output, &olen);
-
         if(!ret)
             ret = mbedtls_cipher_finish(ctx, output + olen, &finish_olen);
-
         if(!ret) {
             olen += finish_olen;
             memcpy(block, output, olen);
