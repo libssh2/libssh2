@@ -245,6 +245,10 @@ char *libssh2_userauth_list(LIBSSH2_SESSION *session,
                             const char *username, unsigned int username_len)
 {
     char *ptr;
+
+    if(!session)
+        return NULL;
+
     BLOCK_ADJUST_ERRNO(ptr, session,
                        userauth_list(session, username, username_len));
     return ptr;
@@ -276,6 +280,9 @@ int libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner)
  */
 int libssh2_userauth_authenticated(LIBSSH2_SESSION *session)
 {
+    if(!session)
+        return 0;
+
     return (session->state & SSH2_STATE_AUTHENTICATED) ? 1 : 0;
 }
 
@@ -533,6 +540,10 @@ int libssh2_userauth_password_ex(
     LIBSSH2_PASSWD_CHANGEREQ_FUNC(*passwd_change_cb))
 {
     int rc;
+
+    if(!session)
+        return LIBSSH2_ERROR_BAD_USE;
+
     BLOCK_ADJUST(rc, session,
                  userauth_password(session, username, username_len,
                                    (const unsigned char *)password,
@@ -876,6 +887,9 @@ int libssh2_sign_sk(LIBSSH2_SESSION *session,
     LIBSSH2_PRIVKEY_SK *sk_info = (LIBSSH2_PRIVKEY_SK *)(*abstract);
     LIBSSH2_SK_SIG_INFO sig_info = { 0 };
 
+    if(!session)
+        return LIBSSH2_ERROR_BAD_USE;
+
     if(sk_info->handle_len <= 0)
         return LIBSSH2_ERROR_DECRYPT;
 
@@ -1210,6 +1224,10 @@ int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
                                            unsigned int local_username_len)
 {
     int rc;
+
+    if(!session)
+        return LIBSSH2_ERROR_BAD_USE;
+
     BLOCK_ADJUST(rc, session,
                  userauth_hostbased_fromfile(session,
                                              username, username_len,
@@ -1977,6 +1995,9 @@ int libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
 {
     int rc;
 
+    if(!session)
+        return LIBSSH2_ERROR_BAD_USE;
+
     if(!passphrase)
         /* if given a NULL pointer, make it point to a zero-length
            string to save us from having to check this all over */
@@ -2004,6 +2025,9 @@ int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
                                            const char *passphrase)
 {
     int rc;
+
+    if(!session)
+        return LIBSSH2_ERROR_BAD_USE;
 
     if(!passphrase)
         /* if given a NULL pointer, make it point to a zero-length
@@ -2288,6 +2312,10 @@ int libssh2_userauth_keyboard_interactive_ex(
     LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(*response_callback))
 {
     int rc;
+
+    if(!session)
+        return LIBSSH2_ERROR_BAD_USE;
+
     BLOCK_ADJUST(rc, session,
                  userauth_keyboard_interactive(session, username, username_len,
                                                response_callback));
@@ -2319,6 +2347,9 @@ int libssh2_userauth_publickey_sk(
 
     LIBSSH2_PRIVKEY_SK sk_info = { 0 };
     void *sign_abstract = &sk_info;
+
+    if(!session)
+        return LIBSSH2_ERROR_BAD_USE;
 
     sk_info.sign_callback = sign_callback;
     sk_info.orig_abstract = abstract;
