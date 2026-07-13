@@ -1027,7 +1027,7 @@ static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
     psa_set_key_type(&attr, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1));
     psa_set_key_bits(&attr, (size_t)type);
     psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_HASH);
-    if(psa_import_key(&attr, data, data_len, *ctx) == PSA_SUCCESS)
+    if(psa_import_key(&attr, exponent, exponentlen, *ctx) == PSA_SUCCESS)
         ret = 0;
     psa_reset_key_attributes(&attr);
 
