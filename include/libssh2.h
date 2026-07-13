@@ -1323,7 +1323,8 @@ LIBSSH2_API int libssh2_agent_get_backend_list_size(void);
 * Set the index of the backend to use.
 *
 */
-LIBSSH2_API void libssh2_agent_set_backend_to_use(LIBSSH2_AGENT *agent, int idx);
+LIBSSH2_API void libssh2_agent_set_backend_to_use(LIBSSH2_AGENT *agent,
+                                                  int idx);
 
 /*
 * libssh2_agent_get_backend_to_use()

@@ -1156,7 +1156,8 @@ int libssh2_agent_connect(LIBSSH2_AGENT *agent)
             }
         }
     }
-    else if(agent->backend_to_use_idx < libssh2_agent_get_backend_list_size()) {
+    else if(agent->backend_to_use_idx <
+        libssh2_agent_get_backend_list_size()) {
         agent->ops = agent_supported_backends[agent->backend_to_use_idx].ops;
         rc = agent->ops->connect(agent);
         if(!rc) {
