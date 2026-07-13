@@ -358,8 +358,10 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
        mbedtls_asn1_write_tag(&p, start, 0x30) < 0)
         goto failed;
 
-    psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_MESSAGE);
-    psa_set_key_type(&attr, PSA_KEY_TYPE_RSA_KEY_PAIR);
+    psa_set_key_usage_flags(&attr, ddata ? PSA_KEY_USAGE_SIGN_HASH
+                                         : PSA_KEY_USAGE_VERIFY_MESSAGE);
+    psa_set_key_type(&attr, ddata ? PSA_KEY_TYPE_RSA_KEY_PAIR
+                                  : PSA_KEY_TYPE_RSA_PUBLIC_KEY);
     if(psa_import_key(&attr, p, buf + sizeof(buf) - p, *rsa) == PSA_SUCCESS)
         return 0;
 
@@ -399,7 +401,7 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
 #endif
     if(!ret) {
         psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
-        psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_MESSAGE);
+        psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_HASH);
         psa_set_key_type(&attr, PSA_KEY_TYPE_RSA_KEY_PAIR);
         if(mbedtls_pk_import_into_psa(&pkey, &attr, *rsa))
             ret = -1;
@@ -457,7 +459,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
 
     if(!ret) {
         psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
-        psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_MESSAGE);
+        psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_HASH);
         psa_set_key_type(&attr, PSA_KEY_TYPE_RSA_KEY_PAIR);
         if(mbedtls_pk_import_into_psa(&pkey, &attr, *rsa))
             ret = -1;
@@ -491,8 +493,8 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
         return -1; /* unsupported digest */
     }
 
-    if(psa_verify_message(*rsa, hash_alg, m, m_len,
-                          sig, sig_len) != PSA_SUCCESS)
+    if(psa_verify_message(*rsa, PSA_ALG_RSA_PKCS1V15_SIGN(hash_alg),
+                          m, m_len, sig, sig_len) != PSA_SUCCESS)
         return -1;
 
     return 0;
@@ -565,7 +567,7 @@ static int mbed_pub_priv_key(LIBSSH2_SESSION *session,
     size_t pubkey_size, pubkey_len, mth_len;
 
     psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
-    psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_MESSAGE);
+    psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_VERIFY_MESSAGE);
     psa_set_key_type(&attr, PSA_KEY_TYPE_RSA_KEY_PAIR);
     if(mbedtls_pk_import_into_psa(pkey, &attr, &rsa))
         goto cleanup;
@@ -794,7 +796,7 @@ int ssh2_ecdsa_create_key(ssh2_ec_key **ec_ctx, LIBSSH2_SESSION *session,
 
     **ec_ctx = PSA_KEY_ID_NULL;
 
-    psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_MESSAGE);
+    psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_HASH);
     psa_set_key_type(&attr,
                      PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1));
     psa_set_key_bits(&attr, (size_t)curve);
@@ -840,9 +842,10 @@ int ssh2_ecdsa_curve_name_with_octal_new(
 
     **ec_ctx = PSA_KEY_ID_NULL;
 
-    psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_MESSAGE);
+    psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_VERIFY_MESSAGE);
     psa_set_key_type(&attr,
-                     PSA_KEY_TYPE_ECC_PUBLIC_KEY((psa_key_type_t)curve));
+                     PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_SECP_R1));
+    psa_set_key_bits(&attr, (size_t)curve);
     if(psa_import_key(&attr, publickey_encoded, publickey_encoded_len,
                       *ec_ctx) == PSA_SUCCESS)
         return 0;
@@ -913,8 +916,8 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
     (void)r;
     (void)r_len;
 
-    if(psa_verify_message(*ec_ctx, hash_alg, m, m_len,
-                          s, s_len) != PSA_SUCCESS)
+    if(psa_verify_message(*ec_ctx, hash_alg,
+                          m, m_len, s, s_len) != PSA_SUCCESS)
         return -1;
 
     return 0;
@@ -933,7 +936,7 @@ static int mbed_parse_eckey(ssh2_ecdsa_ctx **ctx, mbedtls_pk_context *pkey,
                              mbedtls_ctr_drbg_random, &mbed_ctr_drbg)) {
 #endif
         psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
-        psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_MESSAGE);
+        psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_HASH);
         psa_set_key_type(&attr,
                          PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1));
         if(!mbedtls_pk_import_into_psa(pkey, &attr, *ctx))
@@ -1025,7 +1028,7 @@ static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
 
     psa_set_key_type(&attr, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1));
     psa_set_key_bits(&attr, (size_t)type);
-    psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_MESSAGE);
+    psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_HASH);
     if(psa_import_key(&attr, data, data_len, *ctx) == PSA_SUCCESS)
         ret = 0;
     psa_reset_key_attributes(&attr);
