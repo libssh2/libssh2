@@ -45,9 +45,6 @@
 #include <mbedtls/rsa.h>
 #include <mbedtls/bignum.h>
 #include <mbedtls/cipher.h>
-#ifdef MBEDTLS_ECDSA_C
-#include <mbedtls/ecdsa.h>
-#endif
 #include <mbedtls/entropy.h>
 #include <mbedtls/ctr_drbg.h>
 #endif
