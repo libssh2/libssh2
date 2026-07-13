@@ -921,7 +921,7 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
     (void)r;
     (void)r_len;
 
-    if(psa_verify_message(*ec_ctx, hash_alg,
+    if(psa_verify_message(*ec_ctx, PSA_ALG_ECDSA(hash_alg),
                           m, m_len, s, s_len) != PSA_SUCCESS)
         return -1;
 
