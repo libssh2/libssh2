@@ -2392,16 +2392,10 @@ int libssh2_userauth_publickey_sk(
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
                         "Invalid data in public and private key.");
 
-    if(rc == LIBSSH2_ERROR_NONE) {
+    if(rc == LIBSSH2_ERROR_NONE)
         rc = ssh2_userauth_publickey(session, username, username_len,
                                      pubkeydata, pubkeydata_len,
                                      libssh2_sign_sk, &sign_abstract);
-
-        while(rc == LIBSSH2_ERROR_EAGAIN)
-            rc = ssh2_userauth_publickey(session, username, username_len,
-                                         pubkeydata, pubkeydata_len,
-                                         libssh2_sign_sk, &sign_abstract);
-    }
 
     if(tmp_publickeydata)
         SSH2_FREE(session, tmp_publickeydata);
