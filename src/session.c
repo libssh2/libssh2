@@ -1738,8 +1738,7 @@ int libssh2_session_block_directions(LIBSSH2_SESSION *session)
  */
 const char *libssh2_session_banner_get(LIBSSH2_SESSION *session)
 {
-    /* to avoid a coredump when session is NULL */
-    if(!session)
+    if(!session)  /* to avoid a coredump when session is NULL */
         return NULL;
 
     if(!session->remote.banner)
