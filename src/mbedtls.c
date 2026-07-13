@@ -926,19 +926,32 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
     return 0;
 }
 
-static int mbed_parse_eckey(ssh2_ecdsa_ctx **ctx, mbedtls_pk_context *pkey,
+static int mbed_parse_eckey(ssh2_ecdsa_ctx **ec_ctx, mbedtls_pk_context *pkey,
                             const unsigned char *data, size_t data_len,
                             const unsigned char *pwd)
 {
+    psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
     size_t pwd_len = pwd ? strlen((const char *)pwd) : 0;
 
-    if(!MBEDTLS_PK_PARSE_KEY(pkey, data, data_len, pwd, pwd_len)) {
-        psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
-        psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_HASH);
-        psa_set_key_type(&attr,
-                         PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1));
-        if(!mbedtls_pk_import_into_psa(pkey, &attr, *ctx))
-            return 0;
+    *ec_ctx = mbedtls_calloc(1, sizeof(*ec_ctx));
+    if(!*ec_ctx)
+        goto failed;
+
+    **ec_ctx = PSA_KEY_ID_NULL;
+
+    if(MBEDTLS_PK_PARSE_KEY(pkey, data, data_len, pwd, pwd_len))
+        goto failed;
+
+    psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_HASH);
+    psa_set_key_type(&attr, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1));
+    if(!mbedtls_pk_import_into_psa(pkey, &attr, *ec_ctx))
+        return 0;
+
+failed:
+
+    if(*ec_ctx) {
+        ssh2_ecdsa_free(*ec_ctx);
+        *ec_ctx = NULL;
     }
 
     return -1;
