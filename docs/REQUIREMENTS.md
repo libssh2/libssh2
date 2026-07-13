@@ -10,7 +10,7 @@ We aim to support these or later versions.
 
 - Libgcrypt      1.8 (2017-07-18)
 - LibreSSL       3.7.0 (2022-12-12)
-- mbedTLS        3.1.0 - 3.6.x (2021-12-15)
+- mbedTLS        3.6.0 (2024-03-27)
 - OpenSSL        1.1.1 (2018-09-11)
 - Windows        Vista 6.0 (2006-11-08 - 2012-04-10)
 - wolfSSL        5.4.0 (2022-07-11)
