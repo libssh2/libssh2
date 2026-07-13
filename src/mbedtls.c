@@ -780,8 +780,7 @@ int ssh2_ecdsa_create_key(ssh2_ec_key **ec_ctx, LIBSSH2_SESSION *session,
 
     **ec_ctx = PSA_KEY_ID_NULL;
 
-    psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_HASH |
-                                   PSA_KEY_USAGE_VERIFY_DERIVATION);
+    psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_DERIVE);
     psa_set_key_type(&attr,
                      PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1));
     psa_set_key_bits(&attr, (size_t)curve);
