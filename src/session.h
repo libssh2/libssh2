@@ -42,18 +42,19 @@
 
    The point being to make sure that while in non-blocking mode these always
    return no matter what the return code is, but in blocking mode it blocks
-   if EAGAIN is the reason for the return from the underlying function. */
-#define BLOCK_ADJUST(rc, sess, x)                                    \
+   if EAGAIN is the reason for the return from the underlying function.
+ */
+#define BLOCK_ADJUST(rc, session, x)                                 \
     do {                                                             \
         time_t entry_time = time(NULL);                              \
         do {                                                         \
             (rc) = (x);                                              \
             /* the order of the check below is important to properly \
-               deal with the case when the 'sess' is freed */        \
-            if(((rc) != LIBSSH2_ERROR_EAGAIN) || !(sess) ||          \
-               !(sess)->api_block_mode)                              \
+               deal with the case when the 'session' is freed */     \
+            if(((rc) != LIBSSH2_ERROR_EAGAIN) || !(session) ||       \
+               !(session)->api_block_mode)                           \
                 break;                                               \
-            (rc) = ssh2_wait_socket(sess, entry_time);               \
+            (rc) = ssh2_wait_socket(session, entry_time);            \
         } while(!(rc));                                              \
     } while(0)
 
@@ -63,17 +64,17 @@
  * immediately. If the API is blocking and we get a NULL we check the errno
  * and *only* if that is EAGAIN we loop and wait for socket action.
  */
-#define BLOCK_ADJUST_ERRNO(ptr, sess, x)                                 \
-    do {                                                                 \
-        time_t entry_time = time(NULL);                                  \
-        int rc;                                                          \
-        do {                                                             \
-            (ptr) = (x);                                                 \
-            if(!(sess) || !(sess)->api_block_mode || (ptr) ||            \
-               libssh2_session_last_errno(sess) != LIBSSH2_ERROR_EAGAIN) \
-                break;                                                   \
-            (rc) = ssh2_wait_socket(sess, entry_time);                   \
-        } while(!(rc));                                                  \
+#define BLOCK_ADJUST_ERRNO(ptr, session, x)                                 \
+    do {                                                                    \
+        time_t entry_time = time(NULL);                                     \
+        int rc;                                                             \
+        do {                                                                \
+            (ptr) = (x);                                                    \
+            if(!(session) || !(session)->api_block_mode || (ptr) ||         \
+               libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) \
+                break;                                                      \
+            (rc) = ssh2_wait_socket(session, entry_time);                   \
+        } while(!(rc));                                                     \
     } while(0)
 
 int ssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time);

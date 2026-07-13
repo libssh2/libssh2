@@ -1822,7 +1822,7 @@ static int ossl_ed25519_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
                                                size_t *method_len,
                                                unsigned char **pubkeydata,
                                                size_t *pubkeydata_len,
-                                               ssh2_ed25519_ctx **out_ctx)
+                                               ssh2_ed25519_ctx **ed_ctx)
 {
     ssh2_ed25519_ctx *ctx = NULL;
     unsigned char *method_buf = NULL;
@@ -1918,8 +1918,8 @@ static int ossl_ed25519_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     if(pubkeydata_len)
         *pubkeydata_len = key_len;
 
-    if(out_ctx)
-        *out_ctx = ctx;
+    if(ed_ctx)
+        *ed_ctx = ctx;
     else if(ctx)
         ssh2_ed25519_free(ctx);
 
@@ -1950,7 +1950,7 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
     const char **application,
     const unsigned char **key_handle,
     size_t *handle_len,
-    ssh2_ed25519_ctx **out_ctx)
+    ssh2_ed25519_ctx **ed_ctx)
 {
     const char *key_type = "sk-ssh-ed25519@openssh.com";
 
@@ -2055,8 +2055,8 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
     if(pubkeydata_len)
         *pubkeydata_len = key_len;
 
-    if(out_ctx)
-        *out_ctx = ctx;
+    if(ed_ctx)
+        *ed_ctx = ctx;
     else if(ctx)
         ssh2_ed25519_free(ctx);
 

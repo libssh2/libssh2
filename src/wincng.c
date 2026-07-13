@@ -2448,12 +2448,9 @@ int ssh2_ecdsa_new_private(OUT ssh2_ecdsa_ctx **ec_ctx,
     }
 
     result = ssh2_pem_parse(session,
-        OPENSSH_PRIVKEY_HEADER,
-        OPENSSH_PRIVKEY_FOOTER,
-        passphrase,
-        file_handle,
-        &data,
-        &datalen);
+                            OPENSSH_PRIVKEY_HEADER,
+                            OPENSSH_PRIVKEY_FOOTER,
+                            passphrase, file_handle, &data, &datalen);
     if(result != LIBSSH2_ERROR_NONE)
         goto cleanup;
 
@@ -2473,7 +2470,7 @@ cleanup:
     return result;
 }
 
-static int wcng_parse_ecdsa_privatekey(OUT struct wcng_ecdsa_ctx **key,
+static int wcng_parse_ecdsa_privatekey(OUT struct wcng_ecdsa_ctx **ec_ctx,
                                        IN unsigned char *privatekey,
                                        IN size_t privatekey_len)
 {
@@ -2497,8 +2494,8 @@ static int wcng_parse_ecdsa_privatekey(OUT struct wcng_ecdsa_ctx **key,
 
     BCRYPT_KEY_HANDLE key_handle = NULL;
 
-    *key = malloc(sizeof(ssh2_ecdsa_ctx));
-    if(!*key) {
+    *ec_ctx = malloc(sizeof(ssh2_ecdsa_ctx));
+    if(!*ec_ctx) {
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
     }
@@ -2568,8 +2565,8 @@ static int wcng_parse_ecdsa_privatekey(OUT struct wcng_ecdsa_ctx **key,
     if(result != LIBSSH2_ERROR_NONE)
         goto cleanup;
 
-    (*key)->curve = q.curve;
-    (*key)->handle = key_handle;
+    (*ec_ctx)->curve = q.curve;
+    (*ec_ctx)->handle = key_handle;
 
     result = LIBSSH2_ERROR_NONE;
 
@@ -2578,9 +2575,9 @@ cleanup:
     if(result != LIBSSH2_ERROR_NONE) {
         if(key_handle)
             (void)BCryptDestroyKey(key_handle);
-        if(*key) {
-            free(*key);
-            *key = NULL;
+        if(*ec_ctx) {
+            free(*ec_ctx);
+            *ec_ctx = NULL;
         }
     }
 
@@ -2590,7 +2587,7 @@ cleanup:
 /*
  * Creates a new private key given a file data and password.
  * ECDSA private key files use the decoding defined in PROTOCOL.key
- * in the OpenSSL source tree.
+ * in the OpenSSH source tree.
  */
 int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **ec_ctx,
                                       IN LIBSSH2_SESSION *session,
@@ -2851,14 +2848,10 @@ static int wcng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
         key = SSH2_ALLOC(session, keylen);
         if(key) {
             offset = wcng_pub_priv_write(key, 0, mth, mthlen);
-
             offset = wcng_pub_priv_write(key, offset,
-                                         rpbDecoded[2],
-                                         rcbDecoded[2]);
-
+                                         rpbDecoded[2], rcbDecoded[2]);
             wcng_pub_priv_write(key, offset,
-                                rpbDecoded[1],
-                                rcbDecoded[1]);
+                                rpbDecoded[1], rcbDecoded[1]);
         }
         else
             ret = -1;
@@ -2876,22 +2869,14 @@ static int wcng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
         key = SSH2_ALLOC(session, keylen);
         if(key) {
             offset = wcng_pub_priv_write(key, 0, mth, mthlen);
-
             offset = wcng_pub_priv_write(key, offset,
-                                         rpbDecoded[1],
-                                         rcbDecoded[1]);
-
+                                         rpbDecoded[1], rcbDecoded[1]);
             offset = wcng_pub_priv_write(key, offset,
-                                         rpbDecoded[2],
-                                         rcbDecoded[2]);
-
+                                         rpbDecoded[2], rcbDecoded[2]);
             offset = wcng_pub_priv_write(key, offset,
-                                         rpbDecoded[3],
-                                         rcbDecoded[3]);
-
+                                         rpbDecoded[3], rcbDecoded[3]);
             wcng_pub_priv_write(key, offset,
-                                rpbDecoded[4],
-                                rcbDecoded[4]);
+                                rpbDecoded[4], rcbDecoded[4]);
         }
         else
             ret = -1;

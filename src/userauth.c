@@ -296,14 +296,15 @@ static int userauth_password(LIBSSH2_SESSION *session,
                              unsigned int password_len,
                              LIBSSH2_PASSWD_CHANGEREQ_FUNC(*passwd_change_cb))
 {
-    unsigned char *s;
     static const unsigned char reply_codes[4] = {
         SSH_MSG_USERAUTH_SUCCESS,
         SSH_MSG_USERAUTH_FAILURE,
         SSH_MSG_USERAUTH_PASSWD_CHANGEREQ,
         0
     };
+
     int rc;
+    unsigned char *s;
 
     if(session->userauth_pswd_state == ssh2_NB_state_idle) {
         /* Zero the whole thing out */
@@ -574,7 +575,7 @@ static int userauth_read_blob_pubkey(
     memcpy(pubkey, pubkeyfiledata, pubkeyfiledata_len);
 
     /*
-     *   Remove trailing whitespace
+     * Remove trailing whitespace
      */
     while(pubkey_len && isspace(pubkey[pubkey_len - 1]))
         pubkey_len--;
@@ -2075,14 +2076,15 @@ static int userauth_keyboard_interactive(
     const char *username, unsigned int username_len,
     LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(*response_callback))
 {
-    unsigned char *s;
-
-    int rc;
-
     static const unsigned char reply_codes[4] = {
         SSH_MSG_USERAUTH_SUCCESS,
-        SSH_MSG_USERAUTH_FAILURE, SSH_MSG_USERAUTH_INFO_REQUEST, 0
+        SSH_MSG_USERAUTH_FAILURE,
+        SSH_MSG_USERAUTH_INFO_REQUEST,
+        0
     };
+
+    int rc;
+    unsigned char *s;
     unsigned int i;
 
     if(session->userauth_kybd_state == ssh2_NB_state_idle) {
