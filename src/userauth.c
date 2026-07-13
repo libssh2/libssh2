@@ -87,7 +87,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
 
         if(username_len > MAX_INPUT_LEN) {
             ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                     "username_len out of bounds");
+                     "Username length out of bounds");
             return NULL;
         }
 
@@ -308,7 +308,10 @@ static int userauth_password(LIBSSH2_SESSION *session,
            chgpwdbool(1) + password_len(4) */
         if(username_len > MAX_INPUT_LEN)
             return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                            "username_len out of bounds");
+                            "Username length out of bounds");
+        if(password_len > MAX_INPUT_LEN)
+            return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                            "Password length out of bounds");
 
         session->userauth_pswd_data_len = username_len + 40;
 
