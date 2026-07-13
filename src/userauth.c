@@ -247,7 +247,7 @@ char *libssh2_userauth_list(LIBSSH2_SESSION *session,
     char *ptr;
 
     if(!session)
-        return LIBSSH2_ERROR_BAD_USE;
+        return NULL;
 
     BLOCK_ADJUST_ERRNO(ptr, session,
                        userauth_list(session, username, username_len));
