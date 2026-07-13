@@ -882,7 +882,6 @@ int ssh2_ecdh_gen_k(ssh2_bn **k,
         return -1;
 
     *k = ssh2_bn_init();
-    mbedtls_mpi_init(*k);
 
     if(mbedtls_mpi_read_binary(*k, shared_k, shared_k_len) == 0)
         return 0;
