@@ -1651,7 +1651,7 @@ static int kex_ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
         }
 
         /* Compute the shared secret K */
-        rc = ssh2_ecdh_gen_k(&exchange_state->k, private_key,
+        rc = ssh2_ecdh_gen_k(&exchange_state->k, session, private_key,
                              server_public_key, server_public_key_len);
         if(rc) {
             ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
@@ -1995,7 +1995,7 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
         ssh2_htonu32(exchange_state->k_value, (uint32_t)digest_len);
 
         /* Compute the ecdh shared secret K */
-        rc = ssh2_ecdh_gen_k(&exchange_state->k, private_t_key,
+        rc = ssh2_ecdh_gen_k(&exchange_state->k, session, private_t_key,
                              server_public_key + mlkem_cipher_len,
                              server_public_key_len - mlkem_cipher_len);
         if(rc) {
@@ -2301,8 +2301,8 @@ static int kex_curve25519_sha256(
         }
 
         /* Compute the shared secret K */
-        rc = ssh2_curve25519_gen_k(&exchange_state->k, private_key,
-                                   server_public_key);
+        rc = ssh2_curve25519_gen_k(&exchange_state->k, session,
+                                   private_key, server_public_key);
         if(rc) {
             ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                            "Unable to create curve25519 shared secret");
@@ -2603,9 +2603,9 @@ static int kex_mlkem768x25519_sha256(
         }
 
         /* Compute the x25519 shared secret K */
-        rc = ssh2_curve25519_gen_k(&exchange_state->k, private_t_key,
-                                   server_public_key +
-                                       SSH2_MLKEM_768_CIPHERTEXT);
+        rc = ssh2_curve25519_gen_k(&exchange_state->k, session,
+                                   private_t_key, server_public_key +
+                                                  SSH2_MLKEM_768_CIPHERTEXT);
         if(rc) {
             ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                            "Unable to create curve25519 shared secret");

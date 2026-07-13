@@ -2187,7 +2187,7 @@ cleanup:
  * Computes the shared secret K given a local private key,
  * remote public key and length
  */
-int ssh2_ecdh_gen_k(OUT ssh2_bn **k,
+int ssh2_ecdh_gen_k(OUT ssh2_bn **k, LIBSSH2_SESSION *session,
                     IN ssh2_ecdsa_ctx *private_key,
                     IN const unsigned char *server_public_key,
                     IN size_t server_public_key_len)
@@ -2199,6 +2199,8 @@ int ssh2_ecdh_gen_k(OUT ssh2_bn **k,
     BCRYPT_SECRET_HANDLE agreed_secret_handle = NULL;
     ULONG secret_len;
     struct ecdsa_point server_publickey;
+
+    (void)session;
 
     /* Validate parameters */
     if(!k)

@@ -847,7 +847,7 @@ failed:
  * Computes the shared secret K given a local private key,
  * remote public key and length
  */
-int ssh2_ecdh_gen_k(ssh2_bn **k,
+int ssh2_ecdh_gen_k(ssh2_bn **k, LIBSSH2_SESSION *session,
                     ssh2_ec_key *private_key,
                     const unsigned char *server_public_key,
                     size_t server_public_key_len)
@@ -856,6 +856,8 @@ int ssh2_ecdh_gen_k(ssh2_bn **k,
     size_t shared_k_len;
     psa_status_t ps;
     int ms;
+
+    (void)session;
 
     if(!*k)
         return -1;
