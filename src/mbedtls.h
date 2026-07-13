@@ -35,7 +35,9 @@
 #define SSH2_CRYPTO_ENGINE libssh2_mbedtls
 #define SSH2_CRYPTO_ENGINE_NAME "mbedTLS"
 
-#define MBEDTLS_DECLARE_PRIVATE_IDENTIFIERS
+#define MBEDTLS_DECLARE_PRIVATE_IDENTIFIERS /* for mbedtls_mpi_read_string(),
+                                               mbedtls_mpi_init(),
+                                               mbedtls_mpi_free() */
 
 #include <mbedtls/version.h>
 #include <mbedtls/platform.h>
