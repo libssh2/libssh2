@@ -839,6 +839,10 @@ int ssh2_ecdsa_curve_name_with_octal_new(
 {
     psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
 
+    *ec_ctx = mbedtls_calloc(1, sizeof(*ec_ctx));
+    if(!*ec_ctx)
+        goto failed;
+
     **ec_ctx = PSA_KEY_ID_NULL;
 
     psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_MESSAGE);
@@ -847,6 +851,13 @@ int ssh2_ecdsa_curve_name_with_octal_new(
     if(psa_import_key(&attr, publickey_encoded, publickey_encoded_len,
                       *ec_ctx) == PSA_SUCCESS)
         return 0;
+
+failed:
+
+    if(*ec_ctx) {
+        ssh2_ecdsa_free(*ec_ctx);
+        *ec_ctx = NULL;
+    }
 
     return -1;
 }
