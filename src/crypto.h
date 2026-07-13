@@ -250,7 +250,7 @@ int ssh2_ed25519_new_public(ssh2_ed25519_ctx **ed_ctx,
 int ssh2_ed25519_new_private(ssh2_ed25519_ctx **ed_ctx,
                              LIBSSH2_SESSION *session,
                              const char *filename,
-                             const unsigned char *passphrase);
+                             const uint8_t *passphrase);
 
 int ssh2_ed25519_new_private_frommemory(ssh2_ed25519_ctx **ed_ctx,
                                         LIBSSH2_SESSION *session,
@@ -291,7 +291,7 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                           unsigned char **pubkeydata,
                           size_t *pubkeydata_len,
                           const char *privatekey,
-                          const unsigned char *passphrase);
+                          const char *passphrase);
 
 int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                 unsigned char **method, size_t *method_len,
@@ -299,7 +299,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                 size_t *pubkeydata_len,
                                 const char *privatekeydata,
                                 size_t privatekeydata_len,
-                                const unsigned char *passphrase);
+                                const char *passphrase);
 
 int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                               unsigned char **method, size_t *method_len,

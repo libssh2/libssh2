@@ -702,7 +702,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                 size_t *pubkeydata_len,
                                 const char *privatekeydata,
                                 size_t privatekeydata_len,
-                                const unsigned char *passphrase)
+                                const char *passphrase)
 {
     (void)method;
     (void)method_len;
@@ -722,7 +722,7 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                           unsigned char **pubkeydata,
                           size_t *pubkeydata_len,
                           const char *privatekey,
-                          const unsigned char *passphrase)
+                          const char *passphrase)
 {
     (void)method;
     (void)method_len;

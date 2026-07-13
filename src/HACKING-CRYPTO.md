@@ -419,7 +419,7 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                           unsigned char **pubkeydata,
                           size_t *pubkeydata_len,
                           const char *privatekey,
-                          const unsigned char *passphrase);
+                          const char *passphrase);
 ```
 Reads a private key from file privatekey and extract the public key -->
 (`pubkeydata`, `pubkeydata_len`). Store the associated method (ssh-rsa or
@@ -435,7 +435,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                 size_t *pubkeydata_len,
                                 const char *privatekeydata,
                                 size_t privatekeydata_len,
-                                const unsigned char *passphrase);
+                                const char *passphrase);
 ```
 Gets a private key from bytes at (`privatekeydata`, `privatekeydata_len`) and
 extract the public key --> (`pubkeydata`, `pubkeydata_len`). Store the
@@ -804,7 +804,7 @@ This procedure is already prototyped in `crypto.h`.
 int ssh2_ed25519_new_private(ssh2_ed25519_ctx **ed_ctx,
                              LIBSSH2_SESSION *session,
                              const char *filename,
-                             const unsigned char *passphrase);
+                             const uint8_t *passphrase);
 ```
 Reads an ED25519 private key from PEM file `filename` into a new ED25519
 context.
