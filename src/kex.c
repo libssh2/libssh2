@@ -2250,8 +2250,8 @@ static int kex_curve25519_sha256(
         }
 
         /* Compute the shared secret K */
-        rc = ssh2_curve25519_gen_k(&exchange_state->k, private_key,
-                                   server_public_key);
+        rc = ssh2_curve25519_gen_k(&exchange_state->k, session,
+                                   private_key, server_public_key);
         if(rc) {
             ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                            "Unable to create curve25519 shared secret");
@@ -2551,9 +2551,9 @@ static int kex_mlkem768x25519_sha256(
         }
 
         /* Compute the x25519 shared secret K */
-        rc = ssh2_curve25519_gen_k(&exchange_state->k, private_t_key,
-                                   server_public_key +
-                                       SSH2_MLKEM_768_CIPHERTEXT);
+        rc = ssh2_curve25519_gen_k(&exchange_state->k, session,
+                                   private_t_key, server_public_key +
+                                                  SSH2_MLKEM_768_CIPHERTEXT);
         if(rc) {
             ssh2_explicit_zero(shared_secret, sizeof(shared_secret));
             ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
