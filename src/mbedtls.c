@@ -1057,15 +1057,20 @@ cleanup:
 }
 
 /*
- * Load a file into a buffer
+ * Creates a new private key given a file path and password
  */
-static int mbed_load_file(LIBSSH2_SESSION *session, const char *filename,
-                          unsigned char **data, size_t *data_len)
+int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
+                           LIBSSH2_SESSION *session,
+                           const char *filename,
+                           const unsigned char *passphrase)
 {
-    int ret = 0;  /* fail */
+    mbedtls_pk_context pkey;
+    unsigned char *data = NULL;
+    size_t data_len = 0;
     FILE *fp = NULL;
     long file_size;
-    size_t data_size;
+
+    mbedtls_pk_init(&pkey);
 
     fp = fopen(filename, "rb");
     if(!fp)
@@ -1077,57 +1082,27 @@ static int mbed_load_file(LIBSSH2_SESSION *session, const char *filename,
         goto cleanup;
     if(fseek(fp, 0, SEEK_SET))
         goto cleanup;
-    data_size = (size_t)file_size;
-    if(data_size == 0)
+    data_len = (size_t)file_size;
+    if(data_len == 0)
         goto cleanup;
-    data = SSH2_ALLOC(session, data_size + 1);
+    data = SSH2_ALLOC(session, data_len + 1);
     if(!data)
         goto cleanup;
-    if(fread(data, 1, data_size, fp) != data_size)
+    if(fread(data, 1, data_len, fp) != data_len)
         goto cleanup;
 
-    *data_len = data_size + 1;
-    data[data_size] = 0;  /* for mbedtls_pk_parse_key() */
-    ret = 1;  /* success */
-
-cleanup:
-
-    if(fp)
-        fclose(fp);
-    if(!ret) {
-        SSH2_SAFEFREE(session, data);
-        *data_len = 0;
-    }
-
-    return ret;
-}
-
-/*
- * Creates a new private key given a file path and password
- */
-int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
-                           LIBSSH2_SESSION *session,
-                           const char *filename,
-                           const unsigned char *passphrase)
-{
-    mbedtls_pk_context pkey;
-    unsigned char *data = NULL;
-    size_t data_len = 0;
-
-    mbedtls_pk_init(&pkey);
-
-    if(!mbed_load_file(session, filename, &data, &data_len))
-        goto cleanup;
-
-    if(mbed_parse_eckey(ec_ctx, &pkey, data, data_len, passphrase) == 0)
+    data[data_len] = 0;  /* for mbedtls_pk_parse_key() */
+    if(mbed_parse_eckey(ec_ctx, &pkey, data, data_len + 1, passphrase) == 0)
         goto cleanup;
 
     mbed_parse_openssh_key(ec_ctx, session, data, data_len, passphrase);
 
 cleanup:
 
+    if(fp)
+        fclose(fp);
     if(data) {
-        ssh2_explicit_zero(data, data_len);
+        ssh2_explicit_zero(data, data_len + 1);
         SSH2_FREE(session, data);
     }
 
