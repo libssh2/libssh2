@@ -42,7 +42,6 @@
 #include <psa/crypto_config.h>
 #include <psa/crypto.h>
 #if MBEDTLS_VERSION_NUMBER < 0x04000000
-#include <mbedtls/rsa.h>
 #include <mbedtls/bignum.h>
 #include <mbedtls/cipher.h>
 #include <mbedtls/entropy.h>
