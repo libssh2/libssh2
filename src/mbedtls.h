@@ -83,10 +83,10 @@
 #define LIBSSH2_BLOWFISH 0
 #define LIBSSH2_RC4 0
 #define LIBSSH2_CAST 0
-#ifdef MBEDTLS_CIPHER_DES_EDE3_CBC
-# define LIBSSH2_3DES 1
+#ifdef MBEDTLS_DES_C
+#define LIBSSH2_3DES 1
 #else
-# define LIBSSH2_3DES 0
+#define LIBSSH2_3DES 0
 #endif
 
 #define LIBSSH2_RSA 1
@@ -94,9 +94,9 @@
 #define LIBSSH2_RSA_SHA2 1
 #define LIBSSH2_DSA 0
 #ifdef MBEDTLS_ECDSA_C
-# define LIBSSH2_ECDSA 1
+#define LIBSSH2_ECDSA 1
 #else
-# define LIBSSH2_ECDSA 0
+#define LIBSSH2_ECDSA 0
 #endif
 #define LIBSSH2_ED25519 0
 #define LIBSSH2_MLKEM 0
