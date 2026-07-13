@@ -854,20 +854,31 @@ int ssh2_ecdh_gen_k(ssh2_bn **k,
 {
     uint8_t shared_k[PSA_RAW_KEY_AGREEMENT_OUTPUT_MAX_SIZE];
     size_t shared_k_len;
+    psa_status_t ps;
+    int ms;
 
     if(!*k)
         return -1;
 
-    if(psa_raw_key_agreement(PSA_ALG_ECDH, *private_key,
-                             server_public_key, server_public_key_len,
-                             shared_k, sizeof(shared_k),
-                             &shared_k_len) != PSA_SUCCESS)
+    ps = psa_raw_key_agreement(PSA_ALG_ECDH, *private_key,
+                               server_public_key, server_public_key_len,
+                               shared_k, sizeof(shared_k),
+                               &shared_k_len);
+    if(ps != PSA_SUCCESS) {
+        ssh2_deb((session, LIBSSH2_TRACE_ERROR,
+                  "ssh2_ecdh_gen_k(): psa_raw_key_agreement()->|%d|", ps));
         return -1;
+    }
 
     *k = ssh2_bn_init();
 
-    if(mbedtls_mpi_read_binary(*k, shared_k, shared_k_len) == 0)
+    ms = mbedtls_mpi_read_binary(*k, shared_k, shared_k_len);
+    if(ms == 0)
         return 0;
+
+    ssh2_deb((session, LIBSSH2_TRACE_ERROR,
+              "ssh2_ecdh_gen_k(): mbedtls_mpi_read_binary()->|%d| "
+              "shared_k_len=|%lu|", ms, (unsigned long)shared_k_len));
 
     ssh2_bn_free(*k);
     *k = NULL;
