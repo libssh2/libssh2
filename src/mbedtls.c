@@ -525,11 +525,13 @@ int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
     if(!*signature)
         return -1;
 
-    if(psa_sign_hash(*rsa, hash_alg, hash, hash_len,
+    if(psa_sign_hash(*rsa, PSA_ALG_RSA_PKCS1V15_SIGN(hash_alg), hash, hash_len,
                      *signature, sig_len, signature_len) != PSA_SUCCESS) {
         SSH2_SAFEFREE(session, *signature);
         return -1;
     }
+
+    /* FIXME: convert to wire format */
 
     return 0;
 }
@@ -780,7 +782,7 @@ int ssh2_ecdsa_create_key(ssh2_ec_key **ec_ctx, LIBSSH2_SESSION *session,
     **ec_ctx = PSA_KEY_ID_NULL;
 
     psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_HASH |
-                                   PSA_KEY_USAGE_DERIVE);
+                                   PSA_KEY_USAGE_VERIFY_DERIVATION);
     psa_set_key_type(&attr,
                      PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1));
     psa_set_key_bits(&attr, (size_t)curve);
@@ -1156,11 +1158,13 @@ int ssh2_ecdsa_sign(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
     if(!*signature)
         return -1;
 
-    if(psa_sign_hash(*ec_ctx, hash_alg, hash, hash_len,
+    if(psa_sign_hash(*ec_ctx, PSA_ALG_ECDSA(hash_alg), hash, hash_len,
                      *signature, sig_len, signature_len) != PSA_SUCCESS) {
         SSH2_SAFEFREE(session, *signature);
         return -1;
     }
+
+    /* FIXME: convert to wire format */
 
     return 0;
 }
