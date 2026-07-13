@@ -2078,7 +2078,9 @@ static int userauth_keyboard_interactive(
 {
     static const unsigned char reply_codes[4] = {
         SSH_MSG_USERAUTH_SUCCESS,
-        SSH_MSG_USERAUTH_FAILURE, SSH_MSG_USERAUTH_INFO_REQUEST, 0
+        SSH_MSG_USERAUTH_FAILURE,
+        SSH_MSG_USERAUTH_INFO_REQUEST,
+        0
     };
 
     int rc;
