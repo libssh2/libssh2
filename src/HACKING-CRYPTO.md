@@ -739,7 +739,7 @@ int ssh2_ecdsa_new_openssh_private(ssh2_ecdsa_ctx **ec_ctx,
                                    const unsigned char *passphrase);
 ```
 Reads a PEM-encoded ECDSA private key from file `filename` encrypted with
-passphrase and stores at `ec_ctx` a new ECDSA context for it.
+`passphrase` and stores at `ec_ctx` a new ECDSA context for it.
 Return 0 if OK, else -1.
 Currently used only from openssl backend (ought to be private).
 This procedure is already prototyped in `crypto.h`.
