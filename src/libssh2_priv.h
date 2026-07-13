@@ -1012,11 +1012,11 @@ struct hostkey_method {
     int (*init)(LIBSSH2_SESSION *session, const unsigned char *hostkey_data,
                 size_t hostkey_data_len, void **abstract);
     int (*initPEM)(LIBSSH2_SESSION *session, const char *privkeyfile,
-                   const unsigned char *passphrase, void **abstract);
+                   const char *passphrase, void **abstract);
     int (*initPEMFromMemory)(LIBSSH2_SESSION *session,
                              const char *privkeyfiledata,
                              size_t privkeyfiledata_len,
-                             const unsigned char *passphrase,
+                             const char *passphrase,
                              void **abstract);
     int (*sig_verify)(LIBSSH2_SESSION *session, const unsigned char *sig,
                       size_t sig_len, const unsigned char *m,
@@ -1230,20 +1230,20 @@ int ssh2_bcrypt_pbkdf(const char *pass,
 int ssh2_pem_parse(LIBSSH2_SESSION *session,
                    const char *headerbegin,
                    const char *headerend,
-                   const unsigned char *passphrase,
+                   const char *passphrase,
                    FILE *fp, unsigned char **data, size_t *datalen);
 int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
                           const char *headerbegin,
                           const char *headerend,
-                          const unsigned char *passphrase,
+                          const char *passphrase,
                           const char *filedata, size_t filedata_len,
                           unsigned char **data, size_t *datalen);
 /* OpenSSL keys */
 int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
-                           const unsigned char *passphrase,
+                           const char *passphrase,
                            FILE *fp, struct string_buf **decrypted_buf);
 int ssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
-                                  const unsigned char *passphrase,
+                                  const char *passphrase,
                                   const char *filedata,
                                   size_t filedata_len,
                                   struct string_buf **decrypted_buf);

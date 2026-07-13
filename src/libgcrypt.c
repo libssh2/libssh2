@@ -241,7 +241,7 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
 int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                     LIBSSH2_SESSION *session,
                                     const char *blob, size_t blob_len,
-                                    const unsigned char *passphrase)
+                                    const char *passphrase)
 {
     (void)rsa;
     (void)blob;
@@ -256,7 +256,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
 int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
                          LIBSSH2_SESSION *session,
                          const char *filename,
-                         const unsigned char *passphrase)
+                         const char *passphrase)
 {
     FILE *fp;
     unsigned char *data, *save_data;
@@ -355,7 +355,7 @@ fail:
 int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
                                     LIBSSH2_SESSION *session,
                                     const char *blob, size_t blob_len,
-                                    const unsigned char *passphrase)
+                                    const char *passphrase)
 {
     (void)dsa;
     (void)blob;
@@ -370,7 +370,7 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
 int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
                          LIBSSH2_SESSION *session,
                          const char *filename,
-                         const unsigned char *passphrase)
+                         const char *passphrase)
 {
     FILE *fp;
     unsigned char *data, *save_data;
@@ -702,7 +702,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                 size_t *pubkeydata_len,
                                 const char *privatekeydata,
                                 size_t privatekeydata_len,
-                                const unsigned char *passphrase)
+                                const char *passphrase)
 {
     (void)method;
     (void)method_len;
@@ -722,7 +722,7 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                           unsigned char **pubkeydata,
                           size_t *pubkeydata_len,
                           const char *privatekey,
-                          const unsigned char *passphrase)
+                          const char *passphrase)
 {
     (void)method;
     (void)method_len;

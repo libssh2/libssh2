@@ -57,7 +57,7 @@ struct valiststr {
 
 typedef int (*loadkeyproc)(LIBSSH2_SESSION *session,
                            const unsigned char *data, unsigned int datalen,
-                           const unsigned char *passphrase, void *loadkeydata);
+                           const char *passphrase, void *loadkeydata);
 
 /* Public key extraction data. */
 struct loadpubkeydata {
@@ -117,7 +117,7 @@ struct pkcs5params {
     char padopt;           /* Pad option. */
     char padchar;          /* Pad character. */
     int (*kdf)(LIBSSH2_SESSION *session, char **dk,
-               const unsigned char *passphrase,
+               const char *passphrase,
                struct pkcs5params *pkcs5);
     int hash;              /* KDF hash algorithm. */
     size_t hashlen;        /* KDF hash digest length. */
@@ -1334,7 +1334,7 @@ static int asn1getword(struct asn1Element *e, unsigned long *v)
 }
 
 static int pbkdf1(LIBSSH2_SESSION *session, char **dk,
-                  const unsigned char *passphrase, struct pkcs5params *pkcs5)
+                  const char *passphrase, struct pkcs5params *pkcs5)
 {
     int i;
     Qc3_Format_ALGD0100_T hctx;
@@ -1388,7 +1388,7 @@ static int pbkdf1(LIBSSH2_SESSION *session, char **dk,
 }
 
 static int pbkdf2(LIBSSH2_SESSION *session, char **dk,
-                  const unsigned char *passphrase, struct pkcs5params *pkcs5)
+                  const char *passphrase, struct pkcs5params *pkcs5)
 {
     size_t i;
     size_t k;
@@ -1663,7 +1663,7 @@ static int parse_pbes1(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
 
 static int pkcs8kek(LIBSSH2_SESSION *session, struct os400qc3_crypto_ctx **ctx,
                     const unsigned char *data, unsigned int datalen,
-                    const unsigned char *passphrase,
+                    const char *passphrase,
                     struct asn1Element *privkeyinfo)
 {
     struct asn1Element encprivkeyinfo;
@@ -1764,7 +1764,7 @@ static int pkcs8kek(LIBSSH2_SESSION *session, struct os400qc3_crypto_ctx **ctx,
 
 static int rsapkcs8privkey(LIBSSH2_SESSION *session,
                            const unsigned char *data, unsigned int datalen,
-                           const unsigned char *passphrase, void *loadkeydata)
+                           const char *passphrase, void *loadkeydata)
 {
     ssh2_rsa_ctx *ctx = (ssh2_rsa_ctx *)loadkeydata;
     char keyform = Qc3_Clear;
@@ -1841,7 +1841,7 @@ static int sshrsapubkey(LIBSSH2_SESSION *session, char **sshpubkey,
 
 static int rsapkcs8pubkey(LIBSSH2_SESSION *session,
                           const unsigned char *data, unsigned int datalen,
-                          const unsigned char *passphrase, void *loadkeydata)
+                          const char *passphrase, void *loadkeydata)
 {
     struct loadpubkeydata *p = (struct loadpubkeydata *)loadkeydata;
     char *buf;
@@ -1947,7 +1947,7 @@ static int pkcs1topkcs8(LIBSSH2_SESSION *session,
 
 static int rsapkcs1privkey(LIBSSH2_SESSION *session,
                            const unsigned char *data, unsigned int datalen,
-                           const unsigned char *passphrase, void *loadkeydata)
+                           const char *passphrase, void *loadkeydata)
 {
     const unsigned char *data8;
     unsigned int datalen8;
@@ -1962,7 +1962,7 @@ static int rsapkcs1privkey(LIBSSH2_SESSION *session,
 
 static int rsapkcs1pubkey(LIBSSH2_SESSION *session,
                           const unsigned char *data, unsigned int datalen,
-                          const unsigned char *passphrase, void *loadkeydata)
+                          const char *passphrase, void *loadkeydata)
 {
     const unsigned char *data8;
     unsigned int datalen8;
@@ -1976,7 +1976,7 @@ static int rsapkcs1pubkey(LIBSSH2_SESSION *session,
 }
 
 static int try_pem_load(LIBSSH2_SESSION *session, FILE *fp,
-                        const unsigned char *passphrase,
+                        const char *passphrase,
                         const char *header, const char *trailer,
                         loadkeyproc proc, void *loadkeydata)
 {
@@ -2011,7 +2011,7 @@ static int try_pem_load(LIBSSH2_SESSION *session, FILE *fp,
 
 static int load_rsa_private_file(LIBSSH2_SESSION *session,
                                  const char *filename,
-                                 unsigned const char *passphrase,
+                                 const char *passphrase,
                                  loadkeyproc proc1, loadkeyproc proc8,
                                  void *loadkeydata)
 {
@@ -2075,7 +2075,7 @@ static int load_rsa_private_file(LIBSSH2_SESSION *session,
 
 int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
                          const char *filename,
-                         unsigned const char *passphrase)
+                         const char *passphrase)
 {
     ssh2_rsa_ctx *ctx = init_crypto_ctx(NULL);
     int ret;
@@ -2097,8 +2097,7 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                           unsigned char **method, size_t *method_len,
                           unsigned char **pubkeydata,
                           size_t *pubkeydata_len,
-                          const char *privatekey,
-                          const unsigned char *passphrase)
+                          const char *privatekey, const char *passphrase)
 {
     struct loadpubkeydata p;
     int ret;
@@ -2137,7 +2136,7 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
 int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                     LIBSSH2_SESSION *session,
                                     const char *blob, size_t blob_len,
-                                    unsigned const char *passphrase)
+                                    const char *passphrase)
 {
     ssh2_rsa_ctx *ctx = init_crypto_ctx(NULL);
     unsigned char *data = NULL;
@@ -2212,7 +2211,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                 size_t *pubkeydata_len,
                                 const char *privatekeydata,
                                 size_t privatekeydata_len,
-                                const unsigned char *passphrase)
+                                const char *passphrase)
 {
     struct loadpubkeydata p;
     unsigned char *data = NULL;

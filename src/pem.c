@@ -99,7 +99,7 @@ static unsigned char pem_hex_decode(char digit)
 int ssh2_pem_parse(LIBSSH2_SESSION *session,
                    const char *headerbegin,
                    const char *headerend,
-                   const unsigned char *passphrase,
+                   const char *passphrase,
                    FILE *fp, unsigned char **data, size_t *datalen)
 {
     int ret = -1;
@@ -159,7 +159,7 @@ out:
 int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
                           const char *headerbegin,
                           const char *headerend,
-                          const unsigned char *passphrase,
+                          const char *passphrase,
                           const char *filedata, size_t filedata_len,
                           unsigned char **data, size_t *datalen)
 {
@@ -280,8 +280,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         /* Perform key derivation (PBKDF1/MD5) */
         hok = ssh2_hash_init(&ctx, SSH2_MD5_ALG);
         if(hok) {
-            hok &= ssh2_hash_update(&ctx, passphrase,
-                                    strlen((const char *)passphrase));
+            hok &= ssh2_hash_update(&ctx, passphrase, strlen(passphrase));
             hok &= ssh2_hash_update(&ctx, iv, 8);
             hok &= ssh2_hash_final(&ctx, secret, SSH2_MD5_DIG_LEN);
         }
@@ -293,8 +292,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
             hok = ssh2_hash_init(&ctx, SSH2_MD5_ALG);
             if(hok) {
                 hok &= ssh2_hash_update(&ctx, secret, SSH2_MD5_DIG_LEN);
-                hok &= ssh2_hash_update(&ctx, passphrase,
-                                        strlen((const char *)passphrase));
+                hok &= ssh2_hash_update(&ctx, passphrase, strlen(passphrase));
                 hok &= ssh2_hash_update(&ctx, iv, 8);
                 hok &= ssh2_hash_final(&ctx, secret + SSH2_MD5_DIG_LEN,
                                        SSH2_MD5_DIG_LEN);
@@ -399,7 +397,7 @@ out:
 #define OPENSSH_PRIVKEY_AUTH_MAGIC "openssh-key-v1"
 
 static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
-                                  const unsigned char *passphrase,
+                                  const char *passphrase,
                                   const char *b64data, size_t b64datalen,
                                   struct string_buf **decrypted_buf)
 {
@@ -468,7 +466,7 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
         kdf_buf.len = kdf_len;
     }
 
-    if((!passphrase || strlen((const char *)passphrase) == 0) &&
+    if((!passphrase || strlen(passphrase) == 0) &&
        strcmp((const char *)ciphername, "none")) {
         /* passphrase required */
         ret = LIBSSH2_ERROR_KEYFILE_AUTH_FAILED;
@@ -556,8 +554,7 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
                 goto out;
             }
 
-            if(ssh2_bcrypt_pbkdf((const char *)passphrase,
-                                 strlen((const char *)passphrase),
+            if(ssh2_bcrypt_pbkdf(passphrase, strlen(passphrase),
                                  salt, salt_len, key,
                                  keylen + ivlen, rounds) < 0) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_DECRYPT,
@@ -717,7 +714,7 @@ out:
 }
 
 int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
-                           const unsigned char *passphrase,
+                           const char *passphrase,
                            FILE *fp, struct string_buf **decrypted_buf)
 {
     char line[LINE_SIZE];
@@ -780,7 +777,7 @@ out:
 }
 
 int ssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
-                                  const unsigned char *passphrase,
+                                  const char *passphrase,
                                   const char *filedata,
                                   size_t filedata_len,
                                   struct string_buf **decrypted_buf)
