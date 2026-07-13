@@ -992,7 +992,7 @@ static int mbed_ecdsa_curve_type_from_name(const char *name,
     return 0;
 }
 
-static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
+static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ec_ctx,
                                   LIBSSH2_SESSION *session,
                                   const unsigned char *data,
                                   size_t data_len,
@@ -1006,7 +1006,11 @@ static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
     unsigned char *curve, *exponent, *point_buf;
     psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
 
-    **ctx = PSA_KEY_ID_NULL;
+    *ec_ctx = mbedtls_calloc(1, sizeof(*ec_ctx));
+    if(!*ec_ctx)
+        goto cleanup;
+
+    **ec_ctx = PSA_KEY_ID_NULL;
 
     if(ssh2_openssh_pem_parse_memory(session, pwd,
                                      (const char *)data, data_len,
@@ -1027,7 +1031,7 @@ static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
     psa_set_key_type(&attr, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1));
     psa_set_key_bits(&attr, (size_t)type);
     psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_HASH);
-    if(psa_import_key(&attr, exponent, exponentlen, *ctx) == PSA_SUCCESS)
+    if(psa_import_key(&attr, exponent, exponentlen, *ec_ctx) == PSA_SUCCESS)
         ret = 0;
     psa_reset_key_attributes(&attr);
 
@@ -1035,6 +1039,11 @@ cleanup:
 
     if(decrypted)
         ssh2_string_buf_free(session, decrypted);
+
+    if(ret && *ec_ctx) {
+        ssh2_ecdsa_free(*ec_ctx);
+        *ec_ctx = NULL;
+    }
 
     return ret;
 }
