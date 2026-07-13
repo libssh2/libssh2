@@ -278,7 +278,6 @@ static int mbed_bn_random(ssh2_bn *bn, int bits, int top, int bottom)
         return -1;
     }
 
-    mbedtls_mpi_init(bn);
     mbedtls_mpi_read_binary(bn, buf, len);
     mbedtls_free(buf);
 
