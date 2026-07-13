@@ -44,6 +44,13 @@
 #if MBEDTLS_VERSION_NUMBER < 0x04000000
 static mbedtls_entropy_context mbed_entropy;
 static mbedtls_ctr_drbg_context mbed_ctr_drbg;
+#define MBEDTLS_PK_PARSE_KEY(a, b, c, d, e) mbedtls_pk_parse_key(a, b, c, d, \
+    e, mbedtls_ctr_drbg_random, &mbed_ctr_drbg)
+#define MBEDTLS_PK_PARSE_KEYFILE(a, b, c)   mbedtls_pk_parse_keyfile(a, b, c, \
+    mbedtls_ctr_drbg_random, &mbed_ctr_drbg)
+#else
+#define MBEDTLS_PK_PARSE_KEY(a, b, c, d, e) mbedtls_pk_parse_key(a, b, c, d, e)
+#define MBEDTLS_PK_PARSE_KEYFILE(a, b, c)   mbedtls_pk_parse_keyfile(a, b, c)
 #endif
 
 /*******************************************************************/
@@ -59,8 +66,7 @@ void ssh2_crypto_init(void)
     mbedtls_entropy_init(&mbed_entropy);
     mbedtls_ctr_drbg_init(&mbed_ctr_drbg);
 
-    if(mbedtls_ctr_drbg_seed(&mbed_ctr_drbg,
-                             mbedtls_entropy_func,
+    if(mbedtls_ctr_drbg_seed(&mbed_ctr_drbg, mbedtls_entropy_func,
                              &mbed_entropy, NULL, 0))
         mbedtls_ctr_drbg_free(&mbed_ctr_drbg);
 #endif
@@ -392,12 +398,7 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
     **rsa = PSA_KEY_ID_NULL;
 
     mbedtls_pk_init(&pkey);
-#if MBEDTLS_VERSION_NUMBER >= 0x04000000
-    ret = mbedtls_pk_parse_keyfile(&pkey, filename, (const char *)passphrase);
-#else
-    ret = mbedtls_pk_parse_keyfile(&pkey, filename, (const char *)passphrase,
-                                   mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
-#endif
+    ret = MBEDTLS_PK_PARSE_KEYFILE(&pkey, filename, (const char *)passphrase);
     if(!ret) {
         psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
         psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_HASH);
@@ -446,14 +447,8 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
     pwd_len = passphrase ? strlen((const char *)passphrase) : 0;
 
     mbedtls_pk_init(&pkey);
-#if MBEDTLS_VERSION_NUMBER >= 0x04000000
-    ret = mbedtls_pk_parse_key(&pkey, data_nullterm, blob_len + 1,
+    ret = MBEDTLS_PK_PARSE_KEY(&pkey, data_nullterm, blob_len + 1,
                                passphrase, pwd_len);
-#else
-    ret = mbedtls_pk_parse_key(&pkey, data_nullterm, blob_len + 1,
-                               passphrase, pwd_len,
-                               mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
-#endif
     mbed_zero_free(data_nullterm, blob_len + 1);
 
     if(!ret) {
@@ -618,12 +613,7 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     int ret;
 
     mbedtls_pk_init(&pkey);
-#if MBEDTLS_VERSION_NUMBER >= 0x04000000
-    if(mbedtls_pk_parse_keyfile(&pkey, privatekey, passphrase))
-#else
-    if(mbedtls_pk_parse_keyfile(&pkey, privatekey, passphrase,
-                                mbedtls_ctr_drbg_random, &mbed_ctr_drbg))
-#endif
+    if(MBEDTLS_PK_PARSE_KEYFILE(&pkey, privatekey, passphrase))
         ret = ssh2_err(session, LIBSSH2_ERROR_FILE,
                        "Failed parsing private key file");
     else
@@ -661,14 +651,8 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     mbedtls_pk_init(&pkey);
 
     pwd_len = passphrase ? strlen((const char *)passphrase) : 0;
-#if MBEDTLS_VERSION_NUMBER >= 0x04000000
-    ret = mbedtls_pk_parse_key(&pkey, data_nullterm, privatekeydata_len + 1,
+    ret = MBEDTLS_PK_PARSE_KEY(&pkey, data_nullterm, privatekeydata_len + 1,
                                (const unsigned char *)passphrase, pwd_len);
-#else
-    ret = mbedtls_pk_parse_key(&pkey, data_nullterm, privatekeydata_len + 1,
-                               (const unsigned char *)passphrase, pwd_len,
-                               mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
-#endif
     mbed_zero_free(data_nullterm, privatekeydata_len + 1);
 
     if(ret)
@@ -932,12 +916,7 @@ static int mbed_parse_eckey(ssh2_ecdsa_ctx **ctx, mbedtls_pk_context *pkey,
 {
     size_t pwd_len = pwd ? strlen((const char *)pwd) : 0;
 
-#if MBEDTLS_VERSION_NUMBER >= 0x04000000
-    if(!mbedtls_pk_parse_key(pkey, data, data_len, pwd, pwd_len)) {
-#else
-    if(!mbedtls_pk_parse_key(pkey, data, data_len, pwd, pwd_len,
-                             mbedtls_ctr_drbg_random, &mbed_ctr_drbg)) {
-#endif
+    if(!MBEDTLS_PK_PARSE_KEY(pkey, data, data_len, pwd, pwd_len)) {
         psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
         psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_HASH);
         psa_set_key_type(&attr,
