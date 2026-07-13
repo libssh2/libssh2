@@ -484,7 +484,7 @@ support the private key and the other parameters here.
 int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
                          LIBSSH2_SESSION *session,
                          const char *filename,
-                         const unsigned char *passphrase);
+                         const char *passphrase);
 ```
 Reads an RSA private key from file `filename` into a new RSA context.
 Must call `ssh2_init_if_needed()`.
@@ -495,7 +495,7 @@ This procedure is already prototyped in `crypto.h`.
 int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                     LIBSSH2_SESSION *session,
                                     const char *blob, size_t blob_len,
-                                    const unsigned char *passphrase);
+                                    const char *passphrase);
 ```
 Gets an RSA private key from `blob` into a new RSA context.
 Must call `ssh2_init_if_needed()`.
@@ -624,7 +624,7 @@ This procedure is already prototyped in `crypto.h`.
 int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
                          LIBSSH2_SESSION *session,
                          const char *filename,
-                         const unsigned char *passphrase);
+                         const char *passphrase);
 ```
 Gets a DSA private key from file `filename` into a new DSA context.
 Must call `ssh2_init_if_needed()`.
@@ -635,7 +635,7 @@ This procedure is already prototyped in `crypto.h`.
 int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
                                     LIBSSH2_SESSION *session,
                                     const char *blob, size_t blob_len,
-                                    const unsigned char *passphrase);
+                                    const char *passphrase);
 ```
 Gets a DSA private key from the `blob_len`-bytes `blob` into a new DSA context.
 Must call `ssh2_init_if_needed()`.
@@ -700,7 +700,7 @@ This procedure is already prototyped in `crypto.h`.
 int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
                            LIBSSH2_SESSION *session,
                            const char *filename,
-                           const unsigned char *passphrase);
+                           const char *passphrase);
 ```
 Reads an ECDSA private key from PEM file `filename` into a new ECDSA context.
 Must call `ssh2_init_if_needed()`.
@@ -711,7 +711,7 @@ This procedure is already prototyped in `crypto.h`.
 int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
                                       LIBSSH2_SESSION *session,
                                       const char *blob, size_t blob_len,
-                                      const unsigned char *passphrase);
+                                      const char *passphrase);
 ```
 Builds an ECDSA private key from PEM data at `blob` of length `blob_len`
 into a new ECDSA context stored at `ec_ctx`.
@@ -734,7 +734,7 @@ This procedure is already prototyped in `crypto.h`.
 int ssh2_ecdsa_new_openssh_private(ssh2_ecdsa_ctx **ec_ctx,
                                    LIBSSH2_SESSION *session,
                                    const char *filename,
-                                   const unsigned char *passphrase);
+                                   const char *passphrase);
 ```
 Reads a PEM-encoded ECDSA private key from file `filename` encrypted with
 `passphrase` and stores at `ec_ctx` a new ECDSA context for it.
@@ -804,7 +804,7 @@ This procedure is already prototyped in `crypto.h`.
 int ssh2_ed25519_new_private(ssh2_ed25519_ctx **ed_ctx,
                              LIBSSH2_SESSION *session,
                              const char *filename,
-                             const uint8_t *passphrase);
+                             const char *passphrase);
 ```
 Reads an ED25519 private key from PEM file `filename` into a new ED25519
 context.
@@ -827,7 +827,7 @@ This procedure is already prototyped in `crypto.h`.
 int ssh2_ed25519_new_private_frommemory(ssh2_ed25519_ctx **ed_ctx,
                                         LIBSSH2_SESSION *session,
                                         const char *blob, size_t blob_len,
-                                        const unsigned char *passphrase);
+                                        const char *passphrase);
 ```
 Builds an ED25519 private key from PEM data at `blob` of length `blob_len`
 into a new ED25519 context stored at `ed_ctx`.
