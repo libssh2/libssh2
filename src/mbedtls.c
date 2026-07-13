@@ -353,7 +353,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
        mbedtls_asn1_write_mpi(&p, start, &mpi) < 0 ||
        mbedtls_mpi_read_binary(&mpi, ndata, nlen) != 0 ||
        mbedtls_asn1_write_mpi(&p, start, &mpi) < 0 ||
-       mbedtls_asn1_write_int(&p, start, 0) < 0)
+       (ddata && mbedtls_asn1_write_int(&p, start, 0) < 0))
         goto failed;
 
     mbedtls_mpi_free(&mpi);
