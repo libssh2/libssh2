@@ -151,7 +151,7 @@ jobs:
             sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${OLD_CMAKE_SHA256_LINUX_ARM}" && tar -xzf pkg.bin && rm -f pkg.bin
             printf '%s' ~/cmake-"${OLD_CMAKE_VERSION}"-Linux-aarch64/bin/cmake > ~/old-cmake-path.txt
           else
-            brew install libgcrypt openssl mbedtls@3 wolfssl
+            brew install libgcrypt openssl mbedtls@4 wolfssl
             cd ~
             curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 60 --retry 3 --retry-connrefused \
               --location --proto-redir =https "https://github.com/Kitware/CMake/releases/download/v${OLD_CMAKE_VERSION}/cmake-${OLD_CMAKE_VERSION}-macos-universal.tar.gz" --output pkg.bin
@@ -183,7 +183,7 @@ jobs:
             export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls@3)/lib/pkgconfig"
             export LDFLAGS; LDFLAGS="-Wl,-rpath,$(brew --prefix mbedtls@3)/lib"
           elif [[ "${MATRIX_IMAGE}" = *'macos'* ]]; then
-            export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls@3)"/lib/pkgconfig
+            export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls@4)"/lib/pkgconfig
           fi
           ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=mbedTLS
 
@@ -275,10 +275,10 @@ jobs:
       BORINGSSL_SHA256: fb43aac7fbd323c9dfa1f45fe92a1c01142433c05b23fe34f61d6ba8b13b642e
       LIBRESSL_VERSION: 4.4.0
       LIBRESSL_SHA256: 7d02522ad5070b9adb32eb253ecabce181184a3750cf65abac0675ee908687c1
-      MBEDTLS_VERSION: 3.6.7
-      MBEDTLS_SHA256: a7e8bcbec0e6f761b4af24f25677626b35f762f68eef79c08677a363212d11f6
-      MBEDTLS_VERSION_PREV: 3.1.0
-      MBEDTLS_SHA256_PREV: b02df6f68dd1537e115a8497d5c173dc71edc55ad084756e57a30f951b725acd
+      MBEDTLS_VERSION: 4.2.0
+      MBEDTLS_SHA256: 2bed9d713b4668f76553b097e72b8aa30bc8f112a940d7ae228d524bbde6ffea
+      MBEDTLS_VERSION_PREV: 3.6.7
+      MBEDTLS_SHA256_PREV: a7e8bcbec0e6f761b4af24f25677626b35f762f68eef79c08677a363212d11f6
       OPENSSL_VERSION: 4.1.0
       OPENSSL_SHA256: 50c17baf54cb008f6ce42d50deb4b28050a1aad711636cabd4b241c7e90cc2fd
       OPENSSL111_VERSION: 1.1.1w
@@ -414,8 +414,8 @@ jobs:
         if: ${{ matrix.crypto == 'mbedTLS-prev' && !steps.cache-mbedtls-prev.outputs.cache-hit }}
         run: |
           curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
-            --location --proto-redir =https "https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v${MBEDTLS_VERSION_PREV}.tar.gz" --output pkg.bin
-          sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${MBEDTLS_SHA256_PREV}" && tar -xzf pkg.bin && rm -f pkg.bin
+            --location --proto-redir =https "https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-${MBEDTLS_VERSION_PREV}/mbedtls-${MBEDTLS_VERSION_PREV}.tar.bz2" --output pkg.bin
+          sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${MBEDTLS_SHA256_PREV}" && tar -xjf pkg.bin && rm -f pkg.bin
           cd "mbedtls-${MBEDTLS_VERSION_PREV}"
           export CC=gcc  # compiler warning promoted to error when using clang (as tested with 3.0.0/3.1.0)
           cmake -B . -G Ninja \
@@ -539,6 +539,9 @@ jobs:
               options+=' -DCMAKE_C_STANDARD=90'
               cflags+=' -D_DEFAULT_SOURCE'  # for glibc ISO mode, in tests: popen(), pclose(), in examples: fileno(), tcsetattr()
             fi
+            if [[ "${MATRIX_CRYPTO}" = 'mbedTLS-'* ]]; then
+              options+=' -DENABLE_DEBUG_LOGGING=ON'
+            fi
             cmake -B bld -G Ninja ${options} $TOOLCHAIN_OPTION \
               -DCMAKE_C_FLAGS="${cflags}" \
               -DCMAKE_UNITY_BUILD=ON \
@@ -590,6 +593,9 @@ jobs:
         env:
           FIXTURE_CONTAINER_CMD: ${{ matrix.container || 'docker' }}
         run: |
+          if [[ "${MATRIX_CRYPTO}" = 'mbedTLS-'* ]]; then
+            export FIXTURE_TRACE_ALL_CONNECT=1  # try to close in on CI failures
+          fi
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             export OPENSSH_SERVER_IMAGE; OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
             [ -d "$HOME"/usr ] && export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/usr/lib"
@@ -1085,7 +1091,11 @@ jobs:
             install: libressl
           # configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/libressl
             generate: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/libressl
-          - name: 'mbedTLS'
+          - name: 'mbedTLS 4'
+            install: mbedtls@4
+            configure: --with-crypto=mbedtls --with-libmbedcrypto-prefix=/opt/homebrew
+            generate: -DCRYPTO_BACKEND=mbedTLS
+          - name: 'mbedTLS 3'
             install: mbedtls@3
           # configure: --with-crypto=mbedtls --with-libmbedcrypto-prefix=/opt/homebrew
             generate: -DCRYPTO_BACKEND=mbedTLS
@@ -1122,7 +1132,9 @@ jobs:
       - name: 'configure'
         run: |
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
-            if [ "${MATRIX_INSTALL}" = 'mbedtls@3' ]; then
+            if [ "${MATRIX_INSTALL}" = 'mbedtls@4' ]; then
+              export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls@4)"/lib/pkgconfig
+            elif [ "${MATRIX_INSTALL}" = 'mbedtls@3' ]; then
               export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls@3)"/lib/pkgconfig
             fi
             cmake -B bld -G Ninja ${MATRIX_GENERATE} \
@@ -1133,7 +1145,10 @@ jobs:
               -DRUN_DOCKER_TESTS=OFF \
               -DRUN_SSHD_TESTS=OFF
           else
-            if [ "${MATRIX_INSTALL}" = 'mbedtls@3' ]; then
+            if [ "${MATRIX_INSTALL}" = 'mbedtls@4' ]; then
+              export CPPFLAGS; CPPFLAGS=-I"$(brew --prefix mbedtls@4)"/include
+              export LDFLAGS; LDFLAGS=-L"$(brew --prefix mbedtls@4)"/lib
+            elif [ "${MATRIX_INSTALL}" = 'mbedtls@3' ]; then
               export CPPFLAGS; CPPFLAGS=-I"$(brew --prefix mbedtls@3)"/include
               export LDFLAGS; LDFLAGS=-L"$(brew --prefix mbedtls@3)"/lib
             fi
