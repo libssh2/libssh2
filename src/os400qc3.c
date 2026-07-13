@@ -2094,7 +2094,8 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
 }
 
 int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
-                          unsigned char **method, size_t *method_len,
+                          unsigned char **method,
+                          size_t *method_len,
                           unsigned char **pubkeydata,
                           size_t *pubkeydata_len,
                           const char *privatekey,
@@ -2207,7 +2208,8 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
 }
 
 int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                unsigned char **method, size_t *method_len,
+                                unsigned char **method,
+                                size_t *method_len,
                                 unsigned char **pubkeydata,
                                 size_t *pubkeydata_len,
                                 const char *privatekeydata,
