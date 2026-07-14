@@ -149,6 +149,113 @@ struct _LIBSSH2_AGENT {
 };
 
 #ifdef HAVE_WIN32_AGENTS
+/* Code to talk to Pageant was taken from PuTTY.
+ *
+ * Portions copyright Robert de Bath, Joris van Rantwijk, Delian
+ * Delchev, Andreas Schultz, Jeroen Massar, Wez Furlong, Nicolas
+ * Barry, Justin Bradford, Ben Harris, Malcolm Smith, Ahmad Khalifa,
+ * Markus Kuhn, Colin Watson, and CORE SDI S.A.
+ */
+#define PAGEANT_COPYDATA_ID 0x804e50ba /* random goop */
+
+static int agent_connect_pageant(LIBSSH2_AGENT *agent)
+{
+    HWND hwnd;
+    hwnd = FindWindowA("Pageant", "Pageant");
+    if(!hwnd)
+        return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                        "failed connecting agent");
+    agent->fd = 0; /* Mark as the connection has been established */
+    return LIBSSH2_ERROR_NONE;
+}
+
+static int agent_transact_pageant(LIBSSH2_AGENT *agent,
+                                  struct agent_transaction_ctx *transctx)
+{
+    HWND hwnd;
+    char mapname[23];
+    HANDLE filemap;
+    unsigned char *p;
+    unsigned char *p2;
+    LRESULT id;
+    COPYDATASTRUCT cds;
+
+    if(!transctx || transctx->request_len > AGENT_MAX_MSGLEN - 4)
+        return ssh2_err(agent->session, LIBSSH2_ERROR_INVAL, "illegal input");
+
+    hwnd = FindWindowA("Pageant", "Pageant");
+    if(!hwnd)
+        return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                        "found no pageant");
+
+    ssh2_snprintf(mapname, sizeof(mapname),
+                  "PageantRequest%08x", (unsigned)GetCurrentThreadId());
+    filemap = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
+                                 0, AGENT_MAX_MSGLEN, mapname);
+
+    if(!filemap || filemap == INVALID_HANDLE_VALUE)
+        return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                        "failed setting up pageant filemap");
+
+    p2 = p = MapViewOfFile(filemap, FILE_MAP_WRITE, 0, 0, 0);
+    if(!p || !p2) {
+        CloseHandle(filemap);
+        return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                        "failed to open pageant filemap for writing");
+    }
+
+    ssh2_store_str(&p2, (const char *)transctx->request,
+                   transctx->request_len);
+
+    cds.dwData = PAGEANT_COPYDATA_ID;
+    cds.cbData = (DWORD)(1 + strlen(mapname));
+    cds.lpData = mapname;
+
+    id = SendMessage(hwnd, WM_COPYDATA, (WPARAM)NULL, (LPARAM)&cds);
+    if(id > 0) {
+        transctx->response_len = ssh2_ntohu32(p);
+        if(transctx->response_len > AGENT_MAX_MSGLEN - 4) {
+            UnmapViewOfFile(p);
+            CloseHandle(filemap);
+            return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                            "agent response too large");
+        }
+        transctx->response = SSH2_ALLOC(agent->session,
+                                        transctx->response_len);
+        if(!transctx->response) {
+            UnmapViewOfFile(p);
+            CloseHandle(filemap);
+            return ssh2_err(agent->session, LIBSSH2_ERROR_ALLOC,
+                            "agent malloc failed");
+        }
+        memcpy(transctx->response, p + 4, transctx->response_len);
+    }
+    else {
+        UnmapViewOfFile(p);
+        CloseHandle(filemap);
+        return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                        "pageant did not handle message");
+    }
+
+    UnmapViewOfFile(p);
+    CloseHandle(filemap);
+    return LIBSSH2_ERROR_NONE;
+}
+
+static int agent_disconnect_pageant(LIBSSH2_AGENT *agent)
+{
+    agent->fd = LIBSSH2_INVALID_SOCKET;
+    return LIBSSH2_ERROR_NONE;
+}
+
+static struct agent_ops agent_ops_pageant = {
+    agent_connect_pageant,
+    agent_transact_pageant,
+    agent_disconnect_pageant
+};
+#endif /* HAVE_WIN32_AGENTS */
+
+#ifdef HAVE_WIN32_AGENTS
 
 /* Code to talk to OpenSSH was taken and modified from the Win32 port of
  * Portable OpenSSH by the PowerShell team. Commit
@@ -596,113 +703,6 @@ static struct agent_ops agent_ops_unix = {
     agent_disconnect_unix
 };
 #endif /* HAVE_AF_UNIX */
-
-#ifdef HAVE_WIN32_AGENTS
-/* Code to talk to Pageant was taken from PuTTY.
- *
- * Portions copyright Robert de Bath, Joris van Rantwijk, Delian
- * Delchev, Andreas Schultz, Jeroen Massar, Wez Furlong, Nicolas
- * Barry, Justin Bradford, Ben Harris, Malcolm Smith, Ahmad Khalifa,
- * Markus Kuhn, Colin Watson, and CORE SDI S.A.
- */
-#define PAGEANT_COPYDATA_ID 0x804e50ba /* random goop */
-
-static int agent_connect_pageant(LIBSSH2_AGENT *agent)
-{
-    HWND hwnd;
-    hwnd = FindWindowA("Pageant", "Pageant");
-    if(!hwnd)
-        return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
-                        "failed connecting agent");
-    agent->fd = 0; /* Mark as the connection has been established */
-    return LIBSSH2_ERROR_NONE;
-}
-
-static int agent_transact_pageant(LIBSSH2_AGENT *agent,
-                                  struct agent_transaction_ctx *transctx)
-{
-    HWND hwnd;
-    char mapname[23];
-    HANDLE filemap;
-    unsigned char *p;
-    unsigned char *p2;
-    LRESULT id;
-    COPYDATASTRUCT cds;
-
-    if(!transctx || transctx->request_len > AGENT_MAX_MSGLEN - 4)
-        return ssh2_err(agent->session, LIBSSH2_ERROR_INVAL, "illegal input");
-
-    hwnd = FindWindowA("Pageant", "Pageant");
-    if(!hwnd)
-        return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
-                        "found no pageant");
-
-    ssh2_snprintf(mapname, sizeof(mapname),
-                  "PageantRequest%08x", (unsigned)GetCurrentThreadId());
-    filemap = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
-                                 0, AGENT_MAX_MSGLEN, mapname);
-
-    if(!filemap || filemap == INVALID_HANDLE_VALUE)
-        return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
-                        "failed setting up pageant filemap");
-
-    p2 = p = MapViewOfFile(filemap, FILE_MAP_WRITE, 0, 0, 0);
-    if(!p || !p2) {
-        CloseHandle(filemap);
-        return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
-                        "failed to open pageant filemap for writing");
-    }
-
-    ssh2_store_str(&p2, (const char *)transctx->request,
-                   transctx->request_len);
-
-    cds.dwData = PAGEANT_COPYDATA_ID;
-    cds.cbData = (DWORD)(1 + strlen(mapname));
-    cds.lpData = mapname;
-
-    id = SendMessage(hwnd, WM_COPYDATA, (WPARAM)NULL, (LPARAM)&cds);
-    if(id > 0) {
-        transctx->response_len = ssh2_ntohu32(p);
-        if(transctx->response_len > AGENT_MAX_MSGLEN - 4) {
-            UnmapViewOfFile(p);
-            CloseHandle(filemap);
-            return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
-                            "agent response too large");
-        }
-        transctx->response = SSH2_ALLOC(agent->session,
-                                        transctx->response_len);
-        if(!transctx->response) {
-            UnmapViewOfFile(p);
-            CloseHandle(filemap);
-            return ssh2_err(agent->session, LIBSSH2_ERROR_ALLOC,
-                            "agent malloc failed");
-        }
-        memcpy(transctx->response, p + 4, transctx->response_len);
-    }
-    else {
-        UnmapViewOfFile(p);
-        CloseHandle(filemap);
-        return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
-                        "pageant did not handle message");
-    }
-
-    UnmapViewOfFile(p);
-    CloseHandle(filemap);
-    return LIBSSH2_ERROR_NONE;
-}
-
-static int agent_disconnect_pageant(LIBSSH2_AGENT *agent)
-{
-    agent->fd = LIBSSH2_INVALID_SOCKET;
-    return LIBSSH2_ERROR_NONE;
-}
-
-static struct agent_ops agent_ops_pageant = {
-    agent_connect_pageant,
-    agent_transact_pageant,
-    agent_disconnect_pageant
-};
-#endif /* HAVE_WIN32_AGENTS */
 
 static struct {
     const char *name;
