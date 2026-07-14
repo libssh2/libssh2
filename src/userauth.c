@@ -884,11 +884,13 @@ int libssh2_sign_sk(LIBSSH2_SESSION *session,
                     void **abstract)
 {
     int rc = LIBSSH2_ERROR_DECRYPT;
-    LIBSSH2_PRIVKEY_SK *sk_info = (LIBSSH2_PRIVKEY_SK *)(*abstract);
+    LIBSSH2_PRIVKEY_SK *sk_info;
     LIBSSH2_SK_SIG_INFO sig_info = { 0 };
 
-    if(!session)
+    if(!session || !abstract || !*abstract)
         return LIBSSH2_ERROR_BAD_USE;
+
+    sk_info = (LIBSSH2_PRIVKEY_SK *)(*abstract);
 
     if(sk_info->handle_len <= 0)
         return LIBSSH2_ERROR_DECRYPT;
