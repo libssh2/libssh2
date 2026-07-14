@@ -38,8 +38,8 @@
 
 #ifdef HAVE_SYS_UN_H
 /* Use the existence of sys/un.h as a test if Unix domain socket is
-   supported.  winsock*.h define PF_UNIX/AF_UNIX but do not actually
-   support them. */
+   supported. Windows also supports it via winsock*.h, but not used
+   here at this time. */
 #include <sys/un.h>
 #define HAVE_PF_UNIX
 #endif
