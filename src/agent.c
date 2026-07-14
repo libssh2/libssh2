@@ -34,8 +34,6 @@
 
 #include "libssh2_priv.h"
 
-#include <stdlib.h>  /* for getenv() */
-
 #include "agent.h"
 #include "userauth.h"
 #include "session.h"
@@ -46,6 +44,9 @@
 #endif
 #ifdef SSH2_AGENT_BACKEND_WIN32_OPENSSH
 #include <tchar.h>  /* for _tgetenv_s() */
+#endif
+#ifdef SSH2_AGENT_BACKEND_UNIX
+#include <stdlib.h>  /* for getenv() */
 #endif
 
 #define AGENT_MAX_MSGLEN  8192
