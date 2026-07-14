@@ -36,18 +36,7 @@
 
 #include <stdlib.h>  /* for getenv() */
 
-#ifdef HAVE_SYS_UN_H
-/* Use the existence of sys/un.h as a test if Unix domain socket is
-   supported. Windows also supports it via winsock*.h, but not used
-   here at this time. */
-#include <sys/un.h>
-#define HAVE_AF_UNIX
-#endif
-
-#if defined(_WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
-#define HAVE_WIN32_AGENTS
-#endif
-
+#include "agent.h"
 #include "userauth.h"
 #include "session.h"
 
@@ -141,14 +130,14 @@ struct _LIBSSH2_AGENT {
 
     char *identity_agent_path; /* Path to a custom identity agent socket */
 
-#ifdef HAVE_WIN32_AGENTS
+#ifdef SSH2_AGENT_BACKEND_WIN32_OPENSSH
     OVERLAPPED overlapped;
     HANDLE pipe;
     BOOL pending_io;
 #endif
 };
 
-#ifdef HAVE_WIN32_AGENTS
+#ifdef SSH2_AGENT_BACKEND_WIN32_PAGEANT
 /* Code to talk to Pageant was taken from PuTTY.
  *
  * Portions copyright Robert de Bath, Joris van Rantwijk, Delian
@@ -253,9 +242,9 @@ static struct agent_ops agent_ops_pageant = {
     agent_transact_pageant,
     agent_disconnect_pageant
 };
-#endif /* HAVE_WIN32_AGENTS */
+#endif /* SSH2_AGENT_BACKEND_WIN32_PAGEANT */
 
-#ifdef HAVE_WIN32_AGENTS
+#ifdef SSH2_AGENT_BACKEND_WIN32_OPENSSH
 
 /* Code to talk to OpenSSH was taken and modified from the Win32 port of
  * Portable OpenSSH by the PowerShell team. Commit
@@ -537,9 +526,9 @@ static struct agent_ops agent_ops_openssh = {
     agent_disconnect_openssh
 };
 
-#endif /* HAVE_WIN32_AGENTS */
+#endif /* SSH2_AGENT_BACKEND_WIN32_OPENSSH */
 
-#ifdef HAVE_AF_UNIX
+#ifdef SSH2_AGENT_BACKEND_UNIX
 static int agent_connect_unix(LIBSSH2_AGENT *agent)
 {
     const char *path;
@@ -702,18 +691,20 @@ static struct agent_ops agent_ops_unix = {
     agent_transact_unix,
     agent_disconnect_unix
 };
-#endif /* HAVE_AF_UNIX */
+#endif /* SSH2_AGENT_BACKEND_UNIX */
 
 static struct {
     const char *name;
     struct agent_ops *ops;
 } agent_supported_backends[] = {
-#ifdef HAVE_WIN32_AGENTS
-    { "Pageant", &agent_ops_pageant },
-    { "OpenSSH", &agent_ops_openssh },
+#ifdef SSH2_AGENT_BACKEND_WIN32_PAGEANT
+    { SSH2_AGENT_BACKEND_WIN32_PAGEANT, &agent_ops_pageant },
 #endif
-#ifdef HAVE_AF_UNIX
-    { "Unix", &agent_ops_unix },
+#ifdef SSH2_AGENT_BACKEND_WIN32_OPENSSH
+    { SSH2_AGENT_BACKEND_WIN32_OPENSSH, &agent_ops_openssh },
+#endif
+#ifdef SSH2_AGENT_BACKEND_UNIX
+    { SSH2_AGENT_BACKEND_UNIX, &agent_ops_unix },
 #endif
     { NULL, NULL }
 };
@@ -1075,7 +1066,7 @@ LIBSSH2_AGENT *libssh2_agent_init(LIBSSH2_SESSION *session)
     agent->identity_agent_path = NULL;
     ssh2_list_init(&agent->head);
 
-#ifdef HAVE_WIN32_AGENTS
+#ifdef SSH2_AGENT_BACKEND_WIN32_OPENSSH
     agent->pipe = INVALID_HANDLE_VALUE;
     memset(&agent->overlapped, 0, sizeof(OVERLAPPED));
     agent->pending_io = FALSE;
