@@ -37,12 +37,11 @@
 #include <stdlib.h>  /* for getenv() */
 
 #ifdef HAVE_SYS_UN_H
-#include <sys/un.h>
-#else
 /* Use the existence of sys/un.h as a test if Unix domain socket is
    supported.  winsock*.h define PF_UNIX/AF_UNIX but do not actually
    support them. */
-#undef PF_UNIX
+#include <sys/un.h>
+#define HAVE_PF_UNIX
 #endif
 
 #if defined(_WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
@@ -433,7 +432,7 @@ static struct agent_ops agent_ops_openssh = {
 
 #endif /* HAVE_WIN32_AGENTS */
 
-#ifdef PF_UNIX
+#ifdef HAVE_PF_UNIX
 static int agent_connect_unix(LIBSSH2_AGENT *agent)
 {
     const char *path;
@@ -594,7 +593,7 @@ static struct agent_ops agent_ops_unix = {
     agent_transact_unix,
     agent_disconnect_unix
 };
-#endif /* PF_UNIX */
+#endif /* HAVE_PF_UNIX */
 
 #ifdef HAVE_WIN32_AGENTS
 /* Code to talk to Pageant was taken from PuTTY.
@@ -710,10 +709,10 @@ static struct {
 #ifdef HAVE_WIN32_AGENTS
     { "Pageant", &agent_ops_pageant },
     { "OpenSSH", &agent_ops_openssh },
-#endif /* HAVE_WIN32_AGENTS */
-#ifdef PF_UNIX
+#endif
+#ifdef HAVE_PF_UNIX
     { "Unix", &agent_ops_unix },
-#endif /* PF_UNIX */
+#endif
     { NULL, NULL }
 };
 
