@@ -1310,6 +1310,47 @@ struct libssh2_agent_publickey {
 };
 
 /*
+* libssh2_agent_get_backend_list_size()
+*
+* Returns size the backend list.
+*
+*/
+LIBSSH2_API int libssh2_agent_get_backend_list_size(void);
+
+/*
+* libssh2_agent_set_backend_to_use()
+*
+* Set the index of the backend to use.
+*
+*/
+LIBSSH2_API void libssh2_agent_set_backend_to_use(LIBSSH2_AGENT *agent,
+                                                  int idx);
+
+/*
+* libssh2_agent_get_backend_to_use()
+*
+* Get the index of the backend to use.
+*
+*/
+LIBSSH2_API int libssh2_agent_get_backend_to_use(LIBSSH2_AGENT *agent);
+
+/*
+* libssh2_agent_get_backend_used()
+*
+* Get the index of the backend used.
+*
+*/
+LIBSSH2_API int libssh2_agent_get_backend_used(LIBSSH2_AGENT *agent);
+
+/*
+* libssh2_agent_get_backend_name()
+*
+* Returns the name of the backend used.
+*
+*/
+LIBSSH2_API const char *libssh2_agent_get_backend_name(int idx);
+
+/*
  * libssh2_agent_init()
  *
  * Init an ssh-agent handle. Returns the pointer to the handle.
