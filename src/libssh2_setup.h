@@ -68,7 +68,7 @@
 #  define _FILE_OFFSET_BITS 64
 #elif defined(_MSC_VER)
 #  ifndef _CRT_SECURE_NO_WARNINGS
-#  define _CRT_SECURE_NO_WARNINGS  /* for fopen(), getenv() */
+#  define _CRT_SECURE_NO_WARNINGS  /* for fopen() */
 #  endif
 #  if !defined(LIBSSH2_LIBRARY) || defined(LIBSSH2_TESTS)
     /* apply to examples and tests only */
