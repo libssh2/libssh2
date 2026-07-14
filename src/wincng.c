@@ -2399,6 +2399,7 @@ cleanup:
 }
 
 static int wcng_ecdsa_new_private_parse(OUT ssh2_ecdsa_ctx **ec_ctx,
+                                        LIBSSH2_SESSION *session,
                                         IN const unsigned char *privatekey,
                                         IN size_t privatekey_len)
 {
@@ -2507,6 +2508,9 @@ cleanup:
             free(*ec_ctx);
             *ec_ctx = NULL;
         }
+
+        result = ssh2_err(session, result,
+                          "wcng_ecdsa_new_private_parse() failed");
     }
 
     return result;
@@ -2542,7 +2546,7 @@ int ssh2_ecdsa_new_private(OUT ssh2_ecdsa_ctx **ec_ctx,
     if(result)
         goto cleanup;
 
-    result = wcng_ecdsa_new_private_parse(ec_ctx,
+    result = wcng_ecdsa_new_private_parse(ec_ctx, session,
                                           decrypted->data, decrypted->len);
 
 cleanup:
@@ -2579,7 +2583,7 @@ int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **ec_ctx,
     if(result)
         goto cleanup;
 
-    result = wcng_ecdsa_new_private_parse(ec_ctx,
+    result = wcng_ecdsa_new_private_parse(ec_ctx, session,
                                           decrypted->data, decrypted->len);
 
 cleanup:
