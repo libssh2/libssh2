@@ -38,15 +38,14 @@
 #include "userauth.h"
 #include "session.h"
 
+#include <stdlib.h>  /* for getenv(), getenv_s(), _wgetenv_s() */
+
 #if defined(SSH2_AGENT_BACKEND_WIN32_PAGEANT) || \
     defined(SSH2_AGENT_BACKEND_WIN32_OPENSSH)
 #include <windows.h>
 #endif
 #ifdef SSH2_AGENT_BACKEND_WIN32_OPENSSH
 #include <tchar.h>  /* for _tgetenv_s() */
-#endif
-#ifdef SSH2_AGENT_BACKEND_UNIX
-#include <stdlib.h>  /* for getenv() */
 #endif
 
 #define OPENSSH_AUTH_SOCK "SSH_AUTH_SOCK"
