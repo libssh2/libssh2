@@ -233,19 +233,19 @@ static int is_running_inside_a_container(void)
     return 0;
 #else
     static const char *cgroup_filename = "/proc/self/cgroup";
-    FILE *f;
+    FILE *fp;
     char line[256];
     int found = 0;
-    f = fopen(cgroup_filename, "r");
-    if(!f)
+    fp = fopen(cgroup_filename, "r");
+    if(!fp)
         return 0;  /* Do not go further, we are not in a container */
-    while(fgets(line, sizeof(line), f)) {
+    while(fgets(line, sizeof(line), fp)) {
         if(strstr(line, "docker")) {
             found = 1;
             break;
         }
     }
-    fclose(f);
+    fclose(fp);
     return found;
 #endif
 }

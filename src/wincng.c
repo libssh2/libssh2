@@ -2427,7 +2427,7 @@ int ssh2_ecdsa_new_private(OUT ssh2_ecdsa_ctx **ec_ctx,
 {
     int result;
 
-    FILE *file_handle = NULL;
+    FILE *fp = NULL;
     unsigned char *data = NULL;
     size_t datalen = 0;
 
@@ -2442,8 +2442,8 @@ int ssh2_ecdsa_new_private(OUT ssh2_ecdsa_ctx **ec_ctx,
                         "Passphrase-protected ECDSA private key "
                         "files are unsupported");
 
-    file_handle = fopen(filename, "rb");
-    if(!file_handle) {
+    fp = fopen(filename, "rb");
+    if(!fp) {
         result = ssh2_err(session, LIBSSH2_ERROR_INVAL,
                           "Opening the private key file failed");
         goto cleanup;
@@ -2452,7 +2452,7 @@ int ssh2_ecdsa_new_private(OUT ssh2_ecdsa_ctx **ec_ctx,
     result = ssh2_pem_parse(session,
                             OPENSSH_PRIVKEY_HEADER,
                             OPENSSH_PRIVKEY_FOOTER,
-                            passphrase, file_handle, &data, &datalen);
+                            passphrase, fp, &data, &datalen);
     if(result != LIBSSH2_ERROR_NONE)
         goto cleanup;
 
@@ -2463,8 +2463,8 @@ int ssh2_ecdsa_new_private(OUT ssh2_ecdsa_ctx **ec_ctx,
         goto cleanup;
 
 cleanup:
-    if(file_handle)
-        fclose(file_handle);
+    if(fp)
+        fclose(fp);
 
     if(data)
         SSH2_FREE(session, data);
