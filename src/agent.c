@@ -49,6 +49,8 @@
 #include <stdlib.h>  /* for getenv() */
 #endif
 
+#define OPENSSH_AUTH_SOCK "SSH_AUTH_SOCK"
+
 #define AGENT_MAX_MSGLEN  8192
 
 /* Requests from client to agent for protocol 2 key operations */
@@ -313,7 +315,7 @@ static struct agent_ops agent_ops_pageant = {
  */
 
 #define WIN32_OPENSSH_AGENT_SOCK TEXT("\\\\.\\pipe\\openssh-ssh-agent")
-#define WIN32_OPENSSH_AUTH_SOCK  TEXT("SSH_AUTH_SOCK")
+#define WIN32_OPENSSH_AUTH_SOCK  TEXT(OPENSSH_AUTH_SOCK)
 
 static int agent_connect_openssh(LIBSSH2_AGENT *agent)
 {
@@ -581,7 +583,7 @@ static int agent_connect_unix(LIBSSH2_AGENT *agent)
 
     path = agent->identity_agent_path;
     if(!path) {
-        path = getenv("SSH_AUTH_SOCK");
+        path = getenv(OPENSSH_AUTH_SOCK);
         if(!path)
             return ssh2_err(agent->session, LIBSSH2_ERROR_BAD_USE,
                             "no auth sock variable");
