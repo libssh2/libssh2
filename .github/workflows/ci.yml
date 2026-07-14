@@ -1010,6 +1010,7 @@ jobs:
       run:
         shell: bash
     env:
+      MATRIX_TYPE: '${{ matrix.type }}'
       VCPKG_DISABLE_METRICS: '1'
     strategy:
       fail-fast: false
@@ -1032,7 +1033,6 @@ jobs:
           MATRIX_ARCH: '${{ matrix.arch }}'
           MATRIX_CRYPTO: '${{ matrix.crypto }}'
           MATRIX_PLAT: '${{ matrix.plat }}'
-          MATRIX_TYPE: '${{ matrix.type }}'
           MATRIX_WINCND_ECDSA: '${{ matrix.wincng_ecdsa }}'
           MATRIX_LOG: '${{ matrix.log }}'
           MATRIX_SHARED: '${{ matrix.shared }}'
