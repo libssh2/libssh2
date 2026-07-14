@@ -2590,7 +2590,7 @@ cleanup:
 /*
  * Creates a new private key given a file data and password.
  * ECDSA private key files use the decoding defined in PROTOCOL.key
- * in the OpenSSL source tree.
+ * in the OpenSSH source tree.
  */
 int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **ec_ctx,
                                       IN LIBSSH2_SESSION *session,
