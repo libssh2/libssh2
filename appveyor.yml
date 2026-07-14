@@ -56,6 +56,7 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
       CMAKE_GENERATOR: 'Visual Studio 14 2015'
       CMAKE_GENERATE: '-A Win32 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64 -DBUILD_SHARED_LIBS=OFF -DENABLE_DEBUG_LOGGING=ON'
+      CMAKE_CONFIGURATION: 'Debug'
 
     - job_name: 'VS2013, OpenSSL 1.1, x64, Server 2012 R2'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
@@ -66,6 +67,7 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       CMAKE_GENERATOR: 'Visual Studio 10 2010'
       CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=WinCNG -DCMAKE_UNITY_BUILD=OFF -DLIBSSH2_BUILD_DOCS=ON'
+      CMAKE_CONFIGURATION: 'Debug'
       #SKIP_CTEST: 'yes'
 
   # Re-enable when tests work again

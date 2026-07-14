@@ -62,3 +62,9 @@ if [ "${SKIP_CTEST:-}" != 'yes' ]; then
     "https://download.docker.com/win/static/stable/x86_64/docker-${DOCKER_CLI_VERSION}.zip" --output pkg.bin
   sha256sum pkg.bin && sha256sum pkg.bin | grep -qwF -- "${DOCKER_CLI_SHA256}" && 7z x -y pkg.bin >/dev/null && rm -f pkg.bin && ls -l && docker --version
 fi
+
+# disk space used
+du -sh .; echo; du -sh -t 250KB ./*
+if [ -n "${CMAKE_GENERATOR:-}" ]; then
+  echo; du -h -t 250KB _bld
+fi
