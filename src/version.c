@@ -47,8 +47,7 @@ libssh2_crypto_engine_t libssh2_crypto_engine(void)
 }
 
 static const char *ssh2_build_options =
-    "crypto:"
-    SSH2_CRYPTO_ENGINE_NAME
+    "crypto:" SSH2_CRYPTO_ENGINE_NAME
     " "
     "MD5:"
 #if LIBSSH2_MD5
@@ -170,18 +169,15 @@ static const char *ssh2_build_options =
 #endif
     " "
 #ifdef SSH2_AGENT_BACKEND_WIN32_PAGEANT
-    "agent:"
-    SSH2_AGENT_BACKEND_WIN32_PAGEANT
+    "agent:" SSH2_AGENT_BACKEND_WIN32_PAGEANT
     " "
 #endif
 #ifdef SSH2_AGENT_BACKEND_WIN32_OPENSSH
-    "agent:"
-    SSH2_AGENT_BACKEND_WIN32_OPENSSH
+    "agent:" SSH2_AGENT_BACKEND_WIN32_OPENSSH
     " "
 #endif
 #ifdef SSH2_AGENT_BACKEND_UNIX
-    "agent:"
-    SSH2_AGENT_BACKEND_UNIX
+    "agent:" SSH2_AGENT_BACKEND_UNIX
     " "
 #endif
     "clear-memory:"
