@@ -315,7 +315,6 @@ static struct agent_ops agent_ops_pageant = {
  */
 
 #define WIN32_OPENSSH_AGENT_SOCK TEXT("\\\\.\\pipe\\openssh-ssh-agent")
-#define WIN32_OPENSSH_AUTH_SOCK  TEXT(OPENSSH_AUTH_SOCK)
 
 static int agent_connect_openssh(LIBSSH2_AGENT *agent)
 {
@@ -350,11 +349,11 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
     }
     else {
         size_t len;
-        if(_tgetenv_s(&len, path, 0, WIN32_OPENSSH_AUTH_SOCK) == ERANGE &&
+        if(_tgetenv_s(&len, path, 0, TEXT(OPENSSH_AUTH_SOCK)) == ERANGE &&
            len > 0 && len < 32768) {
             path = SSH2_ALLOC(agent->session, len * sizeof(TCHAR));
             if(path) {
-                if(_tgetenv_s(&len, path, len, WIN32_OPENSSH_AUTH_SOCK))
+                if(_tgetenv_s(&len, path, len, TEXT(OPENSSH_AUTH_SOCK)))
                     SSH2_SAFEFREE(agent->session, path);
                 else
                     path_to_free = TRUE;
