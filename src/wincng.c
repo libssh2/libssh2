@@ -2361,7 +2361,8 @@ int ssh2_ecdsa_verify(IN ssh2_ecdsa_ctx *ec_ctx,
         break;
 
     default:
-        return LIBSSH2_ERROR_INVAL;
+        result = LIBSSH2_ERROR_INVAL;
+        goto cleanup;
     }
 
     hash = malloc(hash_len);
