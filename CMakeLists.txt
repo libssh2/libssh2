@@ -329,9 +329,6 @@ if(WIN32)
 
   if(WINDOWS_STORE)
     set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "UNICODE" "_UNICODE")
-    if(MINGW)
-      set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS "-municode")
-    endif()
   endif()
 endif()
 
