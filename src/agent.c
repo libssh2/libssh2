@@ -345,6 +345,7 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
 #endif
     }
     else {
+#ifndef LIBSSH2_WINDOWS_UWP
         size_t len;
         if(_tgetenv_s(&len, path, 0, TEXT(OPENSSH_AUTH_SOCK)) == ERANGE &&
            len > 0 && len < 32768) {
@@ -357,6 +358,7 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
             }
         }
         if(!path)
+#endif
             path = SSH2_UNCONST(TEXT("\\\\.\\pipe\\openssh-ssh-agent"));
     }
 
