@@ -267,7 +267,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     *rsa = NULL;
     ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);
 
-    if(EVP_PKEY_fromdata_init(ctx) > 0)
+    if(ctx && EVP_PKEY_fromdata_init(ctx) > 0)
         ret = EVP_PKEY_fromdata(ctx, rsa, EVP_PKEY_KEYPAIR, params);
 
     if(nbuf)
@@ -480,7 +480,7 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
     *dsa = NULL;
     ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_DSA, NULL);
 
-    if(EVP_PKEY_fromdata_init(ctx) > 0)
+    if(ctx && EVP_PKEY_fromdata_init(ctx) > 0)
         ret = EVP_PKEY_fromdata(ctx, dsa, EVP_PKEY_KEYPAIR, params);
 
     if(p_buf)
