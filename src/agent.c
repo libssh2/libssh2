@@ -34,11 +34,16 @@
 
 #include "libssh2_priv.h"
 
-#include <stdlib.h>  /* for getenv() */
-
 #include "agent.h"
 #include "userauth.h"
 #include "session.h"
+
+#include <stdlib.h>  /* for getenv(), getenv_s(), _wgetenv_s() */
+#ifdef SSH2_AGENT_BACKEND_WIN32_OPENSSH
+#include <tchar.h>  /* for _tgetenv_s() */
+#endif
+
+#define OPENSSH_AUTH_SOCK "SSH_AUTH_SOCK"
 
 #define AGENT_MAX_MSGLEN  8192
 
@@ -150,7 +155,7 @@ struct _LIBSSH2_AGENT {
 static int agent_connect_pageant(LIBSSH2_AGENT *agent)
 {
     HWND hwnd;
-    hwnd = FindWindowA("Pageant", "Pageant");
+    hwnd = FindWindow(TEXT("Pageant"), TEXT("Pageant"));
     if(!hwnd)
         return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                         "failed connecting agent");
@@ -172,7 +177,7 @@ static int agent_transact_pageant(LIBSSH2_AGENT *agent,
     if(!transctx || transctx->request_len > AGENT_MAX_MSGLEN - 4)
         return ssh2_err(agent->session, LIBSSH2_ERROR_INVAL, "illegal input");
 
-    hwnd = FindWindowA("Pageant", "Pageant");
+    hwnd = FindWindow(TEXT("Pageant"), TEXT("Pageant"));
     if(!hwnd)
         return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                         "found no pageant");
@@ -303,20 +308,55 @@ static struct agent_ops agent_ops_pageant = {
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define WIN32_OPENSSH_AGENT_SOCK "\\\\.\\pipe\\openssh-ssh-agent"
-
 static int agent_connect_openssh(LIBSSH2_AGENT *agent)
 {
     int ret = LIBSSH2_ERROR_NONE;
-    const char *path;
+    LPTSTR path = NULL;
+    int path_to_free = 0;
     HANDLE pipe = INVALID_HANDLE_VALUE;
     HANDLE event = NULL;
 
-    path = agent->identity_agent_path;
-    if(!path) {
-        path = getenv("SSH_AUTH_SOCK");
+    if(agent->identity_agent_path) {
+#ifdef UNICODE
+        int len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+                                      agent->identity_agent_path, -1, NULL, 0);
+        if(len <= 0) {
+            ret = LIBSSH2_ERROR_INVAL;
+            goto cleanup;
+        }
+        if(len > 32767) {
+            ret = LIBSSH2_ERROR_OUT_OF_BOUNDARY;
+            goto cleanup;
+        }
+        path = SSH2_ALLOC(agent->session, len * sizeof(TCHAR));
+        if(!path) {
+            ret = LIBSSH2_ERROR_ALLOC;
+            goto cleanup;
+        }
+        path_to_free = 1;
+        if(!MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+                                agent->identity_agent_path, -1, path, len)) {
+            ret = LIBSSH2_ERROR_INVAL;
+            goto cleanup;
+        }
+#else
+        path = agent->identity_agent_path;
+#endif
+    }
+    else {
+        size_t len = 0;
+        if(!_tgetenv_s(&len, path, 0, TEXT(OPENSSH_AUTH_SOCK)) &&
+           len > 0 && len <= 32767) {
+            path = SSH2_ALLOC(agent->session, len * sizeof(TCHAR));
+            if(path) {
+                if(!_tgetenv_s(&len, path, len, TEXT(OPENSSH_AUTH_SOCK)))
+                    path_to_free = 1;
+                else
+                    SSH2_SAFEFREE(agent->session, path);
+            }
+        }
         if(!path)
-            path = WIN32_OPENSSH_AGENT_SOCK;
+            path = SSH2_UNCONST(TEXT("\\\\.\\pipe\\openssh-ssh-agent"));
     }
 
     for(;;) {
@@ -329,11 +369,10 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
          * OpenSSH code.
          */
         /* !checksrc! disable BANNEDFUNC 1 */
-        pipe = CreateFileA(path, GENERIC_READ | GENERIC_WRITE, 0, NULL,
-                           OPEN_EXISTING,
-                           /* FILE_FLAG_OVERLAPPED | */
-                           SECURITY_SQOS_PRESENT | SECURITY_IDENTIFICATION,
-                           NULL);
+        pipe = CreateFile(path, GENERIC_READ | GENERIC_WRITE, 0, NULL,
+                          OPEN_EXISTING, /* FILE_FLAG_OVERLAPPED | */
+                          SECURITY_SQOS_PRESENT | SECURITY_IDENTIFICATION,
+                          NULL);
 
         if(pipe != INVALID_HANDLE_VALUE)
             break;
@@ -341,7 +380,7 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
             break;
 
         /* Wait up to 1 second for a pipe instance to become available */
-        if(!WaitNamedPipeA(path, 1000))
+        if(!WaitNamedPipe(path, 1000))
             break;
     }
 
@@ -357,7 +396,7 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
         goto cleanup;
     }
 
-    event = CreateEventA(NULL, TRUE, FALSE, NULL);
+    event = CreateEvent(NULL, TRUE, FALSE, NULL);
     if(!event) {
         ret = ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                        "unable to create async I/O event");
@@ -375,6 +414,8 @@ cleanup:
         CloseHandle(event);
     if(pipe != INVALID_HANDLE_VALUE)
         CloseHandle(pipe);
+    if(path_to_free && path)
+        SSH2_FREE(agent->session, path);
     return ret;
 }
 
@@ -537,7 +578,7 @@ static int agent_connect_unix(LIBSSH2_AGENT *agent)
 
     path = agent->identity_agent_path;
     if(!path) {
-        path = getenv("SSH_AUTH_SOCK");
+        path = getenv(OPENSSH_AUTH_SOCK);
         if(!path)
             return ssh2_err(agent->session, LIBSSH2_ERROR_BAD_USE,
                             "no auth sock variable");
