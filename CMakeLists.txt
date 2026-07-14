@@ -326,6 +326,13 @@ if(WIN32)
   endif()
   set(HAVE_POLL 0)
   set(HAVE_SELECT 1)
+
+  if(WINDOWS_STORE)
+    set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "UNICODE" "_UNICODE")
+    if(MINGW)
+      set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS "-municode")
+    endif()
+  endif()
 endif()
 
 ## Platform checks
