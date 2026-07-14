@@ -314,8 +314,6 @@ static struct agent_ops agent_ops_pageant = {
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define WIN32_OPENSSH_AGENT_SOCK TEXT("\\\\.\\pipe\\openssh-ssh-agent")
-
 static int agent_connect_openssh(LIBSSH2_AGENT *agent)
 {
     int ret = LIBSSH2_ERROR_NONE;
@@ -360,7 +358,7 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
             }
         }
         if(!path)
-            path = SSH2_UNCONST(WIN32_OPENSSH_AGENT_SOCK);
+            path = SSH2_UNCONST(TEXT("\\\\.\\pipe\\openssh-ssh-agent"));
     }
 
     for(;;) {
