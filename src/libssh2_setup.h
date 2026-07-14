@@ -57,9 +57,6 @@
 #ifndef NOGDI
 #define NOGDI
 #endif
-#ifndef NONLS
-#define NONLS
-#endif
 
 #if defined(__clang__) && __clang_major__ >= 13
 #pragma clang diagnostic push

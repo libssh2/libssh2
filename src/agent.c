@@ -40,6 +40,11 @@
 #include "userauth.h"
 #include "session.h"
 
+#if defined(SSH2_AGENT_BACKEND_WIN32_PAGEANT) || \
+    defined(SSH2_AGENT_BACKEND_WIN32_OPENSSH)
+#include <windows.h>
+#endif
+
 #define AGENT_MAX_MSGLEN  8192
 
 /* Requests from client to agent for protocol 2 key operations */
@@ -309,13 +314,37 @@ static struct agent_ops agent_ops_pageant = {
 static int agent_connect_openssh(LIBSSH2_AGENT *agent)
 {
     int ret = LIBSSH2_ERROR_NONE;
-    LPCTSTR path;
+    LPCTSTR path = NULL;
+    BOOL path_to_free = FALSE;
     HANDLE pipe = INVALID_HANDLE_VALUE;
     HANDLE event = NULL;
 
-    path = (LPCTSTR)agent->identity_agent_path;
-    if(!path) {
-#ifdef _UNICODE
+    if(agent->identity_agent_path) {
+#ifdef UNICODE
+        int len = MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS,
+                                      agent->identity_agent_path, -1, NULL, 0);
+        if(len > 0) {
+            ret = LIBSSH2_ERROR_INVAL;
+            goto cleanup;
+        }
+        path = SSH2_ALLOC(agent->session, len * sizeof(TCHAR));
+        if(!path) {
+            ret = LIBSSH2_ERROR_ALLOC;
+            goto cleanup;
+        }
+        path_to_free = TRUE;
+        if(MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS,
+                               agent->identity_agent_path, -1,
+                               SSH2_UNCONST(path), len)) {
+            ret = LIBSSH2_ERROR_INVAL;
+            goto cleanup;
+        }
+#else
+        path = agent->identity_agent_path;
+#endif
+    }
+    else {
+#ifdef UNICODE
         path = _wgetenv(WIN32_OPENSSH_AUTH_SOCK);
 #else
         path = getenv(WIN32_OPENSSH_AUTH_SOCK);
@@ -335,8 +364,7 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
          */
         /* !checksrc! disable BANNEDFUNC 1 */
         pipe = CreateFile(path, GENERIC_READ | GENERIC_WRITE, 0, NULL,
-                          OPEN_EXISTING,
-                          /* FILE_FLAG_OVERLAPPED | */
+                          OPEN_EXISTING, /* FILE_FLAG_OVERLAPPED | */
                           SECURITY_SQOS_PRESENT | SECURITY_IDENTIFICATION,
                           NULL);
 
@@ -380,6 +408,8 @@ cleanup:
         CloseHandle(event);
     if(pipe != INVALID_HANDLE_VALUE)
         CloseHandle(pipe);
+    if(path_to_free && path)
+        SSH2_FREE(agent->session, SSH2_UNCONST(path));
     return ret;
 }
 
