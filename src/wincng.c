@@ -1026,13 +1026,14 @@ static int wcng_asn_decode(unsigned char *pbEncoded, DWORD cbEncoded,
     return 0;
 }
 
-static int wcng_bn_ltob(unsigned char *pbInput,
-                        DWORD cbInput,
-                        unsigned char **ppbOutput,
-                        DWORD *pcbOutput)
+static int wcng_bn_ltob(unsigned char *pbInput, DWORD cbInput,
+                        unsigned char **ppbOutput, DWORD *pcbOutput)
 {
     unsigned char *pbOutput;
     DWORD cbOutput, index, offset, length;
+
+    *ppbOutput = NULL;
+    *pcbOutput = 0;
 
     if(cbInput < 1)
         return 0;
