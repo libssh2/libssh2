@@ -31,12 +31,12 @@ enabled/disabled statuses.
 A read-only, space-separated list of key:value pairs describing build options.
 Options use `on` or `off`, except:
 
-- `crypto` which may report these values:
-  `AWS-LC`, `BoringSSL`, `Libgcrypt`, `LibreSSL`, `mbedTLS`, `OpenSSL`,
-  `OpenSSL/1.1.1`, `OS400QC3`, `WinCNG`, `wolfSSL`.
+`crypto`, which reports one of these values:
+`AWS-LC`, `BoringSSL`, `Libgcrypt`, `LibreSSL`, `mbedTLS`, `OpenSSL`,
+`OpenSSL/1.1.1`, `OS400QC3`, `WinCNG`, `wolfSSL`.
 
-- `agent` which is listed for each supported agent backend:
-  `Pageant` (Windows-specific), `OpenSSH` (Windows-specific), `Unix`.
+`agent`, which is listed for each supported agent backend:
+`Pageant` (Windows-specific), `OpenSSH` (Windows-specific), `Unix`.
 
 # EXAMPLE
 
