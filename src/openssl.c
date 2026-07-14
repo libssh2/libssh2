@@ -3000,8 +3000,8 @@ static int ossl_ecdsa_sk_openssh_priv_to_pubkey(
             *application = SSH2_ALLOC(session, app_len + 1);
             if(!*application) {
                 ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                         "Unable to allocate memory for ED25519 application");
-                goto clean_exit;
+                         "Unable to allocate memory for ECDSA application");
+                goto fail;
             }
             ssh2_explicit_zero(SSH2_UNCONST(*application), app_len + 1);
             memcpy(SSH2_UNCONST(*application), app, app_len);
