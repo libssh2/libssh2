@@ -2903,7 +2903,7 @@ static int ossl_ecdsa_sk_openssh_priv_to_pubkey(
     size_t *method_len,
     unsigned char **pubkeydata,
     size_t *pubkeydata_len,
-    uint8_t *flags,
+    unsigned char *flags,
     const char **application,
     const unsigned char **key_handle,
     size_t *handle_len,
