@@ -2470,7 +2470,7 @@ cleanup:
     return result;
 }
 
-static int wcng_parse_ecdsa_privatekey(OUT struct wcng_ecdsa_ctx **ec_ctx,
+static int wcng_parse_ecdsa_privatekey(OUT ssh2_ecdsa_ctx **ec_ctx,
                                        IN unsigned char *privatekey,
                                        IN size_t privatekey_len)
 {
