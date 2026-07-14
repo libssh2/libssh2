@@ -32,6 +32,8 @@
 
 #include "libssh2_priv.h"
 
+#include "agent.h"
+
 const char *libssh2_version(int req_version_num)
 {
     if(req_version_num <= LIBSSH2_VERSION_NUM)
@@ -167,6 +169,21 @@ static const char *ssh2_build_options =
     "off"
 #endif
     " "
+#ifdef SSH2_AGENT_BACKEND_WIN32_PAGEANT
+    "agent:"
+    SSH2_AGENT_BACKEND_WIN32_PAGEANT
+    " "
+#endif
+#ifdef SSH2_AGENT_BACKEND_WIN32_OPENSSH
+    "agent:"
+    SSH2_AGENT_BACKEND_WIN32_OPENSSH
+    " "
+#endif
+#ifdef SSH2_AGENT_BACKEND_UNIX
+    "agent:"
+    SSH2_AGENT_BACKEND_UNIX
+    " "
+#endif
     "clear-memory:"
 #ifndef LIBSSH2_NO_CLEAR_MEMORY
     "on"
