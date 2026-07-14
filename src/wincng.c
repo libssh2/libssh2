@@ -538,58 +538,62 @@ void ssh2_crypto_init(void)
 #endif
     ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgAES_CBC,
                                       BCRYPT_AES_ALGORITHM, NULL, 0);
-    if(BCRYPT_SUCCESS(ret)) {
+    if(!BCRYPT_SUCCESS(ret))
+        ssh2_wcng.hAlgAES_CBC = NULL;
+    else {
         ret = BCryptSetProperty(ssh2_wcng.hAlgAES_CBC,
                                 BCRYPT_CHAINING_MODE,
                                 (PBYTE)SSH2_UNCONST(BCRYPT_CHAIN_MODE_CBC),
                                 sizeof(BCRYPT_CHAIN_MODE_CBC), 0);
         if(!BCRYPT_SUCCESS(ret)) {
-            ret = BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgAES_CBC, 0);
-            if(BCRYPT_SUCCESS(ret))
-                ssh2_wcng.hAlgAES_CBC = NULL;
+            (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgAES_CBC, 0);
+            ssh2_wcng.hAlgAES_CBC = NULL;
         }
     }
 
     ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgAES_ECB,
                                       BCRYPT_AES_ALGORITHM, NULL, 0);
-    if(BCRYPT_SUCCESS(ret)) {
+    if(!BCRYPT_SUCCESS(ret))
+        ssh2_wcng.hAlgAES_ECB = NULL;
+    else {
         ret = BCryptSetProperty(ssh2_wcng.hAlgAES_ECB,
                                 BCRYPT_CHAINING_MODE,
                                 (PBYTE)SSH2_UNCONST(BCRYPT_CHAIN_MODE_ECB),
                                 sizeof(BCRYPT_CHAIN_MODE_ECB), 0);
         if(!BCRYPT_SUCCESS(ret)) {
-            ret = BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgAES_ECB, 0);
-            if(BCRYPT_SUCCESS(ret))
-                ssh2_wcng.hAlgAES_ECB = NULL;
+            (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgAES_ECB, 0);
+            ssh2_wcng.hAlgAES_ECB = NULL;
         }
     }
 #if LIBSSH2_RC4
     ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlgRC4_NA,
                                       BCRYPT_RC4_ALGORITHM, NULL, 0);
-    if(BCRYPT_SUCCESS(ret)) {
+    if(!BCRYPT_SUCCESS(ret))
+        ssh2_wcng.hAlgRC4_NA = NULL;
+    else {
         ret = BCryptSetProperty(ssh2_wcng.hAlgRC4_NA,
                                 BCRYPT_CHAINING_MODE,
                                 (PBYTE)SSH2_UNCONST(BCRYPT_CHAIN_MODE_NA),
                                 sizeof(BCRYPT_CHAIN_MODE_NA), 0);
         if(!BCRYPT_SUCCESS(ret)) {
-            ret = BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgRC4_NA, 0);
-            if(BCRYPT_SUCCESS(ret))
-                ssh2_wcng.hAlgRC4_NA = NULL;
+            (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlgRC4_NA, 0);
+            ssh2_wcng.hAlgRC4_NA = NULL;
         }
     }
 #endif
 #if LIBSSH2_3DES
     ret = BCryptOpenAlgorithmProvider(&ssh2_wcng.hAlg3DES_CBC,
                                       BCRYPT_3DES_ALGORITHM, NULL, 0);
-    if(BCRYPT_SUCCESS(ret)) {
+    if(!BCRYPT_SUCCESS(ret))
+        ssh2_wcng.hAlg3DES_CBC = NULL;
+    else {
         ret = BCryptSetProperty(ssh2_wcng.hAlg3DES_CBC,
                                 BCRYPT_CHAINING_MODE,
                                 (PBYTE)SSH2_UNCONST(BCRYPT_CHAIN_MODE_CBC),
                                 sizeof(BCRYPT_CHAIN_MODE_CBC), 0);
         if(!BCRYPT_SUCCESS(ret)) {
-            ret = BCryptCloseAlgorithmProvider(ssh2_wcng.hAlg3DES_CBC, 0);
-            if(BCRYPT_SUCCESS(ret))
-                ssh2_wcng.hAlg3DES_CBC = NULL;
+            (void)BCryptCloseAlgorithmProvider(ssh2_wcng.hAlg3DES_CBC, 0);
+            ssh2_wcng.hAlg3DES_CBC = NULL;
         }
     }
 #endif
