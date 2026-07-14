@@ -2114,7 +2114,7 @@ int ssh2_ecdsa_create_key(OUT ssh2_ecdsa_ctx **ec_ctx,
         goto cleanup;
     }
 
-    *ec_ctx = malloc(sizeof(struct wcng_ecdsa_ctx));
+    *ec_ctx = malloc(sizeof(ssh2_ecdsa_ctx));
     if(!*ec_ctx) {
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
@@ -2170,7 +2170,7 @@ int ssh2_ecdsa_curve_name_with_octal_new(
     if(result != LIBSSH2_ERROR_NONE)
         goto cleanup;
 
-    *ec_ctx = malloc(sizeof(struct wcng_ecdsa_ctx));
+    *ec_ctx = malloc(sizeof(ssh2_ecdsa_ctx));
     if(!*ec_ctx) {
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
@@ -2554,7 +2554,7 @@ static int wcng_parse_ecdsa_privatekey(OUT struct wcng_ecdsa_ctx **key,
     if(result != LIBSSH2_ERROR_NONE)
         goto cleanup;
 
-    *key = malloc(sizeof(struct wcng_ecdsa_ctx));
+    *key = malloc(sizeof(ssh2_ecdsa_ctx));
     if(!*key) {
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
