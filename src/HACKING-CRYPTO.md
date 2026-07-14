@@ -806,7 +806,7 @@ This procedure is already prototyped in `crypto.h`.
 int ssh2_ed25519_new_private(ssh2_ed25519_ctx **ed_ctx,
                              LIBSSH2_SESSION *session,
                              const char *filename,
-                             const uint8_t *passphrase);
+                             const unsigned char *passphrase);
 ```
 Reads an ED25519 private key from PEM file `filename` into a new ED25519
 context.

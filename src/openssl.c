@@ -2089,7 +2089,7 @@ clean_exit:
 int ssh2_ed25519_new_private(ssh2_ed25519_ctx **ed_ctx,
                              LIBSSH2_SESSION *session,
                              const char *filename,
-                             const uint8_t *passphrase)
+                             const unsigned char *passphrase)
 {
     int rc;
     FILE *fp;
