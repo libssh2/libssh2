@@ -1992,7 +1992,7 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
 
         if(*handle_len > 0) {
             *key_handle = SSH2_ALLOC(session, *handle_len);
-            if(key_handle && *key_handle)
+            if(*key_handle)
                 memcpy(SSH2_UNCONST(*key_handle), handle, *handle_len);
         }
     }
