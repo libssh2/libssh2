@@ -37,12 +37,11 @@
 #include <stdlib.h>  /* for getenv() */
 
 #ifdef HAVE_SYS_UN_H
-#include <sys/un.h>
-#else
 /* Use the existence of sys/un.h as a test if Unix domain socket is
-   supported.  winsock*.h define PF_UNIX/AF_UNIX but do not actually
-   support them. */
-#undef PF_UNIX
+   supported. Windows also supports it via winsock*.h, but not used
+   here at this time. */
+#include <sys/un.h>
+#define HAVE_AF_UNIX
 #endif
 
 #if defined(_WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
@@ -149,7 +148,7 @@ struct _LIBSSH2_AGENT {
 #endif
 };
 
-#ifdef HAVE_WIN32_AGENTS /* Compile this via agent.c */
+#ifdef HAVE_WIN32_AGENTS
 
 /* Code to talk to OpenSSH was taken and modified from the Win32 port of
  * Portable OpenSSH by the PowerShell team. Commit
@@ -433,7 +432,7 @@ static struct agent_ops agent_ops_openssh = {
 
 #endif /* HAVE_WIN32_AGENTS */
 
-#ifdef PF_UNIX
+#ifdef HAVE_AF_UNIX
 static int agent_connect_unix(LIBSSH2_AGENT *agent)
 {
     const char *path;
@@ -448,7 +447,7 @@ static int agent_connect_unix(LIBSSH2_AGENT *agent)
                             "no auth sock variable");
     }
 
-    agent->fd = socket(PF_UNIX, SOCK_STREAM, 0);
+    agent->fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if(agent->fd < 0)
         return ssh2_err(agent->session, LIBSSH2_ERROR_BAD_SOCKET,
                         "failed creating socket");
@@ -585,7 +584,9 @@ static int agent_disconnect_unix(LIBSSH2_AGENT *agent)
     if(close(agent->fd) == -1)
         return ssh2_err(agent->session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
                         "failed closing the agent socket");
+
     agent->fd = LIBSSH2_INVALID_SOCKET;
+
     return LIBSSH2_ERROR_NONE;
 }
 
@@ -594,7 +595,7 @@ static struct agent_ops agent_ops_unix = {
     agent_transact_unix,
     agent_disconnect_unix
 };
-#endif /* PF_UNIX */
+#endif /* HAVE_AF_UNIX */
 
 #ifdef HAVE_WIN32_AGENTS
 /* Code to talk to Pageant was taken from PuTTY.
@@ -710,10 +711,10 @@ static struct {
 #ifdef HAVE_WIN32_AGENTS
     { "Pageant", &agent_ops_pageant },
     { "OpenSSH", &agent_ops_openssh },
-#endif /* HAVE_WIN32_AGENTS */
-#ifdef PF_UNIX
+#endif
+#ifdef HAVE_AF_UNIX
     { "Unix", &agent_ops_unix },
-#endif /* PF_UNIX */
+#endif
     { NULL, NULL }
 };
 
