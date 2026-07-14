@@ -656,9 +656,9 @@ jobs:
         if: ${{ !matrix.target }}
         run: |
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
-            cmake --build bld --verbose --target libssh2-examples-build
+            cmake --build bld --target libssh2-examples-build
           else
-            make -C bld V=1 examples
+            make -C bld examples
           fi
 
       - name: 'autotools distcheck'
@@ -772,9 +772,9 @@ jobs:
       - name: 'build examples'
         run: |
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
-            cmake --build bld --verbose --target libssh2-examples-build
+            cmake --build bld --target libssh2-examples-build
           else
-            make -C bld V=1 examples
+            make -C bld examples
           fi
 
   build_cygwin:
@@ -864,9 +864,9 @@ jobs:
       - name: 'build examples'
         run: |
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
-            cmake --build bld --verbose --target libssh2-examples-build
+            cmake --build bld --target libssh2-examples-build
           else
-            make -C bld V=1 examples
+            make -C bld examples
           fi
 
   build_msys2:
@@ -997,9 +997,9 @@ jobs:
       - name: 'build examples'
         run: |
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
-            cmake --build bld --verbose --target libssh2-examples-build
+            cmake --build bld --target libssh2-examples-build
           else
-            make -C bld V=1 examples
+            make -C bld examples
           fi
 
   build_msvc:
@@ -1010,18 +1010,19 @@ jobs:
       run:
         shell: bash
     env:
+      MATRIX_TYPE: '${{ matrix.type }}'
       VCPKG_DISABLE_METRICS: '1'
     strategy:
       fail-fast: false
       matrix:
         include:
-          - { image: 'windows-2022', arch: x64  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'OFF', zlib: 'OFF', unity: 'ON' }
-          - { image: 'windows-2025', arch: x64  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'ON' , shared: 'ON' , zlib: 'OFF', unity: 'ON' }
-          - { image: 'windows-2022', arch: x64  , plat: windows, crypto: OpenSSL, wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
-          - { image: 'windows-2022', arch: x64  , plat: uwp    , crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
-          - { image: 'windows-2022', arch: arm64, plat: windows, crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
-          - { image: 'windows-2025', arch: arm64, plat: uwp    , crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'OFF' }
-          - { image: 'windows-2022', arch: x86  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
+          - { image: 'windows-2022', arch: x64  , plat: windows, type: Debug  , crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'OFF', zlib: 'OFF', unity: 'ON' }
+          - { image: 'windows-2025', arch: x64  , plat: windows, type: Debug  , crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'ON' , shared: 'ON' , zlib: 'OFF', unity: 'ON' }
+          - { image: 'windows-2022', arch: x64  , plat: windows, type: Release, crypto: OpenSSL, wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
+          - { image: 'windows-2022', arch: x64  , plat: uwp    , type: Release, crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
+          - { image: 'windows-2022', arch: arm64, plat: windows, type: Release, crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
+          - { image: 'windows-2025', arch: arm64, plat: uwp    , type: Debug  , crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'OFF' }
+          - { image: 'windows-2022', arch: x86  , plat: windows, type: Debug  , crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
@@ -1041,19 +1042,21 @@ jobs:
           options=''
           archgen="${MATRIX_ARCH}"; [ "${archgen}" = 'x86' ] && archgen='Win32'
           if [ "${MATRIX_PLAT}" = 'uwp' ]; then
-            system='WindowsStore'
-            options+=' -DCMAKE_SYSTEM_VERSION=10.0'
-          else
-            system='Windows'
+            options+=' -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0'
+            cflags+=' -DWINAPI_FAMILY=WINAPI_FAMILY_PC_APP'
+            ldflags+=' -OPT:NOREF -OPT:NOICF -APPCONTAINER:NO'
+            vsglobals=';AppxPackage=false;WindowsAppContainer=false'
           fi
           [ "${MATRIX_CRYPTO}" = 'WinCNG' ] && options+=" -DENABLE_ECDSA_WINCNG=${MATRIX_WINCND_ECDSA}"
           cmake -B bld ${options} \
-            -DCMAKE_SYSTEM_NAME="${system}" \
+            -DCMAKE_C_FLAGS="${cflags}" \
+            -DCMAKE_EXE_LINKER_FLAGS="${ldflags}" \
+            -DCMAKE_SHARED_LINKER_FLAGS="${ldflags}" \
             -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake \
             -DCMAKE_GENERATOR_PLATFORM=${archgen} \
             -DVCPKG_TARGET_TRIPLET="${MATRIX_ARCH}-${MATRIX_PLAT}" \
             -DVCPKG_APPLOCAL_DEPS=OFF \
-            -DCMAKE_VS_GLOBALS=TrackFileAccess=false \
+            -DCMAKE_VS_GLOBALS="TrackFileAccess=false${vsglobals}" \
             -DCMAKE_UNITY_BUILD="${MATRIX_UNITY}" \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING="${MATRIX_LOG}" \
@@ -1073,16 +1076,19 @@ jobs:
           grep -F '#define' bld/src/libssh2_config.h | sort || true
 
       - name: 'build'
-        run: cmake --build bld --parallel 5 --target package --config Release
+        run: cmake --build bld --config "${MATRIX_TYPE}" --parallel 5 --target package
 
       - name: 'tests'
         # UWP binaries require a CRT DLL that is not found. Static CRT not supported.
         if: ${{ matrix.arch != 'arm64' && matrix.plat != 'uwp' }}
         timeout-minutes: 10
-        run: cd bld && ctest -VV -C Release --output-on-failure
+        run: cd bld && ctest -VV -C "${MATRIX_TYPE}" --output-on-failure
 
       - name: 'build examples'
-        run: cmake --build bld --verbose --target libssh2-examples-build
+        run: cmake --build bld --config "${MATRIX_TYPE}" --parallel 5 --target libssh2-examples-build
+
+      - name: 'disk space used'
+        run: du -sh .; echo; du -sh -t 250KB ./*; echo; du -h -t 250KB bld
 
   build_macos:
     name: 'macOS (${{ matrix.build }}, ${{ matrix.crypto.name }})'
@@ -1329,7 +1335,7 @@ jobs:
       - name: 'build examples'
         run: |
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
-            cmake --build bld --verbose --target libssh2-examples-build
+            cmake --build bld --target libssh2-examples-build
           else
-            make -C bld V=1 examples
+            make -C bld examples
           fi
