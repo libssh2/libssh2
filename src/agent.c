@@ -148,7 +148,7 @@ struct _LIBSSH2_AGENT {
 #endif
 };
 
-#ifdef HAVE_WIN32_AGENTS /* Compile this via agent.c */
+#ifdef HAVE_WIN32_AGENTS
 
 /* Code to talk to OpenSSH was taken and modified from the Win32 port of
  * Portable OpenSSH by the PowerShell team. Commit
