@@ -1827,7 +1827,7 @@ static int ossl_ed25519_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     ssh2_ed25519_ctx *ctx = NULL;
     unsigned char *method_buf = NULL;
     unsigned char *key = NULL;
-    int i, ret = 0;
+    int i;
     unsigned char *pub_key, *priv_key, *buf;
     size_t key_len = 0, tmp_len = 0;
     unsigned char *p;
@@ -1874,58 +1874,56 @@ static int ossl_ed25519_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
         decrypted->dataptr++;
     }
 
-    if(ret == 0) {
-        ssh2_deb((session, LIBSSH2_TRACE_AUTH,
-                  "Computing public key from ED25519 private key envelope"));
+    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
+              "Computing public key from ED25519 private key envelope"));
 
-        method_buf = SSH2_ALLOC(session, 11); /* ssh-ed25519. */
-        if(!method_buf) {
-            ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                     "Unable to allocate memory for ED25519 key");
-            goto clean_exit;
-        }
-
-        /* Key form is: type_len(4) + type(11) + pub_key_len(4) +
-           pub_key(32). */
-        key_len = SSH2_ED25519_KEY_LEN + 19;
-        key = SSH2_CALLOC(session, key_len);
-        if(!key) {
-            ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                     "Unable to allocate memory for ED25519 key");
-            goto clean_exit;
-        }
-
-        p = key;
-
-        ssh2_store_str(&p, "ssh-ed25519", 11);
-        ssh2_store_str(&p, (const char *)pub_key, SSH2_ED25519_KEY_LEN);
-
-        /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
-        memcpy(method_buf, "ssh-ed25519", 11);
-
-        if(method)
-            *method = method_buf;
-        else
-            SSH2_FREE(session, method_buf);
-
-        if(method_len)
-            *method_len = 11;
-
-        if(pubkeydata)
-            *pubkeydata = key;
-        else
-            SSH2_FREE(session, key);
-
-        if(pubkeydata_len)
-            *pubkeydata_len = key_len;
-
-        if(out_ctx)
-            *out_ctx = ctx;
-        else if(ctx)
-            ssh2_ed25519_free(ctx);
-
-        return 0;
+    method_buf = SSH2_ALLOC(session, 11); /* ssh-ed25519. */
+    if(!method_buf) {
+        ssh2_err(session, LIBSSH2_ERROR_ALLOC,
+                 "Unable to allocate memory for ED25519 key");
+        goto clean_exit;
     }
+
+    /* Key form is: type_len(4) + type(11) + pub_key_len(4) +
+       pub_key(32). */
+    key_len = SSH2_ED25519_KEY_LEN + 19;
+    key = SSH2_CALLOC(session, key_len);
+    if(!key) {
+        ssh2_err(session, LIBSSH2_ERROR_ALLOC,
+                 "Unable to allocate memory for ED25519 key");
+        goto clean_exit;
+    }
+
+    p = key;
+
+    ssh2_store_str(&p, "ssh-ed25519", 11);
+    ssh2_store_str(&p, (const char *)pub_key, SSH2_ED25519_KEY_LEN);
+
+    /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
+    memcpy(method_buf, "ssh-ed25519", 11);
+
+    if(method)
+        *method = method_buf;
+    else
+        SSH2_FREE(session, method_buf);
+
+    if(method_len)
+        *method_len = 11;
+
+    if(pubkeydata)
+        *pubkeydata = key;
+    else
+        SSH2_FREE(session, key);
+
+    if(pubkeydata_len)
+        *pubkeydata_len = key_len;
+
+    if(out_ctx)
+        *out_ctx = ctx;
+    else if(ctx)
+        ssh2_ed25519_free(ctx);
+
+    return 0;
 
 clean_exit:
 
@@ -1959,7 +1957,6 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
     ssh2_ed25519_ctx *ctx = NULL;
     unsigned char *method_buf = NULL;
     unsigned char *key = NULL;
-    int ret = 0;
     unsigned char *pub_key, *app;
     size_t key_len = 0, app_len = 0, tmp_len = 0;
     unsigned char *p;
@@ -2001,71 +1998,69 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
                                       (const unsigned char *)pub_key,
                                       SSH2_ED25519_KEY_LEN);
 
-    if(ret == 0) {
-        ssh2_deb((session, LIBSSH2_TRACE_AUTH,
-                  "Computing public key from ED25519 private key envelope"));
+    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
+              "Computing public key from ED25519 private key envelope"));
 
-        /* sk-ssh-ed25519@openssh.com. */
-        method_buf = SSH2_ALLOC(session, strlen(key_type));
-        if(!method_buf) {
-            ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                     "Unable to allocate memory for ED25519 key");
-            goto clean_exit;
-        }
-
-        /* Key form is: type_len(4) + type(26) + pub_key_len(4) +
-           pub_key(32) + application_len(4) + application(X). */
-        key_len = SSH2_ED25519_KEY_LEN + 38 + app_len;
-        key = SSH2_CALLOC(session, key_len);
-        if(!key) {
-            ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                     "Unable to allocate memory for ED25519 key");
-            goto clean_exit;
-        }
-
-        p = key;
-
-        ssh2_store_str(&p, key_type, strlen(key_type));
-        ssh2_store_str(&p, (const char *)pub_key, SSH2_ED25519_KEY_LEN);
-        ssh2_store_str(&p, (const char *)app, app_len);
-
-        if(application && app_len > 0) {
-            *application = SSH2_ALLOC(session, app_len + 1);
-            if(!*application) {
-                ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                         "Unable to allocate memory for ED25519 application");
-                goto clean_exit;
-            }
-            ssh2_explicit_zero(SSH2_UNCONST(*application), app_len + 1);
-            memcpy(SSH2_UNCONST(*application), app, app_len);
-        }
-
-        /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
-        memcpy(method_buf, key_type, strlen(key_type));
-
-        if(method)
-            *method = method_buf;
-        else
-            SSH2_FREE(session, method_buf);
-
-        if(method_len)
-            *method_len = strlen(key_type);
-
-        if(pubkeydata)
-            *pubkeydata = key;
-        else if(key)
-            SSH2_FREE(session, key);
-
-        if(pubkeydata_len)
-            *pubkeydata_len = key_len;
-
-        if(out_ctx)
-            *out_ctx = ctx;
-        else if(ctx)
-            ssh2_ed25519_free(ctx);
-
-        return 0;
+    /* sk-ssh-ed25519@openssh.com. */
+    method_buf = SSH2_ALLOC(session, strlen(key_type));
+    if(!method_buf) {
+        ssh2_err(session, LIBSSH2_ERROR_ALLOC,
+                 "Unable to allocate memory for ED25519 key");
+        goto clean_exit;
     }
+
+    /* Key form is: type_len(4) + type(26) + pub_key_len(4) +
+       pub_key(32) + application_len(4) + application(X). */
+    key_len = SSH2_ED25519_KEY_LEN + 38 + app_len;
+    key = SSH2_CALLOC(session, key_len);
+    if(!key) {
+        ssh2_err(session, LIBSSH2_ERROR_ALLOC,
+                 "Unable to allocate memory for ED25519 key");
+        goto clean_exit;
+    }
+
+    p = key;
+
+    ssh2_store_str(&p, key_type, strlen(key_type));
+    ssh2_store_str(&p, (const char *)pub_key, SSH2_ED25519_KEY_LEN);
+    ssh2_store_str(&p, (const char *)app, app_len);
+
+    if(application && app_len > 0) {
+        *application = SSH2_ALLOC(session, app_len + 1);
+        if(!*application) {
+            ssh2_err(session, LIBSSH2_ERROR_ALLOC,
+                     "Unable to allocate memory for ED25519 application");
+            goto clean_exit;
+        }
+        ssh2_explicit_zero(SSH2_UNCONST(*application), app_len + 1);
+        memcpy(SSH2_UNCONST(*application), app, app_len);
+    }
+
+    /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
+    memcpy(method_buf, key_type, strlen(key_type));
+
+    if(method)
+        *method = method_buf;
+    else
+        SSH2_FREE(session, method_buf);
+
+    if(method_len)
+        *method_len = strlen(key_type);
+
+    if(pubkeydata)
+        *pubkeydata = key;
+    else if(key)
+        SSH2_FREE(session, key);
+
+    if(pubkeydata_len)
+        *pubkeydata_len = key_len;
+
+    if(out_ctx)
+        *out_ctx = ctx;
+    else if(ctx)
+        ssh2_ed25519_free(ctx);
+
+    return 0;
 
 clean_exit:
 
