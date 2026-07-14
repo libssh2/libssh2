@@ -849,8 +849,9 @@ Returns 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-int ssh2_ed25519_verify(ssh2_ed25519_ctx *ed_ctx, const uint8_t *s,
-                        size_t s_len, const uint8_t *m, size_t m_len);
+int ssh2_ed25519_verify(ssh2_ed25519_ctx *ed_ctx, LIBSSH2_SESSION *session,
+                        const uint8_t *s, size_t s_len,
+                        const uint8_t *m, size_t m_len);
 ```
 Verify (`s`, `s_len`) signature of (`m`, `m_len`) using the given ED25519
 context.
