@@ -1,38 +1,31 @@
 /* Copyright (C) Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms,
- * with or without modification, are permitted provided
- * that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *   Redistributions of source code must retain the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
  *
- *   Redistributions in binary form must reproduce the above
- *   copyright notice, this list of conditions and the following
- *   disclaimer in the documentation and/or other materials
- *   provided with the distribution.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
  *
- *   Neither the name of the copyright holder nor the names
- *   of any other contributors may be used to endorse or
- *   promote products derived from this software without
- *   specific prior written permission.
+ * 3. Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
- * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
- * OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -99,6 +92,37 @@ static int mac_method_common_dtor(LIBSSH2_SESSION *session, void **abstract)
     return 0;
 }
 
+/*
+ * Calculate hash
+ */
+static int mac_method_hmac(LIBSSH2_SESSION *session,
+                           ssh2_hmac_alg alg, size_t digest_len,
+                           unsigned char *buf, uint32_t seqno,
+                           const unsigned char *packet, size_t packet_len,
+                           const unsigned char *addtl, size_t addtl_len,
+                           void **abstract)
+{
+    ssh2_hmac_ctx ctx;
+    unsigned char seqno_buf[4];
+    int res;
+    (void)session;
+
+    ssh2_htonu32(seqno_buf, seqno);
+
+    if(!ssh2_hmac_ctx_init(&ctx))
+        return 1;
+    res = ssh2_hmac_init(&ctx, alg, *abstract, digest_len) &&
+          ssh2_hmac_update(&ctx, seqno_buf, 4) &&
+          ssh2_hmac_update(&ctx, packet, packet_len);
+    if(res && addtl && addtl_len)
+        res = ssh2_hmac_update(&ctx, addtl, addtl_len);
+    if(res)
+        res = ssh2_hmac_final(&ctx, buf, digest_len);
+    ssh2_hmac_cleanup(&ctx);
+
+    return !res;
+}
+
 #if LIBSSH2_HMAC_SHA512
 /*
  * Calculate hash using full sha512 value
@@ -110,25 +134,9 @@ static int mac_method_hmac_sha2_512_hash(LIBSSH2_SESSION *session,
                                          const unsigned char *addtl,
                                          size_t addtl_len, void **abstract)
 {
-    ssh2_hmac_ctx ctx;
-    unsigned char seqno_buf[4];
-    int res;
-    (void)session;
-
-    ssh2_htonu32(seqno_buf, seqno);
-
-    if(!ssh2_hmac_ctx_init(&ctx))
-        return 1;
-    res = ssh2_hmac_sha512_init(&ctx, *abstract, SSH2_SHA512_DIG_LEN) &&
-          ssh2_hmac_update(&ctx, seqno_buf, 4) &&
-          ssh2_hmac_update(&ctx, packet, packet_len);
-    if(res && addtl && addtl_len)
-        res = ssh2_hmac_update(&ctx, addtl, addtl_len);
-    if(res)
-        res = ssh2_hmac_final(&ctx, buf, SSH2_SHA512_DIG_LEN);
-    ssh2_hmac_cleanup(&ctx);
-
-    return !res;
+    return mac_method_hmac(session, SSH2_SHA512_HMAC, SSH2_SHA512_DIG_LEN,
+                           buf, seqno, packet, packet_len, addtl, addtl_len,
+                           abstract);
 }
 
 static const struct mac_method mac_method_hmac_sha2_512 = {
@@ -150,7 +158,6 @@ static const struct mac_method mac_method_hmac_sha2_512_etm = {
     mac_method_common_dtor,
     1
 };
-
 #endif
 
 #if LIBSSH2_HMAC_SHA256
@@ -164,25 +171,9 @@ static int mac_method_hmac_sha2_256_hash(LIBSSH2_SESSION *session,
                                          const unsigned char *addtl,
                                          size_t addtl_len, void **abstract)
 {
-    ssh2_hmac_ctx ctx;
-    unsigned char seqno_buf[4];
-    int res;
-    (void)session;
-
-    ssh2_htonu32(seqno_buf, seqno);
-
-    if(!ssh2_hmac_ctx_init(&ctx))
-        return 1;
-    res = ssh2_hmac_sha256_init(&ctx, *abstract, SSH2_SHA256_DIG_LEN) &&
-          ssh2_hmac_update(&ctx, seqno_buf, 4) &&
-          ssh2_hmac_update(&ctx, packet, packet_len);
-    if(res && addtl && addtl_len)
-        res = ssh2_hmac_update(&ctx, addtl, addtl_len);
-    if(res)
-        res = ssh2_hmac_final(&ctx, buf, SSH2_SHA256_DIG_LEN);
-    ssh2_hmac_cleanup(&ctx);
-
-    return !res;
+    return mac_method_hmac(session, SSH2_SHA256_HMAC, SSH2_SHA256_DIG_LEN,
+                           buf, seqno, packet, packet_len, addtl, addtl_len,
+                           abstract);
 }
 
 static const struct mac_method mac_method_hmac_sha2_256 = {
@@ -204,7 +195,6 @@ static const struct mac_method mac_method_hmac_sha2_256_etm = {
     mac_method_common_dtor,
     1
 };
-
 #endif
 
 /*
@@ -217,25 +207,9 @@ static int mac_method_hmac_sha1_hash(LIBSSH2_SESSION *session,
                                      const unsigned char *addtl,
                                      size_t addtl_len, void **abstract)
 {
-    ssh2_hmac_ctx ctx;
-    unsigned char seqno_buf[4];
-    int res;
-    (void)session;
-
-    ssh2_htonu32(seqno_buf, seqno);
-
-    if(!ssh2_hmac_ctx_init(&ctx))
-        return 1;
-    res = ssh2_hmac_sha1_init(&ctx, *abstract, SSH2_SHA1_DIG_LEN) &&
-          ssh2_hmac_update(&ctx, seqno_buf, 4) &&
-          ssh2_hmac_update(&ctx, packet, packet_len);
-    if(res && addtl && addtl_len)
-        res = ssh2_hmac_update(&ctx, addtl, addtl_len);
-    if(res)
-        res = ssh2_hmac_final(&ctx, buf, SSH2_SHA1_DIG_LEN);
-    ssh2_hmac_cleanup(&ctx);
-
-    return !res;
+    return mac_method_hmac(session, SSH2_SHA1_HMAC, SSH2_SHA1_DIG_LEN,
+                           buf, seqno, packet, packet_len, addtl, addtl_len,
+                           abstract);
 }
 
 static const struct mac_method mac_method_hmac_sha1 = {
@@ -270,11 +244,11 @@ static int mac_method_hmac_sha1_96_hash(LIBSSH2_SESSION *session,
 {
     unsigned char temp[SSH2_SHA1_DIG_LEN];
 
-    if(mac_method_hmac_sha1_hash(session, temp, seqno, packet, packet_len,
-                                 addtl, addtl_len, abstract))
+    if(mac_method_hmac(session, SSH2_SHA1_HMAC, SSH2_SHA1_DIG_LEN, temp, seqno,
+                       packet, packet_len, addtl, addtl_len, abstract))
         return 1;
 
-    memcpy(buf, (char *)temp, 96 / 8);
+    memcpy(buf, (char *)temp, 96 / 8 /* 12 */);
     return 0;
 }
 
@@ -299,25 +273,9 @@ static int mac_method_hmac_md5_hash(LIBSSH2_SESSION *session,
                                     const unsigned char *addtl,
                                     size_t addtl_len, void **abstract)
 {
-    ssh2_hmac_ctx ctx;
-    unsigned char seqno_buf[4];
-    int res;
-    (void)session;
-
-    ssh2_htonu32(seqno_buf, seqno);
-
-    if(!ssh2_hmac_ctx_init(&ctx))
-        return 1;
-    res = ssh2_hmac_md5_init(&ctx, *abstract, SSH2_MD5_DIG_LEN) &&
-          ssh2_hmac_update(&ctx, seqno_buf, 4) &&
-          ssh2_hmac_update(&ctx, packet, packet_len);
-    if(res && addtl && addtl_len)
-        res = ssh2_hmac_update(&ctx, addtl, addtl_len);
-    if(res)
-        res = ssh2_hmac_final(&ctx, buf, SSH2_MD5_DIG_LEN);
-    ssh2_hmac_cleanup(&ctx);
-
-    return !res;
+    return mac_method_hmac(session, SSH2_MD5_HMAC, SSH2_MD5_DIG_LEN,
+                           buf, seqno, packet, packet_len, addtl, addtl_len,
+                           abstract);
 }
 
 static const struct mac_method mac_method_hmac_md5 = {
@@ -342,18 +300,18 @@ static int mac_method_hmac_md5_96_hash(LIBSSH2_SESSION *session,
 {
     unsigned char temp[SSH2_MD5_DIG_LEN];
 
-    if(mac_method_hmac_md5_hash(session, temp, seqno, packet, packet_len,
-                                addtl, addtl_len, abstract))
+    if(mac_method_hmac(session, SSH2_MD5_HMAC, SSH2_MD5_DIG_LEN, temp, seqno,
+                       packet, packet_len, addtl, addtl_len, abstract))
         return 1;
 
-    memcpy(buf, (char *)temp, 96 / 8);
+    memcpy(buf, (char *)temp, 96 / 8 /* 12 */);
     return 0;
 }
 
 static const struct mac_method mac_method_hmac_md5_96 = {
     "hmac-md5-96",
     12,
-    16,
+    SSH2_MD5_DIG_LEN,
     mac_method_common_init,
     mac_method_hmac_md5_96_hash,
     mac_method_common_dtor,
@@ -372,25 +330,10 @@ static int mac_method_hmac_ripemd160_hash(LIBSSH2_SESSION *session,
                                           const unsigned char *addtl,
                                           size_t addtl_len, void **abstract)
 {
-    ssh2_hmac_ctx ctx;
-    unsigned char seqno_buf[4];
-    int res;
-    (void)session;
-
-    ssh2_htonu32(seqno_buf, seqno);
-
-    if(!ssh2_hmac_ctx_init(&ctx))
-        return 1;
-    res = ssh2_hmac_ripemd160_init(&ctx, *abstract, SSH2_RIPEMD160_DIG_LEN) &&
-          ssh2_hmac_update(&ctx, seqno_buf, 4) &&
-          ssh2_hmac_update(&ctx, packet, packet_len);
-    if(res && addtl && addtl_len)
-        res = ssh2_hmac_update(&ctx, addtl, addtl_len);
-    if(res)
-        res = ssh2_hmac_final(&ctx, buf, SSH2_RIPEMD160_DIG_LEN);
-    ssh2_hmac_cleanup(&ctx);
-
-    return !res;
+    return mac_method_hmac(session,
+                           SSH2_RIPEMD160_HMAC, SSH2_RIPEMD160_DIG_LEN,
+                           buf, seqno, packet, packet_len, addtl, addtl_len,
+                           abstract);
 }
 
 static const struct mac_method mac_method_hmac_ripemd160 = {

@@ -44,12 +44,16 @@ fi
 cmake -B _bld \
   -DCMAKE_UNITY_BUILD=ON -DENABLE_WERROR=ON \
   -DCMAKE_VS_GLOBALS=TrackFileAccess=false \
-  -DBUILD_EXAMPLES=OFF \
   -DLIBSSH2_BUILD_DOCS=OFF \
   ${CMAKE_GENERATE:-} \
   ${options}
 echo 'libssh2_config.h'; grep -F '#define' _bld/src/libssh2_config.h | sort || true
-cmake --build _bld --config "${CMAKE_CONFIGURATION}" --parallel 2
+time cmake --build _bld --config "${CMAKE_CONFIGURATION}" --parallel 2
+
+# build examples
+if [[ "${APPVEYOR_JOB_NAME}" = *'examples'* ]]; then
+  time cmake --build _bld --config "${CMAKE_CONFIGURATION}" --parallel 2 --target libssh2-examples-build
+fi
 
 # Install docker-cli for tests
 if [ "${SKIP_CTEST:-}" != 'yes' ]; then

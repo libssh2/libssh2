@@ -2,38 +2,31 @@
  * Copyright (C) Daniel Stenberg
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms,
- * with or without modification, are permitted provided
- * that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *   Redistributions of source code must retain the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
  *
- *   Redistributions in binary form must reproduce the above
- *   copyright notice, this list of conditions and the following
- *   disclaimer in the documentation and/or other materials
- *   provided with the distribution.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
  *
- *   Neither the name of the copyright holder nor the names
- *   of any other contributors may be used to endorse or
- *   promote products derived from this software without
- *   specific prior written permission.
+ * 3. Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
- * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
- * OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -46,7 +39,7 @@ struct known_host {
     size_t name_len;     /* needed for hashed data */
     int port;            /* if non-zero, a specific port this key is for on
                             this host */
-    int typemask;        /* plain, sha1, custom, ... */
+    int typemask;        /* plain, SHA1, custom, ... */
     char *salt;          /* points to binary salt (allocated) */
     size_t salt_len;     /* size of salt */
     char *key;           /* the (allocated) associated key. This is kept base64
@@ -66,7 +59,8 @@ struct _LIBSSH2_KNOWNHOSTS {
     struct list_head head;
 };
 
-static void free_host(LIBSSH2_SESSION *session, struct known_host *entry)
+static void knownhost_entry_free(LIBSSH2_SESSION *session,
+                                 struct known_host *entry)
 {
     if(entry) {
         if(entry->comment)
@@ -140,7 +134,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         return ssh2_err(hosts->session, LIBSSH2_ERROR_INVAL,
                         "No key type set");
 
-    entry = SSH2_CALLOC(hosts->session, sizeof(struct known_host));
+    entry = SSH2_CALLOC(hosts->session, sizeof(*entry));
     if(!entry)
         return ssh2_err(hosts->session, LIBSSH2_ERROR_ALLOC,
                         "Unable to allocate memory for known host entry");
@@ -266,7 +260,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
 
     return LIBSSH2_ERROR_NONE;
 error:
-    free_host(hosts->session, entry);
+    knownhost_entry_free(hosts->session, entry);
     return rc;
 }
 
@@ -369,7 +363,7 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
     int match = 0;
 
     if(type == LIBSSH2_KNOWNHOST_TYPE_SHA1)
-        /* we cannot work with a sha1 as given input */
+        /* we cannot work with a SHA1 as given input */
         return LIBSSH2_KNOWNHOST_CHECK_MISMATCH;
 
     /* if a port number is given, check for a '[host]:port' first before the
@@ -418,29 +412,28 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                 break;
             case LIBSSH2_KNOWNHOST_TYPE_SHA1:
                 if(type == LIBSSH2_KNOWNHOST_TYPE_PLAIN) {
-                    /* when we have the sha1 version stored, we can use a
+                    /* when we have the SHA1 version stored, we can use a
                        plain input to produce a hash to compare with the
-                       stored hash.
-                    */
+                       stored hash. */
                     unsigned char hash[SSH2_SHA1_DIG_LEN];
                     ssh2_hmac_ctx ctx;
-                    if(!ssh2_hmac_ctx_init(&ctx))
-                        break;
 
-                    if(SSH2_SHA1_DIG_LEN != node->name_len)
-                        /* the name hash length must be the sha1 size or
+                    if(node->name_len != sizeof(hash))
+                        /* the name hash length must be the SHA1 size or
                            we cannot match it */
                         break;
-                    if(!ssh2_hmac_sha1_init(&ctx, node->salt, node->salt_len))
+                    if(!ssh2_hmac_ctx_init(&ctx))
                         break;
-                    if(!ssh2_hmac_update(&ctx, host, strlen(host)) ||
-                       !ssh2_hmac_final(&ctx, hash, SSH2_SHA1_DIG_LEN)) {
+                    if(!ssh2_hmac_init(&ctx, SSH2_SHA1_HMAC,
+                                       node->salt, node->salt_len) ||
+                       !ssh2_hmac_update(&ctx, host, strlen(host)) ||
+                       !ssh2_hmac_final(&ctx, hash, sizeof(hash))) {
                         ssh2_hmac_cleanup(&ctx);
                         break;
                     }
                     ssh2_hmac_cleanup(&ctx);
 
-                    if(!memcmp(hash, node->name, SSH2_SHA1_DIG_LEN))
+                    if(!memcmp(hash, node->name, sizeof(hash)))
                         /* this is a node we are interested in */
                         match = 1;
                 }
@@ -455,8 +448,7 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                 /* match on key type as follows:
                    - never match on an unknown key type
                    - if key_type is set to zero, ignore it an match always
-                   - otherwise match when both key types are equal
-                */
+                   - otherwise match when both key types are equal */
                 if(host_key_type != LIBSSH2_KNOWNHOST_KEY_UNKNOWN &&
                    (host_key_type == 0 ||
                     host_key_type == known_key_type)) {
@@ -572,10 +564,10 @@ int libssh2_knownhost_del(LIBSSH2_KNOWNHOSTS *hosts,
 
     /* clear the struct now since the memory in which it is allocated is
        about to be freed! */
-    memset(entry, 0, sizeof(struct libssh2_knownhost));
+    memset(entry, 0, sizeof(*entry));
 
     /* free all resources */
-    free_host(hosts->session, node);
+    knownhost_entry_free(hosts->session, node);
 
     return 0;
 }
@@ -590,7 +582,7 @@ void libssh2_knownhost_free(LIBSSH2_KNOWNHOSTS *hosts)
 
     for(node = ssh2_list_first(&hosts->head); node; node = next) {
         next = ssh2_list_next(&node->node);
-        free_host(hosts->session, node);
+        knownhost_entry_free(hosts->session, node);
     }
     SSH2_FREE(hosts->session, hosts);
 }
@@ -600,11 +592,13 @@ void libssh2_knownhost_free(LIBSSH2_KNOWNHOSTS *hosts)
  * for the sake of simplicity, we add them as separate hosts with the same
  * key
  */
-static int oldstyle_hostline(LIBSSH2_KNOWNHOSTS *hosts,
-                             const char *host, size_t hostlen,
-                             const char *key_type_name, size_t key_type_len,
-                             const char *key, size_t keylen, int key_type,
-                             const char *comment, size_t commentlen)
+static int knownhost_line_legacy(LIBSSH2_KNOWNHOSTS *hosts,
+                                 const char *host, size_t hostlen,
+                                 const char *key_type_name,
+                                 size_t key_type_len,
+                                 const char *key, size_t keylen,
+                                 int key_type,
+                                 const char *comment, size_t commentlen)
 {
     int rc = 0;
     size_t namelen = 0;
@@ -655,11 +649,13 @@ static int oldstyle_hostline(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /* |1|[salt]|[hash] */
-static int hashed_hostline(LIBSSH2_KNOWNHOSTS *hosts,
-                           const char *host, size_t hostlen,
-                           const char *key_type_name, size_t key_type_len,
-                           const char *key, size_t keylen, int key_type,
-                           const char *comment, size_t commentlen)
+static int knownhost_line_hashed(LIBSSH2_KNOWNHOSTS *hosts,
+                                 const char *host, size_t hostlen,
+                                 const char *key_type_name,
+                                 size_t key_type_len,
+                                 const char *key, size_t keylen,
+                                 int key_type,
+                                 const char *comment, size_t commentlen)
 {
     const char *p;
     char saltbuf[32];
@@ -718,9 +714,9 @@ static int hashed_hostline(LIBSSH2_KNOWNHOSTS *hosts,
  *
  * The function assumes new-lines have already been removed from the arguments.
  */
-static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
-                    const char *host, size_t hostlen,
-                    const char *key, size_t keylen)
+static int knownhost_line(LIBSSH2_KNOWNHOSTS *hosts,
+                          const char *host, size_t hostlen,
+                          const char *key, size_t keylen)
 {
     const char *comment = NULL;
     const char *key_type_name = NULL;
@@ -814,14 +810,14 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
     if(hostlen < 3 || memcmp(host, "|1|", 3))
         /* old style plain text: [name]([,][name])*
            for simplicity, we add them as separate hosts with the same key */
-        return oldstyle_hostline(hosts, host, hostlen, key_type_name,
-                                 key_type_len, key, keylen, key_type,
-                                 comment, commentlen);
+        return knownhost_line_legacy(hosts, host, hostlen, key_type_name,
+                                     key_type_len, key, keylen, key_type,
+                                     comment, commentlen);
     else
         /* |1|[salt]|[hash] */
-        return hashed_hostline(hosts, host, hostlen, key_type_name,
-                               key_type_len, key, keylen, key_type,
-                               comment, commentlen);
+        return knownhost_line_hashed(hosts, host, hostlen, key_type_name,
+                                     key_type_len, key, keylen, key_type,
+                                     comment, commentlen);
 }
 
 /*
@@ -911,7 +907,7 @@ int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
         keylen--; /* do not include this in the count */
 
     /* deal with this one host+key line */
-    rc = hostline(hosts, hostp, hostlen, keyp, keylen);
+    rc = knownhost_line(hosts, hostp, hostlen, keyp, keylen);
     if(rc)
         return rc; /* failed */
 

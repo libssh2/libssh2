@@ -2,45 +2,38 @@
  * Copyright (C) Simon Josefsson
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms,
- * with or without modification, are permitted provided
- * that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *   Redistributions of source code must retain the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
  *
- *   Redistributions in binary form must reproduce the above
- *   copyright notice, this list of conditions and the following
- *   disclaimer in the documentation and/or other materials
- *   provided with the distribution.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
  *
- *   Neither the name of the copyright holder nor the names
- *   of any other contributors may be used to endorse or
- *   promote products derived from this software without
- *   specific prior written permission.
+ * 3. Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
- * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
- * OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_priv.h"
 
-static int readline(char *line, int line_size, FILE *fp)
+static int pem_readline_file(char *line, int line_size, FILE *fp)
 {
     size_t len;
 
@@ -64,9 +57,9 @@ static int readline(char *line, int line_size, FILE *fp)
     return 0;
 }
 
-static int readline_memory(char *line, size_t line_size,
-                           const char *filedata, size_t filedata_len,
-                           size_t *filedata_offset)
+static int pem_readline_blob(char *line, size_t line_size,
+                             const char *filedata, size_t filedata_len,
+                             size_t *filedata_offset)
 {
     size_t off, len;
 
@@ -97,7 +90,7 @@ static int readline_memory(char *line, size_t line_size,
 
 static const char *crypt_annotation = "Proc-Type: 4,ENCRYPTED";
 
-static unsigned char hex_decode(char digit)
+static unsigned char pem_hex_decode(char digit)
 {
     return (unsigned char)
         ((digit >= 'A') ? (0xA + (digit - 'A')) : (digit - '0'));
@@ -181,11 +174,11 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
     do {
         *line = '\0';
 
-        if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off))
+        if(pem_readline_blob(line, LINE_SIZE, filedata, filedata_len, &off))
             return -1;
     } while(strcmp(line, headerbegin));
 
-    if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off))
+    if(pem_readline_blob(line, LINE_SIZE, filedata, filedata_len, &off))
         return -1;
 
     if(passphrase &&
@@ -193,7 +186,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         const struct crypt_method **all_methods, *cur_method;
         int i;
 
-        if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
+        if(pem_readline_blob(line, LINE_SIZE, filedata, filedata_len, &off)) {
             ret = -1;
             goto out;
         }
@@ -220,12 +213,12 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
 
         /* Decode IV from hex */
         for(i = 0; i < method->iv_len; ++i) {
-            iv[i] = (unsigned char)(hex_decode(iv[2 * i]) << 4);
-            iv[i] |= hex_decode(iv[2 * i + 1]);
+            iv[i] = (unsigned char)(pem_hex_decode(iv[2 * i]) << 4);
+            iv[i] |= pem_hex_decode(iv[2 * i + 1]);
         }
 
         /* skip to the next line */
-        if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
+        if(pem_readline_blob(line, LINE_SIZE, filedata, filedata_len, &off)) {
             ret = -1;
             goto out;
         }
@@ -251,7 +244,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
 
         *line = '\0';
 
-        if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
+        if(pem_readline_blob(line, LINE_SIZE, filedata, filedata_len, &off)) {
             ret = -1;
             goto out;
         }
@@ -281,26 +274,32 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         int blocksize = method->blocksize;
         void *abstract;
         unsigned char secret[2 * SSH2_MD5_DIG_LEN];
-        ssh2_md5_ctx fingerprint_ctx;
+        ssh2_hash_ctx ctx;  /* fingerprint */
+        int hok;
 
         /* Perform key derivation (PBKDF1/MD5) */
-        if(!ssh2_md5_init(&fingerprint_ctx) ||
-           !ssh2_md5_update(fingerprint_ctx, passphrase,
-                            strlen((const char *)passphrase)) ||
-           !ssh2_md5_update(fingerprint_ctx, iv, 8) ||
-           !ssh2_md5_final(fingerprint_ctx, secret)) {
+        hok = ssh2_hash_init(&ctx, SSH2_MD5_ALG);
+        if(hok) {
+            hok &= ssh2_hash_update(&ctx, passphrase,
+                                    strlen((const char *)passphrase));
+            hok &= ssh2_hash_update(&ctx, iv, 8);
+            hok &= ssh2_hash_final(&ctx, secret, SSH2_MD5_DIG_LEN);
+        }
+        if(!hok) {
             ret = -1;
             goto out;
         }
         if(method->secret_len > SSH2_MD5_DIG_LEN) {
-            if(!ssh2_md5_init(&fingerprint_ctx) ||
-               !ssh2_md5_update(fingerprint_ctx, secret,
-                                SSH2_MD5_DIG_LEN) ||
-               !ssh2_md5_update(fingerprint_ctx, passphrase,
-                                strlen((const char *)passphrase)) ||
-               !ssh2_md5_update(fingerprint_ctx, iv, 8) ||
-               !ssh2_md5_final(fingerprint_ctx,
-                               secret + SSH2_MD5_DIG_LEN)) {
+            hok = ssh2_hash_init(&ctx, SSH2_MD5_ALG);
+            if(hok) {
+                hok &= ssh2_hash_update(&ctx, secret, SSH2_MD5_DIG_LEN);
+                hok &= ssh2_hash_update(&ctx, passphrase,
+                                        strlen((const char *)passphrase));
+                hok &= ssh2_hash_update(&ctx, iv, 8);
+                hok &= ssh2_hash_final(&ctx, secret + SSH2_MD5_DIG_LEN,
+                                       SSH2_MD5_DIG_LEN);
+            }
+            if(!hok) {
                 ret = -1;
                 goto out;
             }
@@ -309,7 +308,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         /* Initialize the decryption */
         if(method->init(session, method, iv, &free_iv, secret, &free_secret, 0,
                         &abstract)) {
-            ssh2_explicit_zero((char *)secret, sizeof(secret));
+            ssh2_explicit_zero(secret, sizeof(secret));
             ssh2_explicit_zero(*data, *datalen);
             SSH2_FREE(session, *data);
             ret = -1;
@@ -317,11 +316,11 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         }
 
         if(free_secret)
-            ssh2_explicit_zero((char *)secret, sizeof(secret));
+            ssh2_explicit_zero(secret, sizeof(secret));
 
         /* Do the actual decryption */
         if((*datalen % blocksize) != 0) {
-            ssh2_explicit_zero((char *)secret, sizeof(secret));
+            ssh2_explicit_zero(secret, sizeof(secret));
             method->dtor(session, &abstract);
             ssh2_explicit_zero(*data, *datalen);
             SSH2_FREE(session, *data);
@@ -332,7 +331,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         if(method->flags & SSH2_CRYPT_FLAG_REQUIRES_FULL_PACKET) {
             if(method->crypt(session, 0, *data, *datalen, &abstract, 0)) {
                 ret = LIBSSH2_ERROR_DECRYPT;
-                ssh2_explicit_zero((char *)secret, sizeof(secret));
+                ssh2_explicit_zero(secret, sizeof(secret));
                 method->dtor(session, &abstract);
                 ssh2_explicit_zero(*data, *datalen);
                 SSH2_FREE(session, *data);
@@ -350,7 +349,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
                                             ? LAST_BLOCK
                                             : MIDDLE_BLOCK))) {
                     ret = LIBSSH2_ERROR_DECRYPT;
-                    ssh2_explicit_zero((char *)secret, sizeof(secret));
+                    ssh2_explicit_zero(secret, sizeof(secret));
                     method->dtor(session, &abstract);
                     ssh2_explicit_zero(*data, *datalen);
                     SSH2_FREE(session, *data);
@@ -374,7 +373,7 @@ int ssh2_pem_parse_memory(LIBSSH2_SESSION *session,
         *datalen -= padding;
 
         /* Clean up */
-        ssh2_explicit_zero((char *)secret, sizeof(secret));
+        ssh2_explicit_zero(secret, sizeof(secret));
         method->dtor(session, &abstract);
 #else
         ssh2_err(session, LIBSSH2_ERROR_ALGO_UNSUPPORTED,
@@ -395,7 +394,7 @@ out:
 
 /* OpenSSH formatted keys */
 
-static int openssh_pem_parse_data(LIBSSH2_SESSION *session,
+static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
                                   const unsigned char *passphrase,
                                   const char *b64data, size_t b64datalen,
                                   struct string_buf **decrypted_buf)
@@ -727,11 +726,11 @@ int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
     do {
         *line = '\0';
 
-        if(readline(line, LINE_SIZE, fp))
+        if(pem_readline_file(line, LINE_SIZE, fp))
             return -1;
     } while(strcmp(line, OPENSSH_PRIVKEY_HEADER));
 
-    if(readline(line, LINE_SIZE, fp))
+    if(pem_readline_file(line, LINE_SIZE, fp))
         return -1;
 
     do {
@@ -754,7 +753,7 @@ int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
 
         *line = '\0';
 
-        if(readline(line, LINE_SIZE, fp)) {
+        if(pem_readline_file(line, LINE_SIZE, fp)) {
             ret = -1;
             goto out;
         }
@@ -763,7 +762,7 @@ int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
     if(!b64data)
         return -1;
 
-    ret = openssh_pem_parse_data(session, passphrase,
+    ret = pem_parse_data_openssh(session, passphrase,
                                  b64data, b64datalen, decrypted_buf);
 
     if(b64data) {
@@ -800,7 +799,7 @@ int ssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
             return ssh2_err(session, LIBSSH2_ERROR_PROTO,
                             "Error parsing PEM: OpenSSH header not found");
 
-        if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off))
+        if(pem_readline_blob(line, LINE_SIZE, filedata, filedata_len, &off))
             return -1;
     } while(strcmp(line, OPENSSH_PRIVKEY_HEADER));
 
@@ -831,7 +830,7 @@ int ssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
             goto out;
         }
 
-        if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
+        if(pem_readline_blob(line, LINE_SIZE, filedata, filedata_len, &off)) {
             ret = -1;
             goto out;
         }
@@ -841,7 +840,7 @@ int ssh2_openssh_pem_parse_memory(LIBSSH2_SESSION *session,
         return ssh2_err(session, LIBSSH2_ERROR_PROTO,
                         "Error parsing PEM: base 64 data missing");
 
-    ret = openssh_pem_parse_data(session, passphrase,
+    ret = pem_parse_data_openssh(session, passphrase,
                                  b64data, b64datalen, decrypted_buf);
 
 out:
@@ -852,8 +851,8 @@ out:
     return ret;
 }
 
-static int read_asn1_length(const unsigned char *data,
-                            size_t datalen, size_t *len)
+static int pem_read_asn1_length(const unsigned char *data,
+                                size_t datalen, size_t *len)
 {
     unsigned int lenlen;
     int nextpos;
@@ -898,7 +897,7 @@ int ssh2_pem_decode_sequence(unsigned char **data, size_t *datalen)
     (*data)++;
     (*datalen)--;
 
-    lenlen = read_asn1_length(*data, *datalen, &len);
+    lenlen = pem_read_asn1_length(*data, *datalen, &len);
     if(lenlen < 0 || lenlen + len != *datalen)
         return -1;
 
@@ -923,7 +922,7 @@ int ssh2_pem_decode_integer(unsigned char **data, size_t *datalen,
     (*data)++;
     (*datalen)--;
 
-    lenlen = read_asn1_length(*data, *datalen, &len);
+    lenlen = pem_read_asn1_length(*data, *datalen, &len);
     if(lenlen < 0 || lenlen + len > *datalen)
         return -1;
 

@@ -2,38 +2,31 @@
  * Copyright (C) The Written Word, Inc.
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms,
- * with or without modification, are permitted provided
- * that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *   Redistributions of source code must retain the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
  *
- *   Redistributions in binary form must reproduce the above
- *   copyright notice, this list of conditions and the following
- *   disclaimer in the documentation and/or other materials
- *   provided with the distribution.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
  *
- *   Neither the name of the copyright holder nor the names
- *   of any other contributors may be used to endorse or
- *   promote products derived from this software without
- *   specific prior written permission.
+ * 3. Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
- * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
- * OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -42,93 +35,61 @@
 
 #ifdef LIBSSH2_LIBGCRYPT
 
+int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg alg)
+{
+    return gcry_md_open(ctx, alg, 0) == GPG_ERR_NO_ERROR;
+}
+
+int ssh2_hash_update(ssh2_hash_ctx *ctx, const void *input, size_t input_len)
+{
+    gcry_md_write(*ctx, input, input_len);
+    return 1;
+}
+
+int ssh2_hash_final(ssh2_hash_ctx *ctx, void *digest, size_t digest_len)
+{
+    int ret = ssh2_hmac_final(ctx, digest, digest_len);
+    gcry_md_close(*ctx);
+    return ret;
+}
+
 int ssh2_hmac_ctx_init(ssh2_hmac_ctx *ctx)
 {
     *ctx = NULL;
     return 1;
 }
 
-#if LIBSSH2_MD5
-int ssh2_hmac_md5_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
+int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
+                   void *key, size_t key_len)
 {
     gcry_error_t err;
-    err = gcry_md_open(ctx, GCRY_MD_MD5, GCRY_MD_FLAG_HMAC);
+    err = gcry_md_open(ctx, alg, GCRY_MD_FLAG_HMAC);
     if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
         return 0;
-    err = gcry_md_setkey(*ctx, key, keylen);
-    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
-        return 0;
-    return 1;
-}
-#endif
-
-#if LIBSSH2_HMAC_RIPEMD
-int ssh2_hmac_ripemd160_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
-{
-    gcry_error_t err;
-    err = gcry_md_open(ctx, GCRY_MD_RMD160, GCRY_MD_FLAG_HMAC);
-    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
-        return 0;
-    err = gcry_md_setkey(*ctx, key, keylen);
-    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
-        return 0;
-    return 1;
-}
-#endif
-
-int ssh2_hmac_sha1_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
-{
-    gcry_error_t err;
-    err = gcry_md_open(ctx, GCRY_MD_SHA1, GCRY_MD_FLAG_HMAC);
-    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
-        return 0;
-    err = gcry_md_setkey(*ctx, key, keylen);
+    err = gcry_md_setkey(*ctx, key, key_len);
     if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
         return 0;
     return 1;
 }
 
-int ssh2_hmac_sha256_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
+int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *input, size_t input_len)
 {
-    gcry_error_t err;
-    err = gcry_md_open(ctx, GCRY_MD_SHA256, GCRY_MD_FLAG_HMAC);
-    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
-        return 0;
-    err = gcry_md_setkey(*ctx, key, keylen);
-    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
-        return 0;
+    gcry_md_write(*ctx, input, input_len);
     return 1;
 }
 
-int ssh2_hmac_sha512_init(ssh2_hmac_ctx *ctx, void *key, size_t keylen)
+int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t mac_len)
 {
-    gcry_error_t err;
-    err = gcry_md_open(ctx, GCRY_MD_SHA512, GCRY_MD_FLAG_HMAC);
-    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
-        return 0;
-    err = gcry_md_setkey(*ctx, key, keylen);
-    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
-        return 0;
-    return 1;
-}
-
-int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *data, size_t datalen)
-{
-    gcry_md_write(*ctx, data, datalen);
-    return 1;
-}
-
-int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t maclen)
-{
-    unsigned char *res = gcry_md_read(*ctx, 0);
-    (void)maclen;
-
-    if(!res)
-        return 0;
-
-    memcpy(mac, res, gcry_md_get_algo_dlen(gcry_md_get_algo(*ctx)));
-
-    return 1;
+    int ret = 0;
+    unsigned int actual_len = gcry_md_get_algo_dlen(gcry_md_get_algo(*ctx));
+    if(mac_len >= actual_len) {
+        unsigned char *res = gcry_md_read(*ctx, 0);
+        if(res) {
+            memcpy(mac, res, actual_len);
+            ret = 1;
+        }
+    }
+    return ret;
 }
 
 void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
@@ -138,14 +99,14 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
 
 #if LIBSSH2_RSA
 int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
-                 const unsigned char *edata, unsigned long elen,
-                 const unsigned char *ndata, unsigned long nlen,
-                 const unsigned char *ddata, unsigned long dlen,
-                 const unsigned char *pdata, unsigned long plen,
-                 const unsigned char *qdata, unsigned long qlen,
-                 const unsigned char *e1data, unsigned long e1len,
-                 const unsigned char *e2data, unsigned long e2len,
-                 const unsigned char *coeffdata, unsigned long coefflen)
+                 const unsigned char *edata, size_t elen,
+                 const unsigned char *ndata, size_t nlen,
+                 const unsigned char *ddata, size_t dlen,
+                 const unsigned char *pdata, size_t plen,
+                 const unsigned char *qdata, size_t qlen,
+                 const unsigned char *e1data, size_t e1len,
+                 const unsigned char *e2data, size_t e2len,
+                 const unsigned char *coeffdata, size_t coefflen)
 {
     int rc;
 
@@ -157,11 +118,11 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     if(ddata)
         rc = gcry_sexp_build(rsa, NULL,
                  "(private-key(rsa(n%b)(e%b)(d%b)(q%b)(p%b)(u%b)))",
-                 nlen, ndata, elen, edata, dlen, ddata, plen, pdata,
-                 qlen, qdata, coefflen, coeffdata);
+                 (int)nlen, ndata, (int)elen, edata, (int)dlen, ddata,
+                 (int)plen, pdata, (int)qlen, qdata, (int)coefflen, coeffdata);
     else
         rc = gcry_sexp_build(rsa, NULL, "(public-key(rsa(n%b)(e%b)))",
-                             nlen, ndata, elen, edata);
+                             (int)nlen, ndata, (int)elen, edata);
 
     if(rc) {
         *rsa = NULL;
@@ -171,10 +132,9 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     return 0;
 }
 
-int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
+int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa,
                          size_t hash_len,
-                         const unsigned char *sig,
-                         size_t sig_len,
+                         const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
     unsigned char *hash;
@@ -188,16 +148,19 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
         return -1;
 
     if(hash_len == SSH2_SHA1_DIG_LEN) {
+        gcry_md_hash_buffer(GCRY_MD_SHA1, hash, m, m_len);
         algo = "sha1";
-        ret = ssh2_sha1(m, m_len, hash);
+        ret = 0;
     }
     else if(hash_len == SSH2_SHA256_DIG_LEN) {
+        gcry_md_hash_buffer(GCRY_MD_SHA256, hash, m, m_len);
         algo = "sha256";
-        ret = ssh2_sha256(m, m_len, hash);
+        ret = 0;
     }
     else if(hash_len == SSH2_SHA512_DIG_LEN) {
+        gcry_md_hash_buffer(GCRY_MD_SHA512, hash, m, m_len);
         algo = "sha512";
-        ret = ssh2_sha512(m, m_len, hash);
+        ret = 0;
     }
     else
         ret = 1;
@@ -219,7 +182,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsactx,
         goto out;
     }
 
-    ret = (gcry_pk_verify(s_sig, s_hash, rsactx) == 0) ? 0 : -1;
+    ret = (gcry_pk_verify(s_sig, s_hash, rsa) == 0) ? 0 : -1;
 
 out:
     if(s_sig)
@@ -233,38 +196,40 @@ out:
 }
 
 #if LIBSSH2_RSA_SHA1
-int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsactx,
-                         const unsigned char *sig,
-                         size_t sig_len,
+int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
+                         const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return ssh2_rsa_sha2_verify(rsactx, SSH2_SHA1_DIG_LEN, sig, sig_len, m,
+    return ssh2_rsa_sha2_verify(rsa, SSH2_SHA1_DIG_LEN, sig, sig_len, m,
                                 m_len);
 }
 #endif
 #endif
 
 #if LIBSSH2_DSA
-int ssh2_dsa_new(ssh2_dsa_ctx **dsactx,
-                 const unsigned char *p, unsigned long p_len,
-                 const unsigned char *q, unsigned long q_len,
-                 const unsigned char *g, unsigned long g_len,
-                 const unsigned char *y, unsigned long y_len,
-                 const unsigned char *x, unsigned long x_len)
+int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
+                 const unsigned char *pdata, size_t plen,
+                 const unsigned char *qdata, size_t qlen,
+                 const unsigned char *gdata, size_t glen,
+                 const unsigned char *ydata, size_t ylen,
+                 const unsigned char *xdata, size_t xlen)
 {
     int rc;
 
-    if(x_len)
-        rc = gcry_sexp_build(dsactx, NULL,
+    if(xlen)
+        rc = gcry_sexp_build(dsa, NULL,
                              "(private-key(dsa(p%b)(q%b)(g%b)(y%b)(x%b)))",
-                             p_len, p, q_len, q, g_len, g, y_len, y, x_len, x);
+                             (int)plen, pdata, (int)qlen, qdata,
+                             (int)glen, gdata, (int)ylen, ydata,
+                             (int)xlen, xdata);
     else
-        rc = gcry_sexp_build(dsactx, NULL,
+        rc = gcry_sexp_build(dsa, NULL,
                              "(public-key(dsa(p%b)(q%b)(g%b)(y%b)))",
-                             p_len, p, q_len, q, g_len, g, y_len, y);
+                             (int)plen, pdata, (int)qlen, qdata,
+                             (int)glen, gdata, (int)ylen, ydata);
 
     if(rc) {
-        *dsactx = NULL;
+        *dsa = NULL;
         return -1;
     }
 
@@ -275,13 +240,12 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsactx,
 #if LIBSSH2_RSA
 int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                     LIBSSH2_SESSION *session,
-                                    const char *filedata,
-                                    size_t filedata_len,
+                                    const char *blob, size_t blob_len,
                                     const unsigned char *passphrase)
 {
     (void)rsa;
-    (void)filedata;
-    (void)filedata_len;
+    (void)blob;
+    (void)blob_len;
     (void)passphrase;
 
     return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
@@ -390,13 +354,12 @@ fail:
 #if LIBSSH2_DSA
 int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
                                     LIBSSH2_SESSION *session,
-                                    const char *filedata,
-                                    size_t filedata_len,
+                                    const char *blob, size_t blob_len,
                                     const unsigned char *passphrase)
 {
     (void)dsa;
-    (void)filedata;
-    (void)filedata_len;
+    (void)blob;
+    (void)blob_len;
     (void)passphrase;
 
     return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
@@ -489,12 +452,9 @@ fail:
 #endif
 
 #if LIBSSH2_RSA
-int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
-                       ssh2_rsa_ctx *rsactx,
-                       const unsigned char *hash,
-                       size_t hash_len,
-                       unsigned char **signature,
-                       size_t *signature_len)
+int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
+                       const unsigned char *hash, size_t hash_len,
+                       unsigned char **signature, size_t *signature_len)
 {
     const char *algo;
     gcry_sexp_t s_tmp = NULL;
@@ -522,7 +482,7 @@ int ssh2_rsa_sha2_sign(LIBSSH2_SESSION *session,
                        algo, hash_len, hash))
         return -1;
 
-    err = gcry_pk_sign(&s_sig, s_tmp, rsactx);
+    err = gcry_pk_sign(&s_sig, s_tmp, rsa);
     gcry_sexp_release(s_tmp);
     if(err)
         return -1;
@@ -559,23 +519,20 @@ out:
 }
 
 #if LIBSSH2_RSA_SHA1
-int ssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
-                       ssh2_rsa_ctx *rsactx,
-                       const unsigned char *hash,
-                       size_t hash_len,
-                       unsigned char **signature,
-                       size_t *signature_len)
+int ssh2_rsa_sha1_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
+                       const unsigned char *hash, size_t hash_len,
+                       unsigned char **signature, size_t *signature_len)
 {
-    return ssh2_rsa_sha2_sign(session, rsactx, hash, hash_len,
+    return ssh2_rsa_sha2_sign(rsa, session, hash, hash_len,
                               signature, signature_len);
 }
 #endif
 #endif
 
 #if LIBSSH2_DSA
-int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
-                       const unsigned char *hash,
-                       size_t hash_len, unsigned char *sig)
+int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
+                       const unsigned char *hash, size_t hash_len,
+                       unsigned char *signature)
 {
     unsigned char zhash[SSH2_SHA1_DIG_LEN + 1];
     gcry_sexp_t sig_sexp;
@@ -594,14 +551,14 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
                        (int)(hash_len + 1), zhash))
         return -1;
 
-    ret = gcry_pk_sign(&sig_sexp, data, dsactx);
+    ret = gcry_pk_sign(&sig_sexp, data, dsa);
 
     gcry_sexp_release(data);
 
     if(ret)
         return -1;
 
-    memset(sig, 0, 40);
+    memset(signature, 0, 40);
 
     /* Extract R. */
 
@@ -621,7 +578,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
     if(size < 1 || size > 20)
         goto err;
 
-    memcpy(sig + (20 - size), tmp, size);
+    memcpy(signature + (20 - size), tmp, size);
 
     gcry_sexp_release(data);
 
@@ -643,7 +600,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsactx,
     if(size < 1 || size > 20)
         goto err;
 
-    memcpy(sig + 20 + (20 - size), tmp, size);
+    memcpy(signature + 20 + (20 - size), tmp, size);
     goto out;
 
 err:
@@ -657,7 +614,7 @@ out:
     return ret;
 }
 
-int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
+int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
                          const unsigned char *sig,
                          const unsigned char *m, size_t m_len)
 {
@@ -665,8 +622,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
     gcry_sexp_t s_sig, s_hash;
     int rc = -1;
 
-    if(ssh2_sha1(m, m_len, hash + 1))
-        return -1;
+    gcry_md_hash_buffer(GCRY_MD_SHA1, hash + 1, m, m_len);
 
     hash[0] = 0;
 
@@ -680,15 +636,15 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsactx,
         return -1;
     }
 
-    rc = gcry_pk_verify(s_sig, s_hash, dsactx);
+    rc = gcry_pk_verify(s_sig, s_hash, dsa);
     gcry_sexp_release(s_sig);
     gcry_sexp_release(s_hash);
 
-    return (rc == 0) ? 0 : -1;
+    return rc == 0 ? 0 : -1;
 }
 #endif
 
-int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
+int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
     int ret;
@@ -698,24 +654,24 @@ int ssh2_cipher_init(ssh2_cipher_ctx *h, SSH2_CIPHER_T(algo),
 
     (void)encrypt;
 
-    ret = gcry_cipher_open(h, cipher, mode, 0);
+    ret = gcry_cipher_open(ctx, cipher, mode, 0);
     if(ret)
         return -1;
 
-    ret = gcry_cipher_setkey(*h, secret, keylen);
+    ret = gcry_cipher_setkey(*ctx, secret, keylen);
     if(ret) {
-        gcry_cipher_close(*h);
+        gcry_cipher_close(*ctx);
         return -1;
     }
 
     if(mode != GCRY_CIPHER_MODE_STREAM) {
         size_t blklen = gcry_cipher_get_algo_blklen(cipher);
         if(mode == GCRY_CIPHER_MODE_CTR)
-            ret = gcry_cipher_setctr(*h, iv, blklen);
+            ret = gcry_cipher_setctr(*ctx, iv, blklen);
         else
-            ret = gcry_cipher_setiv(*h, iv, blklen);
+            ret = gcry_cipher_setiv(*ctx, iv, blklen);
         if(ret) {
-            gcry_cipher_close(*h);
+            gcry_cipher_close(*ctx);
             return -1;
         }
     }
@@ -782,38 +738,6 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                     "file: Method unimplemented in libgcrypt backend");
 }
 
-int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
-                              unsigned char **method,
-                              size_t *method_len,
-                              unsigned char **pubkeydata,
-                              size_t *pubkeydata_len,
-                              int *algorithm,
-                              unsigned char *flags,
-                              const char **application,
-                              const unsigned char **key_handle,
-                              size_t *handle_len,
-                              const char *privatekeydata,
-                              size_t privatekeydata_len,
-                              const char *passphrase)
-{
-    (void)method;
-    (void)method_len;
-    (void)pubkeydata;
-    (void)pubkeydata_len;
-    (void)algorithm;
-    (void)flags;
-    (void)application;
-    (void)key_handle;
-    (void)handle_len;
-    (void)privatekeydata;
-    (void)privatekeydata_len;
-    (void)passphrase;
-
-    return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                    "Unable to extract public SK key from private key "
-                    "file: Method unimplemented in libgcrypt backend");
-}
-
 void ssh2_dh_init(ssh2_dh_ctx *dhctx)
 {
     *dhctx = gcry_mpi_new(0);                   /* Random from client */
@@ -828,8 +752,36 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
         return -1;
 
     /* Generate x and e */
-    gcry_mpi_randomize(*dhctx, group_order * 8 - 1, GCRY_VERY_STRONG_RANDOM);
+    gcry_mpi_randomize(*dhctx, (group_order * 8) - 1, GCRY_VERY_STRONG_RANDOM);
     gcry_mpi_powm(pub, g, *dhctx, p);
+    return 0;
+}
+
+int ssh2_dh_is_valid(ssh2_bn *f, ssh2_bn *p)
+{
+    gcry_mpi_t tmp;
+    unsigned int n, i, bits_set;
+
+    if(gcry_mpi_cmp_ui(f, 1) <= 0)
+        return -1;  /* f <= 1 */
+
+    tmp = gcry_mpi_new(0);
+    if(!tmp)
+        return -4;
+    gcry_mpi_sub_ui(tmp, p, 1);
+    if(gcry_mpi_cmp(f, tmp) >= 0) {
+        gcry_mpi_release(tmp);
+        return -2;  /* f >= p - 1 (== f > p - 2) */
+    }
+    gcry_mpi_release(tmp);
+
+    for(i = 0, n = gcry_mpi_get_nbits(f), bits_set = 0; i < n; ++i)
+        if(gcry_mpi_test_bit(f, i))
+            ++bits_set;
+
+    if(bits_set < 4)
+        return -3;
+
     return 0;
 }
 
@@ -837,6 +789,10 @@ int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
                    ssh2_bn *p, ssh2_bn_ctx *bnctx)
 {
     (void)bnctx;
+
+    if(ssh2_dh_is_valid(f, p))  /* Verify if parameters are valid */
+        return -1;
+
     /* Compute the shared secret */
     gcry_mpi_powm(secret, f, *dhctx, p);
     return 0;
@@ -846,32 +802,6 @@ void ssh2_dh_dtor(ssh2_dh_ctx *dhctx)
 {
     gcry_mpi_release(*dhctx);
     *dhctx = NULL;
-}
-
-/*
- * Return supported key hash algo upgrades, see crypto.h
- */
-const char *ssh2_supported_key_sign_algs(LIBSSH2_SESSION *session,
-                                         unsigned char *key_method,
-                                         size_t key_method_len)
-{
-    (void)session;
-
-#if LIBSSH2_RSA_SHA2
-    if(key_method_len == 7 &&
-       !memcmp(key_method, "ssh-rsa", key_method_len)) {
-        return "rsa-sha2-512,rsa-sha2-256"
-#if LIBSSH2_RSA_SHA1
-            ",ssh-rsa"
-#endif
-            ;
-    }
-#else
-    (void)key_method;
-    (void)key_method_len;
-#endif
-
-    return NULL;
 }
 
 #endif /* LIBSSH2_LIBGCRYPT */

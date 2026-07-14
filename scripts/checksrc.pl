@@ -988,6 +988,10 @@ sub scanfile {
                 $prevfreeindent = $1;
                 $prevfreevar = $2;
             }
+            elsif($l =~ /^( *)SSH2_FREE\(([^)]+), ([^)]+)\);/) {
+                $prevfreeindent = $1;
+                $prevfreevar = $3;
+            }
             else {
                 $prevfreeindent = "";
                 $prevfreevar = "";

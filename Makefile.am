@@ -95,3 +95,6 @@ coverage: init-coverage build-coverage gen-coverage
 
 checksrc:
 	scripts/checksrc-all.pl
+
+examples:
+	@(cd example; $(MAKE))

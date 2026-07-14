@@ -2,38 +2,31 @@
  * Copyright (C) Daniel Stenberg
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms,
- * with or without modification, are permitted provided
- * that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *   Redistributions of source code must retain the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
  *
- *   Redistributions in binary form must reproduce the above
- *   copyright notice, this list of conditions and the following
- *   disclaimer in the documentation and/or other materials
- *   provided with the distribution.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
  *
- *   Neither the name of the copyright holder nor the names
- *   of any other contributors may be used to endorse or
- *   promote products derived from this software without
- *   specific prior written permission.
+ * 3. Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
- * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
- * OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -52,8 +45,8 @@
 
 #ifdef LIBSSH2DEBUG
 #define UNPRINTABLE_CHAR '.'
-static void debugdump(LIBSSH2_SESSION *session,
-                      const char *desc, const unsigned char *ptr, size_t size)
+static void transport_debugdump(LIBSSH2_SESSION *session, const char *desc,
+                                const unsigned char *ptr, size_t size)
 {
     size_t i;
     size_t c;
@@ -113,16 +106,16 @@ static void debugdump(LIBSSH2_SESSION *session,
     }
 }
 #else
-#define debugdump(a, x, y, z) do {} while(0)
+#define transport_debugdump(a, x, y, z) do {} while(0)
 #endif
 
-/* decrypt() decrypts 'len' bytes from 'source' to 'dest' in units of
+/* transport_decrypt() decrypts 'len' bytes from 'source' to 'dest' in units of
  * blocksize.
  *
  * returns 0 on success and negative on failure
  */
-static int decrypt(LIBSSH2_SESSION *session, unsigned char *source,
-                   unsigned char *dest, ssize_t len, int firstlast)
+static int transport_decrypt(LIBSSH2_SESSION *session, unsigned char *source,
+                             unsigned char *dest, ssize_t len, int firstlast)
 {
     struct transportpacket *p = &session->packet;
     int blocksize = session->remote.crypt->blocksize;
@@ -154,8 +147,7 @@ static int decrypt(LIBSSH2_SESSION *session, unsigned char *source,
         if(session->remote.crypt->crypt(session, 0, source, decryptlen,
                                         &session->remote.crypt_abstract,
                                         lowerfirstlast)) {
-            SSH2_FREE(session, p->payload);
-            p->payload = NULL;
+            SSH2_SAFEFREE(session, p->payload);
             return LIBSSH2_ERROR_DECRYPT;
         }
 
@@ -172,10 +164,11 @@ static int decrypt(LIBSSH2_SESSION *session, unsigned char *source,
 }
 
 /*
- * fullpacket() gets called when a full packet has been received and properly
- * collected.
+ * transport_fullpacket() gets called when a full packet has been received and
+ * properly collected.
  */
-static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
+static int transport_fullpacket(LIBSSH2_SESSION *session,
+                                int encrypted /* 1 or 0 */)
 {
     unsigned char macbuf[MAX_MACSIZE];
     struct transportpacket *p = &session->packet;
@@ -236,8 +229,8 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
 
                 first_block[0] = 0;
 
-                rc = decrypt(session, p->payload + 4,
-                             first_block, blocksize, FIRST_BLOCK);
+                rc = transport_decrypt(session, p->payload + 4,
+                                       first_block, blocksize, FIRST_BLOCK);
                 if(rc)
                     return rc;
 
@@ -261,9 +254,11 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
 
                 /* decrypt all other blocks packet */
                 if(blocksize < decrypt_size) {
-                    rc = decrypt(session, p->payload + blocksize + 4,
-                                 decrypt_buffer + blocksize - 1,
-                                 decrypt_size - blocksize, LAST_BLOCK);
+                    rc = transport_decrypt(session,
+                                           p->payload + blocksize + 4,
+                                           decrypt_buffer + blocksize - 1,
+                                           decrypt_size - blocksize,
+                                           LAST_BLOCK);
                     if(rc) {
                         SSH2_FREE(session, decrypt_buffer);
                         return rc;
@@ -305,8 +300,7 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
                                               p->payload,
                                               session->fullpacket_payload_len,
                                               &session->remote.comp_abstract);
-            SSH2_FREE(session, p->payload);
-            p->payload = NULL;
+            SSH2_SAFEFREE(session, p->payload);
             if(rc)
                 return rc;
 
@@ -316,8 +310,8 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
 
         session->fullpacket_packet_type = p->payload[0];
 
-        debugdump(session, "ssh2_transport_read() plain",
-                  p->payload, session->fullpacket_payload_len);
+        transport_debugdump(session, "ssh2_transport_read() plain",
+                            p->payload, session->fullpacket_payload_len);
 
         session->fullpacket_state = ssh2_NB_state_created;
     }
@@ -327,19 +321,17 @@ static int fullpacket(LIBSSH2_SESSION *session, int encrypted /* 1 or 0 */)
                              session->fullpacket_payload_len,
                              session->fullpacket_macstate, seq);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
-            /* ssh2_packet_add() queues the packet into
-             * session->packets before attempting follow-up
-             * work like key re-exchange. If EAGAIN occurs
-             * during that work, packAdd_state is reset to
-             * idle and the data is already owned by the
-             * packet queue. Clear p->payload to prevent
+            /* ssh2_packet_add() queues the packet into session->packets before
+             * attempting follow-up work like key re-exchange. If EAGAIN occurs
+             * during that work, packAdd_state is reset to idle and the data is
+             * already owned by the packet queue. Clear p->payload to prevent
              * double-free in session cleanup. */
             if(session->packAdd_state == ssh2_NB_state_idle)
                 p->payload = NULL;
             return rc;
         }
-        /* ssh2_packet_add() takes ownership of the payload
-         * on all non-EAGAIN paths, so clear the pointer */
+        /* ssh2_packet_add() takes ownership of the payload on all non-EAGAIN
+         * paths, so clear the pointer */
         p->payload = NULL;
         if(rc) {
             session->fullpacket_state = ssh2_NB_state_idle;
@@ -502,8 +494,8 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                       (long)(PACKETBUFSIZE - remainbuf), (void *)p->buf,
                       (long)remainbuf));
 
-            debugdump(session, "ssh2_transport_read() raw",
-                      &p->buf[remainbuf], nread);
+            transport_debugdump(session, "ssh2_transport_read() raw",
+                                &p->buf[remainbuf], nread);
             /* advance write pointer */
             p->writeidx += nread;
 
@@ -531,7 +523,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                 /* we cannot act on anything less than blocksize, but this
                    check is only done for the initial block since once we have
                    got the start of a block we can in fact deal with fractions
-                */
+                 */
                 session->socket_block_directions |=
                     LIBSSH2_SESSION_BLOCK_INBOUND;
                 return LIBSSH2_ERROR_EAGAIN;
@@ -556,8 +548,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                 if(rc != LIBSSH2_ERROR_NONE) {
                     p->total_num = 0; /* no packet buffer available */
                     if(p->payload)
-                        SSH2_FREE(session, p->payload);
-                    p->payload = NULL;
+                        SSH2_SAFEFREE(session, p->payload);
                     return rc;
                 }
 
@@ -571,8 +562,8 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
             else {
                 if(encrypted) {
                     /* first decrypted block */
-                    rc = decrypt(session, &p->buf[p->readidx],
-                                 block, blocksize, FIRST_BLOCK);
+                    rc = transport_decrypt(session, &p->buf[p->readidx],
+                                           block, blocksize, FIRST_BLOCK);
                     if(rc != LIBSSH2_ERROR_NONE)
                         return rc;
                     /* Save the first 5 bytes of the decrypted package, to be
@@ -685,8 +676,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                     }
                     else {
                         if(p->payload)
-                            SSH2_FREE(session, p->payload);
-                        p->payload = NULL;
+                            SSH2_SAFEFREE(session, p->payload);
                         return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
                     }
                 }
@@ -813,8 +803,8 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                     return LIBSSH2_ERROR_DECRYPT;
             }
             else {
-                rc = decrypt(session, &p->buf[p->readidx], p->wptr, numdecrypt,
-                             firstlast);
+                rc = transport_decrypt(session, &p->buf[p->readidx], p->wptr,
+                                       numdecrypt, firstlast);
 
                 if(rc != LIBSSH2_ERROR_NONE) {
                     p->total_num = 0; /* no packet buffer available */
@@ -841,8 +831,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                 memcpy(p->wptr, &p->buf[p->readidx], numbytes);
             else {
                 if(p->payload)
-                    SSH2_FREE(session, p->payload);
-                p->payload = NULL;
+                    SSH2_SAFEFREE(session, p->payload);
                 return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
             }
 
@@ -861,12 +850,12 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
         if(!remainpack) {
             /* we have a full packet */
 ssh2_transport_read_point1:
-            rc = fullpacket(session, encrypted);
+            rc = transport_fullpacket(session, encrypted);
             if(rc == LIBSSH2_ERROR_EAGAIN) {
 
                 if(session->packAdd_state != ssh2_NB_state_idle) {
-                    /* fullpacket only returns LIBSSH2_ERROR_EAGAIN if
-                     * ssh2_packet_add() returns LIBSSH2_ERROR_EAGAIN. If
+                    /* transport_fullpacket() only returns LIBSSH2_ERROR_EAGAIN
+                     * if ssh2_packet_add() returns LIBSSH2_ERROR_EAGAIN. If
                      * that returns LIBSSH2_ERROR_EAGAIN but the packAdd_state
                      * is idle, then the packet has been added to the brigade,
                      * but some immediate action that was taken based on the
@@ -890,8 +879,9 @@ ssh2_transport_read_point1:
     return LIBSSH2_ERROR_SOCKET_RECV; /* we never reach this point */
 }
 
-static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
-                         size_t data_len, ssize_t *ret)
+static int transport_send_existing(LIBSSH2_SESSION *session,
+                                   const unsigned char *data,
+                                   size_t data_len, ssize_t *ret)
 {
     ssize_t rc;
     ssize_t length;
@@ -928,8 +918,8 @@ static int send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
         ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
                   "Sent %ld/%ld bytes at %p+%lu", (long)rc, (long)length,
                   (void *)p->outbuf, (unsigned long)p->osent));
-        debugdump(session, "ssh2_transport_send()",
-                  &p->outbuf[p->osent], rc);
+        transport_debugdump(session, "ssh2_transport_send()",
+                            &p->outbuf[p->osent], rc);
     }
 
     if(rc == length) {
@@ -1007,12 +997,38 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
     size_t orgdata_len = data_len;
     size_t crypt_offset, etm_crypt_offset;
 
+    transport_debugdump(session, "ssh2_transport_send() plain",
+                        data, data_len);
+    if(data2)
+        transport_debugdump(session, "ssh2_transport_send() plain2",
+                            data2, data2_len);
+
+    /* Finish flushing any partially-sent packet BEFORE redirecting into a key
+     * re-exchange. A packet already in transmission can only be completed by
+     * a transport_send call with that same packet (transport_send_existing()
+     * rejects a different data pointer with EAGAIN). If rekey runs first,
+     * a packet caught mid-send when rekey starts can never be flushed and
+     * the session deadlocks. RFC 4253 7.1 requires completing the in-flight
+     * packet; only NEW packets are withheld, which the rekey redirect (reached
+     * only once nothing is pending) still does.
+     *
+     * transport_send_existing() only sanity-checks data and data_len, not
+     * data2/data2_len.
+     */
+    rc = transport_send_existing(session, data, data_len, &ret);
+    if(rc)
+        return rc;
+
+    session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_OUTBOUND;
+
+    if(ret)
+        /* set by transport_send_existing() if data was sent */
+        return rc;
+
     /*
      * If the last read operation was interrupted in the middle of a key
-     * exchange, we must complete that key exchange before continuing to write
-     * further data.
-     *
-     * See the similar block in ssh2_transport_read() for more details.
+     * exchange, we must complete that key exchange before writing further
+     * *new* data. See the similar block in ssh2_transport_read().
      */
     if(session->state & SSH2_STATE_EXCHANGING_KEYS &&
        !(session->state & SSH2_STATE_KEX_ACTIVE)) {
@@ -1024,22 +1040,6 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
         if(rc)
             return rc;
     }
-
-    debugdump(session, "ssh2_transport_send() plain", data, data_len);
-    if(data2)
-        debugdump(session, "ssh2_transport_send() plain2", data2, data2_len);
-
-    /* FIRST, check if we have a pending write to complete. send_existing
-       only sanity-check data and data_len and not data2 and data2_len! */
-    rc = send_existing(session, data, data_len, &ret);
-    if(rc)
-        return rc;
-
-    session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_OUTBOUND;
-
-    if(ret)
-        /* set by send_existing if data was sent */
-        return rc;
 
     encrypted = (session->state & SSH2_STATE_NEWKEYS) ? 1 : 0;
 
@@ -1270,7 +1270,7 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
         ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
                   "Sent %ld/%ld bytes at %p",
                   (long)ret, (long)total_length, (void *)p->outbuf));
-        debugdump(session, "ssh2_transport_send()", p->outbuf, ret);
+        transport_debugdump(session, "ssh2_transport_send()", p->outbuf, ret);
     }
 
     if(ret != total_length) {

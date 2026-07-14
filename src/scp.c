@@ -2,38 +2,31 @@
  * Copyright (C) Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms,
- * with or without modification, are permitted provided
- * that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *   Redistributions of source code must retain the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
  *
- *   Redistributions in binary form must reproduce the above
- *   copyright notice, this list of conditions and the following
- *   disclaimer in the documentation and/or other materials
- *   provided with the distribution.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
  *
- *   Neither the name of the copyright holder nor the names
- *   of any other contributors may be used to endorse or
- *   promote products derived from this software without
- *   specific prior written permission.
+ * 3. Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
- * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
- * OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -53,7 +46,7 @@
 #define scpsize_strtol strtol
 #endif
 
-/* Max. length of a quoted string after shell_quotearg() processing */
+/* Max. length of a quoted string after scp_shell_quotearg() processing */
 #define shell_quotedsize(s)  (3 * strlen(s) + 2)
 
 /* This function quotes a string in a way suitable to be used with a
@@ -129,8 +122,8 @@
    Note: this function could possible be used elsewhere within libssh2, but
    until then it is kept static and in this source file.
  */
-static size_t shell_quotearg(const char *path,
-                             unsigned char *buf, size_t bufsize)
+static size_t scp_shell_quotearg(const char *path,
+                                 unsigned char *buf, size_t bufsize)
 {
     const char *src;
     unsigned char *dst, *endp;
@@ -310,7 +303,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                       session->scpRecv_command_len,
                       "scp -%sf ", sb ? "p" : "");
 
-        cmd_len = strlen((char *)session->scpRecv_command);
+        cmd_len = strlen((const char *)session->scpRecv_command);
 
         if(!session->flag.quote_paths) {
             size_t path_len;
@@ -322,9 +315,10 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
             cmd_len += path_len;
         }
         else
-            cmd_len += shell_quotearg(path,
-                                      &session->scpRecv_command[cmd_len],
-                                      session->scpRecv_command_len - cmd_len);
+            cmd_len += scp_shell_quotearg(path,
+                                          &session->scpRecv_command[cmd_len],
+                                          session->scpRecv_command_len -
+                                              cmd_len);
 
         /* the command to exec should _not_ be null-terminated */
         session->scpRecv_command_len = cmd_len;
@@ -344,8 +338,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                               LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL, 0);
         if(!session->scpRecv_channel) {
             if(libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
-                SSH2_FREE(session, session->scpRecv_command);
-                session->scpRecv_command = NULL;
+                SSH2_SAFEFREE(session, session->scpRecv_command);
                 session->scpRecv_state = ssh2_NB_state_idle;
             }
             else
@@ -369,12 +362,10 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
             return NULL;
         }
         else if(rc) {
-            SSH2_FREE(session, session->scpRecv_command);
-            session->scpRecv_command = NULL;
+            SSH2_SAFEFREE(session, session->scpRecv_command);
             goto scp_recv_error;
         }
-        SSH2_FREE(session, session->scpRecv_command);
-        session->scpRecv_command = NULL;
+        SSH2_SAFEFREE(session, session->scpRecv_command);
 
         ssh2_deb((session, LIBSSH2_TRACE_SCP, "Sending initial wakeup"));
         /* SCP ACK */
@@ -434,7 +425,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                        02 for errors
 
                        The following string MUST be newline terminated
-                    */
+                     */
                     err_len =
                         ssh2_channel_packet_data_len(session->scpRecv_channel,
                                                      0);
@@ -855,7 +846,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
                       session->scpSend_command_len,
                       "scp -%st ", (mtime || atime) ? "p" : "");
 
-        cmd_len = strlen((char *)session->scpSend_command);
+        cmd_len = strlen((const char *)session->scpSend_command);
 
         if(!session->flag.quote_paths) {
             size_t path_len;
@@ -867,8 +858,10 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
             cmd_len += path_len;
         }
         else
-            cmd_len += shell_quotearg(path, &session->scpSend_command[cmd_len],
-                                      session->scpSend_command_len - cmd_len);
+            cmd_len += scp_shell_quotearg(path,
+                                          &session->scpSend_command[cmd_len],
+                                          session->scpSend_command_len -
+                                              cmd_len);
 
         /* the command to exec should _not_ be null-terminated */
         session->scpSend_command_len = cmd_len;
@@ -888,8 +881,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
             if(libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
                 /* previous call set libssh2_session_last_error(), pass it
                    through */
-                SSH2_FREE(session, session->scpSend_command);
-                session->scpSend_command = NULL;
+                SSH2_SAFEFREE(session, session->scpSend_command);
                 session->scpSend_state = ssh2_NB_state_idle;
             }
             else
@@ -915,15 +907,12 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
         else if(rc) {
             /* previous call set libssh2_session_last_error(), pass it
                through */
-            SSH2_FREE(session, session->scpSend_command);
-            session->scpSend_command = NULL;
+            SSH2_SAFEFREE(session, session->scpSend_command);
             ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                      "Unknown error while getting error string");
             goto scp_send_error;
         }
-        SSH2_FREE(session, session->scpSend_command);
-        session->scpSend_command = NULL;
-
+        SSH2_SAFEFREE(session, session->scpSend_command);
         session->scpSend_state = ssh2_NB_state_sent1;
     }
 

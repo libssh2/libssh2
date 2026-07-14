@@ -17,7 +17,7 @@ echo "CFLAGS: ${CFLAGS:-}"
 echo "CXXFLAGS: ${CXXFLAGS:-}"
 echo "OUT: ${OUT:-}"
 
-MAKEFLAGS+="-j$(nproc)"
+MAKEFLAGS+=" -j$(nproc)"
 export MAKEFLAGS
 
 # Install dependencies

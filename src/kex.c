@@ -2,38 +2,31 @@
  * Copyright (C) Daniel Stenberg <daniel@haxx.se>
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms,
- * with or without modification, are permitted provided
- * that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *   Redistributions of source code must retain the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
  *
- *   Redistributions in binary form must reproduce the above
- *   copyright notice, this list of conditions and the following
- *   disclaimer in the documentation and/or other materials
- *   provided with the distribution.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
  *
- *   Neither the name of the copyright holder nor the names
- *   of any other contributors may be used to endorse or
- *   promote products derived from this software without
- *   specific prior written permission.
+ * 3. Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
- * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
- * OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -46,155 +39,49 @@
 
 #include <assert.h>
 
-/* TODO: Switch this to an inline and handle alloc() failures */
-/* Helper macro called from
-   kex_method_diffie_hellman_group1_sha1_key_exchange */
-
-#define KEX_METHOD_SHA_VALUE_HASH(digest_type, value, reqlen, version)        \
-    do {                                                                      \
-        ssh2_sha##digest_type##_ctx hash;                                     \
-        size_t len = 0;                                                       \
-        if(!(value)) {                                                        \
-            (value) = SSH2_ALLOC(session,                                     \
-                                 (reqlen) +                                   \
-                                 SSH2_SHA##digest_type##_DIG_LEN);            \
-        }                                                                     \
-        if(value)                                                             \
-            while(len < (size_t)(reqlen)) {                                   \
-                if(!ssh2_sha##digest_type##_init(&hash) ||                    \
-                   !ssh2_sha##digest_type##_update(hash,                      \
-                                           exchange_state->k_value,           \
-                                           exchange_state->k_value_len) ||    \
-                   !ssh2_sha##digest_type##_update(hash,                      \
-                                         exchange_state->h_sig_comp,          \
-                                         SSH2_SHA##digest_type##_DIG_LEN)) {  \
-                    SSH2_FREE(session, value);                                \
-                    (value) = NULL;                                           \
-                    break;                                                    \
-                }                                                             \
-                if(len > 0) {                                                 \
-                    if(!ssh2_sha##digest_type##_update(hash, value, len)) {   \
-                        SSH2_FREE(session, value);                            \
-                        (value) = NULL;                                       \
-                        break;                                                \
-                    }                                                         \
-                }                                                             \
-                else {                                                        \
-                    if(!ssh2_sha##digest_type##_update(hash, version, 1) ||   \
-                       !ssh2_sha##digest_type##_update(hash,                  \
-                                                  session->session_id,        \
-                                                  session->session_id_len)) { \
-                        SSH2_FREE(session, value);                            \
-                        (value) = NULL;                                       \
-                        break;                                                \
-                    }                                                         \
-                }                                                             \
-                if(!ssh2_sha##digest_type##_final(hash, (value) + len)) {     \
-                    SSH2_FREE(session, value);                                \
-                    (value) = NULL;                                           \
-                    break;                                                    \
-                }                                                             \
-                len += SSH2_SHA##digest_type##_DIG_LEN;                       \
-            }                                                                 \
-    } while(0)
-
-/*
- * @note The following are wrapper functions used by diffie_hellman_sha_algo().
- * TODO: Switch backend SHA macros to functions to allow function pointers
- * @discussion Ideally these would be function pointers but the backend macros
- * do not allow it so we have to wrap them up in helper functions
- */
-
-static int sha_algo_ctx_init(int sha_algo, void *ctx)
+static void kex_value_hash(ssh2_hash_alg hash_alg, size_t digest_len,
+                           LIBSSH2_SESSION *session,
+                           struct kmdhgGPshakex_state *exchange_state,
+                           unsigned char **data, size_t data_len,
+                           const unsigned char *version)
 {
-    if(sha_algo == 512)
-        return ssh2_sha512_init((ssh2_sha512_ctx *)ctx);
-    else if(sha_algo == 384)
-        return ssh2_sha384_init((ssh2_sha384_ctx *)ctx);
-    else if(sha_algo == 256)
-        return ssh2_sha256_init((ssh2_sha256_ctx *)ctx);
-    else if(sha_algo == 1)
-        return ssh2_sha1_init((ssh2_sha1_ctx *)ctx);
-#ifdef LIBSSH2DEBUG
-    else
-        assert(0);
-#endif
-    return 0;
+    if(!digest_len || digest_len > MAX_SHA_DIGEST_LEN) {
+        *data = NULL;
+        return;
+    }
+
+    if(!*data)
+        *data = SSH2_ALLOC(session, data_len + digest_len);
+
+    if(*data) {
+        size_t len = 0;
+        while(len < data_len) {
+            ssh2_hash_ctx ctx;
+            int hok = ssh2_hash_init(&ctx, hash_alg);
+            if(hok) {
+                hok &= ssh2_hash_update(&ctx, exchange_state->k_value,
+                                              exchange_state->k_value_len);
+                hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp,
+                                              digest_len);
+                if(len)
+                    hok &= ssh2_hash_update(&ctx, *data, len);
+                else {
+                    hok &= ssh2_hash_update(&ctx, version, 1);
+                    hok &= ssh2_hash_update(&ctx, session->session_id,
+                                                  session->session_id_len);
+                }
+                hok &= ssh2_hash_final(&ctx, *data + len, digest_len);
+            }
+            if(!hok) {
+                SSH2_SAFEFREE(session, *data);
+                return;
+            }
+            len += digest_len;
+        }
+    }
 }
 
-static int sha_algo_ctx_update(int sha_algo, void *ctx,
-                               const void *data, size_t len)
-{
-    if(sha_algo == 512) {
-        ssh2_sha512_ctx *_ctx = (ssh2_sha512_ctx *)ctx;
-        return ssh2_sha512_update(*_ctx, data, len);
-    }
-    else if(sha_algo == 384) {
-        ssh2_sha384_ctx *_ctx = (ssh2_sha384_ctx *)ctx;
-        return ssh2_sha384_update(*_ctx, data, len);
-    }
-    else if(sha_algo == 256) {
-        ssh2_sha256_ctx *_ctx = (ssh2_sha256_ctx *)ctx;
-        return ssh2_sha256_update(*_ctx, data, len);
-    }
-    else if(sha_algo == 1) {
-        ssh2_sha1_ctx *_ctx = (ssh2_sha1_ctx *)ctx;
-        return ssh2_sha1_update(*_ctx, data, len);
-    }
-#ifdef LIBSSH2DEBUG
-    else
-        assert(0);
-#endif
-    return 0;
-}
-
-static int sha_algo_ctx_final(int sha_algo, void *ctx, void *hash)
-{
-    if(sha_algo == 512) {
-        ssh2_sha512_ctx *_ctx = (ssh2_sha512_ctx *)ctx;
-        return ssh2_sha512_final(*_ctx, hash);
-    }
-    else if(sha_algo == 384) {
-        ssh2_sha384_ctx *_ctx = (ssh2_sha384_ctx *)ctx;
-        return ssh2_sha384_final(*_ctx, hash);
-    }
-    else if(sha_algo == 256) {
-        ssh2_sha256_ctx *_ctx = (ssh2_sha256_ctx *)ctx;
-        return ssh2_sha256_final(*_ctx, hash);
-    }
-    else if(sha_algo == 1) {
-        ssh2_sha1_ctx *_ctx = (ssh2_sha1_ctx *)ctx;
-        return ssh2_sha1_final(*_ctx, hash);
-    }
-#ifdef LIBSSH2DEBUG
-    else
-        assert(0);
-#endif
-    return 0;
-}
-
-static void sha_algo_value_hash(int sha_algo,
-                                LIBSSH2_SESSION *session,
-                                struct kmdhgGPshakex_state *exchange_state,
-                                unsigned char **data, size_t data_len,
-                                const unsigned char *version)
-{
-    if(sha_algo == 512)
-        KEX_METHOD_SHA_VALUE_HASH(512, *data, data_len, version);
-    else if(sha_algo == 384)
-        KEX_METHOD_SHA_VALUE_HASH(384, *data, data_len, version);
-    else if(sha_algo == 256)
-        KEX_METHOD_SHA_VALUE_HASH(256, *data, data_len, version);
-    else if(sha_algo == 1)
-        KEX_METHOD_SHA_VALUE_HASH(1, *data, data_len, version);
-#ifdef LIBSSH2DEBUG
-    else
-        assert(0);
-#endif
-}
-
-static int process_host_key(LIBSSH2_SESSION *session,
-                            struct string_buf *buf,
+static int kex_proc_hostkey(LIBSSH2_SESSION *session, struct string_buf *buf,
                             const struct kmdhgGPshakex_state *exchange_state,
                             unsigned char *data, size_t data_len)
 {
@@ -220,30 +107,20 @@ static int process_host_key(LIBSSH2_SESSION *session,
     buf->dataptr++; /* advance past type */
 
     if(session->server_hostkey) {
-        SSH2_FREE(session, session->server_hostkey);
-        session->server_hostkey = NULL;
+        SSH2_SAFEFREE(session, session->server_hostkey);
         session->server_hostkey_len = 0;
     }
 
-    if(ssh2_copy_string(session, buf, &(session->server_hostkey),
-                        &host_key_len))
+    if(ssh2_copy_string(session, buf, &session->server_hostkey, &host_key_len))
         return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                         "Could not copy host key");
 
     session->server_hostkey_len = (uint32_t)host_key_len;
 
 #if LIBSSH2_MD5
-    {
-        ssh2_md5_ctx fingerprint_ctx;
-
-        if(ssh2_md5_init(&fingerprint_ctx) &&
-           ssh2_md5_update(fingerprint_ctx, session->server_hostkey,
-                           session->server_hostkey_len) &&
-           ssh2_md5_final(fingerprint_ctx, session->server_hostkey_md5))
-            session->server_hostkey_md5_valid = TRUE;
-        else
-            session->server_hostkey_md5_valid = FALSE;
-    }
+    session->server_hostkey_md5_valid = ssh2_hash(SSH2_MD5_ALG,
+        session->server_hostkey, session->server_hostkey_len,
+        session->server_hostkey_md5, sizeof(session->server_hostkey_md5));
 #ifdef LIBSSH2DEBUG
     {
         char fingerprint[SSH2_MD5_DIG_LEN * 3 + 1];
@@ -258,17 +135,9 @@ static int process_host_key(LIBSSH2_SESSION *session,
 #endif /* LIBSSH2DEBUG */
 #endif /* !LIBSSH2_MD5 */
 
-    {
-        ssh2_sha1_ctx fingerprint_ctx;
-
-        if(ssh2_sha1_init(&fingerprint_ctx) &&
-           ssh2_sha1_update(fingerprint_ctx, session->server_hostkey,
-                            session->server_hostkey_len) &&
-           ssh2_sha1_final(fingerprint_ctx, session->server_hostkey_sha1))
-            session->server_hostkey_sha1_valid = TRUE;
-        else
-            session->server_hostkey_sha1_valid = FALSE;
-    }
+    session->server_hostkey_sha1_valid = ssh2_hash(SSH2_SHA1_ALG,
+        session->server_hostkey, session->server_hostkey_len,
+        session->server_hostkey_sha1, sizeof(session->server_hostkey_sha1));
 #ifdef LIBSSH2DEBUG
     {
         char fingerprint[SSH2_SHA1_DIG_LEN * 3 + 1];
@@ -282,18 +151,10 @@ static int process_host_key(LIBSSH2_SESSION *session,
     }
 #endif /* LIBSSH2DEBUG */
 
-    {
-        ssh2_sha256_ctx fingerprint_ctx;
-
-        if(ssh2_sha256_init(&fingerprint_ctx) &&
-           ssh2_sha256_update(fingerprint_ctx, session->server_hostkey,
-                              session->server_hostkey_len) &&
-           ssh2_sha256_final(fingerprint_ctx,
-                             session->server_hostkey_sha256))
-            session->server_hostkey_sha256_valid = TRUE;
-        else
-            session->server_hostkey_sha256_valid = FALSE;
-    }
+    session->server_hostkey_sha256_valid = ssh2_hash(SSH2_SHA256_ALG,
+        session->server_hostkey, session->server_hostkey_len,
+        session->server_hostkey_sha256,
+        sizeof(session->server_hostkey_sha256));
 #ifdef LIBSSH2DEBUG
     {
         char *base64Fingerprint = NULL;
@@ -319,9 +180,9 @@ static int process_host_key(LIBSSH2_SESSION *session,
     return 0;
 }
 
-static int finish_kex(LIBSSH2_SESSION *session,
+static int kex_finish(LIBSSH2_SESSION *session,
                       struct kmdhgGPshakex_state *exchange_state,
-                      int digest_len, int sha_algo_value)
+                      ssh2_hash_alg hash_alg, size_t digest_len)
 {
     int rc;
     rc = ssh2_packet_require(session, SSH_MSG_NEWKEYS,
@@ -348,7 +209,7 @@ static int finish_kex(LIBSSH2_SESSION *session,
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate buffer for SHA digest");
         memcpy(session->session_id, exchange_state->h_sig_comp, digest_len);
-        session->session_id_len = digest_len;
+        session->session_id_len = (uint32_t)digest_len;
         ssh2_deb((session, LIBSSH2_TRACE_KEX, "session_id calculated"));
     }
 
@@ -361,18 +222,16 @@ static int finish_kex(LIBSSH2_SESSION *session,
         unsigned char *iv = NULL, *secret = NULL;
         int free_iv = 0, free_secret = 0;
 
-        sha_algo_value_hash(sha_algo_value, session,
-                            exchange_state, &iv,
-                            session->local.crypt->iv_len,
-                            (const unsigned char *)"A");
+        kex_value_hash(hash_alg, digest_len, session, exchange_state,
+                       &iv, session->local.crypt->iv_len,
+                       (const unsigned char *)"A");
         if(!iv)
             return ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                             "Unable to generate IV for key exchange");
 
-        sha_algo_value_hash(sha_algo_value, session,
-                            exchange_state, &secret,
-                            session->local.crypt->secret_len,
-                            (const unsigned char *)"C");
+        kex_value_hash(hash_alg, digest_len, session, exchange_state,
+                       &secret, session->local.crypt->secret_len,
+                       (const unsigned char *)"C");
         if(!secret) {
             SSH2_FREE(session, iv);
             return ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
@@ -409,18 +268,16 @@ static int finish_kex(LIBSSH2_SESSION *session,
         unsigned char *iv = NULL, *secret = NULL;
         int free_iv = 0, free_secret = 0;
 
-        sha_algo_value_hash(sha_algo_value, session,
-                            exchange_state, &iv,
-                            session->remote.crypt->iv_len,
-                            (const unsigned char *)"B");
+        kex_value_hash(hash_alg, digest_len, session, exchange_state,
+                       &iv, session->remote.crypt->iv_len,
+                       (const unsigned char *)"B");
         if(!iv)
             return ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                             "Failed to derive remote IV during key exchange");
 
-        sha_algo_value_hash(sha_algo_value, session,
-                            exchange_state, &secret,
-                            session->remote.crypt->secret_len,
-                            (const unsigned char *)"D");
+        kex_value_hash(hash_alg, digest_len, session, exchange_state,
+                       &secret, session->remote.crypt->secret_len,
+                       (const unsigned char *)"D");
         if(!secret) {
             SSH2_FREE(session, iv);
             return ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
@@ -456,10 +313,9 @@ static int finish_kex(LIBSSH2_SESSION *session,
         unsigned char *key = NULL;
         int free_key = 0;
 
-        sha_algo_value_hash(sha_algo_value, session,
-                            exchange_state, &key,
-                            session->local.mac->key_len,
-                            (const unsigned char *)"E");
+        kex_value_hash(hash_alg, digest_len, session, exchange_state,
+                       &key, session->local.mac->key_len,
+                       (const unsigned char *)"E");
         if(!key)
             return ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                             "Unable to derive client-to-server MAC key");
@@ -481,17 +337,15 @@ static int finish_kex(LIBSSH2_SESSION *session,
         unsigned char *key = NULL;
         int free_key = 0;
 
-        sha_algo_value_hash(sha_algo_value, session,
-                            exchange_state, &key,
-                            session->remote.mac->key_len,
-                            (const unsigned char *)"F");
+        kex_value_hash(hash_alg, digest_len, session, exchange_state,
+                       &key, session->remote.mac->key_len,
+                       (const unsigned char *)"F");
         if(!key)
             return ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                             "Unable to derive server-to-client MAC key");
 
         session->remote.mac->init(session, key, &free_key,
                                   &session->remote.mac_abstract);
-
         if(free_key) {
             ssh2_explicit_zero(key, session->remote.mac->key_len);
             SSH2_FREE(session, key);
@@ -528,7 +382,7 @@ static int finish_kex(LIBSSH2_SESSION *session,
     return 0;
 }
 
-static void diffie_hellman_state_cleanup(
+static void kex_diffie_hellman_state_cleanup(
     LIBSSH2_SESSION *session, struct kmdhgGPshakex_state *exchange_state)
 {
     ssh2_dh_dtor(&exchange_state->x);
@@ -541,20 +395,12 @@ static void diffie_hellman_state_cleanup(
     ssh2_bn_ctx_free(exchange_state->ctx);
     exchange_state->ctx = NULL;
 
-    if(exchange_state->e_packet) {
-        SSH2_FREE(session, exchange_state->e_packet);
-        exchange_state->e_packet = NULL;
-    }
-
-    if(exchange_state->s_packet) {
-        SSH2_FREE(session, exchange_state->s_packet);
-        exchange_state->s_packet = NULL;
-    }
-
-    if(exchange_state->k_value) {
-        SSH2_FREE(session, exchange_state->k_value);
-        exchange_state->k_value = NULL;
-    }
+    if(exchange_state->e_packet)
+        SSH2_SAFEFREE(session, exchange_state->e_packet);
+    if(exchange_state->s_packet)
+        SSH2_SAFEFREE(session, exchange_state->s_packet);
+    if(exchange_state->k_value)
+        SSH2_SAFEFREE(session, exchange_state->k_value);
 
     exchange_state->state = ssh2_NB_state_idle;
 }
@@ -568,15 +414,13 @@ static void kex_diffie_hellman_cleanup(
         ssh2_bn_free(key_state->g);
         key_state->g = NULL;
 
-        if(key_state->data) {
-            SSH2_FREE(session, key_state->data);
-            key_state->data = NULL;
-        }
+        if(key_state->data)
+            SSH2_SAFEFREE(session, key_state->data);
         key_state->state = ssh2_NB_state_idle;
     }
 
     if(key_state->exchange_state.state != ssh2_NB_state_idle)
-        diffie_hellman_state_cleanup(session, &key_state->exchange_state);
+        kex_diffie_hellman_state_cleanup(session, &key_state->exchange_state);
 }
 
 /*
@@ -584,36 +428,20 @@ static void kex_diffie_hellman_cleanup(
  * SHA Algorithm Agnostic
  * @result 0 on success, error code on failure
  */
-static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
-                                   ssh2_bn *g,
-                                   ssh2_bn *p,
-                                   int group_order,
-                                   int sha_algo_value,
-                                   void *exchange_hash_ctx,
-                                   unsigned char packet_type_init,
-                                   unsigned char packet_type_reply,
-                                   unsigned char *midhash,
-                                   size_t midhash_len,
-                                   struct kmdhgGPshakex_state *exchange_state)
+static int kex_diffie_hellman_sha(LIBSSH2_SESSION *session,
+                                  ssh2_bn *g,
+                                  ssh2_bn *p,
+                                  int group_order,
+                                  ssh2_hash_alg hash_alg,
+                                  size_t digest_len,
+                                  unsigned char packet_type_init,
+                                  unsigned char packet_type_reply,
+                                  unsigned char *midhash,
+                                  size_t midhash_len,
+                                  struct kmdhgGPshakex_state *exchange_state)
 {
     int ret = 0;
     int rc;
-
-    int digest_len = 0;
-
-    if(sha_algo_value == 512)
-        digest_len = SSH2_SHA512_DIG_LEN;
-    else if(sha_algo_value == 384)
-        digest_len = SSH2_SHA384_DIG_LEN;
-    else if(sha_algo_value == 256)
-        digest_len = SSH2_SHA256_DIG_LEN;
-    else if(sha_algo_value == 1)
-        digest_len = SSH2_SHA1_DIG_LEN;
-    else {
-        ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                       "SHA algo value is unimplemented");
-        goto clean_exit;
-    }
 
     if(exchange_state->state == ssh2_NB_state_idle) {
         /* Setup initial values */
@@ -625,8 +453,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         exchange_state->e = ssh2_bn_init(); /* g^x mod p */
         exchange_state->f = ssh2_bn_init_from_bin(); /* g^(Random from
                                                             server) mod p */
-        exchange_state->k = ssh2_bn_init(); /* The shared secret: f^x mod
-                                                   p */
+        exchange_state->k = ssh2_bn_init(); /* The shared secret: f^x mod p */
 
         /* Zero the whole thing out */
         memset(&exchange_state->req_state, 0,
@@ -727,6 +554,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
     if(exchange_state->state == ssh2_NB_state_sent1) {
         /* Wait for KEX reply */
         struct string_buf buf;
+        ssh2_hash_ctx ctx;
         int err;
         int hok;
 
@@ -742,27 +570,27 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
 
-        ret = process_host_key(session, &buf, exchange_state, NULL, 0);
+        ret = kex_proc_hostkey(session, &buf, exchange_state, NULL, 0);
         if(ret)
             goto clean_exit;
 
-        if(ssh2_get_string(&buf, &(exchange_state->f_value),
-                           &(exchange_state->f_value_len))) {
+        if(ssh2_get_string(&buf, &exchange_state->f_value,
+                           &exchange_state->f_value_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                            "Unable to get DH-SHA f value");
             goto clean_exit;
         }
 
         if(ssh2_bn_from_bin(exchange_state->f,
-                            exchange_state->f_value_len,
-                            exchange_state->f_value)) {
+                            exchange_state->f_value,
+                            exchange_state->f_value_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                            "Invalid DH-SHA f value");
             goto clean_exit;
         }
 
-        if(ssh2_get_string(&buf, &(exchange_state->h_sig),
-                           &(exchange_state->h_sig_len))) {
+        if(ssh2_get_string(&buf, &exchange_state->h_sig,
+                           &exchange_state->h_sig_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                            "Unable to get DH-SHA h sig");
             goto clean_exit;
@@ -805,95 +633,78 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             }
         }
 
-        if(!sha_algo_ctx_init(sha_algo_value, exchange_hash_ctx)) {
+        hok = ssh2_hash_init(&ctx, hash_alg);
+        if(!hok) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
-                           "Unable to initialize hash context");
+                           "Unable to initialize hash context DH-SHA");
             goto clean_exit;
         }
-        hok = 1;
         if(session->local.banner) {
             ssh2_htonu32(exchange_state->h_sig_comp,
-                (uint32_t)(strlen((char *)session->local.banner) - 2));
-            hok &= sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
-                                       exchange_state->h_sig_comp, 4);
-            hok &= sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
-                                       session->local.banner,
-                                    strlen((char *)session->local.banner) - 2);
+                (uint32_t)(strlen((const char *)session->local.banner) - 2));
+            hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+            hok &= ssh2_hash_update(&ctx, session->local.banner,
+                              strlen((const char *)session->local.banner) - 2);
         }
         else {
             ssh2_htonu32(exchange_state->h_sig_comp,
                          sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
-            hok &= sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
-                                       exchange_state->h_sig_comp, 4);
-            hok &= sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
-                                      (const void *)LIBSSH2_SSH_DEFAULT_BANNER,
-                                       sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
+            hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+            hok &= ssh2_hash_update(&ctx, LIBSSH2_SSH_DEFAULT_BANNER,
+                                    sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
         }
 
         ssh2_htonu32(exchange_state->h_sig_comp,
-                     (uint32_t)strlen((char *)session->remote.banner));
-        hok &= sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
-                                   exchange_state->h_sig_comp, 4);
-        hok &= sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
-                                   session->remote.banner,
-                                   strlen((char *)session->remote.banner));
+                     (uint32_t)strlen((const char *)session->remote.banner));
+        hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+        hok &= ssh2_hash_update(&ctx, session->remote.banner,
+                                strlen((const char *)session->remote.banner));
 
         ssh2_htonu32(exchange_state->h_sig_comp,
                      (uint32_t)session->local.kexinit_len);
-        hok &= sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
-                                   exchange_state->h_sig_comp, 4);
-        hok &= sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
-                                   session->local.kexinit,
-                                   session->local.kexinit_len);
+        hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+        hok &= ssh2_hash_update(&ctx, session->local.kexinit,
+                                      session->local.kexinit_len);
 
         ssh2_htonu32(exchange_state->h_sig_comp,
                      (uint32_t)session->remote.kexinit_len);
-        hok &= sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
-                                   exchange_state->h_sig_comp, 4);
-        hok &= sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
-                                   session->remote.kexinit,
-                                   session->remote.kexinit_len);
+        hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+        hok &= ssh2_hash_update(&ctx, session->remote.kexinit,
+                                      session->remote.kexinit_len);
 
         ssh2_htonu32(exchange_state->h_sig_comp, session->server_hostkey_len);
-        hok &= sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
-                                   exchange_state->h_sig_comp, 4);
-        hok &= sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
-                                   session->server_hostkey,
-                                   session->server_hostkey_len);
+        hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+        hok &= ssh2_hash_update(&ctx, session->server_hostkey,
+                                      session->server_hostkey_len);
 
         if(packet_type_init == SSH_MSG_KEX_DH_GEX_INIT) {
             /* diffie-hellman-group-exchange hashes additional fields */
             ssh2_htonu32(exchange_state->h_sig_comp, SSH2_DH_GEX_MINGROUP);
             ssh2_htonu32(exchange_state->h_sig_comp + 4, SSH2_DH_GEX_OPTGROUP);
             ssh2_htonu32(exchange_state->h_sig_comp + 8, SSH2_DH_GEX_MAXGROUP);
-            hok &= sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
-                                       exchange_state->h_sig_comp, 12);
+            hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 12);
         }
 
         if(midhash)
-            hok &= sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
-                                       midhash, midhash_len);
+            hok &= ssh2_hash_update(&ctx, midhash, midhash_len);
 
-        hok &= sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
-                                   exchange_state->e_packet + 1,
-                                   exchange_state->e_packet_len - 1);
+        hok &= ssh2_hash_update(&ctx, exchange_state->e_packet + 1,
+                                      exchange_state->e_packet_len - 1);
 
         ssh2_htonu32(exchange_state->h_sig_comp,
                      (uint32_t)exchange_state->f_value_len);
-        hok &= sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
-                                   exchange_state->h_sig_comp, 4);
-        hok &= sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
-                                   exchange_state->f_value,
-                                   exchange_state->f_value_len);
+        hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+        hok &= ssh2_hash_update(&ctx, exchange_state->f_value,
+                                      exchange_state->f_value_len);
 
-        hok &= sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
-                                   exchange_state->k_value,
-                                   exchange_state->k_value_len);
+        hok &= ssh2_hash_update(&ctx, exchange_state->k_value,
+                                      exchange_state->k_value_len);
 
-        if(!hok || !sha_algo_ctx_final(sha_algo_value, exchange_hash_ctx,
-                                       exchange_state->h_sig_comp)) {
+        hok &= ssh2_hash_final(&ctx, exchange_state->h_sig_comp,
+                                     sizeof(exchange_state->h_sig_comp));
+        if(!hok) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
-                           "kex: failed to calculate hash");
+                           "Failed to calculate hash DH-SHA");
             goto clean_exit;
         }
 
@@ -933,13 +744,13 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
     }
 
     if(exchange_state->state == ssh2_NB_state_sent3) {
-        ret = finish_kex(session, exchange_state, digest_len, sha_algo_value);
+        ret = kex_finish(session, exchange_state, hash_alg, digest_len);
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
     }
 
 clean_exit:
-    diffie_hellman_state_cleanup(session, exchange_state);
+    kex_diffie_hellman_state_cleanup(session, exchange_state);
 
     return ret;
 }
@@ -970,7 +781,6 @@ static int kex_method_diffie_hellman_group1_sha1_key_exchange(
     };
 
     int ret;
-    ssh2_sha1_ctx exchange_hash_ctx;
 
     if(key_state->state == ssh2_NB_state_idle) {
         /* g == 2 */
@@ -984,7 +794,7 @@ static int kex_method_diffie_hellman_group1_sha1_key_exchange(
                            "Failed to allocate key state g.");
             goto clean_exit;
         }
-        if(!key_state->p || ssh2_bn_from_bin(key_state->p, 128, p_value)) {
+        if(!key_state->p || ssh2_bn_from_bin(key_state->p, p_value, 128)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                            "Failed to allocate key state p.");
             goto clean_exit;
@@ -996,10 +806,10 @@ static int kex_method_diffie_hellman_group1_sha1_key_exchange(
         key_state->state = ssh2_NB_state_created;
     }
 
-    ret = diffie_hellman_sha_algo(session, key_state->g, key_state->p, 128, 1,
-                                  (void *)&exchange_hash_ctx,
-                                  SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
-                                  NULL, 0, &key_state->exchange_state);
+    ret = kex_diffie_hellman_sha(session, key_state->g, key_state->p, 128,
+                                 SSH2_SHA1_ALG, SSH2_SHA1_DIG_LEN,
+                                 SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
+                                 NULL, 0, &key_state->exchange_state);
     if(ret == LIBSSH2_ERROR_EAGAIN)
         return ret;
 
@@ -1017,8 +827,8 @@ typedef int (*diffie_hellman_hash_func_t)(
     ssh2_bn *g,
     ssh2_bn *p,
     int group_order,
-    int sha_algo_value,
-    void *exchange_hash_ctx,
+    ssh2_hash_alg hash_alg,
+    size_t digest_len,
     unsigned char packet_type_init,
     unsigned char packet_type_reply,
     unsigned char *midhash,
@@ -1027,8 +837,8 @@ typedef int (*diffie_hellman_hash_func_t)(
 
 static int kex_method_diffie_hellman_group14_key_exchange(
     LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state,
-    int sha_algo_value,
-    void *exchange_hash_ctx,
+    ssh2_hash_alg hash_alg,
+    size_t digest_len,
     diffie_hellman_hash_func_t hashfunc)
 {
     static const unsigned char p_value[256] = {
@@ -1080,7 +890,7 @@ static int kex_method_diffie_hellman_group14_key_exchange(
             goto clean_exit;
         }
         else if(!key_state->p ||
-                ssh2_bn_from_bin(key_state->p, 256, p_value)) {
+                ssh2_bn_from_bin(key_state->p, p_value, 256)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                            "Failed to allocate key state p.");
             goto clean_exit;
@@ -1091,8 +901,9 @@ static int kex_method_diffie_hellman_group14_key_exchange(
 
         key_state->state = ssh2_NB_state_created;
     }
-    ret = hashfunc(session, key_state->g, key_state->p,
-                   256, sha_algo_value, exchange_hash_ctx, SSH_MSG_KEXDH_INIT,
+
+    ret = hashfunc(session, key_state->g, key_state->p, 256,
+                   hash_alg, digest_len, SSH_MSG_KEXDH_INIT,
                    SSH_MSG_KEXDH_REPLY, NULL, 0, &key_state->exchange_state);
     if(ret == LIBSSH2_ERROR_EAGAIN)
         return ret;
@@ -1109,9 +920,8 @@ clean_exit:
 static int kex_method_diffie_hellman_group14_sha1_key_exchange(
     LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
-    ssh2_sha1_ctx ctx;
-    return kex_method_diffie_hellman_group14_key_exchange(
-        session, key_state, 1, &ctx, diffie_hellman_sha_algo);
+    return kex_method_diffie_hellman_group14_key_exchange(session, key_state,
+        SSH2_SHA1_ALG, SSH2_SHA1_DIG_LEN, kex_diffie_hellman_sha);
 }
 
 /*
@@ -1120,9 +930,8 @@ static int kex_method_diffie_hellman_group14_sha1_key_exchange(
 static int kex_method_diffie_hellman_group14_sha256_key_exchange(
     LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
-    ssh2_sha256_ctx ctx;
-    return kex_method_diffie_hellman_group14_key_exchange(
-        session, key_state, 256, &ctx, diffie_hellman_sha_algo);
+    return kex_method_diffie_hellman_group14_key_exchange(session, key_state,
+        SSH2_SHA256_ALG, SSH2_SHA256_DIG_LEN, kex_diffie_hellman_sha);
 }
 
 /*
@@ -1177,7 +986,6 @@ static int kex_method_diffie_hellman_group16_sha512_key_exchange(
         0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
     };
     int ret;
-    ssh2_sha512_ctx exchange_hash_ctx;
 
     if(key_state->state == ssh2_NB_state_idle) {
         key_state->p = ssh2_bn_init_from_bin(); /* SSH2 defined value
@@ -1191,7 +999,7 @@ static int kex_method_diffie_hellman_group16_sha512_key_exchange(
                            "Failed to allocate key state g.");
             goto clean_exit;
         }
-        if(!key_state->p || ssh2_bn_from_bin(key_state->p, 512, p_value)) {
+        if(!key_state->p || ssh2_bn_from_bin(key_state->p, p_value, 512)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                            "Failed to allocate key state p.");
             goto clean_exit;
@@ -1203,10 +1011,10 @@ static int kex_method_diffie_hellman_group16_sha512_key_exchange(
         key_state->state = ssh2_NB_state_created;
     }
 
-    ret = diffie_hellman_sha_algo(session, key_state->g, key_state->p, 512,
-                                  512, (void *)&exchange_hash_ctx,
-                                  SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
-                                  NULL, 0, &key_state->exchange_state);
+    ret = kex_diffie_hellman_sha(session, key_state->g, key_state->p, 512,
+                                 SSH2_SHA512_ALG, SSH2_SHA512_DIG_LEN,
+                                 SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
+                                 NULL, 0, &key_state->exchange_state);
     if(ret == LIBSSH2_ERROR_EAGAIN)
         return ret;
 
@@ -1311,7 +1119,6 @@ static int kex_method_diffie_hellman_group18_sha512_key_exchange(
         0xFF, 0xFF, 0xFF, 0xFF
     };
     int ret;
-    ssh2_sha512_ctx exchange_hash_ctx;
 
     if(key_state->state == ssh2_NB_state_idle) {
         key_state->p = ssh2_bn_init_from_bin(); /* SSH2 defined value
@@ -1326,7 +1133,7 @@ static int kex_method_diffie_hellman_group18_sha512_key_exchange(
             goto clean_exit;
         }
         else if(!key_state->p ||
-                ssh2_bn_from_bin(key_state->p, 1024, p_value)) {
+                ssh2_bn_from_bin(key_state->p, p_value, 1024)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                            "Failed to allocate key state p.");
             goto clean_exit;
@@ -1338,10 +1145,10 @@ static int kex_method_diffie_hellman_group18_sha512_key_exchange(
         key_state->state = ssh2_NB_state_created;
     }
 
-    ret = diffie_hellman_sha_algo(session, key_state->g, key_state->p, 1024,
-                                  512, (void *)&exchange_hash_ctx,
-                                  SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
-                                  NULL, 0, &key_state->exchange_state);
+    ret = kex_diffie_hellman_sha(session, key_state->g, key_state->p, 1024,
+                                 SSH2_SHA512_ALG, SSH2_SHA512_DIG_LEN,
+                                 SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
+                                 NULL, 0, &key_state->exchange_state);
     if(ret == LIBSSH2_ERROR_EAGAIN)
         return ret;
 
@@ -1408,7 +1215,6 @@ static int kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
         size_t p_len, g_len;
         unsigned char *p, *g;
         struct string_buf buf;
-        ssh2_sha1_ctx exchange_hash_ctx;
         int bits;
 
         if(key_state->data_len < 9) {
@@ -1435,7 +1241,7 @@ static int kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
             goto dh_gex_clean_exit;
         }
 
-        if(ssh2_bn_from_bin(key_state->p, p_len, p)) {
+        if(ssh2_bn_from_bin(key_state->p, p, p_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "Invalid DH-SHA1 p");
             goto dh_gex_clean_exit;
         }
@@ -1448,19 +1254,19 @@ static int kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
             goto dh_gex_clean_exit;
         }
 
-        if(ssh2_bn_from_bin(key_state->g, g_len, g)) {
+        if(ssh2_bn_from_bin(key_state->g, g, g_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "Invalid DH-SHA1 g");
             goto dh_gex_clean_exit;
         }
 
-        ret = diffie_hellman_sha_algo(session, key_state->g, key_state->p,
-                                      (int)p_len, 1,
-                                      (void *)&exchange_hash_ctx,
-                                      SSH_MSG_KEX_DH_GEX_INIT,
-                                      SSH_MSG_KEX_DH_GEX_REPLY,
-                                      key_state->data + 1,
-                                      key_state->data_len - 1,
-                                      &key_state->exchange_state);
+        ret = kex_diffie_hellman_sha(session, key_state->g, key_state->p,
+                                     (int)p_len,
+                                     SSH2_SHA1_ALG, SSH2_SHA1_DIG_LEN,
+                                     SSH_MSG_KEX_DH_GEX_INIT,
+                                     SSH_MSG_KEX_DH_GEX_REPLY,
+                                     key_state->data + 1,
+                                     key_state->data_len - 1,
+                                     &key_state->exchange_state);
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
     }
@@ -1529,7 +1335,6 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
         unsigned char *p, *g;
         size_t p_len, g_len;
         struct string_buf buf;
-        ssh2_sha256_ctx exchange_hash_ctx;
         int bits;
 
         if(key_state->data_len < 9) {
@@ -1556,7 +1361,7 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
             goto dh_gex_clean_exit;
         }
 
-        if(ssh2_bn_from_bin(key_state->p, p_len, p)) {
+        if(ssh2_bn_from_bin(key_state->p, p, p_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                            "Invalid DH-SHA256 p");
             goto dh_gex_clean_exit;
@@ -1570,20 +1375,20 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
             goto dh_gex_clean_exit;
         }
 
-        if(ssh2_bn_from_bin(key_state->g, g_len, g)) {
+        if(ssh2_bn_from_bin(key_state->g, g, g_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                            "Invalid DH-SHA256 g");
             goto dh_gex_clean_exit;
         }
 
-        ret = diffie_hellman_sha_algo(session, key_state->g, key_state->p,
-                                      (int)p_len, 256,
-                                      (void *)&exchange_hash_ctx,
-                                      SSH_MSG_KEX_DH_GEX_INIT,
-                                      SSH_MSG_KEX_DH_GEX_REPLY,
-                                      key_state->data + 1,
-                                      key_state->data_len - 1,
-                                      &key_state->exchange_state);
+        ret = kex_diffie_hellman_sha(session, key_state->g, key_state->p,
+                                     (int)p_len,
+                                     SSH2_SHA256_ALG, SSH2_SHA256_DIG_LEN,
+                                     SSH_MSG_KEX_DH_GEX_INIT,
+                                     SSH_MSG_KEX_DH_GEX_REPLY,
+                                     key_state->data + 1,
+                                     key_state->data_len - 1,
+                                     &key_state->exchange_state);
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
     }
@@ -1594,35 +1399,9 @@ dh_gex_clean_exit:
     return ret;
 }
 
-#if (LIBSSH2_ECDSA || LIBSSH2_ED25519) && LIBSSH2_MLKEM
-/*
- * returns the EC curve type by name used in hybrid key exchange
- */
-static int kex_session_hybrid_curve_type(const char *name,
-                                         ssh2_curve_type *out_type)
-{
-    ssh2_curve_type type;
-
-    if(!name)
-        return -1;
-
-    if(!strcmp(name, "mlkem768nistp256-sha256"))
-        type = SSH2_EC_CURVE_NISTP256;
-    else if(!strcmp(name, "mlkem1024nistp384-sha384"))
-        type = SSH2_EC_CURVE_NISTP384;
-    else
-        return -1;
-
-    if(out_type)
-        *out_type = type;
-
-    return 0;
-}
-#endif
-
 #if LIBSSH2_ECDSA || LIBSSH2_ED25519
 /*
- * Macro that create and verifies EC SHA hash with a given digest bytes
+ * Create and verify EC[+PQ hybrid] SHA hash with a given digest size
  *
  * Payload format:
  *
@@ -1635,257 +1414,146 @@ static int kex_session_hybrid_curve_type(const char *name,
  * string   Q_S, server's ephemeral public key octet string
  * mpint    K,   shared secret
  */
-#define KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(digest_type)                     \
-    do {                                                                      \
-        ssh2_sha##digest_type##_ctx ctx;                                      \
-        int hok;                                                              \
-        if(!ssh2_sha##digest_type##_init(&ctx)) {                             \
-            rc = -1;                                                          \
-            break;                                                            \
-        }                                                                     \
-        hok = 1;                                                              \
-        if(session->local.banner) {                                           \
-            ssh2_htonu32(exchange_state->h_sig_comp,                          \
-                     (uint32_t)(strlen((char *)session->local.banner) - 2));  \
-            hok &= ssh2_sha##digest_type##_update(ctx,                        \
-                                              exchange_state->h_sig_comp, 4); \
-            hok &= ssh2_sha##digest_type##_update(ctx,                        \
-                                  (char *)session->local.banner,              \
-                                  strlen((char *)session->local.banner) - 2); \
-        }                                                                     \
-        else {                                                                \
-            ssh2_htonu32(exchange_state->h_sig_comp,                          \
-                         sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);             \
-            hok &= ssh2_sha##digest_type##_update(ctx,                        \
-                                              exchange_state->h_sig_comp, 4); \
-            hok &= ssh2_sha##digest_type##_update(ctx,                        \
-                                     LIBSSH2_SSH_DEFAULT_BANNER,              \
-                                     sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1); \
-        }                                                                     \
-                                                                              \
-        ssh2_htonu32(exchange_state->h_sig_comp,                              \
-                     (uint32_t)strlen((char *)session->remote.banner));       \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              exchange_state->h_sig_comp, 4); \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                     session->remote.banner,                  \
-                                     strlen((char *)session->remote.banner)); \
-                                                                              \
-        ssh2_htonu32(exchange_state->h_sig_comp,                              \
-                     (uint32_t)session->local.kexinit_len);                   \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              exchange_state->h_sig_comp, 4); \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              session->local.kexinit,         \
-                                              session->local.kexinit_len);    \
-                                                                              \
-        ssh2_htonu32(exchange_state->h_sig_comp,                              \
-                     (uint32_t)session->remote.kexinit_len);                  \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              exchange_state->h_sig_comp, 4); \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              session->remote.kexinit,        \
-                                              session->remote.kexinit_len);   \
-                                                                              \
-        ssh2_htonu32(exchange_state->h_sig_comp,                              \
-                     session->server_hostkey_len);                            \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              exchange_state->h_sig_comp, 4); \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              session->server_hostkey,        \
-                                              session->server_hostkey_len);   \
-                                                                              \
-        ssh2_htonu32(exchange_state->h_sig_comp,                              \
-                     (uint32_t)public_key_len);                               \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              exchange_state->h_sig_comp, 4); \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              public_key,                     \
-                                              public_key_len);                \
-                                                                              \
-        ssh2_htonu32(exchange_state->h_sig_comp,                              \
-                     (uint32_t)server_public_key_len);                        \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              exchange_state->h_sig_comp, 4); \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              server_public_key,              \
-                                              server_public_key_len);         \
-                                                                              \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              exchange_state->k_value,        \
-                                              exchange_state->k_value_len);   \
-                                                                              \
-        if(!hok ||                                                            \
-           !ssh2_sha##digest_type##_final(ctx, exchange_state->h_sig_comp)) { \
-            rc = -1;                                                          \
-            break;                                                            \
-        }                                                                     \
-                                                                              \
-        if(session->hostkey->sig_verify(session, exchange_state->h_sig,       \
-                                        exchange_state->h_sig_len,            \
-                                        exchange_state->h_sig_comp,           \
-                                        SSH2_SHA##digest_type##_DIG_LEN,      \
-                                        &session->server_hostkey_abstract)) { \
-            rc = -1;                                                          \
-        }                                                                     \
-    } while(0)
+static int kex_method_ec_sha_hash_create_verify(
+    LIBSSH2_SESSION *session, struct kmdhgGPshakex_state *exchange_state,
+    unsigned char *public_key, size_t public_key_len,
+    unsigned char *public_pq_key, size_t public_pq_key_len,
+    unsigned char *server_public_key, size_t server_public_key_len,
+    ssh2_hash_alg hash_alg, size_t digest_len, const char *signerr)
+{
+    ssh2_hash_ctx ctx;
+    int err;
+    int hok;
 
+    hok = ssh2_hash_init(&ctx, hash_alg);
+    if(!hok)
+        return ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
+                        "Unable to initialize hash context EC/ED");
+
+    if(session->local.banner) {
+#ifdef LIBSSH2_DEBUG_MLKEM
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
+                  "kex_method_ec_sha_hash_create_verify: %s "
+                  "session->local.banner=|%s|", session->hostkey->name,
+                  session->local.banner));
+#endif
+        ssh2_htonu32(exchange_state->h_sig_comp,
+                  (uint32_t)(strlen((const char *)session->local.banner) - 2));
+        hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+        hok &= ssh2_hash_update(&ctx, session->local.banner,
+                              strlen((const char *)session->local.banner) - 2);
+    }
+    else {
+#ifdef LIBSSH2_DEBUG_MLKEM
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
+                  "kex_method_ec_sha_hash_create_verify: %s "
+                  "default_banner=|%s|", session->hostkey->name,
+                  LIBSSH2_SSH_DEFAULT_BANNER));
+#endif
+        ssh2_htonu32(exchange_state->h_sig_comp,
+                     sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
+        hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+        hok &= ssh2_hash_update(&ctx, LIBSSH2_SSH_DEFAULT_BANNER,
+                                sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
+    }
+
+#ifdef LIBSSH2_DEBUG_MLKEM
+    ssh2_deb((session, LIBSSH2_TRACE_KEX,
+              "kex_method_ec_sha_hash_create_verify: %s "
+              "session->remote.banner=|%s|", session->hostkey->name,
+              session->remote.banner));
+#endif
+    ssh2_htonu32(exchange_state->h_sig_comp,
+                 (uint32_t)strlen((const char *)session->remote.banner));
+    hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+    hok &= ssh2_hash_update(&ctx, session->remote.banner,
+                            strlen((const char *)session->remote.banner));
+
+#ifdef LIBSSH2_DEBUG_MLKEM
+    ssh2_deb((session, LIBSSH2_TRACE_KEX,
+              "kex_method_ec_sha_hash_create_verify: %s "
+              "session->local.kexinit_len=|%lu| "
+              "session->remote.kexinit_len=|%lu| "
+              "session->server_hostkey_len=|%lu| "
+              "public_pq_key_len=|%lu| "
+              "public_key_len=|%lu| "
+              "server_public_key_len=|%lu| "
+              "exchange_state->k_value_len=|%lu|",
+              session->hostkey->name,
+              (unsigned long)session->local.kexinit_len,
+              (unsigned long)session->remote.kexinit_len,
+              (unsigned long)session->server_hostkey_len,
+              (unsigned long)public_pq_key_len,
+              (unsigned long)public_key_len,
+              (unsigned long)server_public_key_len,
+              (unsigned long)exchange_state->k_value_len));
+#endif
+    ssh2_htonu32(exchange_state->h_sig_comp,
+                 (uint32_t)session->local.kexinit_len);
+    hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+    hok &= ssh2_hash_update(&ctx, session->local.kexinit,
+                                  session->local.kexinit_len);
+
+    ssh2_htonu32(exchange_state->h_sig_comp,
+                 (uint32_t)session->remote.kexinit_len);
+    hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+    hok &= ssh2_hash_update(&ctx, session->remote.kexinit,
+                                  session->remote.kexinit_len);
+
+    ssh2_htonu32(exchange_state->h_sig_comp, session->server_hostkey_len);
+    hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+    hok &= ssh2_hash_update(&ctx, session->server_hostkey,
+                                  session->server_hostkey_len);
+
+    ssh2_htonu32(exchange_state->h_sig_comp,
+                 (uint32_t)(public_pq_key_len + public_key_len));
+    hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+    if(public_pq_key && public_pq_key_len)
+        hok &= ssh2_hash_update(&ctx, public_pq_key,
+                                      public_pq_key_len);
+    hok &= ssh2_hash_update(&ctx, public_key,
+                                  public_key_len);
+
+    ssh2_htonu32(exchange_state->h_sig_comp, (uint32_t)server_public_key_len);
+    hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
+    hok &= ssh2_hash_update(&ctx, server_public_key,
+                                  server_public_key_len);
+
+    hok &= ssh2_hash_update(&ctx, exchange_state->k_value,
+                                  exchange_state->k_value_len);
+
+    hok &= ssh2_hash_final(&ctx, exchange_state->h_sig_comp,
+                                 sizeof(exchange_state->h_sig_comp));
+    if(!hok)
+        return ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
+                        "Failed to calculate hash EC/ED");
+
+    err = session->hostkey->sig_verify(session,
+                                       exchange_state->h_sig,
+                                       exchange_state->h_sig_len,
+                                       exchange_state->h_sig_comp,
+                                       digest_len,
+                                       &session->server_hostkey_abstract);
+    if(err) {
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
+                  "Failed hostkey sig_verify() EC/ED: %s: %d",
+                  session->hostkey->name, err));
+        return ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_SIGN, signerr);
+    }
+
+    return LIBSSH2_ERROR_NONE;
+}
 #endif /* LIBSSH2_ECDSA || LIBSSH2_ED25519 */
 
 #if LIBSSH2_ECDSA
-
-#if LIBSSH2_MLKEM
-/*
- * Macro that create and verifies HYBRID (EC+PQ) SHA hash with a given
- * digest bytes
- *
- * Payload format:
- *
- * string   V_C, client's identification string (CR and LF excluded)
- * string   V_S, server's identification string (CR and LF excluded)
- * string   I_C, payload of the client's SSH_MSG_KEXINIT
- * string   I_S, payload of the server's SSH_MSG_KEXINIT
- * string   K_S, server's public host key
- * string   Q_C, client's ephemeral public key octet string
- * string   Q_S, server's ephemeral public key octet string
- * mpint    K,   shared secret
- */
-#define KEX_METHOD_HYBRID_SHA_HASH_CREATE_VERIFY(digest_type)                 \
-    do {                                                                      \
-        ssh2_sha##digest_type##_ctx ctx;                                      \
-        int hok;                                                              \
-        if(!ssh2_sha##digest_type##_init(&ctx)) {                             \
-            rc = -1;                                                          \
-            break;                                                            \
-        }                                                                     \
-        hok = 1;                                                              \
-        if(session->local.banner) {                                           \
-            ssh2_htonu32(exchange_state->h_sig_comp,                          \
-                     (uint32_t)(strlen((char *)session->local.banner) - 2));  \
-            hok &= ssh2_sha##digest_type##_update(ctx,                        \
-                                              exchange_state->h_sig_comp, 4); \
-            hok &= ssh2_sha##digest_type##_update(ctx,                        \
-                                  (char *)session->local.banner,              \
-                                  strlen((char *)session->local.banner) - 2); \
-        }                                                                     \
-        else {                                                                \
-            ssh2_htonu32(exchange_state->h_sig_comp,                          \
-                         sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);             \
-            hok &= ssh2_sha##digest_type##_update(ctx,                        \
-                                              exchange_state->h_sig_comp, 4); \
-            hok &= ssh2_sha##digest_type##_update(ctx,                        \
-                                     LIBSSH2_SSH_DEFAULT_BANNER,              \
-                                     sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1); \
-        }                                                                     \
-                                                                              \
-        ssh2_htonu32(exchange_state->h_sig_comp,                              \
-                     (uint32_t)strlen((char *)session->remote.banner));       \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              exchange_state->h_sig_comp, 4); \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                     session->remote.banner,                  \
-                                     strlen((char *)session->remote.banner)); \
-                                                                              \
-        ssh2_htonu32(exchange_state->h_sig_comp,                              \
-                     (uint32_t)session->local.kexinit_len);                   \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              exchange_state->h_sig_comp, 4); \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              session->local.kexinit,         \
-                                              session->local.kexinit_len);    \
-                                                                              \
-        ssh2_htonu32(exchange_state->h_sig_comp,                              \
-                     (uint32_t)session->remote.kexinit_len);                  \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              exchange_state->h_sig_comp, 4); \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              session->remote.kexinit,        \
-                                              session->remote.kexinit_len);   \
-                                                                              \
-        ssh2_htonu32(exchange_state->h_sig_comp,                              \
-                     session->server_hostkey_len);                            \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              exchange_state->h_sig_comp, 4); \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              session->server_hostkey,        \
-                                              session->server_hostkey_len);   \
-                                                                              \
-        ssh2_htonu32(exchange_state->h_sig_comp,                              \
-                     (uint32_t)(public_pq_key_len + public_t_key_len));       \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              exchange_state->h_sig_comp, 4); \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              public_pq_key,                  \
-                                              public_pq_key_len);             \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              public_t_key,                   \
-                                              public_t_key_len);              \
-                                                                              \
-        ssh2_htonu32(exchange_state->h_sig_comp,                              \
-                     (uint32_t)server_public_key_len);                        \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              exchange_state->h_sig_comp, 4); \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              server_public_key,              \
-                                              server_public_key_len);         \
-                                                                              \
-        hok &= ssh2_sha##digest_type##_update(ctx,                            \
-                                              exchange_state->k_value,        \
-                                              exchange_state->k_value_len);   \
-                                                                              \
-        if(!hok ||                                                            \
-           !ssh2_sha##digest_type##_final(ctx, exchange_state->h_sig_comp)) { \
-            rc = -1;                                                          \
-            break;                                                            \
-        }                                                                     \
-                                                                              \
-        if(session->hostkey->sig_verify(session, exchange_state->h_sig,       \
-                                        exchange_state->h_sig_len,            \
-                                        exchange_state->h_sig_comp,           \
-                                        SSH2_SHA##digest_type##_DIG_LEN,      \
-                                        &session->server_hostkey_abstract)) { \
-            rc = -1;                                                          \
-        }                                                                     \
-    } while(0)
-
-#endif /* LIBSSH2_MLKEM */
-
-/*
- * returns the EC curve type by name used in key exchange
- */
-static int kex_session_ecdh_curve_type(const char *name,
-                                       ssh2_curve_type *out_type)
-{
-    ssh2_curve_type type;
-
-    if(!name)
-        return -1;
-
-    if(!strcmp(name, "ecdh-sha2-nistp256"))
-        type = SSH2_EC_CURVE_NISTP256;
-    else if(!strcmp(name, "ecdh-sha2-nistp384"))
-        type = SSH2_EC_CURVE_NISTP384;
-    else if(!strcmp(name, "ecdh-sha2-nistp521"))
-        type = SSH2_EC_CURVE_NISTP521;
-    else
-        return -1;
-
-    if(out_type)
-        *out_type = type;
-
-    return 0;
-}
-
-static void ecdh_exchange_state_cleanup(
+static void kex_ecdh_exchange_state_cleanup(
     LIBSSH2_SESSION *session, struct kmdhgGPshakex_state *exchange_state)
 {
     ssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
 
-    if(exchange_state->k_value) {
-        SSH2_FREE(session, exchange_state->k_value);
-        exchange_state->k_value = NULL;
-    }
+    if(exchange_state->k_value)
+        SSH2_SAFEFREE(session, exchange_state->k_value);
 
     exchange_state->state = ssh2_NB_state_idle;
 }
@@ -1893,44 +1561,59 @@ static void ecdh_exchange_state_cleanup(
 static void kex_method_ecdh_cleanup(LIBSSH2_SESSION *session,
                                     struct key_exchange_state_low *key_state)
 {
-    if(key_state->public_key_oct) {
-        SSH2_FREE(session, key_state->public_key_oct);
-        key_state->public_key_oct = NULL;
-    }
+    if(key_state->public_key_oct)
+        SSH2_SAFEFREE(session, key_state->public_key_oct);
 
     if(key_state->private_key) {
         ssh2_ecdsa_free(key_state->private_key);
         key_state->private_key = NULL;
     }
 
-    if(key_state->data) {
-        SSH2_FREE(session, key_state->data);
-        key_state->data = NULL;
-    }
+    if(key_state->data)
+        SSH2_SAFEFREE(session, key_state->data);
 
     key_state->state = ssh2_NB_state_idle;
 
     if(key_state->exchange_state.state != ssh2_NB_state_idle)
-        ecdh_exchange_state_cleanup(session, &key_state->exchange_state);
+        kex_ecdh_exchange_state_cleanup(session, &key_state->exchange_state);
 }
 
 /*
  * Elliptic Curve Diffie Hellman Key Exchange
  */
-static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
-                           unsigned char *data, size_t data_len,
-                           unsigned char *public_key,
-                           size_t public_key_len, ssh2_ec_key *private_key,
-                           struct kmdhgGPshakex_state *exchange_state)
+static int kex_ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
+                               unsigned char *data, size_t data_len,
+                               unsigned char *public_key,
+                               size_t public_key_len, ssh2_ec_key *private_key,
+                               struct kmdhgGPshakex_state *exchange_state)
 {
     int ret = 0;
     int rc;
 
-    if(exchange_state->state == ssh2_NB_state_idle) {
+    ssh2_hash_alg hash_alg;
+    size_t digest_len = 0;
 
+    if(type == SSH2_EC_CURVE_NISTP256) {
+        hash_alg = SSH2_SHA256_ALG;
+        digest_len = SSH2_SHA256_DIG_LEN;
+    }
+    else if(type == SSH2_EC_CURVE_NISTP384) {
+        hash_alg = SSH2_SHA384_ALG;
+        digest_len = SSH2_SHA384_DIG_LEN;
+    }
+    else if(type == SSH2_EC_CURVE_NISTP521) {
+        hash_alg = SSH2_SHA512_ALG;
+        digest_len = SSH2_SHA512_DIG_LEN;
+    }
+    else {
+        ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
+                       "Unexpected ecdh-sha2-nistp curve type");
+        goto clean_exit;
+    }
+
+    if(exchange_state->state == ssh2_NB_state_idle) {
         /* Setup initial values */
         exchange_state->k = ssh2_bn_init();
-
         exchange_state->state = ssh2_NB_state_created;
     }
 
@@ -1948,20 +1631,20 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
             goto clean_exit;
         }
 
-        ret = process_host_key(session, &buf, exchange_state, data, data_len);
+        ret = kex_proc_hostkey(session, &buf, exchange_state, data, data_len);
         if(ret)
             goto clean_exit;
 
         /* server public key Q_S */
         if(ssh2_get_string(&buf, &server_public_key, &server_public_key_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                           "Unexpected key length ECDH");
+                           "Unexpected ECDH server public key");
             goto clean_exit;
         }
 
         /* server signature */
         if(ssh2_get_string(&buf, &exchange_state->h_sig,
-                           &(exchange_state->h_sig_len))) {
+                           &exchange_state->h_sig_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                            "Unexpected ECDH server sig length");
             goto clean_exit;
@@ -2007,24 +1690,13 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
         }
 
         /* verify hash */
-
-        switch(type) {
-        case SSH2_EC_CURVE_NISTP256:
-            KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(256);
-            break;
-        case SSH2_EC_CURVE_NISTP384:
-            KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(384);
-            break;
-        case SSH2_EC_CURVE_NISTP521:
-            KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(512);
-            break;
-        }
-
-        if(rc) {
-            ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
-                           "Unable to verify hostkey signature ECDH");
+        ret = kex_method_ec_sha_hash_create_verify(session, exchange_state,
+                 public_key, public_key_len, NULL, 0,
+                 server_public_key, server_public_key_len,
+                 hash_alg, digest_len,
+                 "Unable to verify hostkey signature ECDH");
+        if(ret)
             goto clean_exit;
-        }
 
         exchange_state->c = SSH_MSG_NEWKEYS;
         exchange_state->state = ssh2_NB_state_sent;
@@ -2043,35 +1715,43 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
     }
 
     if(exchange_state->state == ssh2_NB_state_sent2) {
-        int digest_len = 0;
-        int sha_algo_value = 0;
-
-        if(type == SSH2_EC_CURVE_NISTP256) {
-            digest_len = SSH2_SHA256_DIG_LEN;
-            sha_algo_value = 256;
-        }
-        else if(type == SSH2_EC_CURVE_NISTP384) {
-            digest_len = SSH2_SHA384_DIG_LEN;
-            sha_algo_value = 384;
-        }
-        else if(type == SSH2_EC_CURVE_NISTP521) {
-            digest_len = SSH2_SHA512_DIG_LEN;
-            sha_algo_value = 512;
-        }
-        else {
-            ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
-                           "Unrecognized SHA digest for EC curve");
-            goto clean_exit;
-        }
-        ret = finish_kex(session, exchange_state, digest_len, sha_algo_value);
+        ret = kex_finish(session, exchange_state, hash_alg, digest_len);
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
     }
 
 clean_exit:
-    ecdh_exchange_state_cleanup(session, exchange_state);
+    kex_ecdh_exchange_state_cleanup(session, exchange_state);
 
     return ret;
+}
+
+/*
+ * returns the EC curve type by name used in key exchange
+ */
+static int kex_session_curve_type(const char *name,
+                                  ssh2_curve_type *out_curve)
+{
+    ssh2_curve_type curve;
+
+    if(!name)
+        return -1;
+
+    if(!strcmp(name, "mlkem768nistp256-sha256") ||
+       !strcmp(name, "ecdh-sha2-nistp256"))
+        curve = SSH2_EC_CURVE_NISTP256;
+    else if(!strcmp(name, "mlkem1024nistp384-sha384") ||
+            !strcmp(name, "ecdh-sha2-nistp384"))
+        curve = SSH2_EC_CURVE_NISTP384;
+    else if(!strcmp(name, "ecdh-sha2-nistp521"))
+        curve = SSH2_EC_CURVE_NISTP521;
+    else
+        return -1;
+
+    if(out_curve)
+        *out_curve = curve;
+
+    return 0;
 }
 
 /*
@@ -2092,17 +1772,15 @@ static int kex_method_ecdh_key_exchange(
     }
 
     if(key_state->state == ssh2_NB_state_created) {
-        rc = kex_session_ecdh_curve_type(session->kex->name, &type);
-
+        rc = kex_session_curve_type(session->kex->name, &type);
         if(rc) {
             ret = ssh2_err(session, -1, "Unrecognized KEX nistp curve type");
             goto ecdh_clean_exit;
         }
 
-        rc = ssh2_ecdsa_create_key(session, &key_state->private_key,
+        rc = ssh2_ecdsa_create_key(&key_state->private_key, session,
                                    &key_state->public_key_oct,
                                    &key_state->public_key_oct_len, type);
-
         if(rc) {
             ret = ssh2_err(session, rc, "Unable to create private key");
             goto ecdh_clean_exit;
@@ -2149,21 +1827,18 @@ static int kex_method_ecdh_key_exchange(
     }
 
     if(key_state->state == ssh2_NB_state_sent2) {
-
-        rc = kex_session_ecdh_curve_type(session->kex->name, &type);
-
+        rc = kex_session_curve_type(session->kex->name, &type);
         if(rc) {
             ret = ssh2_err(session, -1, "Unrecognized KEX nistp curve type");
             goto ecdh_clean_exit;
         }
 
-        ret = ecdh_sha2_nistp(session, type, key_state->data,
-                              key_state->data_len,
-                              (unsigned char *)key_state->public_key_oct,
-                              key_state->public_key_oct_len,
-                              key_state->private_key,
-                              &key_state->exchange_state);
-
+        ret = kex_ecdh_sha2_nistp(session, type, key_state->data,
+                                  key_state->data_len,
+                                  (unsigned char *)key_state->public_key_oct,
+                                  key_state->public_key_oct_len,
+                                  key_state->private_key,
+                                  &key_state->exchange_state);
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
     }
@@ -2176,17 +1851,14 @@ ecdh_clean_exit:
 }
 
 #if LIBSSH2_MLKEM
-
-static void mlkem_nistp_exchange_state_cleanup(
+static void kex_mlkem_nistp_exchange_state_cleanup(
     LIBSSH2_SESSION *session, struct kmdhgGPshakex_state *exchange_state)
 {
     ssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
 
-    if(exchange_state->k_value) {
-        SSH2_FREE(session, exchange_state->k_value);
-        exchange_state->k_value = NULL;
-    }
+    if(exchange_state->k_value)
+        SSH2_SAFEFREE(session, exchange_state->k_value);
 
     exchange_state->state = ssh2_NB_state_idle;
 }
@@ -2194,57 +1866,54 @@ static void mlkem_nistp_exchange_state_cleanup(
 static void kex_method_mlkem_nistp_cleanup(
     LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
-    if(key_state->public_key_oct) {
-        SSH2_FREE(session, key_state->public_key_oct);
-        key_state->public_key_oct = NULL;
-    }
+    if(key_state->public_key_oct)
+        SSH2_SAFEFREE(session, key_state->public_key_oct);
 
     if(key_state->private_key) {
-        SSH2_FREE(session, key_state->private_key);
+        ssh2_ecdsa_free(key_state->private_key);
         key_state->private_key = NULL;
     }
 
     if(key_state->mlkem_public_key) {
         ssh2_explicit_zero(key_state->mlkem_public_key,
-                           SSH2_MLKEM_768_PUBLIC_KEY_LEN);
-        SSH2_FREE(session, key_state->mlkem_public_key);
-        key_state->mlkem_public_key = NULL;
+                           key_state->mlkem_public_key_len);
+        SSH2_SAFEFREE(session, key_state->mlkem_public_key);
+        key_state->mlkem_public_key_len = 0;
     }
 
     if(key_state->mlkem_private_key) {
         ssh2_explicit_zero(key_state->mlkem_private_key,
-                           SSH2_MLKEM_768_PRIVATE_KEY_LEN);
-        SSH2_FREE(session, key_state->mlkem_private_key);
-        key_state->mlkem_private_key = NULL;
+                           key_state->mlkem_private_key_len);
+        SSH2_SAFEFREE(session, key_state->mlkem_private_key);
+        key_state->mlkem_private_key_len = 0;
     }
 
-    if(key_state->data) {
-        SSH2_FREE(session, key_state->data);
-        key_state->data = NULL;
-    }
+    if(key_state->data)
+        SSH2_SAFEFREE(session, key_state->data);
 
     key_state->state = ssh2_NB_state_idle;
 
     if(key_state->exchange_state.state != ssh2_NB_state_idle)
-        ecdh_exchange_state_cleanup(session, &key_state->exchange_state);
+        kex_ecdh_exchange_state_cleanup(session, &key_state->exchange_state);
 }
 
-static int mlkem_nistp(LIBSSH2_SESSION *session,
-                       unsigned char *data, size_t data_len,
-                       unsigned char *public_t_key,
-                       size_t public_t_key_len,
-                       ssh2_ec_key *private_t_key,
-                       unsigned char *public_pq_key,
-                       unsigned char *private_pq_key,
-                       struct kmdhgGPshakex_state *exchange_state)
+static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
+                           unsigned char *data, size_t data_len,
+                           unsigned char *public_t_key,
+                           size_t public_t_key_len,
+                           ssh2_ec_key *private_t_key,
+                           unsigned char *public_pq_key,
+                           unsigned char *private_pq_key,
+                           struct kmdhgGPshakex_state *exchange_state)
 {
     int ret = 0;
-    int rc, ml_kem_size, sha_algo_value;
+    int rc, mlkem_size;
+    ssh2_hash_alg hash_alg;
     ssh2_curve_type type;
-    size_t digest_len, ml_kem_cipher_len, public_pq_key_len;
+    size_t digest_len, mlkem_cipher_len, public_pq_key_len;
     unsigned char *shared_secret = NULL;
 
-    if(kex_session_hybrid_curve_type(session->kex->name, &type)) {
+    if(kex_session_curve_type(session->kex->name, &type)) {
         ret = ssh2_err(session, -1,
                        "Unrecognized KEX hybrid nistp curve type");
         goto clean_exit;
@@ -2252,18 +1921,18 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
 
     switch(type) {
     case SSH2_EC_CURVE_NISTP256:
+        hash_alg = SSH2_SHA256_ALG;
         digest_len = SSH2_SHA256_DIG_LEN;
-        ml_kem_cipher_len = SSH2_MLKEM_768_CIPHERTEXT;
-        ml_kem_size = 768;
+        mlkem_cipher_len = SSH2_MLKEM_768_CIPHERTEXT;
+        mlkem_size = 768;
         public_pq_key_len = SSH2_MLKEM_768_PUBLIC_KEY_LEN;
-        sha_algo_value = 256;
         break;
     case SSH2_EC_CURVE_NISTP384:
+        hash_alg = SSH2_SHA384_ALG;
         digest_len = SSH2_SHA384_DIG_LEN;
-        ml_kem_cipher_len = SSH2_MLKEM_1024_CIPHERTEXT;
-        ml_kem_size = 1024;
+        mlkem_cipher_len = SSH2_MLKEM_1024_CIPHERTEXT;
+        mlkem_size = 1024;
         public_pq_key_len = SSH2_MLKEM_1024_PUBLIC_KEY_LEN;
-        sha_algo_value = 384;
         break;
     default:
         ret = ssh2_err(session, -1, "Unexpected KEX hybrid nistp curve type");
@@ -2271,10 +1940,8 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
     }
 
     if(exchange_state->state == ssh2_NB_state_idle) {
-
         /* Setup initial values */
         exchange_state->k = ssh2_bn_init();
-
         exchange_state->state = ssh2_NB_state_created;
     }
 
@@ -2291,18 +1958,18 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
 
-        ret = process_host_key(session, &buf, exchange_state, data, data_len);
+        ret = kex_proc_hostkey(session, &buf, exchange_state, data, data_len);
         if(ret)
             goto clean_exit;
 
         /* server public key Q_S */
         if(ssh2_get_string(&buf, &server_public_key, &server_public_key_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                           "Unexpected mlkemnistp key length");
+                           "Unexpected mlkemnistp server public key");
             goto clean_exit;
         }
 
-        if(server_public_key_len <= ml_kem_cipher_len) {
+        if(server_public_key_len <= mlkem_cipher_len) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                            "Unexpected mlkemnistp server public key length");
             goto clean_exit;
@@ -2310,7 +1977,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
 
         /* server signature */
         if(ssh2_get_string(&buf, &exchange_state->h_sig,
-                           &(exchange_state->h_sig_len))) {
+                           &exchange_state->h_sig_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                            "Unexpected mlkemnistp server sig length");
             goto clean_exit;
@@ -2329,8 +1996,8 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
 
         /* Compute the ecdh shared secret K */
         rc = ssh2_ecdh_gen_k(&exchange_state->k, private_t_key,
-                             server_public_key + ml_kem_cipher_len,
-                             server_public_key_len - ml_kem_cipher_len);
+                             server_public_key + mlkem_cipher_len,
+                             server_public_key_len - mlkem_cipher_len);
         if(rc) {
             ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                            "Unable to create ECDH shared secret");
@@ -2348,7 +2015,7 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
         }
 
         /* Compute the ML-KEM shared secret */
-        rc = ssh2_mlkem_get_sk(shared_secret, ml_kem_size, private_pq_key,
+        rc = ssh2_mlkem_get_sk(shared_secret, mlkem_size, private_pq_key,
                                server_public_key);
         if(rc) {
             ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
@@ -2364,62 +2031,21 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
         }
 
         /* verify hash */
-        switch(type) {
-        case SSH2_EC_CURVE_NISTP256: {
-            ssh2_sha256_ctx k_ctx;
-            if(!ssh2_sha256_init(&k_ctx)) {
-                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
-                               "kex: failed to initialize hash");
-                goto clean_exit;
-            }
-
-            if(!ssh2_sha256_update(k_ctx, shared_secret, shared_secret_len)) {
-                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
-                               "kex: failed to calculate hash");
-                goto clean_exit;
-            }
-
-            if(!ssh2_sha256_final(k_ctx, exchange_state->k_value + 4)) {
-                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
-                               "kex: failed to calculate hash");
-                goto clean_exit;
-            }
-            KEX_METHOD_HYBRID_SHA_HASH_CREATE_VERIFY(256);
-            break;
-        }
-        case SSH2_EC_CURVE_NISTP384: {
-            ssh2_sha384_ctx k_ctx;
-            if(!ssh2_sha384_init(&k_ctx)) {
-                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
-                               "kex: failed to initialize hash");
-                goto clean_exit;
-            }
-
-            if(!ssh2_sha384_update(k_ctx, shared_secret, shared_secret_len)) {
-                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
-                               "kex: failed to calculate hash");
-                goto clean_exit;
-            }
-
-            if(!ssh2_sha384_final(k_ctx, exchange_state->k_value + 4)) {
-                ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
-                               "kex: failed to calculate hash");
-                goto clean_exit;
-            }
-            KEX_METHOD_HYBRID_SHA_HASH_CREATE_VERIFY(384);
-            break;
-        }
-        default:
-            ret = ssh2_err(session, -1,
-                           "Unexpected KEX hybrid nistp curve type");
+        if(!ssh2_hash(hash_alg, shared_secret, shared_secret_len,
+                      exchange_state->k_value + 4, digest_len)) {
+            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
+                           "kex: failed to calculate hash");
             goto clean_exit;
         }
 
-        if(rc) {
-            ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
-                           "Unable to verify hostkey signature mlkemnistp");
+        ret = kex_method_ec_sha_hash_create_verify(session, exchange_state,
+                 public_t_key, public_t_key_len,
+                 public_pq_key, public_pq_key_len,
+                 server_public_key, server_public_key_len,
+                 hash_alg, digest_len,
+                 "Unable to verify hostkey signature mlkemnistp");
+        if(ret)
             goto clean_exit;
-        }
 
         exchange_state->c = SSH_MSG_NEWKEYS;
         exchange_state->state = ssh2_NB_state_sent;
@@ -2439,15 +2065,15 @@ static int mlkem_nistp(LIBSSH2_SESSION *session,
     }
 
     if(exchange_state->state == ssh2_NB_state_sent2) {
-        ret = finish_kex(session, exchange_state,
-                         (int)digest_len, sha_algo_value);
+        ret = kex_finish(session, exchange_state, hash_alg, digest_len);
         if(ret == LIBSSH2_ERROR_EAGAIN)
-            return ret;
+            goto clean_free;
     }
 
 clean_exit:
-    mlkem_nistp_exchange_state_cleanup(session, exchange_state);
+    kex_mlkem_nistp_exchange_state_cleanup(session, exchange_state);
 
+clean_free:
     if(shared_secret)
         SSH2_FREE(session, shared_secret);
 
@@ -2459,9 +2085,6 @@ static int kex_method_mlkem_nistp_key_exchange(
 {
     int ret = 0;
     int rc = 0;
-    ssh2_curve_type type;
-    int ml_kem_size;
-    size_t ml_kem_key_len;
 
     if(key_state->state == ssh2_NB_state_idle) {
         key_state->public_key_oct = NULL;
@@ -2469,9 +2092,13 @@ static int kex_method_mlkem_nistp_key_exchange(
     }
 
     if(key_state->state == ssh2_NB_state_created) {
+        ssh2_curve_type type;
+        int mlkem_size;
+        size_t mlkem_public_key_len;
+        size_t mlkem_private_key_len;
         unsigned char *s = NULL;
 
-        if(kex_session_hybrid_curve_type(session->kex->name, &type)) {
+        if(kex_session_curve_type(session->kex->name, &type)) {
             ret = ssh2_err(session, -1,
                            "Unrecognized KEX hybrid nistp curve type");
             goto clean_exit;
@@ -2479,12 +2106,14 @@ static int kex_method_mlkem_nistp_key_exchange(
 
         switch(type) {
         case SSH2_EC_CURVE_NISTP256:
-            ml_kem_size = 768;
-            ml_kem_key_len = SSH2_MLKEM_768_PUBLIC_KEY_LEN;
+            mlkem_size = 768;
+            mlkem_public_key_len = SSH2_MLKEM_768_PUBLIC_KEY_LEN;
+            mlkem_private_key_len = SSH2_MLKEM_768_PRIVATE_KEY_LEN;
             break;
         case SSH2_EC_CURVE_NISTP384:
-            ml_kem_size = 1024;
-            ml_kem_key_len = SSH2_MLKEM_1024_PUBLIC_KEY_LEN;
+            mlkem_size = 1024;
+            mlkem_public_key_len = SSH2_MLKEM_1024_PUBLIC_KEY_LEN;
+            mlkem_private_key_len = SSH2_MLKEM_1024_PRIVATE_KEY_LEN;
             break;
         default:
             ret = ssh2_err(session, -1,
@@ -2492,32 +2121,33 @@ static int kex_method_mlkem_nistp_key_exchange(
             goto clean_exit;
         }
 
-        rc = ssh2_ecdsa_create_key(session, &key_state->private_key,
+        rc = ssh2_ecdsa_create_key(&key_state->private_key, session,
                                    &key_state->public_key_oct,
                                    &key_state->public_key_oct_len, type);
-
         if(rc) {
             ret = ssh2_err(session, rc, "Unable to create ecdh private key");
             goto clean_exit;
         }
 
-        rc = ssh2_mlkem_new(session, ml_kem_size,
+        rc = ssh2_mlkem_new(session, mlkem_size,
                             &key_state->mlkem_public_key,
                             &key_state->mlkem_private_key);
-
         if(rc) {
             ret = ssh2_err(session, rc, "Unable to create mlkem private key");
             goto clean_exit;
         }
 
+        key_state->mlkem_public_key_len = mlkem_public_key_len;
+        key_state->mlkem_private_key_len = mlkem_private_key_len;
+
         key_state->request[0] = SSH2_MSG_KEX_ECDH_INIT;
         s = key_state->request + 1;
         ssh2_store_hybrid_str(&s,
                               (const char *)key_state->mlkem_public_key,
-                              ml_kem_key_len,
+                              mlkem_public_key_len,
                               (const char *)key_state->public_key_oct,
                               key_state->public_key_oct_len);
-        key_state->request_len = ml_kem_key_len +
+        key_state->request_len = mlkem_public_key_len +
                                  key_state->public_key_oct_len + 5;
 
         ssh2_deb((session, LIBSSH2_TRACE_KEX,
@@ -2555,14 +2185,13 @@ static int kex_method_mlkem_nistp_key_exchange(
     }
 
     if(key_state->state == ssh2_NB_state_sent2) {
-        ret = mlkem_nistp(session, key_state->data, key_state->data_len,
-                          (unsigned char *)key_state->public_key_oct,
-                          key_state->public_key_oct_len,
-                          key_state->private_key,
-                          key_state->mlkem_public_key,
-                          key_state->mlkem_private_key,
-                          &key_state->exchange_state);
-
+        ret = kex_mlkem_nistp(session, key_state->data, key_state->data_len,
+                              (unsigned char *)key_state->public_key_oct,
+                              key_state->public_key_oct_len,
+                              key_state->private_key,
+                              key_state->mlkem_public_key,
+                              key_state->mlkem_private_key,
+                              &key_state->exchange_state);
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
     }
@@ -2573,21 +2202,18 @@ clean_exit:
 
     return ret;
 }
-#endif
+#endif /* LIBSSH2_MLKEM */
 #endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519
-
-static void curve25519_exchange_state_cleanup(
+static void kex_curve25519_exchange_state_cleanup(
     LIBSSH2_SESSION *session, struct kmdhgGPshakex_state *exchange_state)
 {
     ssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
 
-    if(exchange_state->k_value) {
-        SSH2_FREE(session, exchange_state->k_value);
-        exchange_state->k_value = NULL;
-    }
+    if(exchange_state->k_value)
+        SSH2_SAFEFREE(session, exchange_state->k_value);
 
     exchange_state->state = ssh2_NB_state_idle;
 }
@@ -2598,46 +2224,41 @@ static void kex_method_curve25519_cleanup(
     if(key_state->curve25519_public_key) {
         ssh2_explicit_zero(key_state->curve25519_public_key,
                            SSH2_ED25519_KEY_LEN);
-        SSH2_FREE(session, key_state->curve25519_public_key);
-        key_state->curve25519_public_key = NULL;
+        SSH2_SAFEFREE(session, key_state->curve25519_public_key);
     }
 
     if(key_state->curve25519_private_key) {
         ssh2_explicit_zero(key_state->curve25519_private_key,
                            SSH2_ED25519_KEY_LEN);
-        SSH2_FREE(session, key_state->curve25519_private_key);
-        key_state->curve25519_private_key = NULL;
+        SSH2_SAFEFREE(session, key_state->curve25519_private_key);
     }
 
-    if(key_state->data) {
-        SSH2_FREE(session, key_state->data);
-        key_state->data = NULL;
-    }
+    if(key_state->data)
+        SSH2_SAFEFREE(session, key_state->data);
 
     key_state->state = ssh2_NB_state_idle;
 
     if(key_state->exchange_state.state != ssh2_NB_state_idle)
-        curve25519_exchange_state_cleanup(session, &key_state->exchange_state);
+        kex_curve25519_exchange_state_cleanup(session,
+                                              &key_state->exchange_state);
 }
 
 /*
  * Elliptic Curve Key Exchange
  */
-static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
-                             size_t data_len,
-                             unsigned char public_key[SSH2_ED25519_KEY_LEN],
-                             unsigned char private_key[SSH2_ED25519_KEY_LEN],
-                             struct kmdhgGPshakex_state *exchange_state)
+static int kex_curve25519_sha256(
+    LIBSSH2_SESSION *session,
+    unsigned char *data, size_t data_len,
+    unsigned char public_key[SSH2_ED25519_KEY_LEN],
+    unsigned char private_key[SSH2_ED25519_KEY_LEN],
+    struct kmdhgGPshakex_state *exchange_state)
 {
     int ret = 0;
     int rc;
-    int public_key_len = SSH2_ED25519_KEY_LEN;
 
     if(exchange_state->state == ssh2_NB_state_idle) {
-
         /* Setup initial values */
         exchange_state->k = ssh2_bn_init();
-
         exchange_state->state = ssh2_NB_state_created;
     }
 
@@ -2645,6 +2266,7 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         /* parse INIT reply data */
         unsigned char *server_public_key;
         size_t server_public_key_len;
+        size_t public_key_len = SSH2_ED25519_KEY_LEN;
         struct string_buf buf;
 
         if(!data) {
@@ -2653,18 +2275,18 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
             goto clean_exit;
         }
 
-        ret = process_host_key(session, &buf, exchange_state, data, data_len);
+        ret = kex_proc_hostkey(session, &buf, exchange_state, data, data_len);
         if(ret)
             goto clean_exit;
 
         /* server public key Q_S */
         if(ssh2_get_string(&buf, &server_public_key, &server_public_key_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                           "Unexpected curve25519 key length");
+                           "Unexpected curve25519 server public key");
             goto clean_exit;
         }
 
-        if(server_public_key_len != SSH2_ED25519_KEY_LEN) {
+        if(server_public_key_len != public_key_len) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                            "Unexpected curve25519 server public key length");
             goto clean_exit;
@@ -2672,7 +2294,7 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
 
         /* server signature */
         if(ssh2_get_string(&buf, &exchange_state->h_sig,
-                           &(exchange_state->h_sig_len))) {
+                           &exchange_state->h_sig_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                            "Unexpected curve25519 server sig length");
             goto clean_exit;
@@ -2718,13 +2340,13 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         }
 
         /* verify hash */
-        KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(256);
-
-        if(rc) {
-            ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
-                           "Unable to verify hostkey signature curve25519");
+        ret = kex_method_ec_sha_hash_create_verify(session, exchange_state,
+                 public_key, public_key_len, NULL, 0,
+                 server_public_key, server_public_key_len,
+                 SSH2_SHA256_ALG, SSH2_SHA256_DIG_LEN,
+                 "Unable to verify hostkey signature curve25519");
+        if(ret)
             goto clean_exit;
-        }
 
         exchange_state->c = SSH_MSG_NEWKEYS;
         exchange_state->state = ssh2_NB_state_sent;
@@ -2744,13 +2366,14 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
     }
 
     if(exchange_state->state == ssh2_NB_state_sent2) {
-        ret = finish_kex(session, exchange_state, SSH2_SHA256_DIG_LEN, 256);
+        ret = kex_finish(session, exchange_state,
+                         SSH2_SHA256_ALG, SSH2_SHA256_DIG_LEN);
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
     }
 
 clean_exit:
-    curve25519_exchange_state_cleanup(session, exchange_state);
+    kex_curve25519_exchange_state_cleanup(session, exchange_state);
 
     return ret;
 }
@@ -2785,7 +2408,6 @@ static int kex_method_curve25519_key_exchange(
         rc = ssh2_curve25519_new(session,
                                  &key_state->curve25519_public_key,
                                  &key_state->curve25519_private_key);
-
         if(rc) {
             ret = ssh2_err(session, rc, "Unable to create private key");
             goto clean_exit;
@@ -2831,12 +2453,11 @@ static int kex_method_curve25519_key_exchange(
     }
 
     if(key_state->state == ssh2_NB_state_sent2) {
-
-        ret = curve25519_sha256(session, key_state->data, key_state->data_len,
-                                key_state->curve25519_public_key,
-                                key_state->curve25519_private_key,
-                                &key_state->exchange_state);
-
+        ret = kex_curve25519_sha256(session,
+                                    key_state->data, key_state->data_len,
+                                    key_state->curve25519_public_key,
+                                    key_state->curve25519_private_key,
+                                    &key_state->exchange_state);
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
     }
@@ -2849,17 +2470,14 @@ clean_exit:
 }
 
 #if LIBSSH2_MLKEM
-
-static void mlkem768x25519_exchange_state_cleanup(
+static void kex_mlkem768x25519_exchange_state_cleanup(
     LIBSSH2_SESSION *session, struct kmdhgGPshakex_state *exchange_state)
 {
     ssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
 
-    if(exchange_state->k_value) {
-        SSH2_FREE(session, exchange_state->k_value);
-        exchange_state->k_value = NULL;
-    }
+    if(exchange_state->k_value)
+        SSH2_SAFEFREE(session, exchange_state->k_value);
 
     exchange_state->state = ssh2_NB_state_idle;
 }
@@ -2870,43 +2488,40 @@ static void kex_method_mlkem768x25519_cleanup(
     if(key_state->curve25519_public_key) {
         ssh2_explicit_zero(key_state->curve25519_public_key,
                            SSH2_ED25519_KEY_LEN);
-        SSH2_FREE(session, key_state->curve25519_public_key);
-        key_state->curve25519_public_key = NULL;
+        SSH2_SAFEFREE(session, key_state->curve25519_public_key);
     }
 
     if(key_state->curve25519_private_key) {
         ssh2_explicit_zero(key_state->curve25519_private_key,
                            SSH2_ED25519_KEY_LEN);
-        SSH2_FREE(session, key_state->curve25519_private_key);
-        key_state->curve25519_private_key = NULL;
+        SSH2_SAFEFREE(session, key_state->curve25519_private_key);
     }
 
     if(key_state->mlkem_public_key) {
         ssh2_explicit_zero(key_state->mlkem_public_key,
-                           SSH2_MLKEM_768_PUBLIC_KEY_LEN);
-        SSH2_FREE(session, key_state->mlkem_public_key);
-        key_state->mlkem_public_key = NULL;
+                           key_state->mlkem_public_key_len);
+        SSH2_SAFEFREE(session, key_state->mlkem_public_key);
+        key_state->mlkem_public_key_len = 0;
     }
 
     if(key_state->mlkem_private_key) {
         ssh2_explicit_zero(key_state->mlkem_private_key,
-                           SSH2_MLKEM_768_PRIVATE_KEY_LEN);
-        SSH2_FREE(session, key_state->mlkem_private_key);
-        key_state->mlkem_private_key = NULL;
+                           key_state->mlkem_private_key_len);
+        SSH2_SAFEFREE(session, key_state->mlkem_private_key);
+        key_state->mlkem_private_key_len = 0;
     }
 
-    if(key_state->data) {
-        SSH2_FREE(session, key_state->data);
-        key_state->data = NULL;
-    }
+    if(key_state->data)
+        SSH2_SAFEFREE(session, key_state->data);
 
     key_state->state = ssh2_NB_state_idle;
 
     if(key_state->exchange_state.state != ssh2_NB_state_idle)
-        curve25519_exchange_state_cleanup(session, &key_state->exchange_state);
+        kex_curve25519_exchange_state_cleanup(session,
+                                              &key_state->exchange_state);
 }
 
-static int mlkem768x25519_sha256(
+static int kex_mlkem768x25519_sha256(
     LIBSSH2_SESSION *session,
     unsigned char *data, size_t data_len,
     unsigned char public_t_key[SSH2_ED25519_KEY_LEN],
@@ -2921,7 +2536,6 @@ static int mlkem768x25519_sha256(
     if(exchange_state->state == ssh2_NB_state_idle) {
         /* Setup initial values */
         exchange_state->k = ssh2_bn_init();
-
         exchange_state->state = ssh2_NB_state_created;
     }
 
@@ -2934,16 +2548,21 @@ static int mlkem768x25519_sha256(
                                     SSH2_ED25519_KEY_LEN];
         size_t server_public_key_len;
         struct string_buf buf;
-        ssh2_sha256_ctx k_ctx;
 
-        ret = process_host_key(session, &buf, exchange_state, data, data_len);
+        if(!data) {
+            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                           "Missing host key data");
+            goto clean_exit;
+        }
+
+        ret = kex_proc_hostkey(session, &buf, exchange_state, data, data_len);
         if(ret)
             goto clean_exit;
 
         /* server public key Q_S */
         if(ssh2_get_string(&buf, &server_public_key, &server_public_key_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                           "Unexpected mlkem768x25519 key length");
+                           "Unexpected mlkem768x25519 server public key");
             goto clean_exit;
         }
 
@@ -2957,7 +2576,7 @@ static int mlkem768x25519_sha256(
 
         /* server signature */
         if(ssh2_get_string(&buf, &exchange_state->h_sig,
-                           &(exchange_state->h_sig_len))) {
+                           &exchange_state->h_sig_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                            "Unexpected mlkem768x25519 server sig length");
             goto clean_exit;
@@ -2983,7 +2602,7 @@ static int mlkem768x25519_sha256(
             goto clean_exit;
         }
 
-        /* Compute the x2559 shared secret K */
+        /* Compute the x25519 shared secret K */
         rc = ssh2_curve25519_gen_k(&exchange_state->k, private_t_key,
                                    server_public_key +
                                        SSH2_MLKEM_768_CIPHERTEXT);
@@ -3000,35 +2619,23 @@ static int mlkem768x25519_sha256(
             goto clean_exit;
         }
 
-        if(!ssh2_sha256_init(&k_ctx)) {
-            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_INIT,
-                           "kex: failed to initialize hash");
-            goto clean_exit;
-        }
-
-        if(!ssh2_sha256_update(k_ctx, shared_secret,
-                               SSH2_MLKEM_SHARED_SECRET_LEN +
-                                   SSH2_ED25519_KEY_LEN)) {
-            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
-                           "kex: failed to calculate hash");
-            goto clean_exit;
-        }
-
-        if(!ssh2_sha256_final(k_ctx, exchange_state->k_value + 4)) {
-            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
-                           "kex: failed to calculate hash");
-            goto clean_exit;
-        }
-
         /* verify hash */
-        KEX_METHOD_HYBRID_SHA_HASH_CREATE_VERIFY(256);
-
-        if(rc) {
-            ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
-                           "Unable to verify hostkey signature "
-                           "mlkem768x25519");
+        if(!ssh2_hash(SSH2_SHA256_ALG, shared_secret,
+                      SSH2_MLKEM_SHARED_SECRET_LEN + SSH2_ED25519_KEY_LEN,
+                      exchange_state->k_value + 4, SSH2_SHA256_DIG_LEN)) {
+            ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
+                           "kex: failed to calculate hash");
             goto clean_exit;
         }
+
+        ret = kex_method_ec_sha_hash_create_verify(session, exchange_state,
+                 public_t_key, public_t_key_len,
+                 public_pq_key, public_pq_key_len,
+                 server_public_key, server_public_key_len,
+                 SSH2_SHA256_ALG, SSH2_SHA256_DIG_LEN,
+                 "Unable to verify hostkey signature mlkem768x25519");
+        if(ret)
+            goto clean_exit;
 
         exchange_state->c = SSH_MSG_NEWKEYS;
         exchange_state->state = ssh2_NB_state_sent;
@@ -3048,13 +2655,14 @@ static int mlkem768x25519_sha256(
     }
 
     if(exchange_state->state == ssh2_NB_state_sent2) {
-        ret = finish_kex(session, exchange_state, SSH2_SHA256_DIG_LEN, 256);
+        ret = kex_finish(session, exchange_state,
+                         SSH2_SHA256_ALG, SSH2_SHA256_DIG_LEN);
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
     }
 
 clean_exit:
-    mlkem768x25519_exchange_state_cleanup(session, exchange_state);
+    kex_mlkem768x25519_exchange_state_cleanup(session, exchange_state);
 
     return ret;
 }
@@ -3071,34 +2679,38 @@ static int kex_method_mlkem768x25519_key_exchange(
     }
 
     if(key_state->state == ssh2_NB_state_created) {
+        int mlkem_size = 768;
+        size_t mlkem_public_key_len = SSH2_MLKEM_768_PUBLIC_KEY_LEN;
+        size_t mlkem_private_key_len = SSH2_MLKEM_768_PRIVATE_KEY_LEN;
         unsigned char *s = NULL;
 
         rc = ssh2_curve25519_new(session,
                                  &key_state->curve25519_public_key,
                                  &key_state->curve25519_private_key);
-
         if(rc) {
             ret = ssh2_err(session, rc, "Unable to create x25519 private key");
             goto clean_exit;
         }
 
-        rc = ssh2_mlkem_new(session, 768,
+        rc = ssh2_mlkem_new(session, mlkem_size,
                             &key_state->mlkem_public_key,
                             &key_state->mlkem_private_key);
-
         if(rc) {
             ret = ssh2_err(session, rc, "Unable to create mlkem private key");
             goto clean_exit;
         }
 
+        key_state->mlkem_public_key_len = mlkem_public_key_len;
+        key_state->mlkem_private_key_len = mlkem_private_key_len;
+
         key_state->request[0] = SSH2_MSG_KEX_ECDH_INIT;
         s = key_state->request + 1;
         ssh2_store_hybrid_str(&s,
                               (const char *)key_state->mlkem_public_key,
-                              SSH2_MLKEM_768_PUBLIC_KEY_LEN,
+                              mlkem_public_key_len,
                               (const char *)key_state->curve25519_public_key,
                               SSH2_ED25519_KEY_LEN);
-        key_state->request_len = SSH2_MLKEM_768_PUBLIC_KEY_LEN +
+        key_state->request_len = mlkem_public_key_len +
                                  SSH2_ED25519_KEY_LEN + 5;
 
         ssh2_deb((session, LIBSSH2_TRACE_KEX,
@@ -3136,14 +2748,13 @@ static int kex_method_mlkem768x25519_key_exchange(
     }
 
     if(key_state->state == ssh2_NB_state_sent2) {
-
-        ret = mlkem768x25519_sha256(session, key_state->data,
-                                    key_state->data_len,
-                                    key_state->curve25519_public_key,
-                                    key_state->curve25519_private_key,
-                                    key_state->mlkem_public_key,
-                                    key_state->mlkem_private_key,
-                                    &key_state->exchange_state);
+        ret = kex_mlkem768x25519_sha256(session, key_state->data,
+                                        key_state->data_len,
+                                        key_state->curve25519_public_key,
+                                        key_state->curve25519_private_key,
+                                        key_state->mlkem_public_key,
+                                        key_state->mlkem_private_key,
+                                        &key_state->exchange_state);
 
         if(ret == LIBSSH2_ERROR_EAGAIN)
             return ret;
@@ -3155,8 +2766,7 @@ clean_exit:
 
     return ret;
 }
-#endif
-
+#endif /* LIBSSH2_MLKEM */
 #endif /* LIBSSH2_ED25519 */
 
 #define KEX_METHOD_FLAG_REQ_ENC_HOSTKEY  0x0001
@@ -3247,8 +2857,8 @@ static const struct kex_method kex_method_ssh_mlkem1024_nistp384_sha384 = {
     kex_method_mlkem_nistp_cleanup,
     KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
-#endif
-#endif
+#endif /* LIBSSH2_MLKEM */
+#endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519
 static const struct kex_method kex_method_ssh_curve25519_sha256_libssh = {
@@ -3270,8 +2880,8 @@ static const struct kex_method kex_method_ssh_mlkem768_x25519_sha256 = {
     kex_method_mlkem768x25519_cleanup,
     KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
-#endif
-#endif
+#endif /* LIBSSH2_MLKEM */
+#endif /* LIBSSH2_ED25519 */
 
 /* this kex method signals that client can receive extensions
  * as described in https://datatracker.ietf.org/doc/html/rfc8308
@@ -3300,7 +2910,7 @@ static const struct kex_method *kex_methods[] = {
     &kex_method_ssh_mlkem768_nistp256_sha256,
     &kex_method_ssh_mlkem1024_nistp384_sha384,
 #endif
-#endif
+#endif /* LIBSSH2_MLKEM */
 #if LIBSSH2_ED25519
     &kex_method_ssh_curve25519_sha256,
     &kex_method_ssh_curve25519_sha256_libssh,
@@ -3328,8 +2938,8 @@ struct common_method {
 
 /*
  * Calculate the length of a particular method list's resulting string
- * Includes SUM(strlen() of each individual method plus 1 (for coma)) - 1
- * (because the last coma is not used)
+ * Includes SUM(strlen() of each individual method plus 1 (for comma)) - 1
+ * (because the last comma is not used)
  * Another sign of bad coding practices gone mad. Pretend you do not see this.
  */
 static size_t kex_method_strlen(const struct common_method **method)
@@ -3382,16 +2992,15 @@ static uint32_t kex_method_list(unsigned char *buf, uint32_t list_strlen,
             memcpy(buf, prefvar, prefvarlen);                                 \
             (buf) += (prefvarlen);                                            \
         }                                                                     \
-        else {                                                                \
+        else                                                                  \
             (buf) += kex_method_list(buf, prefvarlen,                         \
                                 (const struct common_method **)(defaultvar)); \
-        }                                                                     \
     } while(0)
 
 /*
  * Send SSH_MSG_KEXINIT packet
  */
-static int kexinit(LIBSSH2_SESSION *session)
+static int kex_init(LIBSSH2_SESSION *session)
 {
     /* 62 = packet_type(1) + cookie(16) + first_packet_follows(1) +
        reserved(4) + length longs(40) */
@@ -3442,7 +3051,7 @@ static int kexinit(LIBSSH2_SESSION *session)
         }
         s += 16;
 
-        /* Ennumerating through these lists twice is probably (certainly?)
+        /* Enumerating through these lists twice is probably (certainly?)
            inefficient from a CPU standpoint, but it saves multiple
            malloc/realloc calls */
         KEX_METHOD_PREFS_STR(s, kex_len, session->kex_prefs, kex_methods);
@@ -3571,15 +3180,15 @@ unsigned char *ssh2_kex_agree_instr(unsigned char *haystack,
     left = end_haystack - s;
 
     /* Needle at start of haystack */
-    if(!strncmp((char *)haystack, (const char *)needle, needle_len) &&
+    if(!strncmp((const char *)haystack, (const char *)needle, needle_len) &&
        (needle_len == haystack_len || haystack[needle_len] == ','))
         return haystack;
 
-    /* Search until we run out of comas or we run out of haystack,
+    /* Search until we run out of commas or we run out of haystack,
        whichever comes first */
     /* !checksrc! disable EQUALSNULL 1 */
     while((s = (unsigned char *)memchr((char *)s, ',', left)) != NULL) {
-        /* Advance buffer past coma if we can */
+        /* Advance buffer past comma if we can */
         left = end_haystack - s;
         if(left >= 1 && left <= haystack_len && left > needle_len) {
             s++;
@@ -3589,7 +3198,7 @@ unsigned char *ssh2_kex_agree_instr(unsigned char *haystack,
             return NULL;
 
         /* Needle at X position */
-        if(!strncmp((char *)s, (const char *)needle, needle_len) &&
+        if(!strncmp((const char *)s, (const char *)needle, needle_len) &&
            (((s - haystack) + needle_len) == haystack_len ||
             s[needle_len] == ','))
             return s;
@@ -3627,7 +3236,7 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session,
 
         while(s && *s) {
             unsigned char *p = (unsigned char *)strchr((char *)s, ',');
-            size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
+            size_t method_len = p ? (size_t)(p - s) : strlen((const char *)s);
             if(ssh2_kex_agree_instr(hostkey, hostkey_len, s, method_len)) {
                 const struct hostkey_method *method =
                     (const struct hostkey_method *)kex_get_method_by_name(
@@ -3704,7 +3313,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
 
         while(s && *s) {
             unsigned char *q, *p = (unsigned char *)strchr((char *)s, ',');
-            size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
+            size_t method_len = p ? (size_t)(p - s) : strlen((const char *)s);
             q = ssh2_kex_agree_instr(kex, kex_len, s, method_len);
             if(q) {
                 const struct kex_method *method =
@@ -3779,13 +3388,13 @@ static int kex_agree_crypt(LIBSSH2_SESSION *session,
 
         while(s && *s) {
             unsigned char *p = (unsigned char *)strchr((char *)s, ',');
-            size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
+            size_t method_len = p ? (size_t)(p - s) : strlen((const char *)s);
 
             if(ssh2_kex_agree_instr(crypt, crypt_len, s, method_len)) {
                 const struct crypt_method *method =
                     (const struct crypt_method *)kex_get_method_by_name(
-                         (char *)s, method_len,
-                         (const struct common_method **)cryptp);
+                        (char *)s, method_len,
+                        (const struct common_method **)cryptp);
 
                 if(!method)
                     return -1;  /* Invalid method -- Should never be reached */
@@ -3838,7 +3447,7 @@ static int kex_agree_mac(LIBSSH2_SESSION *session,
 
         while(s && *s) {
             unsigned char *p = (unsigned char *)strchr((char *)s, ',');
-            size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
+            size_t method_len = p ? (size_t)(p - s) : strlen((const char *)s);
 
             if(ssh2_kex_agree_instr(mac, mac_len, s, method_len)) {
                 const struct mac_method *method =
@@ -3888,7 +3497,7 @@ static int kex_agree_comp(LIBSSH2_SESSION *session,
 
         while(s && *s) {
             unsigned char *p = (unsigned char *)strchr((char *)s, ',');
-            size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
+            size_t method_len = p ? (size_t)(p - s) : strlen((const char *)s);
 
             if(ssh2_kex_agree_instr(comp, comp_len, s, method_len)) {
                 const struct comp_method *method =
@@ -4071,7 +3680,7 @@ int ssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
         }
 
         if(key_state->state == ssh2_NB_state_sent) {
-            retcode = kexinit(session);
+            retcode = kex_init(session);
             if(retcode == LIBSSH2_ERROR_EAGAIN) {
                 session->state &= ~SSH2_STATE_KEX_ACTIVE;
                 return retcode;
@@ -4142,14 +3751,10 @@ int ssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
     }
 
     /* Done with kexinit buffers */
-    if(session->local.kexinit) {
-        SSH2_FREE(session, session->local.kexinit);
-        session->local.kexinit = NULL;
-    }
-    if(session->remote.kexinit) {
-        SSH2_FREE(session, session->remote.kexinit);
-        session->remote.kexinit = NULL;
-    }
+    if(session->local.kexinit)
+        SSH2_SAFEFREE(session, session->local.kexinit);
+    if(session->remote.kexinit)
+        SSH2_SAFEFREE(session, session->remote.kexinit);
 
     session->state &= ~SSH2_STATE_INITIAL_KEX;
     session->state &= ~SSH2_STATE_KEX_ACTIVE;
@@ -4243,7 +3848,7 @@ int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
 
     while(s && *s && mlist) {
         char *p = strchr(s, ',');
-        size_t method_len = (p ? (size_t)(p - s) : strlen(s));
+        size_t method_len = p ? (size_t)(p - s) : strlen(s);
 
         if(!kex_get_method_by_name(s, method_len, mlist)) {
             /* Strip out unsupported method */
@@ -4352,18 +3957,16 @@ int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
     if(!mlist)
         return ssh2_err(session, LIBSSH2_ERROR_INVAL, "No algorithm found");
 
-    /*
-      mlist is looped through twice. The first time to find the number od
-      supported algorithms (needed to allocate the proper size of array) and
-      the second time to actually copy the pointers.  Typically this function
-      it not called often (typically at the beginning of a session) and
-      the number of algorithms (i.e. number of iterations in one loop) are
-      not expected to become high (typically it does not exceed 20) for quite
-      a long time.
+    /* mlist is looped through twice. The first time to find the number of
+       supported algorithms (needed to allocate the proper size of array) and
+       the second time to actually copy the pointers.  Typically this function
+       it not called often (typically at the beginning of a session) and
+       the number of algorithms (i.e. number of iterations in one loop) are
+       not expected to become high (typically it does not exceed 20) for quite
+       a long time.
 
-      Thus double looping really should not be an issue and it is definitely
-      a better solution than reallocation several times.
-    */
+       Thus double looping really should not be an issue and it is definitely
+       a better solution than reallocation several times. */
 
     /* count the number of supported algorithms */
     for(i = 0, ialg = 0; mlist[i]; i++) {
@@ -4397,10 +4000,8 @@ int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
 
     /* correct number of pointers copied? (test the code above) */
     if(j != ialg) {
-        /* deallocate buffer */
-        SSH2_FREE(session, (void *)*algs);
+        SSH2_FREE(session, SSH2_UNCONST(*algs));  /* deallocate buffer */
         *algs = NULL;
-
         return ssh2_err(session, LIBSSH2_ERROR_BAD_USE, "Internal error");
     }
 

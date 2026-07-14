@@ -3,38 +3,31 @@
  * Copyright (C) Simon Josefsson <simon@josefsson.org>
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms,
- * with or without modification, are permitted provided
- * that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *   Redistributions of source code must retain the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
  *
- *   Redistributions in binary form must reproduce the above
- *   copyright notice, this list of conditions and the following
- *   disclaimer in the documentation and/or other materials
- *   provided with the distribution.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
  *
- *   Neither the name of the copyright holder nor the names
- *   of any other contributors may be used to endorse or
- *   promote products derived from this software without
- *   specific prior written permission.
+ * 3. Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
- * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
- * OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -94,7 +87,7 @@ static LIBSSH2_REALLOC_FUNC(ssh2_default_realloc)
  * Returns: 0 on success, LIBSSH2_ERROR_EAGAIN if read would block, negative
  * on failure
  */
-static int banner_receive(LIBSSH2_SESSION *session)
+static int session_banner_receive(LIBSSH2_SESSION *session)
 {
     ssize_t ret;
     size_t banner_len;
@@ -193,7 +186,7 @@ static int banner_receive(LIBSSH2_SESSION *session)
  * be sent, and this function should then be called with the same argument set
  * (same data pointer and same data_len) until zero or failure is returned.
  */
-static int banner_send(LIBSSH2_SESSION *session)
+static int session_banner_send(LIBSSH2_SESSION *session)
 {
     const char *banner = LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF;
     size_t banner_len = sizeof(LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF) - 1;
@@ -202,7 +195,7 @@ static int banner_send(LIBSSH2_SESSION *session)
     if(session->banner_TxRx_state == ssh2_NB_state_idle) {
         if(session->local.banner) {
             /* setopt_string has given us our \r\n characters */
-            banner_len = strlen((char *)session->local.banner);
+            banner_len = strlen((const char *)session->local.banner);
             banner = (char *)session->local.banner;
         }
 #ifdef LIBSSH2DEBUG
@@ -300,7 +293,7 @@ static int session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
 /*
  * gets the given blocking or non-blocking state of the socket.
  */
-static int get_socket_nonblocking(libssh2_socket_t sockfd)
+static int session_get_socket_nonblocking(libssh2_socket_t sockfd)
 {                                 /* operate on this */
 #ifdef HAVE_O_NONBLOCK  /* most recent unix versions */
     int flags = fcntl(sockfd, F_GETFL, 0);
@@ -344,10 +337,8 @@ int libssh2_session_banner_set(LIBSSH2_SESSION *session, const char *banner)
 {
     size_t banner_len = banner ? strlen(banner) : 0;
 
-    if(session->local.banner) {
-        SSH2_FREE(session, session->local.banner);
-        session->local.banner = NULL;
-    }
+    if(session->local.banner)
+        SSH2_SAFEFREE(session, session->local.banner);
 
     if(!banner_len)
         return 0;
@@ -493,7 +484,8 @@ libssh2_cb_generic *libssh2_session_callback_set2(LIBSSH2_SESSION *session,
         session->agentSignCallback = (LIBSSH2_AUTHAGENT_SIGN_FUNC(*))callback;
         return oldcb;
     }
-    ssh2_deb((session, LIBSSH2_TRACE_TRANS, "Setting Callback %d", cbtype));
+    ssh2_deb((session, LIBSSH2_TRACE_TRANS, "Unrecognized callback type %d",
+              cbtype));
 
     return NULL;
 }
@@ -668,11 +660,8 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 {
     int rc;
 
-    if(!session) {
-        ssh2_deb((session, LIBSSH2_TRACE_TRANS,
-                  "session_startup: session is NULL"));
-        return LIBSSH2_ERROR_PROTO;
-    }
+    if(!session)
+        return LIBSSH2_ERROR_BAD_USE;
 
     if(session->startup_state == ssh2_NB_state_idle) {
         ssh2_deb((session, LIBSSH2_TRACE_TRANS,
@@ -684,7 +673,7 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
         session->socket_fd = sock;
 
         session->socket_prev_blockstate =
-            !get_socket_nonblocking(session->socket_fd);
+            !session_get_socket_nonblocking(session->socket_fd);
 
         if(session->socket_prev_blockstate) {
             /* If in blocking state change to non-blocking */
@@ -699,7 +688,7 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
     }
 
     if(session->startup_state == ssh2_NB_state_created) {
-        rc = banner_send(session);
+        rc = session_banner_send(session);
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return rc;
         else if(rc)
@@ -711,7 +700,7 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 
     if(session->startup_state == ssh2_NB_state_sent) {
         do {
-            rc = banner_receive(session);
+            rc = session_banner_receive(session);
             if(rc == LIBSSH2_ERROR_EAGAIN)
                 return rc;
             else if(rc)
@@ -775,16 +764,14 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
         buf.dataptr++;
 
         if(ssh2_match_string(&buf, "ssh-userauth")) {
-            SSH2_FREE(session, session->startup_data);
-            session->startup_data = NULL;
+            SSH2_SAFEFREE(session, session->startup_data);
             return ssh2_err(session, LIBSSH2_ERROR_PROTO,
                             "Invalid response received from server");
         }
 
         session->startup_service_length = (sizeof("ssh-userauth") - 1);
 
-        SSH2_FREE(session, session->startup_data);
-        session->startup_data = NULL;
+        SSH2_SAFEFREE(session, session->startup_data);
 
         session->startup_state = ssh2_NB_state_idle;
 
@@ -997,10 +984,8 @@ static int session_free(LIBSSH2_SESSION *session)
         SSH2_FREE(session, session->sftpInit_sftp);
 
     /* Free payload buffer */
-    if(session->packet.payload) {
-        SSH2_FREE(session, session->packet.payload);
-        session->packet.payload = NULL;
-    }
+    if(session->packet.payload)
+        SSH2_SAFEFREE(session, session->packet.payload);
 
     /* Cleanup all remaining packets */
     /* !checksrc! disable EQUALSNULL 1 */
@@ -1032,7 +1017,7 @@ static int session_free(LIBSSH2_SESSION *session)
 
     /* error string */
     if(session->err_msg && ((session->err_flags & SSH2_ERR_FLAG_DUP) != 0))
-        SSH2_FREE(session, (char *)SSH2_UNCONST(session->err_msg));
+        SSH2_FREE(session, SSH2_UNCONST(session->err_msg));
 
     SSH2_FREE(session, session);
 
@@ -1396,7 +1381,7 @@ int libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended)
  * Returns 0 if writing to channel would block,
  * non-0 if data can be written without blocking
  */
-static SSH2_INLINE int poll_channel_write(LIBSSH2_CHANNEL *channel)
+static SSH2_INLINE int session_poll_channel_write(LIBSSH2_CHANNEL *channel)
 {
     return channel->local.window_size ? 1 : 0;
 }
@@ -1405,7 +1390,7 @@ static SSH2_INLINE int poll_channel_write(LIBSSH2_CHANNEL *channel)
  * Returns 0 if no connections are waiting to be accepted
  * non-0 if one or more connections are available
  */
-static SSH2_INLINE int poll_listener_queued(LIBSSH2_LISTENER *listener)
+static SSH2_INLINE int session_poll_listener_queued(LIBSSH2_LISTENER *listener)
 {
     return ssh2_list_first(&listener->queue) ? 1 : 0;
 }
@@ -1577,7 +1562,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                        ((fds[i].revents & LIBSSH2_POLLFD_POLLOUT) == 0)) {
                         /* Not yet known to be ready for write */
                         fds[i].revents |=
-                            poll_channel_write(fds[i].fd.channel) ?
+                            session_poll_channel_write(fds[i].fd.channel) ?
                             LIBSSH2_POLLFD_POLLOUT : 0;
                     }
                     if(fds[i].fd.channel->remote.close ||
@@ -1598,7 +1583,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                        ((fds[i].revents & LIBSSH2_POLLFD_POLLIN) == 0)) {
                         /* No connections known of yet */
                         fds[i].revents |=
-                            poll_listener_queued(fds[i].fd.listener) ?
+                            session_poll_listener_queued(fds[i].fd.listener) ?
                             LIBSSH2_POLLFD_POLLIN : 0;
                     }
                     if(fds[i].fd.listener->session->socket_state ==
@@ -1753,8 +1738,7 @@ int libssh2_session_block_directions(LIBSSH2_SESSION *session)
  */
 const char *libssh2_session_banner_get(LIBSSH2_SESSION *session)
 {
-    /* to avoid a coredump when session is NULL */
-    if(!session)
+    if(!session)  /* to avoid a coredump when session is NULL */
         return NULL;
 
     if(!session->remote.banner)

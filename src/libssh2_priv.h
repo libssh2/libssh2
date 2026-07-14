@@ -5,38 +5,31 @@
  * Copyright (C) Simon Josefsson
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms,
- * with or without modification, are permitted provided
- * that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *   Redistributions of source code must retain the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
  *
- *   Redistributions in binary form must reproduce the above
- *   copyright notice, this list of conditions and the following
- *   disclaimer in the documentation and/or other materials
- *   provided with the distribution.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
  *
- *   Neither the name of the copyright holder nor the names
- *   of any other contributors may be used to endorse or
- *   promote products derived from this software without
- *   specific prior written permission.
+ * 3. Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
- * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
- * OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -196,12 +189,10 @@ int ssh2_gettimeofday(struct timeval *tp, void *tzp);
 
 /* 3DS does not seem to have iovec */
 #if defined(_WIN32) || defined(_3DS)
-
 struct iovec {
     size_t iov_len;
     void *iov_base;
 };
-
 #endif
 
 #ifdef __OS400__
@@ -247,6 +238,11 @@ struct iovec {
              (session)->alloc(count, &(session)->abstract))
 #define SSH2_FREE(session, ptr) \
     session->free(ptr, &(session)->abstract)
+#define SSH2_SAFEFREE(session, ptr) \
+    do {                            \
+        SSH2_FREE(session, ptr);    \
+        (ptr) = NULL;               \
+    } while(0)
 #define SSH2_IGNORE(session, data, datalen) \
     session->ssh_msg_ignore(session, data, (int)(datalen), \
                             &(session)->abstract)
@@ -392,7 +388,9 @@ struct key_exchange_state_low {
     unsigned char *curve25519_private_key; /* curve25519 private key, 32
                                               bytes */
     unsigned char *mlkem_public_key; /* ML-KEM public key */
+    size_t mlkem_public_key_len;
     unsigned char *mlkem_private_key; /* ML-KEM private key */
+    size_t mlkem_private_key_len;
 };
 
 struct key_exchange_state {
@@ -822,7 +820,8 @@ struct _LIBSSH2_SESSION {
     void *tracehandler_context; /* context for the trace handler */
 #endif
 
-    /* State variables used in banner_receive()/banner_send() */
+    /* State variables used in session_banner_receive(),
+       session_banner_send() */
     ssh2_NB_states banner_TxRx_state;
     char banner_TxRx_banner[8192];
     ssize_t banner_TxRx_total_send;
@@ -939,7 +938,7 @@ struct _LIBSSH2_SESSION {
     unsigned char *pkeyInit_data;
     size_t pkeyInit_data_len;
     /* 19 = packet_len(4) + version_len(4) + "version"(7) + version_num(4) */
-    unsigned char pkeyInit_buffer[19];
+    unsigned char pkeyInit_buffer[4 + 4 + (sizeof("version") - 1) + 4];
     size_t pkeyInit_buffer_sent; /* how much of buffer that has been sent */
 
     /* State variables used in ssh2_packet_add() */
@@ -950,7 +949,7 @@ struct _LIBSSH2_SESSION {
     struct packet_x11_open_state packAdd_x11open_state;
     struct packet_authagent_state packAdd_authagent_state;
 
-    /* State variables used in fullpacket() */
+    /* State variables used in transport_fullpacket() */
     ssh2_NB_states fullpacket_state;
     int fullpacket_macstate;
     size_t fullpacket_payload_len;
@@ -1285,9 +1284,6 @@ int ssh2_pem_decode_integer(unsigned char **data, size_t *datalen,
 
 /* global.c */
 void ssh2_init_if_needed(void);
-
-/* Utility function for certificate auth */
-size_t plain_method(char *method, size_t method_len);
 
 #define SSH2_ARRAYSIZE(a) (sizeof(a) / sizeof((a)[0]))
 

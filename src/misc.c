@@ -3,38 +3,31 @@
  * Copyright (C) Simon Josefsson
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms,
- * with or without modification, are permitted provided
- * that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *   Redistributions of source code must retain the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
  *
- *   Redistributions in binary form must reproduce the above
- *   copyright notice, this list of conditions and the following
- *   disclaimer in the documentation and/or other materials
- *   provided with the distribution.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
  *
- *   Neither the name of the copyright holder nor the names
- *   of any other contributors may be used to endorse or
- *   promote products derived from this software without
- *   specific prior written permission.
+ * 3. Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
- * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
- * OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -92,12 +85,12 @@ int ssh2_err_flags(LIBSSH2_SESSION *session, int errcode,
     if(!session) {
         ssh2_deb((session, LIBSSH2_TRACE_ERROR,
                  "ssh2_err_flags: session is NULL, error: %s",
-                 errmsg ? errmsg : "<null>"));
+                 errmsg ? errmsg : "(null)"));
         return errcode;
     }
 
     if(session->err_flags & SSH2_ERR_FLAG_DUP)
-        SSH2_FREE(session, (char *)SSH2_UNCONST(session->err_msg));
+        SSH2_FREE(session, SSH2_UNCONST(session->err_msg));
 
     session->err_code = errcode;
     session->err_flags = 0;
@@ -331,9 +324,21 @@ int ssh2_store_bignum_bytes(unsigned char **buf,
     return len_stored == len;
 }
 
+int ssh2_hash(ssh2_hash_alg alg, const void *input, size_t input_len,
+              void *digest, size_t digest_len)
+{
+    ssh2_hash_ctx ctx;
+    int success = ssh2_hash_init(&ctx, alg);
+    if(success) {
+        success &= ssh2_hash_update(&ctx, input, input_len);
+        success &= ssh2_hash_final(&ctx, digest, digest_len);
+    }
+    return success;
+}
+
 /* Base64 Conversion */
 
-static const short base64_reverse_table[256] = {
+static const short ssh2_base64_reverse_table[256] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, -1, -1, -1, 63,
@@ -392,7 +397,7 @@ int ssh2_base64_decode(LIBSSH2_SESSION *session,
                         "Unable to allocate memory for base64 decoding");
 
     for(s = src; s < (src + src_len); s++) {
-        v = base64_reverse_table[(unsigned char)*s];
+        v = ssh2_base64_reverse_table[(unsigned char)*s];
         if(v < 0)
             continue;
         switch(i % 4) {
@@ -416,8 +421,7 @@ int ssh2_base64_decode(LIBSSH2_SESSION *session,
     if((i % 4) == 1) {
         /* Invalid -- We have a byte which belongs exclusively to a partial
            octet */
-        SSH2_FREE(session, *data);
-        *data = NULL;
+        SSH2_SAFEFREE(session, *data);
         return ssh2_err(session, LIBSSH2_ERROR_INVAL, "Invalid base64");
     }
 
@@ -515,16 +519,20 @@ void libssh2_free(LIBSSH2_SESSION *session, void *ptr)
 
 int libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
 {
+    if(!session)
+        return LIBSSH2_ERROR_BAD_USE;
     session->showmask = bitmask;
-    return 0;
+    return LIBSSH2_ERROR_NONE;
 }
 
 int libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *context,
                              libssh2_trace_handler_func callback)
 {
+    if(!session)
+        return LIBSSH2_ERROR_BAD_USE;
     session->tracehandler = callback;
     session->tracehandler_context = context;
-    return 0;
+    return LIBSSH2_ERROR_NONE;
 }
 
 void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
@@ -550,7 +558,7 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
     const char *contexttext = contexts[0];
     unsigned int contextindex;
 
-    if(!(session->showmask & context))
+    if(session && !(session->showmask & context))
         return;  /* no such output asked for */
 
     /* Find the first matching context string for this message */
@@ -589,7 +597,7 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
         msglen += len < buflen ? len : buflen - 1;
     }
 
-    if(session->tracehandler)
+    if(session && session->tracehandler)
         (session->tracehandler)(session, session->tracehandler_context, buffer,
                                 msglen);
     else
@@ -602,7 +610,7 @@ int libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
 {
     (void)session;
     (void)bitmask;
-    return 0;
+    return LIBSSH2_ERROR_NONE;
 }
 
 int libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *context,
@@ -611,7 +619,7 @@ int libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *context,
     (void)session;
     (void)context;
     (void)callback;
-    return 0;
+    return LIBSSH2_ERROR_NONE;
 }
 #endif
 
@@ -850,7 +858,7 @@ int ssh2_match_string(struct string_buf *buf, const char *match)
     unsigned char *out;
     size_t len = 0;
     if(ssh2_get_string(buf, &out, &len) || len != strlen(match) ||
-       strncmp((char *)out, match, strlen(match)))
+       strncmp((const char *)out, match, strlen(match)))
         return -1;
     return 0;
 }
@@ -953,3 +961,38 @@ int ssh2_timingsafe_bcmp(const void *b1, const void *b2, size_t n)
         ret |= *p1++ ^ *p2++;
     return ret != 0;
 }
+
+#ifndef LIBSSH2_KEY_SK
+int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
+                              unsigned char **method,
+                              size_t *method_len,
+                              unsigned char **pubkeydata,
+                              size_t *pubkeydata_len,
+                              int *algorithm,
+                              unsigned char *flags,
+                              const char **application,
+                              const unsigned char **key_handle,
+                              size_t *handle_len,
+                              const char *privatekeydata,
+                              size_t privatekeydata_len,
+                              const unsigned char *passphrase)
+{
+    (void)method;
+    (void)method_len;
+    (void)pubkeydata;
+    (void)pubkeydata_len;
+    (void)algorithm;
+    (void)flags;
+    (void)application;
+    (void)key_handle;
+    (void)handle_len;
+    (void)privatekeydata;
+    (void)privatekeydata_len;
+    (void)passphrase;
+
+    return ssh2_err(session, LIBSSH2_ERROR_FILE,
+                    "Unable to extract public SK key from private key file: "
+                    "Method unimplemented in "
+                    SSH2_CRYPTO_ENGINE_NAME " backend");
+}
+#endif

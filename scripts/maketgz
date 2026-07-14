@@ -58,7 +58,7 @@ sed -i.bak \
   -e "s/^#define LIBSSH2_VERSION_PATCH .*/#define LIBSSH2_VERSION_PATCH $patch/g" \
   -e "s/^#define LIBSSH2_TIMESTAMP .*/#define LIBSSH2_TIMESTAMP \"$datestamp\"/g" \
   "$HEADER"
-rm -f "$HEADER.bak"
+rm -f -- "$HEADER.bak"
 
 if test -n "$only"; then
   # done!
@@ -120,7 +120,7 @@ fi
 
 retar() {
   tempdir=$1
-  rm -rf "$tempdir"
+  rm -rf "${tempdir:?}"
   mkdir "$tempdir"
   cd "$tempdir"
   gzip -dc "../$targz" | tar -xf -
@@ -128,7 +128,7 @@ retar() {
   tar --create --format=ustar --owner=0 --group=0 --numeric-owner --sort=name libssh2-* | gzip --best --no-name > out.tar.gz
   mv out.tar.gz ../
   cd ..
-  rm -rf "$tempdir"
+  rm -rf "${tempdir:?}"
 }
 
 retar ".tarbuild"
@@ -158,14 +158,14 @@ gzip -dc "$targz" | xz -6e - > "$xz"
 # Now make a zip archive from the tar.gz original
 #
 makezip() {
-  rm -rf "$tempdir"
+  rm -rf "${tempdir:?}"
   mkdir "$tempdir"
   cd "$tempdir"
   gzip -dc "../$targz" | tar -xf -
   find . | sort | zip -9 -X "$zip" -@ >/dev/null
   mv "$zip" ../
   cd ..
-  rm -rf "$tempdir"
+  rm -rf "${tempdir:?}"
 }
 
 zip="libssh2-$version.zip"
