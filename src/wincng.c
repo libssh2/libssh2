@@ -2742,6 +2742,10 @@ int ssh2_ecdsa_sign(IN ssh2_ecdsa_ctx *ec_ctx,
         cng_signature_len / 2 + 5;  /* mpint(s) */
 
     *signature = SSH2_ALLOC(session, signature_maxlen);
+    if(!*signature) {
+        result = LIBSSH2_ERROR_ALLOC;
+        goto cleanup;
+    }
     signature_ptr = *signature;
 
     if(ssh2_store_bignum_bytes(&signature_ptr,
