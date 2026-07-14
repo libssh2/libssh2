@@ -45,7 +45,7 @@
 #include <windows.h>
 #endif
 #ifdef SSH2_AGENT_BACKEND_WIN32_OPENSSH
-#include <tchar.h>
+#include <tchar.h>  /* for _tgetenv_s() */
 #endif
 
 #define AGENT_MAX_MSGLEN  8192
