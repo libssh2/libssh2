@@ -575,7 +575,7 @@ static int userauth_read_blob_pubkey(
     memcpy(pubkey, pubkeyfiledata, pubkeyfiledata_len);
 
     /*
-     *   Remove trailing whitespace
+     * Remove trailing whitespace
      */
     while(pubkey_len && isspace(pubkey[pubkey_len - 1]))
         pubkey_len--;
