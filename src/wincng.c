@@ -1403,7 +1403,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
 }
 #endif
 
-static int wcng_rsa_sha_sign(LIBSSH2_SESSION *session, ssh2_rsa_ctx *rsa,
+static int wcng_rsa_sha_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                              const unsigned char *hash, size_t hash_len,
                              unsigned char **signature, size_t *signature_len)
 {
@@ -1462,18 +1462,16 @@ int ssh2_rsa_sha1_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
-    return wcng_rsa_sha_sign(session, rsa,
-                             hash, hash_len,
-                             signature, signature_len);
+    return wcng_rsa_sha_sign(rsa, session,
+                             hash, hash_len, signature, signature_len);
 }
 
 int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
 {
-    return wcng_rsa_sha_sign(session, rsa,
-                             hash, hash_len,
-                             signature, signature_len);
+    return wcng_rsa_sha_sign(rsa, session,
+                             hash, hash_len, signature, signature_len);
 }
 
 void ssh2_rsa_free(ssh2_rsa_ctx *rsa)
