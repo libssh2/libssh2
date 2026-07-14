@@ -2919,7 +2919,7 @@ static int ossl_ecdsa_sk_openssh_priv_to_pubkey(
 {
     int rc = 0;
     size_t curvelen, pointlen, key_len, app_len;
-    unsigned char *curve, *point_buf, *p, *key, *app;
+    unsigned char *curve, *point_buf, *p, *key = NULL, *app;
     ssh2_ecdsa_ctx *ec_key = NULL;
 
     ssh2_deb((session, LIBSSH2_TRACE_AUTH, "Extracting ECDSA-SK public key"));
@@ -3023,6 +3023,9 @@ static int ossl_ecdsa_sk_openssh_priv_to_pubkey(
 fail:
     if(ec_key)
         ssh2_ecdsa_free(ec_key);
+
+    if(key)
+        SSH2_FREE(session, key);
 
     if(application && *application) {
         SSH2_FREE(session, SSH2_UNCONST(*application));
