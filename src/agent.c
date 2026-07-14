@@ -41,7 +41,7 @@
    supported. Windows also supports it via winsock*.h, but not used
    here at this time. */
 #include <sys/un.h>
-#define HAVE_PF_UNIX
+#define HAVE_AF_UNIX
 #endif
 
 #if defined(_WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
@@ -432,7 +432,7 @@ static struct agent_ops agent_ops_openssh = {
 
 #endif /* HAVE_WIN32_AGENTS */
 
-#ifdef HAVE_PF_UNIX
+#ifdef HAVE_AF_UNIX
 static int agent_connect_unix(LIBSSH2_AGENT *agent)
 {
     const char *path;
@@ -447,7 +447,7 @@ static int agent_connect_unix(LIBSSH2_AGENT *agent)
                             "no auth sock variable");
     }
 
-    agent->fd = socket(PF_UNIX, SOCK_STREAM, 0);
+    agent->fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if(agent->fd < 0)
         return ssh2_err(agent->session, LIBSSH2_ERROR_BAD_SOCKET,
                         "failed creating socket");
@@ -595,7 +595,7 @@ static struct agent_ops agent_ops_unix = {
     agent_transact_unix,
     agent_disconnect_unix
 };
-#endif /* HAVE_PF_UNIX */
+#endif /* HAVE_AF_UNIX */
 
 #ifdef HAVE_WIN32_AGENTS
 /* Code to talk to Pageant was taken from PuTTY.
@@ -712,7 +712,7 @@ static struct {
     { "Pageant", &agent_ops_pageant },
     { "OpenSSH", &agent_ops_openssh },
 #endif
-#ifdef HAVE_PF_UNIX
+#ifdef HAVE_AF_UNIX
     { "Unix", &agent_ops_unix },
 #endif
     { NULL, NULL }
