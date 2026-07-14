@@ -2380,41 +2380,8 @@ int libssh2_userauth_publickey_sk(
             pubkeydata = tmp_publickeydata;
         }
         else {
-            const char *ecdsa = "sk-ecdsa-sha2-nistp256-cert-v01@openssh.com";
-            const char *ed25519 = "sk-ssh-ed25519-cert-v01@openssh.com";
-
             if(tmp_method)
                 SSH2_FREE(session, tmp_method);
-
-            if(!strncmp((const char *)publickeydata, ecdsa, strlen(ecdsa))) {
-                if(session->userauth_pblc_method)
-                    SSH2_FREE(session, session->userauth_pblc_method);
-                session->userauth_pblc_method_len = strlen(ecdsa);
-                session->userauth_pblc_method =
-                    SSH2_ALLOC(session, session->userauth_pblc_method_len);
-                if(!session->userauth_pblc_method)
-                    return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                                    "Unable to allocate memory "
-                                    "for public key method ECDSA");
-
-                memcpy(session->userauth_pblc_method, ecdsa,
-                       session->userauth_pblc_method_len);
-            }
-            else if(!strncmp((const char *)publickeydata, ed25519,
-                             strlen(ed25519))) {
-                if(session->userauth_pblc_method)
-                    SSH2_FREE(session, session->userauth_pblc_method);
-                session->userauth_pblc_method_len = strlen(ed25519);
-                session->userauth_pblc_method =
-                    SSH2_ALLOC(session, session->userauth_pblc_method_len);
-                if(!session->userauth_pblc_method)
-                    return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                                    "Unable to allocate memory "
-                                    "for public key method ED25519");
-
-                memcpy(session->userauth_pblc_method, ed25519,
-                       session->userauth_pblc_method_len);
-            }
 
             rc = userauth_read_blob_pubkey(session,
                                            &session->userauth_pblc_method,
