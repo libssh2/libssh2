@@ -158,7 +158,7 @@ struct _LIBSSH2_AGENT {
 static int agent_connect_pageant(LIBSSH2_AGENT *agent)
 {
     HWND hwnd;
-    hwnd = FindWindow(TEXT("Pageant"), TEXT("Pageant"));
+    hwnd = FindWindowA("Pageant", "Pageant");
     if(!hwnd)
         return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                         "failed connecting agent");
@@ -180,7 +180,7 @@ static int agent_transact_pageant(LIBSSH2_AGENT *agent,
     if(!transctx || transctx->request_len > AGENT_MAX_MSGLEN - 4)
         return ssh2_err(agent->session, LIBSSH2_ERROR_INVAL, "illegal input");
 
-    hwnd = FindWindow(TEXT("Pageant"), TEXT("Pageant"));
+    hwnd = FindWindowA("Pageant", "Pageant");
     if(!hwnd)
         return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                         "found no pageant");
