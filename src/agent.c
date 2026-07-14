@@ -44,6 +44,9 @@
     defined(SSH2_AGENT_BACKEND_WIN32_OPENSSH)
 #include <windows.h>
 #endif
+#ifdef SSH2_AGENT_BACKEND_WIN32_OPENSSH
+#include <tchar.h>
+#endif
 
 #define AGENT_MAX_MSGLEN  8192
 
@@ -314,14 +317,14 @@ static struct agent_ops agent_ops_pageant = {
 static int agent_connect_openssh(LIBSSH2_AGENT *agent)
 {
     int ret = LIBSSH2_ERROR_NONE;
-    LPCTSTR path = NULL;
+    LPTSTR path = NULL;
     BOOL path_to_free = FALSE;
     HANDLE pipe = INVALID_HANDLE_VALUE;
     HANDLE event = NULL;
 
     if(agent->identity_agent_path) {
 #ifdef UNICODE
-        int len = MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS,
+        int len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
                                       agent->identity_agent_path, -1, NULL, 0);
         if(len > 0) {
             ret = LIBSSH2_ERROR_INVAL;
@@ -333,9 +336,8 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
             goto cleanup;
         }
         path_to_free = TRUE;
-        if(MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS,
-                               agent->identity_agent_path, -1,
-                               SSH2_UNCONST(path), len)) {
+        if(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+                               agent->identity_agent_path, -1, path, len)) {
             ret = LIBSSH2_ERROR_INVAL;
             goto cleanup;
         }
@@ -344,13 +346,19 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
 #endif
     }
     else {
-#ifdef UNICODE
-        path = _wgetenv(WIN32_OPENSSH_AUTH_SOCK);
-#else
-        path = getenv(WIN32_OPENSSH_AUTH_SOCK);
-#endif
+        size_t len;
+        if(_tgetenv_s(&len, path, 0, WIN32_OPENSSH_AUTH_SOCK) == ERANGE &&
+           len > 0 && len < 32768) {
+            path = SSH2_ALLOC(agent->session, len * sizeof(TCHAR));
+            if(path) {
+                if(_tgetenv_s(&len, path, len, WIN32_OPENSSH_AUTH_SOCK))
+                    SSH2_SAFEFREE(agent->session, path);
+                else
+                    path_to_free = TRUE;
+            }
+        }
         if(!path)
-            path = WIN32_OPENSSH_AGENT_SOCK;
+            path = SSH2_UNCONST(WIN32_OPENSSH_AGENT_SOCK);
     }
 
     for(;;) {
@@ -409,7 +417,7 @@ cleanup:
     if(pipe != INVALID_HANDLE_VALUE)
         CloseHandle(pipe);
     if(path_to_free && path)
-        SSH2_FREE(agent->session, SSH2_UNCONST(path));
+        SSH2_FREE(agent->session, path);
     return ret;
 }
 
