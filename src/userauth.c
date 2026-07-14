@@ -2380,21 +2380,8 @@ int libssh2_userauth_publickey_sk(
             pubkeydata = tmp_publickeydata;
         }
         else {
-            const char *ecdsa = "sk-ecdsa-sha2-nistp256-cert-v01@openssh.com";
-            const char *ed25519 = "sk-ssh-ed25519-cert-v01@openssh.com";
-
             if(tmp_method)
                 SSH2_FREE(session, tmp_method);
-
-            if(!strncmp((const char *)publickeydata, ecdsa, strlen(ecdsa))) {
-                /* Method will be parsed and allocated by
-                   userauth_read_blob_pubkey(). */
-            }
-            else if(!strncmp((const char *)publickeydata, ed25519,
-                             strlen(ed25519))) {
-                /* Method will be parsed and allocated by
-                   userauth_read_blob_pubkey(). */
-            }
 
             rc = userauth_read_blob_pubkey(session,
                                            &session->userauth_pblc_method,
