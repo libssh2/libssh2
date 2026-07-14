@@ -2473,7 +2473,7 @@ cleanup:
     return result;
 }
 
-static int wcng_parse_ecdsa_privatekey(OUT struct wcng_ecdsa_ctx **key,
+static int wcng_parse_ecdsa_privatekey(OUT struct wcng_ecdsa_ctx **ec_ctx,
                                        IN unsigned char *privatekey,
                                        IN size_t privatekey_len)
 {
@@ -2497,8 +2497,8 @@ static int wcng_parse_ecdsa_privatekey(OUT struct wcng_ecdsa_ctx **key,
 
     BCRYPT_KEY_HANDLE key_handle = NULL;
 
-    *key = malloc(sizeof(ssh2_ecdsa_ctx));
-    if(!*key) {
+    *ec_ctx = malloc(sizeof(ssh2_ecdsa_ctx));
+    if(!*ec_ctx) {
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
     }
@@ -2568,8 +2568,8 @@ static int wcng_parse_ecdsa_privatekey(OUT struct wcng_ecdsa_ctx **key,
     if(result != LIBSSH2_ERROR_NONE)
         goto cleanup;
 
-    (*key)->curve = q.curve;
-    (*key)->handle = key_handle;
+    (*ec_ctx)->curve = q.curve;
+    (*ec_ctx)->handle = key_handle;
 
     result = LIBSSH2_ERROR_NONE;
 
@@ -2578,9 +2578,9 @@ cleanup:
     if(result != LIBSSH2_ERROR_NONE) {
         if(key_handle)
             (void)BCryptDestroyKey(key_handle);
-        if(*key) {
-            free(*key);
-            *key = NULL;
+        if(*ec_ctx) {
+            free(*ec_ctx);
+            *ec_ctx = NULL;
         }
     }
 
