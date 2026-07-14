@@ -2127,8 +2127,6 @@ cleanup:
     if(result != LIBSSH2_ERROR_NONE) {
         if(key_handle)
             (void)BCryptDestroyKey(key_handle);
-        if(*out_private_key)
-            free(*out_private_key);
         if(*ec_ctx)
             free(*ec_ctx);
     }
