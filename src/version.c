@@ -180,6 +180,15 @@ static const char *ssh2_build_options =
     "agent:" SSH2_AGENT_BACKEND_UNIX
     " "
 #endif
+#ifdef _WIN32
+    "Unicode:"
+#if defined(UNICODE) && defined(_UNICODE)
+    "on"
+#else
+    "off"
+#endif
+    " "
+#endif
     "clear-memory:"
 #ifndef LIBSSH2_NO_CLEAR_MEMORY
     "on"
