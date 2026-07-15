@@ -922,7 +922,7 @@ int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
 int libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
                                const char *filename, int type)
 {
-    FILE *file;
+    FILE *fp;
     int num = 0;
     char buf[4092];
 
@@ -930,9 +930,9 @@ int libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
         return ssh2_err(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                         "Unsupported type of known-host information store");
 
-    file = fopen(filename, FOPEN_READTEXT);
-    if(file) {
-        while(fgets(buf, sizeof(buf), file)) {
+    fp = fopen(filename, FOPEN_READTEXT);
+    if(fp) {
+        while(fgets(buf, sizeof(buf), fp)) {
             if(libssh2_knownhost_readline(hosts, buf, strlen(buf), type)) {
                 num = ssh2_err(hosts->session, LIBSSH2_ERROR_KNOWN_HOSTS,
                                "Failed to parse known hosts file");
@@ -940,7 +940,7 @@ int libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
             }
             num++;
         }
-        fclose(file);
+        fclose(fp);
     }
     else
         return ssh2_err(hosts->session, LIBSSH2_ERROR_FILE,
@@ -1149,7 +1149,7 @@ int libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
                                 const char *filename, int type)
 {
     struct known_host *node;
-    FILE *file;
+    FILE *fp;
     int rc = LIBSSH2_ERROR_NONE;
     char buffer[4092];
 
@@ -1159,8 +1159,8 @@ int libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
         return ssh2_err(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                         "Unsupported type of known-host information store");
 
-    file = fopen(filename, FOPEN_WRITETEXT);
-    if(!file)
+    fp = fopen(filename, FOPEN_WRITETEXT);
+    if(!fp)
         return ssh2_err(hosts->session, LIBSSH2_ERROR_FILE,
                         "Failed to open file");
 
@@ -1174,14 +1174,14 @@ int libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
         if(rc)
             break;
 
-        nwrote = fwrite(buffer, 1, wrote, file);
+        nwrote = fwrite(buffer, 1, wrote, fp);
         if(nwrote != wrote) {
             /* failed to write the whole thing, bail out */
             rc = ssh2_err(hosts->session, LIBSSH2_ERROR_FILE, "Write failed");
             break;
         }
     }
-    fclose(file);
+    fclose(fp);
 
     return rc;
 }
