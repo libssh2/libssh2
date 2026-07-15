@@ -999,6 +999,7 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
 
 #ifdef _WIN32
 #include <share.h>  /* for _SH_DENYNO */
+#include <tchar.h>  /* for _tcsncmp() */
 
 #ifdef _UNICODE
 static wchar_t *ssh2_win32_fn_convert_UTF8_to_wchar(const char *str_utf8)
