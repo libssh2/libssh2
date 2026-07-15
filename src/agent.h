@@ -8,10 +8,8 @@
 
 #include "libssh2_priv.h"
 
-#ifdef _WIN32
-#ifndef LIBSSH2_WINDOWS_UWP
+#if defined(_WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
 #define SSH2_AGENT_BACKEND_WIN32_PAGEANT "Pageant"
-#endif
 #define SSH2_AGENT_BACKEND_WIN32_OPENSSH "OpenSSH"
 #endif
 
