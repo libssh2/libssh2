@@ -1066,7 +1066,7 @@ static int ssh2_win32_fix_excessive_path(const TCHAR *in, TCHAR **out)
     *out = NULL;
 
     /* skip paths already normalized */
-    if(!_tcsncmp(in, _T("\\\\?\\"), 4))
+    if(!_tcsncmp(in, _TEXT("\\\\?\\"), 4))
         goto cleanup;
 
 #ifndef _UNICODE
