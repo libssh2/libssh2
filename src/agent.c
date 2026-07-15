@@ -325,7 +325,7 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
 #ifdef UNICODE
         int len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
                                       agent->identity_agent_path, -1, NULL, 0);
-        if(len > 0) {
+        if(len <= 0) {
             ret = LIBSSH2_ERROR_INVAL;
             goto cleanup;
         }
@@ -335,8 +335,8 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
             goto cleanup;
         }
         path_to_free = TRUE;
-        if(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
-                               agent->identity_agent_path, -1, path, len)) {
+        if(!MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+                                agent->identity_agent_path, -1, path, len)) {
             ret = LIBSSH2_ERROR_INVAL;
             goto cleanup;
         }
@@ -345,15 +345,15 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
 #endif
     }
     else {
-        size_t len;
-        if(_tgetenv_s(&len, path, 0, TEXT(OPENSSH_AUTH_SOCK)) == ERANGE &&
+        size_t len = 0;
+        if(!_tgetenv_s(&len, path, 0, TEXT(OPENSSH_AUTH_SOCK)) &&
            len > 0 && len < 32768) {
             path = SSH2_ALLOC(agent->session, len * sizeof(TCHAR));
             if(path) {
-                if(_tgetenv_s(&len, path, len, TEXT(OPENSSH_AUTH_SOCK)))
-                    SSH2_SAFEFREE(agent->session, path);
-                else
+                if(!_tgetenv_s(&len, path, len, TEXT(OPENSSH_AUTH_SOCK)))
                     path_to_free = TRUE;
+                else
+                    SSH2_SAFEFREE(agent->session, path);
             }
         }
         if(!path)
