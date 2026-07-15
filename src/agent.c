@@ -34,16 +34,11 @@
 
 #include "libssh2_priv.h"
 
-#include <stdlib.h>  /* for getenv(), getenv_s(), _wgetenv_s() */
-
 #include "agent.h"
 #include "userauth.h"
 #include "session.h"
 
-#if defined(SSH2_AGENT_BACKEND_WIN32_PAGEANT) || \
-    defined(SSH2_AGENT_BACKEND_WIN32_OPENSSH)
-#include <windows.h>
-#endif
+#include <stdlib.h>  /* for getenv(), getenv_s(), _wgetenv_s() */
 #ifdef SSH2_AGENT_BACKEND_WIN32_OPENSSH
 #include <tchar.h>  /* for _tgetenv_s() */
 #endif
@@ -329,7 +324,7 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
             ret = LIBSSH2_ERROR_INVAL;
             goto cleanup;
         }
-        if(len >= 32768) {
+        if(len > (64 * 1024)) {
             ret = LIBSSH2_ERROR_OUT_OF_BOUNDARY;
             goto cleanup;
         }
@@ -351,7 +346,7 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
     else {
         size_t len = 0;
         if(!_tgetenv_s(&len, path, 0, TEXT(OPENSSH_AUTH_SOCK)) &&
-           len > 0 && len < 32768) {
+           len > 0 && len <= (64 * 1024)) {
             path = SSH2_ALLOC(agent->session, len * sizeof(TCHAR));
             if(path) {
                 if(!_tgetenv_s(&len, path, len, TEXT(OPENSSH_AUTH_SOCK)))
