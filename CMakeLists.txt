@@ -326,10 +326,6 @@ if(WIN32)
   endif()
   set(HAVE_POLL 0)
   set(HAVE_SELECT 1)
-
-  if(WINDOWS_STORE)
-    set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "UNICODE" "_UNICODE")
-  endif()
 endif()
 
 ## Platform checks

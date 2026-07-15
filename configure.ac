@@ -424,16 +424,6 @@ fi
 AM_CONDITIONAL([HAVE_WINDRES],
   [test "x$have_windows_h" = "xyes" && test "x${enable_shared}" = "xyes" && test -n "${RC}"])
 
-libssh2_cv_winuwp='no'
-if test "x$have_windows_h" = "xyes"; then
-  case "$CPPFLAGS" in
-    *-DWINSTORECOMPAT*) libssh2_cv_winuwp='yes';;
-  esac
-fi
-if test "$libssh2_cv_winuwp" = "yes"; then
-  CPPFLAGS="${CPPFLAGS} -DUNICODE -D_UNICODE"
-fi
-
 AM_CONDITIONAL([HAVE_LIB_STATIC], [test "x$enable_static" != "xno"])
 
 dnl Configure parameters
