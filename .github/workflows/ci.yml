@@ -892,7 +892,7 @@ jobs:
           - { build: 'AM', sys: mingw32, crypto: openssl, env: i686 }
           - { build: 'AM', sys: ucrt64 , crypto: openssl, env: ucrt-x86_64 }
           - { build: 'AM', sys: clang64, crypto: openssl, env: clang-x86_64 }
-          - { build: 'AM', sys: clang64, crypto: wincng , env: clang-x86_64 }
+          - { build: 'AM', sys: clang64, crypto: wincng , env: clang-x86_64, test: 'unicode' }
           - { build: 'CM', sys: ucrt64 , crypto: OpenSSL, env: ucrt-x86_64 }
           - { build: 'CM', sys: clang64, crypto: OpenSSL, env: clang-x86_64 }
           - { build: 'CM', sys: ucrt64 , crypto: OpenSSL, env: ucrt-x86_64, test: 'uwp' }
@@ -927,9 +927,9 @@ jobs:
         run: |
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             if [[ "${MATRIX_ENV}" = 'clang'* ]]; then
-              options='-DCMAKE_C_COMPILER=clang'
+              options=' -DCMAKE_C_COMPILER=clang'
             else
-              options='-DCMAKE_C_COMPILER=gcc'
+              options=' -DCMAKE_C_COMPILER=gcc'
             fi
             cflags=''
             if [ "${MATRIX_TEST}" = 'uwp' ]; then
@@ -946,6 +946,9 @@ jobs:
               cflags+=' -DLIBSSH2_NO_MD5 -DLIBSSH2_NO_MD5_PEM -DLIBSSH2_NO_HMAC_RIPEMD -DLIBSSH2_DSA_ENABLE'
               cflags+=' -DLIBSSH2_NO_AES_CBC -DLIBSSH2_NO_AES_CTR -DLIBSSH2_NO_BLOWFISH -DLIBSSH2_NO_RC4 -DLIBSSH2_NO_CAST -DLIBSSH2_NO_3DES'
             fi
+            if [[ "${MATRIX_TEST}" = *'unicode'* ]]; then
+              options+=' -DENABLE_UNICODE=ON'
+            fi
             cmake -B bld -G Ninja ${options} \
               -DCMAKE_C_FLAGS="${cflags}" \
               -DCMAKE_UNITY_BUILD=ON \
@@ -958,7 +961,10 @@ jobs:
               -DCMAKE_VERBOSE_MAKEFILE=ON
           else
             if [ "${MATRIX_CRYPTO}" = 'wincng' ] && [[ "${MATRIX_ENV}" = 'clang'* ]]; then
-              options='--enable-ecdsa-wincng'
+              options=' --enable-ecdsa-wincng'
+            fi
+            if [[ "${MATRIX_TEST}" = *'unicode'* ]]; then
+              options+=' --enable-windows-unicode'
             fi
             # sshd tests sometimes hang
             mkdir bld && cd bld
