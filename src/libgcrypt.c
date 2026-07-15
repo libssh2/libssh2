@@ -265,7 +265,7 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
     unsigned char *n, *e, *d, *p, *q, *e1, *e2, *coeff;
     unsigned int nlen, elen, dlen, plen, qlen, e1len, e2len, coefflen;
 
-    fp = libssh2_fopen(filename, "rb");
+    fp = ssh2_fopen(filename, "rb");
     if(!fp)
         return -1;
 
@@ -379,7 +379,7 @@ int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
     unsigned char *p, *q, *g, *y, *x;
     unsigned int plen, qlen, glen, ylen, xlen;
 
-    fp = libssh2_fopen(filename, "rb");
+    fp = ssh2_fopen(filename, "rb");
     if(!fp)
         return -1;
 
