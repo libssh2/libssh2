@@ -34,6 +34,13 @@
 
 #include <errno.h>
 
+#ifdef _WIN32
+FILE *libssh2_win32_fopen(const char *filename, const char *mode);
+#define libssh2_fopen libssh2_win32_fopen
+#else
+#define libssh2_fopen fopen
+#endif
+
 #ifdef LIBSSH2_NO_CLEAR_MEMORY
 #define ssh2_explicit_zero(buf, size) \
     do {                              \
