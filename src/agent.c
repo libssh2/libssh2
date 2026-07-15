@@ -312,7 +312,7 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
 {
     int ret = LIBSSH2_ERROR_NONE;
     LPTSTR path = NULL;
-    BOOL path_to_free = FALSE;
+    int path_to_free = 0;
     HANDLE pipe = INVALID_HANDLE_VALUE;
     HANDLE event = NULL;
 
@@ -333,7 +333,7 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
             ret = LIBSSH2_ERROR_ALLOC;
             goto cleanup;
         }
-        path_to_free = TRUE;
+        path_to_free = 1;
         if(!MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
                                 agent->identity_agent_path, -1, path, len)) {
             ret = LIBSSH2_ERROR_INVAL;
@@ -350,7 +350,7 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
             path = SSH2_ALLOC(agent->session, len * sizeof(TCHAR));
             if(path) {
                 if(!_tgetenv_s(&len, path, len, TEXT(OPENSSH_AUTH_SOCK)))
-                    path_to_free = TRUE;
+                    path_to_free = 1;
                 else
                     SSH2_SAFEFREE(agent->session, path);
             }
