@@ -61,6 +61,15 @@ void ssh2_memzero(void *buf, size_t size);
 #define ssh2_explicit_zero(buf, size) ssh2_memzero(buf, size)
 #endif
 
+#ifdef HAVE_GETTIMEOFDAY
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
+#define ssh2_gettimeofday gettimeofday
+#else
+int ssh2_gettimeofday(struct timeval *tp, void *tzp);
+#endif
+
 struct list_head {
     struct list_node *last;
     struct list_node *first;

@@ -146,15 +146,6 @@ int ssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
     SSH2_PRINTF(3, 4);
 #endif
 
-#ifdef HAVE_GETTIMEOFDAY
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
-#define ssh2_gettimeofday gettimeofday
-#else
-int ssh2_gettimeofday(struct timeval *tp, void *tzp);
-#endif
-
 #ifndef SSH2_FALLTHROUGH
 #if (defined(__GNUC__) && __GNUC__ >= 7) || \
     (defined(__clang__) && __clang_major__ >= 10)
