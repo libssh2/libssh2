@@ -38,14 +38,14 @@
 #include "userauth.h"
 #include "session.h"
 
+#if defined(SSH2_AGENT_BACKEND_WIN32_OPENSSH) || \
+    defined(SSH2_AGENT_BACKEND_UNIX)
 #include <stdlib.h>  /* for getenv(), getenv_s(), _wgetenv_s() */
 #ifdef SSH2_AGENT_BACKEND_WIN32_OPENSSH
 #include <tchar.h>  /* for _tgetenv_s() */
 #endif
-
 #define OPENSSH_AUTH_SOCK "SSH_AUTH_SOCK"
-
-#define AGENT_MAX_MSGLEN  8192
+#endif
 
 /* Requests from client to agent for protocol 2 key operations */
 #define SSH2_AGENTC_REQUEST_IDENTITIES 11
