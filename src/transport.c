@@ -48,12 +48,13 @@
 static void transport_debugdump(LIBSSH2_SESSION *session, const char *desc,
                                 const unsigned char *ptr, size_t size)
 {
+    static const char *hex_chars = "0123456789ABCDEF";
+
     size_t i;
     size_t c;
     unsigned int width = 0x10;
     char buffer[256];  /* Must be enough for width*4 + about 30 or so */
     size_t used;
-    static const char *hex_chars = "0123456789ABCDEF";
 
     if(!(session->showmask & LIBSSH2_TRACE_TRANS))
         return;  /* not asked for, bail out */
@@ -61,8 +62,8 @@ static void transport_debugdump(LIBSSH2_SESSION *session, const char *desc,
     used = ssh2_snprintf(buffer, sizeof(buffer), "=> %s (%lu bytes)\n",
                          desc, (unsigned long)size);
     if(session->tracehandler)
-        (session->tracehandler)(session, session->tracehandler_context,
-                                buffer, used);
+        session->tracehandler(session, session->tracehandler_context,
+                              buffer, used);
     else
         /* !checksrc! disable BANNEDFUNC 1 */
         fprintf(stderr, "%s", buffer);
@@ -91,15 +92,14 @@ static void transport_debugdump(LIBSSH2_SESSION *session, const char *desc,
         buffer[used++] = ':';
         buffer[used++] = ' ';
 
-        for(c = 0; c < width && (i + c) < size; c++) {
+        for(c = 0; c < width && (i + c) < size; c++)
             buffer[used++] = isprint(ptr[i + c]) ?
                 ptr[i + c] : UNPRINTABLE_CHAR;
-        }
         buffer[used] = 0;
 
         if(session->tracehandler)
-            (session->tracehandler)(session, session->tracehandler_context,
-                                    buffer, used);
+            session->tracehandler(session, session->tracehandler_context,
+                                  buffer, used);
         else
             /* !checksrc! disable BANNEDFUNC 1 */
             fprintf(stderr, "%s\n", buffer);

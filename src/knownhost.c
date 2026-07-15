@@ -761,7 +761,7 @@ static int knownhost_line_hashed(LIBSSH2_KNOWNHOSTS *hosts,
                              LIBSSH2_KNOWNHOST_KEYENC_BASE64, NULL);
     }
     else
-        return 0; /* XXX: This should be an error, should not it? */
+        return 0; /* XXX: This should be an error, should it not? */
 }
 
 /*
@@ -933,11 +933,9 @@ int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
     }
 
     if(!len || !*cp || *cp == '#' || *cp == '\n')
-        /* comment or empty line */
-        return LIBSSH2_ERROR_NONE;
+        return LIBSSH2_ERROR_NONE; /* comment or empty line */
 
-    /* the host part starts here */
-    hostp = cp;
+    hostp = cp; /* the host part starts here */
 
     /* move over the host to the separator */
     while(len && *cp && *cp != ' ' && *cp != '\t') {

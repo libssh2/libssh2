@@ -537,11 +537,6 @@ int libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *context,
 void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
                   const char *format, ...)
 {
-    char buffer[1536];
-    int len, msglen, buflen = sizeof(buffer);
-    va_list vargs;
-    struct timeval now;
-    static long firstsec;
     static const char * const contexts[] = {
         "Unknown",
         "Transport",
@@ -554,6 +549,12 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
         "Publickey",
         "Socket",
     };
+    static long firstsec;
+
+    char buffer[1536];
+    int len, msglen, buflen = sizeof(buffer);
+    va_list vargs;
+    struct timeval now;
     const char *contexttext = contexts[0];
     unsigned int contextindex;
 
@@ -576,7 +577,6 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
 
     len = ssh2_snprintf(buffer, buflen, "[libssh2] %d.%06d %s: ",
                         (int)now.tv_sec, (int)now.tv_usec, contexttext);
-
     if(len >= buflen)
         msglen = buflen - 1;
     else {
@@ -596,8 +596,8 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
     }
 
     if(session && session->tracehandler)
-        (session->tracehandler)(session, session->tracehandler_context, buffer,
-                                msglen);
+        session->tracehandler(session, session->tracehandler_context, buffer,
+                              msglen);
     else
         /* !checksrc! disable BANNEDFUNC 1 */
         fprintf(stderr, "%s\n", buffer);
