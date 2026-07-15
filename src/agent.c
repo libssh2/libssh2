@@ -324,7 +324,7 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
             ret = LIBSSH2_ERROR_INVAL;
             goto cleanup;
         }
-        if(len > (64 * 1024)) {
+        if(len > 32767) {
             ret = LIBSSH2_ERROR_OUT_OF_BOUNDARY;
             goto cleanup;
         }
@@ -346,7 +346,7 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
     else {
         size_t len = 0;
         if(!_tgetenv_s(&len, path, 0, TEXT(OPENSSH_AUTH_SOCK)) &&
-           len > 0 && len <= (64 * 1024)) {
+           len > 0 && len <= 32767) {
             path = SSH2_ALLOC(agent->session, len * sizeof(TCHAR));
             if(path) {
                 if(!_tgetenv_s(&len, path, len, TEXT(OPENSSH_AUTH_SOCK)))
