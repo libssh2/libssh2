@@ -345,11 +345,11 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
     }
     else {
         size_t len = 0;
-        if(!_tgetenv_s(&len, path, 0, TEXT(OPENSSH_AUTH_SOCK)) &&
+        if(!_tgetenv_s(&len, path, 0, _TEXT(OPENSSH_AUTH_SOCK)) &&
            len > 0 && len <= 32767) {
             path = SSH2_ALLOC(agent->session, len * sizeof(TCHAR));
             if(path) {
-                if(!_tgetenv_s(&len, path, len, TEXT(OPENSSH_AUTH_SOCK)))
+                if(!_tgetenv_s(&len, path, len, _TEXT(OPENSSH_AUTH_SOCK)))
                     path_to_free = 1;
                 else
                     SSH2_SAFEFREE(agent->session, path);
