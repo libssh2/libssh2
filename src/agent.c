@@ -34,11 +34,11 @@
 
 #include "libssh2_priv.h"
 
+#include <stdlib.h>  /* for getenv(), getenv_s(), _wgetenv_s() */
+
 #include "agent.h"
 #include "userauth.h"
 #include "session.h"
-
-#include <stdlib.h>  /* for getenv(), getenv_s(), _wgetenv_s() */
 
 #if defined(SSH2_AGENT_BACKEND_WIN32_PAGEANT) || \
     defined(SSH2_AGENT_BACKEND_WIN32_OPENSSH)
