@@ -1212,7 +1212,6 @@ FILE *libssh2_win32_fopen(const char *filename, const char *mode)
         fp = _wfsopen(target, mode_w, _SH_DENYNO);
     }
     else
-        /* !checksrc! disable ERRNOVAR 1 */
         errno = EINVAL;
     free(filename_w);
     free(mode_w);
