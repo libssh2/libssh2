@@ -183,7 +183,7 @@ static int agent_transact_pageant(LIBSSH2_AGENT *agent,
                         "found no pageant");
 
     ssh2_snprintf(mapname, sizeof(mapname),
-                  "PageantRequest%08x", (unsigned)GetCurrentThreadId());
+                  "PageantRequest%08lx", GetCurrentThreadId());
     filemap = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
                                  0, AGENT_MAX_MSGLEN, mapname);
 
