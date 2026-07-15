@@ -70,8 +70,7 @@ int ssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
         return 0;
     }
     va_start(args, fmt);
-    /* !checksrc! disable BANNEDFUNC 1 */
-    n = vsnprintf(cp, cp_max_len, fmt, args);
+    n = _vsnprintf_s(cp, cp_max_len, _TRUNCATE, fmt, args);
     if(cp)
         cp[cp_max_len - 1] = 0;
     va_end(args);
