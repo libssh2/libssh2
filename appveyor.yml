@@ -61,7 +61,7 @@ environment:
     - job_name: 'VS2013, OpenSSL 1.1, x64, Server 2012 R2'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       CMAKE_GENERATOR: 'Visual Studio 12 2013'
-      CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64'
+      CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64 -DENABLE_UNICODE=ON'
 
     - job_name: 'VS2010, WinCNG, x64, Server 2012 R2, Build-only, non-unity, examples, docs'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
