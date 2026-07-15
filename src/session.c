@@ -1608,9 +1608,9 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
 #ifdef HAVE_POLL
         {
             struct timeval tv_begin, tv_end;
-            gettimeofday(&tv_begin, NULL);
+            ssh2_gettimeofday(&tv_begin, NULL);
             sysret = poll(sockets, nfds, (int)timeout_remaining);
-            gettimeofday(&tv_end, NULL);
+            ssh2_gettimeofday(&tv_end, NULL);
             timeout_remaining -= (tv_end.tv_sec - tv_begin.tv_sec) * 1000;
             timeout_remaining -= (tv_end.tv_usec - tv_begin.tv_usec) / 1000;
         }
@@ -1664,9 +1664,9 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
 #endif
         {
             struct timeval tv_begin, tv_end;
-            gettimeofday(&tv_begin, NULL);
+            ssh2_gettimeofday(&tv_begin, NULL);
             sysret = select((int)(maxfd + 1), &rfds, &wfds, NULL, &tv);
-            gettimeofday(&tv_end, NULL);
+            ssh2_gettimeofday(&tv_end, NULL);
             timeout_remaining -= (tv_end.tv_sec - tv_begin.tv_sec) * 1000;
             timeout_remaining -= (tv_end.tv_usec - tv_begin.tv_usec) / 1000;
         }
