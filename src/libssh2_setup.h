@@ -51,6 +51,13 @@
 
 #ifdef _WIN32
 
+#if defined(UNICODE) && !defined(_UNICODE)
+#  error "UNICODE is defined but _UNICODE is not defined"
+#endif
+#if defined(_UNICODE) && !defined(UNICODE)
+#  error "_UNICODE is defined but UNICODE is not defined"
+#endif
+
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
