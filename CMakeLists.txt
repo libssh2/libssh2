@@ -176,6 +176,16 @@ if(NOT LIBSSH2_DISABLE_INSTALL)
     DESTINATION ${CMAKE_INSTALL_DOCDIR})
 endif()
 
+if(WIN32)
+  option(ENABLE_UNICODE "Use the Unicode version of the Windows API functions" OFF)
+  if(WINDOWS_STORE)
+    set(ENABLE_UNICODE ON)
+  endif()
+  if(ENABLE_UNICODE)
+    set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "UNICODE" "_UNICODE")
+  endif()
+endif()
+
 set(LIBSSH2_LIBS_SOCKET "")
 set(LIBSSH2_LIBS "")
 
