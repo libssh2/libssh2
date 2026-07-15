@@ -915,8 +915,7 @@ static int wcng_load_pem(LIBSSH2_SESSION *session,
         return -1;
 
     ret = ssh2_pem_parse(session, headerbegin, headerend,
-                         passphrase,
-                         fp, data, datalen);
+                         passphrase, fp, data, datalen);
 
     fclose(fp);
 
