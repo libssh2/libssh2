@@ -25,7 +25,6 @@
 #elif defined(_WIN32)
 
 #define HAVE_SELECT
-#define HAVE_SNPRINTF
 
 #ifdef __MINGW32__
 #  define HAVE_UNISTD_H
@@ -39,9 +38,6 @@
 #    define HAVE_STRTOLL
 #  else
 #    define HAVE_STRTOI64
-#  endif
-#  if _MSC_VER < 1900
-#    undef HAVE_SNPRINTF
 #  endif
 #endif
 
@@ -91,8 +87,6 @@
      /* we cannot access our internal snprintf() implementation in examples and
         tests when linking to a shared libssh2. */
 #    if _MSC_VER < 1900
-#      undef HAVE_SNPRINTF
-#      define HAVE_SNPRINTF
 #      define snprintf _snprintf
 #    endif
 #  endif
