@@ -711,7 +711,6 @@ void ssh2_list_insert(struct list_node *after, /* insert before this */
     /* entry's head is the same as after's */
     entry->head = after->head;
 }
-
 #endif
 
 #ifndef HAVE_GETTIMEOFDAY
