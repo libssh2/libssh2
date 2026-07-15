@@ -570,7 +570,7 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
         }
     }
 
-    gettimeofday(&now, NULL);
+    ssh2_gettimeofday(&now, NULL);
     if(!firstsec)
         firstsec = now.tv_sec;
     now.tv_sec -= firstsec;
@@ -714,9 +714,7 @@ void ssh2_list_insert(struct list_node *after, /* insert before this */
 
 #endif
 
-/* Defined in libssh2_priv.h for the correct platforms */
-#ifdef LIBSSH2_GETTIMEOFDAY
-
+#ifndef HAVE_GETTIMEOFDAY
 /*
  * Implementation according to:
  * The Open Group Base Specifications Issue 6
@@ -757,7 +755,7 @@ int ssh2_gettimeofday(struct timeval *tp, void *tzp)
        Do not set errno on error.  */
     return 0;
 }
-#endif
+#endif /* HAVE_GETTIMEOFDAY */
 
 void *ssh2_calloc(LIBSSH2_SESSION *session, size_t size)
 {
