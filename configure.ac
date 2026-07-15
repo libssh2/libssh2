@@ -89,6 +89,13 @@ case $host in
     ;;
 esac
 
+libssh2_cv_winuwp='no'
+if test "x$have_windows_h" = "xyes"; then
+  case "$CPPFLAGS" in
+    *-DWINSTORECOMPAT*) libssh2_cv_winuwp='yes';;
+  esac
+fi
+
 dnl check for how to do large files
 AC_SYS_LARGEFILE
 
@@ -305,6 +312,34 @@ AC_ARG_ENABLE([deprecated],
   esac ],
     [with_deprecated="yes"]
 )
+
+dnl build with Windows Unicode?
+want_winuni="no"
+if test "x$have_windows_h" = "xyes"; then
+  if test "$libssh2_cv_winuwp" = "yes"; then
+    want_winuni="yes"
+  else
+    AC_MSG_CHECKING([whether to enable Windows Unicode (Windows native builds only)])
+    AC_ARG_ENABLE(windows-unicode,
+AS_HELP_STRING([--enable-windows-unicode],[Enable Windows Unicode])
+AS_HELP_STRING([--disable-windows-unicode],[Disable Windows Unicode (default)]),
+    [ case "$enableval" in
+      yes)
+        want_winuni="yes"
+        AC_MSG_RESULT([yes])
+        ;;
+      *)
+        AC_MSG_RESULT([no])
+        ;;
+      esac ],
+        AC_MSG_RESULT([no])
+    )
+  fi
+
+  if test "$want_winuni" = "yes"; then
+    CPPFLAGS="${CPPFLAGS} -DUNICODE -D_UNICODE"
+  fi
+fi
 
 dnl Run Docker tests?
 AC_ARG_ENABLE([docker-tests],
