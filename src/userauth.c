@@ -642,7 +642,7 @@ static int userauth_read_file_pubkey(
     ssh2_deb((session, LIBSSH2_TRACE_AUTH, "Loading public key file: %s",
               pubkeyfile));
     /* Read Public Key */
-    fd = fopen(pubkeyfile, "rb");
+    fd = libssh2_fopen(pubkeyfile, "rb");
     if(!fd)
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
                         "Unable to open public key file");

@@ -2016,7 +2016,7 @@ static int load_rsa_private_file(LIBSSH2_SESSION *session,
                                  loadkeyproc proc1, loadkeyproc proc8,
                                  void *loadkeydata)
 {
-    FILE *fp = fopen(filename, fopenrbmode);
+    FILE *fp = libssh2_fopen(filename, fopenrbmode);
     unsigned char *data = NULL;
     size_t datalen = 0;
     int ret;
