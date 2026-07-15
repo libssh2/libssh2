@@ -38,9 +38,9 @@
 #include "userauth.h"
 #include "session.h"
 
-#include <stdlib.h>  /* for getenv(), getenv_s(), _wgetenv_s() */
+#include <stdlib.h>  /* for getenv(), _dupenv_s(), _wdupenv_s() */
 #ifdef SSH2_AGENT_BACKEND_WIN32_OPENSSH
-#include <tchar.h>  /* for _tgetenv_s() */
+#include <tchar.h>  /* for _tdupenv_s() */
 #endif
 
 #define OPENSSH_AUTH_SOCK "SSH_AUTH_SOCK"
@@ -345,17 +345,9 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
     }
     else {
         size_t len = 0;
-        if(!_tgetenv_s(&len, path, 0, TEXT(OPENSSH_AUTH_SOCK)) &&
-           len > 0 && len <= 32767) {
-            path = SSH2_ALLOC(agent->session, len * sizeof(TCHAR));
-            if(path) {
-                if(!_tgetenv_s(&len, path, len, TEXT(OPENSSH_AUTH_SOCK)))
-                    path_to_free = 1;
-                else
-                    SSH2_SAFEFREE(agent->session, path);
-            }
-        }
-        if(!path)
+        if(!_tdupenv_s(&path, &len, _TEXT(OPENSSH_AUTH_SOCK)))
+            path_to_free = 1;
+        else
             path = SSH2_UNCONST(TEXT("\\\\.\\pipe\\openssh-ssh-agent"));
     }
 
