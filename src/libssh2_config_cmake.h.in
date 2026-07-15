@@ -49,7 +49,6 @@
 #cmakedefine HAVE_GETTIMEOFDAY
 #cmakedefine HAVE_STRTOLL
 #cmakedefine HAVE_STRTOI64
-#cmakedefine HAVE_SNPRINTF
 #cmakedefine HAVE_EXPLICIT_BZERO
 #cmakedefine HAVE_EXPLICIT_MEMSET
 #cmakedefine HAVE_MEMSET_S

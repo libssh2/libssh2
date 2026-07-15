@@ -51,7 +51,7 @@
 
 /* snprintf is not in pre-VS2015 CRTs and _snprintf dangerously incompatible.
    We provide a safe wrapper for these environments */
-#ifndef HAVE_SNPRINTF
+#if defined(_MSC_VER) && _MSC_VER < 1900
 #include <stdarg.h>
 
 /* Want safe, 'n += snprintf(b + n ...)' like function. Returns number of chars
