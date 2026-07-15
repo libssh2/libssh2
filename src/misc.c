@@ -996,3 +996,235 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                     SSH2_CRYPTO_ENGINE_NAME " backend");
 }
 #endif
+
+#ifdef _WIN32
+#include <share.h>  /* for _SH_DENYNO */
+#include <stdlib.h>  /* for malloc(), free() */
+#include <tchar.h>  /* for _tcsncmp() */
+
+#ifdef _UNICODE
+static wchar_t *ssh2_win32_fn_convert_UTF8_to_wchar(const char *str_utf8)
+{
+    wchar_t *str_w = NULL;
+
+    if(str_utf8) {
+        int str_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+                                            str_utf8, -1, NULL, 0);
+        if(str_w_len > 0) {
+            str_w = malloc(str_w_len * sizeof(wchar_t));
+            if(str_w) {
+                if(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+                                       str_utf8, -1, str_w, str_w_len) == 0) {
+                    free(str_w);
+                    return NULL;
+                }
+            }
+        }
+    }
+    return str_w;
+}
+#endif
+
+/* declare GetFullPathNameW for mingw-w64 UWP builds targeting old Windows */
+#if defined(LIBSSH2_WINDOWS_UWP) && defined(__MINGW32__) && \
+  (_WIN32_WINNT < _WIN32_WINNT_WIN10)
+WINBASEAPI DWORD WINAPI GetFullPathNameW(LPCWSTR, DWORD, LPWSTR, LPWSTR *);
+#endif
+
+/* Fix excessive paths (paths that exceed MAX_PATH length of 260).
+ *
+ * This is a helper function to fix paths that would exceed the MAX_PATH
+ * limitation check done by Windows APIs. It does so by normalizing the passed
+ * in filename or path 'in' to its full canonical path, and if that path is
+ * longer than MAX_PATH then setting 'out' to "\\?\" prefix + that full path.
+ *
+ * For example 'in' filename255chars in current directory C:\foo\bar is
+ * fixed as \\?\C:\foo\bar\filename255chars for 'out' which tells Windows
+ * it is ok to access that filename even though the actual full path is longer
+ * than 260 chars.
+ *
+ * For non-Unicode builds this function may fail sometimes because only the
+ * Unicode versions of some Windows API functions can access paths longer than
+ * MAX_PATH, for example GetFullPathNameW which is used in this function. When
+ * the full path is then converted from Unicode to multibyte that fails if any
+ * directories in the path contain characters not in the current codepage.
+ */
+static int ssh2_win32_fix_excessive_path(const TCHAR *in, TCHAR **out)
+{
+    size_t needed, count;
+    const wchar_t *in_w;
+    wchar_t *fbuf = NULL;
+
+    /* MS-documented "approximate" limit for the maximum path length */
+    const size_t max_path_len = 32767;
+
+#ifndef _UNICODE
+    wchar_t *ibuf = NULL;
+    char *obuf = NULL;
+#endif
+
+    *out = NULL;
+
+    /* skip paths already normalized */
+    if(!_tcsncmp(in, _TEXT("\\\\?\\"), 4))
+        goto cleanup;
+
+#ifndef _UNICODE
+    /* convert multibyte input to unicode */
+    if(mbstowcs_s(&needed, NULL, 0, in, 0))
+        goto cleanup;
+    if(!needed || needed >= max_path_len)
+        goto cleanup;
+    ibuf = malloc(needed * sizeof(wchar_t));
+    if(!ibuf)
+        goto cleanup;
+    if(mbstowcs_s(&count, ibuf, needed, in, needed - 1))
+        goto cleanup;
+    if(count != needed)
+        goto cleanup;
+    in_w = ibuf;
+#else
+    in_w = in;
+#endif
+
+    /* GetFullPathNameW returns the normalized full path in unicode. It
+       converts forward slashes to backslashes, processes .. to remove
+       directory segments, etc. Unlike GetFullPathNameA it can process
+       paths that exceed MAX_PATH. */
+    needed = (size_t)GetFullPathNameW(in_w, 0, NULL, NULL);
+    if(!needed || needed > max_path_len)
+        goto cleanup;
+    /* skip paths that are not excessive and do not need modification */
+    if(needed <= MAX_PATH)
+        goto cleanup;
+    fbuf = malloc(needed * sizeof(wchar_t));
+    if(!fbuf)
+        goto cleanup;
+    count = (size_t)GetFullPathNameW(in_w, (DWORD)needed, fbuf, NULL);
+    if(!count || count >= needed)
+        goto cleanup;
+
+    /* prepend \\?\ or \\?\UNC\ to the excessively long path.
+     *
+     * c:\longpath            --->    \\?\c:\longpath
+     * \\.\c:\longpath        --->    \\?\c:\longpath
+     * \\?\c:\longpath        --->    \\?\c:\longpath  (unchanged)
+     * \\server\c$\longpath   --->    \\?\UNC\server\c$\longpath
+     *
+     * https://learn.microsoft.com/dotnet/standard/io/file-path-formats
+     */
+    if(!wcsncmp(fbuf, L"\\\\?\\", 4))
+        ; /* do nothing */
+    else if(!wcsncmp(fbuf, L"\\\\.\\", 4))
+        fbuf[2] = '?';
+    else if(!wcsncmp(fbuf, L"\\\\.", 3) || !wcsncmp(fbuf, L"\\\\?", 3))
+        /* Unexpected, not UNC. The formatting doc does not allow this
+           AFAICT. */
+        goto cleanup;
+    else {
+        wchar_t *temp;
+
+        if(!wcsncmp(fbuf, L"\\\\", 2)) {
+            /* "\\?\UNC\" + full path without "\\" + null */
+            needed = 8 + (count - 2) + 1;
+            if(needed > max_path_len)
+                goto cleanup;
+
+            temp = malloc(needed * sizeof(wchar_t));
+            if(!temp)
+                goto cleanup;
+
+            if(wcsncpy_s(temp, needed, L"\\\\?\\UNC\\", 8)) {
+                free(temp);
+                goto cleanup;
+            }
+            if(wcscpy_s(temp + 8, needed, fbuf + 2)) {
+                free(temp);
+                goto cleanup;
+            }
+        }
+        else {
+            /* "\\?\" + full path + null */
+            needed = 4 + count + 1;
+            if(needed > max_path_len)
+                goto cleanup;
+
+            temp = malloc(needed * sizeof(wchar_t));
+            if(!temp)
+                goto cleanup;
+
+            if(wcsncpy_s(temp, needed, L"\\\\?\\", 4)) {
+                free(temp);
+                goto cleanup;
+            }
+            if(wcscpy_s(temp + 4, needed, fbuf)) {
+                free(temp);
+                goto cleanup;
+            }
+        }
+
+        free(fbuf);
+        fbuf = temp;
+    }
+
+#ifndef _UNICODE
+    /* convert unicode full path to multibyte output */
+    if(wcstombs_s(&needed, NULL, 0, fbuf, 0))
+        goto cleanup;
+    if(!needed || needed >= max_path_len)
+        goto cleanup;
+    obuf = malloc(needed);
+    if(!obuf)
+        goto cleanup;
+    if(wcstombs_s(&count, obuf, needed, fbuf, needed - 1))
+        goto cleanup;
+    if(count != needed)
+        goto cleanup;
+    *out = obuf;
+    obuf = NULL;
+#else
+    *out = fbuf;
+    fbuf = NULL;
+#endif
+
+cleanup:
+    free(fbuf);
+#ifndef _UNICODE
+    free(ibuf);
+    free(obuf);
+#endif
+    return !!*out;
+}
+
+FILE *libssh2_win32_fopen(const char *filename, const char *mode)
+{
+    FILE *fp = NULL;
+    TCHAR *fixed = NULL;
+    const TCHAR *target = NULL;
+
+#ifdef _UNICODE
+    wchar_t *filename_w = ssh2_win32_fn_convert_UTF8_to_wchar(filename);
+    wchar_t *mode_w = ssh2_win32_fn_convert_UTF8_to_wchar(mode);
+    if(filename_w && mode_w) {
+        if(ssh2_win32_fix_excessive_path(filename_w, &fixed))
+            target = fixed;
+        else
+            target = filename_w;
+        fp = _wfsopen(target, mode_w, _SH_DENYNO);
+    }
+    else
+        errno = EINVAL;
+    free(filename_w);
+    free(mode_w);
+#else
+    if(ssh2_win32_fix_excessive_path(filename, &fixed))
+        target = fixed;
+    else
+        target = filename;
+    fp = _fsopen(target, mode, _SH_DENYNO);
+#endif
+
+    free(fixed);
+    return fp;
+}
+#endif /* _WIN32 */

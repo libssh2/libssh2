@@ -16,7 +16,6 @@ my @options = (
     "-acalloc",
     "-aclose",
     "-afclose",
-    "-afopen",
     "-afree",
     "-amalloc",
     "-arealloc",

@@ -910,7 +910,7 @@ static int wcng_load_pem(LIBSSH2_SESSION *session,
     FILE *fp;
     int ret;
 
-    fp = fopen(filename, "rb");
+    fp = libssh2_fopen(filename, "rb");
     if(!fp)
         return -1;
 
@@ -2442,7 +2442,7 @@ int ssh2_ecdsa_new_private(OUT ssh2_ecdsa_ctx **ec_ctx,
                         "Passphrase-protected ECDSA private key "
                         "files are unsupported");
 
-    fp = fopen(filename, "rb");
+    fp = libssh2_fopen(filename, "rb");
     if(!fp) {
         result = ssh2_err(session, LIBSSH2_ERROR_INVAL,
                           "Opening the private key file failed");

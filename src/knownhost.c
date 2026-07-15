@@ -930,7 +930,7 @@ int libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
         return ssh2_err(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                         "Unsupported type of known-host information store");
 
-    fp = fopen(filename, FOPEN_READTEXT);
+    fp = libssh2_fopen(filename, FOPEN_READTEXT);
     if(fp) {
         while(fgets(buf, sizeof(buf), fp)) {
             if(libssh2_knownhost_readline(hosts, buf, strlen(buf), type)) {
@@ -1159,7 +1159,7 @@ int libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
         return ssh2_err(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                         "Unsupported type of known-host information store");
 
-    fp = fopen(filename, FOPEN_WRITETEXT);
+    fp = libssh2_fopen(filename, FOPEN_WRITETEXT);
     if(!fp)
         return ssh2_err(hosts->session, LIBSSH2_ERROR_FILE,
                         "Failed to open file");

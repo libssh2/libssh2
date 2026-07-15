@@ -1280,7 +1280,7 @@ static int ossl_rsa_openssh_priv_new(ssh2_rsa_ctx **rsa,
 
     OSSL_INIT_IF_NEEDED();
 
-    fp = fopen(filename, "r");
+    fp = libssh2_fopen(filename, "r");
     if(!fp) {
         ssh2_err(session, LIBSSH2_ERROR_FILE,
                  "Unable to open OpenSSH RSA private key file");
@@ -1590,7 +1590,7 @@ static int ossl_dsa_openssh_priv_new(ssh2_dsa_ctx **dsa,
 
     OSSL_INIT_IF_NEEDED();
 
-    fp = fopen(filename, "r");
+    fp = libssh2_fopen(filename, "r");
     if(!fp) {
         ssh2_err(session, LIBSSH2_ERROR_FILE,
                  "Unable to open OpenSSH DSA private key file");
@@ -2102,7 +2102,7 @@ int ssh2_ed25519_new_private(ssh2_ed25519_ctx **ed_ctx,
 
     OSSL_INIT_IF_NEEDED();
 
-    fp = fopen(filename, "r");
+    fp = libssh2_fopen(filename, "r");
     if(!fp) {
         ssh2_err(session, LIBSSH2_ERROR_FILE,
                  "Unable to open ED25519 private key file");
@@ -3048,7 +3048,7 @@ static int ossl_ecdsa_openssh_priv_new(ssh2_ecdsa_ctx **ec_ctx,
 
     OSSL_INIT_IF_NEEDED();
 
-    fp = fopen(filename, "r");
+    fp = libssh2_fopen(filename, "r");
     if(!fp) {
         ssh2_err(session, LIBSSH2_ERROR_FILE,
                  "Unable to open OpenSSH ECDSA private key file");
@@ -3570,7 +3570,7 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
 
     OSSL_INIT_IF_NEEDED();
 
-    fp = fopen(privatekey, "r");
+    fp = libssh2_fopen(privatekey, "r");
     if(!fp) {
         ssh2_err(session, LIBSSH2_ERROR_FILE,
                  "Unable to open private key file");
