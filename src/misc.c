@@ -755,7 +755,7 @@ int ssh2_gettimeofday(struct timeval *tp, void *tzp)
        Do not set errno on error.  */
     return 0;
 }
-#endif /* HAVE_GETTIMEOFDAY */
+#endif /* !HAVE_GETTIMEOFDAY */
 
 void *ssh2_calloc(LIBSSH2_SESSION *session, size_t size)
 {
