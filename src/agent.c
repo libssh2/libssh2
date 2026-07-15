@@ -349,12 +349,11 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
         if(!_tgetenv_s(&len, path, 0, TEXT(OPENSSH_AUTH_SOCK)) &&
            len > 0 && len < 32768) {
             path = SSH2_ALLOC(agent->session, len * sizeof(TCHAR));
-            if(path) {
+            if(path)
                 if(!_tgetenv_s(&len, path, len, TEXT(OPENSSH_AUTH_SOCK)))
                     path_to_free = TRUE;
                 else
                     SSH2_SAFEFREE(agent->session, path);
-            }
         }
         if(!path)
             path = SSH2_UNCONST(TEXT("\\\\.\\pipe\\openssh-ssh-agent"));
