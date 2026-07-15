@@ -1155,7 +1155,7 @@ int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
 
     mbedtls_pk_init(&pkey);
 
-    fp = libssh2_fopen(filename, "rb");
+    fp = ssh2_fopen(filename, "rb");
     if(!fp)
         goto cleanup;
     if(fseek(fp, 0, SEEK_END))
