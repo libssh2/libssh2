@@ -49,33 +49,34 @@
 #define SSH2_SEND_LOW  send
 #endif
 
-/* snprintf is not in pre-VS2015 CRTs and _snprintf dangerously incompatible.
-   We provide a safe wrapper for these environments */
 #if defined(_MSC_VER) && _MSC_VER < 1900
-#include <stdarg.h>
-
-/* Want safe, 'n += snprintf(b + n ...)' like function. Returns number of chars
-   placed in cp excluding the null-terminator. For cp_max_len > 0 the return
-   value is always < cp_max_len; for cp_max_len == 0 the return value is 0 (and
-   no chars are written to cp). Always null-terminate the output. */
-int ssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
+/* snprintf is not in pre-VS2015 CRTs and _snprintf dangerously incompatible.
+   Replicate standard snprintf using _vsnprintf_s and _vscprintf. */
+#if _MSC_VER < 1800  /* for VS2010, VS2012 */
+#define va_copy(dest, src) ((dest) = (src))
+#endif
+int ssh2_vsnprintf(char *buf, size_t buf_len, const char *fmt, va_list args)
 {
-    va_list args;
-    int n;
-    if(!cp_max_len)
-        return 0;
-    if(cp_max_len == 1) {
-        if(cp)
-            cp[0] = 0;
-        return 0;
+    if(buf && buf_len) {
+        int ret;
+        va_list args_dupe;
+        va_copy(args_dupe, args);
+        ret = _vsnprintf_s(buf, buf_len, _TRUNCATE, fmt, args_dupe);
+        va_end(args_dupe);
+        if(ret >= 0)
+            return ret;
     }
+    return _vscprintf(fmt, args);
+}
+
+int ssh2_snprintf(char *buf, size_t buf_len, const char *fmt, ...)
+{
+    int ret;
+    va_list args;
     va_start(args, fmt);
-    /* !checksrc! disable BANNEDFUNC 1 */
-    n = vsnprintf(cp, cp_max_len, fmt, args);
-    if(cp)
-        cp[cp_max_len - 1] = 0;
+    ret = ssh2_vsnprintf(buf, buf_len, fmt, args);
     va_end(args);
-    return (n < (int)cp_max_len) ? n : (int)(cp_max_len - 1);
+    return ret;
 }
 #endif
 
@@ -515,8 +516,6 @@ void libssh2_free(LIBSSH2_SESSION *session, void *ptr)
 }
 
 #ifdef LIBSSH2DEBUG
-#include <stdarg.h>
-
 int libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
 {
     if(!session)
@@ -588,8 +587,7 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 #endif
-        /* !checksrc! disable BANNEDFUNC 1 */
-        len = vsnprintf(buffer + msglen, buflen, format, vargs);
+        len = ssh2_vsnprintf(buffer + msglen, buflen, format, vargs);
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
@@ -604,8 +602,7 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
         /* !checksrc! disable BANNEDFUNC 1 */
         fprintf(stderr, "%s\n", buffer);
 }
-
-#else
+#else /* !LIBSSH2DEBUG */
 int libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
 {
     (void)session;

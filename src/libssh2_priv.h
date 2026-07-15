@@ -89,7 +89,6 @@
 #include "libssh2.h"
 #include "libssh2_publickey.h"
 #include "libssh2_sftp.h"
-#include "misc.h"
 
 #ifdef _WIN32
 /* Detect Windows App environment which has a restricted access
@@ -138,14 +137,6 @@
 #define SSH2_PRINTF(fmt, arg)
 #endif
 
-/* Use local implementation with <VS2015 */
-#if defined(_MSC_VER) && _MSC_VER < 1900
-int ssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
-    SSH2_PRINTF(3, 4);
-#else
-#define ssh2_snprintf snprintf
-#endif
-
 #ifndef SSH2_FALLTHROUGH
 #if (defined(__GNUC__) && __GNUC__ >= 7) || \
     (defined(__clang__) && __clang_major__ >= 10)
@@ -176,6 +167,8 @@ int ssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
    Define to the empty string to be on the safe side. */
 #  define SSH2_INLINE /* empty */
 #endif
+
+#include "misc.h"
 
 /* 3DS does not seem to have iovec */
 #if defined(_WIN32) || defined(_3DS)
