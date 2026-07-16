@@ -89,7 +89,6 @@
 #include "libssh2.h"
 #include "libssh2_publickey.h"
 #include "libssh2_sftp.h"
-#include "misc.h"
 
 #ifdef _WIN32
 /* Detect Windows App environment which has a restricted access
@@ -168,6 +167,8 @@
    Define to the empty string to be on the safe side. */
 #  define SSH2_INLINE /* empty */
 #endif
+
+#include "misc.h"
 
 /* 3DS does not seem to have iovec */
 #if defined(_WIN32) || defined(_3DS)
