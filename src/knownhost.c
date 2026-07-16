@@ -761,7 +761,7 @@ static int knownhost_line_hashed(LIBSSH2_KNOWNHOSTS *hosts,
                              LIBSSH2_KNOWNHOST_KEYENC_BASE64, NULL);
     }
     else
-        return 0; /* XXX: This should be an error, should not it? */
+        return 0; /* XXX: This should be an error, should it not? */
 }
 
 /*
