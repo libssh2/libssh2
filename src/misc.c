@@ -58,11 +58,6 @@
 #endif
 int ssh2_vsnprintf(char *buf, size_t buf_len, const char *fmt, va_list args)
 {
-    if(!fmt) {
-        if(buf && buf_len)
-            *buf = 0;
-        return -1;
-    }
     if(buf && buf_len) {
         int ret;
         va_list args_dupe;
