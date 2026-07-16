@@ -1193,7 +1193,7 @@ cleanup:
     return !!*out;
 }
 
-FILE *ssh2_win32_fopen(const char *filename, const char *mode)
+FILE *ssh2_fopen(const char *filename, const char *mode)
 {
     FILE *fp = NULL;
     TCHAR *fixed = NULL;
