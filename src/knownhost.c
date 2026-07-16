@@ -144,9 +144,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         keylen = strlen(key);
 
     if(hostlen > KNOWNHOST_MAX_LEN ||
-       key_type_len > KNOWNHOST_MAX_LEN ||
-       keylen > KNOWNHOST_MAX_LEN ||
-       commentlen > KNOWNHOST_MAX_LEN)
+       keylen > KNOWNHOST_MAX_LEN)
         return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
 
     /* make sure we have a key type set */
@@ -256,6 +254,11 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
 
     if(key_type_name && (typemask & LIBSSH2_KNOWNHOST_KEY_MASK) ==
                         LIBSSH2_KNOWNHOST_KEY_UNKNOWN) {
+        if(key_type_len > KNOWNHOST_MAX_LEN) {
+            rc = ssh2_err(hosts->session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                          "Key type too long");
+            goto error;
+        }
         entry->key_type_name = SSH2_ALLOC(hosts->session, key_type_len + 1);
         if(!entry->key_type_name) {
             rc = ssh2_err(hosts->session, LIBSSH2_ERROR_ALLOC,
@@ -268,6 +271,11 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
     }
 
     if(comment) {
+        if(commentlen > KNOWNHOST_MAX_LEN) {
+            rc = ssh2_err(hosts->session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                          "Comment too long");
+            goto error;
+        }
         entry->comment = SSH2_ALLOC(hosts->session, commentlen + 1);
         if(!entry->comment) {
             rc = ssh2_err(hosts->session, LIBSSH2_ERROR_ALLOC,
