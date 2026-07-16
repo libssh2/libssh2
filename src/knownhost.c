@@ -130,13 +130,15 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
                          int typemask, struct libssh2_knownhost **store)
 {
     struct known_host *entry;
-    size_t hostlen = strlen(host);
+    size_t hostlen;
     int rc;
     char *ptr = NULL;
     size_t ptrlen = 0;
 
-    if(!hosts)
+    if(!hosts || !host)
         return LIBSSH2_ERROR_BAD_USE;
+
+    hostlen = strlen(host);
 
     if(hostlen > KNOWNHOST_MAX_LEN ||
        key_type_len > KNOWNHOST_MAX_LEN ||
@@ -389,10 +391,10 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
     int match = 0;
 
     if(!hosts)
-        return LIBSSH2_ERROR_BAD_USE;
+        return LIBSSH2_KNOWNHOST_CHECK_FAILURE;
 
     if(keylen > KNOWNHOST_MAX_LEN)
-        return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
+        return LIBSSH2_KNOWNHOST_CHECK_FAILURE;
 
     if(type == LIBSSH2_KNOWNHOST_TYPE_SHA1)
         /* we cannot work with a SHA1 as given input */
