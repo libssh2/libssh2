@@ -90,9 +90,8 @@
 #  endif
 #  if !defined(LIBSSH2_LIBRARY) && !defined(LIBSSH2_TESTS)
      /* apply to examples only */
-#    ifndef _CRT_NONSTDC_NO_DEPRECATE
-#    define _CRT_NONSTDC_NO_DEPRECATE  /* for write() */
-#    endif
+#    define write(fd, buf, count) \
+         (ssize_t)_write(fd, buf, (unsigned int)(count))
 #  endif
 #  if _MSC_VER < 1900
 /* Silence bogus warning C4127: conditional expression is constant */
