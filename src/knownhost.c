@@ -140,6 +140,9 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
 
     hostlen = strlen(host);
 
+    if((typemask & LIBSSH2_KNOWNHOST_KEYENC_BASE64) && !keylen)
+        keylen = strlen(key);
+
     if(hostlen > KNOWNHOST_MAX_LEN ||
        key_type_len > KNOWNHOST_MAX_LEN ||
        keylen > KNOWNHOST_MAX_LEN ||
@@ -230,14 +233,6 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
 
     if(typemask & LIBSSH2_KNOWNHOST_KEYENC_BASE64) {
         /* the provided key is base64 encoded already */
-        if(!keylen) {
-            keylen = strlen(key);
-            if(keylen > KNOWNHOST_MAX_LEN) {
-                rc = ssh2_err(hosts->session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                              "Key too long");
-                goto error;
-            }
-        }
         entry->key = SSH2_ALLOC(hosts->session, keylen + 1);
         if(!entry->key) {
             rc = ssh2_err(hosts->session, LIBSSH2_ERROR_ALLOC,
