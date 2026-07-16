@@ -14,6 +14,10 @@
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
+#ifdef _WIN32
+#define strdup _strdup
+#endif
+
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
