@@ -193,6 +193,7 @@ struct iovec {
 #if defined(_WIN32) && !defined(LIBSSH2_LIBRARY) && !defined(LIBSSH2_TESTS)
 /* apply to examples only */
 #define write(fd, buf, count) (ssize_t)_write(fd, buf, (unsigned int)(count))
+#define strdup _strdup
 #endif
 
 #include "crypto.h"
