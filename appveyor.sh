@@ -33,10 +33,10 @@ fi
 
 echo "CMake job options: ${CMAKE_GENERATE:-}"
 options=''
-if [ "${SKIP_CTEST:-}" = 'yes' ]; then
-  options+=' -DBUILD_TESTING=OFF'
-else
+if [[ "${TESTS:-}" != *'skipall'* && "${TESTS:-}" != *'skiprun'* ]]; then
   options+=' -DRUN_SSHD_TESTS=OFF'
+else
+  options+=' -DBUILD_TESTING=OFF'
 fi
 # FIXME: First sshd test sometimes timeouts, subsequent ones almost always fail:
 #        'libssh2_session_handshake failed (-43): Failed getting banner'
@@ -56,15 +56,14 @@ if [[ "${APPVEYOR_JOB_NAME}" = *'examples'* ]]; then
 fi
 
 # Install docker-cli for tests
-if [ "${SKIP_CTEST:-}" != 'yes' ]; then
+if [[ "${TESTS:-}" != *'skipall'* && "${TESTS:-}" != *'skiprun'* ]]; then
+(
   cd /c && mkdir my-docker && cd my-docker
   curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 3 --retry-connrefused \
     "https://download.docker.com/win/static/stable/x86_64/docker-${DOCKER_CLI_VERSION}.zip" --output pkg.bin
   sha256sum pkg.bin && sha256sum pkg.bin | grep -qwF -- "${DOCKER_CLI_SHA256}" && 7z x -y pkg.bin >/dev/null && rm -f pkg.bin && ls -l && docker --version
+)
 fi
 
 # disk space used
-du -sh .; echo; du -sh -t 250KB ./*
-if [ -n "${CMAKE_GENERATOR:-}" ]; then
-  echo; du -h -t 250KB _bld
-fi
+du -sh .; echo; du -sh -t 250KB ./*; echo; du -h -t 250KB _bld
