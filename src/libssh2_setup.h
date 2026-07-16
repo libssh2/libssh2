@@ -90,8 +90,7 @@
 #  endif
 #  if !defined(LIBSSH2_LIBRARY) && !defined(LIBSSH2_TESTS)
      /* apply to examples only */
-#    define write(fd, buf, count) \
-         (ssize_t)_write(fd, buf, (unsigned int)(count))
+#    define write(fd, buf, len) (ssize_t)_write(fd, buf, (unsigned int)(len))
 #  endif
 #  if _MSC_VER < 1900
 /* Silence bogus warning C4127: conditional expression is constant */
