@@ -393,8 +393,17 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
     if(!hosts)
         return LIBSSH2_KNOWNHOST_CHECK_FAILURE;
 
-    if(keylen > KNOWNHOST_MAX_LEN)
+    if(!hostp || !key) {
+        ssh2_err(hosts->session, LIBSSH2_ERROR_BAD_USE,
+                 "Known-host hostname and key required");
         return LIBSSH2_KNOWNHOST_CHECK_FAILURE;
+    }
+
+    if(keylen > KNOWNHOST_MAX_LEN) {
+        ssh2_err(hosts->session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                 "Known-host key too long");
+        return LIBSSH2_KNOWNHOST_CHECK_FAILURE;
+    }
 
     if(type == LIBSSH2_KNOWNHOST_TYPE_SHA1)
         /* we cannot work with a SHA1 as given input */
