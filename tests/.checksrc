@@ -5,4 +5,5 @@ allowfunc atoi
 allowfunc fopen
 allowfunc fprintf
 allowfunc printf
+allowfunc snprintf
 allowfunc vsnprintf

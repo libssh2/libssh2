@@ -59,7 +59,7 @@ static void calculate_digest(const char *hash, size_t hash_len, char *buffer,
     char *end = buffer + buffer_len;
 
     for(i = 0; i < hash_len && (end - p) >= 3; ++i, p += 2)
-        ssh2_snprintf(p, (size_t)(end - p), "%02X", (unsigned char)hash[i]);
+        snprintf(p, (size_t)(end - p), "%02X", (unsigned char)hash[i]);
 }
 
 int test(LIBSSH2_SESSION *session)
