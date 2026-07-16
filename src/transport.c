@@ -59,11 +59,11 @@ static void transport_debugdump(LIBSSH2_SESSION *session, const char *desc,
     if(!(session->showmask & LIBSSH2_TRACE_TRANS))
         return;  /* not asked for, bail out */
 
-    used = ssh2_snprintf(buffer, sizeof(buffer), "=> %s (%lu bytes)\n",
-                         desc, (unsigned long)size);
+    ssh2_snprintf(buffer, sizeof(buffer), "=> %s (%lu bytes)\n",
+                  desc, (unsigned long)size);
     if(session->tracehandler)
         session->tracehandler(session, session->tracehandler_context,
-                              buffer, used);
+                              buffer, strlen(buffer));
     else
         /* !checksrc! disable BANNEDFUNC 1 */
         fprintf(stderr, "%s", buffer);
