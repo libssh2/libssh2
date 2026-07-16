@@ -35,8 +35,7 @@
 #include <errno.h>
 
 #ifdef _WIN32
-FILE *ssh2_win32_fopen(const char *filename, const char *mode);
-#define ssh2_fopen ssh2_win32_fopen
+FILE *ssh2_fopen(const char *filename, const char *mode);
 #else
 #define ssh2_fopen fopen
 #endif
