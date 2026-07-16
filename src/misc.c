@@ -52,7 +52,6 @@
 #if defined(_MSC_VER) && _MSC_VER < 1900
 /* snprintf is not in pre-VS2015 CRTs and _snprintf dangerously incompatible.
    Replicate standard snprintf using _vsnprintf_s and _vscprintf. */
-#include <stdarg.h>
 #if _MSC_VER < 1800  /* for VS2010, VS2012 */
 #define va_copy(dest, src) ((dest) = (src))
 #endif
@@ -517,8 +516,6 @@ void libssh2_free(LIBSSH2_SESSION *session, void *ptr)
 }
 
 #ifdef LIBSSH2DEBUG
-#include <stdarg.h>
-
 int libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
 {
     if(!session)
@@ -605,8 +602,7 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
         /* !checksrc! disable BANNEDFUNC 1 */
         fprintf(stderr, "%s\n", buffer);
 }
-
-#else
+#else /* !LIBSSH2DEBUG */
 int libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
 {
     (void)session;

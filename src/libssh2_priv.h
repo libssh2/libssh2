@@ -138,17 +138,6 @@
 #define SSH2_PRINTF(fmt, arg)
 #endif
 
-/* Use local implementation with <VS2015 */
-#if defined(_MSC_VER) && _MSC_VER < 1900
-int ssh2_vsnprintf(char *buf, size_t buf_len, const char *fmt, va_list args)
-    SSH2_PRINTF(3, 0);
-int ssh2_snprintf(char *buf, size_t buf_len, const char *fmt, ...)
-    SSH2_PRINTF(3, 4);
-#else
-#define ssh2_vsnprintf  vsnprintf
-#define ssh2_snprintf   snprintf
-#endif
-
 #ifndef SSH2_FALLTHROUGH
 #if (defined(__GNUC__) && __GNUC__ >= 7) || \
     (defined(__clang__) && __clang_major__ >= 10)
