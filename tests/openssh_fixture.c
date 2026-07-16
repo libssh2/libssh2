@@ -236,7 +236,7 @@ static int is_running_inside_a_container(void)
     FILE *fp;
     char line[256];
     int found = 0;
-    fp = fopen(cgroup_filename, "r");
+    fp = ssh2_fopen(cgroup_filename, "r");
     if(!fp)
         return 0;  /* Do not go further, we are not in a container */
     while(fgets(line, sizeof(line), fp)) {

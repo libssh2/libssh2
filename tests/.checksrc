@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 allowfunc atoi
-allowfunc fopen
 allowfunc fprintf
 allowfunc printf
 allowfunc vsnprintf

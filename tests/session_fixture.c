@@ -390,7 +390,7 @@ static int read_file(const char *path, char **out_buffer, size_t *out_len)
     *out_buffer = NULL;
     *out_len = 0;
 
-    fp = fopen(path, "r");
+    fp = ssh2_fopen(path, "r");
 
     if(!fp) {
         fprintf(stderr, "File could not be read: %s\n", path);
