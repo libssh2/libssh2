@@ -33,7 +33,7 @@ fi
 
 echo "CMake job options: ${CMAKE_GENERATE:-}"
 options=''
-if [[ "${TESTS:-}" != *'skipall'* && "${TESTS:-}" != *'skiprun'* ]]; then
+if [[ "${TESTS:-}" != *'skipall'* ]]; then
   options+=' -DRUN_SSHD_TESTS=OFF'
 else
   options+=' -DBUILD_TESTING=OFF'
