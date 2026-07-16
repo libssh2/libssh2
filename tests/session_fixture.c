@@ -246,8 +246,8 @@ const char *srcdir_path(const char *file)
         abort();
     }
 
-    len = ssh2_snprintf(filepath[curpath], sizeof(filepath[0]), "%s/%s",
-                        srcdir, file);
+    len = snprintf(filepath[curpath], sizeof(filepath[0]), "%s/%s",
+                   srcdir, file);
     if(len < 0 || (size_t)len >= sizeof(filepath[0])) {
         fprintf(stderr, "srcdir_path: path too long. srcdir='%s', fn='%s'\n",
                 srcdir, file);

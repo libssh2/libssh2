@@ -110,7 +110,7 @@ static int run_command_varg(char **output, const char *command, va_list args)
         return -1;
     }
 
-    ret = ssh2_snprintf(buf, sizeof(buf), redirect_stderr, command_buf);
+    ret = snprintf(buf, sizeof(buf), redirect_stderr, command_buf);
     if(ret < 0 || (size_t)ret >= sizeof(buf)) {
         fprintf(stderr, "Unable to rewrite command (%s)\n", command);
         return -1;
