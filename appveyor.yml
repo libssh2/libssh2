@@ -39,36 +39,39 @@ environment:
   DOCKER_CLI_VERSION: 29.4.1
   DOCKER_CLI_SHA256: 927cb16737c6b7916db15ce31789c0864cf86264a56f2655bae41faa25628d5b
   FIXTURE_XFER_COUNT: 35020
-  SKIP_CTEST: 'yes'  # Connection to test server has been failing consistently since 2024-08-29
 
   matrix:
     - job_name: 'VS2026, OpenSSL 3.6, x64, Server 2019, clang-cl'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2026'
       CMAKE_GENERATOR: 'Visual Studio 18 2026'
       CMAKE_GENERATE: '-A x64 -T ClangCl -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v36-Win64'
+      TESTS: 'skipall'  # FIXME
+
+    - job_name: 'VS2010, WinCNG, x64, Server 2012 R2, Build-only, non-unity, tests, examples, docs'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
+      CMAKE_GENERATOR: 'Visual Studio 10 2010'
+      CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=WinCNG -DCMAKE_UNITY_BUILD=OFF -DLIBSSH2_BUILD_DOCS=ON'
+      CMAKE_CONFIGURATION: 'Debug'
+      TESTS: 'skiprun'
 
     - job_name: 'VS2022, OpenSSL 3.0, x64, Server 2019, Shared-only, docs'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
       CMAKE_GENERATOR: 'Visual Studio 17 2022'
       CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v30-Win64 -DBUILD_STATIC_LIBS=OFF -DLIBSSH2_BUILD_DOCS=ON'
+      TESTS: 'skipall'  # FIXME
 
     - job_name: 'VS2015, OpenSSL 1.1, x86, Server 2016, Static-only, Debug-logging'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
       CMAKE_GENERATOR: 'Visual Studio 14 2015'
       CMAKE_GENERATE: '-A Win32 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64 -DBUILD_SHARED_LIBS=OFF -DENABLE_DEBUG_LOGGING=ON'
       CMAKE_CONFIGURATION: 'Debug'
+      TESTS: 'skipall'  # FIXME
 
     - job_name: 'VS2013, OpenSSL 1.1, x64, Server 2012 R2, Debug-logging'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       CMAKE_GENERATOR: 'Visual Studio 12 2013'
       CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64 -DENABLE_UNICODE=ON -DENABLE_DEBUG_LOGGING=ON'
-
-    - job_name: 'VS2010, WinCNG, x64, Server 2012 R2, Build-only, non-unity, examples, docs'
-      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
-      CMAKE_GENERATOR: 'Visual Studio 10 2010'
-      CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=WinCNG -DCMAKE_UNITY_BUILD=OFF -DLIBSSH2_BUILD_DOCS=ON'
-      CMAKE_CONFIGURATION: 'Debug'
-      #SKIP_CTEST: 'yes'
+      TESTS: 'skipall'  # FIXME
 
   # Re-enable when tests work again
   # - job_name: 'VS2026, WinCNG, x64, Server 2019, Debug-logging'
@@ -80,6 +83,7 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
       CMAKE_GENERATOR: 'Visual Studio 14 2015'
       CMAKE_GENERATE: '-A Win32 -DCRYPTO_BACKEND=WinCNG -DENABLE_ECDSA_WINCNG=ON -DENABLE_DEBUG_LOGGING=ON'
+      TESTS: 'skipall'  # FIXME
 
 matrix:
   fast_finish: true
@@ -92,7 +96,7 @@ install:
       [System.Environment]::SetEnvironmentVariable('OPENSSH_SERVER_PORT', $env:OPENSSH_SERVER_PORT)
       ./scripts/appveyor/docker-bridge.ps1
 
-      if($env:SKIP_CTEST -ne 'yes') {
+      if($env:TESTS -notlike '*skipall*' -and $env:TESTS -notlike '*skiprun*') {
         Write-Host 'Waiting for SSH connection from GitHub Actions' -NoNewline
         $endDate = (Get-Date).AddMinutes(5)
         while((Get-Process -Name 'sshd' -ErrorAction SilentlyContinue).Count -eq 1 -and (Get-Date) -lt $endDate) {
@@ -112,16 +116,6 @@ install:
 build_script:
   - cmd: sh -c ./appveyor.sh
 
-test_script:
-  - ps: |
-      if($env:SKIP_CTEST -ne 'yes') {
-        if($env:CMAKE_GENERATE -like '*WinCNG*') {
-          $env:FIXTURE_TRACE_ALL_CONNECT = '1'
-        }
-        $env:OPENSSH_SERVER_IMAGE = [string] (& bash -c "echo ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)")
-        cd _bld; ctest -VV -C $($env:CMAKE_CONFIGURATION) --output-on-failure --timeout 900
-      }
-
 on_failure:
   - ps: |
       if(Test-Path _bld/CMakeFiles/CMakeConfigureLog.yaml) { cat _bld/CMakeFiles/CMakeConfigureLog.yaml }
@@ -130,9 +124,11 @@ on_failure:
 
 on_finish:
   - ps: |
-      Get-Process -Name 'sleep' -ErrorAction SilentlyContinue | Stop-Process
-      Start-Sleep -Seconds 3
-      Get-Process -Name 'sshd' -ErrorAction SilentlyContinue | Stop-Process
+      if($env:TESTS -notlike '*skipall*' -and $env:TESTS -notlike '*skiprun*') {
+        Get-Process -Name 'sleep' -ErrorAction SilentlyContinue | Stop-Process
+        Start-Sleep -Seconds 3
+        Get-Process -Name 'sshd' -ErrorAction SilentlyContinue | Stop-Process
+      }
 
 skip_commits:
   files:
