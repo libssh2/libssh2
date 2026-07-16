@@ -85,7 +85,7 @@ LIBSSH2_KNOWNHOSTS *libssh2_knownhost_init(LIBSSH2_SESSION *session)
     LIBSSH2_KNOWNHOSTS *knh;
 
     if(!session)
-        return LIBSSH2_ERROR_BAD_USE;
+        return NULL;
 
     knh = SSH2_ALLOC(session, sizeof(struct _LIBSSH2_KNOWNHOSTS));
 
@@ -593,7 +593,7 @@ int libssh2_knownhost_del(LIBSSH2_KNOWNHOSTS *hosts,
     /* free all resources */
     knownhost_entry_free(hosts->session, node);
 
-    return 0;
+    return LIBSSH2_ERROR_NONE;
 }
 
 /*
@@ -605,7 +605,7 @@ void libssh2_knownhost_free(LIBSSH2_KNOWNHOSTS *hosts)
     struct known_host *next;
 
     if(!hosts)
-        return LIBSSH2_ERROR_BAD_USE;
+        return;
 
     for(node = ssh2_list_first(&hosts->head); node; node = next) {
         next = ssh2_list_next(&node->node);
