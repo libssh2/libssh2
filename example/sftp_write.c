@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
-    /* Since we have set non-blocking, tell libssh2 we are blocking */
+    /* Since we have not set non-blocking, tell libssh2 we are blocking */
     libssh2_session_set_blocking(session, 1);
 
     /* ... start it up. This trades welcome banners, exchange keys,
