@@ -237,7 +237,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
                           "Unable to allocate memory for key");
             goto error;
         }
-        memcpy(entry->key, key, keylen + 1);
+        memcpy(entry->key, key, keylen);
         entry->key[keylen] = 0; /* force a null-terminator */
     }
     else {
@@ -282,7 +282,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
                           "Unable to allocate memory for comment");
             goto error;
         }
-        memcpy(entry->comment, comment, commentlen + 1);
+        memcpy(entry->comment, comment, commentlen);
         entry->comment[commentlen] = 0; /* force a null-terminator */
         entry->comment_len = commentlen;
     }
