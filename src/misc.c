@@ -53,6 +53,9 @@
 /* snprintf() is not in pre-VS2015 CRTs and _snprintf() incompatible.
    Replicate standard snprintf() using _vsnprintf_s() and _vscprintf(). */
 #include <stdarg.h>
+#if _MSC_VER < 1800  /* for VS2010, VS2012 */
+#define va_copy(dest, src) ((dest) = (src))
+#endif
 int ssh2_vsnprintf(char *buf, size_t buf_len, const char *fmt, va_list args)
 {
     if(!fmt) {
