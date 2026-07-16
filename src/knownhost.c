@@ -1281,12 +1281,17 @@ int libssh2_knownhost_get(LIBSSH2_KNOWNHOSTS *hosts,
         /* get the next node in the list */
         node = ssh2_list_next(&prev_node->node);
     }
-    else
+    else {
+        if(!hosts)
+            return LIBSSH2_ERROR_BAD_USE;
         node = ssh2_list_first(&hosts->head);
+    }
 
     if(!node)
-        /* no (more) node */
-        return 1;
+        return 1;  /* no (more) node */
+
+    if(!store)
+        return LIBSSH2_ERROR_BAD_USE;
 
     *store = knownhost_to_external(node);
 
