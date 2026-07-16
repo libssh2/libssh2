@@ -254,14 +254,14 @@ int main(int argc, char *argv[])
         "</capabilities>"
         "</hello>\n"
         "]]>]]>\n");
-    if(len < 0)
+    if(len < 0 || len >= (int)sizeof(buf))
         goto shutdown;
-    if(-1 == netconf_write(channel, buf, (size_t)len))
+    if(netconf_write(channel, buf, (size_t)len) == -1)
         goto shutdown;
 
     fprintf(stderr, "Reading NETCONF server <hello>\n");
     len = netconf_read_until(channel, "</hello>", buf, sizeof(buf));
-    if(-1 == len)
+    if(len == -1)
         goto shutdown;
 
     fprintf(stderr, "Got %ld bytes:\n----------------------\n%s",
@@ -274,14 +274,14 @@ int main(int argc, char *argv[])
         "<get-interface-information><terse/></get-interface-information>"
         "</rpc>\n"
         "]]>]]>\n");
-    if(len < 0)
+    if(len < 0 || len >= (int)sizeof(buf))
         goto shutdown;
-    if(-1 == netconf_write(channel, buf, (size_t)len))
+    if(netconf_write(channel, buf, (size_t)len) == -1)
         goto shutdown;
 
     fprintf(stderr, "Reading NETCONF <rpc-reply>\n");
     len = netconf_read_until(channel, "</rpc-reply>", buf, sizeof(buf));
-    if(-1 == len)
+    if(len == -1)
         goto shutdown;
 
     fprintf(stderr, "Got %ld bytes:\n----------------------\n%s",

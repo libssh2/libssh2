@@ -575,10 +575,13 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
         firstsec = now.tv_sec;
     now.tv_sec -= firstsec;
 
+    /* '[libssh2] 9999999999.9999999999 Failure Event: ' */
     len = ssh2_snprintf(buffer, buflen, "[libssh2] %d.%06d %s: ",
                         (int)now.tv_sec, (int)now.tv_usec, contexttext);
-    if(len >= buflen)
-        msglen = buflen - 1;
+    if(len < 0 || len >= buflen) {
+        msglen = len < 0 ? 0 : (buflen - 1);
+        buffer[msglen] = 0;
+    }
     else {
         buflen -= len;
         msglen = len;
@@ -592,7 +595,12 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
 #pragma GCC diagnostic pop
 #endif
         va_end(vargs);
-        msglen += len < buflen ? len : buflen - 1;
+        if(len < 0 || len >= buflen) {
+            msglen += len < 0 ? 0 : (buflen - 1);
+            buffer[msglen] = 0;
+        }
+        else
+            msglen += len;
     }
 
     if(session && session->tracehandler)

@@ -54,13 +54,21 @@ static void transport_debugdump(LIBSSH2_SESSION *session, const char *desc,
     size_t c;
     unsigned int width = 0x10;
     char buffer[256];  /* Must be enough for width*4 + about 30 or so */
-    size_t used;
+    int used;
 
     if(!(session->showmask & LIBSSH2_TRACE_TRANS))
         return;  /* not asked for, bail out */
 
+    if(size > (4 * 1024 * 1024))
+        return;  /* input too large */
+
     used = ssh2_snprintf(buffer, sizeof(buffer), "=> %s (%lu bytes)\n",
                          desc, (unsigned long)size);
+    if(used < 0 || used >= (int)sizeof(buffer)) {
+        used = used < 0 ? 0 : ((int)sizeof(buffer) - 1);
+        buffer[used] = 0;
+    }
+
     if(session->tracehandler)
         session->tracehandler(session, session->tracehandler_context,
                               buffer, used);
@@ -72,6 +80,8 @@ static void transport_debugdump(LIBSSH2_SESSION *session, const char *desc,
 
         used = ssh2_snprintf(buffer, sizeof(buffer), "%04lx: ",
                              (unsigned long)i);
+        if(used < 0 || used >= (int)sizeof(buffer))
+            return;
 
         /* hex not disabled, show it */
         for(c = 0; c < width; c++) {
