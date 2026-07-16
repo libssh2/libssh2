@@ -61,8 +61,8 @@ static void transport_debugdump(LIBSSH2_SESSION *session, const char *desc,
     used = ssh2_snprintf(buffer, sizeof(buffer), "=> %s (%lu bytes)\n",
                          desc, (unsigned long)size);
     if(session->tracehandler)
-        (session->tracehandler)(session, session->tracehandler_context,
-                                buffer, used);
+        session->tracehandler(session, session->tracehandler_context,
+                              buffer, used);
     else
         /* !checksrc! disable BANNEDFUNC 1 */
         fprintf(stderr, "%s", buffer);
@@ -91,15 +91,14 @@ static void transport_debugdump(LIBSSH2_SESSION *session, const char *desc,
         buffer[used++] = ':';
         buffer[used++] = ' ';
 
-        for(c = 0; c < width && (i + c) < size; c++) {
+        for(c = 0; c < width && (i + c) < size; c++)
             buffer[used++] = isprint(ptr[i + c]) ?
                 ptr[i + c] : UNPRINTABLE_CHAR;
-        }
         buffer[used] = 0;
 
         if(session->tracehandler)
-            (session->tracehandler)(session, session->tracehandler_context,
-                                    buffer, used);
+            session->tracehandler(session, session->tracehandler_context,
+                                  buffer, used);
         else
             /* !checksrc! disable BANNEDFUNC 1 */
             fprintf(stderr, "%s\n", buffer);
