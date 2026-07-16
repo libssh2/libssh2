@@ -76,7 +76,8 @@
 #  if !defined(LIBSSH2_LIBRARY) || defined(LIBSSH2_TESTS)
      /* apply to examples and tests only */
 #    ifndef _CRT_SECURE_NO_WARNINGS
-#    define _CRT_SECURE_NO_WARNINGS  /* for fopen(), getenv() */
+#    define _CRT_SECURE_NO_WARNINGS  /* for fopen(), getenv(),
+                                        in tests: vsnprintf() */
 #    endif
 #    ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
 #    define _WINSOCK_DEPRECATED_NO_WARNINGS  /* for inet_addr() */
@@ -91,12 +92,6 @@
      /* apply to examples only */
 #    ifndef _CRT_NONSTDC_NO_DEPRECATE
 #    define _CRT_NONSTDC_NO_DEPRECATE  /* for write() */
-#    endif
-#  endif
-#  ifdef LIBSSH2_TESTS
-     /* apply to tests only */
-#    ifndef _CRT_SECURE_NO_WARNINGS
-#    define _CRT_SECURE_NO_WARNINGS  /* for fopen(), getenv(), vsnprintf() */
 #    endif
 #  endif
 #  if _MSC_VER < 1900
