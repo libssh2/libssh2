@@ -73,8 +73,8 @@ if [[ "${TESTS:-}" != *'skipall'* && "${TESTS:-}" != *'skiprun'* ]]; then
   if [[ "${CMAKE_GENERATE:-}" = *'WinCNG'* ]]; then
     export FIXTURE_TRACE_ALL_CONNECT=1
   fi
-  export OPENSSH_SERVER_IMAGE; OPENSSH_SERVER_IMAGE="ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)"
   # Connection to test server has been failing consistently since 2024-08-29
+  export OPENSSH_SERVER_IMAGE; OPENSSH_SERVER_IMAGE="ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)"
   cd _bld; ctest -VV -C "${CMAKE_CONFIGURATION}" --output-on-failure --timeout 900
 fi
 
