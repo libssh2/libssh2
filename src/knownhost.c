@@ -82,8 +82,12 @@ static void knownhost_entry_free(LIBSSH2_SESSION *session,
  */
 LIBSSH2_KNOWNHOSTS *libssh2_knownhost_init(LIBSSH2_SESSION *session)
 {
-    LIBSSH2_KNOWNHOSTS *knh =
-        SSH2_ALLOC(session, sizeof(struct _LIBSSH2_KNOWNHOSTS));
+    LIBSSH2_KNOWNHOSTS *knh;
+
+    if(!session)
+        return NULL;
+
+    knh = SSH2_ALLOC(session, sizeof(struct _LIBSSH2_KNOWNHOSTS));
 
     if(!knh) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
@@ -116,6 +120,8 @@ static struct libssh2_knownhost *knownhost_to_external(struct known_host *node)
     return ext;
 }
 
+#define KNOWNHOST_MAX_LEN  (1024 * 1024)
+
 static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
                          const char *host, const char *salt,
                          const char *key_type_name, size_t key_type_len,
@@ -124,10 +130,22 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
                          int typemask, struct libssh2_knownhost **store)
 {
     struct known_host *entry;
-    size_t hostlen = strlen(host);
+    size_t hostlen;
     int rc;
     char *ptr = NULL;
     size_t ptrlen = 0;
+
+    if(!hosts || !host || !key)
+        return LIBSSH2_ERROR_BAD_USE;
+
+    hostlen = strlen(host);
+
+    if((typemask & LIBSSH2_KNOWNHOST_KEYENC_BASE64) && !keylen)
+        keylen = strlen(key);
+
+    if(hostlen > KNOWNHOST_MAX_LEN ||
+       keylen > KNOWNHOST_MAX_LEN)
+        return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
 
     /* make sure we have a key type set */
     if(!(typemask & LIBSSH2_KNOWNHOST_KEY_MASK))
@@ -153,7 +171,9 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         memcpy(entry->name, host, hostlen + 1);
         entry->name_len = hostlen;
         break;
-    case LIBSSH2_KNOWNHOST_TYPE_SHA1:
+    case LIBSSH2_KNOWNHOST_TYPE_SHA1: {
+        size_t salt_len;
+
         rc = ssh2_base64_decode(hosts->session, &ptr, &ptrlen, host, hostlen);
         if(rc)
             goto error;
@@ -173,13 +193,21 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
             goto error;
         }
 
+        salt_len = strlen(salt);
+        if(salt_len > KNOWNHOST_MAX_LEN) {
+            if(ptr)
+                SSH2_FREE(hosts->session, ptr);
+            rc = ssh2_err(hosts->session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                          "Salt too long");
+            goto error;
+        }
+
         entry->name = ptr;
         entry->name_len = ptrlen;
 
         ptr = NULL;
         ptrlen = 0;
-        rc = ssh2_base64_decode(hosts->session, &ptr, &ptrlen, salt,
-                                strlen(salt));
+        rc = ssh2_base64_decode(hosts->session, &ptr, &ptrlen, salt, salt_len);
         if(rc)
             goto error;
 
@@ -194,6 +222,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         entry->salt = ptr;
         entry->salt_len = ptrlen;
         break;
+    }
     default:
         rc = ssh2_err(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                       "Unrecognized hostname type");
@@ -202,8 +231,6 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
 
     if(typemask & LIBSSH2_KNOWNHOST_KEYENC_BASE64) {
         /* the provided key is base64 encoded already */
-        if(!keylen)
-            keylen = strlen(key);
         entry->key = SSH2_ALLOC(hosts->session, keylen + 1);
         if(!entry->key) {
             rc = ssh2_err(hosts->session, LIBSSH2_ERROR_ALLOC,
@@ -227,6 +254,11 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
 
     if(key_type_name && (typemask & LIBSSH2_KNOWNHOST_KEY_MASK) ==
                         LIBSSH2_KNOWNHOST_KEY_UNKNOWN) {
+        if(key_type_len > KNOWNHOST_MAX_LEN) {
+            rc = ssh2_err(hosts->session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                          "Key type too long");
+            goto error;
+        }
         entry->key_type_name = SSH2_ALLOC(hosts->session, key_type_len + 1);
         if(!entry->key_type_name) {
             rc = ssh2_err(hosts->session, LIBSSH2_ERROR_ALLOC,
@@ -239,6 +271,11 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
     }
 
     if(comment) {
+        if(commentlen > KNOWNHOST_MAX_LEN) {
+            rc = ssh2_err(hosts->session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                          "Comment too long");
+            goto error;
+        }
         entry->comment = SSH2_ALLOC(hosts->session, commentlen + 1);
         if(!entry->comment) {
             rc = ssh2_err(hosts->session, LIBSSH2_ERROR_ALLOC,
@@ -361,6 +398,21 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
     const char *host;
     int numcheck; /* number of host combos to check */
     int match = 0;
+
+    if(!hosts)
+        return LIBSSH2_KNOWNHOST_CHECK_FAILURE;
+
+    if(!hostp || !key) {
+        ssh2_err(hosts->session, LIBSSH2_ERROR_BAD_USE,
+                 "Known-host hostname and key required");
+        return LIBSSH2_KNOWNHOST_CHECK_FAILURE;
+    }
+
+    if(keylen > KNOWNHOST_MAX_LEN) {
+        ssh2_err(hosts->session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                 "Known-host key too long");
+        return LIBSSH2_KNOWNHOST_CHECK_FAILURE;
+    }
 
     if(type == LIBSSH2_KNOWNHOST_TYPE_SHA1)
         /* we cannot work with a SHA1 as given input */
@@ -551,6 +603,9 @@ int libssh2_knownhost_del(LIBSSH2_KNOWNHOSTS *hosts,
 {
     struct known_host *node;
 
+    if(!hosts)
+        return LIBSSH2_ERROR_BAD_USE;
+
     /* check that this was retrieved the right way or get out */
     if(!entry || entry->magic != KNOWNHOST_MAGIC)
         return ssh2_err(hosts->session, LIBSSH2_ERROR_INVAL,
@@ -569,7 +624,7 @@ int libssh2_knownhost_del(LIBSSH2_KNOWNHOSTS *hosts,
     /* free all resources */
     knownhost_entry_free(hosts->session, node);
 
-    return 0;
+    return LIBSSH2_ERROR_NONE;
 }
 
 /*
@@ -579,6 +634,9 @@ void libssh2_knownhost_free(LIBSSH2_KNOWNHOSTS *hosts)
 {
     struct known_host *node;
     struct known_host *next;
+
+    if(!hosts)
+        return;
 
     for(node = ssh2_list_first(&hosts->head); node; node = next) {
         next = ssh2_list_next(&node->node);
@@ -856,6 +914,12 @@ int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
     size_t keylen;
     int rc;
 
+    if(!hosts || !line)
+        return LIBSSH2_ERROR_BAD_USE;
+
+    if(len > KNOWNHOST_MAX_LEN)
+        return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
+
     if(type != LIBSSH2_KNOWNHOST_FILE_OPENSSH)
         return ssh2_err(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                         "Unsupported type of known-host information store");
@@ -925,6 +989,9 @@ int libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
     FILE *fp;
     int num = 0;
     char buf[4092];
+
+    if(!hosts || !filename)
+        return LIBSSH2_ERROR_BAD_USE;
 
     if(type != LIBSSH2_KNOWNHOST_FILE_OPENSSH)
         return ssh2_err(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
@@ -1133,6 +1200,9 @@ int libssh2_knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
 {
     struct known_host *node;
 
+    if(!hosts || !known)
+        return LIBSSH2_ERROR_BAD_USE;
+
     if(known->magic != KNOWNHOST_MAGIC)
         return ssh2_err(hosts->session, LIBSSH2_ERROR_INVAL,
                         "Invalid host information");
@@ -1152,6 +1222,9 @@ int libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
     FILE *fp;
     int rc = LIBSSH2_ERROR_NONE;
     char buffer[4092];
+
+    if(!hosts || !filename)
+        return LIBSSH2_ERROR_BAD_USE;
 
     /* we only support this single file type for now, bail out on all other
        attempts */
@@ -1200,6 +1273,7 @@ int libssh2_knownhost_get(LIBSSH2_KNOWNHOSTS *hosts,
                           struct libssh2_knownhost *prev)
 {
     struct known_host *node;
+
     if(prev && prev->node) {
         /* we have a starting point */
         struct known_host *prev_node = prev->node;
@@ -1207,12 +1281,17 @@ int libssh2_knownhost_get(LIBSSH2_KNOWNHOSTS *hosts,
         /* get the next node in the list */
         node = ssh2_list_next(&prev_node->node);
     }
-    else
+    else {
+        if(!hosts)
+            return LIBSSH2_ERROR_BAD_USE;
         node = ssh2_list_first(&hosts->head);
+    }
 
     if(!node)
-        /* no (more) node */
-        return 1;
+        return 1;  /* no (more) node */
+
+    if(!store)
+        return LIBSSH2_ERROR_BAD_USE;
 
     *store = knownhost_to_external(node);
 
