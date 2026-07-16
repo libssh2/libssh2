@@ -21,7 +21,6 @@
 /* $OpenBSD: cipher-chachapoly.c,v 1.8 2016/08/03 05:41:57 djm Exp $ */
 
 #include "libssh2_priv.h"
-#include "misc.h"
 #include "cipher-chachapoly.h"
 
 static int chachapoly_timingsafe_bcmp(const void *b1, const void *b2, size_t n)
