@@ -49,32 +49,33 @@
 #define SSH2_SEND_LOW  send
 #endif
 
-/* snprintf is not in pre-VS2015 CRTs and _snprintf dangerously incompatible.
-   We provide a safe wrapper for these environments */
 #if defined(_MSC_VER) && _MSC_VER < 1900
+/* snprintf is not in pre-VS2015 CRTs and _snprintf dangerously incompatible.
+   Replicate VS2015+ snprintf using _vsnprintf_s and _vscprintf. */
 #include <stdarg.h>
-
-/* Want safe, 'n += snprintf(b + n ...)' like function. Returns number of chars
-   placed in cp excluding the null-terminator. For cp_max_len > 0 the return
-   value is always < cp_max_len; for cp_max_len == 0 the return value is 0 (and
-   no chars are written to cp). Always null-terminate the output. */
-int ssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
+int ssh2_snprintf(char *buf, size_t buf_len, const char *fmt, ...)
 {
     va_list args;
-    int n;
-    if(!cp_max_len)
-        return 0;
-    if(cp_max_len == 1) {
-        if(cp)
-            cp[0] = 0;
-        return 0;
+    int ret;
+
+    if(!fmt) {
+        if(buf && buf_len)
+            *buf = 0;
+        return -1;
     }
+    else if(buf && buf_len) {
+        va_start(args, fmt);
+        ret = _vsnprintf_s(buf, buf_len, _TRUNCATE, fmt, args);
+        va_end(args);
+        if(ret >= 0)
+            return ret;
+    }
+
     va_start(args, fmt);
-    n = _vsnprintf_s(cp, cp_max_len, _TRUNCATE, fmt, args);
-    if(cp)
-        cp[cp_max_len - 1] = 0;
+    ret = _vscprintf(fmt, args);
     va_end(args);
-    return (n < (int)cp_max_len) ? n : (int)(cp_max_len - 1);
+
+    return ret;
 }
 #endif
 

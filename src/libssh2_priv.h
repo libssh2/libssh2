@@ -140,7 +140,7 @@
 
 /* Use local implementation with <VS2015 */
 #if defined(_MSC_VER) && _MSC_VER < 1900
-int ssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
+int ssh2_snprintf(char *buf, size_t buf_len, const char *fmt, ...)
     SSH2_PRINTF(3, 4);
 #else
 #define ssh2_snprintf snprintf
