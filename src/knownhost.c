@@ -933,8 +933,7 @@ int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
     }
 
     if(!len || !*cp || *cp == '#' || *cp == '\n')
-        /* comment or empty line */
-        return LIBSSH2_ERROR_NONE;
+        return LIBSSH2_ERROR_NONE; /* comment or empty line */
 
     hostp = cp; /* the host part starts here */
 
