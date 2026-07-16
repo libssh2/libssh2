@@ -958,7 +958,6 @@ int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
                         "Failed to parse known_hosts line");
 
     keyp = cp; /* the key starts here */
-    keylen = len;
 
     /* check if the line (key) ends with a newline and if so kill it */
     while(len && *cp && *cp != '\n') {
@@ -966,9 +965,8 @@ int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
         len--;
     }
 
-    /* null-terminate where the newline or eob is */
-    if(*cp == '\n' || *cp == '\0')
-        keylen--; /* do not include this in the count */
+    /* key length is the parsed span, naturally excluding newline */
+    keylen = cp - keyp;
 
     /* deal with this one host+key line */
     rc = knownhost_line(hosts, hostp, hostlen, keyp, keylen);
