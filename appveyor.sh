@@ -51,11 +51,13 @@ echo 'libssh2_config.h'; grep -F '#define' _bld/src/libssh2_config.h | sort || t
 time cmake --build _bld --config "${CMAKE_CONFIGURATION}" --parallel 2
 
 # build examples
+
 if [[ "${APPVEYOR_JOB_NAME}" = *'examples'* ]]; then
   time cmake --build _bld --config "${CMAKE_CONFIGURATION}" --parallel 2 --target libssh2-examples-build
 fi
 
 # Install docker-cli for tests
+
 if [[ "${TESTS:-}" != *'skipall'* && "${TESTS:-}" != *'skiprun'* ]]; then
 (
   cd /c && mkdir my-docker && cd my-docker
@@ -63,6 +65,17 @@ if [[ "${TESTS:-}" != *'skipall'* && "${TESTS:-}" != *'skiprun'* ]]; then
     "https://download.docker.com/win/static/stable/x86_64/docker-${DOCKER_CLI_VERSION}.zip" --output pkg.bin
   sha256sum pkg.bin && sha256sum pkg.bin | grep -qwF -- "${DOCKER_CLI_SHA256}" && 7z x -y pkg.bin >/dev/null && rm -f pkg.bin && ls -l && docker --version
 )
+fi
+
+# run tests
+
+if [[ "${TESTS:-}" != *'skipall'* && "${TESTS:-}" != *'skiprun'* ]]; then
+  if [[ "${CMAKE_GENERATE:-}" = *'WinCNG'* ]]; then
+    export FIXTURE_TRACE_ALL_CONNECT=1
+  fi
+  export OPENSSH_SERVER_IMAGE; OPENSSH_SERVER_IMAGE="ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)"
+  # Connection to test server has been failing consistently since 2024-08-29
+  cd _bld; ctest -VV -C "${CMAKE_CONFIGURATION}" --output-on-failure --timeout 900
 fi
 
 # disk space used

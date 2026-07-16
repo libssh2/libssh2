@@ -116,16 +116,6 @@ install:
 build_script:
   - cmd: sh -c ./appveyor.sh
 
-test_script:
-  - ps: |
-      if($env:TESTS -notlike '*skipall*' -and $env:TESTS -notlike '*skiprun*') {
-        if($env:CMAKE_GENERATE -like '*WinCNG*') {
-          $env:FIXTURE_TRACE_ALL_CONNECT = '1'
-        }
-        $env:OPENSSH_SERVER_IMAGE = [string] (& bash -c "echo ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)")
-        cd _bld; ctest -VV -C $($env:CMAKE_CONFIGURATION) --output-on-failure --timeout 900
-      }
-
 on_failure:
   - ps: |
       if(Test-Path _bld/CMakeFiles/CMakeConfigureLog.yaml) { cat _bld/CMakeFiles/CMakeConfigureLog.yaml }
@@ -134,9 +124,11 @@ on_failure:
 
 on_finish:
   - ps: |
-      Get-Process -Name 'sleep' -ErrorAction SilentlyContinue | Stop-Process
-      Start-Sleep -Seconds 3
-      Get-Process -Name 'sshd' -ErrorAction SilentlyContinue | Stop-Process
+      if($env:TESTS -notlike '*skipall*' -and $env:TESTS -notlike '*skiprun*') {
+        Get-Process -Name 'sleep' -ErrorAction SilentlyContinue | Stop-Process
+        Start-Sleep -Seconds 3
+        Get-Process -Name 'sshd' -ErrorAction SilentlyContinue | Stop-Process
+      }
 
 skip_commits:
   files:
