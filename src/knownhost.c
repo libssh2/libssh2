@@ -1280,7 +1280,8 @@ int libssh2_knownhost_get(LIBSSH2_KNOWNHOSTS *hosts,
         /* no (more) node */
         return 1;
 
-    *store = knownhost_to_external(node);
+    if(store)
+        *store = knownhost_to_external(node);
 
     return 0;
 }
