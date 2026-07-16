@@ -48,12 +48,13 @@
 static void transport_debugdump(LIBSSH2_SESSION *session, const char *desc,
                                 const unsigned char *ptr, size_t size)
 {
+    static const char *hex_chars = "0123456789ABCDEF";
+
     size_t i;
     size_t c;
     unsigned int width = 0x10;
     char buffer[256];  /* Must be enough for width*4 + about 30 or so */
     size_t used;
-    static const char *hex_chars = "0123456789ABCDEF";
 
     if(!(session->showmask & LIBSSH2_TRACE_TRANS))
         return;  /* not asked for, bail out */
