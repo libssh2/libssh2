@@ -15,6 +15,7 @@
 #include <libssh2_sftp.h>
 
 #ifdef _WIN32
+#define strdup          _strdup
 #define write(f, b, c)  _write(f, b, (unsigned int)(c))
 #endif
 
