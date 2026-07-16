@@ -190,6 +190,11 @@ struct iovec {
 #define send(s, b, l, f)  send(s, (unsigned char *)(b), l, f)
 #endif
 
+#if defined(_WIN32) && !defined(LIBSSH2_LIBRARY) && !defined(LIBSSH2_TESTS)
+/* apply to examples only */
+#define write(fd, buf, count) (ssize_t)_write(fd, buf, (unsigned int)(count))
+#endif
+
 #include "crypto.h"
 
 #ifndef SIZE_MAX
