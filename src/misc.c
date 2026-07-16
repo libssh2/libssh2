@@ -50,31 +50,35 @@
 #endif
 
 #if defined(_MSC_VER) && _MSC_VER < 1900
-/* snprintf is not in pre-VS2015 CRTs and _snprintf dangerously incompatible.
-   Replicate VS2015+ snprintf using _vsnprintf_s and _vscprintf. */
+/* snprintf() is not in pre-VS2015 CRTs and _snprintf() incompatible.
+   Replicate standard snprintf() using _vsnprintf_s() and _vscprintf(). */
 #include <stdarg.h>
-int ssh2_snprintf(char *buf, size_t buf_len, const char *fmt, ...)
+int ssh2_vsnprintf(char *buf, size_t buf_len, const char *fmt, va_list args)
 {
-    va_list args;
-    int ret;
-
     if(!fmt) {
         if(buf && buf_len)
             *buf = 0;
         return -1;
     }
     else if(buf && buf_len) {
-        va_start(args, fmt);
-        ret = _vsnprintf_s(buf, buf_len, _TRUNCATE, fmt, args);
-        va_end(args);
+        int ret;
+        va_list args_dupe;
+        va_copy(args_dupe, args);
+        ret = _vsnprintf_s(buf, buf_len, _TRUNCATE, fmt, args_dupe);
+        va_end(args_dupe);
         if(ret >= 0)
             return ret;
     }
+    return _vscprintf(fmt, args);
+}
 
+int ssh2_snprintf(char *buf, size_t buf_len, const char *fmt, ...)
+{
+    int ret;
+    va_list args;
     va_start(args, fmt);
-    ret = _vscprintf(fmt, args);
+    ret = ssh2_vsnprintf(buf, buf_len, fmt, args);
     va_end(args);
-
     return ret;
 }
 #endif
@@ -588,8 +592,7 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 #endif
-        /* !checksrc! disable BANNEDFUNC 1 */
-        len = vsnprintf(buffer + msglen, buflen, format, vargs);
+        len = ssh2_vsnprintf(buffer + msglen, buflen, format, vargs);
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
