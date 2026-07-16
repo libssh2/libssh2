@@ -936,8 +936,7 @@ int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
         /* comment or empty line */
         return LIBSSH2_ERROR_NONE;
 
-    /* the host part starts here */
-    hostp = cp;
+    hostp = cp; /* the host part starts here */
 
     /* move over the host to the separator */
     while(len && *cp && *cp != ' ' && *cp != '\t') {
