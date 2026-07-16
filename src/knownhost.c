@@ -168,7 +168,9 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         memcpy(entry->name, host, hostlen + 1);
         entry->name_len = hostlen;
         break;
-    case LIBSSH2_KNOWNHOST_TYPE_SHA1:
+    case LIBSSH2_KNOWNHOST_TYPE_SHA1: {
+        size_t salt_len;
+
         rc = ssh2_base64_decode(hosts->session, &ptr, &ptrlen, host, hostlen);
         if(rc)
             goto error;
@@ -188,13 +190,21 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
             goto error;
         }
 
+        salt_len = strlen(salt);
+        if(salt_len > KNOWNHOST_MAX_LEN) {
+            if(ptr)
+                SSH2_FREE(hosts->session, ptr);
+            rc = ssh2_err(hosts->session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                          "Salt too long");
+            goto error;
+        }
+
         entry->name = ptr;
         entry->name_len = ptrlen;
 
         ptr = NULL;
         ptrlen = 0;
-        rc = ssh2_base64_decode(hosts->session, &ptr, &ptrlen, salt,
-                                strlen(salt));
+        rc = ssh2_base64_decode(hosts->session, &ptr, &ptrlen, salt, salt_len);
         if(rc)
             goto error;
 
@@ -209,6 +219,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         entry->salt = ptr;
         entry->salt_len = ptrlen;
         break;
+    }
     default:
         rc = ssh2_err(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                       "Unrecognized hostname type");
