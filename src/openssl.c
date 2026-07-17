@@ -601,11 +601,22 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
     int ret = -1;
 
     r = BN_new();
+    if(!r)
+        return -1;
     BN_bin2bn(sig, 20, r);
     s = BN_new();
+    if(!s) {
+        BN_free(r);
+        return -1;
+    }
     BN_bin2bn(sig + 20, 20, s);
 
     dsasig = DSA_SIG_new();
+    if(!dsasig) {
+        BN_free(r);
+        BN_free(s);
+        return -1;
+    }
     DSA_SIG_set0(dsasig, r, s);
 
 #ifdef USE_OPENSSL_3
