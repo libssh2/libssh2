@@ -954,7 +954,7 @@ struct _LIBSSH2_SESSION {
     LIBSSH2_CHANNEL *scpSend_channel;
 
     /* Keepalive variables used by keepalive.c. */
-    int keepalive_interval;
+    ssh2_timediff_t keepalive_interval;
     int keepalive_want_reply;
     ssh2_time_t keepalive_last_sent;
 

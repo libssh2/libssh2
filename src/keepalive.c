@@ -43,9 +43,9 @@ void libssh2_keepalive_config(LIBSSH2_SESSION *session,
         return;
 
     if(interval == 1)
-        session->keepalive_interval = 2;
+        session->keepalive_interval = ssh2_sec_to_timediff(2);
     else
-        session->keepalive_interval = interval;
+        session->keepalive_interval = ssh2_sec_to_timediff(interval);
     session->keepalive_want_reply = want_reply ? 1 : 0;
 }
 
@@ -85,11 +85,12 @@ int libssh2_keepalive_send(LIBSSH2_SESSION *session, int *seconds_to_next)
 
         session->keepalive_last_sent = now;
         if(seconds_to_next)
-            *seconds_to_next = session->keepalive_interval;
+            *seconds_to_next =
+                ssh2_timediff_to_sec(session->keepalive_interval);
     }
     else if(seconds_to_next)
-        *seconds_to_next = (int)(session->keepalive_last_sent - now) +
-            session->keepalive_interval;
+        *seconds_to_next = ssh2_timediff_to_sec(session->keepalive_interval +
+            (ssh2_timediff_t)(session->keepalive_last_sent - now));
 
     return LIBSSH2_ERROR_NONE;
 }
