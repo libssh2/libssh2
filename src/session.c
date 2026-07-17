@@ -546,7 +546,7 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, ssh2_time_t start_time)
     int dir;
     int has_timeout;
     ssh2_timediff_t time_to_next = 0;
-    ssh2_timediff_t elapsed_ms;
+    ssh2_timediff_t elapsed_time;
 
     /* since libssh2 often sets EAGAIN internally before this function is
        called, we can decrease some amount of confusion in user programs by
@@ -574,12 +574,12 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, ssh2_time_t start_time)
     if(session->api_timeout > 0 &&
        (seconds_to_next == 0 || time_to_next > session->api_timeout)) {
         ssh2_time_t now = ssh2_now();
-        elapsed_ms = now > start_time ? (ssh2_time_t)(now - start_time) : 0;
-        if(elapsed_ms > session->api_timeout)
+        elapsed_time = now > start_time ? (ssh2_time_t)(now - start_time) : 0;
+        if(elapsed_time > session->api_timeout)
             return ssh2_err(session, LIBSSH2_ERROR_TIMEOUT,
                             "API timeout expired");
 
-        time_to_next = session->api_timeout - elapsed_ms;
+        time_to_next = session->api_timeout - elapsed_time;
         has_timeout = 1;
     }
     else if(time_to_next > 0)
