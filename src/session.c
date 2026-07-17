@@ -412,7 +412,7 @@ LIBSSH2_SESSION *libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC(*my_alloc),
         session->send = ssh2_send;
         session->recv = ssh2_recv;
         session->abstract = abstract;
-        session->api_timeout = 0; /* timeout-free API by default */
+        session->api_timeout_ms = 0; /* timeout-free API by default */
         session->api_block_mode = 1; /* blocking API by default */
         session->state = SSH2_STATE_INITIAL_KEX;
         session->fullpacket_required_type = 0;
@@ -547,7 +547,7 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, ssh2_time_t start_time)
     int has_timeout;
     ssh2_timediff_t time_to_next = 0;
     ssh2_timediff_t elapsed_time;
-    ssh2_timediff_t api_timediff_t = ssh2_ms_to_timediff(session->api_timeout);
+    ssh2_timediff_t api_timeout = ssh2_ms_to_timediff(session->api_timeout_ms);
 
     /* since libssh2 often sets EAGAIN internally before this function is
        called, we can decrease some amount of confusion in user programs by
@@ -572,16 +572,16 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, ssh2_time_t start_time)
         time_to_next = ssh2_sec_to_timediff(1);
     }
 
-    if(api_timediff_t > 0 &&
-       (seconds_to_next == 0 || time_to_next > api_timediff_t)) {
+    if(api_timeout > 0 &&
+       (seconds_to_next == 0 || time_to_next > api_timeout)) {
         ssh2_time_t now = ssh2_now();
         elapsed_time = now > start_time ? (ssh2_timediff_t)(now - start_time)
                                         : 0;
-        if(elapsed_time > api_timediff_t)
+        if(elapsed_time > api_timeout)
             return ssh2_err(session, LIBSSH2_ERROR_TIMEOUT,
                             "API timeout expired");
 
-        time_to_next = api_timediff_t - elapsed_time;
+        time_to_next = api_timeout - elapsed_time;
         has_timeout = 1;
     }
     else if(time_to_next > 0)
@@ -1346,7 +1346,7 @@ void libssh2_session_set_timeout(LIBSSH2_SESSION *session, long timeout)
     if(!session)
         return;
 
-    session->api_timeout = timeout;
+    session->api_timeout_ms = timeout;
 }
 
 /*
@@ -1357,7 +1357,7 @@ long libssh2_session_get_timeout(LIBSSH2_SESSION *session)
     if(!session)
         return 0;
 
-    return session->api_timeout;
+    return session->api_timeout_ms;
 }
 
 /*
