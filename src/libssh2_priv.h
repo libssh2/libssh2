@@ -305,7 +305,7 @@ typedef enum {
 #define ssh2_timediff_t           long
 #define ssh2_sec_to_timediff(sec) (sec)
 #define ssh2_timediff_to_sec(td)  (td)
-#define ssh2_ms_to_timediff(sec)  ((sec) / 1000)
+#define ssh2_ms_to_timediff(ms)   ((ms) / 1000)
 #define ssh2_timediff_to_ms(td)   ((td) * 1000)
 
 struct packet_require_state {
