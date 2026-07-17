@@ -558,7 +558,7 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, ssh2_time_t start_time)
     if(rc)
         return rc;
 
-    ms_to_next = seconds_to_next * 1000;
+    ms_to_next = ssh2_sec_to_timediff(seconds_to_next);
 
     /* figure out what to wait for */
     dir = libssh2_session_block_directions(session);
@@ -568,13 +568,13 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, ssh2_time_t start_time)
         /* To avoid that we hang below because there is nothing set to
            wait for, we timeout on 1 second to also avoid busy-looping
            during this condition */
-        ms_to_next = 1000;
+        ms_to_next = ssh2_sec_to_timediff(1);
     }
 
     if(session->api_timeout > 0 &&
        (seconds_to_next == 0 || ms_to_next > session->api_timeout)) {
         ssh2_time_t now = ssh2_now();
-        elapsed_ms = (long)(1000 * difftime(now, start_time));
+        elapsed_ms = now > start_time ? (ssh2_time_t)(now - start_time) : 0;
         if(elapsed_ms > session->api_timeout)
             return ssh2_err(session, LIBSSH2_ERROR_TIMEOUT,
                             "API timeout expired");
@@ -1342,7 +1342,7 @@ void libssh2_session_set_timeout(LIBSSH2_SESSION *session, long timeout)
     if(!session)
         return;
 
-    session->api_timeout = ssh2_sec_to_timediff(timeout);
+    session->api_timeout = ssh2_ms_to_timediff(timeout);
 }
 
 /*
@@ -1353,7 +1353,7 @@ long libssh2_session_get_timeout(LIBSSH2_SESSION *session)
     if(!session)
         return 0;
 
-    return ssh2_timediff_to_sec(session->api_timeout);
+    return ssh2_timediff_to_ms(session->api_timeout);
 }
 
 /*
