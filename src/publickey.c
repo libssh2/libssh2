@@ -576,6 +576,7 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
             for(i = 0; i < num_attrs; i++) {
                 /* Search for a comment attribute */
                 if(attrs[i].name_len == (sizeof("comment") - 1) &&
+                   attrs[i].name &&
                    !strncmp(attrs[i].name, "comment", sizeof("comment") - 1)) {
                     if(!attrs[i].value ||
                        attrs[i].value_len > LIBSSH2_PACKET_MAXPAYLOAD)
@@ -600,7 +601,7 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
             }
         }
 
-        if(packet_len > LIBSSH2_PACKET_MAXPAYLOAD)
+        if((packet_len - 4) > LIBSSH2_PACKET_MAXPAYLOAD)
             return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                             "Packet too large");
 
@@ -725,7 +726,7 @@ int libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
     if(pkey->remove_state == ssh2_NB_state_idle) {
         pkey->remove_packet = NULL;
 
-        if(packet_len > LIBSSH2_PACKET_MAXPAYLOAD)
+        if((packet_len - 4) > LIBSSH2_PACKET_MAXPAYLOAD)
             return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                             "Packet too large");
 
