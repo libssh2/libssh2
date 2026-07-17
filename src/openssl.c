@@ -594,22 +594,21 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
     int der_len = 0;
 #endif
 
+    int ret = -1;
     unsigned char hash[SSH2_SHA1_DIG_LEN];
     DSA_SIG *dsasig;
     BIGNUM *r;
     BIGNUM *s;
-    int ret = -1;
 
     r = BN_new();
     if(!r)
         return -1;
-    BN_bin2bn(sig, 20, r);
+
     s = BN_new();
     if(!s) {
         BN_free(r);
         return -1;
     }
-    BN_bin2bn(sig + 20, 20, s);
 
     dsasig = DSA_SIG_new();
     if(!dsasig) {
@@ -617,6 +616,10 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
         BN_free(s);
         return -1;
     }
+
+    BN_bin2bn(sig, 20, r);
+    BN_bin2bn(sig + 20, 20, s);
+
     DSA_SIG_set0(dsasig, r, s);
 
 #ifdef USE_OPENSSL_3
@@ -762,7 +765,6 @@ int ssh2_ecdsa_curve_name_with_octal_new(
 
         ec_group = EC_KEY_get0_group(ec_key);
         point = EC_POINT_new(ec_group);
-
         if(point) {
             ret = EC_POINT_oct2point(ec_group, point,
                                      publickey_encoded, publickey_encoded_len,
@@ -805,12 +807,30 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
     EC_KEY *ec_key = (EC_KEY *)ec_ctx;
 #endif
 
-    ECDSA_SIG *ecdsa_sig = ECDSA_SIG_new();
-    BIGNUM *pr = BN_new();
-    BIGNUM *ps = BN_new();
+    ECDSA_SIG *ecdsa_sig;
+    BIGNUM *pr;
+    BIGNUM *ps;
+
+    pr = BN_new();
+    if(!pr)
+        return -1;
+
+    ps = BN_new();
+    if(!ps) {
+        BN_free(pr);
+        return -1;
+    }
+
+    ecdsa_sig = ECDSA_SIG_new();
+    if(!ecdsa_sig) {
+        BN_free(pr);
+        BN_free(ps);
+        return -1;
+    }
 
     BN_bin2bn(r, (int)r_len, pr);
     BN_bin2bn(s, (int)s_len, ps);
+
     ECDSA_SIG_set0(ecdsa_sig, pr, ps);
 
 #ifdef USE_OPENSSL_3
