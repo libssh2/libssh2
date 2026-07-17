@@ -721,7 +721,7 @@ struct _LIBSSH2_SESSION {
     int api_block_mode;
 
     /* Timeout used when blocking API behavior is active */
-    ssh2_timediff_t api_timeout;
+    long api_timeout;  /* FIXME: switch to ssh2_timediff_t */
 
     /* Server's public key */
     const struct hostkey_method *hostkey;
