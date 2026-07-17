@@ -562,7 +562,6 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
 
     /* figure out what to wait for */
     dir = libssh2_session_block_directions(session);
-
     if(!dir) {
         ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
                   "Nothing to wait for in wait_socket"));
