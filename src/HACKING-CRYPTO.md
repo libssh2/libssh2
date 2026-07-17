@@ -859,7 +859,7 @@ Return 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-int ssh2_curve25519_gen_k(ssh2_bn **k,
+int ssh2_curve25519_gen_k(ssh2_bn **k, LIBSSH2_SESSION *session,
                           uint8_t private_key[SSH2_ED25519_KEY_LEN],
                           uint8_t srvr_public_key[SSH2_ED25519_KEY_LEN]);
 ```

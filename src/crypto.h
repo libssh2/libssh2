@@ -194,7 +194,8 @@ void ssh2_dsa_free(ssh2_dsa_ctx *dsa);
  */
 #define EC_MAX_POINT_LEN ((((521 + 7) / 8) * 2) + 1)
 
-int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
+int ssh2_ecdh_gen_k(ssh2_bn **k, LIBSSH2_SESSION *session,
+                    ssh2_ec_key *private_key,
                     const unsigned char *server_public_key,
                     size_t server_public_key_len);
 
@@ -234,7 +235,7 @@ void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ec_ctx);
 
 #if LIBSSH2_ED25519
 int ssh2_curve25519_gen_k(
-    ssh2_bn **k,
+    ssh2_bn **k, LIBSSH2_SESSION *session,
     uint8_t private_key[SSH2_ED25519_KEY_LEN],
     uint8_t server_public_key[SSH2_ED25519_KEY_LEN]);
 
