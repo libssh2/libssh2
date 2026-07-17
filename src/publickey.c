@@ -525,9 +525,14 @@ LIBSSH2_PUBLICKEY *libssh2_publickey_init(LIBSSH2_SESSION *session)
 {
     LIBSSH2_PUBLICKEY *ptr;
 
+    if(!session)
+        return NULL;
+
     BLOCK_ADJUST_ERRNO(ptr, session, publickey_init(session));
     return ptr;
 }
+
+#define PUBLICKEY_ATTRS_MAX  1024
 
 /*
  * Add a new public key entry
@@ -541,15 +546,22 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
 {
     LIBSSH2_CHANNEL *channel;
     LIBSSH2_SESSION *session;
-    /* 19 = packet_len(4) + add_len(4) + "add"(3) + name_len(4) + {name}
-       blob_len(4) + {blob} */
-    unsigned long i, packet_len = 19 + name_len + blob_len;
+    unsigned long i, packet_len;
     const unsigned char *comment = NULL;
     unsigned long comment_len = 0;
     int rc;
 
     if(!pkey)
         return LIBSSH2_ERROR_BAD_USE;
+
+    if(name_len > LIBSSH2_PACKET_MAXPAYLOAD ||
+       blob_len > LIBSSH2_PACKET_MAXPAYLOAD ||
+       num_attrs > PUBLICKEY_ATTRS_MAX)
+        return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
+
+    /* 19 = packet_len(4) + add_len(4) + "add"(3) + name_len(4) + {name}
+       blob_len(4) + {blob} */
+    packet_len = 19 + name_len + blob_len;
 
     channel = pkey->channel;
     session = channel->session;
@@ -570,13 +582,19 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
                     break;
                 }
             }
+            if(comment_len > LIBSSH2_PACKET_MAXPAYLOAD)
+                return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
             packet_len += 4 + comment_len;
         }
         else {
             packet_len += 5; /* overwrite(1) + attribute_count(4) */
-            for(i = 0; i < num_attrs; i++)
+            for(i = 0; i < num_attrs; i++) {
+                if(attrs[i].name_len > LIBSSH2_PACKET_MAXPAYLOAD ||
+                   attrs[i].value_len > LIBSSH2_PACKET_MAXPAYLOAD)
+                    return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
                 /* name_len(4) + value_len(4) + mandatory(1) */
                 packet_len += 9 + attrs[i].name_len + attrs[i].value_len;
+            }
         }
 
         pkey->add_packet = SSH2_ALLOC(session, packet_len);
@@ -680,13 +698,19 @@ int libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
 {
     LIBSSH2_CHANNEL *channel;
     LIBSSH2_SESSION *session;
-    /* 22 = packet_len(4) + remove_len(4) + "remove"(6) + name_len(4) + {name}
-       + blob_len(4) + {blob} */
-    unsigned long packet_len = 22 + name_len + blob_len;
+    unsigned long packet_len;
     int rc;
 
     if(!pkey)
         return LIBSSH2_ERROR_BAD_USE;
+
+    if(name_len > LIBSSH2_PACKET_MAXPAYLOAD ||
+       blob_len > LIBSSH2_PACKET_MAXPAYLOAD)
+        return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
+
+    /* 22 = packet_len(4) + remove_len(4) + "remove"(6) + name_len(4) + {name}
+       + blob_len(4) + {blob} */
+    packet_len = 22 + name_len + blob_len;
 
     channel = pkey->channel;
     session = channel->session;
@@ -1063,7 +1087,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 pkey->listFetch_s += 4;
 
                 if(list[keys].num_attrs) {
-                    if(list[keys].num_attrs > 1024) {
+                    if(list[keys].num_attrs > PUBLICKEY_ATTRS_MAX) {
                         ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                  "Too many publickey attributes");
                         goto err_exit;
