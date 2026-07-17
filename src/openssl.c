@@ -281,47 +281,79 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
 
     return ret == 1 ? 0 : -1;
 #else /* !USE_OPENSSL_3 */
-    BIGNUM *e;
-    BIGNUM *n;
-    BIGNUM *d = 0;
-    BIGNUM *p = 0;
-    BIGNUM *q = 0;
-    BIGNUM *dmp1 = 0;
-    BIGNUM *dmq1 = 0;
-    BIGNUM *iqmp = 0;
+    BIGNUM *e = NULL;
+    BIGNUM *n = NULL;
+    BIGNUM *d = NULL;
+    BIGNUM *p = NULL;
+    BIGNUM *q = NULL;
+    BIGNUM *dmp1 = NULL;
+    BIGNUM *dmq1 = NULL;
+    BIGNUM *iqmp = NULL;
 
     e = BN_new();
+    if(!e)
+        goto fail;
     BN_bin2bn(edata, (int)elen, e);
 
     n = BN_new();
+    if(!n)
+        goto fail;
     BN_bin2bn(ndata, (int)nlen, n);
 
     if(ddata) {
         d = BN_new();
+        if(!d)
+            goto fail;
         BN_bin2bn(ddata, (int)dlen, d);
 
         p = BN_new();
+        if(!p)
+            goto fail;
         BN_bin2bn(pdata, (int)plen, p);
 
         q = BN_new();
+        if(!q)
+            goto fail;
         BN_bin2bn(qdata, (int)qlen, q);
 
         dmp1 = BN_new();
+        if(!dmp1)
+            goto fail;
         BN_bin2bn(e1data, (int)e1len, dmp1);
 
         dmq1 = BN_new();
+        if(!dmq1)
+            goto fail;
         BN_bin2bn(e2data, (int)e2len, dmq1);
 
         iqmp = BN_new();
+        if(!iqmp)
+            goto fail;
         BN_bin2bn(coeffdata, (int)coefflen, iqmp);
     }
 
     *rsa = RSA_new();
+    if(!*rsa)
+        goto fail;
+
     RSA_set0_key(*rsa, n, e, d);
     RSA_set0_factors(*rsa, p, q);
     RSA_set0_crt_params(*rsa, dmp1, dmq1, iqmp);
 
     return 0;
+
+fail:
+
+    BN_clear_free(e);
+    BN_clear_free(n);
+    BN_clear_free(d);
+    BN_clear_free(p);
+    BN_clear_free(q);
+    BN_clear_free(dmp1);
+    BN_clear_free(dmq1);
+    BN_clear_free(iqmp);
+
+    return -1;
 #endif /* USE_OPENSSL_3 */
 }
 
@@ -498,35 +530,57 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
 
     return ret == 1 ? 0 : -1;
 #else /* !USE_OPENSSL_3 */
-    BIGNUM *p_bn;
-    BIGNUM *q_bn;
-    BIGNUM *g_bn;
-    BIGNUM *pub_key;
+    BIGNUM *p_bn = NULL;
+    BIGNUM *q_bn = NULL;
+    BIGNUM *g_bn = NULL;
+    BIGNUM *pub_key = NULL;
     BIGNUM *priv_key = NULL;
 
     p_bn = BN_new();
+    if(!p_bn)
+        goto fail;
     BN_bin2bn(pdata, (int)plen, p_bn);
 
     q_bn = BN_new();
+    if(!q_bn)
+        goto fail;
     BN_bin2bn(qdata, (int)qlen, q_bn);
 
     g_bn = BN_new();
+    if(!g_bn)
+        goto fail;
     BN_bin2bn(gdata, (int)glen, g_bn);
 
     pub_key = BN_new();
+    if(!pub_key)
+        goto fail;
     BN_bin2bn(ydata, (int)ylen, pub_key);
 
     if(xlen) {
         priv_key = BN_new();
+        if(!priv_key)
+            goto fail;
         BN_bin2bn(xdata, (int)xlen, priv_key);
     }
 
     *dsa = DSA_new();
+    if(!*dsa)
+        goto fail;
 
     DSA_set0_pqg(*dsa, p_bn, q_bn, g_bn);
     DSA_set0_key(*dsa, pub_key, priv_key);
 
     return 0;
+
+fail:
+
+    BN_clear_free(p_bn);
+    BN_clear_free(q_bn);
+    BN_clear_free(g_bn);
+    BN_free(pub_key);
+    BN_clear_free(priv_key);
+
+    return -1;
 #endif /* USE_OPENSSL_3 */
 }
 
@@ -540,18 +594,32 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
     int der_len = 0;
 #endif
 
+    int ret = -1;
     unsigned char hash[SSH2_SHA1_DIG_LEN];
     DSA_SIG *dsasig;
     BIGNUM *r;
     BIGNUM *s;
-    int ret = -1;
 
     r = BN_new();
-    BN_bin2bn(sig, 20, r);
+    if(!r)
+        return -1;
+
     s = BN_new();
-    BN_bin2bn(sig + 20, 20, s);
+    if(!s) {
+        BN_free(r);
+        return -1;
+    }
 
     dsasig = DSA_SIG_new();
+    if(!dsasig) {
+        BN_free(r);
+        BN_free(s);
+        return -1;
+    }
+
+    BN_bin2bn(sig, 20, r);
+    BN_bin2bn(sig + 20, 20, s);
+
     DSA_SIG_set0(dsasig, r, s);
 
 #ifdef USE_OPENSSL_3
@@ -697,7 +765,6 @@ int ssh2_ecdsa_curve_name_with_octal_new(
 
         ec_group = EC_KEY_get0_group(ec_key);
         point = EC_POINT_new(ec_group);
-
         if(point) {
             ret = EC_POINT_oct2point(ec_group, point,
                                      publickey_encoded, publickey_encoded_len,
@@ -740,12 +807,30 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
     EC_KEY *ec_key = (EC_KEY *)ec_ctx;
 #endif
 
-    ECDSA_SIG *ecdsa_sig = ECDSA_SIG_new();
-    BIGNUM *pr = BN_new();
-    BIGNUM *ps = BN_new();
+    ECDSA_SIG *ecdsa_sig;
+    BIGNUM *pr;
+    BIGNUM *ps;
+
+    pr = BN_new();
+    if(!pr)
+        return -1;
+
+    ps = BN_new();
+    if(!ps) {
+        BN_free(pr);
+        return -1;
+    }
+
+    ecdsa_sig = ECDSA_SIG_new();
+    if(!ecdsa_sig) {
+        BN_free(pr);
+        BN_free(ps);
+        return -1;
+    }
 
     BN_bin2bn(r, (int)r_len, pr);
     BN_bin2bn(s, (int)s_len, ps);
+
     ECDSA_SIG_set0(ecdsa_sig, pr, ps);
 
 #ifdef USE_OPENSSL_3
