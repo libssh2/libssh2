@@ -510,7 +510,7 @@ static int sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
 
     /* If no timeout is active, start a new one */
     if(sftp->requirev_start == 0)
-        sftp->requirev_start = time(NULL);
+        sftp->requirev_start = ssh2_now();
 
     while(sftp->channel->session->socket_state == SSH2_SOCKET_CONNECTED) {
         for(i = 0; i < num_valid_responses; i++) {
@@ -536,9 +536,9 @@ static int sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
         }
         else if(rc <= 0) {
             /* prevent busy-looping */
-            long left =
+            ssh2_timediff_t left =
                 sftp->channel->session->packet_read_timeout -
-                (long)(time(NULL) - sftp->requirev_start);
+                (ssh2_now() - sftp->requirev_start);
 
             if(left <= 0) {
                 sftp->requirev_start = 0;

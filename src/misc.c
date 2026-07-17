@@ -718,6 +718,41 @@ void ssh2_list_insert(struct list_node *after, /* insert before this */
 }
 #endif
 
+ssh2_time_t ssh2_now(void) /* ms */
+{
+#ifdef _WIN32
+    ssh2_time_t sec, ns;
+    LARGE_INTEGER freq, count;
+    /* These never fail on supported Windows versions */
+    QueryPerformanceFrequency(&freq);
+    QueryPerformanceCounter(&count);
+    sec = (ssh2_time_t)(count.QuadPart / freq.QuadPart);
+    ns = (ssh2_time_t)(((count.QuadPart % freq.QuadPart) *
+        1000000000) / freq.QuadPart);
+    return sec * 1000 + ns / 1000000;
+#else /* !_WIN32 */
+#if defined(CLOCK_MONOTONIC_RAW) /* Apple/Linux */
+    struct timespec ts;
+    if(!clock_gettime(CLOCK_MONOTONIC_RAW, &ts))
+        return (ssh2_time_t)ts.tv_sec * 1000 +
+            (ssh2_time_t)ts.tv_nsec / 1000000;
+#elif defined(CLOCK_MONOTONIC) /* POSIX */
+    struct timespec ts;
+    if(!clock_gettime(CLOCK_MONOTONIC, &ts))
+        return (ssh2_time_t)ts.tv_sec * 1000 +
+            (ssh2_time_t)ts.tv_nsec / 1000000;
+#elif defined(HAVE_GETTIMEOFDAY)
+    struct timeval tv;
+    if(!gettimeofday(&tv, NULL))
+        return (ssh2_time_t)tv.tv_sec * 1000 + (ssh2_time_t)tv.tv_usec / 1000;
+#endif
+    {
+        ssh2_time_t ms = (ssh2_time_t)time(NULL) * 1000;
+        return ms ? ms : 1;
+    }
+#endif /* _WIN32 */
+}
+
 #ifndef HAVE_GETTIMEOFDAY
 /*
  * Implementation according to:

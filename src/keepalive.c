@@ -37,21 +37,21 @@
 
 void libssh2_keepalive_config(LIBSSH2_SESSION *session,
                               int want_reply,
-                              unsigned int interval)
+                              unsigned int interval_s)
 {
     if(!session)
         return;
 
-    if(interval == 1)
-        session->keepalive_interval = 2;
+    if(interval_s == 1)
+        session->keepalive_interval = ssh2_sec_to_timediff(2);
     else
-        session->keepalive_interval = interval;
+        session->keepalive_interval = ssh2_sec_to_timediff(interval_s);
     session->keepalive_want_reply = want_reply ? 1 : 0;
 }
 
 int libssh2_keepalive_send(LIBSSH2_SESSION *session, int *seconds_to_next)
 {
-    time_t now;
+    ssh2_time_t now;
 
     if(!session)
         return LIBSSH2_ERROR_BAD_USE;
@@ -62,9 +62,9 @@ int libssh2_keepalive_send(LIBSSH2_SESSION *session, int *seconds_to_next)
         return LIBSSH2_ERROR_NONE;
     }
 
-    now = time(NULL);
+    now = ssh2_now();
 
-    if(session->keepalive_last_sent + session->keepalive_interval <= now) {
+    if(now >= session->keepalive_last_sent + session->keepalive_interval) {
         /* Format is
            "SSH_MSG_GLOBAL_REQUEST || 4-byte len || str || want-reply". */
         unsigned char keepalive_data[] =
@@ -84,12 +84,14 @@ int libssh2_keepalive_send(LIBSSH2_SESSION *session, int *seconds_to_next)
         }
 
         session->keepalive_last_sent = now;
-        if(seconds_to_next)
-            *seconds_to_next = session->keepalive_interval;
     }
-    else if(seconds_to_next)
-        *seconds_to_next = (int)(session->keepalive_last_sent - now) +
-            session->keepalive_interval;
+
+    if(seconds_to_next) {
+        ssh2_timediff_t to_next = ssh2_timediff_to_sec(
+            session->keepalive_interval +
+            (session->keepalive_last_sent - now));
+        *seconds_to_next = (int)SSH2_MIN(to_next, INT_MAX);
+    }
 
     return LIBSSH2_ERROR_NONE;
 }

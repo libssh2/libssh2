@@ -143,7 +143,7 @@ struct _LIBSSH2_SFTP {
     size_t partial_received;            /* Bytes received so far   */
 
     /* Time that sftp_packet_requirev() started reading */
-    time_t requirev_start;
+    ssh2_time_t requirev_start;
 
     /* State variables used in libssh2_sftp_open_ex() */
     ssh2_NB_states open_state;

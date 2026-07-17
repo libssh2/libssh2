@@ -1461,7 +1461,7 @@ int ssh2_packet_require(LIBSSH2_SESSION *session,
                            match_len) == 0)
             return 0;  /* A packet was available in the packet brigade */
 
-        state->start = time(NULL);
+        state->start = ssh2_now();
     }
 
     while(session->socket_state == SSH2_SOCKET_CONNECTED) {
@@ -1485,8 +1485,8 @@ int ssh2_packet_require(LIBSSH2_SESSION *session,
         }
         else if(ret == 0) {
             /* nothing available, wait until data arrives or we time out */
-            long left = session->packet_read_timeout - (long)(time(NULL) -
-                                                              state->start);
+            ssh2_timediff_t left = session->packet_read_timeout -
+                (ssh2_now() - state->start);
 
             if(left <= 0) {
                 state->start = 0;
@@ -1575,7 +1575,7 @@ int ssh2_packet_requirev(LIBSSH2_SESSION *session,
     }
 
     if(state->start == 0)
-        state->start = time(NULL);
+        state->start = ssh2_now();
 
     while(session->socket_state != SSH2_SOCKET_DISCONNECTED) {
         int ret = ssh2_transport_read(session);
@@ -1584,8 +1584,8 @@ int ssh2_packet_requirev(LIBSSH2_SESSION *session,
             return ret;
         }
         if(ret <= 0) {
-            long left = session->packet_read_timeout -
-                (long)(time(NULL) - state->start);
+            ssh2_timediff_t left = session->packet_read_timeout -
+                (ssh2_now() - state->start);
 
             if(left <= 0) {
                 state->start = 0;

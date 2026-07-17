@@ -300,13 +300,21 @@ typedef enum {
     ssh2_NB_state_jumpauthagent
 } ssh2_NB_states;
 
+#define ssh2_time_t               libssh2_int64_t /* ms */
+#define ssh2_timediff_t           libssh2_int64_t /* ms */
+#define ssh2_sec_to_timediff(sec) ((ssh2_time_t)(sec) * 1000)
+#define ssh2_timediff_to_sec(td)  ((td) / 1000)
+#define ssh2_ms_to_timediff(ms)   ((ssh2_time_t)(ms))
+#define ssh2_timediff_to_ms(td)   (td)
+ssh2_time_t ssh2_now(void);
+
 struct packet_require_state {
     ssh2_NB_states state;
-    time_t start;
+    ssh2_time_t start;
 };
 
 struct packet_requirev_state {
-    time_t start;
+    ssh2_time_t start;
 };
 
 struct kmdhgGPshakex_state {
@@ -713,7 +721,7 @@ struct _LIBSSH2_SESSION {
     int api_block_mode;
 
     /* Timeout used when blocking API behavior is active */
-    long api_timeout;
+    long api_timeout_ms;
 
     /* Server's public key */
     const struct hostkey_method *hostkey;
@@ -948,12 +956,12 @@ struct _LIBSSH2_SESSION {
     LIBSSH2_CHANNEL *scpSend_channel;
 
     /* Keepalive variables used by keepalive.c. */
-    int keepalive_interval;
+    ssh2_timediff_t keepalive_interval;
     int keepalive_want_reply;
-    time_t keepalive_last_sent;
+    ssh2_time_t keepalive_last_sent;
 
     /* Configurable timeout for packets. Replaces LIBSSH2_READ_TIMEOUT */
-    long packet_read_timeout;
+    ssh2_timediff_t packet_read_timeout;
 };
 #if defined(__clang__) && __clang_major__ >= 13
 #pragma clang diagnostic pop

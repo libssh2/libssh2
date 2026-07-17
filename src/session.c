@@ -412,11 +412,12 @@ LIBSSH2_SESSION *libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC(*my_alloc),
         session->send = ssh2_send;
         session->recv = ssh2_recv;
         session->abstract = abstract;
-        session->api_timeout = 0; /* timeout-free API by default */
+        session->api_timeout_ms = 0; /* timeout-free API by default */
         session->api_block_mode = 1; /* blocking API by default */
         session->state = SSH2_STATE_INITIAL_KEX;
         session->fullpacket_required_type = 0;
-        session->packet_read_timeout = SSH2_DEFAULT_READ_TIMEOUT;
+        session->packet_read_timeout =
+            ssh2_sec_to_timediff(SSH2_DEFAULT_READ_TIMEOUT);
         session->flag.quote_paths = 1; /* default behavior is to quote paths
                                           for the scp subsystem */
         session->kex = NULL;
@@ -539,14 +540,15 @@ void *libssh2_session_callback_set(LIBSSH2_SESSION *session,
  * Utility function that waits for action on the socket. Returns 0 when ready
  * to run again or error on timeout.
  */
-int ssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
+int ssh2_wait_socket(LIBSSH2_SESSION *session, ssh2_time_t start_time)
 {
     int rc;
     int seconds_to_next;
     int dir;
     int has_timeout;
-    long ms_to_next = 0;
-    long elapsed_ms;
+    ssh2_timediff_t time_to_next = 0;
+    ssh2_timediff_t elapsed_time;
+    ssh2_timediff_t api_timeout = ssh2_ms_to_timediff(session->api_timeout_ms);
 
     /* since libssh2 often sets EAGAIN internally before this function is
        called, we can decrease some amount of confusion in user programs by
@@ -558,7 +560,7 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
     if(rc)
         return rc;
 
-    ms_to_next = seconds_to_next * 1000;
+    time_to_next = ssh2_sec_to_timediff(seconds_to_next);
 
     /* figure out what to wait for */
     dir = libssh2_session_block_directions(session);
@@ -568,27 +570,28 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
         /* To avoid that we hang below because there is nothing set to
            wait for, we timeout on 1 second to also avoid busy-looping
            during this condition */
-        ms_to_next = 1000;
+        time_to_next = ssh2_ms_to_timediff(1000);
     }
 
-    if(session->api_timeout > 0 &&
-       (seconds_to_next == 0 || ms_to_next > session->api_timeout)) {
-        time_t now = time(NULL);
-        elapsed_ms = (long)(1000 * difftime(now, start_time));
-        if(elapsed_ms > session->api_timeout)
+    if(api_timeout > 0 &&
+       (seconds_to_next == 0 || time_to_next > api_timeout)) {
+        ssh2_time_t now = ssh2_now();
+        elapsed_time = now > start_time ? (now - start_time) : 0;
+        if(elapsed_time > api_timeout)
             return ssh2_err(session, LIBSSH2_ERROR_TIMEOUT,
                             "API timeout expired");
 
-        ms_to_next = session->api_timeout - elapsed_ms;
+        time_to_next = api_timeout - elapsed_time;
         has_timeout = 1;
     }
-    else if(ms_to_next > 0)
+    else if(time_to_next > 0)
         has_timeout = 1;
     else
         has_timeout = 0;
 
 #ifdef HAVE_POLL
     {
+        ssh2_timediff_t time_to_next_ms = ssh2_timediff_to_ms(time_to_next);
         struct pollfd sockets[1];
 
         sockets[0].fd = session->socket_fd;
@@ -601,7 +604,8 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
         if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
             sockets[0].events |= POLLOUT;
 
-        rc = poll(sockets, 1, has_timeout ? (int)ms_to_next : -1);
+        rc = poll(sockets, 1,
+                  has_timeout ? (int)SSH2_MIN(time_to_next_ms, INT_MAX) : -1);
     }
 #else
     {
@@ -610,8 +614,9 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
         fd_set *writefd = NULL;
         fd_set *readfd = NULL;
         struct timeval tv;
+        ssh2_timediff_t ms_to_next = ssh2_timediff_to_ms(time_to_next);
 
-        tv.tv_sec = ms_to_next / 1000;
+        tv.tv_sec = (long)(ms_to_next / 1000);
 #ifdef libssh2_usec_t
         tv.tv_usec = (libssh2_usec_t)((ms_to_next - tv.tv_sec * 1000) * 1000);
 #else
@@ -1337,12 +1342,12 @@ int libssh2_session_get_blocking(LIBSSH2_SESSION *session)
  * Set a session's timeout (in msec) for blocking mode,
  * or 0 to disable timeouts.
  */
-void libssh2_session_set_timeout(LIBSSH2_SESSION *session, long timeout)
+void libssh2_session_set_timeout(LIBSSH2_SESSION *session, long timeout_ms)
 {
     if(!session)
         return;
 
-    session->api_timeout = timeout;
+    session->api_timeout_ms = timeout_ms;
 }
 
 /*
@@ -1353,22 +1358,22 @@ long libssh2_session_get_timeout(LIBSSH2_SESSION *session)
     if(!session)
         return 0;
 
-    return session->api_timeout;
+    return session->api_timeout_ms;
 }
 
 /*
  * Set a session's timeout (in sec) when reading packets,
  * or 0 to use default of 60 seconds.
  */
-void libssh2_session_set_read_timeout(LIBSSH2_SESSION *session, long timeout)
+void libssh2_session_set_read_timeout(LIBSSH2_SESSION *session, long timeout_s)
 {
     if(!session)
         return;
 
-    if(timeout <= 0)
-        timeout = SSH2_DEFAULT_READ_TIMEOUT;
+    if(timeout_s <= 0)
+        timeout_s = SSH2_DEFAULT_READ_TIMEOUT;
 
-    session->packet_read_timeout = timeout;
+    session->packet_read_timeout = ssh2_sec_to_timediff(timeout_s);
 }
 
 /*
@@ -1379,7 +1384,7 @@ long libssh2_session_get_read_timeout(LIBSSH2_SESSION *session)
     if(!session)
         return 0;
 
-    return session->packet_read_timeout;
+    return (long)ssh2_timediff_to_sec(session->packet_read_timeout);
 }
 
 #ifndef LIBSSH2_NO_DEPRECATED
@@ -1446,9 +1451,9 @@ static SSH2_INLINE int session_poll_listener_queued(LIBSSH2_LISTENER *listener)
  *
  * Poll sockets, channels, and listeners for activity
  */
-int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
+int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout_ms)
 {
-    long timeout_remaining;
+    ssh2_timediff_t timeout_remaining;
     unsigned int i, active_fds;
 #ifdef HAVE_POLL
     LIBSSH2_SESSION *session = NULL;
@@ -1503,7 +1508,6 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
     LIBSSH2_SESSION *session = NULL;
     libssh2_socket_t maxfd = 0;
     fd_set rfds, wfds;
-    struct timeval tv;
 
     FD_ZERO(&rfds);
     FD_ZERO(&wfds);
@@ -1575,10 +1579,10 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
         }
     }
 #else /* !HAVE_POLL && !HAVE_SELECT */
-    timeout = 0;  /* no sockets structure to setup */
+    timeout_ms = 0;  /* no sockets structure to setup */
 #endif /* HAVE_POLL || HAVE_SELECT */
 
-    timeout_remaining = timeout;
+    timeout_remaining = ssh2_ms_to_timediff(timeout_ms);
     do {
 #if defined(HAVE_POLL) || defined(HAVE_SELECT)
         int sysret;
@@ -1655,12 +1659,13 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
 
 #ifdef HAVE_POLL
         {
-            struct timeval tv_begin, tv_end;
-            ssh2_gettimeofday(&tv_begin, NULL);
-            sysret = poll(sockets, nfds, (int)timeout_remaining);
-            ssh2_gettimeofday(&tv_end, NULL);
-            timeout_remaining -= (tv_end.tv_sec - tv_begin.tv_sec) * 1000;
-            timeout_remaining -= (tv_end.tv_usec - tv_begin.tv_usec) / 1000;
+            ssh2_timediff_t timeout_remaining_ms =
+                ssh2_timediff_to_ms(timeout_remaining);
+            ssh2_time_t start_time = ssh2_now(), now;
+            sysret = poll(sockets, nfds,
+                          (int)SSH2_MIN(timeout_remaining_ms, INT_MAX));
+            now = ssh2_now();
+            timeout_remaining -= now > start_time ? (now - start_time) : 0;
         }
 
         if(sysret > 0) {
@@ -1704,19 +1709,19 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
 
 #elif defined(HAVE_SELECT)
 
-        tv.tv_sec = timeout_remaining / 1000;
-#ifdef libssh2_usec_t
-        tv.tv_usec = (libssh2_usec_t)((timeout_remaining % 1000) * 1000);
-#else
-        tv.tv_usec = (timeout_remaining % 1000) * 1000;
-#endif
         {
-            struct timeval tv_begin, tv_end;
-            ssh2_gettimeofday(&tv_begin, NULL);
+            ssh2_time_t start_time, now;
+            struct timeval tv;
+            tv.tv_sec = (long)(timeout_remaining / 1000);
+#ifdef libssh2_usec_t
+            tv.tv_usec = (libssh2_usec_t)((timeout_remaining % 1000) * 1000);
+#else
+            tv.tv_usec = (timeout_remaining % 1000) * 1000;
+#endif
+            start_time = ssh2_now();
             sysret = select((int)(maxfd + 1), &rfds, &wfds, NULL, &tv);
-            ssh2_gettimeofday(&tv_end, NULL);
-            timeout_remaining -= (tv_end.tv_sec - tv_begin.tv_sec) * 1000;
-            timeout_remaining -= (tv_end.tv_usec - tv_begin.tv_usec) / 1000;
+            now = ssh2_now();
+            timeout_remaining -= now > start_time ? (now - start_time) : 0;
         }
 
         if(sysret > 0) {
@@ -1758,8 +1763,8 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                 }
             }
         }
-#endif /* !HAVE_POLL && !HAVE_SELECT -- timeout (and by extension
-        * timeout_remaining) is equal to 0 */
+#endif /* !HAVE_POLL && !HAVE_SELECT -- timeout_ms (and by extension
+          timeout_remaining) is equal to 0 */
     } while(timeout_remaining > 0 && !active_fds);
 
 #ifdef HAVE_POLL

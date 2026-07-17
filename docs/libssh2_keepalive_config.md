@@ -19,16 +19,16 @@ libssh2_keepalive_config - short function description
 
 void libssh2_keepalive_config(LIBSSH2_SESSION *session,
                               int want_reply,
-                              unsigned int interval);
+                              unsigned int interval_s);
 ~~~
 
 # DESCRIPTION
 
 Set how often keepalive messages should be sent. **want_reply** indicates
 whether the keepalive messages should request a response from the server.
-**interval** is number of seconds that can pass without any I/O, use 0 (the
+**interval_s** is number of seconds that can pass without any I/O, use 0 (the
 default) to disable keepalives. To avoid some busy-loop corner-cases, if you
-specify an interval of 1 it is treated as 2.
+specify an **interval_s** of 1 it is treated as 2.
 
 Note that non-blocking applications are responsible for sending the keepalive
 messages using **libssh2_keepalive_send(3)**.
