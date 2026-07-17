@@ -1877,10 +1877,7 @@ end:
              * forever: each later call re-enters this branch and fails again
              * without ever freeing names_packet (see issue #2018). */
             if((ssize_t)filename_len < 0) {
-                if(handle->u.dir.names_packet) {
-                    SSH2_FREE(session, handle->u.dir.names_packet);
-                    handle->u.dir.names_packet = NULL;
-                }
+                SSH2_SAFEFREE(session, handle->u.dir.names_packet);
                 handle->u.dir.names_left = 0;
                 handle->u.dir.names_packet_len = 0;
                 handle->u.dir.next_name = NULL;
