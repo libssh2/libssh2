@@ -65,7 +65,7 @@ static void transport_debugdump(LIBSSH2_SESSION *session, const char *desc,
     used = ssh2_snprintf(buffer, sizeof(buffer), "=> %s (%lu bytes)\n",
                          desc, (unsigned long)size);
     if(used < 0 || used >= (int)sizeof(buffer)) {
-        used = (int)sizeof(buffer) - 1;
+        used = used < 0 ? 0 : ((int)sizeof(buffer) - 1);
         buffer[used] = 0;
     }
 
@@ -81,7 +81,7 @@ static void transport_debugdump(LIBSSH2_SESSION *session, const char *desc,
         used = ssh2_snprintf(buffer, sizeof(buffer), "%04lx: ",
                              (unsigned long)i);
         if(used < 0 || used >= (int)sizeof(buffer)) {
-            used = (int)sizeof(buffer) - 1;
+            used = used < 0 ? 0 : ((int)sizeof(buffer) - 1);
             buffer[used] = 0;
         }
 
