@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
         "</capabilities>"
         "</hello>\n"
         "]]>]]>\n");
-    if(len < 0 || len >= sizeof(buf))
+    if(len < 0 || len >= (int)sizeof(buf))
         goto shutdown;
     if(netconf_write(channel, buf, (size_t)len) == -1)
         goto shutdown;
@@ -274,7 +274,7 @@ int main(int argc, char *argv[])
         "<get-interface-information><terse/></get-interface-information>"
         "</rpc>\n"
         "]]>]]>\n");
-    if(len < 0 || len >= sizeof(buf))
+    if(len < 0 || len >= (int)sizeof(buf))
         goto shutdown;
     if(netconf_write(channel, buf, (size_t)len) == -1)
         goto shutdown;
