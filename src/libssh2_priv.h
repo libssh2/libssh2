@@ -301,11 +301,11 @@ typedef enum {
 } ssh2_NB_states;
 
 #define ssh2_time_t               libssh2_uint64_t
-#define ssh2_now()                (time(NULL) * 1000)
+#define ssh2_now()                ((ssh2_time_t)time(NULL) * 1000)
 #define ssh2_timediff_t           libssh2_int64_t
-#define ssh2_sec_to_timediff(sec) ((sec) * 1000)
+#define ssh2_sec_to_timediff(sec) ((ssh2_time_t)(sec) * 1000)
 #define ssh2_timediff_to_sec(td)  ((td) / 1000)
-#define ssh2_ms_to_timediff(ms)   (ms)
+#define ssh2_ms_to_timediff(ms)   ((ssh2_time_t)(ms))
 #define ssh2_timediff_to_ms(td)   (td)
 
 struct packet_require_state {
