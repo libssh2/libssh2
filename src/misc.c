@@ -575,9 +575,10 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
         firstsec = now.tv_sec;
     now.tv_sec -= firstsec;
 
+    /* '[libssh2] 9999999999.9999999999 Failure Event: ' */
     len = ssh2_snprintf(buffer, buflen, "[libssh2] %d.%06d %s: ",
                         (int)now.tv_sec, (int)now.tv_usec, contexttext);
-    if(len >= buflen)
+    if(len < 0 || len >= buflen)
         msglen = buflen - 1;
     else {
         buflen -= len;
