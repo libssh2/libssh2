@@ -68,6 +68,7 @@ static void transport_debugdump(LIBSSH2_SESSION *session, const char *desc,
         used = (int)sizeof(buffer) - 1;
         buffer[used] = 0;
     }
+
     if(session->tracehandler)
         session->tracehandler(session, session->tracehandler_context,
                               buffer, used);
@@ -80,9 +81,10 @@ static void transport_debugdump(LIBSSH2_SESSION *session, const char *desc,
         used = ssh2_snprintf(buffer, sizeof(buffer), "%04lx: ",
                              (unsigned long)i);
         if(used < 0 || used >= (int)sizeof(buffer)) {
-            buffer[sizeof(buffer) - 1];
             used = 0;
+            buffer[sizeof(buffer) - 1] = 0;
         }
+
         /* hex not disabled, show it */
         for(c = 0; c < width; c++) {
             if(i + c < size) {
