@@ -600,6 +600,10 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
             }
         }
 
+        if(packet_len > LIBSSH2_PACKET_MAXPAYLOAD)
+            return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                            "Packet too large");
+
         pkey->add_packet = SSH2_ALLOC(session, packet_len);
         if(!pkey->add_packet)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
@@ -704,7 +708,7 @@ int libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
     unsigned long packet_len;
     int rc;
 
-    if(!pkey)
+    if(!pkey || !name || !blob)
         return LIBSSH2_ERROR_BAD_USE;
 
     if(name_len > LIBSSH2_PACKET_MAXPAYLOAD ||
@@ -720,6 +724,10 @@ int libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
 
     if(pkey->remove_state == ssh2_NB_state_idle) {
         pkey->remove_packet = NULL;
+
+        if(packet_len > LIBSSH2_PACKET_MAXPAYLOAD)
+            return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                            "Packet too large");
 
         pkey->remove_packet = SSH2_ALLOC(session, packet_len);
         if(!pkey->remove_packet)
