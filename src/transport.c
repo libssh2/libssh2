@@ -54,10 +54,13 @@ static void transport_debugdump(LIBSSH2_SESSION *session, const char *desc,
     size_t c;
     unsigned int width = 0x10;
     char buffer[256];  /* Must be enough for width*4 + about 30 or so */
-    size_t used;
+    int used;
 
     if(!(session->showmask & LIBSSH2_TRACE_TRANS))
         return;  /* not asked for, bail out */
+
+    if(size > INT_MAX)
+        return;  /* blob too large */
 
     ssh2_snprintf(buffer, sizeof(buffer), "=> %s (%lu bytes)\n",
                   desc, (unsigned long)size);
@@ -72,7 +75,7 @@ static void transport_debugdump(LIBSSH2_SESSION *session, const char *desc,
 
         used = ssh2_snprintf(buffer, sizeof(buffer), "%04lx: ",
                              (unsigned long)i);
-        if(used < 0 || used >= sizeof(buffer))
+        if(used < 0 || used >= (int)sizeof(buffer))
             used = 0;
 
         /* hex not disabled, show it */
