@@ -1385,7 +1385,7 @@ long libssh2_session_get_read_timeout(LIBSSH2_SESSION *session)
     if(!session)
         return 0;
 
-    return ssh2_timediff_to_sec(session->packet_read_timeout);
+    return (long)ssh2_timediff_to_sec(session->packet_read_timeout);
 }
 
 #ifndef LIBSSH2_NO_DEPRECATED
