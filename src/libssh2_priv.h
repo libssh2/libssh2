@@ -300,13 +300,16 @@ typedef enum {
     ssh2_NB_state_jumpauthagent
 } ssh2_NB_states;
 
+#define ssh2_time_t time_t
+#define ssh2_now()  time(NULL)
+
 struct packet_require_state {
     ssh2_NB_states state;
-    time_t start;
+    ssh2_time_t start;
 };
 
 struct packet_requirev_state {
-    time_t start;
+    ssh2_time_t start;
 };
 
 struct kmdhgGPshakex_state {

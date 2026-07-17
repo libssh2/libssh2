@@ -539,7 +539,7 @@ void *libssh2_session_callback_set(LIBSSH2_SESSION *session,
  * Utility function that waits for action on the socket. Returns 0 when ready
  * to run again or error on timeout.
  */
-int ssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
+int ssh2_wait_socket(LIBSSH2_SESSION *session, ssh2_time_t start_time)
 {
     int rc;
     int seconds_to_next;
@@ -573,7 +573,7 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
 
     if(session->api_timeout > 0 &&
        (seconds_to_next == 0 || ms_to_next > session->api_timeout)) {
-        time_t now = time(NULL);
+        ssh2_time_t now = ssh2_now();
         elapsed_ms = (long)(1000 * difftime(now, start_time));
         if(elapsed_ms > session->api_timeout)
             return ssh2_err(session, LIBSSH2_ERROR_TIMEOUT,
