@@ -593,7 +593,7 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
 #pragma GCC diagnostic pop
 #endif
         va_end(vargs);
-        msglen += len < buflen ? len : buflen - 1;
+        msglen += (len >= 0 && len < buflen) ? len : buflen - 1;
     }
 
     if(session && session->tracehandler)
