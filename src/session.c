@@ -545,7 +545,7 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, ssh2_time_t start_time)
     int seconds_to_next;
     int dir;
     int has_timeout;
-    ssh2_timediff_t ms_to_next = 0;
+    ssh2_timediff_t time_to_next = 0;
     ssh2_timediff_t elapsed_ms;
 
     /* since libssh2 often sets EAGAIN internally before this function is
@@ -558,7 +558,7 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, ssh2_time_t start_time)
     if(rc)
         return rc;
 
-    ms_to_next = ssh2_sec_to_timediff(seconds_to_next);
+    time_to_next = ssh2_sec_to_timediff(seconds_to_next);
 
     /* figure out what to wait for */
     dir = libssh2_session_block_directions(session);
@@ -568,21 +568,21 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, ssh2_time_t start_time)
         /* To avoid that we hang below because there is nothing set to
            wait for, we timeout on 1 second to also avoid busy-looping
            during this condition */
-        ms_to_next = ssh2_sec_to_timediff(1);
+        time_to_next = ssh2_sec_to_timediff(1);
     }
 
     if(session->api_timeout > 0 &&
-       (seconds_to_next == 0 || ms_to_next > session->api_timeout)) {
+       (seconds_to_next == 0 || time_to_next > session->api_timeout)) {
         ssh2_time_t now = ssh2_now();
         elapsed_ms = now > start_time ? (ssh2_time_t)(now - start_time) : 0;
         if(elapsed_ms > session->api_timeout)
             return ssh2_err(session, LIBSSH2_ERROR_TIMEOUT,
                             "API timeout expired");
 
-        ms_to_next = session->api_timeout - elapsed_ms;
+        time_to_next = session->api_timeout - elapsed_ms;
         has_timeout = 1;
     }
-    else if(ms_to_next > 0)
+    else if(time_to_next > 0)
         has_timeout = 1;
     else
         has_timeout = 0;
@@ -601,7 +601,8 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, ssh2_time_t start_time)
         if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
             sockets[0].events |= POLLOUT;
 
-        rc = poll(sockets, 1, has_timeout ? (int)ms_to_next : -1);
+        rc = poll(sockets, 1,
+                  has_timeout ? (int)ssh2_timediff_to_ms(time_to_next) : -1);
     }
 #else
     {
@@ -610,6 +611,7 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, ssh2_time_t start_time)
         fd_set *writefd = NULL;
         fd_set *readfd = NULL;
         struct timeval tv;
+        long ms_to_next = ssh2_timediff_to_ms(time_to_next);
 
         tv.tv_sec = ms_to_next / 1000;
 #ifdef libssh2_usec_t
