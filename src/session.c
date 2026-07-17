@@ -545,8 +545,8 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, ssh2_time_t start_time)
     int seconds_to_next;
     int dir;
     int has_timeout;
-    long ms_to_next = 0;
-    long elapsed_ms;
+    ssh2_timediff_t ms_to_next = 0;
+    ssh2_timediff_t elapsed_ms;
 
     /* since libssh2 often sets EAGAIN internally before this function is
        called, we can decrease some amount of confusion in user programs by
@@ -1342,7 +1342,7 @@ void libssh2_session_set_timeout(LIBSSH2_SESSION *session, long timeout)
     if(!session)
         return;
 
-    session->api_timeout = timeout;
+    session->api_timeout = ssh2_sec_to_timediff(timeout);
 }
 
 /*
@@ -1353,7 +1353,7 @@ long libssh2_session_get_timeout(LIBSSH2_SESSION *session)
     if(!session)
         return 0;
 
-    return session->api_timeout;
+    return ssh2_timediff_to_sec(session->api_timeout);
 }
 
 /*
@@ -1368,7 +1368,7 @@ void libssh2_session_set_read_timeout(LIBSSH2_SESSION *session, long timeout)
     if(timeout <= 0)
         timeout = SSH2_DEFAULT_READ_TIMEOUT;
 
-    session->packet_read_timeout = timeout;
+    session->packet_read_timeout = ssh2_sec_to_timediff(timeout);
 }
 
 /*
@@ -1379,7 +1379,7 @@ long libssh2_session_get_read_timeout(LIBSSH2_SESSION *session)
     if(!session)
         return 0;
 
-    return session->packet_read_timeout;
+    return ssh2_timediff_to_sec(session->packet_read_timeout);
 }
 
 #ifndef LIBSSH2_NO_DEPRECATED

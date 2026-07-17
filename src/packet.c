@@ -1485,8 +1485,8 @@ int ssh2_packet_require(LIBSSH2_SESSION *session,
         }
         else if(ret == 0) {
             /* nothing available, wait until data arrives or we time out */
-            long left = session->packet_read_timeout - (long)(ssh2_now() -
-                                                              state->start);
+            ssh2_timediff_t left = session->packet_read_timeout -
+                (ssh2_timediff_t)(ssh2_now() - state->start);
 
             if(left <= 0) {
                 state->start = 0;
@@ -1584,8 +1584,8 @@ int ssh2_packet_requirev(LIBSSH2_SESSION *session,
             return ret;
         }
         if(ret <= 0) {
-            long left = session->packet_read_timeout -
-                (long)(ssh2_now() - state->start);
+            ssh2_timediff_t left = session->packet_read_timeout -
+                (ssh2_timediff_t)(ssh2_now() - state->start);
 
             if(left <= 0) {
                 state->start = 0;

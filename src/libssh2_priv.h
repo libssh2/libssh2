@@ -300,8 +300,11 @@ typedef enum {
     ssh2_NB_state_jumpauthagent
 } ssh2_NB_states;
 
-#define ssh2_time_t time_t
-#define ssh2_now()  time(NULL)
+#define ssh2_sec_to_timediff(sec) (sec)
+#define ssh2_timediff_to_sec(td)  (td)
+#define ssh2_timediff_t           long
+#define ssh2_time_t               time_t
+#define ssh2_now()                time(NULL)
 
 struct packet_require_state {
     ssh2_NB_states state;
@@ -716,7 +719,7 @@ struct _LIBSSH2_SESSION {
     int api_block_mode;
 
     /* Timeout used when blocking API behavior is active */
-    long api_timeout;
+    ssh2_timediff_t api_timeout;
 
     /* Server's public key */
     const struct hostkey_method *hostkey;
@@ -956,7 +959,7 @@ struct _LIBSSH2_SESSION {
     ssh2_time_t keepalive_last_sent;
 
     /* Configurable timeout for packets. Replaces LIBSSH2_READ_TIMEOUT */
-    long packet_read_timeout;
+    ssh2_timediff_t packet_read_timeout;
 };
 #if defined(__clang__) && __clang_major__ >= 13
 #pragma clang diagnostic pop
