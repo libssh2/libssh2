@@ -88,7 +88,6 @@ LIBSSH2_KNOWNHOSTS *libssh2_knownhost_init(LIBSSH2_SESSION *session)
         return NULL;
 
     knh = SSH2_ALLOC(session, sizeof(struct _LIBSSH2_KNOWNHOSTS));
-
     if(!knh) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                  "Unable to allocate memory for known-hosts collection");
