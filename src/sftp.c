@@ -538,7 +538,7 @@ static int sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
             /* prevent busy-looping */
             ssh2_timediff_t left =
                 sftp->channel->session->packet_read_timeout -
-                (ssh2_timediff_t)(ssh2_now() - sftp->requirev_start);
+                (ssh2_now() - sftp->requirev_start);
 
             if(left <= 0) {
                 sftp->requirev_start = 0;
