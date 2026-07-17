@@ -416,7 +416,8 @@ LIBSSH2_SESSION *libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC(*my_alloc),
         session->api_block_mode = 1; /* blocking API by default */
         session->state = SSH2_STATE_INITIAL_KEX;
         session->fullpacket_required_type = 0;
-        session->packet_read_timeout = SSH2_DEFAULT_READ_TIMEOUT;
+        session->packet_read_timeout =
+            ssh2_sec_to_timediff(SSH2_DEFAULT_READ_TIMEOUT);
         session->flag.quote_paths = 1; /* default behavior is to quote paths
                                           for the scp subsystem */
         session->kex = NULL;
