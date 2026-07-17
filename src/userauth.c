@@ -2422,7 +2422,6 @@ int libssh2_userauth_publickey_sk(
 
     if(tmp_publickeydata)
         SSH2_FREE(session, tmp_publickeydata);
-
     if(sk_info.application)
         SSH2_FREE(session, SSH2_UNCONST(sk_info.application));
 

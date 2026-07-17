@@ -52,8 +52,8 @@ static void transport_debugdump(LIBSSH2_SESSION *session, const char *desc,
 
     size_t i;
     size_t c;
-    unsigned int width = 0x10;
-    char buffer[256];  /* Must be enough for width*4 + about 30 or so */
+    const unsigned int width = 0x10;
+    char buffer[256];  /* Must be enough for (width * 4) + about 30 or so */
     int used;
 
     if(!(session->showmask & LIBSSH2_TRACE_TRANS))

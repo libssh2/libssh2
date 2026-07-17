@@ -562,7 +562,6 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
 
     /* figure out what to wait for */
     dir = libssh2_session_block_directions(session);
-
     if(!dir) {
         ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
                   "Nothing to wait for in wait_socket"));
@@ -580,7 +579,7 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
             return ssh2_err(session, LIBSSH2_ERROR_TIMEOUT,
                             "API timeout expired");
 
-        ms_to_next = (session->api_timeout - elapsed_ms);
+        ms_to_next = session->api_timeout - elapsed_ms;
         has_timeout = 1;
     }
     else if(ms_to_next > 0)
@@ -1443,6 +1442,8 @@ static SSH2_INLINE int session_poll_listener_queued(LIBSSH2_LISTENER *listener)
 }
 
 /*
+ * DEPRECATED, DO NOT USE!
+ *
  * Poll sockets, channels, and listeners for activity
  */
 int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)

@@ -741,7 +741,6 @@ int ssh2_gettimeofday(struct timeval *tp, void *tzp)
 #ifdef _WIN32
 /* Offset between 1601-01-01 and 1970-01-01 in 100 nanosec units */
 #define SSH2_WIN32_FT_OFFSET 116444736000000000
-
         union {
             libssh2_uint64_t ns100; /* time since 1 Jan 1601 in 100ns units */
             FILETIME ft;
