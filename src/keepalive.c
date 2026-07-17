@@ -88,7 +88,8 @@ int libssh2_keepalive_send(LIBSSH2_SESSION *session, int *seconds_to_next)
 
     if(seconds_to_next) {
         ssh2_timediff_t to_next = ssh2_timediff_to_sec(
-            session->keepalive_interval + session->keepalive_last_sent - now);
+            session->keepalive_interval +
+            (ssh2_timediff_t)(session->keepalive_last_sent - now));
         *seconds_to_next = (int)SSH2_MIN(to_next, INT_MAX);
     }
 
