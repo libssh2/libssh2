@@ -59,7 +59,7 @@ static void transport_debugdump(LIBSSH2_SESSION *session, const char *desc,
     if(!(session->showmask & LIBSSH2_TRACE_TRANS))
         return;  /* not asked for, bail out */
 
-    if(size > INT_MAX)
+    if(size > ULONG_MAX)
         return;  /* input too large */
 
     used = ssh2_snprintf(buffer, sizeof(buffer), "=> %s (%lu bytes)\n",
