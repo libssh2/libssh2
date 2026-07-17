@@ -614,9 +614,9 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, ssh2_time_t start_time)
         fd_set *writefd = NULL;
         fd_set *readfd = NULL;
         struct timeval tv;
-        long ms_to_next = ssh2_timediff_to_ms(time_to_next);
+        ssh2_timediff_t ms_to_next = ssh2_timediff_to_ms(time_to_next);
 
-        tv.tv_sec = ms_to_next / 1000;
+        tv.tv_sec = (long)(ms_to_next / 1000);
 #ifdef libssh2_usec_t
         tv.tv_usec = (libssh2_usec_t)((ms_to_next - tv.tv_sec * 1000) * 1000);
 #else
