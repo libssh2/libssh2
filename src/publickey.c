@@ -577,19 +577,22 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
                 /* Search for a comment attribute */
                 if(attrs[i].name_len == (sizeof("comment") - 1) &&
                    !strncmp(attrs[i].name, "comment", sizeof("comment") - 1)) {
+                    if(!attrs[i].value ||
+                       attrs[i].value_len > LIBSSH2_PACKET_MAXPAYLOAD)
+                        return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
                     comment = (const unsigned char *)attrs[i].value;
                     comment_len = attrs[i].value_len;
                     break;
                 }
             }
-            if(comment_len > LIBSSH2_PACKET_MAXPAYLOAD)
-                return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
             packet_len += 4 + comment_len;
         }
         else {
             packet_len += 5; /* overwrite(1) + attribute_count(4) */
             for(i = 0; i < num_attrs; i++) {
-                if(attrs[i].name_len > LIBSSH2_PACKET_MAXPAYLOAD ||
+                if(!attrs[i].name ||
+                   !attrs[i].value ||
+                   attrs[i].name_len > LIBSSH2_PACKET_MAXPAYLOAD ||
                    attrs[i].value_len > LIBSSH2_PACKET_MAXPAYLOAD)
                     return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
                 /* name_len(4) + value_len(4) + mandatory(1) */
