@@ -914,12 +914,13 @@ error:
 
 static int agent_list_identities(LIBSSH2_AGENT *agent)
 {
+    static const unsigned char c = SSH2_AGENTC_REQUEST_IDENTITIES;
+
     struct agent_transaction_ctx *transctx = &agent->transctx;
     ssize_t len;
     size_t num_identities;
     unsigned char *s;
     int rc;
-    static const unsigned char c = SSH2_AGENTC_REQUEST_IDENTITIES;
 
     /* Create a request to list identities */
     if(transctx->state == agent_NB_state_init) {
