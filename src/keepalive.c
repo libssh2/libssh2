@@ -51,7 +51,7 @@ void libssh2_keepalive_config(LIBSSH2_SESSION *session,
 
 int libssh2_keepalive_send(LIBSSH2_SESSION *session, int *seconds_to_next)
 {
-    time_t now;
+    ssh2_time_t now;
 
     if(!session)
         return LIBSSH2_ERROR_BAD_USE;
@@ -62,7 +62,7 @@ int libssh2_keepalive_send(LIBSSH2_SESSION *session, int *seconds_to_next)
         return LIBSSH2_ERROR_NONE;
     }
 
-    now = time(NULL);
+    now = ssh2_now();
 
     if(session->keepalive_last_sent + session->keepalive_interval <= now) {
         /* Format is

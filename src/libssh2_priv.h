@@ -953,7 +953,7 @@ struct _LIBSSH2_SESSION {
     /* Keepalive variables used by keepalive.c. */
     int keepalive_interval;
     int keepalive_want_reply;
-    time_t keepalive_last_sent;
+    ssh2_time_t keepalive_last_sent;
 
     /* Configurable timeout for packets. Replaces LIBSSH2_READ_TIMEOUT */
     long packet_read_timeout;
