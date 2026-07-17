@@ -551,7 +551,7 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
     unsigned long comment_len = 0;
     int rc;
 
-    if(!pkey)
+    if(!pkey || !name || !blob || (num_attrs && !attrs))
         return LIBSSH2_ERROR_BAD_USE;
 
     if(name_len > LIBSSH2_PACKET_MAXPAYLOAD ||
