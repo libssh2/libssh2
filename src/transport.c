@@ -60,7 +60,7 @@ static void transport_debugdump(LIBSSH2_SESSION *session, const char *desc,
         return;  /* not asked for, bail out */
 
     if(size > INT_MAX)
-        return;  /* blob too large */
+        return;  /* input too large */
 
     used = ssh2_snprintf(buffer, sizeof(buffer), "=> %s (%lu bytes)\n",
                          desc, (unsigned long)size);
