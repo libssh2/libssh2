@@ -85,11 +85,12 @@ int libssh2_keepalive_send(LIBSSH2_SESSION *session, int *seconds_to_next)
 
         session->keepalive_last_sent = now;
         if(seconds_to_next)
-            *seconds_to_next =
-                ssh2_timediff_to_sec(session->keepalive_interval);
+            *seconds_to_next = (int)ssh2_timediff_to_sec(
+                session->keepalive_interval);
     }
     else if(seconds_to_next)
-        *seconds_to_next = ssh2_timediff_to_sec(session->keepalive_interval +
+        *seconds_to_next = (int)ssh2_timediff_to_sec(
+            session->keepalive_interval +
             (ssh2_timediff_t)(session->keepalive_last_sent - now));
 
     return LIBSSH2_ERROR_NONE;

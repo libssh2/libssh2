@@ -300,11 +300,11 @@ typedef enum {
     ssh2_NB_state_jumpauthagent
 } ssh2_NB_states;
 
-#define ssh2_sec_to_timediff(sec) (sec)
-#define ssh2_timediff_to_sec(td)  (td)
-#define ssh2_timediff_t           long
 #define ssh2_time_t               time_t
 #define ssh2_now()                time(NULL)
+#define ssh2_timediff_t           long
+#define ssh2_sec_to_timediff(sec) (sec)
+#define ssh2_timediff_to_sec(td)  (td)
 
 struct packet_require_state {
     ssh2_NB_states state;
