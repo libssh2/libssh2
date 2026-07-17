@@ -591,6 +591,7 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, ssh2_time_t start_time)
 
 #ifdef HAVE_POLL
     {
+        ssh2_timediff_t time_to_next_ms = ssh2_timediff_to_ms(time_to_next);
         struct pollfd sockets[1];
 
         sockets[0].fd = session->socket_fd;
@@ -604,7 +605,7 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, ssh2_time_t start_time)
             sockets[0].events |= POLLOUT;
 
         rc = poll(sockets, 1,
-                  has_timeout ? (int)ssh2_timediff_to_ms(time_to_next) : -1);
+                  has_timeout ? (int)SSH2_MIN(time_to_next_ms, INT_MAX) : -1);
     }
 #else
     {
