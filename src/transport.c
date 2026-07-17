@@ -72,6 +72,8 @@ static void transport_debugdump(LIBSSH2_SESSION *session, const char *desc,
 
         used = ssh2_snprintf(buffer, sizeof(buffer), "%04lx: ",
                              (unsigned long)i);
+        if(used < 0 || used >= sizeof(buffer))
+            used = 0;
 
         /* hex not disabled, show it */
         for(c = 0; c < width; c++) {
