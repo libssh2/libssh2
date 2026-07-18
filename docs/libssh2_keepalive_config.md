@@ -28,7 +28,7 @@ Set how often keepalive messages should be sent. **want_reply** indicates
 whether the keepalive messages should request a response from the server.
 **interval_s** is number of seconds that can pass without any I/O, use 0 (the
 default) to disable keepalives. To avoid some busy-loop corner-cases, if you
-specify an interval of 1 it is treated as 2.
+specify an **interval_s** of 1 it is treated as 2.
 
 Note that non-blocking applications are responsible for sending the keepalive
 messages using **libssh2_keepalive_send(3)**.
