@@ -876,38 +876,31 @@ static int session_free(LIBSSH2_SESSION *session)
     if(session->hostkey && session->hostkey->dtor)
         session->hostkey->dtor(session, &session->server_hostkey_abstract);
 
-    if(session->state & SSH2_STATE_NEWKEYS) {
+    /* Client to Server */
+    /* crypt */
+    if(session->local.crypt && session->local.crypt->dtor)
+        session->local.crypt->dtor(session, &session->local.crypt_abstract);
+    /* comp */
+    if(session->local.comp && session->local.comp->dtor)
+        session->local.comp->dtor(session, 1, &session->local.comp_abstract);
+    /* mac */
+    if(session->local.mac && session->local.mac->dtor)
+        session->local.mac->dtor(session, &session->local.mac_abstract);
 
-        /* Client to Server */
-        /* crypt */
-        if(session->local.crypt && session->local.crypt->dtor)
-            session->local.crypt->dtor(session,
-                                       &session->local.crypt_abstract);
-        /* comp */
-        if(session->local.comp && session->local.comp->dtor)
-            session->local.comp->dtor(session, 1,
-                                      &session->local.comp_abstract);
-        /* mac */
-        if(session->local.mac && session->local.mac->dtor)
-            session->local.mac->dtor(session, &session->local.mac_abstract);
+    /* Server to Client */
+    /* crypt */
+    if(session->remote.crypt && session->remote.crypt->dtor)
+        session->remote.crypt->dtor(session, &session->remote.crypt_abstract);
+    /* comp */
+    if(session->remote.comp && session->remote.comp->dtor)
+        session->remote.comp->dtor(session, 0, &session->remote.comp_abstract);
+    /* mac */
+    if(session->remote.mac && session->remote.mac->dtor)
+        session->remote.mac->dtor(session, &session->remote.mac_abstract);
 
-        /* Server to Client */
-        /* crypt */
-        if(session->remote.crypt && session->remote.crypt->dtor)
-            session->remote.crypt->dtor(session,
-                                        &session->remote.crypt_abstract);
-        /* comp */
-        if(session->remote.comp && session->remote.comp->dtor)
-            session->remote.comp->dtor(session, 0,
-                                       &session->remote.comp_abstract);
-        /* mac */
-        if(session->remote.mac && session->remote.mac->dtor)
-            session->remote.mac->dtor(session, &session->remote.mac_abstract);
-
-        /* session_id */
-        if(session->session_id)
-            SSH2_FREE(session, session->session_id);
-    }
+    /* session_id */
+    if(session->session_id)
+        SSH2_FREE(session, session->session_id);
 
     /* Free banner(s) */
     if(session->remote.banner)
