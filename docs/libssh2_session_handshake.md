@@ -38,6 +38,8 @@ Returns 0 on success, negative on failure.
 
 # ERRORS
 
+*LIBSSH2_ERROR_BAD_USE* - If `session` is NULL.
+
 *LIBSSH2_ERROR_SOCKET_NONE* - The socket is invalid.
 
 *LIBSSH2_ERROR_BANNER_SEND* - Unable to send banner to remote host.

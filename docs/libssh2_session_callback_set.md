@@ -37,4 +37,4 @@ which is expecting and returning a function pointer.
 # RETURN VALUE
 
 Pointer to previous callback handler. Returns NULL if no prior callback
-handler was set or the callback type was unknown.
+handler was set, the callback type was unknown, or `session` is NULL.

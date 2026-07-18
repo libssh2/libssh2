@@ -3773,8 +3773,13 @@ int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
 {
     char **prefvar, *s, *newprefs;
     char *tmpprefs = NULL;
-    size_t prefs_len = strlen(prefs);
+    size_t prefs_len;
     const struct common_method **mlist;
+
+    if(!session || !prefs)
+        return LIBSSH2_ERROR_BAD_USE;
+
+    prefs_len = strlen(prefs);
 
     switch(method_type) {
     case LIBSSH2_METHOD_KEX:
