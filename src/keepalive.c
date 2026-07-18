@@ -64,7 +64,7 @@ int libssh2_keepalive_send(LIBSSH2_SESSION *session, int *seconds_to_next)
 
     now = ssh2_now();
 
-    if(session->keepalive_last_sent + session->keepalive_interval <= now) {
+    if(now >= session->keepalive_last_sent + session->keepalive_interval) {
         /* Format is
            "SSH_MSG_GLOBAL_REQUEST || 4-byte len || str || want-reply". */
         unsigned char keepalive_data[] =
