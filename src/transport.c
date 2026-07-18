@@ -238,8 +238,10 @@ static int transport_fullpacket(LIBSSH2_SESSION *session,
                 int blocksize = session->remote.crypt->blocksize;
 
                 decrypt_size = p->total_num - mac_len - 4;
-                if(decrypt_size < blocksize - 1)
+                if(decrypt_size < blocksize - 1) {
+                    SSH2_SAFEFREE(session, p->payload);
                     return LIBSSH2_ERROR_DECRYPT;
+                }
 
                 first_block[0] = 0;
 
