@@ -721,11 +721,9 @@ void ssh2_list_insert(struct list_node *after, /* insert before this */
 #ifdef _WIN32
 static LARGE_INTEGER s_time_freq;
 
-int ssh2_now_init(void)
+void ssh2_now_init(void)
 {
     QueryPerformanceFrequency(&s_time_freq);
-    assert(s_time_freq.QuadPart);
-    return !!s_time_freq.QuadPart;
 }
 #endif
 
@@ -740,9 +738,8 @@ ssh2_time_t ssh2_now(void) /* ms */
     sec = (ssh2_time_t)(count.QuadPart / s_time_freq.QuadPart);
     ns = (ssh2_time_t)(((count.QuadPart % s_time_freq.QuadPart) *
         1000 * 1000 * 1000) / s_time_freq.QuadPart);
-    ms = sec * 1000 + ns / 1000000
 
-    return ms ? ms : 1;
+    return sec * 1000 + ns / 1000000;
 #else /* !_WIN32 */
 #if defined(CLOCK_MONOTONIC_RAW) /* Apple/Linux */
     struct timespec ts;

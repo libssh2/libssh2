@@ -41,13 +41,12 @@ int libssh2_init(int flags)
     if(ssh2_s_initialized == 0 && !(flags & LIBSSH2_INIT_NO_CRYPTO))
         ssh2_crypto_init();
 
+#ifdef _WIN32
+    ssh2_now_init();
+#endif
+
     ssh2_s_initialized++;
     ssh2_s_init_flags |= flags;
-
-#ifdef _WIN32
-    if(!ssh2_now_init())
-        return LIBSSH2_ERROR_METHOD_NOT_SUPPORTED;
-#endif
 
     return 0;
 }
