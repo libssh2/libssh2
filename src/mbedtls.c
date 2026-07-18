@@ -702,7 +702,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
 
     pwd_len = passphrase ? strlen((const char *)passphrase) : 0;
     ret = mbedtls_pk_parse_key(&pkey, data_nullterm, privatekeydata_len + 1,
-                               (const unsigned char *)passphrase, pwd_len,
+                               passphrase, pwd_len,
                                mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
     mbed_zero_free(data_nullterm, privatekeydata_len + 1);
 

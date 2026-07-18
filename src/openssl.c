@@ -3751,8 +3751,7 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
 
     if(!pk) {
         /* Try OpenSSH format */
-        rc = ossl_key_from_openssh_file(session,
-                                        method, method_len,
+        rc = ossl_key_from_openssh_file(session, method, method_len,
                                         pubkeydata, pubkeydata_len,
                                         privatekey, passphrase);
         if(rc)
