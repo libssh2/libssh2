@@ -1442,6 +1442,8 @@ static SSH2_INLINE int session_poll_listener_queued(LIBSSH2_LISTENER *listener)
 }
 
 /*
+ * DEPRECATED, DO NOT USE!
+ *
  * Poll sockets, channels, and listeners for activity
  */
 int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
