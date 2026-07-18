@@ -1719,7 +1719,8 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout_ms)
             tv.tv_usec = (timeout_remaining % 1000) * 1000;
 #endif
             start_time = ssh2_now();
-            sysret = select((int)(maxfd + 1), &rfds, &wfds, NULL, &tv);
+            sysret = select((int)(maxfd + 1), &rfds, &wfds, NULL,
+                            timeout_remaining >= 0 ? &tv : NULL);
             now = ssh2_now();
             timeout_remaining -= now > start_time ? (now - start_time) : 0;
         }
