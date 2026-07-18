@@ -1661,10 +1661,11 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout_ms)
         {
             ssh2_timediff_t timeout_remaining_ms =
                 ssh2_timediff_to_ms(timeout_remaining);
-            ssh2_time_t begin = ssh2_now();
+            ssh2_time_t start_time = ssh2_now(), now;
             sysret = poll(sockets, nfds,
                           (int)SSH2_MIN(timeout_remaining_ms, INT_MAX));
-            timeout_remaining -= ssh2_now() - begin;
+            now = ssh2_now();
+            timeout_remaining -= now > start_time ? (now - start_time) : 0;
         }
 
         if(sysret > 0) {
@@ -1709,7 +1710,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout_ms)
 #elif defined(HAVE_SELECT)
 
         {
-            ssh2_time_t begin;
+            ssh2_time_t start_time, now;
             struct timeval tv;
             tv.tv_sec = (long)(timeout_remaining / 1000);
 #ifdef libssh2_usec_t
@@ -1717,9 +1718,10 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout_ms)
 #else
             tv.tv_usec = (timeout_remaining % 1000) * 1000;
 #endif
-            begin = ssh2_now();
+            start_time = ssh2_now();
             sysret = select((int)(maxfd + 1), &rfds, &wfds, NULL, &tv);
-            timeout_remaining -= ssh2_now() - begin;
+            now = ssh2_now();
+            timeout_remaining -= now > start_time ? (now - start_time) : 0;
         }
 
         if(sysret > 0) {
