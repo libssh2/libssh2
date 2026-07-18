@@ -1454,7 +1454,7 @@ static SSH2_INLINE int session_poll_listener_queued(LIBSSH2_LISTENER *listener)
  */
 int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout_ms)
 {
-    long timeout_remaining;
+    ssh2_timediff_t timeout_remaining;
     unsigned int i, active_fds;
 #ifdef HAVE_POLL
     LIBSSH2_SESSION *session = NULL;
@@ -1584,7 +1584,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout_ms)
     timeout_ms = 0;  /* no sockets structure to setup */
 #endif /* HAVE_POLL || HAVE_SELECT */
 
-    timeout_remaining = timeout_ms;
+    timeout_remaining = ssh2_ms_to_timediff(timeout_ms);
     do {
 #if defined(HAVE_POLL) || defined(HAVE_SELECT)
         int sysret;
@@ -1661,12 +1661,12 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout_ms)
 
 #ifdef HAVE_POLL
         {
-            struct timeval tv_begin, tv_end;
-            ssh2_gettimeofday(&tv_begin, NULL);
-            sysret = poll(sockets, nfds, (int)timeout_remaining);
-            ssh2_gettimeofday(&tv_end, NULL);
-            timeout_remaining -= (tv_end.tv_sec - tv_begin.tv_sec) * 1000;
-            timeout_remaining -= (tv_end.tv_usec - tv_begin.tv_usec) / 1000;
+            ssh2_timediff_t timeout_remaining_ms =
+                ssh2_timediff_to_ms(timeout_remaining);
+            ssh2_time_t being = ssh2_now();
+            sysret = poll(sockets, nfds,
+                          (int)SSH2_MIN(timeout_remaining_ms, INT_MAX));
+            timeout_remaining -= ssh2_now() - start;
         }
 
         if(sysret > 0) {
@@ -1717,12 +1717,9 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout_ms)
         tv.tv_usec = (timeout_remaining % 1000) * 1000;
 #endif
         {
-            struct timeval tv_begin, tv_end;
-            ssh2_gettimeofday(&tv_begin, NULL);
+            ssh2_time_t being = ssh2_now();
             sysret = select((int)(maxfd + 1), &rfds, &wfds, NULL, &tv);
-            ssh2_gettimeofday(&tv_end, NULL);
-            timeout_remaining -= (tv_end.tv_sec - tv_begin.tv_sec) * 1000;
-            timeout_remaining -= (tv_end.tv_usec - tv_begin.tv_usec) / 1000;
+            timeout_remaining -= ssh2_now() - start;
         }
 
         if(sysret > 0) {
