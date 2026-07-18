@@ -1663,10 +1663,10 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout_ms)
         {
             ssh2_timediff_t timeout_remaining_ms =
                 ssh2_timediff_to_ms(timeout_remaining);
-            ssh2_time_t being = ssh2_now();
+            ssh2_time_t begin = ssh2_now();
             sysret = poll(sockets, nfds,
                           (int)SSH2_MIN(timeout_remaining_ms, INT_MAX));
-            timeout_remaining -= ssh2_now() - start;
+            timeout_remaining -= ssh2_now() - begin;
         }
 
         if(sysret > 0) {
@@ -1717,9 +1717,9 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout_ms)
         tv.tv_usec = (timeout_remaining % 1000) * 1000;
 #endif
         {
-            ssh2_time_t being = ssh2_now();
+            ssh2_time_t begin = ssh2_now();
             sysret = select((int)(maxfd + 1), &rfds, &wfds, NULL, &tv);
-            timeout_remaining -= ssh2_now() - start;
+            timeout_remaining -= ssh2_now() - begin;
         }
 
         if(sysret > 0) {
