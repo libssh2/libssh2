@@ -726,6 +726,7 @@ ssh2_time_t ssh2_now(void) /* ms */
     ssh2_time_t sec, ns;
 
     QueryPerformanceFrequency(&time_freq);
+    assert(time_freq.QuadPart);
     QueryPerformanceCounter(&count);
 
     sec = (ssh2_time_t)(count.QuadPart / time_freq.QuadPart);
