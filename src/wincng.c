@@ -2911,19 +2911,17 @@ static int wcng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
 }
 
 int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
-                          unsigned char **method,
-                          size_t *method_len,
+                          unsigned char **method, size_t *method_len,
                           unsigned char **pubkeydata,
                           size_t *pubkeydata_len,
                           const char *privatekey,
-                          const char *passphrase)
+                          const unsigned char *passphrase)
 {
     unsigned char *pbEncoded;
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_private(session, privatekey,
-                            (const unsigned char *)passphrase,
+    ret = wcng_load_private(session, privatekey, passphrase,
                             &pbEncoded, &cbEncoded, 1, 1);
     if(ret)
         return -1;
@@ -2934,22 +2932,19 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
 }
 
 int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                unsigned char **method,
-                                size_t *method_len,
+                                unsigned char **method, size_t *method_len,
                                 unsigned char **pubkeydata,
                                 size_t *pubkeydata_len,
                                 const char *privatekeydata,
                                 size_t privatekeydata_len,
-                                const char *passphrase)
+                                const unsigned char *passphrase)
 {
     unsigned char *pbEncoded;
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_private_memory(session, privatekeydata,
-                                   privatekeydata_len,
-                                   (const unsigned char *)passphrase,
-                                   &pbEncoded, &cbEncoded, 1, 1);
+    ret = wcng_load_private_memory(session, privatekeydata, privatekeydata_len,
+                                   passphrase, &pbEncoded, &cbEncoded, 1, 1);
     if(ret)
         return -1;
 

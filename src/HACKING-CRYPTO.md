@@ -415,12 +415,11 @@ Each item is preceded by its 32-bit byte length, MSB first.
 
 ```c
 int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
-                          unsigned char **method,
-                          size_t *method_len,
+                          unsigned char **method, size_t *method_len,
                           unsigned char **pubkeydata,
                           size_t *pubkeydata_len,
                           const char *privatekey,
-                          const char *passphrase);
+                          const unsigned char *passphrase);
 ```
 Reads a private key from file privatekey and extract the public key -->
 (`pubkeydata`, `pubkeydata_len`). Store the associated method (ssh-rsa or
@@ -431,13 +430,12 @@ This procedure is already prototyped in `crypto.h`.
 
 ```c
 int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                unsigned char **method,
-                                size_t *method_len,
+                                unsigned char **method, size_t *method_len,
                                 unsigned char **pubkeydata,
                                 size_t *pubkeydata_len,
                                 const char *privatekeydata,
                                 size_t privatekeydata_len,
-                                const char *passphrase);
+                                const unsigned char *passphrase);
 ```
 Gets a private key from bytes at (`privatekeydata`, `privatekeydata_len`) and
 extract the public key --> (`pubkeydata`, `pubkeydata_len`). Store the

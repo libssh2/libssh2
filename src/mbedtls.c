@@ -647,12 +647,11 @@ static int mbed_pub_priv_key(LIBSSH2_SESSION *session,
 }
 
 int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
-                          unsigned char **method,
-                          size_t *method_len,
+                          unsigned char **method, size_t *method_len,
                           unsigned char **pubkeydata,
                           size_t *pubkeydata_len,
                           const char *privatekey,
-                          const char *passphrase)
+                          const unsigned char *passphrase)
 {
     mbedtls_pk_context pkey;
     char buf[1024];
@@ -677,8 +676,7 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
 }
 
 int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                unsigned char **method,
-                                size_t *method_len,
+                                unsigned char **method, size_t *method_len,
                                 unsigned char **pubkeydata,
                                 size_t *pubkeydata_len,
                                 const char *privatekeydata,
