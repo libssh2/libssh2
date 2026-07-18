@@ -52,7 +52,8 @@ static int hostkey_method_ssh_rsa_dtor(LIBSSH2_SESSION *session,
     ssh2_rsa_ctx *rsactx = (ssh2_rsa_ctx *)(*abstract);
     (void)session;
 
-    ssh2_rsa_free(rsactx);
+    if(rsactx)
+        ssh2_rsa_free(rsactx);
 
     *abstract = NULL;
 
@@ -454,7 +455,8 @@ static int hostkey_method_ssh_dss_dtor(LIBSSH2_SESSION *session,
     ssh2_dsa_ctx *dsactx = (ssh2_dsa_ctx *)(*abstract);
     (void)session;
 
-    ssh2_dsa_free(dsactx);
+    if(dsactx)
+        ssh2_dsa_free(dsactx);
 
     *abstract = NULL;
 
