@@ -168,4 +168,4 @@ can call libssh2_agent_sign(3) to perform signing.
 # RETURN VALUE
 
 Pointer to previous callback handler. Returns NULL if no prior callback
-handler was set, the callback type was unknown or when `session` is NULL.
+handler was set, the callback type was unknown, or `session` is NULL.
