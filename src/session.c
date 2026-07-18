@@ -442,7 +442,7 @@ libssh2_cb_generic *libssh2_session_callback_set2(LIBSSH2_SESSION *session,
     libssh2_cb_generic *oldcb;
 
     if(!session)
-        return LIBSSH2_ERROR_BAD_USE;
+        return NULL;
 
     switch(cbtype) {
     case LIBSSH2_CALLBACK_IGNORE:
