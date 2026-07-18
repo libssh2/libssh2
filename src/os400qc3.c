@@ -1987,8 +1987,8 @@ static int try_pem_load(LIBSSH2_SESSION *session, FILE *fp,
 
     fseek(fp, 0L, SEEK_SET);
     for(;;) {
-        ret = ssh2_pem_parse(session, header, trailer,
-                             passphrase, fp, &data, &datalen);
+        ret = ssh2_pem_parse_FILE(session, header, trailer,
+                                  passphrase, fp, &data, &datalen);
 
         if(!ret) {
             ret = (*proc)(session, data, datalen, passphrase, loadkeydata);

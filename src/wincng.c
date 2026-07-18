@@ -917,16 +917,16 @@ static int wcng_load_private(LIBSSH2_SESSION *session,
 
 #if LIBSSH2_RSA
     if(ret && tryLoadRSA)
-        ret = ssh2_pem_parse(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
-                             passphrase, fp, &data, &datalen);
+        ret = ssh2_pem_parse_FILE(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
+                                  passphrase, fp, &data, &datalen);
 #else
     (void)tryLoadRSA;
 #endif
 
 #if LIBSSH2_DSA
     if(ret && tryLoadDSA)
-        ret = ssh2_pem_parse(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
-                             passphrase, fp, &data, &datalen);
+        ret = ssh2_pem_parse_FILE(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
+                                  passphrase, fp, &data, &datalen);
 #else
     (void)tryLoadDSA;
 #endif
