@@ -307,6 +307,9 @@ typedef enum {
 #define ssh2_ms_to_timediff(ms)   ((ssh2_time_t)(ms))
 #define ssh2_timediff_to_ms(td)   (td)
 ssh2_time_t ssh2_now(void);
+#ifdef _WIN32
+int ssh2_now_init(void);
+#endif
 
 struct packet_require_state {
     ssh2_NB_states state;

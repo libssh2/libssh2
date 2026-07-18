@@ -718,35 +718,46 @@ void ssh2_list_insert(struct list_node *after, /* insert before this */
 }
 #endif
 
+#ifdef _WIN32
+static LARGE_INTEGER s_time_freq;
+
+int ssh2_now_init(void)
+{
+    QueryPerformanceFrequency(&s_time_freq);
+    assert(s_time_freq.QuadPart);
+    return !!s_time_freq.QuadPart;
+}
+#endif
+
 ssh2_time_t ssh2_now(void) /* ms */
 {
 #ifdef _WIN32
-    /* Via https://stackoverflow.com/questions/5404277/porting-clock-gettime-to-windows */
-    LARGE_INTEGER time_freq, count;
+    LARGE_INTEGER count;
     ssh2_time_t sec, ns;
 
-    QueryPerformanceFrequency(&time_freq);
-    assert(time_freq.QuadPart);
     QueryPerformanceCounter(&count);
 
-    sec = (ssh2_time_t)(count.QuadPart / time_freq.QuadPart);
-    ns = (ssh2_time_t)(((count.QuadPart % time_freq.QuadPart) *
-        1000 * 1000 * 1000) / time_freq.QuadPart);
+    sec = (ssh2_time_t)(count.QuadPart / s_time_freq.QuadPart);
+    ns = (ssh2_time_t)(((count.QuadPart % s_time_freq.QuadPart) *
+        1000 * 1000 * 1000) / s_time_freq.QuadPart);
 
-    return sec * 1000 + ns / 1000 / 1000;
+    return sec * 1000 + ns / 1000000;
 #else /* !_WIN32 */
 #if defined(CLOCK_MONOTONIC_RAW) /* Apple/Linux */
     struct timespec ts;
     if(!clock_gettime(CLOCK_MONOTONIC_RAW, &ts))
-        return ts.tv_sec * 1000 + ts.tv_nsec / 1000 / 1000;
+        return (ssh2_time_t)ts.tv_sec * 1000 +
+            (ssh2_time_t)ts.tv_nsec / 1000000;
 #elif defined(CLOCK_MONOTONIC) /* POSIX */
     struct timespec ts;
     if(!clock_gettime(CLOCK_MONOTONIC, &ts))
-        return ts.tv_sec * 1000 + ts.tv_nsec / 1000 / 1000;
+        return (ssh2_time_t)ts.tv_sec * 1000 +
+            (ssh2_time_t)ts.tv_nsec / 1000000;
 #elif defined(HAVE_GETTIMEOFDAY)
-    struct timeval ts;
-    if(!gettimeofday(&ts, NULL))
-        return ts.tv_sec * 1000 + ts.tv_usec / 1000;
+    struct timeval tv;
+    if(!gettimeofday(&tv, NULL))
+        return (ssh2_time_t)tv.tv_sec * 1000 +
+            (ssh2_time_t)tv.tv_usec / 1000;
 #endif
     {
         ssh2_time_t now = (ssh2_time_t)time(NULL) * 1000;
