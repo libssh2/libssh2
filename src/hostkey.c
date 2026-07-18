@@ -649,11 +649,11 @@ static const struct hostkey_method hostkey_method_ssh_dss = {
 static int hostkey_method_ssh_ecdsa_dtor(LIBSSH2_SESSION *session,
                                          void **abstract)
 {
-    ssh2_ecdsa_ctx *keyctx = (ssh2_ecdsa_ctx *)(*abstract);
+    ssh2_ecdsa_ctx *ec_ctx = (ssh2_ecdsa_ctx *)(*abstract);
     (void)session;
 
-    if(keyctx)
-        ssh2_ecdsa_free(keyctx);
+    if(ec_ctx)
+        ssh2_ecdsa_free(ec_ctx);
 
     *abstract = NULL;
 
@@ -958,11 +958,11 @@ static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp521_cert = {
 static int hostkey_method_ssh_ed25519_dtor(LIBSSH2_SESSION *session,
                                            void **abstract)
 {
-    ssh2_ed25519_ctx *keyctx = (ssh2_ed25519_ctx *)(*abstract);
+    ssh2_ed25519_ctx *ed_ctx = (ssh2_ed25519_ctx *)(*abstract);
     (void)session;
 
-    if(keyctx)
-        ssh2_ed25519_free(keyctx);
+    if(ed_ctx)
+        ssh2_ed25519_free(ed_ctx);
 
     *abstract = NULL;
 
