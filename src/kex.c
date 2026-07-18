@@ -3919,6 +3919,9 @@ int libssh2_session_supported_algs(LIBSSH2_SESSION *session,
     unsigned int ialg;
     const struct common_method **mlist;
 
+    if(!session)
+       return LIBSSH2_ERROR_BAD_USE;
+
     /* to prevent coredumps due to dereferencing of NULL */
     if(!algs)
         return ssh2_err(session, LIBSSH2_ERROR_BAD_USE,
