@@ -718,6 +718,39 @@ void ssh2_list_insert(struct list_node *after, /* insert before this */
 }
 #endif
 
+ssh2_time_t ssh2_now(void) /* ms */
+{
+#ifdef _WIN32
+    /* Via https://stackoverflow.com/questions/5404277/porting-clock-gettime-to-windows */
+    LARGE_INTEGER time_freq, count;
+    ssh2_time_t sec, ns;
+
+    QueryPerformanceFrequency(&time_freq);
+    QueryPerformanceCounter(&count);
+
+    sec = (ssh2_time_t)(count.QuadPart / time_freq.QuadPart);
+    ns = (ssh2_time_t)(((count.QuadPart % time_freq.QuadPart) *
+        1000 * 1000 * 1000) / time_freq.QuadPart);
+
+    return sec * 1000 + ns / 1000 / 1000;
+#else /* !_WIN32 */
+#if defined(CLOCK_MONOTONIC_RAW) /* Apple/Linux */
+    struct timespec ts;
+    if(!clock_gettime(CLOCK_MONOTONIC_RAW, &ts))
+        return ts.tv_sec * 1000 + ts.tv_nsec / 1000 / 1000;
+#elif defined(CLOCK_MONOTONIC) /* POSIX */
+    struct timespec ts;
+    if(!clock_gettime(CLOCK_MONOTONIC, &ts))
+        return ts.tv_sec * 1000 + ts.tv_nsec / 1000 / 1000;
+#elif defiend(HAVE_GETTIMEOFDAY)
+    struct timeval ts;
+    if(!gettimeofday(&ts, NULL))
+        return ts.tv_sec * 1000 + ts.tv_usec / 1000;
+#endif
+    return (ssh2_time_t)time(NULL) * 1000; /* fallback */
+#endif /* _WIN32 */
+}
+
 #ifndef HAVE_GETTIMEOFDAY
 /*
  * Implementation according to:
