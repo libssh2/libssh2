@@ -658,7 +658,7 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     int ret;
 
     mbedtls_pk_init(&pkey);
-    ret = mbedtls_pk_parse_keyfile(&pkey, privatekey, passphrase,
+    ret = mbedtls_pk_parse_keyfile(&pkey, privatekey, (const char *)passphrase,
                                    mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
     if(ret) {
         mbedtls_strerror(ret, (char *)buf, sizeof(buf));
@@ -681,7 +681,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                 size_t *pubkeydata_len,
                                 const char *privatekeydata,
                                 size_t privatekeydata_len,
-                                const char *passphrase)
+                                const unsigned char *passphrase)
 {
     mbedtls_pk_context pkey;
     char buf[1024];
