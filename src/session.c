@@ -1509,7 +1509,6 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout_ms)
     LIBSSH2_SESSION *session = NULL;
     libssh2_socket_t maxfd = 0;
     fd_set rfds, wfds;
-    struct timeval tv;
 
     FD_ZERO(&rfds);
     FD_ZERO(&wfds);
@@ -1710,14 +1709,16 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout_ms)
 
 #elif defined(HAVE_SELECT)
 
-        tv.tv_sec = (long)(timeout_remaining / 1000);
-#ifdef libssh2_usec_t
-        tv.tv_usec = (libssh2_usec_t)((timeout_remaining % 1000) * 1000);
-#else
-        tv.tv_usec = (timeout_remaining % 1000) * 1000;
-#endif
         {
-            ssh2_time_t begin = ssh2_now();
+            ssh2_time_t begin;
+            struct timeval tv;
+            tv.tv_sec = (long)(timeout_remaining / 1000);
+#ifdef libssh2_usec_t
+            tv.tv_usec = (libssh2_usec_t)((timeout_remaining % 1000) * 1000);
+#else
+            tv.tv_usec = (timeout_remaining % 1000) * 1000;
+#endif
+            begin = ssh2_now();
             sysret = select((int)(maxfd + 1), &rfds, &wfds, NULL, &tv);
             timeout_remaining -= ssh2_now() - begin;
         }
