@@ -28,8 +28,8 @@ pw='libssh2'
 id='identity'
 pr='libssh2'
 
-ssh-keygen -t dsa             -N ''          -m PEM -C 'key_dsa'                 -f 'key_dsa'
-ssh-keygen -t dsa             -N ''          -m PEM -C 'key_dsa_wrong'           -f 'key_dsa_wrong'         # not to add to 'authorized_keys'
+ssh-keygen -t dsa             -N ''          -m PEM -C 'key_dsa'                 -f 'key_dsa'               || touch key_dsa.pub
+ssh-keygen -t dsa             -N ''          -m PEM -C 'key_dsa_wrong'           -f 'key_dsa_wrong'         || true # not to add to 'authorized_keys'
 
 ssh-keygen -t rsa     -b 2048 -N ''          -m PEM -C 'key_rsa'                 -f 'key_rsa'
 ssh-keygen -t rsa     -b 2048 -N "${pw}"     -m PEM -C 'key_rsa_encrypted'       -f 'key_rsa_encrypted'
@@ -74,8 +74,8 @@ for fn in ./openssh_server/*_key.pub; do
   printf '====== %s\n' "${fn}"
   printf 'BASE64 %s\n' "${pub}"
   {
-    printf 'MD5    %s\n' "$(printf '%s' "${pub}" | openssl base64 -d -A | openssl dgst -hex -md5)"
-    printf 'SHA1   %s\n' "$(printf '%s' "${pub}" | openssl base64 -d -A | openssl dgst -hex -sha1)"
-    printf 'SHA256 %s\n' "$(printf '%s' "${pub}" | openssl base64 -d -A | openssl dgst -hex -sha256)"
+    printf 'MD5    %s\n' "$(printf '%s' "${pub}" | base64 -d | md5sum | tr -d ' -')"
+    printf 'SHA1   %s\n' "$(printf '%s' "${pub}" | base64 -d | sha1sum | tr -d ' -')"
+    printf 'SHA256 %s\n' "$(printf '%s' "${pub}" | base64 -d | sha256sum | tr -d ' -')"
   } | tr '[:lower:]' '[:upper:]'
 done

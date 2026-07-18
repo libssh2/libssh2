@@ -1,38 +1,32 @@
 # Copyright (C) Alexander Lamaison <alexander.lamaison@gmail.com>
 # Copyright (C) Viktor Szakats
+# All rights reserved.
 #
-# Redistribution and use in source and binary forms,
-# with or without modification, are permitted provided
-# that the following conditions are met:
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
 #
-#   Redistributions of source code must retain the above
-#   copyright notice, this list of conditions and the
-#   following disclaimer.
+# 1. Redistributions of source code must retain the above copyright notice,
+#    this list of conditions and the following disclaimer.
 #
-#   Redistributions in binary form must reproduce the above
-#   copyright notice, this list of conditions and the following
-#   disclaimer in the documentation and/or other materials
-#   provided with the distribution.
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
 #
-#   Neither the name of the copyright holder nor the names
-#   of any other contributors may be used to endorse or
-#   promote products derived from this software without
-#   specific prior written permission.
+# 3. Neither the name of the copyright holder nor the names of its
+#    contributors may be used to endorse or promote products derived from this
+#    software without specific prior written permission.
 #
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
-# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
-# INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-# OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-# USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
-# OF SUCH DAMAGE.
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -182,7 +176,17 @@ if(NOT LIBSSH2_DISABLE_INSTALL)
     DESTINATION ${CMAKE_INSTALL_DOCDIR})
 endif()
 
-include(PickyWarnings)
+if(WIN32)
+  if(WINDOWS_STORE)
+    set(ENABLE_UNICODE ON)
+  else()
+    option(ENABLE_UNICODE "Use the Unicode version of the Windows API functions" OFF)
+    add_feature_info("Unicode" ENABLE_UNICODE "Use Unicode (wide) Win32 and CRT APIs")
+  endif()
+  if(ENABLE_UNICODE)
+    set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "UNICODE" "_UNICODE")
+  endif()
+endif()
 
 set(LIBSSH2_LIBS_SOCKET "")
 set(LIBSSH2_LIBS "")
@@ -224,6 +228,14 @@ if(BUILD_SHARED_LIBS)
 else()
   set(LIB_SELECTED ${LIB_STATIC})
 endif()
+
+# Override to force-disable or force-enable the use of CMake Configs.
+if(MSVC AND NOT VCPKG_TOOLCHAIN AND NOT CMAKE_CROSSCOMPILING)
+  set(_libssh2_use_cmakeconfig_default ON)
+else()
+  set(_libssh2_use_cmakeconfig_default OFF)
+endif()
+option(LIBSSH2_USE_CMAKECONFIG "Enable detecting dependencies via CMake Config" ${_libssh2_use_cmakeconfig_default})
 
 # Override to force-disable or force-enable the use of pkg-config.
 if((UNIX AND NOT ANDROID AND (NOT APPLE OR CMAKE_SYSTEM_NAME MATCHES "Darwin")) OR
@@ -292,13 +304,14 @@ if(LIBSSH2_CLANG_TIDY)
   endif()
 endif()
 
+include(PickyWarnings)
+
 # Auto-detection
 
 # Prefill values with known detection results
 # Keep this synced with src/libssh2_setup.h
 if(WIN32)
   if(MINGW)
-    set(HAVE_SNPRINTF 1)
     set(HAVE_UNISTD_H 1)
     set(HAVE_INTTYPES_H 1)
     set(HAVE_SYS_TIME_H 1)
@@ -315,11 +328,6 @@ if(WIN32)
       set(HAVE_INTTYPES_H 0)
       set(HAVE_STRTOLL 0)
       set(HAVE_STRTOI64 1)
-    endif()
-    if(MSVC_VERSION GREATER_EQUAL 1900)
-      set(HAVE_SNPRINTF 1)
-    else()
-      set(HAVE_SNPRINTF 0)
     endif()
   endif()
   set(HAVE_POLL 0)
@@ -358,7 +366,6 @@ if(NOT HAVE_STRTOLL)
   # Try _strtoi64() if strtoll() is not available
   check_symbol_exists("_strtoi64" "stdlib.h" HAVE_STRTOI64)
 endif()
-check_symbol_exists("snprintf" "stdio.h" HAVE_SNPRINTF)
 if(NOT WIN32)
   check_symbol_exists("explicit_bzero" "string.h" HAVE_EXPLICIT_BZERO)
   check_symbol_exists("explicit_memset" "string.h" HAVE_EXPLICIT_MEMSET)
@@ -407,8 +414,6 @@ configure_file("src/libssh2_config_cmake.h.in"
 
 ## Cryptography backend choice
 
-set(__runtime_dependencies "")
-
 set(CRYPTO_BACKEND "" CACHE
   STRING "The backend to use for cryptography: Libgcrypt, mbedTLS, OpenSSL, WinCNG, wolfSSL, or empty to try any available")
 
@@ -437,23 +442,6 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
       # Statically linking to OpenSSL requires crypt32 for some Windows APIs.
       # This should really be handled by FindOpenSSL.cmake.
       list(APPEND LIBSSH2_LIBS "crypt32" "bcrypt")
-
-      #set(CMAKE_FIND_DEBUG_MODE ON)
-
-      find_file(DLL_LIBCRYPTO
-        NAMES "crypto.dll"
-          "libcrypto-1_1.dll" "libcrypto-1_1-x64.dll"
-          "libcrypto-3.dll" "libcrypto-3-x64.dll"
-        HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
-        PATH_SUFFIXES "bin" NO_DEFAULT_PATH)
-      if(DLL_LIBCRYPTO)
-        list(APPEND __runtime_dependencies ${DLL_LIBCRYPTO})
-        message(STATUS "Found libcrypto DLL: ${DLL_LIBCRYPTO}")
-      else()
-        message(WARNING "Unable to find OpenSSL libcrypto DLL, executables may not run")
-      endif()
-
-      #set(CMAKE_FIND_DEBUG_MODE OFF)
     endif()
 
     find_package(ZLIB)
@@ -464,8 +452,11 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
 endif()
 
 if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
-  find_package(WolfSSL ${_specific_crypto_requirement})
+  find_package(WolfSSL MODULE ${_specific_crypto_requirement})
   if(WOLFSSL_FOUND)
+    if(WOLFSSL_VERSION VERSION_LESS 5.4.0)
+      message(FATAL_ERROR "wolfSSL 5.4.0 or greater required")
+    endif()
     set(CRYPTO_BACKEND "wolfSSL")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_WOLFSSL")
     list(APPEND LIBSSH2_LIBS libssh2::wolfssl)
@@ -478,7 +469,7 @@ if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
 endif()
 
 if(CRYPTO_BACKEND STREQUAL "Libgcrypt" OR NOT CRYPTO_BACKEND)
-  find_package(Libgcrypt ${_specific_crypto_requirement})
+  find_package(Libgcrypt MODULE ${_specific_crypto_requirement})
   if(LIBGCRYPT_FOUND)
     set(CRYPTO_BACKEND "Libgcrypt")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_LIBGCRYPT")
@@ -487,10 +478,10 @@ if(CRYPTO_BACKEND STREQUAL "Libgcrypt" OR NOT CRYPTO_BACKEND)
 endif()
 
 if(CRYPTO_BACKEND STREQUAL "mbedTLS" OR NOT CRYPTO_BACKEND)
-  find_package(MbedTLS ${_specific_crypto_requirement})
+  find_package(MbedTLS MODULE ${_specific_crypto_requirement})
   if(MBEDTLS_FOUND)
     if(MBEDTLS_VERSION VERSION_LESS 3.1.0)
-      message(FATAL_ERROR "mbedTLS v3.1.0 or upper required.")
+      message(FATAL_ERROR "mbedTLS 3.1.0 or greater required")
     endif()
     set(CRYPTO_BACKEND "mbedTLS")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_MBEDTLS")

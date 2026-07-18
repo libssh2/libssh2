@@ -16,11 +16,9 @@ my @options = (
     "-acalloc",
     "-aclose",
     "-afclose",
-    "-afopen",
     "-afree",
     "-amalloc",
     "-arealloc",
-    "-asnprintf",
     "-asocket",
     "-berrno",
 );

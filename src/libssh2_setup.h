@@ -25,7 +25,6 @@
 #elif defined(_WIN32)
 
 #define HAVE_SELECT
-#define HAVE_SNPRINTF
 
 #ifdef __MINGW32__
 #  define HAVE_UNISTD_H
@@ -40,9 +39,6 @@
 #  else
 #    define HAVE_STRTOI64
 #  endif
-#  if _MSC_VER < 1900
-#    undef HAVE_SNPRINTF
-#  endif
 #endif
 
 #endif /* HAVE_CONFIG_H */
@@ -51,14 +47,18 @@
 
 #ifdef _WIN32
 
+#if defined(UNICODE) && !defined(_UNICODE)
+#  error "UNICODE is defined but _UNICODE is not defined"
+#endif
+#if defined(_UNICODE) && !defined(UNICODE)
+#  error "_UNICODE is defined but UNICODE is not defined"
+#endif
+
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
 #ifndef NOGDI
 #define NOGDI
-#endif
-#ifndef NONLS
-#define NONLS
 #endif
 
 #if defined(__clang__) && __clang_major__ >= 13
@@ -70,13 +70,11 @@
 #  undef _FILE_OFFSET_BITS
 #  define _FILE_OFFSET_BITS 64
 #elif defined(_MSC_VER)
-#  ifndef _CRT_SECURE_NO_WARNINGS
-#  define _CRT_SECURE_NO_WARNINGS  /* for fopen(), getenv() */
-#  endif
 #  if !defined(LIBSSH2_LIBRARY) || defined(LIBSSH2_TESTS)
-    /* apply to examples and tests only */
-#    ifndef _CRT_NONSTDC_NO_DEPRECATE
-#    define _CRT_NONSTDC_NO_DEPRECATE  /* for write() */
+     /* apply to examples and tests only */
+#    ifndef _CRT_SECURE_NO_WARNINGS
+#    define _CRT_SECURE_NO_WARNINGS  /* for fopen(), getenv(),
+                                        in tests: vsnprintf() */
 #    endif
 #    ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
 #    define _WINSOCK_DEPRECATED_NO_WARNINGS  /* for inet_addr() */
@@ -84,8 +82,6 @@
      /* we cannot access our internal snprintf() implementation in examples and
         tests when linking to a shared libssh2. */
 #    if _MSC_VER < 1900
-#      undef HAVE_SNPRINTF
-#      define HAVE_SNPRINTF
 #      define snprintf _snprintf
 #    endif
 #  endif

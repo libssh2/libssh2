@@ -21,11 +21,13 @@ struct chacha_ctx {
     u32 input[16];
 };
 
+#if 0
 #define CHACHA_MINKEYLEN    16
 #define CHACHA_NONCELEN     8
 #define CHACHA_CTRLEN       8
 #define CHACHA_STATELEN     (CHACHA_NONCELEN + CHACHA_CTRLEN)
 #define CHACHA_BLOCKLEN     64
+#endif
 
 void chacha_keysetup(struct chacha_ctx *x, const u8 *k, u32 kbits);
 void chacha_ivsetup(struct chacha_ctx *x, const u8 *iv, const u8 *counter);

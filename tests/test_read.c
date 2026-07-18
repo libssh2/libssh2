@@ -19,7 +19,7 @@ int test(LIBSSH2_SESSION *session)
 {
     int rc;
     unsigned long xfer_bytes = 0;
-    LIBSSH2_CHANNEL *channel;
+    LIBSSH2_CHANNEL *channel = NULL;
 
     /* Size and number of blocks to transfer
      * This needs to be large to increase the chance of timing effects causing
@@ -115,14 +115,14 @@ int test(LIBSSH2_SESSION *session)
         }
     }
 
-    /* Shut down */
-    if(libssh2_channel_close(channel))
-        fprintf(stderr, "Unable to close channel\n");
-
-    if(channel)
-        libssh2_channel_free(channel);
-
 shutdown:
+
+    if(channel) {
+        if(libssh2_channel_close(channel))
+            fprintf(stderr, "Unable to close channel\n");
+
+        libssh2_channel_free(channel);
+    }
 
     /* Test check */
     if(xfer_bytes != xfer_count * xfer_bs) {

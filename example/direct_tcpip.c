@@ -153,8 +153,13 @@ int main(int argc, char *argv[])
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
-    for(i = 0; i < 20; i++)
-        fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
+    if(!fingerprint) {
+        fprintf(stderr, "(null)");
+        goto shutdown;
+    }
+    else
+        for(i = 0; i < 20; i++)
+            fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
     fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
@@ -188,9 +193,8 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "Authentication by public key failed.\n");
                 goto shutdown;
             }
-            else {
+            else
                 fprintf(stderr, "Authentication by public key succeeded.\n");
-            }
         }
         else {
             fprintf(stderr, "No supported authentication methods found.\n");
@@ -291,9 +295,8 @@ int main(int argc, char *argv[])
             while(wr < len) {
                 ssize_t nwritten = libssh2_channel_write(channel, buf + wr,
                                                          (size_t)(len - wr));
-                if(nwritten == LIBSSH2_ERROR_EAGAIN) {
+                if(nwritten == LIBSSH2_ERROR_EAGAIN)
                     continue;
-                }
                 if(nwritten < 0) {
                     fprintf(stderr, "libssh2_channel_write: %ld\n",
                             (long)nwritten);
@@ -331,12 +334,12 @@ int main(int argc, char *argv[])
 shutdown:
 
     if(forwardsock != LIBSSH2_INVALID_SOCKET) {
-        shutdown(forwardsock, 2);
+        shutdown(forwardsock, 2 /* SHUT_RDWR */);
         LIBSSH2_SOCKET_CLOSE(forwardsock);
     }
 
     if(listensock != LIBSSH2_INVALID_SOCKET) {
-        shutdown(listensock, 2);
+        shutdown(listensock, 2 /* SHUT_RDWR */);
         LIBSSH2_SOCKET_CLOSE(listensock);
     }
 
@@ -349,7 +352,7 @@ shutdown:
     }
 
     if(sock != LIBSSH2_INVALID_SOCKET) {
-        shutdown(sock, 2);
+        shutdown(sock, 2 /* SHUT_RDWR */);
         LIBSSH2_SOCKET_CLOSE(sock);
     }
 

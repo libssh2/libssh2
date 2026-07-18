@@ -177,8 +177,13 @@ int main(int argc, char *argv[])
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
-    for(i = 0; i < 20; i++)
-        fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
+    if(!fingerprint) {
+        fprintf(stderr, "(null)");
+        goto shutdown;
+    }
+    else
+        for(i = 0; i < 20; i++)
+            fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
     fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
@@ -212,9 +217,8 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "Authentication by public key failed.\n");
                 goto shutdown;
             }
-            else {
+            else
                 fprintf(stderr, "Authentication by public key succeeded.\n");
-            }
         }
         else {
             fprintf(stderr, "No supported authentication methods found.\n");
@@ -250,14 +254,14 @@ int main(int argc, char *argv[])
         "</capabilities>"
         "</hello>\n"
         "]]>]]>\n");
-    if(len < 0)
+    if(len < 0 || len >= (int)sizeof(buf))
         goto shutdown;
-    if(-1 == netconf_write(channel, buf, (size_t)len))
+    if(netconf_write(channel, buf, (size_t)len) == -1)
         goto shutdown;
 
     fprintf(stderr, "Reading NETCONF server <hello>\n");
     len = netconf_read_until(channel, "</hello>", buf, sizeof(buf));
-    if(-1 == len)
+    if(len == -1)
         goto shutdown;
 
     fprintf(stderr, "Got %ld bytes:\n----------------------\n%s",
@@ -270,14 +274,14 @@ int main(int argc, char *argv[])
         "<get-interface-information><terse/></get-interface-information>"
         "</rpc>\n"
         "]]>]]>\n");
-    if(len < 0)
+    if(len < 0 || len >= (int)sizeof(buf))
         goto shutdown;
-    if(-1 == netconf_write(channel, buf, (size_t)len))
+    if(netconf_write(channel, buf, (size_t)len) == -1)
         goto shutdown;
 
     fprintf(stderr, "Reading NETCONF <rpc-reply>\n");
     len = netconf_read_until(channel, "</rpc-reply>", buf, sizeof(buf));
-    if(-1 == len)
+    if(len == -1)
         goto shutdown;
 
     fprintf(stderr, "Got %ld bytes:\n----------------------\n%s",
@@ -294,7 +298,7 @@ shutdown:
     }
 
     if(sock != LIBSSH2_INVALID_SOCKET) {
-        shutdown(sock, 2);
+        shutdown(sock, 2 /* SHUT_RDWR */);
         LIBSSH2_SOCKET_CLOSE(sock);
     }
 

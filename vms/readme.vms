@@ -12,7 +12,7 @@ to be found at https://libssh2.org.
 GNV
 ---
 
-The library uses the GNV prefix, on advise of the kind supporter
+The library uses the GNV prefix, on advice of the kind supporter
 of the GNV project, John Malmberg.
 
 Installing the PCSI kit
@@ -30,7 +30,7 @@ Prerequisites
   See the remarks at prerequisites for building the kit
 
 The first three dependencies are tested at installation time, and
-installation fails if any these products are not installed.
+installation fails if any of these products are not installed.
 The ZLIB dependency is not tested by the product installation
 procedure, as libssh2 is probably installed as part of multiple
 libraries including zlib.
@@ -68,7 +68,7 @@ Please ignore the following warnings, as the kit is not signed :
 -PCSI-I-NOTSIGNED, product kit is not signed and therefore has no manifest file
 
 Optionally, you can install a backup saveset with some programming examples,
-or a backupo saveset with the complete libssh2 source tree.
+or a backup saveset with the complete libssh2 source tree.
 
 you need to answer 'NO' to the question
 'Do you want the default for all options'.
@@ -168,7 +168,7 @@ You need to have the following available:
   it against the OpenSSL library, but that is not what I have used.
 
 - A C compiler. I do not know any other working C compilers than
-  the DEC/Compac/HP-C compiler on VMS.
+  the DEC/Compaq/HP-C compiler on VMS.
 
 - An ODS-5 disk. With tweaking you can get it to work on an ODS-2
   disk, but it is unpractical to do so.
@@ -184,7 +184,7 @@ Optional:
 
 - curl, to be found at  https://curl.haxx.se
   You might want to use curl to download the libssh2 kit directly
-  to you VMS machine. Interestingly, sftp in curl is implemented using
+  to your VMS machine. Interestingly, sftp in curl is implemented using
   libssh2, soon to be expected on VMS as well, hopefully.
 
 Downloading libssh2

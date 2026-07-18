@@ -3,38 +3,31 @@
  * Copyright (C) Daniel Stenberg
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms,
- * with or without modification, are permitted provided
- * that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *   Redistributions of source code must retain the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
  *
- *   Redistributions in binary form must reproduce the above
- *   copyright notice, this list of conditions and the following
- *   disclaimer in the documentation and/or other materials
- *   provided with the distribution.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
  *
- *   Neither the name of the copyright holder nor the names
- *   of any other contributors may be used to endorse or
- *   promote products derived from this software without
- *   specific prior written permission.
+ * 3. Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
- * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
- * OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -96,18 +89,18 @@
    some kind of server problem. */
 #define SFTP_PACKET_MAXLEN  (256 * 1024)
 
-static int sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
-                           uint32_t request_id, unsigned char **data,
-                           size_t *data_len);
-static void sftp_packet_flush(LIBSSH2_SFTP *sftp);
+/* Readdir responses are allowed to exceed SFTP_PACKET_MAXLEN, but must
+   still have a reasonable upper bound to prevent a malicious server from
+   causing unbounded memory allocation (up to ~4 GB for a uint32_t). */
+#define SFTP_READDIR_MAXLEN (16 * 1024 * 1024)
 
 /*
  * Search list of zombied FXP_READ request IDs.
  *
  * Returns NULL if ID not in list.
  */
-static struct sftp_zombie_requests *find_zombie_request(LIBSSH2_SFTP *sftp,
-                                                        uint32_t request_id)
+static struct sftp_zombie_requests *sftp_zombie_request_find(
+    LIBSSH2_SFTP *sftp, uint32_t request_id)
 {
     struct sftp_zombie_requests *zombie =
         ssh2_list_first(&sftp->zombie_requests);
@@ -122,12 +115,12 @@ static struct sftp_zombie_requests *find_zombie_request(LIBSSH2_SFTP *sftp,
     return zombie;
 }
 
-static void remove_zombie_request(LIBSSH2_SFTP *sftp, uint32_t request_id)
+static void sftp_zombie_request_remove(LIBSSH2_SFTP *sftp, uint32_t request_id)
 {
     LIBSSH2_SESSION *session = sftp->channel->session;
 
-    struct sftp_zombie_requests *zombie = find_zombie_request(sftp,
-                                                              request_id);
+    struct sftp_zombie_requests *zombie = sftp_zombie_request_find(sftp,
+                                                                   request_id);
     if(zombie) {
         ssh2_deb((session, LIBSSH2_TRACE_SFTP,
                   "Removing request ID %u from the list of zombie requests",
@@ -138,7 +131,7 @@ static void remove_zombie_request(LIBSSH2_SFTP *sftp, uint32_t request_id)
     }
 }
 
-static int add_zombie_request(LIBSSH2_SFTP *sftp, uint32_t request_id)
+static int sftp_zombie_request_add(LIBSSH2_SFTP *sftp, uint32_t request_id)
 {
     LIBSSH2_SESSION *session = sftp->channel->session;
 
@@ -169,9 +162,8 @@ static int sftp_packet_add(LIBSSH2_SFTP *sftp,
     struct sftp_packet *packet;
     uint32_t request_id;
 
-    if(data_len < 5) {
+    if(data_len < 5)
         return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
-    }
 
     ssh2_deb((session, LIBSSH2_TRACE_SFTP, "Received packet type %u (len %lu)",
               (unsigned int)data[0], (unsigned long)data_len));
@@ -225,22 +217,21 @@ static int sftp_packet_add(LIBSSH2_SFTP *sftp,
 
     /* Do not add the packet if it answers a request we have given up on. */
     if((data[0] == SSH_FXP_STATUS || data[0] == SSH_FXP_DATA) &&
-       find_zombie_request(sftp, request_id)) {
+       sftp_zombie_request_find(sftp, request_id)) {
 
         /* If we get here, the file ended before the response arrived. We
            are no longer interested in the request so we discard it */
 
         SSH2_FREE(session, data);
 
-        remove_zombie_request(sftp, request_id);
+        sftp_zombie_request_remove(sftp, request_id);
         return LIBSSH2_ERROR_NONE;
     }
 
     packet = SSH2_ALLOC(session, sizeof(struct sftp_packet));
-    if(!packet) {
+    if(!packet)
         return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                         "Unable to allocate datablock for SFTP packet");
-    }
 
     packet->data = data;
     packet->data_len = data_len;
@@ -313,19 +304,31 @@ static int sftp_packet_read(LIBSSH2_SFTP *sftp)
 
             /* make sure we do not proceed if the packet size is unreasonably
                large */
-            if(sftp->partial_len > SFTP_PACKET_MAXLEN &&
-               /* exception: response to SSH_FXP_READDIR request */
-               !(sftp->readdir_state != ssh2_NB_state_idle &&
-                 sftp->readdir_request_id == request_id &&
-                 packet_type == SSH_FXP_NAME)) {
-                libssh2_channel_flush(channel);
-                sftp->packet_header_len = 0;
-                return ssh2_err(session, LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED,
-                                "SFTP packet too large");
+            if(sftp->partial_len > SFTP_PACKET_MAXLEN) {
+                /* exception: response to SSH_FXP_READDIR request gets a
+                   higher (but still bounded) limit */
+                if(sftp->readdir_state != ssh2_NB_state_idle &&
+                   sftp->readdir_request_id == request_id &&
+                   packet_type == SSH_FXP_NAME) {
+                    if(sftp->partial_len > SFTP_READDIR_MAXLEN) {
+                        libssh2_channel_flush(channel);
+                        sftp->packet_header_len = 0;
+                        return ssh2_err(session,
+                                        LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED,
+                                        "SFTP readdir packet too large");
+                    }
+                }
+                else {
+                    libssh2_channel_flush(channel);
+                    sftp->packet_header_len = 0;
+                    return ssh2_err(session,
+                                    LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED,
+                                    "SFTP packet too large");
+                }
             }
 
             if(sftp->partial_len < 5)
-                return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
+                return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                 "Invalid SFTP packet size");
 
             ssh2_deb((session, LIBSSH2_TRACE_SFTP,
@@ -337,7 +340,7 @@ static int sftp_packet_read(LIBSSH2_SFTP *sftp)
                                 "Unable to allocate SFTP packet");
             sftp->packet_header_len = 0;
             sftp->partial_packet = packet;
-            /* copy over packet type(4) and request id(1) */
+            /* copy over packet type(1) and request id(4) */
             sftp->partial_received = 5;
             memcpy(packet, sftp->packet_header + 4, 5);
 
@@ -345,9 +348,13 @@ window_adjust:
             recv_window = libssh2_channel_window_read_ex(channel, NULL, NULL);
 
             if(sftp->partial_len > recv_window) {
-                /* ask for twice the data amount we need at once */
+                /* ask for twice the data amount we need at once, but
+                   cap to UINT32_MAX to prevent integer overflow when
+                   partial_len > 2^31 */
+                uint32_t adjust = (sftp->partial_len > UINT32_MAX / 2) ?
+                    UINT32_MAX : sftp->partial_len * 2;
                 rc = ssh2_channel_receive_window_adjust(channel,
-                                                        sftp->partial_len * 2,
+                                                        adjust,
                                                         1, NULL);
                 /* store the state so that we continue with the correct
                    operation at next invoke */
@@ -394,49 +401,10 @@ window_adjust:
             SSH2_FREE(session, packet);
             return (int)rc;
         }
-        else {
+        else
             return packet_type;
-        }
     }
     /* NOT REACHED */
-}
-
-/*
- * Remove all pending packets in the packet_list and the corresponding one(s)
- * in the SFTP packet brigade.
- */
-static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
-{
-    struct sftp_pipeline_chunk *chunk;
-    LIBSSH2_SFTP *sftp = handle->sftp;
-    LIBSSH2_SESSION *session = sftp->channel->session;
-
-    /* remove pending packets, if any */
-    chunk = ssh2_list_first(&handle->packet_list);
-    while(chunk) {
-        unsigned char *data;
-        size_t data_len;
-        int rc;
-        struct sftp_pipeline_chunk *next = ssh2_list_next(&chunk->node);
-
-        rc = sftp_packet_ask(sftp, SSH_FXP_STATUS,
-                             chunk->request_id, &data, &data_len);
-        if(rc)
-            rc = sftp_packet_ask(sftp, SSH_FXP_DATA,
-                                 chunk->request_id, &data, &data_len);
-
-        if(!rc)
-            /* we found a packet, free it */
-            SSH2_FREE(session, data);
-        else if(chunk->sent)
-            /* there was no incoming packet for this request, mark this
-               request as a zombie if it ever sent the request */
-            add_zombie_request(sftp, chunk->request_id);
-
-        ssh2_list_remove(&chunk->node);
-        SSH2_FREE(session, chunk);
-        chunk = next;
-    }
 }
 
 /*
@@ -486,9 +454,8 @@ static int sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
     LIBSSH2_SESSION *session = sftp->channel->session;
     int rc;
 
-    if(!data || !data_len || required_size == 0) {
+    if(!data || !data_len || required_size == 0)
         return LIBSSH2_ERROR_BAD_USE;
-    }
 
     ssh2_deb((session, LIBSSH2_TRACE_SFTP, "Requiring packet %u id %u",
               (unsigned int)packet_type, request_id));
@@ -498,9 +465,8 @@ static int sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
         ssh2_deb((session, LIBSSH2_TRACE_SFTP, "Got %u",
                   (unsigned int)packet_type));
 
-        if(*data_len < required_size) {
+        if(*data_len < required_size)
             return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
-        }
 
         return LIBSSH2_ERROR_NONE;
     }
@@ -516,9 +482,8 @@ static int sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
             ssh2_deb((session, LIBSSH2_TRACE_SFTP, "Got %u",
                       (unsigned int)packet_type));
 
-            if(*data_len < required_size) {
+            if(*data_len < required_size)
                 return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
-            }
 
             return LIBSSH2_ERROR_NONE;
         }
@@ -540,9 +505,8 @@ static int sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
     int i;
     int rc;
 
-    if(!data || !data_len || required_size == 0) {
+    if(!data || !data_len || required_size == 0)
         return LIBSSH2_ERROR_BAD_USE;
-    }
 
     /* If no timeout is active, start a new one */
     if(sftp->requirev_start == 0)
@@ -558,9 +522,8 @@ static int sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
                  */
                 sftp->requirev_start = 0;
 
-                if(*data_len < required_size) {
+                if(*data_len < required_size)
                     return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
-                }
 
                 return LIBSSH2_ERROR_NONE;
             }
@@ -581,9 +544,8 @@ static int sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
                 sftp->requirev_start = 0;
                 return LIBSSH2_ERROR_TIMEOUT;
             }
-            else if(rc == LIBSSH2_ERROR_EAGAIN) {
+            else if(rc == LIBSSH2_ERROR_EAGAIN)
                 return rc;
-            }
         }
     }
 
@@ -591,6 +553,44 @@ static int sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
 
     /* Only reached if the socket died */
     return LIBSSH2_ERROR_SOCKET_DISCONNECT;
+}
+
+/*
+ * Remove all pending packets in the packet_list and the corresponding one(s)
+ * in the SFTP packet brigade.
+ */
+static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
+{
+    struct sftp_pipeline_chunk *chunk;
+    LIBSSH2_SFTP *sftp = handle->sftp;
+    LIBSSH2_SESSION *session = sftp->channel->session;
+
+    /* remove pending packets, if any */
+    chunk = ssh2_list_first(&handle->packet_list);
+    while(chunk) {
+        unsigned char *data;
+        size_t data_len;
+        int rc;
+        struct sftp_pipeline_chunk *next = ssh2_list_next(&chunk->node);
+
+        rc = sftp_packet_ask(sftp, SSH_FXP_STATUS,
+                             chunk->request_id, &data, &data_len);
+        if(rc)
+            rc = sftp_packet_ask(sftp, SSH_FXP_DATA,
+                                 chunk->request_id, &data, &data_len);
+
+        if(!rc)
+            /* we found a packet, free it */
+            SSH2_FREE(session, data);
+        else if(chunk->sent)
+            /* there was no incoming packet for this request, mark this
+               request as a zombie if it ever sent the request */
+            sftp_zombie_request_add(sftp, chunk->request_id);
+
+        ssh2_list_remove(&chunk->node);
+        SSH2_FREE(session, chunk);
+        chunk = next;
+    }
 }
 
 /*
@@ -629,18 +629,16 @@ static ssize_t sftp_attr2bin(unsigned char *p,
 
     ssh2_store_u32(&s, (uint32_t)(attrs->flags & flag_mask));
 
-    if(attrs->flags & LIBSSH2_SFTP_ATTR_SIZE) {
+    if(attrs->flags & LIBSSH2_SFTP_ATTR_SIZE)
         ssh2_store_u64(&s, attrs->filesize);
-    }
 
     if(attrs->flags & LIBSSH2_SFTP_ATTR_UIDGID) {
         ssh2_store_u32(&s, (uint32_t)attrs->uid);
         ssh2_store_u32(&s, (uint32_t)attrs->gid);
     }
 
-    if(attrs->flags & LIBSSH2_SFTP_ATTR_PERMISSIONS) {
+    if(attrs->flags & LIBSSH2_SFTP_ATTR_PERMISSIONS)
         ssh2_store_u32(&s, (uint32_t)attrs->permissions);
-    }
 
     if(attrs->flags & LIBSSH2_SFTP_ATTR_ACMODTIME) {
         ssh2_store_u32(&s, (uint32_t)attrs->atime);
@@ -659,33 +657,30 @@ static ssize_t sftp_bin2attr(LIBSSH2_SFTP_ATTRIBUTES *attrs,
     buf.dataptr = buf.data;
     buf.len = data_len;
 
-    if(ssh2_get_u32(&buf, &flags)) {
+    if(ssh2_get_u32(&buf, &flags))
         return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
-    }
+
     attrs->flags = flags;
 
     if(attrs->flags & LIBSSH2_SFTP_ATTR_SIZE) {
-        if(ssh2_get_u64(&buf, &(attrs->filesize))) {
+        if(ssh2_get_u64(&buf, &attrs->filesize))
             return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
-        }
     }
 
     if(attrs->flags & LIBSSH2_SFTP_ATTR_UIDGID) {
         uint32_t uid = 0;
         uint32_t gid = 0;
         if(ssh2_get_u32(&buf, &uid) ||
-           ssh2_get_u32(&buf, &gid)) {
+           ssh2_get_u32(&buf, &gid))
             return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
-        }
         attrs->uid = uid;
         attrs->gid = gid;
     }
 
     if(attrs->flags & LIBSSH2_SFTP_ATTR_PERMISSIONS) {
         uint32_t permissions;
-        if(ssh2_get_u32(&buf, &permissions)) {
+        if(ssh2_get_u32(&buf, &permissions))
             return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
-        }
         attrs->permissions = permissions;
     }
 
@@ -693,9 +688,8 @@ static ssize_t sftp_bin2attr(LIBSSH2_SFTP_ATTRIBUTES *attrs,
         uint32_t atime;
         uint32_t mtime;
         if(ssh2_get_u32(&buf, &atime) ||
-           ssh2_get_u32(&buf, &mtime)) {
+           ssh2_get_u32(&buf, &mtime))
             return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
-        }
         attrs->atime = atime;
         attrs->mtime = mtime;
     }
@@ -709,15 +703,13 @@ static ssize_t sftp_bin2attr(LIBSSH2_SFTP_ATTRIBUTES *attrs,
         size_t edata_len;
         unsigned char *edata;
 
-        if(ssh2_get_u32(&buf, &extended_count)) {
+        if(ssh2_get_u32(&buf, &extended_count))
             return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
-        }
 
         for(i = 0; i < extended_count; ++i) {
             if(ssh2_get_string(&buf, &etype, &etype_len) ||
-               ssh2_get_string(&buf, &edata, &edata_len)) {
+               ssh2_get_string(&buf, &edata, &edata_len))
                 return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
-            }
         }
     }
 
@@ -741,14 +733,12 @@ LIBSSH2_CHANNEL_CLOSE_FUNC(sftp_dtor)
     (void)channel;
 
     /* Free the partial packet storage for sftp_packet_read */
-    if(sftp->partial_packet) {
+    if(sftp->partial_packet)
         SSH2_FREE(session, sftp->partial_packet);
-    }
 
     /* Free the packet storage for ssh2_sftp_packet_readdir() */
-    if(sftp->readdir_packet) {
+    if(sftp->readdir_packet)
         SSH2_FREE(session, sftp->readdir_packet);
-    }
 
     SSH2_FREE(session, sftp);
 }
@@ -793,10 +783,9 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
                               LIBSSH2_CHANNEL_WINDOW_DEFAULT,
                               LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL, 0);
         if(!session->sftpInit_channel) {
-            if(libssh2_session_last_errno(session) == LIBSSH2_ERROR_EAGAIN) {
+            if(libssh2_session_last_errno(session) == LIBSSH2_ERROR_EAGAIN)
                 ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
                          "Would block starting up channel");
-            }
             else {
                 ssh2_err(session, LIBSSH2_ERROR_CHANNEL_FAILURE,
                          "Unable to startup channel");
@@ -894,10 +883,8 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
             return NULL;
         }
         session->sftpInit_channel = NULL;
-        if(session->sftpInit_sftp) {
-            SSH2_FREE(session, session->sftpInit_sftp);
-            session->sftpInit_sftp = NULL;
-        }
+        if(session->sftpInit_sftp)
+            SSH2_SAFEFREE(session, session->sftpInit_sftp);
         session->sftpInit_state = ssh2_NB_state_idle;
         return NULL;
     }
@@ -910,9 +897,8 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
         return NULL;
     }
     else if(rc == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
-        if(data_len > 0) {
+        if(data_len > 0)
             SSH2_FREE(session, data);
-        }
         ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                  "Invalid SSH_FXP_VERSION response");
         goto sftp_init_error;
@@ -928,7 +914,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
     buf.len = data_len;
     endp = &buf.data[data_len];
 
-    if(ssh2_get_u32(&buf, &(sftp_handle->version))) {
+    if(ssh2_get_u32(&buf, &sftp_handle->version)) {
         SSH2_FREE(session, data);
         ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                  "Data too short when extracting version");
@@ -1024,6 +1010,40 @@ LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session)
 }
 
 /*
+ * Flush all remaining incoming SFTP packets and zombies.
+ */
+static void sftp_packet_flush(LIBSSH2_SFTP *sftp)
+{
+    LIBSSH2_CHANNEL *channel = sftp->channel;
+    LIBSSH2_SESSION *session = channel->session;
+    struct sftp_packet *packet = ssh2_list_first(&sftp->packets);
+    struct sftp_zombie_requests *zombie =
+        ssh2_list_first(&sftp->zombie_requests);
+
+    while(packet) {
+        struct sftp_packet *next;
+
+        /* check next struct in the list */
+        next = ssh2_list_next(&packet->node);
+        ssh2_list_remove(&packet->node);
+        SSH2_FREE(session, packet->data);
+        SSH2_FREE(session, packet);
+
+        packet = next;
+    }
+
+    while(zombie) {
+        /* figure out the next node */
+        struct sftp_zombie_requests *next = ssh2_list_next(&zombie->node);
+        /* unlink the current one */
+        ssh2_list_remove(&zombie->node);
+        /* free the memory */
+        SSH2_FREE(session, zombie);
+        zombie = next;
+    }
+}
+
+/*
  * Shuts down the SFTP subsystem
  */
 static int sftp_shutdown(LIBSSH2_SFTP *sftp)
@@ -1033,58 +1053,32 @@ static int sftp_shutdown(LIBSSH2_SFTP *sftp)
     /*
      * Make sure all memory used in the state variables are free
      */
-    if(sftp->partial_packet) {
-        SSH2_FREE(session, sftp->partial_packet);
-        sftp->partial_packet = NULL;
-    }
-    if(sftp->open_packet) {
-        SSH2_FREE(session, sftp->open_packet);
-        sftp->open_packet = NULL;
-    }
-    if(sftp->readdir_packet) {
-        SSH2_FREE(session, sftp->readdir_packet);
-        sftp->readdir_packet = NULL;
-    }
-    if(sftp->fstat_packet) {
-        SSH2_FREE(session, sftp->fstat_packet);
-        sftp->fstat_packet = NULL;
-    }
-    if(sftp->unlink_packet) {
-        SSH2_FREE(session, sftp->unlink_packet);
-        sftp->unlink_packet = NULL;
-    }
-    if(sftp->rename_packet) {
-        SSH2_FREE(session, sftp->rename_packet);
-        sftp->rename_packet = NULL;
-    }
-    if(sftp->fstatvfs_packet) {
-        SSH2_FREE(session, sftp->fstatvfs_packet);
-        sftp->fstatvfs_packet = NULL;
-    }
-    if(sftp->statvfs_packet) {
-        SSH2_FREE(session, sftp->statvfs_packet);
-        sftp->statvfs_packet = NULL;
-    }
-    if(sftp->mkdir_packet) {
-        SSH2_FREE(session, sftp->mkdir_packet);
-        sftp->mkdir_packet = NULL;
-    }
-    if(sftp->rmdir_packet) {
-        SSH2_FREE(session, sftp->rmdir_packet);
-        sftp->rmdir_packet = NULL;
-    }
-    if(sftp->stat_packet) {
-        SSH2_FREE(session, sftp->stat_packet);
-        sftp->stat_packet = NULL;
-    }
-    if(sftp->symlink_packet) {
-        SSH2_FREE(session, sftp->symlink_packet);
-        sftp->symlink_packet = NULL;
-    }
-    if(sftp->fsync_packet) {
-        SSH2_FREE(session, sftp->fsync_packet);
-        sftp->fsync_packet = NULL;
-    }
+    if(sftp->partial_packet)
+        SSH2_SAFEFREE(session, sftp->partial_packet);
+    if(sftp->open_packet)
+        SSH2_SAFEFREE(session, sftp->open_packet);
+    if(sftp->readdir_packet)
+        SSH2_SAFEFREE(session, sftp->readdir_packet);
+    if(sftp->fstat_packet)
+        SSH2_SAFEFREE(session, sftp->fstat_packet);
+    if(sftp->unlink_packet)
+        SSH2_SAFEFREE(session, sftp->unlink_packet);
+    if(sftp->rename_packet)
+        SSH2_SAFEFREE(session, sftp->rename_packet);
+    if(sftp->fstatvfs_packet)
+        SSH2_SAFEFREE(session, sftp->fstatvfs_packet);
+    if(sftp->statvfs_packet)
+        SSH2_SAFEFREE(session, sftp->statvfs_packet);
+    if(sftp->mkdir_packet)
+        SSH2_SAFEFREE(session, sftp->mkdir_packet);
+    if(sftp->rmdir_packet)
+        SSH2_SAFEFREE(session, sftp->rmdir_packet);
+    if(sftp->stat_packet)
+        SSH2_SAFEFREE(session, sftp->stat_packet);
+    if(sftp->symlink_packet)
+        SSH2_SAFEFREE(session, sftp->symlink_packet);
+    if(sftp->fsync_packet)
+        SSH2_SAFEFREE(session, sftp->fsync_packet);
 
     sftp_packet_flush(sftp);
 
@@ -1122,34 +1116,33 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
     LIBSSH2_SFTP_HANDLE *fp;
-    LIBSSH2_SFTP_ATTRIBUTES attrs = {
-        LIBSSH2_SFTP_ATTR_PERMISSIONS, 0, 0, 0, 0, 0, 0
-    };
     unsigned char *s;
     ssize_t rc;
-    uint32_t packet_len;
     int open_file = (open_type == LIBSSH2_SFTP_OPENFILE) ? 1 : 0;
-
-    /* packet_len(4) + packet_type(1) + request_id(4) + filename_len(4) +
-       flags(4) */
-    packet_len = (13 + (open_file ? (4 + sftp_attrsize(attrs.flags)) : 0));
-
-    if(packet_len + (uint32_t)filename_len < packet_len) {
-        ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                 "Input too large sftp_open");
-        return NULL;
-    }
-
-    packet_len += (uint32_t)filename_len;
 
     if(sftp->open_state == ssh2_NB_state_idle) {
 
-        sftp->last_errno = LIBSSH2_FX_OK;
+        uint32_t packet_len;
+        LIBSSH2_SFTP_ATTRIBUTES attrs = {
+            LIBSSH2_SFTP_ATTR_PERMISSIONS, 0, 0, 0, 0, 0, 0
+        };
 
-        if(attrs_in) {
+        if(attrs_in)
             memcpy(&attrs, attrs_in, sizeof(LIBSSH2_SFTP_ATTRIBUTES));
+
+        /* packet_len(4) + packet_type(1) + request_id(4) + filename_len(4) +
+           flags(4) */
+        packet_len = 13 + (open_file ? (4 + sftp_attrsize(attrs.flags)) : 0);
+
+        if(packet_len + (uint32_t)filename_len < packet_len) {
+            ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                     "Input too large sftp_open");
+            return NULL;
         }
 
+        packet_len += (uint32_t)filename_len;
+
+        sftp->last_errno = LIBSSH2_FX_OK;
         sftp->open_packet_len = packet_len;
 
         /* surprise! this starts out with nothing sent */
@@ -1195,8 +1188,7 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
         }
         else if(rc < 0) {
             ssh2_err(session, (int)rc, "Unable to send FXP_OPEN*");
-            SSH2_FREE(session, sftp->open_packet);
-            sftp->open_packet = NULL;
+            SSH2_SAFEFREE(session, sftp->open_packet);
             sftp->open_state = ssh2_NB_state_idle;
             return NULL;
         }
@@ -1206,19 +1198,17 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
         sftp->open_packet_sent += rc;
 
         if(sftp->open_packet_len == sftp->open_packet_sent) {
-            SSH2_FREE(session, sftp->open_packet);
-            sftp->open_packet = NULL;
-
+            SSH2_SAFEFREE(session, sftp->open_packet);
             sftp->open_state = ssh2_NB_state_sent;
         }
     }
 
     if(sftp->open_state == ssh2_NB_state_sent) {
-        size_t data_len = 0;
-        unsigned char *data;
         static const unsigned char fopen_responses[2] = {
             SSH_FXP_HANDLE, SSH_FXP_STATUS
         };
+        size_t data_len = 0;
+        unsigned char *data;
         rc = sftp_packet_requirev(sftp, 2, fopen_responses,
                                   sftp->open_request_id, &data,
                                   &data_len, 1);
@@ -1228,9 +1218,8 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
             return NULL;
         }
         else if(rc == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
-            if(data_len > 0) {
+            if(data_len > 0)
                 SSH2_FREE(session, data);
-            }
             ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                      "Response too small");
             return NULL;
@@ -1260,7 +1249,7 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
             if(LIBSSH2_FX_OK == sftp->last_errno) {
                 ssh2_deb((session, LIBSSH2_TRACE_SFTP, "got HANDLE FXOK"));
 
-                SSH2_FREE(session, data);
+                SSH2_SAFEFREE(session, data);
 
                 /* silly situation, but check for a HANDLE */
                 rc = sftp_packet_require(sftp, SSH_FXP_HANDLE,
@@ -1272,9 +1261,8 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
                     return NULL;
                 }
                 else if(rc == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
-                    if(data_len > 0) {
+                    if(data_len > 0)
                         SSH2_FREE(session, data);
-                    }
                     ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                              "Too small FXP_HANDLE");
                     return NULL;
@@ -1415,11 +1403,10 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
        but the state machine ensures we skip the first phase on the next call
        and resume sending.
 
-       ssh2_NB_state_sent2: In the third phase (indicated by ) we read the
-       data from the responses that have arrived so far.  Reading can be
-       interrupted with EAGAIN but the state machine ensures we skip the first
-       and second phases on the next call and resume sending.
-    */
+       ssh2_NB_state_sent2: In the third phase we read the data from
+       the responses that have arrived so far.  Reading can be interrupted with
+       EAGAIN but the state machine ensures we skip the first and second phases
+       on the next call and resume sending. */
 
     switch(sftp->read_state) {
     case ssh2_NB_state_idle:
@@ -1438,17 +1425,14 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
             filep->data_left -= copy;
             filep->offset += copy;
 
-            if(!filep->data_left) {
-                SSH2_FREE(session, filep->data);
-                filep->data = NULL;
-            }
+            if(!filep->data_left)
+                SSH2_SAFEFREE(session, filep->data);
 
             return copy;
         }
 
-        if(filep->eof) {
+        if(filep->eof)
             return 0;
-        }
         else {
             /* We allow a number of bytes being requested at any given time
                without having been acked - until we reach EOF. */
@@ -1484,8 +1468,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                away multiple read requests guessing that the client reads
                more than only this 'buffer_size' amount of memory. We thus ask
                for maximum buffer_size*4 amount of data so that we can return
-               them fast in subsequent calls.
-            */
+               them fast in subsequent calls. */
 
             recv_window = libssh2_channel_window_read_ex(sftp->channel,
                                                          NULL, NULL);
@@ -1522,7 +1505,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                                sizeof(struct sftp_pipeline_chunk));
             if(!chunk)
                 return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                                "malloc fail for FXP_WRITE");
+                                "malloc fail for FXP_READ");
 
             chunk->offset = filep->offset_sent;
             chunk->len = size;
@@ -1579,12 +1562,10 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                     /* We still have data left to send for this chunk.
                      * If there is at least one completely sent chunk,
                      * we can get out of this loop and start reading.  */
-                    if(chunk != ssh2_list_first(&handle->packet_list)) {
+                    if(chunk != ssh2_list_first(&handle->packet_list))
                         break;
-                    }
-                    else {
+                    else
                         continue;
-                    }
                 }
             }
 
@@ -1603,38 +1584,33 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
         chunk = ssh2_list_first(&handle->packet_list);
 
         while(chunk) {
-            unsigned char *data;
-            size_t data_len = 0;
-            uint32_t rc32;
             static const unsigned char read_responses[2] = {
                 SSH_FXP_DATA, SSH_FXP_STATUS
             };
+            unsigned char *data;
+            size_t data_len = 0;
+            uint32_t rc32;
 
             if(chunk->lefttosend) {
                 /* if the chunk still has data left to send, we should not wait
                    for an ACK for it yet */
-                if(bytes_in_buffer > 0) {
+                if(bytes_in_buffer > 0)
                     return bytes_in_buffer;
-                }
-                else {
-                    /* we should never reach this point */
+                else  /* we should never reach this point */
                     return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                     "sftp_read() internal error");
-                }
             }
 
             rc = sftp_packet_requirev(sftp, 2, read_responses,
                                       chunk->request_id, &data, &data_len, 9);
-            if(rc == LIBSSH2_ERROR_EAGAIN && bytes_in_buffer) {
+            if(rc == LIBSSH2_ERROR_EAGAIN && bytes_in_buffer)
                 /* do not return EAGAIN if we have already
                  * written data into the buffer */
                 return bytes_in_buffer;
-            }
 
             if(rc == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
-                if(data_len > 0) {
+                if(data_len > 0)
                     SSH2_FREE(session, data);
-                }
                 return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                 "Response too small");
             }
@@ -1673,7 +1649,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                 }
 
             case SSH_FXP_DATA:
-                if(chunk->offset != filep->offset) {
+                if(chunk->offset != filep->offset)
                     /* This could happen if the server returns less bytes than
                        requested, which should not happen for normal files.
                        See:
@@ -1681,27 +1657,24 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                      */
                     return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                     "Read Packet At Unexpected Offset");
-                }
 
                 rc32 = ssh2_ntohu32(data + 5);
                 if(rc32 > (data_len - 9))
                     return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                     "SFTP Protocol badness");
 
-                if(rc32 > chunk->len) {
+                if(rc32 > chunk->len)
                     /* A chunk larger than we requested was returned to us.
                        This is a protocol violation and we do not know how to
                        deal with it. Bail out! */
                     return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                     "FXP_READ response too big");
-                }
 
-                if(rc32 != chunk->len) {
+                if(rc32 != chunk->len)
                     /* a short read does not imply end of file, but we must
                        adjust the offset_sent since it was advanced with a
                        full chunk->len before */
                     filep->offset_sent -= (chunk->len - rc32);
-                }
 
                 if((bytes_in_buffer + rc32) > buffer_size) {
                     /* figure out the overlap amount */
@@ -1738,12 +1711,10 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                 /* check if we have space left in the buffer
                  * and either continue to the next chunk or stop
                  */
-                if(bytes_in_buffer < buffer_size) {
+                if(bytes_in_buffer < buffer_size)
                     chunk = next;
-                }
-                else {
+                else
                     chunk = NULL;
-                }
 
                 break;
             default:
@@ -1789,6 +1760,10 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                             size_t longentry_maxlen,
                             LIBSSH2_SFTP_ATTRIBUTES *attrs)
 {
+    static const unsigned char read_responses[2] = {
+        SSH_FXP_NAME, SSH_FXP_STATUS
+    };
+
     LIBSSH2_SFTP *sftp = handle->sftp;
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
@@ -1797,9 +1772,6 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) */
     uint32_t packet_len = (uint32_t)(handle->handle_len + 13);
     unsigned char *s, *data;
-    static const unsigned char read_responses[2] = {
-        SSH_FXP_NAME, SSH_FXP_STATUS
-    };
     ssize_t retcode;
 
     if(sftp->readdir_state == ssh2_NB_state_idle) {
@@ -1825,13 +1797,13 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                 names_packet_len -= 4;
             }
             else {
-                filename_len = (size_t)LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+                filename_len = (size_t)LIBSSH2_ERROR_PROTO;
                 goto end;
             }
 
             filename_len = real_filename_len;
             if(filename_len >= buffer_maxlen) {
-                filename_len = (size_t)LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+                filename_len = (size_t)LIBSSH2_ERROR_PROTO;
                 goto end;
             }
 
@@ -1843,7 +1815,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                 names_packet_len -= real_filename_len;
             }
             else {
-                filename_len = (size_t)LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+                filename_len = (size_t)LIBSSH2_ERROR_PROTO;
                 goto end;
             }
 
@@ -1853,7 +1825,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                 names_packet_len -= 4;
             }
             else {
-                filename_len = (size_t)LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+                filename_len = (size_t)LIBSSH2_ERROR_PROTO;
                 goto end;
             }
 
@@ -1862,7 +1834,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
 
                 if(longentry_len >= longentry_maxlen ||
                    longentry_len > names_packet_len) {
-                    filename_len = (size_t)LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+                    filename_len = (size_t)LIBSSH2_ERROR_PROTO;
                     goto end;
                 }
 
@@ -1875,7 +1847,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                 names_packet_len -= real_longentry_len;
             }
             else {
-                filename_len = (size_t)LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+                filename_len = (size_t)LIBSSH2_ERROR_PROTO;
                 goto end;
             }
 
@@ -1890,7 +1862,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                 names_packet_len -= attr_len;
             }
             else {
-                filename_len = (size_t)LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+                filename_len = (size_t)LIBSSH2_ERROR_PROTO;
                 goto end;
             }
 
@@ -1901,6 +1873,15 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                 SSH2_FREE(session, handle->u.dir.names_packet);
 
 end:
+            /* Parse failure with names_left still > 0 would otherwise stick
+             * forever: each later call re-enters this branch and fails again
+             * without ever freeing names_packet. */
+            if((ssize_t)filename_len < 0) {
+                SSH2_SAFEFREE(session, handle->u.dir.names_packet);
+                handle->u.dir.names_left = 0;
+                handle->u.dir.names_packet_len = 0;
+                handle->u.dir.next_name = NULL;
+            }
             ssh2_deb((session, LIBSSH2_TRACE_SFTP,
                       "libssh2_sftp_readdir_ex() return %lu",
                       (unsigned long)filename_len));
@@ -1929,20 +1910,16 @@ end:
                   "Reading entries from directory handle"));
         retcode = ssh2_channel_write(channel, 0, sftp->readdir_packet,
                                      packet_len);
-        if(retcode == LIBSSH2_ERROR_EAGAIN) {
+        if(retcode == LIBSSH2_ERROR_EAGAIN)
             return retcode;
-        }
         else if((ssize_t)packet_len != retcode) {
-            SSH2_FREE(session, sftp->readdir_packet);
-            sftp->readdir_packet = NULL;
+            SSH2_SAFEFREE(session, sftp->readdir_packet);
             sftp->readdir_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             "ssh2_channel_write() failed");
         }
 
-        SSH2_FREE(session, sftp->readdir_packet);
-        sftp->readdir_packet = NULL;
-
+        SSH2_SAFEFREE(session, sftp->readdir_packet);
         sftp->readdir_state = ssh2_NB_state_sent;
     }
 
@@ -1952,9 +1929,8 @@ end:
     if(retcode == LIBSSH2_ERROR_EAGAIN)
         return retcode;
     else if(retcode == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
-        if(data_len > 0) {
+        if(data_len > 0)
             SSH2_FREE(session, data);
-        }
         return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                         "Status message too short");
     }
@@ -1987,6 +1963,13 @@ end:
     if(!num_names) {
         SSH2_FREE(session, data);
         return 0;
+    }
+    /* Each name needs at least two u32 length fields (8 bytes). Cap the
+     * server-supplied count so names_left cannot outlive the packet body. */
+    if(data_len < 9 || num_names > (data_len - 9) / 8) {
+        SSH2_FREE(session, data);
+        return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                        "SFTP Protocol Error: invalid readdir name count");
     }
 
     handle->u.dir.names_left = num_names;
@@ -2026,7 +2009,7 @@ int libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle,
  *
  * - Detect how much of the given buffer that was already sent in a previous
  *   call by inspecting the linked list of outgoing chunks. Make sure to skip
- *   passed the data that has already been taken care of.
+ *   past the data that has already been taken care of.
  *
  * - Split all (new) outgoing data in chunks no larger than N.
  *
@@ -2078,8 +2061,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
 
            Also, add up the number of bytes that actually already have been
            acked but we have not been able to return as such yet, so we
-           get that data as well passed in here again.
-        */
+           get that data as well passed in here again. */
         already = (size_t)(handle->u.file.offset_sent -
                            handle->u.file.offset) + handle->u.file.acked;
 
@@ -2184,9 +2166,8 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
             rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
                                      chunk->request_id, &data, &data_len, 9);
             if(rc == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
-                if(data_len > 0) {
+                if(data_len > 0)
                     SSH2_FREE(session, data);
-                }
                 return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                 "FXP write packet too short");
             }
@@ -2294,11 +2275,10 @@ static int sftp_fsync(LIBSSH2_SFTP_HANDLE *handle)
 
         ssh2_deb((session, LIBSSH2_TRACE_SFTP, "Issuing fsync command"));
         s = packet = SSH2_ALLOC(session, packet_len);
-        if(!packet) {
+        if(!packet)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate memory for FXP_EXTENDED "
                             "packet");
-        }
 
         ssh2_store_u32(&s, packet_len - 4);
         *(s++) = SSH_FXP_EXTENDED;
@@ -2309,9 +2289,8 @@ static int sftp_fsync(LIBSSH2_SFTP_HANDLE *handle)
 
         sftp->fsync_state = ssh2_NB_state_created;
     }
-    else {
+    else
         packet = sftp->fsync_packet;
-    }
 
     if(sftp->fsync_state == ssh2_NB_state_created) {
         rc = ssh2_channel_write(channel, 0, packet, packet_len);
@@ -2334,13 +2313,11 @@ static int sftp_fsync(LIBSSH2_SFTP_HANDLE *handle)
 
     rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
                              sftp->fsync_request_id, &data, &data_len, 9);
-    if(rc == LIBSSH2_ERROR_EAGAIN) {
+    if(rc == LIBSSH2_ERROR_EAGAIN)
         return (int)rc;
-    }
     else if(rc == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
-        if(data_len > 0) {
+        if(data_len > 0)
             SSH2_FREE(session, data);
-        }
         return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                         "SFTP fsync packet too short");
     }
@@ -2381,6 +2358,10 @@ int libssh2_sftp_fsync(LIBSSH2_SFTP_HANDLE *handle)
 static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
                       LIBSSH2_SFTP_ATTRIBUTES *attrs, int setstat)
 {
+    static const unsigned char fstat_responses[2] = {
+        SSH_FXP_ATTRS, SSH_FXP_STATUS
+    };
+
     LIBSSH2_SFTP *sftp = handle->sftp;
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
@@ -2389,9 +2370,6 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
     uint32_t packet_len = (uint32_t)(handle->handle_len + 13 +
                                  (setstat ? sftp_attrsize(attrs->flags) : 0));
     unsigned char *s, *data = NULL;
-    static const unsigned char fstat_responses[2] = {
-        SSH_FXP_ATTRS, SSH_FXP_STATUS
-    };
     ssize_t rc;
 
     if(sftp->fstat_state == ssh2_NB_state_idle) {
@@ -2400,11 +2378,10 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
         ssh2_deb((session, LIBSSH2_TRACE_SFTP, "Issuing %s command",
                   setstat ? "set-stat" : "stat"));
         s = sftp->fstat_packet = SSH2_ALLOC(session, packet_len);
-        if(!sftp->fstat_packet) {
+        if(!sftp->fstat_packet)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate memory for "
                             "FSTAT/FSETSTAT packet");
-        }
 
         ssh2_store_u32(&s, packet_len - 4);
         *(s++) = setstat ? SSH_FXP_FSETSTAT : SSH_FXP_FSTAT;
@@ -2412,29 +2389,24 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
         ssh2_store_u32(&s, sftp->fstat_request_id);
         ssh2_store_str(&s, handle->handle, handle->handle_len);
 
-        if(setstat) {
+        if(setstat)
             s += sftp_attr2bin(s, attrs);
-        }
 
         sftp->fstat_state = ssh2_NB_state_created;
     }
 
     if(sftp->fstat_state == ssh2_NB_state_created) {
         rc = ssh2_channel_write(channel, 0, sftp->fstat_packet, packet_len);
-        if(rc == LIBSSH2_ERROR_EAGAIN) {
+        if(rc == LIBSSH2_ERROR_EAGAIN)
             return (int)rc;
-        }
         else if((ssize_t)packet_len != rc) {
-            SSH2_FREE(session, sftp->fstat_packet);
-            sftp->fstat_packet = NULL;
+            SSH2_SAFEFREE(session, sftp->fstat_packet);
             sftp->fstat_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             (setstat ? "Unable to send FXP_FSETSTAT"
                                      : "Unable to send FXP_FSTAT command"));
         }
-        SSH2_FREE(session, sftp->fstat_packet);
-        sftp->fstat_packet = NULL;
-
+        SSH2_SAFEFREE(session, sftp->fstat_packet);
         sftp->fstat_state = ssh2_NB_state_sent;
     }
 
@@ -2443,9 +2415,8 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
     if(rc == LIBSSH2_ERROR_EAGAIN)
         return (int)rc;
     else if(rc == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
-        if(data_len > 0) {
+        if(data_len > 0)
             SSH2_FREE(session, data);
-        }
         return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                         "SFTP fstat packet too short");
     }
@@ -2462,9 +2433,8 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
 
         retcode = ssh2_ntohu32(data + 5);
         SSH2_FREE(session, data);
-        if(retcode == LIBSSH2_FX_OK) {
+        if(retcode == LIBSSH2_FX_OK)
             return 0;
-        }
         else {
             sftp->last_errno = retcode;
             return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
@@ -2513,9 +2483,8 @@ void libssh2_sftp_seek64(LIBSSH2_SFTP_HANDLE *handle, libssh2_uint64_t offset)
 
     /* free the left received buffered data */
     if(handle->u.file.data_left) {
-        SSH2_FREE(handle->sftp->channel->session, handle->u.file.data);
+        SSH2_SAFEFREE(handle->sftp->channel->session, handle->u.file.data);
         handle->u.file.data_left = handle->u.file.data_len = 0;
-        handle->u.file.data = NULL;
     }
 
     /* reset EOF to False */
@@ -2546,7 +2515,7 @@ size_t libssh2_sftp_tell(LIBSSH2_SFTP_HANDLE *handle)
     /* NOTE: this may well truncate the size if it is larger than what
        size_t can hold, so libssh2_sftp_tell64() is really the function you
        should use */
-    return (size_t)(handle->u.file.offset);
+    return (size_t)handle->u.file.offset;
 }
 #endif
 
@@ -2559,40 +2528,6 @@ libssh2_uint64_t libssh2_sftp_tell64(LIBSSH2_SFTP_HANDLE *handle)
         return 0; /* no handle, no size */
 
     return handle->u.file.offset;
-}
-
-/*
- * Flush all remaining incoming SFTP packets and zombies.
- */
-static void sftp_packet_flush(LIBSSH2_SFTP *sftp)
-{
-    LIBSSH2_CHANNEL *channel = sftp->channel;
-    LIBSSH2_SESSION *session = channel->session;
-    struct sftp_packet *packet = ssh2_list_first(&sftp->packets);
-    struct sftp_zombie_requests *zombie =
-        ssh2_list_first(&sftp->zombie_requests);
-
-    while(packet) {
-        struct sftp_packet *next;
-
-        /* check next struct in the list */
-        next = ssh2_list_next(&packet->node);
-        ssh2_list_remove(&packet->node);
-        SSH2_FREE(session, packet->data);
-        SSH2_FREE(session, packet);
-
-        packet = next;
-    }
-
-    while(zombie) {
-        /* figure out the next node */
-        struct sftp_zombie_requests *next = ssh2_list_next(&zombie->node);
-        /* unlink the current one */
-        ssh2_list_remove(&zombie->node);
-        /* free the memory */
-        SSH2_FREE(session, zombie);
-        zombie = next;
-    }
 }
 
 /*
@@ -2637,12 +2572,10 @@ static int sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
         ssize_t nwritten;
         nwritten =
             ssh2_channel_write(channel, 0, handle->close_packet, packet_len);
-        if(nwritten == LIBSSH2_ERROR_EAGAIN) {
+        if(nwritten == LIBSSH2_ERROR_EAGAIN)
             return (int)nwritten;
-        }
         else if((ssize_t)packet_len != nwritten) {
-            SSH2_FREE(session, handle->close_packet);
-            handle->close_packet = NULL;
+            SSH2_SAFEFREE(session, handle->close_packet);
             handle->close_state = ssh2_NB_state_idle;
             rc = ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                           "Unable to send FXP_CLOSE command");
@@ -2650,37 +2583,32 @@ static int sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
         else
             handle->close_state = ssh2_NB_state_sent;
 
-        SSH2_FREE(session, handle->close_packet);
-        handle->close_packet = NULL;
+        SSH2_SAFEFREE(session, handle->close_packet);
     }
 
     if(handle->close_state == ssh2_NB_state_sent) {
         rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
                                  handle->close_request_id, &data,
                                  &data_len, 9);
-        if(rc == LIBSSH2_ERROR_EAGAIN) {
+        if(rc == LIBSSH2_ERROR_EAGAIN)
             return rc;
-        }
         else if(rc == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
-            if(data_len > 0) {
+            if(data_len > 0)  /* FIXME: should this be 'if(data)'? */
                 SSH2_FREE(session, data);
-            }
             data = NULL;
             ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                      "Packet too short in FXP_CLOSE command");
         }
-        else if(rc) {
+        else if(rc)
             ssh2_err(session, rc, "Error waiting for status message");
-        }
 
         handle->close_state = ssh2_NB_state_sent1;
     }
 
-    if(!data) {
+    if(!data)
         /* if it reaches this point with data unset, something unwanted
            happened for which we should have set an error code */
         assert(rc);
-    }
     else {
         uint32_t retcode = ssh2_ntohu32(data + 5);
         SSH2_FREE(session, data);
@@ -2746,10 +2674,9 @@ static int sftp_unlink(LIBSSH2_SFTP *sftp,
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + filename_len(4) */
     packet_len = 13;
 
-    if(packet_len + (uint32_t)filename_len < packet_len) {
+    if(packet_len + (uint32_t)filename_len < packet_len)
         return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                         "Input too large sftp_unlink");
-    }
     packet_len += (uint32_t)filename_len;
 
     if(sftp->unlink_state == ssh2_NB_state_idle) {
@@ -2757,10 +2684,9 @@ static int sftp_unlink(LIBSSH2_SFTP *sftp,
 
         ssh2_deb((session, LIBSSH2_TRACE_SFTP, "Unlinking %s", filename));
         s = sftp->unlink_packet = SSH2_ALLOC(session, packet_len);
-        if(!sftp->unlink_packet) {
+        if(!sftp->unlink_packet)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate memory for FXP_REMOVE packet");
-        }
 
         ssh2_store_u32(&s, packet_len - 4);
         *(s++) = SSH_FXP_REMOVE;
@@ -2774,32 +2700,26 @@ static int sftp_unlink(LIBSSH2_SFTP *sftp,
         ssize_t nwritten;
         nwritten =
             ssh2_channel_write(channel, 0, sftp->unlink_packet, packet_len);
-        if(nwritten == LIBSSH2_ERROR_EAGAIN) {
+        if(nwritten == LIBSSH2_ERROR_EAGAIN)
             return (int)nwritten;
-        }
         else if((ssize_t)packet_len != nwritten) {
-            SSH2_FREE(session, sftp->unlink_packet);
-            sftp->unlink_packet = NULL;
+            SSH2_SAFEFREE(session, sftp->unlink_packet);
             sftp->unlink_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             "Unable to send FXP_REMOVE command");
         }
-        SSH2_FREE(session, sftp->unlink_packet);
-        sftp->unlink_packet = NULL;
-
+        SSH2_SAFEFREE(session, sftp->unlink_packet);
         sftp->unlink_state = ssh2_NB_state_sent;
     }
 
     rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
                              sftp->unlink_request_id, &data,
                              &data_len, 9);
-    if(rc == LIBSSH2_ERROR_EAGAIN) {
+    if(rc == LIBSSH2_ERROR_EAGAIN)
         return rc;
-    }
     else if(rc == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
-        if(data_len > 0) {
+        if(data_len > 0)
             SSH2_FREE(session, data);
-        }
         return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                         "SFTP unlink packet too short");
     }
@@ -2813,9 +2733,8 @@ static int sftp_unlink(LIBSSH2_SFTP *sftp,
     retcode = ssh2_ntohu32(data + 5);
     SSH2_FREE(session, data);
 
-    if(retcode == LIBSSH2_FX_OK) {
+    if(retcode == LIBSSH2_FX_OK)
         return 0;
-    }
     else {
         sftp->last_errno = retcode;
         return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
@@ -2858,33 +2777,29 @@ static int sftp_rename(LIBSSH2_SFTP *sftp,
        source_filename_len(4) + dest_filename_len(4) + flags(4){SFTP5+) */
     packet_len = 17 + (sftp->version >= 5 ? 4 : 0);
 
-    if(packet_len + (uint32_t)source_filename_len < packet_len) {
+    if(packet_len + (uint32_t)source_filename_len < packet_len)
         return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                         "Input too large sftp_rename");
-    }
     packet_len += (uint32_t)source_filename_len;
 
-    if(packet_len + (uint32_t)dest_filename_len < packet_len) {
+    if(packet_len + (uint32_t)dest_filename_len < packet_len)
         return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                         "Input too large (2) sftp_rename");
-    }
     packet_len += dest_filename_len;
 
     if(sftp->rename_state == ssh2_NB_state_idle) {
         sftp->last_errno = LIBSSH2_FX_OK;
 
-        if(sftp->version < 2) {
+        if(sftp->version < 2)
             return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                             "Server does not support RENAME");
-        }
 
         ssh2_deb((session, LIBSSH2_TRACE_SFTP, "Renaming %s to %s",
                   source_filename, dest_filename));
         sftp->rename_s = sftp->rename_packet = SSH2_ALLOC(session, packet_len);
-        if(!sftp->rename_packet) {
+        if(!sftp->rename_packet)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate memory for FXP_RENAME packet");
-        }
 
         ssh2_store_u32(&sftp->rename_s, packet_len - 4);
         *(sftp->rename_s++) = SSH_FXP_RENAME;
@@ -2902,31 +2817,25 @@ static int sftp_rename(LIBSSH2_SFTP *sftp,
     if(sftp->rename_state == ssh2_NB_state_created) {
         rc = ssh2_channel_write(channel, 0, sftp->rename_packet,
                                 sftp->rename_s - sftp->rename_packet);
-        if(rc == LIBSSH2_ERROR_EAGAIN) {
+        if(rc == LIBSSH2_ERROR_EAGAIN)
             return (int)rc;
-        }
         else if((ssize_t)packet_len != rc) {
-            SSH2_FREE(session, sftp->rename_packet);
-            sftp->rename_packet = NULL;
+            SSH2_SAFEFREE(session, sftp->rename_packet);
             sftp->rename_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             "Unable to send FXP_RENAME command");
         }
-        SSH2_FREE(session, sftp->rename_packet);
-        sftp->rename_packet = NULL;
-
+        SSH2_SAFEFREE(session, sftp->rename_packet);
         sftp->rename_state = ssh2_NB_state_sent;
     }
 
     rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
                              sftp->rename_request_id, &data, &data_len, 9);
-    if(rc == LIBSSH2_ERROR_EAGAIN) {
+    if(rc == LIBSSH2_ERROR_EAGAIN)
         return (int)rc;
-    }
     else if(rc == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
-        if(data_len > 0) {
+        if(data_len > 0)
             SSH2_FREE(session, data);
-        }
         return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                         "SFTP rename packet too short");
     }
@@ -3001,7 +2910,8 @@ static int sftp_posix_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
     uint32_t retcode;
 
     if(sftp->posix_rename_version != 1) {
-        return ssh2_err(session, LIBSSH2_FX_OP_UNSUPPORTED,
+        sftp->last_errno = LIBSSH2_FX_OP_UNSUPPORTED;
+        return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                         "Server does not support posix-rename@openssh.com");
     }
 
@@ -3012,27 +2922,24 @@ static int sftp_posix_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
 
     packet_len = 45;
 
-    if(packet_len + (uint32_t)source_filename_len < packet_len) {
+    if(packet_len + (uint32_t)source_filename_len < packet_len)
         return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                         "Input too large posix-rename@openssh.com");
-    }
     packet_len += (uint32_t)source_filename_len;
 
-    if(packet_len + (uint32_t)dest_filename_len < packet_len) {
+    if(packet_len + (uint32_t)dest_filename_len < packet_len)
         return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                         "Input too large (2) posix-rename@openssh.com");
-    }
     packet_len += (uint32_t)dest_filename_len;
 
     if(sftp->posix_rename_state == ssh2_NB_state_idle) {
         ssh2_deb((session, LIBSSH2_TRACE_SFTP,
                   "Issuing posix_rename command"));
         s = packet = SSH2_ALLOC(session, packet_len);
-        if(!packet) {
+        if(!packet)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate memory for FXP_EXTENDED "
                             "packet");
-        }
 
         ssh2_store_u32(&s, packet_len - 4);
         *(s++) = SSH_FXP_EXTENDED;
@@ -3044,9 +2951,8 @@ static int sftp_posix_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
 
         sftp->posix_rename_state = ssh2_NB_state_created;
     }
-    else {
+    else
         packet = sftp->posix_rename_packet;
-    }
 
     if(sftp->posix_rename_state == ssh2_NB_state_created) {
         rc = ssh2_channel_write(channel, 0, packet, packet_len);
@@ -3070,13 +2976,11 @@ static int sftp_posix_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
     rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
                              sftp->posix_rename_request_id,
                              &data, &data_len, 9);
-    if(rc == LIBSSH2_ERROR_EAGAIN) {
+    if(rc == LIBSSH2_ERROR_EAGAIN)
         return (int)rc;
-    }
     else if(rc == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
-        if(data_len > 0) {
+        if(data_len > 0)
             SSH2_FREE(session, data);
-        }
         return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                         "SFTP posix_rename packet too short");
     }
@@ -3124,6 +3028,10 @@ int libssh2_sftp_posix_rename_ex(LIBSSH2_SFTP *sftp,
  */
 static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
 {
+    static const unsigned char responses[2] = {
+        SSH_FXP_EXTENDED_REPLY, SSH_FXP_STATUS
+    };
+
     LIBSSH2_SFTP *sftp = handle->sftp;
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
@@ -3132,19 +3040,15 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
     unsigned char *packet, *s, *data = NULL;
     ssize_t rc;
     unsigned int flag;
-    static const unsigned char responses[2] = {
-        SSH_FXP_EXTENDED_REPLY, SSH_FXP_STATUS
-    };
 
     /* 17 = packet_len(4) + packet_type(1) + request_id(4) + ext_len(4)
        + handle_len (4) */
     /* 20 = strlen ("fstatvfs@openssh.com") */
     packet_len = 20 + 17;
 
-    if(packet_len + (uint32_t)handle->handle_len < packet_len) {
+    if(packet_len + (uint32_t)handle->handle_len < packet_len)
         return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                         "Input too large sftp_fstatvfs");
-    }
     packet_len += (uint32_t)handle->handle_len;
 
     if(sftp->fstatvfs_state == ssh2_NB_state_idle) {
@@ -3153,11 +3057,10 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
         ssh2_deb((session, LIBSSH2_TRACE_SFTP,
                   "Getting file system statistics"));
         s = packet = SSH2_ALLOC(session, packet_len);
-        if(!packet) {
+        if(!packet)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate memory for FXP_EXTENDED "
                             "packet");
-        }
 
         ssh2_store_u32(&s, packet_len - 4);
         *(s++) = SSH_FXP_EXTENDED;
@@ -3168,9 +3071,8 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
 
         sftp->fstatvfs_state = ssh2_NB_state_created;
     }
-    else {
+    else
         packet = sftp->fstatvfs_packet;
-    }
 
     if(sftp->fstatvfs_state == ssh2_NB_state_created) {
         rc = ssh2_channel_write(channel, 0, packet, packet_len);
@@ -3193,15 +3095,13 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
 
     rc = sftp_packet_requirev(sftp, 2, responses, sftp->fstatvfs_request_id,
                               &data, &data_len, 9);
-    if(rc == LIBSSH2_ERROR_EAGAIN) {
+    if(rc == LIBSSH2_ERROR_EAGAIN)
         return (int)rc;
-    }
     else if(rc == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
-        if(data_len > 0) {
+        if(data_len > 0)
             SSH2_FREE(session, data);
-        }
         return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-                        "SFTP rename packet too short");
+                        "SFTP fstatvfs packet too short");
     }
     else if(rc) {
         sftp->fstatvfs_state = ssh2_NB_state_idle;
@@ -3270,6 +3170,10 @@ static int sftp_statvfs(LIBSSH2_SFTP *sftp,
                         const char *path, unsigned int path_len,
                         LIBSSH2_SFTP_STATVFS *st)
 {
+    static const unsigned char responses[2] = {
+        SSH_FXP_EXTENDED_REPLY, SSH_FXP_STATUS
+    };
+
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
     size_t data_len = 0;
@@ -3277,19 +3181,15 @@ static int sftp_statvfs(LIBSSH2_SFTP *sftp,
     unsigned char *packet, *s, *data = NULL;
     ssize_t rc;
     unsigned int flag;
-    static const unsigned char responses[2] = {
-        SSH_FXP_EXTENDED_REPLY, SSH_FXP_STATUS
-    };
 
     /* 17 = packet_len(4) + packet_type(1) + request_id(4) + ext_len(4)
        + path_len (4) */
     /* 19 = strlen ("statvfs@openssh.com") */
     packet_len = 19 + 17;
 
-    if(packet_len + (uint32_t)path_len < packet_len) {
+    if(packet_len + (uint32_t)path_len < packet_len)
         return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                         "Input too large sftp_statvfs");
-    }
     packet_len += (uint32_t)path_len;
 
     if(sftp->statvfs_state == ssh2_NB_state_idle) {
@@ -3298,11 +3198,10 @@ static int sftp_statvfs(LIBSSH2_SFTP *sftp,
         ssh2_deb((session, LIBSSH2_TRACE_SFTP,
                   "Getting file system statistics of %s", path));
         s = packet = SSH2_ALLOC(session, packet_len);
-        if(!packet) {
+        if(!packet)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate memory for FXP_EXTENDED "
                             "packet");
-        }
 
         ssh2_store_u32(&s, packet_len - 4);
         *(s++) = SSH_FXP_EXTENDED;
@@ -3313,9 +3212,8 @@ static int sftp_statvfs(LIBSSH2_SFTP *sftp,
 
         sftp->statvfs_state = ssh2_NB_state_created;
     }
-    else {
+    else
         packet = sftp->statvfs_packet;
-    }
 
     if(sftp->statvfs_state == ssh2_NB_state_created) {
         rc = ssh2_channel_write(channel, 0, packet, packet_len);
@@ -3338,15 +3236,13 @@ static int sftp_statvfs(LIBSSH2_SFTP *sftp,
 
     rc = sftp_packet_requirev(sftp, 2, responses, sftp->statvfs_request_id,
                               &data, &data_len, 9);
-    if(rc == LIBSSH2_ERROR_EAGAIN) {
+    if(rc == LIBSSH2_ERROR_EAGAIN)
         return (int)rc;
-    }
     else if(rc == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
-        if(data_len > 0) {
+        if(data_len > 0)
             SSH2_FREE(session, data);
-        }
         return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-                        "SFTP fstat packet too short");
+                        "SFTP statvfs packet too short");
     }
     else if(rc) {
         sftp->statvfs_state = ssh2_NB_state_idle;
@@ -3435,10 +3331,9 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp,
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + path_len(4) */
     packet_len = 13 + sftp_attrsize(attrs.flags);
 
-    if(packet_len + (uint32_t)path_len < packet_len) {
+    if(packet_len + (uint32_t)path_len < packet_len)
         return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                         "Input too large sftp_mkdir");
-    }
     packet_len += (uint32_t)path_len;
 
     if(sftp->mkdir_state == ssh2_NB_state_idle) {
@@ -3448,10 +3343,9 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp,
                   "Creating directory %s with mode 0%lo",
                   path, (unsigned long)mode));
         s = packet = SSH2_ALLOC(session, packet_len);
-        if(!packet) {
+        if(!packet)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate memory for FXP_MKDIR packet");
-        }
 
         ssh2_store_u32(&s, packet_len - 4);
         *(s++) = SSH_FXP_MKDIR;
@@ -3463,9 +3357,8 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp,
 
         sftp->mkdir_state = ssh2_NB_state_created;
     }
-    else {
+    else
         packet = sftp->mkdir_packet;
-    }
 
     if(sftp->mkdir_state == ssh2_NB_state_created) {
         ssize_t nwritten;
@@ -3481,19 +3374,17 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp,
                             "ssh2_channel_write() failed");
         }
         SSH2_FREE(session, packet);
-        sftp->mkdir_state = ssh2_NB_state_sent;
         sftp->mkdir_packet = NULL;
+        sftp->mkdir_state = ssh2_NB_state_sent;
     }
 
     rc = sftp_packet_require(sftp, SSH_FXP_STATUS, sftp->mkdir_request_id,
                              &data, &data_len, 9);
-    if(rc == LIBSSH2_ERROR_EAGAIN) {
+    if(rc == LIBSSH2_ERROR_EAGAIN)
         return rc;
-    }
     else if(rc == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
-        if(data_len > 0) {
+        if(data_len > 0)
             SSH2_FREE(session, data);
-        }
         return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                         "SFTP mkdir packet too short");
     }
@@ -3547,10 +3438,9 @@ static int sftp_rmdir(LIBSSH2_SFTP *sftp, const char *path,
     unsigned char *s, *data = NULL;
     int rc;
 
-    if(packet_len + (uint32_t)path_len < packet_len) {
+    if(packet_len + (uint32_t)path_len < packet_len)
         return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                         "Input too large sftp_rmdir");
-    }
     packet_len += (uint32_t)path_len;
 
     if(sftp->rmdir_state == ssh2_NB_state_idle) {
@@ -3559,10 +3449,9 @@ static int sftp_rmdir(LIBSSH2_SFTP *sftp, const char *path,
         ssh2_deb((session, LIBSSH2_TRACE_SFTP, "Removing directory: %s",
                   path));
         s = sftp->rmdir_packet = SSH2_ALLOC(session, packet_len);
-        if(!sftp->rmdir_packet) {
+        if(!sftp->rmdir_packet)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate memory for FXP_RMDIR packet");
-        }
 
         ssh2_store_u32(&s, packet_len - 4);
         *(s++) = SSH_FXP_RMDIR;
@@ -3577,31 +3466,25 @@ static int sftp_rmdir(LIBSSH2_SFTP *sftp, const char *path,
         ssize_t nwritten;
         nwritten = ssh2_channel_write(channel, 0, sftp->rmdir_packet,
                                       packet_len);
-        if(nwritten == LIBSSH2_ERROR_EAGAIN) {
+        if(nwritten == LIBSSH2_ERROR_EAGAIN)
             return (int)nwritten;
-        }
         else if((ssize_t)packet_len != nwritten) {
-            SSH2_FREE(session, sftp->rmdir_packet);
-            sftp->rmdir_packet = NULL;
+            SSH2_SAFEFREE(session, sftp->rmdir_packet);
             sftp->rmdir_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             "Unable to send FXP_RMDIR command");
         }
-        SSH2_FREE(session, sftp->rmdir_packet);
-        sftp->rmdir_packet = NULL;
-
+        SSH2_SAFEFREE(session, sftp->rmdir_packet);
         sftp->rmdir_state = ssh2_NB_state_sent;
     }
 
     rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
                              sftp->rmdir_request_id, &data, &data_len, 9);
-    if(rc == LIBSSH2_ERROR_EAGAIN) {
+    if(rc == LIBSSH2_ERROR_EAGAIN)
         return rc;
-    }
     else if(rc == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
-        if(data_len > 0) {
+        if(data_len > 0)
             SSH2_FREE(session, data);
-        }
         return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                         "SFTP rmdir packet too short");
     }
@@ -3615,9 +3498,8 @@ static int sftp_rmdir(LIBSSH2_SFTP *sftp, const char *path,
     retcode = ssh2_ntohu32(data + 5);
     SSH2_FREE(session, data);
 
-    if(retcode == LIBSSH2_FX_OK) {
+    if(retcode == LIBSSH2_FX_OK)
         return 0;
-    }
     else {
         sftp->last_errno = retcode;
         return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
@@ -3645,6 +3527,10 @@ static int sftp_stat(LIBSSH2_SFTP *sftp,
                      const char *path, unsigned int path_len,
                      int stat_type, LIBSSH2_SFTP_ATTRIBUTES *attrs)
 {
+    static const unsigned char stat_responses[2] = {
+        SSH_FXP_ATTRS, SSH_FXP_STATUS
+    };
+
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
     size_t data_len = 0;
@@ -3653,15 +3539,11 @@ static int sftp_stat(LIBSSH2_SFTP *sftp,
                     ((stat_type ==
                     LIBSSH2_SFTP_SETSTAT) ? sftp_attrsize(attrs->flags) : 0);
     unsigned char *s, *data = NULL;
-    static const unsigned char stat_responses[2] = {
-        SSH_FXP_ATTRS, SSH_FXP_STATUS
-    };
     int rc;
 
-    if(packet_len + (uint32_t)path_len < packet_len) {
+    if(packet_len + (uint32_t)path_len < packet_len)
         return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                         "Input too large sftp_stat");
-    }
     packet_len += (uint32_t)path_len;
 
     if(sftp->stat_state == ssh2_NB_state_idle) {
@@ -3672,10 +3554,9 @@ static int sftp_stat(LIBSSH2_SFTP *sftp,
                   (stat_type == LIBSSH2_SFTP_LSTAT ? "LStatting" : "Statting"),
                   path));
         s = sftp->stat_packet = SSH2_ALLOC(session, packet_len);
-        if(!sftp->stat_packet) {
+        if(!sftp->stat_packet)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate memory for FXP_*STAT packet");
-        }
 
         ssh2_store_u32(&s, packet_len - 4);
 
@@ -3706,19 +3587,15 @@ static int sftp_stat(LIBSSH2_SFTP *sftp,
         ssize_t nwritten;
         nwritten = ssh2_channel_write(channel, 0,
                                       sftp->stat_packet, packet_len);
-        if(nwritten == LIBSSH2_ERROR_EAGAIN) {
+        if(nwritten == LIBSSH2_ERROR_EAGAIN)
             return (int)nwritten;
-        }
         else if((ssize_t)packet_len != nwritten) {
-            SSH2_FREE(session, sftp->stat_packet);
-            sftp->stat_packet = NULL;
+            SSH2_SAFEFREE(session, sftp->stat_packet);
             sftp->stat_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             "Unable to send STAT/LSTAT/SETSTAT command");
         }
-        SSH2_FREE(session, sftp->stat_packet);
-        sftp->stat_packet = NULL;
-
+        SSH2_SAFEFREE(session, sftp->stat_packet);
         sftp->stat_state = ssh2_NB_state_sent;
     }
 
@@ -3727,9 +3604,8 @@ static int sftp_stat(LIBSSH2_SFTP *sftp,
     if(rc == LIBSSH2_ERROR_EAGAIN)
         return rc;
     else if(rc == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
-        if(data_len > 0) {
+        if(data_len > 0)
             SSH2_FREE(session, data);
-        }
         return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                         "SFTP stat packet too short");
     }
@@ -3791,15 +3667,16 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp,
                         char *target, unsigned int target_len,
                         int link_type)
 {
+    static const unsigned char link_responses[2] = {
+        SSH_FXP_NAME, SSH_FXP_STATUS
+    };
+
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
     size_t data_len = 0, lk_len;
     uint32_t packet_len;
     unsigned char *s, *data = NULL;
     struct string_buf buf;
-    static const unsigned char link_responses[2] = {
-        SSH_FXP_NAME, SSH_FXP_STATUS
-    };
     int retcode;
     unsigned char packet_type;
     uint32_t tmp_u32;
@@ -3808,38 +3685,32 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp,
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + path_len(4) */
     packet_len = 13;
 
-    if(packet_len + (uint32_t)path_len < packet_len) {
+    if(packet_len + (uint32_t)path_len < packet_len)
         return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                         "Input too large sftp_symlink");
-    }
     packet_len += (uint32_t)path_len;
 
     if(link_type == LIBSSH2_SFTP_SYMLINK) {
-
         if((target_len + 4) < target_len ||
-           (packet_len + 4 + target_len) < packet_len) {
+           (packet_len + 4 + target_len) < packet_len)
             return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                             "Input too large (2) sftp_symlink");
-        }
-        else {
+        else
             packet_len += (4 + target_len);
-        }
     }
 
     if(sftp->symlink_state == ssh2_NB_state_idle) {
         sftp->last_errno = LIBSSH2_FX_OK;
 
-        if(sftp->version < 3 && link_type != LIBSSH2_SFTP_REALPATH) {
+        if(sftp->version < 3 && link_type != LIBSSH2_SFTP_REALPATH)
             return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                             "Server does not support SYMLINK or READLINK");
-        }
 
         s = sftp->symlink_packet = SSH2_ALLOC(session, packet_len);
-        if(!sftp->symlink_packet) {
+        if(!sftp->symlink_packet)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate memory for "
                             "SYMLINK/READLINK/REALPATH packet");
-        }
 
         ssh2_deb((session, LIBSSH2_TRACE_SFTP, "%s %s on %s",
                   (link_type ==
@@ -3879,15 +3750,12 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp,
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return (int)rc;
         else if((ssize_t)packet_len != rc) {
-            SSH2_FREE(session, sftp->symlink_packet);
-            sftp->symlink_packet = NULL;
+            SSH2_SAFEFREE(session, sftp->symlink_packet);
             sftp->symlink_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             "Unable to send SYMLINK/READLINK command");
         }
-        SSH2_FREE(session, sftp->symlink_packet);
-        sftp->symlink_packet = NULL;
-
+        SSH2_SAFEFREE(session, sftp->symlink_packet);
         sftp->symlink_state = ssh2_NB_state_sent;
     }
 
@@ -3897,9 +3765,8 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp,
     if(retcode == LIBSSH2_ERROR_EAGAIN)
         return retcode;
     else if(retcode == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
-        if(data_len > 0) {
+        if(data_len > 0)
             SSH2_FREE(session, data);
-        }
         return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                         "SFTP symlink packet too short");
     }
@@ -3959,9 +3826,8 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp,
             target[lk_len] = '\0';
             retcode = (int)lk_len;
         }
-        else {
+        else
             retcode = LIBSSH2_ERROR_BUFFER_TOO_SMALL;
-        }
     }
     else {
         SSH2_FREE(session, data);

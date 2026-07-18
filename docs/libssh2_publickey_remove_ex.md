@@ -24,4 +24,4 @@ libssh2_publickey_list_remove_ex - TODO
 
 # AVAILABILITY
 
-Added in libssh2 ?.?.?
+Added in libssh2 0.12

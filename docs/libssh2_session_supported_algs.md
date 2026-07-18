@@ -83,7 +83,7 @@ is returned. 0 should never be returned.
 
 # ERRORS
 
-*LIBSSH2_ERROR_BAD_USE* - Invalid address of algs.
+*LIBSSH2_ERROR_BAD_USE* - If `session` or `algs` are NULL.
 
 *LIBSSH2_ERROR_METHOD_NOT_SUPPORTED* - Unknown method type.
 

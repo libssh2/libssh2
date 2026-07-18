@@ -4,43 +4,37 @@
  * Copyright (C) Patrick Monnerat <patrick@monnerat.net>
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms,
- * with or without modification, are permitted provided
- * that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *   Redistributions of source code must retain the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
  *
- *   Redistributions in binary form must reproduce the above
- *   copyright notice, this list of conditions and the following
- *   disclaimer in the documentation and/or other materials
- *   provided with the distribution.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
  *
- *   Neither the name of the copyright holder nor the names
- *   of any other contributors may be used to endorse or
- *   promote products derived from this software without
- *   specific prior written permission.
+ * 3. Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
- * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
- * OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #define SSH2_CRYPTO_ENGINE libssh2_os400qc3
+#define SSH2_CRYPTO_ENGINE_NAME "OS400QC3"
 
 #include <stdlib.h>
 #include <string.h>
@@ -190,17 +184,6 @@
 
 #include "crypto_config.h"
 
-#define SHA_DIGEST_LENGTH    20
-#define SHA256_DIGEST_LENGTH 32
-#define SHA384_DIGEST_LENGTH 48
-#define SHA512_DIGEST_LENGTH 64
-
-#if LIBSSH2_ECDSA
-#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
-#else
-#define ssh2_ec_key void
-#endif
-
 /*******************************************************************
  *
  * OS/400 QC3 crypto-library backend: global handles structures.
@@ -216,7 +199,7 @@ struct os400qc3_crypto_ctx {
 
 struct os400qc3_bn {  /* Big number. */
     unsigned char *bignum;                  /* Number bits, little-endian. */
-    unsigned int length;                    /* Length of bignum (# bytes). */
+    size_t length;                          /* Length of bignum (# bytes). */
 };
 
 struct os400qc3_cipher {  /* Algorithm description. */
@@ -237,99 +220,62 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
  *
  *******************************************************************/
 
-#define ssh2_crypto_init()
-#define ssh2_crypto_exit()
+#define ssh2_crypto_init()       do {} while(0)
+#define ssh2_crypto_exit()       do {} while(0)
 
-#define ssh2_sha1_ctx        Qc3_Format_ALGD0100_T
-#define ssh2_sha256_ctx      Qc3_Format_ALGD0100_T
-#define ssh2_sha384_ctx      Qc3_Format_ALGD0100_T
-#define ssh2_sha512_ctx      Qc3_Format_ALGD0100_T
-#define ssh2_hmac_ctx        struct os400qc3_crypto_ctx
-#define ssh2_cipher_ctx      struct os400qc3_crypto_ctx
+#define ssh2_hash_ctx            Qc3_Format_ALGD0100_T
+#define ssh2_hash_alg            unsigned int
+#define ssh2_hmac_ctx            struct os400qc3_crypto_ctx
+#define ssh2_cipher_ctx          struct os400qc3_crypto_ctx
 
-#define ssh2_sha1_init(x)             ssh2_os400qc3_hash_init(x, Qc3_SHA1)
-#define ssh2_sha1_update(ctx, d, l)   ssh2_os400qc3_hash_update(&(ctx), d, l)
-#define ssh2_sha1_final(ctx, out)     ssh2_os400qc3_hash_final(&(ctx), out)
-#define ssh2_sha256_init(x)           ssh2_os400qc3_hash_init(x, Qc3_SHA256)
-#define ssh2_sha256_update(ctx, d, l) ssh2_os400qc3_hash_update(&(ctx), d, l)
-#define ssh2_sha256_final(ctx, out)   ssh2_os400qc3_hash_final(&(ctx), out)
-#define ssh2_sha256(d, l, out)        ssh2_os400qc3_hash(d, l, out, Qc3_SHA256)
-#define ssh2_sha384_init(x)           ssh2_os400qc3_hash_init(x, Qc3_SHA384)
-#define ssh2_sha384_update(ctx, d, l) ssh2_os400qc3_hash_update(&(ctx), d, l)
-#define ssh2_sha384_final(ctx, out)   ssh2_os400qc3_hash_final(&(ctx), out)
-#define ssh2_sha384(d, l, out)        ssh2_os400qc3_hash(d, l, out, Qc3_SHA384)
-#define ssh2_sha512_init(x)           ssh2_os400qc3_hash_init(x, Qc3_SHA512)
-#define ssh2_sha512_update(ctx, d, l) ssh2_os400qc3_hash_update(&(ctx), d, l)
-#define ssh2_sha512_final(ctx, out)   ssh2_os400qc3_hash_final(&(ctx), out)
-#define ssh2_sha512(d, l, out)        ssh2_os400qc3_hash(d, l, out, Qc3_SHA512)
-
+#define SSH2_SHA1_ALG            Qc3_SHA1
+#define SSH2_SHA256_ALG          Qc3_SHA256
+#define SSH2_SHA384_ALG          Qc3_SHA384
+#define SSH2_SHA512_ALG          Qc3_SHA512
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
-#define MD5_DIGEST_LENGTH             16
-#define ssh2_md5_ctx                  Qc3_Format_ALGD0100_T
-#define ssh2_md5_init(x)              ssh2_os400qc3_hash_init(x, Qc3_MD5)
-#define ssh2_md5_update(ctx, d, l)    ssh2_os400qc3_hash_update(&(ctx), d, l)
-#define ssh2_md5_final(ctx, out)      ssh2_os400qc3_hash_final(&(ctx), out)
+#define SSH2_MD5_ALG             Qc3_MD5
 #endif
-
-int ssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x, unsigned int algo);
-int ssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
-                              const unsigned char *data, int len);
-int ssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx, unsigned char *out);
-int ssh2_os400qc3_hash(const unsigned char *message,
-                       unsigned long len, unsigned char *out,
-                       unsigned int algo);
 
 /* Bignum */
 
-#define ssh2_bn_ctx              int /* not used */
-#define ssh2_bn_ctx_new()        0 /* not used */
-#define ssh2_bn_ctx_free(bnctx)  ((void)0) /* not used */
-
-#define ssh2_bn struct os400qc3_bn
-
-ssh2_bn *ssh2_bn_init(void);
-#define ssh2_bn_init_from_bin()  ssh2_bn_init()
-int ssh2_bn_set_word(ssh2_bn *bn, unsigned long val);
-int ssh2_bn_from_bin(ssh2_bn *bn, size_t len, const unsigned char *v);
-int ssh2_bn_to_bin(ssh2_bn *bn, unsigned char *val);
+#define ssh2_bn                  struct os400qc3_bn
 #define ssh2_bn_bytes(bn)        ((bn)->length)
-unsigned long ssh2_bn_bits(ssh2_bn *bn);
-void ssh2_bn_free(ssh2_bn *bn);
 
 /* Cipher */
 
-#define SSH2_CIPHER_T(name)   struct os400qc3_cipher name
-#define ssh2_cipher_aes128    {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 16}
-#define ssh2_cipher_aes192    {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 24}
-#define ssh2_cipher_aes256    {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 32}
-#define ssh2_cipher_aes128ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CTR, 16}
-#define ssh2_cipher_aes192ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CTR, 24}
-#define ssh2_cipher_aes256ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CTR, 32}
-#define ssh2_cipher_3des      {Qc3_Alg_Block_Cipher, Qc3_TDES, 8, Qc3_CBC, 24}
+#define SSH2_CIPHER_T(name)      struct os400qc3_cipher name
+
+#define ssh2_cipher_aes128     {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 16}
+#define ssh2_cipher_aes192     {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 24}
+#define ssh2_cipher_aes256     {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CBC, 32}
+#define ssh2_cipher_aes128ctr  {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CTR, 16}
+#define ssh2_cipher_aes192ctr  {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CTR, 24}
+#define ssh2_cipher_aes256ctr  {Qc3_Alg_Block_Cipher, Qc3_AES, 16, Qc3_CTR, 32}
+#define ssh2_cipher_3des       {Qc3_Alg_Block_Cipher, Qc3_TDES, 8, Qc3_CBC, 24}
 /* Nonsense values for chacha20-poly1305 */
-#define ssh2_cipher_chacha20  {Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16}
-#define ssh2_cipher_arcfour   {Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16}
+#define ssh2_cipher_chacha20   {Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16}
+#define ssh2_cipher_arcfour    {Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16}
 
-#define ssh2_cipher_dtor(ctx) ssh2_os400qc3_crypto_dtor(ctx)
+#define ssh2_cipher_dtor(ctx)    ssh2_os400qc3_crypto_dtor(ctx)
 
-#define ssh2_rsa_ctx         struct os400qc3_crypto_ctx
-#define ssh2_rsa_free(ctx) \
-    (ssh2_os400qc3_crypto_dtor(ctx), free((char *)ctx))
+#define ssh2_rsa_ctx             struct os400qc3_crypto_ctx
+#define ssh2_rsa_free(rsa) \
+    (ssh2_os400qc3_crypto_dtor(rsa), free((char *)rsa))
 #define ssh2_prepare_iovec(vec, len) \
     memset((char *)(vec), 0, (len) * sizeof(struct iovec))
-#define ssh2_rsa_sha1_signv(session, sig, siglen, count, vector, ctx) \
-    ssh2_os400qc3_rsa_signv(session, Qc3_SHA1, sig, siglen, count, vector, ctx)
-#define ssh2_rsa_sha2_256_signv(session, sig, siglen, cnt, vector, ctx) \
-    ssh2_os400qc3_rsa_signv(session, Qc3_SHA256, sig, siglen, cnt, vector, ctx)
-#define ssh2_rsa_sha2_512_signv(session, sig, siglen, cnt, vector, ctx) \
-    ssh2_os400qc3_rsa_signv(session, Qc3_SHA512, sig, siglen, cnt, vector, ctx)
+#define ssh2_rsa_sha1_signv(rsa, session, sig, siglen, count, vector) \
+    ssh2_os400qc3_rsa_signv(rsa, session, Qc3_SHA1, sig, siglen, count, vector)
+#define ssh2_rsa_sha2_256_signv(rsa, session, sig, siglen, cnt, vector) \
+    ssh2_os400qc3_rsa_signv(rsa, session, Qc3_SHA256, sig, siglen, cnt, vector)
+#define ssh2_rsa_sha2_512_signv(rsa, session, sig, siglen, cnt, vector) \
+    ssh2_os400qc3_rsa_signv(rsa, session, Qc3_SHA512, sig, siglen, cnt, vector)
 
-int ssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session, int algo,
-                            unsigned char **signature,
-                            size_t *signature_len,
-                            int veccount,
-                            const struct iovec vector[],
-                            ssh2_rsa_ctx *ctx);
+int ssh2_os400qc3_rsa_signv(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
+                            int algo,
+                            unsigned char **signature, size_t *signature_len,
+                            int veccount, const struct iovec vector[]);
+
+#define ssh2_dh_ctx              struct os400qc3_dh_ctx
 
 /* Default generate and safe prime sizes for diffie-hellman-group-exchange-sha1
    Qc3 is limited to a maximum 2048-bit modulus/key size. */
@@ -338,17 +284,6 @@ int ssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session, int algo,
 #define SSH2_DH_GEX_MAXGROUP     2048
 
 #define SSH2_DH_MAX_MODULUS_BITS 2048
-
-#define ssh2_dh_ctx struct os400qc3_dh_ctx
-#define ssh2_dh_key_pair(dhctx, pub, g, p, group_order, bnctx) \
-    ssh2_os400qc3_dh_key_pair(dhctx, pub, g, p, group_order)
-#define ssh2_dh_secret(dhctx, secret, f, p, bnctx) \
-    ssh2_os400qc3_dh_secret(dhctx, secret, f, p)
-
-int ssh2_os400qc3_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub,
-                              ssh2_bn *g, ssh2_bn *p, int group_order);
-int ssh2_os400qc3_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
-                            ssh2_bn *f, ssh2_bn *p);
 
 /*******************************************************************
  *

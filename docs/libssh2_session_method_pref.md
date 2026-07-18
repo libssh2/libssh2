@@ -45,6 +45,8 @@ LIBSSH2_ERROR_EAGAIN is a negative number, it is not really a failure per se.
 
 # ERRORS
 
+*LIBSSH2_ERROR_BAD_USE* - If `session` or `prefs` are NULL.
+
 *LIBSSH2_ERROR_INVAL* - The requested method type was invalid.
 
 *LIBSSH2_ERROR_ALLOC* - An internal memory allocation call failed.

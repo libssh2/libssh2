@@ -51,22 +51,20 @@ int main(int argc, char **argv)
                 free(buffer);
                 buffer = NULL;
             }
-            else {
+            else
                 fprintf(stderr,
                         "[%s] Failed to allocate %zu bytes \n",
                         argv[ii],
                         buffer_len);
-            }
 
             /* Close the file as it is no longer needed. */
             fclose(infile);
             infile = NULL;
         }
-        else {
+        else
             /* Failed to open the file.
                Maybe wrong name or wrong permissions? */
             fprintf(stderr, "[%s] Open failed. \n", argv[ii]);
-        }
 
         printf("\n");
     }

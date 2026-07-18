@@ -38,10 +38,9 @@ static void fpcopy(char *output, char *input, int size)
 }
 
 /*----------------------------------------------------------*/
-/* give part of filename in partname. See code for proper
-   value of i ( 0 = node, 1 = dev, 2 = dir, 3 = name etc.
-*/
 
+/* give part of filename in partname. See code for proper
+   value of i ( 0 = node, 1 = dev, 2 = dir, 3 = name etc. */
 static int fnamepart(char *inputfile, char *part, int whatpart)
 {
     struct pf_fabnam *pf;
@@ -95,14 +94,11 @@ static int fnamepart(char *inputfile, char *part, int whatpart)
     fpcopy(ipart[5], pf->dnam.naml$l_long_ver,
                      pf->dnam.naml$l_long_ver_size);
 
-    for(src = ipart[whatpart], dst = part; *src; ++src, ++dst) {
-        if(dst == part) {
+    for(src = ipart[whatpart], dst = part; *src; ++src, ++dst)
+        if(dst == part)
             *dst = toupper(*src);
-        }
-        else {
+        else
             *dst = tolower(*src);
-        }
-    }
     *dst = '\0';
 
     free(pf);
@@ -136,9 +132,8 @@ static int find_file(char *filename, char *found, int *findex)
         else
             found[0] = '\0';
     }
-    else {
+    else
         found[0] = 0;
-    }
 
     return status;
 }
@@ -159,9 +154,8 @@ static struct manl *addman(struct manl **manroot, char *filename)
         return NULL;
     }
 
-    if(!*manroot) {
+    if(!*manroot)
         *manroot = m;
-    }
     else {
         for(f = *manroot; f->next; f = f->next)
             ;
@@ -240,9 +234,8 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
         return vaxc$errno;
     }
 
-    for(len = 0; !feof(man) && len < maxlen; len += thislen) {
+    for(len = 0; !feof(man) && len < maxlen; len += thislen)
         thislen = fread(in + len, 1, maxlen - len, man);
-    }
 
     fclose(man);
 
@@ -257,12 +250,10 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
         case 0:
             switch(*m) {
             case '.':
-                if(bol) {
+                if(bol)
                     mode = 1;
-                }
-                else {
+                else
                     *h++ = *m;
-                }
                 break;
             case '\\':
                 if(bol) {
@@ -317,12 +308,9 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
                     --h;
                     --m;
                 }
-                else {
-                    /* if line does not end in ., skip EOL in source */
-
-                    if(*(m + 1) == '\n' || *(m + 1) == '\r')
-                        ++m;
-                }
+                /* if line does not end in ., skip EOL in source */
+                else if(*(m + 1) == '\n' || *(m + 1) == '\r')
+                    ++m;
                 mode = 0;
                 break;
             case 'S':
@@ -358,9 +346,8 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
                                 if(*h == ' ')
                                     *h = '_';
                             }
-                            else {
+                            else
                                 --h;
-                            }
                         }
 
                         /* Add a linefeed or two */
@@ -377,9 +364,8 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
                     *h++ = '0' + base_level;
                     return_status |= 2;
                     *h++ = ' ';
-                    for(m = m + 3; *m != ' ' && *m; ++m, ++h) {
+                    for(m = m + 3; *m != ' ' && *m; ++m, ++h)
                         *h = *m;
-                    }
                     if(add_parentheses) {
                         *h++ = '(';
                         *h++ = ')';
@@ -417,14 +403,12 @@ static int convertman(char *filespec, FILE *hlp, int base_level,
 
     *h = 0;
 
-    if(return_status & 2) {
+    if(return_status & 2)
         fprintf(hlp, "%s\n\n", out);
-    }
     else {
         fnamepart(filespec, subjectname, 3);
-        if(*subjectname) {
+        if(*subjectname)
             fprintf(hlp, "%d %s\n\n%s\n\n", base_level, subjectname, out);
-        }
         else {
             /* No filename (as is the case with a logical),
                use first word as subject name */
@@ -460,13 +444,7 @@ static int convertmans(char *filespec, char *hlpfilename, int base_level,
     struct manl *manroot = NULL, *m;
     FILE *hlp;
 
-    if(append) {
-        hlp = fopen(hlpfilename, "a+");
-    }
-    else {
-        hlp = fopen(hlpfilename, "w");
-    }
-
+    hlp = fopen(hlpfilename, append ? "a+" : "w");
     if(!hlp)
         return vaxc$errno;
 
@@ -544,17 +522,12 @@ int main(int argc, char **argv)
                 ++i;
             }
         }
-        else {
-            if(!manfile) {
-                manfile = strdup(argv[i]);
-            }
-            else if(!helpfile) {
-                helpfile = strdup(argv[i]);
-            }
-            else {
-                fprintf(stderr, "Unrecognized parameter : %s\n", argv[i]);
-            }
-        }
+        else if(!manfile)
+            manfile = strdup(argv[i]);
+        else if(!helpfile)
+            helpfile = strdup(argv[i]);
+        else
+            fprintf(stderr, "Unrecognized parameter : %s\n", argv[i]);
     }
 
 #if 0

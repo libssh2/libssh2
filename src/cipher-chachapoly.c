@@ -21,10 +21,17 @@
 /* $OpenBSD: cipher-chachapoly.c,v 1.8 2016/08/03 05:41:57 djm Exp $ */
 
 #include "libssh2_priv.h"
-#include "misc.h"
 #include "cipher-chachapoly.h"
 
-int chachapoly_timingsafe_bcmp(const void *b1, const void *b2, size_t n);
+static int chachapoly_timingsafe_bcmp(const void *b1, const void *b2, size_t n)
+{
+    const unsigned char *p1 = b1, *p2 = b2;
+    int ret = 0;
+
+    for(; n > 0; n--)
+        ret |= *p1++ ^ *p2++;
+    return ret != 0;
+}
 
 int chachapoly_init(struct chachapoly_ctx *ctx, const unsigned char *key,
                     size_t keylen)
@@ -117,14 +124,4 @@ int chachapoly_get_length(struct chachapoly_ctx *ctx, unsigned int *plenp,
     chacha_encrypt_bytes(&ctx->header_ctx, cp, buf, 4);
     *plenp = ssh2_ntohu32(buf);
     return 0;
-}
-
-int chachapoly_timingsafe_bcmp(const void *b1, const void *b2, size_t n)
-{
-    const unsigned char *p1 = b1, *p2 = b2;
-    int ret = 0;
-
-    for(; n > 0; n--)
-        ret |= *p1++ ^ *p2++;
-    return ret != 0;
 }

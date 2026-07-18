@@ -1,6 +1,8 @@
 # Copyright (C) The libssh2 project and its contributors.
 # SPDX-License-Identifier: BSD-3-Clause
 
+option(LIBSSH2_USE_CMAKECONFIG "Enable detecting @PROJECT_NAME@ dependencies via CMake Config. Default: @LIBSSH2_USE_CMAKECONFIG@"
+  "@LIBSSH2_USE_CMAKECONFIG@")
 option(LIBSSH2_USE_PKGCONFIG "Enable pkg-config to detect @PROJECT_NAME@ dependencies. Default: @LIBSSH2_USE_PKGCONFIG@"
   "@LIBSSH2_USE_PKGCONFIG@")
 
@@ -18,13 +20,13 @@ set(_libssh2_libs "")
 if("@CRYPTO_BACKEND@" STREQUAL "OpenSSL")
   find_dependency(OpenSSL)
 elseif("@CRYPTO_BACKEND@" STREQUAL "wolfSSL")
-  find_dependency(WolfSSL)
+  find_dependency(WolfSSL MODULE)
   list(APPEND _libssh2_libs libssh2::wolfssl)
 elseif("@CRYPTO_BACKEND@" STREQUAL "Libgcrypt")
-  find_dependency(Libgcrypt)
+  find_dependency(Libgcrypt MODULE)
   list(APPEND _libssh2_libs libssh2::libgcrypt)
 elseif("@CRYPTO_BACKEND@" STREQUAL "mbedTLS")
-  find_dependency(MbedTLS)
+  find_dependency(MbedTLS MODULE)
   list(APPEND _libssh2_libs libssh2::mbedcrypto)
 endif()
 

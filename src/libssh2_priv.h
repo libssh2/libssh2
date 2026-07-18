@@ -5,38 +5,31 @@
  * Copyright (C) Simon Josefsson
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms,
- * with or without modification, are permitted provided
- * that the following conditions are met:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *   Redistributions of source code must retain the above
- *   copyright notice, this list of conditions and the
- *   following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
  *
- *   Redistributions in binary form must reproduce the above
- *   copyright notice, this list of conditions and the following
- *   disclaimer in the documentation and/or other materials
- *   provided with the distribution.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
  *
- *   Neither the name of the copyright holder nor the names
- *   of any other contributors may be used to endorse or
- *   promote products derived from this software without
- *   specific prior written permission.
+ * 3. Neither the name of the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
- * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
- * OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -65,8 +58,7 @@
    those names in libssh2.h, so we need to include the AIX headers first, to
    make sure all code is compiled with consistent names of these fields.
    While arguable the best would to change libssh2.h to use other names, that
-   would break backwards compatibility.
-*/
+   would break backwards compatibility. */
 #ifdef HAVE_POLL
 #include <poll.h>
 #elif defined(HAVE_SELECT) && defined(HAVE_SYS_SELECT_H)
@@ -97,7 +89,6 @@
 #include "libssh2.h"
 #include "libssh2_publickey.h"
 #include "libssh2_sftp.h"
-#include "misc.h"
 
 #ifdef _WIN32
 /* Detect Windows App environment which has a restricted access
@@ -146,25 +137,6 @@
 #define SSH2_PRINTF(fmt, arg)
 #endif
 
-/* Use local implementation when not available */
-#ifndef HAVE_SNPRINTF
-#undef snprintf
-#define snprintf ssh2_snprintf
-#define LIBSSH2_SNPRINTF
-int ssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
-    SSH2_PRINTF(3, 4);
-#endif
-
-#ifndef HAVE_GETTIMEOFDAY
-#define HAVE_GETTIMEOFDAY
-#undef gettimeofday
-#define gettimeofday ssh2_gettimeofday
-#define LIBSSH2_GETTIMEOFDAY
-int ssh2_gettimeofday(struct timeval *tp, void *tzp);
-#elif defined(HAVE_SYS_TIME_H)
-#include <sys/time.h>
-#endif
-
 #ifndef SSH2_FALLTHROUGH
 #if (defined(__GNUC__) && __GNUC__ >= 7) || \
     (defined(__clang__) && __clang_major__ >= 10)
@@ -196,14 +168,14 @@ int ssh2_gettimeofday(struct timeval *tp, void *tzp);
 #  define SSH2_INLINE /* empty */
 #endif
 
+#include "misc.h"
+
 /* 3DS does not seem to have iovec */
 #if defined(_WIN32) || defined(_3DS)
-
 struct iovec {
     size_t iov_len;
     void *iov_base;
 };
-
 #endif
 
 #ifdef __OS400__
@@ -239,61 +211,66 @@ struct iovec {
  * padding length, payload, padding, and MAC.)."
  */
 #define MAX_SSH_PACKET_LEN 35000
-#define MAX_SHA_DIGEST_LEN SHA512_DIGEST_LENGTH
+#define MAX_SHA_DIGEST_LEN SSH2_SHA512_DIG_LEN
 
 #define SSH2_ALLOC(session, count) \
-    session->alloc(count, &(session)->abstract)
+    (session)->alloc(count, &(session)->abstract)
 #define SSH2_CALLOC(session, count) ssh2_calloc(session, count)
 #define SSH2_REALLOC(session, ptr, count) \
     ((ptr) ? (session)->realloc(ptr, count, &(session)->abstract) : \
              (session)->alloc(count, &(session)->abstract))
 #define SSH2_FREE(session, ptr) \
-    session->free(ptr, &(session)->abstract)
+    (session)->free(ptr, &(session)->abstract)
+#define SSH2_SAFEFREE(session, ptr) \
+    do {                            \
+        SSH2_FREE(session, ptr);    \
+        (ptr) = NULL;               \
+    } while(0)
 #define SSH2_IGNORE(session, data, datalen) \
-    session->ssh_msg_ignore(session, data, (int)(datalen), \
-                            &(session)->abstract)
+    (session)->ssh_msg_ignore(session, data, (int)(datalen), \
+                              &(session)->abstract)
 #define SSH2_DEBUG(session, always_display, message, message_len, \
                    language, language_len) \
-    session->ssh_msg_debug(session, always_display, \
-                           message, (int)(message_len), \
-                           language, (int)(language_len), \
-                           &(session)->abstract)
+    (session)->ssh_msg_debug(session, always_display, \
+                             message, (int)(message_len), \
+                             language, (int)(language_len), \
+                             &(session)->abstract)
 #define SSH2_DISCONNECT(session, reason, message, message_len, \
                         language, language_len) \
-    session->ssh_msg_disconnect(session, reason, \
-                                message, (int)(message_len), \
-                                language, (int)(language_len), \
-                                &(session)->abstract)
+    (session)->ssh_msg_disconnect(session, reason, \
+                                  message, (int)(message_len), \
+                                  language, (int)(language_len), \
+                                  &(session)->abstract)
 
 #define SSH2_MACERROR(session, data, datalen) \
-    session->macerror(session, data, (int)(datalen), &(session)->abstract)
+    (session)->macerror(session, data, (int)(datalen), &(session)->abstract)
 #define SSH2_X11_OPEN(channel, shost, sport) \
-    channel->session->x11((channel)->session, channel, \
-                          shost, sport, &(channel)->session->abstract)
+    (channel)->session->x11((channel)->session, channel, \
+                            shost, sport, &(channel)->session->abstract)
 
 #define SSH2_AUTHAGENT(channel) \
-    channel->session->authagent((channel)->session, channel, \
-                                &(channel)->session->abstract)
+    (channel)->session->authagent((channel)->session, channel, \
+                                  &(channel)->session->abstract)
 
 #define SSH2_ADD_IDENTITIES(session, buffer, agentPath) \
-    session->addLocalIdentities(session, buffer, \
-                                agentPath, &(session)->abstract)
+    (session)->addLocalIdentities(session, buffer, \
+                                  agentPath, &(session)->abstract)
 
 #define SSH2_AUTHAGENT_SIGN(session, blob, blen, \
                             data, dlen, sig, sigLen, \
                             agentPath) \
-    session->agentSignCallback(session, blob, blen, \
-                               data, dlen, sig, sigLen, \
-                               agentPath, &(session)->abstract)
+    (session)->agentSignCallback(session, blob, blen, \
+                                 data, dlen, sig, sigLen, \
+                                 agentPath, &(session)->abstract)
 
 #define SSH2_CHANNEL_CLOSE(session, channel) \
-    channel->close_cb(session, &(session)->abstract, \
-                      channel, &(channel)->abstract)
+    (channel)->close_cb(session, &(session)->abstract, \
+                        channel, &(channel)->abstract)
 
 #define SSH2_SEND_FD(session, fd, buffer, length, flags) \
-    ((session)->send)(fd, buffer, length, flags, &(session)->abstract)
+    (session)->send(fd, buffer, length, flags, &(session)->abstract)
 #define SSH2_RECV_FD(session, fd, buffer, length, flags) \
-    ((session)->recv)(fd, buffer, length, flags, &(session)->abstract)
+    (session)->recv(fd, buffer, length, flags, &(session)->abstract)
 
 #define SSH2_SEND(session, buffer, length, flags) \
     SSH2_SEND_FD(session, (session)->socket_fd, buffer, length, flags)
@@ -369,7 +346,9 @@ struct key_exchange_state_low {
     unsigned char *data;
     size_t request_len;
     size_t data_len;
+#if LIBSSH2_ECDSA
     ssh2_ec_key *private_key;       /* SSH2 ecdh private key */
+#endif
     unsigned char *public_key_oct;  /* SSH2 ecdh public key octal value */
     size_t public_key_oct_len;      /* SSH2 ecdh public key octal value
                                        length */
@@ -378,7 +357,9 @@ struct key_exchange_state_low {
     unsigned char *curve25519_private_key; /* curve25519 private key, 32
                                               bytes */
     unsigned char *mlkem_public_key; /* ML-KEM public key */
+    size_t mlkem_public_key_len;
     unsigned char *mlkem_private_key; /* ML-KEM private key */
+    size_t mlkem_private_key_len;
 };
 
 struct key_exchange_state {
@@ -744,13 +725,13 @@ struct _LIBSSH2_SESSION {
     unsigned char *server_hostkey;
     uint32_t server_hostkey_len;
 #if LIBSSH2_MD5
-    unsigned char server_hostkey_md5[MD5_DIGEST_LENGTH];
+    unsigned char server_hostkey_md5[SSH2_MD5_DIG_LEN];
     int server_hostkey_md5_valid;
 #endif /* !LIBSSH2_MD5 */
-    unsigned char server_hostkey_sha1[SHA_DIGEST_LENGTH];
+    unsigned char server_hostkey_sha1[SSH2_SHA1_DIG_LEN];
     int server_hostkey_sha1_valid;
 
-    unsigned char server_hostkey_sha256[SHA256_DIGEST_LENGTH];
+    unsigned char server_hostkey_sha256[SSH2_SHA256_DIG_LEN];
     int server_hostkey_sha256_valid;
 
     /* public key algorithms accepted as comma separated list */
@@ -762,10 +743,10 @@ struct _LIBSSH2_SESSION {
     /* Whether to use the OpenSSH Strict KEX extension */
     int kex_strict;
 
-    /* (remote as source of data -- packet_read ) */
+    /* (remote as source of data -- packet_read) */
     struct endpoint_data remote;
 
-    /* (local as source of data -- packet_write ) */
+    /* (local as source of data -- packet_write) */
     struct endpoint_data local;
 
     /* Inbound Data linked list -- Sometimes the packet that comes in is not
@@ -801,7 +782,8 @@ struct _LIBSSH2_SESSION {
     void *tracehandler_context; /* context for the trace handler */
 #endif
 
-    /* State variables used in banner_receive()/banner_send() */
+    /* State variables used in session_banner_receive(),
+       session_banner_send() */
     ssh2_NB_states banner_TxRx_state;
     char banner_TxRx_banner[8192];
     ssize_t banner_TxRx_total_send;
@@ -918,7 +900,7 @@ struct _LIBSSH2_SESSION {
     unsigned char *pkeyInit_data;
     size_t pkeyInit_data_len;
     /* 19 = packet_len(4) + version_len(4) + "version"(7) + version_num(4) */
-    unsigned char pkeyInit_buffer[19];
+    unsigned char pkeyInit_buffer[4 + 4 + (sizeof("version") - 1) + 4];
     size_t pkeyInit_buffer_sent; /* how much of buffer that has been sent */
 
     /* State variables used in ssh2_packet_add() */
@@ -929,7 +911,7 @@ struct _LIBSSH2_SESSION {
     struct packet_x11_open_state packAdd_x11open_state;
     struct packet_authagent_state packAdd_authagent_state;
 
-    /* State variables used in fullpacket() */
+    /* State variables used in transport_fullpacket() */
     ssh2_NB_states fullpacket_state;
     int fullpacket_macstate;
     size_t fullpacket_payload_len;
@@ -1264,9 +1246,6 @@ int ssh2_pem_decode_integer(unsigned char **data, size_t *datalen,
 
 /* global.c */
 void ssh2_init_if_needed(void);
-
-/* Utility function for certificate auth */
-size_t plain_method(char *method, size_t method_len);
 
 #define SSH2_ARRAYSIZE(a) (sizeof(a) / sizeof((a)[0]))
 

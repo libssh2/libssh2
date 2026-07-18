@@ -36,6 +36,7 @@ CSOURCES =              \
   wincng.c
 
 HHEADERS =              \
+  agent.h               \
   chacha.h              \
   channel.h             \
   cipher-chachapoly.h   \

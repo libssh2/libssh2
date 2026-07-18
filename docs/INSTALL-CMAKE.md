@@ -46,47 +46,47 @@ cmake -D<option>=<value> ..
 
 The following options are available:
 
- * `LINT=ON`
+* `LINT=ON`
 
-    Enables running the source code linter when building.
-    Can be `ON` or `OFF`. Default: `OFF`
+   Enables running the source code linter when building.
+   Can be `ON` or `OFF`. Default: `OFF`
 
- * `BUILD_STATIC_LIBS=OFF`
+* `BUILD_STATIC_LIBS=OFF`
 
-    Determines whether to build a libssh2 static library.
-    Can be `ON` or `OFF`. Default: `ON`
+   Determines whether to build a libssh2 static library.
+   Can be `ON` or `OFF`. Default: `ON`
 
- * `BUILD_SHARED_LIBS=OFF`
+* `BUILD_SHARED_LIBS=OFF`
 
-    Determines whether to build a libssh2 shared library (`.dll`/`.so`).
-    Can be `ON` or `OFF`. Default: `ON`
+   Determines whether to build a libssh2 shared library (`.dll`/`.so`).
+   Can be `ON` or `OFF`. Default: `ON`
 
- * `CRYPTO_BACKEND=`
+* `CRYPTO_BACKEND=`
 
-    Chooses a specific cryptography library to use for cryptographic operations.
-    Can be [`OpenSSL`](https://www.openssl-library.org/),
-    [`Libgcrypt`](https://www.gnupg.org/), `WinCNG` (Windows Vista+),
-    [`mbedTLS`](https://www.trustedfirmware.org/projects/mbed-tls/) or blank
-    to use any library available.
+   Chooses a specific cryptography library to use for cryptographic operations.
+   Can be [`OpenSSL`](https://www.openssl-library.org/),
+   [`Libgcrypt`](https://www.gnupg.org/), `WinCNG` (Windows Vista+),
+   [`mbedTLS`](https://www.trustedfirmware.org/projects/mbed-tls/) or blank
+   to use any library available.
 
-    CMake attempts to locate the libraries automatically. For more
-    information, visit:
-    <https://cmake.org/cmake/help/v3.18/manual/cmake-packages.7.html>
+   CMake attempts to locate the libraries automatically. For more
+   information, visit:
+   <https://cmake.org/cmake/help/v3.18/manual/cmake-packages.7.html>
 
- * `ENABLE_ZLIB_COMPRESSION=ON`
+* `ENABLE_ZLIB_COMPRESSION=ON`
 
-    Use [zlib](https://zlib.net/) for payload compression.
-    Can be `ON` or `OFF`. Default: `OFF`
+   Use [zlib](https://zlib.net/) for payload compression.
+   Can be `ON` or `OFF`. Default: `OFF`
 
- * `ENABLE_DEBUG_LOGGING=ON`
+* `ENABLE_DEBUG_LOGGING=ON`
 
-    Enable the libssh2_trace() function for showing debug traces.
-    Can be `ON` or `OFF`. Default: `OFF` in Release, `ON` in `Debug`
+   Enable the libssh2_trace() function for showing debug traces.
+   Can be `ON` or `OFF`. Default: `OFF` in Release, `ON` in `Debug`
 
- * `CLEAR_MEMORY=OFF`
+* `CLEAR_MEMORY=OFF`
 
-    Disable secure zero memory before freeing it (not recommended).
-    Can be `ON` or `OFF`. Default: `ON`
+   Disable secure zero memory before freeing it (not recommended).
+   Can be `ON` or `OFF`. Default: `ON`
 
 ## Using AWS-LC or BoringSSL
 

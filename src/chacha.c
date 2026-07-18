@@ -4,6 +4,8 @@
  * Public domain.
  * Copyright not intended 2024.
  *
+ * Source: https://github.com/openssh/openssh-portable/blob/master/chacha.c
+ *
  * SPDX-License-Identifier: SAX-PD-2.0
  */
 
@@ -61,9 +63,8 @@ void chacha_keysetup(struct chacha_ctx *x, const u8 *k, u32 kbits)
         k += 16;
         constants = sigma;
     }
-    else { /* kbits == 128 */
-        constants = tau;
-    }
+    else
+        constants = tau;  /* kbits == 128 */
     x->input[8] = U8TO32_LITTLE(k + 0);
     x->input[9] = U8TO32_LITTLE(k + 4);
     x->input[10] = U8TO32_LITTLE(k + 8);
@@ -82,6 +83,10 @@ void chacha_ivsetup(struct chacha_ctx *x, const u8 *iv, const u8 *counter)
     x->input[15] = U8TO32_LITTLE(iv + 4);
 }
 
+#if defined(__GNUC__) && __GNUC__ >= 16
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuninitialized"
+#endif
 void chacha_encrypt_bytes(struct chacha_ctx *x, const u8 *m, u8 *c,
                           size_t bytes)
 {
@@ -216,3 +221,6 @@ void chacha_encrypt_bytes(struct chacha_ctx *x, const u8 *m, u8 *c,
         m += 64;
     }
 }
+#if defined(__GNUC__) && __GNUC__ >= 16
+#pragma GCC diagnostic pop
+#endif
