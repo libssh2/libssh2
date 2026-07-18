@@ -2415,8 +2415,6 @@ int libssh2_userauth_publickey_sk(
                                          libssh2_sign_sk, &sign_abstract);
     }
 
-cleanup:
-
     if(tmp_publickeydata)
         SSH2_FREE(session, tmp_publickeydata);
     if(sk_info.application)
