@@ -450,6 +450,7 @@ password_response:
                                          &session->abstract);
                         if(!session->userauth_pswd_newpw) {
                             session->userauth_pswd_state = ssh2_NB_state_idle;
+                            session->userauth_pswd_data_len = 0;
                             return ssh2_err(session,
                                             LIBSSH2_ERROR_PASSWORD_EXPIRED,
                                             "Password expired, and "
