@@ -647,19 +647,18 @@ static int mbed_pub_priv_key(LIBSSH2_SESSION *session,
 }
 
 int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
-                          unsigned char **method,
-                          size_t *method_len,
+                          unsigned char **method, size_t *method_len,
                           unsigned char **pubkeydata,
                           size_t *pubkeydata_len,
                           const char *privatekey,
-                          const char *passphrase)
+                          const unsigned char *passphrase)
 {
     mbedtls_pk_context pkey;
     char buf[1024];
     int ret;
 
     mbedtls_pk_init(&pkey);
-    ret = mbedtls_pk_parse_keyfile(&pkey, privatekey, passphrase,
+    ret = mbedtls_pk_parse_keyfile(&pkey, privatekey, (const char *)passphrase,
                                    mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
     if(ret) {
         mbedtls_strerror(ret, (char *)buf, sizeof(buf));
@@ -677,13 +676,12 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
 }
 
 int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                unsigned char **method,
-                                size_t *method_len,
+                                unsigned char **method, size_t *method_len,
                                 unsigned char **pubkeydata,
                                 size_t *pubkeydata_len,
                                 const char *privatekeydata,
                                 size_t privatekeydata_len,
-                                const char *passphrase)
+                                const unsigned char *passphrase)
 {
     mbedtls_pk_context pkey;
     char buf[1024];
@@ -704,7 +702,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
 
     pwd_len = passphrase ? strlen((const char *)passphrase) : 0;
     ret = mbedtls_pk_parse_key(&pkey, data_nullterm, privatekeydata_len + 1,
-                               (const unsigned char *)passphrase, pwd_len,
+                               passphrase, pwd_len,
                                mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
     mbed_zero_free(data_nullterm, privatekeydata_len + 1);
 

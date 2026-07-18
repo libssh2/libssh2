@@ -3639,7 +3639,7 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
                                       unsigned char **pubkeydata,
                                       size_t *pubkeydata_len,
                                       const char *privatekey,
-                                      const char *passphrase)
+                                      const unsigned char *passphrase)
 {
     FILE *fp;
     unsigned char *buf = NULL;
@@ -3661,8 +3661,7 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    rc = ssh2_openssh_pem_parse(session, (const unsigned char *)passphrase,
-                                fp, &decrypted);
+    rc = ssh2_openssh_pem_parse(session, passphrase, fp, &decrypted);
     fclose(fp);
     if(rc) {
         ssh2_err(session, LIBSSH2_ERROR_FILE, "Not an OpenSSH key file");
@@ -3725,12 +3724,11 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
 }
 
 int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
-                          unsigned char **method,
-                          size_t *method_len,
+                          unsigned char **method, size_t *method_len,
                           unsigned char **pubkeydata,
                           size_t *pubkeydata_len,
                           const char *privatekey,
-                          const char *passphrase)
+                          const unsigned char *passphrase)
 {
     BIO *bp;
     EVP_PKEY *pk;
@@ -3752,8 +3750,7 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
 
     if(!pk) {
         /* Try OpenSSH format */
-        rc = ossl_key_from_openssh_file(session,
-                                        method, method_len,
+        rc = ossl_key_from_openssh_file(session, method, method_len,
                                         pubkeydata, pubkeydata_len,
                                         privatekey, passphrase);
         if(rc)
@@ -3913,8 +3910,7 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
 }
 
 int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
-                              unsigned char **method,
-                              size_t *method_len,
+                              unsigned char **method, size_t *method_len,
                               unsigned char **pubkeydata,
                               size_t *pubkeydata_len,
                               int *algorithm,
@@ -4010,7 +4006,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                 size_t *pubkeydata_len,
                                 const char *privatekeydata,
                                 size_t privatekeydata_len,
-                                const char *passphrase)
+                                const unsigned char *passphrase)
 {
     int rc;
     BIO *bp;
@@ -4040,7 +4036,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                         method, method_len,
                                         pubkeydata, pubkeydata_len,
                                         privatekeydata, privatekeydata_len,
-                                        (const unsigned char *)passphrase);
+                                        passphrase);
         if(rc == 0)
             return 0;
 

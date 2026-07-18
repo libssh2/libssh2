@@ -287,25 +287,22 @@ void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx);
 #endif
 
 int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
-                          unsigned char **method,
-                          size_t *method_len,
+                          unsigned char **method, size_t *method_len,
                           unsigned char **pubkeydata,
                           size_t *pubkeydata_len,
                           const char *privatekey,
-                          const char *passphrase);
+                          const unsigned char *passphrase);
 
 int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                unsigned char **method,
-                                size_t *method_len,
+                                unsigned char **method, size_t *method_len,
                                 unsigned char **pubkeydata,
                                 size_t *pubkeydata_len,
                                 const char *privatekeydata,
                                 size_t privatekeydata_len,
-                                const char *passphrase);
+                                const unsigned char *passphrase);
 
 int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
-                              unsigned char **method,
-                              size_t *method_len,
+                              unsigned char **method, size_t *method_len,
                               unsigned char **pubkeydata,
                               size_t *pubkeydata_len,
                               int *algorithm,
