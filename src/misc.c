@@ -742,7 +742,7 @@ ssh2_time_t ssh2_now(void) /* ms */
     struct timespec ts;
     if(!clock_gettime(CLOCK_MONOTONIC, &ts))
         return ts.tv_sec * 1000 + ts.tv_nsec / 1000 / 1000;
-#elif defiend(HAVE_GETTIMEOFDAY)
+#elif defined(HAVE_GETTIMEOFDAY)
     struct timeval ts;
     if(!gettimeofday(&ts, NULL))
         return ts.tv_sec * 1000 + ts.tv_usec / 1000;
