@@ -570,7 +570,7 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, ssh2_time_t start_time)
         /* To avoid that we hang below because there is nothing set to
            wait for, we timeout on 1 second to also avoid busy-looping
            during this condition */
-        time_to_next = ssh2_sec_to_timediff(1);
+        time_to_next = ssh2_ms_to_timediff(1000);
     }
 
     if(api_timeout > 0 &&
