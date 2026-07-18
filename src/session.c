@@ -1710,7 +1710,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout_ms)
 
 #elif defined(HAVE_SELECT)
 
-        tv.tv_sec = timeout_remaining / 1000;
+        tv.tv_sec = (long)(timeout_remaining / 1000);
 #ifdef libssh2_usec_t
         tv.tv_usec = (libssh2_usec_t)((timeout_remaining % 1000) * 1000);
 #else
