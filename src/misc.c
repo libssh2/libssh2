@@ -747,8 +747,7 @@ ssh2_time_t ssh2_now(void) /* ms */
 #elif defined(HAVE_GETTIMEOFDAY)
     struct timeval tv;
     if(!gettimeofday(&tv, NULL))
-        return (ssh2_time_t)tv.tv_sec * 1000 +
-            (ssh2_time_t)tv.tv_usec / 1000;
+        return (ssh2_time_t)tv.tv_sec * 1000 + (ssh2_time_t)tv.tv_usec / 1000;
 #endif
     {
         ssh2_time_t ms = (ssh2_time_t)time(NULL) * 1000;
