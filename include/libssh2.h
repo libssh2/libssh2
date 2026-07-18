@@ -1430,7 +1430,7 @@ LIBSSH2_API const char *libssh2_agent_get_identity_path(LIBSSH2_AGENT *agent);
  */
 LIBSSH2_API void libssh2_keepalive_config(LIBSSH2_SESSION *session,
                                           int want_reply,
-                                          unsigned int interval);
+                                          unsigned int interval_s);
 
 /*
  * libssh2_keepalive_send()

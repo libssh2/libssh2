@@ -37,15 +37,15 @@
 
 void libssh2_keepalive_config(LIBSSH2_SESSION *session,
                               int want_reply,
-                              unsigned int interval)
+                              unsigned int interval_s)
 {
     if(!session)
         return;
 
-    if(interval == 1)
+    if(interval_s == 1)
         session->keepalive_interval = ssh2_sec_to_timediff(2);
     else
-        session->keepalive_interval = ssh2_sec_to_timediff(interval);
+        session->keepalive_interval = ssh2_sec_to_timediff(interval_s);
     session->keepalive_want_reply = want_reply ? 1 : 0;
 }
 
