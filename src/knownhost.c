@@ -957,7 +957,7 @@ int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
     keyp = cp; /* the key starts here */
 
     /* check if the line (key) ends with a newline and if so kill it */
-    while(len && *cp != '\n') {
+    while(len && *cp && *cp != '\n') {
         cp++;
         len--;
     }
