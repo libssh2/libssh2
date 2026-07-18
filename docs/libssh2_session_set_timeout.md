@@ -22,8 +22,8 @@ void libssh2_session_set_timeout(LIBSSH2_SESSION *session, long timeout_ms);
 
 # DESCRIPTION
 
-Set the **timeout_ms** in milliseconds for how long a blocking the libssh2
-function calls may wait until they consider the situation an error and return
+Set the **timeout_ms** in milliseconds for how long a blocking libssh2 function
+call may wait before it considers the situation an error and returns
 LIBSSH2_ERROR_TIMEOUT.
 
 By default or if you set the timeout to zero, libssh2 has no timeout for
