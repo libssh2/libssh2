@@ -252,8 +252,10 @@ static int transport_fullpacket(LIBSSH2_SESSION *session,
 
                 /* we need buffer for decrypt */
                 decrypt_buffer = SSH2_ALLOC(session, decrypt_size);
-                if(!decrypt_buffer)
+                if(!decrypt_buffer) {
+                    SSH2_SAFEFREE(session, p->payload);
                     return LIBSSH2_ERROR_ALLOC;
+                }
 
                 /* grab padding length and copy anything else
                    into target buffer */
@@ -261,6 +263,7 @@ static int transport_fullpacket(LIBSSH2_SESSION *session,
 
                 if(p->padding_length > p->packet_length - 1) {
                     SSH2_FREE(session, decrypt_buffer);
+                    SSH2_SAFEFREE(session, p->payload);
                     return LIBSSH2_ERROR_PROTO;
                 }
 
