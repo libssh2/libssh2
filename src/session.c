@@ -1343,12 +1343,12 @@ int libssh2_session_get_blocking(LIBSSH2_SESSION *session)
  * Set a session's timeout (in msec) for blocking mode,
  * or 0 to disable timeouts.
  */
-void libssh2_session_set_timeout(LIBSSH2_SESSION *session, long timeout)
+void libssh2_session_set_timeout(LIBSSH2_SESSION *session, long timeout_ms)
 {
     if(!session)
         return;
 
-    session->api_timeout_ms = timeout;
+    session->api_timeout_ms = timeout_ms;
 }
 
 /*
@@ -1366,15 +1366,15 @@ long libssh2_session_get_timeout(LIBSSH2_SESSION *session)
  * Set a session's timeout (in sec) when reading packets,
  * or 0 to use default of 60 seconds.
  */
-void libssh2_session_set_read_timeout(LIBSSH2_SESSION *session, long timeout)
+void libssh2_session_set_read_timeout(LIBSSH2_SESSION *session, long timeout_s)
 {
     if(!session)
         return;
 
-    if(timeout <= 0)
-        timeout = SSH2_DEFAULT_READ_TIMEOUT;
+    if(timeout_s <= 0)
+        timeout_s = SSH2_DEFAULT_READ_TIMEOUT;
 
-    session->packet_read_timeout = ssh2_sec_to_timediff(timeout);
+    session->packet_read_timeout = ssh2_sec_to_timediff(timeout_s);
 }
 
 /*
@@ -1452,7 +1452,7 @@ static SSH2_INLINE int session_poll_listener_queued(LIBSSH2_LISTENER *listener)
  *
  * Poll sockets, channels, and listeners for activity
  */
-int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
+int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout_ms)
 {
     long timeout_remaining;
     unsigned int i, active_fds;
@@ -1581,10 +1581,10 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
         }
     }
 #else /* !HAVE_POLL && !HAVE_SELECT */
-    timeout = 0;  /* no sockets structure to setup */
+    timeout_ms = 0;  /* no sockets structure to setup */
 #endif /* HAVE_POLL || HAVE_SELECT */
 
-    timeout_remaining = timeout;
+    timeout_remaining = timeout_ms;
     do {
 #if defined(HAVE_POLL) || defined(HAVE_SELECT)
         int sysret;
@@ -1764,7 +1764,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
                 }
             }
         }
-#endif /* !HAVE_POLL && !HAVE_SELECT -- timeout (and by extension
+#endif /* !HAVE_POLL && !HAVE_SELECT -- timeout_ms (and by extension
         * timeout_remaining) is equal to 0 */
     } while(timeout_remaining > 0 && !active_fds);
 

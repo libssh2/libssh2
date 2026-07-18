@@ -781,7 +781,7 @@ LIBSSH2_API int libssh2_sign_sk(LIBSSH2_SESSION *session,
 #ifndef LIBSSH2_NO_DEPRECATED
 LIBSSH2_DEPRECATED(1.2.0, "Use system poll() or select()")
 LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds,
-                             long timeout);
+                             long timeout_ms);
 #endif
 
 /* Channel API */
@@ -957,11 +957,11 @@ LIBSSH2_API void libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel,
                                               int blocking);
 
 LIBSSH2_API void libssh2_session_set_timeout(LIBSSH2_SESSION *session,
-                                             long timeout);
+                                             long timeout_ms);
 LIBSSH2_API long libssh2_session_get_timeout(LIBSSH2_SESSION *session);
 
 LIBSSH2_API void libssh2_session_set_read_timeout(LIBSSH2_SESSION *session,
-                                                  long timeout);
+                                                  long timeout_s);
 LIBSSH2_API long libssh2_session_get_read_timeout(LIBSSH2_SESSION *session);
 
 #ifndef LIBSSH2_NO_DEPRECATED
