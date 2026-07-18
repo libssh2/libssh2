@@ -3776,7 +3776,7 @@ int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
     size_t prefs_len;
     const struct common_method **mlist;
 
-    if(!session || !prefs_len)
+    if(!session || !prefs)
         return LIBSSH2_ERROR_BAD_USE;
 
     prefs_len = strlen(prefs);
