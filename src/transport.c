@@ -239,13 +239,20 @@ static int transport_fullpacket(LIBSSH2_SESSION *session,
 
                 first_block[0] = 0;
 
+                /* the encrypted portion (everything but the cleartext length
+                   field and the trailing MAC) must be at least one whole
+                   cipher block; a shorter value would make the block copies
+                   below read and write past their buffers */
+                decrypt_size = p->total_num - mac_len - 4;
+                if(decrypt_size < blocksize)
+                    return LIBSSH2_ERROR_PROTO;
+
                 rc = transport_decrypt(session, p->payload + 4,
                                        first_block, blocksize, FIRST_BLOCK);
                 if(rc)
                     return rc;
 
                 /* we need buffer for decrypt */
-                decrypt_size = p->total_num - mac_len - 4;
                 decrypt_buffer = SSH2_ALLOC(session, decrypt_size);
                 if(!decrypt_buffer)
                     return LIBSSH2_ERROR_ALLOC;
