@@ -3639,7 +3639,7 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
                                       unsigned char **pubkeydata,
                                       size_t *pubkeydata_len,
                                       const char *privatekey,
-                                      const char *passphrase)
+                                      const unsigned char *passphrase)
 {
     FILE *fp;
     unsigned char *buf = NULL;
@@ -3661,8 +3661,7 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    rc = ssh2_openssh_pem_parse(session, (const unsigned char *)passphrase,
-                                fp, &decrypted);
+    rc = ssh2_openssh_pem_parse(session, passphrase, fp, &decrypted);
     fclose(fp);
     if(rc) {
         ssh2_err(session, LIBSSH2_ERROR_FILE, "Not an OpenSSH key file");

@@ -734,7 +734,7 @@ static int userauth_read_blob_privkey(
     const struct hostkey_method **hostkey_method, void **hostkey_abstract,
     const unsigned char *method, size_t method_len,
     const char *privkeyfiledata, size_t privkeyfiledata_len,
-    const char *passphrase)
+    const unsigned char *passphrase)
 {
     const struct hostkey_method **hostkey_methods_avail =
         ssh2_hostkey_methods();
@@ -754,10 +754,10 @@ static int userauth_read_blob_privkey(
         return ssh2_err(session, LIBSSH2_ERROR_METHOD_NONE,
                         "No handler for specified private key");
 
-    if((*hostkey_method)->initPEMFromMemory(session, privkeyfiledata,
+    if((*hostkey_method)->initPEMFromMemory(session,
+                                            privkeyfiledata,
                                             privkeyfiledata_len,
-                                            (const unsigned char *)passphrase,
-                                            hostkey_abstract))
+                                            passphrase, hostkey_abstract))
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
                         "Unable to initialize private key from memory");
 
@@ -772,7 +772,7 @@ static int userauth_read_file_privkey(
     const struct hostkey_method **hostkey_method, void **hostkey_abstract,
     const unsigned char *method, size_t method_len,
     const char *privkeyfile,
-    const char *passphrase)
+    const unsigned char *passphrase)
 {
     const struct hostkey_method **hostkey_methods_avail =
         ssh2_hostkey_methods();
@@ -795,8 +795,7 @@ static int userauth_read_file_privkey(
                         "No handler for specified private key");
 
     if((*hostkey_method)->initPEM(session, privkeyfile,
-                                  (const unsigned char *)passphrase,
-                                  hostkey_abstract))
+                                  passphrase, hostkey_abstract))
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
                         "Unable to initialize private key from file");
 
@@ -805,11 +804,11 @@ static int userauth_read_file_privkey(
 
 struct privkey_file {
     const char *filename;
-    const char *passphrase;
+    const unsigned char *passphrase;
 };
 
 struct privkey_mem {
-    const char *passphrase;
+    const unsigned char *passphrase;
     const char *data;
     size_t data_len;
 };
@@ -1004,7 +1003,7 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                                        size_t username_len,
                                        const char *publickey,
                                        const char *privatekey,
-                                       const char *passphrase,
+                                       const unsigned char *passphrase,
                                        const char *hostname,
                                        size_t hostname_len,
                                        const char *local_username,
@@ -1247,7 +1246,7 @@ int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
                  userauth_hostbased_fromfile(session,
                                              username, username_len,
                                              publickey, privatekey,
-                                             passphrase,
+                                             (const unsigned char *)passphrase,
                                              hostname, hostname_len,
                                              local_username,
                                              local_username_len));
@@ -1897,7 +1896,7 @@ static int userauth_publickey_frommemory(LIBSSH2_SESSION *session,
                                          size_t publickeydata_len,
                                          const char *privatekeydata,
                                          size_t privatekeydata_len,
-                                         const char *passphrase)
+                                         const unsigned char *passphrase)
 {
     unsigned char *pubkeydata = NULL;
     size_t pubkeydata_len = 0;
@@ -1952,7 +1951,7 @@ static int userauth_publickey_fromfile(LIBSSH2_SESSION *session,
                                        size_t username_len,
                                        const char *publickey,
                                        const char *privatekey,
-                                       const char *passphrase)
+                                       const unsigned char *passphrase)
 {
     unsigned char *pubkeydata = NULL;
     size_t pubkeydata_len = 0;
@@ -2025,7 +2024,7 @@ int libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
                                                publickeyfiledata_len,
                                                privatekeyfiledata,
                                                privatekeyfiledata_len,
-                                               passphrase));
+                                           (const unsigned char *)passphrase));
     return rc;
 }
 
@@ -2053,7 +2052,7 @@ int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
                  userauth_publickey_fromfile(session,
                                              username, username_len,
                                              publickey, privatekey,
-                                             passphrase));
+                                           (const unsigned char *)passphrase));
     return rc;
 }
 
