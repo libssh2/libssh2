@@ -733,15 +733,16 @@ ssh2_time_t ssh2_now(void) /* ms */
 {
 #ifdef _WIN32
     LARGE_INTEGER count;
-    ssh2_time_t sec, ns;
+    ssh2_time_t ms, sec, ns;
 
     QueryPerformanceCounter(&count);
 
     sec = (ssh2_time_t)(count.QuadPart / s_time_freq.QuadPart);
     ns = (ssh2_time_t)(((count.QuadPart % s_time_freq.QuadPart) *
         1000 * 1000 * 1000) / s_time_freq.QuadPart);
+    ms = sec * 1000 + ns / 1000000
 
-    return sec * 1000 + ns / 1000000;
+    return ms ? ms : 1;
 #else /* !_WIN32 */
 #if defined(CLOCK_MONOTONIC_RAW) /* Apple/Linux */
     struct timespec ts;
@@ -760,8 +761,8 @@ ssh2_time_t ssh2_now(void) /* ms */
             (ssh2_time_t)tv.tv_usec / 1000;
 #endif
     {
-        ssh2_time_t now = (ssh2_time_t)time(NULL) * 1000;
-        return now ? now : 1;
+        ssh2_time_t ms = (ssh2_time_t)time(NULL) * 1000;
+        return ms ? ms : 1;
     }
 #endif /* _WIN32 */
 }
