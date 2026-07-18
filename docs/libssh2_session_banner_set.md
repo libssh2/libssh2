@@ -43,7 +43,7 @@ number, it is not really a failure per se.
 
 *LIBSSH2_ERROR_ALLOC* - An internal memory allocation call failed.
 *LIBSSH2_ERROR_BAD_USE* - If `session` is NULL.
-*LIBSSH2_ERROR_OUT_OF_BOUNDARY* - If banner is oversized (> 4 MiB).
+*LIBSSH2_ERROR_OUT_OF_BOUNDARY* - If banner is oversized (\> 4 MiB).
 
 # AVAILABILITY
 
