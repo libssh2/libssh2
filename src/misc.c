@@ -748,7 +748,10 @@ ssh2_time_t ssh2_now(void) /* ms */
     if(!gettimeofday(&ts, NULL))
         return ts.tv_sec * 1000 + ts.tv_usec / 1000;
 #endif
-    return (ssh2_time_t)time(NULL) * 1000; /* fallback */
+    {
+        ssh2_time_t now = (ssh2_time_t)time(NULL) * 1000;
+        return now ? now : 1;
+    }
 #endif /* _WIN32 */
 }
 
