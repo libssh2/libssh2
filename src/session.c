@@ -1785,7 +1785,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
 int libssh2_session_block_directions(LIBSSH2_SESSION *session)
 {
     if(!session)
-        return -1;
+        return 0;
 
     return session->socket_block_directions;
 }
