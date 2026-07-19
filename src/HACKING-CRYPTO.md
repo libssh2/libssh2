@@ -481,10 +481,10 @@ key parameters): unless used internally by the backend, it is not needed to
 support the private key and the other parameters here.
 
 ```c
-int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
-                         LIBSSH2_SESSION *session,
-                         const char *filename,
-                         const char *passphrase);
+int ssh2_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa,
+                                LIBSSH2_SESSION *session,
+                                const char *filename,
+                                const char *passphrase);
 ```
 Reads an RSA private key from file `filename` into a new RSA context.
 Must call `ssh2_init_if_needed()`.

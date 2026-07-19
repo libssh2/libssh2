@@ -253,10 +253,10 @@ int ssh2_rsa_new_priv_from_blob(ssh2_rsa_ctx **rsa,
                     "Method unimplemented in libgcrypt backend");
 }
 
-int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
-                         LIBSSH2_SESSION *session,
-                         const char *filename,
-                         const char *passphrase)
+int ssh2_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa,
+                                LIBSSH2_SESSION *session,
+                                const char *filename,
+                                const char *passphrase)
 {
     FILE *fp;
     unsigned char *data, *save_data;

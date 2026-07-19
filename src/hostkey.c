@@ -145,7 +145,9 @@ static int hostkey_method_ssh_rsa_initPEM(LIBSSH2_SESSION *session,
     }
 
     if(privkeyfile)
-        rc = ssh2_rsa_new_private(&rsa, session, privkeyfile, passphrase);
+        rc = ssh2_rsa_new_priv_from_file(&rsa, session,
+                                         privkeyfile,
+                                         passphrase);
     else
         rc = ssh2_rsa_new_priv_from_blob(&rsa, session,
                                          privkeyblob, privkeyblob_len,

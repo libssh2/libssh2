@@ -354,10 +354,10 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     return ret;
 }
 
-int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
-                         LIBSSH2_SESSION *session,
-                         const char *filename,
-                         const char *passphrase)
+int ssh2_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa,
+                                LIBSSH2_SESSION *session,
+                                const char *filename,
+                                const char *passphrase)
 {
     int ret;
     mbedtls_pk_context pkey;

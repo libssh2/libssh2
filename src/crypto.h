@@ -133,10 +133,10 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
                  const unsigned char *e1data, size_t e1len,
                  const unsigned char *e2data, size_t e2len,
                  const unsigned char *coeffdata, size_t coefflen);
-int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
-                         LIBSSH2_SESSION *session,
-                         const char *filename,
-                         const char *passphrase);
+int ssh2_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa,
+                                LIBSSH2_SESSION *session,
+                                const char *filename,
+                                const char *passphrase);
 int ssh2_rsa_new_priv_from_blob(ssh2_rsa_ctx **rsa,
                                 LIBSSH2_SESSION *session,
                                 const char *blob, size_t blob_len,
