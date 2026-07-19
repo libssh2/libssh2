@@ -918,7 +918,7 @@ static int wcng_load_private_file(LIBSSH2_SESSION *session,
 #if LIBSSH2_RSA
     if(ret && tryLoadRSA)
         ret = ssh2_pem_parse_FILE(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
-                                  passphrase, fp, &data, &datalen);
+                                  fp, passphrase, &data, &datalen);
 #else
     (void)tryLoadRSA;
 #endif
@@ -926,7 +926,7 @@ static int wcng_load_private_file(LIBSSH2_SESSION *session,
 #if LIBSSH2_DSA
     if(ret && tryLoadDSA)
         ret = ssh2_pem_parse_FILE(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
-                                  passphrase, fp, &data, &datalen);
+                                  fp, passphrase, &data, &datalen);
 #else
     (void)tryLoadDSA;
 #endif
@@ -956,8 +956,8 @@ static int wcng_load_privkey_blob(LIBSSH2_SESSION *session,
 #if LIBSSH2_RSA
     if(ret && tryLoadRSA)
         ret = ssh2_pem_parse_blob(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
-                                  passphrase,
                                   privkeyblob, privkeyblob_len,
+                                  passphrase,
                                   &data, &datalen);
 #else
     (void)tryLoadRSA;
@@ -966,8 +966,8 @@ static int wcng_load_privkey_blob(LIBSSH2_SESSION *session,
 #if LIBSSH2_DSA
     if(ret && tryLoadDSA)
         ret = ssh2_pem_parse_blob(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
-                                  passphrase,
                                   privkeyblob, privkeyblob_len,
+                                  passphrase,
                                   &data, &datalen);
 #else
     (void)tryLoadDSA;
@@ -2542,7 +2542,7 @@ int ssh2_ecdsa_new_priv_from_file(OUT ssh2_ecdsa_ctx **ec_ctx,
         goto cleanup;
     }
 
-    result = ssh2_openssh_pem_parse_FILE(session, passphrase, fp, &decrypted);
+    result = ssh2_openssh_pem_parse_FILE(session, fp, passphrase, &decrypted);
     if(result)
         goto cleanup;
 
@@ -2578,8 +2578,8 @@ int ssh2_ecdsa_new_priv_from_blob(OUT ssh2_ecdsa_ctx **ec_ctx,
 
     *ec_ctx = NULL;
 
-    result = ssh2_openssh_pem_parse_blob(session, passphrase,
-                                           blob, blob_len, &decrypted);
+    result = ssh2_openssh_pem_parse_blob(session, blob, blob_len,
+                                         passphrase, &decrypted);
     if(result)
         goto cleanup;
 

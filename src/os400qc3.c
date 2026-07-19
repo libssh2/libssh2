@@ -1988,7 +1988,7 @@ static int try_pem_load(LIBSSH2_SESSION *session, FILE *fp,
     fseek(fp, 0L, SEEK_SET);
     for(;;) {
         ret = ssh2_pem_parse_FILE(session, header, trailer,
-                                  passphrase, fp, &data, &datalen);
+                                  fp, passphrase, &data, &datalen);
 
         if(!ret) {
             ret = (*proc)(session, data, datalen, passphrase, loadkeydata);
@@ -2151,16 +2151,17 @@ int ssh2_rsa_new_priv_from_blob(ssh2_rsa_ctx **rsa,
        --> PKCS#8 EncryptedPrivateKeyInfo */
     ret = ssh2_pem_parse_blob(session,
                               beginencprivkeyhdr, endencprivkeyhdr,
+                              blob, blob_len,
                               passphrase,
-                              blob, blob_len, &data, &datalen);
+                              &data, &datalen);
 
     /* Try with "PRIVATE KEY" PEM armor.
        --> PKCS#8 PrivateKeyInfo or EncryptedPrivateKeyInfo */
     if(ret)
         ret = ssh2_pem_parse_blob(session,
                                   beginprivkeyhdr, endprivkeyhdr,
-                                  passphrase,
                                   blob, blob_len,
+                                  passphrase,
                                   &data, &datalen);
 
     if(!ret) {
@@ -2173,8 +2174,8 @@ int ssh2_rsa_new_priv_from_blob(ssh2_rsa_ctx **rsa,
            --> PKCS#1 RSAPrivateKey */
         ret = ssh2_pem_parse_blob(session,
                                   beginrsaprivkeyhdr, endrsaprivkeyhdr,
-                                  passphrase,
                                   blob, blob_len,
+                                  passphrase,
                                   &data, &datalen);
         if(!ret)
             ret = rsapkcs1privkey(session,
@@ -2227,8 +2228,8 @@ int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
        --> PKCS#8 EncryptedPrivateKeyInfo */
     ret = ssh2_pem_parse_blob(session,
                               beginencprivkeyhdr, endencprivkeyhdr,
-                              passphrase,
                               privkeyblob, privkeyblob_len,
+                              passphrase,
                               &data, &datalen);
 
     /* Try with "PRIVATE KEY" PEM armor.
@@ -2236,8 +2237,8 @@ int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
     if(ret)
         ret = ssh2_pem_parse_blob(session,
                                   beginprivkeyhdr, endprivkeyhdr,
-                                  passphrase,
                                   privkeyblob, privkeyblob_len,
+                                  passphrase,
                                   &data, &datalen);
 
     if(!ret) {
@@ -2249,8 +2250,8 @@ int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
            --> PKCS#1 RSAPrivateKey */
         ret = ssh2_pem_parse_blob(session,
                                   beginrsaprivkeyhdr, endrsaprivkeyhdr,
-                                  passphrase,
                                   privkeyblob, privkeyblob_len,
+                                  passphrase,
                                   &data, &datalen);
         if(!ret)
             ret = rsapkcs1pubkey(session,

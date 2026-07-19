@@ -1372,7 +1372,7 @@ static int ossl_rsa_openssh_priv_new(ssh2_rsa_ctx **rsa,
         return -1;
     }
 
-    rc = ssh2_openssh_pem_parse_FILE(session, passphrase, fp, &decrypted);
+    rc = ssh2_openssh_pem_parse_FILE(session, fp, passphrase, &decrypted);
     fclose(fp);
     if(rc)
         return rc;
@@ -1684,7 +1684,7 @@ static int ossl_dsa_openssh_priv_new(ssh2_dsa_ctx **dsa,
         return -1;
     }
 
-    rc = ssh2_openssh_pem_parse_FILE(session, passphrase, fp, &decrypted);
+    rc = ssh2_openssh_pem_parse_FILE(session, fp, passphrase, &decrypted);
     fclose(fp);
     if(rc)
         return rc;
@@ -2198,7 +2198,7 @@ int ssh2_ed25519_new_priv_from_file(ssh2_ed25519_ctx **ed_ctx,
         return -1;
     }
 
-    rc = ssh2_openssh_pem_parse_FILE(session, passphrase, fp, &decrypted);
+    rc = ssh2_openssh_pem_parse_FILE(session, fp, passphrase, &decrypted);
     fclose(fp);
     if(rc)
         return rc;
@@ -3147,7 +3147,7 @@ static int ossl_ecdsa_openssh_priv_new(ssh2_ecdsa_ctx **ec_ctx,
         return -1;
     }
 
-    rc = ssh2_openssh_pem_parse_FILE(session, passphrase, fp, &decrypted);
+    rc = ssh2_openssh_pem_parse_FILE(session, fp, passphrase, &decrypted);
     fclose(fp);
     if(rc)
         return rc;
@@ -3670,7 +3670,7 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    rc = ssh2_openssh_pem_parse_FILE(session, passphrase, fp, &decrypted);
+    rc = ssh2_openssh_pem_parse_FILE(session, fp, passphrase, &decrypted);
 
     fclose(fp);
     if(rc) {
@@ -3839,8 +3839,9 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
 
     OSSL_INIT_IF_NEEDED();
 
-    rc = ssh2_openssh_pem_parse_blob(session, passphrase,
+    rc = ssh2_openssh_pem_parse_blob(session,
                                      privkeyblob, privkeyblob_len,
+                                     passphrase,
                                      &decrypted);
     if(rc)
         return rc;
@@ -3942,8 +3943,9 @@ int ssh2_sk_pubkey_blob(LIBSSH2_SESSION *session,
 
     OSSL_INIT_IF_NEEDED();
 
-    rc = ssh2_openssh_pem_parse_blob(session, passphrase,
+    rc = ssh2_openssh_pem_parse_blob(session,
                                      privkeyblob, privkeyblob_len,
+                                     passphrase,
                                      &decrypted);
     if(rc)
         return rc;

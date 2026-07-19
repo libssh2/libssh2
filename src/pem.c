@@ -99,8 +99,8 @@ static unsigned char pem_hex_decode(char digit)
 int ssh2_pem_parse_FILE(LIBSSH2_SESSION *session,
                         const char *headerbegin,
                         const char *headerend,
-                        const char *passphrase,
                         FILE *fp,
+                        const char *passphrase,
                         unsigned char **data, size_t *datalen)
 {
     int ret = -1;
@@ -148,7 +148,8 @@ int ssh2_pem_parse_FILE(LIBSSH2_SESSION *session,
     }
 
     ret = ssh2_pem_parse_blob(session, headerbegin, headerend,
-                              passphrase, filedata, filedata_len,
+                              filedata, filedata_len,
+                              passphrase,
                               data, datalen);
 
 out:
@@ -160,8 +161,8 @@ out:
 int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
                         const char *headerbegin,
                         const char *headerend,
-                        const char *passphrase,
                         const char *filedata, size_t filedata_len,
+                        const char *passphrase,
                         unsigned char **data, size_t *datalen)
 {
     char line[LINE_SIZE];
@@ -715,8 +716,8 @@ out:
 }
 
 int ssh2_openssh_pem_parse_FILE(LIBSSH2_SESSION *session,
-                                const char *passphrase,
                                 FILE *fp,
+                                const char *passphrase,
                                 struct string_buf **decrypted_buf)
 {
     char line[LINE_SIZE];
@@ -779,8 +780,8 @@ out:
 }
 
 int ssh2_openssh_pem_parse_blob(LIBSSH2_SESSION *session,
-                                const char *passphrase,
                                 const char *filedata, size_t filedata_len,
+                                const char *passphrase,
                                 struct string_buf **decrypted_buf)
 {
     char line[LINE_SIZE];
