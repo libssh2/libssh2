@@ -1247,6 +1247,9 @@ const struct hostkey_method **ssh2_hostkey_methods(void)
  */
 const char *libssh2_hostkey_hash(LIBSSH2_SESSION *session, int hash_type)
 {
+    if(!session)
+        return NULL;
+
     switch(hash_type) {
 #if LIBSSH2_MD5
     case LIBSSH2_HOSTKEY_HASH_MD5:
@@ -1328,6 +1331,9 @@ static int hostkey_type(const unsigned char *hostkey, size_t len)
 const char *libssh2_session_hostkey(LIBSSH2_SESSION *session, size_t *len,
                                     int *type)
 {
+    if(!session)
+        return NULL;
+
     if(session->server_hostkey_len) {
         if(len)
             *len = session->server_hostkey_len;
@@ -1336,7 +1342,11 @@ const char *libssh2_session_hostkey(LIBSSH2_SESSION *session, size_t *len,
                                  session->server_hostkey_len);
         return (char *)session->server_hostkey;
     }
+
     if(len)
         *len = 0;
+    if(type)
+        *type = 0;
+
     return NULL;
 }
