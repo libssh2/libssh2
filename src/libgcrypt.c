@@ -238,10 +238,10 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
 #endif
 
 #if LIBSSH2_RSA
-int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
-                                    LIBSSH2_SESSION *session,
-                                    const char *blob, size_t blob_len,
-                                    const char *passphrase)
+int ssh2_rsa_new_priv_from_blob(ssh2_rsa_ctx **rsa,
+                                LIBSSH2_SESSION *session,
+                                const char *blob, size_t blob_len,
+                                const char *passphrase)
 {
     (void)rsa;
     (void)blob;
