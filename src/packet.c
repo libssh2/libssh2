@@ -666,7 +666,7 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                     unsigned char *algs = NULL;
                     size_t algs_len = 0;
 
-                    buf.data = (unsigned char *)data;
+                    buf.data = data;
                     buf.dataptr = buf.data;
                     buf.len = datalen;
                     buf.dataptr += 17; /* advance past type and cookie */
