@@ -627,7 +627,7 @@ static int userauth_read_pubkey(
 
         if(pubkey_len <= 1)
             return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                            "Invalid data in public key file");
+                            "Invalid data in public key blob");
 
         pubkey = SSH2_ALLOC(session, pubkey_len);
         if(!pubkey)
@@ -700,6 +700,8 @@ static int userauth_read_privkey(
     if(privkeyfile)
         ssh2_deb((session, LIBSSH2_TRACE_AUTH, "Loading private key file: %s",
                   privkeyfile));
+    else if(!privkeyblob || !privkeyblob_len)
+        return ssh2_err(session, LIBSSH2_ERROR_FILE, "Missing private key blob");
 
     *hostkey_method = NULL;
     *hostkey_abstract = NULL;
