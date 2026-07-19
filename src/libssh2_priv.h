@@ -1011,13 +1011,10 @@ struct hostkey_method {
 
     int (*init)(LIBSSH2_SESSION *session, const unsigned char *hostkey_data,
                 size_t hostkey_data_len, void **abstract);
-    int (*initPEM)(LIBSSH2_SESSION *session, const char *privkeyfile,
+    int (*initPEM)(LIBSSH2_SESSION *session,
+                   const char *privkeyfile,
+                   const char *privkeyblob, size_t privkeyfileblob_len,
                    const char *passphrase, void **abstract);
-    int (*initPEMFromMemory)(LIBSSH2_SESSION *session,
-                             const char *privkeyfiledata,
-                             size_t privkeyfiledata_len,
-                             const char *passphrase,
-                             void **abstract);
     int (*sig_verify)(LIBSSH2_SESSION *session, const unsigned char *sig,
                       size_t sig_len, const unsigned char *m,
                       size_t m_len, void **abstract);
