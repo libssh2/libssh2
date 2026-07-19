@@ -131,44 +131,27 @@ static int hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
  */
 static int hostkey_method_ssh_rsa_initPEM(LIBSSH2_SESSION *session,
                                           const char *privkeyfile,
+                                          const char *privkeyfiledata,
+                                          size_t privkeyfiledata_len,
                                           const char *passphrase,
                                           void **abstract)
 {
     ssh2_rsa_ctx *rsa;
+    int rc;
 
     if(*abstract) {
         hostkey_method_ssh_rsa_dtor(session, abstract);
         *abstract = NULL;
     }
 
-    if(ssh2_rsa_new_private(&rsa, session, privkeyfile, passphrase))
-        return -1;
-
-    *abstract = rsa;
-
-    return 0;
-}
-
-/*
- * Load a Private Key from memory
- */
-static int hostkey_method_ssh_rsa_initPEMFromMemory(
-    LIBSSH2_SESSION *session,
-    const char *privkeyfiledata,
-    size_t privkeyfiledata_len,
-    const char *passphrase,
-    void **abstract)
-{
-    ssh2_rsa_ctx *rsa;
-
-    if(*abstract) {
-        hostkey_method_ssh_rsa_dtor(session, abstract);
-        *abstract = NULL;
-    }
-
-    if(ssh2_rsa_new_private_frommemory(&rsa, session,
-                                       privkeyfiledata, privkeyfiledata_len,
-                                       passphrase))
+    if(privkeyfile)
+        rc = ssh2_rsa_new_private(&rsa, session, privkeyfile, passphrase);
+    else
+        rc = ssh2_rsa_new_private_frommemory(&rsa, session,
+                                             privkeyfiledata,
+                                             privkeyfiledata_len,
+                                             passphrase);
+    if(rc)
         return -1;
 
     *abstract = rsa;
@@ -369,7 +352,6 @@ static const struct hostkey_method hostkey_method_ssh_rsa = {
     SSH2_SHA1_DIG_LEN,
     hostkey_method_ssh_rsa_init,
     hostkey_method_ssh_rsa_initPEM,
-    hostkey_method_ssh_rsa_initPEMFromMemory,
     hostkey_method_ssh_rsa_sig_verify,
     hostkey_method_ssh_rsa_signv,
     NULL, /* encrypt */
@@ -382,7 +364,6 @@ static const struct hostkey_method hostkey_method_ssh_rsa_sha2_256 = {
     SSH2_SHA256_DIG_LEN,
     hostkey_method_ssh_rsa_init,
     hostkey_method_ssh_rsa_initPEM,
-    hostkey_method_ssh_rsa_initPEMFromMemory,
     hostkey_method_ssh_rsa_sha2_256_sig_verify,
     hostkey_method_ssh_rsa_sha2_256_signv,
     NULL, /* encrypt */
@@ -394,7 +375,6 @@ static const struct hostkey_method hostkey_method_ssh_rsa_sha2_512 = {
     SSH2_SHA512_DIG_LEN,
     hostkey_method_ssh_rsa_init,
     hostkey_method_ssh_rsa_initPEM,
-    hostkey_method_ssh_rsa_initPEMFromMemory,
     hostkey_method_ssh_rsa_sha2_512_sig_verify,
     hostkey_method_ssh_rsa_sha2_512_signv,
     NULL, /* encrypt */
@@ -407,7 +387,6 @@ static const struct hostkey_method hostkey_method_ssh_rsa_cert = {
     SSH2_SHA1_DIG_LEN,
     NULL,
     hostkey_method_ssh_rsa_initPEM,
-    hostkey_method_ssh_rsa_initPEMFromMemory,
     NULL,
     hostkey_method_ssh_rsa_signv,
     NULL, /* encrypt */
@@ -420,7 +399,6 @@ static const struct hostkey_method hostkey_method_ssh_rsa_sha2_256_cert = {
     SSH2_SHA256_DIG_LEN,
     NULL,
     hostkey_method_ssh_rsa_initPEM,
-    hostkey_method_ssh_rsa_initPEMFromMemory,
     NULL,
     hostkey_method_ssh_rsa_sha2_256_signv,
     NULL, /* encrypt */
@@ -432,7 +410,6 @@ static const struct hostkey_method hostkey_method_ssh_rsa_sha2_512_cert = {
     SSH2_SHA512_DIG_LEN,
     NULL,
     hostkey_method_ssh_rsa_initPEM,
-    hostkey_method_ssh_rsa_initPEMFromMemory,
     NULL,
     hostkey_method_ssh_rsa_sha2_512_signv,
     NULL, /* encrypt */
@@ -511,44 +488,27 @@ static int hostkey_method_ssh_dss_init(LIBSSH2_SESSION *session,
  */
 static int hostkey_method_ssh_dss_initPEM(LIBSSH2_SESSION *session,
                                           const char *privkeyfile,
+                                          const char *privkeyfiledata,
+                                          size_t privkeyfiledata_len,
                                           const char *passphrase,
                                           void **abstract)
 {
     ssh2_dsa_ctx *dsa;
+    int rc;
 
     if(*abstract) {
         hostkey_method_ssh_dss_dtor(session, abstract);
         *abstract = NULL;
     }
 
-    if(ssh2_dsa_new_private(&dsa, session, privkeyfile, passphrase))
-        return -1;
-
-    *abstract = dsa;
-
-    return 0;
-}
-
-/*
- * Load a Private Key from memory
- */
-static int hostkey_method_ssh_dss_initPEMFromMemory(
-    LIBSSH2_SESSION *session,
-    const char *privkeyfiledata,
-    size_t privkeyfiledata_len,
-    const char *passphrase,
-    void **abstract)
-{
-    ssh2_dsa_ctx *dsa;
-
-    if(*abstract) {
-        hostkey_method_ssh_dss_dtor(session, abstract);
-        *abstract = NULL;
-    }
-
-    if(ssh2_dsa_new_private_frommemory(&dsa, session,
-                                       privkeyfiledata, privkeyfiledata_len,
-                                       passphrase))
+    if(privkeyfile)
+        rc = ssh2_dsa_new_private(&dsa, session, privkeyfile, passphrase);
+    else
+        rc = ssh2_dsa_new_private_frommemory(&dsa, session,
+                                             privkeyfiledata,
+                                             privkeyfiledata_len,
+                                             passphrase);
+    if(rc)
         return -1;
 
     *abstract = dsa;
@@ -629,7 +589,6 @@ static const struct hostkey_method hostkey_method_ssh_dss = {
     SSH2_SHA1_DIG_LEN,
     hostkey_method_ssh_dss_init,
     hostkey_method_ssh_dss_initPEM,
-    hostkey_method_ssh_dss_initPEMFromMemory,
     hostkey_method_ssh_dss_sig_verify,
     hostkey_method_ssh_dss_signv,
     NULL, /* encrypt */
@@ -735,45 +694,27 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
  */
 static int hostkey_method_ssh_ecdsa_initPEM(LIBSSH2_SESSION *session,
                                             const char *privkeyfile,
+                                            const char *privkeyfiledata,
+                                            size_t privkeyfiledata_len,
                                             const char *passphrase,
                                             void **abstract)
 {
     ssh2_ecdsa_ctx *ec_ctx = NULL;
+    int rc;
 
     if(abstract && *abstract) {
         hostkey_method_ssh_ecdsa_dtor(session, abstract);
         *abstract = NULL;
     }
 
-    if(ssh2_ecdsa_new_private(&ec_ctx, session, privkeyfile, passphrase))
-        return -1;
-
-    if(abstract)
-        *abstract = ec_ctx;
-
-    return 0;
-}
-
-/*
- * Load a Private Key from memory
- */
-static int hostkey_method_ssh_ecdsa_initPEMFromMemory(
-    LIBSSH2_SESSION *session,
-    const char *privkeyfiledata,
-    size_t privkeyfiledata_len,
-    const char *passphrase,
-    void **abstract)
-{
-    ssh2_ecdsa_ctx *ec_ctx = NULL;
-
-    if(abstract && *abstract) {
-        hostkey_method_ssh_ecdsa_dtor(session, abstract);
-        *abstract = NULL;
-    }
-
-    if(ssh2_ecdsa_new_private_frommemory(&ec_ctx, session,
-                                         privkeyfiledata, privkeyfiledata_len,
-                                         passphrase))
+    if(privkeyfile)
+        rc = ssh2_ecdsa_new_private(&ec_ctx, session, privkeyfile, passphrase);
+    else
+        rc = ssh2_ecdsa_new_private_frommemory(&ec_ctx, session,
+                                               privkeyfiledata,
+                                               privkeyfiledata_len,
+                                               passphrase);
+    if(rc)
         return -1;
 
     if(abstract)
@@ -877,7 +818,6 @@ static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp256 = {
     SSH2_SHA256_DIG_LEN,
     hostkey_method_ssh_ecdsa_init,
     hostkey_method_ssh_ecdsa_initPEM,
-    hostkey_method_ssh_ecdsa_initPEMFromMemory,
     hostkey_method_ssh_ecdsa_sig_verify,
     hostkey_method_ssh_ecdsa_signv,
     NULL, /* encrypt */
@@ -889,7 +829,6 @@ static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp384 = {
     SSH2_SHA384_DIG_LEN,
     hostkey_method_ssh_ecdsa_init,
     hostkey_method_ssh_ecdsa_initPEM,
-    hostkey_method_ssh_ecdsa_initPEMFromMemory,
     hostkey_method_ssh_ecdsa_sig_verify,
     hostkey_method_ssh_ecdsa_signv,
     NULL, /* encrypt */
@@ -901,7 +840,6 @@ static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp521 = {
     SSH2_SHA512_DIG_LEN,
     hostkey_method_ssh_ecdsa_init,
     hostkey_method_ssh_ecdsa_initPEM,
-    hostkey_method_ssh_ecdsa_initPEMFromMemory,
     hostkey_method_ssh_ecdsa_sig_verify,
     hostkey_method_ssh_ecdsa_signv,
     NULL, /* encrypt */
@@ -913,7 +851,6 @@ static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp256_cert = {
     SSH2_SHA256_DIG_LEN,
     NULL,
     hostkey_method_ssh_ecdsa_initPEM,
-    hostkey_method_ssh_ecdsa_initPEMFromMemory,
     NULL,
     hostkey_method_ssh_ecdsa_signv,
     NULL, /* encrypt */
@@ -925,7 +862,6 @@ static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp384_cert = {
     SSH2_SHA384_DIG_LEN,
     NULL,
     hostkey_method_ssh_ecdsa_initPEM,
-    hostkey_method_ssh_ecdsa_initPEMFromMemory,
     NULL,
     hostkey_method_ssh_ecdsa_signv,
     NULL, /* encrypt */
@@ -937,7 +873,6 @@ static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp521_cert = {
     SSH2_SHA512_DIG_LEN,
     NULL,
     hostkey_method_ssh_ecdsa_initPEM,
-    hostkey_method_ssh_ecdsa_initPEMFromMemory,
     NULL,
     hostkey_method_ssh_ecdsa_signv,
     NULL, /* encrypt */
@@ -1073,49 +1008,31 @@ static int hostkey_method_ssh_ed25519_init_cert(
  */
 static int hostkey_method_ssh_ed25519_initPEM(LIBSSH2_SESSION *session,
                                               const char *privkeyfile,
+                                              const char *privkeyfiledata,
+                                              size_t privkeyfiledata_len,
                                               const char *passphrase,
                                               void **abstract)
 {
     ssh2_ed25519_ctx *ed_ctx = NULL;
+    int rc;
 
     if(*abstract) {
         hostkey_method_ssh_ed25519_dtor(session, abstract);
         *abstract = NULL;
     }
 
-    if(ssh2_ed25519_new_private(&ed_ctx, session, privkeyfile, passphrase))
+    if(privkeyfile)
+        rc = ssh2_ed25519_new_private(&ed_ctx, session, privkeyfile,
+                                      passphrase);
+    else
+        rc = ssh2_ed25519_new_private_frommemory(&ed_ctx, session,
+                                                 privkeyfiledata,
+                                                 privkeyfiledata_len,
+                                                 passphrase);
+    if(rc)
         return -1;
 
     *abstract = ed_ctx;
-
-    return 0;
-}
-
-/*
- * Load a Private Key from memory
- */
-static int hostkey_method_ssh_ed25519_initPEMFromMemory(
-    LIBSSH2_SESSION *session,
-    const char *privkeyfiledata,
-    size_t privkeyfiledata_len,
-    const char *passphrase,
-    void **abstract)
-{
-    ssh2_ed25519_ctx *ed_ctx = NULL;
-
-    if(abstract && *abstract) {
-        hostkey_method_ssh_ed25519_dtor(session, abstract);
-        *abstract = NULL;
-    }
-
-    if(ssh2_ed25519_new_private_frommemory(&ed_ctx, session,
-                                           privkeyfiledata,
-                                           privkeyfiledata_len,
-                                           passphrase))
-        return -1;
-
-    if(abstract)
-        *abstract = ed_ctx;
 
     return 0;
 }
@@ -1171,7 +1088,6 @@ static const struct hostkey_method hostkey_method_ssh_ed25519 = {
     SSH2_SHA256_DIG_LEN,
     hostkey_method_ssh_ed25519_init,
     hostkey_method_ssh_ed25519_initPEM,
-    hostkey_method_ssh_ed25519_initPEMFromMemory,
     hostkey_method_ssh_ed25519_sig_verify,
     hostkey_method_ssh_ed25519_signv,
     NULL, /* encrypt */
@@ -1183,7 +1099,6 @@ static const struct hostkey_method hostkey_method_ssh_ed25519_cert = {
     SSH2_SHA256_DIG_LEN,
     hostkey_method_ssh_ed25519_init_cert,
     hostkey_method_ssh_ed25519_initPEM,
-    hostkey_method_ssh_ed25519_initPEMFromMemory,
     hostkey_method_ssh_ed25519_sig_verify,
     hostkey_method_ssh_ed25519_signv,
     NULL, /* encrypt */

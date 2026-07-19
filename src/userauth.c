@@ -742,7 +742,7 @@ static int userauth_read_blob_privkey(
     *hostkey_method = NULL;
     *hostkey_abstract = NULL;
     while(*hostkey_methods_avail && (*hostkey_methods_avail)->name) {
-        if((*hostkey_methods_avail)->initPEMFromMemory &&
+        if((*hostkey_methods_avail)->initPEM &&
            !strncmp((*hostkey_methods_avail)->name, (const char *)method,
                     method_len)) {
             *hostkey_method = *hostkey_methods_avail;
@@ -754,10 +754,11 @@ static int userauth_read_blob_privkey(
         return ssh2_err(session, LIBSSH2_ERROR_METHOD_NONE,
                         "No handler for specified private key");
 
-    if((*hostkey_method)->initPEMFromMemory(session,
-                                            privkeyfiledata,
-                                            privkeyfiledata_len,
-                                            passphrase, hostkey_abstract))
+    if((*hostkey_method)->initPEM(session,
+                                  NULL,
+                                  privkeyfiledata,
+                                  privkeyfiledata_len,
+                                  passphrase, hostkey_abstract))
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
                         "Unable to initialize private key from memory");
 
@@ -794,7 +795,7 @@ static int userauth_read_file_privkey(
         return ssh2_err(session, LIBSSH2_ERROR_METHOD_NONE,
                         "No handler for specified private key");
 
-    if((*hostkey_method)->initPEM(session, privkeyfile,
+    if((*hostkey_method)->initPEM(session, privkeyfile, NULL, 0,
                                   passphrase, hostkey_abstract))
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
                         "Unable to initialize private key from file");
