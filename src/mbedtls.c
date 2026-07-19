@@ -1168,8 +1168,7 @@ int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
         goto cleanup;
 
     data[data_len] = 0;  /* for mbedtls_pk_parse_key() */
-    if(mbed_parse_eckey(ec_ctx, &pkey, data, data_len + 1,
-                        (const unsigned char *)passphrase) == 0)
+    if(mbed_parse_eckey(ec_ctx, &pkey, data, data_len + 1, passphrase) == 0)
         goto cleanup;
 
     mbed_parse_openssh_key(ec_ctx, session, data, data_len, passphrase);
@@ -1211,7 +1210,7 @@ int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
     data_nullterm[blob_len] = 0;
 
     if(mbed_parse_eckey(ec_ctx, &pkey, data_nullterm, blob_len + 1,
-                        (const unsigned char *)passphrase) == 0)
+                        passphrase) == 0)
         goto cleanup;
 
     mbed_parse_openssh_key(ec_ctx, session, data_nullterm, blob_len + 1,
