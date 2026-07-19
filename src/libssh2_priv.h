@@ -1013,7 +1013,7 @@ struct hostkey_method {
                 size_t hostkey_data_len, void **abstract);
     int (*initPEM)(LIBSSH2_SESSION *session,
                    const char *privkeyfile,
-                   const char *privkeyblob, size_t privkeyfileblob_len,
+                   const char *privkeyblob, size_t privkeyblob_len,
                    const char *passphrase, void **abstract);
     int (*sig_verify)(LIBSSH2_SESSION *session, const unsigned char *sig,
                       size_t sig_len, const unsigned char *m,
