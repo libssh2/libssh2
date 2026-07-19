@@ -3550,7 +3550,7 @@ static int kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *data,
     if(data_len < 17)
         return -1;
 
-    buf.data = (unsigned char *)data;
+    buf.data = data;
     buf.len = data_len;
     buf.dataptr = buf.data;
     buf.dataptr++; /* advance past packet type */

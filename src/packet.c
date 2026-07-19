@@ -666,7 +666,7 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                     unsigned char *algs = NULL;
                     size_t algs_len = 0;
 
-                    buf.data = (unsigned char *)data;
+                    buf.data = data;
                     buf.dataptr = buf.data;
                     buf.len = datalen;
                     buf.dataptr += 17; /* advance past type and cookie */
@@ -727,7 +727,7 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
             if(datalen >= 5) {
                 uint32_t reason = 0;
                 struct string_buf buf;
-                buf.data = (unsigned char *)data;
+                buf.data = data;
                 buf.dataptr = buf.data;
                 buf.len = datalen;
                 buf.dataptr++; /* advance past type */
@@ -782,7 +782,7 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
 
                 if(datalen >= 6) {
                     struct string_buf buf;
-                    buf.data = (unsigned char *)data;
+                    buf.data = data;
                     buf.dataptr = buf.data;
                     buf.len = datalen;
                     buf.dataptr += 2; /* advance past type & always display */
@@ -815,7 +815,7 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
             if(datalen >= 5) {
                 uint32_t nr_extensions = 0;
                 struct string_buf buf;
-                buf.data = (unsigned char *)data;
+                buf.data = data;
                 buf.dataptr = buf.data;
                 buf.len = datalen;
                 buf.dataptr += 1; /* advance past type */
