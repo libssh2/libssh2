@@ -1793,18 +1793,12 @@ static int userauth_publickey(LIBSSH2_SESSION *session,
     privkey_info.passphrase = passphrase;
 
     if(session->userauth_pblc_state == ssh2_NB_state_idle) {
-        if(pubkeyfile)
+        if(pubkeyfile || (pubkeyblob_len && pubkeyblob))
             rc = userauth_read_pubkey(session,
                                       &session->userauth_pblc_method,
                                       &session->userauth_pblc_method_len,
                                       &pubkeydata, &pubkeydata_len,
-                                      pubkeyfile, NULL, 0);
-        else if(pubkeyblob_len && pubkeyblob)
-            rc = userauth_read_pubkey(session,
-                                      &session->userauth_pblc_method,
-                                      &session->userauth_pblc_method_len,
-                                      &pubkeydata, &pubkeydata_len,
-                                      NULL, pubkeyblob, pubkeyblob_len);
+                                      pubkeyfile, pubkeyblob, pubkeyblob_len);
         /* Compute public key from private key. */
         else if(privkeyfile)
             rc = ssh2_pub_priv_keyfile(session,
