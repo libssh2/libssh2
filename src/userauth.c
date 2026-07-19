@@ -684,7 +684,7 @@ static int userauth_read_pubkey(
 }
 
 /*
- * Read a PEM encoded private key from an id_??? style file
+ * Read a PEM encoded private key from an id_??? style file or blob
  */
 static int userauth_read_privkey(
     LIBSSH2_SESSION *session,

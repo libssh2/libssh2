@@ -127,7 +127,7 @@ static int hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
 }
 
 /*
- * Load a Private Key from a PEM file
+ * Load a Private Key from a PEM file or blob
  */
 static int hostkey_method_ssh_rsa_initPEM(LIBSSH2_SESSION *session,
                                           const char *privkeyfile,
@@ -483,7 +483,7 @@ static int hostkey_method_ssh_dss_init(LIBSSH2_SESSION *session,
 }
 
 /*
- * Load a Private Key from a PEM file
+ * Load a Private Key from a PEM file or blob
  */
 static int hostkey_method_ssh_dss_initPEM(LIBSSH2_SESSION *session,
                                           const char *privkeyfile,
@@ -688,7 +688,7 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
 }
 
 /*
- * Load a Private Key from a PEM file
+ * Load a Private Key from a PEM file or blob
  */
 static int hostkey_method_ssh_ecdsa_initPEM(LIBSSH2_SESSION *session,
                                             const char *privkeyfile,
@@ -1001,7 +1001,7 @@ static int hostkey_method_ssh_ed25519_init_cert(
 }
 
 /*
- * Load a Private Key from a PEM file
+ * Load a Private Key from a PEM file or blob
  */
 static int hostkey_method_ssh_ed25519_initPEM(LIBSSH2_SESSION *session,
                                               const char *privkeyfile,
