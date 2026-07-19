@@ -3824,7 +3824,7 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
     if(!session)
         return LIBSSH2_ERROR_BAD_USE;
 
-    if(key_type && (strlen(key_type) > 11 || strlen(key_type) < 7))
+    if(key_type && strlen(key_type) < 7)
         return ssh2_err(session, LIBSSH2_ERROR_PROTO, "type is invalid");
 
     OSSL_INIT_IF_NEEDED();
