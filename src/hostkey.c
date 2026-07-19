@@ -1346,7 +1346,7 @@ const char *libssh2_session_hostkey(LIBSSH2_SESSION *session, size_t *len,
     if(len)
         *len = 0;
     if(type)
-        *type = 0;
+        *type = LIBSSH2_HOSTKEY_TYPE_UNKNOWN;
 
     return NULL;
 }
