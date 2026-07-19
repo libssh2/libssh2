@@ -131,7 +131,7 @@ static int hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
  */
 static int hostkey_method_ssh_rsa_initPEM(LIBSSH2_SESSION *session,
                                           const char *privkeyfile,
-                                          const unsigned char *passphrase,
+                                          const char *passphrase,
                                           void **abstract)
 {
     ssh2_rsa_ctx *rsa;
@@ -156,7 +156,7 @@ static int hostkey_method_ssh_rsa_initPEMFromMemory(
     LIBSSH2_SESSION *session,
     const char *privkeyfiledata,
     size_t privkeyfiledata_len,
-    const unsigned char *passphrase,
+    const char *passphrase,
     void **abstract)
 {
     ssh2_rsa_ctx *rsa;
@@ -511,7 +511,7 @@ static int hostkey_method_ssh_dss_init(LIBSSH2_SESSION *session,
  */
 static int hostkey_method_ssh_dss_initPEM(LIBSSH2_SESSION *session,
                                           const char *privkeyfile,
-                                          const unsigned char *passphrase,
+                                          const char *passphrase,
                                           void **abstract)
 {
     ssh2_dsa_ctx *dsa;
@@ -536,7 +536,7 @@ static int hostkey_method_ssh_dss_initPEMFromMemory(
     LIBSSH2_SESSION *session,
     const char *privkeyfiledata,
     size_t privkeyfiledata_len,
-    const unsigned char *passphrase,
+    const char *passphrase,
     void **abstract)
 {
     ssh2_dsa_ctx *dsa;
@@ -735,7 +735,7 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
  */
 static int hostkey_method_ssh_ecdsa_initPEM(LIBSSH2_SESSION *session,
                                             const char *privkeyfile,
-                                            const unsigned char *passphrase,
+                                            const char *passphrase,
                                             void **abstract)
 {
     ssh2_ecdsa_ctx *ec_ctx = NULL;
@@ -761,7 +761,7 @@ static int hostkey_method_ssh_ecdsa_initPEMFromMemory(
     LIBSSH2_SESSION *session,
     const char *privkeyfiledata,
     size_t privkeyfiledata_len,
-    const unsigned char *passphrase,
+    const char *passphrase,
     void **abstract)
 {
     ssh2_ecdsa_ctx *ec_ctx = NULL;
@@ -1073,7 +1073,7 @@ static int hostkey_method_ssh_ed25519_init_cert(
  */
 static int hostkey_method_ssh_ed25519_initPEM(LIBSSH2_SESSION *session,
                                               const char *privkeyfile,
-                                              const unsigned char *passphrase,
+                                              const char *passphrase,
                                               void **abstract)
 {
     ssh2_ed25519_ctx *ed_ctx = NULL;
@@ -1098,7 +1098,7 @@ static int hostkey_method_ssh_ed25519_initPEMFromMemory(
     LIBSSH2_SESSION *session,
     const char *privkeyfiledata,
     size_t privkeyfiledata_len,
-    const unsigned char *passphrase,
+    const char *passphrase,
     void **abstract)
 {
     ssh2_ed25519_ctx *ed_ctx = NULL;

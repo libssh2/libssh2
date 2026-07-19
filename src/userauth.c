@@ -295,7 +295,7 @@ int libssh2_userauth_authenticated(LIBSSH2_SESSION *session)
 static int userauth_password(LIBSSH2_SESSION *session,
                              const char *username,
                              unsigned int username_len,
-                             const unsigned char *password,
+                             const char *password,
                              unsigned int password_len,
                              LIBSSH2_PASSWD_CHANGEREQ_FUNC(*passwd_change_cb))
 {
@@ -357,7 +357,8 @@ static int userauth_password(LIBSSH2_SESSION *session,
     if(session->userauth_pswd_state == ssh2_NB_state_created) {
         rc = ssh2_transport_send(session, session->userauth_pswd_data,
                                  session->userauth_pswd_data_len,
-                                 password, password_len);
+                                 (const unsigned char *)password,
+                                 password_len);
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
                             "Would block writing password request");
@@ -559,8 +560,7 @@ int libssh2_userauth_password_ex(
 
     BLOCK_ADJUST(rc, session,
                  userauth_password(session, username, username_len,
-                                   (const unsigned char *)password,
-                                   password_len,
+                                   password, password_len,
                                    passwd_change_cb));
     return rc;
 }
@@ -2050,7 +2050,7 @@ int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
                  userauth_publickey_fromfile(session,
                                              username, username_len,
                                              publickey, privatekey,
-                                           (const unsigned char *)passphrase));
+                                             passphrase));
     return rc;
 }
 
@@ -2380,7 +2380,7 @@ int libssh2_userauth_publickey_sk(
                                      &sk_info.key_handle,
                                      &sk_info.handle_len,
                                      privatekeydata, privatekeydata_len,
-                                     (const unsigned char *)passphrase))
+                                     passphrase))
             return ssh2_err(session, LIBSSH2_ERROR_FILE,
                             "Unable to extract public key from private key.");
         else if(publickeydata_len == 0 || !publickeydata) {

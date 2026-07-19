@@ -1011,7 +1011,7 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                               size_t *handle_len,
                               const char *privatekeydata,
                               size_t privatekeydata_len,
-                              const unsigned char *passphrase)
+                              const char *passphrase)
 {
     (void)method;
     (void)method_len;

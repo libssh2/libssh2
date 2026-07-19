@@ -901,7 +901,7 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx, ULONG hash_len,
 
 static int wcng_load_private(LIBSSH2_SESSION *session,
                              const char *filename,
-                             const unsigned char *passphrase,
+                             const char *passphrase,
                              unsigned char **ppbEncoded,
                              size_t *pcbEncoded,
                              int tryLoadRSA, int tryLoadDSA)
@@ -944,7 +944,7 @@ static int wcng_load_private(LIBSSH2_SESSION *session,
 static int wcng_load_private_memory(LIBSSH2_SESSION *session,
                                     const char *privatekeydata,
                                     size_t privatekeydata_len,
-                                    const unsigned char *passphrase,
+                                    const char *passphrase,
                                     unsigned char **ppbEncoded,
                                     size_t *pcbEncoded,
                                     int tryLoadRSA, int tryLoadDSA)
@@ -1333,7 +1333,7 @@ static int wcng_rsa_new_private_parse(ssh2_rsa_ctx **rsa,
 int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
                          LIBSSH2_SESSION *session,
                          const char *filename,
-                         const unsigned char *passphrase)
+                         const char *passphrase)
 {
     unsigned char *pbEncoded;
     size_t cbEncoded;
@@ -1350,7 +1350,7 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
 int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                     LIBSSH2_SESSION *session,
                                     const char *blob, size_t blob_len,
-                                    const unsigned char *passphrase)
+                                    const char *passphrase)
 {
     unsigned char *pbEncoded;
     size_t cbEncoded;
@@ -1620,7 +1620,7 @@ static int wcng_dsa_new_private_parse(ssh2_dsa_ctx **dsa,
 int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
                          LIBSSH2_SESSION *session,
                          const char *filename,
-                         const unsigned char *passphrase)
+                         const char *passphrase)
 {
     unsigned char *pbEncoded;
     size_t cbEncoded;
@@ -1637,7 +1637,7 @@ int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
 int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
                                     LIBSSH2_SESSION *session,
                                     const char *blob, size_t blob_len,
-                                    const unsigned char *passphrase)
+                                    const char *passphrase)
 {
     unsigned char *pbEncoded;
     size_t cbEncoded;
@@ -2522,7 +2522,7 @@ cleanup:
 int ssh2_ecdsa_new_private(OUT ssh2_ecdsa_ctx **ec_ctx,
                            IN LIBSSH2_SESSION *session,
                            IN const char *filename,
-                           IN const unsigned char *passphrase)
+                           IN const char *passphrase)
 {
     int result;
 
@@ -2567,7 +2567,7 @@ cleanup:
 int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **ec_ctx,
                                       IN LIBSSH2_SESSION *session,
                                       IN const char *blob, IN size_t blob_len,
-                                      IN const unsigned char *passphrase)
+                                      IN const char *passphrase)
 {
     int result;
     struct string_buf *decrypted = NULL;

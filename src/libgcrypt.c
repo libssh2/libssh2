@@ -241,7 +241,7 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
 int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                     LIBSSH2_SESSION *session,
                                     const char *blob, size_t blob_len,
-                                    const unsigned char *passphrase)
+                                    const char *passphrase)
 {
     (void)rsa;
     (void)blob;
@@ -256,7 +256,7 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
 int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
                          LIBSSH2_SESSION *session,
                          const char *filename,
-                         const unsigned char *passphrase)
+                         const char *passphrase)
 {
     FILE *fp;
     unsigned char *data, *save_data;
@@ -355,7 +355,7 @@ fail:
 int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
                                     LIBSSH2_SESSION *session,
                                     const char *blob, size_t blob_len,
-                                    const unsigned char *passphrase)
+                                    const char *passphrase)
 {
     (void)dsa;
     (void)blob;
@@ -370,7 +370,7 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
 int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
                          LIBSSH2_SESSION *session,
                          const char *filename,
-                         const unsigned char *passphrase)
+                         const char *passphrase)
 {
     FILE *fp;
     unsigned char *data, *save_data;

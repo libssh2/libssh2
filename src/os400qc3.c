@@ -57,7 +57,7 @@ struct valiststr {
 
 typedef int (*loadkeyproc)(LIBSSH2_SESSION *session,
                            const unsigned char *data, unsigned int datalen,
-                           const unsigned char *passphrase, void *loadkeydata);
+                           const char *passphrase, void *loadkeydata);
 
 /* Public key extraction data. */
 struct loadpubkeydata {
@@ -117,7 +117,7 @@ struct pkcs5params {
     char padopt;           /* Pad option. */
     char padchar;          /* Pad character. */
     int (*kdf)(LIBSSH2_SESSION *session, char **dk,
-               const unsigned char *passphrase,
+               const char *passphrase,
                struct pkcs5params *pkcs5);
     int hash;              /* KDF hash algorithm. */
     size_t hashlen;        /* KDF hash digest length. */
@@ -1334,7 +1334,7 @@ static int asn1getword(struct asn1Element *e, unsigned long *v)
 }
 
 static int pbkdf1(LIBSSH2_SESSION *session, char **dk,
-                  const unsigned char *passphrase, struct pkcs5params *pkcs5)
+                  const char *passphrase, struct pkcs5params *pkcs5)
 {
     int i;
     Qc3_Format_ALGD0100_T hctx;
@@ -1388,7 +1388,7 @@ static int pbkdf1(LIBSSH2_SESSION *session, char **dk,
 }
 
 static int pbkdf2(LIBSSH2_SESSION *session, char **dk,
-                  const unsigned char *passphrase, struct pkcs5params *pkcs5)
+                  const char *passphrase, struct pkcs5params *pkcs5)
 {
     size_t i;
     size_t k;
@@ -1663,7 +1663,7 @@ static int parse_pbes1(LIBSSH2_SESSION *session, struct pkcs5params *pkcs5,
 
 static int pkcs8kek(LIBSSH2_SESSION *session, struct os400qc3_crypto_ctx **ctx,
                     const unsigned char *data, unsigned int datalen,
-                    const unsigned char *passphrase,
+                    const char *passphrase,
                     struct asn1Element *privkeyinfo)
 {
     struct asn1Element encprivkeyinfo;
@@ -1764,7 +1764,7 @@ static int pkcs8kek(LIBSSH2_SESSION *session, struct os400qc3_crypto_ctx **ctx,
 
 static int rsapkcs8privkey(LIBSSH2_SESSION *session,
                            const unsigned char *data, unsigned int datalen,
-                           const unsigned char *passphrase, void *loadkeydata)
+                           const char *passphrase, void *loadkeydata)
 {
     ssh2_rsa_ctx *ctx = (ssh2_rsa_ctx *)loadkeydata;
     char keyform = Qc3_Clear;
@@ -1841,7 +1841,7 @@ static int sshrsapubkey(LIBSSH2_SESSION *session, char **sshpubkey,
 
 static int rsapkcs8pubkey(LIBSSH2_SESSION *session,
                           const unsigned char *data, unsigned int datalen,
-                          const unsigned char *passphrase, void *loadkeydata)
+                          const char *passphrase, void *loadkeydata)
 {
     struct loadpubkeydata *p = (struct loadpubkeydata *)loadkeydata;
     char *buf;
@@ -1947,7 +1947,7 @@ static int pkcs1topkcs8(LIBSSH2_SESSION *session,
 
 static int rsapkcs1privkey(LIBSSH2_SESSION *session,
                            const unsigned char *data, unsigned int datalen,
-                           const unsigned char *passphrase, void *loadkeydata)
+                           const char *passphrase, void *loadkeydata)
 {
     const unsigned char *data8;
     unsigned int datalen8;
@@ -1962,7 +1962,7 @@ static int rsapkcs1privkey(LIBSSH2_SESSION *session,
 
 static int rsapkcs1pubkey(LIBSSH2_SESSION *session,
                           const unsigned char *data, unsigned int datalen,
-                          const unsigned char *passphrase, void *loadkeydata)
+                          const char *passphrase, void *loadkeydata)
 {
     const unsigned char *data8;
     unsigned int datalen8;
@@ -1976,7 +1976,7 @@ static int rsapkcs1pubkey(LIBSSH2_SESSION *session,
 }
 
 static int try_pem_load(LIBSSH2_SESSION *session, FILE *fp,
-                        const unsigned char *passphrase,
+                        const char *passphrase,
                         const char *header, const char *trailer,
                         loadkeyproc proc, void *loadkeydata)
 {
