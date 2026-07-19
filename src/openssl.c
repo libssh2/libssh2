@@ -154,8 +154,8 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
                                       size_t *method_len,
                                       unsigned char **pubkeydata,
                                       size_t *pubkeydata_len,
-                                      const char *privatekeydata,
-                                      size_t privatekeydata_len,
+                                      const char *privkeyblob,
+                                      size_t privkeyblob_len,
                                       const char *passphrase);
 
 #if LIBSSH2_RSA || LIBSSH2_DSA || LIBSSH2_ECDSA
@@ -3814,12 +3814,11 @@ int ssh2_pub_privkey_file(LIBSSH2_SESSION *session,
 static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
                                       void **key_ctx,
                                       const char *key_type,
-                                      char **method,
-                                      size_t *method_len,
+                                      char **method, size_t *method_len,
                                       unsigned char **pubkeydata,
                                       size_t *pubkeydata_len,
-                                      const char *privatekeydata,
-                                      size_t privatekeydata_len,
+                                      const char *privkeyblob,
+                                      size_t privkeyblob_len,
                                       const char *passphrase)
 {
     int rc;
@@ -3841,7 +3840,7 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
     OSSL_INIT_IF_NEEDED();
 
     rc = ssh2_openssh_pem_parse_blob(session, passphrase,
-                                     privatekeydata, privatekeydata_len,
+                                     privkeyblob, privkeyblob_len,
                                      &decrypted);
     if(rc)
         return rc;
@@ -3928,7 +3927,7 @@ int ssh2_sk_pubkey_blob(LIBSSH2_SESSION *session,
                         int *algorithm, unsigned char *flags,
                         const char **application,
                         const unsigned char **key_handle, size_t *handle_len,
-                        const char *privatekeydata, size_t privatekeydata_len,
+                        const char *privkeyblob, size_t privkeyblob_len,
                         const char *passphrase)
 {
     int rc;
@@ -3944,7 +3943,7 @@ int ssh2_sk_pubkey_blob(LIBSSH2_SESSION *session,
     OSSL_INIT_IF_NEEDED();
 
     rc = ssh2_openssh_pem_parse_blob(session, passphrase,
-                                     privatekeydata, privatekeydata_len,
+                                     privkeyblob, privkeyblob_len,
                                      &decrypted);
     if(rc)
         return rc;
@@ -4014,8 +4013,8 @@ cleanup:
 int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
                           char **method, size_t *method_len,
                           unsigned char **pubkeydata, size_t *pubkeydata_len,
-                          const char *privatekeydata,
-                          size_t privatekeydata_len,
+                          const char *privkeyblob,
+                          size_t privkeyblob_len,
                           const char *passphrase)
 {
     int rc;
@@ -4029,7 +4028,7 @@ int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
     ssh2_deb((session, LIBSSH2_TRACE_AUTH,
               "Computing public key from private key."));
 
-    bp = BIO_new_mem_buf(privatekeydata, (int)privatekeydata_len);
+    bp = BIO_new_mem_buf(privkeyblob, (int)privkeyblob_len);
     if(!bp)
         return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                         "Unable to allocate memory when computing public key");
@@ -4045,7 +4044,7 @@ int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
         rc = ossl_key_from_openssh_blob(session, NULL, NULL,
                                         method, method_len,
                                         pubkeydata, pubkeydata_len,
-                                        privatekeydata, privatekeydata_len,
+                                        privkeyblob, privkeyblob_len,
                                         passphrase);
         if(rc == 0)
             return 0;

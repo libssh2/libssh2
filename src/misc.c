@@ -1009,8 +1009,8 @@ int ssh2_sk_pubkey_blob(LIBSSH2_SESSION *session,
                         const char **application,
                         const unsigned char **key_handle,
                         size_t *handle_len,
-                        const char *privatekeydata,
-                        size_t privatekeydata_len,
+                        const char *privkeyblob,
+                        size_t privkeyblob_len,
                         const char *passphrase)
 {
     (void)method;
@@ -1022,8 +1022,8 @@ int ssh2_sk_pubkey_blob(LIBSSH2_SESSION *session,
     (void)application;
     (void)key_handle;
     (void)handle_len;
-    (void)privatekeydata;
-    (void)privatekeydata_len;
+    (void)privkeyblob;
+    (void)privkeyblob_len;
     (void)passphrase;
 
     return ssh2_err(session, LIBSSH2_ERROR_FILE,
