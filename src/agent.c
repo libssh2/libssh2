@@ -761,7 +761,7 @@ static int agent_sign(LIBSSH2_SESSION *session,
     size_t len, method_len, plain_len;
     unsigned char *s;
     int rc;
-    unsigned char *method_name = NULL;
+    char *method_name = NULL;
     uint32_t sign_flags = 0;
 
     len = 1 + 4 + 4 + 4;  /* fixed parts */
@@ -863,7 +863,7 @@ static int agent_sign(LIBSSH2_SESSION *session,
     s += method_len;
 
     plain_len = ssh2_userauth_plain_method(
-        (char *)session->userauth_pblc_method,
+        session->userauth_pblc_method,
         session->userauth_pblc_method_len);
 
     /* check to see if we match requested */
