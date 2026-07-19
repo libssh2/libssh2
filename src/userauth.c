@@ -572,7 +572,7 @@ static int userauth_read_blob_pubkey(
 {
     unsigned char *pubkey = NULL, *sp1, *sp2, *tmp;
     size_t pubkey_len = pubkeyfiledata_len;
-    size_t tmp_len;
+    size_t sp_len, tmp_len;
 
     if(pubkeyfiledata_len <= 1)
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
@@ -606,7 +606,8 @@ static int userauth_read_blob_pubkey(
 
     sp1++;
 
-    sp2 = memchr(sp1, ' ', pubkey_len - (sp1 - pubkey));
+    sp_len = sp1 > pubkey ? (sp1 - pubkey) : 0;
+    sp2 = memchr(sp1, ' ', pubkey_len - sp_len);
     if(!sp2)
         /* Assume that the id string is missing, but that it is okay */
         sp2 = pubkey + pubkey_len;
@@ -647,8 +648,8 @@ static int userauth_read_file_pubkey(
     FILE *fd;
     char c;
     unsigned char *pubkey = NULL, *sp1, *sp2, *tmp;
-    size_t pubkey_len = 0, sp_len;
-    size_t tmp_len;
+    size_t pubkey_len = 0;
+    size_t sp_len, tmp_len;
 
     ssh2_deb((session, LIBSSH2_TRACE_AUTH, "Loading public key file: %s",
               pubkeyfile));
