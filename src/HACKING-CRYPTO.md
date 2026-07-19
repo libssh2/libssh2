@@ -421,7 +421,7 @@ int ssh2_pub_privkey_file(LIBSSH2_SESSION *session,
                           const char *privatekey,
                           const char *passphrase);
 ```
-Reads a private key from file privatekey and extract the public key -->
+Reads a private key from file privatekey and extracts the public key -->
 (`pubkeydata`, `pubkeydata_len`). Store the associated method (ssh-rsa or
 ssh-dss) into (`method`, `method_len`).
 Both buffers have to be allocated using `SSH2_ALLOC()`.
@@ -437,7 +437,7 @@ int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
                           const char *passphrase);
 ```
 Gets a private key from bytes at (`privkeyblob`, `privkeyblob_len`) and
-extract the public key --> (`pubkeydata`, `pubkeydata_len`). Store the
+extracts the public key --> (`pubkeydata`, `pubkeydata_len`). Store the
 associated method (ssh-rsa or ssh-dss) into (`method`, `method_len`).
 Both buffers have to be allocated using `SSH2_ALLOC()`.
 Returns 0 if OK, else -1.
