@@ -2719,13 +2719,13 @@ ssh2_curve_type ssh2_ecdsa_get_curve_type(IN ssh2_ecdsa_ctx *ec_ctx)
 #if LIBSSH2_RSA || LIBSSH2_DSA
 static DWORD wcng_pub_priv_write(unsigned char *key,
                                  DWORD offset,
-                                 const unsigned char *bignum,
+                                 const unsigned char *buf,
                                  const DWORD length)
 {
     ssh2_htonu32(key + offset, length);
     offset += 4;
 
-    memcpy(key + offset, bignum, length);
+    memcpy(key + offset, buf, length);
     offset += length;
 
     return offset;
