@@ -428,8 +428,8 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
     }
 
     /* Parse the file */
-    decoded.data = (unsigned char *)f;
-    decoded.dataptr = (unsigned char *)f;
+    decoded.data = f;
+    decoded.dataptr = f;
     decoded.len = f_len;
 
     if(decoded.len < sizeof(OPENSSH_PRIVKEY_AUTH_MAGIC)) {
