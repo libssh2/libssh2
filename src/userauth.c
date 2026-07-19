@@ -491,8 +491,7 @@ password_response:
                                        sizeof("ssh-connection") - 1);
                         ssh2_store_str(&s, "password", sizeof("password") - 1);
                         *s++ = 0x01;
-                        ssh2_store_str(&s, (const char *)password,
-                                       password_len);
+                        ssh2_store_str(&s, password, password_len);
                         ssh2_store_u32(&s, session->userauth_pswd_newpw_len);
                         /* send session->userauth_pswd_newpw separately */
 
