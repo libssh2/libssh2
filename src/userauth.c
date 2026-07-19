@@ -623,11 +623,11 @@ static int userauth_read_pubkey(
         fclose(fd);
     }
     else {
-        pubkey_len = pubkeyblob_len;
-
-        if(pubkey_len <= 1)
+        if(!pubkeyblob || pubkeyblob_len <= 1)
             return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                            "Invalid data in public key blob");
+                            "Invalid/missing data in public key blob");
+
+        pubkey_len = pubkeyblob_len;
 
         pubkey = SSH2_ALLOC(session, pubkey_len);
         if(!pubkey)
