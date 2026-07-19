@@ -1257,7 +1257,7 @@ static int ossl_rsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
                                            size_t *method_len,
                                            unsigned char **pubkeydata,
                                            size_t *pubkeydata_len,
-                                           ssh2_rsa_ctx **rsa_ctx)
+                                           ssh2_rsa_ctx **rsa)
 {
     int rc = 0;
     size_t nlen, elen, dlen, plen, qlen, coefflen, commentlen;
@@ -1334,8 +1334,8 @@ static int ossl_rsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
 #endif
     }
 
-    if(rsa_ctx)
-        *rsa_ctx = rsa_key;
+    if(rsa)
+        *rsa = rsa_key;
     else
         ssh2_rsa_free(rsa_key);
 
@@ -1584,7 +1584,7 @@ static int ossl_dsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
                                            size_t *method_len,
                                            unsigned char **pubkeydata,
                                            size_t *pubkeydata_len,
-                                           ssh2_dsa_ctx **dsa_ctx)
+                                           ssh2_dsa_ctx **dsa)
 {
     int rc = 0;
     size_t plen, qlen, glen, pub_len, priv_len;
@@ -1644,8 +1644,8 @@ static int ossl_dsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
 #endif
     }
 
-    if(dsa_ctx)
-        *dsa_ctx = dsa_key;
+    if(dsa)
+        *dsa = dsa_key;
     else
         ssh2_dsa_free(dsa_key);
 
