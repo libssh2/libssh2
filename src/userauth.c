@@ -1032,8 +1032,7 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                                            &pubkeydata, &pubkeydata_len,
                                            publickey);
             if(rc)
-                /* Note: userauth_read_file_pubkey() calls ssh2_err() */
-                return rc;
+                return rc; /* userauth_read_file_pubkey() calls ssh2_err() */
         }
         else {
             /* Compute public key from private key. */
@@ -1043,8 +1042,7 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                                        &pubkeydata, &pubkeydata_len,
                                        privatekey, passphrase);
             if(rc)
-                /* ssh2_pub_priv_keyfile() calls ssh2_err() */
-                return rc;
+                return rc; /* ssh2_pub_priv_keyfile() calls ssh2_err() */
         }
 
         if(username_len > MAX_INPUT_LEN ||
