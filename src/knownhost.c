@@ -950,7 +950,7 @@ int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
         len--;
     }
 
-    if(!*cp || !len) /* illegal line */
+    if(!len || !*cp) /* illegal line */
         return ssh2_err(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                         "Failed to parse known_hosts line");
 
