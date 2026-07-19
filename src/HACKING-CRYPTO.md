@@ -414,7 +414,7 @@ Format of an ED25519 public key:
 Each item is preceded by its 32-bit byte length, MSB first.
 
 ```c
-int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
+int ssh2_pub_privkey_file(LIBSSH2_SESSION *session,
                           char **method, size_t *method_len,
                           unsigned char **pubkeydata,
                           size_t *pubkeydata_len,
@@ -429,13 +429,13 @@ Returns 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                char **method, size_t *method_len,
-                                unsigned char **pubkeydata,
-                                size_t *pubkeydata_len,
-                                const char *privatekeydata,
-                                size_t privatekeydata_len,
-                                const char *passphrase);
+int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
+                          char **method, size_t *method_len,
+                          unsigned char **pubkeydata,
+                          size_t *pubkeydata_len,
+                          const char *privatekeydata,
+                          size_t privatekeydata_len,
+                          const char *passphrase);
 ```
 Gets a private key from bytes at (`privatekeydata`, `privatekeydata_len`) and
 extract the public key --> (`pubkeydata`, `pubkeydata_len`). Store the
