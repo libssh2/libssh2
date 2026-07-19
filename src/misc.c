@@ -999,19 +999,14 @@ int ssh2_timingsafe_bcmp(const void *b1, const void *b2, size_t n)
 }
 
 #ifndef LIBSSH2_KEY_SK
-int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
-                              char **method,
-                              size_t *method_len,
-                              unsigned char **pubkeydata,
-                              size_t *pubkeydata_len,
-                              int *algorithm,
-                              unsigned char *flags,
-                              const char **application,
-                              const unsigned char **key_handle,
-                              size_t *handle_len,
-                              const char *privatekeydata,
-                              size_t privatekeydata_len,
-                              const char *passphrase)
+int ssh2_sk_pubkey_blob(LIBSSH2_SESSION *session,
+                        char **method, size_t *method_len,
+                        unsigned char **pubkeydata, size_t *pubkeydata_len,
+                        int *algorithm, unsigned char *flags,
+                        const char **application,
+                        const unsigned char **key_handle, size_t *handle_len,
+                        const char *privkeyblob, size_t privkeyblob_len,
+                        const char *passphrase)
 {
     (void)method;
     (void)method_len;
@@ -1022,8 +1017,8 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
     (void)application;
     (void)key_handle;
     (void)handle_len;
-    (void)privatekeydata;
-    (void)privatekeydata_len;
+    (void)privkeyblob;
+    (void)privkeyblob_len;
     (void)passphrase;
 
     return ssh2_err(session, LIBSSH2_ERROR_FILE,

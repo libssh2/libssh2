@@ -238,10 +238,10 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
 #endif
 
 #if LIBSSH2_RSA
-int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
-                                    LIBSSH2_SESSION *session,
-                                    const char *blob, size_t blob_len,
-                                    const char *passphrase)
+int ssh2_rsa_new_priv_from_blob(ssh2_rsa_ctx **rsa,
+                                LIBSSH2_SESSION *session,
+                                const char *blob, size_t blob_len,
+                                const char *passphrase)
 {
     (void)rsa;
     (void)blob;
@@ -253,10 +253,10 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                     "Method unimplemented in libgcrypt backend");
 }
 
-int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
-                         LIBSSH2_SESSION *session,
-                         const char *filename,
-                         const char *passphrase)
+int ssh2_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa,
+                                LIBSSH2_SESSION *session,
+                                const char *filename,
+                                const char *passphrase)
 {
     FILE *fp;
     unsigned char *data, *save_data;
@@ -269,8 +269,8 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
     if(!fp)
         return -1;
 
-    ret = ssh2_pem_parse(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
-                         passphrase, fp, &data, &datalen);
+    ret = ssh2_pem_parse_FILE(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
+                              fp, passphrase, &data, &datalen);
     fclose(fp);
     if(ret)
         return -1;
@@ -352,10 +352,10 @@ fail:
 #endif
 
 #if LIBSSH2_DSA
-int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
-                                    LIBSSH2_SESSION *session,
-                                    const char *blob, size_t blob_len,
-                                    const char *passphrase)
+int ssh2_dsa_new_priv_from_blob(ssh2_dsa_ctx **dsa,
+                                LIBSSH2_SESSION *session,
+                                const char *blob, size_t blob_len,
+                                const char *passphrase)
 {
     (void)dsa;
     (void)blob;
@@ -367,10 +367,10 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
                     "Method unimplemented in libgcrypt backend");
 }
 
-int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
-                         LIBSSH2_SESSION *session,
-                         const char *filename,
-                         const char *passphrase)
+int ssh2_dsa_new_priv_from_file(ssh2_dsa_ctx **dsa,
+                                LIBSSH2_SESSION *session,
+                                const char *filename,
+                                const char *passphrase)
 {
     FILE *fp;
     unsigned char *data, *save_data;
@@ -383,8 +383,8 @@ int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
     if(!fp)
         return -1;
 
-    ret = ssh2_pem_parse(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
-                         passphrase, fp, &data, &datalen);
+    ret = ssh2_pem_parse_FILE(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
+                              fp, passphrase, &data, &datalen);
     fclose(fp);
     if(ret)
         return -1;
@@ -696,20 +696,18 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx,
     return ret;
 }
 
-int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                char **method, size_t *method_len,
-                                unsigned char **pubkeydata,
-                                size_t *pubkeydata_len,
-                                const char *privatekeydata,
-                                size_t privatekeydata_len,
-                                const char *passphrase)
+int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
+                          char **method, size_t *method_len,
+                          unsigned char **pubkeydata, size_t *pubkeydata_len,
+                          const char *privkeyblob, size_t privkeyblob_len,
+                          const char *passphrase)
 {
     (void)method;
     (void)method_len;
     (void)pubkeydata;
     (void)pubkeydata_len;
-    (void)privatekeydata;
-    (void)privatekeydata_len;
+    (void)privkeyblob;
+    (void)privkeyblob_len;
     (void)passphrase;
 
     return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
@@ -717,10 +715,9 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                     "memory: Method unimplemented in libgcrypt backend");
 }
 
-int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
+int ssh2_pub_privkey_file(LIBSSH2_SESSION *session,
                           char **method, size_t *method_len,
-                          unsigned char **pubkeydata,
-                          size_t *pubkeydata_len,
+                          unsigned char **pubkeydata, size_t *pubkeydata_len,
                           const char *privatekey,
                           const char *passphrase)
 {

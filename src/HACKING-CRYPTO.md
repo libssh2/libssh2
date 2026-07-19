@@ -414,14 +414,14 @@ Format of an ED25519 public key:
 Each item is preceded by its 32-bit byte length, MSB first.
 
 ```c
-int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
+int ssh2_pub_privkey_file(LIBSSH2_SESSION *session,
                           char **method, size_t *method_len,
                           unsigned char **pubkeydata,
                           size_t *pubkeydata_len,
                           const char *privatekey,
                           const char *passphrase);
 ```
-Reads a private key from file privatekey and extract the public key -->
+Reads a private key from file privatekey and extracts the public key -->
 (`pubkeydata`, `pubkeydata_len`). Store the associated method (ssh-rsa or
 ssh-dss) into (`method`, `method_len`).
 Both buffers have to be allocated using `SSH2_ALLOC()`.
@@ -429,16 +429,15 @@ Returns 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                char **method, size_t *method_len,
-                                unsigned char **pubkeydata,
-                                size_t *pubkeydata_len,
-                                const char *privatekeydata,
-                                size_t privatekeydata_len,
-                                const char *passphrase);
+int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
+                          char **method, size_t *method_len,
+                          unsigned char **pubkeydata,
+                          size_t *pubkeydata_len,
+                          const char *privkeyblob, size_t privkeyblob_len,
+                          const char *passphrase);
 ```
-Gets a private key from bytes at (`privatekeydata`, `privatekeydata_len`) and
-extract the public key --> (`pubkeydata`, `pubkeydata_len`). Store the
+Gets a private key from bytes at (`privkeyblob`, `privkeyblob_len`) and
+extracts the public key --> (`pubkeydata`, `pubkeydata_len`). Store the
 associated method (ssh-rsa or ssh-dss) into (`method`, `method_len`).
 Both buffers have to be allocated using `SSH2_ALLOC()`.
 Returns 0 if OK, else -1.
@@ -481,10 +480,10 @@ key parameters): unless used internally by the backend, it is not needed to
 support the private key and the other parameters here.
 
 ```c
-int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
-                         LIBSSH2_SESSION *session,
-                         const char *filename,
-                         const char *passphrase);
+int ssh2_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa,
+                                LIBSSH2_SESSION *session,
+                                const char *filename,
+                                const char *passphrase);
 ```
 Reads an RSA private key from file `filename` into a new RSA context.
 Must call `ssh2_init_if_needed()`.
@@ -492,10 +491,10 @@ Return 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
-                                    LIBSSH2_SESSION *session,
-                                    const char *blob, size_t blob_len,
-                                    const char *passphrase);
+int ssh2_rsa_new_priv_from_blob(ssh2_rsa_ctx **rsa,
+                                LIBSSH2_SESSION *session,
+                                const char *blob, size_t blob_len,
+                                const char *passphrase);
 ```
 Gets an RSA private key from `blob` into a new RSA context.
 Must call `ssh2_init_if_needed()`.
@@ -621,10 +620,10 @@ Returns 0 if OK.
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
-                         LIBSSH2_SESSION *session,
-                         const char *filename,
-                         const char *passphrase);
+int ssh2_dsa_new_priv_from_file(ssh2_dsa_ctx **dsa,
+                                LIBSSH2_SESSION *session,
+                                const char *filename,
+                                const char *passphrase);
 ```
 Gets a DSA private key from file `filename` into a new DSA context.
 Must call `ssh2_init_if_needed()`.
@@ -632,10 +631,10 @@ Return 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
-                                    LIBSSH2_SESSION *session,
-                                    const char *blob, size_t blob_len,
-                                    const char *passphrase);
+int ssh2_dsa_new_priv_from_blob(ssh2_dsa_ctx **dsa,
+                                LIBSSH2_SESSION *session,
+                                const char *blob, size_t blob_len,
+                                const char *passphrase);
 ```
 Gets a DSA private key from the `blob_len`-bytes `blob` into a new DSA context.
 Must call `ssh2_init_if_needed()`.
@@ -697,10 +696,10 @@ Return 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
-                           LIBSSH2_SESSION *session,
-                           const char *filename,
-                           const char *passphrase);
+int ssh2_ecdsa_new_priv_from_file(ssh2_ecdsa_ctx **ec_ctx,
+                                  LIBSSH2_SESSION *session,
+                                  const char *filename,
+                                  const char *passphrase);
 ```
 Reads an ECDSA private key from PEM file `filename` into a new ECDSA context.
 Must call `ssh2_init_if_needed()`.
@@ -708,10 +707,10 @@ Return 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
-                                      LIBSSH2_SESSION *session,
-                                      const char *blob, size_t blob_len,
-                                      const char *passphrase);
+int ssh2_ecdsa_new_priv_from_blob(ssh2_ecdsa_ctx **ec_ctx,
+                                  LIBSSH2_SESSION *session,
+                                  const char *blob, size_t blob_len,
+                                  const char *passphrase);
 ```
 Builds an ECDSA private key from PEM data at `blob` of length `blob_len`
 into a new ECDSA context stored at `ec_ctx`.
@@ -801,10 +800,10 @@ Returns 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-int ssh2_ed25519_new_private(ssh2_ed25519_ctx **ed_ctx,
-                             LIBSSH2_SESSION *session,
-                             const char *filename,
-                             const char *passphrase);
+int ssh2_ed25519_new_priv_from_file(ssh2_ed25519_ctx **ed_ctx,
+                                    LIBSSH2_SESSION *session,
+                                    const char *filename,
+                                    const char *passphrase);
 ```
 Reads an ED25519 private key from PEM file `filename` into a new ED25519
 context.
@@ -824,10 +823,10 @@ Return 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-int ssh2_ed25519_new_private_frommemory(ssh2_ed25519_ctx **ed_ctx,
-                                        LIBSSH2_SESSION *session,
-                                        const char *blob, size_t blob_len,
-                                        const char *passphrase);
+int ssh2_ed25519_new_priv_from_blob(ssh2_ed25519_ctx **ed_ctx,
+                                    LIBSSH2_SESSION *session,
+                                    const char *blob, size_t blob_len,
+                                    const char *passphrase);
 ```
 Builds an ED25519 private key from PEM data at `blob` of length `blob_len`
 into a new ED25519 context stored at `ed_ctx`.

@@ -918,7 +918,7 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                                       &pubkeydata, &pubkeydata_len,
                                       publickey, NULL, 0);
         else /* Compute public key from private key. */
-            rc = ssh2_pub_priv_keyfile(session,
+            rc = ssh2_pub_privkey_file(session,
                                        &session->userauth_host_method,
                                        &session->userauth_host_method_len,
                                        &pubkeydata, &pubkeydata_len,
@@ -1795,18 +1795,18 @@ static int userauth_publickey(LIBSSH2_SESSION *session,
                                       pubkeyfile, pubkeyblob, pubkeyblob_len);
         /* Compute public key from private key. */
         else if(privkeyfile)
-            rc = ssh2_pub_priv_keyfile(session,
+            rc = ssh2_pub_privkey_file(session,
                                        &session->userauth_pblc_method,
                                        &session->userauth_pblc_method_len,
                                        &pubkeydata, &pubkeydata_len,
                                        privkeyfile, passphrase);
         else if(privkeyblob_len && privkeyblob)
-            rc = ssh2_pub_priv_keyfilememory(session,
-                                            &session->userauth_pblc_method,
-                                            &session->userauth_pblc_method_len,
-                                            &pubkeydata, &pubkeydata_len,
-                                            privkeyblob, privkeyblob_len,
-                                            passphrase);
+            rc = ssh2_pub_privkey_blob(session,
+                                       &session->userauth_pblc_method,
+                                       &session->userauth_pblc_method_len,
+                                       &pubkeydata, &pubkeydata_len,
+                                       privkeyblob, privkeyblob_len,
+                                       passphrase);
         else
             return ssh2_err(session, LIBSSH2_ERROR_FILE,
                             "Invalid data in public and private key.");
@@ -2172,7 +2172,7 @@ int libssh2_userauth_publickey_sk(
     LIBSSH2_SESSION *session,
     const char *username, size_t username_len,
     const unsigned char *publickeydata, size_t publickeydata_len,
-    const char *privatekeydata, size_t privatekeydata_len,
+    const char *privkeyblob, size_t privkeyblob_len,
     const char *passphrase,
     LIBSSH2_USERAUTH_SK_SIGN_FUNC(*sign_callback),
     void **abstract)
@@ -2197,20 +2197,20 @@ int libssh2_userauth_publickey_sk(
     sk_info.sign_callback = sign_callback;
     sk_info.orig_abstract = abstract;
 
-    if(privatekeydata_len && privatekeydata) {
+    if(privkeyblob_len && privkeyblob) {
 
-        if(ssh2_sk_pub_keyfilememory(session,
-                                     &tmp_method,
-                                     &tmp_method_len,
-                                     &tmp_publickeydata,
-                                     &tmp_publickeydata_len,
-                                     &sk_info.algorithm,
-                                     &sk_info.flags,
-                                     &sk_info.application,
-                                     &sk_info.key_handle,
-                                     &sk_info.handle_len,
-                                     privatekeydata, privatekeydata_len,
-                                     passphrase))
+        if(ssh2_sk_pubkey_blob(session,
+                               &tmp_method,
+                               &tmp_method_len,
+                               &tmp_publickeydata,
+                               &tmp_publickeydata_len,
+                               &sk_info.algorithm,
+                               &sk_info.flags,
+                               &sk_info.application,
+                               &sk_info.key_handle,
+                               &sk_info.handle_len,
+                               privkeyblob, privkeyblob_len,
+                               passphrase))
             return ssh2_err(session, LIBSSH2_ERROR_FILE,
                             "Unable to extract public key from private key.");
         else if(publickeydata_len == 0 || !publickeydata) {

@@ -354,10 +354,10 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     return ret;
 }
 
-int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
-                         LIBSSH2_SESSION *session,
-                         const char *filename,
-                         const char *passphrase)
+int ssh2_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa,
+                                LIBSSH2_SESSION *session,
+                                const char *filename,
+                                const char *passphrase)
 {
     int ret;
     mbedtls_pk_context pkey;
@@ -388,10 +388,10 @@ int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
     return 0;
 }
 
-int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
-                                    LIBSSH2_SESSION *session,
-                                    const char *blob, size_t blob_len,
-                                    const char *passphrase)
+int ssh2_rsa_new_priv_from_blob(ssh2_rsa_ctx **rsa,
+                                LIBSSH2_SESSION *session,
+                                const char *blob, size_t blob_len,
+                                const char *passphrase)
 {
     int ret;
     mbedtls_pk_context pkey;
@@ -645,10 +645,9 @@ static int mbed_pub_priv_key(LIBSSH2_SESSION *session,
     return ret;
 }
 
-int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
+int ssh2_pub_privkey_file(LIBSSH2_SESSION *session,
                           char **method, size_t *method_len,
-                          unsigned char **pubkeydata,
-                          size_t *pubkeydata_len,
+                          unsigned char **pubkeydata, size_t *pubkeydata_len,
                           const char *privatekey,
                           const char *passphrase)
 {
@@ -674,13 +673,11 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     return ret;
 }
 
-int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                char **method, size_t *method_len,
-                                unsigned char **pubkeydata,
-                                size_t *pubkeydata_len,
-                                const char *privatekeydata,
-                                size_t privatekeydata_len,
-                                const char *passphrase)
+int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
+                          char **method, size_t *method_len,
+                          unsigned char **pubkeydata, size_t *pubkeydata_len,
+                          const char *privkeyblob, size_t privkeyblob_len,
+                          const char *passphrase)
 {
     mbedtls_pk_context pkey;
     char buf[1024];
@@ -689,20 +686,20 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
 
     /* mbedtls checks in "mbedtls/pkparse.c:1184" if "key[keylen - 1] != '\0'"
        private-key from memory fails if the last byte is not a null byte */
-    data_nullterm = mbedtls_calloc(privatekeydata_len + 1, 1);
+    data_nullterm = mbedtls_calloc(privkeyblob_len + 1, 1);
     if(!data_nullterm)
         return -1;
 
-    memcpy(data_nullterm, privatekeydata, privatekeydata_len);
-    data_nullterm[privatekeydata_len] = 0;
+    memcpy(data_nullterm, privkeyblob, privkeyblob_len);
+    data_nullterm[privkeyblob_len] = 0;
 
     mbedtls_pk_init(&pkey);
 
-    ret = mbedtls_pk_parse_key(&pkey, data_nullterm, privatekeydata_len + 1,
+    ret = mbedtls_pk_parse_key(&pkey, data_nullterm, privkeyblob_len + 1,
                                (const unsigned char *)passphrase,
                                passphrase ? strlen(passphrase) : 0,
                                mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
-    mbed_zero_free(data_nullterm, privatekeydata_len + 1);
+    mbed_zero_free(data_nullterm, privkeyblob_len + 1);
 
     if(ret) {
         mbedtls_strerror(ret, (char *)buf, sizeof(buf));
@@ -1075,9 +1072,9 @@ static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
     size_t curvelen, exponentlen, pointlen;
     unsigned char *curve, *exponent, *point_buf;
 
-    if(ssh2_openssh_pem_parse_memory(session, passphrase,
-                                     (const char *)data, data_len,
-                                     &decrypted))
+    if(ssh2_openssh_pem_parse_blob(session,
+                                   (const char *)data, data_len,
+                                   passphrase, &decrypted))
         goto failed;
 
     if(ssh2_get_string(decrypted, &name, NULL))
@@ -1136,10 +1133,10 @@ cleanup:
 /*
  * Creates a new private key given a file path and password
  */
-int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
-                           LIBSSH2_SESSION *session,
-                           const char *filename,
-                           const char *passphrase)
+int ssh2_ecdsa_new_priv_from_file(ssh2_ecdsa_ctx **ec_ctx,
+                                  LIBSSH2_SESSION *session,
+                                  const char *filename,
+                                  const char *passphrase)
 {
     mbedtls_pk_context pkey;
     unsigned char *data = NULL;
@@ -1191,10 +1188,10 @@ cleanup:
 /*
  * Creates a new private key given a file data and password
  */
-int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
-                                      LIBSSH2_SESSION *session,
-                                      const char *blob, size_t blob_len,
-                                      const char *passphrase)
+int ssh2_ecdsa_new_priv_from_blob(ssh2_ecdsa_ctx **ec_ctx,
+                                  LIBSSH2_SESSION *session,
+                                  const char *blob, size_t blob_len,
+                                  const char *passphrase)
 {
     unsigned char *data_nullterm;
     mbedtls_pk_context pkey;

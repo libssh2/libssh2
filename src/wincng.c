@@ -899,12 +899,12 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx, ULONG hash_len,
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-static int wcng_load_private(LIBSSH2_SESSION *session,
-                             const char *filename,
-                             const char *passphrase,
-                             unsigned char **ppbEncoded,
-                             size_t *pcbEncoded,
-                             int tryLoadRSA, int tryLoadDSA)
+static int wcng_load_priv_from_file(LIBSSH2_SESSION *session,
+                                    const char *filename,
+                                    const char *passphrase,
+                                    unsigned char **ppbEncoded,
+                                    size_t *pcbEncoded,
+                                    int tryLoadRSA, int tryLoadDSA)
 {
     int ret = -1;
     FILE *fp;
@@ -917,16 +917,18 @@ static int wcng_load_private(LIBSSH2_SESSION *session,
 
 #if LIBSSH2_RSA
     if(ret && tryLoadRSA)
-        ret = ssh2_pem_parse(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
-                             passphrase, fp, &data, &datalen);
+        ret = ssh2_pem_parse_FILE(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
+                                  fp, passphrase,
+                                  &data, &datalen);
 #else
     (void)tryLoadRSA;
 #endif
 
 #if LIBSSH2_DSA
     if(ret && tryLoadDSA)
-        ret = ssh2_pem_parse(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
-                             passphrase, fp, &data, &datalen);
+        ret = ssh2_pem_parse_FILE(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
+                                  fp, passphrase,
+                                  &data, &datalen);
 #else
     (void)tryLoadDSA;
 #endif
@@ -941,9 +943,9 @@ static int wcng_load_private(LIBSSH2_SESSION *session,
     return ret;
 }
 
-static int wcng_load_private_memory(LIBSSH2_SESSION *session,
-                                    const char *privatekeydata,
-                                    size_t privatekeydata_len,
+static int wcng_load_priv_from_blob(LIBSSH2_SESSION *session,
+                                    const char *privkeyblob,
+                                    size_t privkeyblob_len,
                                     const char *passphrase,
                                     unsigned char **ppbEncoded,
                                     size_t *pcbEncoded,
@@ -955,20 +957,18 @@ static int wcng_load_private_memory(LIBSSH2_SESSION *session,
 
 #if LIBSSH2_RSA
     if(ret && tryLoadRSA)
-        ret = ssh2_pem_parse_memory(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
-                                    passphrase,
-                                    privatekeydata, privatekeydata_len,
-                                    &data, &datalen);
+        ret = ssh2_pem_parse_blob(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
+                                  privkeyblob, privkeyblob_len, passphrase,
+                                  &data, &datalen);
 #else
     (void)tryLoadRSA;
 #endif
 
 #if LIBSSH2_DSA
     if(ret && tryLoadDSA)
-        ret = ssh2_pem_parse_memory(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
-                                    passphrase,
-                                    privatekeydata, privatekeydata_len,
-                                    &data, &datalen);
+        ret = ssh2_pem_parse_blob(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
+                                  privkeyblob, privkeyblob_len, passphrase,
+                                  &data, &datalen);
 #else
     (void)tryLoadDSA;
 #endif
@@ -1330,34 +1330,34 @@ static int wcng_rsa_new_private_parse(ssh2_rsa_ctx **rsa,
     return 0;
 }
 
-int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa,
-                         LIBSSH2_SESSION *session,
-                         const char *filename,
-                         const char *passphrase)
+int ssh2_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa,
+                                LIBSSH2_SESSION *session,
+                                const char *filename,
+                                const char *passphrase)
 {
     unsigned char *pbEncoded;
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_private(session, filename, passphrase,
-                            &pbEncoded, &cbEncoded, 1, 0);
+    ret = wcng_load_priv_from_file(session, filename, passphrase,
+                                   &pbEncoded, &cbEncoded, 1, 0);
     if(ret)
         return -1;
 
     return wcng_rsa_new_private_parse(rsa, session, pbEncoded, cbEncoded);
 }
 
-int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
-                                    LIBSSH2_SESSION *session,
-                                    const char *blob, size_t blob_len,
-                                    const char *passphrase)
+int ssh2_rsa_new_priv_from_blob(ssh2_rsa_ctx **rsa,
+                                LIBSSH2_SESSION *session,
+                                const char *blob, size_t blob_len,
+                                const char *passphrase)
 {
     unsigned char *pbEncoded;
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_private_memory(session, blob, blob_len,
-                                   passphrase, &pbEncoded, &cbEncoded, 1, 0);
+    ret = wcng_load_priv_from_blob(session, blob, blob_len, passphrase,
+                                   &pbEncoded, &cbEncoded, 1, 0);
     if(ret)
         return -1;
 
@@ -1617,34 +1617,34 @@ static int wcng_dsa_new_private_parse(ssh2_dsa_ctx **dsa,
     return ret;
 }
 
-int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
-                         LIBSSH2_SESSION *session,
-                         const char *filename,
-                         const char *passphrase)
+int ssh2_dsa_new_priv_from_file(ssh2_dsa_ctx **dsa,
+                                LIBSSH2_SESSION *session,
+                                const char *filename,
+                                const char *passphrase)
 {
     unsigned char *pbEncoded;
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_private(session, filename, passphrase,
-                            &pbEncoded, &cbEncoded, 0, 1);
+    ret = wcng_load_priv_from_file(session, filename, passphrase,
+                                   &pbEncoded, &cbEncoded, 0, 1);
     if(ret)
         return -1;
 
     return wcng_dsa_new_private_parse(dsa, session, pbEncoded, cbEncoded);
 }
 
-int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
-                                    LIBSSH2_SESSION *session,
-                                    const char *blob, size_t blob_len,
-                                    const char *passphrase)
+int ssh2_dsa_new_priv_from_blob(ssh2_dsa_ctx **dsa,
+                                LIBSSH2_SESSION *session,
+                                const char *blob, size_t blob_len,
+                                const char *passphrase)
 {
     unsigned char *pbEncoded;
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_private_memory(session, blob, blob_len,
-                                   passphrase, &pbEncoded, &cbEncoded, 0, 1);
+    ret = wcng_load_priv_from_blob(session, blob, blob_len, passphrase,
+                                   &pbEncoded, &cbEncoded, 0, 1);
     if(ret)
         return -1;
 
@@ -2519,10 +2519,10 @@ cleanup:
 /*
  * Creates a new private key given a file path and password
  */
-int ssh2_ecdsa_new_private(OUT ssh2_ecdsa_ctx **ec_ctx,
-                           IN LIBSSH2_SESSION *session,
-                           IN const char *filename,
-                           IN const char *passphrase)
+int ssh2_ecdsa_new_priv_from_file(OUT ssh2_ecdsa_ctx **ec_ctx,
+                                  IN LIBSSH2_SESSION *session,
+                                  IN const char *filename,
+                                  IN const char *passphrase)
 {
     int result;
 
@@ -2542,7 +2542,7 @@ int ssh2_ecdsa_new_private(OUT ssh2_ecdsa_ctx **ec_ctx,
         goto cleanup;
     }
 
-    result = ssh2_openssh_pem_parse(session, passphrase, fp, &decrypted);
+    result = ssh2_openssh_pem_parse_FILE(session, fp, passphrase, &decrypted);
     if(result)
         goto cleanup;
 
@@ -2564,10 +2564,10 @@ cleanup:
  * ECDSA private key files use the decoding defined in PROTOCOL.key
  * in the OpenSSH source tree.
  */
-int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **ec_ctx,
-                                      IN LIBSSH2_SESSION *session,
-                                      IN const char *blob, IN size_t blob_len,
-                                      IN const char *passphrase)
+int ssh2_ecdsa_new_priv_from_blob(OUT ssh2_ecdsa_ctx **ec_ctx,
+                                  IN LIBSSH2_SESSION *session,
+                                  IN const char *blob, IN size_t blob_len,
+                                  IN const char *passphrase)
 {
     int result;
     struct string_buf *decrypted = NULL;
@@ -2578,8 +2578,8 @@ int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **ec_ctx,
 
     *ec_ctx = NULL;
 
-    result = ssh2_openssh_pem_parse_memory(session, passphrase,
-                                           blob, blob_len, &decrypted);
+    result = ssh2_openssh_pem_parse_blob(session, blob, blob_len,
+                                         passphrase, &decrypted);
     if(result)
         goto cleanup;
 
@@ -2731,7 +2731,7 @@ static DWORD wcng_pub_priv_write(unsigned char *key,
     return offset;
 }
 
-static int wcng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
+static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
                                        char **method,
                                        size_t *method_len,
                                        unsigned char **pubkeydata,
@@ -2830,10 +2830,9 @@ static int wcng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
     return ret;
 }
 
-int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
+int ssh2_pub_privkey_file(LIBSSH2_SESSION *session,
                           char **method, size_t *method_len,
-                          unsigned char **pubkeydata,
-                          size_t *pubkeydata_len,
+                          unsigned char **pubkeydata, size_t *pubkeydata_len,
                           const char *privatekey,
                           const char *passphrase)
 {
@@ -2841,34 +2840,34 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_private(session, privatekey, passphrase,
-                            &pbEncoded, &cbEncoded, 1, 1);
+    ret = wcng_load_priv_from_file(session,
+                                   privatekey, passphrase,
+                                   &pbEncoded, &cbEncoded, 1, 1);
     if(ret)
         return -1;
 
-    return wcng_pub_priv_keyfile_parse(session, method, method_len,
+    return wcng_pub_privkey_file_parse(session, method, method_len,
                                        pubkeydata, pubkeydata_len,
                                        pbEncoded, cbEncoded);
 }
 
-int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                char **method, size_t *method_len,
-                                unsigned char **pubkeydata,
-                                size_t *pubkeydata_len,
-                                const char *privatekeydata,
-                                size_t privatekeydata_len,
-                                const char *passphrase)
+int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
+                          char **method, size_t *method_len,
+                          unsigned char **pubkeydata, size_t *pubkeydata_len,
+                          const char *privkeyblob, size_t privkeyblob_len,
+                          const char *passphrase)
 {
     unsigned char *pbEncoded;
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_private_memory(session, privatekeydata, privatekeydata_len,
-                                   passphrase, &pbEncoded, &cbEncoded, 1, 1);
+    ret = wcng_load_priv_from_blob(session,
+                                   privkeyblob, privkeyblob_len, passphrase,
+                                   &pbEncoded, &cbEncoded, 1, 1);
     if(ret)
         return -1;
 
-    return wcng_pub_priv_keyfile_parse(session, method, method_len,
+    return wcng_pub_privkey_file_parse(session, method, method_len,
                                        pubkeydata, pubkeydata_len,
                                        pbEncoded, cbEncoded);
 }
