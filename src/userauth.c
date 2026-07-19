@@ -1883,10 +1883,10 @@ static int userauth_publickey_fromfile(LIBSSH2_SESSION *session,
 int libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
                                           const char *username,
                                           size_t username_len,
-                                          const char *publickeyfiledata,
-                                          size_t publickeyfiledata_len,
-                                          const char *privatekeyfiledata,
-                                          size_t privatekeyfiledata_len,
+                                          const char *pubkeyblob,
+                                          size_t pubkeyblob_len,
+                                          const char *privkeyblob,
+                                          size_t privkeyblob_len,
                                           const char *passphrase)
 {
     int rc;
@@ -1902,10 +1902,10 @@ int libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
     BLOCK_ADJUST(rc, session,
                  userauth_publickey_frommemory(session,
                                                username, username_len,
-                                               publickeyfiledata,
-                                               publickeyfiledata_len,
-                                               privatekeyfiledata,
-                                               privatekeyfiledata_len,
+                                               pubkeyblob,
+                                               pubkeyblob_len,
+                                               privkeyblob,
+                                               privkeyblob_len,
                                                passphrase));
     return rc;
 }
