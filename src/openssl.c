@@ -2138,7 +2138,7 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
 
     if(pubkeydata)
         *pubkeydata = key;
-    else if(key)
+    else
         SSH2_FREE(session, key);
 
     if(pubkeydata_len)
