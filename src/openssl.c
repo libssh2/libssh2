@@ -1262,7 +1262,7 @@ static int ossl_rsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     int rc = 0;
     size_t nlen, elen, dlen, plen, qlen, coefflen, commentlen;
     unsigned char *n, *e, *d, *p, *q, *coeff, *comment;
-    ssh2_rsa_ctx *rsa_key = NULL;
+    ssh2_rsa_ctx *ctx = NULL;
 
     ssh2_deb((session, LIBSSH2_TRACE_AUTH,
               "Computing RSA keys from private key data"));
@@ -1304,7 +1304,7 @@ static int ossl_rsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    rc = ssh2_rsa_new(&rsa_key, e, elen, n, nlen, d, dlen,
+    rc = ssh2_rsa_new(&ctx, e, elen, n, nlen, d, dlen,
                       p, plen, q, qlen, NULL, 0, NULL, 0, coeff, coefflen);
     if(rc) {
         ssh2_deb((session, LIBSSH2_TRACE_AUTH,
@@ -1313,16 +1313,16 @@ static int ossl_rsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     }
 
 #ifndef USE_OPENSSL_3
-    if(rsa_key)
-        rc = ossl_rsa_additional_params_new(rsa_key);
+    if(ctx)
+        rc = ossl_rsa_additional_params_new(ctx);
 #endif
 
-    if(rsa_key && pubkeydata && method) {
+    if(ctx && pubkeydata && method) {
 #ifdef USE_OPENSSL_3
-        EVP_PKEY *pk = rsa_key;
+        EVP_PKEY *pk = ctx;
 #else
         EVP_PKEY *pk = EVP_PKEY_new();
-        EVP_PKEY_set1_RSA(pk, rsa_key);
+        EVP_PKEY_set1_RSA(pk, ctx);
 #endif
 
         rc = ossl_rsa_evp_to_pubkey(session, method, method_len,
@@ -1335,16 +1335,16 @@ static int ossl_rsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     }
 
     if(rsa)
-        *rsa = rsa_key;
+        *rsa = ctx;
     else
-        ssh2_rsa_free(rsa_key);
+        ssh2_rsa_free(ctx);
 
     return rc;
 
 fail:
 
-    if(rsa_key)
-        ssh2_rsa_free(rsa_key);
+    if(ctx)
+        ssh2_rsa_free(ctx);
 
     return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                     "Unable to allocate memory for private key data");
@@ -1589,7 +1589,7 @@ static int ossl_dsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     int rc = 0;
     size_t plen, qlen, glen, pub_len, priv_len;
     unsigned char *p, *q, *g, *pub_key, *priv_key;
-    ssh2_dsa_ctx *dsa_key = NULL;
+    ssh2_dsa_ctx *ctx = NULL;
 
     ssh2_deb((session, LIBSSH2_TRACE_AUTH,
               "Computing DSA keys from private key data"));
@@ -1619,7 +1619,7 @@ static int ossl_dsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    rc = ssh2_dsa_new(&dsa_key, p, plen, q, qlen, g, glen,
+    rc = ssh2_dsa_new(&ctx, p, plen, q, qlen, g, glen,
                       pub_key, pub_len, priv_key, priv_len);
     if(rc) {
         ssh2_deb((session, LIBSSH2_ERROR_PROTO,
@@ -1627,12 +1627,12 @@ static int ossl_dsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
         goto fail;
     }
 
-    if(dsa_key && pubkeydata && method) {
+    if(ctx && pubkeydata && method) {
 #ifdef USE_OPENSSL_3
-        EVP_PKEY *pk = dsa_key;
+        EVP_PKEY *pk = ctx;
 #else
         EVP_PKEY *pk = EVP_PKEY_new();
-        EVP_PKEY_set1_DSA(pk, dsa_key);
+        EVP_PKEY_set1_DSA(pk, ctx);
 #endif
 
         rc = ossl_dsa_evp_to_pubkey(session, method, method_len,
@@ -1645,16 +1645,16 @@ static int ossl_dsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     }
 
     if(dsa)
-        *dsa = dsa_key;
+        *dsa = ctx;
     else
-        ssh2_dsa_free(dsa_key);
+        ssh2_dsa_free(ctx);
 
     return rc;
 
 fail:
 
-    if(dsa_key)
-        ssh2_dsa_free(dsa_key);
+    if(ctx)
+        ssh2_dsa_free(ctx);
 
     return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                     "Unable to allocate memory for private key data");
