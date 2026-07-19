@@ -697,6 +697,9 @@ static int userauth_read_privkey(
     const struct hostkey_method **hostkey_methods_avail =
         ssh2_hostkey_methods();
 
+    *hostkey_method = NULL;
+    *hostkey_abstract = NULL;
+
     if(privkeyfile)
         ssh2_deb((session, LIBSSH2_TRACE_AUTH, "Loading private key file: %s",
                   privkeyfile));
@@ -704,8 +707,6 @@ static int userauth_read_privkey(
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
                         "Missing private key blob");
 
-    *hostkey_method = NULL;
-    *hostkey_abstract = NULL;
     while(*hostkey_methods_avail && (*hostkey_methods_avail)->name) {
         if((*hostkey_methods_avail)->initPEM &&
            !strncmp((*hostkey_methods_avail)->name, (const char *)method,
