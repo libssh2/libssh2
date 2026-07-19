@@ -912,25 +912,21 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         memset(&session->userauth_host_packet_requirev_state, 0,
                sizeof(session->userauth_host_packet_requirev_state));
 
-        if(publickey) {
+        if(publickey)
             rc = userauth_read_pubkey(session,
                                       &session->userauth_host_method,
                                       &session->userauth_host_method_len,
                                       &pubkeydata, &pubkeydata_len,
                                       publickey, NULL, 0);
-            if(rc)
-                return rc; /* userauth_read_pubkey() calls ssh2_err() */
-        }
-        else {
-            /* Compute public key from private key. */
+        else /* Compute public key from private key. */
             rc = ssh2_pub_priv_keyfile(session,
                                        &session->userauth_host_method,
                                        &session->userauth_host_method_len,
                                        &pubkeydata, &pubkeydata_len,
                                        privatekey, passphrase);
-            if(rc)
-                return rc; /* ssh2_pub_priv_keyfile() calls ssh2_err() */
-        }
+
+        if(rc)
+            return rc; /* low-level functions called ssh2_err() */
 
         if(username_len > MAX_INPUT_LEN ||
            session->userauth_host_method_len > MAX_INPUT_LEN ||
