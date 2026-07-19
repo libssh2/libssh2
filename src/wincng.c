@@ -2731,7 +2731,7 @@ static DWORD wcng_pub_priv_write(unsigned char *key,
     return offset;
 }
 
-static int wcng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
+static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
                                        char **method,
                                        size_t *method_len,
                                        unsigned char **pubkeydata,
@@ -2830,10 +2830,9 @@ static int wcng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
     return ret;
 }
 
-int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
+int ssh2_pub_privkey_file(LIBSSH2_SESSION *session,
                           char **method, size_t *method_len,
-                          unsigned char **pubkeydata,
-                          size_t *pubkeydata_len,
+                          unsigned char **pubkeydata, size_t *pubkeydata_len,
                           const char *privatekey,
                           const char *passphrase)
 {
@@ -2846,18 +2845,17 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     if(ret)
         return -1;
 
-    return wcng_pub_priv_keyfile_parse(session, method, method_len,
+    return wcng_pub_privkey_file_parse(session, method, method_len,
                                        pubkeydata, pubkeydata_len,
                                        pbEncoded, cbEncoded);
 }
 
-int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                char **method, size_t *method_len,
-                                unsigned char **pubkeydata,
-                                size_t *pubkeydata_len,
-                                const char *privatekeydata,
-                                size_t privatekeydata_len,
-                                const char *passphrase)
+int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
+                          char **method, size_t *method_len,
+                          unsigned char **pubkeydata, size_t *pubkeydata_len,
+                          const char *privatekeydata,
+                          size_t privatekeydata_len,
+                          const char *passphrase)
 {
     unsigned char *pbEncoded;
     size_t cbEncoded;
@@ -2868,7 +2866,7 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     if(ret)
         return -1;
 
-    return wcng_pub_priv_keyfile_parse(session, method, method_len,
+    return wcng_pub_privkey_file_parse(session, method, method_len,
                                        pubkeydata, pubkeydata_len,
                                        pbEncoded, cbEncoded);
 }
