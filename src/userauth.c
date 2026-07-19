@@ -691,7 +691,7 @@ static int userauth_read_privkey(
     const struct hostkey_method **hostkey_method, void **hostkey_abstract,
     const unsigned char *method, size_t method_len,
     const char *privkeyfile,
-    const char *privkeyfiledata, size_t privkeyfiledata_len,
+    const char *privkeyblob, size_t privkeyblob_len,
     const char *passphrase)
 {
     const struct hostkey_method **hostkey_methods_avail =
@@ -718,8 +718,7 @@ static int userauth_read_privkey(
 
     if((*hostkey_method)->initPEM(session,
                                   privkeyfile,
-                                  privkeyfiledata,
-                                  privkeyfiledata_len,
+                                  privkeyblob, privkeyblob_len,
                                   passphrase, hostkey_abstract))
         return ssh2_err(session, LIBSSH2_ERROR_FILE, privkeyfile
                         ? "Unable to initialize private key from file"

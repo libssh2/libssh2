@@ -131,8 +131,8 @@ static int hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
  */
 static int hostkey_method_ssh_rsa_initPEM(LIBSSH2_SESSION *session,
                                           const char *privkeyfile,
-                                          const char *privkeyfiledata,
-                                          size_t privkeyfiledata_len,
+                                          const char *privkeyblob,
+                                          size_t privkeyblob_len,
                                           const char *passphrase,
                                           void **abstract)
 {
@@ -148,8 +148,7 @@ static int hostkey_method_ssh_rsa_initPEM(LIBSSH2_SESSION *session,
         rc = ssh2_rsa_new_private(&rsa, session, privkeyfile, passphrase);
     else
         rc = ssh2_rsa_new_private_frommemory(&rsa, session,
-                                             privkeyfiledata,
-                                             privkeyfiledata_len,
+                                             privkeyblob, privkeyblob_len,
                                              passphrase);
     if(rc)
         return -1;
@@ -488,8 +487,8 @@ static int hostkey_method_ssh_dss_init(LIBSSH2_SESSION *session,
  */
 static int hostkey_method_ssh_dss_initPEM(LIBSSH2_SESSION *session,
                                           const char *privkeyfile,
-                                          const char *privkeyfiledata,
-                                          size_t privkeyfiledata_len,
+                                          const char *privkeyblob,
+                                          size_t privkeyblob_len,
                                           const char *passphrase,
                                           void **abstract)
 {
@@ -505,8 +504,7 @@ static int hostkey_method_ssh_dss_initPEM(LIBSSH2_SESSION *session,
         rc = ssh2_dsa_new_private(&dsa, session, privkeyfile, passphrase);
     else
         rc = ssh2_dsa_new_private_frommemory(&dsa, session,
-                                             privkeyfiledata,
-                                             privkeyfiledata_len,
+                                             privkeyblob, privkeyblob_len,
                                              passphrase);
     if(rc)
         return -1;
@@ -694,8 +692,8 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
  */
 static int hostkey_method_ssh_ecdsa_initPEM(LIBSSH2_SESSION *session,
                                             const char *privkeyfile,
-                                            const char *privkeyfiledata,
-                                            size_t privkeyfiledata_len,
+                                            const char *privkeyblob,
+                                            size_t privkeyblob_len,
                                             const char *passphrase,
                                             void **abstract)
 {
@@ -711,8 +709,7 @@ static int hostkey_method_ssh_ecdsa_initPEM(LIBSSH2_SESSION *session,
         rc = ssh2_ecdsa_new_private(&ec_ctx, session, privkeyfile, passphrase);
     else
         rc = ssh2_ecdsa_new_private_frommemory(&ec_ctx, session,
-                                               privkeyfiledata,
-                                               privkeyfiledata_len,
+                                               privkeyblob, privkeyblob_len,
                                                passphrase);
     if(rc)
         return -1;
@@ -1008,8 +1005,8 @@ static int hostkey_method_ssh_ed25519_init_cert(
  */
 static int hostkey_method_ssh_ed25519_initPEM(LIBSSH2_SESSION *session,
                                               const char *privkeyfile,
-                                              const char *privkeyfiledata,
-                                              size_t privkeyfiledata_len,
+                                              const char *privkeyblob,
+                                              size_t privkeyblob_len,
                                               const char *passphrase,
                                               void **abstract)
 {
@@ -1026,8 +1023,7 @@ static int hostkey_method_ssh_ed25519_initPEM(LIBSSH2_SESSION *session,
                                       passphrase);
     else
         rc = ssh2_ed25519_new_private_frommemory(&ed_ctx, session,
-                                                 privkeyfiledata,
-                                                 privkeyfiledata_len,
+                                                 privkeyblob, privkeyblob_len,
                                                  passphrase);
     if(rc)
         return -1;
