@@ -3895,13 +3895,13 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
                                                (ssh2_ecdsa_ctx **)key_ctx);
 #endif
 
+    if(decrypted)
+        ssh2_string_buf_free(session, decrypted);
+
     if(rc == LIBSSH2_ERROR_FILE)
         rc = ssh2_err(session, LIBSSH2_ERROR_FILE,
                       "Unable to extract public key from private key file: "
                       "invalid/unrecognized private key file format");
-
-    if(decrypted)
-        ssh2_string_buf_free(session, decrypted);
 
     return rc;
 }
