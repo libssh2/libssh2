@@ -729,15 +729,23 @@ static int userauth_read_file_pubkey(
     return 0;
 }
 
-static int userauth_read_blob_privkey(
+/*
+ * Read a PEM encoded private key from an id_??? style file
+ */
+static int userauth_read_privkey(
     LIBSSH2_SESSION *session,
     const struct hostkey_method **hostkey_method, void **hostkey_abstract,
     const unsigned char *method, size_t method_len,
+    const char *privkeyfile,
     const char *privkeyfiledata, size_t privkeyfiledata_len,
     const char *passphrase)
 {
     const struct hostkey_method **hostkey_methods_avail =
         ssh2_hostkey_methods();
+
+    if(privkeyfile)
+        ssh2_deb((session, LIBSSH2_TRACE_AUTH, "Loading private key file: %s",
+                  privkeyfile));
 
     *hostkey_method = NULL;
     *hostkey_abstract = NULL;
@@ -755,50 +763,13 @@ static int userauth_read_blob_privkey(
                         "No handler for specified private key");
 
     if((*hostkey_method)->initPEM(session,
-                                  NULL,
+                                  privkeyfile,
                                   privkeyfiledata,
                                   privkeyfiledata_len,
                                   passphrase, hostkey_abstract))
-        return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                        "Unable to initialize private key from memory");
-
-    return 0;
-}
-
-/*
- * Read a PEM encoded private key from an id_??? style file
- */
-static int userauth_read_file_privkey(
-    LIBSSH2_SESSION *session,
-    const struct hostkey_method **hostkey_method, void **hostkey_abstract,
-    const unsigned char *method, size_t method_len,
-    const char *privkeyfile,
-    const char *passphrase)
-{
-    const struct hostkey_method **hostkey_methods_avail =
-        ssh2_hostkey_methods();
-
-    ssh2_deb((session, LIBSSH2_TRACE_AUTH, "Loading private key file: %s",
-              privkeyfile));
-    *hostkey_method = NULL;
-    *hostkey_abstract = NULL;
-    while(*hostkey_methods_avail && (*hostkey_methods_avail)->name) {
-        if((*hostkey_methods_avail)->initPEM &&
-           !strncmp((*hostkey_methods_avail)->name, (const char *)method,
-                    method_len)) {
-            *hostkey_method = *hostkey_methods_avail;
-            break;
-        }
-        hostkey_methods_avail++;
-    }
-    if(!*hostkey_method)
-        return ssh2_err(session, LIBSSH2_ERROR_METHOD_NONE,
-                        "No handler for specified private key");
-
-    if((*hostkey_method)->initPEM(session, privkeyfile, NULL, 0,
-                                  passphrase, hostkey_abstract))
-        return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                        "Unable to initialize private key from file");
+        return ssh2_err(session, LIBSSH2_ERROR_FILE, privkeyfile
+                        ? "Unable to initialize private key from file"
+                        : "Unable to initialize private key from memory");
 
     return 0;
 }
@@ -825,12 +796,12 @@ static int userauth_sign_fromblob(LIBSSH2_SESSION *session,
     struct iovec datavec;
     int rc;
 
-    rc = userauth_read_blob_privkey(session, &privkeyobj, &hostkey_abstract,
-                                    session->userauth_pblc_method,
-                                    session->userauth_pblc_method_len,
-                                    pk_mem->data,
-                                    pk_mem->data_len,
-                                    pk_mem->passphrase);
+    rc = userauth_read_privkey(session, &privkeyobj, &hostkey_abstract,
+                               session->userauth_pblc_method,
+                               session->userauth_pblc_method_len,
+                               NULL,
+                               pk_mem->data, pk_mem->data_len,
+                               pk_mem->passphrase);
     if(rc)
         return rc;
 
@@ -864,11 +835,12 @@ static int userauth_sign_fromfile(LIBSSH2_SESSION *session,
     struct iovec datavec;
     int rc;
 
-    rc = userauth_read_file_privkey(session, &privkeyobj, &hostkey_abstract,
-                                    session->userauth_pblc_method,
-                                    session->userauth_pblc_method_len,
-                                    privkey_file->filename,
-                                    privkey_file->passphrase);
+    rc = userauth_read_privkey(session, &privkeyobj, &hostkey_abstract,
+                               session->userauth_pblc_method,
+                               session->userauth_pblc_method_len,
+                               privkey_file->filename,
+                               NULL, 0,
+                               privkey_file->passphrase);
     if(rc)
         return rc;
 
@@ -1097,12 +1069,12 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         ssh2_store_str(&session->userauth_host_s, local_username,
                        local_username_len);
 
-        rc = userauth_read_file_privkey(session, &privkeyobj, &abstract,
-                                        session->userauth_host_method,
-                                        session->userauth_host_method_len,
-                                        privatekey, passphrase);
+        rc = userauth_read_privkey(session, &privkeyobj, &abstract,
+                                   session->userauth_host_method,
+                                   session->userauth_host_method_len,
+                                   privatekey, NULL, 0, passphrase);
         if(rc) {
-            /* Note: userauth_read_file_privkey() calls ssh2_err() */
+            /* userauth_read_privkey() calls ssh2_err() */
             SSH2_SAFEFREE(session, session->userauth_host_method);
             SSH2_SAFEFREE(session, session->userauth_host_packet);
             return rc;
