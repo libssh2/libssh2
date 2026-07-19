@@ -150,7 +150,7 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
 static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
                                       void **key_ctx,
                                       const char *key_type,
-                                      unsigned char **method,
+                                      char **method,
                                       size_t *method_len,
                                       unsigned char **pubkeydata,
                                       size_t *pubkeydata_len,
@@ -1132,7 +1132,7 @@ fail:
 }
 
 static int ossl_rsa_evp_to_pubkey(LIBSSH2_SESSION *session,
-                                  unsigned char **method,
+                                  char **method,
                                   size_t *method_len,
                                   unsigned char **pubkeydata,
                                   size_t *pubkeydata_len,
@@ -1140,7 +1140,7 @@ static int ossl_rsa_evp_to_pubkey(LIBSSH2_SESSION *session,
 {
     ssh2_rsa_ctx *rsa = NULL;
     unsigned char *key;
-    unsigned char *method_buf = NULL;
+    char *method_buf = NULL;
     size_t key_len;
 
     ssh2_deb((session, LIBSSH2_TRACE_AUTH,
@@ -1253,7 +1253,7 @@ out:
 
 static int ossl_rsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
                                            struct string_buf *decrypted,
-                                           unsigned char **method,
+                                           char **method,
                                            size_t *method_len,
                                            unsigned char **pubkeydata,
                                            size_t *pubkeydata_len,
@@ -1522,7 +1522,7 @@ fail:
 }
 
 static int ossl_dsa_evp_to_pubkey(LIBSSH2_SESSION *session,
-                                  unsigned char **method,
+                                  char **method,
                                   size_t *method_len,
                                   unsigned char **pubkeydata,
                                   size_t *pubkeydata_len,
@@ -1530,7 +1530,7 @@ static int ossl_dsa_evp_to_pubkey(LIBSSH2_SESSION *session,
 {
     ssh2_dsa_ctx *dsa = NULL;
     unsigned char *key;
-    unsigned char *method_buf = NULL;
+    char *method_buf = NULL;
     size_t key_len;
 
     ssh2_deb((session, LIBSSH2_TRACE_AUTH,
@@ -1582,7 +1582,7 @@ alloc_error:
 
 static int ossl_dsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
                                            struct string_buf *decrypted,
-                                           unsigned char **method,
+                                           char **method,
                                            size_t *method_len,
                                            unsigned char **pubkeydata,
                                            size_t *pubkeydata_len,
@@ -1839,14 +1839,14 @@ clean_exit:
 }
 
 static int ossl_ed25519_evp_to_pubkey(LIBSSH2_SESSION *session,
-                                      unsigned char **method,
+                                      char **method,
                                       size_t *method_len,
                                       unsigned char **pubkeydata,
                                       size_t *pubkeydata_len,
                                       EVP_PKEY *pk)
 {
     const char methodName[] = "ssh-ed25519";
-    unsigned char *methodBuf = NULL;
+    char *methodBuf = NULL;
     size_t rawKeyLen = 0;
     unsigned char *keyBuf = NULL;
     size_t bufLen = 0;
@@ -1907,14 +1907,14 @@ fail:
 
 static int ossl_ed25519_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
                                                struct string_buf *decrypted,
-                                               unsigned char **method,
+                                               char **method,
                                                size_t *method_len,
                                                unsigned char **pubkeydata,
                                                size_t *pubkeydata_len,
                                                ssh2_ed25519_ctx **ed_ctx)
 {
     ssh2_ed25519_ctx *ctx = NULL;
-    unsigned char *method_buf = NULL;
+    char *method_buf = NULL;
     unsigned char *key = NULL;
     int i;
     unsigned char *pub_key, *priv_key, *buf;
@@ -2031,7 +2031,7 @@ clean_exit:
 static int ossl_ed25519_sk_openssh_priv_to_pubkey(
     LIBSSH2_SESSION *session,
     struct string_buf *decrypted,
-    unsigned char **method,
+    char **method,
     size_t *method_len,
     unsigned char **pubkeydata,
     size_t *pubkeydata_len,
@@ -2044,7 +2044,7 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
     const char *key_type = "sk-ssh-ed25519@openssh.com";
 
     ssh2_ed25519_ctx *ctx = NULL;
-    unsigned char *method_buf = NULL;
+    char *method_buf = NULL;
     unsigned char *key = NULL;
     unsigned char *pub_key, *app;
     size_t key_len = 0, app_len = 0, tmp_len = 0;
@@ -2698,15 +2698,15 @@ clean_exit:
 }
 
 static int ossl_ecdsa_evp_to_pubkey(LIBSSH2_SESSION *session,
-                                    unsigned char **method, size_t *method_len,
+                                    char **method, size_t *method_len,
                                     unsigned char **pubkeydata,
                                     size_t *pubkeydata_len,
                                     int is_sk,
                                     EVP_PKEY *pk)
 {
     int rc = 0;
+    char *method_buf = NULL;
     unsigned char *p;
-    unsigned char *method_buf = NULL;
     unsigned char *key;
     size_t method_buf_len = 0;
     size_t key_len = 0;
@@ -2854,7 +2854,7 @@ clean_exit:
 static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
                                              ssh2_curve_type curve_type,
                                              struct string_buf *decrypted,
-                                             unsigned char **method,
+                                             char **method,
                                              size_t *method_len,
                                              unsigned char **pubkeydata,
                                              size_t *pubkeydata_len,
@@ -2990,7 +2990,7 @@ fail:
 static int ossl_ecdsa_sk_openssh_priv_to_pubkey(
     LIBSSH2_SESSION *session,
     struct string_buf *decrypted,
-    unsigned char **method,
+    char **method,
     size_t *method_len,
     unsigned char **pubkeydata,
     size_t *pubkeydata_len,
@@ -3642,7 +3642,7 @@ clean_exit:
 #endif /* LIBSSH2_ED25519 */
 
 static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
-                                      unsigned char **method,
+                                      char **method,
                                       size_t *method_len,
                                       unsigned char **pubkeydata,
                                       size_t *pubkeydata_len,
@@ -3734,7 +3734,7 @@ cleanup:
 }
 
 int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
-                          unsigned char **method, size_t *method_len,
+                          char **method, size_t *method_len,
                           unsigned char **pubkeydata,
                           size_t *pubkeydata_len,
                           const char *privatekey,
@@ -3813,7 +3813,7 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
 static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
                                       void **key_ctx,
                                       const char *key_type,
-                                      unsigned char **method,
+                                      char **method,
                                       size_t *method_len,
                                       unsigned char **pubkeydata,
                                       size_t *pubkeydata_len,
@@ -3922,7 +3922,7 @@ cleanup:
 }
 
 int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
-                              unsigned char **method, size_t *method_len,
+                              char **method, size_t *method_len,
                               unsigned char **pubkeydata,
                               size_t *pubkeydata_len,
                               int *algorithm,
@@ -4015,7 +4015,7 @@ cleanup:
 #endif
 
 int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                unsigned char **method, size_t *method_len,
+                                char **method, size_t *method_len,
                                 unsigned char **pubkeydata,
                                 size_t *pubkeydata_len,
                                 const char *privatekeydata,
