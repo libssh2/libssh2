@@ -1910,10 +1910,8 @@ static int userauth_publickey_fromfile(LIBSSH2_SESSION *session,
                                        &session->userauth_pblc_method_len,
                                        &pubkeydata, &pubkeydata_len,
                                        privatekey, passphrase);
-
-            /* ssh2_pub_priv_keyfile() calls ssh2_err() */
             if(rc)
-                return rc;
+                return rc; /* ssh2_pub_priv_keyfile() calls ssh2_err() */
         }
     }
 
