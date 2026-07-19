@@ -574,16 +574,16 @@ static int userauth_read_blob_pubkey(
     size_t pubkey_len = pubkeyfiledata_len;
     size_t sp_len, tmp_len;
 
-    if(pubkeyfiledata_len <= 1)
+    if(pubkey_len <= 1)
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
                         "Invalid data in public key file");
 
-    pubkey = SSH2_ALLOC(session, pubkeyfiledata_len);
+    pubkey = SSH2_ALLOC(session, pubkey_len);
     if(!pubkey)
         return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                         "Unable to allocate memory for public key data");
 
-    memcpy(pubkey, pubkeyfiledata, pubkeyfiledata_len);
+    memcpy(pubkey, pubkeyfiledata, pubkey_len);
 
     /*
      * Remove trailing whitespace
