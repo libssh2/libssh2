@@ -1223,7 +1223,7 @@ static int userauth_is_version_less_than_78(const char *version)
  * there is no upgrade option return NULL
  */
 static const char *userauth_supported_key_sign_algs(LIBSSH2_SESSION *session,
-                                                    char *key_method,
+                                                    const char *key_method,
                                                     size_t key_method_len)
 {
     (void)session;
