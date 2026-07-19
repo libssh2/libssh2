@@ -571,8 +571,10 @@ static int userauth_read_blob_pubkey(
     const char *pubkeyfiledata, size_t pubkeyfiledata_len)
 {
     unsigned char *pubkey = NULL, *sp1, *sp2, *tmp;
-    size_t pubkey_len = pubkeyfiledata_len;
+    size_t pubkey_len;
     size_t sp_len, tmp_len;
+
+    pubkey_len = pubkeyfiledata_len;
 
     if(pubkey_len <= 1)
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
@@ -648,8 +650,10 @@ static int userauth_read_file_pubkey(
     FILE *fd;
     char c;
     unsigned char *pubkey = NULL, *sp1, *sp2, *tmp;
-    size_t pubkey_len = 0;
+    size_t pubkey_len;
     size_t sp_len, tmp_len;
+
+    pubkey_len = 0;
 
     ssh2_deb((session, LIBSSH2_TRACE_AUTH, "Loading public key file: %s",
               pubkeyfile));
