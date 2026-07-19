@@ -1617,10 +1617,10 @@ static int wcng_dsa_new_private_parse(ssh2_dsa_ctx **dsa,
     return ret;
 }
 
-int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
-                         LIBSSH2_SESSION *session,
-                         const char *filename,
-                         const char *passphrase)
+int ssh2_dsa_new_priv_from_file(ssh2_dsa_ctx **dsa,
+                                LIBSSH2_SESSION *session,
+                                const char *filename,
+                                const char *passphrase)
 {
     unsigned char *pbEncoded;
     size_t cbEncoded;
@@ -1634,10 +1634,10 @@ int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
     return wcng_dsa_new_private_parse(dsa, session, pbEncoded, cbEncoded);
 }
 
-int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
-                                    LIBSSH2_SESSION *session,
-                                    const char *blob, size_t blob_len,
-                                    const char *passphrase)
+int ssh2_dsa_new_priv_from_blob(ssh2_dsa_ctx **dsa,
+                                LIBSSH2_SESSION *session,
+                                const char *blob, size_t blob_len,
+                                const char *passphrase)
 {
     unsigned char *pbEncoded;
     size_t cbEncoded;
@@ -2519,10 +2519,10 @@ cleanup:
 /*
  * Creates a new private key given a file path and password
  */
-int ssh2_ecdsa_new_private(OUT ssh2_ecdsa_ctx **ec_ctx,
-                           IN LIBSSH2_SESSION *session,
-                           IN const char *filename,
-                           IN const char *passphrase)
+int ssh2_ecdsa_new_priv_from_file(OUT ssh2_ecdsa_ctx **ec_ctx,
+                                  IN LIBSSH2_SESSION *session,
+                                  IN const char *filename,
+                                  IN const char *passphrase)
 {
     int result;
 
@@ -2564,10 +2564,10 @@ cleanup:
  * ECDSA private key files use the decoding defined in PROTOCOL.key
  * in the OpenSSH source tree.
  */
-int ssh2_ecdsa_new_private_frommemory(OUT ssh2_ecdsa_ctx **ec_ctx,
-                                      IN LIBSSH2_SESSION *session,
-                                      IN const char *blob, IN size_t blob_len,
-                                      IN const char *passphrase)
+int ssh2_ecdsa_new_priv_from_blob(OUT ssh2_ecdsa_ctx **ec_ctx,
+                                  IN LIBSSH2_SESSION *session,
+                                  IN const char *blob, IN size_t blob_len,
+                                  IN const char *passphrase)
 {
     int result;
     struct string_buf *decrypted = NULL;

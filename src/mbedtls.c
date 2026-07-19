@@ -1133,10 +1133,10 @@ cleanup:
 /*
  * Creates a new private key given a file path and password
  */
-int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
-                           LIBSSH2_SESSION *session,
-                           const char *filename,
-                           const char *passphrase)
+int ssh2_ecdsa_new_priv_from_file(ssh2_ecdsa_ctx **ec_ctx,
+                                  LIBSSH2_SESSION *session,
+                                  const char *filename,
+                                  const char *passphrase)
 {
     mbedtls_pk_context pkey;
     unsigned char *data = NULL;
@@ -1188,10 +1188,10 @@ cleanup:
 /*
  * Creates a new private key given a file data and password
  */
-int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
-                                      LIBSSH2_SESSION *session,
-                                      const char *blob, size_t blob_len,
-                                      const char *passphrase)
+int ssh2_ecdsa_new_priv_from_blob(ssh2_ecdsa_ctx **ec_ctx,
+                                  LIBSSH2_SESSION *session,
+                                  const char *blob, size_t blob_len,
+                                  const char *passphrase)
 {
     unsigned char *data_nullterm;
     mbedtls_pk_context pkey;

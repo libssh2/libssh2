@@ -1429,10 +1429,10 @@ int ssh2_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa,
 #endif
 
 #if LIBSSH2_DSA
-int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
-                                    LIBSSH2_SESSION *session,
-                                    const char *blob, size_t blob_len,
-                                    const char *passphrase)
+int ssh2_dsa_new_priv_from_blob(ssh2_dsa_ctx **dsa,
+                                LIBSSH2_SESSION *session,
+                                const char *blob, size_t blob_len,
+                                const char *passphrase)
 {
     int rc = 0;
     BIO *bp;
@@ -1712,10 +1712,10 @@ cleanup:
     return rc;
 }
 
-int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
-                         LIBSSH2_SESSION *session,
-                         const char *filename,
-                         const char *passphrase)
+int ssh2_dsa_new_priv_from_file(ssh2_dsa_ctx **dsa,
+                                LIBSSH2_SESSION *session,
+                                const char *filename,
+                                const char *passphrase)
 {
     int rc = 0;
     BIO *bp;
@@ -1741,10 +1741,10 @@ int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
 #endif /* LIBSSH2_DSA */
 
 #if LIBSSH2_ECDSA
-int ssh2_ecdsa_new_private_frommemory(ssh2_ecdsa_ctx **ec_ctx,
-                                      LIBSSH2_SESSION *session,
-                                      const char *blob, size_t blob_len,
-                                      const char *passphrase)
+int ssh2_ecdsa_new_priv_from_blob(ssh2_ecdsa_ctx **ec_ctx,
+                                  LIBSSH2_SESSION *session,
+                                  const char *blob, size_t blob_len,
+                                  const char *passphrase)
 {
     int rc = 0;
     BIO *bp;
@@ -2175,10 +2175,10 @@ clean_exit:
     return -1;
 }
 
-int ssh2_ed25519_new_private(ssh2_ed25519_ctx **ed_ctx,
-                             LIBSSH2_SESSION *session,
-                             const char *filename,
-                             const char *passphrase)
+int ssh2_ed25519_new_priv_from_file(ssh2_ed25519_ctx **ed_ctx,
+                                    LIBSSH2_SESSION *session,
+                                    const char *filename,
+                                    const char *passphrase)
 {
     int rc;
     FILE *fp;
@@ -2233,10 +2233,10 @@ cleanup:
     return rc;
 }
 
-int ssh2_ed25519_new_private_frommemory(ssh2_ed25519_ctx **ed_ctx,
-                                        LIBSSH2_SESSION *session,
-                                        const char *blob, size_t blob_len,
-                                        const char *passphrase)
+int ssh2_ed25519_new_priv_from_blob(ssh2_ed25519_ctx **ed_ctx,
+                                    LIBSSH2_SESSION *session,
+                                    const char *blob, size_t blob_len,
+                                    const char *passphrase)
 {
     ssh2_ed25519_ctx *ctx = NULL;
     BIO *bp;
@@ -3177,10 +3177,10 @@ cleanup:
     return rc;
 }
 
-int ssh2_ecdsa_new_private(ssh2_ecdsa_ctx **ec_ctx,
-                           LIBSSH2_SESSION *session,
-                           const char *filename,
-                           const char *passphrase)
+int ssh2_ecdsa_new_priv_from_file(ssh2_ecdsa_ctx **ec_ctx,
+                                  LIBSSH2_SESSION *session,
+                                  const char *filename,
+                                  const char *passphrase)
 {
     int rc = 0;
     BIO *bp;

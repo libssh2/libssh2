@@ -352,10 +352,10 @@ fail:
 #endif
 
 #if LIBSSH2_DSA
-int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
-                                    LIBSSH2_SESSION *session,
-                                    const char *blob, size_t blob_len,
-                                    const char *passphrase)
+int ssh2_dsa_new_priv_from_blob(ssh2_dsa_ctx **dsa,
+                                LIBSSH2_SESSION *session,
+                                const char *blob, size_t blob_len,
+                                const char *passphrase)
 {
     (void)dsa;
     (void)blob;
@@ -367,10 +367,10 @@ int ssh2_dsa_new_private_frommemory(ssh2_dsa_ctx **dsa,
                     "Method unimplemented in libgcrypt backend");
 }
 
-int ssh2_dsa_new_private(ssh2_dsa_ctx **dsa,
-                         LIBSSH2_SESSION *session,
-                         const char *filename,
-                         const char *passphrase)
+int ssh2_dsa_new_priv_from_file(ssh2_dsa_ctx **dsa,
+                                LIBSSH2_SESSION *session,
+                                const char *filename,
+                                const char *passphrase)
 {
     FILE *fp;
     unsigned char *data, *save_data;
