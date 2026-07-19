@@ -701,7 +701,8 @@ static int userauth_read_privkey(
         ssh2_deb((session, LIBSSH2_TRACE_AUTH, "Loading private key file: %s",
                   privkeyfile));
     else if(!privkeyblob || !privkeyblob_len)
-        return ssh2_err(session, LIBSSH2_ERROR_FILE, "Missing private key blob");
+        return ssh2_err(session, LIBSSH2_ERROR_FILE,
+                        "Missing private key blob");
 
     *hostkey_method = NULL;
     *hostkey_abstract = NULL;
