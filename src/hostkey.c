@@ -1076,17 +1076,17 @@ static int hostkey_method_ssh_ed25519_initPEM(LIBSSH2_SESSION *session,
                                               const unsigned char *passphrase,
                                               void **abstract)
 {
-    ssh2_ed25519_ctx *ec_ctx = NULL;
+    ssh2_ed25519_ctx *ed_ctx = NULL;
 
     if(*abstract) {
         hostkey_method_ssh_ed25519_dtor(session, abstract);
         *abstract = NULL;
     }
 
-    if(ssh2_ed25519_new_private(&ec_ctx, session, privkeyfile, passphrase))
+    if(ssh2_ed25519_new_private(&ed_ctx, session, privkeyfile, passphrase))
         return -1;
 
-    *abstract = ec_ctx;
+    *abstract = ed_ctx;
 
     return 0;
 }
