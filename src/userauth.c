@@ -774,23 +774,19 @@ static int userauth_read_privkey(
     return 0;
 }
 
-struct privkey_file {
+struct privkey_info {
     const char *filename;
-    const char *passphrase;
-};
-
-struct privkey_mem {
-    const char *passphrase;
     const char *data;
     size_t data_len;
+    const char *passphrase;
 };
 
-static int userauth_sign_fromblob(LIBSSH2_SESSION *session,
-                                  unsigned char **sig, size_t *sig_len,
-                                  const unsigned char *data, size_t data_len,
-                                  void **abstract)
+static int userauth_sign(LIBSSH2_SESSION *session,
+                         unsigned char **sig, size_t *sig_len,
+                         const unsigned char *data, size_t data_len,
+                         void **abstract)
 {
-    struct privkey_mem *pk_mem = (struct privkey_mem *)(*abstract);
+    struct privkey_info *pk_info = (struct privkey_info *)(*abstract);
     const struct hostkey_method *privkeyobj;
     void *hostkey_abstract;
     struct iovec datavec;
@@ -799,48 +795,9 @@ static int userauth_sign_fromblob(LIBSSH2_SESSION *session,
     rc = userauth_read_privkey(session, &privkeyobj, &hostkey_abstract,
                                session->userauth_pblc_method,
                                session->userauth_pblc_method_len,
-                               NULL,
-                               pk_mem->data, pk_mem->data_len,
-                               pk_mem->passphrase);
-    if(rc)
-        return rc;
-
-    if(!privkeyobj)
-        return -1;
-
-    ssh2_prepare_iovec(&datavec, 1);
-    datavec.iov_base = SSH2_UNCONST(data);
-    datavec.iov_len = data_len;
-
-    if(privkeyobj->signv(session, sig, sig_len, 1, &datavec,
-                         &hostkey_abstract)) {
-        if(privkeyobj->dtor)
-            privkeyobj->dtor(session, &hostkey_abstract);
-        return -1;
-    }
-
-    if(privkeyobj->dtor)
-        privkeyobj->dtor(session, &hostkey_abstract);
-    return 0;
-}
-
-static int userauth_sign_fromfile(LIBSSH2_SESSION *session,
-                                  unsigned char **sig, size_t *sig_len,
-                                  const unsigned char *data, size_t data_len,
-                                  void **abstract)
-{
-    struct privkey_file *privkey_file = (struct privkey_file *)(*abstract);
-    const struct hostkey_method *privkeyobj;
-    void *hostkey_abstract;
-    struct iovec datavec;
-    int rc;
-
-    rc = userauth_read_privkey(session, &privkeyobj, &hostkey_abstract,
-                               session->userauth_pblc_method,
-                               session->userauth_pblc_method_len,
-                               privkey_file->filename,
-                               NULL, 0,
-                               privkey_file->passphrase);
+                               pk_info->filename,
+                               pk_info->data, pk_info->data_len,
+                               pk_info->passphrase);
     if(rc)
         return rc;
 
@@ -1871,13 +1828,14 @@ static int userauth_publickey_frommemory(LIBSSH2_SESSION *session,
 {
     unsigned char *pubkeydata = NULL;
     size_t pubkeydata_len = 0;
-    struct privkey_mem privkey_mem;
-    void *abstract = &privkey_mem;
+    struct privkey_info privkey_info;
+    void *abstract = &privkey_info;
     int rc;
 
-    privkey_mem.data = privatekeydata;
-    privkey_mem.data_len = privatekeydata_len;
-    privkey_mem.passphrase = passphrase;
+    privkey_info.filename = NULL;
+    privkey_info.data = privatekeydata;
+    privkey_info.data_len = privatekeydata_len;
+    privkey_info.passphrase = passphrase;
 
     if(session->userauth_pblc_state == ssh2_NB_state_idle) {
         if(publickeydata_len && publickeydata) {
@@ -1907,7 +1865,7 @@ static int userauth_publickey_frommemory(LIBSSH2_SESSION *session,
 
     rc = ssh2_userauth_publickey(session, username, username_len,
                                  pubkeydata, pubkeydata_len,
-                                 userauth_sign_fromblob, &abstract);
+                                 userauth_sign, &abstract);
     if(pubkeydata)
         SSH2_FREE(session, pubkeydata);
 
@@ -1926,12 +1884,14 @@ static int userauth_publickey_fromfile(LIBSSH2_SESSION *session,
 {
     unsigned char *pubkeydata = NULL;
     size_t pubkeydata_len = 0;
-    struct privkey_file privkey_file;
-    void *abstract = &privkey_file;
+    struct privkey_info privkey_info;
+    void *abstract = &privkey_info;
     int rc;
 
-    privkey_file.filename = privatekey;
-    privkey_file.passphrase = passphrase;
+    privkey_info.filename = privatekey;
+    privkey_info.data = NULL;
+    privkey_info.data_len = 0;
+    privkey_info.passphrase = passphrase;
 
     if(session->userauth_pblc_state == ssh2_NB_state_idle) {
         if(publickey) {
@@ -1959,7 +1919,7 @@ static int userauth_publickey_fromfile(LIBSSH2_SESSION *session,
 
     rc = ssh2_userauth_publickey(session, username, username_len,
                                  pubkeydata, pubkeydata_len,
-                                 userauth_sign_fromfile, &abstract);
+                                 userauth_sign, &abstract);
     if(pubkeydata)
         SSH2_FREE(session, pubkeydata);
 
