@@ -3641,13 +3641,13 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
                                       const char *privatekey,
                                       const unsigned char *passphrase)
 {
-    FILE *fp;
+    int rc;
     unsigned char *buf = NULL;
     struct string_buf *decrypted = NULL;
-    int rc = 0;
 #if LIBSSH2_ECDSA
     ssh2_curve_type type;
 #endif
+    FILE *fp;
 
     if(!session)
         return -1;
