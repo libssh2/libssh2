@@ -2732,7 +2732,7 @@ static DWORD wcng_pub_priv_write(unsigned char *key,
 }
 
 static int wcng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
-                                       unsigned char **method,
+                                       char **method,
                                        size_t *method_len,
                                        unsigned char **pubkeydata,
                                        size_t *pubkeydata_len,
@@ -2741,7 +2741,8 @@ static int wcng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
 {
     unsigned char **rpbDecoded = NULL;
     DWORD *rcbDecoded = NULL;
-    unsigned char *key = NULL, *mth = NULL;
+    char *mth = NULL;
+    unsigned char *key = NULL;
     DWORD keylen = 0, mthlen = 0;
     DWORD index, offset, length = 0;
     int ret;
@@ -2765,7 +2766,8 @@ static int wcng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
         keylen = 4 + mthlen + 4 + rcbDecoded[2] + 4 + rcbDecoded[1];
         key = SSH2_ALLOC(session, keylen);
         if(key) {
-            offset = wcng_pub_priv_write(key, 0, mth, mthlen);
+            offset = wcng_pub_priv_write(key, 0,
+                                         (const unsigned char *)mth, mthlen);
             offset = wcng_pub_priv_write(key, offset,
                                          rpbDecoded[2], rcbDecoded[2]);
             wcng_pub_priv_write(key, offset,
@@ -2786,7 +2788,8 @@ static int wcng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
                             + 4 + rcbDecoded[3] + 4 + rcbDecoded[4];
         key = SSH2_ALLOC(session, keylen);
         if(key) {
-            offset = wcng_pub_priv_write(key, 0, mth, mthlen);
+            offset = wcng_pub_priv_write(key, 0,
+                                         (const unsigned char *)mth, mthlen);
             offset = wcng_pub_priv_write(key, offset,
                                          rpbDecoded[1], rcbDecoded[1]);
             offset = wcng_pub_priv_write(key, offset,
@@ -2828,7 +2831,7 @@ static int wcng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
 }
 
 int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
-                          unsigned char **method, size_t *method_len,
+                          char **method, size_t *method_len,
                           unsigned char **pubkeydata,
                           size_t *pubkeydata_len,
                           const char *privatekey,
@@ -2849,7 +2852,7 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
 }
 
 int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                unsigned char **method, size_t *method_len,
+                                char **method, size_t *method_len,
                                 unsigned char **pubkeydata,
                                 size_t *pubkeydata_len,
                                 const char *privatekeydata,

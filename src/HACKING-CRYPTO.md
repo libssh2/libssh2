@@ -415,7 +415,7 @@ Each item is preceded by its 32-bit byte length, MSB first.
 
 ```c
 int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
-                          unsigned char **method, size_t *method_len,
+                          char **method, size_t *method_len,
                           unsigned char **pubkeydata,
                           size_t *pubkeydata_len,
                           const char *privatekey,
@@ -430,7 +430,7 @@ This procedure is already prototyped in `crypto.h`.
 
 ```c
 int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                unsigned char **method, size_t *method_len,
+                                char **method, size_t *method_len,
                                 unsigned char **pubkeydata,
                                 size_t *pubkeydata_len,
                                 const char *privatekeydata,
@@ -886,15 +886,3 @@ int ssh2_random(unsigned char *buf, size_t len);
 ```
 Store len random bytes at buf.
 Returns 0 if OK, else -1.
-
-```c
-const char *ssh2_supported_key_sign_algs(LIBSSH2_SESSION *session,
-                                         unsigned char *key_method,
-                                         size_t key_method_len);
-```
-This function is for implementing key hash upgrading as defined in RFC 8332.
-
-Based on the incoming key_method value, this function returns a list of
-supported algorithms that can upgrade the original key method algorithm as a
-comma separated list, if there is no upgrade option this function should
-return NULL.

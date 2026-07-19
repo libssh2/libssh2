@@ -574,7 +574,7 @@ int libssh2_userauth_password_ex(
  */
 static int userauth_read_pubkey(
     LIBSSH2_SESSION *session,
-    unsigned char **method, size_t *method_len,
+    char **method, size_t *method_len,
     unsigned char **pubkeydata, size_t *pubkeydata_len,
     const char *pubkeyfile,
     const char *pubkeyblob, size_t pubkeyblob_len)
@@ -674,7 +674,7 @@ static int userauth_read_pubkey(
     /* Wasting some bytes here (okay, more than some), but since it is likely
        to be freed soon anyway, we avoid the extra free/alloc and call
        it a wash */
-    *method = pubkey;
+    *method = (char *)pubkey;
     *method_len = sp1 - pubkey - 1;
 
     *pubkeydata = tmp;
@@ -689,7 +689,7 @@ static int userauth_read_pubkey(
 static int userauth_read_privkey(
     LIBSSH2_SESSION *session,
     const struct hostkey_method **hostkey_method, void **hostkey_abstract,
-    const unsigned char *method, size_t method_len,
+    const char *method, size_t method_len,
     const char *privkeyfile,
     const char *privkeyblob, size_t privkeyblob_len,
     const char *passphrase)
@@ -709,8 +709,7 @@ static int userauth_read_privkey(
 
     while(*hostkey_methods_avail && (*hostkey_methods_avail)->name) {
         if((*hostkey_methods_avail)->initPEM &&
-           !strncmp((*hostkey_methods_avail)->name, (const char *)method,
-                    method_len)) {
+           !strncmp((*hostkey_methods_avail)->name, method, method_len)) {
             *hostkey_method = *hostkey_methods_avail;
             break;
         }
@@ -1220,7 +1219,7 @@ static int userauth_is_version_less_than_78(const char *version)
  * there is no upgrade option return NULL
  */
 static const char *userauth_supported_key_sign_algs(LIBSSH2_SESSION *session,
-                                                    unsigned char *key_method,
+                                                    const char *key_method,
                                                     size_t key_method_len)
 {
     (void)session;
@@ -1258,8 +1257,7 @@ static const char *userauth_supported_key_sign_algs(LIBSSH2_SESSION *session,
  * @result error code or zero on success
  */
 static int userauth_key_sign_algs(LIBSSH2_SESSION *session,
-                                  unsigned char **key_method,
-                                  size_t *key_method_len)
+                                  char **key_method, size_t *key_method_len)
 {
     const char *s = NULL;
     const char *a = NULL;
@@ -2181,7 +2179,7 @@ int libssh2_userauth_publickey_sk(
 {
     int rc = LIBSSH2_ERROR_NONE;
 
-    unsigned char *tmp_method = NULL;
+    char *tmp_method = NULL;
     size_t tmp_method_len = 0;
 
     unsigned char *tmp_publickeydata = NULL;
