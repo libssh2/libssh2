@@ -715,15 +715,14 @@ LIBSSH2_API int libssh2_userauth_hostbased_fromfile_ex(
                                            username,                          \
                                            (unsigned int)strlen(username))
 
-LIBSSH2_API int libssh2_userauth_publickey_frommemory(
-    LIBSSH2_SESSION *session,
-    const char *username,
-    size_t username_len,
-    const char *publickeyfiledata,
-    size_t publickeyfiledata_len,
-    const char *privatekeyfiledata,
-    size_t privatekeyfiledata_len,
-    const char *passphrase);
+LIBSSH2_API int libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
+                                                      const char *username,
+                                                      size_t username_len,
+                                                      const char *pubkeyblob,
+                                                      size_t pubkeyblob_len,
+                                                      const char *privkeyblob,
+                                                      size_t privkeyblob_len,
+                                                      const char *passphrase);
 
 /*
  * response_callback is provided with filled by library prompts array,
