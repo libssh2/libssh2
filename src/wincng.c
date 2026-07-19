@@ -2542,7 +2542,7 @@ int ssh2_ecdsa_new_priv_from_file(OUT ssh2_ecdsa_ctx **ec_ctx,
         goto cleanup;
     }
 
-    result = ssh2_openssh_pem_parse(session, passphrase, fp, &decrypted);
+    result = ssh2_openssh_pem_parse_FILE(session, passphrase, fp, &decrypted);
     if(result)
         goto cleanup;
 
@@ -2578,7 +2578,7 @@ int ssh2_ecdsa_new_priv_from_blob(OUT ssh2_ecdsa_ctx **ec_ctx,
 
     *ec_ctx = NULL;
 
-    result = ssh2_openssh_pem_parse_memory(session, passphrase,
+    result = ssh2_openssh_pem_parse_blob(session, passphrase,
                                            blob, blob_len, &decrypted);
     if(result)
         goto cleanup;
