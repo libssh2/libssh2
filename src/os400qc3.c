@@ -2073,7 +2073,8 @@ static int load_rsa_private_file(LIBSSH2_SESSION *session,
     return ret;
 }
 
-int ssh2_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
+int ssh2_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa,
+                                LIBSSH2_SESSION *session,
                                 const char *filename,
                                 const char *passphrase)
 {
