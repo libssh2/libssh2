@@ -577,7 +577,7 @@ static int userauth_read_pubkey(
     unsigned char **method, size_t *method_len,
     unsigned char **pubkeydata, size_t *pubkeydata_len,
     const char *pubkeyfile,
-    const char *pubkeyfiledata, size_t pubkeyfiledata_len)
+    const char *pubkeyblob, size_t pubkeyblob_len)
 {
     unsigned char *pubkey = NULL, *sp1, *sp2, *tmp;
     size_t pubkey_len;
@@ -623,7 +623,7 @@ static int userauth_read_pubkey(
         fclose(fd);
     }
     else {
-        pubkey_len = pubkeyfiledata_len;
+        pubkey_len = pubkeyblob_len;
 
         if(pubkey_len <= 1)
             return ssh2_err(session, LIBSSH2_ERROR_FILE,
@@ -634,7 +634,7 @@ static int userauth_read_pubkey(
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate memory for public key data");
 
-        memcpy(pubkey, pubkeyfiledata, pubkey_len);
+        memcpy(pubkey, pubkeyblob, pubkey_len);
     }
 
     /*
