@@ -1379,11 +1379,11 @@ static int ossl_rsa_openssh_priv_new(ssh2_rsa_ctx **rsa,
 
     /* We have a new key file, now try and parse it using supported types  */
     rc = ssh2_get_string(decrypted, &buf, NULL);
-
     if(rc || !buf) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
                  "Public key type in decrypted key data not found");
-        return -1;
+        rc = -1;
+        goto cleanup;
     }
 
     if(!strcmp("ssh-rsa", (const char *)buf))
@@ -1391,6 +1391,8 @@ static int ossl_rsa_openssh_priv_new(ssh2_rsa_ctx **rsa,
                                              NULL, NULL, NULL, NULL, rsa);
     else
         rc = -1;
+
+cleanup:
 
     if(decrypted)
         ssh2_string_buf_free(session, decrypted);
