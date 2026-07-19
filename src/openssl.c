@@ -1379,11 +1379,11 @@ static int ossl_rsa_openssh_priv_new(ssh2_rsa_ctx **rsa,
 
     /* We have a new key file, now try and parse it using supported types  */
     rc = ssh2_get_string(decrypted, &buf, NULL);
-
     if(rc || !buf) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
                  "Public key type in decrypted key data not found");
-        return -1;
+        rc = -1;
+        goto cleanup;
     }
 
     if(!strcmp("ssh-rsa", (const char *)buf))
@@ -1391,6 +1391,8 @@ static int ossl_rsa_openssh_priv_new(ssh2_rsa_ctx **rsa,
                                              NULL, NULL, NULL, NULL, rsa);
     else
         rc = -1;
+
+cleanup:
 
     if(decrypted)
         ssh2_string_buf_free(session, decrypted);
@@ -1689,11 +1691,11 @@ static int ossl_dsa_openssh_priv_new(ssh2_dsa_ctx **dsa,
 
     /* We have a new key file, now try and parse it using supported types  */
     rc = ssh2_get_string(decrypted, &buf, NULL);
-
     if(rc || !buf) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
                  "Public key type in decrypted key data not found");
-        return -1;
+        rc = -1;
+        goto cleanup;
     }
 
     if(!strcmp("ssh-dss", (const char *)buf))
@@ -1701,6 +1703,8 @@ static int ossl_dsa_openssh_priv_new(ssh2_dsa_ctx **dsa,
                                              NULL, NULL, NULL, NULL, dsa);
     else
         rc = -1;
+
+cleanup:
 
     if(decrypted)
         ssh2_string_buf_free(session, decrypted);
@@ -2201,11 +2205,11 @@ int ssh2_ed25519_new_private(ssh2_ed25519_ctx **ed_ctx,
 
     /* We have a new key file, now try and parse it using supported types  */
     rc = ssh2_get_string(decrypted, &buf, NULL);
-
     if(rc || !buf) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
                  "Public key type in decrypted key data not found");
-        return -1;
+        rc = -1;
+        goto cleanup;
     }
 
     if(!strcmp("ssh-ed25519", (const char *)buf))
@@ -2214,15 +2218,17 @@ int ssh2_ed25519_new_private(ssh2_ed25519_ctx **ed_ctx,
     else
         rc = -1;
 
-    if(decrypted)
-        ssh2_string_buf_free(session, decrypted);
-
     if(rc == 0) {
         if(ed_ctx)
             *ed_ctx = ctx;
         else if(ctx)
             ssh2_ed25519_free(ctx);
     }
+
+cleanup:
+
+    if(decrypted)
+        ssh2_string_buf_free(session, decrypted);
 
     return rc;
 }
@@ -3147,11 +3153,11 @@ static int ossl_ecdsa_openssh_priv_new(ssh2_ecdsa_ctx **ec_ctx,
 
     /* We have a new key file, now try and parse it using supported types  */
     rc = ssh2_get_string(decrypted, &buf, NULL);
-
     if(rc || !buf) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
                  "Public key type in decrypted key data not found");
-        return -1;
+        rc = -1;
+        goto cleanup;
     }
 
     rc = ossl_ecdsa_curve_type_from_name((const char *)buf, &type);
@@ -3161,6 +3167,8 @@ static int ossl_ecdsa_openssh_priv_new(ssh2_ecdsa_ctx **ec_ctx,
                                                NULL, NULL, NULL, NULL, ec_ctx);
     else
         rc = -1;
+
+cleanup:
 
     if(decrypted)
         ssh2_string_buf_free(session, decrypted);
@@ -3673,7 +3681,8 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
     if(rc || !buf) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
                  "Public key type in decrypted key data not found");
-        return -1;
+        rc = -1;
+        goto cleanup;
     }
 
     rc = -1;
@@ -3713,11 +3722,13 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
                                                NULL);
 #endif
 
-    if(decrypted)
-        ssh2_string_buf_free(session, decrypted);
-
     if(rc)
         ssh2_err(session, LIBSSH2_ERROR_FILE, "Unsupported OpenSSH key type");
+
+cleanup:
+
+    if(decrypted)
+        ssh2_string_buf_free(session, decrypted);
 
     return rc;
 }
@@ -3836,9 +3847,11 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
 
     /* We have a new key file, now try and parse it using supported types  */
     rc = ssh2_get_string(decrypted, &buf, NULL);
-    if(rc || !buf)
-        return ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                        "Public key type in decrypted key data not found");
+    if(rc || !buf) {
+        rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                      "Public key type in decrypted key data not found");
+        goto cleanup;
+    }
 
     rc = LIBSSH2_ERROR_FILE;
 
@@ -3895,13 +3908,15 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
                                                (ssh2_ecdsa_ctx **)key_ctx);
 #endif
 
-    if(decrypted)
-        ssh2_string_buf_free(session, decrypted);
-
     if(rc == LIBSSH2_ERROR_FILE)
         rc = ssh2_err(session, LIBSSH2_ERROR_FILE,
                       "Unable to extract public key from private key file: "
                       "invalid/unrecognized private key file format");
+
+cleanup:
+
+    if(decrypted)
+        ssh2_string_buf_free(session, decrypted);
 
     return rc;
 }
@@ -3934,16 +3949,16 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
     rc = ssh2_openssh_pem_parse_memory(session, passphrase,
                                        privatekeydata,
                                        privatekeydata_len, &decrypted);
-
     if(rc)
         return rc;
 
     /* We have a new key file, now try and parse it using supported types  */
     rc = ssh2_get_string(decrypted, &buf, NULL);
-
-    if(rc || !buf)
-        return ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                        "Public key type in decrypted key data not found");
+    if(rc || !buf) {
+        rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                      "Public key type in decrypted key data not found");
+        goto cleanup;
+    }
 
     rc = LIBSSH2_ERROR_FILE;
 
@@ -3986,6 +4001,8 @@ int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
         rc = ssh2_err(session, LIBSSH2_ERROR_FILE,
                       "Unable to extract public key from private key file: "
                       "invalid/unrecognized private key file format");
+
+cleanup:
 
     if(decrypted)
         ssh2_string_buf_free(session, decrypted);
