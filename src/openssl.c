@@ -3670,7 +3670,6 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
 
     /* We have a new key file, now try and parse it using supported types  */
     rc = ssh2_get_string(decrypted, &buf, NULL);
-
     if(rc || !buf) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
                  "Public key type in decrypted key data not found");
@@ -3832,13 +3831,11 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
     rc = ssh2_openssh_pem_parse_memory(session, passphrase,
                                        privatekeydata,
                                        privatekeydata_len, &decrypted);
-
     if(rc)
         return rc;
 
     /* We have a new key file, now try and parse it using supported types  */
     rc = ssh2_get_string(decrypted, &buf, NULL);
-
     if(rc || !buf)
         return ssh2_err(session, LIBSSH2_ERROR_PROTO,
                         "Public key type in decrypted key data not found");
