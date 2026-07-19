@@ -899,12 +899,12 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx, ULONG hash_len,
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-static int wcng_load_private(LIBSSH2_SESSION *session,
-                             const char *filename,
-                             const char *passphrase,
-                             unsigned char **ppbEncoded,
-                             size_t *pcbEncoded,
-                             int tryLoadRSA, int tryLoadDSA)
+static int wcng_load_private_file(LIBSSH2_SESSION *session,
+                                  const char *filename,
+                                  const char *passphrase,
+                                  unsigned char **ppbEncoded,
+                                  size_t *pcbEncoded,
+                                  int tryLoadRSA, int tryLoadDSA)
 {
     int ret = -1;
     FILE *fp;
@@ -1339,8 +1339,8 @@ int ssh2_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa,
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_private(session, filename, passphrase,
-                            &pbEncoded, &cbEncoded, 1, 0);
+    ret = wcng_load_private_file(session, filename, passphrase,
+                                 &pbEncoded, &cbEncoded, 1, 0);
     if(ret)
         return -1;
 
@@ -1626,8 +1626,8 @@ int ssh2_dsa_new_priv_from_file(ssh2_dsa_ctx **dsa,
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_private(session, filename, passphrase,
-                            &pbEncoded, &cbEncoded, 0, 1);
+    ret = wcng_load_private_file(session, filename, passphrase,
+                                 &pbEncoded, &cbEncoded, 0, 1);
     if(ret)
         return -1;
 
@@ -2840,8 +2840,8 @@ int ssh2_pub_privkey_file(LIBSSH2_SESSION *session,
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_private(session, privatekey, passphrase,
-                            &pbEncoded, &cbEncoded, 1, 1);
+    ret = wcng_load_private_file(session, privatekey, passphrase,
+                                 &pbEncoded, &cbEncoded, 1, 1);
     if(ret)
         return -1;
 
