@@ -397,7 +397,6 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
     mbedtls_pk_context pkey;
     mbedtls_rsa_context *pk_rsa;
     unsigned char *data_nullterm;
-    size_t passphrase_len;
 
     (void)session;
 
@@ -421,10 +420,9 @@ int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
 
     mbedtls_pk_init(&pkey);
 
-    passphrase_len = passphrase ? strlen(passphrase) : 0;
     ret = mbedtls_pk_parse_key(&pkey, data_nullterm, blob_len + 1,
                                (const unsigned char *)passphrase,
-                               passphrase_len,
+                               passphrase ? strlen(passphrase) : 0,
                                mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
     mbed_zero_free(data_nullterm, blob_len + 1);
 
@@ -687,7 +685,6 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     char buf[1024];
     int ret;
     unsigned char *data_nullterm;
-    size_t passphrase_len;
 
     /* mbedtls checks in "mbedtls/pkparse.c:1184" if "key[keylen - 1] != '\0'"
        private-key from memory fails if the last byte is not a null byte */
@@ -700,10 +697,9 @@ int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
 
     mbedtls_pk_init(&pkey);
 
-    passphrase_len = passphrase ? strlen(passphrase) : 0;
     ret = mbedtls_pk_parse_key(&pkey, data_nullterm, privatekeydata_len + 1,
                                (const unsigned char *)passphrase,
-                               passphrase_len,
+                               passphrase ? strlen(passphrase) : 0,
                                mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
     mbed_zero_free(data_nullterm, privatekeydata_len + 1);
 
@@ -1004,13 +1000,11 @@ cleanup:
 
 static int mbed_parse_eckey(ssh2_ecdsa_ctx **ctx, mbedtls_pk_context *pkey,
                             const unsigned char *data, size_t data_len,
-                            const unsigned char *passphrase)
+                            const char *passphrase)
 {
-    size_t passphrase_len;
-
-    passphrase_len = passphrase ? strlen(passphrase) : 0;
-
-    if(mbedtls_pk_parse_key(pkey, data, data_len, passphrase, passphrase_len,
+    if(mbedtls_pk_parse_key(pkey, data, data_len,
+                            (const unsigned char *)passphrase,
+                            passphrase ? strlen(passphrase) : 0,
                             mbedtls_ctr_drbg_random, &mbed_ctr_drbg))
         goto failed;
 

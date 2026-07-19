@@ -2011,7 +2011,7 @@ static int try_pem_load(LIBSSH2_SESSION *session, FILE *fp,
 
 static int load_rsa_private_file(LIBSSH2_SESSION *session,
                                  const char *filename,
-                                 unsigned const char *passphrase,
+                                 const char *passphrase,
                                  loadkeyproc proc1, loadkeyproc proc8,
                                  void *loadkeydata)
 {
@@ -2075,7 +2075,7 @@ static int load_rsa_private_file(LIBSSH2_SESSION *session,
 
 int ssh2_rsa_new_private(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
                          const char *filename,
-                         unsigned const char *passphrase)
+                         const char *passphrase)
 {
     ssh2_rsa_ctx *ctx = init_crypto_ctx(NULL);
     int ret;
@@ -2136,7 +2136,7 @@ int ssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
 int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
                                     LIBSSH2_SESSION *session,
                                     const char *blob, size_t blob_len,
-                                    unsigned const char *passphrase)
+                                    const char *passphrase)
 {
     ssh2_rsa_ctx *ctx = init_crypto_ctx(NULL);
     unsigned char *data = NULL;
