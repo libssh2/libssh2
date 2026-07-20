@@ -1071,7 +1071,6 @@ struct libssh2_knownhost {
  * libssh2_knownhost_init()
  *
  * Init a collection of known hosts. Returns the pointer to a collection.
- *
  */
 LIBSSH2_API LIBSSH2_KNOWNHOSTS *libssh2_knownhost_init(
     LIBSSH2_SESSION *session);
@@ -1177,9 +1176,7 @@ LIBSSH2_API int libssh2_knownhost_addc(LIBSSH2_KNOWNHOSTS *hosts,
  * Returns:
  *
  * LIBSSH2_KNOWNHOST_CHECK_* values, see below
- *
  */
-
 #define LIBSSH2_KNOWNHOST_CHECK_MATCH    0
 #define LIBSSH2_KNOWNHOST_CHECK_MISMATCH 1
 #define LIBSSH2_KNOWNHOST_CHECK_NOTFOUND 2
@@ -1204,7 +1201,6 @@ LIBSSH2_API int libssh2_knownhost_checkp(LIBSSH2_KNOWNHOSTS *hosts,
  *
  * Remove a host from the collection of known hosts. The 'entry' struct is
  * retrieved by a call to libssh2_knownhost_check().
- *
  */
 LIBSSH2_API int libssh2_knownhost_del(LIBSSH2_KNOWNHOSTS *hosts,
                                       struct libssh2_knownhost *entry);
@@ -1213,7 +1209,6 @@ LIBSSH2_API int libssh2_knownhost_del(LIBSSH2_KNOWNHOSTS *hosts,
  * libssh2_knownhost_free()
  *
  * Free an entire collection of known hosts.
- *
  */
 LIBSSH2_API void libssh2_knownhost_free(LIBSSH2_KNOWNHOSTS *hosts);
 
@@ -1223,7 +1218,6 @@ LIBSSH2_API void libssh2_knownhost_free(LIBSSH2_KNOWNHOSTS *hosts);
  * Pass in a line of a file of 'type'. It makes libssh2 read this line.
  *
  * LIBSSH2_KNOWNHOST_FILE_OPENSSH is the only supported type.
- *
  */
 LIBSSH2_API int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
                                            const char *line, size_t len,
@@ -1239,7 +1233,6 @@ LIBSSH2_API int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
  * This implementation currently only knows one 'type' (openssh), all others
  * are reserved for future use.
  */
-
 #define LIBSSH2_KNOWNHOST_FILE_OPENSSH 1
 
 LIBSSH2_API int libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
@@ -1272,7 +1265,6 @@ LIBSSH2_API int libssh2_knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
  * This implementation currently only knows one 'type' (openssh), all others
  * are reserved for future use.
  */
-
 LIBSSH2_API int libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
                                             const char *filename, int type);
 
@@ -1395,7 +1387,6 @@ LIBSSH2_API void libssh2_agent_free(LIBSSH2_AGENT *agent);
  * libssh2_agent_set_identity_path()
  *
  * Allows a custom agent identity socket path beyond SSH_AUTH_SOCK env
- *
  */
 LIBSSH2_API void libssh2_agent_set_identity_path(LIBSSH2_AGENT *agent,
                                                  const char *path);
@@ -1404,7 +1395,6 @@ LIBSSH2_API void libssh2_agent_set_identity_path(LIBSSH2_AGENT *agent,
  * libssh2_agent_get_identity_path()
  *
  * Returns the custom agent identity socket path if set
- *
  */
 LIBSSH2_API const char *libssh2_agent_get_identity_path(LIBSSH2_AGENT *agent);
 
