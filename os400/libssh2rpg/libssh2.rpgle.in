@@ -1490,9 +1490,6 @@
       * If a custom type is used, salt is ignored and you must provide the host
       * pre-hashed when checking for it in the libssh2_knownhost_check()
       * function.
-      *
-      * The keylen parameter may be omitted (zero) if the key is provided as a
-      * NULL-terminated base64-encoded string.
 
       * host format (2 bits).
      d LIBSSH2_KNOWNHOST_TYPE_MASK...
@@ -1569,9 +1566,6 @@
       * If a custom type is used, salt is ignored and you must provide the host
       * pre-hashed when checking for it in the libssh2_knownhost_check()
       * function.
-      *
-      * The keylen parameter may be omitted (zero) if the key is provided as a
-      * NULL-terminated base64-encoded string.
 
      d libssh2_knownhost_addc...
      d                 pr                  extproc('libssh2_knownhost_addc')
