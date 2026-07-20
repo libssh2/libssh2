@@ -137,10 +137,13 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
     if(!hosts || !host || !key)
         return LIBSSH2_ERROR_BAD_USE;
 
-    hostlen = strlen(host);
+    /* keylen == 0 fell back to strlen(key) until libssh2 1.11.1.
+       Require explicit length now. */
+    if(!keylen)
+        return ssh2_err(hosts->session, LIBSSH2_ERROR_BAD_USE,
+                        "Known-host key length required");
 
-    if((typemask & LIBSSH2_KNOWNHOST_KEYENC_BASE64) && !keylen)
-        keylen = strlen(key);
+    hostlen = strlen(host);
 
     if(hostlen > KNOWNHOST_MAX_LEN ||
        keylen > KNOWNHOST_MAX_LEN)
@@ -318,9 +321,6 @@ error:
  * The SHA-1 hash is what OpenSSH can be told to use in known_hosts files.  If
  * a custom type is used, salt is ignored and you must provide the host
  * pre-hashed when checking for it in the libssh2_knownhost_check() function.
- *
- * The keylen parameter may be omitted (zero) if the key is provided as a
- * null-terminated base64-encoded string.
  */
 int libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
                           const char *host, const char *salt,
@@ -352,9 +352,6 @@ int libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
  * The SHA-1 hash is what OpenSSH can be told to use in known_hosts files.  If
  * a custom type is used, salt is ignored and you must provide the host
  * pre-hashed when checking for it in the libssh2_knownhost_check() function.
- *
- * The keylen parameter may be omitted (zero) if the key is provided as a
- * null-terminated base64-encoded string.
  */
 int libssh2_knownhost_addc(LIBSSH2_KNOWNHOSTS *hosts,
                            const char *host, const char *salt,
@@ -863,9 +860,6 @@ static int knownhost_line(LIBSSH2_KNOWNHOSTS *hosts,
         break;
     }
 
-    /* The key is passed on as base64 with its length, and knownhost_add()
-       falls back to strlen() when the length is zero, so an empty key would
-       make it scan past the caller-supplied buffer. */
     if(!keylen)
         return ssh2_err(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                         "Failed to parse known_hosts line (no key)");
