@@ -1339,8 +1339,8 @@ int ssh2_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa,
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_priv_from_file(session, filename,
-                                   passphrase, &pbEncoded, &cbEncoded, 1, 0);
+    ret = wcng_load_priv_from_file(session, filename, passphrase,
+                                   &pbEncoded, &cbEncoded, 1, 0);
     if(ret)
         return -1;
 
@@ -1356,8 +1356,8 @@ int ssh2_rsa_new_priv_from_blob(ssh2_rsa_ctx **rsa,
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_priv_from_blob(session, blob, blob_len,
-                                   passphrase, &pbEncoded, &cbEncoded, 1, 0);
+    ret = wcng_load_priv_from_blob(session, blob, blob_len, passphrase,
+                                   &pbEncoded, &cbEncoded, 1, 0);
     if(ret)
         return -1;
 
@@ -1626,8 +1626,8 @@ int ssh2_dsa_new_priv_from_file(ssh2_dsa_ctx **dsa,
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_priv_from_file(session, filename,
-                                   passphrase, &pbEncoded, &cbEncoded, 0, 1);
+    ret = wcng_load_priv_from_file(session, filename, passphrase,
+                                   &pbEncoded, &cbEncoded, 0, 1);
     if(ret)
         return -1;
 
@@ -1643,8 +1643,8 @@ int ssh2_dsa_new_priv_from_blob(ssh2_dsa_ctx **dsa,
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_priv_from_blob(session, blob, blob_len,
-                                   passphrase, &pbEncoded, &cbEncoded, 0, 1);
+    ret = wcng_load_priv_from_blob(session, blob, blob_len, passphrase,
+                                   &pbEncoded, &cbEncoded, 0, 1);
     if(ret)
         return -1;
 
@@ -2840,8 +2840,9 @@ int ssh2_pub_privkey_file(LIBSSH2_SESSION *session,
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_priv_from_file(session, privatekey,
-                                   passphrase, &pbEncoded, &cbEncoded, 1, 1);
+    ret = wcng_load_priv_from_file(session,
+                                   privatekey, passphrase,
+                                   &pbEncoded, &cbEncoded, 1, 1);
     if(ret)
         return -1;
 
@@ -2860,8 +2861,9 @@ int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_priv_from_blob(session, privkeyblob, privkeyblob_len,
-                                   passphrase, &pbEncoded, &cbEncoded, 1, 1);
+    ret = wcng_load_priv_from_blob(session,
+                                   privkeyblob, privkeyblob_len, passphrase,
+                                   &pbEncoded, &cbEncoded, 1, 1);
     if(ret)
         return -1;
 
