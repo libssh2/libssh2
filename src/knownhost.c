@@ -137,7 +137,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
     if(!hosts || !host || !key)
         return LIBSSH2_ERROR_BAD_USE;
 
-    /* keylen == 0 previously fell back to strlen(key) for base64-encoded keys.
+    /* keylen == 0 fell back to strlen(key) until libssh2 1.11.1.
        Require explicit length now. */
     if(!keylen)
         return ssh2_err(hosts->session, LIBSSH2_ERROR_BAD_USE,
