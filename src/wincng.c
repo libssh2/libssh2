@@ -918,7 +918,8 @@ static int wcng_load_priv_from_file(LIBSSH2_SESSION *session,
 #if LIBSSH2_RSA
     if(ret && tryLoadRSA)
         ret = ssh2_pem_parse_FILE(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
-                                  fp, passphrase, &data, &datalen);
+                                  fp, passphrase,
+                                  &data, &datalen);
 #else
     (void)tryLoadRSA;
 #endif
@@ -926,7 +927,8 @@ static int wcng_load_priv_from_file(LIBSSH2_SESSION *session,
 #if LIBSSH2_DSA
     if(ret && tryLoadDSA)
         ret = ssh2_pem_parse_FILE(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
-                                  fp, passphrase, &data, &datalen);
+                                  fp, passphrase,
+                                  &data, &datalen);
 #else
     (void)tryLoadDSA;
 #endif
@@ -956,8 +958,7 @@ static int wcng_load_priv_from_blob(LIBSSH2_SESSION *session,
 #if LIBSSH2_RSA
     if(ret && tryLoadRSA)
         ret = ssh2_pem_parse_blob(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
-                                  privkeyblob, privkeyblob_len,
-                                  passphrase,
+                                  privkeyblob, privkeyblob_len, passphrase,
                                   &data, &datalen);
 #else
     (void)tryLoadRSA;
@@ -966,8 +967,7 @@ static int wcng_load_priv_from_blob(LIBSSH2_SESSION *session,
 #if LIBSSH2_DSA
     if(ret && tryLoadDSA)
         ret = ssh2_pem_parse_blob(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
-                                  privkeyblob, privkeyblob_len,
-                                  passphrase,
+                                  privkeyblob, privkeyblob_len, passphrase,
                                   &data, &datalen);
 #else
     (void)tryLoadDSA;
