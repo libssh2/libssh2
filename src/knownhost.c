@@ -134,8 +134,13 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
     char *ptr = NULL;
     size_t ptrlen = 0;
 
-    if(!hosts || !host || !key || !keylen)
+    if(!hosts || !host || !key)
         return LIBSSH2_ERROR_BAD_USE;
+
+    /* Set an error message because this was a breaking change. */
+    if(!keylen)
+        return ssh2_err(hosts->session, LIBSSH2_ERROR_BAD_USE,
+                        "Known-host key length required");
 
     hostlen = strlen(host);
 
