@@ -416,8 +416,7 @@ Each item is preceded by its 32-bit byte length, MSB first.
 ```c
 int ssh2_pub_privkey_file(LIBSSH2_SESSION *session,
                           char **method, size_t *method_len,
-                          unsigned char **pubkeydata,
-                          size_t *pubkeydata_len,
+                          unsigned char **pubkeydata, size_t *pubkeydata_len,
                           const char *privatekey,
                           const char *passphrase);
 ```
@@ -431,8 +430,7 @@ This procedure is already prototyped in `crypto.h`.
 ```c
 int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
                           char **method, size_t *method_len,
-                          unsigned char **pubkeydata,
-                          size_t *pubkeydata_len,
+                          unsigned char **pubkeydata, size_t *pubkeydata_len,
                           const char *privkeyblob, size_t privkeyblob_len,
                           const char *passphrase);
 ```
