@@ -722,10 +722,10 @@ static int knownhost_line_hashed(LIBSSH2_KNOWNHOSTS *hosts,
     hostlen -= 3; /* deduct the marker */
 
     /* this is where the salt starts, find the end of it */
-    for(p = salt; *p && *p != '|'; p++)
+    for(p = salt; (size_t)(p - salt) < hostlen && *p && *p != '|'; p++)
         ;
 
-    if(*p == '|') {
+    if((size_t)(p - salt) < hostlen && *p == '|') {
         const char *hash = NULL;
         size_t saltlen = p - salt;
         if(saltlen >= (sizeof(saltbuf) - 1)) /* weird length */
@@ -862,6 +862,13 @@ static int knownhost_line(LIBSSH2_KNOWNHOSTS *hosts,
         }
         break;
     }
+
+    /* The key is passed on as base64 with its length, and knownhost_add()
+       falls back to strlen() when the length is zero, so an empty key would
+       make it scan past the caller-supplied buffer. */
+    if(!keylen)
+        return ssh2_err(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
+                        "Failed to parse known_hosts line (no key)");
 
     /* Figure out host format */
     if(hostlen < 3 || memcmp(host, "|1|", 3))
