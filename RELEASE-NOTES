@@ -431,7 +431,7 @@ This release includes the following enhancements and bugfixes:
 - kex: return error if user KEX methods are invalid #1553 (4beed724 #1554 #1553)
 - kex, packet: validate DH prime range and server extensions count (fe907ca4 #1825)
 - knownhost: fix potential off-by-one read in `libssh2_knownhost_readline()` (b758dc29 #2335 #2053 #2012)
-- knownhost: fix off-by-one reads in `libssh2_knownhost_get*()` (8b278e64 #2334 #2333)
+- knownhost: fix off-by-one reads in `knownhost_add()` (8b278e64 #2334 #2333)
 - knownhost: extend public API arguments checks (580f7ad6 #2333)
 - knownhost: fix hmac context memleaks on error paths (c44e081d #2245 #2244)
 - knownhost: Modify null-termination check for host key line (bf33b943 #2053 #2012)
