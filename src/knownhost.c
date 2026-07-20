@@ -137,7 +137,8 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
     if(!hosts || !host || !key)
         return LIBSSH2_ERROR_BAD_USE;
 
-    /* Set an error message because this was a breaking change. */
+    /* keylen == 0 previously fell back to strlen(key); require explicit
+       length. */
     if(!keylen)
         return ssh2_err(hosts->session, LIBSSH2_ERROR_BAD_USE,
                         "Known-host key length required");
@@ -864,6 +865,10 @@ static int knownhost_line(LIBSSH2_KNOWNHOSTS *hosts,
         }
         break;
     }
+
+    if(!keylen)
+        return ssh2_err(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
+                        "Failed to parse known_hosts line (no key)");
 
     /* Figure out host format */
     if(hostlen < 3 || memcmp(host, "|1|", 3))
