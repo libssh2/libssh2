@@ -134,13 +134,10 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
     char *ptr = NULL;
     size_t ptrlen = 0;
 
-    if(!hosts || !host || !key)
+    if(!hosts || !host || !key || !keylen)
         return LIBSSH2_ERROR_BAD_USE;
 
     hostlen = strlen(host);
-
-    if((typemask & LIBSSH2_KNOWNHOST_KEYENC_BASE64) && !keylen)
-        keylen = strlen(key);
 
     if(hostlen > KNOWNHOST_MAX_LEN ||
        keylen > KNOWNHOST_MAX_LEN)
@@ -862,13 +859,6 @@ static int knownhost_line(LIBSSH2_KNOWNHOSTS *hosts,
         }
         break;
     }
-
-    /* The key is passed on as base64 with its length, and knownhost_add()
-       falls back to strlen() when the length is zero, so an empty key would
-       make it scan past the caller-supplied buffer. */
-    if(!keylen)
-        return ssh2_err(hosts->session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                        "Failed to parse known_hosts line (no key)");
 
     /* Figure out host format */
     if(hostlen < 3 || memcmp(host, "|1|", 3))
