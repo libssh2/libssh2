@@ -969,7 +969,7 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         ssh2_store_str(&session->userauth_host_s, "ssh-connection", 14);
         ssh2_store_str(&session->userauth_host_s, "hostbased", 9);
         ssh2_store_str(&session->userauth_host_s,
-                       (const char *)session->userauth_host_method,
+                       session->userauth_host_method,
                        session->userauth_host_method_len);
         ssh2_store_str(&session->userauth_host_s, (const char *)pubkeydata,
                        pubkeydata_len);
@@ -1035,7 +1035,7 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                        (uint32_t)(4 + session->userauth_host_method_len + 4 +
                                   sig_len));
         ssh2_store_str(&session->userauth_host_s,
-                       (const char *)session->userauth_host_method,
+                       session->userauth_host_method,
                        session->userauth_host_method_len);
         SSH2_SAFEFREE(session, session->userauth_host_method);
 
@@ -1529,8 +1529,8 @@ retry_auth:
         /* Not sending signature with *this* packet */
         *s++ = 0;
 
-        ssh2_store_str(&s, (const char *)session->userauth_pblc_method,
-                       session->userauth_pblc_method_len);
+        ssh2_store_str(&s, session->userauth_pblc_method,
+                           session->userauth_pblc_method_len);
         ssh2_store_str(&s, (const char *)pubkeydata, pubkeydata_len);
 
         ssh2_deb((session, LIBSSH2_TRACE_AUTH,
@@ -1676,20 +1676,20 @@ retry_auth:
         session->userauth_pblc_b = NULL;
 
         session->userauth_pblc_method_len =
-            ssh2_userauth_plain_method((char *)session->userauth_pblc_method,
+            ssh2_userauth_plain_method(session->userauth_pblc_method,
                                        session->userauth_pblc_method_len);
 
-        if(!strncmp((const char *)session->userauth_pblc_method,
+        if(!strncmp(session->userauth_pblc_method,
                     "sk-ecdsa-sha2-nistp256@openssh.com",
                     session->userauth_pblc_method_len) ||
-           !strncmp((const char *)session->userauth_pblc_method,
+           !strncmp(session->userauth_pblc_method,
                     "sk-ssh-ed25519@openssh.com",
                     session->userauth_pblc_method_len)) {
             ssh2_store_u32(&s,
                            (uint32_t)(4 + session->userauth_pblc_method_len +
                                       sig_len));
-            ssh2_store_str(&s, (const char *)session->userauth_pblc_method,
-                           session->userauth_pblc_method_len);
+            ssh2_store_str(&s, session->userauth_pblc_method,
+                               session->userauth_pblc_method_len);
             memcpy(s, sig, sig_len);
             s += sig_len;
         }
@@ -1697,8 +1697,8 @@ retry_auth:
             ssh2_store_u32(&s,
                            (uint32_t)(4 + session->userauth_pblc_method_len +
                                       4 + sig_len));
-            ssh2_store_str(&s, (const char *)session->userauth_pblc_method,
-                           session->userauth_pblc_method_len);
+            ssh2_store_str(&s, session->userauth_pblc_method,
+                               session->userauth_pblc_method_len);
             ssh2_store_str(&s, (const char *)sig, sig_len);
         }
 
