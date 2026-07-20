@@ -23,8 +23,8 @@ int libssh2_userauth_publickey_sk(
     size_t username_len,
     const unsigned char *publickeydata,
     size_t publickeydata_len,
-    const char *privatekeydata,
-    size_t privatekeydata_len,
+    const char *privkeyblob,
+    size_t privkeyblob_len,
     const char *passphrase,
     LIBSSH2_USERAUTH_SK_SIGN_FUNC(*sign_callback),
     void **abstract);
@@ -61,15 +61,15 @@ int name(LIBSSH2_SESSION *session, LIBSSH2_SK_SIG_INFO *sig_info,
 *username_len* - Length of username parameter.
 
 *publickeydata* - Buffer containing the contents of a public key file. If
-NULL, the public key is extracted from the privatekeydata. When using
+NULL, the public key is extracted from the privkeyblob. When using
 certificate authentication, this buffer should contain the public certificate
 data.
 
 *publickeydata_len* - Length of public key data.
 
-*privatekeydata* - Buffer containing the contents of a private key file.
+*privkeyblob* - Buffer containing the contents of a private key file.
 
-*privatekeydata_len* - Length of private key data.
+*privkeyblob_len* - Length of private key data.
 
 *passphrase* - Passphrase to use when decoding private key file.
 
