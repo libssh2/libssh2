@@ -2074,7 +2074,7 @@ static int load_rsa_private_file(LIBSSH2_SESSION *session,
 }
 
 static int os400_pub_privkey_file(LIBSSH2_SESSION *session,
-                                  char **method, size_t *method_len,
+                                  char **method,
                                   unsigned char **pubkeydata,
                                   size_t *pubkeydata_len,
                                   const char *privatekey,
@@ -2084,17 +2084,16 @@ static int os400_pub_privkey_file(LIBSSH2_SESSION *session,
     int ret;
 
     *method = NULL;
-    *method_len = 0;
     *pubkeydata = NULL;
     *pubkeydata_len = 0;
 
     ret = load_rsa_private_file(session, privatekey, passphrase,
                                 rsapkcs1pubkey, rsapkcs8pubkey, (void *)&p);
     if(!ret) {
-        *method_len = strlen(p.method);
-        *method = SSH2_ALLOC(session, *method_len + 1);
+        size_t method_len = strlen(p.method);
+        *method = SSH2_ALLOC(session, method_len + 1);
         if(*method)
-            memcpy(*method, p.method, *method_len + 1);
+            memcpy(*method, p.method, method_len + 1);
         else
             ret = -1;
     }
@@ -2102,7 +2101,6 @@ static int os400_pub_privkey_file(LIBSSH2_SESSION *session,
     if(ret) {
         if(*method)
             SSH2_SAFEFREE(session, *method);
-        *method_len = 0;
         if(p.data)
             SSH2_FREE(session, (void *)p.data);
     }
@@ -2115,7 +2113,7 @@ static int os400_pub_privkey_file(LIBSSH2_SESSION *session,
 }
 
 static int os400_pub_privkey_blob(LIBSSH2_SESSION *session,
-                                  char **method, size_t *method_len,
+                                  char **method,
                                   unsigned char **pubkeydata,
                                   size_t *pubkeydata_len,
                                   const char *privkeyblob,
@@ -2128,7 +2126,6 @@ static int os400_pub_privkey_blob(LIBSSH2_SESSION *session,
     int ret;
 
     *method = NULL;
-    *method_len = 0;
     *pubkeydata = NULL;
     *pubkeydata_len = 0;
 
@@ -2183,17 +2180,16 @@ static int os400_pub_privkey_blob(LIBSSH2_SESSION *session,
         SSH2_FREE(session, data);
 
     if(!ret) {
-        *method_len = strlen(p.method);
-        *method = SSH2_ALLOC(session, *method_len + 1);
+        size_t method_len = strlen(p.method);
+        *method = SSH2_ALLOC(session, method_len + 1);
         if(*method)
-            memcpy(*method, p.method, *method_len + 1);
+            memcpy(*method, p.method, method_len + 1);
         else
             ret = -1;
     }
     if(ret) {
         if(*method)
             SSH2_SAFEFREE(session, *method);
-        *method_len = 0;
         if(p.data)
             SSH2_FREE(session, (void *)p.data);
     }
@@ -2207,19 +2203,19 @@ static int os400_pub_privkey_blob(LIBSSH2_SESSION *session,
 
 /* TODO: merge the two callees into one. */
 int ssh2_pub_privkey(LIBSSH2_SESSION *session,
-                     char **method, size_t *method_len,
+                     char **method,
                      unsigned char **pubkeydata, size_t *pubkeydata_len,
                      const char *privatekey,
                      const char *privkeyblob, size_t privkeyblob_len,
                      const char *passphrase)
 {
     if(privatekey)
-        return os400_pub_privkey_file(session, method, method_len,
+        return os400_pub_privkey_file(session, method,
                                       pubkeydata, pubkeydata_len,
                                       privatekey,
                                       passphrase);
     else
-        return os400_pub_privkey_blob(session, method, method_len,
+        return os400_pub_privkey_blob(session, method,
                                       pubkeydata, pubkeydata_len,
                                       privkeyblob,  privkeyblob_len,
                                       passphrase);

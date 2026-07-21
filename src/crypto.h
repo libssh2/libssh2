@@ -273,14 +273,14 @@ void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx);
 #endif
 
 int ssh2_pub_privkey(LIBSSH2_SESSION *session,
-                     char **method, size_t *method_len,
+                     char **method,
                      unsigned char **pubkeydata, size_t *pubkeydata_len,
                      const char *privatekey,
                      const char *privkeyblob, size_t privkeyblob_len,
                      const char *passphrase);
 
 int ssh2_sk_pubkey(LIBSSH2_SESSION *session,
-                   char **method, size_t *method_len,
+                   char **method,
                    unsigned char **pubkeydata, size_t *pubkeydata_len,
                    int *algorithm, unsigned char *flags,
                    const char **application,

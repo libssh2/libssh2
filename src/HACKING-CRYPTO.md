@@ -415,7 +415,7 @@ Each item is preceded by its 32-bit byte length, MSB first.
 
 ```c
 int ssh2_pub_privkey(LIBSSH2_SESSION *session,
-                     char **method, size_t *method_len,
+                     char **method,
                      unsigned char **pubkeydata, size_t *pubkeydata_len,
                      const char *privatekey,
                      const char *privkeyblob, size_t privkeyblob_len,
@@ -424,7 +424,7 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session,
 Gets a private key from file `privatekey`, or bytes at (`privkeyblob`,
 `privkeyblob_len`) and extracts the public key --> (`pubkeydata`,
 `pubkeydata_len`). Store the associated method (e.g., `ssh-rsa`, `ssh-ed25519`)
-into (`method`, `method_len`).
+into `method`.
 Both buffers have to be allocated using `SSH2_ALLOC()`.
 Returns 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.

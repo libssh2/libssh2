@@ -1000,7 +1000,7 @@ int ssh2_timingsafe_bcmp(const void *b1, const void *b2, size_t n)
 
 #ifndef LIBSSH2_KEY_SK
 int ssh2_sk_pubkey(LIBSSH2_SESSION *session,
-                   char **method, size_t *method_len,
+                   char **method,
                    unsigned char **pubkeydata, size_t *pubkeydata_len,
                    int *algorithm, unsigned char *flags,
                    const char **application,

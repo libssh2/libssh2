@@ -2642,7 +2642,6 @@ static DWORD wcng_pub_priv_write(unsigned char *key, DWORD offset,
 
 static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
                                        char **method,
-                                       size_t *method_len,
                                        unsigned char **pubkeydata,
                                        size_t *pubkeydata_len,
                                        unsigned char *pbEncoded,
@@ -2652,7 +2651,7 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
     DWORD *rcbDecoded = NULL;
     char *method_buf = NULL;
     unsigned char *key = NULL;
-    DWORD keylen = 0, method_buf_len = 0;
+    DWORD keylen = 0;
     DWORD index, offs, length = 0;
     int ret;
 
@@ -2665,34 +2664,34 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
     ret = -1;
 
     if(length == 9) { /* private RSA key */
-        method_buf_len = sizeof("ssh-rsa") - 1;
-        method_buf = SSH2_ALLOC(session, method_buf_len + 1);
+        static const char method_name[] = "ssh-rsa";
+        method_buf = SSH2_ALLOC(session, sizeof(method_name));
         if(!method_buf)
             goto cleanup;
-        memcpy(method_buf, "ssh-rsa", method_buf_len + 1);
+        memcpy(method_buf, method_name, sizeof(method_name));
 
         if(rcbDecoded[2] > (32 * 1024) ||
            rcbDecoded[1] > (32 * 1024))
             goto cleanup;
 
-        keylen = 4 + method_buf_len +
+        keylen = 4 + sizeof(method_name) - 1 +
                  4 + rcbDecoded[2] +
                  4 + rcbDecoded[1];
         key = SSH2_ALLOC(session, keylen);
         if(!key)
             goto cleanup;
 
-        offs = wcng_pub_priv_write(key, 0, method_buf, method_buf_len);
+        offs = wcng_pub_priv_write(key, 0, method_buf, sizeof(method_name) - 1);
         offs = wcng_pub_priv_write(key, offs, rpbDecoded[2], rcbDecoded[2]);
         wcng_pub_priv_write(key, offs, rpbDecoded[1], rcbDecoded[1]);
         ret = 0; /* success */
     }
     else if(length == 6) { /* private DSA key */
-        method_buf_len = sizeof("ssh-dss") - 1;
-        method_buf = SSH2_ALLOC(session, method_buf_len + 1);
+        static const char method_name[] = "ssh-dss";
+        method_buf = SSH2_ALLOC(session, sizeof(method_name));
         if(!method_buf)
             goto cleanup;
-        memcpy(method_buf, "ssh-dss", method_buf_len + 1);
+        memcpy(method_buf, method_name, sizeof(method_name));
 
         if(rcbDecoded[1] > (32 * 1024) ||
            rcbDecoded[2] > (32 * 1024) ||
@@ -2700,7 +2699,7 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
            rcbDecoded[4] > (32 * 1024))
             goto cleanup;
 
-        keylen = 4 + method_buf_len +
+        keylen = 4 + sizeof(method_name) - 1 +
                  4 + rcbDecoded[1] +
                  4 + rcbDecoded[2] +
                  4 + rcbDecoded[3] +
@@ -2709,7 +2708,7 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
         if(!key)
             goto cleanup;
 
-        offs = wcng_pub_priv_write(key, 0, method_buf, method_buf_len);
+        offs = wcng_pub_priv_write(key, 0, method_buf, sizeof(method_name) - 1);
         offs = wcng_pub_priv_write(key, offs, rpbDecoded[1], rcbDecoded[1]);
         offs = wcng_pub_priv_write(key, offs, rpbDecoded[2], rcbDecoded[2]);
         offs = wcng_pub_priv_write(key, offs, rpbDecoded[3], rcbDecoded[3]);
@@ -2736,7 +2735,6 @@ cleanup:
     }
     else {
         *method = method_buf;
-        *method_len = method_buf_len;
         *pubkeydata = key;
         *pubkeydata_len = keylen;
     }
@@ -2745,7 +2743,7 @@ cleanup:
 }
 
 int ssh2_pub_privkey(LIBSSH2_SESSION *session,
-                     char **method, size_t *method_len,
+                     char **method,
                      unsigned char **pubkeydata, size_t *pubkeydata_len,
                      const char *privatekey,
                      const char *privkeyblob, size_t privkeyblob_len,
@@ -2759,7 +2757,7 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session,
                       &pbEncoded, &cbEncoded, 1, 1))
         return -1;
 
-    return wcng_pub_privkey_file_parse(session, method, method_len,
+    return wcng_pub_privkey_file_parse(session, method,
                                        pubkeydata, pubkeydata_len,
                                        pbEncoded, cbEncoded);
 }

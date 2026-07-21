@@ -572,7 +572,7 @@ static unsigned char *mbed_gen_publickey_from_rsa(LIBSSH2_SESSION *session,
 }
 
 static int mbed_pub_priv_key(LIBSSH2_SESSION *session,
-                             char **method, size_t *method_len,
+                             char **method,
                              unsigned char **pubkeydata,
                              size_t *pubkeydata_len,
                              mbedtls_pk_context *pkey)
@@ -612,7 +612,6 @@ static int mbed_pub_priv_key(LIBSSH2_SESSION *session,
     }
     else {
         *method = method_buf;
-        *method_len = method_buf_len;
         *pubkeydata = key;
         *pubkeydata_len = keylen;
     }
@@ -621,7 +620,7 @@ static int mbed_pub_priv_key(LIBSSH2_SESSION *session,
 }
 
 int ssh2_pub_privkey(LIBSSH2_SESSION *session,
-                     char **method, size_t *method_len,
+                     char **method,
                      unsigned char **pubkeydata, size_t *pubkeydata_len,
                      const char *privatekey,
                      const char *privkeyblob, size_t privkeyblob_len,
@@ -665,7 +664,7 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session,
                               SSH2_ERR_FLAG_DUP);
     }
 
-    ret = mbed_pub_priv_key(session, method, method_len,
+    ret = mbed_pub_priv_key(session, method,
                             pubkeydata, pubkeydata_len, &pkey);
 
     mbedtls_pk_free(&pkey);

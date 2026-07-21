@@ -574,7 +574,7 @@ int libssh2_userauth_password_ex(
  */
 static int userauth_read_pubkey(
     LIBSSH2_SESSION *session,
-    char **method, size_t *method_len,
+    char **method,
     unsigned char **pubkeydata, size_t *pubkeydata_len,
     const char *pubkeyfile,
     const char *pubkeyblob, size_t pubkeyblob_len)
@@ -675,8 +675,7 @@ static int userauth_read_pubkey(
        to be freed soon anyway, we avoid the extra free/alloc and call
        it a wash */
     *method = (char *)pubkey;
-    *method_len = sp1 - pubkey - 1;
-    (*method)[*method_len] = '\0';
+    (*method)[sp1 - pubkey - 1] = '\0';
 
     *pubkeydata = tmp;
     *pubkeydata_len = tmp_len;
@@ -915,13 +914,11 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         if(publickey)
             rc = userauth_read_pubkey(session,
                                       &session->userauth_host_method,
-                                      &session->userauth_host_method_len,
                                       &pubkeydata, &pubkeydata_len,
                                       publickey, NULL, 0);
         else /* Compute public key from private key. */
             rc = ssh2_pub_privkey(session,
                                   &session->userauth_host_method,
-                                  &session->userauth_host_method_len,
                                   &pubkeydata, &pubkeydata_len,
                                   privatekey, NULL, 0, passphrase);
 
@@ -1791,14 +1788,12 @@ static int userauth_publickey(LIBSSH2_SESSION *session,
         if(pubkeyfile || (pubkeyblob && pubkeyblob_len))
             rc = userauth_read_pubkey(session,
                                       &session->userauth_pblc_method,
-                                      &session->userauth_pblc_method_len,
                                       &pubkeydata, &pubkeydata_len,
                                       pubkeyfile, pubkeyblob, pubkeyblob_len);
         /* Compute public key from private key. */
         else if(privkeyfile || (privkeyblob && privkeyblob_len))
             rc = ssh2_pub_privkey(session,
                                   &session->userauth_pblc_method,
-                                  &session->userauth_pblc_method_len,
                                   &pubkeydata, &pubkeydata_len,
                                   privkeyfile, privkeyblob, privkeyblob_len,
                                   passphrase);
@@ -2175,7 +2170,6 @@ int libssh2_userauth_publickey_sk(
     int rc = LIBSSH2_ERROR_NONE;
 
     char *tmp_method = NULL;
-    size_t tmp_method_len = 0;
 
     unsigned char *tmp_publickeydata = NULL;
     size_t tmp_publickeydata_len = 0;
@@ -2196,7 +2190,6 @@ int libssh2_userauth_publickey_sk(
 
         if(ssh2_sk_pubkey(session,
                           &tmp_method,
-                          &tmp_method_len,
                           &tmp_publickeydata,
                           &tmp_publickeydata_len,
                           &sk_info.algorithm,
@@ -2210,7 +2203,6 @@ int libssh2_userauth_publickey_sk(
                             "Unable to extract public key from private key.");
         else if(publickeydata_len == 0 || !publickeydata) {
             session->userauth_pblc_method = tmp_method;
-            session->userauth_pblc_method_len = tmp_method_len;
 
             pubkeydata_len = tmp_publickeydata_len;
             pubkeydata = tmp_publickeydata;
@@ -2221,7 +2213,6 @@ int libssh2_userauth_publickey_sk(
 
             rc = userauth_read_pubkey(session,
                                       &session->userauth_pblc_method,
-                                      &session->userauth_pblc_method_len,
                                       &pubkeydata, &pubkeydata_len,
                                       NULL,
                                       (const char *)publickeydata,
