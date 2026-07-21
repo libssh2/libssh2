@@ -2177,7 +2177,10 @@ cleanup:
                                     "Private key is not an ED25519 key");
                 }
 
-                *ed_ctx = ctx;
+                if(ed_ctx)
+                    *ed_ctx = ctx;
+                else
+                    ssh2_ed25519_free(ctx);
                 return 0;
             }
         }
