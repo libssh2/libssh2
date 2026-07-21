@@ -1105,13 +1105,9 @@ static unsigned char *ossl_rsa_to_pubkey(LIBSSH2_SESSION *session,
 
     /* Key form is "ssh-rsa" + e + n. */
     len = 4 + 7 + 4 + e_bytes + 4 + n_bytes;
-
-    key = SSH2_ALLOC(session, len);
+    key = p = SSH2_ALLOC(session, len);
     if(!key)
         goto fail;
-
-    /* Process key encoding. */
-    p = key;
 
     ssh2_htonu32(p, 7); /* Key type. */
     p += 4;
@@ -1491,13 +1487,9 @@ static unsigned char *ossl_dsa_to_pubkey(LIBSSH2_SESSION *session,
 
     /* Key form is "ssh-dss" + p + q + g + pub_key. */
     len = 4 + 7 + 4 + p_bytes + 4 + q_bytes + 4 + g_bytes + 4 + k_bytes;
-
-    key = SSH2_ALLOC(session, len);
+    key = p = SSH2_ALLOC(session, len);
     if(!key)
         goto fail;
-
-    /* Process key encoding. */
-    p = key;
 
     ssh2_htonu32(p, 7); /* Key type. */
     p += 4;
@@ -2099,14 +2091,12 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
     /* Key form is: type_len(4) + type(26) + pub_key_len(4) +
        pub_key(32) + application_len(4) + application(X). */
     key_len = SSH2_ED25519_KEY_LEN + 38 + app_len;
-    key = SSH2_CALLOC(session, key_len);
+    key = p = SSH2_CALLOC(session, key_len);
     if(!key) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                  "Unable to allocate memory for ED25519 key");
         goto clean_exit;
     }
-
-    p = key;
 
     ssh2_store_str(&p, method_name, sizeof(method_name) - 1);
     ssh2_store_str(&p, (const char *)pub_key, SSH2_ED25519_KEY_LEN);
@@ -2799,14 +2789,11 @@ static int ossl_ecdsa_evp_to_pubkey(LIBSSH2_SESSION *session,
     /* Key form is: type_len(4) + type(method_buf_len) + domain_len(4)
        + domain(8) + pub_key_len(4) + pub_key(~65). */
     key_len = 4 + method_buf_len + 4 + 8 + 4 + octal_len;
-    key = SSH2_ALLOC(session, key_len);
+    key = p = SSH2_ALLOC(session, key_len);
     if(!key) {
         rc = -1;
         goto clean_exit;
     }
-
-    /* Process key encoding. */
-    p = key;
 
     /* Key type */
     ssh2_store_str(&p, (const char *)method_buf, method_buf_len);
@@ -3069,13 +3056,13 @@ static int ossl_ecdsa_sk_openssh_priv_to_pubkey(
 
     if(rc == 0 && pubkeydata) {
         key_len = *pubkeydata_len + app_len + 4;
-        key = SSH2_ALLOC(session, key_len);
+        key = p = SSH2_ALLOC(session, key_len);
         if(!key) {
             rc = -1;
             goto fail;
         }
 
-        p = key + *pubkeydata_len;
+        p += *pubkeydata_len;
 
         memcpy(key, *pubkeydata, *pubkeydata_len);
         ssh2_store_str(&p, (const char *)app, app_len);
