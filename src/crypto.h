@@ -279,14 +279,15 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session,
                      const char *privkeyblob, size_t privkeyblob_len,
                      const char *passphrase);
 
-int ssh2_sk_pubkey_blob(LIBSSH2_SESSION *session,
-                        char **method, size_t *method_len,
-                        unsigned char **pubkeydata, size_t *pubkeydata_len,
-                        int *algorithm, unsigned char *flags,
-                        const char **application,
-                        const unsigned char **key_handle, size_t *handle_len,
-                        const char *privkeyblob, size_t privkeyblob_len,
-                        const char *passphrase);
+int ssh2_sk_pubkey(LIBSSH2_SESSION *session,
+                   char **method, size_t *method_len,
+                   unsigned char **pubkeydata, size_t *pubkeydata_len,
+                   int *algorithm, unsigned char *flags,
+                   const char **application,
+                   const unsigned char **key_handle, size_t *handle_len,
+                   const char *privatekey,
+                   const char *privkeyblob, size_t privkeyblob_len,
+                   const char *passphrase);
 
 #ifndef ssh2_bn_ctx
 #define ssh2_bn_ctx              int

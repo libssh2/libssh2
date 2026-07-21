@@ -1005,6 +1005,7 @@ int ssh2_sk_pubkey_blob(LIBSSH2_SESSION *session,
                         int *algorithm, unsigned char *flags,
                         const char **application,
                         const unsigned char **key_handle, size_t *handle_len,
+                        const char *privatekey,
                         const char *privkeyblob, size_t privkeyblob_len,
                         const char *passphrase)
 {
@@ -1017,12 +1018,13 @@ int ssh2_sk_pubkey_blob(LIBSSH2_SESSION *session,
     (void)application;
     (void)key_handle;
     (void)handle_len;
+    (void)privatekey;
     (void)privkeyblob;
     (void)privkeyblob_len;
     (void)passphrase;
 
     return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                    "Unable to extract public SK key from private key file: "
+                    "Unable to extract public SK key from private key: "
                     "Method unimplemented in "
                     SSH2_CRYPTO_ENGINE_NAME " backend");
 }

@@ -2192,18 +2192,18 @@ int libssh2_userauth_publickey_sk(
 
     if(privkeyblob_len && privkeyblob) {
 
-        if(ssh2_sk_pubkey_blob(session,
-                               &tmp_method,
-                               &tmp_method_len,
-                               &tmp_publickeydata,
-                               &tmp_publickeydata_len,
-                               &sk_info.algorithm,
-                               &sk_info.flags,
-                               &sk_info.application,
-                               &sk_info.key_handle,
-                               &sk_info.handle_len,
-                               privkeyblob, privkeyblob_len,
-                               passphrase))
+        if(ssh2_sk_pubkey(session,
+                          &tmp_method,
+                          &tmp_method_len,
+                          &tmp_publickeydata,
+                          &tmp_publickeydata_len,
+                          &sk_info.algorithm,
+                          &sk_info.flags,
+                          &sk_info.application,
+                          &sk_info.key_handle,
+                          &sk_info.handle_len,
+                          NULL, privkeyblob, privkeyblob_len,
+                          passphrase))
             return ssh2_err(session, LIBSSH2_ERROR_FILE,
                             "Unable to extract public key from private key.");
         else if(publickeydata_len == 0 || !publickeydata) {

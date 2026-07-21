@@ -3772,18 +3772,21 @@ cleanup:
     return rc;
 }
 
-int ssh2_sk_pubkey_blob(LIBSSH2_SESSION *session,
-                        char **method, size_t *method_len,
-                        unsigned char **pubkeydata, size_t *pubkeydata_len,
-                        int *algorithm, unsigned char *flags,
-                        const char **application,
-                        const unsigned char **key_handle, size_t *handle_len,
-                        const char *privkeyblob, size_t privkeyblob_len,
-                        const char *passphrase)
+int ssh2_sk_pubkey(LIBSSH2_SESSION *session,
+                   char **method, size_t *method_len,
+                   unsigned char **pubkeydata, size_t *pubkeydata_len,
+                   int *algorithm, unsigned char *flags,
+                   const char **application,
+                   const unsigned char **key_handle, size_t *handle_len,
+                   const char *privatekey,
+                   const char *privkeyblob, size_t privkeyblob_len,
+                   const char *passphrase)
 {
     int rc;
     unsigned char *buf = NULL;
     struct string_buf *decrypted = NULL;
+
+    (void)privatekey;  /* TODO: add support for loading from filename */
 
     if(!session)
         return LIBSSH2_ERROR_BAD_USE;
