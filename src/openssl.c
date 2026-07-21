@@ -3659,7 +3659,6 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
     }
 
     rc = ssh2_openssh_pem_parse_FILE(session, fp, passphrase, &decrypted);
-
     fclose(fp);
     if(rc) {
         ssh2_err(session, LIBSSH2_ERROR_FILE, "Not an OpenSSH key file");
@@ -3827,8 +3826,7 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
 
     OSSL_INIT_IF_NEEDED();
 
-    rc = ssh2_openssh_pem_parse_blob(session,
-                                     privkeyblob, privkeyblob_len,
+    rc = ssh2_openssh_pem_parse_blob(session, privkeyblob, privkeyblob_len,
                                      passphrase,
                                      &decrypted);
     if(rc)
@@ -3931,8 +3929,7 @@ int ssh2_sk_pubkey_blob(LIBSSH2_SESSION *session,
 
     OSSL_INIT_IF_NEEDED();
 
-    rc = ssh2_openssh_pem_parse_blob(session,
-                                     privkeyblob, privkeyblob_len,
+    rc = ssh2_openssh_pem_parse_blob(session, privkeyblob, privkeyblob_len,
                                      passphrase,
                                      &decrypted);
     if(rc)

@@ -1062,8 +1062,7 @@ static int mbed_ecdsa_curve_type_from_name(const char *name,
 
 static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
                                   LIBSSH2_SESSION *session,
-                                  const unsigned char *data,
-                                  size_t data_len,
+                                  const char *data, size_t data_len,
                                   const char *passphrase)
 {
     ssh2_curve_type type;
@@ -1072,8 +1071,7 @@ static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
     size_t curvelen, exponentlen, pointlen;
     unsigned char *curve, *exponent, *point_buf;
 
-    if(ssh2_openssh_pem_parse_blob(session,
-                                   (const char *)data, data_len,
+    if(ssh2_openssh_pem_parse_blob(session, data, data_len,
                                    passphrase, &decrypted))
         goto failed;
 
@@ -1139,7 +1137,7 @@ int ssh2_ecdsa_new_priv_from_file(ssh2_ecdsa_ctx **ec_ctx,
                                   const char *passphrase)
 {
     mbedtls_pk_context pkey;
-    unsigned char *data = NULL;
+    char *data = NULL;
     size_t data_len = 0;
     FILE *fp = NULL;
     long file_size;
@@ -1193,7 +1191,7 @@ int ssh2_ecdsa_new_priv_from_blob(ssh2_ecdsa_ctx **ec_ctx,
                                   const char *blob, size_t blob_len,
                                   const char *passphrase)
 {
-    unsigned char *data_nullterm;
+    char *data_nullterm;
     mbedtls_pk_context pkey;
 
     (void)session;
