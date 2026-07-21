@@ -1845,23 +1845,23 @@ static int ossl_ed25519_evp_to_pubkey(LIBSSH2_SESSION *session,
                                       size_t *pubkeydata_len,
                                       EVP_PKEY *pk)
 {
-    const char methodName[] = "ssh-ed25519";
-    char *methodBuf = NULL;
+    const char method_name[] = "ssh-ed25519";
+    char *method_buf = NULL;
     size_t rawKeyLen = 0;
-    unsigned char *keyBuf = NULL;
+    unsigned char *pub_key = NULL;
     size_t bufLen = 0;
     unsigned char *bufPos = NULL;
 
     ssh2_deb((session, LIBSSH2_TRACE_AUTH,
               "Computing public key from ED private key envelope"));
 
-    methodBuf = SSH2_ALLOC(session, sizeof(methodName) - 1);
-    if(!methodBuf) {
+    method_buf = SSH2_ALLOC(session, sizeof(method_name) - 1);
+    if(!method_buf) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                  "Unable to allocate memory for private key data");
         goto fail;
     }
-    memcpy(methodBuf, methodName, sizeof(methodName) - 1);
+    memcpy(method_buf, method_name, sizeof(method_name) - 1);
 
     if(EVP_PKEY_get_raw_public_key(pk, NULL, &rawKeyLen) != 1) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -1870,15 +1870,15 @@ static int ossl_ed25519_evp_to_pubkey(LIBSSH2_SESSION *session,
     }
 
     /* Key form is: type_len(4) + type(11) + pub_key_len(4) + pub_key(32). */
-    bufLen = 4 + sizeof(methodName) - 1 + 4 + rawKeyLen;
-    bufPos = keyBuf = SSH2_ALLOC(session, bufLen);
-    if(!keyBuf) {
+    bufLen = 4 + sizeof(method_name) - 1 + 4 + rawKeyLen;
+    bufPos = pub_key = SSH2_ALLOC(session, bufLen);
+    if(!pub_key) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                  "Unable to allocate memory for private key data");
         goto fail;
     }
 
-    ssh2_store_str(&bufPos, methodName, sizeof(methodName) - 1);
+    ssh2_store_str(&bufPos, method_name, sizeof(method_name) - 1);
     ssh2_store_u32(&bufPos, (uint32_t)rawKeyLen);
 
     if(EVP_PKEY_get_raw_public_key(pk, bufPos, &rawKeyLen) != 1) {
@@ -1887,21 +1887,21 @@ static int ossl_ed25519_evp_to_pubkey(LIBSSH2_SESSION *session,
         goto fail;
     }
 
-    *method = methodBuf;
+    *method = method_buf;
     if(method_len)
-        *method_len = sizeof(methodName) - 1;
+        *method_len = sizeof(method_name) - 1;
 
-    *pubkeydata = keyBuf;
+    *pubkeydata = pub_key;
     if(pubkeydata_len)
         *pubkeydata_len = bufLen;
 
     return 0;
 
 fail:
-    if(methodBuf)
-        SSH2_FREE(session, methodBuf);
-    if(keyBuf)
-        SSH2_FREE(session, keyBuf);
+    if(method_buf)
+        SSH2_FREE(session, method_buf);
+    if(pub_key)
+        SSH2_FREE(session, pub_key);
     return -1;
 }
 
@@ -1914,6 +1914,7 @@ static int ossl_ed25519_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
                                                ssh2_ed25519_ctx **ed_ctx)
 {
     ssh2_ed25519_ctx *ctx = NULL;
+    const char method_name[] = "ssh-ed25519";
     char *method_buf = NULL;
     unsigned char *key = NULL;
     int i;
@@ -1966,16 +1967,15 @@ static int ossl_ed25519_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     ssh2_deb((session, LIBSSH2_TRACE_AUTH,
               "Computing public key from ED25519 private key envelope"));
 
-    method_buf = SSH2_ALLOC(session, 11); /* ssh-ed25519. */
+    method_buf = SSH2_ALLOC(session, sizeof(method_name) - 1);
     if(!method_buf) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                  "Unable to allocate memory for ED25519 key");
         goto clean_exit;
     }
 
-    /* Key form is: type_len(4) + type(11) + pub_key_len(4) +
-       pub_key(32). */
-    key_len = SSH2_ED25519_KEY_LEN + 19;
+    /* Key form is: type_len(4) + type(11) + pub_key_len(4) + pub_key(32). */
+    key_len = 4 + sizeof(method_name) - 1 + 4 + SSH2_ED25519_KEY_LEN;
     key = SSH2_CALLOC(session, key_len);
     if(!key) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
@@ -1985,11 +1985,11 @@ static int ossl_ed25519_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
 
     p = key;
 
-    ssh2_store_str(&p, "ssh-ed25519", 11);
+    ssh2_store_str(&p, method_name, sizeof(method_name) - 1);
     ssh2_store_str(&p, (const char *)pub_key, SSH2_ED25519_KEY_LEN);
 
     /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
-    memcpy(method_buf, "ssh-ed25519", 11);
+    memcpy(method_buf, method_name, sizeof(method_name) - 1);
 
     if(method)
         *method = method_buf;
