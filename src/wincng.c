@@ -2763,7 +2763,9 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
         else
             ret = -1;
 
-        keylen = 4 + method_buf_len + 4 + rcbDecoded[2] + 4 + rcbDecoded[1];
+        keylen = 4 + method_buf_len +
+                 4 + rcbDecoded[2] +
+                 4 + rcbDecoded[1];
         key = SSH2_ALLOC(session, keylen);
         if(key) {
             offset = wcng_pub_priv_write(key, 0,
@@ -2785,8 +2787,11 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
         else
             ret = -1;
 
-        keylen = 4 + method_buf_len + 4 + rcbDecoded[1] + 4 + rcbDecoded[2] +
-                 4 + rcbDecoded[3] + 4 + rcbDecoded[4];
+        keylen = 4 + method_buf_len +
+                 4 + rcbDecoded[1] +
+                 4 + rcbDecoded[2] +
+                 4 + rcbDecoded[3] +
+                 4 + rcbDecoded[4];
         key = SSH2_ALLOC(session, keylen);
         if(key) {
             offset = wcng_pub_priv_write(key, 0,
