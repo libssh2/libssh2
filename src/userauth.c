@@ -1131,20 +1131,28 @@ int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
 
 void ssh2_userauth_plain_method(char *method)
 {
-    if(!strcmp("ssh-rsa-cert-v01@openssh.com", method))
+    if(!strcmp("ssh-rsa-cert-v01@openssh.com", method)) {
+        method[sizeof("ssh-rsa") - 1] = '\0';
         return;
+    }
 
     if(!strcmp("rsa-sha2-256-cert-v01@openssh.com", method) ||
-       !strcmp("rsa-sha2-512-cert-v01@openssh.com", method))
+       !strcmp("rsa-sha2-512-cert-v01@openssh.com", method)) {
+        method[sizeof("rsa-sha2-999") - 1] = '\0';
         return;
+    }
 
     if(!strcmp("ecdsa-sha2-nistp256-cert-v01@openssh.com", method) ||
        !strcmp("ecdsa-sha2-nistp384-cert-v01@openssh.com", method) ||
-       !strcmp("ecdsa-sha2-nistp521-cert-v01@openssh.com", method))
+       !strcmp("ecdsa-sha2-nistp521-cert-v01@openssh.com", method)) {
+        method[sizeof("ecdsa-sha2-nistp999") - 1] = '\0';
         return;
+    }
 
-    if(!strcmp("ssh-ed25519-cert-v01@openssh.com", method))
+    if(!strcmp("ssh-ed25519-cert-v01@openssh.com", method)) {
+        method[sizeof("ssh-ed25519") - 1] = '\0';
         return;
+    }
 
     if(!strcmp("sk-ecdsa-sha2-nistp256-cert-v01@openssh.com", method)) {
         const char new_method[] = "sk-ecdsa-sha2-nistp256@openssh.com";
