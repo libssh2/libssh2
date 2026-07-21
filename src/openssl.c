@@ -1123,7 +1123,7 @@ static int ossl_rsa_evp_to_pubkey(LIBSSH2_SESSION *session,
         /* Assume memory allocation error... what else could it be? */
         goto alloc_error;
 
-    method_buf = SSH2_ALLOC(session, 7); /* ssh-rsa. */
+    method_buf = SSH2_ALLOC(session, sizeof("ssh-rsa"));
     if(!method_buf)
         goto alloc_error;
 
@@ -1134,11 +1134,10 @@ static int ossl_rsa_evp_to_pubkey(LIBSSH2_SESSION *session,
     RSA_free(rsa);
 #endif
 
-    /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
-    memcpy(method_buf, "ssh-rsa", 7);
+    memcpy(method_buf, "ssh-rsa", sizeof("ssh-rsa"));
     *method = method_buf;
     if(method_len)
-        *method_len = 7;
+        *method_len = sizeof("ssh-rsa") - 1;
 
     *pubkeydata = key;
     if(pubkeydata_len)
@@ -1494,7 +1493,7 @@ static int ossl_dsa_evp_to_pubkey(LIBSSH2_SESSION *session,
         /* Assume memory allocation error... what else could it be ? */
         goto alloc_error;
 
-    method_buf = SSH2_ALLOC(session, 7); /* ssh-dss. */
+    method_buf = SSH2_ALLOC(session, sizeof("ssh-dss"));
     if(!method_buf)
         goto alloc_error;
 
@@ -1505,11 +1504,10 @@ static int ossl_dsa_evp_to_pubkey(LIBSSH2_SESSION *session,
     DSA_free(dsa);
 #endif
 
-    /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
-    memcpy(method_buf, "ssh-dss", 7);
+    memcpy(method_buf, "ssh-dss", sizeof("ssh-dss"));
     *method = method_buf;
     if(method_len)
-        *method_len = 7;
+        *method_len = sizeof("ssh-dss") - 1;
 
     *pubkeydata = key;
     if(pubkeydata_len)
