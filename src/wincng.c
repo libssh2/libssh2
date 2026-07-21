@@ -2757,9 +2757,9 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
 
     if(length == 9) { /* private RSA key */
         mthlen = 7;
-        mth = SSH2_ALLOC(session, mthlen);
+        mth = SSH2_ALLOC(session, mthlen + 1);
         if(mth)
-            memcpy(mth, "ssh-rsa", mthlen);
+            memcpy(mth, "ssh-rsa", mthlen + 1);
         else
             ret = -1;
 
@@ -2778,9 +2778,9 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
     }
     else if(length == 6) { /* private DSA key */
         mthlen = 7;
-        mth = SSH2_ALLOC(session, mthlen);
+        mth = SSH2_ALLOC(session, mthlen + 1);
         if(mth)
-            memcpy(mth, "ssh-dss", mthlen);
+            memcpy(mth, "ssh-dss", mthlen + 1);
         else
             ret = -1;
 

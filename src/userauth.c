@@ -676,6 +676,8 @@ static int userauth_read_pubkey(
        it a wash */
     *method = (char *)pubkey;
     *method_len = sp1 - pubkey - 1;
+    /* keep the method name null-terminated, overwriting the separator */
+    pubkey[*method_len] = '\0';
 
     *pubkeydata = tmp;
     *pubkeydata_len = tmp_len;
@@ -1133,47 +1135,38 @@ int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
     return rc;
 }
 
-size_t ssh2_userauth_plain_method(char *method, size_t method_len)
+/* `method` is null-terminated, and the replacement names below are shorter
+   than the cert names they replace, so the in-place rewrites always fit */
+size_t ssh2_userauth_plain_method(char *method)
 {
-    if(!strncmp("ssh-rsa-cert-v01@openssh.com",
-                method, method_len))
+    if(!strcmp("ssh-rsa-cert-v01@openssh.com", method))
         return 7;
 
-    if(!strncmp("rsa-sha2-256-cert-v01@openssh.com",
-                method, method_len) ||
-       !strncmp("rsa-sha2-512-cert-v01@openssh.com",
-                method, method_len))
+    if(!strcmp("rsa-sha2-256-cert-v01@openssh.com", method) ||
+       !strcmp("rsa-sha2-512-cert-v01@openssh.com", method))
         return 12;
 
-    if(!strncmp("ecdsa-sha2-nistp256-cert-v01@openssh.com",
-                method, method_len) ||
-       !strncmp("ecdsa-sha2-nistp384-cert-v01@openssh.com",
-                method, method_len) ||
-       !strncmp("ecdsa-sha2-nistp521-cert-v01@openssh.com",
-                method, method_len))
+    if(!strcmp("ecdsa-sha2-nistp256-cert-v01@openssh.com", method) ||
+       !strcmp("ecdsa-sha2-nistp384-cert-v01@openssh.com", method) ||
+       !strcmp("ecdsa-sha2-nistp521-cert-v01@openssh.com", method))
         return 19;
 
-    if(!strncmp("ssh-ed25519-cert-v01@openssh.com",
-                method, method_len))
+    if(!strcmp("ssh-ed25519-cert-v01@openssh.com", method))
         return 11;
 
-    if(!strncmp("sk-ecdsa-sha2-nistp256-cert-v01@openssh.com",
-                method, method_len)) {
+    if(!strcmp("sk-ecdsa-sha2-nistp256-cert-v01@openssh.com", method)) {
         const char *new_method = "sk-ecdsa-sha2-nistp256@openssh.com";
-        /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
-        memcpy(method, new_method, strlen(new_method));
+        memcpy(method, new_method, strlen(new_method) + 1);
         return strlen(new_method);
     }
 
-    if(!strncmp("sk-ssh-ed25519-cert-v01@openssh.com",
-                method, method_len)) {
+    if(!strcmp("sk-ssh-ed25519-cert-v01@openssh.com", method)) {
         const char *new_method = "sk-ssh-ed25519@openssh.com";
-        /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
-        memcpy(method, new_method, strlen(new_method));
+        memcpy(method, new_method, strlen(new_method) + 1);
         return strlen(new_method);
     }
 
-    return method_len;
+    return strlen(method);
 }
 
 /* Function to check if the given version is less than pattern (OpenSSH 7.8)
@@ -1374,19 +1367,20 @@ static int userauth_key_sign_algs(LIBSSH2_SESSION *session,
         if(*method && *method_len == rsa_method_len &&
            !memcmp(*method, rsa_method, rsa_method_len)) {
             SSH2_FREE(session, *method);
-            *method = SSH2_ALLOC(session, match_len + suffix_len);
+            *method = SSH2_ALLOC(session, match_len + suffix_len + 1);
             if(*method) {
                 memcpy(*method, match, match_len);
-                memcpy(*method + match_len, suffix, suffix_len);
+                memcpy(*method + match_len, suffix, suffix_len + 1);
                 *method_len = match_len + suffix_len;
             }
         }
         else {
             if(*method)
                 SSH2_FREE(session, *method);
-            *method = SSH2_ALLOC(session, match_len);
+            *method = SSH2_ALLOC(session, match_len + 1);
             if(*method) {
                 memcpy(*method, match, match_len);
+                (*method)[match_len] = '\0';
                 *method_len = match_len;
             }
         }
@@ -1466,13 +1460,15 @@ retry_auth:
                                 "Invalid public key");
 
             session->userauth_pblc_method_len = 0;
-            session->userauth_pblc_method = SSH2_ALLOC(session, method_len);
+            session->userauth_pblc_method = SSH2_ALLOC(session,
+                                                       method_len + 1);
             if(!session->userauth_pblc_method)
                 return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                 "Unable to allocate memory "
                                 "for public key data");
             session->userauth_pblc_method_len = method_len;
             memcpy(session->userauth_pblc_method, pubkeydata + 4, method_len);
+            session->userauth_pblc_method[method_len] = '\0';
         }
 
         /* upgrade key signing algo if it is supported and
@@ -1675,15 +1671,12 @@ retry_auth:
         session->userauth_pblc_b = NULL;
 
         session->userauth_pblc_method_len =
-            ssh2_userauth_plain_method(session->userauth_pblc_method,
-                                       session->userauth_pblc_method_len);
+            ssh2_userauth_plain_method(session->userauth_pblc_method);
 
-        if(!strncmp(session->userauth_pblc_method,
-                    "sk-ecdsa-sha2-nistp256@openssh.com",
-                    session->userauth_pblc_method_len) ||
-           !strncmp(session->userauth_pblc_method,
-                    "sk-ssh-ed25519@openssh.com",
-                    session->userauth_pblc_method_len)) {
+        if(!strcmp(session->userauth_pblc_method,
+                   "sk-ecdsa-sha2-nistp256@openssh.com") ||
+           !strcmp(session->userauth_pblc_method,
+                   "sk-ssh-ed25519@openssh.com")) {
             ssh2_store_u32(&s,
                            (uint32_t)(4 + session->userauth_pblc_method_len +
                                       sig_len));

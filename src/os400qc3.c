@@ -2112,9 +2112,9 @@ int ssh2_pub_privkey_file(LIBSSH2_SESSION *session,
                                 rsapkcs1pubkey, rsapkcs8pubkey, (void *)&p);
     if(!ret) {
         *method_len = strlen(p.method);
-        *method = SSH2_ALLOC(session, *method_len);
+        *method = SSH2_ALLOC(session, *method_len + 1);
         if(*method)
-            memcpy((char *)*method, p.method, *method_len);
+            memcpy((char *)*method, p.method, *method_len + 1);
         else
             ret = -1;
     }
@@ -2276,9 +2276,9 @@ int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
 
     if(!ret) {
         *method_len = strlen(p.method);
-        *method = SSH2_ALLOC(session, *method_len);
+        *method = SSH2_ALLOC(session, *method_len + 1);
         if(*method)
-            memcpy(*method, p.method, *method_len);
+            memcpy(*method, p.method, *method_len + 1);
         else
             ret = -1;
     }

@@ -617,9 +617,9 @@ static int mbed_pub_priv_key(LIBSSH2_SESSION *session,
 
     /* write method */
     mthlen = 7;
-    mth = SSH2_ALLOC(session, mthlen);
+    mth = SSH2_ALLOC(session, mthlen + 1);
     if(mth)
-        memcpy(mth, "ssh-rsa", mthlen);
+        memcpy(mth, "ssh-rsa", mthlen + 1);
     else
         ret = -1;
 
