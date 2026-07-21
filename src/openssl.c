@@ -1407,11 +1407,11 @@ cleanup:
 #endif
 
 #if LIBSSH2_DSA
-int ssh2_dsa_new_priv_from_blob(ssh2_dsa_ctx **dsa,
-                                LIBSSH2_SESSION *session,
-                                const char *filename,
-                                const char *blob, size_t blob_len,
-                                const char *passphrase)
+int ssh2_dsa_new_priv(ssh2_dsa_ctx **dsa,
+                      LIBSSH2_SESSION *session,
+                      const char *filename,
+                      const char *blob, size_t blob_len,
+                      const char *passphrase)
 {
     int rc = 0;
     BIO *bp;
