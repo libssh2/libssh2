@@ -240,7 +240,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
             goto error;
         }
         memcpy(entry->key, key, keylen);
-        entry->key[keylen] = '\0'
+        entry->key[keylen] = '\0';
     }
     else {
         /* key is raw, we base64 encode it and store it as such */
