@@ -3799,7 +3799,7 @@ int ssh2_sk_pubkey(LIBSSH2_SESSION *session,
     if(privatekey) {
         FILE *fp = ssh2_fopen(privatekey, "rb");
         if(!fp)
-            return ssh2_err(session, LIBSSH2_ERROR_INVAL,
+            return ssh2_err(session, LIBSSH2_ERROR_FILE,
                             "Opening the private key failed");
         rc = ssh2_openssh_pem_parse_FILE(session, fp, passphrase, &decrypted);
         fclose(fp);
