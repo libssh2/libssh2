@@ -1697,36 +1697,6 @@ int ssh2_dsa_new_priv(ssh2_dsa_ctx **dsa,
 }
 #endif /* LIBSSH2_DSA */
 
-#if LIBSSH2_ECDSA
-int ssh2_ecdsa_new_priv_from_blob(ssh2_ecdsa_ctx **ec_ctx,
-                                  LIBSSH2_SESSION *session,
-                                  const char *blob, size_t blob_len,
-                                  const char *passphrase)
-{
-    int rc = 0;
-    BIO *bp;
-
-    OSSL_INIT_IF_NEEDED();
-
-    bp = BIO_new_mem_buf(blob, (int)blob_len);
-    if(bp)
-#ifdef USE_OPENSSL_3
-        *ec_ctx = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
-                                          SSH2_UNCONST(passphrase));
-#else
-        *ec_ctx = PEM_read_bio_ECPrivateKey(bp, NULL, ossl_passphrase_cb,
-                                            SSH2_UNCONST(passphrase));
-#endif
-    BIO_free(bp);
-
-    if(!*ec_ctx)
-        rc = ossl_key_from_openssh_blob(session, (void **)ec_ctx, "ssh-ecdsa",
-                                        NULL, NULL, NULL, NULL,
-                                        blob, blob_len, passphrase);
-    return rc;
-}
-#endif /* LIBSSH2_ECDSA */
-
 #if LIBSSH2_ED25519
 
 int ssh2_curve25519_new(LIBSSH2_SESSION *session,
@@ -3129,17 +3099,22 @@ cleanup:
     return rc;
 }
 
-int ssh2_ecdsa_new_priv_from_file(ssh2_ecdsa_ctx **ec_ctx,
-                                  LIBSSH2_SESSION *session,
-                                  const char *filename,
-                                  const char *passphrase)
+#if LIBSSH2_ECDSA
+int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
+                        LIBSSH2_SESSION *session,
+                        const char *filename,
+                        const char *blob, size_t blob_len,
+                        const char *passphrase)
 {
     int rc = 0;
     BIO *bp;
 
     OSSL_INIT_IF_NEEDED();
 
-    bp = BIO_new_file(filename, "r");
+    if(filename)
+        bp = BIO_new_file(filename, "r");
+    else
+        bp = BIO_new_mem_buf(blob, (int)blob_len);
     if(bp)
 #ifdef USE_OPENSSL_3
         *ec_ctx = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
@@ -3150,11 +3125,18 @@ int ssh2_ecdsa_new_priv_from_file(ssh2_ecdsa_ctx **ec_ctx,
 #endif
     BIO_free(bp);
 
-    if(!*ec_ctx)
-        rc = ossl_ecdsa_openssh_priv_new(ec_ctx, session, filename,
-                                         passphrase);
+    if(!*ec_ctx) {
+        if(filename)
+            rc = ossl_ecdsa_openssh_priv_new(ec_ctx, session, filename,
+                                             passphrase);
+        else
+            rc = ossl_key_from_openssh_blob(session, (void **)ec_ctx, "ssh-ecdsa",
+                                            NULL, NULL, NULL, NULL,
+                                            blob, blob_len, passphrase);
+    }
     return rc;
 }
+#endif /* LIBSSH2_ECDSA */
 
 /*
  * Creates a local private key based on input curve
