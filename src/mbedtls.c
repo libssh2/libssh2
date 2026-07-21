@@ -616,10 +616,10 @@ static int mbed_pub_priv_key(LIBSSH2_SESSION *session,
     ret = 0;
 
     /* write method */
-    mthlen = sizeof("ssh-rsa");
-    mth = SSH2_ALLOC(session, mthlen + 1);
+    mthlen = sizeof("ssh-rsa") - 1;
+    mth = SSH2_ALLOC(session, mthlen);
     if(mth)
-        memcpy(mth, "ssh-rsa", mthlen + 1);
+        memcpy(mth, "ssh-rsa", mthlen);
     else
         ret = -1;
 
