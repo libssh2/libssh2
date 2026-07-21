@@ -1345,7 +1345,7 @@ static int ossl_rsa_openssh_priv_new(ssh2_rsa_ctx **rsa,
     if(rc)
         return rc;
 
-    /* We have a new key file, now try and parse it using supported types  */
+    /* We have a new key file, now try and parse it using supported types */
     rc = ssh2_get_string(decrypted, &buf, NULL);
     if(rc || !buf) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
