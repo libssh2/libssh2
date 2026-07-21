@@ -731,8 +731,7 @@ int ssh2_ecdsa_curve_name_with_octal_new(
     if(group_name && data) {
         OSSL_PARAM params[3] = { 0 };
 
-        /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
-        memcpy(group_name, n, strlen(n));
+        memcpy(group_name, n, strlen(n) + 1);
         memcpy(data, publickey_encoded, publickey_encoded_len);
 
         params[0] = OSSL_PARAM_construct_utf8_string(
@@ -2829,8 +2828,7 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     if(!group_name)
         goto fail;
 
-    /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
-    memcpy(group_name, n, strlen(n));
+    memcpy(group_name, n, strlen(n) + 1);
     ossl_swap_bytes(exponent, exponentlen);
 
     params[0] = OSSL_PARAM_construct_utf8_string(OSSL_PKEY_PARAM_GROUP_NAME,
