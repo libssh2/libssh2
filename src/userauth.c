@@ -1138,14 +1138,14 @@ void ssh2_userauth_plain_method(char *method)
 
     if(!strcmp("rsa-sha2-256-cert-v01@openssh.com", method) ||
        !strcmp("rsa-sha2-512-cert-v01@openssh.com", method)) {
-        method[sizeof("rsa-sha2-999") - 1] = '\0';
+        method[sizeof("rsa-sha2-256") - 1] = '\0';
         return;
     }
 
     if(!strcmp("ecdsa-sha2-nistp256-cert-v01@openssh.com", method) ||
        !strcmp("ecdsa-sha2-nistp384-cert-v01@openssh.com", method) ||
        !strcmp("ecdsa-sha2-nistp521-cert-v01@openssh.com", method)) {
-        method[sizeof("ecdsa-sha2-nistp999") - 1] = '\0';
+        method[sizeof("ecdsa-sha2-nistp256") - 1] = '\0';
         return;
     }
 
