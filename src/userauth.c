@@ -1159,18 +1159,16 @@ size_t ssh2_userauth_plain_method(char *method, size_t method_len)
 
     if(!strncmp("sk-ecdsa-sha2-nistp256-cert-v01@openssh.com",
                 method, method_len)) {
-        const char *new_method = "sk-ecdsa-sha2-nistp256@openssh.com";
-        /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
-        memcpy(method, new_method, strlen(new_method));
-        return strlen(new_method);
+        const char new_method[] = "sk-ecdsa-sha2-nistp256@openssh.com";
+        memcpy(method, new_method, sizeof(new_method));
+        return sizeof(new_method) - 1;
     }
 
     if(!strncmp("sk-ssh-ed25519-cert-v01@openssh.com",
                 method, method_len)) {
-        const char *new_method = "sk-ssh-ed25519@openssh.com";
-        /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
-        memcpy(method, new_method, strlen(new_method));
-        return strlen(new_method);
+        const char new_method[] = "sk-ssh-ed25519@openssh.com";
+        memcpy(method, new_method, sizeof(new_method));
+        return sizeof(new_method) - 1;
     }
 
     return method_len;
@@ -1466,13 +1464,14 @@ retry_auth:
                                 "Invalid public key");
 
             session->userauth_pblc_method_len = 0;
-            session->userauth_pblc_method = SSH2_ALLOC(session, method_len);
+            session->userauth_pblc_method = SSH2_ALLOC(session,  + 1);
             if(!session->userauth_pblc_method)
                 return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                 "Unable to allocate memory "
                                 "for public key data");
             session->userauth_pblc_method_len = method_len;
             memcpy(session->userauth_pblc_method, pubkeydata + 4, method_len);
+            session->userauth_pblc_method[method_len] = 0;
         }
 
         /* upgrade key signing algo if it is supported and
