@@ -2483,7 +2483,7 @@ int ssh2_ecdsa_new_priv(OUT ssh2_ecdsa_ctx **ec_ctx,
     if(filename) {
         fp = ssh2_fopen(filename, "rb");
         if(!fp) {
-            result = ssh2_err(session, LIBSSH2_ERROR_INVAL,
+            result = ssh2_err(session, LIBSSH2_ERROR_FILE,
                               "Opening the private key file failed");
             goto cleanup;
         }
