@@ -3888,6 +3888,8 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session,
     unsigned long sslError;
 #endif
 
+    OSSL_INIT_IF_NEEDED();
+
     if(privatekey) {
         ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                   "Computing public key from private key file: %s",
