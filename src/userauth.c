@@ -1248,16 +1248,16 @@ static const char *userauth_supported_key_sign_algs(LIBSSH2_SESSION *session,
 
 /**
  * @abstract Upgrades the algorithm used for public key signing RFC 8332
- * @discussion Based on the incoming key_method value, this function
+ * @discussion Based on the incoming 'method' value, this function
  * Upgrades the key method input based on user preferences,
  * server support algos and crypto backend support
  * @related userauth_supported_key_sign_algs()
- * @param key_method current key method, usually the default key sig method
- * @param key_method_len length of the key method buffer
+ * @param method current key method, usually the default key sig method
+ * @param method_len length of the key method buffer
  * @result error code or zero on success
  */
 static int userauth_key_sign_algs(LIBSSH2_SESSION *session,
-                                  char **key_method, size_t *key_method_len)
+                                  char **method, size_t *method_len)
 {
     const char *s = NULL;
     const char *a = NULL;
@@ -1272,14 +1272,14 @@ static int userauth_key_sign_algs(LIBSSH2_SESSION *session,
     char *filtered_algs = NULL;
     const size_t suffix_len = sizeof("-cert-v01@openssh.com") - 1;
     const char * const suffix = "-cert-v01@openssh.com";
-    const size_t method_len = sizeof("ssh-rsa-cert-v01@openssh.com") - 1;
-    const char * const method = "ssh-rsa-cert-v01@openssh.com";
+    const size_t rsa_method_len = sizeof("ssh-rsa-cert-v01@openssh.com") - 1;
+    const char * const rsa_method = "ssh-rsa-cert-v01@openssh.com";
     const char *remote_banner = NULL;
     const char * const remote_ver_pre = "OpenSSH_";
 
     const char *supported_algs =
         userauth_supported_key_sign_algs(session,
-                                         *key_method, *key_method_len);
+                                         *method, *method_len);
 
     if(!supported_algs || !session->server_sign_algorithms)
         /* no upgrading key algorithm supported, do nothing */
@@ -1297,8 +1297,8 @@ static int userauth_key_sign_algs(LIBSSH2_SESSION *session,
             const char *remote_ver = remote_ver_start + strlen(remote_ver_pre);
             int SSH_BUG_SIGTYPE = userauth_is_version_less_than_78(remote_ver);
             if(SSH_BUG_SIGTYPE &&
-               *key_method && *key_method_len == method_len &&
-               !memcmp(*key_method, method, method_len))
+               *method && *method_len == rsa_method_len &&
+               !memcmp(*method, rsa_method, rsa_method_len))
                 return LIBSSH2_ERROR_NONE;
         }
     }
@@ -1372,27 +1372,27 @@ static int userauth_key_sign_algs(LIBSSH2_SESSION *session,
     }
 
     if(match) {
-        if(*key_method && *key_method_len == method_len &&
-           !memcmp(*key_method, method, method_len)) {
-            SSH2_FREE(session, *key_method);
-            *key_method = SSH2_ALLOC(session, match_len + suffix_len);
-            if(*key_method) {
-                memcpy(*key_method, match, match_len);
-                memcpy(*key_method + match_len, suffix, suffix_len);
-                *key_method_len = match_len + suffix_len;
+        if(*method && *method_len == rsa_method_len &&
+           !memcmp(*method, rsa_method, rsa_method_len)) {
+            SSH2_FREE(session, *method);
+            *method = SSH2_ALLOC(session, match_len + suffix_len);
+            if(*method) {
+                memcpy(*method, match, match_len);
+                memcpy(*method + match_len, suffix, suffix_len);
+                *method_len = match_len + suffix_len;
             }
         }
         else {
-            if(*key_method)
-                SSH2_FREE(session, *key_method);
-            *key_method = SSH2_ALLOC(session, match_len);
-            if(*key_method) {
-                memcpy(*key_method, match, match_len);
-                *key_method_len = match_len;
+            if(*method)
+                SSH2_FREE(session, *method);
+            *method = SSH2_ALLOC(session, match_len);
+            if(*method) {
+                memcpy(*method, match, match_len);
+                *method_len = match_len;
             }
         }
-        if(!*key_method) {
-            *key_method_len = 0;
+        if(!*method) {
+            *method_len = 0;
             rc = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                           "Unable to allocate key method upgrade");
         }
