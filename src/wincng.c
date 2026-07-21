@@ -2742,7 +2742,7 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
     char *method_buf = NULL;
     unsigned char *key = NULL;
     DWORD keylen = 0, method_buf_len = 0;
-    DWORD index, offset, length = 0;
+    DWORD index, offs, length = 0;
     int ret;
 
     ret = wcng_asn_decode_bns(pbEncoded, (DWORD)cbEncoded,
@@ -2767,12 +2767,9 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
         if(!key)
             goto cleanup;
 
-        offset = wcng_pub_priv_write(key, 0,
-                                     method_buf, method_buf_len);
-        offset = wcng_pub_priv_write(key, offset,
-                                     rpbDecoded[2], rcbDecoded[2]);
-        wcng_pub_priv_write(key, offset,
-                            rpbDecoded[1], rcbDecoded[1]);
+        offs = wcng_pub_priv_write(key, 0, method_buf, method_buf_len);
+        offs = wcng_pub_priv_write(key, offs, rpbDecoded[2], rcbDecoded[2]);
+        wcng_pub_priv_write(key, offs, rpbDecoded[1], rcbDecoded[1]);
         ret = 0; /* success */
     }
     else if(length == 6) { /* private DSA key */
@@ -2791,16 +2788,11 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
         if(!key)
             goto cleanup;
 
-        offset = wcng_pub_priv_write(key, 0,
-                                     method_buf, method_buf_len);
-        offset = wcng_pub_priv_write(key, offset,
-                                     rpbDecoded[1], rcbDecoded[1]);
-        offset = wcng_pub_priv_write(key, offset,
-                                     rpbDecoded[2], rcbDecoded[2]);
-        offset = wcng_pub_priv_write(key, offset,
-                                     rpbDecoded[3], rcbDecoded[3]);
-        wcng_pub_priv_write(key, offset,
-                            rpbDecoded[4], rcbDecoded[4]);
+        offs = wcng_pub_priv_write(key, 0, method_buf, method_buf_len);
+        offs = wcng_pub_priv_write(key, offs, rpbDecoded[1], rcbDecoded[1]);
+        offs = wcng_pub_priv_write(key, offs, rpbDecoded[2], rcbDecoded[2]);
+        offs = wcng_pub_priv_write(key, offs, rpbDecoded[3], rcbDecoded[3]);
+        wcng_pub_priv_write(key, offs, rpbDecoded[4], rcbDecoded[4]);
         ret = 0; /* success */
     }
 
