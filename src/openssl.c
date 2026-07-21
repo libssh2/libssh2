@@ -3054,7 +3054,7 @@ static int ossl_ecdsa_sk_openssh_priv_to_pubkey(
 #endif
     }
 
-    if(rc == 0 && pubkeydata) {
+    if(rc == 0 && pubkeydata && pubkeydata_len) {
         key_len = *pubkeydata_len + app_len + 4;
         key = p = SSH2_ALLOC(session, key_len);
         if(!key) {
