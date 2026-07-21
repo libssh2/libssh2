@@ -268,9 +268,7 @@ static int wcng_bn_mod_exp(ssh2_bn *r, ssh2_bn *a, ssh2_bn *p, ssh2_bn *m)
                     ret = BCryptEncrypt(hKey, bignum, length, NULL, NULL, 0,
                                         r->bignum, (ULONG)r->length, &offset,
                                         BCRYPT_PAD_NONE);
-
                     wcng_zero_free(bignum, length);
-
                     if(BCRYPT_SUCCESS(ret))
                         wcng_bn_resize(r, offset);
                 }
@@ -870,7 +868,6 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx, ULONG hash_len,
 
     ret = ssh2_hash(hash_alg, data, datalen, hash, hash_len);
     wcng_zero_free(data, datalen);
-
     if(!ret) {
         wcng_zero_free(hash, hash_len);
         return -1;
@@ -1282,9 +1279,7 @@ static int wcng_rsa_new_private_parse(ssh2_rsa_ctx **rsa,
 
     ret = wcng_asn_decode(pbEncoded, (DWORD)cbEncoded, PKCS_RSA_PRIVATE_KEY,
                           &pbStructInfo, &cbStructInfo);
-
     wcng_zero_free(pbEncoded, cbEncoded);
-
     if(ret)
         return -1;
 
@@ -1550,9 +1545,7 @@ static int wcng_dsa_new_private_parse(ssh2_dsa_ctx **dsa,
 
     ret = wcng_asn_decode_bns(pbEncoded, (DWORD)cbEncoded,
                               &rpbDecoded, &rcbDecoded, &length);
-
     wcng_zero_free(pbEncoded, cbEncoded);
-
     if(ret)
         return -1;
 
@@ -2822,9 +2815,7 @@ int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
     ret = BCryptImportKey(*algo.phAlg, NULL, BCRYPT_KEY_DATA_BLOB, &hKey,
                           pbKeyObject, dwKeyObject,
                           (PUCHAR)header, keylen, 0);
-
     wcng_zero_free(header, keylen);
-
     if(!BCRYPT_SUCCESS(ret)) {
         wcng_zero_free(pbKeyObject, dwKeyObject);
         return -1;
