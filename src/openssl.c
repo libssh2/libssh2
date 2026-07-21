@@ -2017,7 +2017,7 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
               "Computing public key from ED25519 private key envelope"));
 
     /* sk-ssh-ed25519@openssh.com. */
-    method_buf = SSH2_ALLOC(session, sizeof(method_name) - 1);
+    method_buf = SSH2_ALLOC(session, sizeof(method_name));
     if(!method_buf) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                  "Unable to allocate memory for ED25519 key");
@@ -2049,8 +2049,7 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
         memcpy(SSH2_UNCONST(*application), app, app_len);
     }
 
-    /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
-    memcpy(method_buf, method_name, sizeof(method_name) - 1);
+    memcpy(method_buf, method_name, sizeof(method_name));
 
     if(method)
         *method = method_buf;
