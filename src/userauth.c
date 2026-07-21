@@ -1467,7 +1467,8 @@ retry_auth:
                                 "Invalid public key");
 
             session->userauth_pblc_method_len = 0;
-            session->userauth_pblc_method = SSH2_ALLOC(session,  + 1);
+            session->userauth_pblc_method =
+                SSH2_ALLOC(session, method_len + 1);
             if(!session->userauth_pblc_method)
                 return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                 "Unable to allocate memory "
