@@ -390,17 +390,17 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
 
     mbedtls_pk_init(&pkey);
 
-    if(filename)
-        ret = mbedtls_pk_parse_keyfile(&pkey, filename, passphrase,
-                                       mbedtls_ctr_drbg_random,
-                                       &mbed_ctr_drbg);
-    else {
+    if(!filename) {
         ret = mbedtls_pk_parse_key(&pkey, data_nullterm, blob_len + 1,
                                    (const unsigned char *)passphrase,
                                    passphrase ? strlen(passphrase) : 0,
                                    mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
         mbed_zero_free(data_nullterm, blob_len + 1);
     }
+    else
+        ret = mbedtls_pk_parse_keyfile(&pkey, filename, passphrase,
+                                       mbedtls_ctr_drbg_random,
+                                       &mbed_ctr_drbg);
 
     if(ret || mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_RSA) {
         mbedtls_pk_free(&pkey);
@@ -647,17 +647,17 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session,
 
     mbedtls_pk_init(&pkey);
 
-    if(privatekey) {
-        ret = mbedtls_pk_parse_keyfile(&pkey, privatekey, passphrase,
-                                       mbedtls_ctr_drbg_random,
-                                       &mbed_ctr_drbg);
-        mbed_zero_free(data_nullterm, privkeyblob_len + 1);
-    }
-    else
+    if(!privatekey) {
         ret = mbedtls_pk_parse_key(&pkey, data_nullterm, privkeyblob_len + 1,
                                    (const unsigned char *)passphrase,
                                    passphrase ? strlen(passphrase) : 0,
                                    mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
+        mbed_zero_free(data_nullterm, privkeyblob_len + 1);
+    }
+    else
+        ret = mbedtls_pk_parse_keyfile(&pkey, privatekey, passphrase,
+                                       mbedtls_ctr_drbg_random,
+                                       &mbed_ctr_drbg);
 
     if(ret) {
         mbedtls_strerror(ret, (char *)buf, sizeof(buf));
