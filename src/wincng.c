@@ -2717,10 +2717,8 @@ ssh2_curve_type ssh2_ecdsa_get_curve_type(IN ssh2_ecdsa_ctx *ec_ctx)
  */
 
 #if LIBSSH2_RSA || LIBSSH2_DSA
-static DWORD wcng_pub_priv_write(unsigned char *key,
-                                 DWORD offset,
-                                 const unsigned char *buf,
-                                 const DWORD length)
+static DWORD wcng_pub_priv_write(unsigned char *key, DWORD offset,
+                                 const void *buf, const DWORD length)
 {
     ssh2_htonu32(key + offset, length);
     offset += 4;
@@ -2769,8 +2767,7 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
         key = SSH2_ALLOC(session, keylen);
         if(key) {
             offset = wcng_pub_priv_write(key, 0,
-                                         (const unsigned char *)method_buf,
-                                         method_buf_len);
+                                         method_buf, method_buf_len);
             offset = wcng_pub_priv_write(key, offset,
                                          rpbDecoded[2], rcbDecoded[2]);
             wcng_pub_priv_write(key, offset,
@@ -2795,8 +2792,7 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
         key = SSH2_ALLOC(session, keylen);
         if(key) {
             offset = wcng_pub_priv_write(key, 0,
-                                         (const unsigned char *)method_buf,
-                                         method_buf_len);
+                                         method_buf, method_buf_len);
             offset = wcng_pub_priv_write(key, offset,
                                          rpbDecoded[1], rcbDecoded[1]);
             offset = wcng_pub_priv_write(key, offset,
