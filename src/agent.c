@@ -758,7 +758,7 @@ static int agent_sign(LIBSSH2_SESSION *session,
     LIBSSH2_AGENT *agent = (LIBSSH2_AGENT *)(*abstract);
     struct agent_transaction_ctx *transctx = &agent->transctx;
     struct agent_publickey *identity = agent->identity;
-    size_t len, method_len, plain_len;
+    size_t len, method_len;
     unsigned char *s;
     int rc;
     char *method_name = NULL;
@@ -785,13 +785,10 @@ static int agent_sign(LIBSSH2_SESSION *session,
         ssh2_store_str(&s, (const char *)data, data_len);
 
         /* flags */
-        if(session->userauth_pblc_method_len > 0 &&
-           session->userauth_pblc_method) {
-            if(session->userauth_pblc_method_len == 12 &&
-               !memcmp(session->userauth_pblc_method, "rsa-sha2-512", 12))
+        if(session->userauth_pblc_method && *session->userauth_pblc_method) {
+            if(!strcmp(session->userauth_pblc_method, "rsa-sha2-512"))
                 sign_flags = SSH_AGENT_RSA_SHA2_512;
-            else if(session->userauth_pblc_method_len == 12 &&
-                    !memcmp(session->userauth_pblc_method, "rsa-sha2-256", 12))
+            else if(!strcmp(session->userauth_pblc_method, "rsa-sha2-256"))
                 sign_flags = SSH_AGENT_RSA_SHA2_256;
         }
         ssh2_store_u32(&s, sign_flags);
@@ -863,17 +860,19 @@ static int agent_sign(LIBSSH2_SESSION *session,
     len -= method_len;
     s += method_len;
 
-    plain_len = ssh2_userauth_plain_method(
-        session->userauth_pblc_method,
-        session->userauth_pblc_method_len);
+    ssh2_userauth_plain_method(session->userauth_pblc_method);
+
+    if(method_len != strlen(method_name)) {
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
+                  "Agent sign method contains null byte"));
+        rc = LIBSSH2_ERROR_INVAL;
+        goto error;
+    }
 
     /* check to see if we match requested */
-    if((method_len != session->userauth_pblc_method_len &&
-        method_len != plain_len) ||
-       memcmp(method_name, session->userauth_pblc_method, method_len)) {
+    if(strcmp(method_name, session->userauth_pblc_method)) {
         ssh2_deb((session, LIBSSH2_TRACE_KEX, "Agent sign method %.*s",
                   (int)method_len, method_name));
-
         rc = LIBSSH2_ERROR_ALGO_UNSUPPORTED;
         goto error;
     }
@@ -1245,14 +1244,20 @@ int libssh2_agent_sign(LIBSSH2_AGENT *agent,
     if(!agent->session->userauth_pblc_method)
         return LIBSSH2_ERROR_ALLOC;
 
-    agent->session->userauth_pblc_method_len = method_len;
     memcpy(agent->session->userauth_pblc_method, method, method_len);
     agent->session->userauth_pblc_method[method_len] = '\0';
 
+    if(method_len != strlen(agent->session->userauth_pblc_method)) {
+        rc = ssh2_err(agent->session, LIBSSH2_ERROR_INVAL,
+                      "Identity method contains null byte");
+        goto cleanup;
+    }
+
     rc = agent_sign(agent->session, sig, s_len, data, d_len, &abstract);
 
+cleanup:
+
     SSH2_SAFEFREE(agent->session, agent->session->userauth_pblc_method);
-    agent->session->userauth_pblc_method_len = 0;
 
     return rc;
 }
