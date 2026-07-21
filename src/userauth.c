@@ -579,7 +579,7 @@ static int userauth_read_pubkey(LIBSSH2_SESSION *session, char **method,
                                 const char *pubkeyblob, size_t pubkeyblob_len)
 {
     unsigned char *pubkey = NULL, *sp1, *sp2, *tmp;
-    size_t pubkey_len;
+    size_t pubkey_len, method_len;
     size_t sp_len, tmp_len;
 
     if(pubkeyfile) {
@@ -670,11 +670,18 @@ static int userauth_read_pubkey(LIBSSH2_SESSION *session, char **method,
                         "Invalid key data, not base64 encoded");
     }
 
+    method_len = sp1 - pubkey - 1;
+    if(method_len != strlen(pubkey)) {
+        SSH2_FREE(session, pubkey);
+        return ssh2_err(session, LIBSSH2_ERROR_FILE,
+                        "Invalid key data, method contains null byte");
+    }
+
     /* Wasting some bytes here (okay, more than some), but since it is likely
        to be freed soon anyway, we avoid the extra free/alloc and call
        it a wash */
     *method = (char *)pubkey;
-    (*method)[sp1 - pubkey - 1] = '\0';
+    (*method)[method_len] = '\0';
 
     *pubkeydata = tmp;
     *pubkeydata_len = tmp_len;
