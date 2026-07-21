@@ -2141,7 +2141,8 @@ int ssh2_ed25519_new_priv(ssh2_ed25519_ctx **ed_ctx,
 
         if(!strcmp("ssh-ed25519", (const char *)buf))
             rc = ossl_ed25519_openssh_priv_to_pubkey(session, decrypted,
-                                                     NULL, NULL, NULL, NULL, &ctx);
+                                                     NULL, NULL, NULL, NULL,
+                                                     &ctx);
         else
             rc = -1;
 
@@ -2177,7 +2178,8 @@ cleanup:
             }
         }
 
-        return ossl_key_from_openssh_blob(session, (void **)ed_ctx, "ssh-ed25519",
+        return ossl_key_from_openssh_blob(session,
+                                          (void **)ed_ctx, "ssh-ed25519",
                                           NULL, NULL, NULL, NULL,
                                           blob, blob_len, passphrase);
     }
@@ -3125,7 +3127,8 @@ int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
             rc = ossl_ecdsa_openssh_priv_new(ec_ctx, session, filename,
                                              passphrase);
         else
-            rc = ossl_key_from_openssh_blob(session, (void **)ec_ctx, "ssh-ecdsa",
+            rc = ossl_key_from_openssh_blob(session,
+                                            (void **)ec_ctx, "ssh-ecdsa",
                                             NULL, NULL, NULL, NULL,
                                             blob, blob_len, passphrase);
     }
@@ -3889,13 +3892,14 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session,
 
     if(privatekey) {
         ssh2_deb((session, LIBSSH2_TRACE_AUTH,
-                  "Computing public key from private key file: %s", privatekey));
+                  "Computing public key from private key file: %s",
+                  privatekey));
 
         bp = BIO_new_file(privatekey, "r");
         if(!bp)
             return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                            "Unable to extract public key from private key file: "
-                            "Unable to open private key file");
+                            "Unable to extract public key from private key "
+                            "file: Unable to open private key file");
     }
     else {
         ssh2_deb((session, LIBSSH2_TRACE_AUTH,
@@ -3904,7 +3908,8 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session,
         bp = BIO_new_mem_buf(privkeyblob, (int)privkeyblob_len);
         if(!bp)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                            "Unable to allocate memory when computing public key");
+                            "Unable to allocate memory when computing "
+                            "public key");
     }
 
     (void)BIO_reset(bp);
