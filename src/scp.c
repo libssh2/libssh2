@@ -437,19 +437,16 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                     }
 
                     /* Read the remote error message */
-                    (void)ssh2_channel_read(session->scpRecv_channel, 0,
-                                            err_msg, err_len);
-                    /* If it failed for any reason, we ignore it anyway. */
-
-                    err_msg[err_len] = '\0';
-
-                    ssh2_deb((session, LIBSSH2_TRACE_SCP, "got %02x %s",
-                              session->scpRecv_response[0], err_msg));
-
+                    rc = (int)ssh2_channel_read(session->scpRecv_channel, 0,
+                                                err_msg, err_len);
+                    if(rc > 0) {
+                        err_msg[rc] = '\0';
+                        ssh2_deb((session, LIBSSH2_TRACE_SCP, "got %02x %s",
+                                  session->scpRecv_response[0], err_msg));
+                    }
+                    SSH2_FREE(session, err_msg);
                     ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                              "Failed to recv file");
-
-                    SSH2_FREE(session, err_msg);
                     goto scp_recv_error;
                 }
 
@@ -1067,7 +1064,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
             rc = (int)ssh2_channel_read(session->scpSend_channel, 0,
                                         err_msg, err_len);
             if(rc > 0) {
-                err_msg[err_len] = '\0';
+                err_msg[rc] = '\0';
                 ssh2_deb((session, LIBSSH2_TRACE_SCP, "got %02x %s",
                           session->scpSend_response[0], err_msg));
             }
