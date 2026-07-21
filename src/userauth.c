@@ -676,6 +676,7 @@ static int userauth_read_pubkey(
        it a wash */
     *method = (char *)pubkey;
     *method_len = sp1 - pubkey - 1;
+    (*method)[*method_len] = '\0';
 
     *pubkeydata = tmp;
     *pubkeydata_len = tmp_len;
@@ -1159,18 +1160,16 @@ size_t ssh2_userauth_plain_method(char *method, size_t method_len)
 
     if(!strncmp("sk-ecdsa-sha2-nistp256-cert-v01@openssh.com",
                 method, method_len)) {
-        const char *new_method = "sk-ecdsa-sha2-nistp256@openssh.com";
-        /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
-        memcpy(method, new_method, strlen(new_method));
-        return strlen(new_method);
+        const char new_method[] = "sk-ecdsa-sha2-nistp256@openssh.com";
+        memcpy(method, new_method, sizeof(new_method));
+        return sizeof(new_method) - 1;
     }
 
     if(!strncmp("sk-ssh-ed25519-cert-v01@openssh.com",
                 method, method_len)) {
-        const char *new_method = "sk-ssh-ed25519@openssh.com";
-        /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
-        memcpy(method, new_method, strlen(new_method));
-        return strlen(new_method);
+        const char new_method[] = "sk-ssh-ed25519@openssh.com";
+        memcpy(method, new_method, sizeof(new_method));
+        return sizeof(new_method) - 1;
     }
 
     return method_len;
@@ -1270,10 +1269,10 @@ static int userauth_key_sign_algs(LIBSSH2_SESSION *session,
     int rc = 0;
     size_t match_len = 0;
     char *filtered_algs = NULL;
-    const size_t suffix_len = sizeof("-cert-v01@openssh.com") - 1;
     const char * const suffix = "-cert-v01@openssh.com";
-    const size_t rsa_method_len = sizeof("ssh-rsa-cert-v01@openssh.com") - 1;
+    const size_t suffix_len = sizeof("-cert-v01@openssh.com") - 1;
     const char * const rsa_method = "ssh-rsa-cert-v01@openssh.com";
+    const size_t rsa_method_len = sizeof("ssh-rsa-cert-v01@openssh.com") - 1;
     const char *remote_banner = NULL;
     const char * const remote_ver_pre = "OpenSSH_";
 
@@ -1374,19 +1373,20 @@ static int userauth_key_sign_algs(LIBSSH2_SESSION *session,
         if(*method && *method_len == rsa_method_len &&
            !memcmp(*method, rsa_method, rsa_method_len)) {
             SSH2_FREE(session, *method);
-            *method = SSH2_ALLOC(session, match_len + suffix_len);
+            *method = SSH2_ALLOC(session, match_len + suffix_len + 1);
             if(*method) {
                 memcpy(*method, match, match_len);
-                memcpy(*method + match_len, suffix, suffix_len);
+                memcpy(*method + match_len, suffix, suffix_len + 1);
                 *method_len = match_len + suffix_len;
             }
         }
         else {
             if(*method)
                 SSH2_FREE(session, *method);
-            *method = SSH2_ALLOC(session, match_len);
+            *method = SSH2_ALLOC(session, match_len + 1);
             if(*method) {
                 memcpy(*method, match, match_len);
+                (*method)[match_len] = '\0';
                 *method_len = match_len;
             }
         }
@@ -1466,13 +1466,15 @@ retry_auth:
                                 "Invalid public key");
 
             session->userauth_pblc_method_len = 0;
-            session->userauth_pblc_method = SSH2_ALLOC(session, method_len);
+            session->userauth_pblc_method = SSH2_ALLOC(session,
+                                                       method_len + 1);
             if(!session->userauth_pblc_method)
                 return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                 "Unable to allocate memory "
                                 "for public key data");
             session->userauth_pblc_method_len = method_len;
             memcpy(session->userauth_pblc_method, pubkeydata + 4, method_len);
+            session->userauth_pblc_method[method_len] = '\0';
         }
 
         /* upgrade key signing algo if it is supported and
