@@ -2652,7 +2652,7 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
     char *method_buf = NULL;
     unsigned char *key = NULL;
     DWORD keylen = 0;
-    DWORD index, offs, length = 0;
+    DWORD index, off, length = 0;
     int ret;
 
     ret = wcng_asn_decode_bns(pbEncoded, (DWORD)cbEncoded,
@@ -2681,9 +2681,9 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
         if(!key)
             goto cleanup;
 
-        offs = wcng_pub_priv_write(key, 0, method_buf, sizeof(method_name) - 1);
-        offs = wcng_pub_priv_write(key, offs, rpbDecoded[2], rcbDecoded[2]);
-        wcng_pub_priv_write(key, offs, rpbDecoded[1], rcbDecoded[1]);
+        off = wcng_pub_priv_write(key, 0, method_buf, sizeof(method_name) - 1);
+        off = wcng_pub_priv_write(key, off, rpbDecoded[2], rcbDecoded[2]);
+        wcng_pub_priv_write(key, off, rpbDecoded[1], rcbDecoded[1]);
         ret = 0; /* success */
     }
     else if(length == 6) { /* private DSA key */
@@ -2708,11 +2708,11 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
         if(!key)
             goto cleanup;
 
-        offs = wcng_pub_priv_write(key, 0, method_buf, sizeof(method_name) - 1);
-        offs = wcng_pub_priv_write(key, offs, rpbDecoded[1], rcbDecoded[1]);
-        offs = wcng_pub_priv_write(key, offs, rpbDecoded[2], rcbDecoded[2]);
-        offs = wcng_pub_priv_write(key, offs, rpbDecoded[3], rcbDecoded[3]);
-        wcng_pub_priv_write(key, offs, rpbDecoded[4], rcbDecoded[4]);
+        off = wcng_pub_priv_write(key, 0, method_buf, sizeof(method_name) - 1);
+        off = wcng_pub_priv_write(key, off, rpbDecoded[1], rcbDecoded[1]);
+        off = wcng_pub_priv_write(key, off, rpbDecoded[2], rcbDecoded[2]);
+        off = wcng_pub_priv_write(key, off, rpbDecoded[3], rcbDecoded[3]);
+        wcng_pub_priv_write(key, off, rpbDecoded[4], rcbDecoded[4]);
         ret = 0; /* success */
     }
 
