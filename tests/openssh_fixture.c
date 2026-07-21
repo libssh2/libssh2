@@ -122,7 +122,7 @@ static int run_command_varg(char **output, const char *command, va_list args)
         fprintf(stderr, "Unable to execute command '%s'\n", command);
         return -1;
     }
-    buf[0] = 0;
+    buf[0] = '\0';
     buf_len = 0;
     while(buf_len < (sizeof(buf) - 1) &&
           fgets(&buf[buf_len], (int)(sizeof(buf) - buf_len), pipe))
