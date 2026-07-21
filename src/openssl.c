@@ -1636,7 +1636,7 @@ static int ossl_dsa_openssh_priv_new(ssh2_dsa_ctx **dsa,
     if(rc)
         return rc;
 
-    /* We have a new key file, now try and parse it using supported types  */
+    /* We have a new key file, now try and parse it using supported types */
     rc = ssh2_get_string(decrypted, &buf, NULL);
     if(rc || !buf) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -2129,7 +2129,8 @@ int ssh2_ed25519_new_priv(ssh2_ed25519_ctx **ed_ctx,
         if(rc)
             return rc;
 
-        /* We have a new key file, now try and parse it using supported types  */
+        /* We have a new key file, now try and parse it using supported
+           types */
         rc = ssh2_get_string(decrypted, &buf, NULL);
         if(rc || !buf) {
             ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -3068,7 +3069,7 @@ static int ossl_ecdsa_openssh_priv_new(ssh2_ecdsa_ctx **ec_ctx,
     if(rc)
         return rc;
 
-    /* We have a new key file, now try and parse it using supported types  */
+    /* We have a new key file, now try and parse it using supported types */
     rc = ssh2_get_string(decrypted, &buf, NULL);
     if(rc || !buf) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -3605,7 +3606,7 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
         return rc;
     }
 
-    /* We have a new key file, now try and parse it using supported types  */
+    /* We have a new key file, now try and parse it using supported types */
     rc = ssh2_get_string(decrypted, &buf, NULL);
     if(rc || !buf) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -3696,7 +3697,7 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
     if(rc)
         return rc;
 
-    /* We have a new key file, now try and parse it using supported types  */
+    /* We have a new key file, now try and parse it using supported types */
     rc = ssh2_get_string(decrypted, &buf, NULL);
     if(rc || !buf) {
         rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -3809,7 +3810,7 @@ int ssh2_sk_pubkey(LIBSSH2_SESSION *session,
     if(rc)
         return rc;
 
-    /* We have a new key file, now try and parse it using supported types  */
+    /* We have a new key file, now try and parse it using supported types */
     rc = ssh2_get_string(decrypted, &buf, NULL);
     if(rc || !buf) {
         rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
