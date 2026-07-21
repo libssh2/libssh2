@@ -1450,6 +1450,12 @@ retry_auth:
                                 "for public key data");
             memcpy(session->userauth_pblc_method, pubkeydata + 4, method_len);
             session->userauth_pblc_method[method_len] = '\0';
+
+            if(method_len != strlen(session->userauth_pblc_method)) {
+                SSH2_SAFEFREE(session, session->userauth_pblc_method);
+                return ssh2_err(session, LIBSSH2_ERROR_INVAL,
+                                "Public key method contains null byte");
+            }
         }
 
         /* upgrade key signing algo if it is supported and
