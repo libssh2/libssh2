@@ -374,8 +374,8 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
     mbedtls_rsa_init(*rsa);
 
     if(!filename) {
-        /* mbedtls checks in "mbedtls/pkparse.c:1184" if
-              "key[keylen - 1] != '\0'"
+        /* mbedtls checks in "mbedtls/pkparse.c:1184"
+               if "key[keylen - 1] != '\0'"
            private-key from memory fails if the last byte is not a null byte */
         data_nullterm = mbedtls_calloc(blob_len + 1, 1);
         if(!data_nullterm) {
@@ -621,61 +621,43 @@ static int mbed_pub_priv_key(LIBSSH2_SESSION *session,
     return ret;
 }
 
-int ssh2_pub_privkey_file(LIBSSH2_SESSION *session,
-                          char **method, size_t *method_len,
-                          unsigned char **pubkeydata, size_t *pubkeydata_len,
-                          const char *privatekey,
-                          const char *passphrase)
+int ssh2_pub_privkey(LIBSSH2_SESSION *session,
+                     char **method, size_t *method_len,
+                     unsigned char **pubkeydata, size_t *pubkeydata_len,
+                     const char *privatekey,
+                     const char *privkeyblob, size_t privkeyblob_len,
+                     const char *passphrase)
 {
     mbedtls_pk_context pkey;
     char buf[1024];
     int ret;
+    unsigned char *data_nullterm = NULL;
 
-    mbedtls_pk_init(&pkey);
-    ret = mbedtls_pk_parse_keyfile(&pkey, privatekey, passphrase,
-                                   mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
-    if(ret) {
-        mbedtls_strerror(ret, (char *)buf, sizeof(buf));
-        mbedtls_pk_free(&pkey);
-        return ssh2_err_flags(session, LIBSSH2_ERROR_FILE, buf,
-                              SSH2_ERR_FLAG_DUP);
+    if(!privatekey) {
+        /* mbedtls checks in "mbedtls/pkparse.c:1184"
+               if "key[keylen - 1] != '\0'"
+           private-key from memory fails if the last byte is not a null byte */
+        data_nullterm = mbedtls_calloc(privkeyblob_len + 1, 1);
+        if(!data_nullterm)
+            return -1;
+
+        memcpy(data_nullterm, privkeyblob, privkeyblob_len);
+        data_nullterm[privkeyblob_len] = 0;
     }
 
-    ret = mbed_pub_priv_key(session, method, method_len,
-                            pubkeydata, pubkeydata_len, &pkey);
-
-    mbedtls_pk_free(&pkey);
-
-    return ret;
-}
-
-int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
-                          char **method, size_t *method_len,
-                          unsigned char **pubkeydata, size_t *pubkeydata_len,
-                          const char *privkeyblob, size_t privkeyblob_len,
-                          const char *passphrase)
-{
-    mbedtls_pk_context pkey;
-    char buf[1024];
-    int ret;
-    unsigned char *data_nullterm;
-
-    /* mbedtls checks in "mbedtls/pkparse.c:1184" if "key[keylen - 1] != '\0'"
-       private-key from memory fails if the last byte is not a null byte */
-    data_nullterm = mbedtls_calloc(privkeyblob_len + 1, 1);
-    if(!data_nullterm)
-        return -1;
-
-    memcpy(data_nullterm, privkeyblob, privkeyblob_len);
-    data_nullterm[privkeyblob_len] = 0;
-
     mbedtls_pk_init(&pkey);
 
-    ret = mbedtls_pk_parse_key(&pkey, data_nullterm, privkeyblob_len + 1,
-                               (const unsigned char *)passphrase,
-                               passphrase ? strlen(passphrase) : 0,
-                               mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
-    mbed_zero_free(data_nullterm, privkeyblob_len + 1);
+    if(privatekey) {
+        ret = mbedtls_pk_parse_keyfile(&pkey, privatekey, passphrase,
+                                       mbedtls_ctr_drbg_random,
+                                       &mbed_ctr_drbg);
+        mbed_zero_free(data_nullterm, privkeyblob_len + 1);
+    }
+    else
+        ret = mbedtls_pk_parse_key(&pkey, data_nullterm, privkeyblob_len + 1,
+                                   (const unsigned char *)passphrase,
+                                   passphrase ? strlen(passphrase) : 0,
+                                   mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
 
     if(ret) {
         mbedtls_strerror(ret, (char *)buf, sizeof(buf));
