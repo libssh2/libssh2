@@ -354,44 +354,11 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     return ret;
 }
 
-int ssh2_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa,
-                                LIBSSH2_SESSION *session,
-                                const char *filename,
-                                const char *passphrase)
-{
-    int ret;
-    mbedtls_pk_context pkey;
-    mbedtls_rsa_context *pk_rsa;
-
-    (void)session;
-
-    *rsa = mbedtls_calloc(1, sizeof(ssh2_rsa_ctx));
-    if(!*rsa)
-        return -1;
-
-    mbedtls_rsa_init(*rsa);
-    mbedtls_pk_init(&pkey);
-
-    ret = mbedtls_pk_parse_keyfile(&pkey, filename, passphrase,
-                                   mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
-    if(ret || mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_RSA) {
-        mbedtls_pk_free(&pkey);
-        ssh2_rsa_free(*rsa);
-        *rsa = NULL;
-        return -1;
-    }
-
-    pk_rsa = mbedtls_pk_rsa(pkey);
-    mbedtls_rsa_copy(*rsa, pk_rsa);
-    mbedtls_pk_free(&pkey);
-
-    return 0;
-}
-
-int ssh2_rsa_new_priv_from_blob(ssh2_rsa_ctx **rsa,
-                                LIBSSH2_SESSION *session,
-                                const char *blob, size_t blob_len,
-                                const char *passphrase)
+int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
+                      LIBSSH2_SESSION *session,
+                      const char *filename,
+                      const char *blob, size_t blob_len,
+                      const char *passphrase)
 {
     int ret;
     mbedtls_pk_context pkey;
@@ -406,25 +373,34 @@ int ssh2_rsa_new_priv_from_blob(ssh2_rsa_ctx **rsa,
 
     mbedtls_rsa_init(*rsa);
 
-    /* mbedtls checks in "mbedtls/pkparse.c:1184" if "key[keylen - 1] != '\0'"
-       private-key from memory fails if the last byte is not a null byte */
-    data_nullterm = mbedtls_calloc(blob_len + 1, 1);
-    if(!data_nullterm) {
-        ssh2_rsa_free(*rsa);
-        *rsa = NULL;
-        return -1;
-    }
+    if(blob) {
+        /* mbedtls checks in "mbedtls/pkparse.c:1184" if
+              "key[keylen - 1] != '\0'"
+           private-key from memory fails if the last byte is not a null byte */
+        data_nullterm = mbedtls_calloc(blob_len + 1, 1);
+        if(!data_nullterm) {
+            ssh2_rsa_free(*rsa);
+            *rsa = NULL;
+            return -1;
+        }
 
-    memcpy(data_nullterm, blob, blob_len);
-    data_nullterm[blob_len] = 0;
+        memcpy(data_nullterm, blob, blob_len);
+        data_nullterm[blob_len] = 0;
+    }
 
     mbedtls_pk_init(&pkey);
 
-    ret = mbedtls_pk_parse_key(&pkey, data_nullterm, blob_len + 1,
-                               (const unsigned char *)passphrase,
-                               passphrase ? strlen(passphrase) : 0,
-                               mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
-    mbed_zero_free(data_nullterm, blob_len + 1);
+    if(filename)
+        ret = mbedtls_pk_parse_keyfile(&pkey, filename, passphrase,
+                                       mbedtls_ctr_drbg_random,
+                                       &mbed_ctr_drbg);
+    else {
+        ret = mbedtls_pk_parse_key(&pkey, data_nullterm, blob_len + 1,
+                                   (const unsigned char *)passphrase,
+                                   passphrase ? strlen(passphrase) : 0,
+                                   mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
+        mbed_zero_free(data_nullterm, blob_len + 1);
+    }
 
     if(ret || mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_RSA) {
         mbedtls_pk_free(&pkey);
