@@ -1211,25 +1211,25 @@ static int userauth_is_version_less_than_78(const char *version)
 /**
  * @abstract Returns supported algorithms used for upgrading public
  * key signing RFC 8332
- * @discussion Based on the incoming key_method value, this function
+ * @discussion Based on the incoming 'method' value, this function
  * returns supported algorithms that can upgrade the key method
- * @param key_method current key method, usually the default key sig method
- * @param key_method_len length of the key method buffer
+ * @param method current key method, usually the default key sig method
+ * @param method_len length of the key method buffer
  * @result comma separated list of supported upgrade options per RFC 8332, if
  * there is no upgrade option return NULL
  */
 static const char *userauth_supported_key_sign_algs(LIBSSH2_SESSION *session,
-                                                    const char *key_method,
-                                                    size_t key_method_len)
+                                                    const char *method,
+                                                    size_t method_len)
 {
     (void)session;
 
 #if LIBSSH2_RSA_SHA2
-    if((key_method_len == 7 &&
-        !memcmp(key_method, "ssh-rsa", key_method_len))
+    if((method_len == 7 &&
+        !memcmp(method, "ssh-rsa", method_len))
 #if defined(LIBSSH2_OPENSSL) || defined(LIBSSH2_WOLFSSL)
-       || (key_method_len == 28 &&
-           !memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", key_method_len))
+       || (method_len == 28 &&
+           !memcmp(method, "ssh-rsa-cert-v01@openssh.com", method_len))
 #endif
       ) {
         return "rsa-sha2-512,rsa-sha2-256"
@@ -1239,8 +1239,8 @@ static const char *userauth_supported_key_sign_algs(LIBSSH2_SESSION *session,
             ;
     }
 #else
-    (void)key_method;
-    (void)key_method_len;
+    (void)method;
+    (void)method_len;
 #endif
 
     return NULL;
@@ -1277,9 +1277,9 @@ static int userauth_key_sign_algs(LIBSSH2_SESSION *session,
     const char *remote_banner = NULL;
     const char * const remote_ver_pre = "OpenSSH_";
 
-    const char *supported_algs =
-        userauth_supported_key_sign_algs(session,
-                                         *method, *method_len);
+    const char *supported_algs = userauth_supported_key_sign_algs(session,
+                                                                  *method,
+                                                                  *method_len);
 
     if(!supported_algs || !session->server_sign_algorithms)
         /* no upgrading key algorithm supported, do nothing */
@@ -1296,8 +1296,7 @@ static int userauth_key_sign_algs(LIBSSH2_SESSION *session,
         if(remote_ver_start) {
             const char *remote_ver = remote_ver_start + strlen(remote_ver_pre);
             int SSH_BUG_SIGTYPE = userauth_is_version_less_than_78(remote_ver);
-            if(SSH_BUG_SIGTYPE &&
-               *method && *method_len == rsa_method_len &&
+            if(SSH_BUG_SIGTYPE && *method && *method_len == rsa_method_len &&
                !memcmp(*method, rsa_method, rsa_method_len))
                 return LIBSSH2_ERROR_NONE;
         }
