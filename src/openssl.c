@@ -3096,7 +3096,6 @@ cleanup:
     return rc;
 }
 
-#if LIBSSH2_ECDSA
 int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
                         LIBSSH2_SESSION *session,
                         const char *filename,
@@ -3134,7 +3133,6 @@ int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
     }
     return rc;
 }
-#endif /* LIBSSH2_ECDSA */
 
 /*
  * Creates a local private key based on input curve
