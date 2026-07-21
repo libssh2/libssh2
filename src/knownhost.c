@@ -240,7 +240,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
             goto error;
         }
         memcpy(entry->key, key, keylen);
-        entry->key[keylen] = '\0'; /* force a null-terminator */
+        entry->key[keylen] = '\0'
     }
     else {
         /* key is raw, we base64 encode it and store it as such */
@@ -285,7 +285,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
             goto error;
         }
         memcpy(entry->comment, comment, commentlen);
-        entry->comment[commentlen] = '\0'; /* force a null-terminator */
+        entry->comment[commentlen] = '\0';
         entry->comment_len = commentlen;
     }
     else
@@ -731,7 +731,7 @@ static int knownhost_line_hashed(LIBSSH2_KNOWNHOSTS *hosts,
                             "(unexpectedly long salt)");
 
         memcpy(saltbuf, salt, saltlen);
-        saltbuf[saltlen] = '\0'; /* null-terminate */
+        saltbuf[saltlen] = '\0';
         salt = saltbuf; /* point to the stack based buffer */
 
         hash = p + 1; /* the host hash is after the separator */
