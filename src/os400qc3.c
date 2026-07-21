@@ -2122,7 +2122,7 @@ static int os400_pub_privkey_blob(LIBSSH2_SESSION *session,
                                   size_t privkeyblob_len,
                                   const char *passphrase)
 {
-    struct loadpubkeydata p;
+    struct loadpubkeydata p = { 0 };
     unsigned char *data = NULL;
     size_t datalen = 0;
     const char *meth;
