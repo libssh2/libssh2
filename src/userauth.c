@@ -1197,7 +1197,6 @@ static int userauth_is_version_less_than_78(const char *version)
  * @discussion Based on the incoming 'method' value, this function
  * returns supported algorithms that can upgrade the key method
  * @param method current key method, usually the default key sig method
- * @param method_len length of the key method buffer
  * @result comma separated list of supported upgrade options per RFC 8332, if
  * there is no upgrade option return NULL
  */
