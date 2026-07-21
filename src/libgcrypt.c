@@ -238,25 +238,11 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
 #endif
 
 #if LIBSSH2_RSA
-int ssh2_rsa_new_priv_from_blob(ssh2_rsa_ctx **rsa,
-                                LIBSSH2_SESSION *session,
-                                const char *blob, size_t blob_len,
-                                const char *passphrase)
-{
-    (void)rsa;
-    (void)blob;
-    (void)blob_len;
-    (void)passphrase;
-
-    return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                    "Unable to extract private key from memory: "
-                    "Method unimplemented in libgcrypt backend");
-}
-
-int ssh2_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa,
-                                LIBSSH2_SESSION *session,
-                                const char *filename,
-                                const char *passphrase)
+int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
+                      LIBSSH2_SESSION *session,
+                      const char *filename,
+                      const char *blob, size_t blob_len,
+                      const char *passphrase)
 {
     FILE *fp;
     unsigned char *data, *save_data;
@@ -265,13 +251,19 @@ int ssh2_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa,
     unsigned char *n, *e, *d, *p, *q, *e1, *e2, *coeff;
     unsigned int nlen, elen, dlen, plen, qlen, e1len, e2len, coefflen;
 
-    fp = ssh2_fopen(filename, "rb");
-    if(!fp)
-        return -1;
-
-    ret = ssh2_pem_parse_FILE(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
-                              fp, passphrase, &data, &datalen);
-    fclose(fp);
+    if(filename) {
+        fp = ssh2_fopen(filename, "rb");
+        if(!fp)
+            return -1;
+        ret = ssh2_pem_parse_FILE(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
+                                  fp, passphrase,
+                                  &data, &datalen);
+        fclose(fp);
+    }
+    else
+        ret = ssh2_pem_parse_blob(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
+                                  blob, blob_len, passphrase,
+                                  &data, &datalen);
     if(ret)
         return -1;
 
@@ -352,25 +344,11 @@ fail:
 #endif
 
 #if LIBSSH2_DSA
-int ssh2_dsa_new_priv_from_blob(ssh2_dsa_ctx **dsa,
-                                LIBSSH2_SESSION *session,
-                                const char *blob, size_t blob_len,
-                                const char *passphrase)
-{
-    (void)dsa;
-    (void)blob;
-    (void)blob_len;
-    (void)passphrase;
-
-    return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                    "Unable to extract private key from memory: "
-                    "Method unimplemented in libgcrypt backend");
-}
-
-int ssh2_dsa_new_priv_from_file(ssh2_dsa_ctx **dsa,
-                                LIBSSH2_SESSION *session,
-                                const char *filename,
-                                const char *passphrase)
+int ssh2_dsa_new_priv(ssh2_dsa_ctx **dsa,
+                      LIBSSH2_SESSION *session,
+                      const char *filename,
+                      const char *blob, size_t blob_len,
+                      const char *passphrase)
 {
     FILE *fp;
     unsigned char *data, *save_data;
@@ -379,13 +357,20 @@ int ssh2_dsa_new_priv_from_file(ssh2_dsa_ctx **dsa,
     unsigned char *p, *q, *g, *y, *x;
     unsigned int plen, qlen, glen, ylen, xlen;
 
-    fp = ssh2_fopen(filename, "rb");
-    if(!fp)
-        return -1;
+    if(filename) {
+        fp = ssh2_fopen(filename, "rb");
+        if(!fp)
+            return -1;
 
-    ret = ssh2_pem_parse_FILE(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
-                              fp, passphrase, &data, &datalen);
-    fclose(fp);
+        ret = ssh2_pem_parse_FILE(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
+                                  fp, passphrase,
+                                  &data, &datalen);
+        fclose(fp);
+    }
+    else
+        ret = ssh2_pem_parse_blob(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
+                                  blob, blob_len, passphrase,
+                                  &data, &datalen);
     if(ret)
         return -1;
 
@@ -696,41 +681,25 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx,
     return ret;
 }
 
-int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
-                          char **method, size_t *method_len,
-                          unsigned char **pubkeydata, size_t *pubkeydata_len,
-                          const char *privkeyblob, size_t privkeyblob_len,
-                          const char *passphrase)
-{
-    (void)method;
-    (void)method_len;
-    (void)pubkeydata;
-    (void)pubkeydata_len;
-    (void)privkeyblob;
-    (void)privkeyblob_len;
-    (void)passphrase;
-
-    return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                    "Unable to extract public key from private key in "
-                    "memory: Method unimplemented in libgcrypt backend");
-}
-
-int ssh2_pub_privkey_file(LIBSSH2_SESSION *session,
-                          char **method, size_t *method_len,
-                          unsigned char **pubkeydata, size_t *pubkeydata_len,
-                          const char *privatekey,
-                          const char *passphrase)
+int ssh2_pub_privkey(LIBSSH2_SESSION *session,
+                     char **method, size_t *method_len,
+                     unsigned char **pubkeydata, size_t *pubkeydata_len,
+                     const char *privatekey,
+                     const char *privkeyblob, size_t privkeyblob_len,
+                     const char *passphrase)
 {
     (void)method;
     (void)method_len;
     (void)pubkeydata;
     (void)pubkeydata_len;
     (void)privatekey;
+    (void)privkeyblob;
+    (void)privkeyblob_len;
     (void)passphrase;
 
-    return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                    "Unable to extract public key from private key "
-                    "file: Method unimplemented in libgcrypt backend");
+    return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
+                    "Unable to extract public key from private key: "
+                    "Method unimplemented in libgcrypt backend");
 }
 
 void ssh2_dh_init(ssh2_dh_ctx *dhctx)

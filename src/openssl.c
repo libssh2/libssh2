@@ -1049,34 +1049,6 @@ static int ossl_passphrase_cb(char *buf, int size, int rwflag,
 #endif /* LIBSSH2_RSA || LIBSSH2_DSA || LIBSSH2_ECDSA || LIBSSH2_ED25519 */
 
 #if LIBSSH2_RSA
-int ssh2_rsa_new_priv_from_blob(ssh2_rsa_ctx **rsa,
-                                LIBSSH2_SESSION *session,
-                                const char *blob, size_t blob_len,
-                                const char *passphrase)
-{
-    int rc = 0;
-    BIO *bp;
-
-    OSSL_INIT_IF_NEEDED();
-
-    bp = BIO_new_mem_buf(blob, (int)blob_len);
-    if(bp)
-#ifdef USE_OPENSSL_3
-        *rsa = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
-                                       SSH2_UNCONST(passphrase));
-#else
-        *rsa = PEM_read_bio_RSAPrivateKey(bp, NULL, ossl_passphrase_cb,
-                                          SSH2_UNCONST(passphrase));
-#endif
-    BIO_free(bp);
-
-    if(!*rsa)
-        rc = ossl_key_from_openssh_blob(session, (void **)rsa, "ssh-rsa",
-                                        NULL, NULL, NULL, NULL,
-                                        blob, blob_len, passphrase);
-    return rc;
-}
-
 static unsigned char *ossl_rsa_to_pubkey(LIBSSH2_SESSION *session,
                                          ssh2_rsa_ctx *rsa, size_t *key_len)
 {
@@ -1373,7 +1345,7 @@ static int ossl_rsa_openssh_priv_new(ssh2_rsa_ctx **rsa,
     if(rc)
         return rc;
 
-    /* We have a new key file, now try and parse it using supported types  */
+    /* We have a new key file, now try and parse it using supported types */
     rc = ssh2_get_string(decrypted, &buf, NULL);
     if(rc || !buf) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -1396,17 +1368,23 @@ cleanup:
     return rc;
 }
 
-int ssh2_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa,
-                                LIBSSH2_SESSION *session,
-                                const char *filename,
-                                const char *passphrase)
+int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
+                      LIBSSH2_SESSION *session,
+                      const char *filename,
+                      const char *blob, size_t blob_len,
+                      const char *passphrase)
 {
     int rc = 0;
     BIO *bp;
 
     OSSL_INIT_IF_NEEDED();
 
-    bp = BIO_new_file(filename, "r");
+    *rsa = NULL;
+
+    if(filename)
+        bp = BIO_new_file(filename, "r");
+    else
+        bp = BIO_new_mem_buf(blob, (int)blob_len);
     if(bp)
 #ifdef USE_OPENSSL_3
         *rsa = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
@@ -1417,42 +1395,20 @@ int ssh2_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa,
 #endif
     BIO_free(bp);
 
-    if(!*rsa)
-        rc = ossl_rsa_openssh_priv_new(rsa, session, filename, passphrase);
+    if(!*rsa) {
+        if(filename)
+            rc = ossl_rsa_openssh_priv_new(rsa, session, filename, passphrase);
+        else
+            rc = ossl_key_from_openssh_blob(session, (void **)rsa, "ssh-rsa",
+                                            NULL, NULL, NULL, NULL,
+                                            blob, blob_len, passphrase);
+    }
 
     return rc;
 }
 #endif
 
 #if LIBSSH2_DSA
-int ssh2_dsa_new_priv_from_blob(ssh2_dsa_ctx **dsa,
-                                LIBSSH2_SESSION *session,
-                                const char *blob, size_t blob_len,
-                                const char *passphrase)
-{
-    int rc = 0;
-    BIO *bp;
-
-    OSSL_INIT_IF_NEEDED();
-
-    bp = BIO_new_mem_buf(blob, (int)blob_len);
-    if(bp)
-#ifdef USE_OPENSSL_3
-        *dsa = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
-                                       SSH2_UNCONST(passphrase));
-#else
-        *dsa = PEM_read_bio_DSAPrivateKey(bp, NULL, ossl_passphrase_cb,
-                                          SSH2_UNCONST(passphrase));
-#endif
-    BIO_free(bp);
-
-    if(!*dsa)
-        rc = ossl_key_from_openssh_blob(session, (void **)dsa, "ssh-dsa",
-                                        NULL, NULL, NULL, NULL,
-                                        blob, blob_len, passphrase);
-    return rc;
-}
-
 static unsigned char *ossl_dsa_to_pubkey(LIBSSH2_SESSION *session,
                                          ssh2_dsa_ctx *dsa, size_t *key_len)
 {
@@ -1682,7 +1638,7 @@ static int ossl_dsa_openssh_priv_new(ssh2_dsa_ctx **dsa,
     if(rc)
         return rc;
 
-    /* We have a new key file, now try and parse it using supported types  */
+    /* We have a new key file, now try and parse it using supported types */
     rc = ssh2_get_string(decrypted, &buf, NULL);
     if(rc || !buf) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -1705,17 +1661,23 @@ cleanup:
     return rc;
 }
 
-int ssh2_dsa_new_priv_from_file(ssh2_dsa_ctx **dsa,
-                                LIBSSH2_SESSION *session,
-                                const char *filename,
-                                const char *passphrase)
+int ssh2_dsa_new_priv(ssh2_dsa_ctx **dsa,
+                      LIBSSH2_SESSION *session,
+                      const char *filename,
+                      const char *blob, size_t blob_len,
+                      const char *passphrase)
 {
     int rc = 0;
     BIO *bp;
 
     OSSL_INIT_IF_NEEDED();
 
-    bp = BIO_new_file(filename, "r");
+    *dsa = NULL;
+
+    if(filename)
+        bp = BIO_new_file(filename, "r");
+    else
+        bp = BIO_new_mem_buf(blob, (int)blob_len);
     if(bp)
 #ifdef USE_OPENSSL_3
         *dsa = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
@@ -1726,42 +1688,18 @@ int ssh2_dsa_new_priv_from_file(ssh2_dsa_ctx **dsa,
 #endif
     BIO_free(bp);
 
-    if(!*dsa)
-        rc = ossl_dsa_openssh_priv_new(dsa, session, filename, passphrase);
+    if(!*dsa) {
+        if(filename)
+            rc = ossl_dsa_openssh_priv_new(dsa, session, filename, passphrase);
+        else
+            rc = ossl_key_from_openssh_blob(session, (void **)dsa, "ssh-dsa",
+                                            NULL, NULL, NULL, NULL,
+                                            blob, blob_len, passphrase);
+    }
 
     return rc;
 }
 #endif /* LIBSSH2_DSA */
-
-#if LIBSSH2_ECDSA
-int ssh2_ecdsa_new_priv_from_blob(ssh2_ecdsa_ctx **ec_ctx,
-                                  LIBSSH2_SESSION *session,
-                                  const char *blob, size_t blob_len,
-                                  const char *passphrase)
-{
-    int rc = 0;
-    BIO *bp;
-
-    OSSL_INIT_IF_NEEDED();
-
-    bp = BIO_new_mem_buf(blob, (int)blob_len);
-    if(bp)
-#ifdef USE_OPENSSL_3
-        *ec_ctx = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
-                                          SSH2_UNCONST(passphrase));
-#else
-        *ec_ctx = PEM_read_bio_ECPrivateKey(bp, NULL, ossl_passphrase_cb,
-                                            SSH2_UNCONST(passphrase));
-#endif
-    BIO_free(bp);
-
-    if(!*ec_ctx)
-        rc = ossl_key_from_openssh_blob(session, (void **)ec_ctx, "ssh-ecdsa",
-                                        NULL, NULL, NULL, NULL,
-                                        blob, blob_len, passphrase);
-    return rc;
-}
-#endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519
 
@@ -2164,15 +2102,12 @@ clean_exit:
     return -1;
 }
 
-int ssh2_ed25519_new_priv_from_file(ssh2_ed25519_ctx **ed_ctx,
-                                    LIBSSH2_SESSION *session,
-                                    const char *filename,
-                                    const char *passphrase)
+int ssh2_ed25519_new_priv(ssh2_ed25519_ctx **ed_ctx,
+                          LIBSSH2_SESSION *session,
+                          const char *filename,
+                          const char *blob, size_t blob_len,
+                          const char *passphrase)
 {
-    int rc;
-    FILE *fp;
-    unsigned char *buf;
-    struct string_buf *decrypted = NULL;
     ssh2_ed25519_ctx *ctx = NULL;
 
     if(!session)
@@ -2180,78 +2115,81 @@ int ssh2_ed25519_new_priv_from_file(ssh2_ed25519_ctx **ed_ctx,
 
     OSSL_INIT_IF_NEEDED();
 
-    fp = ssh2_fopen(filename, "r");
-    if(!fp) {
-        ssh2_err(session, LIBSSH2_ERROR_FILE,
-                 "Unable to open ED25519 private key file");
-        return -1;
-    }
+    if(filename) {
+        int rc;
+        FILE *fp;
+        unsigned char *buf;
+        struct string_buf *decrypted = NULL;
 
-    rc = ssh2_openssh_pem_parse_FILE(session, fp, passphrase, &decrypted);
-    fclose(fp);
-    if(rc)
-        return rc;
+        fp = ssh2_fopen(filename, "r");
+        if(!fp) {
+            ssh2_err(session, LIBSSH2_ERROR_FILE,
+                     "Unable to open ED25519 private key file");
+            return -1;
+        }
 
-    /* We have a new key file, now try and parse it using supported types  */
-    rc = ssh2_get_string(decrypted, &buf, NULL);
-    if(rc || !buf) {
-        ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                 "Public key type in decrypted key data not found");
-        rc = -1;
-        goto cleanup;
-    }
+        rc = ssh2_openssh_pem_parse_FILE(session, fp, passphrase, &decrypted);
+        fclose(fp);
+        if(rc)
+            return rc;
 
-    if(!strcmp("ssh-ed25519", (const char *)buf))
-        rc = ossl_ed25519_openssh_priv_to_pubkey(session, decrypted,
-                                                 NULL, NULL, NULL, NULL, &ctx);
-    else
-        rc = -1;
+        /* We have a new key file, now try and parse it using supported
+           types */
+        rc = ssh2_get_string(decrypted, &buf, NULL);
+        if(rc || !buf) {
+            ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                     "Public key type in decrypted key data not found");
+            rc = -1;
+            goto cleanup;
+        }
 
-    if(rc == 0) {
-        if(ed_ctx)
-            *ed_ctx = ctx;
-        else if(ctx)
-            ssh2_ed25519_free(ctx);
-    }
+        if(!strcmp("ssh-ed25519", (const char *)buf))
+            rc = ossl_ed25519_openssh_priv_to_pubkey(session, decrypted,
+                                                     NULL, NULL, NULL, NULL,
+                                                     &ctx);
+        else
+            rc = -1;
+
+        if(rc == 0) {
+            if(ed_ctx)
+                *ed_ctx = ctx;
+            else if(ctx)
+                ssh2_ed25519_free(ctx);
+        }
 
 cleanup:
 
-    if(decrypted)
-        ssh2_string_buf_free(session, decrypted);
+        if(decrypted)
+            ssh2_string_buf_free(session, decrypted);
 
-    return rc;
-}
-
-int ssh2_ed25519_new_priv_from_blob(ssh2_ed25519_ctx **ed_ctx,
-                                    LIBSSH2_SESSION *session,
-                                    const char *blob, size_t blob_len,
-                                    const char *passphrase)
-{
-    ssh2_ed25519_ctx *ctx = NULL;
-    BIO *bp;
-
-    OSSL_INIT_IF_NEEDED();
-
-    bp = BIO_new_mem_buf(blob, (int)blob_len);
-    if(bp) {
-        ctx = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
-                                      SSH2_UNCONST(passphrase));
-        BIO_free(bp);
-        if(ctx) {
-            if(EVP_PKEY_id(ctx) != EVP_PKEY_ED25519) {
-                ssh2_ed25519_free(ctx);
-                return ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                                "Private key is not an ED25519 key");
-            }
-
-            *ed_ctx = ctx;
-            return 0;
-        }
+        return rc;
     }
+    else {
+        BIO *bp = BIO_new_mem_buf(blob, (int)blob_len);
+        if(bp) {
+            ctx = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
+                                          SSH2_UNCONST(passphrase));
+            BIO_free(bp);
+            if(ctx) {
+                if(EVP_PKEY_id(ctx) != EVP_PKEY_ED25519) {
+                    ssh2_ed25519_free(ctx);
+                    return ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                                    "Private key is not an ED25519 key");
+                }
 
-    return ossl_key_from_openssh_blob(session, (void **)ed_ctx, "ssh-ed25519",
-                                      NULL, NULL, NULL, NULL,
-                                      blob, blob_len, passphrase);
+                if(ed_ctx)
+                    *ed_ctx = ctx;
+                else
+                    ssh2_ed25519_free(ctx);
+                return 0;
+            }
+        }
+
+        return ossl_key_from_openssh_blob(session,
+                                          (void **)ed_ctx, "ssh-ed25519",
+                                          NULL, NULL, NULL, NULL,
+                                          blob, blob_len, passphrase);
+    }
 }
 
 int ssh2_ed25519_new_public(ssh2_ed25519_ctx **ed_ctx,
@@ -3140,7 +3078,7 @@ static int ossl_ecdsa_openssh_priv_new(ssh2_ecdsa_ctx **ec_ctx,
     if(rc)
         return rc;
 
-    /* We have a new key file, now try and parse it using supported types  */
+    /* We have a new key file, now try and parse it using supported types */
     rc = ssh2_get_string(decrypted, &buf, NULL);
     if(rc || !buf) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -3165,17 +3103,23 @@ cleanup:
     return rc;
 }
 
-int ssh2_ecdsa_new_priv_from_file(ssh2_ecdsa_ctx **ec_ctx,
-                                  LIBSSH2_SESSION *session,
-                                  const char *filename,
-                                  const char *passphrase)
+int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
+                        LIBSSH2_SESSION *session,
+                        const char *filename,
+                        const char *blob, size_t blob_len,
+                        const char *passphrase)
 {
     int rc = 0;
     BIO *bp;
 
     OSSL_INIT_IF_NEEDED();
 
-    bp = BIO_new_file(filename, "r");
+    *ec_ctx = NULL;
+
+    if(filename)
+        bp = BIO_new_file(filename, "r");
+    else
+        bp = BIO_new_mem_buf(blob, (int)blob_len);
     if(bp)
 #ifdef USE_OPENSSL_3
         *ec_ctx = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
@@ -3186,9 +3130,16 @@ int ssh2_ecdsa_new_priv_from_file(ssh2_ecdsa_ctx **ec_ctx,
 #endif
     BIO_free(bp);
 
-    if(!*ec_ctx)
-        rc = ossl_ecdsa_openssh_priv_new(ec_ctx, session, filename,
-                                         passphrase);
+    if(!*ec_ctx) {
+        if(filename)
+            rc = ossl_ecdsa_openssh_priv_new(ec_ctx, session, filename,
+                                             passphrase);
+        else
+            rc = ossl_key_from_openssh_blob(session,
+                                            (void **)ec_ctx, "ssh-ecdsa",
+                                            NULL, NULL, NULL, NULL,
+                                            blob, blob_len, passphrase);
+    }
     return rc;
 }
 
@@ -3659,14 +3610,13 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
     }
 
     rc = ssh2_openssh_pem_parse_FILE(session, fp, passphrase, &decrypted);
-
     fclose(fp);
     if(rc) {
         ssh2_err(session, LIBSSH2_ERROR_FILE, "Not an OpenSSH key file");
         return rc;
     }
 
-    /* We have a new key file, now try and parse it using supported types  */
+    /* We have a new key file, now try and parse it using supported types */
     rc = ssh2_get_string(decrypted, &buf, NULL);
     if(rc || !buf) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -3723,82 +3673,6 @@ cleanup:
     return rc;
 }
 
-int ssh2_pub_privkey_file(LIBSSH2_SESSION *session,
-                          char **method, size_t *method_len,
-                          unsigned char **pubkeydata, size_t *pubkeydata_len,
-                          const char *privatekey,
-                          const char *passphrase)
-{
-    BIO *bp;
-    EVP_PKEY *pk;
-    int pktype;
-    int rc;
-
-    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
-              "Computing public key from private key file: %s", privatekey));
-
-    bp = BIO_new_file(privatekey, "r");
-    if(!bp)
-        return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                        "Unable to extract public key from private key file: "
-                        "Unable to open private key file");
-
-    (void)BIO_reset(bp);
-    pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, SSH2_UNCONST(passphrase));
-    BIO_free(bp);
-
-    if(!pk) {
-        /* Try OpenSSH format */
-        rc = ossl_key_from_openssh_file(session, method, method_len,
-                                        pubkeydata, pubkeydata_len,
-                                        privatekey, passphrase);
-        if(rc)
-            return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                            "Unable to extract public key "
-                            "from private key file: "
-                            "Wrong passphrase or invalid/unrecognized "
-                            "private key file format");
-        return 0;
-    }
-
-    pktype = EVP_PKEY_id(pk);
-
-    switch(pktype) {
-#if LIBSSH2_ED25519
-    case EVP_PKEY_ED25519:
-        rc = ossl_ed25519_evp_to_pubkey(session, method, method_len,
-                                        pubkeydata, pubkeydata_len, pk);
-        break;
-#endif /* LIBSSH2_ED25519 */
-#if LIBSSH2_RSA
-    case EVP_PKEY_RSA:
-        rc = ossl_rsa_evp_to_pubkey(session, method, method_len,
-                                    pubkeydata, pubkeydata_len, pk);
-        break;
-#endif /* LIBSSH2_RSA */
-#if LIBSSH2_DSA
-    case EVP_PKEY_DSA:
-        rc = ossl_dsa_evp_to_pubkey(session, method, method_len,
-                                    pubkeydata, pubkeydata_len, pk);
-        break;
-#endif /* LIBSSH2_DSA */
-#if LIBSSH2_ECDSA
-    case EVP_PKEY_EC:
-        rc = ossl_ecdsa_evp_to_pubkey(session, method, method_len,
-                                      pubkeydata, pubkeydata_len, 0, pk);
-        break;
-#endif /* LIBSSH2_ECDSA */
-    default:
-        rc = ssh2_err(session, LIBSSH2_ERROR_FILE,
-                      "Unable to extract public key from private key file: "
-                      "Unsupported private key file format");
-        break;
-    }
-
-    EVP_PKEY_free(pk);
-    return rc;
-}
-
 static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
                                       void **key_ctx,
                                       const char *want_method,
@@ -3827,14 +3701,13 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
 
     OSSL_INIT_IF_NEEDED();
 
-    rc = ssh2_openssh_pem_parse_blob(session,
-                                     privkeyblob, privkeyblob_len,
+    rc = ssh2_openssh_pem_parse_blob(session, privkeyblob, privkeyblob_len,
                                      passphrase,
                                      &decrypted);
     if(rc)
         return rc;
 
-    /* We have a new key file, now try and parse it using supported types  */
+    /* We have a new key file, now try and parse it using supported types */
     rc = ssh2_get_string(decrypted, &buf, NULL);
     if(rc || !buf) {
         rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -3899,8 +3772,8 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
 
     if(rc == LIBSSH2_ERROR_FILE)
         rc = ssh2_err(session, LIBSSH2_ERROR_FILE,
-                      "Unable to extract public key from private key file: "
-                      "invalid/unrecognized private key file format");
+                      "Unable to extract public key from private key: "
+                      "invalid/unrecognized private key format");
 
 cleanup:
 
@@ -3910,14 +3783,15 @@ cleanup:
     return rc;
 }
 
-int ssh2_sk_pubkey_blob(LIBSSH2_SESSION *session,
-                        char **method, size_t *method_len,
-                        unsigned char **pubkeydata, size_t *pubkeydata_len,
-                        int *algorithm, unsigned char *flags,
-                        const char **application,
-                        const unsigned char **key_handle, size_t *handle_len,
-                        const char *privkeyblob, size_t privkeyblob_len,
-                        const char *passphrase)
+int ssh2_sk_pubkey(LIBSSH2_SESSION *session,
+                   char **method, size_t *method_len,
+                   unsigned char **pubkeydata, size_t *pubkeydata_len,
+                   int *algorithm, unsigned char *flags,
+                   const char **application,
+                   const unsigned char **key_handle, size_t *handle_len,
+                   const char *privatekey,
+                   const char *privkeyblob, size_t privkeyblob_len,
+                   const char *passphrase)
 {
     int rc;
     unsigned char *buf = NULL;
@@ -3931,14 +3805,22 @@ int ssh2_sk_pubkey_blob(LIBSSH2_SESSION *session,
 
     OSSL_INIT_IF_NEEDED();
 
-    rc = ssh2_openssh_pem_parse_blob(session,
-                                     privkeyblob, privkeyblob_len,
-                                     passphrase,
-                                     &decrypted);
+    if(privatekey) {
+        FILE *fp = ssh2_fopen(privatekey, "rb");
+        if(!fp)
+            return ssh2_err(session, LIBSSH2_ERROR_FILE,
+                            "Opening the private key failed");
+        rc = ssh2_openssh_pem_parse_FILE(session, fp, passphrase, &decrypted);
+        fclose(fp);
+    }
+    else
+        rc = ssh2_openssh_pem_parse_blob(session, privkeyblob, privkeyblob_len,
+                                         passphrase,
+                                         &decrypted);
     if(rc)
         return rc;
 
-    /* We have a new key file, now try and parse it using supported types  */
+    /* We have a new key file, now try and parse it using supported types */
     rc = ssh2_get_string(decrypted, &buf, NULL);
     if(rc || !buf) {
         rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -3985,8 +3867,8 @@ int ssh2_sk_pubkey_blob(LIBSSH2_SESSION *session,
 
     if(rc == LIBSSH2_ERROR_FILE)
         rc = ssh2_err(session, LIBSSH2_ERROR_FILE,
-                      "Unable to extract public key from private key file: "
-                      "invalid/unrecognized private key file format");
+                      "Unable to extract public key from private key: "
+                      "invalid/unrecognized private key format");
 
 cleanup:
 
@@ -4000,12 +3882,12 @@ cleanup:
 #define HAVE_SSLERROR_BAD_DECRYPT
 #endif
 
-int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
-                          char **method, size_t *method_len,
-                          unsigned char **pubkeydata, size_t *pubkeydata_len,
-                          const char *privkeyblob,
-                          size_t privkeyblob_len,
-                          const char *passphrase)
+int ssh2_pub_privkey(LIBSSH2_SESSION *session,
+                     char **method, size_t *method_len,
+                     unsigned char **pubkeydata, size_t *pubkeydata_len,
+                     const char *privatekey,
+                     const char *privkeyblob, size_t privkeyblob_len,
+                     const char *passphrase)
 {
     int rc;
     BIO *bp;
@@ -4015,13 +3897,29 @@ int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
     unsigned long sslError;
 #endif
 
-    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
-              "Computing public key from private key."));
+    OSSL_INIT_IF_NEEDED();
 
-    bp = BIO_new_mem_buf(privkeyblob, (int)privkeyblob_len);
-    if(!bp)
-        return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                        "Unable to allocate memory when computing public key");
+    if(privatekey) {
+        ssh2_deb((session, LIBSSH2_TRACE_AUTH,
+                  "Computing public key from private key file: %s",
+                  privatekey));
+
+        bp = BIO_new_file(privatekey, "r");
+        if(!bp)
+            return ssh2_err(session, LIBSSH2_ERROR_FILE,
+                            "Unable to open private key file");
+    }
+    else {
+        ssh2_deb((session, LIBSSH2_TRACE_AUTH,
+                  "Computing public key from private key."));
+
+        bp = BIO_new_mem_buf(privkeyblob, (int)privkeyblob_len);
+        if(!bp)
+            return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
+                            "Unable to allocate memory when computing "
+                            "public key");
+    }
+
     (void)BIO_reset(bp);
     pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, SSH2_UNCONST(passphrase));
 #ifdef HAVE_SSLERROR_BAD_DECRYPT
@@ -4031,11 +3929,18 @@ int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
 
     if(!pk) {
         /* Try OpenSSH format */
-        rc = ossl_key_from_openssh_blob(session, NULL, NULL,
-                                        method, method_len,
-                                        pubkeydata, pubkeydata_len,
-                                        privkeyblob, privkeyblob_len,
-                                        passphrase);
+        if(privatekey)
+            rc = ossl_key_from_openssh_file(session,
+                                            method, method_len,
+                                            pubkeydata, pubkeydata_len,
+                                            privatekey,
+                                            passphrase);
+        else
+            rc = ossl_key_from_openssh_blob(session, NULL, NULL,
+                                            method, method_len,
+                                            pubkeydata, pubkeydata_len,
+                                            privkeyblob, privkeyblob_len,
+                                            passphrase);
         if(rc == 0)
             return 0;
 
@@ -4048,8 +3953,8 @@ int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
                             "Wrong passphrase for private key");
 #endif
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                        "Unable to extract public key from private key file: "
-                        "Unsupported private key file format");
+                        "Unable to extract public key from private key: "
+                        "Unsupported private key format");
     }
 
     pktype = EVP_PKEY_id(pk);
@@ -4081,8 +3986,8 @@ int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
 #endif /* LIBSSH2_ECDSA */
     default:
         rc = ssh2_err(session, LIBSSH2_ERROR_FILE,
-                      "Unable to extract public key from private key file: "
-                      "Unsupported private key file format");
+                      "Unable to extract public key from private key: "
+                      "Unsupported private key format");
         break;
     }
 

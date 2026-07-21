@@ -222,7 +222,7 @@
 # define LIBSSH2_3DES 1
 #endif
 
-#define LIBSSH2_KEY_SK  /* implements ssh2_sk_pubkey_blob() */
+#define LIBSSH2_KEY_SK  /* implements ssh2_sk_pubkey() */
 
 #include "crypto_config.h"
 
