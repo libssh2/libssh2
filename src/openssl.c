@@ -3903,16 +3903,22 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session,
         ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                   "Computing public key from private key file: %s",
                   privatekey));
+
         bp = BIO_new_file(privatekey, "r");
+        if(!bp)
+            return ssh2_err(session, LIBSSH2_ERROR_FILE,
+                            "Unable to open private key file");
     }
     else {
         ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                   "Computing public key from private key."));
+
         bp = BIO_new_mem_buf(privkeyblob, (int)privkeyblob_len);
+        if(!bp)
+            return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
+                            "Unable to allocate memory when computing "
+                            "public key");
     }
-    if(!bp)
-        return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                        "Unable to open/read private key");
 
     (void)BIO_reset(bp);
     pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, SSH2_UNCONST(passphrase));
