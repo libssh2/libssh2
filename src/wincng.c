@@ -2673,10 +2673,10 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
 
     if(length == 9) { /* private RSA key */
         method_buf_len = sizeof("ssh-rsa") - 1;
-        method_buf = SSH2_ALLOC(session, method_buf_len);
+        method_buf = SSH2_ALLOC(session, method_buf_len + 1);
         if(!method_buf)
             goto cleanup;
-        memcpy(method_buf, "ssh-rsa", method_buf_len);
+        memcpy(method_buf, "ssh-rsa", method_buf_len + 1);
 
         if(rcbDecoded[2] > (32 * 1024) ||
            rcbDecoded[1] > (32 * 1024))
@@ -2696,10 +2696,10 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
     }
     else if(length == 6) { /* private DSA key */
         method_buf_len = sizeof("ssh-dss") - 1;
-        method_buf = SSH2_ALLOC(session, method_buf_len);
+        method_buf = SSH2_ALLOC(session, method_buf_len + 1);
         if(!method_buf)
             goto cleanup;
-        memcpy(method_buf, "ssh-dss", method_buf_len);
+        memcpy(method_buf, "ssh-dss", method_buf_len + 1);
 
         if(rcbDecoded[1] > (32 * 1024) ||
            rcbDecoded[2] > (32 * 1024) ||
