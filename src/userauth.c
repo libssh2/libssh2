@@ -806,10 +806,8 @@ int libssh2_sign_sk(LIBSSH2_SESSION *session,
     if(!sk_info->handle_len)
         return LIBSSH2_ERROR_DECRYPT;
 
-    rc = sk_info->sign_callback(session,
-                                &sig_info,
-                                data,
-                                data_len,
+    rc = sk_info->sign_callback(session, &sig_info,
+                                data, data_len,
                                 sk_info->algorithm,
                                 sk_info->flags,
                                 sk_info->application,
