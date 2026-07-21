@@ -1372,19 +1372,21 @@ static int userauth_key_sign_algs(LIBSSH2_SESSION *session,
         if(*method && *method_len == rsa_method_len &&
            !memcmp(*method, rsa_method, rsa_method_len)) {
             SSH2_FREE(session, *method);
-            *method = SSH2_ALLOC(session, match_len + suffix_len);
+            *method = SSH2_ALLOC(session, match_len + suffix_len + 1);
             if(*method) {
                 memcpy(*method, match, match_len);
                 memcpy(*method + match_len, suffix, suffix_len);
+                method[match_len + suffix_len] = 0;
                 *method_len = match_len + suffix_len;
             }
         }
         else {
             if(*method)
                 SSH2_FREE(session, *method);
-            *method = SSH2_ALLOC(session, match_len);
+            *method = SSH2_ALLOC(session, match_len + 1);
             if(*method) {
                 memcpy(*method, match, match_len);
+                method[match_len] = 0;
                 *method_len = match_len;
             }
         }
