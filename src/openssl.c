@@ -3966,9 +3966,11 @@ int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
     if(!pk) {
         /* Try OpenSSH format */
         if(privatekey)
-            rc = ossl_key_from_openssh_file(session, method, method_len,
+            rc = ossl_key_from_openssh_file(session,
+                                            method, method_len,
                                             pubkeydata, pubkeydata_len,
-                                            privatekey, passphrase);
+                                            privatekey,
+                                            passphrase);
         else
             rc = ossl_key_from_openssh_blob(session, NULL, NULL,
                                             method, method_len,
