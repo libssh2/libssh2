@@ -639,7 +639,7 @@ static int userauth_read_pubkey(LIBSSH2_SESSION *session, char **method,
     /*
      * Remove trailing whitespace
      */
-    while(pubkey_len && isspace(pubkey[pubkey_len - 1]))
+    while(pubkey_len && isspace((unsigned char)pubkey[pubkey_len - 1]))
         pubkey_len--;
 
     if(!pubkey_len) {
