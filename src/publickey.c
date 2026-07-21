@@ -569,8 +569,8 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
     if(pkey->add_state == ssh2_NB_state_idle) {
         pkey->add_packet = NULL;
 
-        ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY, "Adding %s publickey",
-                  name));
+        ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY, "Adding %.*s publickey",
+                  (int)name_len, name));
 
         if(pkey->version == 1) {
             for(i = 0; i < num_attrs; i++) {
@@ -666,8 +666,8 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
 
         ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
                   "Sending publickey 'add' packet: "
-                  "type=%s blob_len=%lu num_attrs=%lu",
-                  name, blob_len, num_attrs));
+                  "type=%.*s blob_len=%lu num_attrs=%lu",
+                  (int)name_len, name, blob_len, num_attrs));
 
         pkey->add_state = ssh2_NB_state_created;
     }
@@ -755,8 +755,8 @@ int libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
         pkey->remove_s += blob_len;
 
         ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
-                  "Sending publickey 'remove' packet: "
-                  "type=%s blob_len=%lu", name, blob_len));
+                  "Sending publickey 'remove' packet: type=%.*s blob_len=%lu",
+                  (int)name_len, name, blob_len));
 
         pkey->remove_state = ssh2_NB_state_created;
     }
