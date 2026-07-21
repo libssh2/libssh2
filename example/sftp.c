@@ -76,7 +76,7 @@ static void kbd_callback(const char *name, int name_len,
         n = strlen(buf);
         while(n > 0 && strchr("\r\n", buf[n - 1]))
             n--;
-        buf[n] = 0;
+        buf[n] = '\0';
 
         responses[i].text = strdup(buf);
         responses[i].length = (unsigned int)n;

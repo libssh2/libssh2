@@ -94,7 +94,7 @@ static ssize_t netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
 
     /* discard the special sequence so that only XML is returned */
     rd = (size_t)(specialsequence - buf);
-    buf[rd] = 0;
+    buf[rd] = '\0';
 
     return (ssize_t)rd;
 }

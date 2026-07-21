@@ -34,7 +34,7 @@ static void fpcopy(char *output, char *input, int size)
     if(size)
         memcpy(output, input, (size_t)size);
 
-    output[size] = 0;
+    output[size] = '\0';
 }
 
 /*----------------------------------------------------------*/
@@ -133,7 +133,7 @@ static int find_file(char *filename, char *found, int *findex)
             found[0] = '\0';
     }
     else
-        found[0] = 0;
+        found[0] = '\0';
 
     return status;
 }

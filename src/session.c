@@ -1236,7 +1236,7 @@ int libssh2_session_last_error(LIBSSH2_SESSION *session, char **errmsg,
             *errmsg = SSH2_ALLOC(session, msglen + 1);
             if(*errmsg) {
                 memcpy(*errmsg, error, msglen);
-                (*errmsg)[msglen] = 0;
+                (*errmsg)[msglen] = '\0';
             }
         }
         else

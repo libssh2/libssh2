@@ -240,7 +240,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
             goto error;
         }
         memcpy(entry->key, key, keylen);
-        entry->key[keylen] = 0; /* force a null-terminator */
+        entry->key[keylen] = '\0';
     }
     else {
         /* key is raw, we base64 encode it and store it as such */
@@ -268,7 +268,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
             goto error;
         }
         memcpy(entry->key_type_name, key_type_name, key_type_len);
-        entry->key_type_name[key_type_len] = 0;
+        entry->key_type_name[key_type_len] = '\0';
         entry->key_type_len = key_type_len;
     }
 
@@ -285,7 +285,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
             goto error;
         }
         memcpy(entry->comment, comment, commentlen);
-        entry->comment[commentlen] = 0; /* force a null-terminator */
+        entry->comment[commentlen] = '\0';
         entry->comment_len = commentlen;
     }
     else
@@ -681,7 +681,7 @@ static int knownhost_line_legacy(LIBSSH2_KNOWNHOSTS *hosts,
 
             /* copy hostname to the temp buffer and null-terminate */
             memcpy(hostbuf, name, namelen);
-            hostbuf[namelen] = 0;
+            hostbuf[namelen] = '\0';
 
             rc = knownhost_add(hosts, hostbuf, NULL,
                                key_type_name, key_type_len,
@@ -731,7 +731,7 @@ static int knownhost_line_hashed(LIBSSH2_KNOWNHOSTS *hosts,
                             "(unexpectedly long salt)");
 
         memcpy(saltbuf, salt, saltlen);
-        saltbuf[saltlen] = 0; /* null-terminate */
+        saltbuf[saltlen] = '\0';
         salt = saltbuf; /* point to the stack based buffer */
 
         hash = p + 1; /* the host hash is after the separator */
@@ -747,7 +747,7 @@ static int knownhost_line_hashed(LIBSSH2_KNOWNHOSTS *hosts,
                             "(unexpected length)");
 
         memcpy(hostbuf, host, hostlen);
-        hostbuf[hostlen] = 0;
+        hostbuf[hostlen] = '\0';
 
         return knownhost_add(hosts, hostbuf, salt,
                              key_type_name, key_type_len,

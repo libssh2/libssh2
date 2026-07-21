@@ -385,7 +385,7 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
         }
 
         memcpy(data_nullterm, blob, blob_len);
-        data_nullterm[blob_len] = 0;
+        data_nullterm[blob_len] = '\0';
     }
 
     mbedtls_pk_init(&pkey);
@@ -641,7 +641,7 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session,
             return -1;
 
         memcpy(data_nullterm, privkeyblob, privkeyblob_len);
-        data_nullterm[privkeyblob_len] = 0;
+        data_nullterm[privkeyblob_len] = '\0';
     }
 
     mbedtls_pk_init(&pkey);
@@ -1131,7 +1131,7 @@ int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
         memcpy(data, blob, blob_len);
     }
 
-    data[data_len] = 0;  /* for mbedtls_pk_parse_key() */
+    data[data_len] = '\0';  /* for mbedtls_pk_parse_key() */
     if(mbed_parse_eckey(ec_ctx, &pkey, data, data_len + 1, passphrase) == 0)
         goto cleanup;
 

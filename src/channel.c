@@ -599,7 +599,7 @@ static LIBSSH2_LISTENER *channel_forward_listen(LIBSSH2_SESSION *session,
                 else {
                     listener->session = session;
                     memcpy(listener->host, host, session->fwdLstn_host_len);
-                    listener->host[session->fwdLstn_host_len] = 0;
+                    listener->host[session->fwdLstn_host_len] = '\0';
                     if(data_len >= 5 && !port) {
                         listener->port = ssh2_ntohu32(data + 1);
                         ssh2_deb((session, LIBSSH2_TRACE_CONN,
