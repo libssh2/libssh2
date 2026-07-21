@@ -1456,11 +1456,13 @@ retry_auth:
                 return rc;
         }
 
-        if(session->userauth_pblc_method && *session->userauth_pblc_method)
+        if(session->userauth_pblc_method && *session->userauth_pblc_method) {
             ssh2_deb((session, LIBSSH2_TRACE_KEX, "Signing using %s",
                       session->userauth_pblc_method));
-
-        method_len = strlen(session->userauth_pblc_method);
+            method_len = strlen(session->userauth_pblc_method);
+        }
+        else
+            method_len = 0;
 
         /* 45 = packet_type(1) + username_len(4) + servicename_len(4) +
            service_name(14)"ssh-connection" + authmethod_len(4) +
