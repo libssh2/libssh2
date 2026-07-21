@@ -567,7 +567,7 @@ static unsigned char *mbed_gen_publickey_from_rsa(LIBSSH2_SESSION *session,
     n_bytes = (uint32_t)mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(N)) + 1;
 
     /* Key form is "ssh-rsa" + e + n. */
-    len = 4 + sizeof("ssh-rsa") - 1 + 4 + e_bytes + 4 + n_bytes;
+    len = 4 + (uint32_t)sizeof("ssh-rsa") - 1 + 4 + e_bytes + 4 + n_bytes;
 
     key = SSH2_ALLOC(session, len);
     if(!key)
