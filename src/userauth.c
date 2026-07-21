@@ -1398,13 +1398,12 @@ int ssh2_userauth_publickey(
     int rc;
     unsigned char *s;
     int auth_attempts = 0;
+    size_t method_len;
 
 retry_auth:
     auth_attempts++;
 
     if(session->userauth_pblc_state == ssh2_NB_state_idle) {
-        size_t method_len;
-
         /*
          * The call to ssh2_ntohu32() later relies on pubkeydata having at
          * least 4 valid bytes containing the length of the method name.
@@ -1653,24 +1652,22 @@ retry_auth:
 
         ssh2_userauth_plain_method(session->userauth_pblc_method);
 
+        method_len = strlen(session->userauth_pblc_method);
+
         if(!strcmp(session->userauth_pblc_method,
                    "sk-ecdsa-sha2-nistp256@openssh.com") ||
            !strcmp(session->userauth_pblc_method,
                    "sk-ssh-ed25519@openssh.com")) {
-            ssh2_store_u32(&s,
-                         (uint32_t)(4 + strlen(session->userauth_pblc_method) +
-                                    sig_len));  /* FIXME: '4 +' missing? */
-            ssh2_store_str(&s, session->userauth_pblc_method,
-                               strlen(session->userauth_pblc_method));
+            ssh2_store_u32(&s, (uint32_t)(4 + method_len +
+                                          sig_len));
+            ssh2_store_str(&s, session->userauth_pblc_method, method_len);
             memcpy(s, sig, sig_len);
             s += sig_len;
         }
         else {
-            ssh2_store_u32(&s,
-                         (uint32_t)(4 + strlen(session->userauth_pblc_method) +
-                                    4 + sig_len));
-            ssh2_store_str(&s, session->userauth_pblc_method,
-                               strlen(session->userauth_pblc_method));
+            ssh2_store_u32(&s, (uint32_t)(4 + method_len +
+                                          4 + sig_len));
+            ssh2_store_str(&s, session->userauth_pblc_method, method_len);
             ssh2_store_str(&s, (const char *)sig, sig_len);
         }
 
