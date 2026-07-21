@@ -1995,7 +1995,7 @@ static int ossl_ed25519_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
         SSH2_FREE(session, method_buf);
 
     if(method_len)
-        *method_len = 11;
+        *method_len = sizeof(method_name) - 1;
 
     if(pubkeydata)
         *pubkeydata = key;
