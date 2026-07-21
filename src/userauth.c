@@ -578,7 +578,7 @@ static int userauth_read_pubkey(LIBSSH2_SESSION *session, char **method,
                                 const char *pubkeyfile,
                                 const char *pubkeyblob, size_t pubkeyblob_len)
 {
-    unsigned char *pubkey = NULL, *sp1, *sp2, *tmp;
+    char *pubkey = NULL, *sp1, *sp2, *tmp;
     size_t pubkey_len, method_len;
     size_t sp_len, tmp_len;
 
@@ -663,15 +663,14 @@ static int userauth_read_pubkey(LIBSSH2_SESSION *session, char **method,
         /* Assume that the id string is missing, but that it is okay */
         sp2 = pubkey + pubkey_len;
 
-    if(ssh2_base64_decode(session, (char **)&tmp, &tmp_len, (const char *)sp1,
-                          sp2 - sp1)) {
+    if(ssh2_base64_decode(session, &tmp, &tmp_len, sp1, sp2 - sp1)) {
         SSH2_FREE(session, pubkey);
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
                         "Invalid key data, not base64 encoded");
     }
 
     method_len = sp1 - pubkey - 1;
-    if(method_len != strlen((const char *)pubkey)) {
+    if(method_len != strlen(pubkey)) {
         SSH2_FREE(session, pubkey);
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
                         "Invalid key data, method contains null byte");
@@ -680,10 +679,10 @@ static int userauth_read_pubkey(LIBSSH2_SESSION *session, char **method,
     /* Wasting some bytes here (okay, more than some), but since it is likely
        to be freed soon anyway, we avoid the extra free/alloc and call
        it a wash */
-    *method = (char *)pubkey;
+    *method = pubkey;
     (*method)[method_len] = '\0';
 
-    *pubkeydata = tmp;
+    *pubkeydata = (unsigned char *)tmp;
     *pubkeydata_len = tmp_len;
 
     return 0;
