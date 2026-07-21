@@ -2717,10 +2717,8 @@ ssh2_curve_type ssh2_ecdsa_get_curve_type(IN ssh2_ecdsa_ctx *ec_ctx)
  */
 
 #if LIBSSH2_RSA || LIBSSH2_DSA
-static DWORD wcng_pub_priv_write(unsigned char *key,
-                                 DWORD offset,
-                                 const unsigned char *buf,
-                                 const DWORD length)
+static DWORD wcng_pub_priv_write(unsigned char *key, DWORD offset,
+                                 const void *buf, const DWORD length)
 {
     ssh2_htonu32(key + offset, length);
     offset += 4;
@@ -2741,9 +2739,9 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
 {
     unsigned char **rpbDecoded = NULL;
     DWORD *rcbDecoded = NULL;
-    char *mth = NULL;
+    char *method_buf = NULL;
     unsigned char *key = NULL;
-    DWORD keylen = 0, mthlen = 0;
+    DWORD keylen = 0, method_buf_len = 0;
     DWORD index, offset, length = 0;
     int ret;
 
@@ -2756,18 +2754,20 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
         return -1;
 
     if(length == 9) { /* private RSA key */
-        mthlen = 7;
-        mth = SSH2_ALLOC(session, mthlen);
-        if(mth)
-            memcpy(mth, "ssh-rsa", mthlen);
+        method_buf_len = sizeof("ssh-rsa") - 1;
+        method_buf = SSH2_ALLOC(session, method_buf_len);
+        if(method_buf)
+            memcpy(method_buf, "ssh-rsa", method_buf_len);
         else
             ret = -1;
 
-        keylen = 4 + mthlen + 4 + rcbDecoded[2] + 4 + rcbDecoded[1];
+        keylen = 4 + method_buf_len +
+                 4 + rcbDecoded[2] +
+                 4 + rcbDecoded[1];
         key = SSH2_ALLOC(session, keylen);
         if(key) {
             offset = wcng_pub_priv_write(key, 0,
-                                         (const unsigned char *)mth, mthlen);
+                                         method_buf, method_buf_len);
             offset = wcng_pub_priv_write(key, offset,
                                          rpbDecoded[2], rcbDecoded[2]);
             wcng_pub_priv_write(key, offset,
@@ -2777,19 +2777,22 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
             ret = -1;
     }
     else if(length == 6) { /* private DSA key */
-        mthlen = 7;
-        mth = SSH2_ALLOC(session, mthlen);
-        if(mth)
-            memcpy(mth, "ssh-dss", mthlen);
+        method_buf_len = sizeof("ssh-dss") - 1;
+        method_buf = SSH2_ALLOC(session, method_buf_len);
+        if(method_buf)
+            memcpy(method_buf, "ssh-dss", method_buf_len);
         else
             ret = -1;
 
-        keylen = 4 + mthlen + 4 + rcbDecoded[1] + 4 + rcbDecoded[2]
-                            + 4 + rcbDecoded[3] + 4 + rcbDecoded[4];
+        keylen = 4 + method_buf_len +
+                 4 + rcbDecoded[1] +
+                 4 + rcbDecoded[2] +
+                 4 + rcbDecoded[3] +
+                 4 + rcbDecoded[4];
         key = SSH2_ALLOC(session, keylen);
         if(key) {
             offset = wcng_pub_priv_write(key, 0,
-                                         (const unsigned char *)mth, mthlen);
+                                         method_buf, method_buf_len);
             offset = wcng_pub_priv_write(key, offset,
                                          rpbDecoded[1], rcbDecoded[1]);
             offset = wcng_pub_priv_write(key, offset,
@@ -2815,14 +2818,14 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
     free(rcbDecoded);
 
     if(ret) {
-        if(mth)
-            SSH2_FREE(session, mth);
+        if(method_buf)
+            SSH2_FREE(session, method_buf);
         if(key)
             SSH2_FREE(session, key);
     }
     else {
-        *method = mth;
-        *method_len = mthlen;
+        *method = method_buf;
+        *method_len = method_buf_len;
         *pubkeydata = key;
         *pubkeydata_len = keylen;
     }
