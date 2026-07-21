@@ -1104,16 +1104,16 @@ static unsigned char *ossl_rsa_to_pubkey(LIBSSH2_SESSION *session,
     n_bytes = BN_num_bytes(n) + 1;
 
     /* Key form is "ssh-rsa" + e + n. */
-    len = 4 + 7 + 4 + e_bytes + 4 + n_bytes;
+    len = 4 + sizeof("ssh-rsa") - 1 + 4 + e_bytes + 4 + n_bytes;
     key = p = SSH2_ALLOC(session, len);
     if(!key)
         goto fail;
 
-    ssh2_htonu32(p, 7); /* Key type. */
+    ssh2_htonu32(p, sizeof("ssh-rsa") - 1); /* Key type. */
     p += 4;
     /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
-    memcpy(p, "ssh-rsa", 7);
-    p += 7;
+    memcpy(p, "ssh-rsa", sizeof("ssh-rsa") - 1);
+    p += sizeof("ssh-rsa") - 1;
 
     p = ossl_write_bn(p, e, e_bytes);
     p = ossl_write_bn(p, n, n_bytes);
@@ -1486,16 +1486,17 @@ static unsigned char *ossl_dsa_to_pubkey(LIBSSH2_SESSION *session,
     k_bytes = BN_num_bytes(pub_key) + 1;
 
     /* Key form is "ssh-dss" + p + q + g + pub_key. */
-    len = 4 + 7 + 4 + p_bytes + 4 + q_bytes + 4 + g_bytes + 4 + k_bytes;
+    len = 4 + sizeof("ssh-dss") - 1 + 4 + p_bytes + 4 + q_bytes + 4 + g_bytes +
+          4 + k_bytes;
     key = p = SSH2_ALLOC(session, len);
     if(!key)
         goto fail;
 
-    ssh2_htonu32(p, 7); /* Key type. */
+    ssh2_htonu32(p, sizeof("ssh-dss") - 1); /* Key type. */
     p += 4;
     /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
-    memcpy(p, "ssh-dss", 7);
-    p += 7;
+    memcpy(p, "ssh-dss", sizeof("ssh-dss") - 1);
+    p += sizeof("ssh-dss") - 1;
 
     p = ossl_write_bn(p, p_bn, p_bytes);
     p = ossl_write_bn(p, q, q_bytes);
