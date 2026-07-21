@@ -1142,18 +1142,16 @@ int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
             goto cleanup;
         if(fread(data, 1, data_len, fp) != data_len)
             goto cleanup;
-
-        data[data_len] = 0;  /* for mbedtls_pk_parse_key() */
     }
     else {
         data_len = blob_len;
         data = mbedtls_calloc(1, data_len + 1);
         if(!data)
             goto cleanup;
-        memcpy(data_nullterm, blob, blob_len);
-        data[data_len] = 0;
+        memcpy(data, blob, blob_len);
     }
 
+    data[data_len] = 0;  /* for mbedtls_pk_parse_key() */
     if(mbed_parse_eckey(ec_ctx, &pkey, data, data_len + 1, passphrase) == 0)
         goto cleanup;
 
