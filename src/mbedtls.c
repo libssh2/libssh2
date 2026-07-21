@@ -604,7 +604,7 @@ static int mbed_pub_priv_key(LIBSSH2_SESSION *session,
 {
     char *method_buf = NULL;
     unsigned char *key = NULL;
-    size_t keylen = 0, mthlen = 0;
+    size_t keylen = 0, method_buf_len = 0;
     int ret;
     mbedtls_rsa_context *rsa;
 
@@ -616,10 +616,10 @@ static int mbed_pub_priv_key(LIBSSH2_SESSION *session,
     ret = 0;
 
     /* write method */
-    mthlen = sizeof("ssh-rsa") - 1;
-    method_buf = SSH2_ALLOC(session, mthlen);
+    method_buf_len = sizeof("ssh-rsa") - 1;
+    method_buf = SSH2_ALLOC(session, method_buf_len);
     if(method_buf)
-        memcpy(method_buf, "ssh-rsa", mthlen);
+        memcpy(method_buf, "ssh-rsa", method_buf_len);
     else
         ret = -1;
 
@@ -637,7 +637,7 @@ static int mbed_pub_priv_key(LIBSSH2_SESSION *session,
     }
     else {
         *method = method_buf;
-        *method_len = mthlen;
+        *method_len = method_buf_len;
         *pubkeydata = key;
         *pubkeydata_len = keylen;
     }
