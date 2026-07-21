@@ -2331,7 +2331,7 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
                                             filename, passphrase);
     else
         return os400_rsa_new_priv_from_blob(rsa, session,
-                                            blob, size_t blob_len, passphrase);
+                                            blob, blob_len, passphrase);
 }
 
 int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
