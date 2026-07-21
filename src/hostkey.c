@@ -137,22 +137,15 @@ static int hostkey_method_ssh_rsa_initPEM(LIBSSH2_SESSION *session,
                                           void **abstract)
 {
     ssh2_rsa_ctx *rsa;
-    int rc;
 
     if(*abstract) {
         hostkey_method_ssh_rsa_dtor(session, abstract);
         *abstract = NULL;
     }
 
-    if(privkeyfile)
-        rc = ssh2_rsa_new_priv_from_file(&rsa, session,
-                                         privkeyfile,
-                                         passphrase);
-    else
-        rc = ssh2_rsa_new_priv_from_blob(&rsa, session,
-                                         privkeyblob, privkeyblob_len,
-                                         passphrase);
-    if(rc)
+    if(ssh2_rsa_new_priv(&rsa, session,
+                         privkeyfile, privkeyblob, privkeyblob_len,
+                         passphrase);)
         return -1;
 
     *abstract = rsa;
@@ -495,22 +488,15 @@ static int hostkey_method_ssh_dss_initPEM(LIBSSH2_SESSION *session,
                                           void **abstract)
 {
     ssh2_dsa_ctx *dsa;
-    int rc;
 
     if(*abstract) {
         hostkey_method_ssh_dss_dtor(session, abstract);
         *abstract = NULL;
     }
 
-    if(privkeyfile)
-        rc = ssh2_dsa_new_priv_from_file(&dsa, session,
-                                         privkeyfile,
-                                         passphrase);
-    else
-        rc = ssh2_dsa_new_priv_from_blob(&dsa, session,
-                                         privkeyblob, privkeyblob_len,
-                                         passphrase);
-    if(rc)
+    if(ssh2_dsa_new_priv(&dsa, session,
+                         privkeyfile, privkeyblob, privkeyblob_len,
+                         passphrase);)
         return -1;
 
     *abstract = dsa;
@@ -702,22 +688,15 @@ static int hostkey_method_ssh_ecdsa_initPEM(LIBSSH2_SESSION *session,
                                             void **abstract)
 {
     ssh2_ecdsa_ctx *ec_ctx = NULL;
-    int rc;
 
     if(abstract && *abstract) {
         hostkey_method_ssh_ecdsa_dtor(session, abstract);
         *abstract = NULL;
     }
 
-    if(privkeyfile)
-        rc = ssh2_ecdsa_new_priv_from_file(&ec_ctx, session,
-                                           privkeyfile,
-                                           passphrase);
-    else
-        rc = ssh2_ecdsa_new_priv_from_blob(&ec_ctx, session,
-                                           privkeyblob, privkeyblob_len,
-                                           passphrase);
-    if(rc)
+    if(ssh2_ecdsa_new_priv(&ec_ctx, session,
+                           privkeyfile, privkeyblob, privkeyblob_len,
+                           passphrase);)
         return -1;
 
     if(abstract)
@@ -1017,22 +996,15 @@ static int hostkey_method_ssh_ed25519_initPEM(LIBSSH2_SESSION *session,
                                               void **abstract)
 {
     ssh2_ed25519_ctx *ed_ctx = NULL;
-    int rc;
 
     if(*abstract) {
         hostkey_method_ssh_ed25519_dtor(session, abstract);
         *abstract = NULL;
     }
 
-    if(privkeyfile)
-        rc = ssh2_ed25519_new_priv_from_file(&ed_ctx, session,
-                                             privkeyfile,
-                                             passphrase);
-    else
-        rc = ssh2_ed25519_new_priv_from_blob(&ed_ctx, session,
-                                             privkeyblob, privkeyblob_len,
-                                             passphrase);
-    if(rc)
+    if(ssh2_ed25519_new_priv(&ed_ctx, session,
+                             privkeyfile, privkeyblob, privkeyblob_len,
+                             passphrase))
         return -1;
 
     *abstract = ed_ctx;

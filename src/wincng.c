@@ -1330,34 +1330,23 @@ static int wcng_rsa_new_private_parse(ssh2_rsa_ctx **rsa,
     return 0;
 }
 
-int ssh2_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa,
-                                LIBSSH2_SESSION *session,
-                                const char *filename,
-                                const char *passphrase)
+int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
+                      LIBSSH2_SESSION *session,
+                      const char *filename,
+                      const char *blob, size_t blob_len,
+                      const char *passphrase)
 {
     unsigned char *pbEncoded;
     size_t cbEncoded;
     int ret;
 
-    ret = wcng_load_priv_from_file(session, filename, passphrase,
-                                   &pbEncoded, &cbEncoded, 1, 0);
-    if(ret)
-        return -1;
+    if(filename)
+        ret = wcng_load_priv_from_file(session, filename, passphrase,
+                                       &pbEncoded, &cbEncoded, 1, 0);
+    else
+        ret = wcng_load_priv_from_blob(session, blob, blob_len, passphrase,
+                                       &pbEncoded, &cbEncoded, 1, 0);
 
-    return wcng_rsa_new_private_parse(rsa, session, pbEncoded, cbEncoded);
-}
-
-int ssh2_rsa_new_priv_from_blob(ssh2_rsa_ctx **rsa,
-                                LIBSSH2_SESSION *session,
-                                const char *blob, size_t blob_len,
-                                const char *passphrase)
-{
-    unsigned char *pbEncoded;
-    size_t cbEncoded;
-    int ret;
-
-    ret = wcng_load_priv_from_blob(session, blob, blob_len, passphrase,
-                                   &pbEncoded, &cbEncoded, 1, 0);
     if(ret)
         return -1;
 
