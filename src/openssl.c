@@ -3722,82 +3722,6 @@ cleanup:
     return rc;
 }
 
-int ssh2_pub_privkey_file(LIBSSH2_SESSION *session,
-                          char **method, size_t *method_len,
-                          unsigned char **pubkeydata, size_t *pubkeydata_len,
-                          const char *privatekey,
-                          const char *passphrase)
-{
-    BIO *bp;
-    EVP_PKEY *pk;
-    int pktype;
-    int rc;
-
-    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
-              "Computing public key from private key file: %s", privatekey));
-
-    bp = BIO_new_file(privatekey, "r");
-    if(!bp)
-        return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                        "Unable to extract public key from private key file: "
-                        "Unable to open private key file");
-
-    (void)BIO_reset(bp);
-    pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, SSH2_UNCONST(passphrase));
-    BIO_free(bp);
-
-    if(!pk) {
-        /* Try OpenSSH format */
-        rc = ossl_key_from_openssh_file(session, method, method_len,
-                                        pubkeydata, pubkeydata_len,
-                                        privatekey, passphrase);
-        if(rc)
-            return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                            "Unable to extract public key "
-                            "from private key file: "
-                            "Wrong passphrase or invalid/unrecognized "
-                            "private key file format");
-        return 0;
-    }
-
-    pktype = EVP_PKEY_id(pk);
-
-    switch(pktype) {
-#if LIBSSH2_ED25519
-    case EVP_PKEY_ED25519:
-        rc = ossl_ed25519_evp_to_pubkey(session, method, method_len,
-                                        pubkeydata, pubkeydata_len, pk);
-        break;
-#endif /* LIBSSH2_ED25519 */
-#if LIBSSH2_RSA
-    case EVP_PKEY_RSA:
-        rc = ossl_rsa_evp_to_pubkey(session, method, method_len,
-                                    pubkeydata, pubkeydata_len, pk);
-        break;
-#endif /* LIBSSH2_RSA */
-#if LIBSSH2_DSA
-    case EVP_PKEY_DSA:
-        rc = ossl_dsa_evp_to_pubkey(session, method, method_len,
-                                    pubkeydata, pubkeydata_len, pk);
-        break;
-#endif /* LIBSSH2_DSA */
-#if LIBSSH2_ECDSA
-    case EVP_PKEY_EC:
-        rc = ossl_ecdsa_evp_to_pubkey(session, method, method_len,
-                                      pubkeydata, pubkeydata_len, 0, pk);
-        break;
-#endif /* LIBSSH2_ECDSA */
-    default:
-        rc = ssh2_err(session, LIBSSH2_ERROR_FILE,
-                      "Unable to extract public key from private key file: "
-                      "Unsupported private key file format");
-        break;
-    }
-
-    EVP_PKEY_free(pk);
-    return rc;
-}
-
 static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
                                       void **key_ctx,
                                       const char *want_method,
@@ -4000,8 +3924,8 @@ cleanup:
 int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
                           char **method, size_t *method_len,
                           unsigned char **pubkeydata, size_t *pubkeydata_len,
-                          const char *privkeyblob,
-                          size_t privkeyblob_len,
+                          const char *privatekey,
+                          const char *privkeyblob, size_t privkeyblob_len,
                           const char *passphrase)
 {
     int rc;
@@ -4012,13 +3936,26 @@ int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
     unsigned long sslError;
 #endif
 
-    ssh2_deb((session, LIBSSH2_TRACE_AUTH,
-              "Computing public key from private key."));
+    if(privatekey) {
+        ssh2_deb((session, LIBSSH2_TRACE_AUTH,
+                  "Computing public key from private key file: %s", privatekey));
 
-    bp = BIO_new_mem_buf(privkeyblob, (int)privkeyblob_len);
-    if(!bp)
-        return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                        "Unable to allocate memory when computing public key");
+        bp = BIO_new_file(privatekey, "r");
+        if(!bp)
+            return ssh2_err(session, LIBSSH2_ERROR_FILE,
+                            "Unable to extract public key from private key file: "
+                            "Unable to open private key file");
+    }
+    else {
+        ssh2_deb((session, LIBSSH2_TRACE_AUTH,
+                  "Computing public key from private key."));
+
+        bp = BIO_new_mem_buf(privkeyblob, (int)privkeyblob_len);
+        if(!bp)
+            return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
+                            "Unable to allocate memory when computing public key");
+    }
+
     (void)BIO_reset(bp);
     pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, SSH2_UNCONST(passphrase));
 #ifdef HAVE_SSLERROR_BAD_DECRYPT
@@ -4028,11 +3965,16 @@ int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
 
     if(!pk) {
         /* Try OpenSSH format */
-        rc = ossl_key_from_openssh_blob(session, NULL, NULL,
-                                        method, method_len,
-                                        pubkeydata, pubkeydata_len,
-                                        privkeyblob, privkeyblob_len,
-                                        passphrase);
+        if(privatekey)
+            rc = ossl_key_from_openssh_file(session, method, method_len,
+                                            pubkeydata, pubkeydata_len,
+                                            privatekey, passphrase);
+        else
+            rc = ossl_key_from_openssh_blob(session, NULL, NULL,
+                                            method, method_len,
+                                            pubkeydata, pubkeydata_len,
+                                            privkeyblob, privkeyblob_len,
+                                            passphrase);
         if(rc == 0)
             return 0;
 
@@ -4045,7 +3987,7 @@ int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
                             "Wrong passphrase for private key");
 #endif
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                        "Unable to extract public key from private key file: "
+                        "Unable to extract public key from private key: "
                         "Unsupported private key file format");
     }
 
