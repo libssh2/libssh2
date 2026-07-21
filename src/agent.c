@@ -853,12 +853,13 @@ static int agent_sign(LIBSSH2_SESSION *session,
     }
 
     /* method name */
-    method_name = SSH2_ALLOC(session, method_len);
+    method_name = SSH2_ALLOC(session, method_len + 1);
     if(!method_name) {
         rc = LIBSSH2_ERROR_ALLOC;
         goto error;
     }
     memcpy(method_name, s, method_len);
+    method_name[method_len] = 0;
     len -= method_len;
     s += method_len;
 
