@@ -862,6 +862,13 @@ static int agent_sign(LIBSSH2_SESSION *session,
 
     ssh2_userauth_plain_method(session->userauth_pblc_method);
 
+    if(method_len != strlen(method_name)) {
+        ssh2_deb((session, LIBSSH2_TRACE_KEX,
+                  "Agent sign method contains null byte"));
+        rc = LIBSSH2_ERROR_INVAL;
+        goto error;
+    }
+
     /* check to see if we match requested */
     if(strcmp(method_name, session->userauth_pblc_method)) {
         ssh2_deb((session, LIBSSH2_TRACE_KEX, "Agent sign method %.*s",
