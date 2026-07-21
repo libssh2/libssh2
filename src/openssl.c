@@ -3763,8 +3763,8 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
 
     if(rc == LIBSSH2_ERROR_FILE)
         rc = ssh2_err(session, LIBSSH2_ERROR_FILE,
-                      "Unable to extract public key from private key file: "
-                      "invalid/unrecognized private key file format");
+                      "Unable to extract public key from private key: "
+                      "invalid/unrecognized private key format");
 
 cleanup:
 
@@ -3859,7 +3859,7 @@ int ssh2_sk_pubkey(LIBSSH2_SESSION *session,
     if(rc == LIBSSH2_ERROR_FILE)
         rc = ssh2_err(session, LIBSSH2_ERROR_FILE,
                       "Unable to extract public key from private key: "
-                      "invalid/unrecognized private key file format");
+                      "invalid/unrecognized private key format");
 
 cleanup:
 
@@ -3898,8 +3898,7 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session,
         bp = BIO_new_file(privatekey, "r");
         if(!bp)
             return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                            "Unable to extract public key from private key "
-                            "file: Unable to open private key file");
+                            "Unable to open private key file");
     }
     else {
         ssh2_deb((session, LIBSSH2_TRACE_AUTH,
@@ -3978,8 +3977,8 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session,
 #endif /* LIBSSH2_ECDSA */
     default:
         rc = ssh2_err(session, LIBSSH2_ERROR_FILE,
-                      "Unable to extract public key from private key file: "
-                      "Unsupported private key file format");
+                      "Unable to extract public key from private key: "
+                      "Unsupported private key format");
         break;
     }
 
