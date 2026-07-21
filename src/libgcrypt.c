@@ -238,25 +238,11 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
 #endif
 
 #if LIBSSH2_RSA
-int ssh2_rsa_new_priv_from_blob(ssh2_rsa_ctx **rsa,
-                                LIBSSH2_SESSION *session,
-                                const char *blob, size_t blob_len,
-                                const char *passphrase)
-{
-    (void)rsa;
-    (void)blob;
-    (void)blob_len;
-    (void)passphrase;
-
-    return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                    "Unable to extract private key from memory: "
-                    "Method unimplemented in libgcrypt backend");
-}
-
-int ssh2_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa,
-                                LIBSSH2_SESSION *session,
-                                const char *filename,
-                                const char *passphrase)
+int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
+                      LIBSSH2_SESSION *session,
+                      const char *filename,
+                      const char *blob, size_t blob_len,
+                      const char *passphrase)
 {
     FILE *fp;
     unsigned char *data, *save_data;
@@ -265,15 +251,21 @@ int ssh2_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa,
     unsigned char *n, *e, *d, *p, *q, *e1, *e2, *coeff;
     unsigned int nlen, elen, dlen, plen, qlen, e1len, e2len, coefflen;
 
-    fp = ssh2_fopen(filename, "rb");
-    if(!fp)
-        return -1;
-
-    ret = ssh2_pem_parse_FILE(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
-                              fp, passphrase, &data, &datalen);
-    fclose(fp);
-    if(ret)
-        return -1;
+    if(filename) {
+        fp = ssh2_fopen(filename, "rb");
+        if(!fp)
+            return -1;
+        ret = ssh2_pem_parse_FILE(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
+                                  fp, passphrase,
+                                  &data, &datalen);
+        fclose(fp);
+        if(ret)
+            return -1;
+    }
+    else
+        ret = ssh2_pem_parse_blob(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
+                                  blob, blob_len, passphrase,
+                                  &data, &datalen);
 
     save_data = data;
 
@@ -352,25 +344,11 @@ fail:
 #endif
 
 #if LIBSSH2_DSA
-int ssh2_dsa_new_priv_from_blob(ssh2_dsa_ctx **dsa,
-                                LIBSSH2_SESSION *session,
-                                const char *blob, size_t blob_len,
-                                const char *passphrase)
-{
-    (void)dsa;
-    (void)blob;
-    (void)blob_len;
-    (void)passphrase;
-
-    return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                    "Unable to extract private key from memory: "
-                    "Method unimplemented in libgcrypt backend");
-}
-
-int ssh2_dsa_new_priv_from_file(ssh2_dsa_ctx **dsa,
-                                LIBSSH2_SESSION *session,
-                                const char *filename,
-                                const char *passphrase)
+int ssh2_dsa_new_priv(ssh2_dsa_ctx **dsa,
+                      LIBSSH2_SESSION *session,
+                      const char *filename,
+                      const char *blob, size_t blob_len,
+                      const char *passphrase)
 {
     FILE *fp;
     unsigned char *data, *save_data;
@@ -379,15 +357,22 @@ int ssh2_dsa_new_priv_from_file(ssh2_dsa_ctx **dsa,
     unsigned char *p, *q, *g, *y, *x;
     unsigned int plen, qlen, glen, ylen, xlen;
 
-    fp = ssh2_fopen(filename, "rb");
-    if(!fp)
-        return -1;
+    if(filename) {
+        fp = ssh2_fopen(filename, "rb");
+        if(!fp)
+            return -1;
 
-    ret = ssh2_pem_parse_FILE(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
-                              fp, passphrase, &data, &datalen);
-    fclose(fp);
-    if(ret)
-        return -1;
+        ret = ssh2_pem_parse_FILE(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
+                                  fp, passphrase,
+                                  &data, &datalen);
+        fclose(fp);
+        if(ret)
+            return -1;
+    }
+    else
+        ret = ssh2_pem_parse_blob(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
+                                  blob, blob_len, passphrase,
+                                  &data, &datalen);
 
     save_data = data;
 
