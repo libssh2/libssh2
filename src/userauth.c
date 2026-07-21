@@ -676,7 +676,7 @@ static int userauth_read_pubkey(
        it a wash */
     *method = (char *)pubkey;
     *method_len = sp1 - pubkey - 1;
-    (*method)[*method_len] = 0;
+    (*method)[*method_len] = '\0';
 
     *pubkeydata = tmp;
     *pubkeydata_len = tmp_len;
@@ -1386,7 +1386,7 @@ static int userauth_key_sign_algs(LIBSSH2_SESSION *session,
             *method = SSH2_ALLOC(session, match_len + 1);
             if(*method) {
                 memcpy(*method, match, match_len);
-                (*method)[match_len] = 0;
+                (*method)[match_len] = '\0';
                 *method_len = match_len;
             }
         }
@@ -1474,7 +1474,7 @@ retry_auth:
                                 "for public key data");
             session->userauth_pblc_method_len = method_len;
             memcpy(session->userauth_pblc_method, pubkeydata + 4, method_len);
-            session->userauth_pblc_method[method_len] = 0;
+            session->userauth_pblc_method[method_len] = '\0';
         }
 
         /* upgrade key signing algo if it is supported and
