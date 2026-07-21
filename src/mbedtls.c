@@ -363,7 +363,7 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
     int ret;
     mbedtls_pk_context pkey;
     mbedtls_rsa_context *pk_rsa;
-    unsigned char *data_nullterm;
+    unsigned char *data_nullterm = NULL;
 
     (void)session;
 
@@ -373,7 +373,7 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
 
     mbedtls_rsa_init(*rsa);
 
-    if(blob) {
+    if(!filename) {
         /* mbedtls checks in "mbedtls/pkparse.c:1184" if
               "key[keylen - 1] != '\0'"
            private-key from memory fails if the last byte is not a null byte */
@@ -973,10 +973,11 @@ cleanup:
 }
 
 static int mbed_parse_eckey(ssh2_ecdsa_ctx **ctx, mbedtls_pk_context *pkey,
-                            const unsigned char *data, size_t data_len,
+                            const char *data, size_t data_len,
                             const char *passphrase)
 {
-    if(mbedtls_pk_parse_key(pkey, data, data_len,
+    if(mbedtls_pk_parse_key(pkey,
+                            (const unsigned char *)data, data_len,
                             (const unsigned char *)passphrase,
                             passphrase ? strlen(passphrase) : 0,
                             mbedtls_ctr_drbg_random, &mbed_ctr_drbg))
