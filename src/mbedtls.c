@@ -567,7 +567,7 @@ static unsigned char *mbed_gen_publickey_from_rsa(LIBSSH2_SESSION *session,
     n_bytes = (uint32_t)mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(N)) + 1;
 
     /* Key form is "ssh-rsa" + e + n. */
-    len = 4 + 7 + 4 + e_bytes + 4 + n_bytes;
+    len = 4 + (uint32_t)sizeof("ssh-rsa") - 1 + 4 + e_bytes + 4 + n_bytes;
 
     key = SSH2_ALLOC(session, len);
     if(!key)
@@ -576,11 +576,11 @@ static unsigned char *mbed_gen_publickey_from_rsa(LIBSSH2_SESSION *session,
     /* Process key encoding. */
     p = key;
 
-    ssh2_htonu32(p, 7); /* Key type. */
+    ssh2_htonu32(p, sizeof("ssh-rsa") - 1); /* Key type. */
     p += 4;
     /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
-    memcpy(p, "ssh-rsa", 7);
-    p += 7;
+    memcpy(p, "ssh-rsa", sizeof("ssh-rsa") - 1);
+    p += sizeof("ssh-rsa") - 1;
 
     ssh2_htonu32(p, e_bytes);
     p += 4;
@@ -616,7 +616,7 @@ static int mbed_pub_priv_key(LIBSSH2_SESSION *session,
     ret = 0;
 
     /* write method */
-    mthlen = 7;
+    mthlen = sizeof("ssh-rsa") - 1;
     mth = SSH2_ALLOC(session, mthlen);
     if(mth)
         memcpy(mth, "ssh-rsa", mthlen);
