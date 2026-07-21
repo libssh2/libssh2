@@ -145,7 +145,7 @@ static int hostkey_method_ssh_rsa_initPEM(LIBSSH2_SESSION *session,
 
     if(ssh2_rsa_new_priv(&rsa, session,
                          privkeyfile, privkeyblob, privkeyblob_len,
-                         passphrase);)
+                         passphrase))
         return -1;
 
     *abstract = rsa;
@@ -496,7 +496,7 @@ static int hostkey_method_ssh_dss_initPEM(LIBSSH2_SESSION *session,
 
     if(ssh2_dsa_new_priv(&dsa, session,
                          privkeyfile, privkeyblob, privkeyblob_len,
-                         passphrase);)
+                         passphrase))
         return -1;
 
     *abstract = dsa;
@@ -696,7 +696,7 @@ static int hostkey_method_ssh_ecdsa_initPEM(LIBSSH2_SESSION *session,
 
     if(ssh2_ecdsa_new_priv(&ec_ctx, session,
                            privkeyfile, privkeyblob, privkeyblob_len,
-                           passphrase);)
+                           passphrase))
         return -1;
 
     if(abstract)
