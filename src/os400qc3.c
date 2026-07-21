@@ -2080,7 +2080,7 @@ static int os400_pub_privkey_file(LIBSSH2_SESSION *session,
                                   const char *privatekey,
                                   const char *passphrase)
 {
-    struct loadpubkeydata p;
+    struct loadpubkeydata p = { 0 };
     int ret;
 
     *method = NULL;
