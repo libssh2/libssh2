@@ -1049,17 +1049,21 @@ static int ossl_passphrase_cb(char *buf, int size, int rwflag,
 #endif /* LIBSSH2_RSA || LIBSSH2_DSA || LIBSSH2_ECDSA || LIBSSH2_ED25519 */
 
 #if LIBSSH2_RSA
-int ssh2_rsa_new_priv_from_blob(ssh2_rsa_ctx **rsa,
-                                LIBSSH2_SESSION *session,
-                                const char *blob, size_t blob_len,
-                                const char *passphrase)
+int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
+                      LIBSSH2_SESSION *session,
+                      const char *filename,
+                      const char *blob, size_t blob_len,
+                      const char *passphrase)
 {
     int rc = 0;
     BIO *bp;
 
     OSSL_INIT_IF_NEEDED();
 
-    bp = BIO_new_mem_buf(blob, (int)blob_len);
+    if(filename)
+        bp = BIO_new_file(filename, "r");
+    else
+        bp = BIO_new_mem_buf(blob, (int)blob_len);
     if(bp)
 #ifdef USE_OPENSSL_3
         *rsa = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
@@ -1070,10 +1074,15 @@ int ssh2_rsa_new_priv_from_blob(ssh2_rsa_ctx **rsa,
 #endif
     BIO_free(bp);
 
-    if(!*rsa)
-        rc = ossl_key_from_openssh_blob(session, (void **)rsa, "ssh-rsa",
-                                        NULL, NULL, NULL, NULL,
-                                        blob, blob_len, passphrase);
+    if(!*rsa) {
+        if(filename)
+            rc = ossl_rsa_openssh_priv_new(rsa, session, filename, passphrase);
+        else
+            rc = ossl_key_from_openssh_blob(session, (void **)rsa, "ssh-rsa",
+                                            NULL, NULL, NULL, NULL,
+                                            blob, blob_len, passphrase);
+    }
+
     return rc;
 }
 
@@ -1395,38 +1404,12 @@ cleanup:
 
     return rc;
 }
-
-int ssh2_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa,
-                                LIBSSH2_SESSION *session,
-                                const char *filename,
-                                const char *passphrase)
-{
-    int rc = 0;
-    BIO *bp;
-
-    OSSL_INIT_IF_NEEDED();
-
-    bp = BIO_new_file(filename, "r");
-    if(bp)
-#ifdef USE_OPENSSL_3
-        *rsa = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
-                                       SSH2_UNCONST(passphrase));
-#else
-        *rsa = PEM_read_bio_RSAPrivateKey(bp, NULL, ossl_passphrase_cb,
-                                          SSH2_UNCONST(passphrase));
-#endif
-    BIO_free(bp);
-
-    if(!*rsa)
-        rc = ossl_rsa_openssh_priv_new(rsa, session, filename, passphrase);
-
-    return rc;
-}
 #endif
 
 #if LIBSSH2_DSA
 int ssh2_dsa_new_priv_from_blob(ssh2_dsa_ctx **dsa,
                                 LIBSSH2_SESSION *session,
+                                const char *filename,
                                 const char *blob, size_t blob_len,
                                 const char *passphrase)
 {
@@ -1435,7 +1418,10 @@ int ssh2_dsa_new_priv_from_blob(ssh2_dsa_ctx **dsa,
 
     OSSL_INIT_IF_NEEDED();
 
-    bp = BIO_new_mem_buf(blob, (int)blob_len);
+    if(filename)
+        bp = BIO_new_file(filename, "r");
+    else
+        bp = BIO_new_mem_buf(blob, (int)blob_len);
     if(bp)
 #ifdef USE_OPENSSL_3
         *dsa = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
@@ -1446,10 +1432,15 @@ int ssh2_dsa_new_priv_from_blob(ssh2_dsa_ctx **dsa,
 #endif
     BIO_free(bp);
 
-    if(!*dsa)
-        rc = ossl_key_from_openssh_blob(session, (void **)dsa, "ssh-dsa",
-                                        NULL, NULL, NULL, NULL,
-                                        blob, blob_len, passphrase);
+    if(!*dsa) {
+        if(filename)
+            rc = ossl_dsa_openssh_priv_new(dsa, session, filename, passphrase);
+        else
+            rc = ossl_key_from_openssh_blob(session, (void **)dsa, "ssh-dsa",
+                                            NULL, NULL, NULL, NULL,
+                                            blob, blob_len, passphrase);
+    }
+
     return rc;
 }
 
@@ -1701,33 +1692,6 @@ cleanup:
 
     if(decrypted)
         ssh2_string_buf_free(session, decrypted);
-
-    return rc;
-}
-
-int ssh2_dsa_new_priv_from_file(ssh2_dsa_ctx **dsa,
-                                LIBSSH2_SESSION *session,
-                                const char *filename,
-                                const char *passphrase)
-{
-    int rc = 0;
-    BIO *bp;
-
-    OSSL_INIT_IF_NEEDED();
-
-    bp = BIO_new_file(filename, "r");
-    if(bp)
-#ifdef USE_OPENSSL_3
-        *dsa = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
-                                       SSH2_UNCONST(passphrase));
-#else
-        *dsa = PEM_read_bio_DSAPrivateKey(bp, NULL, ossl_passphrase_cb,
-                                          SSH2_UNCONST(passphrase));
-#endif
-    BIO_free(bp);
-
-    if(!*dsa)
-        rc = ossl_dsa_openssh_priv_new(dsa, session, filename, passphrase);
 
     return rc;
 }
