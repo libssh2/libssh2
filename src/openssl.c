@@ -2672,19 +2672,19 @@ static int ossl_ecdsa_evp_to_pubkey(LIBSSH2_SESSION *session,
     else
         method_buf_len = sizeof("ecdsa-sha2-nistp999") - 1;
 
-    method_buf = SSH2_ALLOC(session, method_buf_len);
+    method_buf = SSH2_ALLOC(session, method_buf_len + 1);
     if(!method_buf)
         return ssh2_err(session, LIBSSH2_ERROR_ALLOC, "out of memory");
 
     if(is_sk)
         memcpy(method_buf, "sk-ecdsa-sha2-nistp256@openssh.com",
-               method_buf_len);
+               method_buf_len + 1);
     else if(type == SSH2_EC_CURVE_NISTP256)
-        memcpy(method_buf, "ecdsa-sha2-nistp256", method_buf_len);
+        memcpy(method_buf, "ecdsa-sha2-nistp256", method_buf_len + 1);
     else if(type == SSH2_EC_CURVE_NISTP384)
-        memcpy(method_buf, "ecdsa-sha2-nistp384", method_buf_len);
+        memcpy(method_buf, "ecdsa-sha2-nistp384", method_buf_len + 1);
     else if(type == SSH2_EC_CURVE_NISTP521)
-        memcpy(method_buf, "ecdsa-sha2-nistp521", method_buf_len);
+        memcpy(method_buf, "ecdsa-sha2-nistp521", method_buf_len + 1);
     else {
         ssh2_deb((session, LIBSSH2_TRACE_ERROR,
                   "Unsupported EC private key type"));
