@@ -2460,32 +2460,41 @@ cleanup:
 }
 
 /*
- * Creates a new private key given a file path and password
+ * Creates a new private key given a file or blob and password.
+ * ECDSA private key files use the decoding defined in PROTOCOL.key
+ * in the OpenSSH source tree.
  */
-int ssh2_ecdsa_new_priv_from_file(OUT ssh2_ecdsa_ctx **ec_ctx,
-                                  IN LIBSSH2_SESSION *session,
-                                  IN const char *filename,
-                                  IN const char *passphrase)
+int ssh2_ecdsa_new_priv(OUT ssh2_ecdsa_ctx **ec_ctx,
+                        IN LIBSSH2_SESSION *session,
+                        IN const char *filename,
+                        IN const char *blob, IN size_t blob_len,
+                        IN const char *passphrase)
 {
     int result;
-
-    FILE *fp = NULL;
     struct string_buf *decrypted = NULL;
+    FILE *fp = NULL;
 
     /* Validate parameters */
-    if(!ec_ctx || !session || !filename)
+    if(!ec_ctx || !session || (!filename && !blob))
         return LIBSSH2_ERROR_INVAL;
 
     *ec_ctx = NULL;
 
-    fp = ssh2_fopen(filename, "rb");
-    if(!fp) {
-        result = ssh2_err(session, LIBSSH2_ERROR_INVAL,
-                          "Opening the private key file failed");
-        goto cleanup;
-    }
+    if(filename) {
+        fp = ssh2_fopen(filename, "rb");
+        if(!fp) {
+            result = ssh2_err(session, LIBSSH2_ERROR_INVAL,
+                              "Opening the private key file failed");
+            goto cleanup;
+        }
 
-    result = ssh2_openssh_pem_parse_FILE(session, fp, passphrase, &decrypted);
+        result = ssh2_openssh_pem_parse_FILE(session, fp,
+                                             passphrase, &decrypted);
+    }
+    else
+        result = ssh2_openssh_pem_parse_blob(session, blob, blob_len,
+                                             passphrase, &decrypted);
+
     if(result)
         goto cleanup;
 
@@ -2498,40 +2507,6 @@ cleanup:
 
     if(fp)
         fclose(fp);
-
-    return result;
-}
-
-/*
- * Creates a new private key given a file data and password.
- * ECDSA private key files use the decoding defined in PROTOCOL.key
- * in the OpenSSH source tree.
- */
-int ssh2_ecdsa_new_priv_from_blob(OUT ssh2_ecdsa_ctx **ec_ctx,
-                                  IN LIBSSH2_SESSION *session,
-                                  IN const char *blob, IN size_t blob_len,
-                                  IN const char *passphrase)
-{
-    int result;
-    struct string_buf *decrypted = NULL;
-
-    /* Validate parameters */
-    if(!ec_ctx || !session || !blob)
-        return LIBSSH2_ERROR_INVAL;
-
-    *ec_ctx = NULL;
-
-    result = ssh2_openssh_pem_parse_blob(session, blob, blob_len,
-                                         passphrase, &decrypted);
-    if(result)
-        goto cleanup;
-
-    result = wcng_ecdsa_new_private_parse(ec_ctx, session,
-                                          decrypted->data, decrypted->len);
-
-cleanup:
-    if(decrypted)
-        ssh2_string_buf_free(session, decrypted);
 
     return result;
 }
