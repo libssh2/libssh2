@@ -1186,7 +1186,6 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
             pkey->listFetch_data = NULL;
 
             keys++;
-            memset(&list[keys], 0, sizeof(list[keys]));
             break;
         default:
             /* Unknown/Unexpected */
