@@ -603,7 +603,7 @@ int ssh2_dsa_new_priv(ssh2_dsa_ctx **dsa,
                       const char *blob, size_t blob_len,
                       const char *passphrase);
 ```
-Reads an DSA private key from file `filename`, or `blob` into a new DSA
+Reads a DSA private key from file `filename`, or `blob` into a new DSA
 context.
 Must call `ssh2_init_if_needed()`.
 Returns 0 if OK, else -1.

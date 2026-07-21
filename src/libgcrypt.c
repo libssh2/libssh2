@@ -698,7 +698,7 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session,
     (void)passphrase;
 
     return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                    "Unable to extract public key from private key:"
+                    "Unable to extract public key from private key: "
                     "Method unimplemented in libgcrypt backend");
 }
 

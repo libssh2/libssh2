@@ -3800,7 +3800,7 @@ int ssh2_sk_pubkey(LIBSSH2_SESSION *session,
         FILE *fp = ssh2_fopen(privatekey, "rb");
         if(!fp)
             return ssh2_err(session, LIBSSH2_ERROR_INVAL,
-                            "Opening the private key file failed");
+                            "Opening the private key failed");
         rc = ssh2_openssh_pem_parse_FILE(session, fp, passphrase, &decrypted);
         fclose(fp);
     }
@@ -3858,7 +3858,7 @@ int ssh2_sk_pubkey(LIBSSH2_SESSION *session,
 
     if(rc == LIBSSH2_ERROR_FILE)
         rc = ssh2_err(session, LIBSSH2_ERROR_FILE,
-                      "Unable to extract public key from private key file: "
+                      "Unable to extract public key from private key: "
                       "invalid/unrecognized private key file format");
 
 cleanup:
@@ -3946,7 +3946,7 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session,
 #endif
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
                         "Unable to extract public key from private key: "
-                        "Unsupported private key file format");
+                        "Unsupported private key format");
     }
 
     pktype = EVP_PKEY_id(pk);
