@@ -1241,12 +1241,13 @@ int libssh2_agent_sign(LIBSSH2_AGENT *agent,
         return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
 
     agent->session->userauth_pblc_method = SSH2_ALLOC(agent->session,
-                                                      method_len);
+                                                      method_len + 1);
     if(!agent->session->userauth_pblc_method)
         return LIBSSH2_ERROR_ALLOC;
 
     agent->session->userauth_pblc_method_len = method_len;
     memcpy(agent->session->userauth_pblc_method, method, method_len);
+    agent->session->userauth_pblc_method[method_len] = 0;
 
     rc = agent_sign(agent->session, sig, s_len, data, d_len, &abstract);
 
