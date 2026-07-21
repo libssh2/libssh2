@@ -572,12 +572,11 @@ int libssh2_userauth_password_ex(
  * Returns an allocated string containing the key method (e.g. "ssh-dss")
  * in method on success.
  */
-static int userauth_read_pubkey(
-    LIBSSH2_SESSION *session,
-    char **method,
-    unsigned char **pubkeydata, size_t *pubkeydata_len,
-    const char *pubkeyfile,
-    const char *pubkeyblob, size_t pubkeyblob_len)
+static int userauth_read_pubkey(LIBSSH2_SESSION *session, char **method,
+                                unsigned char **pubkeydata,
+                                size_t *pubkeydata_len,
+                                const char *pubkeyfile,
+                                const char *pubkeyblob, size_t pubkeyblob_len)
 {
     unsigned char *pubkey = NULL, *sp1, *sp2, *tmp;
     size_t pubkey_len;
@@ -912,13 +911,11 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                sizeof(session->userauth_host_packet_requirev_state));
 
         if(publickey)
-            rc = userauth_read_pubkey(session,
-                                      &session->userauth_host_method,
+            rc = userauth_read_pubkey(session, &session->userauth_host_method,
                                       &pubkeydata, &pubkeydata_len,
                                       publickey, NULL, 0);
         else /* Compute public key from private key. */
-            rc = ssh2_pub_privkey(session,
-                                  &session->userauth_host_method,
+            rc = ssh2_pub_privkey(session, &session->userauth_host_method,
                                   &pubkeydata, &pubkeydata_len,
                                   privatekey, NULL, 0, passphrase);
 
@@ -1763,14 +1760,12 @@ static int userauth_publickey(LIBSSH2_SESSION *session,
 
     if(session->userauth_pblc_state == ssh2_NB_state_idle) {
         if(pubkeyfile || (pubkeyblob && pubkeyblob_len))
-            rc = userauth_read_pubkey(session,
-                                      &session->userauth_pblc_method,
+            rc = userauth_read_pubkey(session, &session->userauth_pblc_method,
                                       &pubkeydata, &pubkeydata_len,
                                       pubkeyfile, pubkeyblob, pubkeyblob_len);
         /* Compute public key from private key. */
         else if(privkeyfile || (privkeyblob && privkeyblob_len))
-            rc = ssh2_pub_privkey(session,
-                                  &session->userauth_pblc_method,
+            rc = ssh2_pub_privkey(session, &session->userauth_pblc_method,
                                   &pubkeydata, &pubkeydata_len,
                                   privkeyfile, privkeyblob, privkeyblob_len,
                                   passphrase);
@@ -2188,8 +2183,7 @@ int libssh2_userauth_publickey_sk(
             if(tmp_method)
                 SSH2_FREE(session, tmp_method);
 
-            rc = userauth_read_pubkey(session,
-                                      &session->userauth_pblc_method,
+            rc = userauth_read_pubkey(session, &session->userauth_pblc_method,
                                       &pubkeydata, &pubkeydata_len,
                                       NULL,
                                       (const char *)publickeydata,

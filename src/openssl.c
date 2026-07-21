@@ -1096,8 +1096,7 @@ fail:
     return key;
 }
 
-static int ossl_rsa_evp_to_pubkey(LIBSSH2_SESSION *session,
-                                  char **method,
+static int ossl_rsa_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
                                   unsigned char **pubkeydata,
                                   size_t *pubkeydata_len,
                                   EVP_PKEY *pk)
@@ -1461,8 +1460,7 @@ fail:
     return key;
 }
 
-static int ossl_dsa_evp_to_pubkey(LIBSSH2_SESSION *session,
-                                  char **method,
+static int ossl_dsa_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
                                   unsigned char **pubkeydata,
                                   size_t *pubkeydata_len,
                                   EVP_PKEY *pk)
@@ -1755,8 +1753,7 @@ clean_exit:
     return rc;
 }
 
-static int ossl_ed25519_evp_to_pubkey(LIBSSH2_SESSION *session,
-                                      char **method,
+static int ossl_ed25519_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
                                       unsigned char **pubkeydata,
                                       size_t *pubkeydata_len,
                                       EVP_PKEY *pk)
@@ -2596,8 +2593,7 @@ clean_exit:
     return rc;
 }
 
-static int ossl_ecdsa_evp_to_pubkey(LIBSSH2_SESSION *session,
-                                    char **method,
+static int ossl_ecdsa_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
                                     unsigned char **pubkeydata,
                                     size_t *pubkeydata_len,
                                     int is_sk,
@@ -3547,8 +3543,7 @@ clean_exit:
 
 #endif /* LIBSSH2_ED25519 */
 
-static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
-                                      char **method,
+static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session, char **method,
                                       unsigned char **pubkeydata,
                                       size_t *pubkeydata_len,
                                       const char *privatekey,
@@ -3746,8 +3741,7 @@ cleanup:
     return rc;
 }
 
-int ssh2_sk_pubkey(LIBSSH2_SESSION *session,
-                   char **method,
+int ssh2_sk_pubkey(LIBSSH2_SESSION *session, char **method,
                    unsigned char **pubkeydata, size_t *pubkeydata_len,
                    int *algorithm, unsigned char *flags,
                    const char **application,
@@ -3844,8 +3838,7 @@ cleanup:
 #define HAVE_SSLERROR_BAD_DECRYPT
 #endif
 
-int ssh2_pub_privkey(LIBSSH2_SESSION *session,
-                     char **method,
+int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
                      unsigned char **pubkeydata, size_t *pubkeydata_len,
                      const char *privatekey,
                      const char *privkeyblob, size_t privkeyblob_len,

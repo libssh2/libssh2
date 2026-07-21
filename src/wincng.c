@@ -2640,8 +2640,7 @@ static DWORD wcng_pub_priv_write(unsigned char *key, DWORD offset,
     return offset;
 }
 
-static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
-                                       char **method,
+static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session, char **method,
                                        unsigned char **pubkeydata,
                                        size_t *pubkeydata_len,
                                        unsigned char *pbEncoded,
@@ -2742,8 +2741,7 @@ cleanup:
     return ret;
 }
 
-int ssh2_pub_privkey(LIBSSH2_SESSION *session,
-                     char **method,
+int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
                      unsigned char **pubkeydata, size_t *pubkeydata_len,
                      const char *privatekey,
                      const char *privkeyblob, size_t privkeyblob_len,

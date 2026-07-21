@@ -2073,8 +2073,7 @@ static int load_rsa_private_file(LIBSSH2_SESSION *session,
     return ret;
 }
 
-static int os400_pub_privkey_file(LIBSSH2_SESSION *session,
-                                  char **method,
+static int os400_pub_privkey_file(LIBSSH2_SESSION *session, char **method,
                                   unsigned char **pubkeydata,
                                   size_t *pubkeydata_len,
                                   const char *privatekey,
@@ -2112,8 +2111,7 @@ static int os400_pub_privkey_file(LIBSSH2_SESSION *session,
     return ret;
 }
 
-static int os400_pub_privkey_blob(LIBSSH2_SESSION *session,
-                                  char **method,
+static int os400_pub_privkey_blob(LIBSSH2_SESSION *session, char **method,
                                   unsigned char **pubkeydata,
                                   size_t *pubkeydata_len,
                                   const char *privkeyblob,
@@ -2202,8 +2200,7 @@ static int os400_pub_privkey_blob(LIBSSH2_SESSION *session,
 }
 
 /* TODO: merge the two callees into one. */
-int ssh2_pub_privkey(LIBSSH2_SESSION *session,
-                     char **method,
+int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
                      unsigned char **pubkeydata, size_t *pubkeydata_len,
                      const char *privatekey,
                      const char *privkeyblob, size_t privkeyblob_len,

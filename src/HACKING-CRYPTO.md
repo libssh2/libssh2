@@ -414,8 +414,7 @@ Format of an ED25519 public key:
 Each item is preceded by its 32-bit byte length, MSB first.
 
 ```c
-int ssh2_pub_privkey(LIBSSH2_SESSION *session,
-                     char **method,
+int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
                      unsigned char **pubkeydata, size_t *pubkeydata_len,
                      const char *privatekey,
                      const char *privkeyblob, size_t privkeyblob_len,
