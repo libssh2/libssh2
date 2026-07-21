@@ -1249,7 +1249,7 @@ int libssh2_agent_sign(LIBSSH2_AGENT *agent,
 
     if(method_len != strlen(agent->session->userauth_pblc_method)) {
         rc = ssh2_err(agent->session, LIBSSH2_ERROR_INVAL,
-                      "Method contains null byte");
+                      "Identity method contains null byte");
         goto cleanup;
     }
 
