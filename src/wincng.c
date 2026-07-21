@@ -2760,6 +2760,10 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
             goto cleanup;
         memcpy(method_buf, "ssh-rsa", method_buf_len);
 
+        if(rcbDecoded[2] > (32 * 1024) ||
+           rcbDecoded[1] > (32 * 1024))
+            goto cleanup;
+
         keylen = 4 + method_buf_len +
                  4 + rcbDecoded[2] +
                  4 + rcbDecoded[1];
@@ -2778,6 +2782,12 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
         if(!method_buf)
             goto cleanup;
         memcpy(method_buf, "ssh-dss", method_buf_len);
+
+        if(rcbDecoded[1] > (32 * 1024) ||
+           rcbDecoded[2] > (32 * 1024) ||
+           rcbDecoded[3] > (32 * 1024) ||
+           rcbDecoded[4] > (32 * 1024))
+            goto cleanup;
 
         keylen = 4 + method_buf_len +
                  4 + rcbDecoded[1] +
