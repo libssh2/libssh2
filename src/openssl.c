@@ -149,7 +149,7 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
 
 static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
                                       void **key_ctx,
-                                      const char *key_type,
+                                      const char *want_method,
                                       char **method,
                                       size_t *method_len,
                                       unsigned char **pubkeydata,
@@ -1105,13 +1105,9 @@ static unsigned char *ossl_rsa_to_pubkey(LIBSSH2_SESSION *session,
 
     /* Key form is "ssh-rsa" + e + n. */
     len = 4 + 7 + 4 + e_bytes + 4 + n_bytes;
-
-    key = SSH2_ALLOC(session, len);
+    key = p = SSH2_ALLOC(session, len);
     if(!key)
         goto fail;
-
-    /* Process key encoding. */
-    p = key;
 
     ssh2_htonu32(p, 7); /* Key type. */
     p += 4;
@@ -1491,13 +1487,9 @@ static unsigned char *ossl_dsa_to_pubkey(LIBSSH2_SESSION *session,
 
     /* Key form is "ssh-dss" + p + q + g + pub_key. */
     len = 4 + 7 + 4 + p_bytes + 4 + q_bytes + 4 + g_bytes + 4 + k_bytes;
-
-    key = SSH2_ALLOC(session, len);
+    key = p = SSH2_ALLOC(session, len);
     if(!key)
         goto fail;
-
-    /* Process key encoding. */
-    p = key;
 
     ssh2_htonu32(p, 7); /* Key type. */
     p += 4;
@@ -2039,7 +2031,7 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
     size_t *handle_len,
     ssh2_ed25519_ctx **ed_ctx)
 {
-    const char *key_type = "sk-ssh-ed25519@openssh.com";
+    const char method_name[] = "sk-ssh-ed25519@openssh.com";
 
     ssh2_ed25519_ctx *ctx = NULL;
     char *method_buf = NULL;
@@ -2089,7 +2081,7 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
               "Computing public key from ED25519 private key envelope"));
 
     /* sk-ssh-ed25519@openssh.com. */
-    method_buf = SSH2_ALLOC(session, strlen(key_type));
+    method_buf = SSH2_ALLOC(session, sizeof(method_name) - 1);
     if(!method_buf) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                  "Unable to allocate memory for ED25519 key");
@@ -2099,16 +2091,14 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
     /* Key form is: type_len(4) + type(26) + pub_key_len(4) +
        pub_key(32) + application_len(4) + application(X). */
     key_len = SSH2_ED25519_KEY_LEN + 38 + app_len;
-    key = SSH2_CALLOC(session, key_len);
+    key = p = SSH2_CALLOC(session, key_len);
     if(!key) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                  "Unable to allocate memory for ED25519 key");
         goto clean_exit;
     }
 
-    p = key;
-
-    ssh2_store_str(&p, key_type, strlen(key_type));
+    ssh2_store_str(&p, method_name, sizeof(method_name) - 1);
     ssh2_store_str(&p, (const char *)pub_key, SSH2_ED25519_KEY_LEN);
     ssh2_store_str(&p, (const char *)app, app_len);
 
@@ -2124,7 +2114,7 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
     }
 
     /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
-    memcpy(method_buf, key_type, strlen(key_type));
+    memcpy(method_buf, method_name, sizeof(method_name) - 1);
 
     if(method)
         *method = method_buf;
@@ -2132,7 +2122,7 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
         SSH2_FREE(session, method_buf);
 
     if(method_len)
-        *method_len = strlen(key_type);
+        *method_len = sizeof(method_name) - 1;
 
     if(pubkeydata)
         *pubkeydata = key;
@@ -2743,9 +2733,9 @@ static int ossl_ecdsa_evp_to_pubkey(LIBSSH2_SESSION *session,
 #endif
 
     if(is_sk)
-        method_buf_len = 34;
+        method_buf_len = sizeof("sk-ecdsa-sha2-nistp256@openssh.com") - 1;
     else
-        method_buf_len = 19;
+        method_buf_len = sizeof("ecdsa-sha2-nistp999") - 1;
 
     method_buf = SSH2_ALLOC(session, method_buf_len);
     if(!method_buf)
@@ -2799,23 +2789,22 @@ static int ossl_ecdsa_evp_to_pubkey(LIBSSH2_SESSION *session,
     /* Key form is: type_len(4) + type(method_buf_len) + domain_len(4)
        + domain(8) + pub_key_len(4) + pub_key(~65). */
     key_len = 4 + method_buf_len + 4 + 8 + 4 + octal_len;
-    key = SSH2_ALLOC(session, key_len);
+    key = p = SSH2_ALLOC(session, key_len);
     if(!key) {
         rc = -1;
         goto clean_exit;
     }
-
-    /* Process key encoding. */
-    p = key;
 
     /* Key type */
     ssh2_store_str(&p, (const char *)method_buf, method_buf_len);
 
     /* Name domain */
     if(is_sk)
-        ssh2_store_str(&p, "nistp256", 8);
+        ssh2_store_str(&p, "nistp256", sizeof("nistp256") - 1);
     else
-        ssh2_store_str(&p, (const char *)method_buf + 11, 8);
+        ssh2_store_str(&p,
+           (const char *)method_buf + sizeof("ecdsa-sha2-") - 1,
+           sizeof("nistp999") - 1);
 
     /* Public key */
     ssh2_store_str(&p, (const char *)octal_value, octal_len);
@@ -3067,13 +3056,13 @@ static int ossl_ecdsa_sk_openssh_priv_to_pubkey(
 
     if(rc == 0 && pubkeydata) {
         key_len = *pubkeydata_len + app_len + 4;
-        key = SSH2_ALLOC(session, key_len);
+        key = p = SSH2_ALLOC(session, key_len);
         if(!key) {
             rc = -1;
             goto fail;
         }
 
-        p = key + *pubkeydata_len;
+        p += *pubkeydata_len;
 
         memcpy(key, *pubkeydata, *pubkeydata_len);
         ssh2_store_str(&p, (const char *)app, app_len);
@@ -3811,7 +3800,7 @@ int ssh2_pub_privkey_file(LIBSSH2_SESSION *session,
 
 static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
                                       void **key_ctx,
-                                      const char *key_type,
+                                      const char *want_method,
                                       char **method, size_t *method_len,
                                       unsigned char **pubkeydata,
                                       size_t *pubkeydata_len,
@@ -3832,7 +3821,7 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
     if(!session)
         return LIBSSH2_ERROR_BAD_USE;
 
-    if(key_type && strlen(key_type) < 7)
+    if(want_method && strlen(want_method) < 7)
         return ssh2_err(session, LIBSSH2_ERROR_PROTO, "type is invalid");
 
     OSSL_INIT_IF_NEEDED();
@@ -3862,14 +3851,14 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
 
 #if LIBSSH2_ED25519
     if(!strcmp("ssh-ed25519", (const char *)buf) &&
-       (!key_type || !strcmp("ssh-ed25519", key_type)))
+       (!want_method || !strcmp("ssh-ed25519", want_method)))
         rc = ossl_ed25519_openssh_priv_to_pubkey(session, decrypted,
                                                  method, method_len,
                                                  pubkeydata, pubkeydata_len,
                                                  (ssh2_ed25519_ctx **)key_ctx);
 
     if(!strcmp("sk-ssh-ed25519@openssh.com", (const char *)buf) &&
-       (!key_type || !strcmp("sk-ssh-ed25519@openssh.com", key_type)))
+       (!want_method || !strcmp("sk-ssh-ed25519@openssh.com", want_method)))
         rc = ossl_ed25519_sk_openssh_priv_to_pubkey(session, decrypted,
                                                     method, method_len,
                                                     pubkeydata, pubkeydata_len,
@@ -3878,7 +3867,7 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
 #endif
 #if LIBSSH2_RSA
     if(!strcmp("ssh-rsa", (const char *)buf) &&
-       (!key_type || !strcmp("ssh-rsa", key_type)))
+       (!want_method || !strcmp("ssh-rsa", want_method)))
         rc = ossl_rsa_openssh_priv_to_pubkey(session, decrypted,
                                              method, method_len,
                                              pubkeydata, pubkeydata_len,
@@ -3886,7 +3875,7 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
 #endif
 #if LIBSSH2_DSA
     if(!strcmp("ssh-dss", (const char *)buf) &&
-       (!key_type || !strcmp("ssh-dss", key_type)))
+       (!want_method || !strcmp("ssh-dss", want_method)))
         rc = ossl_dsa_openssh_priv_to_pubkey(session, decrypted,
                                              method, method_len,
                                              pubkeydata, pubkeydata_len,
@@ -3900,7 +3889,7 @@ static int ossl_key_from_openssh_blob(LIBSSH2_SESSION *session,
                                                   NULL, NULL, NULL, NULL,
                                                   (ssh2_ecdsa_ctx **)key_ctx);
     else if(ossl_ecdsa_curve_type_from_name((const char *)buf, &type) == 0 &&
-            (!key_type || !strcmp("ssh-ecdsa", key_type)))
+            (!want_method || !strcmp("ssh-ecdsa", want_method)))
         rc = ossl_ecdsa_openssh_priv_to_pubkey(session, type, decrypted,
                                                method, method_len,
                                                pubkeydata, pubkeydata_len,
