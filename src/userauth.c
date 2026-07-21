@@ -676,7 +676,8 @@ static int userauth_read_pubkey(LIBSSH2_SESSION *session, char **method,
     method_len = sp1 - pubkey - 1;
     (*method)[method_len] = '\0';
 
-    if(method_len != strlen(pubkey)) {
+    if(method_len != strlen(*method)) {
+        *method = NULL;
         SSH2_FREE(session, pubkey);
         return ssh2_err(session, LIBSSH2_ERROR_FILE,
                         "Invalid key data, method contains null byte");
