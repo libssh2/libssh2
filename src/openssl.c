@@ -1379,6 +1379,8 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
 
     OSSL_INIT_IF_NEEDED();
 
+    *rsa = NULL;
+
     if(filename)
         bp = BIO_new_file(filename, "r");
     else
@@ -1669,6 +1671,8 @@ int ssh2_dsa_new_priv(ssh2_dsa_ctx **dsa,
     BIO *bp;
 
     OSSL_INIT_IF_NEEDED();
+
+    *dsa = NULL;
 
     if(filename)
         bp = BIO_new_file(filename, "r");
@@ -3106,6 +3110,8 @@ int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
     BIO *bp;
 
     OSSL_INIT_IF_NEEDED();
+
+    *ec_ctx = NULL;
 
     if(filename)
         bp = BIO_new_file(filename, "r");
