@@ -2106,6 +2106,9 @@ int ssh2_ed25519_new_priv(ssh2_ed25519_ctx **ed_ctx,
 {
     ssh2_ed25519_ctx *ctx = NULL;
 
+    if(!session)
+        return -1;
+
     OSSL_INIT_IF_NEEDED();
 
     if(filename) {
@@ -2113,9 +2116,6 @@ int ssh2_ed25519_new_priv(ssh2_ed25519_ctx **ed_ctx,
         FILE *fp;
         unsigned char *buf;
         struct string_buf *decrypted = NULL;
-
-        if(!session)
-            return -1;
 
         fp = ssh2_fopen(filename, "r");
         if(!fp) {
