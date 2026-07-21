@@ -3786,8 +3786,6 @@ int ssh2_sk_pubkey(LIBSSH2_SESSION *session,
     unsigned char *buf = NULL;
     struct string_buf *decrypted = NULL;
 
-    (void)privatekey;  /* TODO: add support for loading from filename */
-
     if(!session)
         return LIBSSH2_ERROR_BAD_USE;
 
@@ -3796,9 +3794,18 @@ int ssh2_sk_pubkey(LIBSSH2_SESSION *session,
 
     OSSL_INIT_IF_NEEDED();
 
-    rc = ssh2_openssh_pem_parse_blob(session, privkeyblob, privkeyblob_len,
-                                     passphrase,
-                                     &decrypted);
+    if(privatekey) {
+        FILE *fp = ssh2_fopen(privatekey, "rb");
+        if(!fp)
+            return ssh2_err(session, LIBSSH2_ERROR_INVAL,
+                            "Opening the private key file failed");
+        rc = ssh2_openssh_pem_parse_FILE(session, fp, passphrase, &decrypted);
+        fclose(fp);
+    }
+    else
+        rc = ssh2_openssh_pem_parse_blob(session, privkeyblob, privkeyblob_len,
+                                         passphrase,
+                                         &decrypted);
     if(rc)
         return rc;
 
