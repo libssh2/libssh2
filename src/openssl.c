@@ -2098,94 +2098,88 @@ clean_exit:
     return -1;
 }
 
-int ssh2_ed25519_new_priv_from_file(ssh2_ed25519_ctx **ed_ctx,
-                                    LIBSSH2_SESSION *session,
-                                    const char *filename,
-                                    const char *passphrase)
+int ssh2_ed25519_new_priv(ssh2_ed25519_ctx **ed_ctx,
+                          LIBSSH2_SESSION *session,
+                          const char *filename,
+                          const char *blob, size_t blob_len,
+                          const char *passphrase)
 {
-    int rc;
-    FILE *fp;
-    unsigned char *buf;
-    struct string_buf *decrypted = NULL;
     ssh2_ed25519_ctx *ctx = NULL;
-
-    if(!session)
-        return -1;
 
     OSSL_INIT_IF_NEEDED();
 
-    fp = ssh2_fopen(filename, "r");
-    if(!fp) {
-        ssh2_err(session, LIBSSH2_ERROR_FILE,
-                 "Unable to open ED25519 private key file");
-        return -1;
-    }
+    if(filename) {
+        int rc;
+        FILE *fp;
+        unsigned char *buf;
+        struct string_buf *decrypted = NULL;
 
-    rc = ssh2_openssh_pem_parse_FILE(session, fp, passphrase, &decrypted);
-    fclose(fp);
-    if(rc)
-        return rc;
+        if(!session)
+            return -1;
 
-    /* We have a new key file, now try and parse it using supported types  */
-    rc = ssh2_get_string(decrypted, &buf, NULL);
-    if(rc || !buf) {
-        ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                 "Public key type in decrypted key data not found");
-        rc = -1;
-        goto cleanup;
-    }
+        fp = ssh2_fopen(filename, "r");
+        if(!fp) {
+            ssh2_err(session, LIBSSH2_ERROR_FILE,
+                     "Unable to open ED25519 private key file");
+            return -1;
+        }
 
-    if(!strcmp("ssh-ed25519", (const char *)buf))
-        rc = ossl_ed25519_openssh_priv_to_pubkey(session, decrypted,
-                                                 NULL, NULL, NULL, NULL, &ctx);
-    else
-        rc = -1;
+        rc = ssh2_openssh_pem_parse_FILE(session, fp, passphrase, &decrypted);
+        fclose(fp);
+        if(rc)
+            return rc;
 
-    if(rc == 0) {
-        if(ed_ctx)
-            *ed_ctx = ctx;
-        else if(ctx)
-            ssh2_ed25519_free(ctx);
-    }
+        /* We have a new key file, now try and parse it using supported types  */
+        rc = ssh2_get_string(decrypted, &buf, NULL);
+        if(rc || !buf) {
+            ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                     "Public key type in decrypted key data not found");
+            rc = -1;
+            goto cleanup;
+        }
+
+        if(!strcmp("ssh-ed25519", (const char *)buf))
+            rc = ossl_ed25519_openssh_priv_to_pubkey(session, decrypted,
+                                                     NULL, NULL, NULL, NULL, &ctx);
+        else
+            rc = -1;
+
+        if(rc == 0) {
+            if(ed_ctx)
+                *ed_ctx = ctx;
+            else if(ctx)
+                ssh2_ed25519_free(ctx);
+        }
 
 cleanup:
 
-    if(decrypted)
-        ssh2_string_buf_free(session, decrypted);
+        if(decrypted)
+            ssh2_string_buf_free(session, decrypted);
 
-    return rc;
-}
-
-int ssh2_ed25519_new_priv_from_blob(ssh2_ed25519_ctx **ed_ctx,
-                                    LIBSSH2_SESSION *session,
-                                    const char *blob, size_t blob_len,
-                                    const char *passphrase)
-{
-    ssh2_ed25519_ctx *ctx = NULL;
-    BIO *bp;
-
-    OSSL_INIT_IF_NEEDED();
-
-    bp = BIO_new_mem_buf(blob, (int)blob_len);
-    if(bp) {
-        ctx = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
-                                      SSH2_UNCONST(passphrase));
-        BIO_free(bp);
-        if(ctx) {
-            if(EVP_PKEY_id(ctx) != EVP_PKEY_ED25519) {
-                ssh2_ed25519_free(ctx);
-                return ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                                "Private key is not an ED25519 key");
-            }
-
-            *ed_ctx = ctx;
-            return 0;
-        }
+        return rc;
     }
+    else {
+        BIO *bp = BIO_new_mem_buf(blob, (int)blob_len);
+        if(bp) {
+            ctx = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
+                                          SSH2_UNCONST(passphrase));
+            BIO_free(bp);
+            if(ctx) {
+                if(EVP_PKEY_id(ctx) != EVP_PKEY_ED25519) {
+                    ssh2_ed25519_free(ctx);
+                    return ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                                    "Private key is not an ED25519 key");
+                }
 
-    return ossl_key_from_openssh_blob(session, (void **)ed_ctx, "ssh-ed25519",
-                                      NULL, NULL, NULL, NULL,
-                                      blob, blob_len, passphrase);
+                *ed_ctx = ctx;
+                return 0;
+            }
+        }
+
+        return ossl_key_from_openssh_blob(session, (void **)ed_ctx, "ssh-ed25519",
+                                          NULL, NULL, NULL, NULL,
+                                          blob, blob_len, passphrase);
+    }
 }
 
 int ssh2_ed25519_new_public(ssh2_ed25519_ctx **ed_ctx,
