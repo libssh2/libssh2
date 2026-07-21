@@ -1849,7 +1849,7 @@ static int ossl_ed25519_evp_to_pubkey(LIBSSH2_SESSION *session,
     char *method_buf = NULL;
     size_t rawKeyLen = 0;
     unsigned char *pub_key = NULL;
-    size_t bufLen = 0;
+    size_t key_len = 0;
     unsigned char *p = NULL;
 
     ssh2_deb((session, LIBSSH2_TRACE_AUTH,
@@ -1870,8 +1870,8 @@ static int ossl_ed25519_evp_to_pubkey(LIBSSH2_SESSION *session,
     }
 
     /* Key form is: type_len(4) + type(11) + pub_key_len(4) + pub_key(32). */
-    bufLen = 4 + sizeof(method_name) - 1 + 4 + rawKeyLen;
-    pub_key = p = SSH2_ALLOC(session, bufLen);
+    key_len = 4 + sizeof(method_name) - 1 + 4 + rawKeyLen;
+    pub_key = p = SSH2_ALLOC(session, key_len);
     if(!pub_key) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                  "Unable to allocate memory for private key data");
@@ -1893,7 +1893,7 @@ static int ossl_ed25519_evp_to_pubkey(LIBSSH2_SESSION *session,
 
     *pubkeydata = pub_key;
     if(pubkeydata_len)
-        *pubkeydata_len = bufLen;
+        *pubkeydata_len = key_len;
 
     return 0;
 
