@@ -1387,7 +1387,7 @@ static int userauth_key_sign_algs(LIBSSH2_SESSION *session,
             *method = SSH2_ALLOC(session, match_len + 1);
             if(*method) {
                 memcpy(*method, match, match_len);
-                method[match_len] = 0;
+                (*method)[match_len] = 0;
                 *method_len = match_len;
             }
         }
