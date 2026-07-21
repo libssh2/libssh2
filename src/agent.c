@@ -1247,7 +1247,15 @@ int libssh2_agent_sign(LIBSSH2_AGENT *agent,
     memcpy(agent->session->userauth_pblc_method, method, method_len);
     agent->session->userauth_pblc_method[method_len] = '\0';
 
+    if(method_len != strlen(agent->session->userauth_pblc_method)) {
+        rc = ssh2_err(agent->session, LIBSSH2_ERROR_INVAL,
+                      "Method contains null byte");
+        goto cleanup;
+    }
+
     rc = agent_sign(agent->session, sig, s_len, data, d_len, &abstract);
+
+cleanup:
 
     SSH2_SAFEFREE(agent->session, agent->session->userauth_pblc_method);
 
