@@ -1650,7 +1650,7 @@ retry_auth:
                    "sk-ssh-ed25519@openssh.com")) {
             ssh2_store_u32(&s,
                          (uint32_t)(4 + strlen(session->userauth_pblc_method) +
-                                    sig_len));
+                                    sig_len));  /* FIXME: '4 +' missing? */
             ssh2_store_str(&s, session->userauth_pblc_method,
                                strlen(session->userauth_pblc_method));
             memcpy(s, sig, sig_len);
