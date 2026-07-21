@@ -664,11 +664,11 @@ Return 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-int ssh2_ecdsa_new_priv_from_blob(ssh2_ecdsa_ctx **ec_ctx,
-                                  LIBSSH2_SESSION *session,
-                                  const char *filename,
-                                  const char *blob, size_t blob_len,
-                                  const char *passphrase);
+int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
+                        LIBSSH2_SESSION *session,
+                        const char *filename,
+                        const char *blob, size_t blob_len,
+                        const char *passphrase);
 ```
 Reads an ECDSA private key from file `filename`, or `blob` into a new ECDSA
 context stored at `ec_ctx`.
