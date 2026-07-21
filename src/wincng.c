@@ -2747,42 +2747,40 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
 
     ret = wcng_asn_decode_bns(pbEncoded, (DWORD)cbEncoded,
                               &rpbDecoded, &rcbDecoded, &length);
-
     wcng_zero_free(pbEncoded, cbEncoded);
-
     if(ret)
-        return -1;
+        goto cleanup;
+
+    ret = -1;
 
     if(length == 9) { /* private RSA key */
         method_buf_len = sizeof("ssh-rsa") - 1;
         method_buf = SSH2_ALLOC(session, method_buf_len);
-        if(method_buf)
-            memcpy(method_buf, "ssh-rsa", method_buf_len);
-        else
-            ret = -1;
+        if(!method_buf)
+            goto cleanup;
+        memcpy(method_buf, "ssh-rsa", method_buf_len);
 
         keylen = 4 + method_buf_len +
                  4 + rcbDecoded[2] +
                  4 + rcbDecoded[1];
         key = SSH2_ALLOC(session, keylen);
-        if(key) {
-            offset = wcng_pub_priv_write(key, 0,
-                                         method_buf, method_buf_len);
-            offset = wcng_pub_priv_write(key, offset,
-                                         rpbDecoded[2], rcbDecoded[2]);
-            wcng_pub_priv_write(key, offset,
-                                rpbDecoded[1], rcbDecoded[1]);
-        }
-        else
-            ret = -1;
+        if(!key)
+            goto cleanup;
+
+        offset = wcng_pub_priv_write(key, 0,
+                                     method_buf, method_buf_len);
+        offset = wcng_pub_priv_write(key, offset,
+                                     rpbDecoded[2], rcbDecoded[2]);
+        wcng_pub_priv_write(key, offset,
+                            rpbDecoded[1], rcbDecoded[1]);
+        ret = 0; /* success */
     }
     else if(length == 6) { /* private DSA key */
         method_buf_len = sizeof("ssh-dss") - 1;
         method_buf = SSH2_ALLOC(session, method_buf_len);
-        if(method_buf)
-            memcpy(method_buf, "ssh-dss", method_buf_len);
-        else
-            ret = -1;
+        if(!method_buf)
+            goto cleanup;
+        memcpy(method_buf, "ssh-dss", method_buf_len);
 
         keylen = 4 + method_buf_len +
                  4 + rcbDecoded[1] +
@@ -2790,23 +2788,23 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
                  4 + rcbDecoded[3] +
                  4 + rcbDecoded[4];
         key = SSH2_ALLOC(session, keylen);
-        if(key) {
-            offset = wcng_pub_priv_write(key, 0,
-                                         method_buf, method_buf_len);
-            offset = wcng_pub_priv_write(key, offset,
-                                         rpbDecoded[1], rcbDecoded[1]);
-            offset = wcng_pub_priv_write(key, offset,
-                                         rpbDecoded[2], rcbDecoded[2]);
-            offset = wcng_pub_priv_write(key, offset,
-                                         rpbDecoded[3], rcbDecoded[3]);
-            wcng_pub_priv_write(key, offset,
-                                rpbDecoded[4], rcbDecoded[4]);
-        }
-        else
-            ret = -1;
+        if(!key)
+            goto cleanup;
+
+        offset = wcng_pub_priv_write(key, 0,
+                                     method_buf, method_buf_len);
+        offset = wcng_pub_priv_write(key, offset,
+                                     rpbDecoded[1], rcbDecoded[1]);
+        offset = wcng_pub_priv_write(key, offset,
+                                     rpbDecoded[2], rcbDecoded[2]);
+        offset = wcng_pub_priv_write(key, offset,
+                                     rpbDecoded[3], rcbDecoded[3]);
+        wcng_pub_priv_write(key, offset,
+                            rpbDecoded[4], rcbDecoded[4]);
+        ret = 0; /* success */
     }
-    else
-        ret = -1;
+
+cleanup:
 
     for(index = 0; index < length; index++) {
         wcng_zero_free(rpbDecoded[index], rcbDecoded[index]);
