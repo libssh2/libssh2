@@ -1101,8 +1101,6 @@ int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
     size_t data_len = 0;
     FILE *fp = NULL;
 
-    (void)session;
-
     mbedtls_pk_init(&pkey);
 
     if(filename) {
