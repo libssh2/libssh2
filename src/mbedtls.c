@@ -554,7 +554,6 @@ static unsigned char *mbed_gen_publickey_from_rsa(LIBSSH2_SESSION *session,
 
     ssh2_htonu32(p, sizeof("ssh-rsa") - 1); /* Key type. */
     p += 4;
-    /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
     memcpy(p, "ssh-rsa", sizeof("ssh-rsa") - 1);
     p += sizeof("ssh-rsa") - 1;
 
