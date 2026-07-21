@@ -580,7 +580,7 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
                         (int)now.tv_sec, (int)now.tv_usec, contexttext);
     if(len < 0 || len >= buflen) {
         msglen = len < 0 ? 0 : (buflen - 1);
-        buffer[msglen] = 0;
+        buffer[msglen] = '\0';
     }
     else {
         buflen -= len;
@@ -597,7 +597,7 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
         va_end(vargs);
         if(len < 0 || len >= buflen) {
             msglen += len < 0 ? 0 : (buflen - 1);
-            buffer[msglen] = 0;
+            buffer[msglen] = '\0';
         }
         else
             msglen += len;
