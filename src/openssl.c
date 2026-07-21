@@ -2039,7 +2039,7 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
     size_t *handle_len,
     ssh2_ed25519_ctx **ed_ctx)
 {
-    const char *key_type = "sk-ssh-ed25519@openssh.com";
+    const char method_name[] = "sk-ssh-ed25519@openssh.com";
 
     ssh2_ed25519_ctx *ctx = NULL;
     char *method_buf = NULL;
@@ -2089,7 +2089,7 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
               "Computing public key from ED25519 private key envelope"));
 
     /* sk-ssh-ed25519@openssh.com. */
-    method_buf = SSH2_ALLOC(session, strlen(key_type));
+    method_buf = SSH2_ALLOC(session, sizeof(method_name) - 1);
     if(!method_buf) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                  "Unable to allocate memory for ED25519 key");
@@ -2108,7 +2108,7 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
 
     p = key;
 
-    ssh2_store_str(&p, key_type, strlen(key_type));
+    ssh2_store_str(&p, method_name, sizeof(method_name) - 1);
     ssh2_store_str(&p, (const char *)pub_key, SSH2_ED25519_KEY_LEN);
     ssh2_store_str(&p, (const char *)app, app_len);
 
@@ -2124,7 +2124,7 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
     }
 
     /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
-    memcpy(method_buf, key_type, strlen(key_type));
+    memcpy(method_buf, method_name, sizeof(method_name) - 1);
 
     if(method)
         *method = method_buf;
@@ -2132,7 +2132,7 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
         SSH2_FREE(session, method_buf);
 
     if(method_len)
-        *method_len = strlen(key_type);
+        *method_len = sizeof(method_name) - 1;
 
     if(pubkeydata)
         *pubkeydata = key;
