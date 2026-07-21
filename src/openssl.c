@@ -1850,7 +1850,7 @@ static int ossl_ed25519_evp_to_pubkey(LIBSSH2_SESSION *session,
     size_t rawKeyLen = 0;
     unsigned char *pub_key = NULL;
     size_t bufLen = 0;
-    unsigned char *bufPos = NULL;
+    unsigned char *p = NULL;
 
     ssh2_deb((session, LIBSSH2_TRACE_AUTH,
               "Computing public key from ED private key envelope"));
@@ -1871,17 +1871,17 @@ static int ossl_ed25519_evp_to_pubkey(LIBSSH2_SESSION *session,
 
     /* Key form is: type_len(4) + type(11) + pub_key_len(4) + pub_key(32). */
     bufLen = 4 + sizeof(method_name) - 1 + 4 + rawKeyLen;
-    bufPos = pub_key = SSH2_ALLOC(session, bufLen);
+    pub_key = p = SSH2_ALLOC(session, bufLen);
     if(!pub_key) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                  "Unable to allocate memory for private key data");
         goto fail;
     }
 
-    ssh2_store_str(&bufPos, method_name, sizeof(method_name) - 1);
-    ssh2_store_u32(&bufPos, (uint32_t)rawKeyLen);
+    ssh2_store_str(&p, method_name, sizeof(method_name) - 1);
+    ssh2_store_u32(&p, (uint32_t)rawKeyLen);
 
-    if(EVP_PKEY_get_raw_public_key(pk, bufPos, &rawKeyLen) != 1) {
+    if(EVP_PKEY_get_raw_public_key(pk, p, &rawKeyLen) != 1) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO,
                  "EVP_PKEY_get_raw_public_key failed");
         goto fail;
@@ -1976,14 +1976,12 @@ static int ossl_ed25519_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
 
     /* Key form is: type_len(4) + type(11) + pub_key_len(4) + pub_key(32). */
     key_len = 4 + sizeof(method_name) - 1 + 4 + SSH2_ED25519_KEY_LEN;
-    key = SSH2_CALLOC(session, key_len);
+    key = p = SSH2_CALLOC(session, key_len);
     if(!key) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                  "Unable to allocate memory for ED25519 key");
         goto clean_exit;
     }
-
-    p = key;
 
     ssh2_store_str(&p, method_name, sizeof(method_name) - 1);
     ssh2_store_str(&p, (const char *)pub_key, SSH2_ED25519_KEY_LEN);
