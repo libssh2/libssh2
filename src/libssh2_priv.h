@@ -845,7 +845,6 @@ struct _LIBSSH2_SESSION {
     unsigned char *userauth_host_packet;
     size_t userauth_host_packet_len;
     char *userauth_host_method;
-    size_t userauth_host_method_len;
     unsigned char *userauth_host_s;
     struct packet_requirev_state userauth_host_packet_requirev_state;
 
@@ -856,7 +855,6 @@ struct _LIBSSH2_SESSION {
     unsigned char *userauth_pblc_packet;
     size_t userauth_pblc_packet_len;
     char *userauth_pblc_method;
-    size_t userauth_pblc_method_len;
     unsigned char *userauth_pblc_s;
     unsigned char *userauth_pblc_b;
     struct packet_requirev_state userauth_pblc_packet_requirev_state;

@@ -1010,7 +1010,6 @@ int ssh2_sk_pubkey(LIBSSH2_SESSION *session,
                    const char *passphrase)
 {
     (void)method;
-    (void)method_len;
     (void)pubkeydata;
     (void)pubkeydata_len;
     (void)algorithm;

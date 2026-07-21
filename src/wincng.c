@@ -2674,7 +2674,7 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
            rcbDecoded[1] > (32 * 1024))
             goto cleanup;
 
-        keylen = 4 + sizeof(method_name) - 1 +
+        keylen = 4 + (DWORD)sizeof(method_name) - 1 +
                  4 + rcbDecoded[2] +
                  4 + rcbDecoded[1];
         key = SSH2_ALLOC(session, keylen);
@@ -2699,7 +2699,7 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session,
            rcbDecoded[4] > (32 * 1024))
             goto cleanup;
 
-        keylen = 4 + sizeof(method_name) - 1 +
+        keylen = 4 + (DWORD)sizeof(method_name) - 1 +
                  4 + rcbDecoded[1] +
                  4 + rcbDecoded[2] +
                  4 + rcbDecoded[3] +
