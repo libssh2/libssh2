@@ -1180,10 +1180,10 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
             }
             /* To be FREEd in libssh2_publickey_list_free() */
             list[keys].packet = pkey->listFetch_data;
-            keys++;
-
-            list[keys].packet = NULL; /* Terminate the list */
             pkey->listFetch_data = NULL;
+
+            keys++;
+            memset(&list[keys], 0, sizeof(list[keys]));
             break;
         default:
             /* Unknown/Unexpected */
@@ -1217,10 +1217,11 @@ void libssh2_publickey_list_free(LIBSSH2_PUBLICKEY *pkey,
 
     session = pkey->channel->session;
 
-    while(p->packet) {
+    while(p->attrs || p->packet) {
         if(p->attrs)
             SSH2_FREE(session, p->attrs);
-        SSH2_FREE(session, p->packet);
+        if(p->packet)
+            SSH2_FREE(session, p->packet);
         p++;
     }
 
