@@ -1083,7 +1083,6 @@ static unsigned char *ossl_rsa_to_pubkey(LIBSSH2_SESSION *session,
 
     ssh2_htonu32(p, sizeof("ssh-rsa") - 1); /* Key type. */
     p += 4;
-    /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
     memcpy(p, "ssh-rsa", sizeof("ssh-rsa") - 1);
     p += sizeof("ssh-rsa") - 1;
 
@@ -1450,7 +1449,6 @@ static unsigned char *ossl_dsa_to_pubkey(LIBSSH2_SESSION *session,
 
     ssh2_htonu32(p, sizeof("ssh-dss") - 1); /* Key type. */
     p += 4;
-    /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
     memcpy(p, "ssh-dss", sizeof("ssh-dss") - 1);
     p += sizeof("ssh-dss") - 1;
 
