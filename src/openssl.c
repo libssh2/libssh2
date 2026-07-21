@@ -2735,7 +2735,7 @@ static int ossl_ecdsa_evp_to_pubkey(LIBSSH2_SESSION *session,
     if(is_sk)
         method_buf_len = sizeof("sk-ecdsa-sha2-nistp256@openssh.com") - 1;
     else
-        method_buf_len = sizeof("ecdsa-sha2-nistp___") - 1;
+        method_buf_len = sizeof("ecdsa-sha2-nistp999") - 1;
 
     method_buf = SSH2_ALLOC(session, method_buf_len);
     if(!method_buf)
@@ -2804,7 +2804,7 @@ static int ossl_ecdsa_evp_to_pubkey(LIBSSH2_SESSION *session,
     else
         ssh2_store_str(&p,
            (const char *)method_buf + sizeof("ecdsa-sha2-") - 1,
-           sizeof("nistp___") - 1);
+           sizeof("nistp999") - 1);
 
     /* Public key */
     ssh2_store_str(&p, (const char *)octal_value, octal_len);
