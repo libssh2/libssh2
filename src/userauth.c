@@ -676,6 +676,7 @@ static int userauth_read_pubkey(
        it a wash */
     *method = (char *)pubkey;
     *method_len = sp1 - pubkey - 1;
+    method[*method_len] = 0;
 
     *pubkeydata = tmp;
     *pubkeydata_len = tmp_len;
