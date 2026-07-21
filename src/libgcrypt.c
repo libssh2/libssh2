@@ -681,41 +681,25 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx,
     return ret;
 }
 
-int ssh2_pub_privkey_blob(LIBSSH2_SESSION *session,
-                          char **method, size_t *method_len,
-                          unsigned char **pubkeydata, size_t *pubkeydata_len,
-                          const char *privkeyblob, size_t privkeyblob_len,
-                          const char *passphrase)
-{
-    (void)method;
-    (void)method_len;
-    (void)pubkeydata;
-    (void)pubkeydata_len;
-    (void)privkeyblob;
-    (void)privkeyblob_len;
-    (void)passphrase;
-
-    return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                    "Unable to extract public key from private key in "
-                    "memory: Method unimplemented in libgcrypt backend");
-}
-
-int ssh2_pub_privkey_file(LIBSSH2_SESSION *session,
-                          char **method, size_t *method_len,
-                          unsigned char **pubkeydata, size_t *pubkeydata_len,
-                          const char *privatekey,
-                          const char *passphrase)
+int ssh2_pub_privkey(LIBSSH2_SESSION *session,
+                     char **method, size_t *method_len,
+                     unsigned char **pubkeydata, size_t *pubkeydata_len,
+                     const char *privatekey,
+                     const char *privkeyblob, size_t privkeyblob_len,
+                     const char *passphrase)
 {
     (void)method;
     (void)method_len;
     (void)pubkeydata;
     (void)pubkeydata_len;
     (void)privatekey;
+    (void)privkeyblob;
+    (void)privkeyblob_len;
     (void)passphrase;
 
-    return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                    "Unable to extract public key from private key "
-                    "file: Method unimplemented in libgcrypt backend");
+    return ssh2_err(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
+                    "Unable to extract public key from private key:"
+                    "Method unimplemented in libgcrypt backend");
 }
 
 void ssh2_dh_init(ssh2_dh_ctx *dhctx)
