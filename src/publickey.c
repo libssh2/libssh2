@@ -1116,6 +1116,9 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                                  "publickey attributes");
                         goto err_exit;
                     }
+                    memset(list[keys].attrs, 0,
+                           list[keys].num_attrs *
+                               sizeof(libssh2_publickey_attribute));
                     for(i = 0; i < list[keys].num_attrs; i++) {
                         if(pkey->listFetch_data_len <
                            (size_t)(pkey->listFetch_s - pkey->listFetch_data) +
