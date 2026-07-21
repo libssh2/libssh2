@@ -1105,41 +1105,55 @@ cleanup:
 }
 
 /*
- * Creates a new private key given a file path and password
+ * Creates a new private key given a file/blob and password
  */
-int ssh2_ecdsa_new_priv_from_file(ssh2_ecdsa_ctx **ec_ctx,
-                                  LIBSSH2_SESSION *session,
-                                  const char *filename,
-                                  const char *passphrase)
+int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
+                        LIBSSH2_SESSION *session,
+                        const char *filename,
+                        const char *blob, size_t blob_len,
+                        const char *passphrase)
 {
     mbedtls_pk_context pkey;
     char *data = NULL;
     size_t data_len = 0;
     FILE *fp = NULL;
-    long file_size;
+
+    (void)session;
 
     mbedtls_pk_init(&pkey);
 
-    fp = ssh2_fopen(filename, "rb");
-    if(!fp)
-        goto cleanup;
-    if(fseek(fp, 0, SEEK_END))
-        goto cleanup;
-    file_size = ftell(fp);
-    if(file_size < 0 || file_size > (1024 * 1024))
-        goto cleanup;
-    if(fseek(fp, 0, SEEK_SET))
-        goto cleanup;
-    data_len = (size_t)file_size;
-    if(data_len == 0)
-        goto cleanup;
-    data = SSH2_ALLOC(session, data_len + 1);
-    if(!data)
-        goto cleanup;
-    if(fread(data, 1, data_len, fp) != data_len)
-        goto cleanup;
+    if(filename) {
+        long file_size;
+        fp = ssh2_fopen(filename, "rb");
+        if(!fp)
+            goto cleanup;
+        if(fseek(fp, 0, SEEK_END))
+            goto cleanup;
+        file_size = ftell(fp);
+        if(file_size < 0 || file_size > (1024 * 1024))
+            goto cleanup;
+        if(fseek(fp, 0, SEEK_SET))
+            goto cleanup;
+        data_len = (size_t)file_size;
+        if(data_len == 0)
+            goto cleanup;
+        data = mbedtls_calloc(1, data_len + 1);
+        if(!data)
+            goto cleanup;
+        if(fread(data, 1, data_len, fp) != data_len)
+            goto cleanup;
 
-    data[data_len] = 0;  /* for mbedtls_pk_parse_key() */
+        data[data_len] = 0;  /* for mbedtls_pk_parse_key() */
+    }
+    else {
+        data_len = blob_len;
+        data = mbedtls_calloc(1, data_len + 1);
+        if(!data)
+            goto cleanup;
+        memcpy(data_nullterm, blob, blob_len);
+        data[data_len] = 0;
+    }
+
     if(mbed_parse_eckey(ec_ctx, &pkey, data, data_len + 1, passphrase) == 0)
         goto cleanup;
 
@@ -1149,50 +1163,9 @@ cleanup:
 
     if(fp)
         fclose(fp);
-    if(data) {
-        ssh2_explicit_zero(data, data_len + 1);
-        SSH2_FREE(session, data);
-    }
+    mbed_zero_free(data, data_len + 1);
 
     mbedtls_pk_free(&pkey);
-
-    return *ec_ctx ? 0 : -1;
-}
-
-/*
- * Creates a new private key given a file data and password
- */
-int ssh2_ecdsa_new_priv_from_blob(ssh2_ecdsa_ctx **ec_ctx,
-                                  LIBSSH2_SESSION *session,
-                                  const char *blob, size_t blob_len,
-                                  const char *passphrase)
-{
-    char *data_nullterm;
-    mbedtls_pk_context pkey;
-
-    (void)session;
-
-    mbedtls_pk_init(&pkey);
-
-    data_nullterm = mbedtls_calloc(1, blob_len + 1);
-    if(!data_nullterm)
-        goto cleanup;
-
-    memcpy(data_nullterm, blob, blob_len);
-    data_nullterm[blob_len] = 0;
-
-    if(mbed_parse_eckey(ec_ctx, &pkey, data_nullterm, blob_len + 1,
-                        passphrase) == 0)
-        goto cleanup;
-
-    mbed_parse_openssh_key(ec_ctx, session, data_nullterm, blob_len + 1,
-                           passphrase);
-
-cleanup:
-
-    mbedtls_pk_free(&pkey);
-
-    mbed_zero_free(data_nullterm, blob_len + 1);
 
     return *ec_ctx ? 0 : -1;
 }
