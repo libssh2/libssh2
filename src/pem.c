@@ -140,8 +140,10 @@ out:
         *blob = filedata;
         *blob_len = filedata_len;
     }
-    else if(filedata)
+    else if(filedata) {
+        ssh2_explicit_zero(filedata, filedata_len + 1);
         SSH2_FREE(session, filedata);
+    }
 
     if(fp)
         fclose(fp);
@@ -367,8 +369,10 @@ out:
         *datalen = 0;
     }
 
-    if(filedata)
+    if(filedata) {
+        ssh2_explicit_zero(filedata, filedata_len + 1);
         SSH2_FREE(session, filedata);
+    }
 
     if(b64data) {
         ssh2_explicit_zero(b64data, b64datalen);
@@ -793,8 +797,10 @@ int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
 
 out:
 
-    if(filedata)
+    if(filedata) {
+        ssh2_explicit_zero(filedata, filedata_len + 1);
         SSH2_FREE(session, filedata);
+    }
 
     if(b64data) {
         ssh2_explicit_zero(b64data, b64datalen);

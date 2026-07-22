@@ -2064,7 +2064,10 @@ static int load_rsa_private_file(LIBSSH2_SESSION *session,
                            passphrase, loadkeydata);
     }
 
-    SSH2_FREE(session, blob);
+    if(blob) {
+        ssh2_explicit_zero(blob, blob_len + 1);
+        SSH2_FREE(session, blob);
+    }
 
     return ret;
 }
