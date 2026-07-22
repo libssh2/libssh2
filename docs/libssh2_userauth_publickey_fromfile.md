@@ -20,7 +20,7 @@ libssh2_userauth_publickey_fromfile - convenience macro for *libssh2_userauth_pu
 int libssh2_userauth_publickey_fromfile(LIBSSH2_SESSION *session,
                                         const char *username,
                                         const char *publickey,
-                                        const char *privatekey,
+                                        const char *privkeyfile,
                                         const char *passphrase);
 ~~~
 

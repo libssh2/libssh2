@@ -21,7 +21,7 @@ int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
                                            const char *username,
                                            unsigned int username_len,
                                            const char *publickey,
-                                           const char *privatekey,
+                                           const char *privkeyfile,
                                            const char *passphrase);
 ~~~
 
@@ -38,9 +38,9 @@ int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 (e.g. /etc/ssh/hostkey.pub). If libssh2 is built against OpenSSL, this option
 can be set to NULL.
 
-*privatekey* - Path name of the private key file. (e.g. /etc/ssh/hostkey)
+*privkeyfile* - Path name of the private key file. (e.g. /etc/ssh/hostkey)
 
-*passphrase* - Passphrase to use when decoding *privatekey*.
+*passphrase* - Passphrase to use when decoding *privkeyfile*.
 
 Attempt public key authentication using either a public key file or a PEM
 encoded private key file stored on disk. When providing a private key, the
