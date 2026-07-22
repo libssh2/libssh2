@@ -104,7 +104,7 @@ int ssh2_file_to_blob(LIBSSH2_SESSION *session, const char *filename,
         goto out;
     }
     if(file_size > (1024 * 1024)) {
-        ret = ssh2_err(session, LIBSSH2_ERROR_FILE,
+        ret = ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                        "Input too large in PEM parsing");
         goto out;
     }
