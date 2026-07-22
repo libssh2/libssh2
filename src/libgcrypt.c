@@ -660,14 +660,14 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx,
 
 int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
                      unsigned char **pubkeydata, size_t *pubkeydata_len,
-                     const char *privatekey,
+                     const char *privkeyfile,
                      const char *privkeyblob, size_t privkeyblob_len,
                      const char *passphrase)
 {
     (void)method;
     (void)pubkeydata;
     (void)pubkeydata_len;
-    (void)privatekey;
+    (void)privkeyfile;
     (void)privkeyblob;
     (void)privkeyblob_len;
     (void)passphrase;

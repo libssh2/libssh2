@@ -1004,7 +1004,7 @@ int ssh2_sk_pubkey(LIBSSH2_SESSION *session, char **method,
                    int *algorithm, unsigned char *flags,
                    const char **application,
                    const unsigned char **key_handle, size_t *handle_len,
-                   const char *privatekey,
+                   const char *privkeyfile,
                    const char *privkeyblob, size_t privkeyblob_len,
                    const char *passphrase)
 {
@@ -1016,7 +1016,7 @@ int ssh2_sk_pubkey(LIBSSH2_SESSION *session, char **method,
     (void)application;
     (void)key_handle;
     (void)handle_len;
-    (void)privatekey;
+    (void)privkeyfile;
     (void)privkeyblob;
     (void)privkeyblob_len;
     (void)passphrase;

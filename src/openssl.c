@@ -153,7 +153,7 @@ static int ossl_key_from_openssh(LIBSSH2_SESSION *session,
                                  char **method,
                                  unsigned char **pubkeydata,
                                  size_t *pubkeydata_len,
-                                 const char *privatekey,
+                                 const char *privkeyfile,
                                  const char *privkeyblob,
                                  size_t privkeyblob_len,
                                  const char *passphrase);
@@ -3332,7 +3332,7 @@ static int ossl_key_from_openssh(LIBSSH2_SESSION *session,
                                  char **method,
                                  unsigned char **pubkeydata,
                                  size_t *pubkeydata_len,
-                                 const char *privatekey,
+                                 const char *privkeyfile,
                                  const char *privkeyblob,
                                  size_t privkeyblob_len,
                                  const char *passphrase)
@@ -3356,7 +3356,7 @@ static int ossl_key_from_openssh(LIBSSH2_SESSION *session,
     OSSL_INIT_IF_NEEDED();
 
     rc = ssh2_openssh_pem_parse(session,
-                                privatekey, privkeyblob, privkeyblob_len,
+                                privkeyfile, privkeyblob, privkeyblob_len,
                                 passphrase, &decrypted);
     if(rc)
         return rc;
@@ -3441,7 +3441,7 @@ int ssh2_sk_pubkey(LIBSSH2_SESSION *session, char **method,
                    int *algorithm, unsigned char *flags,
                    const char **application,
                    const unsigned char **key_handle, size_t *handle_len,
-                   const char *privatekey,
+                   const char *privkeyfile,
                    const char *privkeyblob, size_t privkeyblob_len,
                    const char *passphrase)
 {
@@ -3458,7 +3458,7 @@ int ssh2_sk_pubkey(LIBSSH2_SESSION *session, char **method,
     OSSL_INIT_IF_NEEDED();
 
     rc = ssh2_openssh_pem_parse(session,
-                                privatekey, privkeyblob, privkeyblob_len,
+                                privkeyfile, privkeyblob, privkeyblob_len,
                                 passphrase, &decrypted);
     if(rc)
         return rc;
@@ -3526,7 +3526,7 @@ cleanup:
 
 int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
                      unsigned char **pubkeydata, size_t *pubkeydata_len,
-                     const char *privatekey,
+                     const char *privkeyfile,
                      const char *privkeyblob, size_t privkeyblob_len,
                      const char *passphrase)
 {
@@ -3540,12 +3540,12 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
 
     OSSL_INIT_IF_NEEDED();
 
-    if(privatekey) {
+    if(privkeyfile) {
         ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                   "Computing public key from private key file: %s",
-                  privatekey));
+                  privkeyfile));
 
-        bp = BIO_new_file(privatekey, "r");
+        bp = BIO_new_file(privkeyfile, "r");
         if(!bp)
             return ssh2_err(session, LIBSSH2_ERROR_FILE,
                             "Unable to open private key file");
@@ -3572,7 +3572,7 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
         /* Try OpenSSH format */
         if(!ossl_key_from_openssh(session, NULL, NULL, method,
                                   pubkeydata, pubkeydata_len,
-                                  privatekey,
+                                  privkeyfile,
                                   privkeyblob, privkeyblob_len,
                                   passphrase))
             return 0;

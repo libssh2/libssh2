@@ -416,11 +416,11 @@ Each item is preceded by its 32-bit byte length, MSB first.
 ```c
 int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
                      unsigned char **pubkeydata, size_t *pubkeydata_len,
-                     const char *privatekey,
+                     const char *privkeyfile,
                      const char *privkeyblob, size_t privkeyblob_len,
                      const char *passphrase);
 ```
-Gets a private key from file `privatekey`, or bytes at (`privkeyblob`,
+Gets a private key from file `privkeyfile`, or bytes at (`privkeyblob`,
 `privkeyblob_len`) and extracts the public key --> (`pubkeydata`,
 `pubkeydata_len`). Store the associated method (e.g., `ssh-rsa`, `ssh-ed25519`)
 into `*method`.

@@ -2075,7 +2075,7 @@ static int load_rsa_private_file(LIBSSH2_SESSION *session,
 static int os400_pub_privkey_file(LIBSSH2_SESSION *session, char **method,
                                   unsigned char **pubkeydata,
                                   size_t *pubkeydata_len,
-                                  const char *privatekey,
+                                  const char *privkeyfile,
                                   const char *passphrase)
 {
     struct loadpubkeydata p = { 0 };
@@ -2085,7 +2085,7 @@ static int os400_pub_privkey_file(LIBSSH2_SESSION *session, char **method,
     *pubkeydata = NULL;
     *pubkeydata_len = 0;
 
-    ret = load_rsa_private_file(session, privatekey, passphrase,
+    ret = load_rsa_private_file(session, privkeyfile, passphrase,
                                 rsapkcs1pubkey, rsapkcs8pubkey, (void *)&p);
     if(!ret) {
         size_t method_len = strlen(p.method);
@@ -2198,14 +2198,14 @@ static int os400_pub_privkey_blob(LIBSSH2_SESSION *session, char **method,
 /* TODO: merge the two callees into one. */
 int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
                      unsigned char **pubkeydata, size_t *pubkeydata_len,
-                     const char *privatekey,
+                     const char *privkeyfile,
                      const char *privkeyblob, size_t privkeyblob_len,
                      const char *passphrase)
 {
-    if(privatekey)
+    if(privkeyfile)
         return os400_pub_privkey_file(session, method,
                                       pubkeydata, pubkeydata_len,
-                                      privatekey,
+                                      privkeyfile,
                                       passphrase);
     else
         return os400_pub_privkey_blob(session, method,
