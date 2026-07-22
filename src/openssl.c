@@ -3531,10 +3531,8 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session, char **method,
 
     rc = ssh2_openssh_pem_parse(session, privatekey, NULL, 0, passphrase,
                                 &decrypted);
-    if(rc) {
-        ssh2_err(session, LIBSSH2_ERROR_FILE, "Not an OpenSSH key file");
+    if(rc)
         return rc;
-    }
 
     /* We have a new key file, now try and parse it using supported types */
     rc = ssh2_get_string(decrypted, &buf, NULL);
