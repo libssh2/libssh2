@@ -3837,19 +3837,12 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
 
     if(!pk) {
         /* Try OpenSSH format */
-        if(privatekey)
-            rc = ossl_key_from_openssh_file(session, NULL, NULL,
-                                            method,
-                                            pubkeydata, pubkeydata_len,
-                                            privatekey,
-                                            passphrase);
-        else
-            rc = ossl_key_from_openssh_blob(session, NULL, NULL,
-                                            method,
-                                            pubkeydata, pubkeydata_len,
-                                            privkeyblob, privkeyblob_len,
-                                            passphrase);
-        if(rc == 0)
+        if(!ossl_key_from_openssh(session, NULL, NULL,
+                                  method,
+                                  pubkeydata, pubkeydata_len,
+                                  privatekey,
+                                  privkeyblob, privkeyblob_len,
+                                  passphrase))
             return 0;
 
 #ifdef HAVE_SSLERROR_BAD_DECRYPT
