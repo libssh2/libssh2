@@ -3550,8 +3550,7 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
         /* Try OpenSSH format */
         if(!ossl_key_from_openssh(session, NULL, NULL, method,
                                   pubkeydata, pubkeydata_len,
-                                  privkeyfile,
-                                  privkeyblob, privkeyblob_len,
+                                  privkeyfile, privkeyblob, privkeyblob_len,
                                   passphrase))
             return 0;
 
