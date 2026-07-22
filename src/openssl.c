@@ -1651,7 +1651,7 @@ static int ossl_ed25519_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
                                       size_t *pubkeydata_len,
                                       EVP_PKEY *pk)
 {
-    const char method_name[] = "ssh-ed25519";
+    static const char method_name[] = "ssh-ed25519";
     char *method_buf = NULL;
     size_t rawKeyLen = 0;
     unsigned char *pub_key = NULL;
@@ -1716,8 +1716,8 @@ static int ossl_ed25519_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
                                                size_t *pubkeydata_len,
                                                ssh2_ed25519_ctx **ed_ctx)
 {
+    static const char method_name[] = "ssh-ed25519";
     ssh2_ed25519_ctx *ctx = NULL;
-    const char method_name[] = "ssh-ed25519";
     char *method_buf = NULL;
     unsigned char *key = NULL;
     int i;
@@ -1837,8 +1837,7 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
     size_t *key_handle_len,
     ssh2_ed25519_ctx **ed_ctx)
 {
-    const char method_name[] = "sk-ssh-ed25519@openssh.com";
-
+    static const char method_name[] = "sk-ssh-ed25519@openssh.com";
     ssh2_ed25519_ctx *ctx = NULL;
     char *method_buf = NULL;
     unsigned char *key = NULL;

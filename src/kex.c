@@ -3301,7 +3301,6 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
                                  size_t hostkey_len)
 {
     static const char strict[] = "kex-strict-s-v00@openssh.com";
-
     const struct kex_method **kexp = kex_methods;
     unsigned char *s;
 
