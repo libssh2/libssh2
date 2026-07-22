@@ -80,6 +80,9 @@ int ssh2_file_to_blob(LIBSSH2_SESSION *session, const char *filename,
     size_t filedata_len = 0;
     FILE *fp = NULL;
 
+    *blob = NULL;
+    *blob_len = 0;
+
     fp = ssh2_fopen(filename, "rb");
     if(!fp) {
         ret = ssh2_err(session, LIBSSH2_ERROR_FILE,
