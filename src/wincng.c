@@ -898,11 +898,9 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx, ULONG hash_len,
 
 static int wcng_load_priv(LIBSSH2_SESSION *session,
                           const char *filename,
-                          const char *privkeyblob,
-                          size_t privkeyblob_len,
+                          const char *privkeyblob, size_t privkeyblob_len,
                           const char *passphrase,
-                          unsigned char **ppbEncoded,
-                          size_t *pcbEncoded,
+                          unsigned char **ppbEncoded, size_t *pcbEncoded,
                           int tryLoadRSA, int tryLoadDSA)
 {
     int ret = -1;
