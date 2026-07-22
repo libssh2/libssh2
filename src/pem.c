@@ -81,8 +81,11 @@ int ssh2_file_to_blob(LIBSSH2_SESSION *session, const char *filename,
     FILE *fp = NULL;
 
     fp = ssh2_fopen(filename, "rb");
-    if(!fp)
+    if(!fp) {
+        ret = ssh2_err(session, LIBSSH2_ERROR_FILE,
+                       "Unable to open file for PEM parsing");
         goto out;
+    }
 
     if(fseek(fp, 0L, SEEK_END)) {
         ret = ssh2_err(session, LIBSSH2_ERROR_FILE,
