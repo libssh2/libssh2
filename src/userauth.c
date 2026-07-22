@@ -894,7 +894,7 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                                        const char *username,
                                        size_t username_len,
                                        const char *publickey,
-                                       const char *privatekey,
+                                       const char *privkeyfile,
                                        const char *passphrase,
                                        const char *hostname,
                                        size_t hostname_len,
@@ -925,7 +925,7 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         else /* Compute public key from private key. */
             rc = ssh2_pub_privkey(session, &session->userauth_host_method,
                                   &pubkeydata, &pubkeydata_len,
-                                  privatekey, NULL, 0, passphrase);
+                                  privkeyfile, NULL, 0, passphrase);
 
         if(rc)
             return rc; /* low-level functions called ssh2_err() */
@@ -983,7 +983,7 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
 
         rc = userauth_read_privkey(session, &privkeyobj, &abstract,
                                    session->userauth_host_method,
-                                   privatekey, NULL, 0, passphrase);
+                                   privkeyfile, NULL, 0, passphrase);
         if(rc) {
             /* userauth_read_privkey() calls ssh2_err() */
             SSH2_SAFEFREE(session, session->userauth_host_method);
@@ -1111,7 +1111,7 @@ int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
                                            const char *username,
                                            unsigned int username_len,
                                            const char *publickey,
-                                           const char *privatekey,
+                                           const char *privkeyfile,
                                            const char *passphrase,
                                            const char *hostname,
                                            unsigned int hostname_len,
@@ -1126,7 +1126,7 @@ int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
     BLOCK_ADJUST(rc, session,
                  userauth_hostbased_fromfile(session,
                                              username, username_len,
-                                             publickey, privatekey,
+                                             publickey, privkeyfile,
                                              passphrase,
                                              hostname, hostname_len,
                                              local_username,
@@ -1816,7 +1816,7 @@ int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
                                            const char *username,
                                            unsigned int username_len,
                                            const char *publickey,
-                                           const char *privatekey,
+                                           const char *privkeyfile,
                                            const char *passphrase)
 {
     int rc;
@@ -1833,7 +1833,7 @@ int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
                  userauth_publickey(session,
                                     username, username_len,
                                     publickey, NULL, 0,
-                                    privatekey, NULL, 0,
+                                    privkeyfile, NULL, 0,
                                     passphrase));
     return rc;
 }
