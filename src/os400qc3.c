@@ -2117,7 +2117,7 @@ static int os400_pub_privkey_blob(LIBSSH2_SESSION *session, char **method,
     ret = ssh2_pem_parse(session, beginencprivkeyhdr, endencprivkeyhdr,
                          NULL, privkeyblob, privkeyblob_len,
                          passphrase,
-                         &data, &datalen);
+                         &data, &datalen, NULL);
 
     /* Try with "PRIVATE KEY" PEM armor.
        --> PKCS#8 PrivateKeyInfo or EncryptedPrivateKeyInfo */
@@ -2125,7 +2125,7 @@ static int os400_pub_privkey_blob(LIBSSH2_SESSION *session, char **method,
         ret = ssh2_pem_parse(session, beginprivkeyhdr, endprivkeyhdr,
                              NULL, privkeyblob, privkeyblob_len,
                              passphrase,
-                             &data, &datalen);
+                             &data, &datalen, NULL);
 
     if(!ret) {
         /* Process PKCS#8. */
@@ -2137,7 +2137,7 @@ static int os400_pub_privkey_blob(LIBSSH2_SESSION *session, char **method,
         ret = ssh2_pem_parse(session, beginrsaprivkeyhdr, endrsaprivkeyhdr,
                              NULL, privkeyblob, privkeyblob_len,
                              passphrase,
-                             &data, &datalen);
+                             &data, &datalen, NULL);
         if(!ret)
             ret = rsapkcs1pubkey(session,
                                  data, datalen, passphrase, (void *)&p);
@@ -2239,7 +2239,7 @@ static int os400_rsa_new_priv_from_blob(ssh2_rsa_ctx **rsa,
     ret = ssh2_pem_parse(session, beginencprivkeyhdr, endencprivkeyhdr,
                          NULL, blob, blob_len,
                          passphrase,
-                         &data, &datalen);
+                         &data, &datalen, NULL);
 
     /* Try with "PRIVATE KEY" PEM armor.
        --> PKCS#8 PrivateKeyInfo or EncryptedPrivateKeyInfo */
@@ -2247,7 +2247,7 @@ static int os400_rsa_new_priv_from_blob(ssh2_rsa_ctx **rsa,
         ret = ssh2_pem_parse(session, beginprivkeyhdr, endprivkeyhdr,
                              NULL, blob, blob_len,
                              passphrase,
-                             &data, &datalen);
+                             &data, &datalen, NULL);
 
     if(!ret) {
         /* Process PKCS#8. */
@@ -2260,7 +2260,7 @@ static int os400_rsa_new_priv_from_blob(ssh2_rsa_ctx **rsa,
         ret = ssh2_pem_parse(session, beginrsaprivkeyhdr, endrsaprivkeyhdr,
                              NULL, blob, blob_len,
                              passphrase,
-                             &data, &datalen);
+                             &data, &datalen, NULL);
         if(!ret)
             ret = rsapkcs1privkey(session,
                                   data, datalen, passphrase, (void *)&ctx);
