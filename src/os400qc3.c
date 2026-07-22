@@ -1997,7 +1997,10 @@ static int try_pem_load(LIBSSH2_SESSION *session,
             ret = (*proc)(session, (const unsigned char *)data, datalen,
                           passphrase, loadkeydata);
             if(!ret) {
-                SSH2_FREE(session, data);
+                if(data) {
+                    ssh2_explicit_zero(data, datalen);
+                    SSH2_FREE(session, data);
+                }
                 return 0; /* success */
             }
         }
@@ -2005,8 +2008,10 @@ static int try_pem_load(LIBSSH2_SESSION *session,
         blob_pos += blob_offset;
         blob_left -= blob_offset;
 
-        if(data)
+        if(data) {
+            ssh2_explicit_zero(data, datalen);
             SSH2_SAFEFREE(session, data);
+        }
     }
 
     return -1;
