@@ -1310,48 +1310,6 @@ fail:
                     "Unable to allocate memory for private key data");
 }
 
-static int ossl_rsa_openssh_priv_new(ssh2_rsa_ctx **rsa,
-                                     LIBSSH2_SESSION *session,
-                                     const char *filename,
-                                     const char *passphrase)
-{
-    int rc;
-    unsigned char *buf = NULL;
-    struct string_buf *decrypted = NULL;
-
-    if(!session)
-        return -1;
-
-    OSSL_INIT_IF_NEEDED();
-
-    rc = ssh2_openssh_pem_parse(session, filename, NULL, 0, passphrase,
-                                &decrypted);
-    if(rc)
-        return rc;
-
-    /* We have a new key file, now try and parse it using supported types */
-    rc = ssh2_get_string(decrypted, &buf, NULL);
-    if(rc || !buf) {
-        ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                 "Public key type in decrypted key data not found");
-        rc = -1;
-        goto cleanup;
-    }
-
-    if(!strcmp("ssh-rsa", (const char *)buf))
-        rc = ossl_rsa_openssh_priv_to_pubkey(session, decrypted,
-                                             NULL, NULL, NULL, rsa);
-    else
-        rc = -1;
-
-cleanup:
-
-    if(decrypted)
-        ssh2_string_buf_free(session, decrypted);
-
-    return rc;
-}
-
 int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
                       LIBSSH2_SESSION *session,
                       const char *filename,
@@ -1379,14 +1337,10 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
 #endif
     BIO_free(bp);
 
-    if(!*rsa) {
-        if(filename)
-            rc = ossl_rsa_openssh_priv_new(rsa, session, filename, passphrase);
-        else
-            rc = ossl_key_from_openssh(session, (void **)rsa, "ssh-rsa",
-                                       NULL, NULL, NULL,
-                                       NULL, blob, blob_len, passphrase);
-    }
+    if(!*rsa)
+        rc = ossl_key_from_openssh(session, (void **)rsa, "ssh-rsa",
+                                   NULL, NULL, NULL,
+                                   filename, blob, blob_len, passphrase);
 
     return rc;
 }
@@ -1588,48 +1542,6 @@ fail:
                     "Unable to allocate memory for private key data");
 }
 
-static int ossl_dsa_openssh_priv_new(ssh2_dsa_ctx **dsa,
-                                     LIBSSH2_SESSION *session,
-                                     const char *filename,
-                                     const char *passphrase)
-{
-    int rc;
-    unsigned char *buf = NULL;
-    struct string_buf *decrypted = NULL;
-
-    if(!session)
-        return -1;
-
-    OSSL_INIT_IF_NEEDED();
-
-    rc = ssh2_openssh_pem_parse(session, filename, NULL, 0, passphrase,
-                                &decrypted);
-    if(rc)
-        return rc;
-
-    /* We have a new key file, now try and parse it using supported types */
-    rc = ssh2_get_string(decrypted, &buf, NULL);
-    if(rc || !buf) {
-        ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                 "Public key type in decrypted key data not found");
-        rc = -1;
-        goto cleanup;
-    }
-
-    if(!strcmp("ssh-dss", (const char *)buf))
-        rc = ossl_dsa_openssh_priv_to_pubkey(session, decrypted,
-                                             NULL, NULL, NULL, dsa);
-    else
-        rc = -1;
-
-cleanup:
-
-    if(decrypted)
-        ssh2_string_buf_free(session, decrypted);
-
-    return rc;
-}
-
 int ssh2_dsa_new_priv(ssh2_dsa_ctx **dsa,
                       LIBSSH2_SESSION *session,
                       const char *filename,
@@ -1657,14 +1569,10 @@ int ssh2_dsa_new_priv(ssh2_dsa_ctx **dsa,
 #endif
     BIO_free(bp);
 
-    if(!*dsa) {
-        if(filename)
-            rc = ossl_dsa_openssh_priv_new(dsa, session, filename, passphrase);
-        else
-            rc = ossl_key_from_openssh(session, (void **)dsa, "ssh-dss",
-                                       NULL, NULL, NULL,
-                                       NULL, blob, blob_len, passphrase);
-    }
+    if(!*dsa)
+        rc = ossl_key_from_openssh(session, (void **)dsa, "ssh-dss",
+                                   NULL, NULL, NULL,
+                                   filename, blob, blob_len, passphrase);
 
     return rc;
 }
@@ -2063,78 +1971,35 @@ int ssh2_ed25519_new_priv(ssh2_ed25519_ctx **ed_ctx,
                           const char *blob, size_t blob_len,
                           const char *passphrase)
 {
-    ssh2_ed25519_ctx *ctx = NULL;
-
-    if(!session)
-        return -1;
+    int rc = 0;
+    BIO *bp = NULL;
 
     OSSL_INIT_IF_NEEDED();
 
-    if(filename) {
-        int rc;
-        unsigned char *buf;
-        struct string_buf *decrypted = NULL;
+    *ed_ctx = NULL;
 
-        rc = ssh2_openssh_pem_parse(session, filename, NULL, 0, passphrase,
-                                    &decrypted);
-        if(rc)
-            return rc;
-
-        /* We have a new key file, now try and parse it using supported
-           types */
-        rc = ssh2_get_string(decrypted, &buf, NULL);
-        if(rc || !buf) {
-            ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                     "Public key type in decrypted key data not found");
-            rc = -1;
-            goto cleanup;
-        }
-
-        if(!strcmp("ssh-ed25519", (const char *)buf))
-            rc = ossl_ed25519_openssh_priv_to_pubkey(session, decrypted,
-                                                     NULL, NULL, NULL, &ctx);
-        else
-            rc = -1;
-
-        if(rc == 0) {
-            if(ed_ctx)
-                *ed_ctx = ctx;
-            else if(ctx)
-                ssh2_ed25519_free(ctx);
-        }
-
-cleanup:
-
-        if(decrypted)
-            ssh2_string_buf_free(session, decrypted);
-
-        return rc;
-    }
-    else {
-        BIO *bp = BIO_new_mem_buf(blob, (int)blob_len);
-        if(bp) {
-            ctx = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
+    if(filename)
+        bp = BIO_new_file(filename, "r");
+    else
+        bp = BIO_new_mem_buf(blob, (int)blob_len);
+    if(bp)
+        *ed_ctx = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
                                           SSH2_UNCONST(passphrase));
-            BIO_free(bp);
-            if(ctx) {
-                if(EVP_PKEY_id(ctx) != EVP_PKEY_ED25519) {
-                    ssh2_ed25519_free(ctx);
-                    return ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                                    "Private key is not an ED25519 key");
-                }
+    BIO_free(bp);
 
-                if(ed_ctx)
-                    *ed_ctx = ctx;
-                else
-                    ssh2_ed25519_free(ctx);
-                return 0;
-            }
-        }
-
-        return ossl_key_from_openssh(session, (void **)ed_ctx, "ssh-ed25519",
-                                     NULL, NULL, NULL,
-                                     NULL, blob, blob_len, passphrase);
+    if(*ed_ctx && EVP_PKEY_id(*ed_ctx) != EVP_PKEY_ED25519) {
+        ssh2_ed25519_free(*ed_ctx);
+        *ed_ctx = NULL;
+        return ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                        "Private key is not an ED25519 key");
     }
+
+    if(!*ed_ctx)
+        rc = ossl_key_from_openssh(session, (void **)ed_ctx, "ssh-ed25519",
+                                   NULL, NULL, NULL,
+                                   filename, blob, blob_len, passphrase);
+
+    return rc;
 }
 
 int ssh2_ed25519_new_public(ssh2_ed25519_ctx **ed_ctx,
@@ -2988,51 +2853,6 @@ fail:
     return rc;
 }
 
-static int ossl_ecdsa_openssh_priv_new(ssh2_ecdsa_ctx **ec_ctx,
-                                       LIBSSH2_SESSION *session,
-                                       const char *filename,
-                                       const char *passphrase)
-{
-    int rc;
-    unsigned char *buf = NULL;
-    struct string_buf *decrypted = NULL;
-    ssh2_curve_type type;
-
-    if(!session)
-        return -1;
-
-    OSSL_INIT_IF_NEEDED();
-
-    rc = ssh2_openssh_pem_parse(session, filename, NULL, 0, passphrase,
-                                &decrypted);
-    if(rc)
-        return rc;
-
-    /* We have a new key file, now try and parse it using supported types */
-    rc = ssh2_get_string(decrypted, &buf, NULL);
-    if(rc || !buf) {
-        ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                 "Public key type in decrypted key data not found");
-        rc = -1;
-        goto cleanup;
-    }
-
-    rc = ossl_ecdsa_curve_type_from_name((const char *)buf, &type);
-
-    if(rc == 0)
-        rc = ossl_ecdsa_openssh_priv_to_pubkey(session, type, decrypted,
-                                               NULL, NULL, NULL, ec_ctx);
-    else
-        rc = -1;
-
-cleanup:
-
-    if(decrypted)
-        ssh2_string_buf_free(session, decrypted);
-
-    return rc;
-}
-
 int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
                         LIBSSH2_SESSION *session,
                         const char *filename,
@@ -3060,15 +2880,11 @@ int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
 #endif
     BIO_free(bp);
 
-    if(!*ec_ctx) {
-        if(filename)
-            rc = ossl_ecdsa_openssh_priv_new(ec_ctx, session, filename,
-                                             passphrase);
-        else
-            rc = ossl_key_from_openssh(session, (void **)ec_ctx, "ssh-ecdsa",
-                                       NULL, NULL, NULL,
-                                       NULL, blob, blob_len, passphrase);
-    }
+    if(!*ec_ctx)
+        rc = ossl_key_from_openssh(session, (void **)ec_ctx, "ssh-ecdsa",
+                                   NULL, NULL, NULL,
+                                   filename, blob, blob_len, passphrase);
+
     return rc;
 }
 
