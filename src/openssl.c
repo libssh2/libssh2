@@ -1987,7 +1987,7 @@ int ssh2_ed25519_new_priv(ssh2_ed25519_ctx **ed_ctx,
                                           SSH2_UNCONST(passphrase));
     BIO_free(bp);
 
-    if(EVP_PKEY_id(*ed_ctx) != EVP_PKEY_ED25519) {
+    if(*ed_ctx && EVP_PKEY_id(*ed_ctx) != EVP_PKEY_ED25519) {
         ssh2_ed25519_free(*ed_ctx);
         *ed_ctx = NULL;
         return ssh2_err(session, LIBSSH2_ERROR_PROTO,
