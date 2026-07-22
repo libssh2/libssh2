@@ -716,6 +716,9 @@ int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
     size_t filedata_len = 0;
     int ret;
 
+    if(decrypted_buf)
+        *decrypted_buf = NULL;
+
     if(!filename && (!blob || !blob_len))
         return ssh2_err(session, LIBSSH2_ERROR_PROTO,
                         "Error parsing PEM: filename/blob missing");
