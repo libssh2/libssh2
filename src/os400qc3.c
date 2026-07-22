@@ -1994,7 +1994,8 @@ static int try_pem_load(LIBSSH2_SESSION *session,
                              passphrase,
                              &data, &datalen, &blob_offset);
         if(!ret) {
-            ret = (*proc)(session, data, datalen, passphrase, loadkeydata);
+            ret = (*proc)(session, (const unsigned char *)data, datalen,
+                          passphrase, loadkeydata);
             if(!ret) {
                 SSH2_FREE(session, data);
                 return 0; /* success */
@@ -2048,14 +2049,14 @@ static int load_rsa_private_file(LIBSSH2_SESSION *session,
     if(ret) {
         /* Try as PKCS#8 DER data.
            --> PKCS#8 PrivateKeyInfo or EncryptedPrivateKeyInfo */
-        ret = (*proc8)(session, blob, blob_len, passphrase,
-                       loadkeydata);
+        ret = (*proc8)(session, (const unsigned char *)blob, blob_len,
+                       passphrase, loadkeydata);
 
         /* Try as PKCS#1 DER data.
            --> PKCS#1 RSAPrivateKey */
         if(ret)
-            ret = (*proc1)(session, blob, blob_len, passphrase,
-                           loadkeydata);
+            ret = (*proc1)(session, (const unsigned char *)blob, blob_len,
+                           passphrase, loadkeydata);
     }
 
     SSH2_FREE(session, blob);
