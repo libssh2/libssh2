@@ -673,15 +673,16 @@ LIBSSH2_API int libssh2_userauth_publickey_fromfile_ex(
     LIBSSH2_SESSION *session,
     const char *username,
     unsigned int username_len,
-    const char *publickey,
+    const char *pubkeyfile,
     const char *privkeyfile,
     const char *passphrase);
 
-#define libssh2_userauth_publickey_fromfile(session, username, publickey,  \
+#define libssh2_userauth_publickey_fromfile(session, username,             \
+                                            pubkeyfile,                    \
                                             privkeyfile, passphrase)       \
     libssh2_userauth_publickey_fromfile_ex(session, username,              \
                                            (unsigned int)strlen(username), \
-                                           publickey,                      \
+                                           pubkeyfile,                     \
                                            privkeyfile, passphrase)
 
 LIBSSH2_API int libssh2_userauth_publickey(
@@ -696,7 +697,7 @@ LIBSSH2_API int libssh2_userauth_hostbased_fromfile_ex(
     LIBSSH2_SESSION *session,
     const char *username,
     unsigned int username_len,
-    const char *publickey,
+    const char *pubkeyfile,
     const char *privkeyfile,
     const char *passphrase,
     const char *hostname,
@@ -704,12 +705,13 @@ LIBSSH2_API int libssh2_userauth_hostbased_fromfile_ex(
     const char *local_username,
     unsigned int local_username_len);
 
-#define libssh2_userauth_hostbased_fromfile(session, username, publickey,     \
+#define libssh2_userauth_hostbased_fromfile(session, username,                \
+                                            pubkeyfile,                       \
                                             privkeyfile, passphrase,          \
                                             hostname)                         \
     libssh2_userauth_hostbased_fromfile_ex(session, username,                 \
                                            (unsigned int)strlen(username),    \
-                                           publickey,                         \
+                                           pubkeyfile,                        \
                                            privkeyfile, passphrase,           \
                                            hostname,                          \
                                            (unsigned int)strlen(hostname),    \

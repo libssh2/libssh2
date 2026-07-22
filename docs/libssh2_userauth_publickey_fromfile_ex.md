@@ -20,7 +20,7 @@ libssh2_userauth_publickey_fromfile_ex - authenticate a session with a public ke
 int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
                                            const char *username,
                                            unsigned int username_len,
-                                           const char *publickey,
+                                           const char *pubkeyfile,
                                            const char *privkeyfile,
                                            const char *passphrase);
 ~~~
@@ -34,7 +34,7 @@ int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 
 *username_len* - Length of *username*.
 
-*publickey* - Path name of the public key file.
+*pubkeyfile* - Path name of the public key file.
 (e.g. /etc/ssh/hostkey.pub). If libssh2 is built against OpenSSL, this option
 can be set to NULL.
 
