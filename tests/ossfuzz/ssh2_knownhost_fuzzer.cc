@@ -1,8 +1,9 @@
 /* Copyright (C) The libssh2 project and its contributors.
  *
  * SPDX-License-Identifier: BSD-3-Clause
- *
- * Fuzz harness for libssh2 known-hosts line parser.
+ */
+
+ /* Fuzz harness for libssh2 known-hosts line parser.
  *
  * Exercises libssh2_knownhost_readline() which parses lines from an OpenSSH
  * known_hosts file.  A single line may contain:
