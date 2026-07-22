@@ -97,12 +97,12 @@ static unsigned char pem_hex_decode(char digit)
 }
 
 static int pem_FILE_to_blob(LIBSSH2_SESSION *session, FILE *fp,
-                            unsigned char **blob, size_t **blob_len)
+                            char **blob, size_t *blob_len)
 {
-    int ret = 0;
-    char *filedata = NULL;
+    int ret = -1;
     long file_size;
-    size_t filedata_len;
+    char *filedata = NULL;
+    size_t filedata_len = 0;
 
     if(fseek(fp, 0L, SEEK_END)) {
         ret = ssh2_err(session, LIBSSH2_ERROR_FILE,
@@ -143,56 +143,62 @@ static int pem_FILE_to_blob(LIBSSH2_SESSION *session, FILE *fp,
         goto out;
     }
 
-finish:
+    ret = 0;
 
-    *blob = filedata;
-    *blob_len = filedata_len;
+out:
 
-    return ret;
-
-    if(filedata)
+    if(!ret) {
+        *blob = filedata;
+        *blob_len = filedata_len;
+    }
+    else if(filedata)
         SSH2_FREE(session, filedata);
 
     return ret;
 }
 
-int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
-                        const char *headerbegin,
-                        const char *headerend,
-                        const char *blob, size_t blob_len,
-                        const char *passphrase,
-                        unsigned char **data, size_t *datalen)
+int ssh2_pem_parse(LIBSSH2_SESSION *session,
+                   const char *headerbegin,
+                   const char *headerend,
+                   FILE *fp,
+                   const char *blob, size_t blob_len,
+                   const char *passphrase,
+                   unsigned char **data, size_t *datalen)
 {
     char line[LINE_SIZE];
     unsigned char iv[LINE_SIZE];
     char *b64data = NULL;
     size_t b64datalen = 0;
     size_t off = 0;
-    int ret;
+    int ret = -1;
     const struct crypt_method *method = NULL;
 
     *data = NULL;
     *datalen = 0;
 
+    if(fp) {
+        ret = pem_FILE_to_blob(session, fp, &blob, &blob_len);
+        if(ret)
+            goto out;
+    }
+
     do {
         *line = '\0';
 
         if(pem_readline_blob(line, LINE_SIZE, blob, blob_len, &off))
-            return -1;
+            goto out;
     } while(strcmp(line, headerbegin));
 
     if(pem_readline_blob(line, LINE_SIZE, blob, blob_len, &off))
-        return -1;
+        goto out;
 
     if(passphrase &&
        !memcmp(line, crypt_annotation, strlen(crypt_annotation))) {
         const struct crypt_method **all_methods, *cur_method;
         int i;
 
-        if(pem_readline_blob(line, LINE_SIZE, blob, blob_len, &off)) {
-            ret = -1;
+        if(pem_readline_blob(line, LINE_SIZE, blob, blob_len, &off))
             goto out;
-        }
 
         all_methods = ssh2_crypt_methods();
         /* !checksrc! disable EQUALSNULL 1 */
@@ -208,9 +214,8 @@ int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
 
         /* None of the available crypt methods were able to decrypt the key */
         if(!method) {
-            ssh2_err(session, LIBSSH2_ERROR_ALGO_UNSUPPORTED,
-                     "Unable to decrypt PEM, unsupported algorithm");
-            ret = -1;
+            ret = ssh2_err(session, LIBSSH2_ERROR_ALGO_UNSUPPORTED,
+                           "Unable to decrypt PEM, unsupported algorithm");
             goto out;
         }
 
@@ -221,10 +226,8 @@ int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
         }
 
         /* skip to the next line */
-        if(pem_readline_blob(line, LINE_SIZE, blob, blob_len, &off)) {
-            ret = -1;
+        if(pem_readline_blob(line, LINE_SIZE, blob, blob_len, &off))
             goto out;
-        }
     }
 
     do {
@@ -235,9 +238,8 @@ int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
             linelen = strlen(line);
             tmp = SSH2_REALLOC(session, b64data, b64datalen + linelen);
             if(!tmp) {
-                ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                         "Unable to allocate memory for PEM parsing");
-                ret = -1;
+                ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
+                               "Unable to allocate memory for PEM parsing");
                 goto out;
             }
             memcpy(tmp + b64datalen, line, linelen);
@@ -247,25 +249,19 @@ int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
 
         *line = '\0';
 
-        if(pem_readline_blob(line, LINE_SIZE, blob, blob_len, &off)) {
-            ret = -1;
+        if(pem_readline_blob(line, LINE_SIZE, blob, blob_len, &off))
             goto out;
-        }
     } while(strcmp(line, headerend));
 
     if(!b64data)
-        return -1;
+        goto out;
 
     if(ssh2_base64_decode(session, (char **)data, datalen,
-                          b64data, b64datalen)) {
-        ret = -1;
+                          b64data, b64datalen))
         goto out;
-    }
 
-    if(*datalen == 0) {
-        ret = -1; /* Invalid decode */
-        goto out;
-    }
+    if(*datalen == 0)
+        goto out; /* Invalid decode */
 
     if(method) {
 #if LIBSSH2_MD5_PEM
@@ -285,10 +281,8 @@ int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
             hok &= ssh2_hash_update(&ctx, iv, 8);
             hok &= ssh2_hash_final(&ctx, secret, SSH2_MD5_DIG_LEN);
         }
-        if(!hok) {
-            ret = -1;
+        if(!hok)
             goto out;
-        }
         if(method->secret_len > SSH2_MD5_DIG_LEN) {
             hok = ssh2_hash_init(&ctx, SSH2_MD5_ALG);
             if(hok) {
@@ -298,17 +292,14 @@ int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
                 hok &= ssh2_hash_final(&ctx, secret + SSH2_MD5_DIG_LEN,
                                        SSH2_MD5_DIG_LEN);
             }
-            if(!hok) {
-                ret = -1;
+            if(!hok)
                 goto out;
-            }
         }
 
         /* Initialize the decryption */
         if(method->init(session, method, iv, &free_iv, secret, &free_secret, 0,
                         &abstract)) {
             ssh2_explicit_zero(secret, sizeof(secret));
-            ret = -1;
             goto out;
         }
 
@@ -319,7 +310,6 @@ int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
         if((*datalen % blocksize) != 0) {
             ssh2_explicit_zero(secret, sizeof(secret));
             method->dtor(session, &abstract);
-            ret = -1;
             goto out;
         }
 
@@ -354,8 +344,7 @@ int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
         /* Account for padding */
         padding = (*data)[*datalen - 1];
         if(padding > *datalen) {
-            /* Invalid padding len */
-            ret = LIBSSH2_ERROR_DECRYPT;
+            ret = LIBSSH2_ERROR_DECRYPT;  /* Invalid padding len */
             goto out;
         }
         memset(&(*data)[*datalen - padding], 0, padding);
@@ -367,7 +356,6 @@ int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
 #else
         ssh2_err(session, LIBSSH2_ERROR_ALGO_UNSUPPORTED,
                  "Unable to decrypt PEM, MD5 not enabled");
-        ret = -1;
         goto out;
 #endif
     }
@@ -381,6 +369,9 @@ out:
         SSH2_SAFEFREE(session, *data);
         *datalen = 0;
     }
+
+    if(blob)
+        SSH2_FREE(session, blob)
 
     if(b64data) {
         ssh2_explicit_zero(b64data, b64datalen);
