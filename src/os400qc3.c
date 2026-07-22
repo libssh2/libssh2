@@ -1990,7 +1990,7 @@ static int try_pem_load(LIBSSH2_SESSION *session,
 
     while(blob_left > 0) {
         ret = ssh2_pem_parse(session, header, trailer,
-                             NULL, blob_pos, blob_remain,
+                             NULL, blob_pos, blob_left,
                              passphrase,
                              &data, &datalen, &blob_offset);
         if(!ret) {
@@ -2002,7 +2002,7 @@ static int try_pem_load(LIBSSH2_SESSION *session,
         }
 
         blob_pos += blob_offset;
-        blob_remain -= blob_offset;
+        blob_left -= blob_offset;
 
         if(data)
             SSH2_SAFEFREE(session, data);
