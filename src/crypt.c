@@ -458,7 +458,7 @@ static int crypt_get_length_chacha20_poly(LIBSSH2_SESSION *session,
     (void)session;
 
     ret = chachapoly_get_length(&ctx->chachapoly_ctx, len, seqno, data,
-                                 data_size)
+                                 data_size);
 
     return ret == 0 ? 0 : 1;  /* success: 0, fail: 1 */
 }
