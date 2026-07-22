@@ -3692,7 +3692,7 @@ int ssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
                 session->state &= ~SSH2_STATE_INITIAL_KEX;
                 session->state &= ~SSH2_STATE_KEX_ACTIVE;
                 session->state &= ~SSH2_STATE_EXCHANGING_KEYS;
-                return -1;
+                return LIBSSH2_ERROR_KEX_FAILURE;
             }
 
             key_state->state = ssh2_NB_state_sent1;
@@ -3717,7 +3717,7 @@ int ssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
                 session->state &= ~SSH2_STATE_INITIAL_KEX;
                 session->state &= ~SSH2_STATE_KEX_ACTIVE;
                 session->state &= ~SSH2_STATE_EXCHANGING_KEYS;
-                return -1;
+                return LIBSSH2_ERROR_KEX_FAILURE;
             }
 
             if(session->remote.kexinit)
