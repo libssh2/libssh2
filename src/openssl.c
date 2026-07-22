@@ -1971,14 +1971,14 @@ int ssh2_ed25519_new_priv(ssh2_ed25519_ctx **ed_ctx,
                           const char *blob, size_t blob_len,
                           const char *passphrase)
 {
-    ssh2_ed25519_ctx *ctx = NULL;
     int rc;
 
     if(filename)
-        rc = ossl_key_from_openssh(session, (void **)ctx, "ssh-ed25519",
+        rc = ossl_key_from_openssh(session, (void **)ed_ctx, "ssh-ed25519",
                                    NULL, NULL, NULL,
                                    filename, NULL, 0, passphrase);
     else {
+        ssh2_ed25519_ctx *ctx = NULL;
         BIO *bp;
 
         if(!session)
@@ -2005,14 +2005,14 @@ int ssh2_ed25519_new_priv(ssh2_ed25519_ctx **ed_ctx,
         rc = ossl_key_from_openssh(session, (void **)ed_ctx, "ssh-ed25519",
                                    NULL, NULL, NULL,
                                    NULL, blob, blob_len, passphrase);
-    }
 
 cleanup:
 
-    if(ed_ctx)
-        *ed_ctx = ctx;
-    else
-        ssh2_ed25519_free(ctx);
+        if(ed_ctx)
+            *ed_ctx = ctx;
+        else
+            ssh2_ed25519_free(ctx);
+    }
 
     return rc;
 }
