@@ -96,13 +96,18 @@ static unsigned char pem_hex_decode(char digit)
         ((digit >= 'A') ? (0xA + (digit - 'A')) : (digit - '0'));
 }
 
-int ssh2_FILE_to_blob(LIBSSH2_SESSION *session, FILE *fp,
+int ssh2_file_to_blob(LIBSSH2_SESSION *session, const char *filename,
                       char **blob, size_t *blob_len)
 {
     int ret = -1;
     long file_size;
     char *filedata = NULL;
     size_t filedata_len = 0;
+    FILE *fp = NULL;
+
+    fp = ssh2_fopen(filename, "rb");
+    if(!fp)
+        goto out;
 
     if(fseek(fp, 0L, SEEK_END)) {
         ret = ssh2_err(session, LIBSSH2_ERROR_FILE,
@@ -153,23 +158,6 @@ out:
     }
     else if(filedata)
         SSH2_FREE(session, filedata);
-
-    return ret;
-}
-
-int ssh2_file_to_blob(LIBSSH2_SESSION *session, const char *filename,
-                      char **blob, size_t *blob_len)
-{
-    int ret;
-    FILE *fp = NULL;
-
-    if(filename) {
-        fp = ssh2_fopen(filename, "rb");
-        if(!fp)
-            return -1;
-    }
-
-    ret = ssh2_FILE_to_blob(session, fp, blob, blob_len);
 
     if(fp)
         fclose(fp);
