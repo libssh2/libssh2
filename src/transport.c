@@ -816,6 +816,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                 p->padding_length = p->wptr[0];
 
                 if(p->padding_length > p->packet_length - 1) {
+                    p->total_num = 0; /* no packet buffer available */
                     if(p->payload)
                         SSH2_SAFEFREE(session, p->payload);
                     return LIBSSH2_ERROR_DECRYPT;
