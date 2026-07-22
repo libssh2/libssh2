@@ -118,7 +118,7 @@ int ssh2_file_to_blob(LIBSSH2_SESSION *session, const char *filename,
     }
 
     filedata_len = (size_t)file_size;
-    filedata = SSH2_ALLOC(session, filedata_len);
+    filedata = SSH2_ALLOC(session, filedata_len + 1);
     if(!filedata) {
         ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                        "Unable to allocate memory for PEM parsing");
@@ -129,6 +129,8 @@ int ssh2_file_to_blob(LIBSSH2_SESSION *session, const char *filename,
         ret = ssh2_err(session, LIBSSH2_ERROR_FILE, "Bad read in PEM parsing");
         goto out;
     }
+
+    filedata[filedata_len] = '\0'; /* some parsers require a null-terminator */
 
     ret = 0;
 
