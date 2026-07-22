@@ -350,9 +350,6 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
 
     ret = 0;
 
-    if(blob_offset)
-        *blob_offset = off;
-
 out:
 
     if(ret && *data) {
@@ -368,6 +365,9 @@ out:
         ssh2_explicit_zero(b64data, b64datalen);
         SSH2_FREE(session, b64data);
     }
+
+    if(blob_offset)
+        *blob_offset = off;
 
     return ret;
 }
@@ -705,22 +705,36 @@ int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
     char *b64data = NULL;
     size_t b64datalen = 0;
     size_t off = 0;
+    char *filedata = NULL;
+    size_t filedata_len = 0;
     int ret;
 
     if(!filename && (!blob || !blob_len))
         return ssh2_err(session, LIBSSH2_ERROR_PROTO,
                         "Error parsing PEM: filename/blob missing");
 
+    if(filename) {
+        ret = ssh2_file_to_blob(session, filename, &filedata, &filedata_len);
+        if(ret)
+            goto out;
+        blob = filedata;
+        blob_len = filedata_len;
+    }
+
     do {
 
         *line = '\0';
 
-        if(off >= blob_len)
-            return ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                            "Error parsing PEM: OpenSSH header not found");
+        if(off >= blob_len) {
+            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                           "Error parsing PEM: OpenSSH header not found");
+            goto out;
+        }
 
-        if(pem_readline(line, LINE_SIZE, blob, blob_len, &off))
-            return -1;
+        if(pem_readline(line, LINE_SIZE, blob, blob_len, &off)) {
+            ret = -1;
+            goto out;
+        }
     } while(strcmp(line, OPENSSH_PRIVKEY_HEADER));
 
     *line = '\0';
@@ -756,18 +770,25 @@ int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
         }
     } while(strcmp(line, OPENSSH_PRIVKEY_FOOTER));
 
-    if(!b64data)
-        return ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                        "Error parsing PEM: base 64 data missing");
+    if(!b64data) {
+        ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                       "Error parsing PEM: base 64 data missing");
+        goto out;
+    }
 
     ret = pem_parse_data_openssh(session, passphrase,
                                  b64data, b64datalen, decrypted_buf);
 
 out:
+
+    if(filedata)
+        SSH2_FREE(session, filedata);
+
     if(b64data) {
         ssh2_explicit_zero(b64data, b64datalen);
         SSH2_FREE(session, b64data);
     }
+
     return ret;
 }
 
