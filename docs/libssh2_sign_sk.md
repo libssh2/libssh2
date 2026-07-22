@@ -30,7 +30,7 @@ typedef struct _LIBSSH2_PRIVKEY_SK {
     uint8_t flags;
     const char *application;
     const unsigned char *key_handle;
-    size_t key_handle_len;
+    size_t handle_len;
     LIBSSH2_USERAUTH_SK_SIGN_FUNC(*sign_callback);
     void **orig_abstract;
 } LIBSSH2_PRIVKEY_SK;
