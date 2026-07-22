@@ -1232,7 +1232,8 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
                    const char *filename,
                    const char *blob, size_t blob_len,
                    const char *passphrase,
-                   unsigned char **data, size_t *datalen);
+                   unsigned char **data, size_t *datalen,
+                   size_t *blob_offset);
 /* OpenSSL keys */
 int ssh2_openssh_pem_parse_FILE(LIBSSH2_SESSION *session,
                                 FILE *fp,
