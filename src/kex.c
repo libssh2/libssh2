@@ -3300,12 +3300,13 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
                                  size_t kex_len, unsigned char *hostkey,
                                  size_t hostkey_len)
 {
+    static const char strict[] = "kex-strict-s-v00@openssh.com";
+
     const struct kex_method **kexp = kex_methods;
     unsigned char *s;
-    const unsigned char *strict =
-        (const unsigned char *)"kex-strict-s-v00@openssh.com";
 
-    if(ssh2_kex_agree_instr(kex, kex_len, strict, 28))
+    if(ssh2_kex_agree_instr(kex, kex_len,
+                            (const unsigned char *)strict, sizeof(strict) - 1))
         session->kex_strict = 1;
 
     if(session->kex_prefs) {
@@ -3881,9 +3882,9 @@ int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type,
 
     /* add method kex extension to the start of the user list */
     if(method_type == LIBSSH2_METHOD_KEX) {
-        const char *kex_extensions =
+        static const char kex_extensions[] =
             "ext-info-c,kex-strict-c-v00@openssh.com,";
-        size_t kex_extensions_len = strlen(kex_extensions);
+        size_t kex_extensions_len = sizeof(kex_extensions) - 1;
         size_t tmp_len = kex_extensions_len + strlen(newprefs);
         tmpprefs = SSH2_ALLOC(session, tmp_len + 1);
         if(!tmpprefs)
