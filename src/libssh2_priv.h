@@ -1229,7 +1229,7 @@ int ssh2_file_to_blob(LIBSSH2_SESSION *session, const char *filename,
 int ssh2_pem_parse(LIBSSH2_SESSION *session,
                    const char *headerbegin,
                    const char *headerend,
-                   FILE *fp,
+                   const char *filename,
                    const char *blob, size_t blob_len,
                    const char *passphrase,
                    unsigned char **data, size_t *datalen);
