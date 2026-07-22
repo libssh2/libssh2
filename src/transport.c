@@ -556,18 +556,16 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                 unsigned int len = 0;
                 unsigned char *ptr = NULL;
 
-                rc = session->remote.crypt->get_len(session,
+                if(session->remote.crypt->get_len(session,
                                             session->remote.seqno,
                                             &p->buf[p->readidx],
                                             numbytes,
                                             &len,
-                                            &session->remote.crypt_abstract);
-
-                if(rc != LIBSSH2_ERROR_NONE) {
+                                            &session->remote.crypt_abstract)) {
                     p->total_num = 0; /* no packet buffer available */
                     if(p->payload)
                         SSH2_SAFEFREE(session, p->payload);
-                    return rc;
+                    return LIBSSH2_ERROR_DECRYPT;
                 }
 
                 /* store size in buffers for use below */
