@@ -1026,8 +1026,8 @@ static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
     size_t curvelen, exponentlen, pointlen;
     unsigned char *curve, *exponent, *point_buf;
 
-    if(ssh2_openssh_pem_parse_blob(session, data, data_len,
-                                   passphrase, &decrypted))
+    if(ssh2_openssh_pem_parse(session, NULL, data, data_len,
+                              passphrase, &decrypted))
         goto failed;
 
     if(ssh2_get_string(decrypted, &name, NULL))
@@ -1093,52 +1093,37 @@ int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
                         const char *passphrase)
 {
     mbedtls_pk_context pkey;
-    char *data = NULL;
+    char *data_nullterm = NULL;
     size_t data_len = 0;
-    FILE *fp = NULL;
 
     mbedtls_pk_init(&pkey);
 
     if(filename) {
-        long file_size;
-        fp = ssh2_fopen(filename, "rb");
-        if(!fp)
-            goto cleanup;
-        if(fseek(fp, 0, SEEK_END))
-            goto cleanup;
-        file_size = ftell(fp);
-        if(file_size < 0 || file_size > (1024 * 1024))
-            goto cleanup;
-        if(fseek(fp, 0, SEEK_SET))
-            goto cleanup;
-        data_len = (size_t)file_size;
-        if(data_len == 0)
-            goto cleanup;
-        data = mbedtls_calloc(1, data_len + 1);
-        if(!data)
-            goto cleanup;
-        if(fread(data, 1, data_len, fp) != data_len)
+        if(ssh2_file_to_blob(session, filename, &data_nullterm, &data_len))
             goto cleanup;
     }
     else {
         data_len = blob_len;
-        data = mbedtls_calloc(1, data_len + 1);
-        if(!data)
+        data_nullterm = SSH2_ALLOC(session, data_len + 1);
+        if(!data_nullterm)
             goto cleanup;
-        memcpy(data, blob, blob_len);
+        memcpy(data_nullterm, blob, blob_len);
+        data_nullterm[blob_len] = '\0';  /* for mbedtls_pk_parse_key() */
     }
 
-    data[data_len] = '\0';  /* for mbedtls_pk_parse_key() */
-    if(mbed_parse_eckey(ec_ctx, &pkey, data, data_len + 1, passphrase) == 0)
+    if(mbed_parse_eckey(ec_ctx, &pkey, data_nullterm, data_len + 1,
+                        passphrase) == 0)
         goto cleanup;
 
-    mbed_parse_openssh_key(ec_ctx, session, data, data_len, passphrase);
+    mbed_parse_openssh_key(ec_ctx, session, data_nullterm, data_len,
+                           passphrase);
 
 cleanup:
 
-    if(fp)
-        fclose(fp);
-    mbed_zero_free(data, data_len + 1);
+    if(data_nullterm) {
+        ssh2_explicit_zero(data_nullterm, data_len + 1);
+        SSH2_FREE(session, data_nullterm);
+    }
 
     mbedtls_pk_free(&pkey);
 

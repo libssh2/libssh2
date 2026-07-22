@@ -898,56 +898,32 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx, ULONG hash_len,
 
 static int wcng_load_priv(LIBSSH2_SESSION *session,
                           const char *filename,
-                          const char *privkeyblob,
-                          size_t privkeyblob_len,
+                          const char *privkeyblob, size_t privkeyblob_len,
                           const char *passphrase,
-                          unsigned char **ppbEncoded,
-                          size_t *pcbEncoded,
+                          unsigned char **ppbEncoded, size_t *pcbEncoded,
                           int tryLoadRSA, int tryLoadDSA)
 {
     int ret = -1;
     unsigned char *data = NULL;
     size_t datalen = 0;
-    FILE *fp = NULL;
-
-    if(filename) {
-        fp = ssh2_fopen(filename, "rb");
-        if(!fp)
-            return -1;
-    }
 
 #if LIBSSH2_RSA
-    if(ret && tryLoadRSA) {
-        if(filename)
-            ret = ssh2_pem_parse_FILE(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
-                                      fp, passphrase,
-                                      &data, &datalen);
-        else
-            ret = ssh2_pem_parse_blob(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
-                                      privkeyblob, privkeyblob_len, passphrase,
-                                      &data, &datalen);
-    }
+    if(ret && tryLoadRSA)
+        ret = ssh2_pem_parse(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
+                             filename, privkeyblob, privkeyblob_len,
+                             passphrase, &data, &datalen, NULL);
 #else
     (void)tryLoadRSA;
 #endif
 
 #if LIBSSH2_DSA
-    if(ret && tryLoadDSA) {
-        if(filename)
-            ret = ssh2_pem_parse_FILE(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
-                                      fp, passphrase,
-                                      &data, &datalen);
-        else
-            ret = ssh2_pem_parse_blob(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
-                                      privkeyblob, privkeyblob_len, passphrase,
-                                      &data, &datalen);
-    }
+    if(ret && tryLoadDSA)
+        ret = ssh2_pem_parse(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
+                             filename, privkeyblob, privkeyblob_len,
+                             passphrase, &data, &datalen, NULL);
 #else
     (void)tryLoadDSA;
 #endif
-
-    if(fp)
-        fclose(fp);
 
     if(!ret) {
         *ppbEncoded = data;
@@ -2465,7 +2441,6 @@ int ssh2_ecdsa_new_priv(OUT ssh2_ecdsa_ctx **ec_ctx,
 {
     int result;
     struct string_buf *decrypted = NULL;
-    FILE *fp = NULL;
 
     /* Validate parameters */
     if(!ec_ctx || !session || (!filename && !blob))
@@ -2473,21 +2448,8 @@ int ssh2_ecdsa_new_priv(OUT ssh2_ecdsa_ctx **ec_ctx,
 
     *ec_ctx = NULL;
 
-    if(filename) {
-        fp = ssh2_fopen(filename, "rb");
-        if(!fp) {
-            result = ssh2_err(session, LIBSSH2_ERROR_FILE,
-                              "Opening the private key file failed");
-            goto cleanup;
-        }
-
-        result = ssh2_openssh_pem_parse_FILE(session, fp,
-                                             passphrase, &decrypted);
-    }
-    else
-        result = ssh2_openssh_pem_parse_blob(session, blob, blob_len,
-                                             passphrase, &decrypted);
-
+    result = ssh2_openssh_pem_parse(session, filename, blob, blob_len,
+                                    passphrase, &decrypted);
     if(result)
         goto cleanup;
 
@@ -2497,9 +2459,6 @@ int ssh2_ecdsa_new_priv(OUT ssh2_ecdsa_ctx **ec_ctx,
 cleanup:
     if(decrypted)
         ssh2_string_buf_free(session, decrypted);
-
-    if(fp)
-        fclose(fp);
 
     return result;
 }

@@ -244,26 +244,15 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
                       const char *blob, size_t blob_len,
                       const char *passphrase)
 {
-    FILE *fp;
     unsigned char *data, *save_data;
     size_t datalen;
     int ret;
     unsigned char *n, *e, *d, *p, *q, *e1, *e2, *coeff;
     unsigned int nlen, elen, dlen, plen, qlen, e1len, e2len, coefflen;
 
-    if(filename) {
-        fp = ssh2_fopen(filename, "rb");
-        if(!fp)
-            return -1;
-        ret = ssh2_pem_parse_FILE(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
-                                  fp, passphrase,
-                                  &data, &datalen);
-        fclose(fp);
-    }
-    else
-        ret = ssh2_pem_parse_blob(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
-                                  blob, blob_len, passphrase,
-                                  &data, &datalen);
+    ret = ssh2_pem_parse(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
+                         filename, blob, blob_len, passphrase,
+                         &data, &datalen, NULL);
     if(ret)
         return -1;
 
@@ -350,27 +339,15 @@ int ssh2_dsa_new_priv(ssh2_dsa_ctx **dsa,
                       const char *blob, size_t blob_len,
                       const char *passphrase)
 {
-    FILE *fp;
     unsigned char *data, *save_data;
     size_t datalen;
     int ret;
     unsigned char *p, *q, *g, *y, *x;
     unsigned int plen, qlen, glen, ylen, xlen;
 
-    if(filename) {
-        fp = ssh2_fopen(filename, "rb");
-        if(!fp)
-            return -1;
-
-        ret = ssh2_pem_parse_FILE(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
-                                  fp, passphrase,
-                                  &data, &datalen);
-        fclose(fp);
-    }
-    else
-        ret = ssh2_pem_parse_blob(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
-                                  blob, blob_len, passphrase,
-                                  &data, &datalen);
+    ret = ssh2_pem_parse(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
+                         filename, blob, blob_len, passphrase,
+                         &data, &datalen, NULL);
     if(ret)
         return -1;
 
