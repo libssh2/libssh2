@@ -434,7 +434,7 @@ static int crypt_encrypt_chacha20_poly_buffer(LIBSSH2_SESSION *session,
             /* buf is full packet including size and auth tag but buf_len
                does not include size */
             if(buf_len < 4)
-                return 1; /* too short to drop the size field below */
+                return 1; /* too short to fit the size field below */
 
             ret = chachapoly_crypt(&ctx->chachapoly_ctx, seqno, buf, buf,
                                    buf_len, 4, ctx->encrypt);
