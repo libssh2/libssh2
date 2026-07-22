@@ -620,7 +620,7 @@ static int mbed_pub_priv_key(LIBSSH2_SESSION *session, char **method,
 
 int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
                      unsigned char **pubkeydata, size_t *pubkeydata_len,
-                     const char *privatekey,
+                     const char *privkeyfile,
                      const char *privkeyblob, size_t privkeyblob_len,
                      const char *passphrase)
 {
@@ -629,7 +629,7 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
     int ret;
     unsigned char *data_nullterm = NULL;
 
-    if(!privatekey) {
+    if(!privkeyfile) {
         /* mbedtls checks in "mbedtls/pkparse.c:1184"
                if "key[keylen - 1] != '\0'"
            private-key from memory fails if the last byte is not a null byte */
@@ -643,7 +643,7 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
 
     mbedtls_pk_init(&pkey);
 
-    if(!privatekey) {
+    if(!privkeyfile) {
         ret = mbedtls_pk_parse_key(&pkey, data_nullterm, privkeyblob_len + 1,
                                    (const unsigned char *)passphrase,
                                    passphrase ? strlen(passphrase) : 0,
@@ -651,7 +651,7 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
         mbed_zero_free(data_nullterm, privkeyblob_len + 1);
     }
     else
-        ret = mbedtls_pk_parse_keyfile(&pkey, privatekey, passphrase,
+        ret = mbedtls_pk_parse_keyfile(&pkey, privkeyfile, passphrase,
                                        mbedtls_ctr_drbg_random,
                                        &mbed_ctr_drbg);
 

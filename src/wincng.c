@@ -2702,7 +2702,7 @@ cleanup:
 
 int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
                      unsigned char **pubkeydata, size_t *pubkeydata_len,
-                     const char *privatekey,
+                     const char *privkeyfile,
                      const char *privkeyblob, size_t privkeyblob_len,
                      const char *passphrase)
 {
@@ -2710,7 +2710,7 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
     size_t cbEncoded;
 
     if(wcng_load_priv(session,
-                      privatekey, privkeyblob, privkeyblob_len, passphrase,
+                      privkeyfile, privkeyblob, privkeyblob_len, passphrase,
                       &pbEncoded, &cbEncoded, 1, 1))
         return -1;
 

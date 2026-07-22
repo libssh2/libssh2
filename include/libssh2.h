@@ -265,7 +265,7 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
                const unsigned char *data, size_t data_len, \
                int algorithm, uint8_t flags, \
                const char *application, const unsigned char *key_handle, \
-               size_t handle_len, \
+               size_t key_handle_len, \
                void **abstract)
 
 /* Flags for SK authentication */
@@ -673,16 +673,17 @@ LIBSSH2_API int libssh2_userauth_publickey_fromfile_ex(
     LIBSSH2_SESSION *session,
     const char *username,
     unsigned int username_len,
-    const char *publickey,
-    const char *privatekey,
+    const char *pubkeyfile,
+    const char *privkeyfile,
     const char *passphrase);
 
-#define libssh2_userauth_publickey_fromfile(session, username, publickey,  \
-                                            privatekey, passphrase)        \
+#define libssh2_userauth_publickey_fromfile(session, username,             \
+                                            pubkeyfile,                    \
+                                            privkeyfile, passphrase)       \
     libssh2_userauth_publickey_fromfile_ex(session, username,              \
                                            (unsigned int)strlen(username), \
-                                           publickey,                      \
-                                           privatekey, passphrase)
+                                           pubkeyfile,                     \
+                                           privkeyfile, passphrase)
 
 LIBSSH2_API int libssh2_userauth_publickey(
     LIBSSH2_SESSION *session,
@@ -696,20 +697,22 @@ LIBSSH2_API int libssh2_userauth_hostbased_fromfile_ex(
     LIBSSH2_SESSION *session,
     const char *username,
     unsigned int username_len,
-    const char *publickey,
-    const char *privatekey,
+    const char *pubkeyfile,
+    const char *privkeyfile,
     const char *passphrase,
     const char *hostname,
     unsigned int hostname_len,
     const char *local_username,
     unsigned int local_username_len);
 
-#define libssh2_userauth_hostbased_fromfile(session, username, publickey,     \
-                                            privatekey, passphrase, hostname) \
+#define libssh2_userauth_hostbased_fromfile(session, username,                \
+                                            pubkeyfile,                       \
+                                            privkeyfile, passphrase,          \
+                                            hostname)                         \
     libssh2_userauth_hostbased_fromfile_ex(session, username,                 \
                                            (unsigned int)strlen(username),    \
-                                           publickey,                         \
-                                           privatekey, passphrase,            \
+                                           pubkeyfile,                        \
+                                           privkeyfile, passphrase,           \
                                            hostname,                          \
                                            (unsigned int)strlen(hostname),    \
                                            username,                          \
@@ -764,7 +767,7 @@ typedef struct _LIBSSH2_PRIVKEY_SK {
     uint8_t flags;
     const char *application;
     const unsigned char *key_handle;
-    size_t handle_len;
+    size_t handle_len;  /* FIXME: -> key_handle_len */
     LIBSSH2_USERAUTH_SK_SIGN_FUNC(*sign_callback);
     void **orig_abstract;
 } LIBSSH2_PRIVKEY_SK;

@@ -48,7 +48,7 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
 int name(LIBSSH2_SESSION *session, LIBSSH2_SK_SIG_INFO *sig_info,
          const unsigned char *data, size_t data_len, int algorithm,
          uint8_t flags, const char *application,
-         const unsigned char *key_handle, size_t handle_len,
+         const unsigned char *key_handle, size_t key_handle_len,
          void **abstract);
 ~~~
 
@@ -107,7 +107,7 @@ authenticator. Usually "ssh:".
 
 *key_handle* - The key handle to use for the authenticator's allow list.
 
-*handle_len* - The length of the key_handle parameter.
+*key_handle_len* - The length of the key_handle parameter.
 
 *abstract* - User-defined data. When a PIN is required, use this to pass in
 the PIN, or a function pointer to retrieve the PIN.
