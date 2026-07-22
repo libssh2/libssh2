@@ -1111,10 +1111,12 @@ int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
         data_nullterm[blob_len] = '\0';  /* for mbedtls_pk_parse_key() */
     }
 
-    if(mbed_parse_eckey(ec_ctx, &pkey, data_nullterm, data_len + 1, passphrase) == 0)
+    if(mbed_parse_eckey(ec_ctx, &pkey, data_nullterm, data_len + 1,
+                        passphrase) == 0)
         goto cleanup;
 
-    mbed_parse_openssh_key(ec_ctx, session, data_nullterm, data_len, passphrase);
+    mbed_parse_openssh_key(ec_ctx, session, data_nullterm, data_len,
+                           passphrase);
 
 cleanup:
 
