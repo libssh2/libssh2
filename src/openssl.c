@@ -1660,7 +1660,7 @@ int ssh2_dsa_new_priv(ssh2_dsa_ctx **dsa,
         if(filename)
             rc = ossl_dsa_openssh_priv_new(dsa, session, filename, passphrase);
         else
-            rc = ossl_key_from_openssh_blob(session, (void **)dsa, "ssh-dsa",
+            rc = ossl_key_from_openssh_blob(session, (void **)dsa, "ssh-dss",
                                             NULL, NULL, NULL,
                                             blob, blob_len, passphrase);
     }
