@@ -1992,8 +1992,10 @@ static int try_pem_load(LIBSSH2_SESSION *session, FILE *fp,
 
         if(!ret) {
             ret = (*proc)(session, data, datalen, passphrase, loadkeydata);
-            if(!ret)
-                return 0;
+            if(!ret) {
+                SSH2_FREE(session, data);
+                return 0; /* success */
+            }
         }
 
         if(data)
