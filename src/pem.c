@@ -96,65 +96,63 @@ static unsigned char pem_hex_decode(char digit)
         ((digit >= 'A') ? (0xA + (digit - 'A')) : (digit - '0'));
 }
 
-int ssh2_pem_parse_FILE(LIBSSH2_SESSION *session,
-                        const char *headerbegin,
-                        const char *headerend,
-                        FILE *fp,
-                        const char *passphrase,
-                        unsigned char **data, size_t *datalen)
+static int pem_FILE_to_blob(LIBSSH2_SESSION *session, FILE *fp,
+                            unsigned char **blob, size_t **blob_len)
 {
-    int ret = -1;
+    int ret = 0;
     char *filedata = NULL;
     long file_size;
     size_t filedata_len;
 
     if(fseek(fp, 0L, SEEK_END)) {
-        ssh2_err(session, LIBSSH2_ERROR_FILE,
-                 "Bad seek to file end in PEM parsing");
+        ret = ssh2_err(session, LIBSSH2_ERROR_FILE,
+                       "Bad seek to file end in PEM parsing");
         goto out;
     }
     file_size = ftell(fp);
     if(file_size < 0) {
-        ssh2_err(session, LIBSSH2_ERROR_FILE,
-                 "Error determining size in PEM parsing");
+        ret = ssh2_err(session, LIBSSH2_ERROR_FILE,
+                       "Error determining size in PEM parsing");
         goto out;
     }
     if(file_size == 0) {
-        ssh2_err(session, LIBSSH2_ERROR_FILE,
-                 "Zero-length file in PEM parsing");
+        ret = ssh2_err(session, LIBSSH2_ERROR_FILE,
+                       "Zero-length file in PEM parsing");
         goto out;
     }
     if(file_size > (1024 * 1024)) {
-        ssh2_err(session, LIBSSH2_ERROR_FILE,
-                 "Input too large in PEM parsing");
+        ret = ssh2_err(session, LIBSSH2_ERROR_FILE,
+                       "Input too large in PEM parsing");
         goto out;
     }
     if(fseek(fp, 0L, SEEK_SET)) {
-        ssh2_err(session, LIBSSH2_ERROR_FILE, "Bad seek to 0 in PEM parsing");
+        ret = ssh2_err(session, LIBSSH2_ERROR_FILE, "Bad seek to 0 in PEM parsing");
         goto out;
     }
 
     filedata_len = (size_t)file_size;
     filedata = SSH2_ALLOC(session, filedata_len);
     if(!filedata) {
-        ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                 "Unable to allocate memory for PEM parsing");
+        ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
+                       "Unable to allocate memory for PEM parsing");
         goto out;
     }
 
     if(fread(filedata, 1, filedata_len, fp) != filedata_len) {
-        ssh2_err(session, LIBSSH2_ERROR_FILE, "Bad read in PEM parsing");
+        ret = ssh2_err(session, LIBSSH2_ERROR_FILE, "Bad read in PEM parsing");
         goto out;
     }
 
-    ret = ssh2_pem_parse_blob(session, headerbegin, headerend,
-                              filedata, filedata_len,
-                              passphrase,
-                              data, datalen);
+finish:
 
-out:
+    *blob = filedata;
+    *blob_len = filedata_len;
+
+    return ret;
+
     if(filedata)
         SSH2_FREE(session, filedata);
+
     return ret;
 }
 
