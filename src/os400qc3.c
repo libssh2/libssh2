@@ -1975,9 +1975,10 @@ static int rsapkcs1pubkey(LIBSSH2_SESSION *session,
     return ret;
 }
 
-static int try_pem_load(LIBSSH2_SESSION *session, FILE *fp,
-                        const char *passphrase,
+static int try_pem_load(LIBSSH2_SESSION *session,
                         const char *header, const char *trailer,
+                        const char *blob, size_t blob_len,
+                        const char *passphrase,
                         loadkeyproc proc, void *loadkeydata)
 {
     unsigned char *data = NULL;
@@ -1985,10 +1986,10 @@ static int try_pem_load(LIBSSH2_SESSION *session, FILE *fp,
     int c;
     int ret;
 
-    fseek(fp, 0L, SEEK_SET);
     for(;;) {
         ret = ssh2_pem_parse(session, header, trailer,
-                             fp, NULL, 0, passphrase, &data, &datalen);
+                             NULL, blob, blob_len, passphrase,
+                             &data, &datalen);
 
         if(!ret) {
             ret = (*proc)(session, data, datalen, passphrase, loadkeydata);
