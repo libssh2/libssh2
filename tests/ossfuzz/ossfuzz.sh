@@ -31,5 +31,7 @@ autoreconf -fi
             --enable-debug
 make V=1
 
-# Copy the fuzzer to the output directory.
+# Copy the fuzzers to the output directory.
 cp -v tests/ossfuzz/ssh2_client_fuzzer "$OUT/"
+cp -v tests/ossfuzz/ssh2_sftp_packet_fuzzer "$OUT/"
+cp -v tests/ossfuzz/ssh2_knownhost_fuzzer "$OUT/"

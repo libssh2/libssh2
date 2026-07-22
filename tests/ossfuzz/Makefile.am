@@ -21,7 +21,9 @@ noinst_LIBRARIES =
 
 if USE_OSSFUZZERS
 noinst_PROGRAMS += \
-  ssh2_client_fuzzer
+  ssh2_client_fuzzer \
+  ssh2_sftp_packet_fuzzer \
+  ssh2_knownhost_fuzzer
 
 noinst_LIBRARIES += \
   libstandaloneengine.a
@@ -30,6 +32,14 @@ endif
 ssh2_client_fuzzer_SOURCES = ssh2_client_fuzzer.cc testinput.h
 ssh2_client_fuzzer_CXXFLAGS = $(AM_CXXFLAGS) $(FUZZ_FLAG)
 ssh2_client_fuzzer_LDFLAGS = $(AM_LDFLAGS) -static
+
+ssh2_sftp_packet_fuzzer_SOURCES = ssh2_sftp_packet_fuzzer.cc testinput.h
+ssh2_sftp_packet_fuzzer_CXXFLAGS = $(AM_CXXFLAGS) $(FUZZ_FLAG)
+ssh2_sftp_packet_fuzzer_LDFLAGS = $(AM_LDFLAGS) -static
+
+ssh2_knownhost_fuzzer_SOURCES = ssh2_knownhost_fuzzer.cc testinput.h
+ssh2_knownhost_fuzzer_CXXFLAGS = $(AM_CXXFLAGS) $(FUZZ_FLAG)
+ssh2_knownhost_fuzzer_LDFLAGS = $(AM_LDFLAGS) -static
 
 libstandaloneengine_a_SOURCES = standaloneengine.cc
 libstandaloneengine_a_CXXFLAGS = $(AM_CXXFLAGS)
