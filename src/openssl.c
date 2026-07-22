@@ -3376,7 +3376,7 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
                                       char **method,
                                       unsigned char **pubkeydata,
                                       size_t *pubkeydata_len,
-                                      const char *filename,
+                                      const char *privatekey,
                                       const char *privkeyblob,
                                       size_t privkeyblob_len,
                                       const char *passphrase)
@@ -3400,7 +3400,7 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
     OSSL_INIT_IF_NEEDED();
 
     rc = ssh2_openssh_pem_parse(session,
-                                filename, NULL, 0,
+                                privatekey, privkeyblob, privkeyblob_len,
                                 passphrase, &decrypted);
     if(rc)
         return rc;
@@ -3424,21 +3424,32 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
     if(!strcmp("ssh-ed25519", (const char *)buf) &&
        (!want_method || !strcmp("ssh-ed25519", want_method)))
         rc = ossl_ed25519_openssh_priv_to_pubkey(session, decrypted,
-                                                 NULL, NULL, NULL,
+                                                 method,
+                                                 pubkeydata, pubkeydata_len,
+                                                 (ssh2_ed25519_ctx **)key_ctx);
+
+    if(!strcmp("sk-ssh-ed25519@openssh.com", (const char *)buf) &&
+       (!want_method || !strcmp("sk-ssh-ed25519@openssh.com", want_method)))
+        rc = ossl_ed25519_sk_openssh_priv_to_pubkey(session, decrypted,
+                                                    method,
+                                                    pubkeydata, pubkeydata_len,
+                                                    NULL, NULL, NULL, NULL,
                                                  (ssh2_ed25519_ctx **)key_ctx);
 #endif
 #if LIBSSH2_RSA
     if(!strcmp("ssh-rsa", (const char *)buf) &&
        (!want_method || !strcmp("ssh-rsa", want_method)))
         rc = ossl_rsa_openssh_priv_to_pubkey(session, decrypted,
-                                             NULL, NULL, NULL,
+                                             method,
+                                             pubkeydata, pubkeydata_len,
                                              (ssh2_rsa_ctx **)key_ctx);
 #endif
 #if LIBSSH2_DSA
     if(!strcmp("ssh-dss", (const char *)buf) &&
        (!want_method || !strcmp("ssh-dss", want_method)))
         rc = ossl_dsa_openssh_priv_to_pubkey(session, decrypted,
-                                             NULL, NULL, NULL,
+                                             method,
+                                             pubkeydata, pubkeydata_len,
                                              (ssh2_dsa_ctx **)key_ctx);
 #endif
 #if LIBSSH2_ECDSA
@@ -3451,7 +3462,8 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
     else if(ossl_ecdsa_curve_type_from_name((const char *)buf, &type) == 0 &&
             (!want_method || !strcmp("ssh-ecdsa", want_method)))
         rc = ossl_ecdsa_openssh_priv_to_pubkey(session, type, decrypted,
-                                               NULL, NULL, NULL,
+                                               method,
+                                               pubkeydata, pubkeydata_len,
                                                (ssh2_ecdsa_ctx **)key_ctx);
 #endif
 
