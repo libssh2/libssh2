@@ -1233,14 +1233,11 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
                    unsigned char **data, size_t *datalen,
                    size_t *blob_offset);
 /* OpenSSL keys */
-int ssh2_openssh_pem_parse_FILE(LIBSSH2_SESSION *session,
-                                FILE *fp,
-                                const char *passphrase,
-                                struct string_buf **decrypted_buf);
-int ssh2_openssh_pem_parse_blob(LIBSSH2_SESSION *session,
-                                const char *blob, size_t blob_len,
-                                const char *passphrase,
-                                struct string_buf **decrypted_buf);
+int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
+                           const char *filename,
+                           const char *blob, size_t blob_len,
+                           const char *passphrase,
+                           struct string_buf **decrypted_buf);
 
 int ssh2_pem_decode_sequence(unsigned char **data, size_t *datalen);
 int ssh2_pem_decode_integer(unsigned char **data, size_t *datalen,

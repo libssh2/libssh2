@@ -2441,7 +2441,6 @@ int ssh2_ecdsa_new_priv(OUT ssh2_ecdsa_ctx **ec_ctx,
 {
     int result;
     struct string_buf *decrypted = NULL;
-    FILE *fp = NULL;
 
     /* Validate parameters */
     if(!ec_ctx || !session || (!filename && !blob))
@@ -2449,21 +2448,8 @@ int ssh2_ecdsa_new_priv(OUT ssh2_ecdsa_ctx **ec_ctx,
 
     *ec_ctx = NULL;
 
-    if(filename) {
-        fp = ssh2_fopen(filename, "rb");
-        if(!fp) {
-            result = ssh2_err(session, LIBSSH2_ERROR_FILE,
-                              "Opening the private key file failed");
-            goto cleanup;
-        }
-
-        result = ssh2_openssh_pem_parse_FILE(session, fp,
-                                             passphrase, &decrypted);
-    }
-    else
-        result = ssh2_openssh_pem_parse_blob(session, blob, blob_len,
-                                             passphrase, &decrypted);
-
+    result = ssh2_openssh_pem_parse(session, filename, blob, blob_len,
+                                    passphrase, &decrypted);
     if(result)
         goto cleanup;
 
@@ -2473,9 +2459,6 @@ int ssh2_ecdsa_new_priv(OUT ssh2_ecdsa_ctx **ec_ctx,
 cleanup:
     if(decrypted)
         ssh2_string_buf_free(session, decrypted);
-
-    if(fp)
-        fclose(fp);
 
     return result;
 }

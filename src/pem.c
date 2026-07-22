@@ -720,74 +720,11 @@ out:
     return ret;
 }
 
-int ssh2_openssh_pem_parse_FILE(LIBSSH2_SESSION *session,
-                                FILE *fp,
-                                const char *passphrase,
-                                struct string_buf **decrypted_buf)
-{
-    char line[LINE_SIZE];
-    char *b64data = NULL;
-    size_t b64datalen = 0;
-    int ret = 0;
-
-    /* read file */
-
-    do {
-        *line = '\0';
-
-        if(pem_readline_file(line, LINE_SIZE, fp))
-            return -1;
-    } while(strcmp(line, OPENSSH_PRIVKEY_HEADER));
-
-    if(pem_readline_file(line, LINE_SIZE, fp))
-        return -1;
-
-    do {
-        if(*line) {
-            char *tmp;
-            size_t linelen;
-
-            linelen = strlen(line);
-            tmp = SSH2_REALLOC(session, b64data, b64datalen + linelen);
-            if(!tmp) {
-                ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                         "Unable to allocate memory for PEM parsing");
-                ret = -1;
-                goto out;
-            }
-            memcpy(tmp + b64datalen, line, linelen);
-            b64data = tmp;
-            b64datalen += linelen;
-        }
-
-        *line = '\0';
-
-        if(pem_readline_file(line, LINE_SIZE, fp)) {
-            ret = -1;
-            goto out;
-        }
-    } while(strcmp(line, OPENSSH_PRIVKEY_FOOTER));
-
-    if(!b64data)
-        return -1;
-
-    ret = pem_parse_data_openssh(session, passphrase,
-                                 b64data, b64datalen, decrypted_buf);
-
-    if(b64data) {
-        ssh2_explicit_zero(b64data, b64datalen);
-        SSH2_FREE(session, b64data);
-    }
-
-out:
-
-    return ret;
-}
-
-int ssh2_openssh_pem_parse_blob(LIBSSH2_SESSION *session,
-                                const char *blob, size_t blob_len,
-                                const char *passphrase,
-                                struct string_buf **decrypted_buf)
+int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
+                           const char *filename,
+                           const char *blob, size_t blob_len,
+                           const char *passphrase,
+                           struct string_buf **decrypted_buf)
 {
     char line[LINE_SIZE];
     char *b64data = NULL;
@@ -795,9 +732,9 @@ int ssh2_openssh_pem_parse_blob(LIBSSH2_SESSION *session,
     size_t off = 0;
     int ret;
 
-    if(!blob || blob_len == 0)
+    if(!filename && (!blob || !blob_len))
         return ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                        "Error parsing PEM: blob missing");
+                        "Error parsing PEM: filename/blob missing");
 
     do {
 
