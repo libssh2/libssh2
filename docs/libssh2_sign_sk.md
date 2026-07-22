@@ -74,7 +74,7 @@ authenticator. Usually "ssh:".
 
 *key_handle* - The key handle to use for the authenticator's allow list.
 
-*key_handle_len* - The length of the key_handle parameter.
+*handle_len* - The length of the key_handle parameter.
 
 *abstract* - User-defined data. When a PIN is required, use this to pass in
 the PIN, or a function pointer to retrieve the PIN.
