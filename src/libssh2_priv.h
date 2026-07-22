@@ -1222,18 +1222,13 @@ int ssh2_bcrypt_pbkdf(const char *pass,
                       unsigned int rounds);
 
 /* pem.c */
-int ssh2_pem_parse_FILE(LIBSSH2_SESSION *session,
-                        const char *headerbegin,
-                        const char *headerend,
-                        FILE *fp,
-                        const char *passphrase,
-                        unsigned char **data, size_t *datalen);
-int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
-                        const char *headerbegin,
-                        const char *headerend,
-                        const char *blob, size_t blob_len,
-                        const char *passphrase,
-                        unsigned char **data, size_t *datalen);
+int ssh2_pem_parse(LIBSSH2_SESSION *session,
+                   const char *headerbegin,
+                   const char *headerend,
+                   FILE *fp,
+                   const char *blob, size_t blob_len,
+                   const char *passphrase,
+                   unsigned char **data, size_t *datalen);
 /* OpenSSL keys */
 int ssh2_openssh_pem_parse_FILE(LIBSSH2_SESSION *session,
                                 FILE *fp,

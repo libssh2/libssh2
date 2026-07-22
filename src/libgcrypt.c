@@ -255,15 +255,12 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
         fp = ssh2_fopen(filename, "rb");
         if(!fp)
             return -1;
-        ret = ssh2_pem_parse_FILE(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
-                                  fp, passphrase,
-                                  &data, &datalen);
-        fclose(fp);
     }
-    else
-        ret = ssh2_pem_parse_blob(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
-                                  blob, blob_len, passphrase,
-                                  &data, &datalen);
+    ret = ssh2_pem_parse(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
+                         fp, blob, blob_len, passphrase,
+                         &data, &datalen);
+    if(fp)
+        fclose(fp);
     if(ret)
         return -1;
 
@@ -361,16 +358,12 @@ int ssh2_dsa_new_priv(ssh2_dsa_ctx **dsa,
         fp = ssh2_fopen(filename, "rb");
         if(!fp)
             return -1;
-
-        ret = ssh2_pem_parse_FILE(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
-                                  fp, passphrase,
-                                  &data, &datalen);
-        fclose(fp);
     }
-    else
-        ret = ssh2_pem_parse_blob(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
-                                  blob, blob_len, passphrase,
-                                  &data, &datalen);
+    ret = ssh2_pem_parse(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
+                         fp, blob, blob_len, passphrase,
+                         &data, &datalen);
+    if(fp)
+        fclose(fp);
     if(ret)
         return -1;
 

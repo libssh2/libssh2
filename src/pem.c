@@ -172,14 +172,18 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
     size_t off = 0;
     int ret = -1;
     const struct crypt_method *method = NULL;
+    char *filedata = NULL;
+    size_t filedata_len = 0;
 
     *data = NULL;
     *datalen = 0;
 
     if(fp) {
-        ret = pem_FILE_to_blob(session, fp, &blob, &blob_len);
+        ret = pem_FILE_to_blob(session, fp, &filedata, &filedata_len);
         if(ret)
             goto out;
+        blob = filedata;
+        blob_len = filedata_len;
     }
 
     do {
@@ -370,8 +374,8 @@ out:
         *datalen = 0;
     }
 
-    if(blob)
-        SSH2_FREE(session, blob)
+    if(filedata)
+        SSH2_FREE(session, filedata);
 
     if(b64data) {
         ssh2_explicit_zero(b64data, b64datalen);
