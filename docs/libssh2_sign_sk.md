@@ -79,6 +79,10 @@ authenticator. Usually "ssh:".
 *abstract* - User-defined data. When a PIN is required, use this to pass in
 the PIN, or a function pointer to retrieve the PIN.
 
+*key_handle* The decoded key handle from the private key file.
+
+*handle_len* The length of the key_handle parameter.
+
 *sign_callback* - Responsible for communicating with the hardware
 authenticator to generate a signature. On success, the signature information
 must be placed in the *sig_info* sig_info parameter and the callback must
