@@ -173,6 +173,9 @@ int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
     int ret;
     const struct crypt_method *method = NULL;
 
+    *data = NULL;
+    *datalen = 0;
+
     do {
         *line = '\0';
 
@@ -262,9 +265,7 @@ int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
     }
 
     if(*datalen == 0) {
-        /* Invalid decode */
-        SSH2_FREE(session, *data);
-        ret = -1;
+        ret = -1; /* Invalid decode */
         goto out;
     }
 
@@ -309,8 +310,6 @@ int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
         if(method->init(session, method, iv, &free_iv, secret, &free_secret, 0,
                         &abstract)) {
             ssh2_explicit_zero(secret, sizeof(secret));
-            ssh2_explicit_zero(*data, *datalen);
-            SSH2_FREE(session, *data);
             ret = -1;
             goto out;
         }
@@ -322,8 +321,6 @@ int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
         if((*datalen % blocksize) != 0) {
             ssh2_explicit_zero(secret, sizeof(secret));
             method->dtor(session, &abstract);
-            ssh2_explicit_zero(*data, *datalen);
-            SSH2_FREE(session, *data);
             ret = -1;
             goto out;
         }
@@ -333,8 +330,6 @@ int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
                 ret = LIBSSH2_ERROR_DECRYPT;
                 ssh2_explicit_zero(secret, sizeof(secret));
                 method->dtor(session, &abstract);
-                ssh2_explicit_zero(*data, *datalen);
-                SSH2_FREE(session, *data);
                 goto out;
             }
         }
@@ -351,8 +346,6 @@ int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
                     ret = LIBSSH2_ERROR_DECRYPT;
                     ssh2_explicit_zero(secret, sizeof(secret));
                     method->dtor(session, &abstract);
-                    ssh2_explicit_zero(*data, *datalen);
-                    SSH2_FREE(session, *data);
                     goto out;
                 }
 
@@ -365,8 +358,6 @@ int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
         if(padding > *datalen) {
             /* Invalid padding len */
             ret = LIBSSH2_ERROR_DECRYPT;
-            ssh2_explicit_zero(*data, *datalen);
-            SSH2_FREE(session, *data);
             goto out;
         }
         memset(&(*data)[*datalen - padding], 0, padding);
@@ -384,11 +375,20 @@ int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
     }
 
     ret = 0;
+
 out:
+
+    if(ret && *data) {
+        ssh2_explicit_zero(*data, *datalen);
+        SSH2_SAFEFREE(session, *data);
+        *datalen = 0;
+    }
+
     if(b64data) {
         ssh2_explicit_zero(b64data, b64datalen);
         SSH2_FREE(session, b64data);
     }
+
     return ret;
 }
 
