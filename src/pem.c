@@ -106,7 +106,8 @@ int ssh2_file_to_blob(LIBSSH2_SESSION *session, const char *filename,
         goto out;
     }
     if(fseek(fp, 0L, SEEK_SET)) {
-        ret = ssh2_err(session, LIBSSH2_ERROR_FILE, "Bad seek to 0 in PEM parsing");
+        ret = ssh2_err(session, LIBSSH2_ERROR_FILE,
+                       "Bad seek to 0 in PEM parsing");
         goto out;
     }
 
