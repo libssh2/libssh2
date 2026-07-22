@@ -1118,9 +1118,6 @@ int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
 
 cleanup:
 
-    if(fp)
-        fclose(fp);
-
     if(data_nullterm) {
         ssh2_explicit_zero(data_nullterm, data_len + 1);
         SSH2_FREE(session, data_nullterm);
