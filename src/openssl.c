@@ -1834,7 +1834,7 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
     unsigned char *flags,
     const char **application,
     const unsigned char **key_handle,
-    size_t *handle_len,
+    size_t *key_handle_len,
     ssh2_ed25519_ctx **ed_ctx)
 {
     const char method_name[] = "sk-ssh-ed25519@openssh.com";
@@ -1865,17 +1865,17 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
         return -1;
     }
 
-    if(key_handle && handle_len) {
+    if(key_handle && key_handle_len) {
         unsigned char *handle = NULL;
-        if(ssh2_get_string(decrypted, &handle, handle_len)) {
+        if(ssh2_get_string(decrypted, &handle, key_handle_len)) {
             ssh2_err(session, LIBSSH2_ERROR_PROTO, "No SK key_handle.");
             return -1;
         }
 
-        if(*handle_len > 0) {
-            *key_handle = SSH2_ALLOC(session, *handle_len);
+        if(*key_handle_len > 0) {
+            *key_handle = SSH2_ALLOC(session, *key_handle_len);
             if(*key_handle)
-                memcpy(SSH2_UNCONST(*key_handle), handle, *handle_len);
+                memcpy(SSH2_UNCONST(*key_handle), handle, *key_handle_len);
         }
     }
 
@@ -2727,7 +2727,7 @@ static int ossl_ecdsa_sk_openssh_priv_to_pubkey(
     unsigned char *flags,
     const char **application,
     const unsigned char **key_handle,
-    size_t *handle_len,
+    size_t *key_handle_len,
     ssh2_ecdsa_ctx **ec_ctx)
 {
     int rc = 0;
@@ -2765,17 +2765,17 @@ static int ossl_ecdsa_sk_openssh_priv_to_pubkey(
         goto fail;
     }
 
-    if(key_handle && handle_len) {
+    if(key_handle && key_handle_len) {
         unsigned char *handle = NULL;
-        if(ssh2_get_string(decrypted, &handle, handle_len)) {
+        if(ssh2_get_string(decrypted, &handle, key_handle_len)) {
             ssh2_err(session, LIBSSH2_ERROR_PROTO, "No SK key_handle.");
             goto fail;
         }
 
-        if(*handle_len > 0) {
-            *key_handle = SSH2_ALLOC(session, *handle_len);
+        if(*key_handle_len > 0) {
+            *key_handle = SSH2_ALLOC(session, *key_handle_len);
             if(*key_handle)
-                memcpy(SSH2_UNCONST(*key_handle), handle, *handle_len);
+                memcpy(SSH2_UNCONST(*key_handle), handle, *key_handle_len);
         }
     }
 
@@ -3440,7 +3440,7 @@ int ssh2_sk_pubkey(LIBSSH2_SESSION *session, char **method,
                    unsigned char **pubkeydata, size_t *pubkeydata_len,
                    int *algorithm, unsigned char *flags,
                    const char **application,
-                   const unsigned char **key_handle, size_t *handle_len,
+                   const unsigned char **key_handle, size_t *key_handle_len,
                    const char *privkeyfile,
                    const char *privkeyblob, size_t privkeyblob_len,
                    const char *passphrase)
@@ -3481,28 +3481,29 @@ int ssh2_sk_pubkey(LIBSSH2_SESSION *session, char **method,
     (void)flags;
     (void)application;
     (void)key_handle;
-    (void)handle_len;
+    (void)key_handle_len;
 
 #if LIBSSH2_ED25519
     if(!strcmp("sk-ssh-ed25519@openssh.com", (const char *)buf)) {
         *algorithm = LIBSSH2_HOSTKEY_TYPE_ED25519;
-        rc = ossl_ed25519_sk_openssh_priv_to_pubkey(session, decrypted,
-                                                    method,
+        rc = ossl_ed25519_sk_openssh_priv_to_pubkey(session, decrypted, method,
                                                     pubkeydata,
                                                     pubkeydata_len,
                                                     flags, application,
-                                                    key_handle, handle_len,
+                                                    key_handle,
+                                                    key_handle_len,
                                                     NULL);
     }
 #endif
 #if LIBSSH2_ECDSA
     if(!strcmp("sk-ecdsa-sha2-nistp256@openssh.com", (const char *)buf)) {
         *algorithm = LIBSSH2_HOSTKEY_TYPE_ECDSA_256;
-        rc = ossl_ecdsa_sk_openssh_priv_to_pubkey(session, decrypted,
-                                                  method,
-                                                  pubkeydata, pubkeydata_len,
+        rc = ossl_ecdsa_sk_openssh_priv_to_pubkey(session, decrypted, method,
+                                                  pubkeydata,
+                                                  pubkeydata_len,
                                                   flags, application,
-                                                  key_handle, handle_len,
+                                                  key_handle,
+                                                  key_handle_len,
                                                   NULL);
     }
 #endif

@@ -282,7 +282,7 @@ int ssh2_sk_pubkey(LIBSSH2_SESSION *session, char **method,
                    unsigned char **pubkeydata, size_t *pubkeydata_len,
                    int *algorithm, unsigned char *flags,
                    const char **application,
-                   const unsigned char **key_handle, size_t *handle_len,
+                   const unsigned char **key_handle, size_t *key_handle_len,
                    const char *privkeyfile,
                    const char *privkeyblob, size_t privkeyblob_len,
                    const char *passphrase);

@@ -30,7 +30,7 @@ typedef struct _LIBSSH2_PRIVKEY_SK {
     uint8_t flags;
     const char *application;
     const unsigned char *key_handle;
-    size_t handle_len;
+    size_t key_handle_len;
     LIBSSH2_USERAUTH_SK_SIGN_FUNC(*sign_callback);
     void **orig_abstract;
 } LIBSSH2_PRIVKEY_SK;
@@ -74,14 +74,10 @@ authenticator. Usually "ssh:".
 
 *key_handle* - The key handle to use for the authenticator's allow list.
 
-*handle_len* - The length of the key_handle parameter.
+*key_handle_len* - The length of the key_handle parameter.
 
 *abstract* - User-defined data. When a PIN is required, use this to pass in
 the PIN, or a function pointer to retrieve the PIN.
-
-*key_handle* The decoded key handle from the private key file.
-
-*handle_len* The length of the key_handle parameter.
 
 *sign_callback* - Responsible for communicating with the hardware
 authenticator to generate a signature. On success, the signature information

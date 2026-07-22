@@ -265,7 +265,7 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
                const unsigned char *data, size_t data_len, \
                int algorithm, uint8_t flags, \
                const char *application, const unsigned char *key_handle, \
-               size_t handle_len, \
+               size_t key_handle_len, \
                void **abstract)
 
 /* Flags for SK authentication */
@@ -764,7 +764,7 @@ typedef struct _LIBSSH2_PRIVKEY_SK {
     uint8_t flags;
     const char *application;
     const unsigned char *key_handle;
-    size_t handle_len;
+    size_t key_handle_len;
     LIBSSH2_USERAUTH_SK_SIGN_FUNC(*sign_callback);
     void **orig_abstract;
 } LIBSSH2_PRIVKEY_SK;
