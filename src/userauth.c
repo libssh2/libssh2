@@ -1232,6 +1232,10 @@ static const char *userauth_supported_key_sign_algs(LIBSSH2_SESSION *session,
  */
 static int userauth_key_sign_algs(LIBSSH2_SESSION *session, char **method)
 {
+    static const char suffix[] = "-cert-v01@openssh.com";
+    static const char rsa_method[] = "ssh-rsa-cert-v01@openssh.com";
+    static const char remote_ver_pre[] = "OpenSSH_";
+
     const char *s = NULL;
     const char *a = NULL;
     const char *match = NULL;
@@ -1243,11 +1247,7 @@ static int userauth_key_sign_algs(LIBSSH2_SESSION *session, char **method)
     int rc = 0;
     size_t match_len = 0;
     char *filtered_algs = NULL;
-    const char * const suffix = "-cert-v01@openssh.com";
-    const size_t suffix_len = sizeof("-cert-v01@openssh.com") - 1;
-    const char * const rsa_method = "ssh-rsa-cert-v01@openssh.com";
     const char *remote_banner = NULL;
-    const char * const remote_ver_pre = "OpenSSH_";
 
     const char *supported_algs = userauth_supported_key_sign_algs(session,
                                                                   *method);
@@ -1343,10 +1343,10 @@ static int userauth_key_sign_algs(LIBSSH2_SESSION *session, char **method)
     if(match) {
         if(*method && !strcmp(*method, rsa_method)) {
             SSH2_FREE(session, *method);
-            *method = SSH2_ALLOC(session, match_len + suffix_len + 1);
+            *method = SSH2_ALLOC(session, match_len + sizeof(suffix));
             if(*method) {
                 memcpy(*method, match, match_len);
-                memcpy(*method + match_len, suffix, suffix_len + 1);
+                memcpy(*method + match_len, suffix, sizeof(suffix));
             }
         }
         else {
