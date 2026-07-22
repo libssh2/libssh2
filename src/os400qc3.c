@@ -1984,11 +1984,13 @@ static int try_pem_load(LIBSSH2_SESSION *session,
     unsigned char *data = NULL;
     size_t datalen = 0;
     size_t blob_offset = 0;
+    const char *blob_pos = blob;
+    size_t blob_left = blob_len;
     int ret;
 
-    while(blob_offset < blob_len) {
+    while(blob_left > 0) {
         ret = ssh2_pem_parse(session, header, trailer,
-                             NULL, blob + blob_offset, blob_len - blob_offset,
+                             NULL, blob_pos, blob_remain,
                              passphrase,
                              &data, &datalen, &blob_offset);
         if(!ret) {
@@ -1998,6 +2000,9 @@ static int try_pem_load(LIBSSH2_SESSION *session,
                 return 0; /* success */
             }
         }
+
+        blob_pos += blob_offset;
+        blob_remain -= blob_offset;
 
         if(data)
             SSH2_SAFEFREE(session, data);
