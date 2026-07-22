@@ -351,8 +351,8 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
         ssh2_explicit_zero(secret, sizeof(secret));
         method->dtor(session, &abstract);
 #else
-        ssh2_err(session, LIBSSH2_ERROR_ALGO_UNSUPPORTED,
-                 "Unable to decrypt PEM, MD5 not enabled");
+        ret = ssh2_err(session, LIBSSH2_ERROR_ALGO_UNSUPPORTED,
+                       "Unable to decrypt PEM, MD5 not enabled");
         goto out;
 #endif
     }
