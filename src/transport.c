@@ -792,16 +792,14 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
         if(numdecrypt > 0) {
             /* now decrypt the lot */
             if(CRYPT_FLAG_R(session, REQUIRES_FULL_PACKET)) {
-                rc = session->remote.crypt->crypt(session,
+                if(session->remote.crypt->crypt(session,
                                                session->remote.seqno,
                                                &p->buf[p->readidx],
                                                numdecrypt,
                                                &session->remote.crypt_abstract,
-                                               0);
-
-                if(rc != LIBSSH2_ERROR_NONE) {
+                                               0)) {
                     p->total_num = 0; /* no packet buffer available */
-                    return rc;
+                    return LIBSSH2_ERROR_DECRYPT;
                 }
 
                 memcpy(p->wptr, &p->buf[p->readidx], numbytes);
