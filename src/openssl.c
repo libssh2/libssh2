@@ -3511,7 +3511,10 @@ clean_exit:
 
 #endif /* LIBSSH2_ED25519 */
 
-static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session, char **method,
+static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session,
+                                      void **key_ctx,
+                                      const char *want_method,
+                                      char **method,
                                       unsigned char **pubkeydata,
                                       size_t *pubkeydata_len,
                                       const char *privatekey,
@@ -3523,6 +3526,8 @@ static int ossl_key_from_openssh_file(LIBSSH2_SESSION *session, char **method,
 #if LIBSSH2_ECDSA
     ssh2_curve_type type;
 #endif
+    (void)key_ctx;
+    (void)want_method;
 
     if(!session)
         return -1;
@@ -3833,7 +3838,7 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
     if(!pk) {
         /* Try OpenSSH format */
         if(privatekey)
-            rc = ossl_key_from_openssh_file(session,
+            rc = ossl_key_from_openssh_file(session, NULL, NULL,
                                             method,
                                             pubkeydata, pubkeydata_len,
                                             privatekey,
