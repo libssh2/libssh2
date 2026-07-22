@@ -33,9 +33,8 @@
 
 #include "libssh2_priv.h"
 
-static int pem_readline_blob(char *line, size_t line_size,
-                             const char *blob, size_t blob_len,
-                             size_t *blob_offset)
+static int pem_readline(char *line, size_t line_size,
+                        const char *blob, size_t blob_len, size_t *blob_offset)
 {
     size_t off, len;
 
@@ -174,11 +173,11 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
     do {
         *line = '\0';
 
-        if(pem_readline_blob(line, LINE_SIZE, blob, blob_len, &off))
+        if(pem_readline(line, LINE_SIZE, blob, blob_len, &off))
             goto out;
     } while(strcmp(line, headerbegin));
 
-    if(pem_readline_blob(line, LINE_SIZE, blob, blob_len, &off))
+    if(pem_readline(line, LINE_SIZE, blob, blob_len, &off))
         goto out;
 
     if(passphrase &&
@@ -186,7 +185,7 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
         const struct crypt_method **all_methods, *cur_method;
         int i;
 
-        if(pem_readline_blob(line, LINE_SIZE, blob, blob_len, &off))
+        if(pem_readline(line, LINE_SIZE, blob, blob_len, &off))
             goto out;
 
         all_methods = ssh2_crypt_methods();
@@ -215,7 +214,7 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
         }
 
         /* skip to the next line */
-        if(pem_readline_blob(line, LINE_SIZE, blob, blob_len, &off))
+        if(pem_readline(line, LINE_SIZE, blob, blob_len, &off))
             goto out;
     }
 
@@ -238,7 +237,7 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
 
         *line = '\0';
 
-        if(pem_readline_blob(line, LINE_SIZE, blob, blob_len, &off))
+        if(pem_readline(line, LINE_SIZE, blob, blob_len, &off))
             goto out;
     } while(strcmp(line, headerend));
 
@@ -720,7 +719,7 @@ int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
             return ssh2_err(session, LIBSSH2_ERROR_PROTO,
                             "Error parsing PEM: OpenSSH header not found");
 
-        if(pem_readline_blob(line, LINE_SIZE, blob, blob_len, &off))
+        if(pem_readline(line, LINE_SIZE, blob, blob_len, &off))
             return -1;
     } while(strcmp(line, OPENSSH_PRIVKEY_HEADER));
 
@@ -751,7 +750,7 @@ int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
             goto out;
         }
 
-        if(pem_readline_blob(line, LINE_SIZE, blob, blob_len, &off)) {
+        if(pem_readline(line, LINE_SIZE, blob, blob_len, &off)) {
             ret = -1;
             goto out;
         }
