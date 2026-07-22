@@ -347,7 +347,7 @@ int ssh2_dsa_new_priv(ssh2_dsa_ctx **dsa,
                       const char *blob, size_t blob_len,
                       const char *passphrase)
 {
-    FILE *fp;
+    FILE *fp = NULL;
     unsigned char *data, *save_data;
     size_t datalen;
     int ret;
