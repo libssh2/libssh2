@@ -3576,25 +3576,25 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
         rc = ossl_ed25519_evp_to_pubkey(session, method,
                                         pubkeydata, pubkeydata_len, pk);
         break;
-#endif /* LIBSSH2_ED25519 */
+#endif
 #if LIBSSH2_RSA
     case EVP_PKEY_RSA:
         rc = ossl_rsa_evp_to_pubkey(session, method,
                                     pubkeydata, pubkeydata_len, pk);
         break;
-#endif /* LIBSSH2_RSA */
+#endif
 #if LIBSSH2_DSA
     case EVP_PKEY_DSA:
         rc = ossl_dsa_evp_to_pubkey(session, method,
                                     pubkeydata, pubkeydata_len, pk);
         break;
-#endif /* LIBSSH2_DSA */
+#endif
 #if LIBSSH2_ECDSA
     case EVP_PKEY_EC:
         rc = ossl_ecdsa_evp_to_pubkey(session, method,
                                       pubkeydata, pubkeydata_len, 0, pk);
         break;
-#endif /* LIBSSH2_ECDSA */
+#endif
     default:
         rc = ssh2_err(session, LIBSSH2_ERROR_FILE,
                       "Unable to extract public key from private key: "
