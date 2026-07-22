@@ -293,7 +293,7 @@
      d  flags                              like(libssh2_uint8_t)
      d  application                    *                                        const char *
      d  key_handle                     *                                        const uchar *
-     d  key_handle_len                     like(libssh2_Csize_t)
+     d  handle_len                         like(libssh2_Csize_t)
      d  sign_callback                  *   procptr
      d  orig_abstract                  *                                        void **
 
