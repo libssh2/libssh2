@@ -1224,6 +1224,8 @@ int ssh2_bcrypt_pbkdf(const char *pass,
 /* pem.c */
 int ssh2_FILE_to_blob(LIBSSH2_SESSION *session, FILE *fp,
                       char **blob, size_t *blob_len);
+int ssh2_file_to_blob(LIBSSH2_SESSION *session, const char *filename,
+                      char **blob, size_t *blob_len);
 int ssh2_pem_parse(LIBSSH2_SESSION *session,
                    const char *headerbegin,
                    const char *headerend,

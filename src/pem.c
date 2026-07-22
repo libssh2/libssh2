@@ -157,11 +157,31 @@ out:
     return ret;
 }
 
+int ssh2_file_to_blob(LIBSSH2_SESSION *session, const char *filename,
+                      char **blob, size_t *blob_len)
+{
+    int ret;
+    FILE *fp = NULL;
+
+    if(filename) {
+        fp = ssh2_fopen(filename, "rb");
+        if(!fp)
+            return -1;
+    }
+
+    ret = ssh2_FILE_to_blob(session, fp, blob, blob_len);
+
+    if(fp)
+        fclose(fp);
+
+    return ret;
+}
+
 /* TODO: replace 'fp' with 'filename', or drop */
 int ssh2_pem_parse(LIBSSH2_SESSION *session,
                    const char *headerbegin,
                    const char *headerend,
-                   FILE *fp,
+                   const char *filename,
                    const char *blob, size_t blob_len,
                    const char *passphrase,
                    unsigned char **data, size_t *datalen)
@@ -179,8 +199,8 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
     *data = NULL;
     *datalen = 0;
 
-    if(fp) {
-        ret = ssh2_FILE_to_blob(session, fp, &filedata, &filedata_len);
+    if(filename) {
+        ret = ssh2_file_to_blob(session, filename, &filedata, &filedata_len);
         if(ret)
             goto out;
         blob = filedata;
