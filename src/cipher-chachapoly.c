@@ -117,11 +117,11 @@ int chachapoly_get_length(struct chachapoly_ctx *ctx, unsigned int *plenp,
     unsigned char *ptr = NULL;
 
     if(len < 4)
-        return -1;
+        return -1;  /* fail */
     ptr = &seqbuf[0];
     ssh2_store_u64(&ptr, seqnr);
     chacha_ivsetup(&ctx->header_ctx, seqbuf, NULL);
     chacha_encrypt_bytes(&ctx->header_ctx, cp, buf, 4);
     *plenp = ssh2_ntohu32(buf);
-    return 0;
+    return 0;  /* success */
 }

@@ -97,12 +97,12 @@ static int crypt_init(LIBSSH2_SESSION *session,
     ctx->algo = method->algo;
     if(ssh2_cipher_init(&ctx->h, ctx->algo, iv, secret, encrypt)) {
         SSH2_FREE(session, ctx);
-        return -1;
+        return -1;  /* fail */
     }
     *abstract = ctx;
     *free_iv = 1;
     *free_secret = 1;
-    return 0;
+    return 0;  /* success */
 }
 
 static int crypt_encrypt(LIBSSH2_SESSION *session,
@@ -397,13 +397,13 @@ static int crypt_init_chacha20_poly(LIBSSH2_SESSION *session,
 
     if(chachapoly_init(&ctx->chachapoly_ctx, secret, method->secret_len)) {
         SSH2_FREE(session, ctx);
-        return -1;
+        return -1;  /* fail */
     }
 
     *abstract = ctx;
     *free_iv = 1;
     *free_secret = 1;
-    return 0;
+    return 0;  /* success */
 }
 
 static int crypt_encrypt_chacha20_poly_buffer(LIBSSH2_SESSION *session,
@@ -443,7 +443,7 @@ static int crypt_encrypt_chacha20_poly_buffer(LIBSSH2_SESSION *session,
         }
     }
 
-    return ret == 0 ? 0 : 1;
+    return ret == 0 ? 0 : 1;  /* success: 0, fail: 1 */
 }
 
 static int crypt_get_length_chacha20_poly(LIBSSH2_SESSION *session,
@@ -453,11 +453,14 @@ static int crypt_get_length_chacha20_poly(LIBSSH2_SESSION *session,
                                           unsigned int *len, void **abstract)
 {
     struct crypt_ctx *ctx = *(struct crypt_ctx **)abstract;
+    int ret;
 
     (void)session;
 
-    return chachapoly_get_length(&ctx->chachapoly_ctx, len, seqno, data,
-                                 data_size);
+    ret = chachapoly_get_length(&ctx->chachapoly_ctx, len, seqno, data,
+                                 data_size)
+
+    return ret == 0 ? 0 : 1;  /* success: 0, fail: 1 */
 }
 
 static int crypt_dtor_chacha20_poly(LIBSSH2_SESSION *session, void **abstract)
