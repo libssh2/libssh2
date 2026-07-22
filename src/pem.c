@@ -96,6 +96,7 @@ static unsigned char pem_hex_decode(char digit)
         ((digit >= 'A') ? (0xA + (digit - 'A')) : (digit - '0'));
 }
 
+/* TODO: make this an internal API */
 static int pem_FILE_to_blob(LIBSSH2_SESSION *session, FILE *fp,
                             char **blob, size_t *blob_len)
 {
@@ -157,6 +158,7 @@ out:
     return ret;
 }
 
+/* TODO: replace 'fp' with 'filename', or drop */
 int ssh2_pem_parse(LIBSSH2_SESSION *session,
                    const char *headerbegin,
                    const char *headerend,
