@@ -3327,7 +3327,8 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
                 /* We have agreed on a key exchange method,
                  * Can we agree on a hostkey that works with this kex?
                  */
-                if(kex_agree_hostkey(session, method->flags, hostkey,
+                if(method->exchange_keys &&
+                   kex_agree_hostkey(session, method->flags, hostkey,
                                      hostkey_len) == 0) {
                     session->kex = method;
                     if(session->burn_optimistic_kexinit && kex == q)
