@@ -1971,48 +1971,33 @@ int ssh2_ed25519_new_priv(ssh2_ed25519_ctx **ed_ctx,
                           const char *blob, size_t blob_len,
                           const char *passphrase)
 {
-    int rc;
+    int rc = 0;
+    BIO *bp = NULL;
+
+    OSSL_INIT_IF_NEEDED();
+
+    *ed_ctx = NULL;
 
     if(filename)
-        rc = ossl_key_from_openssh(session, (void **)ed_ctx, "ssh-ed25519",
-                                   NULL, NULL, NULL,
-                                   filename, NULL, 0, passphrase);
-    else {
-        ssh2_ed25519_ctx *ctx = NULL;
-        BIO *bp;
-
-        if(!session)
-            return -1;
-
-        OSSL_INIT_IF_NEEDED();
-
+        bp = BIO_new_file(filename, "r");
+    else
         bp = BIO_new_mem_buf(blob, (int)blob_len);
-        if(bp) {
-            ctx = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
+    if(bp)
+        *ed_ctx = PEM_read_bio_PrivateKey(bp, NULL, ossl_passphrase_cb,
                                           SSH2_UNCONST(passphrase));
-            BIO_free(bp);
-            if(ctx) {
-                if(EVP_PKEY_id(ctx) != EVP_PKEY_ED25519) {
-                    ssh2_ed25519_free(ctx);
-                    return ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                                    "Private key is not an ED25519 key");
-                }
-                rc = 0;
-                goto cleanup;
-            }
-        }
+    BIO_free(bp);
 
+    if(EVP_PKEY_id(*ed_ctx) != EVP_PKEY_ED25519) {
+        ssh2_ed25519_free(*ed_ctx);
+        *ed_ctx = NULL;
+        return ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                        "Private key is not an ED25519 key");
+    }
+
+    if(!*ed_ctx)
         rc = ossl_key_from_openssh(session, (void **)ed_ctx, "ssh-ed25519",
                                    NULL, NULL, NULL,
-                                   NULL, blob, blob_len, passphrase);
-
-cleanup:
-
-        if(ed_ctx)
-            *ed_ctx = ctx;
-        else
-            ssh2_ed25519_free(ctx);
-    }
+                                   filename, blob, blob_len, passphrase);
 
     return rc;
 }
