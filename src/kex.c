@@ -3742,12 +3742,8 @@ int ssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
     else
         key_state->state = ssh2_NB_state_sent2;
 
-    if(rc == 0 && session->kex) {
-        if(!session->kex->exchange_keys)
-            /* This must not happen for a real KEX exchange */
-            rc = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
-                          "Negotiated KEX method has no KEX handler");
-        else if(key_state->state == ssh2_NB_state_sent2) {
+    if(rc == 0 && session->kex && session->kex->exchange_keys) {
+        if(key_state->state == ssh2_NB_state_sent2) {
             retcode = session->kex->exchange_keys(session,
                                                   &key_state->key_state_low);
             if(retcode == LIBSSH2_ERROR_EAGAIN) {
