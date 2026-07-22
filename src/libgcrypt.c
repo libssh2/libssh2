@@ -252,7 +252,7 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
 
     ret = ssh2_pem_parse(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
                          filename, blob, blob_len, passphrase,
-                         &data, &datalen);
+                         &data, &datalen, NULL);
     if(ret)
         return -1;
 
@@ -347,7 +347,7 @@ int ssh2_dsa_new_priv(ssh2_dsa_ctx **dsa,
 
     ret = ssh2_pem_parse(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
                          filename, blob, blob_len, passphrase,
-                         &data, &datalen);
+                         &data, &datalen, NULL);
     if(ret)
         return -1;
 

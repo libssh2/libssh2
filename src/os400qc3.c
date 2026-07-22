@@ -1983,14 +1983,14 @@ static int try_pem_load(LIBSSH2_SESSION *session,
 {
     unsigned char *data = NULL;
     size_t datalen = 0;
-    int c;
+    size_t blob_offset = 0;
     int ret;
 
-    for(;;) {
+    while(blob_offset < blob_len) {
         ret = ssh2_pem_parse(session, header, trailer,
-                             NULL, blob, blob_len, passphrase,
-                             &data, &datalen);
-
+                             NULL, blob + blob_offset, blob_len - blob_offset,
+                             passphrase,
+                             &data, &datalen, &blob_offset);
         if(!ret) {
             ret = (*proc)(session, data, datalen, passphrase, loadkeydata);
             if(!ret) {
@@ -2001,12 +2001,6 @@ static int try_pem_load(LIBSSH2_SESSION *session,
 
         if(data)
             SSH2_SAFEFREE(session, data);
-        c = getc(fp);
-
-        if(c == EOF)
-            break;
-
-        ungetc(c, fp);
     }
 
     return -1;
@@ -2018,60 +2012,48 @@ static int load_rsa_private_file(LIBSSH2_SESSION *session,
                                  loadkeyproc proc1, loadkeyproc proc8,
                                  void *loadkeydata)
 {
-    FILE *fp = ssh2_fopen(filename, fopenrbmode);
-    unsigned char *data = NULL;
-    size_t datalen = 0;
     int ret;
-    long filesize;
+    char *blob = NULL;
+    size_t blob_len = 0;
 
-    if(!fp)
+    if(ssh2_file_to_blob(session, filename, &blob, &blob_len))
         return -1;
 
     /* Try with "ENCRYPTED PRIVATE KEY" PEM armor.
        --> PKCS#8 EncryptedPrivateKeyInfo */
-    ret = try_pem_load(session, fp, passphrase, beginencprivkeyhdr,
-                       endencprivkeyhdr, proc8, loadkeydata);
+    ret = try_pem_load(session, beginencprivkeyhdr, endencprivkeyhdr,
+                       blob, blob_len, passphrase,
+                       proc8, loadkeydata);
 
     /* Try with "PRIVATE KEY" PEM armor.
        --> PKCS#8 PrivateKeyInfo or EncryptedPrivateKeyInfo */
     if(ret)
-        ret = try_pem_load(session, fp, passphrase, beginprivkeyhdr,
-                           endprivkeyhdr, proc8, loadkeydata);
+        ret = try_pem_load(session, beginprivkeyhdr, endprivkeyhdr,
+                           blob, blob_len, passphrase,
+                           proc8, loadkeydata);
 
     /* Try with "RSA PRIVATE KEY" PEM armor.
        --> PKCS#1 RSAPrivateKey */
     if(ret)
-        ret = try_pem_load(session, fp, passphrase, beginrsaprivkeyhdr,
-                           endrsaprivkeyhdr, proc1, loadkeydata);
+        ret = try_pem_load(session, beginrsaprivkeyhdr, endrsaprivkeyhdr,
+                           blob, blob_len, passphrase,
+                           proc1, loadkeydata);
 
     /* Try DER encoding. */
     if(ret) {
-        fseek(fp, 0L, SEEK_END);
-        filesize = ftell(fp);
+        /* Try as PKCS#8 DER data.
+           --> PKCS#8 PrivateKeyInfo or EncryptedPrivateKeyInfo */
+        ret = (*proc8)(session, blob, blob_len, passphrase,
+                       loadkeydata);
 
-        if(filesize > 0 &&
-           filesize <= 32768) { /* Limit to a reasonable size. */
-            datalen = filesize;
-            data = (unsigned char *)alloca(datalen);
-            if(data) {
-                fseek(fp, 0L, SEEK_SET);
-                fread(data, datalen, 1, fp);
-
-                /* Try as PKCS#8 DER data.
-                   --> PKCS#8 PrivateKeyInfo or EncryptedPrivateKeyInfo */
-                ret = (*proc8)(session, data, datalen, passphrase,
-                               loadkeydata);
-
-                /* Try as PKCS#1 DER data.
-                   --> PKCS#1 RSAPrivateKey */
-                if(ret)
-                    ret = (*proc1)(session, data, datalen, passphrase,
-                                   loadkeydata);
-            }
-        }
+        /* Try as PKCS#1 DER data.
+           --> PKCS#1 RSAPrivateKey */
+        if(ret)
+            ret = (*proc1)(session, blob, blob_len, passphrase,
+                           loadkeydata);
     }
 
-    fclose(fp);
+    SSH2_FREE(session, blob);
 
     return ret;
 }

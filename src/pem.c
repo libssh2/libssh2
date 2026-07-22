@@ -177,14 +177,14 @@ int ssh2_file_to_blob(LIBSSH2_SESSION *session, const char *filename,
     return ret;
 }
 
-/* TODO: replace 'fp' with 'filename', or drop */
 int ssh2_pem_parse(LIBSSH2_SESSION *session,
                    const char *headerbegin,
                    const char *headerend,
                    const char *filename,
                    const char *blob, size_t blob_len,
                    const char *passphrase,
-                   unsigned char **data, size_t *datalen)
+                   unsigned char **data, size_t *datalen,
+                   size_t *blob_offset)
 {
     char line[LINE_SIZE];
     unsigned char iv[LINE_SIZE];
@@ -386,6 +386,9 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
     }
 
     ret = 0;
+
+    if(blob_offset)
+        *blob_offset = off;
 
 out:
 
