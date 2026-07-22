@@ -903,26 +903,14 @@ static int wcng_load_priv(LIBSSH2_SESSION *session,
                           unsigned char **ppbEncoded, size_t *pcbEncoded,
                           int tryLoadRSA, int tryLoadDSA)
 {
-    int ret;
+    int ret = -1;
     unsigned char *data = NULL;
     size_t datalen = 0;
-    char *blob = NULL;
-    size_t blob_len = 0;
-
-    if(filename) {
-        ret = ssh2_file_to_blob(session, filename, &blob, &blob_len);
-        if(ret)
-            return ret;
-        privkeyblob = blob;
-        privkeyblob_len = blob_len;
-    }
-
-    ret = -1;
 
 #if LIBSSH2_RSA
     if(ret && tryLoadRSA)
         ret = ssh2_pem_parse(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
-                             NULL, privkeyblob, privkeyblob_len, passphrase,
+                             filename, privkeyblob, privkeyblob_len, passphrase,
                              &data, &datalen);
 #else
     (void)tryLoadRSA;
@@ -931,7 +919,7 @@ static int wcng_load_priv(LIBSSH2_SESSION *session,
 #if LIBSSH2_DSA
     if(ret && tryLoadDSA)
         ret = ssh2_pem_parse(session, PEM_DSA_HEADER, PEM_DSA_FOOTER,
-                             NULL, privkeyblob, privkeyblob_len, passphrase,
+                             filename, privkeyblob, privkeyblob_len, passphrase,
                              &data, &datalen);
 #else
     (void)tryLoadDSA;
@@ -941,9 +929,6 @@ static int wcng_load_priv(LIBSSH2_SESSION *session,
         *ppbEncoded = data;
         *pcbEncoded = datalen;
     }
-
-    if(blob)
-        SSH2_FREE(session, blob);
 
     return ret;
 }
