@@ -1608,8 +1608,7 @@ int ssh2_curve25519_new(LIBSSH2_SESSION *session,
         pub = NULL;
     }
 
-    /* success */
-    rc = 0;
+    rc = 0; /* success */
 
 clean_exit:
 
@@ -2044,11 +2043,11 @@ int ssh2_mlkem_new(LIBSSH2_SESSION *session, int mlkem_size,
     }
 
     if(out_private_key) {
+        actualPrivLen = privLen;
         priv = SSH2_ALLOC(session, privLen);
         if(!priv)
             goto clean_exit;
 
-        actualPrivLen = privLen;
         if(EVP_PKEY_get_raw_private_key(key, priv, &actualPrivLen) != 1 ||
            privLen != actualPrivLen) {
             goto clean_exit;
@@ -2059,11 +2058,11 @@ int ssh2_mlkem_new(LIBSSH2_SESSION *session, int mlkem_size,
     }
 
     if(out_public_key) {
+        actualPubLen = pubLen;
         pub = SSH2_ALLOC(session, pubLen);
         if(!pub)
             goto clean_exit;
 
-        actualPubLen = pubLen;
         if(EVP_PKEY_get_raw_public_key(key, pub, &actualPubLen) != 1 ||
            pubLen != actualPubLen) {
             goto clean_exit;
@@ -2073,8 +2072,7 @@ int ssh2_mlkem_new(LIBSSH2_SESSION *session, int mlkem_size,
         pub = NULL;
     }
 
-    /* success */
-    rc = 0;
+    rc = 0; /* success */
 
 clean_exit:
 
