@@ -58,32 +58,32 @@ static int pem_readline_file(char *line, int line_size, FILE *fp)
 }
 
 static int pem_readline_blob(char *line, size_t line_size,
-                             const char *filedata, size_t filedata_len,
-                             size_t *filedata_offset)
+                             const char *blob, size_t blob_len,
+                             size_t *blob_offset)
 {
     size_t off, len;
 
-    off = *filedata_offset;
+    off = *blob_offset;
 
-    for(len = 0; off + len < filedata_len && len < line_size - 1; len++) {
-        if(filedata[off + len] == '\n' ||
-           filedata[off + len] == '\r')
+    for(len = 0; off + len < blob_len && len < line_size - 1; len++) {
+        if(blob[off + len] == '\n' ||
+           blob[off + len] == '\r')
             break;
     }
 
     if(len) {
-        memcpy(line, filedata + off, len);
-        *filedata_offset += len;
+        memcpy(line, blob + off, len);
+        *blob_offset += len;
     }
 
     line[len] = '\0';
 
-    if(*filedata_offset < filedata_len && filedata[*filedata_offset] == '\r')
-        *filedata_offset += 1;
-    if(*filedata_offset < filedata_len && filedata[*filedata_offset] == '\n')
-        *filedata_offset += 1;
+    if(*blob_offset < blob_len && blob[*blob_offset] == '\r')
+        *blob_offset += 1;
+    if(*blob_offset < blob_len && blob[*blob_offset] == '\n')
+        *blob_offset += 1;
 
-    return *filedata_offset > off ? 0 : -1;
+    return *blob_offset > off ? 0 : -1;
 }
 
 #define LINE_SIZE 128
@@ -161,7 +161,7 @@ out:
 int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
                         const char *headerbegin,
                         const char *headerend,
-                        const char *filedata, size_t filedata_len,
+                        const char *blob, size_t blob_len,
                         const char *passphrase,
                         unsigned char **data, size_t *datalen)
 {
@@ -176,11 +176,11 @@ int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
     do {
         *line = '\0';
 
-        if(pem_readline_blob(line, LINE_SIZE, filedata, filedata_len, &off))
+        if(pem_readline_blob(line, LINE_SIZE, blob, blob_len, &off))
             return -1;
     } while(strcmp(line, headerbegin));
 
-    if(pem_readline_blob(line, LINE_SIZE, filedata, filedata_len, &off))
+    if(pem_readline_blob(line, LINE_SIZE, blob, blob_len, &off))
         return -1;
 
     if(passphrase &&
@@ -188,7 +188,7 @@ int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
         const struct crypt_method **all_methods, *cur_method;
         int i;
 
-        if(pem_readline_blob(line, LINE_SIZE, filedata, filedata_len, &off)) {
+        if(pem_readline_blob(line, LINE_SIZE, blob, blob_len, &off)) {
             ret = -1;
             goto out;
         }
@@ -220,7 +220,7 @@ int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
         }
 
         /* skip to the next line */
-        if(pem_readline_blob(line, LINE_SIZE, filedata, filedata_len, &off)) {
+        if(pem_readline_blob(line, LINE_SIZE, blob, blob_len, &off)) {
             ret = -1;
             goto out;
         }
@@ -246,7 +246,7 @@ int ssh2_pem_parse_blob(LIBSSH2_SESSION *session,
 
         *line = '\0';
 
-        if(pem_readline_blob(line, LINE_SIZE, filedata, filedata_len, &off)) {
+        if(pem_readline_blob(line, LINE_SIZE, blob, blob_len, &off)) {
             ret = -1;
             goto out;
         }
@@ -780,7 +780,7 @@ out:
 }
 
 int ssh2_openssh_pem_parse_blob(LIBSSH2_SESSION *session,
-                                const char *filedata, size_t filedata_len,
+                                const char *blob, size_t blob_len,
                                 const char *passphrase,
                                 struct string_buf **decrypted_buf)
 {
@@ -790,19 +790,19 @@ int ssh2_openssh_pem_parse_blob(LIBSSH2_SESSION *session,
     size_t off = 0;
     int ret;
 
-    if(!filedata || filedata_len == 0)
+    if(!blob || blob_len == 0)
         return ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                        "Error parsing PEM: filedata missing");
+                        "Error parsing PEM: blob missing");
 
     do {
 
         *line = '\0';
 
-        if(off >= filedata_len)
+        if(off >= blob_len)
             return ssh2_err(session, LIBSSH2_ERROR_PROTO,
                             "Error parsing PEM: OpenSSH header not found");
 
-        if(pem_readline_blob(line, LINE_SIZE, filedata, filedata_len, &off))
+        if(pem_readline_blob(line, LINE_SIZE, blob, blob_len, &off))
             return -1;
     } while(strcmp(line, OPENSSH_PRIVKEY_HEADER));
 
@@ -827,13 +827,13 @@ int ssh2_openssh_pem_parse_blob(LIBSSH2_SESSION *session,
 
         *line = '\0';
 
-        if(off >= filedata_len) {
+        if(off >= blob_len) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                            "Error parsing PEM: offset out of bounds");
             goto out;
         }
 
-        if(pem_readline_blob(line, LINE_SIZE, filedata, filedata_len, &off)) {
+        if(pem_readline_blob(line, LINE_SIZE, blob, blob_len, &off)) {
             ret = -1;
             goto out;
         }
