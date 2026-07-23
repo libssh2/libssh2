@@ -74,7 +74,7 @@ static int mac_method_common_init(LIBSSH2_SESSION *session, unsigned char *key,
                                   int *free_key, void **abstract)
 {
     *abstract = key;
-    *free_key = 0;
+    *free_key = 0;  /* mac dtor must free */
     (void)session;
 
     return 0;
@@ -395,7 +395,7 @@ const struct mac_method **ssh2_mac_methods(void)
 static int mac_method_none_init(LIBSSH2_SESSION *session, unsigned char *key,
                                 int *free_key, void **abstract)
 {
-    *free_key = 1;
+    *free_key = 1;  /* caller must free */
     (void)session;
     (void)key;
     (void)abstract;
