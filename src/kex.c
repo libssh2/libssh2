@@ -3346,7 +3346,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
         return -1;
     }
 
-    printf("BEGIN\n");
+    fprintf(stderr, "BEGIN\n");
     while(*kexp && (*kexp)->name) {
         printf("ITER: |%s|%d|\n", (*kexp)->name, (*kexp)->exchange_keys ? 1 : 0);
         /* Skip signalling-only entries (ext-info-c,
