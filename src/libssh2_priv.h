@@ -1204,10 +1204,8 @@ ssize_t ssh2_send(libssh2_socket_t socket, const void *buffer,
 int ssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
                       struct key_exchange_state *key_state);
 
-unsigned char *ssh2_kex_agree_instr(unsigned char *haystack,
-                                    size_t haystack_len,
-                                    const unsigned char *needle,
-                                    size_t needle_len);
+const char *ssh2_kex_agree_instr(const char *haystack, size_t haystack_len,
+                                 const char *needle, size_t needle_len);
 
 /* Let crypt.c/hostkey.c expose their method structs */
 const struct crypt_method **ssh2_crypt_methods(void);

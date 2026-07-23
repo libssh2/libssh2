@@ -3158,13 +3158,11 @@ static int kex_init(LIBSSH2_SESSION *session)
  * Kex specific variant of strstr()
  * Needle must be preceded by BOL or ',', and followed by ',' or EOL
  */
-unsigned char *ssh2_kex_agree_instr(unsigned char *haystack,
-                                    size_t haystack_len,
-                                    const unsigned char *needle,
-                                    size_t needle_len)
+const char *ssh2_kex_agree_instr(const char *haystack, size_t haystack_len,
+                                 const char *needle, size_t needle_len)
 {
-    unsigned char *s;
-    unsigned char *end_haystack;
+    const char *s;
+    const char *end_haystack;
     size_t left;
 
     if(!haystack || !needle)
@@ -3179,14 +3177,14 @@ unsigned char *ssh2_kex_agree_instr(unsigned char *haystack,
     left = end_haystack - s;
 
     /* Needle at start of haystack */
-    if(!strncmp((const char *)haystack, (const char *)needle, needle_len) &&
+    if(!strncmp(haystack, needle, needle_len) &&
        (needle_len == haystack_len || haystack[needle_len] == ','))
         return haystack;
 
     /* Search until we run out of commas or we run out of haystack,
        whichever comes first */
     /* !checksrc! disable EQUALSNULL 1 */
-    while((s = (unsigned char *)memchr((char *)s, ',', left)) != NULL) {
+    while((s = memchr(s, ',', left)) != NULL) {
         /* Advance buffer past comma if we can */
         left = end_haystack - s;
         if(left >= 1 && left <= haystack_len && left > needle_len) {
@@ -3197,7 +3195,7 @@ unsigned char *ssh2_kex_agree_instr(unsigned char *haystack,
             return NULL;
 
         /* Needle at X position */
-        if(!strncmp((const char *)s, (const char *)needle, needle_len) &&
+        if(!strncmp(s, needle, needle_len) &&
            (((s - haystack) + needle_len) == haystack_len ||
             s[needle_len] == ','))
             return s;
@@ -3223,23 +3221,22 @@ static const struct common_method *kex_get_method_by_name(
 /*
  * Agree on a Hostkey which works with this kex
  */
-static int kex_agree_hostkey(LIBSSH2_SESSION *session,
-                             size_t kex_flags,
-                             unsigned char *hostkey, size_t hostkey_len)
+static int kex_agree_hostkey(LIBSSH2_SESSION *session, size_t kex_flags,
+                             const char *hostkey, size_t hostkey_len)
 {
     const struct hostkey_method **hostkeyp = ssh2_hostkey_methods();
-    unsigned char *s;
+    const char *s;
 
     if(session->hostkey_prefs) {
-        s = (unsigned char *)session->hostkey_prefs;
+        s = session->hostkey_prefs;
 
         while(s && *s) {
-            unsigned char *p = (unsigned char *)strchr((char *)s, ',');
-            size_t method_len = p ? (size_t)(p - s) : strlen((const char *)s);
+            const char *p = strchr(s, ',');
+            size_t method_len = p ? (size_t)(p - s) : strlen(s);
             if(ssh2_kex_agree_instr(hostkey, hostkey_len, s, method_len)) {
                 const struct hostkey_method *method =
                     (const struct hostkey_method *)kex_get_method_by_name(
-                        (char *)s, method_len,
+                        s, method_len,
                         (const struct common_method **)hostkeyp);
 
                 if(!method)
@@ -3268,8 +3265,7 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session,
 
     while(hostkeyp && *hostkeyp && (*hostkeyp)->name) {
         s = ssh2_kex_agree_instr(hostkey, hostkey_len,
-                                 (const unsigned char *)(*hostkeyp)->name,
-                                 strlen((*hostkeyp)->name));
+                                 (*hostkeyp)->name, strlen((*hostkeyp)->name));
         if(s) {
             /* OK so far, but does it suit our purposes? (Encrypting vs
                Signing) */
@@ -3295,30 +3291,28 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session,
 /*
  * Agree on a Key Exchange method and a hostkey encoding type
  */
-static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
-                                 size_t kex_len, unsigned char *hostkey,
-                                 size_t hostkey_len)
+static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session,
+                                 const char *kex, size_t kex_len,
+                                 const char *hostkey, size_t hostkey_len)
 {
     static const char strict[] = "kex-strict-s-v00@openssh.com";
     const struct kex_method **kexp = kex_methods;
-    unsigned char *s;
+    const char *s;
 
-    if(ssh2_kex_agree_instr(kex, kex_len,
-                            (const unsigned char *)strict, sizeof(strict) - 1))
+    if(ssh2_kex_agree_instr(kex, kex_len, strict, sizeof(strict) - 1))
         session->kex_strict = 1;
 
     if(session->kex_prefs) {
-        s = (unsigned char *)session->kex_prefs;
+        s = session->kex_prefs;
 
         while(s && *s) {
-            unsigned char *q, *p = (unsigned char *)strchr((char *)s, ',');
-            size_t method_len = p ? (size_t)(p - s) : strlen((const char *)s);
+            const char *q, *p = strchr(s, ',');
+            size_t method_len = p ? (size_t)(p - s) : strlen(s);
             q = ssh2_kex_agree_instr(kex, kex_len, s, method_len);
             if(q) {
                 const struct kex_method *method =
                     (const struct kex_method *)kex_get_method_by_name(
-                        (char *)s, method_len,
-                        (const struct common_method **)kexp);
+                        s, method_len, (const struct common_method **)kexp);
 
                 if(!method)
                     return -1;  /* Invalid method -- Should never be reached */
@@ -3346,8 +3340,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
 
     while(*kexp && (*kexp)->name) {
         s = ssh2_kex_agree_instr(kex, kex_len,
-                                 (const unsigned char *)(*kexp)->name,
-                                 strlen((*kexp)->name));
+                                 (*kexp)->name, strlen((*kexp)->name));
         if(s) {
             /* We have agreed on a key exchange method,
              * Can we agree on a hostkey that works with this kex?
@@ -3374,26 +3367,24 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
  */
 static int kex_agree_crypt(LIBSSH2_SESSION *session,
                            struct endpoint_data *endpoint,
-                           unsigned char *crypt,
-                           size_t crypt_len)
+                           const char *crypt, size_t crypt_len)
 {
     const struct crypt_method **cryptp = ssh2_crypt_methods();
-    unsigned char *s;
+    const char *s;
 
     (void)session;
 
     if(endpoint->crypt_prefs) {
-        s = (unsigned char *)endpoint->crypt_prefs;
+        s = endpoint->crypt_prefs;
 
         while(s && *s) {
-            unsigned char *p = (unsigned char *)strchr((char *)s, ',');
-            size_t method_len = p ? (size_t)(p - s) : strlen((const char *)s);
+            const char *p = strchr(s, ',');
+            size_t method_len = p ? (size_t)(p - s) : strlen(s);
 
             if(ssh2_kex_agree_instr(crypt, crypt_len, s, method_len)) {
                 const struct crypt_method *method =
                     (const struct crypt_method *)kex_get_method_by_name(
-                        (char *)s, method_len,
-                        (const struct common_method **)cryptp);
+                        s, method_len, (const struct common_method **)cryptp);
 
                 if(!method)
                     return -1;  /* Invalid method -- Should never be reached */
@@ -3409,8 +3400,7 @@ static int kex_agree_crypt(LIBSSH2_SESSION *session,
 
     while(*cryptp && (*cryptp)->name) {
         s = ssh2_kex_agree_instr(crypt, crypt_len,
-                                 (const unsigned char *)(*cryptp)->name,
-                                 strlen((*cryptp)->name));
+                                 (*cryptp)->name, strlen((*cryptp)->name));
         if(s) {
             endpoint->crypt = *cryptp;
             return 0;
@@ -3425,12 +3415,12 @@ static int kex_agree_crypt(LIBSSH2_SESSION *session,
  * Agree on a message authentication hash
  */
 static int kex_agree_mac(LIBSSH2_SESSION *session,
-                         struct endpoint_data *endpoint, unsigned char *mac,
-                         size_t mac_len)
+                         struct endpoint_data *endpoint,
+                         const char *mac, size_t mac_len)
 {
     const struct mac_method **macp = ssh2_mac_methods();
     const struct mac_method *override;
-    unsigned char *s;
+    const char *s;
     (void)session;
 
     override = ssh2_mac_override(endpoint->crypt);
@@ -3442,17 +3432,16 @@ static int kex_agree_mac(LIBSSH2_SESSION *session,
     }
 
     if(endpoint->mac_prefs) {
-        s = (unsigned char *)endpoint->mac_prefs;
+        s = endpoint->mac_prefs;
 
         while(s && *s) {
-            unsigned char *p = (unsigned char *)strchr((char *)s, ',');
-            size_t method_len = p ? (size_t)(p - s) : strlen((const char *)s);
+            const char *p = strchr(s, ',');
+            size_t method_len = p ? (size_t)(p - s) : strlen(s);
 
             if(ssh2_kex_agree_instr(mac, mac_len, s, method_len)) {
                 const struct mac_method *method =
                     (const struct mac_method *)kex_get_method_by_name(
-                        (char *)s, method_len,
-                        (const struct common_method **)macp);
+                        s, method_len, (const struct common_method **)macp);
 
                 if(!method)
                     return -1;  /* Invalid method -- Should never be reached */
@@ -3468,8 +3457,7 @@ static int kex_agree_mac(LIBSSH2_SESSION *session,
 
     while(*macp && (*macp)->name) {
         s = ssh2_kex_agree_instr(mac, mac_len,
-                                 (const unsigned char *)(*macp)->name,
-                                 strlen((*macp)->name));
+                                 (*macp)->name, strlen((*macp)->name));
         if(s) {
             endpoint->mac = *macp;
             return 0;
@@ -3484,25 +3472,24 @@ static int kex_agree_mac(LIBSSH2_SESSION *session,
  * Agree on a compression scheme
  */
 static int kex_agree_comp(LIBSSH2_SESSION *session,
-                          struct endpoint_data *endpoint, unsigned char *comp,
-                          size_t comp_len)
+                          struct endpoint_data *endpoint,
+                          const char *comp, size_t comp_len)
 {
     const struct comp_method **compp = ssh2_comp_methods(session);
-    unsigned char *s;
+    const char *s;
     (void)session;
 
     if(endpoint->comp_prefs) {
-        s = (unsigned char *)endpoint->comp_prefs;
+        s = endpoint->comp_prefs;
 
         while(s && *s) {
-            unsigned char *p = (unsigned char *)strchr((char *)s, ',');
-            size_t method_len = p ? (size_t)(p - s) : strlen((const char *)s);
+            const char *p = strchr(s, ',');
+            size_t method_len = p ? (size_t)(p - s) : strlen(s);
 
             if(ssh2_kex_agree_instr(comp, comp_len, s, method_len)) {
                 const struct comp_method *method =
                     (const struct comp_method *)kex_get_method_by_name(
-                        (char *)s, method_len,
-                        (const struct common_method **)compp);
+                        s, method_len, (const struct common_method **)compp);
 
                 if(!method)
                     return -1;  /* Invalid method -- Should never be reached */
@@ -3518,8 +3505,7 @@ static int kex_agree_comp(LIBSSH2_SESSION *session,
 
     while(*compp && (*compp)->name) {
         s = ssh2_kex_agree_instr(comp, comp_len,
-                                 (const unsigned char *)(*compp)->name,
-                                 strlen((*compp)->name));
+                                 (*compp)->name, strlen((*compp)->name));
         if(s) {
             endpoint->comp = *compp;
             return 0;
@@ -3540,7 +3526,7 @@ static int kex_agree_comp(LIBSSH2_SESSION *session,
 static int kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *data,
                              size_t data_len)
 {
-    unsigned char *kex, *hostkey, *crypt_cs, *crypt_sc, *comp_cs, *comp_sc,
+    char *kex, *hostkey, *crypt_cs, *crypt_sc, *comp_cs, *comp_sc,
         *mac_cs, *mac_sc, *tmp;
     size_t kex_len, hostkey_len, crypt_cs_len, crypt_sc_len, comp_cs_len;
     size_t comp_sc_len, mac_cs_len, mac_sc_len;
@@ -3558,31 +3544,31 @@ static int kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *data,
     buf.dataptr += 16;
 
     /* Locate each string */
-    if(ssh2_get_string(&buf, &kex, &kex_len))
+    if(ssh2_get_string(&buf, (unsigned char **)&kex, &kex_len))
         return -1;
-    if(ssh2_get_string(&buf, &hostkey, &hostkey_len))
+    if(ssh2_get_string(&buf, (unsigned char **)&hostkey, &hostkey_len))
         return -1;
-    if(ssh2_get_string(&buf, &crypt_cs, &crypt_cs_len))
+    if(ssh2_get_string(&buf, (unsigned char **)&crypt_cs, &crypt_cs_len))
         return -1;
-    if(ssh2_get_string(&buf, &crypt_sc, &crypt_sc_len))
+    if(ssh2_get_string(&buf, (unsigned char **)&crypt_sc, &crypt_sc_len))
         return -1;
-    if(ssh2_get_string(&buf, &mac_cs, &mac_cs_len))
+    if(ssh2_get_string(&buf, (unsigned char **)&mac_cs, &mac_cs_len))
         return -1;
-    if(ssh2_get_string(&buf, &mac_sc, &mac_sc_len))
+    if(ssh2_get_string(&buf, (unsigned char **)&mac_sc, &mac_sc_len))
         return -1;
-    if(ssh2_get_string(&buf, &comp_cs, &comp_cs_len))
+    if(ssh2_get_string(&buf, (unsigned char **)&comp_cs, &comp_cs_len))
         return -1;
-    if(ssh2_get_string(&buf, &comp_sc, &comp_sc_len))
+    if(ssh2_get_string(&buf, (unsigned char **)&comp_sc, &comp_sc_len))
         return -1;
 
     /* read lang_cs and lang_sc but are unused */
-    if(ssh2_get_string(&buf, &tmp, NULL))
+    if(ssh2_get_string(&buf, (unsigned char **)&tmp, NULL))
         return -1;
-    if(ssh2_get_string(&buf, &tmp, NULL))
+    if(ssh2_get_string(&buf, (unsigned char **)&tmp, NULL))
         return -1;
 
     /* If the server sent an optimistic packet, assume that it guessed wrong.
-     * If the guess is determined to be right (by kex_agree_kex_hostkey)
+     * If the guess is determined to be right (by kex_agree_kex_hostkey())
      * This flag is reset to zero so that it is not ignored */
     if(ssh2_check_length(&buf, 1))
         session->burn_optimistic_kexinit = *(buf.dataptr++);

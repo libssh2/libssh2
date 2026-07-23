@@ -660,10 +660,10 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                                     "Data too short extracting kex");
                 }
                 else {
-                    const unsigned char *strict =
-                        (const unsigned char *)"kex-strict-s-v00@openssh.com";
+                    static const char strict[] =
+                        "kex-strict-s-v00@openssh.com";
                     struct string_buf buf;
-                    unsigned char *algs = NULL;
+                    char *algs = NULL;
                     size_t algs_len = 0;
 
                     buf.data = data;
@@ -671,7 +671,8 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                     buf.len = datalen;
                     buf.dataptr += 17; /* advance past type and cookie */
 
-                    if(ssh2_get_string(&buf, &algs, &algs_len)) {
+                    if(ssh2_get_string(&buf, (unsigned char **)&algs,
+                                       &algs_len)) {
                         SSH2_FREE(session, data);
                         session->packAdd_state = ssh2_NB_state_idle;
                         return ssh2_err(session,
