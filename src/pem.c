@@ -670,7 +670,9 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
             goto out;
         }
 
-        out_buf->data = SSH2_CALLOC(session, decrypted.len);
+        /* Allocate one extra (zeroed) byte so the buffer is null-terminated.
+           Some parsers rely on this. */
+        out_buf->data = SSH2_CALLOC(session, decrypted.len + 1);
         if(!out_buf->data) {
             ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                            "Unable to allocate memory for decrypted struct");
