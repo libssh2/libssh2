@@ -426,11 +426,14 @@ cleanup:
     int rc;                                                            \
                                                                        \
     while(*(total) < (length)) {                                       \
-        if(!(agent)->pending_io)                                       \
+        if(!(agent)->pending_io) {                                     \
             ret = (func)((agent)->pipe, (char *)(buffer) + *(total),   \
                          (DWORD)((length) - *(total)),                 \
                          &bytes_transferred,                           \
                          &(agent)->overlapped);                        \
+            if(ret && !bytes_transferred)                              \
+                return LIBSSH2_ERROR_SOCKET_DISCONNECT;                \
+        }                                                              \
         else                                                           \
             ret = GetOverlappedResult((agent)->pipe,                   \
                                       &(agent)->overlapped,            \
