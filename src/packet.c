@@ -603,8 +603,8 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                     size_t datalen, int macstate, uint32_t seq)
 {
     int rc = 0;
-    unsigned char *message = NULL;
-    unsigned char *language = NULL;
+    char *message = NULL;
+    char *language = NULL;
     size_t message_len = 0;
     size_t language_len = 0;
     LIBSSH2_CHANNEL *channelp = NULL;
@@ -733,13 +733,12 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                 buf.dataptr++; /* advance past type */
 
                 ssh2_get_u32(&buf, &reason);
-                ssh2_get_string(&buf, &message, &message_len);
-                ssh2_get_string(&buf, &language, &language_len);
+                ssh2_get_string(&buf, (unsigned char **)&message, &message_len);
+                ssh2_get_string(&buf, (unsigned char **)&language, &language_len);
 
                 if(session->ssh_msg_disconnect)
-                    SSH2_DISCONNECT(session, reason, (const char *)message,
-                                    message_len, (const char *)language,
-                                    language_len);
+                    SSH2_DISCONNECT(session, reason, message, message_len,
+                                    language, language_len);
 
                 ssh2_deb((session, LIBSSH2_TRACE_TRANS,
                           "Disconnect(%u): %.*s(%.*s)", reason,
@@ -787,14 +786,15 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                     buf.len = datalen;
                     buf.dataptr += 2; /* advance past type & always display */
 
-                    ssh2_get_string(&buf, &message, &message_len);
-                    ssh2_get_string(&buf, &language, &language_len);
+                    ssh2_get_string(&buf, (unsigned char **)&message,
+                                    &message_len);
+                    ssh2_get_string(&buf, (unsigned char **)&language,
+                                    &language_len);
                 }
 
                 if(session->ssh_msg_debug)
-                    SSH2_DEBUG(session, always_display, (const char *)message,
-                               message_len, (const char *)language,
-                               language_len);
+                    SSH2_DEBUG(session, always_display, message, message_len,
+                               language, language_len);
             }
 
             ssh2_deb((session, LIBSSH2_TRACE_TRANS, "Debug Packet: %.*s",
