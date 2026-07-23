@@ -312,6 +312,26 @@ static const char beginrsaprivkeyhdr[] = PEM_RSA_HEADER;
 static const char endrsaprivkeyhdr[] = PEM_RSA_FOOTER;
 static const char fopenrbmode[] = "rb";
 
+/* 1's bit count in a byte. */
+static const unsigned char      card[] = {
+    0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
+    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+    4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8
+};
+
 /* The rest of character literals in this module are in EBCDIC. */
 #pragma convert(37)
 
@@ -476,6 +496,35 @@ int ssh2_bn_to_bin(const ssh2_bn *bn, unsigned char *bin)
         *bin++ = bn->bignum[i];
 
     return 0;
+}
+
+static int ssh2_bn_sub(ssh2_bn *dst, const ssh2_bn *op1, const ssh2_bn *op2)
+{
+    unsigned int acc = 0;
+    size_t i;
+
+    if(ssh2_bn_bits(op1) < ssh2_bn_bits(op2))
+        return -1;
+
+    if(bn_resize(dst, op1->length))
+        return -1;
+
+    for(i = 0; i < op2->length; i++) {
+        acc = op1->bignum[i] - op2->bignum[i] - acc;
+        dst->bignum[i] = acc;
+        acc = acc > 0xFF;
+    }
+
+    for(; i < op1->length; i++) {
+        acc = op1->bignum[i] - acc;
+        dst->bignum[i] = acc;
+        acc = acc > 0xFF;
+    }
+
+    if(acc)
+        return -1;
+
+    return bn_resize(dst, (ssh2_bn_bits(dst) + 7) >> 3) ? -1 : 0;
 }
 
 /*******************************************************************
@@ -960,6 +1009,7 @@ static int os400qc3_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
                               size_t min_key_len, void *key, int key_len)
 {
     Qus_EC_t errcode;
+    int lalg = alg;
 
     if(key_len < min_key_len) {
         char *lkey = alloca(min_key_len);
@@ -975,7 +1025,7 @@ static int os400qc3_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
     if(!ssh2_hash_init(&ctx->hash, alg))
         return 0;
     set_EC_length(errcode, sizeof(errcode));
-    Qc3CreateKeyContext((char *)key, &key_len, binstring, &alg, qc3clear,
+    Qc3CreateKeyContext((char *)key, &key_len, binstring, &lalg, qc3clear,
                         NULL, NULL, ctx->key.Key_Context_Token,
                         (char *)&errcode);
     return errcode.Bytes_Available ? 0 : 1;
@@ -1266,6 +1316,29 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
     return ssh2_bn_from_bin(pub, (unsigned char *)pubkey, pubkeylen);
 }
 
+static int ssh2_dh_is_invalid(const ssh2_bn *f, const ssh2_bn *p)
+{
+    ssh2_bn *t1 = ssh2_bn_init();
+    ssh2_bn *t2 = ssh2_bn_init();
+    int result = -1;
+    size_t i;
+    int nbits = 0;
+
+    for(i = f->length; i--;)
+        nbits += card[f->bignum[i]];
+
+    if(nbits >= 4 && t1 && t2 && !ssh2_bn_set_word(t2, 2)) {
+        if(!ssh2_bn_sub(t1, f, t2)) {
+            if(!ssh2_bn_sub(t1, p, t2) && !ssh2_bn_sub(t2, t1, f))
+                result = 0;
+        }
+    }
+
+    ssh2_bn_free(t1);
+    ssh2_bn_free(t2);
+    return result;
+}
+
 int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
                    ssh2_bn *p, ssh2_bn_ctx *bnctx)
 {
@@ -1277,6 +1350,9 @@ int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
     Qus_EC_t errcode;
 
     (void)bnctx;
+
+    if(ssh2_dh_is_invalid(f, p))
+        return -1;
 
     pubkeysize = (ssh2_bn_bits(f) + 7) >> 3;
     pubkey = alloca(pubkeysize);
