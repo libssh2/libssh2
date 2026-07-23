@@ -1595,7 +1595,7 @@ int ssh2_packet_requirev(LIBSSH2_SESSION *session,
         }
 
         if(strchr((const char *)packet_types, ret)) {
-            /* Be lazy, let packet_ask pull it out of the brigade */
+            /* Be lazy, let packet_askv() pull it out of the brigade */
             ret = packet_askv(session, packet_types, data, data_len,
                               match_ofs, match_buf, match_len);
             state->start = 0;
