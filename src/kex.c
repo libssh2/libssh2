@@ -3348,7 +3348,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
 
     printf("BEGIN\n");
     while(*kexp && (*kexp)->name) {
-        printf("ITER: |%s|%p|\n", (*kexp)->name, (void *)(*kexp)->exchange_keys);
+        printf("ITER: |%s|%d|\n", (*kexp)->name, (*kexp)->exchange_keys ? 1 : 0);
         /* Skip signalling-only entries (ext-info-c,
          * kex-strict-c-v00@openssh.com) that carry no real KEX implementation
          * and must never be selected as the negotiated method. */
