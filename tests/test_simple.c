@@ -164,15 +164,11 @@ static int test_ssh2_scp_parse_c_fields(void)
     }
 
     /*
-     * Reproduce #1738 shape: fixed buffer full of "Cmode size " + long name
-     * without newline. Mode and size must still parse so scp_recv can drain.
-     * Avoid snprintf: old MSVC (AppVeyor VS2010) lacks it.
+     * Fixed buffer full of "Cmode size " + long name without newline. Mode and
+     * size must still parse so scp_recv can drain the unused basename.
      */
-    {
-        static const char prefix[] = "C0644 99 ";
-        prefix_len = sizeof(prefix) - 1;
-        memcpy(long_line, prefix, prefix_len);
-    }
+    prefix_len = (size_t)ssh2_snprintf((char *)long_line, sizeof(long_line),
+                                       "C0644 99 ");
     for(i = prefix_len; i < sizeof(long_line); i++)
         long_line[i] = 'a';
     mode = -1;

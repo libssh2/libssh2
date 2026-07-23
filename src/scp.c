@@ -76,62 +76,50 @@ int ssh2_scp_parse_c_fields(const unsigned char *buf, size_t len,
     char tmp[32];
     char *end = NULL;
 
-    if(!buf || len < 1 || buf[0] != 'C') {
+    if(!buf || len < 1 || buf[0] != 'C')
         return SCP_C_FIELDS_MALFORMED;
-    }
 
     i = 1;
     mode_start = i;
-    while(i < len && buf[i] >= '0' && buf[i] <= '7') {
+    while(i < len && buf[i] >= '0' && buf[i] <= '7')
         i++;
-    }
     mode_len = i - mode_start;
-    if(!mode_len) {
+    if(!mode_len)
         return (i >= len) ? SCP_C_FIELDS_INCOMPLETE : SCP_C_FIELDS_MALFORMED;
-    }
-    if(i >= len) {
+    if(i >= len)
         return SCP_C_FIELDS_INCOMPLETE;
-    }
-    if(buf[i] != ' ') {
+    if(buf[i] != ' ')
         return SCP_C_FIELDS_MALFORMED;
-    }
     i++; /* skip space after mode */
 
     size_start = i;
-    while(i < len && buf[i] >= '0' && buf[i] <= '9') {
+    while(i < len && buf[i] >= '0' && buf[i] <= '9')
         i++;
-    }
     size_len = i - size_start;
-    if(!size_len) {
+    if(!size_len)
         return (i >= len) ? SCP_C_FIELDS_INCOMPLETE : SCP_C_FIELDS_MALFORMED;
-    }
-    if(i >= len) {
+    if(i >= len)
         /* size digits may still continue */
         return SCP_C_FIELDS_INCOMPLETE;
-    }
-    if(buf[i] != ' ' && buf[i] != '\r' && buf[i] != '\n') {
+    if(buf[i] != ' ' && buf[i] != '\r' && buf[i] != '\n')
         return SCP_C_FIELDS_MALFORMED;
-    }
 
-    if(mode_len >= sizeof(tmp) || size_len >= sizeof(tmp)) {
+    if(mode_len >= sizeof(tmp) || size_len >= sizeof(tmp))
         return SCP_C_FIELDS_MALFORMED;
-    }
 
     memcpy(tmp, buf + mode_start, mode_len);
     tmp[mode_len] = '\0';
     /* !checksrc! disable BANNEDFUNC 1 */
     *mode_out = strtol(tmp, &end, 8);
-    if(end && *end) {
+    if(end && *end)
         return SCP_C_FIELDS_MALFORMED;
-    }
 
     memcpy(tmp, buf + size_start, size_len);
     tmp[size_len] = '\0';
     end = NULL;
     *size_out = (libssh2_int64_t)scpsize_strtol(tmp, &end, 10);
-    if(end && *end) {
+    if(end && *end)
         return SCP_C_FIELDS_MALFORMED;
-    }
 
     return SCP_C_FIELDS_OK;
 }
@@ -733,7 +721,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                  * Fixed buffer is full without a newline. Mode and size always
                  * fit early; a long basename overflows the buffer. Parse what
                  * we have and drain the rest of the name until newline
-                 * (basename is unused by libssh2). See issue #1738.
+                 * (basename is unused by libssh2).
                  */
                 prc = ssh2_scp_parse_c_fields(session->scpRecv_response,
                                               session->scpRecv_response_len,
@@ -753,7 +741,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
         }
     }
 
-    /* Drain remaining basename after the fixed buffer filled (#1738). */
+    /* Drain remaining basename after the fixed buffer filled. */
     if(session->scpRecv_state == ssh2_NB_state_jump1) {
         for(;;) {
             unsigned char discard;
