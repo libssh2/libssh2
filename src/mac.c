@@ -426,7 +426,7 @@ static int mac_method_none_dtor(LIBSSH2_SESSION *session, void **abstract)
 /* Stub for AEAD ciphers which provide an integrated authentication tag.
    This must not be added to mac_methods[] since it cannot be negotiated
    separately. */
-static const struct mac_method mac_method_hmac_integrated = {
+static const struct mac_method mac_method_integrated = {
     "INTEGRATED-MAC",  /* made up name for display only */
     16,
     16,
@@ -441,11 +441,11 @@ static const struct mac_method mac_method_hmac_integrated = {
 const struct mac_method *ssh2_mac_override(const struct crypt_method *crypt)
 {
     if(!strcmp(crypt->name, "chacha20-poly1305@openssh.com"))
-        return &mac_method_hmac_integrated;
+        return &mac_method_integrated;
 #if LIBSSH2_AES_GCM
     if(!strcmp(crypt->name, "aes256-gcm@openssh.com") ||
        !strcmp(crypt->name, "aes128-gcm@openssh.com"))
-        return &mac_method_hmac_integrated;
+        return &mac_method_integrated;
 #endif
     return NULL;
 }
