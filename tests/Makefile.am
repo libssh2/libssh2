@@ -3,6 +3,7 @@
 SUBDIRS = ossfuzz
 
 AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/src -I$(top_srcdir)/include
+AM_CPPFLAGS += -DLIBSSH2_TESTS
 
 # This might hold -Werror
 AM_CFLAGS = @LIBSSH2_CFLAG_EXTRAS@

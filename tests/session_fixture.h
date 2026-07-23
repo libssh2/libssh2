@@ -33,8 +33,6 @@
 #ifndef LIBSSH2_TESTS_SESSION_FIXTURE_H
 #define LIBSSH2_TESTS_SESSION_FIXTURE_H
 
-#define LIBSSH2_TESTS
-
 #include "libssh2_priv.h"
 
 LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err);

@@ -30,6 +30,8 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "LIBSSH2_TESTS")
+
 list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
 libssh2_transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
