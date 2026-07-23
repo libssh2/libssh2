@@ -388,7 +388,6 @@ const struct mac_method **ssh2_mac_methods(void)
     return mac_methods;
 }
 
-#if LIBSSH2_AES_GCM
 static int mac_method_none_init(LIBSSH2_SESSION *session, unsigned char *key,
                                 int *free_key, void **abstract)
 {
@@ -424,11 +423,11 @@ static int mac_method_none_dtor(LIBSSH2_SESSION *session, void **abstract)
     return 0;
 }
 
-/* Stub for aes256-gcm@openssh.com crypto type, which has an integrated
-   HMAC method. This must not be added to mac_methods[] since it cannot be
-   negotiated separately. */
-static const struct mac_method mac_method_hmac_aesgcm = {
-    "INTEGRATED-AES-GCM",  /* made up name for display only */
+/* Stub for chacha20-poly1305@openssh.com and aes256-gcm@openssh.com crypto
+   types, which have an integrated HMAC method. This must not be added to
+   mac_methods[] since it cannot be negotiated separately. */
+static const struct mac_method mac_method_hmac_integrated = {
+    "INTEGRATED-HMAC",  /* made up name for display only */
     16,
     16,
     mac_method_none_init,
@@ -436,18 +435,17 @@ static const struct mac_method mac_method_hmac_aesgcm = {
     mac_method_none_dtor,
     0
 };
-#endif /* LIBSSH2_AES_GCM */
 
 /* See if the negotiated crypto method has its own authentication scheme that
  * obviates the need for a separate negotiated hmac method */
 const struct mac_method *ssh2_mac_override(const struct crypt_method *crypt)
 {
+    if(!strcmp(crypt->name, "chacha20-poly1305@openssh.com"))
+        return &mac_method_hmac_integrated;
 #if LIBSSH2_AES_GCM
     if(!strcmp(crypt->name, "aes256-gcm@openssh.com") ||
        !strcmp(crypt->name, "aes128-gcm@openssh.com"))
-        return &mac_method_hmac_aesgcm;
-#else
-    (void)crypt;
-#endif /* LIBSSH2_AES_GCM */
+        return &mac_method_hmac_integrated;
+#endif
     return NULL;
 }
