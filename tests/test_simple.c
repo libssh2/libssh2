@@ -34,6 +34,7 @@
 #include "libssh2_priv.h"
 
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>  /* for atoi() */
 
 static int test_ssh2_base64_decode(LIBSSH2_SESSION *session)
@@ -139,9 +140,8 @@ static int test_ssh2_scp_parse_c_fields(void)
     prc = ssh2_scp_parse_c_fields(
         (const unsigned char *)"C0644 123 shortname\n", 20, &mode, &size);
     if(prc || mode != 420L || size != 123) { /* 0644 octal == 420 */
-        fprintf(stderr, "scp_parse short: prc=%d mode=%ld size=%"
-                SSH2_INT64_T_FORMAT "\n",
-                prc, mode, size);
+        fprintf(stderr, "scp_parse short: prc=%d mode=%ld size=%lu\n",
+                prc, mode, (unsigned long)size);
         err++;
     }
 
@@ -151,9 +151,8 @@ static int test_ssh2_scp_parse_c_fields(void)
     prc = ssh2_scp_parse_c_fields(
         (const unsigned char *)"C0755 42 ", 9, &mode, &size);
     if(prc || mode != 493L || size != 42) { /* 0755 octal == 493 */
-        fprintf(stderr, "scp_parse partial-name: prc=%d mode=%ld size=%"
-                SSH2_INT64_T_FORMAT "\n",
-                prc, mode, size);
+        fprintf(stderr, "scp_parse partial-name: prc=%d mode=%ld size=%lu\n",
+                prc, mode, (unsigned long)size);
         err++;
     }
 
@@ -168,9 +167,13 @@ static int test_ssh2_scp_parse_c_fields(void)
     /*
      * Fixed buffer full of "Cmode size " + long name without newline. Mode and
      * size must still parse so scp_recv can drain the unused basename.
+     * Use memcpy for the prefix (tests do not call ssh2_snprintf).
      */
-    prefix_len = (size_t)ssh2_snprintf((char *)long_line, sizeof(long_line),
-                                       "C0644 99 ");
+    {
+        static const char prefix[] = "C0644 99 ";
+        prefix_len = sizeof(prefix) - 1;
+        memcpy(long_line, prefix, prefix_len);
+    }
     for(i = prefix_len; i < sizeof(long_line); i++)
         long_line[i] = 'a';
     mode = -1;
@@ -178,9 +181,8 @@ static int test_ssh2_scp_parse_c_fields(void)
     prc = ssh2_scp_parse_c_fields(long_line, sizeof(long_line), &mode, &size);
     if(prc || mode != 420L || size != 99) { /* 0644 octal == 420 */
         fprintf(stderr,
-                "scp_parse long-name buffer: prc=%d mode=%ld size=%"
-                SSH2_INT64_T_FORMAT "\n",
-                prc, mode, size);
+                "scp_parse long-name buffer: prc=%d mode=%ld size=%lu\n",
+                prc, mode, (unsigned long)size);
         err++;
     }
 

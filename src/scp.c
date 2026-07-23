@@ -734,8 +734,12 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                     session->scpRecv_state = ssh2_NB_state_jump1;
                     break;
                 }
-                ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
-                         "Unterminated response from SCP server");
+                if(prc == SCP_C_FIELDS_MALFORMED)
+                    ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
+                             "Invalid response from SCP server");
+                else
+                    ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
+                             "Unterminated response from SCP server");
                 goto scp_recv_error;
             }
         }
