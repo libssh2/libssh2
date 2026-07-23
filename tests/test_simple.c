@@ -170,7 +170,8 @@ static int test_ssh2_scp_parse_c_fields(void)
                 prefix_len);
         return 1;
     }
-    memset(long_line + prefix_len, 'a', sizeof(long_line) - (size_t)prefix_len);
+    memset(long_line + prefix_len, 'a',
+           sizeof(long_line) - (size_t)prefix_len);
     mode = -1;
     size = -1;
     prc = ssh2_scp_parse_c_fields(long_line, sizeof(long_line), &mode, &size);
