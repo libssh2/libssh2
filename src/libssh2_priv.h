@@ -118,6 +118,8 @@
 #define SSH2_UNCONST(p)  ((void *)(libssh2_uint64_t)(const void *)(p))
 #elif defined(_MSC_VER)
 #define SSH2_UNCONST(p)  ((void *)(unsigned int)(const void *)(p))
+#elif defined(__OS400__)
+#define SSH2_UNCONST(p)  ((void *)(p))
 #else
 #define SSH2_UNCONST(p)  ((void *)(uintptr_t)(const void *)(p))
 #endif
@@ -268,9 +270,9 @@ struct iovec {
                         channel, &(channel)->abstract)
 
 #define SSH2_SEND_FD(session, fd, buffer, length, flags) \
-    (session)->send(fd, buffer, length, flags, &(session)->abstract)
+    ((session)->send)(fd, buffer, length, flags, &(session)->abstract)
 #define SSH2_RECV_FD(session, fd, buffer, length, flags) \
-    (session)->recv(fd, buffer, length, flags, &(session)->abstract)
+    ((session)->recv)(fd, buffer, length, flags, &(session)->abstract)
 
 #define SSH2_SEND(session, buffer, length, flags) \
     SSH2_SEND_FD(session, (session)->socket_fd, buffer, length, flags)

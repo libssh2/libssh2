@@ -1127,7 +1127,7 @@ int libssh2_agent_connect(LIBSSH2_AGENT *agent)
     int i, rc = LIBSSH2_ERROR_METHOD_NOT_SUPPORTED;
     for(i = 0; agent_supported_backends[i].name; i++) {
         agent->ops = agent_supported_backends[i].ops;
-        rc = agent->ops->connect(agent);
+        rc = (agent->ops->connect)(agent);
         if(!rc)
             return LIBSSH2_ERROR_NONE;
     }
