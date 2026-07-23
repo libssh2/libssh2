@@ -58,7 +58,7 @@ static int test_ssh2_base64_decode(LIBSSH2_SESSION *session)
     return 0;
 }
 
-static int test_ssh2_dh_is_valid(void)
+static int test_ssh2_dh_validate(void)
 {
     struct tbn {
         const char *f; const char *p; int expected;
@@ -85,7 +85,7 @@ static int test_ssh2_dh_is_valid(void)
         gcry_mpi_t p = gcry_mpi_set_ui(NULL, atoi(tests[i].p));
         if(tests[i].f[0] == '-')
             gcry_mpi_neg(f, f);
-        got = ssh2_dh_is_valid(f, p);
+        got = ssh2_dh_validate(f, p);
         gcry_mpi_release(f);
         gcry_mpi_release(p);
 #elif defined(LIBSSH2_MBEDTLS)
@@ -96,7 +96,7 @@ static int test_ssh2_dh_is_valid(void)
            mbedtls_mpi_read_string(&p, 10, tests[i].p))
             got = -9;
         else
-            got = ssh2_dh_is_valid(&f, &p);
+            got = ssh2_dh_validate(&f, &p);
         mbedtls_mpi_free(&f);
         mbedtls_mpi_free(&p);
 #elif defined(LIBSSH2_OPENSSL) || \
@@ -106,7 +106,7 @@ static int test_ssh2_dh_is_valid(void)
            !BN_dec2bn(&p, tests[i].p))
             got = -9;
         else
-            got = ssh2_dh_is_valid(f, p);
+            got = ssh2_dh_validate(f, p);
         BN_free(f);
         BN_free(p);
 #else
@@ -114,7 +114,7 @@ static int test_ssh2_dh_is_valid(void)
 #endif
         if(got != tests[i].expected) {
             fprintf(stderr,
-                    "ssh2_dh_is_valid/%lu: f=%s p=%s: expected %d got %d\n",
+                    "ssh2_dh_validate/%lu: f=%s p=%s: expected %d got %d\n",
                     (unsigned long)i,
                     tests[i].f, tests[i].p, tests[i].expected, got);
             err++;
@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
     }
 
     rc = test_ssh2_base64_decode(session);
-    rc |= test_ssh2_dh_is_valid();
+    rc |= test_ssh2_dh_validate();
 
     libssh2_session_free(session);
 
