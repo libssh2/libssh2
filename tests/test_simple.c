@@ -132,7 +132,6 @@ static int test_ssh2_scp_parse_c_fields(void)
     libssh2_int64_t size = -1;
     unsigned char long_line[SSH2_SCP_RESPONSE_BUFLEN];
     size_t prefix_len;
-    size_t i;
     int prc;
     int err = 0;
 
@@ -167,15 +166,11 @@ static int test_ssh2_scp_parse_c_fields(void)
     /*
      * Fixed buffer full of "Cmode size " + long name without newline. Mode and
      * size must still parse so scp_recv can drain the unused basename.
-     * Use memcpy for the prefix (tests do not call ssh2_snprintf).
      */
-    {
-        static const char prefix[] = "C0644 99 ";
-        prefix_len = sizeof(prefix) - 1;
-        memcpy(long_line, prefix, prefix_len);
-    }
-    for(i = prefix_len; i < sizeof(long_line); i++)
-        long_line[i] = 'a';
+    prefix_len = (size_t)snprintf((char *)long_line, sizeof(long_line),
+                                  "C0644 99 ");
+    memset(long_line + prefix_len, 'a',
+           sizeof(long_line) - prefix_len);
     mode = -1;
     size = -1;
     prc = ssh2_scp_parse_c_fields(long_line, sizeof(long_line), &mode, &size);
