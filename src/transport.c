@@ -610,7 +610,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
 
                 if(etm) {
                     /* do not know what padding is until we decrypt the full
-                     packet */
+                       packet */
                     p->padding_length = 0;
 
                     /* we collect entire undecrypted packet including the
@@ -773,7 +773,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                 }
                 if(CRYPT_FLAG_R(session, INTEGRATED_MAC)) {
                     /* Make sure that we save enough bytes to make the last
-                     * block large enough to hold the entire integrated MAC */
+                       block large enough to hold the entire integrated MAC */
                     numdecrypt = SSH2_MIN(numdecrypt,
                         (int)(p->total_num - skip - blocksize - p->data_num));
                     numbytes = 0;
