@@ -398,12 +398,12 @@ static int mac_method_none_init(LIBSSH2_SESSION *session, unsigned char *key,
     return 0;
 }
 
-static int mac_method_hmac_none_hash(LIBSSH2_SESSION *session,
-                                     unsigned char *buf, uint32_t seqno,
-                                     const unsigned char *packet,
-                                     size_t packet_len,
-                                     const unsigned char *addtl,
-                                     size_t addtl_len, void **abstract)
+static int mac_method_none_hash(LIBSSH2_SESSION *session,
+                                unsigned char *buf, uint32_t seqno,
+                                const unsigned char *packet,
+                                size_t packet_len,
+                                const unsigned char *addtl,
+                                size_t addtl_len, void **abstract)
 {
     (void)session;
     (void)buf;
@@ -431,7 +431,7 @@ static const struct mac_method mac_method_integrated = {
     16,
     16,
     mac_method_none_init,
-    mac_method_hmac_none_hash,
+    mac_method_none_hash,
     mac_method_none_dtor,
     0
 };
