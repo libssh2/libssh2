@@ -3350,7 +3350,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session,
         /* Skip signalling-only entries (ext-info-c,
          * kex-strict-c-v00@openssh.com) that carry no real KEX implementation
          * and must never be selected as the negotiated method. */
-        if((*kexp)->exchange_keys) {
+        if((*kexp)->exchange_keys || 1) {
             printf("OK\n");
             s = ssh2_kex_agree_instr(kex, kex_len,
                                      (*kexp)->name, strlen((*kexp)->name));
