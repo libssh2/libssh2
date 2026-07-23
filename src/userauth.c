@@ -1232,10 +1232,10 @@ static const char *userauth_supported_key_sign_algs(LIBSSH2_SESSION *session,
  */
 static int userauth_key_sign_algs(LIBSSH2_SESSION *session, char **method)
 {
-    static const char * const suffix = "-cert-v01@openssh.com";
-    static const size_t suffix_len = sizeof("-cert-v01@openssh.com") - 1;
-    static const char * const rsa_method = "ssh-rsa-cert-v01@openssh.com";
-    static const char * const remote_ver_pre = "OpenSSH_";
+    static const char suffix[] = "-cert-v01@openssh.com";
+    static const size_t suffix_len = sizeof(suffix) - 1;
+    static const char rsa_method[] = "ssh-rsa-cert-v01@openssh.com";
+    static const char remote_ver_pre[] = "OpenSSH_";
 
     const char *s = NULL;
     const char *a = NULL;
