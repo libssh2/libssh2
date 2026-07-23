@@ -58,6 +58,12 @@ static int crypt_none_crypt(LIBSSH2_SESSION *session,
                             int firstlast)
 {
     /* Do nothing to the data! */
+    (void)session;
+    (void)seqno;
+    (void)buf;
+    (void)buf_len;
+    (void)abstract;
+    (void)firstlast;
     return 0;
 }
 
