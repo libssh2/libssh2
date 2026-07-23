@@ -33,6 +33,24 @@
 #include "libssh2_priv.h"
 #include "mac.h"
 
+static int mac_method_none_hash(LIBSSH2_SESSION *session,
+                                unsigned char *buf, uint32_t seqno,
+                                const unsigned char *packet,
+                                size_t packet_len,
+                                const unsigned char *addtl,
+                                size_t addtl_len, void **abstract)
+{
+    (void)session;
+    (void)buf;
+    (void)seqno;
+    (void)packet;
+    (void)packet_len;
+    (void)addtl;
+    (void)addtl_len;
+    (void)abstract;
+    return 0;
+}
+
 #if defined(LIBSSH2DEBUG) && defined(LIBSSH2_MAC_NONE_INSECURE)
 /*
  * Minimalist MAC: No MAC. DO NOT USE.
@@ -46,22 +64,12 @@
  * however it still requires that the method be advertised by the remote
  * end and that no more-preferable methods are available.
  */
-static int mac_none_MAC(LIBSSH2_SESSION *session,
-                        unsigned char *buf, uint32_t seqno,
-                        const unsigned char *packet,
-                        size_t packet_len,
-                        const unsigned char *addtl,
-                        size_t addtl_len, void **abstract)
-{
-    return 0;
-}
-
 static const struct mac_method mac_method_none = {
     "none",
     0,
     0,
     NULL,
-    mac_none_MAC,
+    mac_method_none_hash,
     NULL,
     0
 };
@@ -399,24 +407,6 @@ static int mac_method_none_init(LIBSSH2_SESSION *session, unsigned char *key,
     return 0;
 }
 
-static int mac_method_hmac_none_hash(LIBSSH2_SESSION *session,
-                                     unsigned char *buf, uint32_t seqno,
-                                     const unsigned char *packet,
-                                     size_t packet_len,
-                                     const unsigned char *addtl,
-                                     size_t addtl_len, void **abstract)
-{
-    (void)session;
-    (void)buf;
-    (void)seqno;
-    (void)packet;
-    (void)packet_len;
-    (void)addtl;
-    (void)addtl_len;
-    (void)abstract;
-    return 0;
-}
-
 static int mac_method_none_dtor(LIBSSH2_SESSION *session, void **abstract)
 {
     (void)session;
@@ -432,7 +422,7 @@ static const struct mac_method mac_method_hmac_aesgcm = {
     16,
     16,
     mac_method_none_init,
-    mac_method_hmac_none_hash,
+    mac_method_none_hash,
     mac_method_none_dtor,
     0
 };
