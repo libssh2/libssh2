@@ -38,13 +38,6 @@ int ssh2_packet_ask(LIBSSH2_SESSION *session, unsigned char packet_type,
                     int match_ofs,
                     const unsigned char *match_buf,
                     size_t match_len);
-
-int ssh2_packet_askv(LIBSSH2_SESSION *session,
-                     const unsigned char *packet_types,
-                     unsigned char **data, size_t *data_len,
-                     int match_ofs,
-                     const unsigned char *match_buf,
-                     size_t match_len);
 int ssh2_packet_require(LIBSSH2_SESSION *session,
                         unsigned char packet_type, unsigned char **data,
                         size_t *data_len, int match_ofs,

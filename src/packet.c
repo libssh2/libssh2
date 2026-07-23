@@ -1421,12 +1421,11 @@ int ssh2_packet_ask(LIBSSH2_SESSION *session, unsigned char packet_type,
  * Scan for any of a list of packet types in the brigade, optionally poll the
  * socket for a packet first
  */
-int ssh2_packet_askv(LIBSSH2_SESSION *session,
-                     const unsigned char *packet_types,
-                     unsigned char **data, size_t *data_len,
-                     int match_ofs,
-                     const unsigned char *match_buf,
-                     size_t match_len)
+static int packet_askv(LIBSSH2_SESSION *session,
+                       const unsigned char *packet_types,
+                       unsigned char **data, size_t *data_len,
+                       int match_ofs,
+                       const unsigned char *match_buf, size_t match_len)
 {
     size_t i, packet_types_len = strlen((const char *)packet_types);
 
@@ -1517,8 +1516,8 @@ int ssh2_packet_burn(LIBSSH2_SESSION *session, ssh2_NB_states *state)
             all_packets[i - 1] = i;
         all_packets[254] = 0;
 
-        if(ssh2_packet_askv(session, all_packets, &data, &data_len, 0,
-                            NULL, 0) == 0) {
+        if(packet_askv(session, all_packets, &data, &data_len, 0,
+                       NULL, 0) == 0) {
             i = data[0];
             /* A packet was available in the packet brigade, burn it */
             SSH2_FREE(session, data);
@@ -1567,8 +1566,8 @@ int ssh2_packet_requirev(LIBSSH2_SESSION *session,
                          const unsigned char *match_buf, size_t match_len,
                          struct packet_requirev_state *state)
 {
-    if(ssh2_packet_askv(session, packet_types, data, data_len, match_ofs,
-                        match_buf, match_len) == 0) {
+    if(packet_askv(session, packet_types, data, data_len,
+                   match_ofs, match_buf, match_len) == 0) {
         /* One of the packets listed was available in the packet brigade */
         state->start = 0;
         return 0;
@@ -1597,9 +1596,8 @@ int ssh2_packet_requirev(LIBSSH2_SESSION *session,
 
         if(strchr((const char *)packet_types, ret)) {
             /* Be lazy, let packet_ask pull it out of the brigade */
-            ret = ssh2_packet_askv(session, packet_types, data,
-                                   data_len, match_ofs, match_buf,
-                                   match_len);
+            ret = packet_askv(session, packet_types, data, data_len,
+                              match_ofs, match_buf, match_len);
             state->start = 0;
             return ret;
         }
