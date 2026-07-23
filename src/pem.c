@@ -432,7 +432,7 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
         goto out;
     }
 
-    if(memcmp((const char *)decoded.dataptr, OPENSSH_PRIVKEY_AUTH_MAGIC,
+    if(memcmp(decoded.dataptr, OPENSSH_PRIVKEY_AUTH_MAGIC,
               sizeof(OPENSSH_PRIVKEY_AUTH_MAGIC))) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                        "key auth magic mismatch");
