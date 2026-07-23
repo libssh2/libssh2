@@ -361,7 +361,7 @@ static int agent_connect_openssh(LIBSSH2_AGENT *agent)
     for(;;) {
         /* Non-blocking mode for agent connections is not implemented at
          * the point this was implemented. The code for Win32 OpenSSH
-         * should support non-blocking IO, but the code calling it does not
+         * should support non-blocking I/O, but the code calling it does not
          * support it as of yet.
          * When non-blocking I/O is implemented for the surrounding code,
          * uncomment the following line to enable support within the Win32
@@ -543,7 +543,7 @@ static int agent_disconnect_openssh(LIBSSH2_AGENT *agent)
 {
     if(!CancelIo(agent->pipe))
         return ssh2_err(agent->session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
-                        "failed to cancel pending IO of agent pipe");
+                        "failed to cancel pending I/O of agent pipe");
     if(!CloseHandle(agent->overlapped.hEvent))
         return ssh2_err(agent->session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
                         "failed to close handle to async I/O event");
