@@ -945,13 +945,15 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo), int encrypt,
     const int aadlen = (is_aesgcm && IS_FIRST(firstlast)) ? 4 : 0;
     /* size of AT, if present */
     const int authenticationtag = IS_LAST(firstlast) ? authlen : 0;
-    /* length to encrypt */
-    const int cryptlen = (unsigned int)blocksize - aadlen - authenticationtag;
+    unsigned int cryptlen; /* length to encrypt */
 
     (void)algo;
 
-    assert(blocksize <= sizeof(buf));
-    assert(cryptlen >= 0);
+    if(blocksize > sizeof(buf) ||
+       blocksize < (size_t)(aadlen + authenticationtag))
+        return 1;
+
+    cryptlen = (unsigned int)blocksize - aadlen - authenticationtag;
 
 #if LIBSSH2_AES_GCM
     /* First block */
