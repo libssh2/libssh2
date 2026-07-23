@@ -389,7 +389,7 @@ struct key_exchange_state {
 
 struct packet_queue_listener_state {
     ssh2_NB_states state;
-    unsigned char packet[17 + (sizeof(FwdNotReq) - 1)];
+    unsigned char packet[17 + sizeof(FwdNotReq) - 1];
     unsigned char *host;
     unsigned char *shost;
     uint32_t sender_channel;
@@ -406,7 +406,7 @@ struct packet_queue_listener_state {
 
 struct packet_x11_open_state {
     ssh2_NB_states state;
-    unsigned char packet[17 + (sizeof(X11FwdUnAvil) - 1)];
+    unsigned char packet[17 + sizeof(X11FwdUnAvil) - 1];
     unsigned char *shost;
     uint32_t sender_channel;
     uint32_t initial_window_size;
@@ -420,7 +420,7 @@ struct packet_x11_open_state {
 
 struct packet_authagent_state {
     ssh2_NB_states state;
-    unsigned char packet[17 + (sizeof(AuthAgentUnavail) - 1)];
+    unsigned char packet[17 + sizeof(AuthAgentUnavail) - 1];
     uint32_t sender_channel;
     uint32_t initial_window_size;
     uint32_t packet_size;
@@ -911,7 +911,7 @@ struct _LIBSSH2_SESSION {
     unsigned char *pkeyInit_data;
     size_t pkeyInit_data_len;
     /* 19 = packet_len(4) + version_len(4) + "version"(7) + version_num(4) */
-    unsigned char pkeyInit_buffer[4 + 4 + (sizeof("version") - 1) + 4];
+    unsigned char pkeyInit_buffer[4 + 4 + sizeof("version") - 1 + 4];
     size_t pkeyInit_buffer_sent; /* how much of buffer that has been sent */
 
     /* State variables used in ssh2_packet_add() */
