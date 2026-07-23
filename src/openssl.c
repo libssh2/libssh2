@@ -1791,7 +1791,7 @@ static int ossl_ed25519_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     }
 
     ssh2_store_str(&p, method_name, sizeof(method_name) - 1);
-    ssh2_store_str(&p, (const char *)pub_key, SSH2_ED25519_KEY_LEN);
+    ssh2_store_str(&p, pub_key, SSH2_ED25519_KEY_LEN);
 
     memcpy(method_buf, method_name, sizeof(method_name));
 
@@ -1908,8 +1908,8 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
     }
 
     ssh2_store_str(&p, method_name, sizeof(method_name) - 1);
-    ssh2_store_str(&p, (const char *)pub_key, SSH2_ED25519_KEY_LEN);
-    ssh2_store_str(&p, (const char *)app, app_len);
+    ssh2_store_str(&p, pub_key, SSH2_ED25519_KEY_LEN);
+    ssh2_store_str(&p, app, app_len);
 
     if(application && app_len > 0) {
         *application = SSH2_ALLOC(session, app_len + 1);
@@ -2552,12 +2552,11 @@ static int ossl_ecdsa_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
     if(is_sk)
         ssh2_store_str(&p, "nistp256", sizeof("nistp256") - 1);
     else
-        ssh2_store_str(&p,
-           (const char *)method_buf + sizeof("ecdsa-sha2-") - 1,
-           sizeof("nistp256") - 1);
+        ssh2_store_str(&p, method_buf + sizeof("ecdsa-sha2-") - 1,
+                           sizeof("nistp256") - 1);
 
     /* Public key */
-    ssh2_store_str(&p, (const char *)octal_value, octal_len);
+    ssh2_store_str(&p, octal_value, octal_len);
 
     *method = method_buf;
 
@@ -2810,7 +2809,7 @@ static int ossl_ecdsa_sk_openssh_priv_to_pubkey(
         p += *pubkeydata_len;
 
         memcpy(key, *pubkeydata, *pubkeydata_len);
-        ssh2_store_str(&p, (const char *)app, app_len);
+        ssh2_store_str(&p, app, app_len);
 
         if(application && app_len > 0) {
             *application = SSH2_ALLOC(session, app_len + 1);

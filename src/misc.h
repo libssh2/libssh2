@@ -138,9 +138,9 @@ libssh2_uint64_t ssh2_ntohu64(const unsigned char *buf);
 void ssh2_htonu32(unsigned char *buf, uint32_t value);
 void ssh2_store_u32(unsigned char **buf, uint32_t value);
 void ssh2_store_u64(unsigned char **buf, libssh2_uint64_t value);
-int ssh2_store_str(unsigned char **buf, const char *str, size_t len);
-int ssh2_store_hybrid_str(unsigned char **buf, const char *str_1,
-                          size_t len_1, const char *str_2, size_t len_2);
+int ssh2_store_str(unsigned char **buf, const void *str, size_t len);
+int ssh2_store_hybrid_str(unsigned char **buf, const void *str_1,
+                          size_t len_1, const void *str_2, size_t len_2);
 int ssh2_store_bignum_bytes(unsigned char **buf,
                             const unsigned char *bytes, size_t len);
 void *ssh2_calloc(LIBSSH2_SESSION *session, size_t size);
