@@ -576,7 +576,7 @@ struct _LIBSSH2_LISTENER {
 #endif
 
 struct endpoint_data {
-    unsigned char *banner;
+    char *banner;
 
     unsigned char *kexinit;
     size_t kexinit_len;
@@ -935,7 +935,7 @@ struct _LIBSSH2_SESSION {
 
     /* State variables used in libssh2_scp_recv2() */
     ssh2_NB_states scpRecv_state;
-    unsigned char *scpRecv_command;
+    char *scpRecv_command;
     size_t scpRecv_command_len;
     unsigned char scpRecv_response[SSH2_SCP_RESPONSE_BUFLEN];
     size_t scpRecv_response_len;
@@ -947,7 +947,7 @@ struct _LIBSSH2_SESSION {
 
     /* State variables used in libssh2_scp_send_ex() */
     ssh2_NB_states scpSend_state;
-    unsigned char *scpSend_command;
+    char *scpSend_command;
     size_t scpSend_command_len;
     unsigned char scpSend_response[SSH2_SCP_RESPONSE_BUFLEN];
     size_t scpSend_response_len;
@@ -1204,10 +1204,8 @@ ssize_t ssh2_send(libssh2_socket_t socket, const void *buffer,
 int ssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
                       struct key_exchange_state *key_state);
 
-unsigned char *ssh2_kex_agree_instr(unsigned char *haystack,
-                                    size_t haystack_len,
-                                    const unsigned char *needle,
-                                    size_t needle_len);
+const char *ssh2_kex_agree_instr(const char *haystack, size_t haystack_len,
+                                 const char *needle, size_t needle_len);
 
 /* Let crypt.c/hostkey.c expose their method structs */
 const struct crypt_method **ssh2_crypt_methods(void);

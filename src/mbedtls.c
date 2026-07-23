@@ -1022,7 +1022,7 @@ static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
                                   const char *passphrase)
 {
     ssh2_curve_type type;
-    unsigned char *name = NULL;
+    char *name = NULL;
     struct string_buf *decrypted = NULL;
     size_t curvelen, exponentlen, pointlen;
     unsigned char *curve, *exponent, *point_buf;
@@ -1031,10 +1031,10 @@ static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
                               passphrase, &decrypted))
         goto failed;
 
-    if(ssh2_get_string(decrypted, &name, NULL))
+    if(ssh2_get_chars(decrypted, &name, NULL))
         goto failed;
 
-    if(mbed_ecdsa_curve_type_from_name((const char *)name, &type))
+    if(mbed_ecdsa_curve_type_from_name(name, &type))
         goto failed;
 
     if(ssh2_get_string(decrypted, &curve, &curvelen))

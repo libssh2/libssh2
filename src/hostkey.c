@@ -616,7 +616,8 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
                                          void **abstract)
 {
     ssh2_ecdsa_ctx *ec_ctx = NULL;
-    unsigned char *type_str, *domain, *public_key;
+    char *type_str, *domain;
+    unsigned char *public_key;
     size_t key_len, len;
     ssh2_curve_type type;
     struct string_buf buf;
@@ -635,29 +636,26 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
     buf.dataptr = buf.data;
     buf.len = hostkey_data_len;
 
-    if(ssh2_get_string(&buf, &type_str, &len) || len != 19)
+    if(ssh2_get_chars(&buf, &type_str, &len) || len != 19)
         return -1;
 
-    if(!strncmp((const char *)type_str, "ecdsa-sha2-nistp256", 19))
+    if(!strncmp(type_str, "ecdsa-sha2-nistp256", 19))
         type = SSH2_EC_CURVE_NISTP256;
-    else if(!strncmp((const char *)type_str, "ecdsa-sha2-nistp384", 19))
+    else if(!strncmp(type_str, "ecdsa-sha2-nistp384", 19))
         type = SSH2_EC_CURVE_NISTP384;
-    else if(!strncmp((const char *)type_str, "ecdsa-sha2-nistp521", 19))
+    else if(!strncmp(type_str, "ecdsa-sha2-nistp521", 19))
         type = SSH2_EC_CURVE_NISTP521;
     else
         return -1;
 
-    if(ssh2_get_string(&buf, &domain, &len) || len != 8)
+    if(ssh2_get_chars(&buf, &domain, &len) || len != 8)
         return -1;
 
-    if(type == SSH2_EC_CURVE_NISTP256 &&
-       strncmp((const char *)domain, "nistp256", 8))
+    if(type == SSH2_EC_CURVE_NISTP256 && strncmp(domain, "nistp256", 8))
         return -1;
-    else if(type == SSH2_EC_CURVE_NISTP384 &&
-            strncmp((const char *)domain, "nistp384", 8))
+    else if(type == SSH2_EC_CURVE_NISTP384 && strncmp(domain, "nistp384", 8))
         return -1;
-    else if(type == SSH2_EC_CURVE_NISTP521 &&
-            strncmp((const char *)domain, "nistp521", 8))
+    else if(type == SSH2_EC_CURVE_NISTP521 && strncmp(domain, "nistp521", 8))
         return -1;
 
     /* public key */

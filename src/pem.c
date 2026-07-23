@@ -398,8 +398,8 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
 {
     const struct crypt_method *method = NULL;
     struct string_buf decoded, decrypted, kdf_buf;
-    unsigned char *ciphername = NULL;
-    unsigned char *kdfname = NULL;
+    char *ciphername = NULL;
+    char *kdfname = NULL;
     unsigned char *kdf = NULL;
     unsigned char *buf = NULL;
     unsigned char *salt = NULL;
@@ -432,7 +432,7 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
         goto out;
     }
 
-    if(memcmp((const char *)decoded.dataptr, OPENSSH_PRIVKEY_AUTH_MAGIC,
+    if(memcmp(decoded.dataptr, OPENSSH_PRIVKEY_AUTH_MAGIC,
               sizeof(OPENSSH_PRIVKEY_AUTH_MAGIC))) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                        "key auth magic mismatch");
@@ -441,12 +441,14 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
 
     decoded.dataptr += sizeof(OPENSSH_PRIVKEY_AUTH_MAGIC);
 
-    if(ssh2_get_string(&decoded, &ciphername, &tmp_len) || tmp_len == 0) {
+    if(ssh2_get_chars(&decoded, &ciphername, &tmp_len) ||
+       tmp_len == 0) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "ciphername is missing");
         goto out;
     }
 
-    if(ssh2_get_string(&decoded, &kdfname, &tmp_len) || tmp_len == 0) {
+    if(ssh2_get_chars(&decoded, &kdfname, &tmp_len) ||
+       tmp_len == 0) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "kdfname is missing");
         goto out;
     }
@@ -462,21 +464,19 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
     }
 
     if((!passphrase || strlen(passphrase) == 0) &&
-       strcmp((const char *)ciphername, "none")) {
+       strcmp(ciphername, "none")) {
         /* passphrase required */
         ret = LIBSSH2_ERROR_KEYFILE_AUTH_FAILED;
         goto out;
     }
 
-    if(strcmp((const char *)kdfname, "none") &&
-       strcmp((const char *)kdfname, "bcrypt")) {
+    if(strcmp(kdfname, "none") && strcmp(kdfname, "bcrypt")) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                        "unrecognized KDF algorithm");
         goto out;
     }
 
-    if(!strcmp((const char *)kdfname, "none") &&
-       strcmp((const char *)ciphername, "none")) {
+    if(!strcmp(kdfname, "none") && strcmp(ciphername, "none")) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "invalid format");
         goto out;
     }
@@ -505,7 +505,7 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
     decrypted.data = decrypted.dataptr = buf;
     decrypted.len = tmp_len;
 
-    if(ciphername && strcmp((const char *)ciphername, "none")) {
+    if(ciphername && strcmp(ciphername, "none")) {
         const struct crypt_method **all_methods, *cur_method;
 
         all_methods = ssh2_crypt_methods();
@@ -541,7 +541,7 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
             goto out;
         }
 
-        if(!strcmp((const char *)kdfname, "bcrypt") && passphrase) {
+        if(!strcmp(kdfname, "bcrypt") && passphrase) {
             if(ssh2_get_string(&kdf_buf, &salt, &salt_len) ||
                ssh2_get_u32(&kdf_buf, &rounds) != 0) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,

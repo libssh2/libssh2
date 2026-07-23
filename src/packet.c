@@ -603,8 +603,8 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                     size_t datalen, int macstate, uint32_t seq)
 {
     int rc = 0;
-    unsigned char *message = NULL;
-    unsigned char *language = NULL;
+    char *message = NULL;
+    char *language = NULL;
     size_t message_len = 0;
     size_t language_len = 0;
     LIBSSH2_CHANNEL *channelp = NULL;
@@ -660,10 +660,10 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                                     "Data too short extracting kex");
                 }
                 else {
-                    const unsigned char *strict =
-                        (const unsigned char *)"kex-strict-s-v00@openssh.com";
+                    static const char strict[] =
+                        "kex-strict-s-v00@openssh.com";
                     struct string_buf buf;
-                    unsigned char *algs = NULL;
+                    char *algs = NULL;
                     size_t algs_len = 0;
 
                     buf.data = data;
@@ -671,7 +671,7 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                     buf.len = datalen;
                     buf.dataptr += 17; /* advance past type and cookie */
 
-                    if(ssh2_get_string(&buf, &algs, &algs_len)) {
+                    if(ssh2_get_chars(&buf, &algs, &algs_len)) {
                         SSH2_FREE(session, data);
                         session->packAdd_state = ssh2_NB_state_idle;
                         return ssh2_err(session,
@@ -680,7 +680,8 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                     }
 
                     if(algs_len == 0 ||
-                       ssh2_kex_agree_instr(algs, algs_len, strict, 28)) {
+                       ssh2_kex_agree_instr(algs, algs_len,
+                                            strict, sizeof(strict) - 1)) {
                         session->kex_strict = 1;
                     }
                 }
@@ -733,13 +734,12 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                 buf.dataptr++; /* advance past type */
 
                 ssh2_get_u32(&buf, &reason);
-                ssh2_get_string(&buf, &message, &message_len);
-                ssh2_get_string(&buf, &language, &language_len);
+                ssh2_get_chars(&buf, &message, &message_len);
+                ssh2_get_chars(&buf, &language, &language_len);
 
                 if(session->ssh_msg_disconnect)
-                    SSH2_DISCONNECT(session, reason, (const char *)message,
-                                    message_len, (const char *)language,
-                                    language_len);
+                    SSH2_DISCONNECT(session, reason, message, message_len,
+                                    language, language_len);
 
                 ssh2_deb((session, LIBSSH2_TRACE_TRANS,
                           "Disconnect(%u): %.*s(%.*s)", reason,
@@ -787,14 +787,13 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                     buf.len = datalen;
                     buf.dataptr += 2; /* advance past type & always display */
 
-                    ssh2_get_string(&buf, &message, &message_len);
-                    ssh2_get_string(&buf, &language, &language_len);
+                    ssh2_get_chars(&buf, &message, &message_len);
+                    ssh2_get_chars(&buf, &language, &language_len);
                 }
 
                 if(session->ssh_msg_debug)
-                    SSH2_DEBUG(session, always_display, (const char *)message,
-                               message_len, (const char *)language,
-                               language_len);
+                    SSH2_DEBUG(session, always_display, message, message_len,
+                               language, language_len);
             }
 
             ssh2_deb((session, LIBSSH2_TRACE_TRANS, "Debug Packet: %.*s",

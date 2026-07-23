@@ -547,7 +547,7 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
     LIBSSH2_CHANNEL *channel;
     LIBSSH2_SESSION *session;
     unsigned long i, packet_len;
-    const unsigned char *comment = NULL;
+    const char *comment = NULL;
     unsigned long comment_len = 0;
     int rc;
 
@@ -582,7 +582,7 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
                         return LIBSSH2_ERROR_BAD_USE;
                     if(attrs[i].value_len > LIBSSH2_PACKET_MAXPAYLOAD)
                         return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
-                    comment = (const unsigned char *)attrs[i].value;
+                    comment = attrs[i].value;
                     comment_len = attrs[i].value_len;
                     break;
                 }
@@ -981,7 +981,8 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                     }
                     list[keys].attrs[0].name = "comment";
                     list[keys].attrs[0].name_len = sizeof("comment") - 1;
-                    list[keys].attrs[0].value = (char *)pkey->listFetch_s;
+                    list[keys].attrs[0].value =
+                        (const char *)pkey->listFetch_s;
                     list[keys].attrs[0].value_len = comment_len;
                     list[keys].attrs[0].mandatory = 0;
 

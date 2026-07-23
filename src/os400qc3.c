@@ -1994,8 +1994,7 @@ static int try_pem_load(LIBSSH2_SESSION *session,
                              passphrase,
                              &data, &datalen, &blob_offset);
         if(!ret) {
-            ret = (*proc)(session, (const unsigned char *)data, datalen,
-                          passphrase, loadkeydata);
+            ret = (*proc)(session, data, datalen, passphrase, loadkeydata);
             if(!ret) {
                 if(data) {
                     ssh2_explicit_zero(data, datalen);
