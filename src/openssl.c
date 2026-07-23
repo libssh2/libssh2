@@ -1051,6 +1051,7 @@ static int ossl_passphrase_cb(char *buf, int size, int rwflag,
 static unsigned char *ossl_rsa_to_pubkey(LIBSSH2_SESSION *session,
                                          ssh2_rsa_ctx *rsa, size_t *key_len)
 {
+    static const char method_name[] = "ssh-rsa";
     int e_bytes, n_bytes;
     size_t len;
     unsigned char *key = NULL;
@@ -1075,15 +1076,15 @@ static unsigned char *ossl_rsa_to_pubkey(LIBSSH2_SESSION *session,
     n_bytes = BN_num_bytes(n) + 1;
 
     /* Key form is "ssh-rsa" + e + n. */
-    len = 4 + sizeof("ssh-rsa") - 1 + 4 + e_bytes + 4 + n_bytes;
+    len = 4 + sizeof(method_name) - 1 + 4 + e_bytes + 4 + n_bytes;
     key = p = SSH2_ALLOC(session, len);
     if(!key)
         goto fail;
 
-    ssh2_htonu32(p, sizeof("ssh-rsa") - 1); /* Key type. */
+    ssh2_htonu32(p, sizeof(method_name) - 1); /* Key type. */
     p += 4;
-    memcpy(p, "ssh-rsa", sizeof("ssh-rsa") - 1);
-    p += sizeof("ssh-rsa") - 1;
+    memcpy(p, method_name, sizeof(method_name) - 1);
+    p += sizeof(method_name) - 1;
 
     p = ossl_write_bn(p, e, e_bytes);
     p = ossl_write_bn(p, n, n_bytes);
@@ -1102,6 +1103,7 @@ static int ossl_rsa_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
                                   size_t *pubkeydata_len,
                                   EVP_PKEY *pk)
 {
+    static const char method_name[] = "ssh-rsa";
     ssh2_rsa_ctx *rsa = NULL;
     unsigned char *key;
     char *method_buf = NULL;
@@ -1119,7 +1121,7 @@ static int ossl_rsa_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
         /* Assume memory allocation error... what else could it be? */
         goto alloc_error;
 
-    method_buf = SSH2_ALLOC(session, sizeof("ssh-rsa"));
+    method_buf = SSH2_ALLOC(session, sizeof(method_name));
     if(!method_buf)
         goto alloc_error;
 
@@ -1130,7 +1132,7 @@ static int ossl_rsa_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
     RSA_free(rsa);
 #endif
 
-    memcpy(method_buf, "ssh-rsa", sizeof("ssh-rsa"));
+    memcpy(method_buf, method_name, sizeof(method_name));
     *method = method_buf;
 
     *pubkeydata = key;
@@ -1350,6 +1352,7 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
 static unsigned char *ossl_dsa_to_pubkey(LIBSSH2_SESSION *session,
                                          ssh2_dsa_ctx *dsa, size_t *key_len)
 {
+    static const char method_name[] = "ssh-dss";
     int p_bytes, q_bytes, g_bytes, k_bytes;
     size_t len;
     unsigned char *key = NULL;
@@ -1380,16 +1383,16 @@ static unsigned char *ossl_dsa_to_pubkey(LIBSSH2_SESSION *session,
     k_bytes = BN_num_bytes(pub_key) + 1;
 
     /* Key form is "ssh-dss" + p + q + g + pub_key. */
-    len = 4 + sizeof("ssh-dss") - 1 + 4 + p_bytes + 4 + q_bytes + 4 + g_bytes +
-          4 + k_bytes;
+    len = 4 + sizeof(method_name) - 1 + 4 + p_bytes + 4 + q_bytes +
+          4 + g_bytes + 4 + k_bytes;
     key = p = SSH2_ALLOC(session, len);
     if(!key)
         goto fail;
 
-    ssh2_htonu32(p, sizeof("ssh-dss") - 1); /* Key type. */
+    ssh2_htonu32(p, sizeof(method_name) - 1); /* Key type. */
     p += 4;
-    memcpy(p, "ssh-dss", sizeof("ssh-dss") - 1);
-    p += sizeof("ssh-dss") - 1;
+    memcpy(p, method_name, sizeof(method_name) - 1);
+    p += sizeof(method_name) - 1;
 
     p = ossl_write_bn(p, p_bn, p_bytes);
     p = ossl_write_bn(p, q, q_bytes);
@@ -1412,6 +1415,7 @@ static int ossl_dsa_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
                                   size_t *pubkeydata_len,
                                   EVP_PKEY *pk)
 {
+    static const char method_name[] = "ssh-dss";
     ssh2_dsa_ctx *dsa = NULL;
     unsigned char *key;
     char *method_buf = NULL;
@@ -1429,7 +1433,7 @@ static int ossl_dsa_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
         /* Assume memory allocation error... what else could it be ? */
         goto alloc_error;
 
-    method_buf = SSH2_ALLOC(session, sizeof("ssh-dss"));
+    method_buf = SSH2_ALLOC(session, sizeof(method_name));
     if(!method_buf)
         goto alloc_error;
 
@@ -1440,7 +1444,7 @@ static int ossl_dsa_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
     DSA_free(dsa);
 #endif
 
-    memcpy(method_buf, "ssh-dss", sizeof("ssh-dss"));
+    memcpy(method_buf, method_name, sizeof(method_name));
     *method = method_buf;
 
     *pubkeydata = key;
