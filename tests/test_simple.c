@@ -31,7 +31,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#define LIBSSH2_TESTS
 #include "libssh2_priv.h"
 
 #include <stdio.h>
@@ -131,14 +130,13 @@ static int test_ssh2_scp_parse_c_fields(void)
 {
     long mode = -1;
     libssh2_int64_t size = -1;
-    unsigned char long_line[SSH2_SCP_RESPONSE_BUFLEN];
-    size_t prefix_len;
+    char long_line[SSH2_SCP_RESPONSE_BUFLEN];
+    int prefix_len;
     int prc;
     int err = 0;
 
     /* Normal complete line with short name */
-    prc = ssh2_scp_parse_c_fields(
-        (const unsigned char *)"C0644 123 shortname\n", 20, &mode, &size);
+    prc = ssh2_scp_parse_c_fields("C0644 123 shortname\n", 20, &mode, &size);
     if(prc || mode != 420L || size != 123) { /* 0644 octal == 420 */
         fprintf(stderr, "scp_parse short: prc=%d mode=%ld size=%lu\n",
                 prc, mode, (unsigned long)size);
@@ -148,8 +146,7 @@ static int test_ssh2_scp_parse_c_fields(void)
     /* Fields complete without trailing newline (name unfinished) */
     mode = -1;
     size = -1;
-    prc = ssh2_scp_parse_c_fields(
-        (const unsigned char *)"C0755 42 ", 9, &mode, &size);
+    prc = ssh2_scp_parse_c_fields("C0755 42 ", 9, &mode, &size);
     if(prc || mode != 493L || size != 42) { /* 0755 octal == 493 */
         fprintf(stderr, "scp_parse partial-name: prc=%d mode=%ld size=%lu\n",
                 prc, mode, (unsigned long)size);
@@ -157,8 +154,7 @@ static int test_ssh2_scp_parse_c_fields(void)
     }
 
     /* Incomplete size digits still growing */
-    prc = ssh2_scp_parse_c_fields(
-        (const unsigned char *)"C0644 12", 8, &mode, &size);
+    prc = ssh2_scp_parse_c_fields("C0644 12", 8, &mode, &size);
     if(prc != 1) {
         fprintf(stderr, "scp_parse incomplete size: prc=%d (want 1)\n", prc);
         err++;
@@ -168,10 +164,13 @@ static int test_ssh2_scp_parse_c_fields(void)
      * Fixed buffer full of "Cmode size " + long name without newline. Mode and
      * size must still parse so scp_recv can drain the unused basename.
      */
-    prefix_len = (size_t)snprintf((char *)long_line, sizeof(long_line),
-                                  "C0644 99 ");
-    memset(long_line + prefix_len, 'a',
-           sizeof(long_line) - prefix_len);
+    prefix_len = snprintf(long_line, sizeof(long_line), "C0644 99 ");
+    if(prefix_len < 0 || (size_t)prefix_len >= sizeof(long_line)) {
+        fprintf(stderr, "scp_parse long-name: snprintf failed (%d)\n",
+                prefix_len);
+        return 1;
+    }
+    memset(long_line + prefix_len, 'a', sizeof(long_line) - (size_t)prefix_len);
     mode = -1;
     size = -1;
     prc = ssh2_scp_parse_c_fields(long_line, sizeof(long_line), &mode, &size);
@@ -183,8 +182,7 @@ static int test_ssh2_scp_parse_c_fields(void)
     }
 
     /* Malformed: bad mode */
-    prc = ssh2_scp_parse_c_fields(
-        (const unsigned char *)"Cxyz 1 name\n", 12, &mode, &size);
+    prc = ssh2_scp_parse_c_fields("Cxyz 1 name\n", 12, &mode, &size);
     if(prc != -1) {
         fprintf(stderr, "scp_parse bad mode: prc=%d (want -1)\n", prc);
         err++;

@@ -68,7 +68,7 @@
  *
  * Returns SCP_C_FIELDS_OK, SCP_C_FIELDS_INCOMPLETE, or SCP_C_FIELDS_MALFORMED.
  */
-int ssh2_scp_parse_c_fields(const unsigned char *buf, size_t len,
+int ssh2_scp_parse_c_fields(const char *buf, size_t len,
                             long *mode_out, libssh2_int64_t *size_out)
 {
     size_t i;
@@ -695,9 +695,9 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 int prc;
 
                 /* Complete line in the fixed buffer (common case). */
-                prc = ssh2_scp_parse_c_fields(session->scpRecv_response,
-                                              session->scpRecv_response_len,
-                                              &mode, &size);
+                prc = ssh2_scp_parse_c_fields(
+                    (const char *)session->scpRecv_response,
+                    session->scpRecv_response_len, &mode, &size);
                 if(prc != SCP_C_FIELDS_OK) {
                     ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                              "Invalid response from SCP server");
@@ -722,9 +722,9 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                  * we have and drain the rest of the name until newline
                  * (basename is unused by libssh2).
                  */
-                prc = ssh2_scp_parse_c_fields(session->scpRecv_response,
-                                              session->scpRecv_response_len,
-                                              &mode, &size);
+                prc = ssh2_scp_parse_c_fields(
+                    (const char *)session->scpRecv_response,
+                    session->scpRecv_response_len, &mode, &size);
                 if(prc == SCP_C_FIELDS_OK) {
                     session->scpRecv_mode = mode;
                     session->scpRecv_size = size;

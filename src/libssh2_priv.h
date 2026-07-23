@@ -672,7 +672,7 @@ struct _LIBSSH2_PUBLICKEY {
 #define SSH2_SCP_RESPONSE_BUFLEN     256
 
 /* Parse SCP "C" response mode/size; used by scp_recv and unit tests. */
-int ssh2_scp_parse_c_fields(const unsigned char *buf, size_t len,
+int ssh2_scp_parse_c_fields(const char *buf, size_t len,
                             long *mode_out, libssh2_int64_t *size_out);
 
 struct flags {
