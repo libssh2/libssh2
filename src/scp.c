@@ -123,10 +123,10 @@
    until then it is kept static and in this source file.
  */
 static size_t scp_shell_quotearg(const char *path,
-                                 unsigned char *buf, size_t bufsize)
+                                 char *buf, size_t bufsize)
 {
     const char *src;
-    unsigned char *dst, *endp;
+    char *dst, *endp;
 
     /*
      * Processing States:

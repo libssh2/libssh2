@@ -935,7 +935,7 @@ struct _LIBSSH2_SESSION {
 
     /* State variables used in libssh2_scp_recv2() */
     ssh2_NB_states scpRecv_state;
-    unsigned char *scpRecv_command;
+    char *scpRecv_command;
     size_t scpRecv_command_len;
     unsigned char scpRecv_response[SSH2_SCP_RESPONSE_BUFLEN];
     size_t scpRecv_response_len;
@@ -947,7 +947,7 @@ struct _LIBSSH2_SESSION {
 
     /* State variables used in libssh2_scp_send_ex() */
     ssh2_NB_states scpSend_state;
-    unsigned char *scpSend_command;
+    char *scpSend_command;
     size_t scpSend_command_len;
     unsigned char scpSend_response[SSH2_SCP_RESPONSE_BUFLEN];
     size_t scpSend_response_len;
