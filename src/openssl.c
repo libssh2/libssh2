@@ -1405,7 +1405,7 @@ static int ossl_dsa_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
     dsa = EVP_PKEY_get1_DSA(pk);
 #endif
     if(!dsa)
-        /* Assume memory allocation error... what else could it be ? */
+        /* Assume memory allocation error... what else could it be? */
         goto alloc_error;
 
     method_buf = SSH2_ALLOC(session, sizeof(method_name));
