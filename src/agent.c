@@ -621,8 +621,10 @@ static int agent_connect_unix(LIBSSH2_AGENT *agent)
             rc = (func)(socket,                                           \
                         (char *)(buffer) + finished, (length) - finished, \
                         flags, abstract);                                 \
-            if(rc <= 0)                                                   \
-                return rc ? rc : LIBSSH2_ERROR_SOCKET_DISCONNECT;         \
+            if(rc < 0)                                                    \
+                return rc;                                                \
+            else if(!rc)                                                  \
+                return LIBSSH2_ERROR_SOCKET_DISCONNECT;                   \
                                                                           \
             finished += rc;                                               \
         }                                                                 \
