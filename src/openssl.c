@@ -418,8 +418,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
 #else
     ret = RSA_verify(nid_type,
                      hash, (unsigned int)hash_len,
-                     (const unsigned char *)sig, (unsigned int)sig_len,
-                     rsa);
+                     sig, (unsigned int)sig_len, rsa);
 #endif
 
     free(hash);
@@ -1747,8 +1746,7 @@ static int ossl_ed25519_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     /* first 32 bytes of priv_key is the private key, the last 32 bytes are
        the public key */
     ctx = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL,
-                                       (const unsigned char *)priv_key,
-                                       SSH2_ED25519_KEY_LEN);
+                                       priv_key, SSH2_ED25519_KEY_LEN);
 
     /* comment */
     if(ssh2_get_string(decrypted, &buf, &tmp_len)) {
@@ -1883,8 +1881,7 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
     }
 
     ctx = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, NULL,
-                                      (const unsigned char *)pub_key,
-                                      SSH2_ED25519_KEY_LEN);
+                                      pub_key, SSH2_ED25519_KEY_LEN);
 
     ssh2_deb((session, LIBSSH2_TRACE_AUTH,
               "Computing public key from ED25519 private key envelope"));
