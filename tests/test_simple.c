@@ -139,8 +139,9 @@ static int test_ssh2_scp_parse_c_fields(void)
     prc = ssh2_scp_parse_c_fields(
         (const unsigned char *)"C0644 123 shortname\n", 20, &mode, &size);
     if(prc || mode != 420L || size != 123) { /* 0644 octal == 420 */
-        fprintf(stderr, "scp_parse short: prc=%d mode=%ld size=%lld\n",
-                prc, mode, (long long)size);
+        fprintf(stderr, "scp_parse short: prc=%d mode=%ld size=%"
+                SSH2_INT64_T_FORMAT "\n",
+                prc, mode, size);
         err++;
     }
 
@@ -150,8 +151,9 @@ static int test_ssh2_scp_parse_c_fields(void)
     prc = ssh2_scp_parse_c_fields(
         (const unsigned char *)"C0755 42 ", 9, &mode, &size);
     if(prc || mode != 493L || size != 42) { /* 0755 octal == 493 */
-        fprintf(stderr, "scp_parse partial-name: prc=%d mode=%ld size=%lld\n",
-                prc, mode, (long long)size);
+        fprintf(stderr, "scp_parse partial-name: prc=%d mode=%ld size=%"
+                SSH2_INT64_T_FORMAT "\n",
+                prc, mode, size);
         err++;
     }
 
@@ -176,8 +178,9 @@ static int test_ssh2_scp_parse_c_fields(void)
     prc = ssh2_scp_parse_c_fields(long_line, sizeof(long_line), &mode, &size);
     if(prc || mode != 420L || size != 99) { /* 0644 octal == 420 */
         fprintf(stderr,
-                "scp_parse long-name buffer: prc=%d mode=%ld size=%lld\n",
-                prc, mode, (long long)size);
+                "scp_parse long-name buffer: prc=%d mode=%ld size=%"
+                SSH2_INT64_T_FORMAT "\n",
+                prc, mode, size);
         err++;
     }
 
