@@ -33,7 +33,7 @@
 #include "libssh2_priv.h"
 #include "mac.h"
 
-#if defined(LIBSSH2_AES_GCM) || \
+#if LIBSSH2_AES_GCM || \
     (defined(LIBSSH2DEBUG) && defined(LIBSSH2_MAC_NONE_INSECURE))
 static int mac_method_none_hash(LIBSSH2_SESSION *session,
                                 unsigned char *buf, uint32_t seqno,
