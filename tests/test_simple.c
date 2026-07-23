@@ -31,6 +31,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#define LIBSSH2_TESTS
 #include "libssh2_priv.h"
 
 #include <stdio.h>
