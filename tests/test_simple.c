@@ -124,6 +124,74 @@ static int test_ssh2_dh_validate(void)
     return err > 0;
 }
 
+/* Return codes match scp.c (SCP_C_FIELDS_*). */
+static int test_ssh2_scp_parse_c_fields(void)
+{
+    long mode = -1;
+    libssh2_int64_t size = -1;
+    unsigned char long_line[SSH2_SCP_RESPONSE_BUFLEN];
+    size_t prefix_len;
+    size_t i;
+    int prc;
+    int err = 0;
+
+    /* Normal complete line with short name */
+    prc = ssh2_scp_parse_c_fields(
+        (const unsigned char *)"C0644 123 shortname\n", 20, &mode, &size);
+    if(prc || mode != 420L || size != 123) { /* 0644 octal == 420 */
+        fprintf(stderr, "scp_parse short: prc=%d mode=%ld size=%lld\n",
+                prc, mode, (long long)size);
+        err++;
+    }
+
+    /* Fields complete without trailing newline (name unfinished) */
+    mode = -1;
+    size = -1;
+    prc = ssh2_scp_parse_c_fields(
+        (const unsigned char *)"C0755 42 ", 9, &mode, &size);
+    if(prc || mode != 493L || size != 42) { /* 0755 octal == 493 */
+        fprintf(stderr, "scp_parse partial-name: prc=%d mode=%ld size=%lld\n",
+                prc, mode, (long long)size);
+        err++;
+    }
+
+    /* Incomplete size digits still growing */
+    prc = ssh2_scp_parse_c_fields(
+        (const unsigned char *)"C0644 12", 8, &mode, &size);
+    if(prc != 1) {
+        fprintf(stderr, "scp_parse incomplete size: prc=%d (want 1)\n", prc);
+        err++;
+    }
+
+    /*
+     * Reproduce #1738 shape: fixed buffer full of "Cmode size " + long name
+     * without newline. Mode and size must still parse so scp_recv can drain.
+     */
+    prefix_len = (size_t)snprintf((char *)long_line, sizeof(long_line),
+                                  "C0644 99 ");
+    for(i = prefix_len; i < sizeof(long_line); i++)
+        long_line[i] = 'a';
+    mode = -1;
+    size = -1;
+    prc = ssh2_scp_parse_c_fields(long_line, sizeof(long_line), &mode, &size);
+    if(prc || mode != 420L || size != 99) { /* 0644 octal == 420 */
+        fprintf(stderr,
+                "scp_parse long-name buffer: prc=%d mode=%ld size=%lld\n",
+                prc, mode, (long long)size);
+        err++;
+    }
+
+    /* Malformed: bad mode */
+    prc = ssh2_scp_parse_c_fields(
+        (const unsigned char *)"Cxyz 1 name\n", 12, &mode, &size);
+    if(prc != -1) {
+        fprintf(stderr, "scp_parse bad mode: prc=%d (want -1)\n", prc);
+        err++;
+    }
+
+    return err > 0;
+}
+
 int main(int argc, char *argv[])
 {
     LIBSSH2_SESSION *session;
@@ -145,6 +213,7 @@ int main(int argc, char *argv[])
 
     rc = test_ssh2_base64_decode(session);
     rc |= test_ssh2_dh_validate();
+    rc |= test_ssh2_scp_parse_c_fields();
 
     libssh2_session_free(session);
 
