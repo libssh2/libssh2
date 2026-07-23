@@ -43,7 +43,7 @@ static void kex_value_hash(ssh2_hash_alg hash_alg, size_t digest_len,
                            LIBSSH2_SESSION *session,
                            struct kmdhgGPshakex_state *exchange_state,
                            unsigned char **data, size_t data_len,
-                           const unsigned char *version)
+                           const void *version)
 {
     if(!digest_len || digest_len > MAX_SHA_DIGEST_LEN) {
         *data = NULL;
@@ -223,15 +223,13 @@ static int kex_finish(LIBSSH2_SESSION *session,
         int free_iv = 0, free_secret = 0;
 
         kex_value_hash(hash_alg, digest_len, session, exchange_state,
-                       &iv, session->local.crypt->iv_len,
-                       (const unsigned char *)"A");
+                       &iv, session->local.crypt->iv_len, "A");
         if(!iv)
             return ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                             "Unable to generate IV for key exchange");
 
         kex_value_hash(hash_alg, digest_len, session, exchange_state,
-                       &secret, session->local.crypt->secret_len,
-                       (const unsigned char *)"C");
+                       &secret, session->local.crypt->secret_len, "C");
         if(!secret) {
             SSH2_FREE(session, iv);
             return ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
@@ -269,15 +267,13 @@ static int kex_finish(LIBSSH2_SESSION *session,
         int free_iv = 0, free_secret = 0;
 
         kex_value_hash(hash_alg, digest_len, session, exchange_state,
-                       &iv, session->remote.crypt->iv_len,
-                       (const unsigned char *)"B");
+                       &iv, session->remote.crypt->iv_len, "B");
         if(!iv)
             return ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                             "Failed to derive remote IV during key exchange");
 
         kex_value_hash(hash_alg, digest_len, session, exchange_state,
-                       &secret, session->remote.crypt->secret_len,
-                       (const unsigned char *)"D");
+                       &secret, session->remote.crypt->secret_len, "D");
         if(!secret) {
             SSH2_FREE(session, iv);
             return ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
@@ -314,8 +310,7 @@ static int kex_finish(LIBSSH2_SESSION *session,
         int free_key = 0;
 
         kex_value_hash(hash_alg, digest_len, session, exchange_state,
-                       &key, session->local.mac->key_len,
-                       (const unsigned char *)"E");
+                       &key, session->local.mac->key_len, "E");
         if(!key)
             return ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                             "Unable to derive client-to-server MAC key");
@@ -338,8 +333,7 @@ static int kex_finish(LIBSSH2_SESSION *session,
         int free_key = 0;
 
         kex_value_hash(hash_alg, digest_len, session, exchange_state,
-                       &key, session->remote.mac->key_len,
-                       (const unsigned char *)"F");
+                       &key, session->remote.mac->key_len, "F");
         if(!key)
             return ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                             "Unable to derive server-to-client MAC key");
