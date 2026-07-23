@@ -78,12 +78,12 @@ static int test_ssh2_dh_validate(void)
     int err = 0;
 
     for(i = 0; i < SSH2_ARRAYSIZE(tests); i++) {
+        struct tbn t = tests[i];
         int got;
 #ifdef LIBSSH2_LIBGCRYPT
-        int j = atoi(tests[i].f);
-        gcry_mpi_t f = gcry_mpi_set_ui(NULL, (unsigned long)(j < 0 ? -j : j));
-        gcry_mpi_t p = gcry_mpi_set_ui(NULL, (unsigned long)atoi(tests[i].p));
-        if(tests[i].f[0] == '-')
+        gcry_mpi_t f = gcry_mpi_set_ui(NULL, (unsigned long)abs(atoi(t.f)));
+        gcry_mpi_t p = gcry_mpi_set_ui(NULL, (unsigned long)atoi(t.p));
+        if(t.f[0] == '-')
             gcry_mpi_neg(f, f);
         got = ssh2_dh_validate(f, p);
         gcry_mpi_release(f);
@@ -92,8 +92,8 @@ static int test_ssh2_dh_validate(void)
         mbedtls_mpi f, p;
         mbedtls_mpi_init(&f);
         mbedtls_mpi_init(&p);
-        if(mbedtls_mpi_read_string(&f, 10, tests[i].f) ||
-           mbedtls_mpi_read_string(&p, 10, tests[i].p))
+        if(mbedtls_mpi_read_string(&f, 10, t.f) ||
+           mbedtls_mpi_read_string(&p, 10, t.p))
             got = -9;
         else
             got = ssh2_dh_validate(&f, &p);
@@ -102,21 +102,21 @@ static int test_ssh2_dh_validate(void)
 #elif defined(LIBSSH2_OPENSSL) || \
     (defined(LIBSSH2_WOLFSSL) && LIBWOLFSSL_VERSION_HEX >= 0x05006000)
         BIGNUM *f = BN_new(), *p = BN_new();
-        if(!BN_dec2bn(&f, tests[i].f) ||
-           !BN_dec2bn(&p, tests[i].p))
+        if(!BN_dec2bn(&f, t.f) ||
+           !BN_dec2bn(&p, t.p))
             got = -9;
         else
             got = ssh2_dh_validate(f, p);
         BN_free(f);
         BN_free(p);
 #else
-        got = tests[i].expected;
+        got = t.expected;
 #endif
-        if(got != tests[i].expected) {
+        if(got != t.expected) {
             fprintf(stderr,
                     "ssh2_dh_validate/%lu: f=%s p=%s: expected %d got %d\n",
                     (unsigned long)i,
-                    tests[i].f, tests[i].p, tests[i].expected, got);
+                    t.f, t.p, t.expected, got);
             err++;
         }
     }
