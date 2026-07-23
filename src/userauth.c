@@ -1998,9 +1998,8 @@ static int userauth_keyboard_interactive(
             if(userauth_keyboard_interactive_decode_info_request(session) < 0)
                 goto cleanup;
 
-            response_callback((const char *)session->userauth_kybd_auth_name,
+            response_callback(session->userauth_kybd_auth_name,
                               (int)session->userauth_kybd_auth_name_len,
-                              (const char *)
                               session->userauth_kybd_auth_instruction,
                               (int)session->userauth_kybd_auth_instruction_len,
                               session->userauth_kybd_num_prompts,

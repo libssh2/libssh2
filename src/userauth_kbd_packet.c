@@ -57,7 +57,7 @@ int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
     ssh2_get_byte(&decoded, &packet_type);
 
     /* string    name (ISO-10646 UTF-8) */
-    if(ssh2_copy_string(session, &decoded,
+    if(ssh2_copy_string(session, &decoded, (unsigned char **)
                         &session->userauth_kybd_auth_name,
                         &session->userauth_kybd_auth_name_len) == -1) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
@@ -67,7 +67,7 @@ int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
     }
 
     /* string    instruction (ISO-10646 UTF-8) */
-    if(ssh2_copy_string(session, &decoded,
+    if(ssh2_copy_string(session, &decoded, (unsigned char **)
                         &session->userauth_kybd_auth_instruction,
                         &session->userauth_kybd_auth_instruction_len) == -1) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
