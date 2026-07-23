@@ -31,15 +31,11 @@ reference to the security nature of the commit if done prior to the public
 announcement.
 
 - The person discovering the issue, the reporter, reports the vulnerability
-  privately via <https://github.com/libssh2/libssh2/security>. That is an email
-  alias that reaches a handful of selected and trusted people.
+  privately via <https://github.com/libssh2/libssh2/security>.
 
 - Messages that do not relate to the reporting or managing of an undisclosed
   security vulnerability in libssh2 are ignored and no further action is
   required.
-
-- A person in the security team sends an email to the original reporter to
-  acknowledge the report.
 
 - The security team investigates the report and either rejects it or accepts
   it.

@@ -10,8 +10,7 @@ See [SECURITY.md](https://github.com/libssh2/libssh2/blob/master/docs/SECURITY.m
 
 ## Reporting a Vulnerability
 
-We accept reports via
-https://github.com/libssh2/libssh2/security
+We accept reports via <https://github.com/libssh2/libssh2/security>.
 
 **Do not submit suspected security issues in the public bug tracker!**
 
