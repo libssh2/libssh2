@@ -299,11 +299,11 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
             return NULL;
         }
 
-        ssh2_snprintf((char *)session->scpRecv_command,
+        ssh2_snprintf(session->scpRecv_command,
                       session->scpRecv_command_len,
                       "scp -%sf ", sb ? "p" : "");
 
-        cmd_len = strlen((const char *)session->scpRecv_command);
+        cmd_len = strlen(session->scpRecv_command);
 
         if(!session->flag.quote_paths) {
             size_t path_len;
@@ -354,7 +354,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
         /* Request SCP for the desired file */
         rc = ssh2_channel_process_startup(session->scpRecv_channel, "exec",
                                           sizeof("exec") - 1,
-                                          (char *)session->scpRecv_command,
+                                          session->scpRecv_command,
                                           session->scpRecv_command_len);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
@@ -838,11 +838,11 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
             return NULL;
         }
 
-        ssh2_snprintf((char *)session->scpSend_command,
+        ssh2_snprintf(session->scpSend_command,
                       session->scpSend_command_len,
                       "scp -%st ", (mtime || atime) ? "p" : "");
 
-        cmd_len = strlen((const char *)session->scpSend_command);
+        cmd_len = strlen(session->scpSend_command);
 
         if(!session->flag.quote_paths) {
             size_t path_len;
@@ -893,7 +893,7 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
         /* Request SCP for the desired file */
         rc = ssh2_channel_process_startup(session->scpSend_channel, "exec",
                                           sizeof("exec") - 1,
-                                          (char *)session->scpSend_command,
+                                          session->scpSend_command,
                                           session->scpSend_command_len);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
