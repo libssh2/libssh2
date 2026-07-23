@@ -55,7 +55,7 @@
 /* ssh2_scp_parse_c_fields() results */
 #define SCP_C_FIELDS_OK          0
 #define SCP_C_FIELDS_INCOMPLETE  1
-#define SCP_C_FIELDS_MALFORMED  (-1)
+#define SCP_C_FIELDS_MALFORMED   (-1)
 
 /*
  * Parse mode and size from an SCP "C" response line fragment.
