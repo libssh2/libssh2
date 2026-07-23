@@ -423,11 +423,11 @@ static int mac_method_none_dtor(LIBSSH2_SESSION *session, void **abstract)
     return 0;
 }
 
-/* Stub for chacha20-poly1305@openssh.com and aes256-gcm@openssh.com crypto
-   types, which have an integrated HMAC method. This must not be added to
-   mac_methods[] since it cannot be negotiated separately. */
+/* Stub for AEAD ciphers which provide an integrated authentication tag.
+   This must not be added to mac_methods[] since it cannot be negotiated
+   separately. */
 static const struct mac_method mac_method_hmac_integrated = {
-    "INTEGRATED-HMAC",  /* made up name for display only */
+    "INTEGRATED-MAC",  /* made up name for display only */
     16,
     16,
     mac_method_none_init,
