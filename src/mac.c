@@ -34,6 +34,7 @@
 #include "mac.h"
 
 #if defined(LIBSSH2DEBUG) && defined(LIBSSH2_MAC_NONE_INSECURE)
+#warning "mac: no MAC enabled. DO NOT USE."
 /*
  * Minimalist MAC: No MAC. DO NOT USE.
  *

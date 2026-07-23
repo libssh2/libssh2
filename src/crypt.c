@@ -37,6 +37,7 @@
 #include <assert.h>
 
 #if defined(LIBSSH2DEBUG) && defined(LIBSSH2_CRYPT_NONE_INSECURE)
+#warning "crypt: no encryption method enabled. DO NOT USE."
 /*
  * Minimalist cipher: no encryption. DO NOT USE.
  *
