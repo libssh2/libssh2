@@ -198,8 +198,7 @@ static int agent_transact_pageant(LIBSSH2_AGENT *agent,
                         "failed to open pageant filemap for writing");
     }
 
-    ssh2_store_str(&p2, (const char *)transctx->request,
-                   transctx->request_len);
+    ssh2_store_str(&p2, transctx->request, transctx->request_len);
 
     cds.dwData = PAGEANT_COPYDATA_ID;
     cds.cbData = (DWORD)(1 + strlen(mapname));
@@ -779,10 +778,10 @@ static int agent_sign(LIBSSH2_SESSION *session,
 
         *s++ = SSH2_AGENTC_SIGN_REQUEST;
         /* key blob */
-        ssh2_store_str(&s, (const char *)identity->external.blob,
-                       identity->external.blob_len);
+        ssh2_store_str(&s, identity->external.blob,
+                           identity->external.blob_len);
         /* data */
-        ssh2_store_str(&s, (const char *)data, data_len);
+        ssh2_store_str(&s, data, data_len);
 
         /* flags */
         if(session->userauth_pblc_method && *session->userauth_pblc_method) {

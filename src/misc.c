@@ -256,7 +256,7 @@ void ssh2_store_u64(unsigned char **buf, libssh2_uint64_t value)
     *buf += sizeof(libssh2_uint64_t);
 }
 
-int ssh2_store_str(unsigned char **buf, const char *str, size_t len)
+int ssh2_store_str(unsigned char **buf, const void *str, size_t len)
 {
     uint32_t len_stored = (uint32_t)len;
 
@@ -270,8 +270,8 @@ int ssh2_store_str(unsigned char **buf, const char *str, size_t len)
     return len_stored == len;
 }
 
-int ssh2_store_hybrid_str(unsigned char **buf, const char *str_1,
-                          size_t len_1, const char *str_2, size_t len_2)
+int ssh2_store_hybrid_str(unsigned char **buf, const void *str_1,
+                          size_t len_1, const void *str_2, size_t len_2)
 {
     uint32_t len_stored;
 

@@ -1788,8 +1788,8 @@ static int kex_method_ecdh_key_exchange(
 
         key_state->request[0] = SSH2_MSG_KEX_ECDH_INIT;
         s = key_state->request + 1;
-        ssh2_store_str(&s, (const char *)key_state->public_key_oct,
-                       key_state->public_key_oct_len);
+        ssh2_store_str(&s, key_state->public_key_oct,
+                           key_state->public_key_oct_len);
         key_state->request_len = key_state->public_key_oct_len + 5;
 
         ssh2_deb((session, LIBSSH2_TRACE_KEX,
@@ -2142,11 +2142,10 @@ static int kex_method_mlkem_nistp_key_exchange(
 
         key_state->request[0] = SSH2_MSG_KEX_ECDH_INIT;
         s = key_state->request + 1;
-        ssh2_store_hybrid_str(&s,
-                              (const char *)key_state->mlkem_public_key,
-                              mlkem_public_key_len,
-                              (const char *)key_state->public_key_oct,
-                              key_state->public_key_oct_len);
+        ssh2_store_hybrid_str(&s, key_state->mlkem_public_key,
+                                  mlkem_public_key_len,
+                                  key_state->public_key_oct,
+                                  key_state->public_key_oct_len);
         key_state->request_len = mlkem_public_key_len +
                                  key_state->public_key_oct_len + 5;
 
@@ -2415,8 +2414,8 @@ static int kex_method_curve25519_key_exchange(
 
         key_state->request[0] = SSH2_MSG_KEX_ECDH_INIT;
         s = key_state->request + 1;
-        ssh2_store_str(&s, (const char *)key_state->curve25519_public_key,
-                       SSH2_ED25519_KEY_LEN);
+        ssh2_store_str(&s, key_state->curve25519_public_key,
+                           SSH2_ED25519_KEY_LEN);
         key_state->request_len = SSH2_ED25519_KEY_LEN + 5;
 
         ssh2_deb((session, LIBSSH2_TRACE_KEX, "Initiating curve25519 SHA2"));

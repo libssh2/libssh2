@@ -855,8 +855,7 @@ int libssh2_sign_sk(LIBSSH2_SESSION *session,
 
             if(*sig) {
                 p = *sig;
-                ssh2_store_str(&p, (const char *)sig_info.sig_r,
-                               sig_info.sig_r_len);
+                ssh2_store_str(&p, sig_info.sig_r, sig_info.sig_r_len);
             }
             else {
                 ssh2_deb((session, LIBSSH2_ERROR_ALLOC,
@@ -974,8 +973,7 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         ssh2_store_str(&session->userauth_host_s, "hostbased", 9);
         ssh2_store_str(&session->userauth_host_s,
                        session->userauth_host_method, host_method_len);
-        ssh2_store_str(&session->userauth_host_s, (const char *)pubkeydata,
-                       pubkeydata_len);
+        ssh2_store_str(&session->userauth_host_s, pubkeydata, pubkeydata_len);
         SSH2_FREE(session, pubkeydata);
         ssh2_store_str(&session->userauth_host_s, hostname, hostname_len);
         ssh2_store_str(&session->userauth_host_s, local_username,
@@ -1040,7 +1038,7 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                        session->userauth_host_method, host_method_len);
         SSH2_SAFEFREE(session, session->userauth_host_method);
 
-        ssh2_store_str(&session->userauth_host_s, (const char *)sig, sig_len);
+        ssh2_store_str(&session->userauth_host_s, sig, sig_len);
         SSH2_FREE(session, sig);
 
         ssh2_deb((session, LIBSSH2_TRACE_AUTH,
@@ -1501,7 +1499,7 @@ retry_auth:
         *s++ = 0;
 
         ssh2_store_str(&s, session->userauth_pblc_method, method_len);
-        ssh2_store_str(&s, (const char *)pubkeydata, pubkeydata_len);
+        ssh2_store_str(&s, pubkeydata, pubkeydata_len);
 
         ssh2_deb((session, LIBSSH2_TRACE_AUTH,
                   "Attempting publickey authentication"));
@@ -1587,8 +1585,7 @@ retry_auth:
                             "Unable to allocate memory for "
                             "userauth-publickey signed data");
 
-        ssh2_store_str(&s, (const char *)session->session_id,
-                       session->session_id_len);
+        ssh2_store_str(&s, session->session_id, session->session_id_len);
 
         memcpy(s, session->userauth_pblc_packet,
                session->userauth_pblc_packet_len);
@@ -1663,7 +1660,7 @@ retry_auth:
             ssh2_store_u32(&s, (uint32_t)(4 + method_len +
                                           4 + sig_len));
             ssh2_store_str(&s, session->userauth_pblc_method, method_len);
-            ssh2_store_str(&s, (const char *)sig, sig_len);
+            ssh2_store_str(&s, sig, sig_len);
         }
 
         SSH2_SAFEFREE(session, session->userauth_pblc_method);
