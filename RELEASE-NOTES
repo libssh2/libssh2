@@ -226,7 +226,10 @@ This release includes the following enhancements and bugfixes:
 - configure: drop using m4_set to simplify (bcc9292a #1921)
 - configure: fix `--without-lib*-prefix` when `lib*` is detected anyway (ffd0c982 #1506 #1505 #1384 follow: d19b6190)
 - configure: drop duplicate `-lmbedcrypto` from `LIBS` (bd8caa19 #1507)
+- crypt: fix length underflow on short chacha20-poly1305 packets (15257c08 #2389 PVR: GHSA-x4g5-mgfc-cxvv)
+- crypt: fix propagating `get_len()` error code in `ssh2_transport_read()` (12a8bda8 #2393 #2392 #1426 follow: 492bc543)
 - crypt: fix unused static function warnings when most crypto is disabled (a8dd5a2c #1981)
+- crypto: rename `ssh2_dh_is_valid()` to `ssh2_dh_validate()` (fe667c60 #2406 #2402 #2239)
 - crypto: de-duplicate/merge most file/blob codepaths (b560cb4c #2379 #2362 #2359 #2354 #1652)
 - crypto: sync arg name and order with rest of code in `ssh2_ecdsa_create_key()` (c24cce92 #2273)
 - crypto: de-duplicate `ssh2_bn_ctx*` macro stubs into `crypto.h` (57f95150 #2272)
@@ -406,6 +409,8 @@ This release includes the following enhancements and bugfixes:
 - INSTALL-CMAKE: update minimum version and links, drop old cmake instructions (fd43ce89 #1873 #1839)
 - INSTALL-CMAKE: fixes build result directories (98cd10d1 #1617)
 - keepalive: verify if `session` is non-NULL (4c8ff933 #2345)
+- kex: replace magic number and `strlen()` with `sizeof()` (88c5fd98 #2400)
+- kex: fix misleading error codes returned by `ssh2_kex_exchange()` (b956943b #2399)
 - kex: fix indent in previous commit (6fe98ab5)
 - kex: fail early on NULL session in `libssh2_session_supported_algs()` (4cb5a711 #2346)
 - kex: merge two `*_curve_type()` local functions (8561585d #2274 #1644)
@@ -490,6 +495,7 @@ This release includes the following enhancements and bugfixes:
 - mbedtls: fix AES-CBC backend: avoid BAD_INPUT_DATA during cipher_finish() in SSH handshake (26f57efd #1758 #793)
 - mbedtls: fix using garbage value (reported by clang-tidy) (16ce0ec8 #1729 #132 follow: 186f1a2d)
 - mbedtls: Bug fix for gen_publickey_from_rsa (6746b789 #1560)
+- mbedtls, openssl: dedupe key type literals into static const strings (cd04e2ee #2405)
 - mbedtls, openssl: make `ssh2_hmac_update()` a macro wrapper (c177d6c3 #2254)
 - mbedtls, openssl: verify success of low-level DH operations (d837d563 #2155)
 - mbedtls, wincng: make var names consistent, drop magic numbers (4d4f15ba #2376)
@@ -507,6 +513,9 @@ This release includes the following enhancements and bugfixes:
 - openssh_fixture: trim all right-padding whitespace from external command results (879aac02 #2142 follow: cf80f2f4)
 - openssh_fixture: increase `/proc/self/cgroup` read buffer (revert) (540f248c)
 - openssh_fixture: increase `/proc/self/cgroup` read buffer (826c9f09 #1688)
+- openssl: replace `ossl_*_openssh_priv_new()` functions with `ossl_key_from_openssh()` (ac9a71a7 #2396 #2394 #2379)
+- openssl: merge `ossl_key_from_openssh_*()` file/blob functions (3bb068e4 #2394 #2388 #2379 #2354)
+- openssl: fix importing DSA private keys from blob (e295f4ff #2395 #248 #2394 follow: 03092292)
 - openssl: avoid more magic numbers (22b9472b #2374)
 - openssl: sync more patterns, avoid magic numbers (fe12685f #2372)
 - openssl: sync variable names and patterns in two ed25519 functions (93008915 #2371)
@@ -571,6 +580,8 @@ This release includes the following enhancements and bugfixes:
 - packet: authagent_open: fix failure packet length (31ec5a8b #1701)
 - packet: fix type mismatch in "reason code" (13a71451 #1706)
 - packet.h: delete two orphan function prototypes (db8e79fa #2267)
+- pem: null-terminate decrypted OpenSSH key buffer to fix OOB read (0fcb6625 #2403)
+- pem: merge file/blob codepaths (7bf902e5 #2388 #2379 #2362 #2359 #2354)
 - pem: fix `ssh2_pem_parse_blob()` memleak in no-MD5 builds (3b84c15c #2390 #2388)
 - pem: sync blob argument names with rest of code (88025fcf #2387)
 - pem: Fix incorrect line clearing (d78905f6 #2137 #2130 #1746)
@@ -586,6 +597,7 @@ This release includes the following enhancements and bugfixes:
 - pem: add validation for data length and padding (00b17231 #1797)
 - pem: fix possible double free if key in error cases (2fb5803c #1550 #1549)
 - pem, wincng: fix checking for OpenSSH PEM magic string (56c12e9d #2022 #248 #2014 #1315 follow: 03092292 follow: 3e723437)
+- publickey: fix `attr` memleak on error in `libssh2_publickey_list_fetch()` (c2f1a3a2 #2380 #2368)
 - publickey: honor key type length in traces (865c86a8 #2386)
 - publickey: fix potential heap OOB reads in `publickey_init()` (edec1cce #2197 #2147)
 - publickey: sanitize public API input arguments (d47298d5 #2340)
@@ -637,6 +649,7 @@ This release includes the following enhancements and bugfixes:
 - sftp: downcast packet length checks #1707 (c097c681 #1714 #1707)
 - sftp: add input bounds checking to SFTP API (ff50682c #1679)
 - spacecheck: update, fix new issues found (95d7a8b9 #1851)
+- src: add `static` to const strings and tables, where missing (a4a53cc5 #2404)
 - src: drop method length (8bd003b8 #2384 #2381 #2369)
 - src: make sure `method` buffers are null-terminated (84485961 #2381 #2369)
 - src: rename file/blob key import/parse functions for consistency (6a951168 #2362)
@@ -708,6 +721,7 @@ This release includes the following enhancements and bugfixes:
 - tests: delete CMake ExternalProject integration test (8011f901 #1522 #1510 #1116)
 - tests/.gitignore: delete two stray entries (1bc6e2c3 #1718)
 - tests/openssh_fixture: fix to close socket on connect failure (5ddc5997 #1855)
+- tidy-up: rename some args for consistency (10013516 #2397)
 - tidy-up: prefer `\0` as null-terminator, drop newlines (179348c6 #2383)
 - tidy-up: miscellaneous (27177ead #2367)
 - tidy-up: fix variable names, improve consistency, other nits (7c8d28d8 #2353)
@@ -755,6 +769,7 @@ This release includes the following enhancements and bugfixes:
 - tidy-up: `unsigned const char` -> `const unsigned char` (114923f1 #1487)
 - tidy-up: spelling (91b0e099)
 - TODO.md: fix typo, add missing punctuation (c25df87a)
+- transport: fix to translate low-level crypt result to LIBSSH2 error code (2877fa64 #2392 #2389 #1426 follow: 492bc543)
 - transport: fix two memleaks on error paths in `transport_fullpacket()` (d69ee04e #2343 #2198)
 - transport: fix potential heap overflow on ETM decrypt (42e33d81 #2198 PVR: GHSA-6c79-444r-wx26)
 - transport: fix potential deadlock in `ssh2_transport_send()` (5131a70a #2206 #2110)
@@ -850,22 +865,24 @@ This release includes the following enhancements and bugfixes:
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
-  Viktor Szakats, Will Cosgrove, dependabot[bot], Lars Nordin, Joshua Rogers,
-  afldl on github, Ze Sheng, Vladimir Eli Tokarev, Karnakar Reddy, Liu Xing Yu,
-  Michael Buckley, Sebastien Tardif, Behzod Abdullayev, d3x0r, Daniel Stenberg,
-  Jay Satiro, Jim B, Josh Brobst, Kai Pastor, Kit Knox, manus-use on github,
-  Mateusz Gierblinski, pyscripter on github, Ryan Kelley, Sharique Raza,
-  Stanislav Osipov, syed abdul khaliq, TristanInSec, Мухтар Воблоев,
-  Adrian Moran, Aldo Ristori, Amy Lin, Anders Borum, Asaf Meizner, Bruce Dang,
-  Chen Zhengzhe, Chris Emsen, Christian Ghisler, Christoph Reiter,
-  dapickle on github, Darren Carreras, Dhiraj Mishra, DigitalCyberSoft,
-  Eli Schwartz, Evgeny Grin, Feodor Fitsner, geral-victor on github,
-  Hananto Adi, Haruki Oyama, Hemant Jadhav, Jacob Barthelmeh, Joren Afman,
-  Justin Smith, Kian Kasad, Liu Xingyu, Lucas Queiroz, Lukas Dürrenberger,
-  manusjs on github, Marc Hörsken, Marcel Raad, Martin Nowak,
-  nnarayanamurthy on github, Oblivionsage, Oliver Chang, Omkar Bhor, oss-patch,
-  Pascal Neuperger, Paul Howarth, Pedro Henrique de Oliveira Masteguin,
-  Pedro Masteguin, Pramod Kumar, R6502 on github (Michael), Rainer Jung,
-  Raul Tambre, RuiZhi Zhang, Seojun Lee, sergey1369, skuodi on github,
-  Stephan Eggermont, timelyslot on gitHub, trustytrojan, Trzik on github,
-  Wilfried Pascault, yaotushaozhu on github, Yaroslav Rosomakho
+  Adrian Moran, afldl on github, Aldo Ristori, Amy Lin, Anders Borum,
+  Asaf Meizner, Behzod Abdullayev, Bruce Dang, Chen Zhengzhe, Chris Emsen,
+  Christian Ghisler, Christoph Reiter, d3x0r, Daniel Stenberg,
+  dapickle on github, Darren Carreras, dependabot[bot], Dhiraj Mishra,
+  DigitalCyberSoft, Eli Schwartz, Evgeny Grin, Feodor Fitsner,
+  geral-victor on github, Hananto Adi, Haruki Oyama, Hemant Jadhav,
+  hyunjiHong on github, Jacob Barthelmeh, Jay Satiro, Jim B, Joren Afman,
+  Josh Brobst, Joshua Rogers, Justin Smith, Kai Pastor, Karnakar Reddy,
+  Kian Kasad, Kit Knox, Lars Nordin, Liu Xing Yu, Liu Xingyu, Lucas Queiroz,
+  Lukas Dürrenberger, manus-use on github, manusjs on github, Marc Hörsken,
+  Marcel Raad, Martin Nowak, Mateusz Gierblinski, Michael Buckley,
+  Mухтар Воблоев, nnarayanamurthy on github, Oblivionsage, Oliver Chang,
+  Omkar Bhor, oss-patch, Pascal Neuperger, Patrick Monnerat, Paul Howarth,
+  Pedro Henrique de Oliveira Masteguin, Pedro Masteguin, Pramod Kumar,
+  pyscripter on github, R6502 on github (Michael), Rainer Jung, Raul Tambre,
+  RuiZhi Zhang, Ryan Kelley, Sebastien Tardif, Seojun Lee, sergey1369,
+  Sharique Raza, skuodi on github, Stanislav Osipov, Stephan Eggermont,
+  syed abdul khaliq, timelyslot on gitHub, TristanInSec, trustytrojan,
+  Trzik on github, Viktor Szakats, Vladimir Eli Tokarev,
+  vnth4nhnt from CyStack, Wilfried Pascault, Will Cosgrove,
+  yaotushaozhu on github, Yaroslav Rosomakho, Ze Sheng
