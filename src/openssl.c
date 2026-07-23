@@ -2546,7 +2546,7 @@ static int ossl_ecdsa_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
     }
 
     /* Key type */
-    ssh2_store_str(&p, (const char *)method_buf, method_buf_len);
+    ssh2_store_str(&p, method_buf, method_buf_len);
 
     /* Name domain */
     if(is_sk)
