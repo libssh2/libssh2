@@ -3327,7 +3327,8 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
                 /* We have agreed on a key exchange method,
                  * Can we agree on a hostkey that works with this kex?
                  */
-                if(kex_agree_hostkey(session, method->flags, hostkey,
+                if(method->exchange_keys &&
+                   kex_agree_hostkey(session, method->flags, hostkey,
                                      hostkey_len) == 0) {
                     session->kex = method;
                     if(session->burn_optimistic_kexinit && kex == q)
@@ -3345,28 +3346,40 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex,
         return -1;
     }
 
+    fprintf(stderr, "BEGIN\n");
     while(*kexp && (*kexp)->name) {
-        s = ssh2_kex_agree_instr(kex, kex_len,
-                                 (const unsigned char *)(*kexp)->name,
-                                 strlen((*kexp)->name));
-        if(s) {
-            /* We have agreed on a key exchange method,
-             * Can we agree on a hostkey that works with this kex?
-             */
-            if(kex_agree_hostkey(session, (*kexp)->flags, hostkey,
-                                 hostkey_len) == 0) {
-                session->kex = *kexp;
-                if(session->burn_optimistic_kexinit && kex == s)
-                    /* Server sent an optimistic packet, and client agrees
-                     * with preference cancel burning the first KEX_INIT
-                     * packet that comes in */
-                    session->burn_optimistic_kexinit = 0;
+        printf("ITER: |%s|%d|\n", (*kexp)->name, (*kexp)->exchange_keys ? 1 : 0);
+        /* Skip signalling-only entries (ext-info-c,
+         * kex-strict-c-v00@openssh.com) that carry no real KEX implementation
+         * and must never be selected as the negotiated method. */
+        if((*kexp)->exchange_keys) {
+            printf("OK\n");
+            s = ssh2_kex_agree_instr(kex, kex_len,
+                                     (const unsigned char *)(*kexp)->name,
+                                     strlen((*kexp)->name));
+            if(s) {
+                printf("AGREE-1\n");
+                /* We have agreed on a key exchange method,
+                 * Can we agree on a hostkey that works with this kex?
+                 */
+                if(kex_agree_hostkey(session, (*kexp)->flags, hostkey,
+                                     hostkey_len) == 0) {
+                    printf("AGREE-2\n");
+                    session->kex = *kexp;
+                    if(session->burn_optimistic_kexinit && kex == s)
+                        /* Server sent an optimistic packet, and client agrees
+                         * with preference cancel burning the first KEX_INIT
+                         * packet that comes in */
+                        session->burn_optimistic_kexinit = 0;
 
-                return 0;
+                    printf("RETURN 0\n");
+                    return 0;
+                }
             }
         }
         kexp++;
     }
+    printf("END=-1\n");
     return -1;
 }
 
