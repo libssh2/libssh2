@@ -99,8 +99,7 @@ int ssh2_scp_parse_c_fields(const unsigned char *buf, size_t len,
     if(!size_len)
         return (i >= len) ? SCP_C_FIELDS_INCOMPLETE : SCP_C_FIELDS_MALFORMED;
     if(i >= len)
-        /* size digits may still continue */
-        return SCP_C_FIELDS_INCOMPLETE;
+        return SCP_C_FIELDS_INCOMPLETE; /* size digits may still continue */
     if(buf[i] != ' ' && buf[i] != '\r' && buf[i] != '\n')
         return SCP_C_FIELDS_MALFORMED;
 
