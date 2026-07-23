@@ -962,7 +962,7 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
 
         *(s++) = SSH_MSG_CHANNEL_REQUEST;
         ssh2_store_u32(&s, channel->remote.id);
-        ssh2_store_str(&s, (const char *)"pty-req", sizeof("pty-req") - 1);
+        ssh2_store_str(&s, "pty-req", sizeof("pty-req") - 1);
 
         *(s++) = 0x01;
 
@@ -1063,7 +1063,7 @@ static int channel_request_auth_agent(LIBSSH2_CHANNEL *channel,
         s = channel->req_auth_agent_packet;
         *(s++) = SSH_MSG_CHANNEL_REQUEST;
         ssh2_store_u32(&s, channel->remote.id);
-        ssh2_store_str(&s, (const char *)request_str, request_str_len);
+        ssh2_store_str(&s, request_str, request_str_len);
         *(s++) = 0x01;
 
         channel->req_auth_agent_state = ssh2_NB_state_created;
@@ -1211,8 +1211,7 @@ static int channel_request_pty_size(LIBSSH2_CHANNEL *channel, int width,
 
         *(s++) = SSH_MSG_CHANNEL_REQUEST;
         ssh2_store_u32(&s, channel->remote.id);
-        ssh2_store_str(&s, (const char *)"window-change",
-                       sizeof("window-change") - 1);
+        ssh2_store_str(&s, "window-change", sizeof("window-change") - 1);
         *(s++) = 0x00; /* Do not reply */
         ssh2_store_u32(&s, width);
         ssh2_store_u32(&s, height);
