@@ -259,7 +259,7 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
                           b64data, b64datalen))
         goto out;
 
-    if(*datalen == 0)
+    if(!*datalen)
         goto out; /* Invalid decode */
 
     if(method) {

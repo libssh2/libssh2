@@ -669,6 +669,13 @@ static int userauth_read_pubkey(LIBSSH2_SESSION *session, char **method,
                         "Invalid key data, not base64 encoded");
     }
 
+    if(!tmp_len) {
+        SSH2_FREE(session, pubkey);
+        SSH2_FREE(session, tmp);
+        return ssh2_err(session, LIBSSH2_ERROR_FILE,
+                        "Invalid key data, zero-length content");
+    }
+
     /* Wasting some bytes here (okay, more than some), but since it is likely
        to be freed soon anyway, we avoid the extra free/alloc and call
        it a wash */
