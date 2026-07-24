@@ -769,7 +769,7 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
                       const unsigned char *m, size_t m_len)
 {
     int ret = 0;
-    ssh2_curve_type type = ssh2_ecdsa_get_curve_type(ec_ctx);
+    ssh2_curve_type curve = ssh2_ecdsa_get_curve_type(ec_ctx);
 
 #ifdef USE_OPENSSL_3
     EVP_PKEY_CTX *ctx = NULL;
@@ -818,7 +818,7 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
         goto cleanup;
     }
 
-    if(type == SSH2_EC_CURVE_NISTP256) {
+    if(curve == SSH2_EC_CURVE_NISTP256) {
         unsigned char hash[SSH2_SHA256_DIG_LEN];
         if(ssh2_hash(SSH2_SHA256_ALG, m, m_len, hash, sizeof(hash))) {
             ret = EVP_PKEY_verify_init(ctx);
@@ -826,7 +826,7 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
                 ret = EVP_PKEY_verify(ctx, der, der_len, hash, sizeof(hash));
         }
     }
-    else if(type == SSH2_EC_CURVE_NISTP384) {
+    else if(curve == SSH2_EC_CURVE_NISTP384) {
         unsigned char hash[SSH2_SHA384_DIG_LEN];
         if(ssh2_hash(SSH2_SHA384_ALG, m, m_len, hash, sizeof(hash))) {
             ret = EVP_PKEY_verify_init(ctx);
@@ -834,7 +834,7 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
                 ret = EVP_PKEY_verify(ctx, der, der_len, hash, sizeof(hash));
         }
     }
-    else if(type == SSH2_EC_CURVE_NISTP521) {
+    else if(curve == SSH2_EC_CURVE_NISTP521) {
         unsigned char hash[SSH2_SHA512_DIG_LEN];
         if(ssh2_hash(SSH2_SHA512_ALG, m, m_len, hash, sizeof(hash))) {
             ret = EVP_PKEY_verify_init(ctx);
@@ -850,17 +850,17 @@ cleanup:
     if(der)
         OPENSSL_free(der);
 #else
-    if(type == SSH2_EC_CURVE_NISTP256) {
+    if(curve == SSH2_EC_CURVE_NISTP256) {
         unsigned char hash[SSH2_SHA256_DIG_LEN];
         if(ssh2_hash(SSH2_SHA256_ALG, m, m_len, hash, sizeof(hash)))
             ret = ECDSA_do_verify(hash, sizeof(hash), ecdsa_sig, ec_key);
     }
-    else if(type == SSH2_EC_CURVE_NISTP384) {
+    else if(curve == SSH2_EC_CURVE_NISTP384) {
         unsigned char hash[SSH2_SHA384_DIG_LEN];
         if(ssh2_hash(SSH2_SHA384_ALG, m, m_len, hash, sizeof(hash)))
             ret = ECDSA_do_verify(hash, sizeof(hash), ecdsa_sig, ec_key);
     }
-    else if(type == SSH2_EC_CURVE_NISTP521) {
+    else if(curve == SSH2_EC_CURVE_NISTP521) {
         unsigned char hash[SSH2_SHA512_DIG_LEN];
         if(ssh2_hash(SSH2_SHA512_ALG, m, m_len, hash, sizeof(hash)))
             ret = ECDSA_do_verify(hash, sizeof(hash), ecdsa_sig, ec_key);
@@ -2425,13 +2425,13 @@ static int ossl_ecdsa_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
     size_t key_len = 0;
     unsigned char *octal_value = NULL;
     size_t octal_len;
-    ssh2_curve_type type;
+    ssh2_curve_type curve;
 
 #ifdef USE_OPENSSL_3
     ssh2_deb((session, LIBSSH2_TRACE_AUTH,
               "Computing public key from EC private key envelope"));
 
-    type = ssh2_ecdsa_get_curve_type(pk);
+    curve = ssh2_ecdsa_get_curve_type(pk);
 #else
     EC_KEY *ec = NULL;
     const EC_POINT *public_key;
@@ -2453,7 +2453,7 @@ static int ossl_ecdsa_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
 
     public_key = EC_KEY_get0_public_key(ec);
     group = EC_KEY_get0_group(ec);
-    type = ssh2_ecdsa_get_curve_type(ec);
+    curve = ssh2_ecdsa_get_curve_type(ec);
 #endif
 
     if(is_sk)
@@ -2468,11 +2468,11 @@ static int ossl_ecdsa_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
     if(is_sk)
         memcpy(method_buf, "sk-ecdsa-sha2-nistp256@openssh.com",
                method_buf_len + 1);
-    else if(type == SSH2_EC_CURVE_NISTP256)
+    else if(curve == SSH2_EC_CURVE_NISTP256)
         memcpy(method_buf, "ecdsa-sha2-nistp256", method_buf_len + 1);
-    else if(type == SSH2_EC_CURVE_NISTP384)
+    else if(curve == SSH2_EC_CURVE_NISTP384)
         memcpy(method_buf, "ecdsa-sha2-nistp384", method_buf_len + 1);
-    else if(type == SSH2_EC_CURVE_NISTP521)
+    else if(curve == SSH2_EC_CURVE_NISTP521)
         memcpy(method_buf, "ecdsa-sha2-nistp521", method_buf_len + 1);
     else {
         ssh2_deb((session, LIBSSH2_TRACE_ERROR,
@@ -3318,7 +3318,7 @@ static int ossl_key_from_openssh(LIBSSH2_SESSION *session,
     size_t buf_len = 0;
     struct string_buf *decrypted = NULL;
 #if LIBSSH2_ECDSA
-    ssh2_curve_type type;
+    ssh2_curve_type curve;
 #endif
 
     if(key_ctx)
@@ -3392,9 +3392,9 @@ static int ossl_key_from_openssh(LIBSSH2_SESSION *session,
                                                   pubkeydata, pubkeydata_len,
                                                   NULL, NULL, NULL, NULL,
                                                   (ssh2_ecdsa_ctx **)key_ctx);
-    else if(ssh2_pem_ecdsa_curve_type_from_name(buf, buf_len, &type) == 0 &&
+    else if(ssh2_pem_ecdsa_curve_type_from_name(buf, buf_len, &curve) == 0 &&
             (!want_method || !strcmp("ssh-ecdsa", want_method)))
-        rc = ossl_ecdsa_openssh_priv_to_pubkey(session, type, decrypted,
+        rc = ossl_ecdsa_openssh_priv_to_pubkey(session, curve, decrypted,
                                                method,
                                                pubkeydata, pubkeydata_len,
                                                (ssh2_ecdsa_ctx **)key_ctx);
