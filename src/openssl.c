@@ -2569,7 +2569,7 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
                                              ssh2_ecdsa_ctx **ec_ctx)
 {
     int rc = 0;
-    size_t curvebuf_len, exponentlen, pointbuf_len;
+    size_t curvebuf_len, exponent_len, pointbuf_len;
     unsigned char *curvebuf, *exponent, *pointbuf;
     ssh2_ecdsa_ctx *ctx = NULL;
 
@@ -2595,7 +2595,7 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    if(ssh2_get_bignum_bytes(decrypted, &exponent, &exponentlen)) {
+    if(ssh2_get_bignum_bytes(decrypted, &exponent, &exponent_len)) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO, "ECDSA no exponent");
         return -1;
     }
@@ -2613,14 +2613,14 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
         goto fail;
 
     memcpy(group_name, n, strlen(n) + 1);
-    ossl_swap_bytes(exponent, exponentlen);
+    ossl_swap_bytes(exponent, exponent_len);
 
     params[0] = OSSL_PARAM_construct_utf8_string(OSSL_PKEY_PARAM_GROUP_NAME,
                                                  group_name, 0);
     params[1] = OSSL_PARAM_construct_octet_string(OSSL_PKEY_PARAM_PUB_KEY,
                                                   pointbuf, pointbuf_len);
     params[2] = OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_PRIV_KEY, exponent,
-                                        exponentlen);
+                                        exponent_len);
     params[3] = OSSL_PARAM_construct_end();
 
     if(EVP_PKEY_fromdata_init(fromdata_ctx) <= 0)
@@ -2648,7 +2648,7 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
         goto fail;
     }
 
-    BN_bin2bn(exponent, (int)exponentlen, bn_exponent);
+    BN_bin2bn(exponent, (int)exponent_len, bn_exponent);
     rc = (EC_KEY_set_private_key(ctx, bn_exponent) != 1);
     BN_free(bn_exponent);
 #endif
