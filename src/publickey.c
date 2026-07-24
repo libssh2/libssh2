@@ -184,7 +184,7 @@ static int publickey_response_id(unsigned char **pdata, size_t data_len)
 
     while(codes->name) {
         if((unsigned long)codes->name_len == response_len &&
-           !strncmp(codes->name, (char *)data, response_len)) {
+           !strncmp(codes->name, (const char *)data, response_len)) {
             *pdata = data + response_len;
             return codes->code;
         }
