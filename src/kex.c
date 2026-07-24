@@ -119,8 +119,10 @@ static int kex_proc_hostkey(LIBSSH2_SESSION *session, struct string_buf *buf,
 
 #if LIBSSH2_MD5
     session->server_hostkey_md5_valid = ssh2_hash(SSH2_MD5_ALG,
-        session->server_hostkey, session->server_hostkey_len,
-        session->server_hostkey_md5, sizeof(session->server_hostkey_md5));
+                                                  session->server_hostkey,
+                                                  session->server_hostkey_len,
+                                                  session->server_hostkey_md5,
+                                          sizeof(session->server_hostkey_md5));
 #ifdef LIBSSH2DEBUG
     {
         char fingerprint[SSH2_MD5_DIG_LEN * 3 + 1];
