@@ -576,7 +576,7 @@ struct _LIBSSH2_LISTENER {
 #endif
 
 struct endpoint_data {
-    unsigned char *banner;
+    char *banner;
 
     unsigned char *kexinit;
     size_t kexinit_len;

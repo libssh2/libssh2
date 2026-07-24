@@ -635,10 +635,10 @@ static int kex_diffie_hellman_sha(LIBSSH2_SESSION *session,
         }
         if(session->local.banner) {
             ssh2_htonu32(exchange_state->h_sig_comp,
-                (uint32_t)(strlen((const char *)session->local.banner) - 2));
+                (uint32_t)(strlen(session->local.banner) - 2));
             hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
             hok &= ssh2_hash_update(&ctx, session->local.banner,
-                              strlen((const char *)session->local.banner) - 2);
+                                    strlen(session->local.banner) - 2);
         }
         else {
             ssh2_htonu32(exchange_state->h_sig_comp,
@@ -649,10 +649,10 @@ static int kex_diffie_hellman_sha(LIBSSH2_SESSION *session,
         }
 
         ssh2_htonu32(exchange_state->h_sig_comp,
-                     (uint32_t)strlen((const char *)session->remote.banner));
+                     (uint32_t)strlen(session->remote.banner));
         hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
         hok &= ssh2_hash_update(&ctx, session->remote.banner,
-                                strlen((const char *)session->remote.banner));
+                                strlen(session->remote.banner));
 
         ssh2_htonu32(exchange_state->h_sig_comp,
                      (uint32_t)session->local.kexinit_len);
@@ -1432,10 +1432,10 @@ static int kex_method_ec_sha_hash_create_verify(
                   session->local.banner));
 #endif
         ssh2_htonu32(exchange_state->h_sig_comp,
-                  (uint32_t)(strlen((const char *)session->local.banner) - 2));
+                     (uint32_t)(strlen(session->local.banner) - 2));
         hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
         hok &= ssh2_hash_update(&ctx, session->local.banner,
-                              strlen((const char *)session->local.banner) - 2);
+                                strlen(session->local.banner) - 2);
     }
     else {
 #ifdef LIBSSH2_DEBUG_MLKEM
@@ -1458,10 +1458,10 @@ static int kex_method_ec_sha_hash_create_verify(
               session->remote.banner));
 #endif
     ssh2_htonu32(exchange_state->h_sig_comp,
-                 (uint32_t)strlen((const char *)session->remote.banner));
+                 (uint32_t)strlen(session->remote.banner));
     hok &= ssh2_hash_update(&ctx, exchange_state->h_sig_comp, 4);
     hok &= ssh2_hash_update(&ctx, session->remote.banner,
-                            strlen((const char *)session->remote.banner));
+                            strlen(session->remote.banner));
 
 #ifdef LIBSSH2_DEBUG_MLKEM
     ssh2_deb((session, LIBSSH2_TRACE_KEX,

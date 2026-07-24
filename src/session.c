@@ -195,8 +195,8 @@ static int session_banner_send(LIBSSH2_SESSION *session)
     if(session->banner_TxRx_state == ssh2_NB_state_idle) {
         if(session->local.banner) {
             /* setopt_string has given us our \r\n characters */
-            banner_len = strlen((const char *)session->local.banner);
-            banner = (char *)session->local.banner;
+            banner_len = strlen(session->local.banner);
+            banner = session->local.banner;
         }
 #ifdef LIBSSH2DEBUG
         {
@@ -720,7 +720,7 @@ static int session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
                 return rc;
             else if(rc)
                 return ssh2_err(session, rc, "Failed getting banner");
-        } while(strncmp("SSH-", (const char *)session->remote.banner, 4));
+        } while(strncmp("SSH-", session->remote.banner, 4));
 
         session->startup_state = ssh2_NB_state_sent1;
     }
@@ -1801,5 +1801,5 @@ const char *libssh2_session_banner_get(LIBSSH2_SESSION *session)
     if(!session->remote.banner)
         return NULL;
 
-    return (const char *)session->remote.banner;
+    return session->remote.banner;
 }
