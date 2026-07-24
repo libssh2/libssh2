@@ -44,7 +44,7 @@ int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
     struct string_buf decoded;
 
     decoded.data = session->userauth_kybd_data;
-    decoded.dataptr = session->userauth_kybd_data;
+    decoded.dataptr = decoded.data;
     decoded.len = session->userauth_kybd_data_len;
 
     if(session->userauth_kybd_data_len < 17) {
