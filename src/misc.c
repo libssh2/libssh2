@@ -921,7 +921,7 @@ int ssh2_get_string(struct string_buf *buf, unsigned char **outbuf,
     return 0;
 }
 
-/* Same as ssh2_get_string() but returning a 'char **' pointer */
+/* Same as ssh2_get_string() but returning 'char **' pointer */
 int ssh2_get_chars(struct string_buf *buf, char **outbuf, size_t *outlen)
 {
     uint32_t data_len;
