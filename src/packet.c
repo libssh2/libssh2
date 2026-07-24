@@ -680,7 +680,8 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                     }
 
                     if(algs_len == 0 ||
-                       ssh2_kex_agree_instr(algs, algs_len, strict, 28)) {
+                       ssh2_kex_agree_instr(algs, algs_len,
+                                            strict, sizeof(strict))) {
                         session->kex_strict = 1;
                     }
                 }
