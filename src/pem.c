@@ -508,15 +508,18 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
     decrypted.data = decrypted.dataptr = buf;
     decrypted.len = tmp_len;
 
-    if(ciphername && strcmp(ciphername, "none")) {
+    if(ciphername && !SSH2_IS_LITERAL(ciphername, ciphername_len, "none"))) {
         const struct crypt_method **all_methods, *cur_method;
 
         all_methods = ssh2_crypt_methods();
         /* !checksrc! disable EQUALSNULL 1 */
         while((cur_method = *all_methods++) != NULL) {
-            if(*cur_method->name && !memcmp(ciphername, cur_method->name,
-                                            strlen(cur_method->name)))
-                method = cur_method;
+            if(*cur_method->name) {
+                size_t want_len = strlen(cur_method->name);
+                if(ciphername_len == want_len &&
+                   !memcmp(ciphername, cur_method->name, want_len))
+                    method = cur_method;
+            }
         }
 
         /* None of the available crypt methods were able to decrypt the key */
@@ -544,7 +547,7 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
             goto out;
         }
 
-        if(!strcmp(kdfname, "bcrypt") && passphrase) {
+        if(SSH2_IS_LITERAL(kdfname, kdfname_len, "bcrypt") && passphrase) {
             if(ssh2_get_string(&kdf_buf, &salt, &salt_len) ||
                ssh2_get_u32(&kdf_buf, &rounds) != 0) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
