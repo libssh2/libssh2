@@ -162,11 +162,6 @@ int ssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf,
 int ssh2_check_length(struct string_buf *buf, size_t requested_len);
 int ssh2_eob(struct string_buf *buf);
 
-void ssh2_xor_data(unsigned char *output,
-                   const unsigned char *input1,
-                   const unsigned char *input2,
-                   size_t length);
-
 int ssh2_timingsafe_bcmp(const void *b1, const void *b2, size_t n);
 
 #endif /* LIBSSH2_MISC_H */

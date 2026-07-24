@@ -2832,6 +2832,19 @@ static void wcng_aes_ctr_increment(unsigned char *ctr, size_t length)
     }
 }
 
+/* XOR operation on buffers input1 and input2, result in dst.
+   It is safe to use an input buffer as the output buffer. */
+static void wcng_xor_data(unsigned char *dst,
+                          const unsigned char *input1,
+                          const unsigned char *input2,
+                          size_t length)
+{
+    size_t i;
+
+    for(i = 0; i < length; i++)
+        *dst++ = *input1++ ^ *input2++;
+}
+
 int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                       int encrypt, unsigned char *block, size_t blocksize,
                       int firstlast)
@@ -2873,8 +2886,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                 if(algo.ctrMode) {
                     /* CTR mode intentionally XORs in place:
                        block = block XOR pbOutput. */
-                    /* NOLINTNEXTLINE(readability-suspicious-call-argument) */
-                    ssh2_xor_data(block, block, pbOutput, blocksize);
+                    wcng_xor_data(block, block, pbOutput, blocksize);
                     wcng_aes_ctr_increment(ctx->pbCtr, ctx->dwCtrLength);
                 }
                 else
