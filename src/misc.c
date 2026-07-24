@@ -381,6 +381,7 @@ int libssh2_base64_decode(LIBSSH2_SESSION *session,
 /*
  * Decode a base64 chunk and store it into a newly allocated buffer
  *
+ * Requires return buffer and length pointer to be non-NULL.
  * Always initializes return buffer and length.
  * Returns error and a NULL buffer if the internal allocation failed.
  * May return success on zero 'src_len'.
