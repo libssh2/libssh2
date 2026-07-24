@@ -59,7 +59,7 @@ int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
     /* string    name (ISO-10646 UTF-8) */
     if(ssh2_copy_string(session, &decoded,
                         &session->userauth_kybd_auth_name,
-                        &session->userauth_kybd_auth_name_len) == -1) {
+                        &session->userauth_kybd_auth_name_len)) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                  "Unable to decode keyboard-interactive 'name' "
                  "request field");
@@ -69,7 +69,7 @@ int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
     /* string    instruction (ISO-10646 UTF-8) */
     if(ssh2_copy_string(session, &decoded,
                         &session->userauth_kybd_auth_instruction,
-                        &session->userauth_kybd_auth_instruction_len) == -1) {
+                        &session->userauth_kybd_auth_instruction_len)) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                  "Unable to decode keyboard-interactive 'instruction' "
                  "request field");
@@ -77,7 +77,7 @@ int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
     }
 
     /* string    language tag (as defined in [RFC-3066]) */
-    if(ssh2_get_string(&decoded, &language_tag, &language_tag_len) == -1) {
+    if(ssh2_get_string(&decoded, &language_tag, &language_tag_len)) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                  "Unable to decode keyboard-interactive 'language tag' "
                  "request field");
@@ -85,7 +85,7 @@ int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
     }
 
     /* int       num-prompts */
-    if(ssh2_get_u32(&decoded, &tmp_u32) == -1) {
+    if(ssh2_get_u32(&decoded, &tmp_u32)) {
         ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                  "Unable to decode "
                  "keyboard-interactive number of keyboard prompts");
@@ -134,7 +134,7 @@ int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
         /* string    prompt[1] (ISO-10646 UTF-8) */
         if(ssh2_copy_string(session, &decoded,
                             &session->userauth_kybd_prompts[i].text,
-                            &session->userauth_kybd_prompts[i].length) == -1) {
+                            &session->userauth_kybd_prompts[i].length)) {
             ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                      "Unable to decode keyboard-interactive prompt message");
             return -1;
@@ -142,7 +142,7 @@ int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
 
         /* boolean   echo[1] */
         if(ssh2_get_boolean(&decoded,
-                            &session->userauth_kybd_prompts[i].echo) == -1) {
+                            &session->userauth_kybd_prompts[i].echo)) {
             ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                      "Unable to decode user auth keyboard prompt echo");
             return -1;
