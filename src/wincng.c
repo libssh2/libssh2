@@ -2832,7 +2832,7 @@ static void wcng_aes_ctr_increment(unsigned char *ctr, size_t length)
     }
 }
 
-/* XOR operation on buffers input1 and input2, result in output.
+/* XOR operation on buffers input1 and input2, result in dst.
    It is safe to use an input buffer as the output buffer. */
 static void wcng_xor_data(unsigned char *dst,
                           const unsigned char *input1,
