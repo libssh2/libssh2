@@ -396,7 +396,7 @@ int ssh2_base64_decode(LIBSSH2_SESSION *session,
     size_t i = 0, len = 0;
 
     *datalen = 0;
-    *data = SSH2_ALLOC(session, src_len);
+    *data = SSH2_ALLOC(session, src_len + 1);
     d = (unsigned char *)*data;
     if(!d)
         return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
@@ -430,6 +430,8 @@ int ssh2_base64_decode(LIBSSH2_SESSION *session,
         SSH2_SAFEFREE(session, *data);
         return ssh2_err(session, LIBSSH2_ERROR_INVAL, "Invalid base64");
     }
+
+    (*data)[len] = '\0';
 
     *datalen = len;
     return 0;
