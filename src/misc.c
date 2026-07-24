@@ -896,10 +896,10 @@ int ssh2_get_u64(struct string_buf *buf, libssh2_uint64_t *out)
 
 int ssh2_match_string(struct string_buf *buf, const char *match)
 {
-    unsigned char *out;
+    char *out;
     size_t len = 0;
-    if(ssh2_get_string(buf, &out, &len) || len != strlen(match) ||
-       strncmp((const char *)out, match, strlen(match)))
+    if(ssh2_get_chars(buf, &out, &len) || len != strlen(match) ||
+       strncmp(out, match, strlen(match)))
         return -1;
     return 0;
 }
@@ -913,6 +913,23 @@ int ssh2_get_string(struct string_buf *buf, unsigned char **outbuf,
     if(!ssh2_check_length(buf, data_len))
         return -1;
     *outbuf = buf->dataptr;
+    buf->dataptr += data_len;
+
+    if(outlen)
+        *outlen = (size_t)data_len;
+
+    return 0;
+}
+
+/* Same as ssh2_get_string() but returning 'char **' pointer */
+int ssh2_get_chars(struct string_buf *buf, char **outbuf, size_t *outlen)
+{
+    uint32_t data_len;
+    if(!buf || ssh2_get_u32(buf, &data_len) != 0)
+        return -1;
+    if(!ssh2_check_length(buf, data_len))
+        return -1;
+    *outbuf = (char *)buf->dataptr;
     buf->dataptr += data_len;
 
     if(outlen)

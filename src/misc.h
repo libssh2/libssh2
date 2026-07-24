@@ -152,6 +152,7 @@ int ssh2_get_byte(struct string_buf *buf, unsigned char *out);
 int ssh2_get_u32(struct string_buf *buf, uint32_t *out);
 int ssh2_get_u64(struct string_buf *buf, libssh2_uint64_t *out);
 int ssh2_match_string(struct string_buf *buf, const char *match);
+int ssh2_get_chars(struct string_buf *buf, char **outbuf, size_t *outlen);
 int ssh2_get_string(struct string_buf *buf, unsigned char **outbuf,
                     size_t *outlen);
 int ssh2_copy_string(LIBSSH2_SESSION *session, struct string_buf *buf,
