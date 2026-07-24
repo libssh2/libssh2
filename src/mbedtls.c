@@ -993,12 +993,12 @@ ssh2_curve_type ssh2_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ec_ctx)
 /*
  * returns 0 for success, key curve type that maps to ssh2_curve_type
  */
-static int mbed_ecdsa_curve_type_from_name(const char *name,
+static int mbed_ecdsa_curve_type_from_name(const char *name, size_t name_len,
                                            ssh2_curve_type *out_curve)
 {
     ssh2_curve_type type;
 
-    if(!name || strlen(name) != 19)
+    if(!name || name_len != 19)
         return -1;
 
     if(!strcmp(name, "ecdsa-sha2-nistp256"))
@@ -1034,7 +1034,7 @@ static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
     if(ssh2_get_chars(decrypted, &name, &name_len))
         goto failed;
 
-    if(mbed_ecdsa_curve_type_from_name(name, &type))
+    if(mbed_ecdsa_curve_type_from_name(name, name_len, &type))
         goto failed;
 
     if(ssh2_get_string(decrypted, &curve, &curvelen))
