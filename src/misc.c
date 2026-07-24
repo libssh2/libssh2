@@ -898,7 +898,7 @@ int ssh2_match_string(struct string_buf *buf, const char *match)
 {
     char *out;
     size_t len = 0;
-    if(ssh2_get_schars(buf, &out, &len) || len != strlen(match) ||
+    if(ssh2_get_chars(buf, &out, &len) || len != strlen(match) ||
        strncmp(out, match, strlen(match)))
         return -1;
     return 0;
@@ -922,7 +922,7 @@ int ssh2_get_string(struct string_buf *buf, unsigned char **outbuf,
 }
 
 /* Same as ssh2_get_string() but returning a 'char **' pointer */
-int ssh2_get_schars(struct string_buf *buf, char **outbuf, size_t *outlen)
+int ssh2_get_chars(struct string_buf *buf, char **outbuf, size_t *outlen)
 {
     uint32_t data_len;
     if(!buf || ssh2_get_u32(buf, &data_len) != 0)
