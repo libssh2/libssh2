@@ -1031,7 +1031,7 @@ static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
                               passphrase, &decrypted))
         goto failed;
 
-    if(ssh2_get_string(decrypted, (unsigned char **)&name, NULL))
+    if(ssh2_get_chars(decrypted, &name, NULL))
         goto failed;
 
     if(mbed_ecdsa_curve_type_from_name(name, &type))

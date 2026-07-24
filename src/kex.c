@@ -3537,27 +3537,27 @@ static int kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *data,
     buf.dataptr += 16;
 
     /* Locate each string */
-    if(ssh2_get_string(&buf, (unsigned char **)&kex, &kex_len))
+    if(ssh2_get_chars(&buf, &kex, &kex_len))
         return -1;
-    if(ssh2_get_string(&buf, (unsigned char **)&hostkey, &hostkey_len))
+    if(ssh2_get_chars(&buf, &hostkey, &hostkey_len))
         return -1;
-    if(ssh2_get_string(&buf, (unsigned char **)&crypt_cs, &crypt_cs_len))
+    if(ssh2_get_chars(&buf, &crypt_cs, &crypt_cs_len))
         return -1;
-    if(ssh2_get_string(&buf, (unsigned char **)&crypt_sc, &crypt_sc_len))
+    if(ssh2_get_chars(&buf, &crypt_sc, &crypt_sc_len))
         return -1;
-    if(ssh2_get_string(&buf, (unsigned char **)&mac_cs, &mac_cs_len))
+    if(ssh2_get_chars(&buf, &mac_cs, &mac_cs_len))
         return -1;
-    if(ssh2_get_string(&buf, (unsigned char **)&mac_sc, &mac_sc_len))
+    if(ssh2_get_chars(&buf, &mac_sc, &mac_sc_len))
         return -1;
-    if(ssh2_get_string(&buf, (unsigned char **)&comp_cs, &comp_cs_len))
+    if(ssh2_get_chars(&buf, &comp_cs, &comp_cs_len))
         return -1;
-    if(ssh2_get_string(&buf, (unsigned char **)&comp_sc, &comp_sc_len))
+    if(ssh2_get_chars(&buf, &comp_sc, &comp_sc_len))
         return -1;
 
     /* read lang_cs and lang_sc but are unused */
-    if(ssh2_get_string(&buf, (unsigned char **)&tmp, NULL))
+    if(ssh2_get_chars(&buf, &tmp, NULL))
         return -1;
-    if(ssh2_get_string(&buf, (unsigned char **)&tmp, NULL))
+    if(ssh2_get_chars(&buf, &tmp, NULL))
         return -1;
 
     /* If the server sent an optimistic packet, assume that it guessed wrong.
