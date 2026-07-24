@@ -2569,8 +2569,8 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
                                              ssh2_ecdsa_ctx **ec_ctx)
 {
     int rc = 0;
-    size_t curvelen, exponentlen, pointlen;
-    unsigned char *curve, *exponent, *point_buf;
+    size_t curvebuf_len, exponentlen, pointlen;
+    unsigned char *curvebuf, *exponent, *point_buf;
     ssh2_ecdsa_ctx *ctx = NULL;
 
 #ifdef USE_OPENSSL_3
@@ -2585,7 +2585,7 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     ssh2_deb((session, LIBSSH2_TRACE_AUTH,
               "Computing ECDSA keys from private key data"));
 
-    if(ssh2_get_string(decrypted, &curve, &curvelen) || curvelen == 0) {
+    if(ssh2_get_string(decrypted, &curvebuf, &curvebuf_len) || !curvebuf_len) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO, "ECDSA no curve");
         return -1;
     }
@@ -2707,13 +2707,13 @@ static int ossl_ecdsa_sk_openssh_priv_to_pubkey(
     ssh2_ecdsa_ctx **ec_ctx)
 {
     int rc = 0;
-    size_t curvelen, pointlen, key_len, app_len;
-    unsigned char *curve, *point_buf, *p, *key = NULL, *app;
+    size_t curvebuf_len, pointlen, key_len, app_len;
+    unsigned char *curvebuf, *point_buf, *p, *key = NULL, *app;
     ssh2_ecdsa_ctx *ctx = NULL;
 
     ssh2_deb((session, LIBSSH2_TRACE_AUTH, "Extracting ECDSA-SK public key"));
 
-    if(ssh2_get_string(decrypted, &curve, &curvelen) || curvelen == 0) {
+    if(ssh2_get_string(decrypted, &curvebuf, &curvebuf_len) || !curvebuf_len) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO, "ECDSA no curve");
         return -1;
     }
