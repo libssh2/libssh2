@@ -953,7 +953,7 @@ int ssh2_copy_string(LIBSSH2_SESSION *session, struct string_buf *buf,
         return -1;
 
     if(str_len) {
-        if(str_len < SIZE_MAX) {
+        if(str_len >= SIZE_MAX) {
             *outbuf = NULL;
             return -1;
         }
