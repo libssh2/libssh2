@@ -866,9 +866,9 @@ struct _LIBSSH2_SESSION {
     unsigned char *userauth_kybd_packet;
     size_t userauth_kybd_packet_len;
     size_t userauth_kybd_auth_name_len;
-    char *userauth_kybd_auth_name;
+    unsigned char *userauth_kybd_auth_name;
     size_t userauth_kybd_auth_instruction_len;
-    char *userauth_kybd_auth_instruction;
+    unsigned char *userauth_kybd_auth_instruction;
     unsigned int userauth_kybd_num_prompts;
     int userauth_kybd_auth_failure;
     LIBSSH2_USERAUTH_KBDINT_PROMPT *userauth_kybd_prompts;
