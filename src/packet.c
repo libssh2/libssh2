@@ -626,7 +626,6 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
             SSH2_MACERROR(session, (char *)data, datalen))) {
             /* Bad MAC input, but no callback set or non-zero return from the
                callback */
-
             SSH2_FREE(session, data);
             return ssh2_err(session, LIBSSH2_ERROR_INVALID_MAC,
                             "Invalid MAC received");
@@ -1328,7 +1327,7 @@ ssh2_packet_add_jump_authagent:
 
     if((msg == SSH_MSG_KEXINIT &&
         !(session->state & SSH2_STATE_EXCHANGING_KEYS)) ||
-       (session->packAdd_state == ssh2_NB_state_sent2)) {
+       session->packAdd_state == ssh2_NB_state_sent2) {
 
         if(session->packAdd_state == ssh2_NB_state_sent1) {
             /*

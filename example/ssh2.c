@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
     fprintf(stderr, "Connecting to %s:%d as user %s\n",
             inet_ntoa(sin.sin_addr), ntohs(sin.sin_port), username);
 
-    if(connect(sock, (struct sockaddr *)(&sin), sizeof(struct sockaddr_in))) {
+    if(connect(sock, (struct sockaddr *)&sin, sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect.\n");
         goto shutdown;
     }

@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
     sin.sin_port = htons((unsigned short)port);
     sin.sin_addr.s_addr = hostaddr;
 
-    if(connect(sock, (struct sockaddr *)(&sin), sizeof(struct sockaddr_in))) {
+    if(connect(sock, (struct sockaddr *)&sin, sizeof(struct sockaddr_in))) {
         fprintf(stderr, "Failed to establish connection.\n");
         return 1;
     }
