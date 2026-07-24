@@ -507,7 +507,7 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
     decrypted.data = decrypted.dataptr = buf;
     decrypted.len = tmp_len;
 
-    if(ciphername && !SSH2_IS_LITERAL(ciphername, ciphername_len, "none"))) {
+    if(ciphername && !SSH2_IS_LITERAL(ciphername, ciphername_len, "none")) {
         const struct crypt_method **all_methods, *cur_method;
 
         all_methods = ssh2_crypt_methods();
