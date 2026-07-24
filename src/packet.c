@@ -734,8 +734,10 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                 buf.dataptr++; /* advance past type */
 
                 ssh2_get_u32(&buf, &reason);
-                ssh2_get_string(&buf, (unsigned char **)&message, &message_len);
-                ssh2_get_string(&buf, (unsigned char **)&language, &language_len);
+                ssh2_get_string(&buf, (unsigned char **)&message,
+                                &message_len);
+                ssh2_get_string(&buf, (unsigned char **)&language,
+                                &language_len);
 
                 if(session->ssh_msg_disconnect)
                     SSH2_DISCONNECT(session, reason, message, message_len,
