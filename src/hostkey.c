@@ -619,7 +619,7 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
     char *type_str, *domain;
     unsigned char *public_key;
     size_t key_len, len;
-    ssh2_curve_type type;
+    ssh2_curve_type curve;
     struct string_buf buf;
 
     if(abstract && *abstract) {
@@ -640,22 +640,22 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
         return -1;
 
     if(!strncmp(type_str, "ecdsa-sha2-nistp256", 19))
-        type = SSH2_EC_CURVE_NISTP256;
+        curve = SSH2_EC_CURVE_NISTP256;
     else if(!strncmp(type_str, "ecdsa-sha2-nistp384", 19))
-        type = SSH2_EC_CURVE_NISTP384;
+        curve = SSH2_EC_CURVE_NISTP384;
     else if(!strncmp(type_str, "ecdsa-sha2-nistp521", 19))
-        type = SSH2_EC_CURVE_NISTP521;
+        curve = SSH2_EC_CURVE_NISTP521;
     else
         return -1;
 
     if(ssh2_get_chars(&buf, &domain, &len) || len != 8)
         return -1;
 
-    if(type == SSH2_EC_CURVE_NISTP256 && strncmp(domain, "nistp256", 8))
+    if(curve == SSH2_EC_CURVE_NISTP256 && strncmp(domain, "nistp256", 8))
         return -1;
-    else if(type == SSH2_EC_CURVE_NISTP384 && strncmp(domain, "nistp384", 8))
+    else if(curve == SSH2_EC_CURVE_NISTP384 && strncmp(domain, "nistp384", 8))
         return -1;
-    else if(type == SSH2_EC_CURVE_NISTP521 && strncmp(domain, "nistp521", 8))
+    else if(curve == SSH2_EC_CURVE_NISTP521 && strncmp(domain, "nistp521", 8))
         return -1;
 
     /* public key */
@@ -666,7 +666,7 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
         return -1;
 
     if(ssh2_ecdsa_curve_name_with_octal_new(&ec_ctx, public_key,
-                                            key_len, type))
+                                            key_len, curve))
         return -1;
 
     if(abstract)
@@ -755,22 +755,22 @@ static int hostkey_method_ssh_ecdsa_signv(LIBSSH2_SESSION *session,
                                           void **abstract)
 {
     ssh2_ecdsa_ctx *ec_ctx = (ssh2_ecdsa_ctx *)(*abstract);
-    ssh2_curve_type type = ssh2_ecdsa_get_curve_type(ec_ctx);
+    ssh2_curve_type curve = ssh2_ecdsa_get_curve_type(ec_ctx);
     unsigned char hash[MAX_SHA_DIGEST_LEN];
     ssh2_hash_ctx ctx;
     ssh2_hash_alg hash_alg;
     size_t hash_len;
     int i;
 
-    if(type == SSH2_EC_CURVE_NISTP256) {
+    if(curve == SSH2_EC_CURVE_NISTP256) {
         hash_alg = SSH2_SHA256_ALG;
         hash_len = SSH2_SHA256_DIG_LEN;
     }
-    else if(type == SSH2_EC_CURVE_NISTP384) {
+    else if(curve == SSH2_EC_CURVE_NISTP384) {
         hash_alg = SSH2_SHA384_ALG;
         hash_len = SSH2_SHA384_DIG_LEN;
     }
-    else if(type == SSH2_EC_CURVE_NISTP521) {
+    else if(curve == SSH2_EC_CURVE_NISTP521) {
         hash_alg = SSH2_SHA512_ALG;
         hash_len = SSH2_SHA512_DIG_LEN;
     }
