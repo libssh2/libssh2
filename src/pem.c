@@ -904,6 +904,7 @@ int ssh2_pem_decode_integer(unsigned char **data, size_t *datalen,
     return 0;
 }
 
+#if LIBSSH2_ECDSA
 /*
  * returns 0 for success, key curve type that maps to ssh2_curve_type
  */
@@ -929,3 +930,4 @@ int ssh2_pem_ecdsa_curve_type_from_name(const char *name, size_t name_len,
 
     return 0;
 }
+#endif
