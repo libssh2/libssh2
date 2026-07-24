@@ -98,10 +98,10 @@ static int hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
     else
 #endif
 #if LIBSSH2_RSA_SHA2
-    if(SSH2_IS_LITERAL(type, type_len, "rsa-sha2-256") {
+    if(SSH2_IS_LITERAL(type, type_len, "rsa-sha2-256")) {
         /* rsa-sha2-256 */
     }
-    else if(SSH2_IS_LITERAL(type, type_len, "rsa-sha2-512") {
+    else if(SSH2_IS_LITERAL(type, type_len, "rsa-sha2-512")) {
         /* rsa-sha2-512 */
     }
     else
