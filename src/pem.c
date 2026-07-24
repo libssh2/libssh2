@@ -408,7 +408,7 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
     unsigned char *key = NULL;
     unsigned char *key_part = NULL;
     unsigned char *iv_part = NULL;
-    unsigned char *f = NULL;
+    char *f = NULL;
     size_t f_len = 0;
     int ret = 0, keylen = 0, ivlen = 0, total_len = 0;
     size_t kdf_len = 0, tmp_len = 0, salt_len = 0;
@@ -417,14 +417,14 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
         *decrypted_buf = NULL;
 
     /* decode file */
-    if(ssh2_base64_decode(session, (char **)&f, &f_len, b64data, b64datalen)) {
+    if(ssh2_base64_decode(session, &f, &f_len, b64data, b64datalen)) {
         ret = -1;
         goto out;
     }
 
     /* Parse the file */
-    decoded.data = f;
-    decoded.dataptr = f;
+    decoded.data = (unsigned char *)f;
+    decoded.dataptr = decoded.data;
     decoded.len = f_len;
 
     if(decoded.len < sizeof(OPENSSH_PRIVKEY_AUTH_MAGIC)) {
