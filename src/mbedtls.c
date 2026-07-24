@@ -1021,17 +1021,17 @@ static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
                                   const char *data, size_t data_len,
                                   const char *passphrase)
 {
-    ssh2_curve_type type;
-    char *name = NULL;
     struct string_buf *decrypted = NULL;
-    size_t curvelen, exponentlen, pointlen;
+    char *name = NULL;
     unsigned char *curve, *exponent, *point_buf;
+    size_t name_len, curvelen, exponentlen, pointlen;
+    ssh2_curve_type type;
 
     if(ssh2_openssh_pem_parse(session, NULL, data, data_len,
                               passphrase, &decrypted))
         goto failed;
 
-    if(ssh2_get_chars(decrypted, &name, NULL))
+    if(ssh2_get_chars(decrypted, &name, &name_len))
         goto failed;
 
     if(mbed_ecdsa_curve_type_from_name(name, &type))
