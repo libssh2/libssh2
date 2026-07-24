@@ -2363,8 +2363,7 @@ static int wcng_ecdsa_new_private_parse(OUT ssh2_ecdsa_ctx **ec_ctx,
     /* draft-miller-ssh-agent, section-3.2.2 */
 
     /* Read the key type */
-    result = ssh2_get_string(&data_buffer,
-                             (unsigned char **)&keytype, &keytype_len);
+    result = ssh2_get_chars(&data_buffer, &keytype, &keytype_len);
     if(result != LIBSSH2_ERROR_NONE)
         goto cleanup;
 
