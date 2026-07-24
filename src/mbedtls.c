@@ -993,19 +993,19 @@ ssh2_curve_type ssh2_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ec_ctx)
 /*
  * returns 0 for success, key curve type that maps to ssh2_curve_type
  */
-static int mbed_ecdsa_curve_type_from_name(const char *name,
+static int mbed_ecdsa_curve_type_from_name(const char *name, size_t name_len,
                                            ssh2_curve_type *out_curve)
 {
     ssh2_curve_type type;
 
-    if(!name || strlen(name) != 19)
+    if(!name || name_len != 19)
         return -1;
 
-    if(!strcmp(name, "ecdsa-sha2-nistp256"))
+    if(SSH2_IS_LITERAL(name, name_len, "ecdsa-sha2-nistp256"))
         type = SSH2_EC_CURVE_NISTP256;
-    else if(!strcmp(name, "ecdsa-sha2-nistp384"))
+    else if(SSH2_IS_LITERAL(name, name_len, "ecdsa-sha2-nistp384"))
         type = SSH2_EC_CURVE_NISTP384;
-    else if(!strcmp(name, "ecdsa-sha2-nistp521"))
+    else if(SSH2_IS_LITERAL(name, name_len, "ecdsa-sha2-nistp521"))
         type = SSH2_EC_CURVE_NISTP521;
     else
         return -1;
@@ -1021,20 +1021,20 @@ static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
                                   const char *data, size_t data_len,
                                   const char *passphrase)
 {
-    ssh2_curve_type type;
-    char *name = NULL;
     struct string_buf *decrypted = NULL;
-    size_t curvelen, exponentlen, pointlen;
+    char *name = NULL;
     unsigned char *curve, *exponent, *point_buf;
+    size_t name_len, curvelen, exponentlen, pointlen;
+    ssh2_curve_type type;
 
     if(ssh2_openssh_pem_parse(session, NULL, data, data_len,
                               passphrase, &decrypted))
         goto failed;
 
-    if(ssh2_get_chars(decrypted, &name, NULL))
+    if(ssh2_get_chars(decrypted, &name, &name_len))
         goto failed;
 
-    if(mbed_ecdsa_curve_type_from_name(name, &type))
+    if(mbed_ecdsa_curve_type_from_name(name, name_len, &type))
         goto failed;
 
     if(ssh2_get_string(decrypted, &curve, &curvelen))

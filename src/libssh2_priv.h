@@ -200,6 +200,10 @@ struct iovec {
 #define SSH2_MAX(x, y)  ((x) > (y) ? (x) : (y))
 #define SSH2_MIN(x, y)  ((x) < (y) ? (x) : (y))
 
+/* Compare memory buffer with string literal */
+#define SSH2_IS_LITERAL(have, have_len, want) \
+    ((have_len) == sizeof(want) && !memcmp(have, want, sizeof(want)))
+
 #define MAX_BLOCKSIZE 32    /* MUST fit biggest crypto block size we use/get */
 #define MAX_MACSIZE 64      /* MUST fit biggest MAC length we support */
 
