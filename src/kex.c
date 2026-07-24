@@ -1760,7 +1760,7 @@ static int kex_method_ecdh_key_exchange(
     int ret = 0;
     int rc = 0;
     unsigned char *s;
-    ssh2_curve_type type;
+    ssh2_curve_type curve;
 
     if(key_state->state == ssh2_NB_state_idle) {
         key_state->public_key_oct = NULL;
@@ -1768,7 +1768,7 @@ static int kex_method_ecdh_key_exchange(
     }
 
     if(key_state->state == ssh2_NB_state_created) {
-        rc = kex_session_curve_type(session->kex->name, &type);
+        rc = kex_session_curve_type(session->kex->name, &curve);
         if(rc) {
             ret = ssh2_err(session, -1, "Unrecognized KEX nistp curve type");
             goto ecdh_clean_exit;
@@ -1776,7 +1776,7 @@ static int kex_method_ecdh_key_exchange(
 
         rc = ssh2_ecdsa_create_key(&key_state->private_key, session,
                                    &key_state->public_key_oct,
-                                   &key_state->public_key_oct_len, type);
+                                   &key_state->public_key_oct_len, curve);
         if(rc) {
             ret = ssh2_err(session, rc, "Unable to create private key");
             goto ecdh_clean_exit;
@@ -1823,13 +1823,13 @@ static int kex_method_ecdh_key_exchange(
     }
 
     if(key_state->state == ssh2_NB_state_sent2) {
-        rc = kex_session_curve_type(session->kex->name, &type);
+        rc = kex_session_curve_type(session->kex->name, &curve);
         if(rc) {
             ret = ssh2_err(session, -1, "Unrecognized KEX nistp curve type");
             goto ecdh_clean_exit;
         }
 
-        ret = kex_ecdh_sha2_nistp(session, type, key_state->data,
+        ret = kex_ecdh_sha2_nistp(session, curve, key_state->data,
                                   key_state->data_len,
                                   (unsigned char *)key_state->public_key_oct,
                                   key_state->public_key_oct_len,
@@ -1905,17 +1905,17 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
     int ret = 0;
     int rc, mlkem_size;
     ssh2_hash_alg hash_alg;
-    ssh2_curve_type type;
+    ssh2_curve_type curve;
     size_t digest_len, mlkem_cipher_len, public_pq_key_len;
     unsigned char *shared_secret = NULL;
 
-    if(kex_session_curve_type(session->kex->name, &type)) {
+    if(kex_session_curve_type(session->kex->name, &curve)) {
         ret = ssh2_err(session, -1,
                        "Unrecognized KEX hybrid nistp curve type");
         goto clean_exit;
     }
 
-    switch(type) {
+    switch(curve) {
     case SSH2_EC_CURVE_NISTP256:
         hash_alg = SSH2_SHA256_ALG;
         digest_len = SSH2_SHA256_DIG_LEN;
@@ -2088,19 +2088,19 @@ static int kex_method_mlkem_nistp_key_exchange(
     }
 
     if(key_state->state == ssh2_NB_state_created) {
-        ssh2_curve_type type;
+        ssh2_curve_type curve;
         int mlkem_size;
         size_t mlkem_public_key_len;
         size_t mlkem_private_key_len;
         unsigned char *s = NULL;
 
-        if(kex_session_curve_type(session->kex->name, &type)) {
+        if(kex_session_curve_type(session->kex->name, &curve)) {
             ret = ssh2_err(session, -1,
                            "Unrecognized KEX hybrid nistp curve type");
             goto clean_exit;
         }
 
-        switch(type) {
+        switch(curve) {
         case SSH2_EC_CURVE_NISTP256:
             mlkem_size = 768;
             mlkem_public_key_len = SSH2_MLKEM_768_PUBLIC_KEY_LEN;
@@ -2119,7 +2119,7 @@ static int kex_method_mlkem_nistp_key_exchange(
 
         rc = ssh2_ecdsa_create_key(&key_state->private_key, session,
                                    &key_state->public_key_oct,
-                                   &key_state->public_key_oct_len, type);
+                                   &key_state->public_key_oct_len, curve);
         if(rc) {
             ret = ssh2_err(session, rc, "Unable to create ecdh private key");
             goto clean_exit;
