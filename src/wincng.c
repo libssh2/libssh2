@@ -2213,8 +2213,9 @@ static int wcng_ecdsa_curve_type_from_name(IN const char *name,
         return LIBSSH2_ERROR_INVAL;
 
     for(curve = 0; curve < SSH2_ARRAYSIZE(wcng_ecdsa_algs); curve++)
-        if(name_len == strlen(wcng_ecdsa_algs[curve].name) &&
-           !strcmp(name, wcng_ecdsa_algs[curve].name)) {
+        size_t want_len = strlen(wcng_ecdsa_algs[curve].name);
+        if(name_len == want_len &&
+           !memcmp(name, wcng_ecdsa_algs[curve].name, want_len)) {
             *out_curve = (ssh2_curve_type)curve;
             return LIBSSH2_ERROR_NONE;
         }

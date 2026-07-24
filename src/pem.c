@@ -465,21 +465,21 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
     }
 
     if((!passphrase || strlen(passphrase) == 0) &&
-       (ciphername_len != sizeof("none") - 1 || strcmp(ciphername, "none"))) {
+       !SSH2_IS_LITERAL(ciphername, ciphername_len, "none")) {
         /* passphrase required */
         ret = LIBSSH2_ERROR_KEYFILE_AUTH_FAILED;
         goto out;
     }
 
-    if((kdfname_len != sizeof("none") - 1 || strcmp(kdfname, "none")) &&
-       (kdfname_len != sizeof("bcrypt") - 1 || strcmp(kdfname, "bcrypt"))) {
+    if(!SSH2_IS_LITERAL(kdfname, kdfname_len, "none") &&
+       !SSH2_IS_LITERAL(kdfname, kdfname_len, "bcrypt")) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                        "unrecognized KDF algorithm");
         goto out;
     }
 
-    if(kdfname_len == sizeof("none") - 1 && !strcmp(kdfname, "none") &&
-       (ciphername_len != sizeof("none") - 1 || strcmp(ciphername, "none"))) {
+    if(SSH2_IS_LITERAL(kdfname, kdfname_len, "none") &&
+       !SSH2_IS_LITERAL(ciphername, ciphername_len, "none")) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "invalid format");
         goto out;
     }

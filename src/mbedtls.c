@@ -1001,11 +1001,11 @@ static int mbed_ecdsa_curve_type_from_name(const char *name, size_t name_len,
     if(!name || name_len != 19)
         return -1;
 
-    if(!strcmp(name, "ecdsa-sha2-nistp256"))
+    if(SSH2_IS_LITERAL(name, name_len, "ecdsa-sha2-nistp256"))
         type = SSH2_EC_CURVE_NISTP256;
-    else if(!strcmp(name, "ecdsa-sha2-nistp384"))
+    else if(SSH2_IS_LITERAL(name, name_len, "ecdsa-sha2-nistp384"))
         type = SSH2_EC_CURVE_NISTP384;
-    else if(!strcmp(name, "ecdsa-sha2-nistp521"))
+    else if(SSH2_IS_LITERAL(name, name_len, "ecdsa-sha2-nistp521"))
         type = SSH2_EC_CURVE_NISTP521;
     else
         return -1;
