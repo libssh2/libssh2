@@ -897,10 +897,15 @@ int ssh2_get_u64(struct string_buf *buf, libssh2_uint64_t *out)
 int ssh2_match_string(struct string_buf *buf, const char *match)
 {
     char *out;
-    size_t len = 0;
-    if(ssh2_get_chars(buf, &out, &len) || len != strlen(match) ||
-       strncmp(out, match, strlen(match)))
+    size_t len = 0, match_len;
+
+    if(ssh2_get_chars(buf, &out, &len))
         return -1;
+
+    match_len = strlen(match);
+    if(len != match_len || strncmp(out, match, match_len))
+        return -1;
+
     return 0;
 }
 
