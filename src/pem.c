@@ -913,9 +913,6 @@ int ssh2_pem_ecdsa_curve_type_from_name(const char *name, size_t name_len,
 {
     ssh2_curve_type type;
 
-    if(!name)
-        return -1;
-
     if(SSH2_IS_LITERAL(name, name_len, "ecdsa-sha2-nistp256"))
         type = SSH2_EC_CURVE_NISTP256;
     else if(SSH2_IS_LITERAL(name, name_len, "ecdsa-sha2-nistp384"))
