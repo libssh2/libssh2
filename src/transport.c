@@ -912,9 +912,12 @@ static int transport_send_existing(LIBSSH2_SESSION *session,
            that the caller does not try to send a new/different packet since
            we do not add this one up until the previous one has been sent. To
            make the caller really notice his/hers flaw, we return error for
-           this case */
+           this case. The previous packet is still pending on the write side,
+           so flag OUTBOUND so callers that consult
+           libssh2_session_block_directions() know what to wait on. */
         ssh2_deb((session, LIBSSH2_TRACE_SOCKET,
                   "Address is different, returning EAGAIN"));
+        session->socket_block_directions |= LIBSSH2_SESSION_BLOCK_OUTBOUND;
         return LIBSSH2_ERROR_EAGAIN;
     }
 
@@ -957,7 +960,12 @@ static int transport_send_existing(LIBSSH2_SESSION *session,
 
     p->osent += rc; /* we sent away this much data */
 
-    return rc < length ? LIBSSH2_ERROR_EAGAIN : LIBSSH2_ERROR_NONE;
+    if(rc < length) {
+        /* partial send: there are still bytes pending on the write side */
+        session->socket_block_directions |= LIBSSH2_SESSION_BLOCK_OUTBOUND;
+        return LIBSSH2_ERROR_EAGAIN;
+    }
+    return LIBSSH2_ERROR_NONE;
 }
 
 /*
