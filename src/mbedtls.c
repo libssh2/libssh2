@@ -997,9 +997,9 @@ static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
 {
     struct string_buf *decrypted = NULL;
     char *name = NULL;
-    unsigned char *curve, *exponent, *point_buf;
-    size_t name_len, curvelen, exponentlen, pointlen;
-    ssh2_curve_type type;
+    unsigned char *curvebuf, *exponent, *pointbuf;
+    size_t name_len, curvebuf_len, exponent_len, pointbuf_len;
+    ssh2_curve_type curve;
 
     if(ssh2_openssh_pem_parse(session, NULL, data, data_len,
                               passphrase, &decrypted))
@@ -1008,16 +1008,16 @@ static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
     if(ssh2_get_chars(decrypted, &name, &name_len))
         goto failed;
 
-    if(ssh2_pem_ecdsa_curve_type_from_name(name, name_len, &type))
+    if(ssh2_pem_ecdsa_curve_type_from_name(name, name_len, &curve))
         goto failed;
 
-    if(ssh2_get_string(decrypted, &curve, &curvelen))
+    if(ssh2_get_string(decrypted, &curvebuf, &curvebuf_len))
         goto failed;
 
-    if(ssh2_get_string(decrypted, &point_buf, &pointlen))
+    if(ssh2_get_string(decrypted, &pointbuf, &pointbuf_len))
         goto failed;
 
-    if(ssh2_get_bignum_bytes(decrypted, &exponent, &exponentlen))
+    if(ssh2_get_bignum_bytes(decrypted, &exponent, &exponent_len))
         goto failed;
 
     *ctx = mbedtls_calloc(1, sizeof(ssh2_ecdsa_ctx));
@@ -1027,11 +1027,11 @@ static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
     mbedtls_ecdsa_init(*ctx);
 
     if(mbedtls_ecp_group_load(&(*ctx)->MBEDTLS_PRIVATE(grp),
-                              (mbedtls_ecp_group_id)type))
+                              (mbedtls_ecp_group_id)curve))
         goto failed;
 
     if(mbedtls_mpi_read_binary(&(*ctx)->MBEDTLS_PRIVATE(d),
-                               exponent, exponentlen))
+                               exponent, exponent_len))
         goto failed;
 
     if(mbedtls_ecp_mul(&(*ctx)->MBEDTLS_PRIVATE(grp),
