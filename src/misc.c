@@ -808,19 +808,6 @@ void *ssh2_calloc(LIBSSH2_SESSION *session, size_t size)
     return p;
 }
 
-/* XOR operation on buffers input1 and input2, result in output.
-   It is safe to use an input buffer as the output buffer. */
-void ssh2_xor_data(unsigned char *output,
-                   const unsigned char *input1,
-                   const unsigned char *input2,
-                   size_t length)
-{
-    size_t i;
-
-    for(i = 0; i < length; i++)
-        *output++ = *input1++ ^ *input2++;
-}
-
 #ifdef LIBSSH2_MEMZERO
 static void *(* const volatile memset_libssh)(void *, int, size_t) = memset;
 
