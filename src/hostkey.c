@@ -636,7 +636,7 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
     buf.dataptr = buf.data;
     buf.len = hostkey_data_len;
 
-    if(ssh2_get_string(&buf, (unsigned char **)&type_str, &len) || len != 19)
+    if(ssh2_get_chars(&buf, &type_str, &len) || len != 19)
         return -1;
 
     if(!strncmp(type_str, "ecdsa-sha2-nistp256", 19))
@@ -648,7 +648,7 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
     else
         return -1;
 
-    if(ssh2_get_string(&buf, (unsigned char **)&domain, &len) || len != 8)
+    if(ssh2_get_chars(&buf, &domain, &len) || len != 8)
         return -1;
 
     if(type == SSH2_EC_CURVE_NISTP256 && strncmp(domain, "nistp256", 8))
