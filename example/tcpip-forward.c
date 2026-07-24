@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
             remote_listenhost, remote_listenport,
             local_destip, local_destport);
 
-    /* Must use non-blocking IO hereafter due to the current libssh2 API */
+    /* Must use non-blocking I/O hereafter due to the current libssh2 API */
     libssh2_session_set_blocking(session, 0);
 
     for(;;) {
