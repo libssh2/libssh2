@@ -1870,9 +1870,10 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
         goto clean_exit;
     }
 
-    /* Key form is: type_len(4) + type(26) + pub_key_len(4) +
-       pub_key(32) + application_len(4) + application(X). */
-    key_len = SSH2_ED25519_KEY_LEN + 38 + app_len;
+    /* Key form is: type_len(4) + type(26) + pub_key_len(4) + pub_key(32)
+       + application_len(4) + application(X). */
+    key_len = 4 + sizeof(method_name) - 1 + 4 + SSH2_ED25519_KEY_LEN +
+              4 + app_len;
     key = p = SSH2_CALLOC(session, key_len);
     if(!key) {
         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
