@@ -1577,7 +1577,7 @@ static void kex_method_ecdh_cleanup(LIBSSH2_SESSION *session,
 /*
  * Elliptic Curve Diffie Hellman Key Exchange
  */
-static int kex_ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
+static int kex_ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type curve,
                                unsigned char *data, size_t data_len,
                                unsigned char *public_key,
                                size_t public_key_len, ssh2_ec_key *private_key,
@@ -1589,15 +1589,15 @@ static int kex_ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type type,
     ssh2_hash_alg hash_alg;
     size_t digest_len = 0;
 
-    if(type == SSH2_EC_CURVE_NISTP256) {
+    if(curve == SSH2_EC_CURVE_NISTP256) {
         hash_alg = SSH2_SHA256_ALG;
         digest_len = SSH2_SHA256_DIG_LEN;
     }
-    else if(type == SSH2_EC_CURVE_NISTP384) {
+    else if(curve == SSH2_EC_CURVE_NISTP384) {
         hash_alg = SSH2_SHA384_ALG;
         digest_len = SSH2_SHA384_DIG_LEN;
     }
-    else if(type == SSH2_EC_CURVE_NISTP521) {
+    else if(curve == SSH2_EC_CURVE_NISTP521) {
         hash_alg = SSH2_SHA512_ALG;
         digest_len = SSH2_SHA512_DIG_LEN;
     }
