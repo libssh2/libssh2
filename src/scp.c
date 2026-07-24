@@ -332,8 +332,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
     if(session->scpRecv_state == ssh2_NB_state_created) {
         /* Allocate a channel */
         session->scpRecv_channel =
-            ssh2_channel_open(session, "session",
-                              sizeof("session") - 1,
+            ssh2_channel_open(session, "session", sizeof("session") - 1,
                               LIBSSH2_CHANNEL_WINDOW_DEFAULT,
                               LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL, 0);
         if(!session->scpRecv_channel) {
@@ -352,8 +351,8 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
 
     if(session->scpRecv_state == ssh2_NB_state_sent) {
         /* Request SCP for the desired file */
-        rc = ssh2_channel_process_startup(session->scpRecv_channel, "exec",
-                                          sizeof("exec") - 1,
+        rc = ssh2_channel_process_startup(session->scpRecv_channel,
+                                          "exec", sizeof("exec") - 1,
                                           session->scpRecv_command,
                                           session->scpRecv_command_len);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
@@ -891,8 +890,8 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
 
     if(session->scpSend_state == ssh2_NB_state_sent) {
         /* Request SCP for the desired file */
-        rc = ssh2_channel_process_startup(session->scpSend_channel, "exec",
-                                          sizeof("exec") - 1,
+        rc = ssh2_channel_process_startup(session->scpSend_channel,
+                                          "exec", sizeof("exec") - 1,
                                           session->scpSend_command,
                                           session->scpSend_command_len);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
