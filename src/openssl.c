@@ -2561,7 +2561,7 @@ clean_exit:
 }
 
 static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
-                                             ssh2_curve_type curve_type,
+                                             ssh2_curve_type curve,
                                              struct string_buf *decrypted,
                                              char **method,
                                              unsigned char **pubkeydata,
@@ -2576,7 +2576,7 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
 #ifdef USE_OPENSSL_3
     EVP_PKEY_CTX *fromdata_ctx = NULL;
     OSSL_PARAM params[4];
-    const char *n = EC_curve_nid2nist(curve_type);
+    const char *n = EC_curve_nid2nist(curve);
     char *group_name = NULL;
 #else
     BIGNUM *bn_exponent;
@@ -2633,7 +2633,7 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
         OPENSSL_clear_free(group_name, strlen(n) + 1);
 #else
     rc = ssh2_ecdsa_curve_name_with_octal_new(&ctx, point_buf, pointlen,
-                                              curve_type);
+                                              curve);
     if(rc) {
         rc = -1;
         ssh2_err(session, LIBSSH2_ERROR_PROTO, "ECDSA could not create key");
