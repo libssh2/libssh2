@@ -448,8 +448,7 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
         goto out;
     }
 
-    if(ssh2_get_chars(&decoded, &kdfname, &kdfname_len) ||
-       kdfname_len == 0) {
+    if(ssh2_get_chars(&decoded, &kdfname, &kdfname_len) || kdfname_len == 0) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "kdfname is missing");
         goto out;
     }
