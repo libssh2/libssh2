@@ -3340,6 +3340,7 @@ static int ossl_key_from_openssh(LIBSSH2_SESSION *session,
 {
     int rc;
     char *buf = NULL;
+    size_t buf_len = 0;
     struct string_buf *decrypted = NULL;
 #if LIBSSH2_ECDSA
     ssh2_curve_type type;
@@ -3363,7 +3364,7 @@ static int ossl_key_from_openssh(LIBSSH2_SESSION *session,
         return rc;
 
     /* We have a new key file, now try and parse it using supported types */
-    rc = ssh2_get_chars(decrypted, &buf, NULL);
+    rc = ssh2_get_chars(decrypted, &buf, &buf_len);
     if(rc || !buf) {
         rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                       "Public key type in decrypted key data not found");
@@ -3448,6 +3449,7 @@ int ssh2_sk_pubkey(LIBSSH2_SESSION *session, char **method,
 {
     int rc;
     char *buf = NULL;
+    size_t buf_len = 0;
     struct string_buf *decrypted = NULL;
 
     if(!session)
@@ -3465,7 +3467,7 @@ int ssh2_sk_pubkey(LIBSSH2_SESSION *session, char **method,
         return rc;
 
     /* We have a new key file, now try and parse it using supported types */
-    rc = ssh2_get_chars(decrypted, &buf, NULL);
+    rc = ssh2_get_chars(decrypted, &buf, &buf_len);
     if(rc || !buf) {
         rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                       "Public key type in decrypted key data not found");
