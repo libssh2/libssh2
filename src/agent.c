@@ -599,7 +599,7 @@ static int agent_connect_unix(LIBSSH2_AGENT *agent)
     memcpy(s_un.sun_path, path, plen);
     s_un.sun_path[plen] = '\0';
 
-    if(connect(agent->fd, (struct sockaddr *)(&s_un), sizeof(s_un)) != 0) {
+    if(connect(agent->fd, (struct sockaddr *)&s_un, sizeof(s_un)) != 0) {
         close(agent->fd);
         return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                         "failed connecting with agent");
