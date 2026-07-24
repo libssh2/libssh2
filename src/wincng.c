@@ -2328,7 +2328,7 @@ static int wcng_ecdsa_new_private_parse(OUT ssh2_ecdsa_ctx **ec_ctx,
     unsigned char *publickey;
     size_t publickey_len;
 
-    ssh2_curve_type curve_type;
+    ssh2_curve_type curve;
     int result;
     uint32_t check1, check2;
     struct string_buf data_buffer;
@@ -2371,8 +2371,7 @@ static int wcng_ecdsa_new_private_parse(OUT ssh2_ecdsa_ctx **ec_ctx,
     if(result != LIBSSH2_ERROR_NONE)
         goto cleanup;
 
-    result = wcng_ecdsa_curve_type_from_name(keytype,
-                                             keytype_len, &curve_type);
+    result = wcng_ecdsa_curve_type_from_name(keytype, keytype_len, &curve);
     if(result < 0)
         goto cleanup;
 
