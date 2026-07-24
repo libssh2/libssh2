@@ -92,16 +92,16 @@ static int hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
 
     /* we accept one of 3 header types */
 #if LIBSSH2_RSA_SHA1
-    if(type_len == 7 && !strncmp("ssh-rsa", (char *)type, 7)) {
+    if(SSH2_IS_LITERAL(type, type_len, "ssh-rsa")) {
         /* ssh-rsa */
     }
     else
 #endif
 #if LIBSSH2_RSA_SHA2
-    if(type_len == 12 && !strncmp("rsa-sha2-256", (char *)type, 12)) {
+    if(SSH2_IS_LITERAL(type, type_len, "rsa-sha2-256")) {
         /* rsa-sha2-256 */
     }
-    else if(type_len == 12 && !strncmp("rsa-sha2-512", (char *)type, 12)) {
+    else if(SSH2_IS_LITERAL(type, type_len, "rsa-sha2-512")) {
         /* rsa-sha2-512 */
     }
     else
@@ -636,26 +636,29 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
     buf.dataptr = buf.data;
     buf.len = hostkey_data_len;
 
-    if(ssh2_get_chars(&buf, &type_str, &len) || len != 19)
+    if(ssh2_get_chars(&buf, &type_str, &len))
         return -1;
 
-    if(!strncmp(type_str, "ecdsa-sha2-nistp256", 19))
+    if(SSH2_IS_LITERAL(type_str, len, "ecdsa-sha2-nistp256"))
         curve = SSH2_EC_CURVE_NISTP256;
-    else if(!strncmp(type_str, "ecdsa-sha2-nistp384", 19))
+    else if(SSH2_IS_LITERAL(type_str, len, "ecdsa-sha2-nistp384"))
         curve = SSH2_EC_CURVE_NISTP384;
-    else if(!strncmp(type_str, "ecdsa-sha2-nistp521", 19))
+    else if(SSH2_IS_LITERAL(type_str, len, "ecdsa-sha2-nistp521"))
         curve = SSH2_EC_CURVE_NISTP521;
     else
         return -1;
 
-    if(ssh2_get_chars(&buf, &domain, &len) || len != 8)
+    if(ssh2_get_chars(&buf, &domain, &len))
         return -1;
 
-    if(curve == SSH2_EC_CURVE_NISTP256 && strncmp(domain, "nistp256", 8))
+    if(curve == SSH2_EC_CURVE_NISTP256 &&
+       !SSH2_IS_LITERAL(domain, len, "nistp256"))
         return -1;
-    else if(curve == SSH2_EC_CURVE_NISTP384 && strncmp(domain, "nistp384", 8))
+    else if(curve == SSH2_EC_CURVE_NISTP384 &&
+            !SSH2_IS_LITERAL(domain, len, "nistp384"))
         return -1;
-    else if(curve == SSH2_EC_CURVE_NISTP521 && strncmp(domain, "nistp521", 8))
+    else if(curve == SSH2_EC_CURVE_NISTP521 &&
+            !SSH2_IS_LITERAL(domain, len, "nistp521"))
         return -1;
 
     /* public key */
