@@ -181,22 +181,21 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
             goto error;
 
         if(!ptrlen) {
+            SSH2_FREE(hosts->session, ptr);
             rc = ssh2_err(hosts->session, LIBSSH2_ERROR_INVAL,
                           "Base64 decoded value is invalid");
             goto error;
         }
 
         if(!salt) {
-            if(ptr)
-                SSH2_FREE(hosts->session, ptr);
+            SSH2_FREE(hosts->session, ptr);
             rc = ssh2_err(hosts->session, LIBSSH2_ERROR_INVAL, "Salt is NULL");
             goto error;
         }
 
         salt_len = strlen(salt);
         if(salt_len > KNOWNHOST_MAX_LEN) {
-            if(ptr)
-                SSH2_FREE(hosts->session, ptr);
+            SSH2_FREE(hosts->session, ptr);
             rc = ssh2_err(hosts->session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                           "Salt too long");
             goto error;
@@ -210,6 +209,7 @@ static int knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
             goto error;
 
         if(!ptrlen) {
+            SSH2_FREE(hosts->session, ptr);
             rc = ssh2_err(hosts->session, LIBSSH2_ERROR_INVAL,
                           "Base64 decoded value is invalid");
             goto error;
