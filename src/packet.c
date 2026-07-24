@@ -671,8 +671,7 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                     buf.len = datalen;
                     buf.dataptr += 17; /* advance past type and cookie */
 
-                    if(ssh2_get_string(&buf, (unsigned char **)&algs,
-                                       &algs_len)) {
+                    if(ssh2_get_chars(&buf, &algs, &algs_len)) {
                         SSH2_FREE(session, data);
                         session->packAdd_state = ssh2_NB_state_idle;
                         return ssh2_err(session,
@@ -734,10 +733,8 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                 buf.dataptr++; /* advance past type */
 
                 ssh2_get_u32(&buf, &reason);
-                ssh2_get_string(&buf, (unsigned char **)&message,
-                                &message_len);
-                ssh2_get_string(&buf, (unsigned char **)&language,
-                                &language_len);
+                ssh2_get_chars(&buf, &message, &message_len);
+                ssh2_get_chars(&buf, &language, &language_len);
 
                 if(session->ssh_msg_disconnect)
                     SSH2_DISCONNECT(session, reason, message, message_len,
@@ -789,10 +786,8 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                     buf.len = datalen;
                     buf.dataptr += 2; /* advance past type & always display */
 
-                    ssh2_get_string(&buf, (unsigned char **)&message,
-                                    &message_len);
-                    ssh2_get_string(&buf, (unsigned char **)&language,
-                                    &language_len);
+                    ssh2_get_chars(&buf, &message, &message_len);
+                    ssh2_get_chars(&buf, &language, &language_len);
                 }
 
                 if(session->ssh_msg_debug)

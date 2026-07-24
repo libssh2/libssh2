@@ -441,13 +441,13 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
 
     decoded.dataptr += sizeof(OPENSSH_PRIVKEY_AUTH_MAGIC);
 
-    if(ssh2_get_string(&decoded, (unsigned char **)&ciphername, &tmp_len) ||
+    if(ssh2_get_chars(&decoded, &ciphername, &tmp_len) ||
        tmp_len == 0) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "ciphername is missing");
         goto out;
     }
 
-    if(ssh2_get_string(&decoded, (unsigned char **)&kdfname, &tmp_len) ||
+    if(ssh2_get_chars(&decoded, &kdfname, &tmp_len) ||
        tmp_len == 0) {
         ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "kdfname is missing");
         goto out;
