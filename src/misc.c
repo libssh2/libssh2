@@ -953,9 +953,16 @@ int ssh2_copy_string(LIBSSH2_SESSION *session, struct string_buf *buf,
         return -1;
 
     if(str_len) {
-        *outbuf = SSH2_ALLOC(session, str_len);
-        if(*outbuf)
+        if(str_len >= SIZE_MAX) {
+            *outbuf = NULL;
+            return -1;
+        }
+
+        *outbuf = SSH2_ALLOC(session, str_len + 1);
+        if(*outbuf) {
             memcpy(*outbuf, str, str_len);
+            (*outbuf)[str_len] = '\0';
+        }
         else
             return -1;
     }
