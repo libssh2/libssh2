@@ -69,7 +69,7 @@ static SSH2_INLINE int packet_queue_listener(
     int rc;
 
     if(listen_state->state == ssh2_NB_state_idle) {
-        size_t offset = strlen("forwarded-tcpip") + 5;
+        size_t offset = sizeof("forwarded-tcpip") - 1 + 5;
         size_t temp_len = 0;
         struct string_buf buf;
         buf.data = data;
@@ -151,7 +151,7 @@ static SSH2_INLINE int packet_queue_listener(
                     listen_state->channel = channel;
 
                     channel->session = session;
-                    channel->channel_type_len = strlen("forwarded-tcpip");
+                    channel->channel_type_len = sizeof("forwarded-tcpip") - 1;
                     channel->channel_type =
                         SSH2_ALLOC(session, channel->channel_type_len + 1);
                     if(!channel->channel_type) {
@@ -266,7 +266,7 @@ static SSH2_INLINE int packet_x11_open(
     int rc;
 
     if(x11open_state->state == ssh2_NB_state_idle) {
-        size_t offset = strlen("x11") + 5;
+        size_t offset = sizeof("x11") - 1 + 5;
         size_t temp_len = 0;
         unsigned char *temp_buf = NULL;
         struct string_buf buf;
@@ -341,7 +341,7 @@ static SSH2_INLINE int packet_x11_open(
             }
 
             channel->session = session;
-            channel->channel_type_len = strlen("x11");
+            channel->channel_type_len = sizeof("x11") - 1;
             channel->channel_type =
                 SSH2_ALLOC(session, channel->channel_type_len + 1);
             if(!channel->channel_type) {
@@ -451,7 +451,7 @@ static SSH2_INLINE int packet_authagent_open(
     LIBSSH2_CHANNEL *channel = authagent_state->channel;
     int rc;
     struct string_buf buf;
-    size_t offset = strlen("auth-agent@openssh.org") + 5;
+    size_t offset = sizeof("auth-agent@openssh.org") - 1 + 5;
 
     buf.data = data;
     buf.dataptr = buf.data;
@@ -494,7 +494,7 @@ static SSH2_INLINE int packet_authagent_open(
             }
 
             channel->session = session;
-            channel->channel_type_len = strlen("auth agent");
+            channel->channel_type_len = sizeof("auth agent") - 1;
             channel->channel_type =
                 SSH2_ALLOC(session, channel->channel_type_len + 1);
             if(!channel->channel_type) {
@@ -1102,8 +1102,9 @@ ssh2_packet_add_jump_point1:
                           "Channel %u received request type %.*s (wr %X)",
                           channel, (int)len, request, want_reply));
 
-                if(len == strlen("exit-status") &&
-                   !memcmp("exit-status", request, strlen("exit-status"))) {
+                if(len == sizeof("exit-status") - 1 &&
+                   !memcmp("exit-status",
+                           request, sizeof("exit-status") - 1)) {
 
                     /* we have got "exit-status" packet. Set the session value.
                      */
@@ -1126,9 +1127,9 @@ ssh2_packet_add_jump_point1:
                                   channelp->remote.id));
                     }
                 }
-                else if(len == strlen("exit-signal") &&
+                else if(len == sizeof("exit-signal") - 1 &&
                         !memcmp("exit-signal", request,
-                                strlen("exit-signal"))) {
+                                sizeof("exit-signal") - 1)) {
 
                     /* command terminated due to signal */
                     if(datalen >= 20)
@@ -1226,10 +1227,10 @@ clean_exit:
         case SSH_MSG_CHANNEL_OPEN:
             if(datalen < 17)
                 ;
-            else if(datalen >= (strlen("forwarded-tcpip") + 5) &&
-                    strlen("forwarded-tcpip") == ssh2_ntohu32(data + 1) &&
+            else if(datalen >= (sizeof("forwarded-tcpip") - 1 + 5) &&
+                    ssh2_ntohu32(data + 1) == sizeof("forwarded-tcpip") - 1 &&
                     !memcmp(data + 5, "forwarded-tcpip",
-                            strlen("forwarded-tcpip"))) {
+                            sizeof("forwarded-tcpip") - 1)) {
 
                 /* init the state struct */
                 memset(&session->packAdd_Qlstn_state, 0,
@@ -1240,9 +1241,9 @@ ssh2_packet_add_jump_point2:
                 rc = packet_queue_listener(session, data, datalen,
                                            &session->packAdd_Qlstn_state);
             }
-            else if(datalen >= (strlen("x11") + 5) &&
-                    strlen("x11") == ssh2_ntohu32(data + 1) &&
-                    !memcmp(data + 5, "x11", strlen("x11"))) {
+            else if(datalen >= (sizeof("x11") - 1 + 5) &&
+                    ssh2_ntohu32(data + 1) == sizeof("x11") - 1 &&
+                    !memcmp(data + 5, "x11", sizeof("x11") - 1)) {
 
                 /* init the state struct */
                 memset(&session->packAdd_x11open_state, 0,
@@ -1253,11 +1254,11 @@ ssh2_packet_add_jump_point3:
                 rc = packet_x11_open(session, data, datalen,
                                      &session->packAdd_x11open_state);
             }
-            else if(datalen >= (strlen("auth-agent@openssh.com") + 5) &&
-                    strlen("auth-agent@openssh.com") ==
-                        ssh2_ntohu32(data + 1) &&
+            else if(datalen >= (sizeof("auth-agent@openssh.com") - 1 + 5) &&
+                    ssh2_ntohu32(data + 1) ==
+                        sizeof("auth-agent@openssh.com") - 1 &&
                     !memcmp(data + 5, "auth-agent@openssh.com",
-                            strlen("auth-agent@openssh.com"))) {
+                            sizeof("auth-agent@openssh.com") - 1)) {
 
                 /* init the state struct */
                 memset(&session->packAdd_authagent_state, 0,
