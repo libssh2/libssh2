@@ -843,7 +843,7 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                                   "Server to Client extension %.*s: %.*s",
                                   (int)name_len, name, (int)value_len, value));
 
-                    if(SSH2_IS_LITERAL(name, name_len, "server-sig-algs") {
+                    if(SSH2_IS_LITERAL(name, name_len, "server-sig-algs")) {
                         if(session->server_sign_algorithms)
                             SSH2_FREE(session,
                                       session->server_sign_algorithms);
