@@ -451,7 +451,7 @@ static SSH2_INLINE int packet_authagent_open(
     LIBSSH2_CHANNEL *channel = authagent_state->channel;
     int rc;
     struct string_buf buf;
-    size_t offset = sizeof("auth-agent@openssh.org") - 1 + 5;
+    size_t offset = sizeof("auth-agent@openssh.com") - 1 + 5;
 
     buf.data = data;
     buf.dataptr = buf.data;
