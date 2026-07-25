@@ -1327,7 +1327,7 @@ ssh2_packet_add_jump_authagent:
 
     if((msg == SSH_MSG_KEXINIT &&
         !(session->state & SSH2_STATE_EXCHANGING_KEYS)) ||
-       (session->packAdd_state == ssh2_NB_state_sent2)) {
+       session->packAdd_state == ssh2_NB_state_sent2) {
 
         if(session->packAdd_state == ssh2_NB_state_sent1) {
             /*
