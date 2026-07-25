@@ -801,7 +801,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
         int ret = ssh2_channel_process_startup(session->sftpInit_channel,
                                                "subsystem",
                                                sizeof("subsystem") - 1,
-                                               "sftp", strlen("sftp"));
+                                               "sftp", sizeof("sftp") - 1);
         if(ret == LIBSSH2_ERROR_EAGAIN) {
             ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
                      "Would block to request SFTP subsystem");
