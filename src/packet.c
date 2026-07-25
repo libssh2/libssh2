@@ -843,8 +843,7 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                                   "Server to Client extension %.*s: %.*s",
                                   (int)name_len, name, (int)value_len, value));
 
-                    if(name && name_len == 15 &&
-                       !memcmp(name, "server-sig-algs", 15)) {
+                    if(SSH2_IS_LITERAL(name, name_len, "server-sig-algs") {
                         if(session->server_sign_algorithms)
                             SSH2_FREE(session,
                                       session->server_sign_algorithms);
@@ -1102,10 +1101,7 @@ ssh2_packet_add_jump_point1:
                           "Channel %u received request type %.*s (wr %X)",
                           channel, (int)len, request, want_reply));
 
-                if(len == sizeof("exit-status") - 1 &&
-                   !memcmp("exit-status",
-                           request, sizeof("exit-status") - 1)) {
-
+                if(SSH2_IS_LITERAL(request, len, "exit-status")) {
                     /* we have got "exit-status" packet. Set the session value.
                      */
                     if(datalen >= 20)
@@ -1127,10 +1123,7 @@ ssh2_packet_add_jump_point1:
                                   channelp->remote.id));
                     }
                 }
-                else if(len == sizeof("exit-signal") - 1 &&
-                        !memcmp("exit-signal", request,
-                                sizeof("exit-signal") - 1)) {
-
+                else if(SSH2_IS_LITERAL(request, len, "exit-signal")) {
                     /* command terminated due to signal */
                     if(datalen >= 20)
                         channelp = ssh2_channel_locate(session, channel);
