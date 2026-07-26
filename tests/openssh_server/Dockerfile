@@ -26,6 +26,16 @@ RUN install -m 0600 /tmp/etc/ssh/ssh_host_ecdsa_key /etc/ssh/ssh_host_ecdsa_key
 COPY ssh_host_ed25519_key /tmp/etc/ssh/ssh_host_ed25519_key
 RUN install -m 0600 /tmp/etc/ssh/ssh_host_ed25519_key /etc/ssh/ssh_host_ed25519_key
 
+# Host certificates (for certificate hostkey verification tests)
+COPY ssh_host_rsa_key-cert.pub /tmp/etc/ssh/ssh_host_rsa_key-cert.pub
+RUN install -m 0644 /tmp/etc/ssh/ssh_host_rsa_key-cert.pub /etc/ssh/ssh_host_rsa_key-cert.pub
+
+COPY ssh_host_ecdsa_key-cert.pub /tmp/etc/ssh/ssh_host_ecdsa_key-cert.pub
+RUN install -m 0644 /tmp/etc/ssh/ssh_host_ecdsa_key-cert.pub /etc/ssh/ssh_host_ecdsa_key-cert.pub
+
+COPY ssh_host_ed25519_key-cert.pub /tmp/etc/ssh/ssh_host_ed25519_key-cert.pub
+RUN install -m 0644 /tmp/etc/ssh/ssh_host_ed25519_key-cert.pub /etc/ssh/ssh_host_ed25519_key-cert.pub
+
 # Trusted CA keys
 COPY ca_ecdsa /tmp/etc/ssh/ca_ecdsa
 RUN install -m 0600 /tmp/etc/ssh/ca_ecdsa /etc/ssh/ca_ecdsa

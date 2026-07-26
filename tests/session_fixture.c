@@ -104,6 +104,7 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
 
     const char *crypt = getenv("FIXTURE_TEST_CRYPT");
     const char *mac = getenv("FIXTURE_TEST_MAC");
+    const char *hostkey = getenv("FIXTURE_TEST_HOSTKEY");
 
     *skipped = 0;
     *err = LIBSSH2_ERROR_NONE;
@@ -177,6 +178,17 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
                                        LIBSSH2_METHOD_MAC_SC, mac)) {
             fprintf(stderr, "libssh2_session_method_pref MAC failed "
                             "(probably disabled in the build): '%s'\n", mac);
+            return NULL;
+        }
+    }
+
+    /* Override hostkey algorithm for the test */
+    if(hostkey) {
+        if(libssh2_session_method_pref(connected_session,
+                                       LIBSSH2_METHOD_HOSTKEY, hostkey)) {
+            fprintf(stderr, "libssh2_session_method_pref HOSTKEY failed "
+                            "(probably disabled in the build): '%s'\n",
+                            hostkey);
             return NULL;
         }
     }

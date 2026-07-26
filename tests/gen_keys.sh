@@ -9,7 +9,7 @@ set -eu
 
 # tests/openssh_server
 
-rm ./openssh_server/*_key || true
+rm ./openssh_server/*_key ./openssh_server/*_key-cert.pub || true
 
 ssh-keygen -t rsa     -b 2048 -N ''          -m PEM -C ''                        -f 'openssh_server/ssh_host_rsa_key'
 ssh-keygen -t ecdsa   -b  256 -N ''          -m PEM -C ''                        -f 'openssh_server/ssh_host_ecdsa_key'
@@ -19,6 +19,12 @@ rm ./openssh_server/ca_* || true
 
 ssh-keygen -t ecdsa   -b  521 -N ''                 -C 'ca_ecdsa'                -f 'openssh_server/ca_ecdsa'
 ssh-keygen -t rsa     -b 3072 -N ''                 -C 'ca_rsa'                  -f 'openssh_server/ca_rsa'
+
+# Host certificates (signed by the CAs above). Used by test_hostkey_cert
+# to exercise certificate hostkey verification.
+ssh-keygen -I 'host_rsa'     -h -n 'libssh2' -s 'openssh_server/ca_rsa'   'openssh_server/ssh_host_rsa_key.pub'
+ssh-keygen -I 'host_ecdsa'   -h -n 'libssh2' -s 'openssh_server/ca_ecdsa' 'openssh_server/ssh_host_ecdsa_key.pub'
+ssh-keygen -I 'host_ed25519' -h -n 'libssh2' -s 'openssh_server/ca_ecdsa' 'openssh_server/ssh_host_ed25519_key.pub'
 
 # tests
 

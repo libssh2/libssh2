@@ -113,6 +113,12 @@ if(RUN_DOCKER_TESTS)
       set_property(TEST ${_test} APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
     endif()
   endforeach()
+
+  # The test server now offers certificate hostkey algorithms too (see
+  # test_hostkey_cert). Pin the plain-hostkey tests to a specific plain
+  # algorithm so they don't accidentally negotiate a cert variant.
+  set_property(TEST test_hostkey APPEND PROPERTY ENVIRONMENT "FIXTURE_TEST_HOSTKEY=ssh-ed25519")
+  set_property(TEST test_hostkey_hash APPEND PROPERTY ENVIRONMENT "FIXTURE_TEST_HOSTKEY=ssh-ed25519")
 endif()
 
 foreach(_test IN LISTS STANDALONE_TESTS)
@@ -151,6 +157,19 @@ if(RUN_DOCKER_TESTS)
       else()
         set_property(TEST ${_testname} APPEND PROPERTY ENVIRONMENT "FIXTURE_TEST_CRYPT=${_test}")
       endif()
+    endif()
+  endforeach()
+
+  # Certificate hostkey verification tests (issue #2434)
+  file(READ "test_hostkey_cert_algos.txt" _cert_algos)
+  string(REGEX REPLACE "\\
+" ";" _cert_algos ${_cert_algos})
+  foreach(_algo IN LISTS _cert_algos)
+    if(_algo)
+      set(_testname "test_hostkey_cert-${_algo}")
+      add_test(NAME ${_testname} COMMAND "$<TARGET_FILE:test_hostkey_cert>")
+      set_property(TEST ${_testname} APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
+      set_property(TEST ${_testname} APPEND PROPERTY ENVIRONMENT "FIXTURE_TEST_HOSTKEY=${_algo}")
     endif()
   endforeach()
 endif()

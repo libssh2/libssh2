@@ -375,13 +375,118 @@ static const struct hostkey_method hostkey_method_ssh_rsa_sha2_512 = {
     hostkey_method_ssh_rsa_dtor,
 };
 #endif /* LIBSSH2_RSA_SHA2 */
+
+/*
+ * Initialize the server hostkey cert.
+ *
+ * OpenSSH RSA certificate format (PROTOCOL.certkeys):
+ *   string    "ssh-rsa-cert-v01@openssh.com"
+ *   string    nonce
+ *   mpint     e
+ *   mpint     n
+ *   <trailing cert metadata we do not read>
+ *
+ * rsa-sha2-256-cert-v01 and rsa-sha2-512-cert-v01 share the same blob
+ * layout; only the cert-type string and the signature algorithm differ.
+ * The existing sig_verify (per-algo) operates on the abstract (the inner
+ * RSA key ctx) and is reused verbatim.
+ */
+static int hostkey_method_ssh_rsa_init_cert(
+    LIBSSH2_SESSION *session,
+    const unsigned char *hostkey_data,
+    size_t hostkey_data_len,
+    const char *cert_type,
+    void **abstract)
+{
+    ssh2_rsa_ctx *rsa;
+    unsigned char *e, *n, *nonce;
+    size_t e_len, n_len, nonce_len;
+    struct string_buf buf;
+
+    if(*abstract) {
+        hostkey_method_ssh_rsa_dtor(session, abstract);
+        *abstract = NULL;
+    }
+
+    /* 4 + 23 + 4 + 16 + 4 + 4 */
+    if(hostkey_data_len < 55) {
+        ssh2_deb((session, LIBSSH2_TRACE_ERROR, "host key length too short"));
+        return -1;
+    }
+
+    buf.data = SSH2_UNCONST(hostkey_data);
+    buf.dataptr = buf.data;
+    buf.len = hostkey_data_len;
+
+    if(ssh2_match_string(&buf, cert_type))
+        return -1;
+
+    /* nonce - must be min of 16 bytes */
+    if(ssh2_get_string(&buf, &nonce, &nonce_len) || nonce_len < 16)
+        return -1;
+
+    if(ssh2_get_bignum_bytes(&buf, &e, &e_len) ||
+        ssh2_get_bignum_bytes(&buf, &n, &n_len))
+        return -1;
+
+    /*
+     * we cannot check for eob here because certs have more meta data
+     * we do not read
+     */
+
+    if(ssh2_rsa_new(&rsa, e, e_len, n, n_len,
+                    NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0))
+        return -1;
+
+    *abstract = rsa;
+
+    return 0;
+}
+
+#if LIBSSH2_RSA_SHA1
+static int hostkey_method_ssh_rsa_sha1_init_cert(
+    LIBSSH2_SESSION *session, const unsigned char *hostkey_data,
+    size_t hostkey_data_len, void **abstract)
+{
+    return hostkey_method_ssh_rsa_init_cert(session, hostkey_data,
+                                           hostkey_data_len,
+                                           "ssh-rsa-cert-v01@openssh.com",
+                                           abstract);
+}
+#endif /* LIBSSH2_RSA_SHA1 */
+
+#if LIBSSH2_RSA_SHA2
+static int hostkey_method_ssh_rsa_sha2_256_init_cert(
+    LIBSSH2_SESSION *session, const unsigned char *hostkey_data,
+    size_t hostkey_data_len, void **abstract)
+{
+    /* Per PROTOCOL.certkeys, the RSA/SHA-2 cert types appear only in
+     * KEXINIT and the signature; the on-wire cert blob's type string is
+     * always "ssh-rsa-cert-v01@openssh.com". */
+    return hostkey_method_ssh_rsa_init_cert(session, hostkey_data,
+                                           hostkey_data_len,
+                                           "ssh-rsa-cert-v01@openssh.com",
+                                           abstract);
+}
+
+static int hostkey_method_ssh_rsa_sha2_512_init_cert(
+    LIBSSH2_SESSION *session, const unsigned char *hostkey_data,
+    size_t hostkey_data_len, void **abstract)
+{
+    return hostkey_method_ssh_rsa_init_cert(session, hostkey_data,
+                                           hostkey_data_len,
+                                           "ssh-rsa-cert-v01@openssh.com",
+                                           abstract);
+}
+#endif /* LIBSSH2_RSA_SHA2 */
+
 #if LIBSSH2_RSA_SHA1
 static const struct hostkey_method hostkey_method_ssh_rsa_cert = {
     "ssh-rsa-cert-v01@openssh.com",
     SSH2_SHA1_DIG_LEN,
-    NULL,
+    hostkey_method_ssh_rsa_sha1_init_cert,
     hostkey_method_ssh_rsa_initPEM,
-    NULL,
+    hostkey_method_ssh_rsa_sig_verify,
     hostkey_method_ssh_rsa_signv,
     NULL, /* encrypt */
     hostkey_method_ssh_rsa_dtor,
@@ -391,9 +496,9 @@ static const struct hostkey_method hostkey_method_ssh_rsa_cert = {
 static const struct hostkey_method hostkey_method_ssh_rsa_sha2_256_cert = {
     "rsa-sha2-256-cert-v01@openssh.com",
     SSH2_SHA256_DIG_LEN,
-    NULL,
+    hostkey_method_ssh_rsa_sha2_256_init_cert,
     hostkey_method_ssh_rsa_initPEM,
-    NULL,
+    hostkey_method_ssh_rsa_sha2_256_sig_verify,
     hostkey_method_ssh_rsa_sha2_256_signv,
     NULL, /* encrypt */
     hostkey_method_ssh_rsa_dtor,
@@ -402,9 +507,9 @@ static const struct hostkey_method hostkey_method_ssh_rsa_sha2_256_cert = {
 static const struct hostkey_method hostkey_method_ssh_rsa_sha2_512_cert = {
     "rsa-sha2-512-cert-v01@openssh.com",
     SSH2_SHA512_DIG_LEN,
-    NULL,
+    hostkey_method_ssh_rsa_sha2_512_init_cert,
     hostkey_method_ssh_rsa_initPEM,
-    NULL,
+    hostkey_method_ssh_rsa_sha2_512_sig_verify,
     hostkey_method_ssh_rsa_sha2_512_signv,
     NULL, /* encrypt */
     hostkey_method_ssh_rsa_dtor,
@@ -829,12 +934,127 @@ static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp521 = {
     hostkey_method_ssh_ecdsa_dtor,
 };
 
+/*
+ * Initialize the server hostkey cert.
+ *
+ * OpenSSH certificate format (PROTOCOL.certkeys):
+ *   string    "ecdsa-sha2-nistpXXX-cert-v01@openssh.com"
+ *   string    nonce
+ *   string    curve        (same as the plain key)
+ *   string    public_key   (EC point, same as the plain key)
+ *   <trailing cert metadata we do not read>
+ *
+ * We parse the cert-type string and nonce, then reuse the plain
+ * curve-name + EC point parsing. The existing sig_verify operates on
+ * the abstract (the inner key ctx) and is reused verbatim.
+ */
+static int hostkey_method_ssh_ecdsa_init_cert(
+    LIBSSH2_SESSION *session,
+    const unsigned char *hostkey_data,
+    size_t hostkey_data_len,
+    ssh2_curve_type curve,
+    const char *cert_type,
+    const char *curve_name,
+    void **abstract)
+{
+    ssh2_ecdsa_ctx *ec_ctx = NULL;
+    char *domain;
+    unsigned char *public_key, *nonce;
+    size_t key_len, len, nonce_len;
+    struct string_buf buf;
+
+    if(abstract && *abstract) {
+        hostkey_method_ssh_ecdsa_dtor(session, abstract);
+        *abstract = NULL;
+    }
+
+    /* 4 + 31 + 4 + 16 + 4 + 8 + 4 + 65 */
+    if(hostkey_data_len < 136) {
+        ssh2_deb((session, LIBSSH2_TRACE_ERROR, "host key length too short"));
+        return -1;
+    }
+
+    buf.data = SSH2_UNCONST(hostkey_data);
+    buf.dataptr = buf.data;
+    buf.len = hostkey_data_len;
+
+    if(ssh2_match_string(&buf, cert_type))
+        return -1;
+
+    /* nonce - must be min of 16 bytes */
+    if(ssh2_get_string(&buf, &nonce, &nonce_len) || nonce_len < 16)
+        return -1;
+
+    /* inner public key: curve name */
+    if(ssh2_get_chars(&buf, &domain, &len))
+        return -1;
+    /* SSH2_IS_LITERAL only works with string literals (sizeof on an array);
+     * curve_name is a const char * parameter, so compare manually. */
+    {
+        size_t curve_name_len = strlen(curve_name);
+        if(len != curve_name_len || !domain ||
+           memcmp(domain, curve_name, curve_name_len))
+            return -1;
+    }
+
+    /* inner public key: EC point */
+    if(ssh2_get_string(&buf, &public_key, &key_len))
+        return -1;
+
+    /*
+     * we cannot check for eob here because certs have more meta data
+     * we do not read
+     */
+
+    if(ssh2_ecdsa_curve_name_with_octal_new(&ec_ctx, public_key,
+                                            key_len, curve))
+        return -1;
+
+    if(abstract)
+        *abstract = ec_ctx;
+
+    return 0;
+}
+
+static int hostkey_method_ssh_ecdsa_nistp256_init_cert(
+    LIBSSH2_SESSION *session, const unsigned char *hostkey_data,
+    size_t hostkey_data_len, void **abstract)
+{
+    return hostkey_method_ssh_ecdsa_init_cert(session, hostkey_data,
+                                              hostkey_data_len,
+                                              SSH2_EC_CURVE_NISTP256,
+                                              "ecdsa-sha2-nistp256-cert-v01@openssh.com",
+                                              "nistp256", abstract);
+}
+
+static int hostkey_method_ssh_ecdsa_nistp384_init_cert(
+    LIBSSH2_SESSION *session, const unsigned char *hostkey_data,
+    size_t hostkey_data_len, void **abstract)
+{
+    return hostkey_method_ssh_ecdsa_init_cert(session, hostkey_data,
+                                              hostkey_data_len,
+                                              SSH2_EC_CURVE_NISTP384,
+                                              "ecdsa-sha2-nistp384-cert-v01@openssh.com",
+                                              "nistp384", abstract);
+}
+
+static int hostkey_method_ssh_ecdsa_nistp521_init_cert(
+    LIBSSH2_SESSION *session, const unsigned char *hostkey_data,
+    size_t hostkey_data_len, void **abstract)
+{
+    return hostkey_method_ssh_ecdsa_init_cert(session, hostkey_data,
+                                              hostkey_data_len,
+                                              SSH2_EC_CURVE_NISTP521,
+                                              "ecdsa-sha2-nistp521-cert-v01@openssh.com",
+                                              "nistp521", abstract);
+}
+
 static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp256_cert = {
     "ecdsa-sha2-nistp256-cert-v01@openssh.com",
     SSH2_SHA256_DIG_LEN,
-    NULL,
+    hostkey_method_ssh_ecdsa_nistp256_init_cert,
     hostkey_method_ssh_ecdsa_initPEM,
-    NULL,
+    hostkey_method_ssh_ecdsa_sig_verify,
     hostkey_method_ssh_ecdsa_signv,
     NULL, /* encrypt */
     hostkey_method_ssh_ecdsa_dtor,
@@ -843,9 +1063,9 @@ static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp256_cert = {
 static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp384_cert = {
     "ecdsa-sha2-nistp384-cert-v01@openssh.com",
     SSH2_SHA384_DIG_LEN,
-    NULL,
+    hostkey_method_ssh_ecdsa_nistp384_init_cert,
     hostkey_method_ssh_ecdsa_initPEM,
-    NULL,
+    hostkey_method_ssh_ecdsa_sig_verify,
     hostkey_method_ssh_ecdsa_signv,
     NULL, /* encrypt */
     hostkey_method_ssh_ecdsa_dtor,
@@ -854,9 +1074,9 @@ static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp384_cert = {
 static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp521_cert = {
     "ecdsa-sha2-nistp521-cert-v01@openssh.com",
     SSH2_SHA512_DIG_LEN,
-    NULL,
+    hostkey_method_ssh_ecdsa_nistp521_init_cert,
     hostkey_method_ssh_ecdsa_initPEM,
-    NULL,
+    hostkey_method_ssh_ecdsa_sig_verify,
     hostkey_method_ssh_ecdsa_signv,
     NULL, /* encrypt */
     hostkey_method_ssh_ecdsa_dtor,

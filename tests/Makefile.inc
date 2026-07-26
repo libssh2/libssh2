@@ -30,6 +30,7 @@ DOCKER_TESTS = \
   test_auth_pubkey_ok_rsa_signed \
   test_auth_pubkey_ok_rsa_sha2_256_signed \
   test_hostkey_hash \
+  test_hostkey_cert \
   test_read
 
 STANDALONE_TESTS =
