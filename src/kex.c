@@ -3715,8 +3715,10 @@ int ssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
             session->remote.kexinit = key_state->data;
             session->remote.kexinit_len = key_state->data_len;
             key_state->data = NULL;
+            key_state->data_len = 0;
 
-            if(kex_agree_methods(session, session->remote.kexinit,
+            if(kex_agree_methods(session,
+                                 session->remote.kexinit,
                                  session->remote.kexinit_len))
                 rc = LIBSSH2_ERROR_KEX_FAILURE;
 
