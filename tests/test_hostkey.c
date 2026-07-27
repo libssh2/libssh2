@@ -5,7 +5,7 @@
 
 #include "runner.h"
 
-static const char *EXPECTED_RSA_HOSTKEY =
+static const char EXPECTED_RSA_HOSTKEY[] =
     "AAAAB3NzaC1yc2EAAAABIwAAAQEArrr/JuJmaZligyfS8vcNur+mWR2ddDQtVdhHzdKU"
     "UoR6/Om6cvxpe61H1YZO1xCpLUBXmkki4HoNtYOpPB2W4V+8U4BDeVBD5crypEOE1+7B"
     "Am99fnEDxYIOZq2/jTP0yQmzCpWYS3COyFmkOL7sfX1wQMeW5zQT2WKcxC6FSWbhDqrB"
@@ -13,11 +13,11 @@ static const char *EXPECTED_RSA_HOSTKEY =
     "i6ELfP3r+q6wdu0P4jWaoo3De1aYxnToV/ldXykpipON4NPamsb6Ph2qlJQKypq7J4iQ"
     "gkIIbCU1A31+4ExvcIVoxLQw/aTSbw==";
 
-static const char *EXPECTED_ECDSA_HOSTKEY =
+static const char EXPECTED_ECDSA_HOSTKEY[] =
     "AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBC+/syyeKJD9dC2ZH"
     "9Q7iJGReR4YM3rUCMsSynkyXojdfSClGCMY7JvWlt30ESjYvxoTfSRGx6WvaqYK/vPoYQ4=";
 
-static const char *EXPECTED_ED25519_HOSTKEY =
+static const char EXPECTED_ED25519_HOSTKEY[] =
     "AAAAC3NzaC1lZDI1NTE5AAAAIIxtdyg2ZRXE70UwyPVUH3UyfDBV8GX5cPF636P6hjom";
 
 int test(LIBSSH2_SESSION *session)
@@ -37,15 +37,15 @@ int test(LIBSSH2_SESSION *session)
     if(type == LIBSSH2_HOSTKEY_TYPE_ED25519)
         rc = ssh2_base64_decode(session, &expected_hostkey, &expected_len,
                                 EXPECTED_ED25519_HOSTKEY,
-                                strlen(EXPECTED_ED25519_HOSTKEY));
+                                sizeof(EXPECTED_ED25519_HOSTKEY) - 1);
     else if(type == LIBSSH2_HOSTKEY_TYPE_ECDSA_256)
         rc = ssh2_base64_decode(session, &expected_hostkey, &expected_len,
                                 EXPECTED_ECDSA_HOSTKEY,
-                                strlen(EXPECTED_ECDSA_HOSTKEY));
+                                sizeof(EXPECTED_ECDSA_HOSTKEY) - 1);
     else if(type == LIBSSH2_HOSTKEY_TYPE_RSA)
         rc = ssh2_base64_decode(session, &expected_hostkey, &expected_len,
                                 EXPECTED_RSA_HOSTKEY,
-                                strlen(EXPECTED_RSA_HOSTKEY));
+                                sizeof(EXPECTED_RSA_HOSTKEY) - 1);
     else {
         fprintf(stderr, "Unexpected type of hostkey: %d\n", type);
         return 1;
