@@ -696,7 +696,7 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
     return 0;
 }
 
-int ssh2_dh_validate(ssh2_bn *f, ssh2_bn *p)
+int ssh2_dh_validate(const ssh2_bn *f, const ssh2_bn *p)
 {
     gcry_mpi_t tmp;
     unsigned int n, i, bits_set;
