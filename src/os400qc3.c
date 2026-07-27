@@ -313,7 +313,7 @@ static const char endrsaprivkeyhdr[] = PEM_RSA_FOOTER;
 static const char fopenrbmode[] = "rb";
 
 /* 1's bit count in a byte. */
-static const unsigned char      card[] = {
+static const unsigned char card[] = {
     0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
     1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
     1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
