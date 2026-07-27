@@ -1327,12 +1327,11 @@ int ssh2_dh_validate(const ssh2_bn *f, const ssh2_bn *p)
     for(i = f->length; i--;)
         nbits += card[f->bignum[i]];
 
-    if(nbits >= 4 && t1 && t2 && !ssh2_bn_set_word(t2, 2)) {
-        if(!ssh2_bn_sub(t1, f, t2)) {
-            if(!ssh2_bn_sub(t1, p, t2) && !ssh2_bn_sub(t2, t1, f))
-                result = 0;
-        }
-    }
+    if(nbits >= 4 && t1 && t2 && !ssh2_bn_set_word(t2, 2) &&
+       !ssh2_bn_sub(t1, f, t2) &&
+       !ssh2_bn_sub(t1, p, t2) &&
+       !ssh2_bn_sub(t2, t1, f))
+        result = 0;
 
     ssh2_bn_free(t1);
     ssh2_bn_free(t2);
