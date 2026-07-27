@@ -701,21 +701,22 @@ int ssh2_dh_validate(const ssh2_bn *f, const ssh2_bn *p)
     gcry_mpi_t tmp;
     unsigned int n, i, bits_set;
 
-    if(gcry_mpi_cmp_ui(f, 1) <= 0)
+    if(gcry_mpi_cmp_ui(SSH2_UNCONST(f), 1) <= 0)
         return -1;  /* f <= 1 */
 
     tmp = gcry_mpi_new(0);
     if(!tmp)
         return -4;
-    gcry_mpi_sub_ui(tmp, p, 1);
-    if(gcry_mpi_cmp(f, tmp) >= 0) {
+    gcry_mpi_sub_ui(tmp, SSH2_UNCONST(p), 1);
+    if(gcry_mpi_cmp(SSH2_UNCONST(f), tmp) >= 0) {
         gcry_mpi_release(tmp);
         return -2;  /* f >= p - 1 (== f > p - 2) */
     }
     gcry_mpi_release(tmp);
 
-    for(i = 0, n = gcry_mpi_get_nbits(f), bits_set = 0; i < n; ++i)
-        if(gcry_mpi_test_bit(f, i))
+    for(i = 0, n = gcry_mpi_get_nbits(SSH2_UNCONST(f)), bits_set = 0; i < n;
+        ++i)
+        if(gcry_mpi_test_bit(SSH2_UNCONST(f), i))
             ++bits_set;
 
     if(bits_set < 4)
