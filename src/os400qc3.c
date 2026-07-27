@@ -1350,7 +1350,7 @@ int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
 
     (void)bnctx;
 
-    if(ssh2_dh_is_invalid(f, p))
+    if(ssh2_dh_validate(f, p))
         return -1;
 
     pubkeysize = (ssh2_bn_bits(f) + 7) >> 3;
