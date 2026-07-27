@@ -1316,7 +1316,7 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
     return ssh2_bn_from_bin(pub, (unsigned char *)pubkey, pubkeylen);
 }
 
-static int ssh2_dh_is_invalid(const ssh2_bn *f, const ssh2_bn *p)
+int ssh2_dh_validate(const ssh2_bn *f, const ssh2_bn *p)
 {
     ssh2_bn *t1 = ssh2_bn_init();
     ssh2_bn *t2 = ssh2_bn_init();
