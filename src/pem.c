@@ -63,7 +63,7 @@ static int pem_readline(char *line, size_t line_size,
 
 #define LINE_SIZE 128
 
-static const char *crypt_annotation = "Proc-Type: 4,ENCRYPTED";
+static const char crypt_annotation[] = "Proc-Type: 4,ENCRYPTED";
 
 static unsigned char pem_hex_decode(char digit)
 {
@@ -192,7 +192,7 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
         goto out;
 
     if(passphrase &&
-       !memcmp(line, crypt_annotation, strlen(crypt_annotation))) {
+       !memcmp(line, crypt_annotation, sizeof(crypt_annotation) - 1)) {
         const struct crypt_method **all_methods, *cur_method;
         int i;
 
