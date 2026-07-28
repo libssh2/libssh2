@@ -65,19 +65,6 @@ static int connect_to_server(void)
 
 /* List of crypto protocols for which tests are skipped */
 static char const *skip_crypt[] = {
-#ifdef LIBSSH2_MBEDTLS
-    /* Due to a bug with mbedTLS support, these crypt methods fail.
-       Until that bug is fixed, do not run them there to avoid this
-       known issue causing red tests.
-       See: https://github.com/libssh2/libssh2/issues/793 */
-    "3des-cbc",
-    "aes128-cbc",
-    "aes192-cbc",
-    "aes256-cbc",
-    "aes128-gcm@openssh.com",
-    "aes256-gcm@openssh.com",
-    "rijndael-cbc@lysator.liu.se",
-#endif
 #if !LIBSSH2_3DES
     "3des-cbc",
 #endif
