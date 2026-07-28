@@ -501,6 +501,7 @@ jobs:
         env:
           MATRIX_COMPILER: '${{ matrix.compiler }}'
         run: |
+          cflags=''
           if [[ ("${MATRIX_CRYPTO}" = 'Libgcrypt' && "${MATRIX_ZLIB}" = 'OFF') || "${MATRIX_TEST}" = 'legacy-options' ]]; then
             cflags+=' -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_RIPEMD_ENABLE '
             cflags+=' -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_CAST_ENABLE -DLIBSSH2_3DES_ENABLE'
@@ -880,13 +881,17 @@ jobs:
         env:
           SSHD: 'C:/Program Files/Git/usr/bin/sshd.exe'
         run: |
+          cflags=''
+          if [ "${MATRIX_TEST}" = 'legacy-options' ]; then
+            cflags+=' -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_RIPEMD_ENABLE'
+            cflags+=' -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_CAST_ENABLE -DLIBSSH2_3DES_ENABLE'
+          fi
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             if [[ "${MATRIX_ENV}" = 'clang'* ]]; then
               options=' -DCMAKE_C_COMPILER=clang'
             else
               options=' -DCMAKE_C_COMPILER=gcc'
             fi
-            cflags=''
             if [ "${MATRIX_TEST}" = 'uwp' ]; then
               options+=' -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0'
               cflags+=' -DWINSTORECOMPAT -DWINAPI_FAMILY=WINAPI_FAMILY_APP -D_WIN32_WINNT=0x0a00'
@@ -896,9 +901,6 @@ jobs:
                 gcc -dumpspecs | sed -e 's/-lmingwex/-lwindowsapp -lmingwex -lwindowsapp -lwindowsappcompat/' -e 's/-lmsvcrt/-lmsvcr120_app/' > "${specs}"
                 cflags+=" -specs=$(cygpath -w "${specs}")"
               fi
-            elif [ "${MATRIX_TEST}" = 'legacy-options' ]; then
-              cflags+=' -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_RIPEMD_ENABLE'
-              cflags+=' -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_CAST_ENABLE -DLIBSSH2_3DES_ENABLE'
             elif [ "${MATRIX_TEST}" = 'no-options' ]; then
               options+=' -DLIBSSH2_NO_DEPRECATED=ON'
               cflags+=' -DLIBSSH2_DSA_ENABLE'
@@ -918,12 +920,14 @@ jobs:
               -DRUN_SSHD_TESTS=OFF \
               -DCMAKE_VERBOSE_MAKEFILE=ON
           else
+            export CFLAGS
             if [ "${MATRIX_CRYPTO}" = 'wincng' ] && [[ "${MATRIX_ENV}" = 'clang'* ]]; then
               options=' --enable-ecdsa-wincng'
             fi
             if [[ "${MATRIX_TEST}" = *'unicode'* ]]; then
               options+=' --enable-windows-unicode'
             fi
+            CFLAGS+=" ${cflags}"
             # sshd tests sometimes hang
             mkdir bld && cd bld
             ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
@@ -946,9 +950,9 @@ jobs:
       - name: 'build'
         run: |
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
-            cmake --build bld
+            cmake --build bld --verbose
           else
-            make -C bld
+            make -C bld V=1
           fi
 
       - name: 'tests'
