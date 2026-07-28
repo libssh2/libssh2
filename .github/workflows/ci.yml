@@ -247,73 +247,18 @@ jobs:
         exclude:
           - { compiler: clang-tidy, zlib: 'OFF' }
         include:
-          - compiler: gcc
-            arch: amd64
-            crypto: AWS-LC
-            build: 'CM'
-            zlib: 'ON'
-          - compiler: gcc
-            arch: amd64
-            crypto: BoringSSL
-            build: 'CM'
-            zlib: 'ON'
-          - compiler: gcc
-            arch: amd64
-            crypto: LibreSSL
-            build: 'CM'
-            zlib: 'ON'
-          - compiler: gcc
-            arch: i386
-            crypto: mbedTLS-from-source
-            build: 'CM'
-            zlib: 'ON'
-            image: ubuntu-26.04
-          - compiler: gcc
-            arch: amd64
-            crypto: OpenSSL
-            build: 'AM'
-            zlib: 'OFF'
-          - compiler: clang
-            arch: amd64
-            crypto: OpenSSL
-            build: 'AM'
-            zlib: 'OFF'
-          - compiler: clang
-            arch: amd64
-            crypto: OpenSSL
-            build: 'AM'
-            zlib: 'ON'
-            target: 'distcheck'
-          - compiler: clang
-            arch: amd64
-            crypto: OpenSSL
-            build: 'AM'
-            zlib: 'ON'
-            target: 'maketgz'
-          - compiler: gcc
-            arch: amd64
-            crypto: OpenSSL-3-no-deprecated
-            build: 'CM'
-            zlib: 'ON'
-            image: ubuntu-26.04
-          - compiler: gcc
-            arch: amd64
-            crypto: OpenSSL-111-from-source
-            build: 'CM'
-            zlib: 'ON'
-            image: ubuntu-26.04
-          - compiler: clang
-            arch: amd64
-            crypto: wolfSSL-from-source
-            build: 'CM'
-            zlib: 'ON'
-            image: ubuntu-26.04
-          - compiler: clang
-            arch: amd64
-            crypto: wolfSSL-from-source-prev
-            build: 'CM'
-            zlib: 'ON'
-            image: ubuntu-26.04
+          - { compiler: gcc  , arch: amd64, crypto: AWS-LC                  , build: 'CM', zlib: 'ON' }
+          - { compiler: gcc  , arch: amd64, crypto: BoringSSL               , build: 'CM', zlib: 'ON' }
+          - { compiler: gcc  , arch: amd64, crypto: LibreSSL                , build: 'CM', zlib: 'ON' }
+          - { compiler: gcc  , arch: i386 , crypto: mbedTLS-from-source     , build: 'CM', zlib: 'ON', image: ubuntu-26.04 }
+          - { compiler: gcc  , arch: amd64, crypto: OpenSSL                 , build: 'AM', zlib: 'OFF', test: 'legacy-options' }
+          - { compiler: clang, arch: amd64, crypto: OpenSSL                 , build: 'AM', zlib: 'OFF' }
+          - { compiler: clang, arch: amd64, crypto: OpenSSL                 , build: 'AM', zlib: 'ON', target: 'distcheck' }
+          - { compiler: clang, arch: amd64, crypto: OpenSSL                 , build: 'AM', zlib: 'ON', target: 'maketgz' }
+          - { compiler: gcc  , arch: amd64, crypto: OpenSSL-3-no-deprecated , build: 'CM', zlib: 'ON', image: ubuntu-26.04 }
+          - { compiler: gcc  , arch: amd64, crypto: OpenSSL-111-from-source , build: 'CM', zlib: 'ON', image: ubuntu-26.04 }
+          - { compiler: clang, arch: amd64, crypto: wolfSSL-from-source     , build: 'CM', zlib: 'ON', image: ubuntu-26.04 }
+          - { compiler: clang, arch: amd64, crypto: wolfSSL-from-source-prev, build: 'CM', zlib: 'ON', image: ubuntu-26.04 }
     env:
       CC: ${{ matrix.compiler == 'clang-tidy' && 'clang' || matrix.compiler }}
       MATRIX_ARCH: '${{ matrix.arch }}'
@@ -321,6 +266,7 @@ jobs:
       MATRIX_COMPILER: '${{ matrix.compiler }}'
       MATRIX_CRYPTO: '${{ matrix.crypto }}'
       MATRIX_TARGET: '${{ matrix.target }}'
+      MATRIX_TEST: '${{ matrix.test }}'
       MATRIX_ZLIB: '${{ matrix.zlib }}'
       FIXTURE_TRACE_ALL_CONNECT: 0
       AWSLC_VERSION: 5.0.0
@@ -555,6 +501,14 @@ jobs:
         env:
           MATRIX_COMPILER: '${{ matrix.compiler }}'
         run: |
+          cflags=''
+          if [[ ( "${MATRIX_CRYPTO}" = 'Libgcrypt' && "${MATRIX_ZLIB}" = 'OFF' ) || "${MATRIX_TEST}" = 'legacy-options' ]]; then
+            cflags+=' -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_RIPEMD_ENABLE '
+            cflags+=' -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_CAST_ENABLE -DLIBSSH2_3DES_ENABLE'
+          fi
+          if [ "${MATRIX_TARGET}" = 'distcheck' ]; then
+            cflags+=' -DLIBSSH2_DSA_ENABLE'  # build test only, it cannot pass test in CI
+          fi
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             if [ "${MATRIX_CRYPTO}" = 'AWS-LC' ] || \
                [ "${MATRIX_CRYPTO}" = 'BoringSSL' ] || \
@@ -595,9 +549,10 @@ jobs:
               -DCRYPTO_BACKEND=${crypto} \
               -DENABLE_ZLIB_COMPRESSION="${MATRIX_ZLIB}"
           else
+            export CFLAGS
             if [ "${MATRIX_ARCH}" = 'i386' ]; then
               options='--host=i686-pc-linux-gnu'
-              export CFLAGS=-m32
+              cflags+=' -m32'
             fi
             mkdir bld && cd bld
             if [ "${MATRIX_ZLIB}" = 'OFF' ]; then
@@ -608,6 +563,7 @@ jobs:
             if [ "${MATRIX_TARGET}" != 'distcheck' ]; then
               options+=' --disable-examples-build'
             fi
+            CFLAGS+=" ${cflags}"
             ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
               ${options} \
               --disable-dependency-tracking
@@ -626,9 +582,9 @@ jobs:
         if: ${{ !matrix.target }}
         run: |
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
-            cmake --build bld --target package
+            cmake --build bld --verbose --target package
           else
-            make -C bld
+            make -C bld V=1
           fi
 
       - name: 'tests'
@@ -889,7 +845,7 @@ jobs:
           - { build: 'CM', sys: msys   , crypto: OpenSSL, env: x86_64 }
           - { build: 'AM', sys: mingw64, crypto: wincng , env: x86_64 }
           - { build: 'AM', sys: mingw64, crypto: openssl, env: x86_64 }
-          - { build: 'AM', sys: mingw32, crypto: openssl, env: i686 }
+          - { build: 'AM', sys: mingw32, crypto: openssl, env: i686, test: 'legacy-options' }
           - { build: 'AM', sys: ucrt64 , crypto: openssl, env: ucrt-x86_64 }
           - { build: 'AM', sys: clang64, crypto: openssl, env: clang-x86_64 }
           - { build: 'AM', sys: clang64, crypto: wincng , env: clang-x86_64, test: 'unicode' }
@@ -925,13 +881,17 @@ jobs:
         env:
           SSHD: 'C:/Program Files/Git/usr/bin/sshd.exe'
         run: |
+          cflags=''
+          if [ "${MATRIX_TEST}" = 'legacy-options' ]; then
+            cflags+=' -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_RIPEMD_ENABLE'
+            cflags+=' -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_CAST_ENABLE -DLIBSSH2_3DES_ENABLE'
+          fi
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             if [[ "${MATRIX_ENV}" = 'clang'* ]]; then
               options=' -DCMAKE_C_COMPILER=clang'
             else
               options=' -DCMAKE_C_COMPILER=gcc'
             fi
-            cflags=''
             if [ "${MATRIX_TEST}" = 'uwp' ]; then
               options+=' -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0'
               cflags+=' -DWINSTORECOMPAT -DWINAPI_FAMILY=WINAPI_FAMILY_APP -D_WIN32_WINNT=0x0a00'
@@ -943,8 +903,8 @@ jobs:
               fi
             elif [ "${MATRIX_TEST}" = 'no-options' ]; then
               options+=' -DLIBSSH2_NO_DEPRECATED=ON'
-              cflags+=' -DLIBSSH2_NO_MD5 -DLIBSSH2_NO_MD5_PEM -DLIBSSH2_NO_HMAC_RIPEMD -DLIBSSH2_DSA_ENABLE'
-              cflags+=' -DLIBSSH2_NO_AES_CBC -DLIBSSH2_NO_AES_CTR -DLIBSSH2_NO_BLOWFISH -DLIBSSH2_NO_RC4 -DLIBSSH2_NO_CAST -DLIBSSH2_NO_3DES'
+              cflags+=' -DLIBSSH2_DSA_ENABLE'
+              cflags+=' -DLIBSSH2_NO_AES_CBC -DLIBSSH2_NO_AES_CTR'
             fi
             if [[ "${MATRIX_TEST}" = *'unicode'* ]]; then
               options+=' -DENABLE_UNICODE=ON'
@@ -960,12 +920,14 @@ jobs:
               -DRUN_SSHD_TESTS=OFF \
               -DCMAKE_VERBOSE_MAKEFILE=ON
           else
+            export CFLAGS
             if [ "${MATRIX_CRYPTO}" = 'wincng' ] && [[ "${MATRIX_ENV}" = 'clang'* ]]; then
               options=' --enable-ecdsa-wincng'
             fi
             if [[ "${MATRIX_TEST}" = *'unicode'* ]]; then
               options+=' --enable-windows-unicode'
             fi
+            CFLAGS+=" ${cflags}"
             # sshd tests sometimes hang
             mkdir bld && cd bld
             ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
@@ -988,9 +950,9 @@ jobs:
       - name: 'build'
         run: |
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
-            cmake --build bld
+            cmake --build bld --verbose
           else
-            make -C bld
+            make -C bld V=1
           fi
 
       - name: 'tests'
