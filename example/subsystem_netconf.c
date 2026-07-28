@@ -175,14 +175,14 @@ int main(int argc, char *argv[])
      * may have it hard coded, may go to a file, may present it to the
      * user, that is your call
      */
-    fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
+    fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA256);
     fprintf(stderr, "Fingerprint: ");
     if(!fingerprint) {
         fprintf(stderr, "(null)");
         goto shutdown;
     }
     else
-        for(i = 0; i < 20; i++)
+        for(i = 0; i < 32; i++)
             fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
     fprintf(stderr, "\n");
 
