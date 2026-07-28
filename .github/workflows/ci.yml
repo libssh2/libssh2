@@ -502,8 +502,11 @@ jobs:
           MATRIX_COMPILER: '${{ matrix.compiler }}'
         run: |
           if [[ ("${MATRIX_CRYPTO}" = 'Libgcrypt' && "${MATRIX_ZLIB}" = 'OFF') || "${MATRIX_TEST}" = 'legacy-options' ]]; then
-            cflags+=' -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_RIPEMD_ENABLE -DLIBSSH2_DSA_ENABLE'
+            cflags+=' -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_RIPEMD_ENABLE '
             cflags+=' -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_CAST_ENABLE -DLIBSSH2_3DES_ENABLE'
+          fi
+          if [ "${MATRIX_TARGET}" = 'distcheck' ]; then
+            cflags+=' -DLIBSSH2_DSA_ENABLE'  # build test only, it cannot pass test in CI
           fi
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             if [ "${MATRIX_CRYPTO}" = 'AWS-LC' ] || \
@@ -894,10 +897,11 @@ jobs:
                 cflags+=" -specs=$(cygpath -w "${specs}")"
               fi
             elif [ "${MATRIX_TEST}" = 'legacy-options' ]; then
-              cflags+=' -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_RIPEMD_ENABLE -DLIBSSH2_DSA_ENABLE'
+              cflags+=' -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_RIPEMD_ENABLE'
               cflags+=' -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_CAST_ENABLE -DLIBSSH2_3DES_ENABLE'
             elif [ "${MATRIX_TEST}" = 'no-options' ]; then
               options+=' -DLIBSSH2_NO_DEPRECATED=ON'
+              cflags+=' -DLIBSSH2_DSA_ENABLE'
               cflags+=' -DLIBSSH2_NO_AES_CBC -DLIBSSH2_NO_AES_CTR'
             fi
             if [[ "${MATRIX_TEST}" = *'unicode'* ]]; then
