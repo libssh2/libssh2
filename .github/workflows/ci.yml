@@ -503,7 +503,7 @@ jobs:
         run: |
           cflags=''
           if [[ ( "${MATRIX_CRYPTO}" = 'Libgcrypt' && "${MATRIX_ZLIB}" = 'OFF' ) || "${MATRIX_TEST}" = 'legacy-options' ]]; then
-            cflags+=' -DLIBSSH2_KEX_SHA1_ENABLE -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_RIPEMD_ENABLE '
+            cflags+=' -DLIBSSH2_KEX_SHA1_ENABLE -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_SHA1_ENABLE -DLIBSSH2_HMAC_RIPEMD_ENABLE '
             cflags+=' -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_CAST_ENABLE -DLIBSSH2_3DES_ENABLE'
           fi
           if [ "${MATRIX_TARGET}" = 'distcheck' ]; then
@@ -883,7 +883,7 @@ jobs:
         run: |
           cflags=''
           if [ "${MATRIX_TEST}" = 'legacy-options' ]; then
-            cflags+=' -DLIBSSH2_KEX_SHA1_ENABLE -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_RIPEMD_ENABLE'
+            cflags+=' -DLIBSSH2_KEX_SHA1_ENABLE -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_SHA1_ENABLE -DLIBSSH2_HMAC_RIPEMD_ENABLE'
             cflags+=' -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_CAST_ENABLE -DLIBSSH2_3DES_ENABLE'
           fi
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
