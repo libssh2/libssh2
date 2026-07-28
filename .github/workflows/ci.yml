@@ -251,7 +251,7 @@ jobs:
           - { compiler: gcc  , arch: amd64, crypto: BoringSSL               , build: 'CM', zlib: 'ON' }
           - { compiler: gcc  , arch: amd64, crypto: LibreSSL                , build: 'CM', zlib: 'ON' }
           - { compiler: gcc  , arch: i386 , crypto: mbedTLS-from-source     , build: 'CM', zlib: 'ON', image: ubuntu-26.04 }
-          - { compiler: gcc  , arch: amd64, crypto: OpenSSL                 , build: 'AM', zlib: 'OFF', target: 'legacy-options' }
+          - { compiler: gcc  , arch: amd64, crypto: OpenSSL                 , build: 'AM', zlib: 'OFF', test: 'legacy-options' }
           - { compiler: clang, arch: amd64, crypto: OpenSSL                 , build: 'AM', zlib: 'OFF' }
           - { compiler: clang, arch: amd64, crypto: OpenSSL                 , build: 'AM', zlib: 'ON', target: 'distcheck' }
           - { compiler: clang, arch: amd64, crypto: OpenSSL                 , build: 'AM', zlib: 'ON', target: 'maketgz' }
@@ -266,6 +266,7 @@ jobs:
       MATRIX_COMPILER: '${{ matrix.compiler }}'
       MATRIX_CRYPTO: '${{ matrix.crypto }}'
       MATRIX_TARGET: '${{ matrix.target }}'
+      MATRIX_TEST: '${{ matrix.test }}'
       MATRIX_ZLIB: '${{ matrix.zlib }}'
       FIXTURE_TRACE_ALL_CONNECT: 0
       AWSLC_VERSION: 5.0.0
@@ -529,7 +530,7 @@ jobs:
             if [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && [ "${MATRIX_COMPILER}" = 'clang-tidy' ]; then
               options+=' -DRUN_SSHD_TESTS=OFF'  # fails on due to lack of support for modern algos offered by sshd on Ubuntu 26.04 used with clang-tidy
             fi
-            if [[ ("${MATRIX_CRYPTO}" = 'Libgcrypt' && "${MATRIX_ZLIB}" = 'off') || "${MATRIX_TARGET}" = 'legacy-options' ]]; then
+            if [[ ("${MATRIX_CRYPTO}" = 'Libgcrypt' && "${MATRIX_ZLIB}" = 'off') || "${MATRIX_TEST}" = 'legacy-options' ]]; then
               cflags+=' -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_RIPEMD_ENABLE -DLIBSSH2_DSA_ENABLE'
               cflags+=' -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_CAST_ENABLE -DLIBSSH2_3DES_ENABLE'
             fi
