@@ -247,73 +247,18 @@ jobs:
         exclude:
           - { compiler: clang-tidy, zlib: 'OFF' }
         include:
-          - compiler: gcc
-            arch: amd64
-            crypto: AWS-LC
-            build: 'CM'
-            zlib: 'ON'
-          - compiler: gcc
-            arch: amd64
-            crypto: BoringSSL
-            build: 'CM'
-            zlib: 'ON'
-          - compiler: gcc
-            arch: amd64
-            crypto: LibreSSL
-            build: 'CM'
-            zlib: 'ON'
-          - compiler: gcc
-            arch: i386
-            crypto: mbedTLS-from-source
-            build: 'CM'
-            zlib: 'ON'
-            image: ubuntu-26.04
-          - compiler: gcc
-            arch: amd64
-            crypto: OpenSSL
-            build: 'AM'
-            zlib: 'OFF'
-          - compiler: clang
-            arch: amd64
-            crypto: OpenSSL
-            build: 'AM'
-            zlib: 'OFF'
-          - compiler: clang
-            arch: amd64
-            crypto: OpenSSL
-            build: 'AM'
-            zlib: 'ON'
-            target: 'distcheck'
-          - compiler: clang
-            arch: amd64
-            crypto: OpenSSL
-            build: 'AM'
-            zlib: 'ON'
-            target: 'maketgz'
-          - compiler: gcc
-            arch: amd64
-            crypto: OpenSSL-3-no-deprecated
-            build: 'CM'
-            zlib: 'ON'
-            image: ubuntu-26.04
-          - compiler: gcc
-            arch: amd64
-            crypto: OpenSSL-111-from-source
-            build: 'CM'
-            zlib: 'ON'
-            image: ubuntu-26.04
-          - compiler: clang
-            arch: amd64
-            crypto: wolfSSL-from-source
-            build: 'CM'
-            zlib: 'ON'
-            image: ubuntu-26.04
-          - compiler: clang
-            arch: amd64
-            crypto: wolfSSL-from-source-prev
-            build: 'CM'
-            zlib: 'ON'
-            image: ubuntu-26.04
+          - { compiler: gcc  , arch: amd64, crypto: AWS-LC                  , build: 'CM', zlib: 'ON' }
+          - { compiler: gcc  , arch: amd64, crypto: BoringSSL               , build: 'CM', zlib: 'ON' }
+          - { compiler: gcc  , arch: amd64, crypto: LibreSSL                , build: 'CM', zlib: 'ON' }
+          - { compiler: gcc  , arch: i386 , crypto: mbedTLS-from-source     , build: 'CM', zlib: 'ON', image: ubuntu-26.04 }
+          - { compiler: gcc  , arch: amd64, crypto: OpenSSL                 , build: 'AM', zlib: 'OFF', target: 'legacy-options' }
+          - { compiler: clang, arch: amd64, crypto: OpenSSL                 , build: 'AM', zlib: 'OFF' }
+          - { compiler: clang, arch: amd64, crypto: OpenSSL                 , build: 'AM', zlib: 'ON', target: 'distcheck' }
+          - { compiler: clang, arch: amd64, crypto: OpenSSL                 , build: 'AM', zlib: 'ON', target: 'maketgz' }
+          - { compiler: gcc  , arch: amd64, crypto: OpenSSL-3-no-deprecated , build: 'CM', zlib: 'ON', image: ubuntu-26.04 }
+          - { compiler: gcc  , arch: amd64, crypto: OpenSSL-111-from-source , build: 'CM', zlib: 'ON', image: ubuntu-26.04 }
+          - { compiler: clang, arch: amd64, crypto: wolfSSL-from-source     , build: 'CM', zlib: 'ON', image: ubuntu-26.04 }
+          - { compiler: clang, arch: amd64, crypto: wolfSSL-from-source-prev, build: 'CM', zlib: 'ON', image: ubuntu-26.04 }
     env:
       CC: ${{ matrix.compiler == 'clang-tidy' && 'clang' || matrix.compiler }}
       MATRIX_ARCH: '${{ matrix.arch }}'
@@ -583,6 +528,10 @@ jobs:
             fi
             if [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && [ "${MATRIX_COMPILER}" = 'clang-tidy' ]; then
               options+=' -DRUN_SSHD_TESTS=OFF'  # fails on due to lack of support for modern algos offered by sshd on Ubuntu 26.04 used with clang-tidy
+            fi
+            if [[ ("${MATRIX_CRYPTO}" = 'Libgcrypt' && "${MATRIX_ZLIB}" = 'off') || "${MATRIX_TARGET}" = 'legacy-options' ]]; then
+              cflags+=' -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_RIPEMD_ENABLE -DLIBSSH2_DSA_ENABLE'
+              cflags+=' -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_CAST_ENABLE -DLIBSSH2_3DES_ENABLE'
             fi
             if [ "${MATRIX_CRYPTO}" = 'OpenSSL-3-no-deprecated' ]; then
               options+=' -DENABLE_DEBUG_LOGGING=ON'
@@ -889,7 +838,7 @@ jobs:
           - { build: 'CM', sys: msys   , crypto: OpenSSL, env: x86_64 }
           - { build: 'AM', sys: mingw64, crypto: wincng , env: x86_64 }
           - { build: 'AM', sys: mingw64, crypto: openssl, env: x86_64 }
-          - { build: 'AM', sys: mingw32, crypto: openssl, env: i686 }
+          - { build: 'AM', sys: mingw32, crypto: openssl, env: i686, test: 'legacy-options' }
           - { build: 'AM', sys: ucrt64 , crypto: openssl, env: ucrt-x86_64 }
           - { build: 'AM', sys: clang64, crypto: openssl, env: clang-x86_64 }
           - { build: 'AM', sys: clang64, crypto: wincng , env: clang-x86_64, test: 'unicode' }
@@ -941,10 +890,12 @@ jobs:
                 gcc -dumpspecs | sed -e 's/-lmingwex/-lwindowsapp -lmingwex -lwindowsapp -lwindowsappcompat/' -e 's/-lmsvcrt/-lmsvcr120_app/' > "${specs}"
                 cflags+=" -specs=$(cygpath -w "${specs}")"
               fi
+            elif [ "${MATRIX_TEST}" = 'legacy-options' ]; then
+              cflags+=' -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_RIPEMD_ENABLE -DLIBSSH2_DSA_ENABLE'
+              cflags+=' -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_CAST_ENABLE -DLIBSSH2_3DES_ENABLE'
             elif [ "${MATRIX_TEST}" = 'no-options' ]; then
               options+=' -DLIBSSH2_NO_DEPRECATED=ON'
-              cflags+=' -DLIBSSH2_NO_MD5 -DLIBSSH2_NO_MD5_PEM -DLIBSSH2_NO_HMAC_RIPEMD -DLIBSSH2_DSA_ENABLE'
-              cflags+=' -DLIBSSH2_NO_AES_CBC -DLIBSSH2_NO_AES_CTR -DLIBSSH2_NO_BLOWFISH -DLIBSSH2_NO_RC4 -DLIBSSH2_NO_CAST -DLIBSSH2_NO_3DES'
+              cflags+=' -DLIBSSH2_NO_AES_CBC -DLIBSSH2_NO_AES_CTR'
             fi
             if [[ "${MATRIX_TEST}" = *'unicode'* ]]; then
               options+=' -DENABLE_UNICODE=ON'
