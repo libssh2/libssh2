@@ -576,9 +576,9 @@ jobs:
         if: ${{ !matrix.target }}
         run: |
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
-            cmake --build bld --target package
+            cmake --build bld --verbose --target package
           else
-            make -C bld
+            make -C bld V=1
           fi
 
       - name: 'tests'
