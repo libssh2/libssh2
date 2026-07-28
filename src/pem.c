@@ -459,7 +459,7 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
     }
     else {
         kdf_buf.data = kdf;
-        kdf_buf.dataptr = kdf;
+        kdf_buf.dataptr = kdf_buf.data;
         kdf_buf.len = kdf_len;
     }
 
