@@ -501,6 +501,10 @@ jobs:
         env:
           MATRIX_COMPILER: '${{ matrix.compiler }}'
         run: |
+          if [[ ("${MATRIX_CRYPTO}" = 'Libgcrypt' && "${MATRIX_ZLIB}" = 'OFF') || "${MATRIX_TEST}" = 'legacy-options' ]]; then
+            cflags+=' -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_RIPEMD_ENABLE -DLIBSSH2_DSA_ENABLE'
+            cflags+=' -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_CAST_ENABLE -DLIBSSH2_3DES_ENABLE'
+          fi
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             if [ "${MATRIX_CRYPTO}" = 'AWS-LC' ] || \
                [ "${MATRIX_CRYPTO}" = 'BoringSSL' ] || \
@@ -530,11 +534,7 @@ jobs:
             if [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && [ "${MATRIX_COMPILER}" = 'clang-tidy' ]; then
               options+=' -DRUN_SSHD_TESTS=OFF'  # fails on due to lack of support for modern algos offered by sshd on Ubuntu 26.04 used with clang-tidy
             fi
-            if [[ ("${MATRIX_CRYPTO}" = 'Libgcrypt' && "${MATRIX_ZLIB}" = 'off') || "${MATRIX_TEST}" = 'legacy-options' ]]; then
-              cflags+=' -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_RIPEMD_ENABLE -DLIBSSH2_DSA_ENABLE'
-              cflags+=' -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_CAST_ENABLE -DLIBSSH2_3DES_ENABLE'
-            fi
-            if [ "${MATRIX_CRYPTO}" = 'OpenSSL-3-no-deprecated' ]; then
+           if [ "${MATRIX_CRYPTO}" = 'OpenSSL-3-no-deprecated' ]; then
               options+=' -DENABLE_DEBUG_LOGGING=ON'
               cflags+=' -DLIBSSH2_DEBUG_MLKEM'
             fi
