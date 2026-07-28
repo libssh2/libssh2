@@ -749,6 +749,7 @@ clean_exit:
     return ret;
 }
 
+#ifdef LIBSSH2_KEX_SHA1_ENABLE
 /*
  * Diffie-Hellman Group1 (Actually Group2) Key Exchange using SHA1
  */
@@ -812,6 +813,7 @@ clean_exit:
 
     return ret;
 }
+#endif
 
 /*
  * Diffie-Hellman Group14 Key Exchange with hash function callback
@@ -908,6 +910,7 @@ clean_exit:
     return ret;
 }
 
+#ifdef LIBSSH2_KEX_SHA1_ENABLE
 /*
  * Diffie-Hellman Group14 Key Exchange using SHA1
  */
@@ -917,6 +920,7 @@ static int kex_method_diffie_hellman_group14_sha1_key_exchange(
     return kex_method_diffie_hellman_group14_key_exchange(session, key_state,
         SSH2_SHA1_ALG, SSH2_SHA1_DIG_LEN, kex_diffie_hellman_sha);
 }
+#endif
 
 /*
  * Diffie-Hellman Group14 Key Exchange using SHA256
@@ -1152,6 +1156,7 @@ clean_exit:
     return ret;
 }
 
+#ifdef LIBSSH2_KEX_SHA1_ENABLE
 /*
  * Diffie-Hellman Group Exchange Key Exchange using SHA1
  * Negotiates random(ish) group for secret derivation
@@ -1270,6 +1275,7 @@ dh_gex_clean_exit:
 
     return ret;
 }
+#endif
 
 /*
  * Diffie-Hellman Group Exchange Key Exchange using SHA256
@@ -2764,6 +2770,7 @@ clean_exit:
 #define KEX_METHOD_FLAG_REQ_ENC_HOSTKEY  0x0001
 #define KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY 0x0002
 
+#ifdef LIBSSH2_KEX_SHA1_ENABLE
 static const struct kex_method kex_method_diffie_hellman_group1_sha1 = {
     "diffie-hellman-group1-sha1",
     kex_method_diffie_hellman_group1_sha1_key_exchange,
@@ -2777,6 +2784,7 @@ static const struct kex_method kex_method_diffie_hellman_group14_sha1 = {
     kex_diffie_hellman_cleanup,
     KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
+#endif
 
 static const struct kex_method kex_method_diffie_hellman_group14_sha256 = {
     "diffie-hellman-group14-sha256",
@@ -2799,6 +2807,7 @@ static const struct kex_method kex_method_diffie_hellman_group18_sha512 = {
     KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
+#ifdef LIBSSH2_KEX_SHA1_ENABLE
 static const struct kex_method
 kex_method_diffie_hellman_group_exchange_sha1 = {
     "diffie-hellman-group-exchange-sha1",
@@ -2806,6 +2815,7 @@ kex_method_diffie_hellman_group_exchange_sha1 = {
     kex_diffie_hellman_cleanup,
     KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
+#endif
 
 static const struct kex_method
 kex_method_diffie_hellman_group_exchange_sha256 = {
@@ -2916,9 +2926,11 @@ static const struct kex_method *kex_methods[] = {
     &kex_method_diffie_hellman_group16_sha512,
     &kex_method_diffie_hellman_group18_sha512,
     &kex_method_diffie_hellman_group14_sha256,
+#ifdef LIBSSH2_KEX_SHA1_ENABLE
     &kex_method_diffie_hellman_group14_sha1,
     &kex_method_diffie_hellman_group1_sha1,
     &kex_method_diffie_hellman_group_exchange_sha1,
+#endif
     &kex_method_extension_negotiation,
     &kex_method_strict_client_extension,
     NULL

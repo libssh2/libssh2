@@ -4,6 +4,12 @@ Deprecation notices:
 
 - This release disables these options by default:
 
+  - SHA1-based key-exchange methods:
+    - `diffie-hellman-group1-sha1`
+    - `diffie-hellman-group14-sha1`
+    - `diffie-hellman-group-exchange-sha1`
+    You can enable them with `-DLIBSSH2_KEX_SHA1_ENABLE`.
+
   - DSA: `ssh-dss` hostkeys.
     You can enable it with `-DLIBSSH2_DSA_ENABLE`.
 
