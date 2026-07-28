@@ -144,12 +144,12 @@ static int transport_decrypt(LIBSSH2_SESSION *session, unsigned char *source,
            length finally gets to the last blocksize bytes, and there is no
            more data to come, it is the end. */
         int lowerfirstlast = IS_FIRST(firstlast) ? FIRST_BLOCK :
-            ((len <= blocksize) ? firstlast : MIDDLE_BLOCK);
+            (len <= blocksize ? firstlast : MIDDLE_BLOCK);
         /* If the last block would be less than a whole blocksize, combine it
            with the previous block to make it larger. This ensures that the
            whole MAC is included in a single decrypt call. */
         if(CRYPT_FLAG_R(session, PKTLEN_AAD) && IS_LAST(firstlast) &&
-           (len < blocksize * 2)) {
+           len < blocksize * 2) {
             decryptlen = len;
             lowerfirstlast = LAST_BLOCK;
         }
@@ -475,7 +475,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
 
         if(remainbuf < blocksize ||
            (CRYPT_FLAG_R(session, REQUIRES_FULL_PACKET) &&
-            ((ssize_t)p->total_num) > remainbuf)) {
+            (ssize_t)p->total_num > remainbuf)) {
             /* If we have less than a blocksize left, it is too
                little data to deal with, read more */
             ssize_t nread;

@@ -338,9 +338,9 @@ int main(int argc, char *argv[])
         } while(running);
 
         exitcode = 127;
+
         while((rc = libssh2_channel_close(channel)) == LIBSSH2_ERROR_EAGAIN)
             waitsocket(sock, session);
-
         if(rc == 0) {
             exitcode = libssh2_channel_get_exit_status(channel);
             libssh2_channel_get_exit_signal(channel, &exitsignal,

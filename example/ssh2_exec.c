@@ -240,6 +240,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Error\n");
         return 1;
     }
+
     while((rc = libssh2_channel_exec(channel, commandline)) ==
           LIBSSH2_ERROR_EAGAIN)
         waitsocket(sock, session);
@@ -247,6 +248,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "exec error\n");
         return 1;
     }
+
     for(;;) {
         ssize_t nread;
         /* loop until we block */
@@ -274,10 +276,11 @@ int main(int argc, char *argv[])
         else
             break;
     }
+
     exitcode = 127;
+
     while((rc = libssh2_channel_close(channel)) == LIBSSH2_ERROR_EAGAIN)
         waitsocket(sock, session);
-
     if(rc == 0) {
         exitcode = libssh2_channel_get_exit_status(channel);
         libssh2_channel_get_exit_signal(channel, &exitsignal,

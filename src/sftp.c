@@ -1124,7 +1124,7 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
     LIBSSH2_SFTP_HANDLE *fp;
     unsigned char *s;
     ssize_t rc;
-    int open_file = (open_type == LIBSSH2_SFTP_OPENFILE) ? 1 : 0;
+    int open_file = open_type == LIBSSH2_SFTP_OPENFILE ? 1 : 0;
 
     if(sftp->open_state == ssh2_NB_state_idle) {
 
