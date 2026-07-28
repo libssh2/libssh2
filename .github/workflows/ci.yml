@@ -534,7 +534,7 @@ jobs:
             if [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && [ "${MATRIX_COMPILER}" = 'clang-tidy' ]; then
               options+=' -DRUN_SSHD_TESTS=OFF'  # fails on due to lack of support for modern algos offered by sshd on Ubuntu 26.04 used with clang-tidy
             fi
-           if [ "${MATRIX_CRYPTO}" = 'OpenSSL-3-no-deprecated' ]; then
+            if [ "${MATRIX_CRYPTO}" = 'OpenSSL-3-no-deprecated' ]; then
               options+=' -DENABLE_DEBUG_LOGGING=ON'
               cflags+=' -DLIBSSH2_DEBUG_MLKEM'
             fi
