@@ -33,6 +33,8 @@
 
 #include "libssh2_priv.h"
 
+/* https://man.openbsd.org/sshd.8#SSH_KNOWN_HOSTS_FILE_FORMAT */
+
 struct known_host {
     struct list_node node;
     char *name;          /* points to the name or the hash (allocated) */
