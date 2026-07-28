@@ -2346,7 +2346,7 @@ static int wcng_ecdsa_new_private_parse(OUT ssh2_ecdsa_ctx **ec_ctx,
     }
 
     data_buffer.data = SSH2_UNCONST(privatekey);
-    data_buffer.dataptr = SSH2_UNCONST(privatekey);
+    data_buffer.dataptr = data_buffer.data;
     data_buffer.len = privatekey_len;
 
     /* Read the 2 checkints and check that they match */
