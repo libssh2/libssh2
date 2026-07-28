@@ -197,6 +197,7 @@ static const struct mac_method mac_method_hmac_sha2_256_etm = {
 };
 #endif
 
+#ifdef LIBSSH2_HMAC_SHA1_ENABLE
 /*
  * Calculate hash using full sha1 value
  */
@@ -261,6 +262,7 @@ static const struct mac_method mac_method_hmac_sha1_96 = {
     mac_method_common_dtor,
     0
 };
+#endif /* LIBSSH2_HMAC_SHA1_ENABLE */
 
 #if LIBSSH2_MD5
 /*
@@ -366,9 +368,11 @@ static const struct mac_method *mac_methods[] = {
     &mac_method_hmac_sha2_512,
     &mac_method_hmac_sha2_512_etm,
 #endif
+#ifdef LIBSSH2_HMAC_SHA1_ENABLE
     &mac_method_hmac_sha1,
     &mac_method_hmac_sha1_etm,
     &mac_method_hmac_sha1_96,
+#endif
 #if LIBSSH2_MD5
     &mac_method_hmac_md5,
     &mac_method_hmac_md5_96,
