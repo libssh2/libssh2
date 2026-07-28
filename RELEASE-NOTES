@@ -13,6 +13,9 @@ Deprecation notices:
   - DSA: `ssh-dss` hostkeys.
     You can enable it with `-DLIBSSH2_DSA_ENABLE`.
 
+  - SHA1-based MACs: `hmac-sha1`, `hmac-sha1-etm@openssh.com`, `hmac-sha1-96`
+    You can enable them with `-DLIBSSH2_HMAC_SHA1_ENABLE`.
+
   - MD5-based MACs and hashes: `hmac-md5`, `hmac-md5-96`,
     `LIBSSH2_HOSTKEY_HASH_MD5`
     You can enable it with `-DLIBSSH2_MD5_ENABLE`.
