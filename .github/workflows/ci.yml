@@ -545,9 +545,10 @@ jobs:
               -DCRYPTO_BACKEND=${crypto} \
               -DENABLE_ZLIB_COMPRESSION="${MATRIX_ZLIB}"
           else
+            export CFLAGS
             if [ "${MATRIX_ARCH}" = 'i386' ]; then
               options='--host=i686-pc-linux-gnu'
-              export CFLAGS=-m32
+              cflags+=' -m32'
             fi
             mkdir bld && cd bld
             if [ "${MATRIX_ZLIB}" = 'OFF' ]; then
@@ -558,6 +559,7 @@ jobs:
             if [ "${MATRIX_TARGET}" != 'distcheck' ]; then
               options+=' --disable-examples-build'
             fi
+            CFLAGS+=" ${cflags}"
             ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
               ${options} \
               --disable-dependency-tracking
