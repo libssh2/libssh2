@@ -78,6 +78,11 @@ static char const *skip_crypt[] = {
 
 /* List of MAC protocols for which tests are skipped */
 static char const *skip_mac[] = {
+#ifndef LIBSSH2_HMAC_SHA1_ENABLE
+    "hmac-sha1",
+    "hmac-sha1-etm@openssh.com",
+    "hmac-sha1-96",
+#endif
 #if !LIBSSH2_MD5
     "hmac-md5",
     "hmac-md5-96",
