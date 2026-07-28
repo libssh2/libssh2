@@ -194,7 +194,6 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
     if(passphrase &&
        strlen(line) == sizeof(crypt_annotation) - 1 &&
        !memcmp(line, crypt_annotation, sizeof(crypt_annotation) - 1)) {
-
         const struct crypt_method **all_methods, *cur_method;
         int i;
 
