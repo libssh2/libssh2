@@ -191,8 +191,7 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
     if(pem_readline(line, LINE_SIZE, blob, blob_len, &off))
         goto out;
 
-    if(passphrase &&
-       !memcmp(line, crypt_annotation, sizeof(crypt_annotation) - 1)) {
+    if(passphrase && SSH2_IS_LITERAL(line, strlen(line), crypt_annotation)) {
         const struct crypt_method **all_methods, *cur_method;
         int i;
 
