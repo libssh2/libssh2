@@ -1482,10 +1482,9 @@ retry_auth:
          * this same allocation is reused.
          */
         session->userauth_pblc_packet = s =
-            SSH2_ALLOC(session,
-                       4 + session->userauth_pblc_packet_len +
-                       4 + method_len +
-                       4 + pubkeydata_len);
+            SSH2_ALLOC(session, 4 + session->userauth_pblc_packet_len +
+                                4 + method_len +
+                                4 + pubkeydata_len);
         if(!session->userauth_pblc_packet) {
             SSH2_SAFEFREE(session, session->userauth_pblc_method);
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC, "Out of memory");
@@ -1579,9 +1578,8 @@ retry_auth:
         unsigned char *sig = NULL;
         size_t sig_len;
 
-        s = buf = SSH2_ALLOC(session,
-                             4 + session->session_id_len +
-                             session->userauth_pblc_packet_len);
+        s = buf = SSH2_ALLOC(session, 4 + session->session_id_len +
+                                      session->userauth_pblc_packet_len);
         if(!buf)
             return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate memory for "
@@ -1624,8 +1622,7 @@ retry_auth:
         if(sig_len > pubkeydata_len) {
             unsigned char *newpckt;
             /* Should *NEVER* happen, but...well.. better safe than sorry */
-            newpckt = SSH2_REALLOC(session,
-                                   session->userauth_pblc_packet,
+            newpckt = SSH2_REALLOC(session, session->userauth_pblc_packet,
                                    4 + session->userauth_pblc_packet_len +
                                    4 + strlen(session->userauth_pblc_method) +
                                    4 + sig_len); /* PK sigblob */
