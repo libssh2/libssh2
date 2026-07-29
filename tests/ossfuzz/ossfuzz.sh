@@ -25,9 +25,11 @@ apt-get -y install automake libtool libssl-dev zlib1g-dev
 
 # Compile the fuzzer.
 autoreconf -fi
-./configure --disable-shared \
+./configure --disable-dependency-tracking \
+            --disable-shared \
             --enable-ossfuzzers \
             --disable-examples-build \
+            --disable-docs \
             --enable-debug
 make V=1
 
