@@ -52,6 +52,11 @@ Deprecation notices:
 
 - This release always enables large file support on Windows.
 
+- The next release makes these deprecated functions no-ops and
+  return permanent failure:
+  - `libssh2_base64_decode()` (deprecated since 1.0.0, 2008-12-26)
+  - `libssh2_poll()` (deprecated since 1.2.0, 2009-08-10)
+
 This release includes the following enhancements and bugfixes:
 
 - agent: fix unused macro compiler warnings in UWP non-unity builds (0e2bc3d6 #2325 #2313)
