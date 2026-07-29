@@ -52,7 +52,7 @@ Deprecation notices:
 
 - This release always enables large file support on Windows.
 
-- The next release makes these deprecated functions no-ops and
+- The next release makes these deprecated functions no-ops that
   return permanent failure:
   - `libssh2_base64_decode()` (deprecated since 1.0.0, 2008-12-26)
   - `libssh2_poll()` (deprecated since 1.2.0, 2009-08-10)
