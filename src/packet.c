@@ -950,8 +950,6 @@ ssh2_packet_add_jump_point5:
                 LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE) &&
                (msg == SSH_MSG_CHANNEL_EXTENDED_DATA)) {
                 /* Pretend we did not receive this */
-                SSH2_FREE(session, data);
-
                 ssh2_deb((session, LIBSSH2_TRACE_CONN,
                           "Ignoring extended data and refunding %ld bytes",
                           (long)(datalen - 13)));
@@ -971,7 +969,7 @@ ssh2_packet_add_jump_point5:
 
                 session->packAdd_channelp = channelp;
 
-                /* Adjust the window based on the block we freed */
+                /* Adjust the window based on the block we ignore */
 ssh2_packet_add_jump_point1:
                 session->packAdd_state = ssh2_NB_state_jump1;
                 rc = ssh2_channel_receive_window_adjust(session->
@@ -981,6 +979,11 @@ ssh2_packet_add_jump_point1:
                 if(rc == LIBSSH2_ERROR_EAGAIN)
                     return rc;
 
+                /* free only now that the window adjust is done: 'data' aliases
+                   session->packet.payload, which the transport layer re-passes
+                   to us if the adjust returns EAGAIN, so an earlier free would
+                   leave that pointer dangling */
+                SSH2_FREE(session, data);
                 session->packAdd_state = ssh2_NB_state_idle;
                 return 0;
             }
