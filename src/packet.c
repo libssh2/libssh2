@@ -946,9 +946,9 @@ ssh2_packet_add_jump_point5:
                           stream_id));
             }
 #endif
-            if((channelp->remote.extended_data_ignore_mode ==
-                LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE) &&
-               (msg == SSH_MSG_CHANNEL_EXTENDED_DATA)) {
+            if(channelp->remote.extended_data_ignore_mode ==
+               LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE &&
+               msg == SSH_MSG_CHANNEL_EXTENDED_DATA) {
                 /* Pretend we did not receive this */
                 ssh2_deb((session, LIBSSH2_TRACE_CONN,
                           "Ignoring extended data and refunding %ld bytes",
