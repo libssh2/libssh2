@@ -475,7 +475,7 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
 
         if(remainbuf < blocksize ||
            (CRYPT_FLAG_R(session, REQUIRES_FULL_PACKET) &&
-            ((ssize_t)p->total_num) > remainbuf)) {
+            (ssize_t)p->total_num > remainbuf)) {
             /* If we have less than a blocksize left, it is too
                little data to deal with, read more */
             ssize_t nread;
