@@ -29,13 +29,13 @@ jobs:
     steps:
     - name: 'Build Fuzzers'
       id: build
-      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@master  # zizmor: ignore[unpinned-uses]
+      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@85f0ef392a3a051929176c4ceb834298a152c799
       with:
         oss-fuzz-project-name: 'libssh2'
         dry-run: false
         language: c
     - name: 'Run Fuzzers'
-      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master  # zizmor: ignore[unpinned-uses]
+      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@85f0ef392a3a051929176c4ceb834298a152c799
       with:
         oss-fuzz-project-name: 'libssh2'
         fuzz-seconds: 600
