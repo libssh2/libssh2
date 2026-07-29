@@ -59,7 +59,13 @@ int ssh2_snprintf(char *buf, size_t buf_len, const char *fmt, ...)
         (void)(size);                 \
     } while(0)
 #elif defined(_WIN32)
+#if defined(_MSC_VER) && defined(NTDDI_VERSION) && \
+  (NTDDI_VERSION >= 0x0A000010) /* MS SDK 10.0.26100.0+ */
+#pragma comment(lib, "volatileaccessu.lib")
+#define ssh2_explicit_zero(buf, size) SecureZeroMemory2(buf, size)
+#else
 #define ssh2_explicit_zero(buf, size) SecureZeroMemory(buf, size)
+#endif
 #elif defined(HAVE_EXPLICIT_BZERO)
 #define ssh2_explicit_zero(buf, size) explicit_bzero(buf, size)
 #elif defined(HAVE_EXPLICIT_MEMSET)
