@@ -78,9 +78,9 @@ int ssh2_snprintf(char *buf, size_t buf_len, const char *fmt, ...)
   (defined(__DragonFly__) && __DragonFly_version >= 500600 /* 5.6+ */) || \
   (defined(__FreeBSD__) && __FreeBSD_version >= 1100037 /* 11.0+ */) || \
   (defined(__OpenBSD__) && OpenBSD >= 201405 /* 5.5+ */)
-#define curlx_memzero_low(buf, size)   explicit_bzero(buf, size)
+#define ssh2_explicit_zero(buf, size)  explicit_bzero(buf, size)
 #elif defined(__NetBSD__) && __NetBSD_Version__ >= 702000000 /* 7.2+ */
-#define curlx_memzero_low(buf, size)   (void)explicit_memset(buf, 0, size)
+#define ssh2_explicit_zero(buf, size)  (void)explicit_memset(buf, 0, size)
 #endif
 #endif /* !_LIBSSH2_LOCAL_MEMZERO */
 
