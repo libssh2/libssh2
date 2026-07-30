@@ -52,13 +52,8 @@ int ssh2_snprintf(char *buf, size_t buf_len, const char *fmt, ...)
 #define ssh2_snprintf   snprintf
 #endif
 
-#ifdef LIBSSH2_NO_CLEAR_MEMORY
-#define ssh2_explicit_zero(buf, size) \
-    do {                              \
-        (void)(buf);                  \
-        (void)(size);                 \
-    } while(0)
-#elif defined(_WIN32)
+#ifndef _LIBSSH2_LOCAL_MEMZERO /* to be removed after a couple of releases */
+#if defined(_WIN32)
 #if defined(_MSC_VER) && defined(NTDDI_VERSION) && \
   (NTDDI_VERSION >= 0x0A000010) /* MS SDK 10.0.26100.0+ */
 #pragma comment(lib, "volatileaccessu.lib")
@@ -72,10 +67,11 @@ int ssh2_snprintf(char *buf, size_t buf_len, const char *fmt, ...)
 #define ssh2_explicit_zero(buf, size) (void)explicit_memset(buf, 0, size)
 #elif defined(HAVE_MEMSET_S)
 #define ssh2_explicit_zero(buf, size) (void)memset_s(buf, size, 0, size)
-#else
+#endif /* !_LIBSSH2_LOCAL_MEMZERO */
+
+#ifndef ssh2_explicit_zero
 #define LIBSSH2_MEMZERO
-void ssh2_memzero(void *buf, size_t size);
-#define ssh2_explicit_zero(buf, size) ssh2_memzero(buf, size)
+void ssh2_explicit_zero(void *buf, size_t size);
 #endif
 
 #ifdef HAVE_SYS_TIME_H

@@ -83,11 +83,6 @@ The following options are available:
    Enable the libssh2_trace() function for showing debug traces.
    Can be `ON` or `OFF`. Default: `OFF` in Release, `ON` in `Debug`
 
-* `CLEAR_MEMORY=OFF`
-
-   Disable secure zero memory before freeing it (not recommended).
-   Can be `ON` or `OFF`. Default: `ON`
-
 ## Using AWS-LC or BoringSSL
 
 You can also build against [AWS-LC](https://github.com/aws/aws-lc) or

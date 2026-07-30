@@ -809,11 +809,14 @@ void *ssh2_calloc(LIBSSH2_SESSION *session, size_t size)
 }
 
 #ifdef LIBSSH2_MEMZERO
-static void *(* const volatile memset_libssh)(void *, int, size_t) = memset;
+static void *(* const volatile p_ssh2_memset)(void *buf, int val,
+                                              size_t size) = memset;
 
-void ssh2_memzero(void *buf, size_t size)
+/* Local fallback in case there is no system function to securely zero a memory
+   buffer. */
+void ssh2_explicit_zero(void *buf, size_t size)
 {
-    memset_libssh(buf, 0, size);
+    p_ssh2_memset(buf, 0, size);
 }
 #endif
 
