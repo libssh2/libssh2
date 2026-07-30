@@ -175,7 +175,7 @@ static const char *ssh2_build_options =
     "off"
 #endif
     " "
-    "deprecated-API:"
+    "deprecated-APIs:"
 #ifndef LIBSSH2_NO_DEPRECATED
     "on"
 #else
