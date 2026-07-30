@@ -210,6 +210,8 @@ static const char *ssh2_build_options =
 #endif
     " "
 #endif
+    "clear-memory:" SSH2_MEMZERO_FUNC
+    " "
     "debug-logging:"
 #ifdef LIBSSH2DEBUG
     "on"
