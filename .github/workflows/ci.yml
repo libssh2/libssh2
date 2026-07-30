@@ -1092,8 +1092,8 @@ jobs:
             cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@4
           - name: 'OpenSSL 3'
             install: openssl@3
-            configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl@3
-            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@3
+            configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl@3 CFLAGS=-std=c90
+            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@3 -DCMAKE_C_STANDARD=90
           - name: 'wolfSSL'
             install: wolfssl
             configure: --with-crypto=wolfssl --with-libwolfssl-prefix=/opt/homebrew
