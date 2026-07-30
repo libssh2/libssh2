@@ -61,7 +61,7 @@ int ssh2_snprintf(char *buf, size_t buf_len, const char *fmt, ...)
 #ifndef _LIBSSH2_LOCAL_MEMZERO /* to be removed after a couple of releases */
 #ifdef _WIN32
 #if defined(_MSC_VER) && defined(NTDDI_VERSION) && \
-  (NTDDI_VERSION >= 0x0A000010) /* MS SDK 10.0.26100.0+ */
+    (NTDDI_VERSION >= 0x0A000010) /* MS SDK 10.0.26100.0+ */
 #pragma comment(lib, "volatileaccessu.lib")
 #define ssh2_explicit_zero(buf, size)  SecureZeroMemory2(buf, size)
 #else
@@ -72,12 +72,12 @@ int ssh2_snprintf(char *buf, size_t buf_len, const char *fmt, ...)
 #elif defined(HAVE_MEMSET_EXPLICIT)
 #define ssh2_explicit_zero(buf, size)  (void)memset_explicit(buf, 0, size)
 #elif defined(__CYGWIN__) || \
-  (defined(__NEWLIB__) && !defined(__CLIB2__)) || \
-  (defined(__GLIBC__) && \
-    (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 25))) || \
-  (defined(__DragonFly__) && __DragonFly_version >= 500600 /* 5.6+ */) || \
-  (defined(__FreeBSD__) && __FreeBSD_version >= 1100037 /* 11.0+ */) || \
-  (defined(__OpenBSD__) && OpenBSD >= 201405 /* 5.5+ */)
+    (defined(__NEWLIB__) && !defined(__CLIB2__)) || \
+    (defined(__GLIBC__) && \
+        (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 25))) || \
+    (defined(__DragonFly__) && __DragonFly_version >= 500600 /* 5.6+ */) || \
+    (defined(__FreeBSD__) && __FreeBSD_version >= 1100037 /* 11.0+ */) || \
+    (defined(__OpenBSD__) && OpenBSD >= 201405 /* 5.5+ */)
 #define ssh2_explicit_zero(buf, size)  explicit_bzero(buf, size)
 #elif defined(__NetBSD__) && __NetBSD_Version__ >= 702000000 /* 7.2+ */
 #define ssh2_explicit_zero(buf, size)  (void)explicit_memset(buf, 0, size)
