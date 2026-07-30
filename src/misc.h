@@ -67,6 +67,7 @@ int ssh2_snprintf(char *buf, size_t buf_len, const char *fmt, ...)
 #define ssh2_explicit_zero(buf, size) (void)explicit_memset(buf, 0, size)
 #elif defined(HAVE_MEMSET_S)
 #define ssh2_explicit_zero(buf, size) (void)memset_s(buf, size, 0, size)
+#endif
 #endif /* !_LIBSSH2_LOCAL_MEMZERO */
 
 #ifndef ssh2_explicit_zero
