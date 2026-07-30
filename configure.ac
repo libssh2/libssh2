@@ -217,19 +217,6 @@ fi
 
 AC_SUBST(LIBSSH2_PC_REQUIRES_PRIVATE)
 
-dnl
-dnl Optional Settings
-dnl
-AC_ARG_ENABLE(clear-memory,
-  AS_HELP_STRING([--disable-clear-memory],[Disable clearing of memory before being freed]),
-  [CLEAR_MEMORY=$enableval])
-if test "$CLEAR_MEMORY" = "no"; then
-  AC_DEFINE(LIBSSH2_NO_CLEAR_MEMORY, 1, [Disable clearing of memory before being freed])
-  enable_clear_memory=no
-else
-  enable_clear_memory=yes
-fi
-
 LIBSSH2_CFLAG_EXTRAS=""
 
 LIBSSH2_CHECK_OPTION_WERROR
@@ -514,7 +501,6 @@ AC_MSG_NOTICE([summary of build options:
   Crypto library:   ${found_crypto_str}
   WinCNG ECDSA:     $wincng_ecdsa
   zlib compression: ${found_libz}
-  Clear memory:     $enable_clear_memory
   Deprecated APIs:  $with_deprecated
   Debug build:      $enable_debug
   Build examples:   $build_examples
