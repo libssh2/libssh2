@@ -161,6 +161,20 @@ static const char *ssh2_build_options =
     "off"
 #endif
     " "
+    "KEX-SHA1:"
+#ifdef LIBSSH2_KEX_SHA1_ENABLE
+    "on"
+#else
+    "off"
+#endif
+    " "
+    "MAC-SHA1:"
+#ifdef LIBSSH2_HMAC_SHA1_ENABLE
+    "on"
+#else
+    "off"
+#endif
+    " "
     "zlib:"
 #ifdef LIBSSH2_HAVE_ZLIB
     "on"
