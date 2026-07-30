@@ -396,8 +396,37 @@ case $host in
     ;;
 esac
 
-AC_CHECK_FUNCS(gettimeofday select memset_s)
-if test "$ac_cv_func_memset_s" != "yes"; then
+AC_CHECK_FUNCS(gettimeofday select)
+
+dnl Check for memset_s()
+libssh2_cv_func_memset_s="no"
+AC_MSG_CHECKING([if memset_s can be linked])
+AC_LINK_IFELSE([
+  AC_LANG_FUNC_LINK_TRY([memset_s])
+],[
+  AC_MSG_RESULT([yes])
+  AC_MSG_CHECKING([if memset_s is compilable])
+  AC_COMPILE_IFELSE([
+    AC_LANG_PROGRAM([[
+      #include <string.h>
+    ]],[[
+      char buf[2];
+      if(memset_s(buf, sizeof(buf), 0, sizeof(buf)))
+        return 1;
+    ]])
+  ],[
+    AC_MSG_RESULT([yes])
+    libssh2_cv_func_memset_s="yes"
+    AC_DEFINE_UNQUOTED(HAVE_MEMSET_S, 1,
+      [Define to 1 if you have the memset_s function.])
+  ],[
+    AC_MSG_RESULT([no])
+  ])
+],[
+  AC_MSG_RESULT([no])
+])
+
+if test "$libssh2_cv_func_memset_s" = "no"; then
   AC_CHECK_FUNCS(memset_explicit)
 fi
 
