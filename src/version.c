@@ -175,6 +175,13 @@ static const char *ssh2_build_options =
     "off"
 #endif
     " "
+    "deprecated-API-1:"
+#ifndef LIBSSH2_NO_DEPRECATED
+    "on"
+#else
+    "off"
+#endif
+    " "
     "zlib:"
 #ifdef LIBSSH2_HAVE_ZLIB
     "on"
