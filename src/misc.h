@@ -53,7 +53,7 @@ int ssh2_snprintf(char *buf, size_t buf_len, const char *fmt, ...)
 #endif
 
 #ifndef _LIBSSH2_LOCAL_MEMZERO /* to be removed after a couple of releases */
-#if defined(_WIN32)
+#ifdef _WIN32
 #if defined(_MSC_VER) && defined(NTDDI_VERSION) && \
   (NTDDI_VERSION >= 0x0A000010) /* MS SDK 10.0.26100.0+ */
 #pragma comment(lib, "volatileaccessu.lib")
