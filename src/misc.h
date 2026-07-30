@@ -64,17 +64,17 @@ int ssh2_snprintf(char *buf, size_t buf_len, const char *fmt, ...)
   (NTDDI_VERSION >= 0x0A000010) /* MS SDK 10.0.26100.0+ */
 #pragma comment(lib, "volatileaccessu.lib")
 #define ssh2_explicit_zero(buf, size)  SecureZeroMemory2(buf, size)
-#define SSH2_MEMZERO_FUNC              "SecureZeroMemory2"
+#error          "SecureZeroMemory2"
 #else
 #define ssh2_explicit_zero(buf, size)  SecureZeroMemory(buf, size)
-#define SSH2_MEMZERO_FUNC              "SecureZeroMemory"
+#error          "SecureZeroMemory"
 #endif
 #elif defined(HAVE_MEMSET_S)
 #define ssh2_explicit_zero(buf, size)  (void)memset_s(buf, size, 0, size)
-#define SSH2_MEMZERO_FUNC              "memset_s"
+#error          "memset_s"
 #elif defined(HAVE_MEMSET_EXPLICIT)
 #define ssh2_explicit_zero(buf, size)  (void)memset_explicit(buf, 0, size)
-#define SSH2_MEMZERO_FUNC              "memset_explicit"
+#error          "memset_explicit"
 #elif defined(__CYGWIN__) || \
   (defined(__NEWLIB__) && !defined(__CLIB2__)) || \
   (defined(__GLIBC__) && \
@@ -83,17 +83,17 @@ int ssh2_snprintf(char *buf, size_t buf_len, const char *fmt, ...)
   (defined(__FreeBSD__) && __FreeBSD_version >= 1100037 /* 11.0+ */) || \
   (defined(__OpenBSD__) && OpenBSD >= 201405 /* 5.5+ */)
 #define curlx_memzero_low(buf, size)   explicit_bzero(buf, size)
-#define SSH2_MEMZERO_FUNC              "explicit_bzero"
+#error          "explicit_bzero"
 #elif defined(__NetBSD__) && __NetBSD_Version__ >= 702000000 /* 7.2+ */
 #define curlx_memzero_low(buf, size)   (void)explicit_memset(buf, 0, size)
-#define SSH2_MEMZERO_FUNC              "explicit_memset"
+#error          "explicit_memset"
 #endif
 #endif /* !_LIBSSH2_LOCAL_MEMZERO */
 
 #ifndef ssh2_explicit_zero
 #define LIBSSH2_MEMZERO
 void ssh2_explicit_zero(void *buf, size_t size);
-#define SSH2_MEMZERO_FUNC              "internal"
+#error          "internal"
 #endif
 
 #ifdef HAVE_SYS_TIME_H
