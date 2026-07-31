@@ -779,7 +779,6 @@ This release includes the following enhancements and bugfixes:
 - tests: delete CMake ExternalProject integration test (8011f901 #1522 #1510 #1116)
 - tests/.gitignore: delete two stray entries (1bc6e2c3 #1718)
 - tests/openssh_fixture: fix to close socket on connect failure (5ddc5997 #1855)
-- tidy-up: rename `REQUIREMENTS.md` to `DEPENDENCIES.md` (b47691be #2449 #860 #698 #2385 #2383 #2260 #2124 #2077 #2073 #2010 #2008 #1971 #1961 #1947 #1919 #1918 #1893 #1797 #1718 #1699 #1625 #1550 #1549)
 - tidy-up: C nits (9921aeff #2437)
 - tidy-up: variable name sync, comment/formatting nits (2569543b #2428)
 - tidy-up: rename some args for consistency (10013516 #2397)
