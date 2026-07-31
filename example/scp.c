@@ -141,12 +141,18 @@ int main(int argc, char *argv[])
 
     /* Request a file via SCP */
     channel = libssh2_scp_recv2(session, scppath, &fileinfo);
-
     if(!channel) {
         fprintf(stderr, "Unable to open a session: %d\n",
                 libssh2_session_last_errno(session));
         goto shutdown;
     }
+
+    fprintf(stderr,
+            "size = %lu byte(s)\nmode = 0%lo\nmtime = %ld\natime = %ld\n",
+            (unsigned long)fileinfo.st_size,
+            (unsigned long)fileinfo.st_mode,
+            (long)fileinfo.st_mtime,
+            (long)fileinfo.st_atime);
 
     while(got < fileinfo.st_size) {
         char mem[1024];
