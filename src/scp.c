@@ -36,16 +36,6 @@
 #include "channel.h"
 #include "session.h"
 
-#include <stdlib.h>  /* strtoll(), _strtoi64(), strtol() */
-
-#ifdef HAVE_STRTOLL
-#define ssh2_strtoll strtoll
-#elif defined(HAVE_STRTOI64)
-#define ssh2_strtoll _strtoi64
-#else
-#define ssh2_strtoll strtol
-#endif
-
 /* Max. length of a quoted string after scp_shell_quotearg() processing */
 #define shell_quotedsize(s)  (3 * strlen(s) + 2)
 
@@ -74,7 +64,8 @@ int ssh2_scp_parse_c_fields(const char *buf, size_t len,
     size_t i;
     size_t mode_start, mode_len, size_start, size_len;
     char tmp[32];
-    char *end = NULL;
+    const char *end = NULL;
+    libssh2_int64_t mode_out64;
 
     if(!buf || len < 1 || buf[0] != 'C')
         return SCP_C_FIELDS_MALFORMED;
@@ -108,16 +99,16 @@ int ssh2_scp_parse_c_fields(const char *buf, size_t len,
 
     memcpy(tmp, buf + mode_start, mode_len);
     tmp[mode_len] = '\0';
-    /* !checksrc! disable BANNEDFUNC 1 */
-    *mode_out = strtol(tmp, &end, 8);
-    if(end && *end)
+
+    end = tmp;
+    if(ssh2_str_number(&end, &mode_out64, LONG_MAX, 8))
         return SCP_C_FIELDS_MALFORMED;
+    *mode_out = (long)mode_out64;
 
     memcpy(tmp, buf + size_start, size_len);
     tmp[size_len] = '\0';
-    end = NULL;
-    *size_out = (libssh2_int64_t)ssh2_strtoll(tmp, &end, 10);
-    if(end && *end)
+    end = tmp;
+    if(ssh2_str_number(&end, size_out, INT64_MAX, 10))
         return SCP_C_FIELDS_MALFORMED;
 
     return SCP_C_FIELDS_OK;
