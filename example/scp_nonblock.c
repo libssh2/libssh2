@@ -226,7 +226,6 @@ int main(int argc, char *argv[])
     fprintf(stderr, "libssh2_scp_recv2().\n");
     do {
         channel = libssh2_scp_recv2(session, scppath, &fileinfo);
-
         if(!channel) {
             if(libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
                 char *err_msg;
@@ -242,6 +241,13 @@ int main(int argc, char *argv[])
         }
     } while(!channel);
     fprintf(stderr, "libssh2_scp_recv2() is done, now receive data.\n");
+
+    fprintf(stderr,
+            "size = %lu byte(s)\nmode = 0%o\nmtime = %ld\natime = %ld\n",
+            (unsigned long)fileinfo.st_size,
+            (unsigned int)fileinfo.st_mode,
+            (long)fileinfo.st_mtime,
+            (long)fileinfo.st_atime);
 
     while(got < fileinfo.st_size) {
         char mem[1024 * 24];
