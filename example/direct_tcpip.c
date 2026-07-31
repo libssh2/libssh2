@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
     setsockopt(listensock, SOL_SOCKET, SO_REUSEADDR, &sockopt,
                sizeof(sockopt));
     sinlen = sizeof(sin);
-    if(bind(listensock, (struct sockaddr *)&sin, sinlen) == 1) {
+    if(bind(listensock, (struct sockaddr *)&sin, sinlen) == -1) {
         fprintf(stderr, "failed to bind().\n");
         goto shutdown;
     }
