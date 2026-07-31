@@ -1287,8 +1287,8 @@ FILE *ssh2_fopen(const char *filename, const char *mode)
 /* given an ASCII character and max ascii, return TRUE if valid */
 #define valid_digit(x, m)  (((x) >= '0') && ((x) <= (m)))
 
-/* Get an unsigned decimal number with no leading space or minus. Leading
-   zeroes are accepted. return non-zero on error */
+/* Get an unsigned number with no leading space or minus. Leading zeroes are
+   accepted. return non-zero on error */
 int ssh2_str_number(const char **linep,
                     libssh2_int64_t *nump, libssh2_int64_t max,
                     int base) /* 8 or 10, nothing else */
