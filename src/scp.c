@@ -461,7 +461,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
             unsigned char *s, *p;
 
             if(session->scpRecv_state == ssh2_NB_state_sent2) {
-                const char *ptime;
+                const char *end;
                 libssh2_int64_t num;
 
                 rc = (int)ssh2_channel_read(session->scpRecv_channel, 0,
@@ -578,8 +578,8 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 }
                 *(p++) = '\0';
 
-                ptime = (const char *)s;
-                if(ssh2_str_number(&ptime, &num, LONG_MAX, 10)) {
+                end = (const char *)s;
+                if(ssh2_str_number(&end, &num, LONG_MAX, 10)) {
                     ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                              "Invalid response from SCP server, "
                              "malformed mtime");
@@ -608,8 +608,8 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 }
                 *p = '\0';
 
-                ptime = (const char *)s;
-                if(ssh2_str_number(&ptime, &num, LONG_MAX, 10)) {
+                end = (const char *)s;
+                if(ssh2_str_number(&end, &num, LONG_MAX, 10)) {
                     ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                              "Invalid response from SCP server, "
                              "malformed mtime");
