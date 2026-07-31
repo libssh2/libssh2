@@ -1760,7 +1760,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout_ms)
                 }
             }
         }
-#endif /* HAVE_POLL, timeout_ms (and by extension timeout_remaining) is 0 */
+#endif /* HAVE_POLL */
     } while(timeout_remaining > 0 && !active_fds);
 
 #ifdef HAVE_POLL
