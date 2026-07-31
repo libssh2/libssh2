@@ -39,11 +39,11 @@
 #include <stdlib.h>  /* strtoll(), _strtoi64(), strtol() */
 
 #ifdef HAVE_STRTOLL
-#define scpsize_strtol strtoll
+#define ssh2_strtoll strtoll
 #elif defined(HAVE_STRTOI64)
-#define scpsize_strtol _strtoi64
+#define ssh2_strtoll _strtoi64
 #else
-#define scpsize_strtol strtol
+#define ssh2_strtoll strtol
 #endif
 
 /* Max. length of a quoted string after scp_shell_quotearg() processing */
@@ -116,7 +116,7 @@ int ssh2_scp_parse_c_fields(const char *buf, size_t len,
     memcpy(tmp, buf + size_start, size_len);
     tmp[size_len] = '\0';
     end = NULL;
-    *size_out = (libssh2_int64_t)scpsize_strtol(tmp, &end, 10);
+    *size_out = (libssh2_int64_t)ssh2_strtoll(tmp, &end, 10);
     if(end && *end)
         return SCP_C_FIELDS_MALFORMED;
 
@@ -358,8 +358,8 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
     if(session->scpRecv_state == ssh2_NB_state_idle) {
         session->scpRecv_mode = 0;
         session->scpRecv_size = 0;
-        session->scpRecv_mtime = 0;
-        session->scpRecv_atime = 0;
+        session->scpRecv_time.st_mtime = 0;
+        session->scpRecv_time.st_atime = 0;
 
         session->scpRecv_command_len =
             shell_quotedsize(path) + sizeof("scp -f ") + (sb ? 1 : 0);
@@ -582,11 +582,10 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                              "malformed mtime");
                     goto scp_recv_error;
                 }
-
                 *(p++) = '\0';
 
-                /* !checksrc! disable BANNEDFUNC 1 */
-                session->scpRecv_mtime = strtol((char *)s, NULL, 10);
+                session->scpRecv_time.st_mtime = ssh2_strtoll((char *)s,
+                                                              NULL, 10);
 
                 s = (unsigned char *)strchr((char *)p, ' ');
                 if(!s || (s - p) <= 0) {
@@ -607,11 +606,10 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                              "too short or malformed");
                     goto scp_recv_error;
                 }
-
                 *p = '\0';
 
-                /* !checksrc! disable BANNEDFUNC 1 */
-                session->scpRecv_atime = strtol((char *)s, NULL, 10);
+                session->scpRecv_time.st_atime = ssh2_strtoll((char *)s,
+                                                              NULL, 10);
 
                 /* SCP ACK */
                 session->scpRecv_response[0] = '\0';
@@ -631,9 +629,10 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                     goto scp_recv_error;
 
                 ssh2_deb((session, LIBSSH2_TRACE_SCP,
-                          "mtime = %ld, atime = %ld",
-                          session->scpRecv_mtime,
-                          session->scpRecv_atime));
+                          "mtime = %" SSH2_INT64_T_FORMAT ", "
+                          "atime = %" SSH2_INT64_T_FORMAT,
+                          (libssh2_int64_t)session->scpRecv_time.st_mtime,
+                          (libssh2_int64_t)session->scpRecv_time.st_atime));
 
                 /* We *should* check that atime.usec is valid, but why let
                    that stop use? */
@@ -806,8 +805,8 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
     if(sb) {
         memset(sb, 0, sizeof(libssh2_struct_stat));
 
-        sb->st_mtime = session->scpRecv_mtime;
-        sb->st_atime = session->scpRecv_atime;
+        sb->st_mtime = session->scpRecv_time.st_mtime;
+        sb->st_atime = session->scpRecv_time.st_atime;
         sb->st_size = (libssh2_struct_stat_size)session->scpRecv_size;
         sb->st_mode = (unsigned short)session->scpRecv_mode;
     }
