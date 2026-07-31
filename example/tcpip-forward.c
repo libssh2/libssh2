@@ -241,7 +241,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "failed in inet_addr().\n");
         goto shutdown;
     }
-    if(-1 == connect(forwardsock, (struct sockaddr *)&sin, sinlen)) {
+    if(connect(forwardsock, (struct sockaddr *)&sin, sinlen) == -1) {
         fprintf(stderr, "failed to connect().\n");
         goto shutdown;
     }
@@ -267,7 +267,7 @@ int main(int argc, char *argv[])
         tv.tv_sec = 0;
         tv.tv_usec = 100000;
         rc = select((int)(forwardsock + 1), &fds, NULL, NULL, &tv);
-        if(-1 == rc) {
+        if(rc == -1) {
             fprintf(stderr, "failed to select().\n");
             goto shutdown;
         }

@@ -219,11 +219,11 @@ int main(int argc, char *argv[])
     setsockopt(listensock, SOL_SOCKET, SO_REUSEADDR, &sockopt,
                sizeof(sockopt));
     sinlen = sizeof(sin);
-    if(-1 == bind(listensock, (struct sockaddr *)&sin, sinlen)) {
+    if(bind(listensock, (struct sockaddr *)&sin, sinlen) == 1) {
         fprintf(stderr, "failed to bind().\n");
         goto shutdown;
     }
-    if(-1 == listen(listensock, 2)) {
+    if(listen(listensock, 2) == 1) {
         fprintf(stderr, "failed to listen().\n");
         goto shutdown;
     }
@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
         tv.tv_sec = 0;
         tv.tv_usec = 100000;
         rc = select((int)(forwardsock + 1), &fds, NULL, NULL, &tv);
-        if(-1 == rc) {
+        if(rc == -1) {
             fprintf(stderr, "failed to select().\n");
             goto shutdown;
         }
