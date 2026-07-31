@@ -40,7 +40,6 @@
 #include "sftp.h"
 
 #include <assert.h>
-#include <stdlib.h>  /* strtol() */
 
 /* This release of libssh2 implements Version 5 with automatic downgrade
  * based on server's declaration
@@ -950,6 +949,9 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
 
         if(extdata_len > 0) {
             char *extversion_str = SSH2_ALLOC(session, extdata_len + 1);
+            const char *extversion_end;
+            libssh2_int64_t num;
+
             if(!extversion_str) {
                 SSH2_FREE(session, data);
                 ssh2_err(session, LIBSSH2_ERROR_ALLOC,
@@ -959,8 +961,11 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
             }
             memcpy(extversion_str, extdata, extdata_len);
             extversion_str[extdata_len] = '\0';
-            /* !checksrc! disable BANNEDFUNC 1 */
-            extversion = (uint32_t)strtol(extversion_str, NULL, 10);
+
+            extversion_end = extversion_str;
+            if(!ssh2_str_number(&extversion_end, &num, UINT32_MAX, 10))
+                extversion = (uint32_t)num;
+
             SSH2_FREE(session, extversion_str);
         }
         if(extname_len == 24 &&

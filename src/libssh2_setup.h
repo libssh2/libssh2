@@ -31,14 +31,8 @@
 #  define HAVE_INTTYPES_H
 #  define HAVE_SYS_TIME_H
 #  define HAVE_GETTIMEOFDAY
-#  define HAVE_STRTOLL
-#elif defined(_MSC_VER)
-#  if _MSC_VER >= 1800
-#    define HAVE_INTTYPES_H
-#    define HAVE_STRTOLL
-#  else
-#    define HAVE_STRTOI64
-#  endif
+#elif defined(_MSC_VER) && _MSC_VER >= 1800
+#  define HAVE_INTTYPES_H
 #endif
 
 #endif /* HAVE_CONFIG_H */

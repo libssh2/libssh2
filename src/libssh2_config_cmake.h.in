@@ -47,8 +47,6 @@
 
 /* Functions */
 #cmakedefine HAVE_GETTIMEOFDAY
-#cmakedefine HAVE_STRTOLL
-#cmakedefine HAVE_STRTOI64
 #cmakedefine HAVE_MEMSET_S
 #cmakedefine HAVE_MEMSET_EXPLICIT
 

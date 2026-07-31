@@ -396,7 +396,7 @@ case $host in
     ;;
 esac
 
-AC_CHECK_FUNCS(gettimeofday select strtoll memset_s)
+AC_CHECK_FUNCS(gettimeofday select memset_s)
 if test "$ac_cv_func_memset_s" != "yes"; then
   AC_CHECK_FUNCS(memset_explicit)
 fi
