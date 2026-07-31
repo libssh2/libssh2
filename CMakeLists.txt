@@ -327,7 +327,6 @@ if(WIN32)
     endif()
   endif()
   set(HAVE_POLL 0)
-  set(HAVE_SELECT 1)
 endif()
 
 ## Platform checks
@@ -385,7 +384,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin" OR
 else()
   check_function_exists("poll" HAVE_POLL)
 endif()
-check_function_exists("select" HAVE_SELECT)
 
 # Non-blocking socket support tests. Use a separate, yet unset variable
 # for the socket libraries to not link against the other configured

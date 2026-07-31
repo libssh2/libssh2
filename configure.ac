@@ -396,13 +396,6 @@ case $host in
     ;;
 esac
 
-if test "x$have_windows_h" = "xyes"; then
-  AC_DEFINE_UNQUOTED(HAVE_SELECT, 1,
-    [Define to 1 if you have the select function.])
-else
-  AC_CHECK_FUNCS(select)
-fi
-
 AC_CHECK_FUNCS(gettimeofday)
 
 dnl Check for memset_s()
