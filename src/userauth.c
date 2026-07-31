@@ -46,8 +46,6 @@
 #include "userauth.h"
 #include "userauth_kbd_packet.h"
 
-#include <stdlib.h>  /* strtol() */
-
 /*
  * Cap each userauth input field below the per-call transport
  * limit. Bounds packet-size arithmetic to prevent size_t wrap
@@ -1166,22 +1164,21 @@ void ssh2_userauth_plain_method(char *method)
  */
 static int userauth_is_version_less_than_78(const char *version)
 {
-    char *endptr_major = NULL;
-    char *endptr_minor = NULL;
-    long major = 0;
-    long minor = 0;
+    const char *endptr_major = NULL;
+    const char *endptr_minor = NULL;
+    libssh2_int64_t major = 0;
+    libssh2_int64_t minor = 0;
 
     if(!version)
         return 0;
 
-    /* !checksrc! disable BANNEDFUNC 1 */
-    major = strtol(version, &endptr_major, 10);
-    if(!endptr_major || *endptr_major != '.')
+    endptr_major = version;
+    if(ssh2_str_number(&endptr_major, &major, 99) || *endptr_major != '.')
         return 0; /* Not a valid number */
 
-    /* !checksrc! disable BANNEDFUNC 1 */
-    minor = strtol(endptr_major + 1, &endptr_minor, 10);
-    if(!endptr_minor || endptr_minor == endptr_major + 1)
+    endptr_minor = endptr_major + 1;
+    if(ssh2_str_number(&endptr_minor, &minor, 99) ||
+       endptr_minor == endptr_major + 1)
         return 0; /* Not a valid number */
 
     if((major >= 1 && major <= 6) ||
