@@ -358,8 +358,8 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
     if(session->scpRecv_state == ssh2_NB_state_idle) {
         session->scpRecv_mode = 0;
         session->scpRecv_size = 0;
-        session->scpRecv_time.st_mtime = 0;
-        session->scpRecv_time.st_atime = 0;
+        session->scpRecv_stat.st_mtime = 0;
+        session->scpRecv_stat.st_atime = 0;
 
         session->scpRecv_command_len =
             shell_quotedsize(path) + sizeof("scp -f ") + (sb ? 1 : 0);
@@ -584,7 +584,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 }
                 *(p++) = '\0';
 
-                session->scpRecv_time.st_mtime =
+                session->scpRecv_stat.st_mtime =
                     (time_t)ssh2_strtoll((char *)s, NULL, 10);
 
                 s = (unsigned char *)strchr((char *)p, ' ');
@@ -608,7 +608,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 }
                 *p = '\0';
 
-                session->scpRecv_time.st_atime =
+                session->scpRecv_stat.st_atime =
                     (time_t)ssh2_strtoll((char *)s, NULL, 10);
 
                 /* SCP ACK */
@@ -631,8 +631,8 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 ssh2_deb((session, LIBSSH2_TRACE_SCP,
                           "mtime = %" SSH2_INT64_T_FORMAT ", "
                           "atime = %" SSH2_INT64_T_FORMAT,
-                          (libssh2_int64_t)session->scpRecv_time.st_mtime,
-                          (libssh2_int64_t)session->scpRecv_time.st_atime));
+                          (libssh2_int64_t)session->scpRecv_stat.st_mtime,
+                          (libssh2_int64_t)session->scpRecv_stat.st_atime));
 
                 /* We *should* check that atime.usec is valid, but why let
                    that stop use? */
@@ -805,8 +805,8 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
     if(sb) {
         memset(sb, 0, sizeof(libssh2_struct_stat));
 
-        sb->st_mtime = session->scpRecv_time.st_mtime;
-        sb->st_atime = session->scpRecv_time.st_atime;
+        sb->st_mtime = session->scpRecv_stat.st_mtime;
+        sb->st_atime = session->scpRecv_stat.st_atime;
         sb->st_size = (libssh2_struct_stat_size)session->scpRecv_size;
         sb->st_mode = (unsigned short)session->scpRecv_mode;
     }
