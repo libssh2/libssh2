@@ -1290,9 +1290,9 @@ FILE *ssh2_fopen(const char *filename, const char *mode)
 /* Get an unsigned decimal number with no leading space or minus. Leading
    zeroes are accepted. return non-zero on error */
 int ssh2_str_number(const char **linep,
-                    libssh2_uint64_t *nump, libssh2_uint64_t max)
+                    libssh2_int64_t *nump, libssh2_int64_t max)
 {
-    libssh2_uint64_t num = 0;
+    libssh2_int64_t num = 0;
     const char *p;
     assert(linep && *linep && nump);
     assert(max >= 0); /* mostly to catch SIZE_MAX, which is too large */
