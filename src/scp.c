@@ -65,7 +65,7 @@ int ssh2_scp_parse_c_fields(const char *buf, size_t len,
     size_t mode_start, mode_len, size_start, size_len;
     char tmp[32];
     const char *end = NULL;
-    libssh2_int64_t mode_out64;
+    libssh2_int64_t num;
 
     if(!buf || len < 1 || buf[0] != 'C')
         return SCP_C_FIELDS_MALFORMED;
@@ -101,9 +101,9 @@ int ssh2_scp_parse_c_fields(const char *buf, size_t len,
     tmp[mode_len] = '\0';
 
     end = tmp;
-    if(ssh2_str_number(&end, &mode_out64, LONG_MAX, 8))
+    if(ssh2_str_number(&end, &num, LONG_MAX, 8))
         return SCP_C_FIELDS_MALFORMED;
-    *mode_out = (long)mode_out64;
+    *mode_out = (long)num;
 
     memcpy(tmp, buf + size_start, size_len);
     tmp[size_len] = '\0';
