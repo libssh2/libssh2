@@ -1173,11 +1173,12 @@ static int userauth_is_version_less_than_78(const char *version)
         return 0;
 
     endptr_major = version;
-    if(ssh2_str_number(&endptr_major, &major, 99) || *endptr_major != '.')
+    if(ssh2_str_number(&endptr_major, &major, 99, 10) ||
+       *endptr_major != '.')
         return 0; /* Not a valid number */
 
     endptr_minor = endptr_major + 1;
-    if(ssh2_str_number(&endptr_minor, &minor, 99) ||
+    if(ssh2_str_number(&endptr_minor, &minor, 99, 10) ||
        endptr_minor == endptr_major + 1)
         return 0; /* Not a valid number */
 
