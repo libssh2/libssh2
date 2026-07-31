@@ -963,14 +963,8 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
             extversion_str[extdata_len] = '\0';
 
             extversion_end = extversion_str;
-            if(ssh2_str_number(&extversion_end, &num, UINT32_MAX, 10)) {
-                SSH2_FREE(session, extversion_str);
-                SSH2_FREE(session, data);
-                ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-                         "Unable to parse SSH_FXP_VERSION packet");
-                goto sftp_init_error;
-            }
-            extversion = (uint32_t)num;
+            if(!ssh2_str_number(&extversion_end, &num, UINT32_MAX, 10)) {
+                extversion = (uint32_t)num;
 
             SSH2_FREE(session, extversion_str);
         }
