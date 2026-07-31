@@ -181,6 +181,7 @@ int ssh2_eob(struct string_buf *buf);
 
 int ssh2_timingsafe_bcmp(const void *b1, const void *b2, size_t n);
 int ssh2_str_number(const char **linep,
-                    libssh2_int64_t *nump, libssh2_int64_t max);
+                    libssh2_int64_t *nump, libssh2_int64_t max,
+                    int base);
 
 #endif /* LIBSSH2_MISC_H */
