@@ -148,9 +148,9 @@ int main(int argc, char *argv[])
     }
 
     fprintf(stderr,
-            "size = %lu byte(s)\nmode = 0%o\nmtime = %ld\natime = %ld\n",
+            "size = %lu byte(s)\nmode = 0%lo\nmtime = %ld\natime = %ld\n",
             (unsigned long)fileinfo.st_size,
-            (unsigned int)fileinfo.st_mode,
+            (unsigned long)fileinfo.st_mode,
             (long)fileinfo.st_mtime,
             (long)fileinfo.st_atime);
 
