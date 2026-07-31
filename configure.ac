@@ -396,7 +396,14 @@ case $host in
     ;;
 esac
 
-AC_CHECK_FUNCS(gettimeofday select)
+if test "x$have_windows_h" = "xyes"; then
+  AC_DEFINE_UNQUOTED(HAVE_SELECT, 1,
+    [Define to 1 if you have the select function.])
+else
+  AC_CHECK_FUNCS(select)
+fi
+
+AC_CHECK_FUNCS(gettimeofday)
 
 dnl Check for memset_s()
 libssh2_cv_func_memset_s="no"
@@ -426,28 +433,6 @@ AC_LINK_IFELSE([
 
 if test "$libssh2_cv_func_memset_s" = "no"; then
   AC_CHECK_FUNCS(memset_explicit)
-fi
-
-dnl Check for select() into ws2_32 for Msys/Mingw
-if test "$ac_cv_func_select" != "yes"; then
-  AC_MSG_CHECKING([for select in ws2_32])
-  AC_LINK_IFELSE([AC_LANG_PROGRAM([[
-    #ifdef HAVE_WINDOWS_H
-    #ifndef WIN32_LEAN_AND_MEAN
-    #define WIN32_LEAN_AND_MEAN
-    #endif
-    #include <winsock2.h>
-    #endif
-    ]], [[
-      select(0, (fd_set *)NULL, (fd_set *)NULL, (fd_set *)NULL, (struct timeval *)NULL);
-    ]])],[
-      AC_MSG_RESULT([yes])
-      HAVE_SELECT="1"
-      AC_DEFINE_UNQUOTED(HAVE_SELECT, 1,
-        [Define to 1 if you have the select function.])
-    ],[
-      AC_MSG_RESULT([no])
-  ])
 fi
 
 dnl Checks for typedefs, structures, and compiler characteristics.
