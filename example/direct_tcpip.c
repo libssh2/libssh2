@@ -223,7 +223,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "failed to bind().\n");
         goto shutdown;
     }
-    if(listen(listensock, 2) == 1) {
+    if(listen(listensock, 2) == -1) {
         fprintf(stderr, "failed to listen().\n");
         goto shutdown;
     }
