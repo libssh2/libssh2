@@ -243,7 +243,6 @@ int main(int argc, char *argv[])
 
     fprintf(stderr, "libssh2_sftp_init().\n");
     sftp_session = libssh2_sftp_init(session);
-
     if(!sftp_session) {
         fprintf(stderr, "Unable to init SFTP session\n");
         goto shutdown;

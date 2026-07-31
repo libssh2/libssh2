@@ -224,7 +224,6 @@ int main(int argc, char *argv[])
     do {
         channel = libssh2_scp_send64(session, scppath, fileinfo.st_mode & 0777,
                                      fileinfo.st_size, 0, 0);
-
         if(!channel &&
            libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
             char *err_msg;

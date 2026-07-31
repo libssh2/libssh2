@@ -224,7 +224,6 @@ int main(int argc, char *argv[])
     fprintf(stderr, "libssh2_sftp_init().\n");
     do {
         sftp_session = libssh2_sftp_init(session);
-
         if(!sftp_session) {
             if(libssh2_session_last_errno(session) == LIBSSH2_ERROR_EAGAIN) {
                 fprintf(stderr, "non-blocking init\n");
