@@ -584,8 +584,8 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 }
                 *(p++) = '\0';
 
-                session->scpRecv_time.st_mtime = ssh2_strtoll((char *)s,
-                                                              NULL, 10);
+                session->scpRecv_time.st_mtime =
+                    (time_t)ssh2_strtoll((char *)s, NULL, 10);
 
                 s = (unsigned char *)strchr((char *)p, ' ');
                 if(!s || (s - p) <= 0) {
@@ -608,8 +608,8 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 }
                 *p = '\0';
 
-                session->scpRecv_time.st_atime = ssh2_strtoll((char *)s,
-                                                              NULL, 10);
+                session->scpRecv_time.st_atime =
+                    (time_t)ssh2_strtoll((char *)s, NULL, 10);
 
                 /* SCP ACK */
                 session->scpRecv_response[0] = '\0';
