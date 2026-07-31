@@ -584,7 +584,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 }
 
                 *(p++) = '\0';
-                /* Make sure we do not get fooled by leftover values */
+
                 /* !checksrc! disable BANNEDFUNC 1 */
                 session->scpRecv_mtime = strtol((char *)s, NULL, 10);
 
@@ -609,7 +609,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 }
 
                 *p = '\0';
-                /* Make sure we do not get fooled by leftover values */
+
                 /* !checksrc! disable BANNEDFUNC 1 */
                 session->scpRecv_atime = strtol((char *)s, NULL, 10);
 
