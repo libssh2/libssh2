@@ -78,9 +78,6 @@
 /* use SO_NONBLOCK for non-blocking sockets */
 #undef HAVE_SO_NONBLOCK
 
-/* Define to 1 if you have the `strtoll' function. */
-#define HAVE_STRTOLL 1
-
 /* Define to 1 if you have the <sys/ioctl.h> header file. */
 #define HAVE_SYS_IOCTL_H 1
 
