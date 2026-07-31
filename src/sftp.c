@@ -949,7 +949,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
 
         if(extdata_len > 0) {
             char *extversion_str = SSH2_ALLOC(session, extdata_len + 1);
-            const char *extversion_ptr;
+            const char *extversion_end;
             libssh2_int64_t num;
 
             if(!extversion_str) {
@@ -962,8 +962,8 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
             memcpy(extversion_str, extdata, extdata_len);
             extversion_str[extdata_len] = '\0';
 
-            extversion_ptr = extversion_str;
-            if(ssh2_str_number(&extversion_ptr, &num, UINT32_MAX, 10)) {
+            extversion_end = extversion_str;
+            if(ssh2_str_number(&extversion_end, &num, UINT32_MAX, 10)) {
                 ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                          "Unable to parse SSH_FXP_VERSION packet");
                 goto sftp_init_error;
