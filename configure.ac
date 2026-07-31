@@ -410,9 +410,7 @@ AC_LINK_IFELSE([
     AC_LANG_PROGRAM([[
       #include <string.h>
     ]],[[
-      char buf[2];
-      if(memset_s(buf, sizeof(buf), 0, sizeof(buf)))
-        return 1;
+      (void)memset_s;
     ]])
   ],[
     AC_MSG_RESULT([yes])
