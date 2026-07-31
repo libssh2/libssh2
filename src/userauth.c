@@ -1164,22 +1164,21 @@ void ssh2_userauth_plain_method(char *method)
  */
 static int userauth_is_version_less_than_78(const char *version)
 {
-    const char *endptr_major = NULL;
-    const char *endptr_minor = NULL;
+    const char *major_end = NULL;
+    const char *minor_end = NULL;
     libssh2_int64_t major = 0;
     libssh2_int64_t minor = 0;
 
     if(!version)
         return 0;
 
-    endptr_major = version;
-    if(ssh2_str_number(&endptr_major, &major, 99, 10) ||
-       *endptr_major != '.')
+    major_end = version;
+    if(ssh2_str_number(&major_end, &major, 99, 10) || *major_end != '.')
         return 0; /* Not a valid number */
 
-    endptr_minor = endptr_major + 1;
-    if(ssh2_str_number(&endptr_minor, &minor, 99, 10) ||
-       endptr_minor == endptr_major + 1)
+    minor_end = major_end + 1;
+    if(ssh2_str_number(&minor_end, &minor, 99, 10) ||
+       minor_end == major_end + 1)
         return 0; /* Not a valid number */
 
     if((major >= 1 && major <= 6) ||
