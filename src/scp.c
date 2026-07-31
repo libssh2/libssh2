@@ -612,7 +612,7 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 if(ssh2_str_number(&end, &num, LONG_MAX, 10)) {
                     ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                              "Invalid response from SCP server, "
-                             "malformed mtime");
+                             "malformed atime");
                     goto scp_recv_error;
                 }
                 session->scpRecv_atime = (long)num;
