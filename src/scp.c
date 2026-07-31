@@ -101,14 +101,14 @@ int ssh2_scp_parse_c_fields(const char *buf, size_t len,
     tmp[mode_len] = '\0';
 
     end = tmp;
-    if(ssh2_str_number(&end, &num, LONG_MAX, 8))
+    if(ssh2_str_number(&end, &num, LONG_MAX, 8) || *end)
         return SCP_C_FIELDS_MALFORMED;
     *mode_out = (long)num;
 
     memcpy(tmp, buf + size_start, size_len);
     tmp[size_len] = '\0';
     end = tmp;
-    if(ssh2_str_number(&end, size_out, INT64_MAX, 10))
+    if(ssh2_str_number(&end, size_out, INT64_MAX, 10) || *end)
         return SCP_C_FIELDS_MALFORMED;
 
     return SCP_C_FIELDS_OK;
