@@ -579,13 +579,8 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 *(p++) = '\0';
 
                 end = (const char *)s;
-                if(ssh2_str_number(&end, &num, LONG_MAX, 10)) {
-                    ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
-                             "Invalid response from SCP server, "
-                             "malformed mtime");
-                    goto scp_recv_error;
-                }
-                session->scpRecv_mtime = (long)num;
+                (void)ssh2_str_number(&end, &num, INT64_MAX, 10);
+                session->scpRecv_mtime = (time_t)num;
 
                 s = (unsigned char *)strchr((char *)p, ' ');
                 if(!s || (s - p) <= 0) {
@@ -609,13 +604,8 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
                 *p = '\0';
 
                 end = (const char *)s;
-                if(ssh2_str_number(&end, &num, LONG_MAX, 10)) {
-                    ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
-                             "Invalid response from SCP server, "
-                             "malformed atime");
-                    goto scp_recv_error;
-                }
-                session->scpRecv_atime = (long)num;
+                (void)ssh2_str_number(&end, &num, INT64_MAX, 10);
+                session->scpRecv_atime = (time_t)num;
 
                 /* SCP ACK */
                 session->scpRecv_response[0] = '\0';
