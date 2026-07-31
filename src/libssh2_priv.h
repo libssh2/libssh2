@@ -61,7 +61,7 @@
    would break backwards compatibility. */
 #ifdef HAVE_POLL
 #include <poll.h>
-#elif defined(HAVE_SELECT) && defined(HAVE_SYS_SELECT_H)
+#elif defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>
 #endif
 

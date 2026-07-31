@@ -51,7 +51,6 @@
 #cmakedefine HAVE_MEMSET_EXPLICIT
 
 #cmakedefine HAVE_POLL
-#cmakedefine HAVE_SELECT
 
 /* Socket non-blocking support */
 #cmakedefine HAVE_O_NONBLOCK

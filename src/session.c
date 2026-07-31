@@ -1504,7 +1504,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout_ms)
             return -1;
         }
     }
-#elif defined(HAVE_SELECT)
+#else /* !HAVE_POLL, use select() */
     LIBSSH2_SESSION *session = NULL;
     libssh2_socket_t maxfd = 0;
     fd_set rfds, wfds;
@@ -1578,15 +1578,11 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout_ms)
             return -1;
         }
     }
-#else /* !HAVE_POLL && !HAVE_SELECT */
-    timeout_ms = 0;  /* no sockets structure to setup */
-#endif /* HAVE_POLL || HAVE_SELECT */
+#endif /* HAVE_POLL */
 
     timeout_remaining = ssh2_ms_to_timediff(timeout_ms);
     do {
-#if defined(HAVE_POLL) || defined(HAVE_SELECT)
         int sysret;
-#endif
         active_fds = 0;
 
         for(i = 0; i < nfds; i++) {
@@ -1707,7 +1703,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout_ms)
             }
         }
 
-#elif defined(HAVE_SELECT)
+#else /* !HAVE_POLL, use select() */
 
         {
             ssh2_time_t start_time, now;
@@ -1764,8 +1760,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout_ms)
                 }
             }
         }
-#endif /* !HAVE_POLL && !HAVE_SELECT -- timeout_ms (and by extension
-          timeout_remaining) is equal to 0 */
+#endif /* HAVE_POLL */
     } while(timeout_remaining > 0 && !active_fds);
 
 #ifdef HAVE_POLL

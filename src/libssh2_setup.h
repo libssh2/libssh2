@@ -24,8 +24,6 @@
    Keep this synced with root CMakeLists.txt */
 #elif defined(_WIN32)
 
-#define HAVE_SELECT
-
 #ifdef __MINGW32__
 #  define HAVE_UNISTD_H
 #  define HAVE_INTTYPES_H
