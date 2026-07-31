@@ -1283,3 +1283,41 @@ FILE *ssh2_fopen(const char *filename, const char *mode)
     return fp;
 }
 #endif /* _WIN32 */
+
+/* given an ASCII character and max ascii, return TRUE if valid */
+#define valid_digit(x)  (((x) >= '0') && ((x) <= '9'))
+
+/* Get an unsigned decimal number with no leading space or minus. Leading
+   zeroes are accepted. return non-zero on error */
+int ssh2_str_number(const char **linep,
+                    libssh2_uint64_t *nump, libssh2_uint64_t max)
+{
+    libssh2_uint64_t num = 0;
+    const char *p;
+    assert(linep && *linep && nump);
+    assert(max >= 0); /* mostly to catch SIZE_MAX, which is too large */
+    *nump = 0;
+    p = *linep;
+    if(!valid_digit(*p))
+        return -1;
+    if(max < 10) {
+        /* special-case low max scenario because check needs to be different */
+        do {
+            int n = *p++ - '0';
+            num = (num * 10) + n;
+            if(num > max)
+                return -2;
+        } while(valid_digit(*p));
+    }
+    else {
+        do {
+            int n = *p++ - '0';
+            if(num > ((max - n) / 10))
+                return -2;
+            num = (num * 10) + n;
+        } while(valid_digit(*p));
+    }
+    *nump = num;
+    *linep = p;
+    return 0;
+}
