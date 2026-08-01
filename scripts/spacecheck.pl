@@ -143,7 +143,7 @@ while(my $filename = <$git_ls_files>) {
         push @err, 'content: must use LF EOL for this file type';
     }
 
-    if((!fn_match($filename, @trailing_ws) &&
+    if(!fn_match($filename, @trailing_ws) &&
        $content =~ /[ \t]\n/) {
         my $line;
         for my $l (split(/\n/, $content)) {
