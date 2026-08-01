@@ -33,9 +33,6 @@
 #include "session_fixture.h"
 #include "openssh_fixture.h"
 
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
