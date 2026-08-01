@@ -33,10 +33,6 @@
 
 #include "libssh2_priv.h"
 
-#ifdef HAVE_SYS_UIO_H
-#include <sys/uio.h>  /* for struct iovec on some platforms */
-#endif
-
 #if LIBSSH2_RSA
 /* *********
  * ssh-rsa *

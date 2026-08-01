@@ -36,10 +36,6 @@
 
 #include <ctype.h>
 
-#ifdef HAVE_SYS_UIO_H
-#include <sys/uio.h>  /* for struct iovec on some platforms */
-#endif
-
 #include "transport.h"
 #include "session.h"
 #include "userauth.h"

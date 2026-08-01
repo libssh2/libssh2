@@ -41,9 +41,6 @@
 #ifdef HAVE_INTTYPES_H
 #include <inttypes.h>
 #endif
-#ifdef HAVE_SYS_UIO_H
-#include <sys/uio.h>  /* for struct iovec on some platforms */
-#endif
 
 #include "transport.h"
 #include "channel.h"
