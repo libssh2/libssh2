@@ -55,8 +55,8 @@ fi
 echo "# sshd executable: '${SSHD}' (${ver})"
 
 # for our test clients:
-[ -z "${PRIVKEY:-}" ] && export PRIVKEY="${d}/key_rsa"
-[ -z "${PUBKEY:-}" ]  && export PUBKEY="${d}/key_rsa.pub"
+[ -z "${PRIVKEY:-}" ] && export PRIVKEY="${d}/keys/id_rsa"
+[ -z "${PUBKEY:-}" ]  && export PUBKEY="${d}/keys/id_rsa.pub"
 cakeys="${d}/openssh_server/ca_user_keys.pub"
 
 logfsrv="$(mktemp)"; readonly logfsrv
