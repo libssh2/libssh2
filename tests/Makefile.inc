@@ -61,6 +61,7 @@ librunner_la_SOURCES = \
 EXTRA_DIST = \
   .checksrc \
   CMakeLists.txt \
+  keys_generate.sh \
   keys/id_dsa \
   keys/id_dsa.pub \
   keys/id_dsa_wrong \
