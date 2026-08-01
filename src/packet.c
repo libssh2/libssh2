@@ -38,9 +38,6 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifdef HAVE_INTTYPES_H
-#include <inttypes.h>
-#endif
 
 #include "transport.h"
 #include "channel.h"
