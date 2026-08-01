@@ -9,20 +9,22 @@ set -eu
 
 # tests/openssh_server
 
-rm ./openssh_server/*_key || true
+[ -d openssh_server ] || mkdir openssh_server
+rm openssh_server/*_key || true
 
 ssh-keygen -t rsa     -b 2048 -N ''          -m PEM     -C ''                        -f 'openssh_server/ssh_host_rsa_key'
 ssh-keygen -t ecdsa   -b  256 -N ''          -m PEM     -C ''                        -f 'openssh_server/ssh_host_ecdsa_key'
 ssh-keygen -t ed25519         -N ''          -m RFC4716 -C ''                        -f 'openssh_server/ssh_host_ed25519_key'
 
-rm ./openssh_server/ca_* || true
+rm openssh_server/ca_* || true
 
 ssh-keygen -t rsa     -b 3072 -N ''          -m RFC4716 -C 'ca_rsa'                  -f 'openssh_server/ca_rsa'
 ssh-keygen -t ecdsa   -b  521 -N ''          -m RFC4716 -C 'ca_ecdsa'                -f 'openssh_server/ca_ecdsa'
 
 # tests
 
-rm 'keys/id_'* || true
+[ -d keys ] || mkdir keys
+rm keys/id_* || true
 
 pw='libssh2'
 id='identity'
