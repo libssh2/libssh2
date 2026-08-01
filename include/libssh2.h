@@ -107,10 +107,6 @@ extern "C" {
 #  endif /* _WIN32 && LIBSSH2_EXPORTS */
 #endif /* !LIBSSH2_API */
 
-#ifdef HAVE_SYS_UIO_H
-#include <sys/uio.h>
-#endif
-
 #include <stdint.h>
 typedef unsigned long long libssh2_uint64_t;
 typedef long long libssh2_int64_t;
