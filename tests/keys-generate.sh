@@ -33,14 +33,14 @@ ssh-keygen -t dsa             -N ''          -m PEM -C 'id_dsa_wrong'           
 
 ssh-keygen -t rsa     -b 2048 -N ''          -m PEM -C 'id_rsa'                  -f 'keys/id_rsa'
 ssh-keygen -t rsa     -b 2048 -N "${pw}"     -m PEM -C 'id_rsa_encrypted'        -f 'keys/id_rsa_encrypted'
-ssh-keygen -t rsa     -b 2048 -N ''                 -C ''                        -f 'keys/id_rsa_openssh'
+ssh-keygen -t rsa     -b 2048 -N ''                 -C ''                        -f 'keys/id_rsa_openssh'       # empty comment
 ssh-keygen -t rsa     -b 2048 -N "${pw}"            -C 'id_rsa_aes256gcm'        -f 'keys/id_rsa_aes256gcm'     -Z aes256-gcm@openssh.com
 ssh-keygen -t rsa     -b 4096 -N ''                 -C 'id_rsa_signed'           -f 'keys/id_rsa_signed'
 ssh-keygen                    -I "${id}" -n "${pr}" -s 'openssh_server/ca_rsa'      'keys/id_rsa_signed.pub'
 ssh-keygen -t rsa     -b 4096 -N ''                 -C 'id_rsa_sha2_256_signed'  -f 'keys/id_rsa_sha2_256_signed'
 ssh-keygen                    -I "${id}" -n "${pr}" -s 'openssh_server/ca_rsa'      'keys/id_rsa_sha2_256_signed.pub'
 
-ssh-keygen -t ecdsa   -b  384 -N ''                 -C ''                        -f 'keys/id_ecdsa'
+ssh-keygen -t ecdsa   -b  384 -N ''                 -C ''                        -f 'keys/id_ecdsa'             # empty comment
 ssh-keygen -t ecdsa   -b  384 -N ''                 -C 'id_ecdsa_signed'         -f 'keys/id_ecdsa_signed'
 ssh-keygen                    -I "${id}" -n "${pr}" -s 'openssh_server/ca_ecdsa'    'keys/id_ecdsa_signed.pub'
 
