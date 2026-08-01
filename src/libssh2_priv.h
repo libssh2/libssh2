@@ -65,9 +65,8 @@
 #include <sys/select.h>
 #endif
 
-/* Needed for struct iovec on some platforms */
 #ifdef HAVE_SYS_UIO_H
-#include <sys/uio.h>
+#include <sys/uio.h>  /* for struct iovec on some platforms */
 #endif
 
 #ifndef _WIN32

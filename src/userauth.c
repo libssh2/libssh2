@@ -36,9 +36,8 @@
 
 #include <ctype.h>
 
-/* Needed for struct iovec on some platforms */
 #ifdef HAVE_SYS_UIO_H
-#include <sys/uio.h>
+#include <sys/uio.h>  /* for struct iovec on some platforms */
 #endif
 
 #include "transport.h"
