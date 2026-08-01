@@ -350,6 +350,8 @@ endif()
 
 if(NOT WIN32 OR MINGW)
   check_symbol_exists("gettimeofday" "sys/time.h" HAVE_GETTIMEOFDAY)
+else()
+  check_function_exists("gettimeofday" HAVE_GETTIMEOFDAY)
 endif()
 if(NOT WIN32)
   check_symbol_exists("memset_s" "string.h" HAVE_MEMSET_S)
