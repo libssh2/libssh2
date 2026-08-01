@@ -6,8 +6,8 @@
 #include "runner.h"
 
 static const char *username = "libssh2"; /* set in Dockerfile */
-static const char *key_file_private = "key_rsa";
-static const char *key_file_public = "key_rsa.pub"; /* set in Dockerfile */
+static const char *key_file_private = "keys/id_rsa";
+static const char *key_file_public = "keys/id_rsa.pub"; /* set in Dockerfile */
 
 int test(LIBSSH2_SESSION *session)
 {

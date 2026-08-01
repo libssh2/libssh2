@@ -26,8 +26,8 @@
 
 static const char *hostname = "127.0.0.1";
 static const int port_number = 4711;
-static const char *pubkey = "key_rsa.pub";
-static const char *privkey = "key_rsa";
+static const char *pubkey = "keys/id_rsa.pub";
+static const char *privkey = "keys/id_rsa";
 static const char *username = "username";
 static const char *password = "password";
 

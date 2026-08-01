@@ -13,8 +13,8 @@ int test(LIBSSH2_SESSION *session)
     return test_auth_pubkey(session, 0,
                             "libssh2",
                             NULL,
-                            "key_rsa_sha2_256_signed-cert.pub",
-                            "key_rsa_sha2_256_signed");
+                            "keys/id_rsa_sha2_256_signed-cert.pub",
+                            "keys/id_rsa_sha2_256_signed");
 #else
     (void)session;
     return 0;

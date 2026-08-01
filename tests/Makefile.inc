@@ -61,33 +61,34 @@ librunner_la_SOURCES = \
 EXTRA_DIST = \
   .checksrc \
   CMakeLists.txt \
-  key_dsa \
-  key_dsa.pub \
-  key_dsa_wrong \
-  key_dsa_wrong.pub \
-  key_ecdsa \
-  key_ecdsa.pub \
-  key_ecdsa_signed \
-  key_ecdsa_signed-cert.pub \
-  key_ecdsa_signed.pub \
-  key_ed25519 \
-  key_ed25519.pub \
-  key_ed25519_encrypted \
-  key_ed25519_encrypted.pub \
-  key_rsa \
-  key_rsa.pub \
-  key_rsa_aes256gcm \
-  key_rsa_aes256gcm.pub \
-  key_rsa_encrypted \
-  key_rsa_encrypted.pub \
-  key_rsa_openssh \
-  key_rsa_openssh.pub \
-  key_rsa_signed \
-  key_rsa_signed-cert.pub \
-  key_rsa_signed.pub \
-  key_rsa_sha2_256_signed \
-  key_rsa_sha2_256_signed-cert.pub \
-  key_rsa_sha2_256_signed.pub \
+  keys-generate.sh \
+  keys/id_dsa \
+  keys/id_dsa.pub \
+  keys/id_dsa_wrong \
+  keys/id_dsa_wrong.pub \
+  keys/id_ecdsa \
+  keys/id_ecdsa.pub \
+  keys/id_ecdsa_signed \
+  keys/id_ecdsa_signed-cert.pub \
+  keys/id_ecdsa_signed.pub \
+  keys/id_ed25519 \
+  keys/id_ed25519.pub \
+  keys/id_ed25519_encrypted \
+  keys/id_ed25519_encrypted.pub \
+  keys/id_rsa \
+  keys/id_rsa.pub \
+  keys/id_rsa_aes256gcm \
+  keys/id_rsa_aes256gcm.pub \
+  keys/id_rsa_encrypted \
+  keys/id_rsa_encrypted.pub \
+  keys/id_rsa_openssh \
+  keys/id_rsa_openssh.pub \
+  keys/id_rsa_signed \
+  keys/id_rsa_signed-cert.pub \
+  keys/id_rsa_signed.pub \
+  keys/id_rsa_sha2_256_signed \
+  keys/id_rsa_sha2_256_signed-cert.pub \
+  keys/id_rsa_sha2_256_signed.pub \
   openssh_server/Dockerfile \
   openssh_server/authorized_keys \
   openssh_server/ca_ecdsa \
