@@ -39,6 +39,10 @@ my @mixed_eol = (
 my @need_crlf = (
 );
 
+my @trailing_ws = (
+    "tests/keys/id_.+\.pub\$",
+);
+
 my @double_empty_lines = (
 );
 
@@ -139,7 +143,8 @@ while(my $filename = <$git_ls_files>) {
         push @err, 'content: must use LF EOL for this file type';
     }
 
-    if($content =~ /[ \t]\n/) {
+    if(!fn_match($filename, @trailing_ws) &&
+       $content =~ /[ \t]\n/) {
         my $line;
         for my $l (split(/\n/, $content)) {
             $line++;
