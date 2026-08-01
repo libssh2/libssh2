@@ -89,7 +89,7 @@ int ssh2_snprintf(char *buf, size_t buf_len, const char *fmt, ...)
 void ssh2_explicit_zero(void *buf, size_t size);
 #endif
 
-#ifdef HAVE_SYS_TIME_H
+#if !defined(_WIN32) || defined(__MINGW32__)
 #include <sys/time.h>  /* for timeval, gettimeofday() */
 #endif
 
