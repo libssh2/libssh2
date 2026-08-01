@@ -22,13 +22,13 @@ ssh-keygen -t rsa     -b 3072 -N ''                 -C 'ca_rsa'                 
 
 # tests
 
-rm './key_'* || true
+rm 'keys/id_'* || true
 
 pw='libssh2'
 id='identity'
 pr='libssh2'
 
-ssh-keygen -t dsa             -N ''          -m PEM -C 'key_dsa'                 -f 'keys/id_dsa'               || touch key_dsa.pub
+ssh-keygen -t dsa             -N ''          -m PEM -C 'key_dsa'                 -f 'keys/id_dsa'               || touch 'keys/id_dsa.pub'
 ssh-keygen -t dsa             -N ''          -m PEM -C 'key_dsa_wrong'           -f 'keys/id_dsa_wrong'         || true # not to add to 'authorized_keys'
 
 ssh-keygen -t rsa     -b 2048 -N ''          -m PEM -C 'key_rsa'                 -f 'keys/id_rsa'
