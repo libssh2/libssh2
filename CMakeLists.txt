@@ -333,7 +333,6 @@ check_include_files("unistd.h" HAVE_UNISTD_H)
 if(NOT WIN32)
   check_include_files("sys/select.h" HAVE_SYS_SELECT_H)
   check_include_files("sys/uio.h" HAVE_SYS_UIO_H)
-  check_include_files("sys/socket.h" HAVE_SYS_SOCKET_H)
   check_include_files("sys/ioctl.h" HAVE_SYS_IOCTL_H)
   check_include_files("sys/un.h" HAVE_SYS_UN_H)
   check_include_files("arpa/inet.h" HAVE_ARPA_INET_H)  # example and tests
