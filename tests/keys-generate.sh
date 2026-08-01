@@ -53,14 +53,14 @@ cat \
   'keys/id_rsa_encrypted.pub' \
   'keys/id_rsa_openssh.pub' \
   'keys/id_rsa_aes256gcm.pub' \
+  'keys/id_ecdsa.pub' \
   'keys/id_ed25519.pub' \
   'keys/id_ed25519_encrypted.pub' \
-  'keys/id_ecdsa.pub' \
   > 'openssh_server/authorized_keys'
 
 cat \
-  'openssh_server/ca_ecdsa.pub' \
   'openssh_server/ca_rsa.pub' \
+  'openssh_server/ca_ecdsa.pub' \
   > 'openssh_server/ca_user_keys.pub'
 
 # tests/test_*.c
