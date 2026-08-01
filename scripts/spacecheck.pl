@@ -44,7 +44,7 @@ my @double_empty_lines = (
 
 my @longline = (
     "^libssh2-style\.el\$",
-    "tests/key_.+\.pub\$",
+    "tests/keys/id_.+\.pub\$",
     "tests/openssh_server/authorized_keys\$",
     "tests/openssh_server/ca_.+\.pub\$",
     "tests/openssh_server/sshd_config\$",
