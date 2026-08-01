@@ -12,8 +12,8 @@
 
 /* set in Dockerfile */
 static const char *username = "libssh2";
-static const char *key_file_private = "key_rsa";
-static const char *key_file_public = "key_rsa.pub";
+static const char *key_file_private = "keys/id_rsa";
+static const char *key_file_public = "keys/id_rsa.pub";
 
 int test(LIBSSH2_SESSION *session)
 {

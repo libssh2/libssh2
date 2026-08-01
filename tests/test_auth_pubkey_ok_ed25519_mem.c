@@ -13,7 +13,7 @@ int test(LIBSSH2_SESSION *session)
                             "libssh2",
                             NULL,
                             NULL,
-                            "key_ed25519");
+                            "keys/id_ed25519");
 #else
     (void)session;
     return 0;
