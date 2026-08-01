@@ -6,7 +6,7 @@
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
-#ifdef HAVE_SYS_SOCKET_H
+#ifndef _WIN32
 #include <sys/socket.h>
 #endif
 #ifdef HAVE_UNISTD_H

@@ -14,7 +14,7 @@
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#ifdef HAVE_SYS_SOCKET_H
+#ifndef _WIN32
 #include <sys/socket.h>
 #endif
 #ifdef HAVE_UNISTD_H
