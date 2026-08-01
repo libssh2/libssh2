@@ -19,7 +19,7 @@
 #define write(f, b, c)  _write(f, b, (unsigned int)(c))
 #endif
 
-#ifdef HAVE_SYS_SOCKET_H
+#ifndef _WIN32
 #include <sys/socket.h>
 #endif
 #ifdef HAVE_UNISTD_H

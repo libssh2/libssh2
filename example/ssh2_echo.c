@@ -17,7 +17,7 @@
 
 #ifndef LIBSSH2_NO_DEPRECATED
 
-#ifdef HAVE_SYS_SOCKET_H
+#ifndef _WIN32
 #include <sys/socket.h>
 #endif
 #ifdef HAVE_SYS_SELECT_H
