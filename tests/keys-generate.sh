@@ -17,8 +17,8 @@ ssh-keygen -t ed25519         -N ''          -m RFC4716 -C ''                   
 
 rm ./openssh_server/ca_* || true
 
-ssh-keygen -t ecdsa   -b  521 -N ''          -m RFC4716 -C 'ca_ecdsa'                -f 'openssh_server/ca_ecdsa'
 ssh-keygen -t rsa     -b 3072 -N ''          -m RFC4716 -C 'ca_rsa'                  -f 'openssh_server/ca_rsa'
+ssh-keygen -t ecdsa   -b  521 -N ''          -m RFC4716 -C 'ca_ecdsa'                -f 'openssh_server/ca_ecdsa'
 
 # tests
 
