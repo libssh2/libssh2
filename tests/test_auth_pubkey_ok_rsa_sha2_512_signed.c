@@ -16,11 +16,7 @@ int test(LIBSSH2_SESSION *session)
                             user ? user : "libssh2",
                             NULL,
                             "keys/id_rsa_sha2_512_signed-cert.pub",
-#if defined(LIBSSH2_OPENSSL) || defined(LIBSSH2_WOLFSSL)
                             "keys/id_rsa_sha2_512_signed"
-#else
-                            "keys/id_rsa_sha2_512_signed_pem"
-#endif
                             );
 #else
     (void)session;
