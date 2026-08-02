@@ -33,7 +33,7 @@
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
-#if !defined(_WIN32) || defined(__MINGW32__)
+#ifndef _MSC_VER
 #include <sys/time.h>  /* for timeval, gettimeofday() */
 #endif
 
@@ -45,14 +45,31 @@ static const char *username = "username";
 static const char *password = "password";
 static const char *sftppath = "/tmp/TEST";
 
-#ifdef HAVE_GETTIMEOFDAY
+#ifdef _MSC_VER
+static int gettimeofday(struct timeval *tp, void *tzp)
+{
+    (void)tzp;
+    if(tp) {
+/* Offset between 1601-01-01 and 1970-01-01 in 100 nanosec units */
+#define WIN32_FT_OFFSET 116444736000000000
+        union {
+            libssh2_uint64_t ns100; /* time since 1 Jan 1601 in 100ns units */
+            FILETIME ft;
+        } now;
+        GetSystemTimeAsFileTime(&now.ft);
+        tp->tv_usec = (long)((now.ns100 / 10) % 1000000);
+        tp->tv_sec = (long)((now.ns100 - WIN32_FT_OFFSET) / 10000000);
+    }
+    return 0;
+}
+#endif
+
 /* diff in ms */
 static long tvdiff(struct timeval newer, struct timeval older)
 {
     return (newer.tv_sec - older.tv_sec) * 1000 +
         (newer.tv_usec - older.tv_usec) / 1000;
 }
-#endif
 
 static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 {
@@ -102,11 +119,9 @@ int main(int argc, char *argv[])
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
-#ifdef HAVE_GETTIMEOFDAY
     struct timeval start;
     struct timeval end;
     long time_ms;
-#endif
     libssh2_struct_stat_size total = 0;
     int spin = 0;
 
@@ -165,9 +180,7 @@ int main(int argc, char *argv[])
     /* Since we have set non-blocking, tell libssh2 we are non-blocking */
     libssh2_session_set_blocking(session, 0);
 
-#ifdef HAVE_GETTIMEOFDAY
     gettimeofday(&start, NULL);
-#endif
 
     /* ... start it up. This trades welcome banners, exchange keys,
      * and setup crypto, compression, and MAC layers
@@ -277,15 +290,11 @@ int main(int argc, char *argv[])
             break;
     } while(1);
 
-#ifdef HAVE_GETTIMEOFDAY
     gettimeofday(&end, NULL);
     time_ms = tvdiff(end, start);
     fprintf(stderr, "Got %ld bytes in %ld ms = %.1f bytes/sec spin: %d\n",
             (long)total, time_ms,
             (double)total / ((double)time_ms / 1000.0), spin);
-#else
-    fprintf(stderr, "Got %ld bytes spin: %d\n", (long)total, spin);
-#endif
 
     libssh2_sftp_close(sftp_handle);
     libssh2_sftp_shutdown(sftp_session);
