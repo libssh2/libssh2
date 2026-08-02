@@ -1055,7 +1055,7 @@ struct crypt_method {
     int (*init)(LIBSSH2_SESSION *session,
                 const struct crypt_method *method, unsigned char *iv,
                 int *free_iv, unsigned char *secret, int *free_secret,
-                int encrypt, void **abstract);
+                int encrypt, int privkeyfile, void **abstract);
     int (*get_len)(LIBSSH2_SESSION *session, unsigned int seqno,
                    unsigned char *data, size_t data_size, unsigned int *len,
                    void **abstract);

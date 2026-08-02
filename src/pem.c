@@ -297,8 +297,8 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
         }
 
         /* Initialize the decryption */
-        if(method->init(session, method, iv, &free_iv, secret, &free_secret, 0,
-                        &abstract)) {
+        if(method->init(session, method, iv, &free_iv, secret,
+                        &free_secret, 0, 1, &abstract)) {
             ssh2_explicit_zero(secret, sizeof(secret));
             goto out;
         }
@@ -579,19 +579,22 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
             goto out;
         }
 
-        iv_part = SSH2_CALLOC(session, ivlen);
-        if(!iv_part) {
-            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                           "Could not alloc iv part");
-            goto out;
+        if(ivlen) {
+            iv_part = SSH2_CALLOC(session, ivlen);
+            if(!iv_part) {
+                ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                               "Could not alloc IV part");
+                goto out;
+            }
         }
 
         memcpy(key_part, key, keylen);
-        memcpy(iv_part, key + keylen, ivlen);
+        if(iv_part)
+            memcpy(iv_part, key + keylen, ivlen);
 
         /* Initialize the decryption */
         if(method->init(session, method, iv_part, &free_iv, key_part,
-                        &free_secret, 0, &abstract)) {
+                        &free_secret, 0, 1, &abstract)) {
             ret = LIBSSH2_ERROR_DECRYPT;
             goto out;
         }
@@ -604,9 +607,16 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
         }
 
         if(method->flags & SSH2_CRYPT_FLAG_REQUIRES_FULL_PACKET) {
+            if(!ssh2_check_length(&decoded, method->auth_len)) {
+                ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                               "OpenSSH key full packet auth tag missing");
+                method->dtor(session, &abstract);
+                goto out;
+            }
             if(method->crypt(session, 0, decrypted.data,
                              decrypted.len, &abstract, MIDDLE_BLOCK)) {
-                ret = LIBSSH2_ERROR_DECRYPT;
+                ret = ssh2_err(session, LIBSSH2_ERROR_DECRYPT,
+                               "OpenSSH key full packet decrypt failed");
                 method->dtor(session, &abstract);
                 goto out;
             }
@@ -622,7 +632,8 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
                  */
                 if(method->crypt(session, 0, decrypted.data + len_decrypted,
                                  blocksize, &abstract, MIDDLE_BLOCK)) {
-                    ret = LIBSSH2_ERROR_DECRYPT;
+                    ret = ssh2_err(session, LIBSSH2_ERROR_DECRYPT,
+                                   "OpenSSH key decrypt failed");
                     method->dtor(session, &abstract);
                     goto out;
                 }
