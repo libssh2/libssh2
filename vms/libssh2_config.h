@@ -25,8 +25,6 @@ typedef unsigned int socklen_t; /* missing in headers on VMS */
 #define HAVE_NETINET_IN_H
 #define HAVE_ARPA_INET_H
 
-#define HAVE_GETTIMEOFDAY 1
-
 #define POSIX_C_SOURCE
 
 /* Enable the possibility of using tracing */

@@ -51,9 +51,6 @@
 /* use FIONBIO for non-blocking sockets */
 #undef HAVE_FIONBIO
 
-/* Define to 1 if you have the `gettimeofday' function. */
-#define HAVE_GETTIMEOFDAY 1
-
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
 
