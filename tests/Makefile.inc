@@ -19,6 +19,7 @@ DOCKER_TESTS = \
   test_auth_pubkey_fail \
   test_auth_pubkey_ok_dsa \
   test_auth_pubkey_ok_ecdsa \
+  test_auth_pubkey_ok_ecdsa_encrypted \
   test_auth_pubkey_ok_ecdsa_signed \
   test_auth_pubkey_ok_ed25519 \
   test_auth_pubkey_ok_ed25519_encrypted \
@@ -68,6 +69,8 @@ EXTRA_DIST = \
   keys/id_dsa_wrong.pub \
   keys/id_ecdsa \
   keys/id_ecdsa.pub \
+  keys/id_ecdsa_encrypted \
+  keys/id_ecdsa_encrypted.pub \
   keys/id_ecdsa_signed \
   keys/id_ecdsa_signed-cert.pub \
   keys/id_ecdsa_signed.pub \
