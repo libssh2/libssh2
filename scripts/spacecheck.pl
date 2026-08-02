@@ -29,8 +29,8 @@ use warnings;
 use File::Basename;
 
 my @tabs = (
-    "Makefile\\.[a-z]+\$",
-    "m4/libssh2-link\.m4\$",
+    'Makefile\\.[a-z]+$',
+    'm4/libssh2-link\.m4$',
 );
 
 my @mixed_eol = (
@@ -40,23 +40,23 @@ my @need_crlf = (
 );
 
 my @trailing_ws = (
-    "tests/keys/id_.+\.pub\$",
+    'tests/keys/id_.+\.pub$',
 );
 
 my @double_empty_lines = (
 );
 
 my @longline = (
-    "^libssh2-style\.el\$",
-    "tests/keys/id_.+\.pub\$",
-    "tests/openssh_server/authorized_keys\$",
-    "tests/openssh_server/ca_.+\.pub\$",
-    "tests/openssh_server/sshd_config\$",
+    '^libssh2-style\.el$',
+    'tests/keys/id_.+\.pub$',
+    'tests/openssh_server/authorized_keys$',
+    'tests/openssh_server/ca_.+\.pub$',
+    'tests/openssh_server/sshd_config$',
 );
 
 my @non_ascii = (
-    "AUTHORS",
-    "RELEASE-NOTES",
+    'AUTHORS',
+    'RELEASE-NOTES',
 );
 
 sub fn_match {
