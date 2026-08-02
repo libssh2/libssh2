@@ -54,10 +54,6 @@ my @longline = (
     'tests/openssh_server/sshd_config$',
 );
 
-my @repeat_ws = (
-    'tests/keys-generate.sh$',
-);
-
 my @non_ascii = (
     'AUTHORS',
     'RELEASE-NOTES',
@@ -228,13 +224,11 @@ while(my $filename = <$git_ls_files>) {
         }
     }
 
-    if(!fn_match($filename, @repeat_ws) {
-        my $line = 0;
-        for my $l (split(/\n/, $content)) {
-            $line++;
-            if($l =~ /( {$max_repeat_space,})/) {
-                push @err, sprintf('line %d: repeat spaces (%d >= %d)', $line, length($1), $max_repeat_space);
-            }
+    my $line = 0;
+    for my $l (split(/\n/, $content)) {
+        $line++;
+        if($l =~ /( {$max_repeat_space,})/) {
+            push @err, sprintf('line %d: repeat spaces (%d >= %d)', $line, length($1), $max_repeat_space);
         }
     }
 
