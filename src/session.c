@@ -614,13 +614,11 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, ssh2_time_t start_time)
         fd_set *writefd = NULL;
         fd_set *readfd = NULL;
         struct timeval tv;
-        ssh2_timediff_t ms_to_next = ssh2_timediff_to_ms(time_to_next);
-
-        tv.tv_sec = (long)(ms_to_next / 1000);
+        tv.tv_sec = (long)ssh2_timediff_to_sec(time_to_next);
 #ifdef libssh2_usec_t
-        tv.tv_usec = (libssh2_usec_t)((ms_to_next - tv.tv_sec * 1000) * 1000);
+        tv.tv_usec = (libssh2_usec_t)ssh2_timediff_to_usec(time_to_next);
 #else
-        tv.tv_usec = (ms_to_next - tv.tv_sec * 1000) * 1000;
+        tv.tv_usec = ssh2_timediff_to_usec(time_to_next);
 #endif
 
         if(dir & LIBSSH2_SESSION_BLOCK_INBOUND) {
@@ -1708,11 +1706,12 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout_ms)
         {
             ssh2_time_t start_time, now;
             struct timeval tv;
-            tv.tv_sec = (long)(timeout_remaining / 1000);
+            tv.tv_sec = (long)ssh2_timediff_to_sec(timeout_remaining);
 #ifdef libssh2_usec_t
-            tv.tv_usec = (libssh2_usec_t)((timeout_remaining % 1000) * 1000);
+            tv.tv_usec =
+                (libssh2_usec_t)ssh2_timediff_to_usec(timeout_remaining);
 #else
-            tv.tv_usec = (timeout_remaining % 1000) * 1000;
+            tv.tv_usec = ssh2_timediff_to_usec(timeout_remaining);
 #endif
             start_time = ssh2_now();
             sysret = select((int)(maxfd + 1), &rfds, &wfds, NULL,
