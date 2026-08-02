@@ -28,7 +28,7 @@ DOCKER_TESTS = \
   test_auth_pubkey_ok_rsa_encrypted \
   test_auth_pubkey_ok_rsa_openssh \
   test_auth_pubkey_ok_rsa_signed \
-  test_auth_pubkey_ok_rsa_sha2_256_signed \
+  test_auth_pubkey_ok_rsa_sha2_512_signed \
   test_hostkey_hash \
   test_read
 
@@ -86,9 +86,9 @@ EXTRA_DIST = \
   keys/id_rsa_signed \
   keys/id_rsa_signed-cert.pub \
   keys/id_rsa_signed.pub \
-  keys/id_rsa_sha2_256_signed \
-  keys/id_rsa_sha2_256_signed-cert.pub \
-  keys/id_rsa_sha2_256_signed.pub \
+  keys/id_rsa_sha2_512_signed \
+  keys/id_rsa_sha2_512_signed-cert.pub \
+  keys/id_rsa_sha2_512_signed.pub \
   openssh_server/Dockerfile \
   openssh_server/authorized_keys \
   openssh_server/ca_ecdsa \
