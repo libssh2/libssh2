@@ -97,10 +97,10 @@ int chachapoly_crypt(struct chachapoly_ctx *ctx, libssh2_uint64_t seqnr,
     chacha_encrypt_bytes(&ctx->main_ctx, src + aadlen, dest + aadlen, len);
 
     /* If encrypting, calculate and append tag */
-    if(do_encrypt) {
+    if(do_encrypt)
         poly1305_auth(dest + aadlen + len, dest, aadlen + len, poly_key);
-    }
-    r = 0;
+
+    r = LIBSSH2_ERROR_NONE;
 out:
     memset(expected_tag, 0, sizeof(expected_tag));
     memset(seqbuf, 0, sizeof(seqbuf));
