@@ -13,6 +13,7 @@ test_auth_password_ok
 test_auth_pubkey_fail
 test_auth_pubkey_ok_dsa
 test_auth_pubkey_ok_ecdsa
+test_auth_pubkey_ok_ecdsa_encrypted
 test_auth_pubkey_ok_ecdsa_signed
 test_auth_pubkey_ok_ed25519
 test_auth_pubkey_ok_ed25519_encrypted
