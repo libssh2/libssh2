@@ -607,6 +607,13 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
         }
 
         if(method->flags & SSH2_CRYPT_FLAG_REQUIRES_FULL_PACKET) {
+            if(!strcmp(method->name, "chacha20-poly1305@openssh.com") &&
+               !ssh2_check_length(&decoded, 16)) {
+                ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                               "GCM auth tag missing");
+                method->dtor(session, &abstract);
+                goto out;
+            }
             if(method->crypt(session, 0, decrypted.data,
                              decrypted.len, &abstract, MIDDLE_BLOCK)) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_DECRYPT,
