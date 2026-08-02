@@ -39,8 +39,8 @@ ssh-keygen -t rsa     -b 2048 -N ''          -m RFC4716 -C ''                   
 ssh-keygen -t rsa     -b 2048 -N "${pw}"     -m RFC4716 -C 'id_rsa_aes256gcm'        -f 'keys/id_rsa_aes256gcm'     -Z aes256-gcm@openssh.com
 ssh-keygen -t rsa     -b 4096 -N ''          -m RFC4716 -C 'id_rsa_signed'           -f 'keys/id_rsa_signed'
 ssh-keygen                    -I "${id}" -n "${pr}"     -s 'openssh_server/ca_rsa'      'keys/id_rsa_signed.pub'
-ssh-keygen -t rsa     -b 4096 -N ''          -m RFC4716 -C 'id_rsa_sha2_256_signed'  -f 'keys/id_rsa_sha2_256_signed'
-ssh-keygen                    -I "${id}" -n "${pr}"     -s 'openssh_server/ca_rsa'      'keys/id_rsa_sha2_256_signed.pub'
+ssh-keygen -t rsa     -b 4096 -N ''          -m RFC4716 -C 'id_rsa_sha2_512_signed'  -f 'keys/id_rsa_sha2_512_signed'
+ssh-keygen -t rsa-sha2-512    -I "${id}" -n "${pr}"     -s 'openssh_server/ca_rsa'      'keys/id_rsa_sha2_512_signed.pub'
 
 ssh-keygen -t ecdsa   -b  384 -N ''          -m RFC4716 -C ''                        -f 'keys/id_ecdsa'             # empty comment
 ssh-keygen -t ecdsa   -b  384 -N ''          -m RFC4716 -C 'id_ecdsa_signed'         -f 'keys/id_ecdsa_signed'
