@@ -1193,11 +1193,8 @@ static int userauth_is_version_less_than_78(const char *version)
  * @result comma separated list of supported upgrade options per RFC 8332, if
  * there is no upgrade option return NULL
  */
-static const char *userauth_supported_key_sign_algs(LIBSSH2_SESSION *session,
-                                                    const char *method)
+static const char *userauth_supported_key_sign_algs(const char *method)
 {
-    (void)session;
-
 #if LIBSSH2_RSA_SHA2
     if((!strcmp(method, "ssh-rsa"))
 #if defined(LIBSSH2_OPENSSL) || defined(LIBSSH2_WOLFSSL)
@@ -1245,8 +1242,7 @@ static int userauth_key_sign_algs(LIBSSH2_SESSION *session, char **method)
     char *filtered_algs = NULL;
     const char *remote_banner = NULL;
 
-    const char *supported_algs = userauth_supported_key_sign_algs(session,
-                                                                  *method);
+    const char *supported_algs = userauth_supported_key_sign_algs(*method);
 
     if(!supported_algs || !session->server_sign_algorithms)
         /* no upgrading key algorithm supported, do nothing */
