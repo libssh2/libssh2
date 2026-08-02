@@ -88,5 +88,4 @@ for fn in ./openssh_server/*_key.pub; do
     printf 'SHA1   %s\n' "$(printf '%s' "${pub}" | base64 -d | sha1sum | tr -d ' -')"
     printf 'SHA256 %s\n' "$(printf '%s' "${pub}" | base64 -d | sha256sum | tr -d ' -')"
   } | tr '[:lower:]' '[:upper:]'
-  rm -f -- "${fn}"
 done
