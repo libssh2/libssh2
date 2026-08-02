@@ -28,7 +28,7 @@ rm keys/id_* || true
 
 pw='libssh2'
 id='identity'
-pr='libssh2'
+pr="${1:-libssh2}"
 
 ssh-keygen -t dsa             -N ''          -m PEM     -C 'id_dsa'                  -f 'keys/id_dsa'               || touch 'keys/id_dsa.pub'
 ssh-keygen -t dsa             -N ''          -m PEM     -C 'id_dsa_wrong'            -f 'keys/id_dsa_wrong'         || true # not to add to 'authorized_keys'
