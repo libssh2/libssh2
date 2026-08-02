@@ -45,7 +45,6 @@
 #cmakedefine HAVE_NETINET_IN_H
 
 /* Functions */
-#cmakedefine HAVE_GETTIMEOFDAY
 #cmakedefine HAVE_MEMSET_S
 #cmakedefine HAVE_MEMSET_EXPLICIT
 
