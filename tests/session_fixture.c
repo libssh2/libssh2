@@ -138,11 +138,17 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
     }
 
     if(getenv("FIXTURE_TRACE_ALL_CONNECT")) {
-        libssh2_trace(connected_session, ~0);
+        if(getenv("FIXTURE_TRACE_NO_DEBUGDUMP"))
+            libssh2_trace(connected_session, ~LIBSSH2_TRACE_TRANS);
+        else
+            libssh2_trace(connected_session, ~0);
         fprintf(stdout, "Trace all enabled for connect_to_server.\n");
     }
     else if(getenv("FIXTURE_TRACE_ALL")) {
-        libssh2_trace(connected_session, ~0);
+        if(getenv("FIXTURE_TRACE_NO_DEBUGDUMP"))
+            libssh2_trace(connected_session, ~LIBSSH2_TRACE_TRANS);
+        else
+            libssh2_trace(connected_session, ~0);
         fprintf(stdout, "Trace all enabled.\n");
     }
 
