@@ -579,15 +579,18 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
             goto out;
         }
 
-        iv_part = SSH2_CALLOC(session, ivlen);
-        if(!iv_part) {
-            ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                           "Could not alloc iv part");
-            goto out;
+        if(ivlen) {
+            iv_part = SSH2_CALLOC(session, ivlen);
+            if(!iv_part) {
+                ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                               "Could not alloc iv part");
+                goto out;
+            }
         }
 
         memcpy(key_part, key, keylen);
-        memcpy(iv_part, key + keylen, ivlen);
+        if(iv_part)
+            memcpy(iv_part, key + keylen, ivlen);
 
         /* Initialize the decryption */
         if(method->init(session, method, iv_part, &free_iv, key_part,
