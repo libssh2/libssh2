@@ -723,7 +723,7 @@ void ssh2_list_insert(struct list_node *after, /* insert before this */
 }
 #endif
 
-ssh2_time_t ssh2_now(void) /* ms */
+ssh2_time_t ssh2_now(void) /* us */
 {
 #ifdef _WIN32
     ssh2_time_t sec, ns;
@@ -752,8 +752,8 @@ ssh2_time_t ssh2_now(void) /* ms */
         return (ssh2_time_t)tv.tv_sec * 1000000 + (ssh2_time_t)tv.tv_usec;
 #endif
     {
-        ssh2_time_t ms = (ssh2_time_t)time(NULL) * 1000000;
-        return ms ? ms : 1;
+        ssh2_time_t us = (ssh2_time_t)time(NULL) * 1000000;
+        return us ? us : 1;
     }
 #endif /* _WIN32 */
 }
