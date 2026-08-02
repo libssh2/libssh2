@@ -61,7 +61,7 @@ int chachapoly_crypt(struct chachapoly_ctx *ctx, libssh2_uint64_t seqnr,
     };
     unsigned char seqbuf[8];
     unsigned char expected_tag[POLY1305_TAGLEN], poly_key[POLY1305_KEYLEN];
-    int r = LIBSSH2_ERROR_INVAL;
+    int r = LIBSSH2_ERROR_DECRYPT;  /* fail */
     unsigned char *ptr = NULL;
 
     /*
@@ -79,11 +79,8 @@ int chachapoly_crypt(struct chachapoly_ctx *ctx, libssh2_uint64_t seqnr,
         const unsigned char *tag = src + aadlen + len;
 
         poly1305_auth(expected_tag, src, aadlen + len, poly_key);
-        if(chachapoly_timingsafe_bcmp(expected_tag, tag, POLY1305_TAGLEN)
-           != 0) {
-            r = LIBSSH2_ERROR_DECRYPT;
+        if(chachapoly_timingsafe_bcmp(expected_tag, tag, POLY1305_TAGLEN))
             goto out;
-        }
     }
 
     /* Crypt additional data */
