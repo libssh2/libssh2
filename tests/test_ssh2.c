@@ -138,7 +138,8 @@ int main(int argc, char *argv[])
     if(getenv("FIXTURE_TRACE_ALL_CONNECT") ||
        getenv("FIXTURE_TRACE_ALL")) {
         if(getenv("FIXTURE_TRACE_NO_DEBUGDUMP"))
-            libssh2_trace(session, ~LIBSSH2_TRACE_TRANS);
+            libssh2_trace(session, ~(getenv("FIXTURE_TRACE_NO_DEBUGDUMP")
+                                     ? LIBSSH2_TRACE_TRANS : 0));
         else
             libssh2_trace(session, ~0);
         fprintf(stdout, "Trace all enabled.\n");
