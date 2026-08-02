@@ -761,48 +761,6 @@ ssh2_time_t ssh2_now(void) /* us */
 #endif /* _WIN32 */
 }
 
-#ifndef HAVE_GETTIMEOFDAY
-/*
- * Implementation according to:
- * The Open Group Base Specifications Issue 6
- * IEEE Std 1003.1, 2004 Edition
- *
- * THIS SOFTWARE IS NOT COPYRIGHTED
- *
- * This source code is offered for use in the public domain. You may
- * use, modify or distribute it freely.
- *
- * This code is distributed in the hope that it is useful but
- * WITHOUT ANY WARRANTY. ALL WARRANTIES, EXPRESS OR IMPLIED ARE HEREBY
- * DISCLAIMED. This includes but is not limited to warranties of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- */
-int ssh2_gettimeofday(struct timeval *tp, void *tzp)
-{
-    (void)tzp;
-    if(tp) {
-#ifdef _WIN32
-/* Offset between 1601-01-01 and 1970-01-01 in 100 nanosec units */
-#define SSH2_WIN32_FT_OFFSET 116444736000000000
-        union {
-            libssh2_uint64_t ns100; /* time since 1 Jan 1601 in 100ns units */
-            FILETIME ft;
-        } now;
-        GetSystemTimeAsFileTime(&now.ft);
-        tp->tv_usec = (long)((now.ns100 / 10) % 1000000);
-        tp->tv_sec = (long)((now.ns100 - SSH2_WIN32_FT_OFFSET) / 10000000);
-#else
-        /* Platforms without a native implementation or local replacement */
-        tp->tv_usec = 0;
-        tp->tv_sec = 0;
-#endif
-    }
-    /* Always return 0 as per Open Group Base Specifications Issue 6.
-       Do not set errno on error.  */
-    return 0;
-}
-#endif /* !HAVE_GETTIMEOFDAY */
-
 void *ssh2_calloc(LIBSSH2_SESSION *session, size_t size)
 {
     void *p = SSH2_ALLOC(session, size);
