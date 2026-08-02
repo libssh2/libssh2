@@ -20,6 +20,7 @@ permissions: {}
 
 env:
   DO_NOT_TRACK: '1'
+  FIXTURE_TRACE_NO_DEBUGDUMP: '1'
   HOMEBREW_NO_INSTALL_CLEANUP: '1'
   MAKEFLAGS: -j 5
 
