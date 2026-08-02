@@ -1132,9 +1132,6 @@ int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
 
 void ssh2_userauth_plain_method(char *method)
 {
-    static const char method_sk_ec[] = "sk-ecdsa-sha2-nistp256@openssh.com";
-    static const char method_sk_ed[] = "sk-ssh-ed25519@openssh.com";
-
     if(!strcmp("ssh-rsa-cert-v01@openssh.com", method))
         method[sizeof("ssh-rsa") - 1] = '\0';
     else if(!strcmp("rsa-sha2-256-cert-v01@openssh.com", method) ||
@@ -1146,10 +1143,14 @@ void ssh2_userauth_plain_method(char *method)
         method[sizeof("ecdsa-sha2-nistp256") - 1] = '\0';
     else if(!strcmp("ssh-ed25519-cert-v01@openssh.com", method))
         method[sizeof("ssh-ed25519") - 1] = '\0';
-    else if(!strcmp("sk-ecdsa-sha2-nistp256-cert-v01@openssh.com", method))
-        memcpy(method, method_sk_ec, sizeof(method_sk_ec));
-    else if(!strcmp("sk-ssh-ed25519-cert-v01@openssh.com", method))
-        memcpy(method, method_sk_ed, sizeof(method_sk_ed));
+    else if(!strcmp("sk-ecdsa-sha2-nistp256-cert-v01@openssh.com", method)) {
+        static const char new_method[] = "sk-ecdsa-sha2-nistp256@openssh.com";
+        memcpy(method, new_method, sizeof(new_method));
+    }
+    else if(!strcmp("sk-ssh-ed25519-cert-v01@openssh.com", method)) {
+        static const char new_method[] = "sk-ssh-ed25519@openssh.com";
+        memcpy(method, new_method, sizeof(new_method));
+    }
 }
 
 /* Function to check if the given version is less than pattern (OpenSSH 7.8)
