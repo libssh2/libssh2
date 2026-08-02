@@ -16,8 +16,7 @@ int test(LIBSSH2_SESSION *session)
                             user ? user : "libssh2",
                             NULL,
                             "keys/id_rsa_sha2_512_signed-cert.pub",
-                            "keys/id_rsa_sha2_512_signed"
-                            );
+                            "keys/id_rsa_sha2_512_signed");
 #else
     (void)session;
     return 0;
