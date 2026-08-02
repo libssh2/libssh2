@@ -44,7 +44,7 @@ static const char *username = "username";
 static const char *password = "password";
 static const char *scppath = "/tmp/TEST";
 
-#ifdef HAVE_GETTIMEOFDAY
+#if !defined(_WIN32) || defined(__MINGW32__)
 /* diff in ms */
 static long tvdiff(struct timeval newer, struct timeval older)
 {
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
     libssh2_struct_stat fileinfo;
-#ifdef HAVE_GETTIMEOFDAY
+#if !defined(_WIN32) || defined(__MINGW32__)
     struct timeval start;
     struct timeval end;
     long time_ms;
@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
     /* Since we have set non-blocking, tell libssh2 we are non-blocking */
     libssh2_session_set_blocking(session, 0);
 
-#ifdef HAVE_GETTIMEOFDAY
+#if !defined(_WIN32) || defined(__MINGW32__)
     gettimeofday(&start, NULL);
 #endif
 
@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
         break;
     }
 
-#ifdef HAVE_GETTIMEOFDAY
+#if !defined(_WIN32) || defined(__MINGW32__)
     gettimeofday(&end, NULL);
 
     time_ms = tvdiff(end, start);
