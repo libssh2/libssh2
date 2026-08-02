@@ -45,7 +45,7 @@ ssh-keygen -t rsa     -b 4096 -N ''          -m PEM     -C 'id_rsa_sha2_512_sign
 ssh-keygen -t rsa-sha2-512    -I "${id}" -n "${pr}"     -s 'openssh_server/ca_rsa'      'keys/id_rsa_sha2_512_signed.pub'
 
 ssh-keygen -t ecdsa   -b  384 -N ''          -m RFC4716 -C ''                        -f 'keys/id_ecdsa'             # empty comment
-ssh-keygen -t ecdsa   -b  256 -N "${pw}"     -m RFC4716 -C 'id_ecdsa_encrypted'      -f 'keys/id_ecdsa_encrypted'   -Z aes256-ctr
+ssh-keygen -t ecdsa   -b  256 -N "${pw}"     -m RFC4716 -C 'id_ecdsa_encrypted'      -f 'keys/id_ecdsa_encrypted'   -Z chacha20-poly1305@openssh.com
 
 ssh-keygen -t ecdsa   -b  384 -N ''          -m RFC4716 -C 'id_ecdsa_signed'         -f 'keys/id_ecdsa_signed'
 ssh-keygen                    -I "${id}" -n "${pr}"     -s 'openssh_server/ca_ecdsa'    'keys/id_ecdsa_signed.pub'
