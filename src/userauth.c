@@ -1196,11 +1196,8 @@ static int userauth_is_version_less_than_78(const char *version)
 static const char *userauth_supported_key_sign_algs(const char *method)
 {
 #if LIBSSH2_RSA_SHA2
-    if((!strcmp(method, "ssh-rsa"))
-#if defined(LIBSSH2_OPENSSL) || defined(LIBSSH2_WOLFSSL)
-       || !strcmp(method, "ssh-rsa-cert-v01@openssh.com")
-#endif
-      ) {
+    if(!strcmp(method, "ssh-rsa") ||
+       !strcmp(method, "ssh-rsa-cert-v01@openssh.com")) {
         return "rsa-sha2-512,rsa-sha2-256"
 #if LIBSSH2_RSA_SHA1
             ",ssh-rsa"
