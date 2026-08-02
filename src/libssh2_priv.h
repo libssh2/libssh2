@@ -310,6 +310,7 @@ typedef enum {
 #define ssh2_timediff_t           libssh2_int64_t /* us */
 #define ssh2_sec_to_timediff(sec) ((ssh2_time_t)(sec) * 1000000)
 #define ssh2_timediff_to_sec(td)  ((td) / 1000000)
+#define ssh2_timediff_to_usec(td) ((td) % 1000000)
 #define ssh2_ms_to_timediff(ms)   ((ssh2_time_t)(ms) * 1000)
 #define ssh2_timediff_to_ms(td)   ((td) / 1000)
 ssh2_time_t ssh2_now(void);

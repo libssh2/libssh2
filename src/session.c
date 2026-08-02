@@ -1708,11 +1708,12 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout_ms)
         {
             ssh2_time_t start_time, now;
             struct timeval tv;
-            tv.tv_sec = (long)(timeout_remaining / 1000);
+            tv.tv_sec = (long)ssh2_timediff_to_sec(timeout_remaining);
 #ifdef libssh2_usec_t
-            tv.tv_usec = (libssh2_usec_t)((timeout_remaining % 1000) * 1000);
+            tv.tv_usec =
+                (libssh2_usec_t)ssh2_timediff_to_usec(timeout_remaining);
 #else
-            tv.tv_usec = (timeout_remaining % 1000) * 1000;
+            tv.tv_usec = ssh2_timediff_to_usec(timeout_remaining);
 #endif
             start_time = ssh2_now();
             sysret = select((int)(maxfd + 1), &rfds, &wfds, NULL,
