@@ -29,7 +29,7 @@ use warnings;
 use File::Basename;
 
 my @tabs = (
-    'Makefile\\.[a-z]+$',
+    'Makefile\.[a-z]+$',
     'm4/libssh2-link\.m4$',
 );
 
