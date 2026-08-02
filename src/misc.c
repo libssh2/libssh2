@@ -734,25 +734,25 @@ ssh2_time_t ssh2_now(void) /* ms */
     sec = (ssh2_time_t)(count.QuadPart / freq.QuadPart);
     ns = (ssh2_time_t)(((count.QuadPart % freq.QuadPart) *
         1000000000) / freq.QuadPart);
-    return sec * 1000 + ns / 1000000;
+    return sec * 1000000 + ns / 1000;
 #else /* !_WIN32 */
 #if defined(CLOCK_MONOTONIC_RAW) /* Apple/Linux */
     struct timespec ts;
     if(!clock_gettime(CLOCK_MONOTONIC_RAW, &ts))
-        return (ssh2_time_t)ts.tv_sec * 1000 +
-            (ssh2_time_t)ts.tv_nsec / 1000000;
+        return (ssh2_time_t)ts.tv_sec * 1000000 +
+            (ssh2_time_t)ts.tv_nsec / 1000;
 #elif defined(CLOCK_MONOTONIC) /* POSIX */
     struct timespec ts;
     if(!clock_gettime(CLOCK_MONOTONIC, &ts))
-        return (ssh2_time_t)ts.tv_sec * 1000 +
-            (ssh2_time_t)ts.tv_nsec / 1000000;
+        return (ssh2_time_t)ts.tv_sec * 1000000 +
+            (ssh2_time_t)ts.tv_nsec / 1000;
 #elif defined(HAVE_GETTIMEOFDAY)
     struct timeval tv;
     if(!gettimeofday(&tv, NULL))
-        return (ssh2_time_t)tv.tv_sec * 1000 + (ssh2_time_t)tv.tv_usec / 1000;
+        return (ssh2_time_t)tv.tv_sec * 1000000 + (ssh2_time_t)tv.tv_usec;
 #endif
     {
-        ssh2_time_t ms = (ssh2_time_t)time(NULL) * 1000;
+        ssh2_time_t ms = (ssh2_time_t)time(NULL) * 1000000;
         return ms ? ms : 1;
     }
 #endif /* _WIN32 */
