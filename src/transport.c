@@ -119,6 +119,16 @@ static void transport_debugdump(LIBSSH2_SESSION *session, const char *desc,
 #define transport_debugdump(a, x, y, z) do {} while(0)
 #endif
 
+/* Convenience macros for accessing crypt flags */
+/* Local crypto flags */
+#define CRYPT_FLAG_L(session, flag)                            \
+    ((session)->local.crypt &&                                 \
+     ((session)->local.crypt->flags & SSH2_CRYPT_FLAG_##flag))
+/* Remote crypto flags */
+#define CRYPT_FLAG_R(session, flag)                             \
+    ((session)->remote.crypt &&                                 \
+     ((session)->remote.crypt->flags & SSH2_CRYPT_FLAG_##flag))
+
 /* transport_decrypt() decrypts 'len' bytes from 'source' to 'dest' in units of
  * blocksize.
  *
