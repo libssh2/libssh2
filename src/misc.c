@@ -554,12 +554,12 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
         "Publickey",
         "Socket",
     };
-    static long firstsec;
+    static ssh2_time_t firstnow;
 
     char buffer[1536];
     int len, msglen, buflen = sizeof(buffer);
     va_list vargs;
-    struct timeval now;
+    ssh2_time_t now;
     const char *contexttext = contexts[0];
     unsigned int contextindex;
 
@@ -575,14 +575,17 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
         }
     }
 
-    ssh2_gettimeofday(&now, NULL);
-    if(!firstsec)
-        firstsec = now.tv_sec;
-    now.tv_sec -= firstsec;
+    now = ssh2_now();
+    if(!firstnow)
+        firstnow = now;
+    now -= firstnow;
 
-    /* '[libssh2] 9999999999.9999999999 Failure Event: ' */
-    len = ssh2_snprintf(buffer, buflen, "[libssh2] %d.%06d %s: ",
-                        (int)now.tv_sec, (int)now.tv_usec, contexttext);
+    /* '[libssh2] 99999999999999999999.99999999999999999999 Failure Event: ' */
+    len = ssh2_snprintf(buffer, buflen, "[libssh2]"
+                        " %" SSH2_TIME_T_FORMAT ".%06" SSH2_TIME_T_FORMAT
+                        " %s: ",
+                        ssh2_timediff_to_sec(now),
+                        ssh2_timediff_to_usec(now), contexttext);
     if(len < 0 || len >= buflen) {
         msglen = len < 0 ? 0 : (buflen - 1);
         buffer[msglen] = '\0';
