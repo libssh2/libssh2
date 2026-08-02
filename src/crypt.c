@@ -78,6 +78,7 @@ struct crypt_ctx {
     int encrypt;
     SSH2_CIPHER_T(algo);
     ssh2_cipher_ctx h;
+    int with_tag;  /* for chachapoly decrypt */
     struct chachapoly_ctx chachapoly_ctx;
 };
 
@@ -87,13 +88,14 @@ static int crypt_init(LIBSSH2_SESSION *session,
                       const struct crypt_method *method,
                       unsigned char *iv, int *free_iv,
                       unsigned char *secret, int *free_secret,
-                      int encrypt, void **abstract)
+                      int encrypt, int with_tag, void **abstract)
 {
     struct crypt_ctx *ctx = SSH2_ALLOC(session, sizeof(struct crypt_ctx));
     if(!ctx)
         return LIBSSH2_ERROR_ALLOC;
 
     ctx->encrypt = encrypt;
+    ctx->with_tag = with_tag;
     ctx->algo = method->algo;
     if(ssh2_cipher_init(&ctx->h, ctx->algo, iv, secret, encrypt)) {
         SSH2_FREE(session, ctx);
@@ -310,12 +312,12 @@ static int crypt_init_arcfour128(LIBSSH2_SESSION *session,
                                  const struct crypt_method *method,
                                  unsigned char *iv, int *free_iv,
                                  unsigned char *secret, int *free_secret,
-                                 int encrypt, void **abstract)
+                                 int encrypt, int with_tag, void **abstract)
 {
     int rc;
 
     rc = crypt_init(session, method, iv, free_iv, secret, free_secret,
-                    encrypt, abstract);
+                    encrypt, with_tag, abstract);
     if(rc == 0) {
         struct crypt_ctx *cctx = *(struct crypt_ctx **)abstract;
         unsigned char block[8];
@@ -383,7 +385,7 @@ static int crypt_init_chacha20_poly(LIBSSH2_SESSION *session,
                                     const struct crypt_method *method,
                                     unsigned char *iv, int *free_iv,
                                     unsigned char *secret, int *free_secret,
-                                    int encrypt, void **abstract)
+                                    int encrypt, int with_tag, void **abstract)
 {
     struct crypt_ctx *ctx = SSH2_ALLOC(session, sizeof(struct crypt_ctx));
 
@@ -393,6 +395,7 @@ static int crypt_init_chacha20_poly(LIBSSH2_SESSION *session,
         return LIBSSH2_ERROR_ALLOC;
 
     ctx->encrypt = encrypt;
+    ctx->with_tag = with_tag;
     ctx->algo = method->algo;
 
     if(chachapoly_init(&ctx->chachapoly_ctx, secret, method->secret_len)) {
@@ -430,7 +433,7 @@ static int crypt_encrypt_chacha20_poly_buffer(LIBSSH2_SESSION *session,
             ret = chachapoly_crypt(&ctx->chachapoly_ctx, seqno, buf, buf,
                                    buf_len - 4, 4, ctx->encrypt);
         }
-        else {
+        else if(!ctx->with_tag) {
             /* buf is full packet including size and auth tag but buf_len
                does not include size */
             if(buf_len < 4)
@@ -444,6 +447,10 @@ static int crypt_encrypt_chacha20_poly_buffer(LIBSSH2_SESSION *session,
             if(ret == 0)
                 memmove(buf, buf + 4, buf_len - 4);
         }
+        else
+            /* for private key decryption */
+            ret = chachapoly_crypt(&ctx->chachapoly_ctx, seqno, buf, buf,
+                                   buf_len, 0, ctx->encrypt);
     }
 
     return ret == 0 ? 0 : 1;  /* success: 0, fail: 1 */

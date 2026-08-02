@@ -297,8 +297,8 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
         }
 
         /* Initialize the decryption */
-        if(method->init(session, method, iv, &free_iv, secret, &free_secret, 0,
-                        &abstract)) {
+        if(method->init(session, method, iv, &free_iv, secret,
+                        &free_secret, 0, 1, &abstract)) {
             ssh2_explicit_zero(secret, sizeof(secret));
             goto out;
         }
@@ -591,7 +591,7 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
 
         /* Initialize the decryption */
         if(method->init(session, method, iv_part, &free_iv, key_part,
-                        &free_secret, 0, &abstract)) {
+                        &free_secret, 0, 1, &abstract)) {
             ret = LIBSSH2_ERROR_DECRYPT;
             goto out;
         }

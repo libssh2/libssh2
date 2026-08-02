@@ -237,7 +237,7 @@ static int kex_finish(LIBSSH2_SESSION *session,
         }
 
         if(session->local.crypt->init(session, session->local.crypt, iv,
-                                      &free_iv, secret, &free_secret, 1,
+                                      &free_iv, secret, &free_secret, 1, 0,
                                       &session->local.crypt_abstract)) {
             SSH2_FREE(session, iv);
             SSH2_FREE(session, secret);
@@ -281,7 +281,7 @@ static int kex_finish(LIBSSH2_SESSION *session,
                             "key exchange");
         }
         if(session->remote.crypt->init(session, session->remote.crypt, iv,
-                                       &free_iv, secret, &free_secret, 0,
+                                       &free_iv, secret, &free_secret, 0, 0,
                                        &session->remote.crypt_abstract)) {
             SSH2_FREE(session, iv);
             SSH2_FREE(session, secret);
