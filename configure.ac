@@ -396,8 +396,6 @@ case $host in
     ;;
 esac
 
-AC_CHECK_FUNCS(gettimeofday)
-
 dnl Check for memset_s()
 libssh2_cv_func_memset_s="no"
 AC_MSG_CHECKING([if memset_s can be linked])
