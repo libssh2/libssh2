@@ -27,7 +27,6 @@
 #ifdef __MINGW32__
 #  define HAVE_UNISTD_H
 #  define HAVE_INTTYPES_H
-#  define HAVE_GETTIMEOFDAY
 #elif defined(_MSC_VER) && _MSC_VER >= 1800
 #  define HAVE_INTTYPES_H
 #endif
