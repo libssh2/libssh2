@@ -43,6 +43,9 @@
 #include <mbedtls/rsa.h>
 #include <mbedtls/bignum.h>
 #include <mbedtls/cipher.h>
+#ifdef MBEDTLS_GCM_C
+# include <mbedtls/gcm.h>
+#endif
 #ifdef MBEDTLS_ECDH_C
 # include <mbedtls/ecdh.h>
 #endif
@@ -79,7 +82,11 @@
 
 #define LIBSSH2_AES_CBC 1
 #define LIBSSH2_AES_CTR 1
+#ifdef MBEDTLS_GCM_C
+#define LIBSSH2_AES_GCM 1
+#else
 #define LIBSSH2_AES_GCM 0
+#endif
 #define LIBSSH2_BLOWFISH 0
 #define LIBSSH2_RC4 0
 #define LIBSSH2_CAST 0
@@ -180,7 +187,23 @@ typedef enum {
  * mbedTLS backend: Cipher Context structure
  */
 
-#define ssh2_cipher_ctx        mbedtls_cipher_context_t
+/* Unified cipher context structure.
+   Handles both regular ciphers and AEAD ciphers (GCM)
+   using a union to optimize memory usage. */
+struct ssh2_mbed_cipher_ctx {
+    int is_aesgcm;
+    union {
+        mbedtls_cipher_context_t cipher;
+#if LIBSSH2_AES_GCM
+        struct {
+            mbedtls_gcm_context ctx;
+            unsigned char iv[12];
+        } gcm;
+#endif
+    } u;
+};
+
+#define ssh2_cipher_ctx        struct ssh2_mbed_cipher_ctx
 
 #define SSH2_CIPHER_T(algo)    mbedtls_cipher_type_t algo
 
@@ -193,13 +216,9 @@ typedef enum {
 #if LIBSSH2_3DES
 #define ssh2_cipher_3des       MBEDTLS_CIPHER_DES_EDE3_CBC
 #endif
+#define ssh2_cipher_aes128gcm  MBEDTLS_CIPHER_AES_128_GCM
+#define ssh2_cipher_aes256gcm  MBEDTLS_CIPHER_AES_256_GCM
 #define ssh2_cipher_chacha20   MBEDTLS_CIPHER_CHACHA20_POLY1305
-
-/*******************************************************************/
-/*
- * mbedTLS backend: Cipher functions
- */
-#define ssh2_cipher_dtor(ctx)  mbedtls_cipher_free(ctx)
 
 /*******************************************************************/
 /*
