@@ -16,9 +16,7 @@
 
 #ifdef _WIN32
 #define strdup _strdup
-#endif
-
-#ifndef _WIN32
+#else
 #include <sys/socket.h>
 #include <unistd.h>
 #endif

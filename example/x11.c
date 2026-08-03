@@ -16,15 +16,15 @@
 
 #if defined(HAVE_SYS_UN_H) && !defined(LIBSSH2_NO_DEPRECATED)
 
+#ifndef _WIN32
+#include <sys/socket.h>
+#include <unistd.h>
+#endif
 #ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
-#endif
-#ifndef _WIN32
-#include <sys/socket.h>
-#include <unistd.h>
 #endif
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>

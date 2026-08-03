@@ -10,9 +10,7 @@
 #include <ws2tcpip.h>  /* for socklen_t */
 #define recv(s, b, l, f)  recv(s, b, (int)(l), f)
 #define send(s, b, l, f)  send(s, b, (int)(l), f)
-#endif
-
-#ifndef _WIN32
+#else
 #include <sys/socket.h>
 #include <unistd.h>
 #endif

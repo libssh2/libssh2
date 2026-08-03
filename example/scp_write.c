@@ -8,7 +8,13 @@
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
-#ifndef _WIN32
+#ifdef _WIN32
+#undef stat
+#define stat _stat
+#undef fstat
+#define fstat _fstat
+#define fileno _fileno
+#else
 #include <sys/socket.h>
 #include <unistd.h>
 #endif
@@ -20,14 +26,6 @@
 #endif
 
 #include <stdio.h>
-
-#ifdef _WIN32
-#undef stat
-#define stat _stat
-#undef fstat
-#define fstat _fstat
-#define fileno _fileno
-#endif
 
 static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
 static const char *privkey = "/home/username/.ssh/id_rsa";

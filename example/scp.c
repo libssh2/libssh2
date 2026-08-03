@@ -10,9 +10,7 @@
 
 #ifdef _WIN32
 #define write(f, b, c)  _write(f, b, (unsigned int)(c))
-#endif
-
-#ifndef _WIN32
+#else
 #include <sys/socket.h>
 #include <unistd.h>
 #endif
