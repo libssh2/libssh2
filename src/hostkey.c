@@ -86,23 +86,10 @@ static int hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
         return -1;
 
     /* we accept one of 3 header types */
-#if LIBSSH2_RSA_SHA1
-    if(SSH2_IS_LITERAL(type, type_len, "ssh-rsa")) {
-        /* ssh-rsa */
-    }
-    else
-#endif
-#if LIBSSH2_RSA_SHA2
-    if(SSH2_IS_LITERAL(type, type_len, "rsa-sha2-256")) {
-        /* rsa-sha2-256 */
-    }
-    else if(SSH2_IS_LITERAL(type, type_len, "rsa-sha2-512")) {
-        /* rsa-sha2-512 */
-    }
-    else
-#endif
-    {
-        ssh2_deb((session, LIBSSH2_TRACE_ERROR, "unexpected rsa type: %.*s",
+    if(!SSH2_IS_LITERAL(type, type_len, "ssh-rsa") &&
+       !SSH2_IS_LITERAL(type, type_len, "rsa-sha2-256") &&
+       !SSH2_IS_LITERAL(type, type_len, "rsa-sha2-512")) {
+        ssh2_deb((session, LIBSSH2_TRACE_ERROR, "unexpected RSA type: %.*s",
                   (int)type_len, type));
         return -1;
     }
