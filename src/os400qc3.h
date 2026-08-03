@@ -258,22 +258,28 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 
 #define ssh2_cipher_dtor(ctx)    ssh2_os400qc3_crypto_dtor(ctx)
 
+#if LIBSSH2_RSA
 #define ssh2_rsa_ctx             struct os400qc3_crypto_ctx
 #define ssh2_rsa_free(rsa) \
     (ssh2_os400qc3_crypto_dtor(rsa), free((char *)rsa))
 #define ssh2_prepare_iovec(vec, len) \
     memset((char *)(vec), 0, (len) * sizeof(struct iovec))
+#if LIBSSH2_RSA_SHA1
 #define ssh2_rsa_sha1_signv(rsa, session, sig, siglen, count, vector) \
     ssh2_os400qc3_rsa_signv(rsa, session, Qc3_SHA1, sig, siglen, count, vector)
+#endif
+#if LIBSSH2_RSA_SHA2
 #define ssh2_rsa_sha2_256_signv(rsa, session, sig, siglen, cnt, vector) \
     ssh2_os400qc3_rsa_signv(rsa, session, Qc3_SHA256, sig, siglen, cnt, vector)
 #define ssh2_rsa_sha2_512_signv(rsa, session, sig, siglen, cnt, vector) \
     ssh2_os400qc3_rsa_signv(rsa, session, Qc3_SHA512, sig, siglen, cnt, vector)
+#endif
 
 int ssh2_os400qc3_rsa_signv(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                             int algo,
                             unsigned char **signature, size_t *signature_len,
                             int veccount, const struct iovec vector[]);
+#endif /* LIBSSH2_RSA */
 
 #define ssh2_dh_ctx              struct os400qc3_dh_ctx
 

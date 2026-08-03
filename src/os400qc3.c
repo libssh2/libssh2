@@ -1159,6 +1159,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
  *
  *******************************************************************/
 
+#if LIBSSH2_RSA
 int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
                  const unsigned char *edata, size_t elen,
                  const unsigned char *ndata, size_t nlen,
@@ -1255,6 +1256,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     *rsa = ctx;
     return ret;
 }
+#endif /* LIBSSH2_RSA */
 
 /*******************************************************************
  *
@@ -2394,6 +2396,7 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
                                             blob, blob_len, passphrase);
 }
 
+#if LIBSSH2_RSA_SHA2
 int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
@@ -2427,7 +2430,9 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
                        NULL, (char *)&errcode);
     return errcode.Bytes_Available ? -1 : 0;
 }
+#endif
 
+#if LIBSSH2_RSA_SHA1
 int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
@@ -2435,6 +2440,7 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
     return ssh2_rsa_sha2_verify(rsa, SSH2_SHA1_DIG_LEN,
                                 sig, sig_len, m, m_len);
 }
+#endif
 
 int ssh2_os400qc3_rsa_signv(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                             int algo,
