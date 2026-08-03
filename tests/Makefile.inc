@@ -102,6 +102,10 @@ EXTRA_DIST = \
   keys/id_rsa_encrypted.pub \
   keys/id_rsa_openssh \
   keys/id_rsa_openssh.pub \
+  keys/id_rsa_pkcs8 \
+  keys/id_rsa_pkcs8.pub \
+  keys/id_rsa_pkcs8_encrypted \
+  keys/id_rsa_pkcs8_encrypted.pub \
   keys/id_rsa_signed \
   keys/id_rsa_signed-cert.pub \
   keys/id_rsa_signed.pub \

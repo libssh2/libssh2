@@ -63,6 +63,8 @@ cat \
   'keys/id_dsa.pub' \
   'keys/id_rsa.pub' \
   'keys/id_rsa_encrypted.pub' \
+  'keys/id_rsa_pkcs8.pub' \
+  'keys/id_rsa_pkcs8_encrypted.pub' \
   'keys/id_rsa_openssh.pub' \
   'keys/id_rsa_aes256gcm.pub' \
   'keys/id_ecdsa.pub' \
