@@ -64,6 +64,12 @@ EXTRA_DIST = \
   .checksrc \
   CMakeLists.txt \
   keys-generate.sh \
+  keys/ca_ecdsa \
+  keys/ca_ecdsa.pub \
+  keys/ca_ed25519 \
+  keys/ca_ed25519.pub \
+  keys/ca_rsa \
+  keys/ca_rsa.pub \
   keys/id_dsa \
   keys/id_dsa.pub \
   keys/id_dsa_wrong \
@@ -98,12 +104,6 @@ EXTRA_DIST = \
   keys/id_rsa_sha2_512_signed.pub \
   openssh_server/Dockerfile \
   openssh_server/authorized_keys \
-  openssh_server/ca_ecdsa \
-  openssh_server/ca_ecdsa.pub \
-  openssh_server/ca_ed25519 \
-  openssh_server/ca_ed25519.pub \
-  openssh_server/ca_rsa \
-  openssh_server/ca_rsa.pub \
   openssh_server/ca_user_keys.pub \
   openssh_server/ssh_host_ecdsa_key \
   openssh_server/ssh_host_ed25519_key \

@@ -16,16 +16,15 @@ ssh-keygen -t rsa     -b 2048 -N ''          -m PEM     -C ''                   
 ssh-keygen -t ecdsa   -b  256 -N ''          -m PEM     -C ''                          -f 'openssh_server/ssh_host_ecdsa_key'
 ssh-keygen -t ed25519         -N ''          -m RFC4716 -C ''                          -f 'openssh_server/ssh_host_ed25519_key'
 
-rm openssh_server/ca_* || true
-
-ssh-keygen -t rsa     -b 3072 -N ''          -m RFC4716 -C 'ca_rsa'                    -f 'openssh_server/ca_rsa'
-ssh-keygen -t ecdsa   -b  521 -N ''          -m RFC4716 -C 'ca_ecdsa'                  -f 'openssh_server/ca_ecdsa'
-ssh-keygen -t ed25519         -N ''          -m RFC4716 -C 'ca_ed25519'                -f 'openssh_server/ca_ed25519'
-
-# tests
+# tests/keys
 
 [ -d keys ] || mkdir keys
+rm keys/ca_* || true
 rm keys/id_* || true
+
+ssh-keygen -t rsa     -b 3072 -N ''          -m RFC4716 -C 'ca_rsa'                    -f 'keys/ca_rsa'
+ssh-keygen -t ecdsa   -b  521 -N ''          -m RFC4716 -C 'ca_ecdsa'                  -f 'keys/ca_ecdsa'
+ssh-keygen -t ed25519         -N ''          -m RFC4716 -C 'ca_ed25519'                -f 'keys/ca_ed25519'
 
 pw='libssh2'
 id='identity'
@@ -43,13 +42,13 @@ ssh-keygen -t ed25519         -N ''          -m RFC4716 -C 'id_ed25519'         
 ssh-keygen -t ed25519         -N "${pw}"     -m RFC4716 -C 'id_ed25519_encrypted'      -f 'keys/id_ed25519_encrypted' -Z aes256-ctr
 
 ssh-keygen -t rsa     -b 4096 -N ''          -m PEM     -C 'id_rsa_signed'             -f 'keys/id_rsa_signed'
-ssh-keygen -t ssh-rsa         -I "${id}" -n "${pr}"     -s 'openssh_server/ca_rsa'        'keys/id_rsa_signed.pub'
+ssh-keygen -t ssh-rsa         -I "${id}" -n "${pr}"     -s 'keys/ca_rsa'                  'keys/id_rsa_signed.pub'
 ssh-keygen -t rsa     -b 4096 -N ''          -m PEM     -C 'id_rsa_sha2_512_signed'    -f 'keys/id_rsa_sha2_512_signed'
-ssh-keygen -t rsa-sha2-512    -I "${id}" -n "${pr}"     -s 'openssh_server/ca_rsa'        'keys/id_rsa_sha2_512_signed.pub'
+ssh-keygen -t rsa-sha2-512    -I "${id}" -n "${pr}"     -s 'keys/ca_rsa'                  'keys/id_rsa_sha2_512_signed.pub'
 ssh-keygen -t ecdsa   -b  384 -N ''          -m RFC4716 -C 'id_ecdsa_signed'           -f 'keys/id_ecdsa_signed'
-ssh-keygen                    -I "${id}" -n "${pr}"     -s 'openssh_server/ca_ecdsa'      'keys/id_ecdsa_signed.pub'
+ssh-keygen                    -I "${id}" -n "${pr}"     -s 'keys/ca_ecdsa'                'keys/id_ecdsa_signed.pub'
 ssh-keygen -t ed25519         -N ''          -m RFC4716 -C 'id_ed25519_signed'         -f 'keys/id_ed25519_signed'
-ssh-keygen                    -I "${id}" -n "${pr}"     -s 'openssh_server/ca_ed25519'    'keys/id_ed25519_signed.pub'
+ssh-keygen                    -I "${id}" -n "${pr}"     -s 'keys/ca_ed25519'              'keys/id_ed25519_signed.pub'
 
 cat \
   'keys/id_dsa.pub' \
@@ -64,9 +63,9 @@ cat \
   > 'openssh_server/authorized_keys'
 
 cat \
-  'openssh_server/ca_rsa.pub' \
-  'openssh_server/ca_ecdsa.pub' \
-  'openssh_server/ca_ed25519.pub' \
+  'keys/ca_rsa.pub' \
+  'keys/ca_ecdsa.pub' \
+  'keys/ca_ed25519.pub' \
   > 'openssh_server/ca_user_keys.pub'
 
 # tests/test_*.c
@@ -75,7 +74,7 @@ echo 'Add these public keys and hashes to:'
 echo ' - test_hostkey.c'
 echo ' - test_hostkey_hash.c'
 
-for fn in ./openssh_server/*_key.pub; do
+for fn in openssh_server/*_key.pub; do
   pub="$(grep -a -o -E ' [A-Za-z0-9+/=]+' < "${fn}" | head -1 | cut -c 2-)"
   printf '====== %s\n' "${fn}"
   printf 'BASE64 %s\n' "${pub}"

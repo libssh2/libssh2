@@ -21,7 +21,7 @@ path = [
   "RELEASE-NOTES",
   "docs/AUTHORS",
   "os400/README400",
-  "tests/keys/id_*",
+  "tests/keys/*",
   "tests/openssh_server/authorized_keys",
   "tests/openssh_server/ca_*",
   "tests/openssh_server/ssh_*",
