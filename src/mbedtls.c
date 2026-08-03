@@ -238,8 +238,8 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
         /* First block: start GCM operation */
         if(IS_FIRST(firstlast)) {
             ret = mbedtls_gcm_starts(&cctx->ctx.gcm.gcm_ctx,
-                                     cctx->encrypt ? MBEDTLS_GCM_ENCRYPT :
-                                                     MBEDTLS_GCM_DECRYPT,
+                                     cctx->encrypt ? MBEDTLS_GCM_ENCRYPT
+                                                   : MBEDTLS_GCM_DECRYPT,
                                      cctx->ctx.gcm.iv, 12);
             if(ret) {
                 mbed_zero_free(buf, cryptlen);
