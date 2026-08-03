@@ -180,7 +180,24 @@ typedef enum {
  * mbedTLS backend: Cipher Context structure
  */
 
-#define ssh2_cipher_ctx        mbedtls_cipher_context_t
+/* Unified cipher context structure.
+   Handles both regular ciphers and AEAD ciphers (GCM)
+   using a union to optimize memory usage. */
+struct ssh2_mbedtls_cipher_ctx {
+    mbedtls_cipher_type_t algo;
+    int encrypt;
+    union {
+        mbedtls_cipher_context_t cipher_ctx;
+#if LIBSSH2_AES_GCM
+        struct {
+            mbedtls_gcm_context gcm_ctx;
+            unsigned char iv[12];
+        } gcm;
+#endif
+    } ctx;
+};
+
+#define ssh2_cipher_ctx        struct ssh2_mbedtls_cipher_ctx *
 
 #define SSH2_CIPHER_T(algo)    mbedtls_cipher_type_t algo
 
@@ -193,6 +210,8 @@ typedef enum {
 #if LIBSSH2_3DES
 #define ssh2_cipher_3des       MBEDTLS_CIPHER_DES_EDE3_CBC
 #endif
+#define ssh2_cipher_aes128gcm  MBEDTLS_CIPHER_AES_128_GCM
+#define ssh2_cipher_aes256gcm  MBEDTLS_CIPHER_AES_256_GCM
 #define ssh2_cipher_chacha20   MBEDTLS_CIPHER_CHACHA20_POLY1305
 
 /*******************************************************************/
