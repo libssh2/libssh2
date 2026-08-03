@@ -21,8 +21,6 @@
 
 #ifndef _WIN32
 #include <sys/socket.h>
-#endif
-#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #ifdef HAVE_NETINET_IN_H
