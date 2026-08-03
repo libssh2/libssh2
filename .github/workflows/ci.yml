@@ -250,7 +250,7 @@ jobs:
           - { compiler: clang-tidy, zlib: 'OFF' }
         include:
           - { compiler: gcc  , arch: amd64, crypto: AWS-LC                  , build: 'CM', zlib: 'ON' }
-          - { compiler: gcc  , arch: amd64, crypto: BoringSSL               , build: 'CM', zlib: 'ON' }
+          - { compiler: gcc  , arch: amd64, crypto: BoringSSL               , build: 'CM', zlib: 'ON', options: '-DENABLE_DEBUG_LOGGING=ON' }
           - { compiler: gcc  , arch: amd64, crypto: LibreSSL                , build: 'CM', zlib: 'ON' }
           - { compiler: gcc  , arch: i386 , crypto: mbedTLS-from-source     , build: 'CM', zlib: 'ON', image: ubuntu-26.04 }
           - { compiler: gcc  , arch: amd64, crypto: OpenSSL                 , build: 'AM', zlib: 'OFF', test: 'legacy-options' }
@@ -267,10 +267,10 @@ jobs:
       MATRIX_BUILD: '${{ matrix.build }}'
       MATRIX_COMPILER: '${{ matrix.compiler }}'
       MATRIX_CRYPTO: '${{ matrix.crypto }}'
+      MATRIX_OPTIONS: '${{ matrix.options }}'
       MATRIX_TARGET: '${{ matrix.target }}'
       MATRIX_TEST: '${{ matrix.test }}'
       MATRIX_ZLIB: '${{ matrix.zlib }}'
-      FIXTURE_TRACE_ALL_CONNECT: '1'  # to debug OpenSSL (ML-KEM) flaky CI failures
       AWSLC_VERSION: 5.0.0
       AWSLC_SHA256: b4e1ea639d526c54243b8fbd9d21e101360423965bca5cbd72b862e7c9efdb12
       BORINGSSL_VERSION: 0.20260616.0
@@ -503,6 +503,7 @@ jobs:
         env:
           MATRIX_COMPILER: '${{ matrix.compiler }}'
         run: |
+          options="${MATRIX_OPTIONS}"
           cflags=''
           if [[ ( "${MATRIX_CRYPTO}" = 'Libgcrypt' && "${MATRIX_ZLIB}" = 'OFF' ) || "${MATRIX_TEST}" = 'legacy-options' ]]; then
             cflags+=' -DLIBSSH2_KEX_SHA1_ENABLE -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_SHA1_ENABLE -DLIBSSH2_HMAC_RIPEMD_ENABLE'
@@ -538,6 +539,7 @@ jobs:
               cflags+=' -D_DEFAULT_SOURCE'  # for glibc ISO mode, in tests: popen(), pclose(), in examples: fileno(), tcsetattr()
             fi
             if [ "${MATRIX_CRYPTO}" = 'OpenSSL-3-no-deprecated' ] || [[ "${MATRIX_CRYPTO}" = 'OpenSSL' && "${MATRIX_COMPILER}" = 'clang-tidy' ]]; then
+              # to debug OpenSSL (ML-KEM) flaky CI failures
               options+=' -DENABLE_DEBUG_LOGGING=ON'
               cflags+=' -DLIBSSH2_DEBUG_MLKEM'
             fi
@@ -550,7 +552,7 @@ jobs:
           else
             export CFLAGS
             if [ "${MATRIX_ARCH}" = 'i386' ]; then
-              options='--host=i686-pc-linux-gnu'
+              options+=' --host=i686-pc-linux-gnu'
               cflags+=' -m32'
             fi
             mkdir bld && cd bld
@@ -590,6 +592,9 @@ jobs:
         if: ${{ !matrix.target }}
         timeout-minutes: 10
         run: |
+          if [ "${MATRIX_CRYPTO}" = 'OpenSSL-3-no-deprecated' ] || [[ "${MATRIX_CRYPTO}" = 'OpenSSL' && "${MATRIX_COMPILER}" = 'clang-tidy' ]]; then
+            export FIXTURE_TRACE_ALL_CONNECT=1  # to debug OpenSSL (ML-KEM) flaky CI failures
+          fi
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             export OPENSSH_SERVER_IMAGE; OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
             [ -d "$HOME"/usr ] && export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/usr/lib"
