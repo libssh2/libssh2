@@ -586,17 +586,10 @@ static int mbed_pub_priv_key(LIBSSH2_SESSION *session, char **method,
     char *method_buf = NULL;
     unsigned char *key = NULL;
     size_t keylen = 0, method_buf_len = 0;
-    int ret;
+    int ret = 0;
 
 #if LIBSSH2_RSA
-    if(mbedtls_pk_get_type(pkey) != MBEDTLS_PK_RSA)
-#endif
-        return ssh2_err(session, LIBSSH2_ERROR_FILE, "Key type not supported");
-
-    ret = 0;
-
-#if LIBSSH2_RSA
-    {
+    if(mbedtls_pk_get_type(pkey) == MBEDTLS_PK_RSA) {
         mbedtls_rsa_context *rsa;
 
         /* write method */
@@ -612,7 +605,9 @@ static int mbed_pub_priv_key(LIBSSH2_SESSION *session, char **method,
         if(!key)
             ret = -1;
     }
+    else
 #endif
+        ret = ssh2_err(session, LIBSSH2_ERROR_FILE, "Key type not supported");
 
     /* write output */
     if(ret) {
