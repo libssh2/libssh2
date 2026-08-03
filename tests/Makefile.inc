@@ -86,6 +86,10 @@ EXTRA_DIST = \
   keys/id_ecdsa_pem.pub \
   keys/id_ecdsa_pem_encrypted \
   keys/id_ecdsa_pem_encrypted.pub \
+  keys/id_ecdsa_pkcs8 \
+  keys/id_ecdsa_pkcs8.pub \
+  keys/id_ecdsa_pkcs8_encrypted \
+  keys/id_ecdsa_pkcs8_encrypted.pub \
   keys/id_ecdsa_signed \
   keys/id_ecdsa_signed-cert.pub \
   keys/id_ecdsa_signed.pub \
@@ -93,6 +97,10 @@ EXTRA_DIST = \
   keys/id_ed25519.pub \
   keys/id_ed25519_encrypted \
   keys/id_ed25519_encrypted.pub \
+  keys/id_ed25519_pkcs8 \
+  keys/id_ed25519_pkcs8.pub \
+  keys/id_ed25519_pkcs8_encrypted \
+  keys/id_ed25519_pkcs8_encrypted.pub \
   keys/id_ed25519_signed \
   keys/id_ed25519_signed-cert.pub \
   keys/id_ed25519_signed.pub \

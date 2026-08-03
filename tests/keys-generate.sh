@@ -73,8 +73,12 @@ cat \
   'keys/id_ecdsa_encrypted.pub' \
   'keys/id_ecdsa_pem.pub' \
   'keys/id_ecdsa_pem_encrypted.pub' \
+  'keys/id_ecdsa_pkcs8.pub' \
+  'keys/id_ecdsa_pkcs8_encrypted.pub' \
   'keys/id_ed25519.pub' \
   'keys/id_ed25519_encrypted.pub' \
+  'keys/id_ed25519_pkcs8.pub' \
+  'keys/id_ed25519_pkcs8_encrypted.pub' \
   > 'openssh_server/authorized_keys'
 
 cat \
