@@ -43,6 +43,7 @@
 #include <mbedtls/rsa.h>
 #include <mbedtls/bignum.h>
 #include <mbedtls/cipher.h>
+#include <mbedtls/gcm.h>
 #ifdef MBEDTLS_ECDH_C
 # include <mbedtls/ecdh.h>
 #endif
@@ -79,7 +80,7 @@
 
 #define LIBSSH2_AES_CBC 1
 #define LIBSSH2_AES_CTR 1
-#define LIBSSH2_AES_GCM 0
+#define LIBSSH2_AES_GCM 1
 #define LIBSSH2_BLOWFISH 0
 #define LIBSSH2_RC4 0
 #define LIBSSH2_CAST 0
