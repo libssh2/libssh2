@@ -95,6 +95,7 @@ static void mbed_zero_free(void *buf, size_t len)
 int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
+    struct ssh2_mbedtls_cipher_ctx *cctx;
     const mbedtls_cipher_info_t *cipher_info;
     mbedtls_operation_t op;
     int ret;
@@ -102,14 +103,61 @@ int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
     if(!ctx)
         return -1;
 
+    /* Allocate unified context structure */
+    cctx = mbedtls_calloc(1, sizeof(*cctx));
+    if(!cctx)
+        return -1;
+
+    /* Store algorithm type and encryption flag */
+    cctx->algo = algo;
+    cctx->encrypt = encrypt;
+
+#if LIBSSH2_AES_GCM
+    /* Check if this is a GCM algorithm */
+    if(algo == MBEDTLS_CIPHER_AES_128_GCM ||
+       algo == MBEDTLS_CIPHER_AES_256_GCM) {
+        unsigned int keybits;
+
+        /* Store the initial IV (will be incremented per packet) */
+        memcpy(cctx->ctx.gcm.iv, iv, 12);
+
+        /* Initialize GCM context */
+        mbedtls_gcm_init(&cctx->ctx.gcm.gcm_ctx);
+
+        /* Set key length based on algorithm */
+        if(algo == MBEDTLS_CIPHER_AES_128_GCM)
+            keybits = 128;
+        else /* MBEDTLS_CIPHER_AES_256_GCM */
+            keybits = 256;
+
+        /* Setup GCM with AES cipher and key */
+        ret = mbedtls_gcm_setkey(&cctx->ctx.gcm.gcm_ctx,
+                                 MBEDTLS_CIPHER_ID_AES,
+                                 secret,
+                                 keybits);
+        if(ret) {
+            mbedtls_gcm_free(&cctx->ctx.gcm.gcm_ctx);
+            mbedtls_free(cctx);
+            return -1;
+        }
+
+        /* Store the context pointer */
+        *h = cctx;
+        return 0;
+    }
+#endif
+
+    /* Non-GCM algorithms: use standard cipher API */
     op = encrypt ? MBEDTLS_ENCRYPT : MBEDTLS_DECRYPT;
 
     cipher_info = mbedtls_cipher_info_from_type(algo);
-    if(!cipher_info)
+    if(!cipher_info) {
+        mbedtls_free(cctx);
         return -1;
+    }
 
-    mbedtls_cipher_init(ctx);
-    ret = mbedtls_cipher_setup(ctx, cipher_info);
+    mbedtls_cipher_init(&cctx->ctx.cipher_ctx);
+    ret = mbedtls_cipher_setup(&cctx->ctx.cipher_ctx, cipher_info);
 
     /* libssh2 computes and adds SSH packet padding itself, so for CBC
        tell mbedTLS to expect no padding on the cipher layer. Only call
@@ -124,17 +172,25 @@ int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 #endif
        )
       ) {
-        ret = mbedtls_cipher_set_padding_mode(ctx, MBEDTLS_PADDING_NONE);
+        ret = mbedtls_cipher_set_padding_mode(&cctx->ctx.cipher_ctx,
+                                              MBEDTLS_PADDING_NONE);
     }
 
     if(!ret)
-        ret = mbedtls_cipher_setkey(ctx,
+        ret = mbedtls_cipher_setkey(&cctx->ctx.cipher_ctx,
                   secret,
                   (int)mbedtls_cipher_info_get_key_bitlen(cipher_info), op);
 
     if(!ret)
-        ret = mbedtls_cipher_set_iv(ctx, iv,
+        ret = mbedtls_cipher_set_iv(&cctx->ctx.cipher_ctx, iv,
                   mbedtls_cipher_info_get_iv_size(cipher_info));
+
+    if(ret) {
+        mbedtls_cipher_free(&cctx->ctx.cipher_ctx);
+        mbedtls_free(cctx);
+    }
+    else
+        *ctx = cctx;  /* Store the context pointer */
 
     return ret == 0 ? 0 : -1;
 }
