@@ -505,6 +505,7 @@ jobs:
         run: |
           cflags=''
           if [[ ( "${MATRIX_CRYPTO}" = 'Libgcrypt' && "${MATRIX_ZLIB}" = 'OFF' ) || "${MATRIX_TEST}" = 'legacy-options' ]]; then
+            cflags+=' -DLIBSSH2_RSA_SHA1_ENABLE'
             cflags+=' -DLIBSSH2_KEX_SHA1_ENABLE -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_SHA1_ENABLE -DLIBSSH2_HMAC_RIPEMD_ENABLE'
             cflags+=' -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_CAST_ENABLE -DLIBSSH2_3DES_ENABLE'
           fi
@@ -873,8 +874,10 @@ jobs:
         run: |
           cflags=''
           if [ "${MATRIX_TEST}" = 'legacy-options' ]; then
+            cflags+=' -DLIBSSH2_RSA_SHA1_ENABLE'
             cflags+=' -DLIBSSH2_KEX_SHA1_ENABLE -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_SHA1_ENABLE -DLIBSSH2_HMAC_RIPEMD_ENABLE'
             cflags+=' -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_CAST_ENABLE -DLIBSSH2_3DES_ENABLE'
+            cflags+=' -DLIBSSH2_DSA_ENABLE'
           fi
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             if [[ "${MATRIX_ENV}" = 'clang'* ]]; then
@@ -893,7 +896,6 @@ jobs:
               fi
             elif [ "${MATRIX_TEST}" = 'no-options' ]; then
               options+=' -DLIBSSH2_NO_DEPRECATED=ON'
-              cflags+=' -DLIBSSH2_DSA_ENABLE'
               cflags+=' -DLIBSSH2_NO_AES_CBC -DLIBSSH2_NO_AES_CTR'
             fi
             if [[ "${MATRIX_TEST}" = *'unicode'* ]]; then
