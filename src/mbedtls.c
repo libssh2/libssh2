@@ -222,8 +222,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
         unsigned char tag[16];
         unsigned char *buf = NULL;
 
-        if(blocksize > sizeof(buf) ||
-           blocksize < (size_t)(aadlen + authenticationtag))
+        if(blocksize < (size_t)(aadlen + authenticationtag))
             return 1;
 
         cryptlen = (unsigned int)blocksize - aadlen - authenticationtag;
