@@ -955,10 +955,10 @@ ssh2_packet_add_jump_point5:
                     (uint32_t)(datalen - data_head);
                 ssh2_deb((session, LIBSSH2_TRACE_CONN,
                           "shrinking window size by %ld bytes to %u, "
-                          "read_avail %ld",
+                          "read_avail %lu",
                           (long)(datalen - data_head),
                           channelp->remote.window_size,
-                          (long)channelp->read_avail));
+                          channelp->read_avail));
 
                 session->packAdd_channelp = channelp;
 
@@ -1024,9 +1024,9 @@ ssh2_packet_add_jump_point1:
             channelp->read_avail += datalen - data_head;
 
             ssh2_deb((session, LIBSSH2_TRACE_CONN,
-                      "increasing read_avail by %ld bytes to %ld/%u",
+                      "increasing read_avail by %ld bytes to %lu/%u",
                       (long)(datalen - data_head),
-                      (long)channelp->read_avail,
+                      channelp->read_avail,
                       channelp->remote.window_size));
 
             break;
