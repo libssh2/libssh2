@@ -554,7 +554,7 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
         "Publickey",
         "Socket",
     };
-    static ssh2_time_t firstsec;
+    static ssh2_time_t firstnow;
 
     char buffer[1536];
     int len, msglen, buflen = sizeof(buffer);
@@ -576,9 +576,9 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
     }
 
     now = ssh2_now();
-    if(!firstsec)
-        firstsec = now;
-    now -= firstsec;
+    if(!firstnow)
+        firstnow = now;
+    now -= firstnow;
 
     /* '[libssh2] 99999999999999999999.99999999999999999999 Failure Event: ' */
     len = ssh2_snprintf(buffer, buflen, "[libssh2]"
