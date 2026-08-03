@@ -24,6 +24,7 @@ DOCKER_TESTS = \
   test_auth_pubkey_ok_ed25519 \
   test_auth_pubkey_ok_ed25519_encrypted \
   test_auth_pubkey_ok_ed25519_mem \
+  test_auth_pubkey_ok_ed25519_signed \
   test_auth_pubkey_ok_rsa \
   test_auth_pubkey_ok_rsa_aes256gcm \
   test_auth_pubkey_ok_rsa_encrypted \
@@ -78,6 +79,9 @@ EXTRA_DIST = \
   keys/id_ed25519.pub \
   keys/id_ed25519_encrypted \
   keys/id_ed25519_encrypted.pub \
+  keys/id_ed25519_signed \
+  keys/id_ed25519_signed-cert.pub \
+  keys/id_ed25519_signed.pub \
   keys/id_rsa \
   keys/id_rsa.pub \
   keys/id_rsa_aes256gcm \
@@ -96,6 +100,8 @@ EXTRA_DIST = \
   openssh_server/authorized_keys \
   openssh_server/ca_ecdsa \
   openssh_server/ca_ecdsa.pub \
+  openssh_server/ca_ed25519 \
+  openssh_server/ca_ed25519.pub \
   openssh_server/ca_rsa \
   openssh_server/ca_rsa.pub \
   openssh_server/ca_user_keys.pub \
