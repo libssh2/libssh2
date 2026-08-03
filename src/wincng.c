@@ -1307,7 +1307,6 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
                                BCRYPT_PAD_PKCS1);
 }
 #endif
-
 #if LIBSSH2_RSA_SHA2
 int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
@@ -1384,7 +1383,6 @@ int ssh2_rsa_sha1_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                              hash, hash_len, signature, signature_len);
 }
 #endif
-
 #if LIBSSH2_RSA_SHA2
 int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
