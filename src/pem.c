@@ -583,7 +583,7 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
             iv_part = SSH2_CALLOC(session, ivlen);
             if(!iv_part) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                               "Could not alloc iv part");
+                               "Could not alloc IV part");
                 goto out;
             }
         }
@@ -610,7 +610,7 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
             if(!strcmp(method->name, "chacha20-poly1305@openssh.com") &&
                !ssh2_check_length(&decoded, 16)) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                               "GCM auth tag missing");
+                               "chacha20-poly1305 auth tag missing");
                 method->dtor(session, &abstract);
                 goto out;
             }
