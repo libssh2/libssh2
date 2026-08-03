@@ -466,19 +466,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
 
     return ret == 0 ? 0 : -1;
 }
-#endif
 
-#if LIBSSH2_RSA_SHA1
-int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
-                         const unsigned char *sig, size_t sig_len,
-                         const unsigned char *m, size_t m_len)
-{
-    return ssh2_rsa_sha2_verify(rsa, SSH2_SHA1_DIG_LEN,
-                                sig, sig_len, m, m_len);
-}
-#endif
-
-#if LIBSSH2_RSA_SHA2
 int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
@@ -524,6 +512,14 @@ int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
 #endif
 
 #if LIBSSH2_RSA_SHA1
+int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
+                         const unsigned char *sig, size_t sig_len,
+                         const unsigned char *m, size_t m_len)
+{
+    return ssh2_rsa_sha2_verify(rsa, SSH2_SHA1_DIG_LEN,
+                                sig, sig_len, m, m_len);
+}
+
 int ssh2_rsa_sha1_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
