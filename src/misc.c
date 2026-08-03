@@ -580,9 +580,12 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
         firstsec = now;
     now -= firstsec;
 
-    /* '[libssh2] 9999999999.9999999999 Failure Event: ' */
-    len = ssh2_snprintf(buffer, buflen, "[libssh2] %d.%06d %s: ",
-                        (int)now / 1000000, (int)now % 1000000, contexttext);
+    /* '[libssh2] 99999999999999999999.99999999999999999999 Failure Event: ' */
+    len = ssh2_snprintf(buffer, buflen, "[libssh2]"
+                        " %" SSH2_TIME_T_FORMAT ".%06" SSH2_TIME_T_FORMAT
+                        " %s: ",
+                        ssh2_timediff_to_sec(now),
+                        ssh2_timediff_to_usec(now), contexttext);
     if(len < 0 || len >= buflen) {
         msglen = len < 0 ? 0 : (buflen - 1);
         buffer[msglen] = '\0';
