@@ -14,11 +14,11 @@
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
+#include <stdio.h>
+
 #ifdef _WIN32
 #define write(f, b, c)  _write(f, b, (unsigned int)(c))
-#endif
-
-#ifndef _WIN32
+#else
 #include <sys/socket.h>
 #include <unistd.h>
 #endif
@@ -35,8 +35,6 @@
 #include <sys/time.h>  /* for timeval, gettimeofday() */
 #endif
 
-#include <stdio.h>
-
 static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
 static const char *privkey = "/home/username/.ssh/id_rsa";
 static const char *username = "username";
@@ -48,15 +46,13 @@ static int gettimeofday(struct timeval *tp, void *tzp)
 {
     (void)tzp;
     if(tp) {
-/* Offset between 1601-01-01 and 1970-01-01 in 100 nanosec units */
-#define WIN32_FT_OFFSET 116444736000000000
         union {
             libssh2_uint64_t ns100; /* time since 1 Jan 1601 in 100ns units */
             FILETIME ft;
         } now;
         GetSystemTimeAsFileTime(&now.ft);
         tp->tv_usec = (long)((now.ns100 / 10) % 1000000);
-        tp->tv_sec = (long)((now.ns100 - WIN32_FT_OFFSET) / 10000000);
+        tp->tv_sec = (long)((now.ns100 - 116444736000000000) / 10000000);
     }
     return 0;
 }

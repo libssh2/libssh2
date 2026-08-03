@@ -16,6 +16,9 @@
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #ifndef _WIN32
 #include <sys/socket.h>
 #include <unistd.h>
@@ -32,9 +35,6 @@
 #if !defined(_WIN32) || defined(__MINGW32__)
 #include <sys/time.h>  /* for timeval */
 #endif
-
-#include <stdio.h>
-#include <stdlib.h>
 
 static const char *hostname = "127.0.0.1";
 static const char *commandline = "uptime";

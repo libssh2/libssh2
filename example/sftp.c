@@ -14,12 +14,13 @@
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
+#include <stdio.h>
+#include <string.h>
+
 #ifdef _WIN32
 #define strdup          _strdup
 #define write(f, b, c)  _write(f, b, (unsigned int)(c))
-#endif
-
-#ifndef _WIN32
+#else
 #include <sys/socket.h>
 #include <unistd.h>
 #endif
@@ -29,9 +30,6 @@
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
-
-#include <stdio.h>
-#include <string.h>
 
 static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
 static const char *privkey = "/home/username/.ssh/id_rsa";

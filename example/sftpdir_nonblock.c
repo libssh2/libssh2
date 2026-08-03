@@ -14,6 +14,8 @@
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
+#include <stdio.h>
+
 #ifndef _WIN32
 #include <sys/socket.h>
 #include <unistd.h>
@@ -24,8 +26,6 @@
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
-
-#include <stdio.h>
 
 #ifdef _MSC_VER
 #define LIBSSH2_FILESIZE_MASK "I64u"

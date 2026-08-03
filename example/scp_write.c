@@ -8,17 +8,6 @@
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
-#ifndef _WIN32
-#include <sys/socket.h>
-#include <unistd.h>
-#endif
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-
 #include <stdio.h>
 
 #ifdef _WIN32
@@ -27,6 +16,15 @@
 #undef fstat
 #define fstat _fstat
 #define fileno _fileno
+#else
+#include <sys/socket.h>
+#include <unistd.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
 #endif
 
 static const char *pubkey = "/home/username/.ssh/id_rsa.pub";

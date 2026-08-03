@@ -6,13 +6,15 @@
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #ifdef _WIN32
 #include <ws2tcpip.h>  /* for socklen_t */
 #define recv(s, b, l, f)  recv(s, b, (int)(l), f)
 #define send(s, b, l, f)  send(s, b, (int)(l), f)
-#endif
-
-#ifndef _WIN32
+#else
 #include <sys/socket.h>
 #include <unistd.h>
 #endif
@@ -28,10 +30,6 @@
 #if !defined(_WIN32) || defined(__MINGW32__)
 #include <sys/time.h>  /* for timeval */
 #endif
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #ifndef INADDR_NONE
 #define INADDR_NONE ((in_addr_t)~0)
