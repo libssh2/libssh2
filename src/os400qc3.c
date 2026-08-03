@@ -294,10 +294,10 @@ static struct {
                      struct asn1Element *key, const char *method);
     const char *method;
 } pka[] = {
-#if LIBSSH2_RSA != 0
+#if LIBSSH2_RSA
     { OID_rsaEncryption, sshrsapubkey, "ssh-rsa" },
 #endif
-#if LIBSSH2_DSA != 0
+#if LIBSSH2_DSA
     { OID_dsaEncryption, sshdsapubkey, "ssh-dss" },
 #endif
     { NULL, NULL, NULL }
@@ -2290,6 +2290,7 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
                                       passphrase);
 }
 
+#if LIBSSH2_RSA
 static int os400_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa,
                                         LIBSSH2_SESSION *session,
                                         const char *filename,
@@ -2473,6 +2474,7 @@ int ssh2_os400qc3_rsa_signv(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
     *signature_len = siglen;
     return 0;
 }
+#endif /* LIBSSH2_RSA */
 
 #endif /* LIBSSH2_OS400QC3 */
 
