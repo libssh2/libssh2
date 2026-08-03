@@ -199,27 +199,118 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                       int encrypt, unsigned char *block, size_t blocksize,
                       int firstlast)
 {
+    struct ssh2_mbedtls_cipher_ctx *cctx;
     int ret;
     unsigned char *output;
-    size_t osize;
+    size_t osize, olen, finish_olen;
 
     (void)encrypt;
     (void)algo;
-    (void)firstlast;
 
-    osize = blocksize + mbedtls_cipher_get_block_size(ctx);
+    cctx = *ctx;
+    if(!cctx)
+        return -1;
+
+#if LIBSSH2_AES_GCM
+    /* Check if this is a GCM algorithm based on stored algo type */
+    if(cctx->algo == MBEDTLS_CIPHER_AES_128_GCM ||
+       cctx->algo == MBEDTLS_CIPHER_AES_256_GCM) {
+        const int authlen = 16;  /* GCM authentication tag length */
+        const int aadlen = IS_FIRST(firstlast) ? 4 : 0;
+        const int authenticationtag = IS_LAST(firstlast) ? authlen : 0;
+        const int cryptlen = (int)blocksize - aadlen - authenticationtag;
+        unsigned char tag[16];
+        unsigned char *buf = NULL;
+
+        /* Allocate temporary buffer for output */
+        if(cryptlen > 0) {
+            buf = mbedtls_calloc(cryptlen, 1);
+            if(!buf)
+                return -1;
+        }
+
+        /* First block: start GCM operation */
+        if(IS_FIRST(firstlast)) {
+            ret = mbedtls_gcm_starts(&cctx->ctx.gcm.gcm_ctx,
+                                     cctx->encrypt ? MBEDTLS_GCM_ENCRYPT :
+                                                     MBEDTLS_GCM_DECRYPT,
+                                     cctx->ctx.gcm.iv, 12);
+            if(ret) {
+                mbed_zero_free(output, osize);
+                return -1;
+            }
+
+            /* Process AAD (Additional Authenticated Data) */
+            if(aadlen) {
+                ret = mbedtls_gcm_update_ad(&cctx->ctx.gcm.gcm_ctx,
+                                            block, aadlen);
+                if(ret) {
+                    mbed_zero_free(output, cryptlen);
+                    return -1;
+                }
+            }
+        }
+
+        /* Process payload */
+        if(cryptlen > 0) {
+            olen = 0;
+            ret = mbedtls_gcm_update(&cctx->ctx.gcm.gcm_ctx,
+                                     block + aadlen, cryptlen,
+                                     buf, cryptlen, &olen);
+            if(ret) {
+                mbed_zero_free(buf, cryptlen);
+                return -1;
+            }
+            memcpy(block + aadlen, buf, olen);
+            mbed_zero_free(output, cryptlen);
+        }
+
+        /* Last block: finalize and handle authentication tag */
+        if(IS_LAST(firstlast)) {
+            unsigned char finish_buf[16];
+            int i;
+
+            olen_finish = 0;
+
+            ret = mbedtls_gcm_finish(&cctx->ctx.gcm.gcm_ctx,
+                                    finish_buf, sizeof(finish_buf),
+                                    &olen_finish, tag, authlen);
+            if(ret)
+                return -1;
+
+            if(cctx->encrypt)
+                memcpy(block + blocksize - authlen, tag, authlen);
+            else if(ssh2_timingsafe_bcmp(tag, block + blocksize - authlen,
+                                         authlen))
+                return MBEDTLS_ERR_GCM_AUTH_FAILED;
+
+            /* Increment IV for next packet */
+            for(i = 11; i >= 4; i--)
+                if(++cctx->ctx.gcm.iv[i])
+                    break;
+        }
+
+        return 0;
+    }
+#else
+    (void)firstlast;
+#endif
+
+    /* Non-GCM algorithms: use standard cipher API */
+    osize = blocksize +
+            mbedtls_cipher_get_block_size(&cctx->ctx.cipher_ctx);
 
     output = mbedtls_calloc(osize, sizeof(char));
     if(output) {
-        size_t olen = 0, finish_olen = 0;
-
-        ret = mbedtls_cipher_reset(ctx);
+        ret = mbedtls_cipher_reset(&cctx->ctx.cipher_ctx);
 
         if(!ret)
-            ret = mbedtls_cipher_update(ctx, block, blocksize, output, &olen);
+            ret = mbedtls_cipher_update(&cctx->ctx.cipher_ctx, block,
+                                        blocksize, output, &olen);
 
         if(!ret)
-            ret = mbedtls_cipher_finish(ctx, output + olen, &finish_olen);
+            ret = mbedtls_cipher_finish(&cctx->ctx.cipher_ctx,
+                                        output + olen, &finish_olen);
 
         if(!ret) {
             olen += finish_olen;
