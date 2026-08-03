@@ -385,7 +385,8 @@ static int crypt_init_chacha20_poly(LIBSSH2_SESSION *session,
                                     const struct crypt_method *method,
                                     unsigned char *iv, int *free_iv,
                                     unsigned char *secret, int *free_secret,
-                                    int encrypt, int with_size, void **abstract)
+                                    int encrypt, int with_size,
+                                    void **abstract)
 {
     struct crypt_ctx *ctx = SSH2_ALLOC(session, sizeof(struct crypt_ctx));
 
