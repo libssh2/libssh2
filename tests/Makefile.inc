@@ -22,15 +22,21 @@ DOCKER_TESTS = \
   test_auth_pubkey_ok_ecdsa_encrypted \
   test_auth_pubkey_ok_ecdsa_pem \
   test_auth_pubkey_ok_ecdsa_pem_encrypted \
+  test_auth_pubkey_ok_ecdsa_pkcs8 \
+  test_auth_pubkey_ok_ecdsa_pkcs8_encrypted \
   test_auth_pubkey_ok_ecdsa_signed \
   test_auth_pubkey_ok_ed25519 \
   test_auth_pubkey_ok_ed25519_encrypted \
   test_auth_pubkey_ok_ed25519_mem \
+  test_auth_pubkey_ok_ed25519_pkcs8 \
+  test_auth_pubkey_ok_ed25519_pkcs8_encrypted \
   test_auth_pubkey_ok_ed25519_signed \
   test_auth_pubkey_ok_rsa \
   test_auth_pubkey_ok_rsa_aes256gcm \
   test_auth_pubkey_ok_rsa_encrypted \
   test_auth_pubkey_ok_rsa_openssh \
+  test_auth_pubkey_ok_rsa_pkcs8 \
+  test_auth_pubkey_ok_rsa_pkcs8_encrypted \
   test_auth_pubkey_ok_rsa_signed \
   test_auth_pubkey_ok_rsa_sha2_512_signed \
   test_hostkey_hash \
@@ -84,6 +90,10 @@ EXTRA_DIST = \
   keys/id_ecdsa_pem.pub \
   keys/id_ecdsa_pem_encrypted \
   keys/id_ecdsa_pem_encrypted.pub \
+  keys/id_ecdsa_pkcs8 \
+  keys/id_ecdsa_pkcs8.pub \
+  keys/id_ecdsa_pkcs8_encrypted \
+  keys/id_ecdsa_pkcs8_encrypted.pub \
   keys/id_ecdsa_signed \
   keys/id_ecdsa_signed-cert.pub \
   keys/id_ecdsa_signed.pub \
@@ -91,6 +101,10 @@ EXTRA_DIST = \
   keys/id_ed25519.pub \
   keys/id_ed25519_encrypted \
   keys/id_ed25519_encrypted.pub \
+  keys/id_ed25519_pkcs8 \
+  keys/id_ed25519_pkcs8.pub \
+  keys/id_ed25519_pkcs8_encrypted \
+  keys/id_ed25519_pkcs8_encrypted.pub \
   keys/id_ed25519_signed \
   keys/id_ed25519_signed-cert.pub \
   keys/id_ed25519_signed.pub \
@@ -102,6 +116,10 @@ EXTRA_DIST = \
   keys/id_rsa_encrypted.pub \
   keys/id_rsa_openssh \
   keys/id_rsa_openssh.pub \
+  keys/id_rsa_pkcs8 \
+  keys/id_rsa_pkcs8.pub \
+  keys/id_rsa_pkcs8_encrypted \
+  keys/id_rsa_pkcs8_encrypted.pub \
   keys/id_rsa_signed \
   keys/id_rsa_signed-cert.pub \
   keys/id_rsa_signed.pub \
