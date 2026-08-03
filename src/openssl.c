@@ -219,7 +219,6 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
 
     if(ndata && nlen > 0) {
         nbuf = OPENSSL_malloc(nlen);
-
         if(nbuf) {
             memcpy(nbuf, ndata, nlen);
             ssh2_swap_bytes(nbuf, nlen);

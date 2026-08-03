@@ -51,6 +51,7 @@ static int gettimeofday(struct timeval *tp, void *tzp)
         } now;
         GetSystemTimeAsFileTime(&now.ft);
         tp->tv_usec = (long)((now.ns100 / 10) % 1000000);
+        /* subtract offset between 1601-01-01 and 1970-01-01 in 100ns units */
         tp->tv_sec = (long)((now.ns100 - 116444736000000000) / 10000000);
     }
     return 0;

@@ -1126,7 +1126,6 @@ ssh2_packet_add_jump_point1:
                         channelp = ssh2_channel_locate(session, channel);
 
                     if(channelp) {
-
                         /* signal name (without SIG prefix) */
                         unsigned char *sig_name = NULL;
                         size_t sig_len = 0;
