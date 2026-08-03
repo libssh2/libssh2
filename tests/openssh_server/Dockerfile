@@ -30,6 +30,9 @@ RUN install -m 0600 /tmp/etc/ssh/ssh_host_ed25519_key /etc/ssh/ssh_host_ed25519_
 COPY ca_ecdsa /tmp/etc/ssh/ca_ecdsa
 RUN install -m 0600 /tmp/etc/ssh/ca_ecdsa /etc/ssh/ca_ecdsa
 
+COPY ca_ed25519 /tmp/etc/ssh/ca_ed25519
+RUN install -m 0600 /tmp/etc/ssh/ca_ed25519 /etc/ssh/ca_ed25519
+
 COPY ca_rsa /tmp/etc/ssh/ca_rsa
 RUN install -m 0600 /tmp/etc/ssh/ca_rsa /etc/ssh/ca_rsa
 

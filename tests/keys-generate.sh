@@ -20,6 +20,7 @@ rm openssh_server/ca_* || true
 
 ssh-keygen -t rsa     -b 3072 -N ''          -m RFC4716 -C 'ca_rsa'                  -f 'openssh_server/ca_rsa'
 ssh-keygen -t ecdsa   -b  521 -N ''          -m RFC4716 -C 'ca_ecdsa'                -f 'openssh_server/ca_ecdsa'
+ssh-keygen -t ed25519         -N ''          -m RFC4716 -C 'ca_ed25519'              -f 'openssh_server/ca_ed25519'
 
 # tests
 
@@ -63,6 +64,7 @@ cat \
 cat \
   'openssh_server/ca_rsa.pub' \
   'openssh_server/ca_ecdsa.pub' \
+  'openssh_server/ca_ed25519.pub' \
   > 'openssh_server/ca_user_keys.pub'
 
 # tests/test_*.c
