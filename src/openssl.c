@@ -3289,7 +3289,7 @@ int ssh2_ed25519_verify(ssh2_ed25519_ctx *ed_ctx, LIBSSH2_SESSION *session,
     if(ret != 1)
         ssh2_deb((session, LIBSSH2_TRACE_KEX,
                   "ssh2_ed25519_verify(): EVP_DigestVerify()->%d (ossl: %lu)",
-                  ret, ret ? ERR_peek_last_error() : 0));
+                  ret, ret ? (unsigned long)ERR_peek_last_error() : 0));
 
 clean_exit:
 
