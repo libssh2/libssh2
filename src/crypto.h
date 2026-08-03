@@ -157,7 +157,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
 #ifndef ssh2_rsa_free
 void ssh2_rsa_free(ssh2_rsa_ctx *rsa);
 #endif
-#endif
+#endif /* LIBSSH2_RSA */
 
 #if LIBSSH2_DSA
 int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
@@ -180,7 +180,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
 #ifndef ssh2_dsa_free
 void ssh2_dsa_free(ssh2_dsa_ctx *dsa);
 #endif
-#endif
+#endif /* LIBSSH2_DSA */
 
 #if LIBSSH2_ECDSA
 /* Maximum uncompressed EC point length for NIST P-521:
