@@ -872,7 +872,7 @@ This release includes the following enhancements and bugfixes:
 - transport, session: fix payload memory leak and potential double-free (823a2286 #2054 #623 #2026 #1956 #1804 follow: 92d686fe)
 - userauth: enable `ssh-rsa-cert-v01@openssh.com` for all backends in `userauth_supported_key_sign_algs()`, fix tests (88dd2f0f #2483 #2252 #2249 #1314 follow: 3a6ab70d)
 - userauth: drop unused session arg from `userauth_supported_key_sign_algs()` (df93b283)
-- userauth: scope statics in `ssh2_userauth_plain_method()` (30768b9a #2482 #2384)
+- userauth: scope static variables in `ssh2_userauth_plain_method()` (30768b9a #2482 #2384)
 - userauth: rename method variables to match rest of code (73db1c82 #2370)
 - userauth: drop redundant casts (467474b8 #2366)
 - userauth: merge file/blob sibling functions into `userauth_publickey()` (fe9442be #2359 #2354)
