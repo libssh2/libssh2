@@ -30,16 +30,18 @@ pw='libssh2'
 id='identity'
 pr="${1:-libssh2}"
 
-ssh-keygen -t dsa             -N ''          -m PEM     -C 'id_dsa'                    -f 'keys/id_dsa'               || touch 'keys/id_dsa.pub'
-ssh-keygen -t dsa             -N ''          -m PEM     -C 'id_dsa_wrong'              -f 'keys/id_dsa_wrong'         || true # not to add to 'authorized_keys'
+ssh-keygen -t dsa             -N ''          -m PEM     -C 'id_dsa'                    -f 'keys/id_dsa'                 || touch 'keys/id_dsa.pub'
+ssh-keygen -t dsa             -N ''          -m PEM     -C 'id_dsa_wrong'              -f 'keys/id_dsa_wrong'           || true # not to add to 'authorized_keys'
 ssh-keygen -t rsa     -b 2048 -N ''          -m PEM     -C 'id_rsa'                    -f 'keys/id_rsa'
-ssh-keygen -t rsa     -b 2048 -N "${pw}"     -m PEM     -C 'id_rsa_encrypted'          -f 'keys/id_rsa_encrypted'
-ssh-keygen -t rsa     -b 2048 -N ''          -m RFC4716 -C ''                          -f 'keys/id_rsa_openssh'       # empty comment
-ssh-keygen -t rsa     -b 2048 -N "${pw}"     -m RFC4716 -C 'id_rsa_aes256gcm'          -f 'keys/id_rsa_aes256gcm'     -Z aes256-gcm@openssh.com
-ssh-keygen -t ecdsa   -b  384 -N ''          -m RFC4716 -C ''                          -f 'keys/id_ecdsa'             # empty comment
-ssh-keygen -t ecdsa   -b  256 -N "${pw}"     -m RFC4716 -C 'id_ecdsa_encrypted'        -f 'keys/id_ecdsa_encrypted'   -Z chacha20-poly1305@openssh.com
+ssh-keygen -t rsa     -b 2048 -N "${pw}"     -m PEM     -C 'id_rsa_encrypted'          -f 'keys/id_rsa_encrypted'       # aes128-cbc
+ssh-keygen -t rsa     -b 2048 -N ''          -m RFC4716 -C ''                          -f 'keys/id_rsa_openssh'         # empty comment
+ssh-keygen -t rsa     -b 2048 -N "${pw}"     -m RFC4716 -C 'id_rsa_aes256gcm'          -f 'keys/id_rsa_aes256gcm'       -Z aes256-gcm@openssh.com
+ssh-keygen -t ecdsa   -b  521 -N ''          -m PEM     -C 'id_ecdsa_pem'              -f 'keys/id_ecdsa_pem'
+ssh-keygen -t ecdsa   -b  256 -N "${pw}"     -m PEM     -C 'id_ecdsa_pem_encrypted'    -f 'keys/id_ecdsa_pem_encrypted' # aes128-cbc
+ssh-keygen -t ecdsa   -b  384 -N ''          -m RFC4716 -C ''                          -f 'keys/id_ecdsa'               # empty comment
+ssh-keygen -t ecdsa   -b  256 -N "${pw}"     -m RFC4716 -C 'id_ecdsa_encrypted'        -f 'keys/id_ecdsa_encrypted'     -Z chacha20-poly1305@openssh.com
 ssh-keygen -t ed25519         -N ''          -m RFC4716 -C 'id_ed25519'                -f 'keys/id_ed25519'
-ssh-keygen -t ed25519         -N "${pw}"     -m RFC4716 -C 'id_ed25519_encrypted'      -f 'keys/id_ed25519_encrypted' -Z aes256-ctr
+ssh-keygen -t ed25519         -N "${pw}"     -m RFC4716 -C 'id_ed25519_encrypted'      -f 'keys/id_ed25519_encrypted'   -Z aes256-ctr
 
 ssh-keygen -t rsa     -b 4096 -N ''          -m PEM     -C 'id_rsa_signed'             -f 'keys/id_rsa_signed'
 ssh-keygen -t ssh-rsa         -I "${id}" -n "${pr}"     -s 'keys/ca_rsa'                  'keys/id_rsa_signed.pub'
@@ -58,6 +60,8 @@ cat \
   'keys/id_rsa_aes256gcm.pub' \
   'keys/id_ecdsa.pub' \
   'keys/id_ecdsa_encrypted.pub' \
+  'keys/id_ecdsa_pem.pub' \
+  'keys/id_ecdsa_pem_encrypted.pub' \
   'keys/id_ed25519.pub' \
   'keys/id_ed25519_encrypted.pub' \
   > 'openssh_server/authorized_keys'
