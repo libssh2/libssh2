@@ -1375,6 +1375,7 @@ static int wcng_rsa_sha_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
+#if LIBSSH2_RSA_SHA1
 int ssh2_rsa_sha1_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
@@ -1382,7 +1383,9 @@ int ssh2_rsa_sha1_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
     return wcng_rsa_sha_sign(rsa, session,
                              hash, hash_len, signature, signature_len);
 }
+#endif
 
+#if LIBSSH2_RSA_SHA2
 int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
@@ -1390,6 +1393,7 @@ int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
     return wcng_rsa_sha_sign(rsa, session,
                              hash, hash_len, signature, signature_len);
 }
+#endif
 
 void ssh2_rsa_free(ssh2_rsa_ctx *rsa)
 {
