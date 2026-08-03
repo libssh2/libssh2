@@ -58,10 +58,10 @@ cat \
   'keys/id_rsa_encrypted.pub' \
   'keys/id_rsa_openssh.pub' \
   'keys/id_rsa_aes256gcm.pub' \
-  'keys/id_ecdsa_pem' \
-  'keys/id_ecdsa_pem_encrypted' \
   'keys/id_ecdsa.pub' \
   'keys/id_ecdsa_encrypted.pub' \
+  'keys/id_ecdsa_pem.pub' \
+  'keys/id_ecdsa_pem_encrypted.pub' \
   'keys/id_ed25519.pub' \
   'keys/id_ed25519_encrypted.pub' \
   > 'openssh_server/authorized_keys'
