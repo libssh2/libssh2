@@ -31,6 +31,8 @@ DOCKER_TESTS = \
   test_auth_pubkey_ok_rsa_aes256gcm \
   test_auth_pubkey_ok_rsa_encrypted \
   test_auth_pubkey_ok_rsa_openssh \
+  test_auth_pubkey_ok_rsa_pkcs8 \
+  test_auth_pubkey_ok_rsa_pkcs8_encrypted \
   test_auth_pubkey_ok_rsa_signed \
   test_auth_pubkey_ok_rsa_sha2_512_signed \
   test_hostkey_hash \
