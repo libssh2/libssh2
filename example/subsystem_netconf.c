@@ -6,6 +6,9 @@
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
+#include <stdio.h>
+#include <string.h>
+
 #ifndef _WIN32
 #include <sys/socket.h>
 #include <unistd.h>
@@ -16,9 +19,6 @@
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
-
-#include <stdio.h>
-#include <string.h>
 
 #ifndef INADDR_NONE
 #define INADDR_NONE ((in_addr_t)~0)

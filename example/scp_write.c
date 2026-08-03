@@ -8,6 +8,8 @@
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
+#include <stdio.h>
+
 #ifdef _WIN32
 #undef stat
 #define stat _stat
@@ -24,8 +26,6 @@
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
-
-#include <stdio.h>
 
 static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
 static const char *privkey = "/home/username/.ssh/id_rsa";

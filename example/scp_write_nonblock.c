@@ -8,6 +8,9 @@
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
+#include <stdio.h>
+#include <time.h>  /* for time() */
+
 #ifdef _WIN32
 #undef stat
 #define stat _stat
@@ -30,9 +33,6 @@
 #if !defined(_WIN32) || defined(__MINGW32__)
 #include <sys/time.h>  /* for timeval */
 #endif
-
-#include <stdio.h>
-#include <time.h>  /* for time() */
 
 static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
 static const char *privkey = "/home/username/.ssh/id_rsa";

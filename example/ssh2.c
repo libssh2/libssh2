@@ -18,6 +18,10 @@
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #ifdef _WIN32
 #define strdup _strdup
 #else
@@ -30,10 +34,6 @@
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 static const char *pubkey = ".ssh/id_rsa.pub";
 static const char *privkey = ".ssh/id_rsa";

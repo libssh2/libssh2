@@ -14,6 +14,9 @@
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
+#include <stdio.h>
+#include <time.h>  /* for time() */
+
 #ifndef _WIN32
 #include <sys/socket.h>
 #include <unistd.h>
@@ -30,9 +33,6 @@
 #if !defined(_WIN32) || defined(__MINGW32__)
 #include <sys/time.h>  /* for timeval */
 #endif
-
-#include <stdio.h>
-#include <time.h>  /* for time() */
 
 static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
 static const char *privkey = "/home/username/.ssh/id_rsa";

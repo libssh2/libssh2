@@ -13,6 +13,8 @@
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
+#include <stdio.h>
+
 #ifdef _WIN32
 #define write(f, b, c)  _write(f, b, (unsigned int)(c))
 #else
@@ -31,8 +33,6 @@
 #ifndef _MSC_VER
 #include <sys/time.h>  /* for timeval, gettimeofday() */
 #endif
-
-#include <stdio.h>
 
 static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
 static const char *privkey = "/home/username/.ssh/id_rsa";
