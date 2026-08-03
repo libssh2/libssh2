@@ -33,7 +33,7 @@
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
-#if !defined(_WIN32) || defined(__MINGW32__)
+#ifndef _MSC_VER
 #include <sys/time.h>  /* for timeval, gettimeofday() */
 #endif
 
@@ -45,7 +45,7 @@ static const char *username = "username";
 static const char *password = "password";
 static const char *sftppath = "/tmp/TEST";
 
-#if !defined(_WIN32) || defined(__MINGW32__)
+#ifndef _MSC_VER
 /* diff in ms */
 static long tvdiff(struct timeval newer, struct timeval older)
 {
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
-#if !defined(_WIN32) || defined(__MINGW32__)
+#ifndef _MSC_VER
     struct timeval start;
     struct timeval end;
     long time_ms;
@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
     /* Since we have set non-blocking, tell libssh2 we are non-blocking */
     libssh2_session_set_blocking(session, 0);
 
-#if !defined(_WIN32) || defined(__MINGW32__)
+#ifndef _MSC_VER
     gettimeofday(&start, NULL);
 #endif
 
@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
             break;
     } while(1);
 
-#if !defined(_WIN32) || defined(__MINGW32__)
+#ifndef _MSC_VER
     gettimeofday(&end, NULL);
     time_ms = tvdiff(end, start);
     fprintf(stderr, "Got %ld bytes in %ld ms = %.1f bytes/sec spin: %d\n",
