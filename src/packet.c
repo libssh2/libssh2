@@ -1136,9 +1136,10 @@ ssh2_packet_add_jump_point1:
                             rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                           "signal name out of bounds");
                         else if(sig_len > 0) {
+                            if(channelp->exit_signal)
+                                SSH2_FREE(session, channelp->exit_signal);
                             channelp->exit_signal =
                                 SSH2_ALLOC(session, sig_len + 1);
-
                             if(channelp->exit_signal) {
                                 memcpy(channelp->exit_signal,
                                        sig_name, sig_len);
@@ -1155,8 +1156,8 @@ ssh2_packet_add_jump_point1:
                                 rc = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                               "exit signal alloc error");
                         }
-                        else
-                            channelp->exit_signal = NULL;
+                        else if(channelp->exit_signal)
+                            SSH2_SAFEFREE(session, channelp->exit_signal);
                     }
                 }
 
