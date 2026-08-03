@@ -142,7 +142,7 @@ int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
         }
 
         /* Store the context pointer */
-        *h = cctx;
+        *ctx = cctx;
         return 0;
     }
 #endif
