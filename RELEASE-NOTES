@@ -4,6 +4,9 @@ Deprecation notices:
 
 - This release disables these options by default:
 
+  - SHA1-based hostkeys: `ssh-rsa`, `ssh-rsa-cert-v01@openssh.com`
+    You can enable them with `-DLIBSSH2_RSA_SHA1_ENABLE`.
+
   - SHA1-based key-exchange methods:
     - `diffie-hellman-group1-sha1`
     - `diffie-hellman-group14-sha1`
