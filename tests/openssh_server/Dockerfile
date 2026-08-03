@@ -27,15 +27,6 @@ COPY ssh_host_ed25519_key /tmp/etc/ssh/ssh_host_ed25519_key
 RUN install -m 0600 /tmp/etc/ssh/ssh_host_ed25519_key /etc/ssh/ssh_host_ed25519_key
 
 # Trusted CA keys
-COPY ca_ecdsa /tmp/etc/ssh/ca_ecdsa
-RUN install -m 0600 /tmp/etc/ssh/ca_ecdsa /etc/ssh/ca_ecdsa
-
-COPY ca_ed25519 /tmp/etc/ssh/ca_ed25519
-RUN install -m 0600 /tmp/etc/ssh/ca_ed25519 /etc/ssh/ca_ed25519
-
-COPY ca_rsa /tmp/etc/ssh/ca_rsa
-RUN install -m 0600 /tmp/etc/ssh/ca_rsa /etc/ssh/ca_rsa
-
 COPY ca_user_keys.pub /tmp/etc/ssh/ca_user_keys.pub
 RUN install -m 0600 /tmp/etc/ssh/ca_user_keys.pub /etc/ssh/ca_user_keys.pub
 
