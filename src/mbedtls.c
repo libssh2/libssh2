@@ -218,9 +218,15 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
         const int authlen = 16;  /* GCM authentication tag length */
         const int aadlen = IS_FIRST(firstlast) ? 4 : 0;
         const int authenticationtag = IS_LAST(firstlast) ? authlen : 0;
-        const int cryptlen = (int)blocksize - aadlen - authenticationtag;
+        unsigned int cryptlen; /* length of encrypt */
         unsigned char tag[16];
         unsigned char *buf = NULL;
+
+        if(blocksize > sizeof(buf) ||
+           blocksize < (size_t)(aadlen + authenticationtag))
+            return 1;
+
+        cryptlen = (unsigned int)blocksize - aadlen - authenticationtag;
 
         /* Allocate temporary buffer for output */
         if(cryptlen > 0) {
