@@ -443,7 +443,7 @@ static int crypt_encrypt_chacha20_poly_buffer(LIBSSH2_SESSION *session,
             ret = chachapoly_crypt(&ctx->chachapoly_ctx, seqno, buf, buf,
                                    buf_len, 4, ctx->encrypt);
 
-            /* the api expects the size field to already be removed
+            /* the API expects the size field to already be removed
                from the decrypted packet so we help it out */
             if(ret == 0)
                 memmove(buf, buf + 4, buf_len - 4);

@@ -1046,7 +1046,7 @@ struct crypt_method {
 
     int blocksize;
 
-    /* iv and key sizes (-1 for variable length) */
+    /* IV and key sizes (-1 for variable length) */
     int iv_len;
     int secret_len;
 
