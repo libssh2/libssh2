@@ -297,6 +297,7 @@ static int mbed_bn_random(ssh2_bn *bn, int bits, int top, int bottom)
  * mbedTLS backend: RSA functions
  */
 
+#if LIBSSH2_RSA
 int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
                  const unsigned char *edata, size_t elen,
                  const unsigned char *ndata, size_t nlen,
@@ -416,6 +417,7 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
     return 0;
 }
 
+#if LIBSSH2_RSA_SHA2
 int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
@@ -465,14 +467,6 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
     return ret == 0 ? 0 : -1;
 }
 
-int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
-                         const unsigned char *sig, size_t sig_len,
-                         const unsigned char *m, size_t m_len)
-{
-    return ssh2_rsa_sha2_verify(rsa, SSH2_SHA1_DIG_LEN,
-                                sig, sig_len, m, m_len);
-}
-
 int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
@@ -515,6 +509,16 @@ int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
 
     return ret == 0 ? 0 : -1;
 }
+#endif
+
+#if LIBSSH2_RSA_SHA1
+int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
+                         const unsigned char *sig, size_t sig_len,
+                         const unsigned char *m, size_t m_len)
+{
+    return ssh2_rsa_sha2_verify(rsa, SSH2_SHA1_DIG_LEN,
+                                sig, sig_len, m, m_len);
+}
 
 int ssh2_rsa_sha1_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
@@ -523,6 +527,7 @@ int ssh2_rsa_sha1_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
     return ssh2_rsa_sha2_sign(rsa, session, hash, hash_len,
                               signature, signature_len);
 }
+#endif
 
 void ssh2_rsa_free(ssh2_rsa_ctx *rsa)
 {
@@ -571,6 +576,7 @@ static unsigned char *mbed_gen_publickey_from_rsa(LIBSSH2_SESSION *session,
     *keylen = (size_t)(p - key);
     return key;
 }
+#endif /* LIBSSH2_RSA */
 
 static int mbed_pub_priv_key(LIBSSH2_SESSION *session, char **method,
                              unsigned char **pubkeydata,
@@ -580,26 +586,28 @@ static int mbed_pub_priv_key(LIBSSH2_SESSION *session, char **method,
     char *method_buf = NULL;
     unsigned char *key = NULL;
     size_t keylen = 0, method_buf_len = 0;
-    int ret;
-    mbedtls_rsa_context *rsa;
+    int ret = 0;
 
-    if(mbedtls_pk_get_type(pkey) != MBEDTLS_PK_RSA)
-        return ssh2_err(session, LIBSSH2_ERROR_FILE, "Key type not supported");
+#if LIBSSH2_RSA
+    if(mbedtls_pk_get_type(pkey) == MBEDTLS_PK_RSA) {
+        mbedtls_rsa_context *rsa;
 
-    ret = 0;
+        /* write method */
+        method_buf_len = sizeof("ssh-rsa") - 1;
+        method_buf = SSH2_ALLOC(session, method_buf_len + 1);
+        if(method_buf)
+            memcpy(method_buf, "ssh-rsa", method_buf_len + 1);
+        else
+            ret = -1;
 
-    /* write method */
-    method_buf_len = sizeof("ssh-rsa") - 1;
-    method_buf = SSH2_ALLOC(session, method_buf_len + 1);
-    if(method_buf)
-        memcpy(method_buf, "ssh-rsa", method_buf_len + 1);
+        rsa = mbedtls_pk_rsa(*pkey);
+        key = mbed_gen_publickey_from_rsa(session, rsa, &keylen);
+        if(!key)
+            ret = -1;
+    }
     else
-        ret = -1;
-
-    rsa = mbedtls_pk_rsa(*pkey);
-    key = mbed_gen_publickey_from_rsa(session, rsa, &keylen);
-    if(!key)
-        ret = -1;
+#endif
+        ret = ssh2_err(session, LIBSSH2_ERROR_FILE, "Key type not supported");
 
     /* write output */
     if(ret) {
