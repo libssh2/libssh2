@@ -171,8 +171,6 @@ static int kex_proc_hostkey(LIBSSH2_SESSION *session, struct string_buf *buf,
 
     if(!session->hostkey)
         return ssh2_err(session, LIBSSH2_ERROR_PROTO, "hostkey is NULL");
-            ssh2_deb((session, LIBSSH2_TRACE_KEX,
-                      "NAME: %s", session->hostkey->name));
     if(session->hostkey->init(session, session->server_hostkey,
                               session->server_hostkey_len,
                               &session->server_hostkey_abstract))
