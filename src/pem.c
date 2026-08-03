@@ -607,10 +607,9 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
         }
 
         if(method->flags & SSH2_CRYPT_FLAG_REQUIRES_FULL_PACKET) {
-            if(!strcmp(method->name, "chacha20-poly1305@openssh.com") &&
-               !ssh2_check_length(&decoded, 16)) {
+            if(!ssh2_check_length(&decoded, method->auth_len)) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                               "chacha20-poly1305 auth tag missing");
+                               "OpenSSH key full packet auth tag missing");
                 method->dtor(session, &abstract);
                 goto out;
             }
