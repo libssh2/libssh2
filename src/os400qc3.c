@@ -94,7 +94,7 @@ static int sshrsapubkey(LIBSSH2_SESSION *session, char **sshpubkey,
                         struct asn1Element *params, struct asn1Element *key,
                         const char *method);
 
-#if LIBSSH2_DSA != 0
+#if LIBSSH2_DSA
 /* dsaEncryption OID: 1.2.840.10040.4.1 */
 static unsigned char OID_dsaEncryption[] = {
     7, 40 + 2, 0x86, 0x48, 0xCE, 0x38, 4, 1
