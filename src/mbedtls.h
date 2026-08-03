@@ -217,12 +217,6 @@ struct ssh2_mbedtls_cipher_ctx {
 
 /*******************************************************************/
 /*
- * mbedTLS backend: Cipher functions
- */
-#define ssh2_cipher_dtor(ctx)  mbedtls_cipher_free(ctx)
-
-/*******************************************************************/
-/*
  * mbedTLS backend: BigNumber Support
  */
 

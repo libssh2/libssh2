@@ -234,6 +234,29 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
     return ret == 0 ? 0 : -1;
 }
 
+void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx)
+{
+    struct ssh2_mbedtls_cipher_ctx *cctx = *ctx;
+
+    if(!cctx)
+        return;
+
+#if LIBSSH2_AES_GCM
+    if(cctx->algo == MBEDTLS_CIPHER_AES_128_GCM ||
+       cctx->algo == MBEDTLS_CIPHER_AES_256_GCM) {
+        mbedtls_gcm_free(&cctx->ctx.gcm.gcm_ctx);
+        mbedtls_free(cctx);
+        *ctx = NULL;
+        return;
+    }
+#endif
+
+    /* Regular cipher context */
+    mbedtls_cipher_free(&cctx->ctx.cipher_ctx);
+    mbedtls_free(cctx);
+    *ctx = NULL;
+}
+
 int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg alg)
 {
     *ctx = psa_hash_operation_init();
