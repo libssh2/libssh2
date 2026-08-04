@@ -4,35 +4,35 @@
  */
 
 /* Fuzz harness for libssh2 SSH binary packet dispatch and SFTP packet parsing.
- *
- * The existing ssh2_client_fuzzer.cc exercises the SSH-layer handshake by
- * feeding raw fuzz bytes directly to libssh2_session_handshake().  This
- * harness complements it by:
- *
- *  1. Prepending a valid SSH-2.0 server banner so that banner_receive() in
- *     session.c always completes successfully and the code moves on to the
- *     binary-packet transport layer.  This pushes coverage into the SSH
- *     binary packet reader (transport.c:_libssh2_transport_read) and the
- *     SSH message dispatcher (_libssh2_packet_add in packet.c) with fuzz-
- *     controlled payload bytes - including all SSH message type branches
- *     (DISCONNECT, DEBUG, IGNORE, EXT_INFO, GLOBAL_REQUEST, CHANNEL_*,
- *     USERAUTH_BANNER, etc.).
- *
- *  2. For the specific case where the first fuzz byte selects the
- *     SSH_MSG_KEXINIT type (0x14 == 20), it also hits the kex algorithm
- *     negotiation string-list parser in kex.c.
- *
- * Wire format sent to the server-side socket:
- *   [SSH-2.0-libssh2_fuzz\r\n][SSH binary packet wrapping fuzz payload]
- *
- * SSH binary packet (pre-NEWKEYS, so unencrypted, no MAC):
- *   uint32  packet_length  (= 1 + len(payload) + padding_length)
- *   byte    padding_length (= 4, minimum valid value when block_size == 8)
- *   byte[]  payload        (= fuzz data)
- *   byte[]  padding        (= 0x00 * 4)
- *
- * The session handshake will fail (the fuzz data is not a valid KEXINIT)
- * but the parsing paths are exercised before the error is returned.
+
+   The existing ssh2_client_fuzzer.cc exercises the SSH-layer handshake by
+   feeding raw fuzz bytes directly to libssh2_session_handshake().  This
+   harness complements it by:
+
+    1. Prepending a valid SSH-2.0 server banner so that
+       session_banner_receive() in session.c always completes successfully and
+       the code moves on to the binary-packet transport layer. This pushes
+       coverage into the SSH binary packet reader
+       (ssh2_transport_read() in transport.c) and the SSH message dispatcher
+       (ssh2_packet_add() in packet.c) with fuzz-controlled payload bytes -
+       including all SSH message type branches (DISCONNECT, DEBUG, IGNORE,
+       EXT_INFO, GLOBAL_REQUEST, CHANNEL_*, USERAUTH_BANNER, etc.).
+
+    2. For the specific case where the first fuzz byte selects the
+       SSH_MSG_KEXINIT type (0x14 == 20), it also hits the kex algorithm
+       negotiation string-list parser in kex.c.
+
+   Wire format sent to the server-side socket:
+     [SSH-2.0-libssh2_fuzz\r\n][SSH binary packet wrapping fuzz payload]
+
+   SSH binary packet (pre-NEWKEYS, so unencrypted, no MAC):
+     uint32  packet_length  (= 1 + len(payload) + padding_length)
+     byte    padding_length (= 4, minimum valid value when block_size == 8)
+     byte[]  payload        (= fuzz data)
+     byte[]  padding        (= 0x00 * 4)
+
+   The session handshake will fail (the fuzz data is not a valid KEXINIT)
+   but the parsing paths are exercised before the error is returned.
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -81,20 +81,21 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     if(rc)
         goto cleanup;
 
-    /* ------------------------------------------------------------------ */
-    /* Build and send the server side of the handshake:                   */
-    /*   1. A fixed, valid SSH-2.0 banner so banner_receive() succeeds.   */
-    /*   2. A single SSH binary packet whose payload is the fuzz data.    */
-    /*      Pre-NEWKEYS the transport reader expects no encryption / MAC, */
-    /*      so we just need a valid 5-byte header.                        */
-    /* ------------------------------------------------------------------ */
-    /* Clamp payload to avoid allocating huge intermediate buffers. */
+    /* ------------------------------------------------------------------
+       Build and send the server side of the handshake:
+         1. A fixed, valid SSH-2.0 banner so session_banner_receive()
+            succeeds.
+         2. A single SSH binary packet whose payload is the fuzz data.
+            Pre-NEWKEYS the transport reader expects no encryption / MAC,
+            so we just need a valid 5-byte header.
+       ------------------------------------------------------------------
+       Clamp payload to avoid allocating huge intermediate buffers. */
 
     size_t payload_len = size > MAX_PAYLOAD_SIZE ? MAX_PAYLOAD_SIZE : size;
 
     /* SSH binary packet: 4 (length field) + 1 (padding_length byte)
-     * + payload + 4 bytes of zero padding.
-     * packet_length field value = 1 + payload_len + 4 (padding). */
+       + payload + 4 bytes of zero padding.
+       packet_length field value = 1 + payload_len + 4 (padding). */
     const uint8_t padding_length = 4;
     uint32_t packet_length = (uint32_t)(1 + payload_len + padding_length);
 
@@ -120,9 +121,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     if(shutdown(socket_fds[1], SHUT_WR))
         goto cleanup;
 
-    /* ------------------------------------------------------------------ */
-    /* Run the client handshake against our synthetic server data.        */
-    /* ------------------------------------------------------------------ */
+    /* Run the client handshake against our synthetic server data. */
     session = libssh2_session_init();
     if(!session)
         goto cleanup;
@@ -130,9 +129,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     libssh2_session_set_blocking(session, 1);
 
     /* This will exercise:
-     *   - banner_receive() in session.c  (fixed banner -> always succeeds)
-     *   - _libssh2_transport_read() in transport.c
-     *   - _libssh2_packet_add() in packet.c with fuzz-controlled msg type
+     *   - session_banner_receive() (fixed banner -> always succeeds)
+     *   - ssh2_transport_read() in transport.c
+     *   - ssh2_packet_add() in packet.c with fuzz-controlled msg type
      *   - Per-message-type handlers for whatever the first byte of data is
      */
     libssh2_session_handshake(session, socket_fds[0]);
