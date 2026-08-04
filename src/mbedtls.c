@@ -110,7 +110,7 @@ int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
        algo == MBEDTLS_CIPHER_AES_256_GCM) {
         unsigned int keybits;
 
-        ctx->is_gcm = 1;
+        ctx->is_aesgcm = 1;
 
         /* Store the initial IV (will be incremented per packet) */
         memcpy(ctx->u.gcm.iv, iv, sizeof(ctx->u.gcm.iv));
@@ -190,7 +190,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
     (void)algo;
 
 #if LIBSSH2_AES_GCM
-    if(ctx->is_gcm) {
+    if(ctx->is_aesgcm) {
         unsigned char buf[32];
         unsigned char tag[16];  /* GCM authentication tag */
         const int authlen = sizeof(tag);
@@ -294,7 +294,7 @@ void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx)
         return;
 
 #if LIBSSH2_AES_GCM
-    if(ctx->is_gcm) {
+    if(ctx->is_aesgcm) {
         mbedtls_gcm_free(&ctx->u.gcm.ctx);
         return;
     }
