@@ -13,7 +13,7 @@
  * Reads filenames from the argument array. For each filename, read the file
  * into memory and then call the fuzzing interface with the data.
  */
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
     int ii;
     for(ii = 1; ii < argc; ii++) {
