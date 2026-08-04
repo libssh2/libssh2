@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
- /* Fuzz harness for libssh2 known-hosts line parser.
+/* Fuzz harness for libssh2 known-hosts line parser.
  *
  * Exercises libssh2_knownhost_readline() which parses lines from an OpenSSH
  * known_hosts file.  A single line may contain:
@@ -28,6 +28,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_KNOWNHOSTS *hosts = NULL;
 
+    struct libssh2_knownhost *node = NULL;
+    int grc;
+
     if(!size)
         return 0;
 
@@ -43,34 +46,29 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         goto cleanup;
 
     /* Feed the raw fuzz bytes as a single known_hosts line.
-     * libssh2_knownhost_readline() accepts a non-NUL-terminated buffer
-     * (len is passed explicitly), so we do not need to copy or add a NUL. */
-    libssh2_knownhost_readline(hosts,
-                               (const char *)data, size,
+       libssh2_knownhost_readline() accepts a non-NUL-terminated buffer
+       (len is passed explicitly), so we do not need to copy or add a NUL. */
+    libssh2_knownhost_readline(hosts, (const char *)data, size,
                                LIBSSH2_KNOWNHOST_FILE_OPENSSH);
 
     /* If the line parsed successfully an entry was added; also exercise the
-     * write-line path over any entries that were stored. */
-    {
-        struct libssh2_knownhost *node = NULL;
-        int grc = libssh2_knownhost_get(hosts, &node, NULL);
-        while(!grc && node) {
-            char linebuf[4096];
-            size_t linelen = 0;
-            libssh2_knownhost_writeline(hosts, node,
-                                        linebuf, sizeof(linebuf),
-                                        &linelen,
-                                        LIBSSH2_KNOWNHOST_FILE_OPENSSH);
-            grc = libssh2_knownhost_get(hosts, &node, node);
-        }
+       write-line path over any entries that were stored. */
+    grc = libssh2_knownhost_get(hosts, &node, NULL);
+    while(!grc && node) {
+        char linebuf[4096];
+        size_t linelen = 0;
+        libssh2_knownhost_writeline(hosts, node,
+                                    linebuf, sizeof(linebuf), &linelen,
+                                    LIBSSH2_KNOWNHOST_FILE_OPENSSH);
+        grc = libssh2_knownhost_get(hosts, &node, node);
     }
 
 cleanup:
     if(hosts)
         libssh2_knownhost_free(hosts);
-    if(session) {
+    if(session)
         libssh2_session_free(session);
-    }
+
     libssh2_exit();
     return 0;
 }

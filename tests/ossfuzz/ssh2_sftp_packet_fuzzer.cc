@@ -1,8 +1,9 @@
 /* Copyright (C) The libssh2 project and its contributors.
  *
  * SPDX-License-Identifier: BSD-3-Clause
- *
- * Fuzz harness for libssh2 SSH binary packet dispatch and SFTP packet parsing.
+ */
+
+/* Fuzz harness for libssh2 SSH binary packet dispatch and SFTP packet parsing.
  *
  * The existing ssh2_client_fuzzer.cc exercises the SSH-layer handshake by
  * feeding raw fuzz bytes directly to libssh2_session_handshake().  This
