@@ -213,7 +213,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
             if(mbedtls_gcm_starts(&ctx->u.gcm.ctx,
                                   encrypt ? MBEDTLS_GCM_ENCRYPT
                                           : MBEDTLS_GCM_DECRYPT,
-                                  ctx->u.gcm.iv, 12)) {
+                                  ctx->u.gcm.iv, sizeof(ctx->u.gcm.iv))) {
                 mbed_zero_free(buf, cryptlen);
                 return -1;
             }
