@@ -197,7 +197,7 @@ struct ssh2_mbed_cipher_ctx {
     } u;
 };
 
-#define ssh2_cipher_ctx        struct ssh2_mbed_cipher_ctx *
+#define ssh2_cipher_ctx        struct ssh2_mbed_cipher_ctx
 
 #define SSH2_CIPHER_T(algo)    mbedtls_cipher_type_t algo
 
