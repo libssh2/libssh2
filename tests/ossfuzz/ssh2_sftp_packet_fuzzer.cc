@@ -81,15 +81,14 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     if(rc)
         goto cleanup;
 
-    /* ------------------------------------------------------------------
-       Build and send the server side of the handshake:
-         1. A fixed, valid SSH-2.0 banner so session_banner_receive()
-            succeeds.
-         2. A single SSH binary packet whose payload is the fuzz data.
-            Pre-NEWKEYS the transport reader expects no encryption / MAC,
-            so we just need a valid 5-byte header.
+    /* Build and send the server side of the handshake:
+       1. A fixed, valid SSH-2.0 banner so session_banner_receive() succeeds.
+       2. A single SSH binary packet whose payload is the fuzz data.
+          Pre-NEWKEYS the transport reader expects no encryption / MAC,
+          so we just need a valid 5-byte header.
        ------------------------------------------------------------------
-       Clamp payload to avoid allocating huge intermediate buffers. */
+       Clamp payload to avoid allocating huge intermediate buffers.
+     */
 
     size_t payload_len = size > MAX_PAYLOAD_SIZE ? MAX_PAYLOAD_SIZE : size;
 
