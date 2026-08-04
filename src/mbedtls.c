@@ -227,6 +227,8 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
             memcpy(block + aadlen, buf, olen);
         }
 
+        ret = 0;
+
         /* Last block: finalize and handle authentication tag */
         if(IS_LAST(firstlast)) {
             unsigned char finish_buf[16];
@@ -242,7 +244,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                 memcpy(block + blocksize - authlen, tag, authlen);
             else if(ssh2_timingsafe_bcmp(tag, block + blocksize - authlen,
                                          authlen))
-                return -1;  /* GCM auth failed */
+                ret = -1;  /* GCM auth failed */
 
             /* Increment IV for next packet */
             for(i = 11; i >= 4; i--)
@@ -250,7 +252,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                     break;
         }
 
-        return 0;
+        return ret;
     }
 #else
     (void)encrypt;
