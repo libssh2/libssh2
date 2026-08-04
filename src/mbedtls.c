@@ -118,10 +118,10 @@ int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
         unsigned int keybits;
 
         /* Store the initial IV (will be incremented per packet) */
-        memcpy(cctx->ctx.gcm.iv, iv, 12);
+        memcpy(cctx->u.gcm.iv, iv, 12);
 
         /* Initialize GCM context */
-        mbedtls_gcm_init(&cctx->ctx.gcm.gcm_ctx);
+        mbedtls_gcm_init(&cctx->u.gcm.ctx);
 
         /* Set key length based on algorithm */
         if(algo == MBEDTLS_CIPHER_AES_128_GCM)
@@ -130,12 +130,12 @@ int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
             keybits = 256;
 
         /* Setup GCM with AES cipher and key */
-        ret = mbedtls_gcm_setkey(&cctx->ctx.gcm.gcm_ctx,
+        ret = mbedtls_gcm_setkey(&cctx->u.gcm.ctx,
                                  MBEDTLS_CIPHER_ID_AES,
                                  secret,
                                  keybits);
         if(ret) {
-            mbedtls_gcm_free(&cctx->ctx.gcm.gcm_ctx);
+            mbedtls_gcm_free(&cctx->u.gcm.ctx);
             mbedtls_free(cctx);
             return -1;
         }
@@ -155,8 +155,8 @@ int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
         return -1;
     }
 
-    mbedtls_cipher_init(&cctx->ctx.cipher_ctx);
-    ret = mbedtls_cipher_setup(&cctx->ctx.cipher_ctx, cipher_info);
+    mbedtls_cipher_init(&cctx->u.cipher);
+    ret = mbedtls_cipher_setup(&cctx->u.cipher, cipher_info);
 
     /* libssh2 computes and adds SSH packet padding itself, so for CBC
        tell mbedTLS to expect no padding on the cipher layer. Only call
@@ -171,21 +171,21 @@ int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 #endif
        )
       ) {
-        ret = mbedtls_cipher_set_padding_mode(&cctx->ctx.cipher_ctx,
+        ret = mbedtls_cipher_set_padding_mode(&cctx->u.cipher,
                                               MBEDTLS_PADDING_NONE);
     }
 
     if(!ret)
-        ret = mbedtls_cipher_setkey(&cctx->ctx.cipher_ctx,
+        ret = mbedtls_cipher_setkey(&cctx->u.cipher,
                   secret,
                   (int)mbedtls_cipher_info_get_key_bitlen(cipher_info), op);
 
     if(!ret)
-        ret = mbedtls_cipher_set_iv(&cctx->ctx.cipher_ctx, iv,
+        ret = mbedtls_cipher_set_iv(&cctx->u.cipher, iv,
                   mbedtls_cipher_info_get_iv_size(cipher_info));
 
     if(ret) {
-        mbedtls_cipher_free(&cctx->ctx.cipher_ctx);
+        mbedtls_cipher_free(&cctx->u.cipher);
         mbedtls_free(cctx);
     }
     else
@@ -232,10 +232,10 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 
         /* First block: start GCM operation */
         if(IS_FIRST(firstlast)) {
-            ret = mbedtls_gcm_starts(&cctx->ctx.gcm.gcm_ctx,
+            ret = mbedtls_gcm_starts(&cctx->u.gcm.ctx,
                                      encrypt ? MBEDTLS_GCM_ENCRYPT
                                              : MBEDTLS_GCM_DECRYPT,
-                                     cctx->ctx.gcm.iv, 12);
+                                     cctx->u.gcm.iv, 12);
             if(ret) {
                 mbed_zero_free(buf, cryptlen);
                 return -1;
@@ -243,7 +243,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 
             /* Process AAD (Additional Authenticated Data) */
             if(aadlen) {
-                ret = mbedtls_gcm_update_ad(&cctx->ctx.gcm.gcm_ctx,
+                ret = mbedtls_gcm_update_ad(&cctx->u.gcm.ctx,
                                             block, aadlen);
                 if(ret) {
                     mbed_zero_free(buf, cryptlen);
@@ -255,7 +255,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
         /* Process payload */
         if(cryptlen > 0) {
             olen = 0;
-            ret = mbedtls_gcm_update(&cctx->ctx.gcm.gcm_ctx,
+            ret = mbedtls_gcm_update(&cctx->u.gcm.ctx,
                                      block + aadlen, cryptlen,
                                      buf, cryptlen, &olen);
             if(ret) {
@@ -273,7 +273,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 
             finish_olen = 0;
 
-            ret = mbedtls_gcm_finish(&cctx->ctx.gcm.gcm_ctx,
+            ret = mbedtls_gcm_finish(&cctx->u.gcm.ctx,
                                     finish_buf, sizeof(finish_buf),
                                     &finish_olen, tag, authlen);
             if(ret)
@@ -287,7 +287,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 
             /* Increment IV for next packet */
             for(i = 11; i >= 4; i--)
-                if(++cctx->ctx.gcm.iv[i])
+                if(++cctx->u.gcm.iv[i])
                     break;
         }
 
@@ -298,21 +298,21 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 #endif
 
     /* Non-GCM algorithms: use standard cipher API */
-    osize = blocksize + mbedtls_cipher_get_block_size(&cctx->ctx.cipher_ctx);
+    osize = blocksize + mbedtls_cipher_get_block_size(&cctx->u.cipher);
 
     output = mbedtls_calloc(osize, sizeof(char));
     if(output) {
         olen = 0;
         finish_olen = 0;
 
-        ret = mbedtls_cipher_reset(&cctx->ctx.cipher_ctx);
+        ret = mbedtls_cipher_reset(&cctx->u.cipher);
 
         if(!ret)
-            ret = mbedtls_cipher_update(&cctx->ctx.cipher_ctx, block,
+            ret = mbedtls_cipher_update(&cctx->u.cipher, block,
                                         blocksize, output, &olen);
 
         if(!ret)
-            ret = mbedtls_cipher_finish(&cctx->ctx.cipher_ctx,
+            ret = mbedtls_cipher_finish(&cctx->u.cipher,
                                         output + olen, &finish_olen);
 
         if(!ret) {
@@ -338,7 +338,7 @@ void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx)
 #if LIBSSH2_AES_GCM
     if(cctx->algo == MBEDTLS_CIPHER_AES_128_GCM ||
        cctx->algo == MBEDTLS_CIPHER_AES_256_GCM) {
-        mbedtls_gcm_free(&cctx->ctx.gcm.gcm_ctx);
+        mbedtls_gcm_free(&cctx->u.gcm.ctx);
         mbedtls_free(cctx);
         *ctx = NULL;
         return;
@@ -346,7 +346,7 @@ void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx)
 #endif
 
     /* Regular cipher context */
-    mbedtls_cipher_free(&cctx->ctx.cipher_ctx);
+    mbedtls_cipher_free(&cctx->u.cipher);
     mbedtls_free(cctx);
     *ctx = NULL;
 }

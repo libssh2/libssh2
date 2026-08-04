@@ -187,14 +187,14 @@ typedef enum {
 struct ssh2_mbedtls_cipher_ctx {
     mbedtls_cipher_type_t algo;
     union {
-        mbedtls_cipher_context_t cipher_ctx;
+        mbedtls_cipher_context_t cipher;
 #if LIBSSH2_AES_GCM
         struct {
-            mbedtls_gcm_context gcm_ctx;
+            mbedtls_gcm_context ctx;
             unsigned char iv[12];
         } gcm;
 #endif
-    } ctx;
+    } u;
 };
 
 #define ssh2_cipher_ctx        struct ssh2_mbedtls_cipher_ctx *
