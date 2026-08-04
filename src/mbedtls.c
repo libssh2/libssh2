@@ -189,11 +189,11 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 
 #if LIBSSH2_AES_GCM
     if(ctx->is_gcm) {
-        const int authlen = 16;  /* GCM authentication tag length */
+        unsigned char tag[16];  /* GCM authentication tag */
+        const int authlen = sizeof(tag);
         const int aadlen = IS_FIRST(firstlast) ? 4 : 0;
         const int authenticationtag = IS_LAST(firstlast) ? authlen : 0;
         size_t cryptlen; /* length of encrypt */
-        unsigned char tag[16];
         unsigned char *buf = NULL;
 
         if(blocksize < (size_t)(aadlen + authenticationtag))
