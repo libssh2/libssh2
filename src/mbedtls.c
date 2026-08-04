@@ -267,15 +267,12 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
         finish_olen = 0;
 
         ret = mbedtls_cipher_reset(&ctx->u.cipher);
-
         if(!ret)
             ret = mbedtls_cipher_update(&ctx->u.cipher, block,
                                         blocksize, output, &olen);
-
         if(!ret)
             ret = mbedtls_cipher_finish(&ctx->u.cipher,
                                         output + olen, &finish_olen);
-
         if(!ret) {
             olen += finish_olen;
             memcpy(block, output, olen);
