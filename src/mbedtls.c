@@ -130,10 +130,8 @@ int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
             keybits = 256;
 
         /* Setup GCM with AES cipher and key */
-        ret = mbedtls_gcm_setkey(&cctx->u.gcm.ctx,
-                                 MBEDTLS_CIPHER_ID_AES,
-                                 secret,
-                                 keybits);
+        ret = mbedtls_gcm_setkey(&cctx->u.gcm.ctx, MBEDTLS_CIPHER_ID_AES,
+                                 secret, keybits);
         if(ret) {
             mbedtls_gcm_free(&cctx->u.gcm.ctx);
             mbedtls_free(cctx);
@@ -176,8 +174,7 @@ int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
     }
 
     if(!ret)
-        ret = mbedtls_cipher_setkey(&cctx->u.cipher,
-                  secret,
+        ret = mbedtls_cipher_setkey(&cctx->u.cipher, secret,
                   (int)mbedtls_cipher_info_get_key_bitlen(cipher_info), op);
 
     if(!ret)
@@ -243,8 +240,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 
             /* Process AAD (Additional Authenticated Data) */
             if(aadlen) {
-                ret = mbedtls_gcm_update_ad(&cctx->u.gcm.ctx,
-                                            block, aadlen);
+                ret = mbedtls_gcm_update_ad(&cctx->u.gcm.ctx, block, aadlen);
                 if(ret) {
                     mbed_zero_free(buf, cryptlen);
                     return -1;
