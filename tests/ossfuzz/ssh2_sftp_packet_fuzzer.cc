@@ -64,9 +64,27 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
     int socket_fds[2] = { -1, -1 };
     LIBSSH2_SESSION *session = NULL;
-    unsigned char *pkt_buf = NULL;
     ssize_t written;
     int rc;
+
+    /* Build and send the server side of the handshake:
+       1. A fixed, valid SSH-2.0 banner so session_banner_receive() succeeds.
+       2. A single SSH binary packet whose payload is the fuzz data.
+          Pre-NEWKEYS the transport reader expects no encryption / MAC,
+          so we just need a valid 5-byte header.
+       ------------------------------------------------------------------
+       Clamp payload to avoid allocating huge intermediate buffers.
+     */
+
+    size_t payload_len = size > MAX_PAYLOAD_SIZE ? MAX_PAYLOAD_SIZE : size;
+    unsigned char *pkt_buf = NULL;
+
+    /* SSH binary packet: 4 (length field) + 1 (padding_length byte)
+       + payload + 4 bytes of zero padding.
+       packet_length field value = 1 + payload_len + 4 (padding). */
+    const uint8_t padding_length = 4;
+    uint32_t packet_length = (uint32_t)(1 + payload_len + padding_length);
+    size_t pkt_buf_len = 4 + 1 + payload_len + padding_length;
 
     if(size < MIN_PAYLOAD_SIZE)
         return 0;
@@ -80,25 +98,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     rc = socketpair(AF_UNIX, SOCK_STREAM, 0, socket_fds);
     if(rc)
         goto cleanup;
-
-    /* Build and send the server side of the handshake:
-       1. A fixed, valid SSH-2.0 banner so session_banner_receive() succeeds.
-       2. A single SSH binary packet whose payload is the fuzz data.
-          Pre-NEWKEYS the transport reader expects no encryption / MAC,
-          so we just need a valid 5-byte header.
-       ------------------------------------------------------------------
-       Clamp payload to avoid allocating huge intermediate buffers.
-     */
-
-    size_t payload_len = size > MAX_PAYLOAD_SIZE ? MAX_PAYLOAD_SIZE : size;
-
-    /* SSH binary packet: 4 (length field) + 1 (padding_length byte)
-       + payload + 4 bytes of zero padding.
-       packet_length field value = 1 + payload_len + 4 (padding). */
-    const uint8_t padding_length = 4;
-    uint32_t packet_length = (uint32_t)(1 + payload_len + padding_length);
-
-    size_t pkt_buf_len = 4 + 1 + payload_len + padding_length;
     pkt_buf = (unsigned char *)malloc(pkt_buf_len);
     if(!pkt_buf)
         goto cleanup;
