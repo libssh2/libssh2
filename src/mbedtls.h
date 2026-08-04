@@ -184,7 +184,7 @@ typedef enum {
 /* Unified cipher context structure.
    Handles both regular ciphers and AEAD ciphers (GCM)
    using a union to optimize memory usage. */
-struct ssh2_mbedtls_cipher_ctx {
+struct ssh2_mbed_cipher_ctx {
     mbedtls_cipher_type_t algo;
     union {
         mbedtls_cipher_context_t cipher;
@@ -197,7 +197,7 @@ struct ssh2_mbedtls_cipher_ctx {
     } u;
 };
 
-#define ssh2_cipher_ctx        struct ssh2_mbedtls_cipher_ctx *
+#define ssh2_cipher_ctx        struct ssh2_mbed_cipher_ctx *
 
 #define SSH2_CIPHER_T(algo)    mbedtls_cipher_type_t algo
 

@@ -95,7 +95,6 @@ static void mbed_zero_free(void *buf, size_t len)
 int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
-    struct ssh2_mbedtls_cipher_ctx *cctx;
     const mbedtls_cipher_info_t *cipher_info;
     mbedtls_operation_t op;
     int ret;
@@ -195,7 +194,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                       int encrypt, unsigned char *block, size_t blocksize,
                       int firstlast)
 {
-    struct ssh2_mbedtls_cipher_ctx *cctx;
+    struct ssh2_mbed_cipher_ctx *cctx;
     int ret;
     unsigned char *output;
     size_t osize, olen, finish_olen;
@@ -290,6 +289,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
         return 0;
     }
 #else
+    (void)encrypt;
     (void)firstlast;
 #endif
 
@@ -326,7 +326,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 
 void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx)
 {
-    struct ssh2_mbedtls_cipher_ctx *cctx = *ctx;
+    struct ssh2_mbed_cipher_ctx *cctx = *ctx;
 
     if(!cctx)
         return;
