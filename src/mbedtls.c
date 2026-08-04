@@ -104,13 +104,13 @@ int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 
     memset(ctx, 0, sizeof(*ctx));
 
-    ctx->algo = algo;  /* Store algorithm type */
-
 #if LIBSSH2_AES_GCM
     /* Check if this is a GCM algorithm */
     if(algo == MBEDTLS_CIPHER_AES_128_GCM ||
        algo == MBEDTLS_CIPHER_AES_256_GCM) {
         unsigned int keybits;
+
+        ctx->is_gcm = 1;
 
         /* Store the initial IV (will be incremented per packet) */
         memcpy(ctx->u.gcm.iv, iv, 12);
@@ -189,9 +189,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
         return -1;
 
 #if LIBSSH2_AES_GCM
-    /* Check if this is a GCM algorithm based on stored algo type */
-    if(algo == MBEDTLS_CIPHER_AES_128_GCM ||
-       algo == MBEDTLS_CIPHER_AES_256_GCM) {
+    if(ctx->is_gcm) {
         const int authlen = 16;  /* GCM authentication tag length */
         const int aadlen = IS_FIRST(firstlast) ? 4 : 0;
         const int authenticationtag = IS_LAST(firstlast) ? authlen : 0;
@@ -316,8 +314,7 @@ void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx)
         return;
 
 #if LIBSSH2_AES_GCM
-    if(ctx->algo == MBEDTLS_CIPHER_AES_128_GCM ||
-       ctx->algo == MBEDTLS_CIPHER_AES_256_GCM) {
+    if(ctx->is_gcm) {
         mbedtls_gcm_free(&ctx->u.gcm.ctx);
         return;
     }

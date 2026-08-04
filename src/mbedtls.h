@@ -189,7 +189,7 @@ typedef enum {
    Handles both regular ciphers and AEAD ciphers (GCM)
    using a union to optimize memory usage. */
 struct ssh2_mbed_cipher_ctx {
-    mbedtls_cipher_type_t algo;
+    int is_gcm;
     union {
         mbedtls_cipher_context_t cipher;
 #if LIBSSH2_AES_GCM
