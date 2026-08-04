@@ -187,6 +187,8 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
     if(!ctx)
         return -1;
 
+    (void)algo;
+
 #if LIBSSH2_AES_GCM
     if(ctx->is_gcm) {
         unsigned char tag[16];  /* GCM authentication tag */
