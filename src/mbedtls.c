@@ -125,9 +125,8 @@ int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
             keybits = 256;
 
         /* Setup GCM with AES cipher and key */
-        ret = mbedtls_gcm_setkey(&ctx->u.gcm.ctx, MBEDTLS_CIPHER_ID_AES,
-                                 secret, keybits);
-        if(ret) {
+        if(mbedtls_gcm_setkey(&ctx->u.gcm.ctx, MBEDTLS_CIPHER_ID_AES,
+                              secret, keybits)) {
             mbedtls_gcm_free(&ctx->u.gcm.ctx);
             return -1;
         }
@@ -211,32 +210,28 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 
         /* First block: start GCM operation */
         if(IS_FIRST(firstlast)) {
-            ret = mbedtls_gcm_starts(&ctx->u.gcm.ctx,
-                                     encrypt ? MBEDTLS_GCM_ENCRYPT
-                                             : MBEDTLS_GCM_DECRYPT,
-                                     ctx->u.gcm.iv, 12);
-            if(ret) {
+            if(mbedtls_gcm_starts(&ctx->u.gcm.ctx,
+                                  encrypt ? MBEDTLS_GCM_ENCRYPT
+                                          : MBEDTLS_GCM_DECRYPT,
+                                  ctx->u.gcm.iv, 12)) {
                 mbed_zero_free(buf, cryptlen);
                 return -1;
             }
 
             /* Process AAD (Additional Authenticated Data) */
-            if(aadlen) {
-                ret = mbedtls_gcm_update_ad(&ctx->u.gcm.ctx, block, aadlen);
-                if(ret) {
-                    mbed_zero_free(buf, cryptlen);
-                    return -1;
-                }
+            if(aadlen &&
+               mbedtls_gcm_update_ad(&ctx->u.gcm.ctx, block, aadlen)) {
+                mbed_zero_free(buf, cryptlen);
+                return -1;
             }
         }
 
         /* Process payload */
         if(cryptlen > 0) {
             olen = 0;
-            ret = mbedtls_gcm_update(&ctx->u.gcm.ctx,
-                                     block + aadlen, cryptlen,
-                                     buf, cryptlen, &olen);
-            if(ret) {
+            if(mbedtls_gcm_update(&ctx->u.gcm.ctx,
+                                  block + aadlen, cryptlen,
+                                  buf, cryptlen, &olen)) {
                 mbed_zero_free(buf, cryptlen);
                 return -1;
             }
@@ -251,10 +246,9 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 
             finish_olen = 0;
 
-            ret = mbedtls_gcm_finish(&ctx->u.gcm.ctx,
-                                     finish_buf, sizeof(finish_buf),
-                                     &finish_olen, tag, authlen);
-            if(ret)
+            if(mbedtls_gcm_finish(&ctx->u.gcm.ctx,
+                                  finish_buf, sizeof(finish_buf),
+                                  &finish_olen, tag, authlen))
                 return -1;
 
             if(encrypt)
