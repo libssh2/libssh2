@@ -314,7 +314,7 @@ void ssh2_cipher_dtor(ssh2_cipher_ctx *ctx)
     }
 #endif
 
-    mbedtls_cipher_free(&ctx->u.cipher);  /* Regular cipher context */
+    mbedtls_cipher_free(&ctx->u.cipher);
 }
 
 int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg alg)
