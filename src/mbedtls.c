@@ -191,41 +191,30 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 
 #if LIBSSH2_AES_GCM
     if(ctx->is_gcm) {
+        unsigned char buf[32];
         unsigned char tag[16];  /* GCM authentication tag */
         const int authlen = sizeof(tag);
         const int aadlen = IS_FIRST(firstlast) ? 4 : 0;
         const int authenticationtag = IS_LAST(firstlast) ? authlen : 0;
         size_t cryptlen; /* length of encrypt */
-        unsigned char *buf = NULL;
 
-        if(blocksize < (size_t)(aadlen + authenticationtag))
+        if(blocksize > sizeof(buf) ||
+           blocksize < (size_t)(aadlen + authenticationtag))
             return -1;
 
         cryptlen = blocksize - aadlen - authenticationtag;
-
-        /* Allocate temporary buffer for output */
-        if(cryptlen > 0) {
-            buf = mbedtls_calloc(cryptlen, 1);
-            if(!buf)
-                return -1;
-        }
 
         /* First block: start GCM operation */
         if(IS_FIRST(firstlast)) {
             if(mbedtls_gcm_starts(&ctx->u.gcm.ctx,
                                   encrypt ? MBEDTLS_GCM_ENCRYPT
                                           : MBEDTLS_GCM_DECRYPT,
-                                  ctx->u.gcm.iv, sizeof(ctx->u.gcm.iv))) {
-                mbed_zero_free(buf, cryptlen);
+                                  ctx->u.gcm.iv, sizeof(ctx->u.gcm.iv)))
                 return -1;
-            }
 
             /* Process AAD (Additional Authenticated Data) */
-            if(aadlen &&
-               mbedtls_gcm_update_ad(&ctx->u.gcm.ctx, block, aadlen)) {
-                mbed_zero_free(buf, cryptlen);
+            if(aadlen && mbedtls_gcm_update_ad(&ctx->u.gcm.ctx, block, aadlen))
                 return -1;
-            }
         }
 
         /* Process payload */
@@ -233,12 +222,9 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
             olen = 0;
             if(mbedtls_gcm_update(&ctx->u.gcm.ctx,
                                   block + aadlen, cryptlen,
-                                  buf, cryptlen, &olen)) {
-                mbed_zero_free(buf, cryptlen);
+                                  buf, cryptlen, &olen))
                 return -1;
-            }
             memcpy(block + aadlen, buf, olen);
-            mbed_zero_free(buf, cryptlen);
         }
 
         /* Last block: finalize and handle authentication tag */
