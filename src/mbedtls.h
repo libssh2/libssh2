@@ -43,7 +43,9 @@
 #include <mbedtls/rsa.h>
 #include <mbedtls/bignum.h>
 #include <mbedtls/cipher.h>
-#include <mbedtls/gcm.h>
+#ifdef MBEDTLS_GCM_C
+# include <mbedtls/gcm.h>
+#endif
 #ifdef MBEDTLS_ECDH_C
 # include <mbedtls/ecdh.h>
 #endif
