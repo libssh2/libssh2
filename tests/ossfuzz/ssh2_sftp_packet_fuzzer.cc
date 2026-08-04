@@ -128,10 +128,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     libssh2_session_set_blocking(session, 1);
 
     /* This will exercise:
-     *   - session_banner_receive() (fixed banner -> always succeeds)
-     *   - ssh2_transport_read() in transport.c
-     *   - ssh2_packet_add() in packet.c with fuzz-controlled msg type
-     *   - Per-message-type handlers for whatever the first byte of data is
+         - session_banner_receive() (fixed banner -> always succeeds)
+         - ssh2_transport_read() in transport.c
+         - ssh2_packet_add() in packet.c with fuzz-controlled msg type
+         - Per-message-type handlers for whatever the first byte of data is
      */
     libssh2_session_handshake(session, socket_fds[0]);
 
