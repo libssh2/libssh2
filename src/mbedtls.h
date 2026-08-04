@@ -80,7 +80,11 @@
 
 #define LIBSSH2_AES_CBC 1
 #define LIBSSH2_AES_CTR 1
+#ifdef MBEDTLS_GCM_C
 #define LIBSSH2_AES_GCM 1
+#else
+#define LIBSSH2_AES_GCM 0
+#endif
 #define LIBSSH2_BLOWFISH 0
 #define LIBSSH2_RC4 0
 #define LIBSSH2_CAST 0
