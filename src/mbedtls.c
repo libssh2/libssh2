@@ -276,6 +276,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
     }
 #else
     (void)encrypt;
+    (void)algo;
     (void)firstlast;
 #endif
 
