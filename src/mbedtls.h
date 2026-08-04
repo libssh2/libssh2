@@ -186,7 +186,6 @@ typedef enum {
    using a union to optimize memory usage. */
 struct ssh2_mbedtls_cipher_ctx {
     mbedtls_cipher_type_t algo;
-    int encrypt;
     union {
         mbedtls_cipher_context_t cipher_ctx;
 #if LIBSSH2_AES_GCM

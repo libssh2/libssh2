@@ -110,7 +110,6 @@ int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 
     /* Store algorithm type and encryption flag */
     cctx->algo = algo;
-    cctx->encrypt = encrypt;
 
 #if LIBSSH2_AES_GCM
     /* Check if this is a GCM algorithm */
@@ -204,7 +203,6 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
     unsigned char *output;
     size_t osize, olen, finish_olen;
 
-    (void)encrypt;
     (void)algo;
 
     cctx = *ctx;
@@ -237,8 +235,8 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
         /* First block: start GCM operation */
         if(IS_FIRST(firstlast)) {
             ret = mbedtls_gcm_starts(&cctx->ctx.gcm.gcm_ctx,
-                                     cctx->encrypt ? MBEDTLS_GCM_ENCRYPT
-                                                   : MBEDTLS_GCM_DECRYPT,
+                                     encrypt ? MBEDTLS_GCM_ENCRYPT
+                                             : MBEDTLS_GCM_DECRYPT,
                                      cctx->ctx.gcm.iv, 12);
             if(ret) {
                 mbed_zero_free(buf, cryptlen);
@@ -283,7 +281,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
             if(ret)
                 return -1;
 
-            if(cctx->encrypt)
+            if(encrypt)
                 memcpy(block + blocksize - authlen, tag, authlen);
             else if(ssh2_timingsafe_bcmp(tag, block + blocksize - authlen,
                                          authlen))
