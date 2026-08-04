@@ -65,6 +65,16 @@ static char const *skip_crypt[] = {
 #if !LIBSSH2_3DES
     "3des-cbc",
 #endif
+#if !LIBSSH2_AES_CTR
+    "aes128-ctr",
+    "aes192-ctr",
+    "aes256-ctr",
+#endif
+#if !LIBSSH2_AES_CBC
+    "aes128-cbc",
+    "aes192-cbc",
+    "aes256-cbc",
+#endif
 #if !LIBSSH2_AES_GCM
     /* Support for AES-GCM hasn't been added to these back-ends yet */
     "aes128-gcm@openssh.com",
