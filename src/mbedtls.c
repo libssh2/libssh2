@@ -245,7 +245,6 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
             int i;
 
             finish_olen = 0;
-
             if(mbedtls_gcm_finish(&ctx->u.gcm.ctx,
                                   finish_buf, sizeof(finish_buf),
                                   &finish_olen, tag, authlen))
