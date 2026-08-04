@@ -15,7 +15,7 @@
         if(!(COND)) {                                          \
             fprintf(stderr, "Assertion failed: " #COND "\n%s", \
                     strerror(errno));                          \
-            goto EXIT_LABEL;                                   \
+            goto cleanup;                                      \
         }                                                      \
     } while(0)
 
@@ -28,10 +28,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     int handshake_completed = 0;
 
     rc = libssh2_init(0);
-
     if(rc) {
         fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
-        goto EXIT_LABEL;
+        goto cleanup;
     }
 
     /* Create a socket pair so data can be sent in. */
@@ -39,18 +38,17 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     FUZZ_ASSERT(rc == 0);
 
     written = send(socket_fds[1], data, size, 0);
-
     if(written != (ssize_t)size) {
         /* Handle whatever error case we are in. */
         fprintf(stderr, "send() of %zu bytes returned %zu (%d)\n",
                 size, written, errno);
-        goto EXIT_LABEL;
+        goto cleanup;
     }
 
     rc = shutdown(socket_fds[1], SHUT_WR);
     if(rc) {
         fprintf(stderr, "socket shutdown failed (%d)\n", rc);
-        goto EXIT_LABEL;
+        goto cleanup;
     }
 
     /* Create a session and start the handshake using the fuzz data
@@ -59,15 +57,15 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     if(session)
         libssh2_session_set_blocking(session, 1);
     else
-        goto EXIT_LABEL;
+        goto cleanup;
 
     if(libssh2_session_handshake(session, socket_fds[0]))
-        goto EXIT_LABEL;
+        goto cleanup;
 
     /* If we get here the handshake actually completed. */
     handshake_completed = 1;
 
-EXIT_LABEL:
+cleanup:
 
     if(session) {
         if(handshake_completed)

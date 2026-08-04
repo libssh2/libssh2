@@ -64,6 +64,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
     int socket_fds[2] = { -1, -1 };
     LIBSSH2_SESSION *session = NULL;
+    unsigned char *pkt_buf = NULL;
+    ssize_t written;
     int rc;
 
     if(size < MIN_PAYLOAD_SIZE)
@@ -97,7 +99,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     uint32_t packet_length = (uint32_t)(1 + payload_len + padding_length);
 
     size_t pkt_buf_len = 4 + 1 + payload_len + padding_length;
-    unsigned char *pkt_buf = (unsigned char *)malloc(pkt_buf_len);
+    pkt_buf = (unsigned char *)malloc(pkt_buf_len);
     if(!pkt_buf)
         goto cleanup;
 
@@ -107,12 +109,16 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     memset(pkt_buf + 5 + payload_len, 0, padding_length);
 
     /* Send banner then binary packet on the "server" socket. */
-    send(socket_fds[1], banner, banner_len, 0);
-    send(socket_fds[1], pkt_buf, pkt_buf_len, 0);
-    free(pkt_buf);
+    written = send(socket_fds[1], banner, banner_len, 0);
+    if(written != (ssize_t)banner_len)
+        goto cleanup;
+    written = send(socket_fds[1], pkt_buf, pkt_buf_len, 0);
+    if(written != (ssize_t)pkt_buf_len)
+        goto cleanup;
 
     /* Signal EOF - no more server data. */
-    shutdown(socket_fds[1], SHUT_WR);
+    if(shutdown(socket_fds[1], SHUT_WR))
+        goto cleanup;
 
     /* ------------------------------------------------------------------ */
     /* Run the client handshake against our synthetic server data.        */
@@ -132,15 +138,15 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     libssh2_session_handshake(session, socket_fds[0]);
 
 cleanup:
+    free(pkt_buf);
+
     if(session)
         libssh2_session_free(session);
 
     libssh2_exit();
 
-    if(socket_fds[0] != -1)
-        close(socket_fds[0]);
-    if(socket_fds[1] != -1)
-        close(socket_fds[1]);
+    close(socket_fds[0]);
+    close(socket_fds[1]);
 
     return 0;
 }
