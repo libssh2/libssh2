@@ -113,7 +113,7 @@ int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
         ctx->is_gcm = 1;
 
         /* Store the initial IV (will be incremented per packet) */
-        memcpy(ctx->u.gcm.iv, iv, 12);
+        memcpy(ctx->u.gcm.iv, iv, sizeof(ctx->u.gcm.iv));
 
         /* Initialize GCM context */
         mbedtls_gcm_init(&ctx->u.gcm.ctx);
@@ -135,7 +135,7 @@ int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
     }
 #endif
 
-    /* Non-GCM algorithms: use standard cipher API */
+    /* Non-GCM algorithms: use cipher API */
     op = encrypt ? MBEDTLS_ENCRYPT : MBEDTLS_DECRYPT;
 
     cipher_info = mbedtls_cipher_info_from_type(algo);
