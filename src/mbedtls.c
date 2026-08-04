@@ -104,8 +104,7 @@ int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 
     memset(ctx, 0, sizeof(*ctx));
 
-    /* Store algorithm type and encryption flag */
-    ctx->algo = algo;
+    ctx->algo = algo;  /* Store algorithm type */
 
 #if LIBSSH2_AES_GCM
     /* Check if this is a GCM algorithm */
