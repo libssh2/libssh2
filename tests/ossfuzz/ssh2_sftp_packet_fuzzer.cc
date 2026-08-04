@@ -59,6 +59,9 @@ static void write_u32_be(unsigned char *buf, uint32_t v)
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
+    static const char banner[] = "SSH-2.0-libssh2_fuzz\r\n";
+    const size_t banner_len = sizeof(banner) - 1; /* exclude NUL */
+
     int socket_fds[2] = { -1, -1 };
     LIBSSH2_SESSION *session = NULL;
     int rc;
@@ -83,37 +86,33 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     /*      Pre-NEWKEYS the transport reader expects no encryption / MAC, */
     /*      so we just need a valid 5-byte header.                        */
     /* ------------------------------------------------------------------ */
-    {
-        static const char banner[] = "SSH-2.0-libssh2_fuzz\r\n";
-        const size_t banner_len = sizeof(banner) - 1; /* exclude NUL */
+    /* Clamp payload to avoid allocating huge intermediate buffers. */
 
-        /* Clamp payload to avoid allocating huge intermediate buffers. */
-        size_t payload_len = size > MAX_PAYLOAD_SIZE ? MAX_PAYLOAD_SIZE : size;
+    size_t payload_len = size > MAX_PAYLOAD_SIZE ? MAX_PAYLOAD_SIZE : size;
 
-        /* SSH binary packet: 4 (length field) + 1 (padding_length byte)
-         * + payload + 4 bytes of zero padding.
-         * packet_length field value = 1 + payload_len + 4 (padding). */
-        const uint8_t padding_length = 4;
-        uint32_t packet_length = (uint32_t)(1 + payload_len + padding_length);
+    /* SSH binary packet: 4 (length field) + 1 (padding_length byte)
+     * + payload + 4 bytes of zero padding.
+     * packet_length field value = 1 + payload_len + 4 (padding). */
+    const uint8_t padding_length = 4;
+    uint32_t packet_length = (uint32_t)(1 + payload_len + padding_length);
 
-        size_t pkt_buf_len = 4 + 1 + payload_len + padding_length;
-        unsigned char *pkt_buf = (unsigned char *)malloc(pkt_buf_len);
-        if(!pkt_buf)
-            goto cleanup;
+    size_t pkt_buf_len = 4 + 1 + payload_len + padding_length;
+    unsigned char *pkt_buf = (unsigned char *)malloc(pkt_buf_len);
+    if(!pkt_buf)
+        goto cleanup;
 
-        write_u32_be(pkt_buf, packet_length);
-        pkt_buf[4] = padding_length;
-        memcpy(pkt_buf + 5, data, payload_len);
-        memset(pkt_buf + 5 + payload_len, 0, padding_length);
+    write_u32_be(pkt_buf, packet_length);
+    pkt_buf[4] = padding_length;
+    memcpy(pkt_buf + 5, data, payload_len);
+    memset(pkt_buf + 5 + payload_len, 0, padding_length);
 
-        /* Send banner then binary packet on the "server" socket. */
-        send(socket_fds[1], banner, banner_len, 0);
-        send(socket_fds[1], pkt_buf, pkt_buf_len, 0);
-        free(pkt_buf);
+    /* Send banner then binary packet on the "server" socket. */
+    send(socket_fds[1], banner, banner_len, 0);
+    send(socket_fds[1], pkt_buf, pkt_buf_len, 0);
+    free(pkt_buf);
 
-        /* Signal EOF - no more server data. */
-        shutdown(socket_fds[1], SHUT_WR);
-    }
+    /* Signal EOF - no more server data. */
+    shutdown(socket_fds[1], SHUT_WR);
 
     /* ------------------------------------------------------------------ */
     /* Run the client handshake against our synthetic server data.        */
