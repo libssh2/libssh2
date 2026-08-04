@@ -203,16 +203,14 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
     unsigned char *output;
     size_t osize, olen, finish_olen;
 
-    (void)algo;
-
     cctx = *ctx;
     if(!cctx)
         return -1;
 
 #if LIBSSH2_AES_GCM
     /* Check if this is a GCM algorithm based on stored algo type */
-    if(cctx->algo == MBEDTLS_CIPHER_AES_128_GCM ||
-       cctx->algo == MBEDTLS_CIPHER_AES_256_GCM) {
+    if(algo == MBEDTLS_CIPHER_AES_128_GCM ||
+       algo == MBEDTLS_CIPHER_AES_256_GCM) {
         const int authlen = 16;  /* GCM authentication tag length */
         const int aadlen = IS_FIRST(firstlast) ? 4 : 0;
         const int authenticationtag = IS_LAST(firstlast) ? authlen : 0;
