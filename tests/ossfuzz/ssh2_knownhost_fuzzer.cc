@@ -46,12 +46,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         goto cleanup;
 
     /* Feed the raw fuzz bytes as a single known_hosts line.
-       libssh2_knownhost_readline() accepts a non-NUL-terminated buffer
+       libssh2_knownhost_readline() accepts a non-null-terminated buffer
        (len is passed explicitly), so we do not need to copy or add a NUL. */
     libssh2_knownhost_readline(hosts, (const char *)data, size,
                                LIBSSH2_KNOWNHOST_FILE_OPENSSH);
 
-    /* If the line parsed successfully an entry was added; also exercise the
+    /* If the line parsed successfully an entry was added, also exercise the
        write-line path over any entries that were stored. */
     grc = libssh2_knownhost_get(hosts, &node, NULL);
     while(!grc && node) {
