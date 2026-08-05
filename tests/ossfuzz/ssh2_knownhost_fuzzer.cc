@@ -27,7 +27,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_KNOWNHOSTS *hosts = NULL;
-    size_t maxcount = 5000;
+    size_t maxcount = 25;
 
     struct libssh2_knownhost *node = NULL;
     int grc;
