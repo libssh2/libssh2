@@ -33,52 +33,52 @@ pr="${1:-libssh2}"
 # inspect PKCS8 private keys with command:
 # $ openssl asn1parse -dump -in <id-filename>
 
-ssh-keygen -t dsa             -N ''          -m PEM     -C 'id_dsa'                     -f 'keys/id_dsa'                     || touch 'keys/id_dsa.pub'
-ssh-keygen -t dsa             -N ''          -m PEM     -C 'id_dsa_wrong'               -f 'keys/id_dsa_wrong'               || true # not to add to 'authorized_keys'
-ssh-keygen -t rsa     -b 2048 -N ''          -m PEM     -C 'id_rsa'                     -f 'keys/id_rsa'
-ssh-keygen -t rsa     -b 2048 -N "${pw}"     -m PEM     -C 'id_rsa_encrypted'           -f 'keys/id_rsa_encrypted'           # aes128-cbc
+ssh-keygen -t dsa             -N ''          -m PEM     -C 'id_dsa'                     -f 'keys/id_dsa_pem'                          || touch 'keys/id_dsa.pub'
+ssh-keygen -t dsa             -N ''          -m PEM     -C 'id_dsa_wrong'               -f 'keys/id_dsa_pem_wrong'                    || true # not to add to 'authorized_keys'
+ssh-keygen -t rsa     -b 2048 -N ''          -m PEM     -C 'id_rsa'                     -f 'keys/id_rsa_pem'
+ssh-keygen -t rsa     -b 2048 -N "${pw}"     -m PEM     -C 'id_rsa_encrypted'           -f 'keys/id_rsa_pem_encrypted'                # aes128-cbc
 ssh-keygen -t rsa     -b 3072 -N ''          -m PKCS8   -C 'id_rsa_pkcs8'               -f 'keys/id_rsa_pkcs8'
-ssh-keygen -t rsa     -b 2048 -N "${pw}"     -m PKCS8   -C 'id_rsa_pkcs8_encrypted'     -f 'keys/id_rsa_pkcs8_encrypted'     # aes128-cbc
-ssh-keygen -t rsa     -b 2048 -N ''          -m RFC4716 -C ''                           -f 'keys/id_rsa_openssh'             # empty comment
-ssh-keygen -t rsa     -b 2048 -N "${pw}"     -m RFC4716 -C 'id_rsa_aes256gcm'           -f 'keys/id_rsa_aes256gcm'           -Z aes256-gcm@openssh.com
+ssh-keygen -t rsa     -b 2048 -N "${pw}"     -m PKCS8   -C 'id_rsa_pkcs8_encrypted'     -f 'keys/id_rsa_pkcs8_encrypted'              # aes128-cbc
+ssh-keygen -t rsa     -b 2048 -N ''          -m RFC4716 -C ''                           -f 'keys/id_rsa_openssh'                      # empty comment
+ssh-keygen -t rsa     -b 2048 -N "${pw}"     -m RFC4716 -C 'id_rsa_aes256gcm'           -f 'keys/id_rsa_openssh_encrypted_aes256gcm'  -Z aes256-gcm@openssh.com
 ssh-keygen -t ecdsa   -b  521 -N ''          -m PEM     -C 'id_ecdsa_pem'               -f 'keys/id_ecdsa_pem'
-ssh-keygen -t ecdsa   -b  256 -N "${pw}"     -m PEM     -C 'id_ecdsa_pem_encrypted'     -f 'keys/id_ecdsa_pem_encrypted'     # aes128-cbc
+ssh-keygen -t ecdsa   -b  256 -N "${pw}"     -m PEM     -C 'id_ecdsa_pem_encrypted'     -f 'keys/id_ecdsa_pem_encrypted'              # aes128-cbc
 ssh-keygen -t ecdsa   -b  384 -N ''          -m PKCS8   -C 'id_ecdsa_pkcs8'             -f 'keys/id_ecdsa_pkcs8'
-ssh-keygen -t ecdsa   -b  521 -N "${pw}"     -m PKCS8   -C 'id_ecdsa_pkcs8_encrypted'   -f 'keys/id_ecdsa_pkcs8_encrypted'   # aes128-cbc
-ssh-keygen -t ecdsa   -b  384 -N ''          -m RFC4716 -C ''                           -f 'keys/id_ecdsa'                   # empty comment
-ssh-keygen -t ecdsa   -b  256 -N "${pw}"     -m RFC4716 -C 'id_ecdsa_encrypted'         -f 'keys/id_ecdsa_encrypted'         -Z chacha20-poly1305@openssh.com
+ssh-keygen -t ecdsa   -b  521 -N "${pw}"     -m PKCS8   -C 'id_ecdsa_pkcs8_encrypted'   -f 'keys/id_ecdsa_pkcs8_encrypted'            # aes128-cbc
+ssh-keygen -t ecdsa   -b  384 -N ''          -m RFC4716 -C ''                           -f 'keys/id_ecdsa_openssh'                    # empty comment
+ssh-keygen -t ecdsa   -b  256 -N "${pw}"     -m RFC4716 -C 'id_ecdsa_encrypted'         -f 'keys/id_ecdsa_openssh_encrypted'          -Z chacha20-poly1305@openssh.com
 ssh-keygen -t ed25519         -N ''          -m PKCS8   -C 'id_ed25519_pkcs8'           -f 'keys/id_ed25519_pkcs8'
-ssh-keygen -t ed25519         -N "${pw}"     -m PKCS8   -C 'id_ed25519_pkcs8_encrypted' -f 'keys/id_ed25519_pkcs8_encrypted' # aes128-cbc
-ssh-keygen -t ed25519         -N ''          -m RFC4716 -C 'id_ed25519'                 -f 'keys/id_ed25519'
-ssh-keygen -t ed25519         -N "${pw}"     -m RFC4716 -C 'id_ed25519_encrypted'       -f 'keys/id_ed25519_encrypted'       -Z aes256-ctr
+ssh-keygen -t ed25519         -N "${pw}"     -m PKCS8   -C 'id_ed25519_pkcs8_encrypted' -f 'keys/id_ed25519_pkcs8_encrypted'          # aes128-cbc
+ssh-keygen -t ed25519         -N ''          -m RFC4716 -C 'id_ed25519'                 -f 'keys/id_ed25519_openssh'
+ssh-keygen -t ed25519         -N "${pw}"     -m RFC4716 -C 'id_ed25519_encrypted'       -f 'keys/id_ed25519_openssh_encrypted'        -Z aes256-ctr
 
-ssh-keygen -t rsa     -b 4096 -N ''          -m PEM     -C 'id_rsa_signed'              -f 'keys/id_rsa_signed'
-ssh-keygen -t ssh-rsa         -I "${id}" -n "${pr}"     -s 'keys/ca_rsa'                   'keys/id_rsa_signed.pub'
-ssh-keygen -t rsa     -b 4096 -N ''          -m PEM     -C 'id_rsa_sha2_512_signed'     -f 'keys/id_rsa_sha2_512_signed'
-ssh-keygen -t rsa-sha2-512    -I "${id}" -n "${pr}"     -s 'keys/ca_rsa'                   'keys/id_rsa_sha2_512_signed.pub'
-ssh-keygen -t ecdsa   -b  384 -N ''          -m RFC4716 -C 'id_ecdsa_signed'            -f 'keys/id_ecdsa_signed'
-ssh-keygen                    -I "${id}" -n "${pr}"     -s 'keys/ca_ecdsa'                 'keys/id_ecdsa_signed.pub'
-ssh-keygen -t ed25519         -N ''          -m RFC4716 -C 'id_ed25519_signed'          -f 'keys/id_ed25519_signed'
-ssh-keygen                    -I "${id}" -n "${pr}"     -s 'keys/ca_ed25519'               'keys/id_ed25519_signed.pub'
+ssh-keygen -t rsa     -b 4096 -N ''          -m PEM     -C 'id_rsa_signed'              -f 'keys/id_rsa_pem_signed'
+ssh-keygen -t ssh-rsa         -I "${id}" -n "${pr}"     -s 'keys/ca_rsa'                   'keys/id_rsa_pem_signed.pub'
+ssh-keygen -t rsa     -b 4096 -N ''          -m PEM     -C 'id_rsa_sha2_512_signed'     -f 'keys/id_rsa_pem_sha2_512_signed'
+ssh-keygen -t rsa-sha2-512    -I "${id}" -n "${pr}"     -s 'keys/ca_rsa'                   'keys/id_rsa_pem_sha2_512_signed.pub'
+ssh-keygen -t ecdsa   -b  384 -N ''          -m RFC4716 -C 'id_ecdsa_signed'            -f 'keys/id_ecdsa_openssh_signed'
+ssh-keygen                    -I "${id}" -n "${pr}"     -s 'keys/ca_ecdsa'                 'keys/id_ecdsa_openssh_signed.pub'
+ssh-keygen -t ed25519         -N ''          -m RFC4716 -C 'id_ed25519_signed'          -f 'keys/id_ed25519_openssh_signed'
+ssh-keygen                    -I "${id}" -n "${pr}"     -s 'keys/ca_ed25519'               'keys/id_ed25519_openssh_signed.pub'
 
 cat \
-  'keys/id_dsa.pub' \
-  'keys/id_rsa.pub' \
-  'keys/id_rsa_encrypted.pub' \
+  'keys/id_dsa_pem.pub' \
+  'keys/id_rsa_pem.pub' \
   'keys/id_rsa_pkcs8.pub' \
   'keys/id_rsa_pkcs8_encrypted.pub' \
   'keys/id_rsa_openssh.pub' \
-  'keys/id_rsa_aes256gcm.pub' \
-  'keys/id_ecdsa.pub' \
-  'keys/id_ecdsa_encrypted.pub' \
+  'keys/id_rsa_openssh_encrypted.pub' \
+  'keys/id_rsa_openssh_encrypted_aes256gcm.pub' \
   'keys/id_ecdsa_pem.pub' \
   'keys/id_ecdsa_pem_encrypted.pub' \
   'keys/id_ecdsa_pkcs8.pub' \
   'keys/id_ecdsa_pkcs8_encrypted.pub' \
-  'keys/id_ed25519.pub' \
-  'keys/id_ed25519_encrypted.pub' \
+  'keys/id_ecdsa_openssh.pub' \
+  'keys/id_ecdsa_openssh_encrypted.pub' \
   'keys/id_ed25519_pkcs8.pub' \
   'keys/id_ed25519_pkcs8_encrypted.pub' \
+  'keys/id_ed25519_openssh.pub' \
+  'keys/id_ed25519_openssh_encrypted.pub' \
   > 'openssh_server/authorized_keys'
 
 cat \
