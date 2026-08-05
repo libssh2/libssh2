@@ -76,16 +76,16 @@ EXTRA_DIST = \
   keys/ca_ecdsa.pub \
   keys/ca_ed25519 \
   keys/ca_ed25519.pub \
-  keys/ca_rsa \
-  keys/ca_rsa.pub \
-  keys/id_dsa \
-  keys/id_dsa.pub \
+  keys/ca_rsa_pem \
+  keys/ca_rsa_pem.pub \
+  keys/id_dsa_pem \
+  keys/id_dsa_pem.pub \
   keys/id_dsa_wrong \
   keys/id_dsa_wrong.pub \
-  keys/id_ecdsa \
-  keys/id_ecdsa.pub \
-  keys/id_ecdsa_encrypted \
-  keys/id_ecdsa_encrypted.pub \
+  keys/id_ecdsa_openssh \
+  keys/id_ecdsa_openssh.pub \
+  keys/id_ecdsa_openssh_encrypted \
+  keys/id_ecdsa_openssh_encrypted.pub \
   keys/id_ecdsa_pem \
   keys/id_ecdsa_pem.pub \
   keys/id_ecdsa_pem_encrypted \
@@ -97,10 +97,10 @@ EXTRA_DIST = \
   keys/id_ecdsa_signed \
   keys/id_ecdsa_signed-cert.pub \
   keys/id_ecdsa_signed.pub \
-  keys/id_ed25519 \
-  keys/id_ed25519.pub \
-  keys/id_ed25519_encrypted \
-  keys/id_ed25519_encrypted.pub \
+  keys/id_ed25519_openssh \
+  keys/id_ed25519_openssh.pub \
+  keys/id_ed25519_openssh_encrypted \
+  keys/id_ed25519_openssh_encrypted.pub \
   keys/id_ed25519_pkcs8 \
   keys/id_ed25519_pkcs8.pub \
   keys/id_ed25519_pkcs8_encrypted \
@@ -108,24 +108,24 @@ EXTRA_DIST = \
   keys/id_ed25519_signed \
   keys/id_ed25519_signed-cert.pub \
   keys/id_ed25519_signed.pub \
-  keys/id_rsa \
-  keys/id_rsa.pub \
-  keys/id_rsa_aes256gcm \
-  keys/id_rsa_aes256gcm.pub \
-  keys/id_rsa_encrypted \
-  keys/id_rsa_encrypted.pub \
   keys/id_rsa_openssh \
   keys/id_rsa_openssh.pub \
+  keys/id_rsa_openssh_encrypted_aes256gcm \
+  keys/id_rsa_openssh_encrypted_aes256gcm.pub \
+  keys/id_rsa_pem \
+  keys/id_rsa_pem.pub \
+  keys/id_rsa_pem_encrypted \
+  keys/id_rsa_pem_encrypted.pub \
   keys/id_rsa_pkcs8 \
   keys/id_rsa_pkcs8.pub \
   keys/id_rsa_pkcs8_encrypted \
   keys/id_rsa_pkcs8_encrypted.pub \
-  keys/id_rsa_signed \
-  keys/id_rsa_signed-cert.pub \
-  keys/id_rsa_signed.pub \
   keys/id_rsa_sha2_512_signed \
   keys/id_rsa_sha2_512_signed-cert.pub \
   keys/id_rsa_sha2_512_signed.pub \
+  keys/id_rsa_signed \
+  keys/id_rsa_signed.pub \
+  keys/id_rsa_signed-cert.pub \
   openssh_server/Dockerfile \
   openssh_server/authorized_keys \
   openssh_server/ca_user_keys.pub \
