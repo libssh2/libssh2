@@ -13,8 +13,8 @@ int test(LIBSSH2_SESSION *session)
     return test_auth_pubkey(session, 0,
                             "libssh2",
                             NULL,
-                            "keys/id_ecdsa_signed-cert.pub",
-                            "keys/id_ecdsa_signed");
+                            "keys/id_ecdsa_openssh_signed-cert.pub",
+                            "keys/id_ecdsa_openssh_signed");
 #else
     (void)session;
     return 0;

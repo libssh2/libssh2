@@ -15,8 +15,8 @@ int test(LIBSSH2_SESSION *session)
     return test_auth_pubkey(session, 0,
                             user ? user : "libssh2",
                             NULL,
-                            "keys/id_rsa_signed-cert.pub",
-                            "keys/id_rsa_signed");
+                            "keys/id_rsa_pem_signed-cert.pub",
+                            "keys/id_rsa_pem_signed");
 #else
     (void)session;
     return 0;

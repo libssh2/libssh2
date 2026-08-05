@@ -12,8 +12,8 @@ int test(LIBSSH2_SESSION *session)
     return test_auth_pubkey(session, 0,
                             "libssh2",
                             NULL,
-                            "keys/id_ed25519.pub",
-                            "keys/id_ed25519");
+                            "keys/id_ed25519_openssh.pub",
+                            "keys/id_ed25519_openssh");
 #else
     (void)session;
     return 0;

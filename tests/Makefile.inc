@@ -33,9 +33,9 @@ DOCKER_TESTS = \
   test_auth_pubkey_ok_ed25519_pkcs8_encrypted \
   test_auth_pubkey_ok_rsa_openssh \
   test_auth_pubkey_ok_rsa_openssh_encrypted_aes256gcm \
-  test_auth_pubkey_ok_rsa_openssh_sha2_512_signed \
   test_auth_pubkey_ok_rsa_pem \
   test_auth_pubkey_ok_rsa_pem_encrypted \
+  test_auth_pubkey_ok_rsa_pem_sha2_512_signed \
   test_auth_pubkey_ok_rsa_pem_signed \
   test_auth_pubkey_ok_rsa_pkcs8 \
   test_auth_pubkey_ok_rsa_pkcs8_encrypted \
