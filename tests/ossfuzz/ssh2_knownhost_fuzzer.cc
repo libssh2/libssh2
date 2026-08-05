@@ -27,6 +27,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_KNOWNHOSTS *hosts = NULL;
+    size_t maxcount = 5000;
 
     struct libssh2_knownhost *node = NULL;
     int grc;
@@ -54,7 +55,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     /* If the line parsed successfully an entry was added, also exercise the
        write-line path over any entries that were stored. */
     grc = libssh2_knownhost_get(hosts, &node, NULL);
-    while(!grc && node) {
+    while(!grc && node && --maxcount) {
         char linebuf[4096];
         size_t linelen = 0;
         libssh2_knownhost_writeline(hosts, node,
