@@ -86,6 +86,9 @@ EXTRA_DIST = \
   keys/id_ecdsa_openssh.pub \
   keys/id_ecdsa_openssh_encrypted \
   keys/id_ecdsa_openssh_encrypted.pub \
+  keys/id_ecdsa_openssh_signed \
+  keys/id_ecdsa_openssh_signed-cert.pub \
+  keys/id_ecdsa_openssh_signed.pub \
   keys/id_ecdsa_pem \
   keys/id_ecdsa_pem.pub \
   keys/id_ecdsa_pem_encrypted \
@@ -94,20 +97,17 @@ EXTRA_DIST = \
   keys/id_ecdsa_pkcs8.pub \
   keys/id_ecdsa_pkcs8_encrypted \
   keys/id_ecdsa_pkcs8_encrypted.pub \
-  keys/id_ecdsa_signed \
-  keys/id_ecdsa_signed-cert.pub \
-  keys/id_ecdsa_signed.pub \
   keys/id_ed25519_openssh \
   keys/id_ed25519_openssh.pub \
   keys/id_ed25519_openssh_encrypted \
   keys/id_ed25519_openssh_encrypted.pub \
+  keys/id_ed25519_openssh_signed \
+  keys/id_ed25519_openssh_signed-cert.pub \
+  keys/id_ed25519_openssh_signed.pub \
   keys/id_ed25519_pkcs8 \
   keys/id_ed25519_pkcs8.pub \
   keys/id_ed25519_pkcs8_encrypted \
   keys/id_ed25519_pkcs8_encrypted.pub \
-  keys/id_ed25519_signed \
-  keys/id_ed25519_signed-cert.pub \
-  keys/id_ed25519_signed.pub \
   keys/id_rsa_openssh \
   keys/id_rsa_openssh.pub \
   keys/id_rsa_openssh_encrypted_aes256gcm \
@@ -116,16 +116,16 @@ EXTRA_DIST = \
   keys/id_rsa_pem.pub \
   keys/id_rsa_pem_encrypted \
   keys/id_rsa_pem_encrypted.pub \
+  keys/id_rsa_pem_sha2_512_signed \
+  keys/id_rsa_pem_sha2_512_signed-cert.pub \
+  keys/id_rsa_pem_sha2_512_signed.pub \
+  keys/id_rsa_pem_signed \
+  keys/id_rsa_pem_signed.pub \
+  keys/id_rsa_pem_signed-cert.pub \
   keys/id_rsa_pkcs8 \
   keys/id_rsa_pkcs8.pub \
   keys/id_rsa_pkcs8_encrypted \
   keys/id_rsa_pkcs8_encrypted.pub \
-  keys/id_rsa_sha2_512_signed \
-  keys/id_rsa_sha2_512_signed-cert.pub \
-  keys/id_rsa_sha2_512_signed.pub \
-  keys/id_rsa_signed \
-  keys/id_rsa_signed.pub \
-  keys/id_rsa_signed-cert.pub \
   openssh_server/Dockerfile \
   openssh_server/authorized_keys \
   openssh_server/ca_user_keys.pub \
