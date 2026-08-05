@@ -46,7 +46,7 @@
 #define MIN_PAYLOAD_SIZE 1
 
 /* Maximum payload we will wrap to keep the harness efficient. */
-#define MAX_PAYLOAD_SIZE 65536
+#define MAX_PAYLOAD_SIZE (LIBSSH2_PACKET_MAXPAYLOAD - 5)
 
 static void write_u32_be(unsigned char *buf, uint32_t v)
 {
