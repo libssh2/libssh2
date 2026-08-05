@@ -17,28 +17,28 @@ DOCKER_TESTS = \
   test_auth_password_fail_username \
   test_auth_password_ok \
   test_auth_pubkey_fail \
-  test_auth_pubkey_ok_dsa \
-  test_auth_pubkey_ok_ecdsa \
-  test_auth_pubkey_ok_ecdsa_encrypted \
+  test_auth_pubkey_ok_dsa_pem \
+  test_auth_pubkey_ok_ecdsa_openssh \
+  test_auth_pubkey_ok_ecdsa_openssh_encrypted \
+  test_auth_pubkey_ok_ecdsa_openssh_signed \
   test_auth_pubkey_ok_ecdsa_pem \
   test_auth_pubkey_ok_ecdsa_pem_encrypted \
   test_auth_pubkey_ok_ecdsa_pkcs8 \
   test_auth_pubkey_ok_ecdsa_pkcs8_encrypted \
-  test_auth_pubkey_ok_ecdsa_signed \
-  test_auth_pubkey_ok_ed25519 \
-  test_auth_pubkey_ok_ed25519_encrypted \
-  test_auth_pubkey_ok_ed25519_mem \
+  test_auth_pubkey_ok_ed25519_openssh \
+  test_auth_pubkey_ok_ed25519_openssh_encrypted \
+  test_auth_pubkey_ok_ed25519_openssh_mem \
+  test_auth_pubkey_ok_ed25519_openssh_signed \
   test_auth_pubkey_ok_ed25519_pkcs8 \
   test_auth_pubkey_ok_ed25519_pkcs8_encrypted \
-  test_auth_pubkey_ok_ed25519_signed \
-  test_auth_pubkey_ok_rsa \
-  test_auth_pubkey_ok_rsa_aes256gcm \
-  test_auth_pubkey_ok_rsa_encrypted \
   test_auth_pubkey_ok_rsa_openssh \
+  test_auth_pubkey_ok_rsa_openssh_encrypted_aes256gcm \
+  test_auth_pubkey_ok_rsa_openssh_sha2_512_signed \
+  test_auth_pubkey_ok_rsa_pem \
+  test_auth_pubkey_ok_rsa_pem_encrypted \
+  test_auth_pubkey_ok_rsa_pem_signed \
   test_auth_pubkey_ok_rsa_pkcs8 \
   test_auth_pubkey_ok_rsa_pkcs8_encrypted \
-  test_auth_pubkey_ok_rsa_signed \
-  test_auth_pubkey_ok_rsa_sha2_512_signed \
   test_hostkey_hash \
   test_read
 
