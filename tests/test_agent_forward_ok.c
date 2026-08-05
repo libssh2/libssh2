@@ -5,9 +5,10 @@
 
 #include "runner.h"
 
-static const char *username = "libssh2"; /* set in Dockerfile */
-static const char *key_file_private = "keys/id_rsa";
-static const char *key_file_public = "keys/id_rsa.pub"; /* set in Dockerfile */
+/* set in Dockerfile */
+static const char *username = "libssh2";
+static const char *key_file_private = "keys/id_rsa_pem";
+static const char *key_file_public = "keys/id_rsa_pem.pub";
 
 int test(LIBSSH2_SESSION *session)
 {
