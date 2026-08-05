@@ -46,7 +46,7 @@ STANDALONE_TESTS =
 
 SSHD_TESTS = \
   test_ssh2 \
-  test_auth_pubkey_ok_ed25519
+  test_auth_pubkey_ok_ed25519_openssh
 
 # Programs of the above that use internal libssh2 functions so they need
 # to be statically linked against libssh2
