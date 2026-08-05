@@ -72,6 +72,8 @@ EXTRA_DIST = \
   .checksrc \
   CMakeLists.txt \
   keys-generate.sh \
+  keys/ca_host_ed25519 \
+  keys/ca_host_ed25519.pub \
   keys/ca_user_ecdsa \
   keys/ca_user_ecdsa.pub \
   keys/ca_user_ed25519 \
@@ -132,6 +134,7 @@ EXTRA_DIST = \
   openssh_server/ssh_host_ecdsa_key \
   openssh_server/ssh_host_ecdsa_key.pub \
   openssh_server/ssh_host_ed25519_key \
+  openssh_server/ssh_host_ed25519_key-cert.pub \
   openssh_server/ssh_host_ed25519_key.pub \
   openssh_server/ssh_host_rsa_key \
   openssh_server/ssh_host_rsa_key.pub \

@@ -86,6 +86,7 @@ chmod go-rwx \
   -o 'PidFile sshd.pid' \
   -o "AuthorizedKeysFile ${PUBKEY} ${d}/openssh_server/authorized_keys" \
   -o "TrustedUserCAKeys ${cakeys}" \
+  -o "HostCertificate ${d}/openssh_server/ssh_host_ed25519_key-cert.pub"
   -o 'KbdInteractiveAuthentication yes' \
   -o 'PermitRootLogin yes' \
   -D \
