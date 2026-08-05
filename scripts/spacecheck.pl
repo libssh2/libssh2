@@ -41,6 +41,7 @@ my @need_crlf = (
 
 my @trailing_ws = (
     'tests/keys/.+\.pub$',
+    'tests/openssh_server/.+\.pub$',
     'tests/openssh_server/authorized_keys$',
 );
 
@@ -50,6 +51,7 @@ my @double_empty_lines = (
 my @longline = (
     '^libssh2-style\.el$',
     'tests/keys/.+\.pub$',
+    'tests/openssh_server/.+\.pub$',
     'tests/openssh_server/authorized_keys$',
     'tests/openssh_server/ca_user_keys.pub$',
     'tests/openssh_server/sshd_config$',
