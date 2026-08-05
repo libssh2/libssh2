@@ -41,6 +41,7 @@ my @need_crlf = (
 
 my @trailing_ws = (
     'tests/keys/.+\.pub$',
+    'tests/openssh_server/authorized_keys$',
 );
 
 my @double_empty_lines = (

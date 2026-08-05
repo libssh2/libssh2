@@ -7,14 +7,13 @@
 
 int test(LIBSSH2_SESSION *session)
 {
-#if LIBSSH2_ECDSA && \
-    (defined(LIBSSH2_OPENSSL) || defined(LIBSSH2_WOLFSSL))
+#if LIBSSH2_ED25519
     /* set in Dockerfile */
     return test_auth_pubkey(session, 0,
                             "libssh2",
-                            NULL,
-                            "keys/id_ecdsa_signed-cert.pub",
-                            "keys/id_ecdsa_signed");
+                            "libssh2",
+                            "keys/id_ed25519_openssh_encrypted.pub",
+                            "keys/id_ed25519_openssh_encrypted");
 #else
     (void)session;
     return 0;
