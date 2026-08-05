@@ -10,7 +10,8 @@ set -eu
 # tests/openssh_server
 
 [ -d openssh_server ] || mkdir openssh_server
-rm openssh_server/*_key || true
+rm -f openssh_server/*_key
+rm -f openssh_server/*_key-cert.pub
 
 ssh-keygen -t rsa     -b 2048 -N ''          -m PEM     -C ''                             -f 'openssh_server/ssh_host_rsa_key'
 ssh-keygen -t ecdsa   -b  256 -N ''          -m PEM     -C ''                             -f 'openssh_server/ssh_host_ecdsa_key'
@@ -19,8 +20,11 @@ ssh-keygen -t ed25519         -N ''          -m RFC4716 -C ''                   
 # tests/keys
 
 [ -d keys ] || mkdir keys
-rm keys/ca_* || true
-rm keys/id_* || true
+rm -f keys/ca_*
+rm -f keys/id_*
+
+# host CAs
+ssh-keygen -t ed25519         -N ''          -m RFC4716 -C 'ca_host_ed25519'              -f 'keys/ca_host_ed25519'
 
 # user CAs
 ssh-keygen -t rsa     -b 3072 -N ''          -m RFC4716 -C 'ca_user_rsa'                  -f 'keys/ca_user_rsa'
@@ -30,6 +34,9 @@ ssh-keygen -t ed25519         -N ''          -m RFC4716 -C 'ca_user_ed25519'    
 pw='libssh2'
 id='identity'
 pr="${1:-libssh2}"
+
+# host certificates
+ssh-keygen                 -h -I 'host_ed25519' -n "${pr}" -s 'keys/ca_host_ed25519'         'openssh_server/ssh_host_ed25519_key.pub'
 
 # inspect PKCS8 private keys with command:
 # $ openssl asn1parse -dump -in <id-filename>

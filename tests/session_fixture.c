@@ -60,7 +60,7 @@ static int connect_to_server(void)
     return LIBSSH2_ERROR_NONE;
 }
 
-/* List of crypto protocols for which tests are skipped */
+/* List of crypto algorithms for which tests are skipped */
 static char const *skip_crypt[] = {
 #if !LIBSSH2_3DES
     "3des-cbc",
@@ -83,7 +83,7 @@ static char const *skip_crypt[] = {
     NULL
 };
 
-/* List of MAC protocols for which tests are skipped */
+/* List of MAC algorithms for which tests are skipped */
 static char const *skip_mac[] = {
 #ifndef LIBSSH2_HMAC_SHA1_ENABLE
     "hmac-sha1",
@@ -97,12 +97,21 @@ static char const *skip_mac[] = {
     NULL
 };
 
+/* List of HOSTKEY algorithms for which tests are skipped */
+static char const *skip_hostkey[] = {
+#if !LIBSSH2_ED25519
+    "ssh-ed25519-cert-v01@openssh.com",
+#endif
+    NULL
+};
+
 LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
 {
     int rc;
 
     const char *crypt = getenv("FIXTURE_TEST_CRYPT");
     const char *mac = getenv("FIXTURE_TEST_MAC");
+    const char *hostkey = getenv("FIXTURE_TEST_HOSTKEY");
 
     *skipped = 0;
     *err = LIBSSH2_ERROR_NONE;
@@ -125,6 +134,19 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
             if(!strcmp(*sk, mac)) {
                 fprintf(stderr, "unsupported MAC algorithm (%s) skipped.\n",
                                 mac);
+                *skipped = 1;
+                return NULL;
+            }
+        }
+    }
+
+    if(hostkey) {
+        char const * const *sk;
+        for(sk = skip_hostkey; *sk; ++sk) {
+            if(!strcmp(*sk, hostkey)) {
+                fprintf(stderr,
+                        "unsupported HOSTKEY algorithm (%s) skipped.\n",
+                        hostkey);
                 *skipped = 1;
                 return NULL;
             }
@@ -180,6 +202,26 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
                             "(probably disabled in the build): '%s'\n", mac);
             return NULL;
         }
+    }
+
+    /* Without an explicit override, limit accepted hostkey types to those
+       tested (or potentially tested) in test_hostkey.c and
+       test_hostkey_hash.c. */
+    if(!hostkey)
+        hostkey =
+            "ssh-ed25519,"
+            "ecdsa-sha2-nistp521,"
+            "ecdsa-sha2-nistp384,"
+            "ecdsa-sha2-nistp256,"
+            "rsa-sha2-256,"
+            "rsa-sha2-512,"
+            "ssh-rsa";
+
+    if(libssh2_session_method_pref(connected_session,
+                                   LIBSSH2_METHOD_HOSTKEY, hostkey)) {
+        fprintf(stderr, "libssh2_session_method_pref() HOSTKEY failed "
+                        "(probably disabled in the build): '%s'\n", hostkey);
+        return NULL;
     }
 
     libssh2_session_set_blocking(connected_session, 1);
