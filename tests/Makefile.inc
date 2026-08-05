@@ -17,7 +17,7 @@ DOCKER_TESTS = \
   test_auth_password_fail_username \
   test_auth_password_ok \
   test_auth_pubkey_fail \
-  test_auth_pubkey_ok_dsa_pem \
+  test_auth_pubkey_ok_dsa \
   test_auth_pubkey_ok_ecdsa_openssh \
   test_auth_pubkey_ok_ecdsa_openssh_encrypted \
   test_auth_pubkey_ok_ecdsa_openssh_signed \
@@ -78,8 +78,8 @@ EXTRA_DIST = \
   keys/ca_ed25519.pub \
   keys/ca_rsa_pem \
   keys/ca_rsa_pem.pub \
-  keys/id_dsa_pem \
-  keys/id_dsa_pem.pub \
+  keys/id_dsa \
+  keys/id_dsa.pub \
   keys/id_dsa_wrong \
   keys/id_dsa_wrong.pub \
   keys/id_ecdsa_openssh \

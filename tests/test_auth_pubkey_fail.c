@@ -10,7 +10,7 @@ int test(LIBSSH2_SESSION *session)
     return test_auth_pubkey(session, TEST_AUTH_SHOULDFAIL,
                             "libssh2", /* set in Dockerfile */
                             NULL,
-                            "keys/id_dsa_pem_wrong.pub", /* Not authorized
-                                                            on server */
-                            "keys/id_dsa_pem_wrong");
+                            "keys/id_dsa_wrong.pub", /* Not authorized
+                                                        on server */
+                            "keys/id_dsa_wrong");
 }
