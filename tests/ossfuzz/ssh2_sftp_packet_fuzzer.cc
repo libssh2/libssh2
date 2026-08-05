@@ -6,21 +6,20 @@
 /* Fuzz harness for libssh2 SSH binary packet dispatch and SFTP packet parsing.
 
    The existing ssh2_client_fuzzer.cc exercises the SSH-layer handshake by
-   feeding raw fuzz bytes directly to libssh2_session_handshake().  This
+   feeding raw fuzz bytes directly to libssh2_session_handshake(). This
    harness complements it by:
 
-    1. Prepending a valid SSH-2.0 server banner so that
-       session_banner_receive() in session.c always completes successfully and
-       the code moves on to the binary-packet transport layer. This pushes
-       coverage into the SSH binary packet reader
-       (ssh2_transport_read() in transport.c) and the SSH message dispatcher
-       (ssh2_packet_add() in packet.c) with fuzz-controlled payload bytes -
-       including all SSH message type branches (DISCONNECT, DEBUG, IGNORE,
-       EXT_INFO, GLOBAL_REQUEST, CHANNEL_*, USERAUTH_BANNER, etc.).
+   1. Prepending a valid SSH-2.0 server banner so that
+      session_banner_receive() always completes successfully and the code
+      moves on to the binary-packet transport layer. This pushes coverage
+      into the SSH binary packet reader ssh2_transport_read() and the SSH
+      message dispatcher ssh2_packet_add() with fuzz-controlled payload
+      bytes - including all SSH message type branches (DISCONNECT, DEBUG,
+      IGNORE, EXT_INFO, GLOBAL_REQUEST, CHANNEL_*, USERAUTH_BANNER, etc.).
 
-    2. For the specific case where the first fuzz byte selects the
-       SSH_MSG_KEXINIT type (0x14 == 20), it also hits the kex algorithm
-       negotiation string-list parser in kex.c.
+   2. For the specific case where the first fuzz byte selects the
+      SSH_MSG_KEXINIT type (0x14 == 20), it also hits the kex algorithm
+      negotiation string-list parser in kex.c.
 
    Wire format sent to the server-side socket:
      [SSH-2.0-libssh2_fuzz\r\n][SSH binary packet wrapping fuzz payload]
@@ -128,8 +127,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
     /* This will exercise:
          - session_banner_receive() (fixed banner -> always succeeds)
-         - ssh2_transport_read() in transport.c
-         - ssh2_packet_add() in packet.c with fuzz-controlled msg type
+         - ssh2_transport_read()
+         - ssh2_packet_add() with fuzz-controlled msg type
          - Per-message-type handlers for whatever the first byte of data is
      */
     libssh2_session_handshake(session, socket_fds[0]);
