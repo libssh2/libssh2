@@ -32,7 +32,7 @@ DOCKER_TESTS = \
   test_auth_pubkey_ok_ed25519_pkcs8 \
   test_auth_pubkey_ok_ed25519_pkcs8_encrypted \
   test_auth_pubkey_ok_rsa_openssh \
-  test_auth_pubkey_ok_rsa_openssh_encrypted_aes256gcm \
+  test_auth_pubkey_ok_rsa_openssh_encrypted \
   test_auth_pubkey_ok_rsa_pem \
   test_auth_pubkey_ok_rsa_pem_encrypted \
   test_auth_pubkey_ok_rsa_pem_sha2_512_signed \
@@ -110,8 +110,8 @@ EXTRA_DIST = \
   keys/id_ed25519_pkcs8_encrypted.pub \
   keys/id_rsa_openssh \
   keys/id_rsa_openssh.pub \
-  keys/id_rsa_openssh_encrypted_aes256gcm \
-  keys/id_rsa_openssh_encrypted_aes256gcm.pub \
+  keys/id_rsa_openssh_encrypted \
+  keys/id_rsa_openssh_encrypted.pub \
   keys/id_rsa_pem \
   keys/id_rsa_pem.pub \
   keys/id_rsa_pem_encrypted \
