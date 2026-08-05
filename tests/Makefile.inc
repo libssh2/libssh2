@@ -76,8 +76,8 @@ EXTRA_DIST = \
   keys/ca_ecdsa.pub \
   keys/ca_ed25519 \
   keys/ca_ed25519.pub \
-  keys/ca_rsa_pem \
-  keys/ca_rsa_pem.pub \
+  keys/ca_rsa \
+  keys/ca_rsa.pub \
   keys/id_dsa \
   keys/id_dsa.pub \
   keys/id_dsa_wrong \
