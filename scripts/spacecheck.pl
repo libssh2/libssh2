@@ -41,6 +41,7 @@ my @need_crlf = (
 
 my @trailing_ws = (
     'tests/keys/.+\.pub$',
+    'tests/openssh_server/.+\.pub$',
     'tests/openssh_server/authorized_keys$',
 );
 
