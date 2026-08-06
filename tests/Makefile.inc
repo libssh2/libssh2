@@ -72,12 +72,12 @@ EXTRA_DIST = \
   .checksrc \
   CMakeLists.txt \
   keys-generate.sh \
-  keys/ca_ecdsa \
-  keys/ca_ecdsa.pub \
-  keys/ca_ed25519 \
-  keys/ca_ed25519.pub \
-  keys/ca_rsa \
-  keys/ca_rsa.pub \
+  keys/ca_user_ecdsa \
+  keys/ca_user_ecdsa.pub \
+  keys/ca_user_ed25519 \
+  keys/ca_user_ed25519.pub \
+  keys/ca_user_rsa \
+  keys/ca_user_rsa.pub \
   keys/id_dsa \
   keys/id_dsa.pub \
   keys/id_dsa_wrong \
