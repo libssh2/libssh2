@@ -22,9 +22,10 @@ ssh-keygen -t ed25519         -N ''          -m RFC4716 -C ''                   
 rm keys/ca_* || true
 rm keys/id_* || true
 
-ssh-keygen -t rsa     -b 3072 -N ''          -m RFC4716 -C 'ca_rsa'                       -f 'keys/ca_rsa'
-ssh-keygen -t ecdsa   -b  521 -N ''          -m RFC4716 -C 'ca_ecdsa'                     -f 'keys/ca_ecdsa'
-ssh-keygen -t ed25519         -N ''          -m RFC4716 -C 'ca_ed25519'                   -f 'keys/ca_ed25519'
+# user CAs
+ssh-keygen -t rsa     -b 3072 -N ''          -m RFC4716 -C 'ca_user_rsa'                  -f 'keys/ca_user_rsa'
+ssh-keygen -t ecdsa   -b  521 -N ''          -m RFC4716 -C 'ca_user_ecdsa'                -f 'keys/ca_user_ecdsa'
+ssh-keygen -t ed25519         -N ''          -m RFC4716 -C 'ca_user_ed25519'              -f 'keys/ca_user_ed25519'
 
 pw='libssh2'
 id='identity'
@@ -53,13 +54,13 @@ ssh-keygen -t ed25519         -N ''          -m RFC4716 -C 'id_ed25519_openssh' 
 ssh-keygen -t ed25519         -N "${pw}"     -m RFC4716 -C 'id_ed25519_openssh_encrypted' -f 'keys/id_ed25519_openssh_encrypted'   -Z aes256-ctr
 
 ssh-keygen -t rsa     -b 4096 -N ''          -m PEM     -C 'id_rsa_pem_signed'            -f 'keys/id_rsa_pem_signed'
-ssh-keygen -t ssh-rsa         -I "${id}" -n "${pr}"     -s 'keys/ca_rsa'                     'keys/id_rsa_pem_signed.pub'
+ssh-keygen -t ssh-rsa         -I "${id}" -n "${pr}"     -s 'keys/ca_user_rsa'                'keys/id_rsa_pem_signed.pub'
 ssh-keygen -t rsa     -b 4096 -N ''          -m PEM     -C 'id_rsa_pem_sha2_512_signed'   -f 'keys/id_rsa_pem_sha2_512_signed'
-ssh-keygen -t rsa-sha2-512    -I "${id}" -n "${pr}"     -s 'keys/ca_rsa'                     'keys/id_rsa_pem_sha2_512_signed.pub'
+ssh-keygen -t rsa-sha2-512    -I "${id}" -n "${pr}"     -s 'keys/ca_user_rsa'                'keys/id_rsa_pem_sha2_512_signed.pub'
 ssh-keygen -t ecdsa   -b  384 -N ''          -m RFC4716 -C 'id_ecdsa_openssh_signed'      -f 'keys/id_ecdsa_openssh_signed'
-ssh-keygen                    -I "${id}" -n "${pr}"     -s 'keys/ca_ecdsa'                   'keys/id_ecdsa_openssh_signed.pub'
+ssh-keygen                    -I "${id}" -n "${pr}"     -s 'keys/ca_user_ecdsa'              'keys/id_ecdsa_openssh_signed.pub'
 ssh-keygen -t ed25519         -N ''          -m RFC4716 -C 'id_ed25519_openssh_signed'    -f 'keys/id_ed25519_openssh_signed'
-ssh-keygen                    -I "${id}" -n "${pr}"     -s 'keys/ca_ed25519'                 'keys/id_ed25519_openssh_signed.pub'
+ssh-keygen                    -I "${id}" -n "${pr}"     -s 'keys/ca_user_ed25519'            'keys/id_ed25519_openssh_signed.pub'
 
 cat \
   'keys/id_dsa.pub' \
@@ -82,9 +83,9 @@ cat \
   > 'openssh_server/authorized_keys'
 
 cat \
-  'keys/ca_rsa.pub' \
-  'keys/ca_ecdsa.pub' \
-  'keys/ca_ed25519.pub' \
+  'keys/ca_user_rsa.pub' \
+  'keys/ca_user_ecdsa.pub' \
+  'keys/ca_user_ed25519.pub' \
   > 'openssh_server/ca_user_keys.pub'
 
 # tests/test_*.c
