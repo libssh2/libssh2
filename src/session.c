@@ -928,7 +928,7 @@ static int session_free(LIBSSH2_SESSION *session)
         SSH2_FREE(session, session->local.lang_prefs);
 
     if(session->remote.kexinit)
-        SSH2_FREE(session, session->remote.kexinit);
+        SSH2_SAFEFREE(session, session->remote.kexinit);
     if(session->remote.crypt_prefs)
         SSH2_FREE(session, session->remote.crypt_prefs);
     if(session->remote.mac_prefs)
