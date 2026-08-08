@@ -23,6 +23,12 @@ while read -r test; do
     else
       res='not ok'
     fi
+  elif [[ "${test}" = *'-cert-'* ]]; then
+    if FIXTURE_TEST_HOSTKEY="${test}" ${LIBSSH2_TEST_EXE_RUNNER:-} "${testbin}"; then
+      res='ok'
+    else
+      res='not ok'
+    fi
   else
     if FIXTURE_TEST_CRYPT="${test}" ${LIBSSH2_TEST_EXE_RUNNER:-} "${testbin}"; then
       res='ok'

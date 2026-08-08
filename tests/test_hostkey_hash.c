@@ -67,6 +67,7 @@ int test(LIBSSH2_SESSION *session)
     char buf[SHA256_HASH_SIZE * 2 + 1];
 
     const char *hostkey;
+    const char *hostkey_str;
 #if LIBSSH2_MD5
     const char *md5_hash;
 #endif
@@ -74,6 +75,7 @@ int test(LIBSSH2_SESSION *session)
     const char *sha256_hash;
     int type;
     size_t len;
+    size_t len_str;
 
     /* these are the host keys under test, they are currently unused */
     (void)EXPECTED_RSA_HOSTKEY;
@@ -86,7 +88,32 @@ int test(LIBSSH2_SESSION *session)
         return 1;
     }
 
-    if(type == LIBSSH2_HOSTKEY_TYPE_ED25519) {
+    if(len < 4) {
+        print_last_session_error("libssh2_session_hostkey() "
+                                 "hostkey missing length");
+        return 1;
+    }
+
+    len_str =
+        ((uint32_t)((unsigned char)hostkey[0]) << 24) |
+        ((uint32_t)((unsigned char)hostkey[1]) << 16) |
+        ((uint32_t)((unsigned char)hostkey[2]) << 8)  |
+        ((uint32_t)((unsigned char)hostkey[3]));
+    hostkey_str = hostkey + 4;
+
+    if(len_str > len - 4) {
+        print_last_session_error("libssh2_session_hostkey() "
+                                 "hostkey too short");
+        return 1;
+    }
+
+    if(SSH2_IS_LITERAL(hostkey_str, len_str, "ssh-ed25519")) {
+
+        if(type != LIBSSH2_HOSTKEY_TYPE_ED25519) {
+            fprintf(stderr,
+                    "libssh2_session_hostkey() type mismatch %.*s != %d\n",
+                    (int)len_str, hostkey_str, LIBSSH2_HOSTKEY_TYPE_ED25519);
+        }
 
         sha256_hash = libssh2_hostkey_hash(session,
                                            LIBSSH2_HOSTKEY_HASH_SHA256);
@@ -105,7 +132,13 @@ int test(LIBSSH2_SESSION *session)
             return 1;
         }
     }
-    else if(type == LIBSSH2_HOSTKEY_TYPE_ECDSA_256) {
+    else if(SSH2_IS_LITERAL(hostkey_str, len_str, "ecdsa-sha2-nistp256")) {
+
+        if(type != LIBSSH2_HOSTKEY_TYPE_ECDSA_256) {
+            fprintf(stderr,
+                    "libssh2_session_hostkey() type mismatch %.*s != %d\n",
+                    (int)len_str, hostkey_str, LIBSSH2_HOSTKEY_TYPE_ECDSA_256);
+        }
 
 #if LIBSSH2_MD5
         md5_hash = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_MD5);
@@ -158,7 +191,13 @@ int test(LIBSSH2_SESSION *session)
             return 1;
         }
     }
-    else if(type == LIBSSH2_HOSTKEY_TYPE_RSA) {
+    else if(SSH2_IS_LITERAL(hostkey_str, len_str, "ssh-rsa")) {
+
+        if(type != LIBSSH2_HOSTKEY_TYPE_RSA) {
+            fprintf(stderr,
+                    "libssh2_session_hostkey() type mismatch %.*s != %d\n",
+                    (int)len_str, hostkey_str, LIBSSH2_HOSTKEY_TYPE_RSA);
+        }
 
 #if LIBSSH2_MD5
         md5_hash = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_MD5);
@@ -211,8 +250,12 @@ int test(LIBSSH2_SESSION *session)
             return 1;
         }
     }
+    else if(SSH2_IS_LITERAL(hostkey_str, len_str,
+                            "ssh-ed25519-cert-v01@openssh.com"))
+        fprintf(stderr, "Signed hostkey: %.*s\n", (int)len_str, hostkey_str);
     else {
-        fprintf(stderr, "Unexpected type of hostkey: %d\n", type);
+        fprintf(stderr, "Unexpected type of hostkey: %d: %.*s\n",
+                type, (int)len_str, hostkey_str);
         return 1;
     }
 
