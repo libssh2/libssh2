@@ -60,43 +60,6 @@ static int connect_to_server(void)
     return LIBSSH2_ERROR_NONE;
 }
 
-/* List of crypto protocols for which tests are skipped */
-static char const *skip_crypt[] = {
-#if !LIBSSH2_3DES
-    "3des-cbc",
-#endif
-#if !LIBSSH2_AES_CTR
-    "aes128-ctr",
-    "aes192-ctr",
-    "aes256-ctr",
-#endif
-#if !LIBSSH2_AES_CBC
-    "aes128-cbc",
-    "aes192-cbc",
-    "aes256-cbc",
-#endif
-#if !LIBSSH2_AES_GCM
-    /* Support for AES-GCM hasn't been added to these back-ends yet */
-    "aes128-gcm@openssh.com",
-    "aes256-gcm@openssh.com",
-#endif
-    NULL
-};
-
-/* List of MAC protocols for which tests are skipped */
-static char const *skip_mac[] = {
-#ifndef LIBSSH2_HMAC_SHA1_ENABLE
-    "hmac-sha1",
-    "hmac-sha1-etm@openssh.com",
-    "hmac-sha1-96",
-#endif
-#if !LIBSSH2_MD5
-    "hmac-md5",
-    "hmac-md5-96",
-#endif
-    NULL
-};
-
 LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
 {
     int rc;
@@ -106,30 +69,6 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
 
     *skipped = 0;
     *err = LIBSSH2_ERROR_NONE;
-
-    if(crypt) {
-        char const * const *sk;
-        for(sk = skip_crypt; *sk; ++sk) {
-            if(!strcmp(*sk, crypt)) {
-                fprintf(stderr, "unsupported crypt algorithm (%s) skipped.\n",
-                                crypt);
-                *skipped = 1;
-                return NULL;
-            }
-        }
-    }
-
-    if(mac) {
-        char const * const *sk;
-        for(sk = skip_mac; *sk; ++sk) {
-            if(!strcmp(*sk, mac)) {
-                fprintf(stderr, "unsupported MAC algorithm (%s) skipped.\n",
-                                mac);
-                *skipped = 1;
-                return NULL;
-            }
-        }
-    }
 
     rc = start_openssh_fixture();
     if(rc)
@@ -166,6 +105,7 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
                                        LIBSSH2_METHOD_CRYPT_SC, crypt)) {
             fprintf(stderr, "libssh2_session_method_pref CRYPT failed "
                             "(probably disabled in the build): '%s'\n", crypt);
+            *skipped = 1;
             return NULL;
         }
     }
@@ -178,6 +118,7 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
                                        LIBSSH2_METHOD_MAC_SC, mac)) {
             fprintf(stderr, "libssh2_session_method_pref MAC failed "
                             "(probably disabled in the build): '%s'\n", mac);
+            *skipped = 1;
             return NULL;
         }
     }
