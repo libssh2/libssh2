@@ -144,8 +144,9 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
         char const * const *sk;
         for(sk = skip_hostkey; *sk; ++sk) {
             if(!strcmp(*sk, hostkey)) {
-                fprintf(stderr, "unsupported HOSTKEY algorithm (%s) skipped.\n",
-                                hostkey);
+                fprintf(stderr,
+                        "unsupported HOSTKEY algorithm (%s) skipped.\n",
+                        hostkey);
                 *skipped = 1;
                 return NULL;
             }
