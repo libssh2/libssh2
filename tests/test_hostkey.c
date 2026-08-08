@@ -63,7 +63,8 @@ int test(LIBSSH2_SESSION *session)
         return 0;
     }
     else {
-        fprintf(stderr, "Unexpected type of hostkey: %d\n", type);
+        fprintf(stderr, "Unexpected type of hostkey: %d: %.*s\n",
+                type, (int)len_str, hostkey_str);
         return 1;
     }
 

@@ -244,7 +244,8 @@ int test(LIBSSH2_SESSION *session)
                             "ssh-ed25519-cert-v01@openssh.com"))
         fprintf(stderr, "Signed hostkey: %.*s\n", (int)len_str, hostkey_str);
     else {
-        fprintf(stderr, "Unexpected type of hostkey: %d\n", type);
+        fprintf(stderr, "Unexpected type of hostkey: %d: %.*s\n",
+                type, (int)len_str, hostkey_str);
         return 1;
     }
 
