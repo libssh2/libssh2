@@ -113,6 +113,7 @@ int test(LIBSSH2_SESSION *session)
             fprintf(stderr,
                     "libssh2_session_hostkey() type mismatch %.*s != %d\n",
                     (int)len_str, hostkey_str, LIBSSH2_HOSTKEY_TYPE_ED25519);
+            return 1;
         }
 
         sha256_hash = libssh2_hostkey_hash(session,
@@ -138,6 +139,7 @@ int test(LIBSSH2_SESSION *session)
             fprintf(stderr,
                     "libssh2_session_hostkey() type mismatch %.*s != %d\n",
                     (int)len_str, hostkey_str, LIBSSH2_HOSTKEY_TYPE_ECDSA_256);
+            return 1;
         }
 
 #if LIBSSH2_MD5
@@ -197,6 +199,7 @@ int test(LIBSSH2_SESSION *session)
             fprintf(stderr,
                     "libssh2_session_hostkey() type mismatch %.*s != %d\n",
                     (int)len_str, hostkey_str, LIBSSH2_HOSTKEY_TYPE_RSA);
+            return 1;
         }
 
 #if LIBSSH2_MD5
