@@ -101,7 +101,7 @@ int test(LIBSSH2_SESSION *session)
         ((uint32_t)hostkey[3]);
     hostkey_str = hostkey + 4;
 
-    if(len < len_str) {
+    if(len_str > len - 4) {
         print_last_session_error("libssh2_session_hostkey() "
                                  "hostkey too short");
         return 1;
