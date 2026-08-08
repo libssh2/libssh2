@@ -95,10 +95,10 @@ int test(LIBSSH2_SESSION *session)
     }
 
     len_str =
-        ((uint32_t)hostkey[0] << 24) |
-        ((uint32_t)hostkey[1] << 16) |
-        ((uint32_t)hostkey[2] << 8)  |
-        ((uint32_t)hostkey[3]);
+        ((uint32_t)((unsigned char)hostkey[0]) << 24) |
+        ((uint32_t)((unsigned char)hostkey[1]) << 16) |
+        ((uint32_t)((unsigned char)hostkey[2]) << 8)  |
+        ((uint32_t)((unsigned char)hostkey[3]));
     hostkey_str = hostkey + 4;
 
     if(len_str > len - 4) {
