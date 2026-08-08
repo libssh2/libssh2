@@ -23,26 +23,36 @@ static const char EXPECTED_ED25519_HOSTKEY[] =
 int test(LIBSSH2_SESSION *session)
 {
     int rc;
-    size_t len;
+    size_t len, len_str;
     int type;
     size_t expected_len = 0;
     char *expected_hostkey = NULL;
+    const char *hostkey;
+    const char *hostkey_str;
 
-    const char *hostkey = libssh2_session_hostkey(session, &len, &type);
+    hostkey = libssh2_session_hostkey(session, &len, &type);
     if(!hostkey) {
         print_last_session_error("libssh2_session_hostkey()");
         return 1;
     }
 
-    if(type == LIBSSH2_HOSTKEY_TYPE_ED25519)
+    if(len < 4) {
+        print_last_session_error("libssh2_session_hostkey() hostkey too short");
+        return 1;
+    }
+
+    hostkey_str = hostkey + 4;
+    len_str = len - 4;
+
+    if(SSH2_IS_LITERAL(hostkey_str, len_str, "ssh-ed25519"))
         rc = ssh2_base64_decode(session, &expected_hostkey, &expected_len,
                                 EXPECTED_ED25519_HOSTKEY,
                                 sizeof(EXPECTED_ED25519_HOSTKEY) - 1);
-    else if(type == LIBSSH2_HOSTKEY_TYPE_ECDSA_256)
+    else if(SSH2_IS_LITERAL(hostkey_str, len_str, "ecdsa-sha2-nistp256"))
         rc = ssh2_base64_decode(session, &expected_hostkey, &expected_len,
                                 EXPECTED_ECDSA_HOSTKEY,
                                 sizeof(EXPECTED_ECDSA_HOSTKEY) - 1);
-    else if(type == LIBSSH2_HOSTKEY_TYPE_RSA)
+    else if(SSH2_IS_LITERAL(hostkey_str, len_str, "ssh-rsa"))
         rc = ssh2_base64_decode(session, &expected_hostkey, &expected_len,
                                 EXPECTED_RSA_HOSTKEY,
                                 sizeof(EXPECTED_RSA_HOSTKEY) - 1);
