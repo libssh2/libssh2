@@ -60,7 +60,7 @@ static int connect_to_server(void)
     return LIBSSH2_ERROR_NONE;
 }
 
-/* List of crypto protocols for which tests are skipped */
+/* List of crypto algorithms for which tests are skipped */
 static char const *skip_crypt[] = {
 #if !LIBSSH2_3DES
     "3des-cbc",
@@ -83,7 +83,7 @@ static char const *skip_crypt[] = {
     NULL
 };
 
-/* List of MAC protocols for which tests are skipped */
+/* List of MAC algorithms for which tests are skipped */
 static char const *skip_mac[] = {
 #ifndef LIBSSH2_HMAC_SHA1_ENABLE
     "hmac-sha1",
@@ -93,6 +93,14 @@ static char const *skip_mac[] = {
 #if !LIBSSH2_MD5
     "hmac-md5",
     "hmac-md5-96",
+#endif
+    NULL
+};
+
+/* List of HOSTKEY algorithms for which tests are skipped */
+static char const *skip_hostkey[] = {
+#if !LIBSSH2_ED25519
+    "ssh-ed25519-cert-v01@openssh.com",
 #endif
     NULL
 };
@@ -126,6 +134,18 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
             if(!strcmp(*sk, mac)) {
                 fprintf(stderr, "unsupported MAC algorithm (%s) skipped.\n",
                                 mac);
+                *skipped = 1;
+                return NULL;
+            }
+        }
+    }
+
+    if(hostkey) {
+        char const * const *sk;
+        for(sk = skip_hostkey; *sk; ++sk) {
+            if(!strcmp(*sk, hostkey)) {
+                fprintf(stderr, "unsupported HOSTKEY algorithm (%s) skipped.\n",
+                                hostkey);
                 *skipped = 1;
                 return NULL;
             }
