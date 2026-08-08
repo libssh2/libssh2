@@ -38,12 +38,22 @@ int test(LIBSSH2_SESSION *session)
 
     if(len < 4) {
         print_last_session_error("libssh2_session_hostkey() "
-                                 "hostkey too short");
+                                 "hostkey missing length");
         return 1;
     }
 
+    len_str =
+        ((uint32_t)hostkey[0] << 24) |
+        ((uint32_t)hostkey[1] << 16) |
+        ((uint32_t)hostkey[2] << 8)  |
+        ((uint32_t)hostkey[3]);
     hostkey_str = hostkey + 4;
-    len_str = len - 4;
+
+    if(len < len_str) {
+        print_last_session_error("libssh2_session_hostkey() "
+                                 "hostkey too short");
+        return 1;
+    }
 
     if(SSH2_IS_LITERAL(hostkey_str, len_str, "ssh-ed25519"))
         rc = ssh2_base64_decode(session, &expected_hostkey, &expected_len,
