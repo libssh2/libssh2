@@ -98,6 +98,12 @@ int test(LIBSSH2_SESSION *session)
 
     if(SSH2_IS_LITERAL(hostkey_str, len_str, "ssh-ed25519")) {
 
+        if(type != LIBSSH2_HOSTKEY_TYPE_ED25519) {
+            fprintf(stderr,
+                    "libssh2_session_host() type mismatch %.*s != %d\n",
+                    (int)len_str, hostkey_str, LIBSSH2_HOSTKEY_TYPE_ED25519);
+        }
+
         sha256_hash = libssh2_hostkey_hash(session,
                                            LIBSSH2_HOSTKEY_HASH_SHA256);
         if(!sha256_hash) {
@@ -116,6 +122,12 @@ int test(LIBSSH2_SESSION *session)
         }
     }
     else if(SSH2_IS_LITERAL(hostkey_str, len_str, "ecdsa-sha2-nistp256")) {
+
+        if(type != LIBSSH2_HOSTKEY_TYPE_ECDSA_256) {
+            fprintf(stderr,
+                    "libssh2_session_host() type mismatch %.*s != %d\n",
+                    (int)len_str, hostkey_str, LIBSSH2_HOSTKEY_TYPE_ECDSA_256);
+        }
 
 #if LIBSSH2_MD5
         md5_hash = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_MD5);
@@ -169,6 +181,12 @@ int test(LIBSSH2_SESSION *session)
         }
     }
     else if(SSH2_IS_LITERAL(hostkey_str, len_str, "ssh-rsa")) {
+
+        if(type != LIBSSH2_HOSTKEY_TYPE_RSA) {
+            fprintf(stderr,
+                    "libssh2_session_host() type mismatch %.*s != %d\n",
+                    (int)len_str, hostkey_str, LIBSSH2_HOSTKEY_TYPE_RSA);
+        }
 
 #if LIBSSH2_MD5
         md5_hash = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_MD5);
