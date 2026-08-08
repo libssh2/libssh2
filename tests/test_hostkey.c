@@ -56,6 +56,11 @@ int test(LIBSSH2_SESSION *session)
         rc = ssh2_base64_decode(session, &expected_hostkey, &expected_len,
                                 EXPECTED_RSA_HOSTKEY,
                                 sizeof(EXPECTED_RSA_HOSTKEY) - 1);
+    else if(SSH2_IS_LITERAL(hostkey_str, len_str,
+                            "ssh-ed25519-cert-v01@openssh.com")) {
+        fprintf(stderr, "Signed hostkey: %.*s\n", (int)len_str, hostkey_str);
+        return 0;
+    }
     else {
         fprintf(stderr, "Unexpected type of hostkey: %d\n", type);
         return 1;

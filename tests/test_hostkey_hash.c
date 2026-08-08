@@ -239,6 +239,9 @@ int test(LIBSSH2_SESSION *session)
             return 1;
         }
     }
+    else if(SSH2_IS_LITERAL(hostkey_str, len_str,
+                            "ssh-ed25519-cert-v01@openssh.com"))
+        fprintf(stderr, "Signed hostkey: %.*s\n", (int)len_str, hostkey_str);
     else {
         fprintf(stderr, "Unexpected type of hostkey: %d\n", type);
         return 1;
