@@ -62,7 +62,7 @@ static int connect_to_server(void)
 
 LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
 {
-    int rc;
+    int rc, cs, sc;
 
     const char *crypt = getenv("FIXTURE_TEST_CRYPT");
     const char *mac = getenv("FIXTURE_TEST_MAC");
@@ -99,26 +99,38 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
 
     /* Override crypt algorithm for the test */
     if(crypt) {
-        if(libssh2_session_method_pref(connected_session,
-                                       LIBSSH2_METHOD_CRYPT_CS, crypt) ||
-           libssh2_session_method_pref(connected_session,
-                                       LIBSSH2_METHOD_CRYPT_SC, crypt)) {
-            fprintf(stderr, "libssh2_session_method_pref CRYPT failed "
-                            "(probably disabled in the build): '%s'\n", crypt);
+        cs = libssh2_session_method_pref(connected_session,
+                                         LIBSSH2_METHOD_CRYPT_CS, crypt);
+        sc = libssh2_session_method_pref(connected_session,
+                                         LIBSSH2_METHOD_CRYPT_SC, crypt);
+        if(cs == LIBSSH2_ERROR_METHOD_NOT_SUPPORTED &&
+           sc == LIBSSH2_ERROR_METHOD_NOT_SUPPORTED) {
+            fprintf(stderr, "Skipping unsupported CRYPT: '%s'\n", crypt);
             *skipped = 1;
+            return NULL;
+        }
+        else if(cs || sc) {
+            fprintf(stderr, "libssh2_session_method_pref CRYPT failed: '%s'\n",
+                    crypt);
             return NULL;
         }
     }
 
     /* Override mac algorithm for the test */
     if(mac) {
-        if(libssh2_session_method_pref(connected_session,
-                                       LIBSSH2_METHOD_MAC_CS, mac) ||
-           libssh2_session_method_pref(connected_session,
-                                       LIBSSH2_METHOD_MAC_SC, mac)) {
-            fprintf(stderr, "libssh2_session_method_pref MAC failed "
-                            "(probably disabled in the build): '%s'\n", mac);
+        cs = libssh2_session_method_pref(connected_session,
+                                         LIBSSH2_METHOD_MAC_CS, mac);
+        sc = libssh2_session_method_pref(connected_session,
+                                         LIBSSH2_METHOD_MAC_SC, mac);
+        if(cs == LIBSSH2_ERROR_METHOD_NOT_SUPPORTED &&
+           sc == LIBSSH2_ERROR_METHOD_NOT_SUPPORTED) {
+            fprintf(stderr, "Skipping unsupported MAC: '%s'\n", mac);
             *skipped = 1;
+            return NULL;
+        }
+        else if(cs || sc) {
+            fprintf(stderr, "libssh2_session_method_pref MAC failed: '%s'\n",
+                    mac);
             return NULL;
         }
     }
