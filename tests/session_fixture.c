@@ -208,13 +208,13 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
        (or potentially tested) in test_hostkey.c and test_hostkey_hash.c. */
     if(!hostkey)
         hostkey =
-            "ssh-rsa,"
+            "ssh-ed25519,"
+            "ecdsa-sha2-nistp521,"
+            "ecdsa-sha2-nistp384,"
+            "ecdsa-sha2-nistp256,"
             "rsa-sha2-256,"
             "rsa-sha2-512,"
-            "ecdsa-sha2-nistp256,"
-            "ecdsa-sha2-nistp384,"
-            "ecdsa-sha2-nistp521,"
-            "ssh-ed25519";
+            "ssh-rsa";
 
     if(libssh2_session_method_pref(connected_session,
                                    LIBSSH2_METHOD_HOSTKEY, hostkey)) {
