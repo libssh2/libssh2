@@ -5,6 +5,7 @@ Title: libssh2_channel_get_exit_status
 Section: 3
 Source: libssh2
 See-also:
+  - libssh2_channel_has_exit_status(3)
 ---
 
 # NAME

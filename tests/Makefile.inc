@@ -39,6 +39,7 @@ DOCKER_TESTS = \
   test_auth_pubkey_ok_rsa_pem_signed \
   test_auth_pubkey_ok_rsa_pkcs8 \
   test_auth_pubkey_ok_rsa_pkcs8_encrypted \
+  test_exit_status \
   test_hostkey_hash \
   test_read
 

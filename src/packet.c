@@ -1108,6 +1108,8 @@ ssh2_packet_add_jump_point1:
                         if(ssh2_get_u32(&buf, &status))
                             rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                           "exit-signal status error");
+                        else
+                            channelp->exit_status_received = 1;
 
                         channelp->exit_status = (int)status;
 

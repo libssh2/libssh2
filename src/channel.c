@@ -1647,6 +1647,20 @@ int libssh2_channel_get_exit_status(LIBSSH2_CHANNEL *channel)
 }
 
 /*
+ * Return 1 if the channel received an exit-status request, otherwise 0.
+ * libssh2_channel_get_exit_status() cannot report this.  A server that closes
+ * a channel without sending the request leaves the status at 0, the same
+ * value a successful command reports.  We return a zero if channel is NULL.
+ */
+int libssh2_channel_has_exit_status(LIBSSH2_CHANNEL *channel)
+{
+    if(!channel)
+        return 0;
+
+    return channel->exit_status_received;
+}
+
+/*
  * Get exit signal (without leading "SIG"), error message, and language
  * tag into newly allocated buffers of indicated length.  Caller can
  * use NULL pointers to indicate that the value should not be set.  The
