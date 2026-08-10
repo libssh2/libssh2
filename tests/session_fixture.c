@@ -204,8 +204,9 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
         }
     }
 
-    /* Without an explicit override, limit accepted hostkey types those tested
-       (or potentially tested) in test_hostkey.c and test_hostkey_hash.c. */
+    /* Without an explicit override, limit accepted hostkey types to those
+       tested (or potentially tested) in test_hostkey.c and
+       test_hostkey_hash.c. */
     if(!hostkey)
         hostkey =
             "ssh-ed25519,"
