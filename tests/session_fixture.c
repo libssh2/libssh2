@@ -204,6 +204,8 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
         }
     }
 
+    /* Without an explicit override, limit accepted hostkey types those tested
+       (or potentially tested) in test_hostkey.c and test_hostkey_hash.c. */
     if(!hostkey)
         hostkey =
             "ssh-rsa,"
@@ -214,8 +216,6 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
             "ecdsa-sha2-nistp521,"
             "ssh-ed25519";
 
-    /* Without an explicit override, limit accepted hostkey types those tested
-       (or potentially tested) in test_hostkey.c and test_hostkey_hash.c. */
     if(libssh2_session_method_pref(connected_session,
                                    LIBSSH2_METHOD_HOSTKEY, hostkey)) {
         fprintf(stderr, "libssh2_session_method_pref() HOSTKEY failed "
