@@ -36,7 +36,7 @@ id='identity'
 pr="${1:-libssh2}"
 
 # host certificates
-ssh-keygen                 -h -I 'host_ed25519' -n "${pr}" -s 'keys/ca_host_ed25519'         'openssh_server/ssh_host_ed25519_key.pub'
+ssh-keygen       -h -I "host_ed25519" -n "${pr},localhost" -s 'keys/ca_host_ed25519'         'openssh_server/ssh_host_ed25519_key.pub'
 
 # inspect PKCS8 private keys with command:
 # $ openssl asn1parse -dump -in <id-filename>
