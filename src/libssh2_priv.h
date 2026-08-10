@@ -466,6 +466,9 @@ struct _LIBSSH2_CHANNEL {
     /* channel's program exit status */
     int exit_status;
 
+    /* Set to 1 when an exit-status request has been received */
+    int exit_status_received;
+
     /* channel's program exit signal (without the SIG prefix) */
     char *exit_signal;
 
