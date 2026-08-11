@@ -130,6 +130,11 @@
 #  endif
 #endif
 
+#if defined(OPENSSL_NO_ECDSA) || defined(OPENSSL_NO_EC) || \
+    (defined(LIBSSH2_WOLFSSL) && !defined(HAVE_ECC))
+#  error "OpenSSL/wolfSSL ECC support is required"
+#endif
+
 #ifdef OPENSSL_NO_RSA
 # define LIBSSH2_RSA 0
 # define LIBSSH2_RSA_SHA1 0
@@ -146,12 +151,7 @@
 # define LIBSSH2_DSA 1
 #endif
 
-#if (!defined(OPENSSL_NO_ECDSA) && !defined(OPENSSL_NO_EC)) || \
-    (defined(LIBSSH2_WOLFSSL) && defined(HAVE_ECC))
-# define LIBSSH2_ECDSA 1
-#else
-# define LIBSSH2_ECDSA 0
-#endif
+#define LIBSSH2_ECDSA 1
 
 #ifdef LIBSSH2_WOLFSSL
 # define LIBSSH2_ED25519 0
