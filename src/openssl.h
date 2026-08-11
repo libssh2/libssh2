@@ -111,6 +111,9 @@
 #  if LIBWOLFSSL_VERSION_HEX < 0x05004000
 #    error "wolfSSL 5.4.0 or greater required"
 #  endif
+#  ifndef HAVE_ECC
+#    error "wolfSSL ECC support is required"
+#  endif
 #elif defined(LIBRESSL_VERSION_NUMBER)
 #  define SSH2_CRYPTO_ENGINE_NAME "LibreSSL"
 #  if LIBRESSL_VERSION_NUMBER < 0x3070000fL
@@ -128,11 +131,9 @@
 #  else
 #    define SSH2_CRYPTO_ENGINE_NAME "OpenSSL"
 #  endif
-#endif
-
-#if defined(OPENSSL_NO_ECDSA) || defined(OPENSSL_NO_EC) || \
-    (defined(LIBSSH2_WOLFSSL) && !defined(HAVE_ECC))
-#  error "OpenSSL/wolfSSL ECC support is required"
+#  if defined(OPENSSL_NO_ECDSA) || defined(OPENSSL_NO_EC)
+#    error "OpenSSL ECC support is required"
+#  endif
 #endif
 
 #ifdef OPENSSL_NO_RSA
