@@ -36,6 +36,21 @@
 #define SSH2_CRYPTO_ENGINE_NAME "mbedTLS"
 
 #include <mbedtls/version.h>
+
+#if MBEDTLS_VERSION_NUMBER < 0x03010000
+#  error "mbedTLS 3.1.0 or greater required"
+#endif
+#if MBEDTLS_VERSION_NUMBER < 0x04000000 && !defined(MBEDTLS_CTR_DRBG_C)
+#  error "MBEDTLS_CTR_DRBG_C is required for mbedTLS 3.x."
+#endif
+#if !defined(MBEDTLS_ECDH_C) || \
+    !defined(MBEDTLS_ECDSA_C) || \
+    !defined(MBEDTLS_ECP_DP_SECP256R1_ENABLED) || \
+    !defined(MBEDTLS_ECP_DP_SECP384R1_ENABLED) || \
+    !defined(MBEDTLS_ECP_DP_SECP521R1_ENABLED)
+#  error "ECDH/ECDSA with nistp256, nistp384, nistp521 curves is required"
+#endif
+
 #include <mbedtls/platform.h>
 #include <psa/crypto_config.h>
 #include <psa/crypto.h>
@@ -57,19 +72,6 @@
 #endif
 #include <mbedtls/pk.h>
 #include <mbedtls/error.h>
-
-#if MBEDTLS_VERSION_NUMBER < 0x03010000
-#  error "mbedTLS 3.1.0 or greater required"
-#endif
-#if MBEDTLS_VERSION_NUMBER < 0x04000000 && !defined(MBEDTLS_CTR_DRBG_C)
-#  error "MBEDTLS_CTR_DRBG_C is required for mbedTLS 3.x."
-#endif
-#if !defined(MBEDTLS_ECDSA_C) || \
-    !defined(MBEDTLS_ECP_DP_SECP256R1_ENABLED) || \
-    !defined(MBEDTLS_ECP_DP_SECP384R1_ENABLED) || \
-    !defined(MBEDTLS_ECP_DP_SECP521R1_ENABLED)
-#  error "MBEDTLS_ECDSA_C with nistp256, nistp384, nistp521 curves is required"
-#endif
 
 /* Define which features are supported. */
 #if defined(PSA_WANT_ALG_MD5) && PSA_WANT_ALG_MD5
