@@ -253,9 +253,11 @@ static int test_case(int num,
         return 1;
     }
 
-    session->userauth_kybd_data = SSH2_ALLOC(session, data_len);
-    session->userauth_kybd_data_len = data_len;
-    memcpy(session->userauth_kybd_data, data, data_len);
+    if(data_len) {
+        session->userauth_kybd_data = SSH2_ALLOC(session, data_len);
+        session->userauth_kybd_data_len = data_len;
+        memcpy(session->userauth_kybd_data, data, data_len);
+    }
 
     rc = userauth_keyboard_interactive_decode_info_request(session);
 

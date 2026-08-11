@@ -839,6 +839,7 @@ static int session_free(LIBSSH2_SESSION *session)
     struct packet *pkg;
     LIBSSH2_CHANNEL *ch;
     LIBSSH2_LISTENER *l;
+    unsigned int i;
     int packets_left = 0;
 
     if(session->free_state == ssh2_NB_state_idle) {
@@ -973,8 +974,23 @@ static int session_free(LIBSSH2_SESSION *session)
         SSH2_FREE(session, session->userauth_kybd_data);
     if(session->userauth_kybd_packet)
         SSH2_FREE(session, session->userauth_kybd_packet);
+    if(session->userauth_kybd_auth_name)
+        SSH2_FREE(session, session->userauth_kybd_auth_name);
     if(session->userauth_kybd_auth_instruction)
         SSH2_FREE(session, session->userauth_kybd_auth_instruction);
+    if(session->userauth_kybd_prompts) {
+        for(i = 0; i < session->userauth_kybd_num_prompts; i++)
+            if(session->userauth_kybd_prompts[i].text)
+                SSH2_FREE(session, session->userauth_kybd_prompts[i].text);
+        SSH2_FREE(session, session->userauth_kybd_prompts);
+    }
+    if(session->userauth_kybd_responses) {
+        for(i = 0; i < session->userauth_kybd_num_prompts; i++)
+            if(session->userauth_kybd_responses[i].text)
+                SSH2_FREE(session,
+                          session->userauth_kybd_responses[i].text);
+        SSH2_FREE(session, session->userauth_kybd_responses);
+    }
     if(session->open_packet)
         SSH2_FREE(session, session->open_packet);
     if(session->open_data)
