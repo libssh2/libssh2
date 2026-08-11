@@ -64,6 +64,12 @@
 #if MBEDTLS_VERSION_NUMBER < 0x04000000 && !defined(MBEDTLS_CTR_DRBG_C)
 #  error "MBEDTLS_CTR_DRBG_C is required for mbedTLS 3.x."
 #endif
+#if !defined(MBEDTLS_ECDSA_C) || \
+    !defined(MBEDTLS_ECP_DP_SECP256R1_ENABLED) || \
+    !defined(MBEDTLS_ECP_DP_SECP384R1_ENABLED) || \
+    !defined(MBEDTLS_ECP_DP_SECP521R1_ENABLED)
+#  error "MBEDTLS_ECDSA_C with nistp256, nistp384, nistp521 curves is required"
+#endif
 
 /* Define which features are supported. */
 #if defined(PSA_WANT_ALG_MD5) && PSA_WANT_ALG_MD5
@@ -100,11 +106,7 @@
 #define LIBSSH2_RSA_SHA1 1
 #define LIBSSH2_RSA_SHA2 1
 #define LIBSSH2_DSA 0
-#ifdef MBEDTLS_ECDSA_C
 #define LIBSSH2_ECDSA 1
-#else
-#define LIBSSH2_ECDSA 0
-#endif
 #define LIBSSH2_ED25519 0
 #define LIBSSH2_MLKEM 0
 
@@ -161,21 +163,9 @@ struct mbed_hash_ctx {
 
 #if LIBSSH2_ECDSA
 typedef enum {
-#ifdef MBEDTLS_ECP_DP_SECP256R1_ENABLED
     SSH2_EC_CURVE_NISTP256 = MBEDTLS_ECP_DP_SECP256R1,
-#else
-    SSH2_EC_CURVE_NISTP256 = MBEDTLS_ECP_DP_NONE,
-#endif
-#ifdef MBEDTLS_ECP_DP_SECP384R1_ENABLED
     SSH2_EC_CURVE_NISTP384 = MBEDTLS_ECP_DP_SECP384R1,
-#else
-    SSH2_EC_CURVE_NISTP384 = MBEDTLS_ECP_DP_NONE,
-#endif
-#ifdef MBEDTLS_ECP_DP_SECP521R1_ENABLED
     SSH2_EC_CURVE_NISTP521 = MBEDTLS_ECP_DP_SECP521R1
-#else
-    SSH2_EC_CURVE_NISTP521 = MBEDTLS_ECP_DP_NONE,
-#endif
 } ssh2_curve_type;
 
 #define ssh2_ecdsa_ctx         mbedtls_ecdsa_context
