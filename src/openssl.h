@@ -131,9 +131,10 @@
 #  else
 #    define SSH2_CRYPTO_ENGINE_NAME "OpenSSL"
 #  endif
-#  if defined(OPENSSL_NO_ECDSA) || defined(OPENSSL_NO_EC)
-#    error "OpenSSL ECC support is required"
-#  endif
+#endif
+#if !defined(LIBSSH2_WOLFSSL) && \
+    (defined(OPENSSL_NO_EC) || defined(OPENSSL_NO_ECDSA))
+#  error "OpenSSL ECC support is required"
 #endif
 
 #ifdef OPENSSL_NO_RSA
