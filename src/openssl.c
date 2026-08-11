@@ -183,6 +183,9 @@ static SSH2_INLINE void ossl_swap_bytes(unsigned char *buf, size_t len)
 {
 #if !defined(WORDS_BIGENDIAN) || !WORDS_BIGENDIAN
     size_t i, j;
+    /* a zero length would underflow len - 1 below into a huge index */
+    if(len < 2)
+        return;
     for(i = 0, j = len - 1; i < j; i++, j--) {
         unsigned char temp = buf[i];
         buf[i] = buf[j];
