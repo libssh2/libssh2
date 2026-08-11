@@ -86,13 +86,16 @@ int test(LIBSSH2_SESSION *session)
     if(len != expected_len) {
         fprintf(stderr, "Hostkey does not have the expected length %lu!=%lu\n",
                 (unsigned long)len, (unsigned long)expected_len);
+        SSH2_FREE(session, expected_hostkey);
         return 1;
     }
 
     if(memcmp(hostkey, expected_hostkey, len)) {
         fprintf(stderr, "Hostkeys do not match\n");
+        SSH2_FREE(session, expected_hostkey);
         return 1;
     }
 
+    SSH2_FREE(session, expected_hostkey);
     return 0;
 }
