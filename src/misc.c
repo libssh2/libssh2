@@ -218,6 +218,9 @@ SSH2_INLINE void ssh2_swap_bytes(unsigned char *buf, size_t len)
             end--;
         }
     }
+#else
+    (void)buf;
+    (void)len;
 #endif
 }
 
