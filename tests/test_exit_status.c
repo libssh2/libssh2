@@ -13,7 +13,8 @@ int test(LIBSSH2_SESSION *session)
 
     /* set in Dockerfile */
     if(test_auth_pubkey(session, 0, "libssh2", NULL,
-                        "keys/id_rsa_pem.pub", "keys/id_rsa_pem"))
+                        "keys/id_rsa_pem.pub",
+                        "keys/id_rsa_pem"))
         return 1;
 
     /* A finished command sends an exit-status, so its receipt is reported
