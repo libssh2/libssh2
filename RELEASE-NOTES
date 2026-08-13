@@ -108,6 +108,7 @@ This release includes the following enhancements and bugfixes:
 - autotools: fix `memset_s()` detection (48340150 #2457 #2456 #2455)
 - badwords: add checker script, fix issues found (9538c99f #1959)
 - blowfish: drop unused macro guards (635dd1d4 #1937)
+- build: require ECC support in mbedTLS/OpenSSL/wolfSSL crypto backends (21d8e7cf #2519)
 - build: assume POSIX `gettimeofday()` in fallback codepath, stop detecting it (8563c383 #2485 #2494 #2493 #2491 #2490 #2489 #2341)
 - build: assume `sys/socket.h` on non-Windows (a78e2c0c #2467)
 - build: assume `sys/time.h` on non-Windows and mingw-w64 (24d40141 #2466)
@@ -136,6 +137,7 @@ This release includes the following enhancements and bugfixes:
 - build: disable warning `-Wunreachable-code-break` (4844e368 #1481 #1224 follow: 7ecc309c)
 - cd2nroff: move to scripts directory, sync with curl (e4c2b18f #1958)
 - chacha: silence `-Wuninitialized` with gcc-16+ (8dc705a8 #2107)
+- channel: add public API `libssh2_channel_has_exit_status()` (4dbbcf92 #2516 #2515 follow: 77bd3c12)
 - channel: fix refund bytes for DATA packets in `ssh2_channel_flush()` (15621fa9 #2158 #2020 follow: 4b8db8c1)
 - channel: fix state machine in `ssh2_channel_extended_data()` (f6a3f774 #2146)
 - channel: fix 3 error messages (16c3c22e #2141)
@@ -519,10 +521,12 @@ This release includes the following enhancements and bugfixes:
 - libssh2.h: drop stray bits of Windows CE support (1d464325 #1770)
 - libssh2.h: typo fixes (780bf13a #1496)
 - libssh2.h: add note about release versions to `LIBSSH2_VERSION` (83590ac7 #1475 #771 #1473)
+- libssh2.pc: add the Link.ABI, Source and License tags (d5259e74 #2520)
 - mac: disable SHA1-based MACs by default (3e14d67d #2444 #2443)
 - mac: fix `mac_method_none_init()` to set `free_key` #1951 (91b0d464 #1952 #1951)
 - man: document availability of `libssh2_publickey_*` functions (dabe1e36 #2139)
 - mansyntax.sh: revert a change to unhide `man` error output (c343f06b #982)
+- mbedtls: fail on missing `MBEDTLS_ECDH_C` gracefully (50cf5daa #2522 #2519)
 - mbedtls: add support for AES-GCM ciphers (d5ba5bc7 #2505 #1764 #2401)
 - mbedtls: fix double-free in `mbed_pub_priv_key()` error path (6c639b18 #2502 #2501 #132 follow: 186f1a2d)
 - mbedtls: avoid magic numbers (a35c6d27 #2375)
@@ -569,6 +573,8 @@ This release includes the following enhancements and bugfixes:
 - openssh_fixture: trim all right-padding whitespace from external command results (879aac02 #2142 follow: cf80f2f4)
 - openssh_fixture: increase `/proc/self/cgroup` read buffer (revert) (540f248c)
 - openssh_fixture: increase `/proc/self/cgroup` read buffer (826c9f09 #1688)
+- openssl: guard zero-length input in `ossl_swap_bytes()` (7cafeb2d #2521 #1207 follow: b0ab005f)
+- openssl: future-proof LibreSSL ECC support check (8358f2f5 #2523 #2519)
 - openssl: fix compiler warning with AWS-LC/BoringSSL with debug logging enabled (33a1df30 #2503)
 - openssl: sync patterns between functions (tidy-up) (9a376a86 #2442 #2308 #2029 #1644)
 - openssl: fix potential OOB read/write with AES-GCM in `ssh2_cipher_crypt()` (a2ed82d4 #2401 GHSA-c4f7-cvfc-33j7 #797 follow: 3c953c05)
@@ -698,6 +704,7 @@ This release includes the following enhancements and bugfixes:
 - SECURITY.md: use GitHub PVR as the channel for security reports, drop email (505f7b2b #2413)
 - SECURITY.md: update with points not considered vulnerabilities (a6efe2bc #1835)
 - SECURITY.md: mention GitHub PVR as an option (5bd1baed #1664)
+- session: free keyboard-interactive state in `session_free()` (75b472cf #2517)
 - session: disable timeout when negative in `libssh2_poll()` `select` path (ac3f8fe2 #2356 #2341)
 - session: free kex buffers unconditionally in `libssh2_session_free()` (815aaf82 #2347 #1691)
 - session: sanity check public API arguments (b705010c #2346)
@@ -725,6 +732,7 @@ This release includes the following enhancements and bugfixes:
 - sftp: add input bounds checking to SFTP API (ff50682c #1679)
 - spacecheck: cap max lines per file, use single-quotes (3a189abe #2480)
 - spacecheck: update, fix new issues found (95d7a8b9 #1851)
+- src: de-duplicate two byte swap functions into `ssh2_swap_bytes()` (0acd2f56 #2524)
 - src: disable SHA1-based hostkey methods and signatures by default, fix fallouts (079eeb85 #2501 #2444 #2443 #1435 follow: b7ab0faa)
 - src: add support for chacha20-poly130-encrypted OpenSSH key files (7abbac4e #2488 #2486 #1426 follow: 492bc543)
 - src: bump `ssh2_time_t`/`ssh2_timediff_t` resolution from milliseconds to microseconds (c97959e9 #2489 #2341)
@@ -788,6 +796,7 @@ This release includes the following enhancements and bugfixes:
 - src: disable deprecated algos by default (b89858b8 #1531)
 - sshd_config: enable legacy KEXs for Libgcrypt and WinCNG, drop workarounds (1d0b86ac #2484 #2174 #1720)
 - sshd_config: enable `ssh-rsa-cert-v01@openssh.com` more (5b494b04 #2478 #2474)
+- test_hostkey: free decoded expected hostkey (fb2b6d57 #2518 follow: cf80f2f4)
 - test_hostkey_hash: avoid `BUFSIZ` macro (00f6c3a6 #2112 #2104 #2099 #2096)
 - test_hostkey_hash: tidy up `calculate_digest()` (17389d83 #2104 #2103 #2099 #2096)
 - test_hostkey_hash: fix `-Wformat-truncation` with gcc-16 (36d38812 #2099 #2096)
@@ -800,6 +809,10 @@ This release includes the following enhancements and bugfixes:
 - test_ssh2, examples: bump to SHA-256 fingerprints (6f3c640d #2445)
 - test_ssh2, examples: avoid crash on NULL fingerprint (f784c21d #2179 #2174)
 - test_sshd.test: sync an option with `sshd_config` used in `Dockerfile` (cae4e3f8 #2481 #1024 follow: d4690e95)
+- tests: add tests for signed hostkey: `ssh-ed25519-cert-v01@openssh.com` (6036e577 #2513 #2435 #2434 #2064)
+- tests: rename CA keys to reflect they are user keys (19aa4338 #2512)
+- tests: upload host pubkeys to repo (c8543ef3 #2511 #2435 #2064)
+- tests: rename keys/tests to contain the key format (72693e4e #2510)
 - tests: add `chacha20-poly1305@openssh.com` to `test_read_algos.txt` (0b749a96 #2506 #1426 follow: 492bc543)
 - tests: add PKCS8-formatted plain and encrypted keys and tests (4b5303ab #2500)
 - tests: add ECDSA PEM format plain and encrypted keys and tests (f3a5b6a0 #2499)
@@ -981,22 +994,22 @@ advice from friends like these:
 
   Adrian Moran, afldl on github, Aldo Ristori, Amy Lin, Anders Borum,
   Asaf Meizner, Behzod Abdullayev, Bruce Dang, Chen Zhengzhe, Chris Emsen,
-  Christian Ghisler, Christoph Reiter, d3x0r, Daniel Stenberg,
+  Christian Ghisler, Christoph Reiter, d3x0r, Dan Fandrich, Daniel Stenberg,
   dapickle on github, Darren Carreras, dependabot[bot], Dhiraj Mishra,
   DigitalCyberSoft, Eli Schwartz, Evgeny Grin, Feodor Fitsner,
-  geral-victor on github, Hananto Adi, Haruki Oyama, Hemant Jadhav,
-  hyunjiHong on github, Jacob Barthelmeh, Jay Satiro, Jim B, Joren Afman,
-  Josh Brobst, Joshua Rogers, Justin Smith, Kai Pastor, Karnakar Reddy,
-  Kian Kasad, Kit Knox, Lars Nordin, Liu Xing Yu, Lucas Queiroz,
-  Lukas Dürrenberger, manus-use on github, manusjs on github, Marc Hörsken,
-  Marcel Raad, Martin Nowak, Mateusz Gierblinski, Michael Buckley,
-  Mухтар Воблоев, nnarayanamurthy on github, Oblivionsage, Oliver Chang,
-  Omkar Bhor, oss-patch, Pascal Neuperger, Patrick Monnerat, Paul Howarth,
-  Pedro Masteguin, Pramod Kumar, pyscripter on github,
-  R6502 on github (Michael), Rainer Jung, Raul Tambre, RuiZhi Zhang,
-  Ryan Kelley, Sebastien Tardif, Seojun Lee, sergey1369, Sharique Raza,
-  skuodi on github, Stanislav Osipov, Stephan Eggermont, syed abdul khaliq,
-  timelyslot on gitHub, TristanInSec, trustytrojan, Trzik on github,
-  Viktor Szakats, Vladimir Eli Tokarev, vnth4nhnt from CyStack,
-  Wilfried Pascault, Will Cosgrove, yaotushaozhu on github, Yaroslav Rosomakho,
-  Ze Sheng
+  geral-victor on github, Hananto Adi, Haruki Oyama, Hemant Jadhav, Huang Rui,
+  hunterinvariants, hyunjiHong on github, Jacob Barthelmeh, Jay Satiro, Jim B,
+  Joren Afman, Josh Brobst, Joshua Rogers, Justin Smith, Kai Pastor,
+  Karnakar Reddy, Kian Kasad, Kit Knox, Lars Nordin, Liu Xing Yu,
+  Lucas Queiroz, Lukas Dürrenberger, manus-use on github, manusjs on github,
+  Marc Hörsken, Marcel Raad, Martin Nowak, Mateusz Gierblinski,
+  Michael Buckley, Mухтар Воблоев, nnarayanamurthy on github, Oblivionsage,
+  Oliver Chang, Omkar Bhor, oss-patch, Pascal Neuperger, Patrick Monnerat,
+  Paul Howarth, Pedro Masteguin, Pier Carlo Cadoppi, Pramod Kumar,
+  pyscripter on github, R6502 on github (Michael), Rainer Jung, Raul Tambre,
+  RuiZhi Zhang, Ryan Kelley, Sebastien Tardif, Seojun Lee, sergey1369,
+  Sharique Raza, skuodi on github, Stanislav Osipov, Stephan Eggermont,
+  syed abdul khaliq, timelyslot on gitHub, TristanInSec, trustytrojan,
+  Trzik on github, Viktor Szakats, Vladimir Eli Tokarev,
+  vnth4nhnt from CyStack, Wilfried Pascault, Will Cosgrove,
+  yaotushaozhu on github, Yaroslav Rosomakho, Ze Sheng
