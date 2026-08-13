@@ -124,21 +124,6 @@ static void wcng_memcpy_with_be_padding(unsigned char *dest,
     memcpy((dest + dest_len) - src_len, src, src_len);
 }
 
-static void wcng_reverse_bytes(IN PUCHAR buffer, IN size_t buffer_len)
-{
-    if(buffer && buffer_len >= 2) {
-        PUCHAR start = buffer;
-        PUCHAR end = buffer + buffer_len - 1;
-        while(start < end) {
-            unsigned char tmp = *end;
-            *end = *start;
-            *start = tmp;
-            start++;
-            end--;
-        }
-    }
-}
-
 /*******************************************************************/
 /*
  * Windows CNG backend: BigNumber functions
@@ -2188,7 +2173,7 @@ int ssh2_ecdh_gen_k(OUT ssh2_bn **k,
      * raw secret, so we need to swap it to big endian order.
      */
 
-    wcng_reverse_bytes((*k)->bignum, secret_len);
+    ssh2_swap_bytes((*k)->bignum, secret_len);
 
     result = LIBSSH2_ERROR_NONE;
 
@@ -3231,7 +3216,7 @@ int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
         /* Counter to all the other data in the BCrypt APIs, the raw secret is
          * returned to us in host byte order, so we need to swap it to big
          * endian order. */
-        wcng_reverse_bytes(secret->bignum, secret->length);
+        ssh2_swap_bytes(secret->bignum, secret->length);
 
         status = 0;
         ssh2_wcng.hasAlgDHwithKDF = 1;

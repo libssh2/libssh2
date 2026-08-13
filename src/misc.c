@@ -204,6 +204,26 @@ ssize_t ssh2_send(libssh2_socket_t socket,
     return rc;
 }
 
+void ssh2_swap_bytes(unsigned char *buf, size_t len)
+{
+#if !defined(WORDS_BIGENDIAN) || !WORDS_BIGENDIAN
+    if(buf && len >= 2) {
+        unsigned char *start = buf;
+        unsigned char *end = buf + len - 1;
+        while(start < end) {
+            unsigned char tmp = *end;
+            *end = *start;
+            *start = tmp;
+            start++;
+            end--;
+        }
+    }
+#else
+    (void)buf;
+    (void)len;
+#endif
+}
+
 uint32_t ssh2_ntohu32(const unsigned char *buf)
 {
     return
