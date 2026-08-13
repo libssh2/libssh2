@@ -204,7 +204,7 @@ ssize_t ssh2_send(libssh2_socket_t socket,
     return rc;
 }
 
-SSH2_INLINE void ssh2_swap_bytes(unsigned char *buf, size_t len)
+void ssh2_swap_bytes(unsigned char *buf, size_t len)
 {
 #if !defined(WORDS_BIGENDIAN) || !WORDS_BIGENDIAN
     if(buf && len >= 2) {
