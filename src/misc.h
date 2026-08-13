@@ -144,6 +144,7 @@ int ssh2_base64_decode(LIBSSH2_SESSION *session, char **data, size_t *datalen,
 size_t ssh2_base64_encode(LIBSSH2_SESSION *session,
                           const char *inp, size_t insize, char **outptr);
 
+void ssh2_swap_bytes(unsigned char *buf, size_t len);
 uint32_t ssh2_ntohu32(const unsigned char *buf);
 libssh2_uint64_t ssh2_ntohu64(const unsigned char *buf);
 void ssh2_htonu32(unsigned char *buf, uint32_t value);
