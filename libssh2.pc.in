@@ -14,6 +14,7 @@ Name: libssh2
 URL: https://libssh2.org/
 Description: Library for SSH-based communication
 License: BSD-3-Clause
+Copyright: Copyright (C) The libssh2 project and its contributors.
 Version: @LIBSSH2_VERSION@
 Source: https://libssh2.org/download/libssh2-@LIBSSH2_VERSION@.tar.gz
 Requires: @LIBSSH2_PC_REQUIRES@
