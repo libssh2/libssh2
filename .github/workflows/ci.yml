@@ -1211,7 +1211,7 @@ jobs:
               install: 'cmake ninja-build',
               options: '-DCRYPTO_BACKEND=OpenSSL' }
 
-          - { os: 'netbsd'      , version: '10.1' , build: 'CM', arch: 'arm64' , cc: 'gcc'  , desc: 'openssl skiprun',
+          - { os: 'netbsd'      , version: '11.0' , build: 'CM', arch: 'arm64' , cc: 'gcc'  , desc: 'openssl skiprun',
               install: 'cmake ninja-build',
               options: '-DCRYPTO_BACKEND=OpenSSL' }
 
@@ -1228,7 +1228,7 @@ jobs:
           persist-credentials: false
 
       - name: 'setup VM'
-        uses: cross-platform-actions/action@5ea7e8e4677bd726033a10b094ba1c5762b15dee # v1.3.0
+        uses: cross-platform-actions/action@24ef01df165c76df1ed2b9f9e9212e78dc2fc963 # v1.4.0
         with:
           environment_variables: 'CC CURL_CI CURL_TEST_MIN DO_NOT_TRACK MAKEFLAGS MATRIX_BUILD MATRIX_INSTALL MATRIX_OPTIONS MATRIX_OS'
           operating_system: '${{ matrix.os }}'
