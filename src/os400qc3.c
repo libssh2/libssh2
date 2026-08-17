@@ -650,7 +650,9 @@ static struct asn1Element *asn1_new_from_bytes(const unsigned char *data,
     struct asn1Element *e;
     struct asn1Element et;
 
-    getASN1Element(&et, (unsigned char *)data, (unsigned char *)data + length);
+    if(!getASN1Element(&et, (unsigned char *)data,
+                       (unsigned char *)data + length))
+        return NULL;
     e = asn1_new(et.tag, et.end - et.beg);
 
     if(e)
