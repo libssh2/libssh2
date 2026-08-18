@@ -2182,8 +2182,12 @@ int libssh2_userauth_publickey_sk(
                                          libssh2_sign_sk, &sign_abstract);
     }
 
+    if(pubkeydata && pubkeydata != tmp_publickeydata)
+        SSH2_FREE(session, pubkeydata);
     if(tmp_publickeydata)
         SSH2_FREE(session, tmp_publickeydata);
+    if(sk_info.key_handle)
+        SSH2_FREE(session, SSH2_UNCONST(sk_info.key_handle));
     if(sk_info.application)
         SSH2_FREE(session, SSH2_UNCONST(sk_info.application));
 
