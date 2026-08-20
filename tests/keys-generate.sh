@@ -24,6 +24,8 @@ rm -f keys/ca_*
 rm -f keys/id_*
 
 # host CAs
+ssh-keygen -t rsa     -b 2048 -N ''          -m RFC4716 -C 'ca_host_rsa'                  -f 'keys/ca_host_rsa'
+ssh-keygen -t ecdsa   -b  256 -N ''          -m RFC4716 -C 'ca_host_ecdsa'                -f 'keys/ca_host_ecdsa'
 ssh-keygen -t ed25519         -N ''          -m RFC4716 -C 'ca_host_ed25519'              -f 'keys/ca_host_ed25519'
 
 # user CAs
@@ -36,6 +38,8 @@ id='identity'
 pr="${1:-libssh2}"
 
 # host certificates
+ssh-keygen                 -h -I 'host_rsa'     -n "${pr}" -s 'keys/ca_host_rsa'             'openssh_server/ssh_host_rsa_key.pub'
+ssh-keygen                 -h -I 'host_ecdsa'   -n "${pr}" -s 'keys/ca_host_ecdsa'           'openssh_server/ssh_host_ecdsa_key.pub'
 ssh-keygen                 -h -I 'host_ed25519' -n "${pr}" -s 'keys/ca_host_ed25519'         'openssh_server/ssh_host_ed25519_key.pub'
 
 # inspect PKCS8 private keys with command:
