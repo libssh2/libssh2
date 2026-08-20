@@ -99,6 +99,18 @@ static char const *skip_mac[] = {
 
 /* List of HOSTKEY algorithms for which tests are skipped */
 static char const *skip_hostkey[] = {
+#if !LIBSSH2_ECDSA
+    "ecdsa-sha2-nistp256-cert-v01@openssh.com",
+    "ecdsa-sha2-nistp384-cert-v01@openssh.com",
+    "ecdsa-sha2-nistp521-cert-v01@openssh.com",
+#endif
+#if !LIBSSH2_RSA_SHA2
+    "rsa-sha2-256-cert-v01@openssh.com",
+    "rsa-sha2-512-cert-v01@openssh.com",
+#endif
+#if !LIBSSH2_RSA_SHA1
+    "ssh-rsa-cert-v01@openssh.com",
+#endif
 #if !LIBSSH2_ED25519
     "ssh-ed25519-cert-v01@openssh.com",
 #endif
@@ -210,9 +222,9 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
     if(!hostkey)
         hostkey =
             "ssh-ed25519,"
-            "ecdsa-sha2-nistp521,"
-            "ecdsa-sha2-nistp384,"
             "ecdsa-sha2-nistp256,"
+            "ecdsa-sha2-nistp384,"
+            "ecdsa-sha2-nistp521,"
             "rsa-sha2-256,"
             "rsa-sha2-512,"
             "ssh-rsa";

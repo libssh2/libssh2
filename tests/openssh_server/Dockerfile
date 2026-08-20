@@ -23,12 +23,30 @@ RUN install -m 0600 /tmp/etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_rsa_key
 COPY ssh_host_ecdsa_key /tmp/etc/ssh/ssh_host_ecdsa_key
 RUN install -m 0600 /tmp/etc/ssh/ssh_host_ecdsa_key /etc/ssh/ssh_host_ecdsa_key
 
+COPY ssh_host_ecdsa_384_key /tmp/etc/ssh/ssh_host_ecdsa_384_key
+RUN install -m 0600 /tmp/etc/ssh/ssh_host_ecdsa_384_key /etc/ssh/ssh_host_ecdsa_384_key
+
+COPY ssh_host_ecdsa_521_key /tmp/etc/ssh/ssh_host_ecdsa_521_key
+RUN install -m 0600 /tmp/etc/ssh/ssh_host_ecdsa_521_key /etc/ssh/ssh_host_ecdsa_521_key
+
 COPY ssh_host_ed25519_key /tmp/etc/ssh/ssh_host_ed25519_key
 RUN install -m 0600 /tmp/etc/ssh/ssh_host_ed25519_key /etc/ssh/ssh_host_ed25519_key
 
 # Host certificates
 COPY ssh_host_ed25519_key-cert.pub /tmp/etc/ssh/ssh_host_ed25519_key-cert.pub
 RUN install -m 0644 /tmp/etc/ssh/ssh_host_ed25519_key-cert.pub /etc/ssh/ssh_host_ed25519_key-cert.pub
+
+COPY ssh_host_ecdsa_key-cert.pub /tmp/etc/ssh/ssh_host_ecdsa_key-cert.pub
+RUN install -m 0644 /tmp/etc/ssh/ssh_host_ecdsa_key-cert.pub /etc/ssh/ssh_host_ecdsa_key-cert.pub
+
+COPY ssh_host_ecdsa_384_key-cert.pub /tmp/etc/ssh/ssh_host_ecdsa_384_key-cert.pub
+RUN install -m 0644 /tmp/etc/ssh/ssh_host_ecdsa_384_key-cert.pub /etc/ssh/ssh_host_ecdsa_384_key-cert.pub
+
+COPY ssh_host_ecdsa_521_key-cert.pub /tmp/etc/ssh/ssh_host_ecdsa_521_key-cert.pub
+RUN install -m 0644 /tmp/etc/ssh/ssh_host_ecdsa_521_key-cert.pub /etc/ssh/ssh_host_ecdsa_521_key-cert.pub
+
+COPY ssh_host_rsa_key-cert.pub /tmp/etc/ssh/ssh_host_rsa_key-cert.pub
+RUN install -m 0644 /tmp/etc/ssh/ssh_host_rsa_key-cert.pub /etc/ssh/ssh_host_rsa_key-cert.pub
 
 # Trusted user CA keys
 COPY ca_user_keys.pub /tmp/etc/ssh/ca_user_keys.pub
@@ -43,7 +61,16 @@ RUN sed -i 's/KbdInteractiveAuthentication no/KbdInteractiveAuthentication yes/'
 COPY sshd_config /tmp/etc/ssh/sshd_config
 RUN cat /tmp/etc/ssh/sshd_config >> /etc/ssh/sshd_config
 RUN echo 'TrustedUserCAKeys /etc/ssh/ca_user_keys.pub' >> /etc/ssh/sshd_config
+RUN echo 'HostKey /etc/ssh/ssh_host_rsa_key' >> /etc/ssh/sshd_config
+RUN echo 'HostKey /etc/ssh/ssh_host_ecdsa_key' >> /etc/ssh/sshd_config
+RUN echo 'HostKey /etc/ssh/ssh_host_ecdsa_384_key' >> /etc/ssh/sshd_config
+RUN echo 'HostKey /etc/ssh/ssh_host_ecdsa_521_key' >> /etc/ssh/sshd_config
+RUN echo 'HostKey /etc/ssh/ssh_host_ed25519_key' >> /etc/ssh/sshd_config
 RUN echo 'HostCertificate /etc/ssh/ssh_host_ed25519_key-cert.pub' >> /etc/ssh/sshd_config
+RUN echo 'HostCertificate /etc/ssh/ssh_host_ecdsa_key-cert.pub' >> /etc/ssh/sshd_config
+RUN echo 'HostCertificate /etc/ssh/ssh_host_ecdsa_384_key-cert.pub' >> /etc/ssh/sshd_config
+RUN echo 'HostCertificate /etc/ssh/ssh_host_ecdsa_521_key-cert.pub' >> /etc/ssh/sshd_config
+RUN echo 'HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub' >> /etc/ssh/sshd_config
 
 # SSH login fix. Otherwise user is kicked off after login
 RUN sed 's/session\s*required\s*pam_loginuid.so/session optional pam_loginuid.so/g' -i /etc/pam.d/sshd

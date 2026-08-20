@@ -15,6 +15,8 @@ rm -f openssh_server/*_key-cert.pub
 
 ssh-keygen -t rsa     -b 2048 -N ''          -m PEM     -C ''                             -f 'openssh_server/ssh_host_rsa_key'
 ssh-keygen -t ecdsa   -b  256 -N ''          -m PEM     -C ''                             -f 'openssh_server/ssh_host_ecdsa_key'
+ssh-keygen -t ecdsa   -b  384 -N ''          -m PEM     -C ''                             -f 'openssh_server/ssh_host_ecdsa_384_key'
+ssh-keygen -t ecdsa   -b  521 -N ''          -m PEM     -C ''                             -f 'openssh_server/ssh_host_ecdsa_521_key'
 ssh-keygen -t ed25519         -N ''          -m RFC4716 -C ''                             -f 'openssh_server/ssh_host_ed25519_key'
 
 # tests/keys
@@ -25,6 +27,8 @@ rm -f keys/id_*
 
 # host CAs
 ssh-keygen -t ed25519         -N ''          -m RFC4716 -C 'ca_host_ed25519'              -f 'keys/ca_host_ed25519'
+ssh-keygen -t ecdsa   -b  256 -N ''          -m RFC4716 -C 'ca_host_ecdsa'                -f 'keys/ca_host_ecdsa'
+ssh-keygen -t rsa     -b 2048 -N ''          -m RFC4716 -C 'ca_host_rsa'                  -f 'keys/ca_host_rsa'
 
 # user CAs
 ssh-keygen -t rsa     -b 3072 -N ''          -m RFC4716 -C 'ca_user_rsa'                  -f 'keys/ca_user_rsa'
@@ -37,6 +41,10 @@ pr="${1:-libssh2}"
 
 # host certificates
 ssh-keygen                 -h -I 'host_ed25519' -n "${pr}" -s 'keys/ca_host_ed25519'         'openssh_server/ssh_host_ed25519_key.pub'
+ssh-keygen                 -h -I 'host_ecdsa'       -n "${pr}" -s 'keys/ca_host_ecdsa'           'openssh_server/ssh_host_ecdsa_key.pub'
+ssh-keygen                 -h -I 'host_ecdsa_384'   -n "${pr}" -s 'keys/ca_host_ecdsa'           'openssh_server/ssh_host_ecdsa_384_key.pub'
+ssh-keygen                 -h -I 'host_ecdsa_521'   -n "${pr}" -s 'keys/ca_host_ecdsa'           'openssh_server/ssh_host_ecdsa_521_key.pub'
+ssh-keygen                 -h -I 'host_rsa'         -n "${pr}" -s 'keys/ca_host_rsa'             'openssh_server/ssh_host_rsa_key.pub'
 
 # inspect PKCS8 private keys with command:
 # $ openssl asn1parse -dump -in <id-filename>
