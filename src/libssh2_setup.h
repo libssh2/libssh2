@@ -25,6 +25,9 @@
 #elif defined(_WIN32)
 
 #ifdef __MINGW32__
+#  if !defined(__MINGW64_VERSION_MAJOR) || __MINGW64_VERSION_MAJOR < 3
+#    error "mingw-w64 3.0 or greater required"
+#  endif
 #  define HAVE_UNISTD_H
 #  define HAVE_INTTYPES_H
 #elif defined(_MSC_VER) && _MSC_VER >= 1800
