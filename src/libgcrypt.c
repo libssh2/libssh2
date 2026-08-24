@@ -422,7 +422,7 @@ int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
     gcry_sexp_t s_tmp = NULL;
     gcry_sexp_t s_sig = NULL;
     gcry_error_t err;
-    const char *s;
+    const char *tmp;
     size_t size;
     unsigned char *out_sig;
     int ret = -1;
@@ -453,12 +453,12 @@ int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
     if(!s_tmp)
         goto out;
 
-    s = gcry_sexp_nth_data(s_tmp, 1, &size);
-    if(!s)
+    tmp = gcry_sexp_nth_data(s_tmp, 1, &size);
+    if(!tmp)
         goto out;
 
-    if(size && s[0] == '\0') {
-        ++s;
+    if(size && tmp[0] == '\0') {
+        ++tmp;
         --size;
     }
 
