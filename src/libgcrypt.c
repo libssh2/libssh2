@@ -516,9 +516,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
         return -1;
 
     ret = gcry_pk_sign(&sig_sexp, data, dsa);
-
     gcry_sexp_release(data);
-
     if(ret)
         return -1;
 
