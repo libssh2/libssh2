@@ -532,7 +532,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
     if(!tmp)
         goto err;
 
-    if(tmp[0] == '\0') {
+    if(size && tmp[0] == '\0') {
         tmp++;
         size--;
     }
@@ -554,7 +554,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
     if(!tmp)
         goto err;
 
-    if(tmp[0] == '\0') {
+    if(size && tmp[0] == '\0') {
         tmp++;
         size--;
     }
