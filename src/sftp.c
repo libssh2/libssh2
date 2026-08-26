@@ -1655,26 +1655,32 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                 }
 
             case SSH_FXP_DATA:
-                if(chunk->offset != filep->offset)
+                if(chunk->offset != filep->offset) {
                     /* This could happen if the server returns less bytes than
                        requested, which should not happen for normal files.
                        See:
                        https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-02#section-6.4
                      */
+                    SSH2_FREE(session, data);
                     return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                     "Read Packet At Unexpected Offset");
+                }
 
                 rc32 = ssh2_ntohu32(data + 5);
-                if(rc32 > (data_len - 9))
+                if(rc32 > (data_len - 9)) {
+                    SSH2_FREE(session, data);
                     return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                     "SFTP Protocol badness");
+                }
 
-                if(rc32 > chunk->len)
+                if(rc32 > chunk->len) {
                     /* A chunk larger than we requested was returned to us.
                        This is a protocol violation and we do not know how to
                        deal with it. Bail out! */
+                    SSH2_FREE(session, data);
                     return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                     "FXP_READ response too big");
+                }
 
                 if(rc32 != chunk->len)
                     /* a short read does not imply end of file, but we must
