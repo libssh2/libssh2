@@ -2467,8 +2467,17 @@ static int ossl_ecdsa_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
 #ifdef USE_OPENSSL_3
     octal_len = EC_MAX_POINT_LEN;
     octal_value = SSH2_ALLOC(session, octal_len);
-    EVP_PKEY_get_octet_string_param(pk, OSSL_PKEY_PARAM_PUB_KEY,
-                                    octal_value, octal_len, &octal_len);
+    if(!octal_value) {
+        rc = -1;
+        goto clean_exit;
+    }
+
+    if(EVP_PKEY_get_octet_string_param(pk, OSSL_PKEY_PARAM_PUB_KEY,
+                                       octal_value,
+                                       octal_len, &octal_len) <= 0) {
+        rc = -1;
+        goto clean_exit;
+    }
 #else
     /* get length */
     octal_len = EC_POINT_point2oct(group, public_key,
