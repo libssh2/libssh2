@@ -2350,7 +2350,8 @@ int ssh2_ecdsa_sign(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
 
     p = temp_buffer;
     sig = d2i_ECDSA_SIG(NULL, &p, (long)out_buffer_len);
-    ssh2_explicit_zero(temp_buffer, out_buffer_len);
+    ssh2_zero_free(session, temp_buffer, out_buffer_len);
+    temp_buffer = NULL;
 #else
     sig = ECDSA_do_sign(hash, (int)hash_len, ec_ctx);
     if(!sig)
