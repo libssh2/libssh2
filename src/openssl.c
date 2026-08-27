@@ -3071,7 +3071,7 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
 #else
     int rc = -1;
     unsigned char *secret = NULL;
-    size_t secret_size;
+    size_t secret_size = 0;
     int secret_len;
     const EC_GROUP *private_key_group;
     EC_POINT *server_public_key_point;
