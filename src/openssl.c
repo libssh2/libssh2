@@ -2880,6 +2880,11 @@ int ssh2_ecdsa_create_key(ssh2_ec_key **ec_ctx, LIBSSH2_SESSION *session,
     if(ret <= 0)
         goto clean_exit;
 
+    if(octal_len > EC_MAX_POINT_LEN) {
+        ret = -1;
+        goto clean_exit;
+    }
+
     *out_public_key_octal = SSH2_ALLOC(session, octal_len);
     if(!*out_public_key_octal) {
         ret = -1;
