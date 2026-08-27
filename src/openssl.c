@@ -375,7 +375,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
     }
 
     if(!ret) {
-        free(hash);
+        SSH2_FREE(session, hash);
         return -1; /* failure */
     }
 
