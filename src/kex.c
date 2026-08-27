@@ -245,15 +245,8 @@ static int kex_finish(LIBSSH2_SESSION *session,
                             "Unable to initialize local encryption context");
         }
 
-        if(free_iv) {
-            ssh2_explicit_zero(iv, session->local.crypt->iv_len);
-            SSH2_FREE(session, iv);
-        }
-
-        if(free_secret) {
-            ssh2_explicit_zero(secret, session->local.crypt->secret_len);
-            SSH2_FREE(session, secret);
-        }
+        ssh2_zero_free(session, iv, session->local.crypt->iv_len);
+        ssh2_zero_free(session, secret, session->local.crypt->secret_len);
     }
     ssh2_deb((session, LIBSSH2_TRACE_KEX,
               "Client to Server IV and Key calculated"));
@@ -289,15 +282,8 @@ static int kex_finish(LIBSSH2_SESSION *session,
                             "Failed to initialize remote encryption context");
         }
 
-        if(free_iv) {
-            ssh2_explicit_zero(iv, session->remote.crypt->iv_len);
-            SSH2_FREE(session, iv);
-        }
-
-        if(free_secret) {
-            ssh2_explicit_zero(secret, session->remote.crypt->secret_len);
-            SSH2_FREE(session, secret);
-        }
+        ssh2_zero_free(session, iv, session->remote.crypt->iv_len);
+        ssh2_zero_free(session, secret, session->remote.crypt->secret_len);
     }
     ssh2_deb((session, LIBSSH2_TRACE_KEX,
               "Server to Client IV and Key calculated"));
@@ -317,10 +303,8 @@ static int kex_finish(LIBSSH2_SESSION *session,
 
         session->local.mac->init(session, key, &free_key,
                                  &session->local.mac_abstract);
-        if(free_key) {
-            ssh2_explicit_zero(key, session->local.mac->key_len);
-            SSH2_FREE(session, key);
-        }
+
+        ssh2_zero_free(session, key, session->local.mac->key_len);
     }
     ssh2_deb((session, LIBSSH2_TRACE_KEX,
               "Client to Server HMAC Key calculated"));
@@ -340,10 +324,8 @@ static int kex_finish(LIBSSH2_SESSION *session,
 
         session->remote.mac->init(session, key, &free_key,
                                   &session->remote.mac_abstract);
-        if(free_key) {
-            ssh2_explicit_zero(key, session->remote.mac->key_len);
-            SSH2_FREE(session, key);
-        }
+
+        ssh2_zero_free(session, key, session->remote.mac->key_len);
     }
     ssh2_deb((session, LIBSSH2_TRACE_KEX,
               "Server to Client HMAC Key calculated"));
@@ -1874,19 +1856,17 @@ static void kex_method_mlkem_nistp_cleanup(
         key_state->private_key = NULL;
     }
 
-    if(key_state->mlkem_public_key) {
-        ssh2_explicit_zero(key_state->mlkem_public_key,
-                           key_state->mlkem_public_key_len);
-        SSH2_SAFEFREE(session, key_state->mlkem_public_key);
-        key_state->mlkem_public_key_len = 0;
-    }
+    ssh2_zero_free(session,
+                   key_state->mlkem_public_key,
+                   key_state->mlkem_public_key_len);
+    key_state->mlkem_public_key = NULL;
+    key_state->mlkem_public_key_len = 0;
 
-    if(key_state->mlkem_private_key) {
-        ssh2_explicit_zero(key_state->mlkem_private_key,
-                           key_state->mlkem_private_key_len);
-        SSH2_SAFEFREE(session, key_state->mlkem_private_key);
-        key_state->mlkem_private_key_len = 0;
-    }
+    ssh2_zero_free(session,
+                   key_state->mlkem_private_key,
+                   key_state->mlkem_private_key_len);
+    key_state->mlkem_private_key = NULL;
+    key_state->mlkem_private_key_len = 0;
 
     if(key_state->data)
         SSH2_SAFEFREE(session, key_state->data);
@@ -2220,17 +2200,13 @@ static void kex_curve25519_exchange_state_cleanup(
 static void kex_method_curve25519_cleanup(
     LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
-    if(key_state->curve25519_public_key) {
-        ssh2_explicit_zero(key_state->curve25519_public_key,
-                           SSH2_ED25519_KEY_LEN);
-        SSH2_SAFEFREE(session, key_state->curve25519_public_key);
-    }
+    ssh2_zero_free(session,
+                   key_state->curve25519_public_key, SSH2_ED25519_KEY_LEN);
+    key_state->curve25519_public_key = NULL;
 
-    if(key_state->curve25519_private_key) {
-        ssh2_explicit_zero(key_state->curve25519_private_key,
-                           SSH2_ED25519_KEY_LEN);
-        SSH2_SAFEFREE(session, key_state->curve25519_private_key);
-    }
+    ssh2_zero_free(session,
+                   key_state->curve25519_private_key, SSH2_ED25519_KEY_LEN);
+    key_state->curve25519_private_key = NULL;
 
     if(key_state->data)
         SSH2_SAFEFREE(session, key_state->data);
@@ -2484,31 +2460,25 @@ static void kex_mlkem768x25519_exchange_state_cleanup(
 static void kex_method_mlkem768x25519_cleanup(
     LIBSSH2_SESSION *session, struct key_exchange_state_low *key_state)
 {
-    if(key_state->curve25519_public_key) {
-        ssh2_explicit_zero(key_state->curve25519_public_key,
-                           SSH2_ED25519_KEY_LEN);
-        SSH2_SAFEFREE(session, key_state->curve25519_public_key);
-    }
+    ssh2_zero_free(session,
+                   key_state->curve25519_public_key, SSH2_ED25519_KEY_LEN);
+    key_state->curve25519_public_key = NULL;
 
-    if(key_state->curve25519_private_key) {
-        ssh2_explicit_zero(key_state->curve25519_private_key,
-                           SSH2_ED25519_KEY_LEN);
-        SSH2_SAFEFREE(session, key_state->curve25519_private_key);
-    }
+    ssh2_zero_free(session,
+                   key_state->curve25519_private_key, SSH2_ED25519_KEY_LEN);
+    key_state->curve25519_private_key = NULL;
 
-    if(key_state->mlkem_public_key) {
-        ssh2_explicit_zero(key_state->mlkem_public_key,
-                           key_state->mlkem_public_key_len);
-        SSH2_SAFEFREE(session, key_state->mlkem_public_key);
-        key_state->mlkem_public_key_len = 0;
-    }
+    ssh2_zero_free(session,
+                   key_state->mlkem_public_key,
+                   key_state->mlkem_public_key_len);
+    key_state->mlkem_public_key = NULL;
+    key_state->mlkem_public_key_len = 0;
 
-    if(key_state->mlkem_private_key) {
-        ssh2_explicit_zero(key_state->mlkem_private_key,
-                           key_state->mlkem_private_key_len);
-        SSH2_SAFEFREE(session, key_state->mlkem_private_key);
-        key_state->mlkem_private_key_len = 0;
-    }
+    ssh2_zero_free(session,
+                   key_state->mlkem_private_key,
+                   key_state->mlkem_private_key_len);
+    key_state->mlkem_private_key = NULL;
+    key_state->mlkem_private_key_len = 0;
 
     if(key_state->data)
         SSH2_SAFEFREE(session, key_state->data);
