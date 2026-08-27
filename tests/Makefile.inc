@@ -136,12 +136,6 @@ EXTRA_DIST = \
   openssh_server/Dockerfile \
   openssh_server/authorized_keys \
   openssh_server/ca_user_keys.pub \
-  openssh_server/ssh_host_ecdsa_384_key \
-  openssh_server/ssh_host_ecdsa_384_key-cert.pub \
-  openssh_server/ssh_host_ecdsa_384_key.pub \
-  openssh_server/ssh_host_ecdsa_521_key \
-  openssh_server/ssh_host_ecdsa_521_key-cert.pub \
-  openssh_server/ssh_host_ecdsa_521_key.pub \
   openssh_server/ssh_host_ecdsa_key \
   openssh_server/ssh_host_ecdsa_key-cert.pub \
   openssh_server/ssh_host_ecdsa_key.pub \

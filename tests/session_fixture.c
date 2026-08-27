@@ -101,8 +101,6 @@ static char const *skip_mac[] = {
 static char const *skip_hostkey[] = {
 #if !LIBSSH2_ECDSA
     "ecdsa-sha2-nistp256-cert-v01@openssh.com",
-    "ecdsa-sha2-nistp384-cert-v01@openssh.com",
-    "ecdsa-sha2-nistp521-cert-v01@openssh.com",
 #endif
 #if !LIBSSH2_RSA_SHA2
     "rsa-sha2-256-cert-v01@openssh.com",
