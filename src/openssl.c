@@ -716,6 +716,8 @@ int ssh2_ecdsa_curve_name_with_octal_new(
 #else
     EC_KEY *ec_key = EC_KEY_new_by_curve_name(curve);
 
+    (void)session;
+
     if(ec_key) {
         const EC_GROUP *ec_group = NULL;
         EC_POINT *point = NULL;
