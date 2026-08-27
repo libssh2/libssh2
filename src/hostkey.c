@@ -648,7 +648,7 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
     if(!ssh2_eob(&buf))
         return -1;
 
-    if(ssh2_ecdsa_curve_name_with_octal_new(&ec_ctx, public_key,
+    if(ssh2_ecdsa_curve_name_with_octal_new(&ec_ctx, session, public_key,
                                             key_len, curve))
         return -1;
 

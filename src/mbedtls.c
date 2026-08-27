@@ -948,10 +948,12 @@ failed:
  * Creates a new public key given an octal string, length and type
  */
 int ssh2_ecdsa_curve_name_with_octal_new(
-    ssh2_ecdsa_ctx **ec_ctx,
+    ssh2_ecdsa_ctx **ec_ctx, LIBSSH2_SESSION *session,
     const unsigned char *publickey_encoded, size_t publickey_encoded_len,
     ssh2_curve_type curve)
 {
+    (void)session;
+
     *ec_ctx = mbedtls_calloc(1, sizeof(mbedtls_ecp_keypair));
     if(!*ec_ctx)
         goto failed;
