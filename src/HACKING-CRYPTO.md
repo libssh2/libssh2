@@ -676,6 +676,7 @@ This procedure is already prototyped in `crypto.h`.
 
 ```c
 int ssh2_ecdsa_curve_name_with_octal_new(ssh2_ecdsa_ctx **ec_ctx,
+                                         LIBSSH2_SESSION *session,
                                          const unsigned char *k,
                                          size_t k_len,
                                          ssh2_curve_type curve);

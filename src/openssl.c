@@ -668,7 +668,7 @@ ssh2_curve_type ssh2_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ec_ctx)
  * Creates a new public key given an octal string, length and type
  */
 int ssh2_ecdsa_curve_name_with_octal_new(
-    ssh2_ecdsa_ctx **ec_ctx,
+    ssh2_ecdsa_ctx **ec_ctx, LIBSSH2_SESSION *session,
     const unsigned char *publickey_encoded, size_t publickey_encoded_len,
     ssh2_curve_type curve)
 {
@@ -684,10 +684,10 @@ int ssh2_ecdsa_curve_name_with_octal_new(
         return -1;
 
     if(n)
-        group_name = OPENSSL_zalloc(strlen(n) + 1);
+        group_name = SSH2_CALLOC(session, strlen(n) + 1);
 
     if(publickey_encoded_len > 0)
-        data = OPENSSL_malloc(publickey_encoded_len);
+        data = SSH2_ALLOC(session, publickey_encoded_len);
 
     if(group_name && data) {
         OSSL_PARAM params[3] = { 0 };
@@ -709,11 +709,8 @@ int ssh2_ecdsa_curve_name_with_octal_new(
     else
         ret = -1;
 
-    if(group_name)
-        OPENSSL_clear_free(group_name, strlen(n) + 1);
-
-    if(data)
-        OPENSSL_clear_free(data, publickey_encoded_len);
+    ssh2_zero_free(session, group_name, strlen(n) + 1);
+    ssh2_zero_free(session, data, publickey_encoded_len);
 
     EVP_PKEY_CTX_free(ctx);
 #else
@@ -2631,8 +2628,8 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
 
     ssh2_zero_free(session, group_name, strlen(n) + 1);
 #else
-    rc = ssh2_ecdsa_curve_name_with_octal_new(&ctx, pointbuf, pointbuf_len,
-                                              curve);
+    rc = ssh2_ecdsa_curve_name_with_octal_new(&ctx, session,
+                                              pointbuf, pointbuf_len, curve);
     if(rc) {
         rc = -1;
         ssh2_err(session, LIBSSH2_ERROR_PROTO, "ECDSA could not create key");
@@ -2722,7 +2719,8 @@ static int ossl_ecdsa_sk_openssh_priv_to_pubkey(
         return -1;
     }
 
-    rc = ssh2_ecdsa_curve_name_with_octal_new(&ctx, pointbuf, pointbuf_len,
+    rc = ssh2_ecdsa_curve_name_with_octal_new(&ctx, session,
+                                              pointbuf, pointbuf_len,
                                               SSH2_EC_CURVE_NISTP256);
     if(rc) {
         rc = -1;

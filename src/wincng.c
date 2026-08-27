@@ -2030,7 +2030,7 @@ cleanup:
  * Creates an ECDSA public key from an uncompressed point.
  */
 int ssh2_ecdsa_curve_name_with_octal_new(
-    OUT ssh2_ecdsa_ctx **ec_ctx,
+    OUT ssh2_ecdsa_ctx **ec_ctx, IN LIBSSH2_SESSION *session,
     IN const unsigned char *publickey_encoded, IN size_t publickey_encoded_len,
     IN ssh2_curve_type curve)
 {
@@ -2038,6 +2038,8 @@ int ssh2_ecdsa_curve_name_with_octal_new(
 
     BCRYPT_KEY_HANDLE publickey_handle;
     struct ecdsa_point publickey;
+
+    (void)session;
 
     /* Validate parameters */
     if(curve >= SSH2_ARRAYSIZE(wcng_ecdsa_algs))

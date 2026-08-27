@@ -202,7 +202,7 @@ int ssh2_ecdsa_create_key(ssh2_ec_key **ec_ctx, LIBSSH2_SESSION *session,
                           ssh2_curve_type curve);
 
 int ssh2_ecdsa_curve_name_with_octal_new(
-    ssh2_ecdsa_ctx **ec_ctx,
+    ssh2_ecdsa_ctx **ec_ctx, LIBSSH2_SESSION *session,
     const unsigned char *publickey_encoded, size_t publickey_encoded_len,
     ssh2_curve_type curve);
 
