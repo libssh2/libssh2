@@ -854,24 +854,16 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx,
     memcpy(data, m, datalen);
 
     ret = ssh2_hash(hash_alg, data, datalen, hash, hash_len);
-
-    if(datalen)
-        ssh2_explicit_zero(data, datalen);
-    SSH2_SAFEFREE(session, data);
-
+    ssh2_zero_free(session, data, datalen);
     if(!ret) {
-        if(hash_len)
-            ssh2_explicit_zero(hash, hash_len);
-        SSH2_FREE(session, hash);
+        ssh2_zero_free(session, hash, hash_len);
         return -1;
     }
 
     datalen = sig_len;
     data = SSH2_ALLOC(session, datalen);
     if(!data) {
-        if(hash_len)
-            ssh2_explicit_zero(hash, hash_len);
-        SSH2_FREE(session, hash);
+        ssh2_zero_free(session, hash, hash_len);
         return -1;
     }
 
@@ -885,13 +877,8 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx,
     ret = BCryptVerifySignature(ctx->hKey, pPaddingInfo,
                                 hash, hash_len, data, datalen, flags);
 
-    if(hash_len)
-        ssh2_explicit_zero(hash, hash_len);
-    SSH2_FREE(session, hash);
-
-    if(datalen)
-        ssh2_explicit_zero(data, datalen);
-    SSH2_FREE(session, data);
+    ssh2_zero_free(session, hash, hash_len);
+    ssh2_zero_free(session, data, datalen);
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
@@ -1370,9 +1357,7 @@ static int wcng_rsa_sha_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
             ret = (NTSTATUS)STATUS_NO_MEMORY;
     }
 
-    if(datalen)
-        ssh2_explicit_zero(data, datalen);
-    SSH2_FREE(session, data);
+    ssh2_zero_free(session, data, datalen);
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
@@ -1603,9 +1588,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
                 if(BCRYPT_SUCCESS(ret))
                     memcpy(signature, sig, siglen);
 
-                if(siglen)
-                    ssh2_explicit_zero(sig, siglen);
-                SSH2_FREE(session, sig);
+                ssh2_zero_free(session, sig, siglen);
             }
             else
                 ret = (NTSTATUS)STATUS_NO_MEMORY;
@@ -1614,9 +1597,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
             ret = (NTSTATUS)STATUS_INVALID_PARAMETER;
     }
 
-    if(datalen)
-        ssh2_explicit_zero(data, datalen);
-    SSH2_FREE(session, data);
+    ssh2_zero_free(session, data, datalen);
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
