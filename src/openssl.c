@@ -2258,7 +2258,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
 
     if(EVP_PKEY_get_int_param(dsa, OSSL_PKEY_PARAM_MAX_SIZE, &size) > 0) {
         sig_len = size;
-        buf = OPENSSL_malloc(size);
+        buf = SSH2_ALLOC(session, size);
     }
 
     if(buf && ctx && EVP_PKEY_sign_init(ctx) > 0)
@@ -2270,7 +2270,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
     if(buf) {
         const unsigned char *in = buf;
         d2i_DSA_SIG(&sig, &in, (long)sig_len);
-        OPENSSL_clear_free(buf, size);
+        ssh2_zero_free(session, buf, size);
     }
 #else
     (void)hash_len;
@@ -2608,7 +2608,7 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     if(!fromdata_ctx)
         goto fail;
 
-    group_name = OPENSSL_zalloc(strlen(n) + 1);
+    group_name = SSH2_CALLOC(session, strlen(n) + 1);
     if(!group_name)
         goto fail;
 
@@ -2629,8 +2629,7 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     rc = EVP_PKEY_fromdata(fromdata_ctx, &ctx, EVP_PKEY_KEYPAIR, params);
     rc = rc != 1;
 
-    if(group_name)
-        OPENSSL_clear_free(group_name, strlen(n) + 1);
+    ssh2_zero_free(session, group_name, strlen(n) + 1);
 #else
     rc = ssh2_ecdsa_curve_name_with_octal_new(&ctx, pointbuf, pointbuf_len,
                                               curve);
@@ -3020,7 +3019,7 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, LIBSSH2_SESSION *session,
         goto clean_exit;
 
     group_name_len += 1;
-    group_name = OPENSSL_zalloc(group_name_len);
+    group_name = SSH2_CALLOC(session, group_name_len);
     if(!group_name)
         goto clean_exit;
 
@@ -3031,7 +3030,7 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, LIBSSH2_SESSION *session,
     if(ret <= 0)
         goto clean_exit;
 
-    out_shared_key = OPENSSL_malloc(server_public_key_len);
+    out_shared_key = SSH2_ALLOC(session, server_public_key_len);
     if(!out_shared_key)
         goto clean_exit;
 
@@ -3126,11 +3125,8 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, LIBSSH2_SESSION *session,
 
 clean_exit:
 #ifdef USE_OPENSSL_3
-    if(group_name)
-        OPENSSL_clear_free(group_name, group_name_len);
-
-    if(out_shared_key)
-        OPENSSL_clear_free(out_shared_key, server_public_key_len);
+    ssh2_zero_free(session, group_name, group_name_len);
+    ssh2_zero_free(session, out_shared_key, server_public_key_len);
 
     if(server_key_ctx)
         EVP_PKEY_CTX_free(server_key_ctx);
