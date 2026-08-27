@@ -1307,7 +1307,7 @@ cleanup:
     mbedtls_mpi_free(&pr);
     mbedtls_mpi_free(&ps);
 
-    mbed_zero_free(tmp_sign, tmp_sign_len);
+    ssh2_zero_free(session, tmp_sign, tmp_sign_len);
 
     return *signature ? 0 : -1;
 }
