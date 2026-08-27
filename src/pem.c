@@ -136,10 +136,8 @@ out:
         *blob = filedata;
         *blob_len = filedata_len;
     }
-    else if(filedata) {
-        ssh2_explicit_zero(filedata, filedata_len + 1);
-        SSH2_FREE(session, filedata);
-    }
+    else
+        ssh2_zero_free(session, filedata, filedata_len + 1);
 
     if(fp)
         fclose(fp);
