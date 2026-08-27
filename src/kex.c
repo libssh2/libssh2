@@ -245,8 +245,10 @@ static int kex_finish(LIBSSH2_SESSION *session,
                             "Unable to initialize local encryption context");
         }
 
-        ssh2_zero_free(session, iv, session->local.crypt->iv_len);
-        ssh2_zero_free(session, secret, session->local.crypt->secret_len);
+        if(free_iv)
+            ssh2_zero_free(session, iv, session->local.crypt->iv_len);
+        if(free_secret)
+            ssh2_zero_free(session, secret, session->local.crypt->secret_len);
     }
     ssh2_deb((session, LIBSSH2_TRACE_KEX,
               "Client to Server IV and Key calculated"));
@@ -282,8 +284,10 @@ static int kex_finish(LIBSSH2_SESSION *session,
                             "Failed to initialize remote encryption context");
         }
 
-        ssh2_zero_free(session, iv, session->remote.crypt->iv_len);
-        ssh2_zero_free(session, secret, session->remote.crypt->secret_len);
+        if(free_iv)
+            ssh2_zero_free(session, iv, session->remote.crypt->iv_len);
+        if(free_secret)
+            ssh2_zero_free(session, secret, session->remote.crypt->secret_len);
     }
     ssh2_deb((session, LIBSSH2_TRACE_KEX,
               "Server to Client IV and Key calculated"));
@@ -303,8 +307,8 @@ static int kex_finish(LIBSSH2_SESSION *session,
 
         session->local.mac->init(session, key, &free_key,
                                  &session->local.mac_abstract);
-
-        ssh2_zero_free(session, key, session->local.mac->key_len);
+        if(free_key)
+            ssh2_zero_free(session, key, session->local.mac->key_len);
     }
     ssh2_deb((session, LIBSSH2_TRACE_KEX,
               "Client to Server HMAC Key calculated"));
@@ -324,8 +328,8 @@ static int kex_finish(LIBSSH2_SESSION *session,
 
         session->remote.mac->init(session, key, &free_key,
                                   &session->remote.mac_abstract);
-
-        ssh2_zero_free(session, key, session->remote.mac->key_len);
+        if(free_key)
+            ssh2_zero_free(session, key, session->remote.mac->key_len);
     }
     ssh2_deb((session, LIBSSH2_TRACE_KEX,
               "Server to Client HMAC Key calculated"));
