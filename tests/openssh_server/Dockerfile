@@ -49,9 +49,6 @@ RUN sed -i 's/KbdInteractiveAuthentication no/KbdInteractiveAuthentication yes/'
 COPY sshd_config /tmp/etc/ssh/sshd_config
 RUN cat /tmp/etc/ssh/sshd_config >> /etc/ssh/sshd_config
 RUN echo 'TrustedUserCAKeys /etc/ssh/ca_user_keys.pub' >> /etc/ssh/sshd_config
-RUN echo 'HostKey /etc/ssh/ssh_host_rsa_key' >> /etc/ssh/sshd_config
-RUN echo 'HostKey /etc/ssh/ssh_host_ecdsa_key' >> /etc/ssh/sshd_config
-RUN echo 'HostKey /etc/ssh/ssh_host_ed25519_key' >> /etc/ssh/sshd_config
 RUN echo 'HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub' >> /etc/ssh/sshd_config
 RUN echo 'HostCertificate /etc/ssh/ssh_host_ecdsa_key-cert.pub' >> /etc/ssh/sshd_config
 RUN echo 'HostCertificate /etc/ssh/ssh_host_ed25519_key-cert.pub' >> /etc/ssh/sshd_config
