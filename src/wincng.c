@@ -2501,7 +2501,7 @@ int ssh2_ecdsa_sign(IN ssh2_ecdsa_ctx *ec_ctx,
     *signature_len = 0;
 
     /* CNG expects a mutable buffer */
-    hash_buffer = malloc(hash_len);
+    hash_buffer = SSH2_ALLOC(session, hash_len);
     if(!hash_buffer) {
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
@@ -2523,7 +2523,7 @@ int ssh2_ecdsa_sign(IN ssh2_ecdsa_ctx *ec_ctx,
         goto cleanup;
     }
 
-    cng_signature = malloc(cng_signature_len);
+    cng_signature = SSH2_ALLOC(session, cng_signature_len);
     if(!cng_signature) {
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
@@ -2579,9 +2579,9 @@ cleanup:
     }
 
     if(cng_signature)
-        free(cng_signature);
+        SSH2_FEEE(session, cng_signature);
     if(hash_buffer)
-        free(hash_buffer);
+        SSH2_FREE(session, hash_buffer);
 
     return result;
 }
