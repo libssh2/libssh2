@@ -374,11 +374,10 @@ static const struct hostkey_method hostkey_method_ssh_rsa_sha2_512 = {
  * The existing per-variant sig_verify operates on the abstract (the inner
  * RSA key ctx) and is reused verbatim.
  */
-static int hostkey_method_ssh_rsa_init_cert(
-    LIBSSH2_SESSION *session,
-    const unsigned char *hostkey_data,
-    size_t hostkey_data_len,
-    void **abstract)
+static int hostkey_method_ssh_rsa_init_cert(LIBSSH2_SESSION *session,
+                                            const unsigned char *hostkey_data,
+                                            size_t hostkey_data_len,
+                                            void **abstract)
 {
     ssh2_rsa_ctx *rsa;
     unsigned char *e, *n, *nonce;
