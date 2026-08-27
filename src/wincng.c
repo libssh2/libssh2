@@ -856,12 +856,12 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx,
     ret = ssh2_hash(hash_alg, data, datalen, hash, hash_len);
 
     if(datalen)
-         ssh2_explicit_zero(data, datalen);
+        ssh2_explicit_zero(data, datalen);
     SSH2_SAFEFREE(session, data);
 
     if(!ret) {
         if(hash_len)
-             ssh2_explicit_zero(hash, hash_len);
+            ssh2_explicit_zero(hash, hash_len);
         SSH2_FREE(session, hash);
         return -1;
     }
@@ -870,7 +870,7 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx,
     data = SSH2_ALLOC(session, datalen);
     if(!data) {
         if(hash_len)
-             ssh2_explicit_zero(hash, hash_len);
+            ssh2_explicit_zero(hash, hash_len);
         SSH2_FREE(session, hash);
         return -1;
     }
@@ -886,11 +886,11 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx,
                                 hash, hash_len, data, datalen, flags);
 
     if(hash_len)
-         ssh2_explicit_zero(hash, hash_len);
+        ssh2_explicit_zero(hash, hash_len);
     SSH2_FREE(session, hash);
 
     if(datalen)
-         ssh2_explicit_zero(data, datalen);
+        ssh2_explicit_zero(data, datalen);
     SSH2_FREE(session, data);
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
