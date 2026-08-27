@@ -2362,7 +2362,7 @@ int ssh2_ecdsa_sign(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
     r_len = BN_num_bytes(pr) + 1;
     s_len = BN_num_bytes(ps) + 1;
 
-    temp_buffer = malloc(r_len + s_len + 8);
+    temp_buffer = SSH2_ALLOC(session, r_len + s_len + 8);
     if(!temp_buffer) {
         rc = -1;
         goto clean_exit;
@@ -2388,7 +2388,7 @@ int ssh2_ecdsa_sign(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
 clean_exit:
 
     if(temp_buffer)
-        free(temp_buffer);
+        SSH2_FREE(session, temp_buffer);
 
     if(sig)
         ECDSA_SIG_free(sig);
