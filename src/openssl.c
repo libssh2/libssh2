@@ -709,7 +709,7 @@ int ssh2_ecdsa_curve_name_with_octal_new(
     else
         ret = -1;
 
-    if(n)
+    if(group_name)
         ssh2_zero_free(session, group_name, strlen(n) + 1);
     ssh2_zero_free(session, data, publickey_encoded_len);
 
