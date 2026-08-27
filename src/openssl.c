@@ -342,7 +342,8 @@ fail:
 #endif /* USE_OPENSSL_3 */
 }
 
-int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
+int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
+                         size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
@@ -352,7 +353,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
 #endif
     int ret;
     int nid_type;
-    unsigned char *hash = malloc(hash_len);
+    unsigned char *hash = SSH2_ALLOC(session, hash_len);
     if(!hash)
         return -1;
 
@@ -406,18 +407,18 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
                      sig, (unsigned int)sig_len, rsa);
 #endif
 
-    free(hash);
+    SSH2_FREE(session, hash);
 
     return ret == 1 ? 0 : -1;
 }
 
 #if LIBSSH2_RSA_SHA1
-int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
+int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return ssh2_rsa_sha2_verify(rsa, SSH2_SHA1_DIG_LEN, sig, sig_len, m,
-                                m_len);
+    return ssh2_rsa_sha2_verify(rsa, session, SSH2_SHA1_DIG_LEN,
+                                sig, sig_len, m, m_len);
 }
 #endif
 #endif /* LIBSSH2_RSA */
@@ -748,7 +749,7 @@ int ssh2_ecdsa_curve_name_with_octal_new(
     return ret == 1 ? 0 : -1;
 }
 
-int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
+int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
                       const unsigned char *r, size_t r_len,
                       const unsigned char *s, size_t s_len,
                       const unsigned char *m, size_t m_len)
@@ -767,6 +768,8 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
     ECDSA_SIG *ecdsa_sig;
     BIGNUM *pr;
     BIGNUM *ps;
+
+    (void)session;
 
     pr = BN_new();
     if(!pr)
@@ -2236,7 +2239,7 @@ int ssh2_rsa_sha1_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
 #endif
 
 #if LIBSSH2_DSA
-int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
+int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char *signature)
 {
@@ -2274,6 +2277,8 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
 #endif
     if(!sig)
         return -1;
+
+    (void)session;
 
     DSA_SIG_get0(sig, &r, &s);
 
