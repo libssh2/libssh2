@@ -2560,7 +2560,7 @@ cleanup:
     }
 
     if(cng_signature)
-        SSH2_FEEE(session, cng_signature);
+        SSH2_FREE(session, cng_signature);
     if(hash_buffer)
         SSH2_FREE(session, hash_buffer);
 
