@@ -24,9 +24,9 @@ rm -f keys/ca_*
 rm -f keys/id_*
 
 # host CAs
-ssh-keygen -t ed25519         -N ''          -m RFC4716 -C 'ca_host_ed25519'              -f 'keys/ca_host_ed25519'
-ssh-keygen -t ecdsa   -b  256 -N ''          -m RFC4716 -C 'ca_host_ecdsa'                -f 'keys/ca_host_ecdsa'
 ssh-keygen -t rsa     -b 2048 -N ''          -m RFC4716 -C 'ca_host_rsa'                  -f 'keys/ca_host_rsa'
+ssh-keygen -t ecdsa   -b  256 -N ''          -m RFC4716 -C 'ca_host_ecdsa'                -f 'keys/ca_host_ecdsa'
+ssh-keygen -t ed25519         -N ''          -m RFC4716 -C 'ca_host_ed25519'              -f 'keys/ca_host_ed25519'
 
 # user CAs
 ssh-keygen -t rsa     -b 3072 -N ''          -m RFC4716 -C 'ca_user_rsa'                  -f 'keys/ca_user_rsa'
