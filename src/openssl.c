@@ -2330,7 +2330,7 @@ int ssh2_ecdsa_sign(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
         return ssh2_err(session, LIBSSH2_ERROR_ALLOC, "out of memory");
 
     out_buffer_len = EVP_PKEY_get_size(ec_ctx);
-    temp_buffer = OPENSSL_malloc(out_buffer_len);
+    temp_buffer = SSH2_ALLOC(session, out_buffer_len);
     if(!temp_buffer)
         goto clean_exit;
 
@@ -2350,7 +2350,8 @@ int ssh2_ecdsa_sign(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
 
     p = temp_buffer;
     sig = d2i_ECDSA_SIG(NULL, &p, (long)out_buffer_len);
-    OPENSSL_clear_free(temp_buffer, out_buffer_len);
+    ssh2_zero_free(session, temp_buffer, out_buffer_len);
+    temp_buffer = NULL;
 #else
     sig = ECDSA_do_sign(hash, (int)hash_len, ec_ctx);
     if(!sig)
