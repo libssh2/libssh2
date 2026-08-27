@@ -3030,7 +3030,7 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, LIBSSH2_SESSION *session,
     if(ret <= 0)
         goto clean_exit;
 
-    out_shared_key = SSH2_ALLOC(server_public_key_len);
+    out_shared_key = SSH2_ALLOC(session, server_public_key_len);
     if(!out_shared_key)
         goto clean_exit;
 
