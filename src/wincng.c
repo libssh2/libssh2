@@ -1344,7 +1344,7 @@ static int wcng_rsa_sha_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
     }
 
     datalen = (ULONG)hash_len;
-    data = malloc(datalen);
+    data = SSH2_ALLOC(session, datalen);
     if(!data)
         return -1;
     memcpy(data, hash, datalen);
@@ -1370,7 +1370,9 @@ static int wcng_rsa_sha_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
             ret = (NTSTATUS)STATUS_NO_MEMORY;
     }
 
-    wcng_zero_free(data, datalen);
+    if(datalen)
+        ssh2_explicit_zero(data, datalen);
+    SSH2_FREE(session, data);
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
