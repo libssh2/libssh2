@@ -342,7 +342,8 @@ fail:
 #endif /* USE_OPENSSL_3 */
 }
 
-int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
+int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
+                         size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
@@ -352,7 +353,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
 #endif
     int ret;
     int nid_type;
-    unsigned char *hash = malloc(hash_len);
+    unsigned char *hash = SSH2_ALLOC(session, hash_len);
     if(!hash)
         return -1;
 
@@ -374,7 +375,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
     }
 
     if(!ret) {
-        free(hash);
+        SSH2_FREE(session, hash);
         return -1; /* failure */
     }
 
@@ -406,18 +407,18 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
                      sig, (unsigned int)sig_len, rsa);
 #endif
 
-    free(hash);
+    SSH2_FREE(session, hash);
 
     return ret == 1 ? 0 : -1;
 }
 
 #if LIBSSH2_RSA_SHA1
-int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
+int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return ssh2_rsa_sha2_verify(rsa, SSH2_SHA1_DIG_LEN, sig, sig_len, m,
-                                m_len);
+    return ssh2_rsa_sha2_verify(rsa, session, SSH2_SHA1_DIG_LEN,
+                                sig, sig_len, m, m_len);
 }
 #endif
 #endif /* LIBSSH2_RSA */
@@ -568,7 +569,7 @@ fail:
 #endif /* USE_OPENSSL_3 */
 }
 
-int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
+int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
                          const unsigned char *sig,
                          const unsigned char *m, size_t m_len)
 {
@@ -583,6 +584,8 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
     DSA_SIG *dsasig;
     BIGNUM *r;
     BIGNUM *s;
+
+    (void)session;
 
     r = BN_new();
     if(!r)
@@ -748,7 +751,7 @@ int ssh2_ecdsa_curve_name_with_octal_new(
     return ret == 1 ? 0 : -1;
 }
 
-int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
+int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
                       const unsigned char *r, size_t r_len,
                       const unsigned char *s, size_t s_len,
                       const unsigned char *m, size_t m_len)
@@ -767,6 +770,8 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
     ECDSA_SIG *ecdsa_sig;
     BIGNUM *pr;
     BIGNUM *ps;
+
+    (void)session;
 
     pr = BN_new();
     if(!pr)
@@ -2236,7 +2241,7 @@ int ssh2_rsa_sha1_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
 #endif
 
 #if LIBSSH2_DSA
-int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
+int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char *signature)
 {
@@ -2274,6 +2279,8 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
 #endif
     if(!sig)
         return -1;
+
+    (void)session;
 
     DSA_SIG_get0(sig, &r, &s);
 
@@ -2355,7 +2362,7 @@ int ssh2_ecdsa_sign(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
     r_len = BN_num_bytes(pr) + 1;
     s_len = BN_num_bytes(ps) + 1;
 
-    temp_buffer = malloc(r_len + s_len + 8);
+    temp_buffer = SSH2_ALLOC(session, r_len + s_len + 8);
     if(!temp_buffer) {
         rc = -1;
         goto clean_exit;
@@ -2381,7 +2388,7 @@ int ssh2_ecdsa_sign(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
 clean_exit:
 
     if(temp_buffer)
-        free(temp_buffer);
+        SSH2_FREE(session, temp_buffer);
 
     if(sig)
         ECDSA_SIG_free(sig);
@@ -2973,7 +2980,8 @@ clean_exit:
  * Computes the shared secret K given a local private key,
  * remote public key and length
  */
-int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
+int ssh2_ecdh_gen_k(ssh2_bn **k, LIBSSH2_SESSION *session,
+                    ssh2_ec_key *private_key,
                     const unsigned char *server_public_key,
                     size_t server_public_key_len)
 {
@@ -2990,6 +2998,8 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
     OSSL_PARAM params[3];
 
     size_t out_len = 0;
+
+    (void)session;
 
     if(!k || !*k || server_public_key_len <= 0)
         return -1;
@@ -3097,7 +3107,7 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
     }
 
     secret_size = (EC_GROUP_get_degree(private_key_group) + 7) / 8;
-    secret = malloc(secret_size);
+    secret = SSH2_ALLOC(session, secret_size);
     if(!secret) {
         ret = -1;
         goto clean_exit;
@@ -3130,10 +3140,8 @@ clean_exit:
     if(bn_ctx)
         BN_CTX_free(bn_ctx);
 
-    if(secret) {
-        ssh2_explicit_zero(secret, secret_size);
-        free(secret);
-    }
+    if(secret)
+        ssh2_zero_free(session, secret, secret_size);
 #endif
 
 #ifdef USE_OPENSSL_3

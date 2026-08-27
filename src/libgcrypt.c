@@ -132,7 +132,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     return 0;
 }
 
-int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa,
+int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                          size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
@@ -143,7 +143,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa,
     gcry_sexp_t s_hash = NULL;
     gcry_sexp_t s_sig = NULL;
 
-    hash = malloc(hash_len);
+    hash = SSH2_ALLOC(session, hash_len);
     if(!hash)
         return -1;
 
@@ -190,18 +190,18 @@ out:
     if(s_hash)
         gcry_sexp_release(s_hash);
     if(hash)
-        free(hash);
+        SSH2_FREE(session, hash);
 
     return ret;
 }
 
 #if LIBSSH2_RSA_SHA1
-int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
+int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return ssh2_rsa_sha2_verify(rsa, SSH2_SHA1_DIG_LEN, sig, sig_len, m,
-                                m_len);
+    return ssh2_rsa_sha2_verify(rsa, session, SSH2_SHA1_DIG_LEN,
+                                sig, sig_len, m, m_len);
 }
 #endif
 #endif
@@ -492,7 +492,7 @@ int ssh2_rsa_sha1_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
 #endif
 
 #if LIBSSH2_DSA
-int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
+int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char *signature)
 {
@@ -502,6 +502,8 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
     int ret;
     const char *tmp;
     size_t size;
+
+    (void)session;
 
     if(hash_len != SSH2_SHA1_DIG_LEN)
         return -1;
@@ -576,13 +578,15 @@ out:
     return ret;
 }
 
-int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
+int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
                          const unsigned char *sig,
                          const unsigned char *m, size_t m_len)
 {
     unsigned char hash[SSH2_SHA1_DIG_LEN + 1];
     gcry_sexp_t s_sig, s_hash;
     int rc = -1;
+
+    (void)session;
 
     gcry_md_hash_buffer(GCRY_MD_SHA1, hash + 1, m, m_len);
 

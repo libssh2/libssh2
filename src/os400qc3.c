@@ -2400,7 +2400,8 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
 }
 
 #if LIBSSH2_RSA_SHA2
-int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
+int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
+                         size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
@@ -2408,6 +2409,8 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
     Qc3_Format_ALGD0400_T algd;
     int slen = (int)sig_len;
     int mlen = (int)m_len;
+
+    (void)session;
 
     memset(&algd, 0, sizeof(algd));
     algd.Public_Key_Alg = Qc3_RSA;
@@ -2435,11 +2438,11 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
 }
 #endif
 #if LIBSSH2_RSA_SHA1
-int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
+int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return ssh2_rsa_sha2_verify(rsa, SSH2_SHA1_DIG_LEN,
+    return ssh2_rsa_sha2_verify(rsa, session, SSH2_SHA1_DIG_LEN,
                                 sig, sig_len, m, m_len);
 }
 #endif

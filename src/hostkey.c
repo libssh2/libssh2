@@ -146,7 +146,6 @@ static int hostkey_method_ssh_rsa_sig_verify(LIBSSH2_SESSION *session,
                                              size_t m_len, void **abstract)
 {
     ssh2_rsa_ctx *rsa = (ssh2_rsa_ctx *)(*abstract);
-    (void)session;
 
     /* Skip past keyname_len(4) + keyname(7){"ssh-rsa"} + signature_len(4) */
     if(sig_len <= 15)
@@ -154,7 +153,7 @@ static int hostkey_method_ssh_rsa_sig_verify(LIBSSH2_SESSION *session,
 
     sig += 15;
     sig_len -= 15;
-    return ssh2_rsa_sha1_verify(rsa, sig, sig_len, m, m_len);
+    return ssh2_rsa_sha1_verify(rsa, session, sig, sig_len, m, m_len);
 }
 
 /*
@@ -208,7 +207,6 @@ static int hostkey_method_ssh_rsa_sha2_256_sig_verify(
     size_t m_len, void **abstract)
 {
     ssh2_rsa_ctx *rsa = (ssh2_rsa_ctx *)(*abstract);
-    (void)session;
 
     /* Skip past keyname_len(4) + keyname(12){"rsa-sha2-256"} +
        signature_len(4) */
@@ -217,8 +215,8 @@ static int hostkey_method_ssh_rsa_sha2_256_sig_verify(
 
     sig += 20;
     sig_len -= 20;
-    return ssh2_rsa_sha2_verify(rsa, SSH2_SHA256_DIG_LEN, sig, sig_len,
-                                m, m_len);
+    return ssh2_rsa_sha2_verify(rsa, session, SSH2_SHA256_DIG_LEN,
+                                sig, sig_len, m, m_len);
 }
 
 /*
@@ -279,8 +277,8 @@ static int hostkey_method_ssh_rsa_sha2_512_sig_verify(
 
     sig += 20;
     sig_len -= 20;
-    return ssh2_rsa_sha2_verify(rsa, SSH2_SHA512_DIG_LEN, sig, sig_len,
-                                m, m_len);
+    return ssh2_rsa_sha2_verify(rsa, session, SSH2_SHA512_DIG_LEN,
+                                sig, sig_len, m, m_len);
 }
 
 /*
@@ -504,7 +502,7 @@ static int hostkey_method_ssh_dss_sig_verify(LIBSSH2_SESSION *session,
 
     sig += 15;
 
-    return ssh2_dsa_sha1_verify(dsa, sig, m, m_len);
+    return ssh2_dsa_sha1_verify(dsa, session, sig, m, m_len);
 }
 
 /*
@@ -540,7 +538,7 @@ static int hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session,
     if(!ssh2_hash_final(&ctx, hash, sizeof(hash)))
         goto cleanup;
 
-    if(ssh2_dsa_sha1_sign(dsa, hash, SSH2_SHA1_DIG_LEN, *signature))
+    if(ssh2_dsa_sha1_sign(dsa, session, hash, SSH2_SHA1_DIG_LEN, *signature))
         goto cleanup;
 
     return 0;
@@ -703,8 +701,6 @@ static int hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION *session,
     struct string_buf buf;
     ssh2_ecdsa_ctx *ec_ctx = (ssh2_ecdsa_ctx *)(*abstract);
 
-    (void)session;
-
     if(sig_len < 35)
         return -1;
 
@@ -726,7 +722,7 @@ static int hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION *session,
     if(ssh2_get_string(&buf, &s, &s_len))
         return -1;
 
-    return ssh2_ecdsa_verify(ec_ctx, r, r_len, s, s_len, m, m_len);
+    return ssh2_ecdsa_verify(ec_ctx, session, r, r_len, s, s_len, m, m_len);
 }
 
 /*

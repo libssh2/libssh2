@@ -543,7 +543,8 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
 }
 
 #if LIBSSH2_RSA_SHA2
-int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
+int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
+                         size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
@@ -555,7 +556,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
     if(sig_len < mbedtls_rsa_get_len(rsa))
         return -1;
 
-    hash = malloc(hash_len);
+    hash = SSH2_ALLOC(session, hash_len);
     if(!hash)
         return -1;
 
@@ -575,19 +576,19 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
         md_type = MBEDTLS_MD_SHA512;
     }
     else {
-        free(hash);
+        SSH2_FREE(session, hash);
         return -1; /* unsupported digest */
     }
 
     if(ret) {
-        free(hash);
+        SSH2_FREE(session, hash);
         return -1; /* failure */
     }
 
     ret = mbedtls_rsa_pkcs1_verify(rsa,
                                    md_type, (unsigned int)hash_len,
                                    hash, sig);
-    free(hash);
+    SSH2_FREE(session, hash);
 
     return ret == 0 ? 0 : -1;
 }
@@ -637,11 +638,11 @@ int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
 #endif
 
 #if LIBSSH2_RSA_SHA1
-int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
+int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return ssh2_rsa_sha2_verify(rsa, SSH2_SHA1_DIG_LEN,
+    return ssh2_rsa_sha2_verify(rsa, session, SSH2_SHA1_DIG_LEN,
                                 sig, sig_len, m, m_len);
 }
 
@@ -982,13 +983,15 @@ failed:
  * Computes the shared secret K given a local private key,
  * remote public key and length
  */
-int ssh2_ecdh_gen_k(ssh2_bn **k,
+int ssh2_ecdh_gen_k(ssh2_bn **k, LIBSSH2_SESSION *session,
                     ssh2_ec_key *private_key,
                     const unsigned char *server_public_key,
                     size_t server_public_key_len)
 {
     mbedtls_ecp_point pubkey;
     int rc = 0;
+
+    (void)session;
 
     if(!*k)
         return -1;
@@ -1024,7 +1027,7 @@ cleanup:
 /*
  * Verifies the ECDSA signature of a hashed message
  */
-int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
+int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
                       const unsigned char *r, size_t r_len,
                       const unsigned char *s, size_t s_len,
                       const unsigned char *m, size_t m_len)
@@ -1032,6 +1035,8 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
     mbedtls_mpi pr, ps;
     size_t actual_len;
     int rc = -1;
+
+    (void)session;
 
     mbedtls_mpi_init(&pr);
     mbedtls_mpi_init(&ps);

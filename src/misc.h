@@ -89,6 +89,8 @@ int ssh2_snprintf(char *buf, size_t buf_len, const char *fmt, ...)
 void ssh2_explicit_zero(void *buf, size_t size);
 #endif
 
+void ssh2_zero_free(LIBSSH2_SESSION *session, void *buf, size_t len);
+
 #if !defined(_WIN32) || defined(__MINGW32__)
 #include <sys/time.h>  /* for timeval, gettimeofday() */
 #endif

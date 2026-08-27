@@ -839,6 +839,7 @@ jobs:
           - { build: 'AM', sys: msys   , crypto: openssl, env: x86_64 }
           - { build: 'CM', sys: msys   , crypto: OpenSSL, env: x86_64 }
           - { build: 'AM', sys: mingw64, crypto: wincng , env: x86_64 }
+          - { build: 'CM', sys: mingw64, crypto: WinCNG , env: x86_64, test: 'legacy-options' }
           - { build: 'AM', sys: mingw64, crypto: openssl, env: x86_64 }
           - { build: 'AM', sys: mingw32, crypto: openssl, env: i686, test: 'legacy-options' }
           - { build: 'AM', sys: ucrt64 , crypto: openssl, env: ucrt-x86_64 }
@@ -1014,7 +1015,12 @@ jobs:
             ldflags+=' -OPT:NOREF -OPT:NOICF -APPCONTAINER:NO'
             vsglobals=';AppxPackage=false;WindowsAppContainer=false'
           fi
-          [ "${MATRIX_CRYPTO}" = 'WinCNG' ] && options+=" -DENABLE_ECDSA_WINCNG=${MATRIX_WINCND_ECDSA}"
+          if [ "${MATRIX_CRYPTO}" = 'WinCNG' ]; then
+            options+=" -DENABLE_ECDSA_WINCNG=${MATRIX_WINCND_ECDSA}"
+            cflags+=' -DLIBSSH2_KEX_SHA1_ENABLE -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_SHA1_ENABLE'
+            cflags+=' -DLIBSSH2_RSA_SHA1_ENABLE -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_3DES_ENABLE'
+            cflags+=' -DLIBSSH2_DSA_ENABLE'
+          fi
           cmake -B bld ${options} \
             -DCMAKE_C_FLAGS="${cflags}" \
             -DCMAKE_EXE_LINKER_FLAGS="${ldflags}" \
