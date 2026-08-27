@@ -363,20 +363,13 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
 out:
 
     if(ret && *data) {
-        ssh2_explicit_zero(*data, *datalen);
-        SSH2_SAFEFREE(session, *data);
+        ssh2_zero_free(session, *data, *datalen);
+        *data = NULL;
         *datalen = 0;
     }
 
-    if(filedata) {
-        ssh2_explicit_zero(filedata, filedata_len + 1);
-        SSH2_FREE(session, filedata);
-    }
-
-    if(b64data) {
-        ssh2_explicit_zero(b64data, b64datalen);
-        SSH2_FREE(session, b64data);
-    }
+    ssh2_zero_free(session, filedata, filedata_len + 1);
+    ssh2_zero_free(session, b64data, b64datalen);
 
     if(blob_offset)
         *blob_offset = off;
