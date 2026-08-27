@@ -808,7 +808,9 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
  */
 
 #if LIBSSH2_RSA || LIBSSH2_DSA
-static int wcng_key_sha_verify(struct wcng_key_ctx *ctx, ULONG hash_len,
+static int wcng_key_sha_verify(struct wcng_key_ctx *ctx,
+                               LIBSSH2_SESSION *session,
+                               ULONG hash_len,
                                const unsigned char *sig, ULONG sig_len,
                                const unsigned char *m, ULONG m_len,
                                ULONG flags)
@@ -840,28 +842,36 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx, ULONG hash_len,
         return -1;
 
     datalen = m_len;
-    data = malloc(datalen);
+    data = SSH2_ALLOC(session, datalen);
     if(!data)
         return -1;
 
-    hash = malloc(hash_len);
+    hash = SSH2_ALLOC(session, hash_len);
     if(!hash) {
-        free(data);
+        SSH2_FREE(session, data);
         return -1;
     }
     memcpy(data, m, datalen);
 
     ret = ssh2_hash(hash_alg, data, datalen, hash, hash_len);
-    wcng_zero_free(data, datalen);
+
+    if(datalen)
+         ssh2_explicit_zero(data, datalen);
+    SSH2_SAFEFREE(session, data);
+
     if(!ret) {
-        wcng_zero_free(hash, hash_len);
+        if(hash_len)
+             ssh2_explicit_zero(hash, hash_len);
+        SSH2_FREE(session, hash);
         return -1;
     }
 
     datalen = sig_len;
-    data = malloc(datalen);
+    data = SSH2_ALLOC(session, datalen);
     if(!data) {
-        wcng_zero_free(hash, hash_len);
+        if(hash_len)
+             ssh2_explicit_zero(hash, hash_len);
+        SSH2_FREE(session, hash);
         return -1;
     }
 
@@ -875,8 +885,13 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx, ULONG hash_len,
     ret = BCryptVerifySignature(ctx->hKey, pPaddingInfo,
                                 hash, hash_len, data, datalen, flags);
 
-    wcng_zero_free(hash, hash_len);
-    wcng_zero_free(data, datalen);
+    if(hash_len)
+         ssh2_explicit_zero(hash, hash_len);
+    SSH2_FREE(session, hash);
+
+    if(datalen)
+         ssh2_explicit_zero(data, datalen);
+    SSH2_FREE(session, data);
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
@@ -1282,22 +1297,23 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
 }
 
 #if LIBSSH2_RSA_SHA1
-int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
+int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return wcng_key_sha_verify(rsa, SSH2_SHA1_DIG_LEN,
+    return wcng_key_sha_verify(rsa, session, SSH2_SHA1_DIG_LEN,
                                sig, (ULONG)sig_len,
                                m, (ULONG)m_len,
                                BCRYPT_PAD_PKCS1);
 }
 #endif
 #if LIBSSH2_RSA_SHA2
-int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
+int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
+                         size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    return wcng_key_sha_verify(rsa, (ULONG)hash_len,
+    return wcng_key_sha_verify(rsa, session, (ULONG)hash_len,
                                sig, (ULONG)sig_len,
                                m, (ULONG)m_len,
                                BCRYPT_PAD_PKCS1);
@@ -1558,7 +1574,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
                                40, m, (ULONG)m_len, 0);
 }
 
-int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
+int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char *signature)
 {
@@ -1567,7 +1583,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
     NTSTATUS ret;
 
     datalen = (ULONG)hash_len;
-    data = malloc(datalen);
+    data = SSH2_ALLOC(session, datalen);
     if(!data)
         return -1;
 
@@ -1594,7 +1610,9 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
             ret = (NTSTATUS)STATUS_INVALID_PARAMETER;
     }
 
-    wcng_zero_free(data, datalen);
+    if(len > 0)
+        ssh2_explicit_zero(data, datalen);
+    SSH2_FREE(session, data);
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
@@ -1660,7 +1678,8 @@ static int wcng_ecdsa_decode_uncompressed_point(
  * The IEEE P-1363 format is defined as r || s,
  * where r and s are of the same length.
  */
-static int wcng_p1363signature_from_point(IN const unsigned char *r,
+static int wcng_p1363signature_from_point(IN LIBSSH2_SESSION *session,
+                                          IN const unsigned char *r,
                                           IN size_t r_len,
                                           IN const unsigned char *s,
                                           IN size_t s_len,
@@ -1701,7 +1720,7 @@ static int wcng_p1363signature_from_point(IN const unsigned char *r,
         return LIBSSH2_ERROR_INVAL;
 
     /* Concatenate into zero-filled buffer and zero-pad if necessary */
-    *signature = calloc(1, *signature_length);
+    *signature = SSH2_CALLOC(session, *signature_length);
     if(!*signature)
         return LIBSSH2_ERROR_ALLOC;
 
@@ -2214,7 +2233,7 @@ static int wcng_ecdsa_curve_type_from_name(IN const char *name,
 /*
  * Verifies the ECDSA signature of a hashed message
  */
-int ssh2_ecdsa_verify(IN ssh2_ecdsa_ctx *ec_ctx,
+int ssh2_ecdsa_verify(IN ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
                       IN const unsigned char *r, IN size_t r_len,
                       IN const unsigned char *s, IN size_t s_len,
                       IN const unsigned char *m, IN size_t m_len)
@@ -2229,7 +2248,7 @@ int ssh2_ecdsa_verify(IN ssh2_ecdsa_ctx *ec_ctx,
     ssh2_hash_alg hash_alg;
 
     /* CNG expects signatures in IEEE P-1363 format. */
-    result = wcng_p1363signature_from_point(
+    result = wcng_p1363signature_from_point(session,
         r, r_len,
         s, s_len,
         ssh2_ecdsa_get_curve_type(ec_ctx),
@@ -2260,7 +2279,7 @@ int ssh2_ecdsa_verify(IN ssh2_ecdsa_ctx *ec_ctx,
         goto cleanup;
     }
 
-    hash = malloc(hash_len);
+    hash = SSH2_ALLOC(session, hash_len);
     if(!hash) {
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
@@ -2293,10 +2312,10 @@ int ssh2_ecdsa_verify(IN ssh2_ecdsa_ctx *ec_ctx,
 
 cleanup:
     if(hash)
-        free(hash);
+        SSH2_FREE(session, hash);
 
     if(signature_p1363)
-        free(signature_p1363);
+        SSH2_FREE(session, signature_p1363);
 
     return result;
 }
