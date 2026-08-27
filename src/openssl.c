@@ -2258,7 +2258,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
 
     if(EVP_PKEY_get_int_param(dsa, OSSL_PKEY_PARAM_MAX_SIZE, &size) > 0) {
         sig_len = size;
-        buf = OPENSSL_malloc(size);
+        buf = SSH2_ALLOC(session, size);
     }
 
     if(buf && ctx && EVP_PKEY_sign_init(ctx) > 0)
@@ -2270,7 +2270,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
     if(buf) {
         const unsigned char *in = buf;
         d2i_DSA_SIG(&sig, &in, (long)sig_len);
-        OPENSSL_clear_free(buf, size);
+        ssh2_zero_free(session, buf, size);
     }
 #else
     (void)hash_len;
