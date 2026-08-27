@@ -3070,8 +3070,9 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
         ret = -1;
 #else
     int rc = -1;
-    size_t secret_len;
     unsigned char *secret = NULL;
+    size_t secret_size;
+    int secret_len;
     const EC_GROUP *private_key_group;
     EC_POINT *server_public_key_point;
 
@@ -3095,21 +3096,21 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
         goto clean_exit;
     }
 
-    secret_len = (EC_GROUP_get_degree(private_key_group) + 7) / 8;
-    secret = malloc(secret_len);
+    secret_size = (EC_GROUP_get_degree(private_key_group) + 7) / 8;
+    secret = malloc(secret_size);
     if(!secret) {
         ret = -1;
         goto clean_exit;
     }
 
-    secret_len = ECDH_compute_key(secret, secret_len, server_public_key_point,
+    secret_len = ECDH_compute_key(secret, secret_size, server_public_key_point,
                                   private_key, NULL);
     if(secret_len <= 0 || secret_len > EC_MAX_POINT_LEN) {
         ret = -1;
         goto clean_exit;
     }
 
-    BN_bin2bn(secret, (int)secret_len, *k);
+    BN_bin2bn(secret, secret_len, *k);
 #endif
 
 clean_exit:
@@ -3130,7 +3131,7 @@ clean_exit:
         BN_CTX_free(bn_ctx);
 
     if(secret) {
-        ssh2_explicit_zero(secret, secret_len);
+        ssh2_explicit_zero(secret, secret_size);
         free(secret);
     }
 #endif
