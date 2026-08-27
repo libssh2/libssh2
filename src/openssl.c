@@ -2488,7 +2488,7 @@ static int ossl_ecdsa_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
         goto clean_exit;
     }
 
-    octal_value = malloc(octal_len);
+    octal_value = SSH2_ALLOC(session, octal_len);
     if(!octal_value) {
         rc = -1;
         goto clean_exit;
@@ -2541,7 +2541,7 @@ clean_exit:
 #endif
 
     if(octal_value)
-        free(octal_value);
+        SSH2_FREE(session, octal_value);
 
     if(rc == 0)
         return 0;
