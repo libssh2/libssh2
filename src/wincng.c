@@ -1594,14 +1594,16 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
     if(BCRYPT_SUCCESS(ret)) {
         siglen = cbData;
         if(siglen == 40) {
-            sig = malloc(siglen);
+            sig = SSH2_ALLOC(session, siglen);
             if(sig) {
                 ret = BCryptSignHash(dsa->hKey, NULL, data, datalen,
                                      sig, siglen, &cbData, 0);
                 if(BCRYPT_SUCCESS(ret))
                     memcpy(signature, sig, siglen);
 
-                wcng_zero_free(sig, siglen);
+                if(siglen)
+                    ssh2_explicit_zero(sig, siglen);
+                SSH2_FREE(session, sig);
             }
             else
                 ret = (NTSTATUS)STATUS_NO_MEMORY;
