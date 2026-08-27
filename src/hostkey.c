@@ -502,7 +502,7 @@ static int hostkey_method_ssh_dss_sig_verify(LIBSSH2_SESSION *session,
 
     sig += 15;
 
-    return ssh2_dsa_sha1_verify(dsa, sig, m, m_len);
+    return ssh2_dsa_sha1_verify(dsa, session, sig, m, m_len);
 }
 
 /*

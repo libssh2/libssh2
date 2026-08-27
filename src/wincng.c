@@ -1566,12 +1566,12 @@ int ssh2_dsa_new_priv(ssh2_dsa_ctx **dsa,
     return wcng_dsa_new_private_parse(dsa, session, pbEncoded, cbEncoded);
 }
 
-int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
+int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
                          const unsigned char *sig,
                          const unsigned char *m, size_t m_len)
 {
-    return wcng_key_sha_verify(dsa, SSH2_SHA1_DIG_LEN, sig,
-                               40, m, (ULONG)m_len, 0);
+    return wcng_key_sha_verify(dsa, session, SSH2_SHA1_DIG_LEN,
+                               sig, 40, m, (ULONG)m_len, 0);
 }
 
 int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
@@ -1610,7 +1610,7 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
             ret = (NTSTATUS)STATUS_INVALID_PARAMETER;
     }
 
-    if(len > 0)
+    if(datalen)
         ssh2_explicit_zero(data, datalen);
     SSH2_FREE(session, data);
 

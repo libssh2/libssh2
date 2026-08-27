@@ -578,13 +578,15 @@ out:
     return ret;
 }
 
-int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
+int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
                          const unsigned char *sig,
                          const unsigned char *m, size_t m_len)
 {
     unsigned char hash[SSH2_SHA1_DIG_LEN + 1];
     gcry_sexp_t s_sig, s_hash;
     int rc = -1;
+
+    (void)session;
 
     gcry_md_hash_buffer(GCRY_MD_SHA1, hash + 1, m, m_len);
 

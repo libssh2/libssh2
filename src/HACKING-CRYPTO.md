@@ -608,7 +608,7 @@ Returns 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
+int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
                          const unsigned char *sig,
                          const unsigned char *m, size_t m_len);
 ```

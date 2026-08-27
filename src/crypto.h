@@ -175,7 +175,7 @@ int ssh2_dsa_new_priv(ssh2_dsa_ctx **dsa,
 int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char *signature);
-int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
+int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
                          const unsigned char *sig,
                          const unsigned char *m, size_t m_len);
 #ifndef ssh2_dsa_free

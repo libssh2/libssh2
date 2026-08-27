@@ -569,7 +569,7 @@ fail:
 #endif /* USE_OPENSSL_3 */
 }
 
-int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
+int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
                          const unsigned char *sig,
                          const unsigned char *m, size_t m_len)
 {
@@ -584,6 +584,8 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
     DSA_SIG *dsasig;
     BIGNUM *r;
     BIGNUM *s;
+
+    (void)session;
 
     r = BN_new();
     if(!r)
