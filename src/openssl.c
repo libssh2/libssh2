@@ -2980,7 +2980,8 @@ clean_exit:
  * Computes the shared secret K given a local private key,
  * remote public key and length
  */
-int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
+int ssh2_ecdh_gen_k(ssh2_bn **k, LIBSSH2_SESSION *session,
+                    ssh2_ec_key *private_key,
                     const unsigned char *server_public_key,
                     size_t server_public_key_len)
 {
@@ -2997,6 +2998,8 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
     OSSL_PARAM params[3];
 
     size_t out_len = 0;
+
+    (void)session;
 
     if(!k || !*k || server_public_key_len <= 0)
         return -1;
@@ -3104,7 +3107,7 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
     }
 
     secret_size = (EC_GROUP_get_degree(private_key_group) + 7) / 8;
-    secret = malloc(secret_size);
+    secret = SSH2_ALLOC(session, secret_size);
     if(!secret) {
         ret = -1;
         goto clean_exit;
@@ -3139,7 +3142,7 @@ clean_exit:
 
     if(secret) {
         ssh2_explicit_zero(secret, secret_size);
-        free(secret);
+        SSH2_FREE(session, secret);
     }
 #endif
 

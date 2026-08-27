@@ -189,7 +189,8 @@ void ssh2_dsa_free(ssh2_dsa_ctx *dsa);
  */
 #define EC_MAX_POINT_LEN ((((521 + 7) / 8) * 2) + 1)
 
-int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
+int ssh2_ecdh_gen_k(ssh2_bn **k, LIBSSH2_SESSION *session,
+                    ssh2_ec_key *private_key,
                     const unsigned char *server_public_key,
                     size_t server_public_key_len);
 

@@ -983,13 +983,15 @@ failed:
  * Computes the shared secret K given a local private key,
  * remote public key and length
  */
-int ssh2_ecdh_gen_k(ssh2_bn **k,
+int ssh2_ecdh_gen_k(ssh2_bn **k, LIBSSH2_SESSION *session,
                     ssh2_ec_key *private_key,
                     const unsigned char *server_public_key,
                     size_t server_public_key_len)
 {
     mbedtls_ecp_point pubkey;
     int rc = 0;
+
+    (void)session;
 
     if(!*k)
         return -1;
