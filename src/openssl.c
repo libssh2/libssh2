@@ -3140,10 +3140,8 @@ clean_exit:
     if(bn_ctx)
         BN_CTX_free(bn_ctx);
 
-    if(secret) {
-        ssh2_explicit_zero(secret, secret_size);
-        SSH2_FREE(session, secret);
-    }
+    if(secret)
+        ssh2_zero_free(session, secret, secret_size);
 #endif
 
 #ifdef USE_OPENSSL_3
