@@ -220,9 +220,9 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
     if(!hostkey)
         hostkey =
             "ssh-ed25519,"
-            "ecdsa-sha2-nistp256,"
-            "ecdsa-sha2-nistp384,"
             "ecdsa-sha2-nistp521,"
+            "ecdsa-sha2-nistp384,"
+            "ecdsa-sha2-nistp256,"
             "rsa-sha2-256,"
             "rsa-sha2-512,"
             "ssh-rsa";
