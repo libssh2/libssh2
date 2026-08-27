@@ -707,22 +707,10 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
 out:
 
     /* Clean up */
-    if(key) {
-        ssh2_explicit_zero(key, total_len);
-        SSH2_FREE(session, key);
-    }
-    if(key_part) {
-        ssh2_explicit_zero(key_part, keylen);
-        SSH2_FREE(session, key_part);
-    }
-    if(iv_part) {
-        ssh2_explicit_zero(iv_part, ivlen);
-        SSH2_FREE(session, iv_part);
-    }
-    if(f) {
-        ssh2_explicit_zero(f, f_len);
-        SSH2_FREE(session, f);
-    }
+    ssh2_zero_free(session, key, total_len);
+    ssh2_zero_free(session, key_part, keylen);
+    ssh2_zero_free(session, iv_part, ivlen);
+    ssh2_zero_free(session, f, f_len);
 
     return ret;
 }
