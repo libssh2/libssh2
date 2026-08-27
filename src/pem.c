@@ -795,15 +795,8 @@ int ssh2_openssh_pem_parse(LIBSSH2_SESSION *session,
 
 out:
 
-    if(filedata) {
-        ssh2_explicit_zero(filedata, filedata_len + 1);
-        SSH2_FREE(session, filedata);
-    }
-
-    if(b64data) {
-        ssh2_explicit_zero(b64data, b64datalen);
-        SSH2_FREE(session, b64data);
-    }
+    ssh2_zero_free(session, filedata, filedata_len + 1);
+    ssh2_zero_free(session, b64data, b64datalen);
 
     return ret;
 }
