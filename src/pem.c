@@ -697,7 +697,6 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
 
 out:
 
-    /* Clean up */
     ssh2_zero_free(session, key, total_len);
     ssh2_zero_free(session, key_part, keylen);
     ssh2_zero_free(session, iv_part, ivlen);
