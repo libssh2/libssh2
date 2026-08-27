@@ -38,7 +38,7 @@
 #ifdef _WIN32
 
 #if defined(__MINGW32__) && \
-  (!defined(__MINGW64_VERSION_MAJOR) || (__MINGW64_VERSION_MAJOR < 3))
+    (!defined(__MINGW64_VERSION_MAJOR) || (__MINGW64_VERSION_MAJOR < 3))
 #error "mingw-w64 3.0 or greater required"
 #endif
 

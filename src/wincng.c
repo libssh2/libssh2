@@ -104,7 +104,7 @@ static void wcng_zero_free(void *buf, size_t len)
     if(!buf)
         return;
 
-    if(len > 0)
+    if(len)
         ssh2_explicit_zero(buf, len);
 
     free(buf);
