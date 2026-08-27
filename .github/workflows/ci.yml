@@ -839,6 +839,7 @@ jobs:
           - { build: 'AM', sys: msys   , crypto: openssl, env: x86_64 }
           - { build: 'CM', sys: msys   , crypto: OpenSSL, env: x86_64 }
           - { build: 'AM', sys: mingw64, crypto: wincng , env: x86_64 }
+          - { build: 'CM', sys: mingw64, crypto: wincng , env: x86_64, test: 'legacy-options' }
           - { build: 'AM', sys: mingw64, crypto: openssl, env: x86_64 }
           - { build: 'AM', sys: mingw32, crypto: openssl, env: i686, test: 'legacy-options' }
           - { build: 'AM', sys: ucrt64 , crypto: openssl, env: ucrt-x86_64 }
