@@ -575,7 +575,7 @@ defined as 0, the rest of this section can be omitted.
 `ssh2_dsa_ctx`: Type of a DSA computation context. Generally a struct.
 
 ```c
-int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
+int ssh2_dsa_new(ssh2_dsa_ctx **dsa, LIBSSH2_SESSION *session,
                  const unsigned char *pdata, size_t plen,
                  const unsigned char *qdata, size_t qlen,
                  const unsigned char *gdata, size_t glen,

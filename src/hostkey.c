@@ -447,7 +447,8 @@ static int hostkey_method_ssh_dss_init(LIBSSH2_SESSION *session,
        !ssh2_eob(&buf))
         return -1;
 
-    if(ssh2_dsa_new(&dsa, p, p_len, q, q_len, g, g_len, y, y_len, NULL, 0))
+    if(ssh2_dsa_new(&dsa, session, p, p_len, q, q_len, g, g_len, y, y_len,
+                    NULL, 0))
         return -1;
 
     *abstract = dsa;

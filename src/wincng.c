@@ -1404,7 +1404,7 @@ void ssh2_rsa_free(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session)
  */
 
 #if LIBSSH2_DSA
-int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
+int ssh2_dsa_new(ssh2_dsa_ctx **dsa, LIBSSH2_SESSION *session,
                  const unsigned char *pdata, size_t plen,
                  const unsigned char *qdata, size_t qlen,
                  const unsigned char *gdata, size_t glen,
@@ -1520,7 +1520,7 @@ static int wcng_dsa_new_private_parse(ssh2_dsa_ctx **dsa,
         return -1;
 
     if(length == 6)
-        ret = ssh2_dsa_new(dsa,
+        ret = ssh2_dsa_new(dsa, session,
                            rpbDecoded[1], rcbDecoded[1],
                            rpbDecoded[2], rcbDecoded[2],
                            rpbDecoded[3], rcbDecoded[3],

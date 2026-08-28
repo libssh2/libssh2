@@ -161,7 +161,7 @@ void ssh2_rsa_free(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session);
 #endif /* LIBSSH2_RSA */
 
 #if LIBSSH2_DSA
-int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
+int ssh2_dsa_new(ssh2_dsa_ctx **dsa, LIBSSH2_SESSION *session,
                  const unsigned char *pdata, size_t plen,
                  const unsigned char *qdata, size_t qlen,
                  const unsigned char *gdata, size_t glen,
