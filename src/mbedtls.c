@@ -1186,32 +1186,28 @@ int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
         data_nullterm[blob_len] = '\0';  /* for mbedtls_pk_parse_key() */
     }
 
-    /* try parsing via mbedTLS */
+    /* try mbedTLS parser */
 
     if(mbedtls_pk_parse_key(&pkey,
                             (const unsigned char *)data_nullterm, data_len + 1,
                             (const unsigned char *)passphrase,
                             passphrase ? strlen(passphrase) : 0,
-                            mbedtls_ctr_drbg_random, &mbed_ctr_drbg) == 0) {
-        if(mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_ECKEY)
-            goto failed;
+                            mbedtls_ctr_drbg_random, &mbed_ctr_drbg) == 0 &&
+       mbedtls_pk_get_type(&pkey) == MBEDTLS_PK_ECKEY) {
 
         *ec_ctx = SSH2_CALLOC(session, sizeof(ssh2_ecdsa_ctx));
-        if(!*ec_ctx)
-            goto failed;
+        if(*ec_ctx) {
+            mbedtls_ecdsa_init(*ec_ctx);
 
-        mbedtls_ecdsa_init(*ec_ctx);
-
-        if(mbedtls_ecdsa_from_keypair(*ec_ctx, mbedtls_pk_ec(pkey)) == 0)
-            goto cleanup;
-
-failed:
+            if(mbedtls_ecdsa_from_keypair(*ec_ctx, mbedtls_pk_ec(pkey)) == 0)
+                 goto cleanup;  /* success */
+        }
 
         ssh2_ecdsa_free(*ec_ctx, session);
         *ec_ctx = NULL;
     }
 
-    /* try local parsers */
+    /* try local parser */
 
     mbed_parse_openssh_key(ec_ctx, session, data_nullterm, data_len,
                            passphrase);
