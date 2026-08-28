@@ -220,10 +220,12 @@ static int free_count = 0;
 static LIBSSH2_ALLOC_FUNC(test_alloc)
 {
     int *threshold_int_ptr = *abstract;
-    alloc_count++;
-    if(*abstract && *threshold_int_ptr == alloc_count) {
+
+    if(*abstract && *threshold_int_ptr == alloc_count + 1) {
         return NULL;
     }
+
+    alloc_count++;
 
     return malloc(count);
 }
