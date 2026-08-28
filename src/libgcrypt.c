@@ -98,15 +98,15 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
 }
 
 #if LIBSSH2_RSA
-int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
-                 const unsigned char *edata, size_t elen,
-                 const unsigned char *ndata, size_t nlen,
-                 const unsigned char *ddata, size_t dlen,
-                 const unsigned char *pdata, size_t plen,
-                 const unsigned char *qdata, size_t qlen,
-                 const unsigned char *e1data, size_t e1len,
-                 const unsigned char *e2data, size_t e2len,
-                 const unsigned char *coeffdata, size_t coefflen)
+static int lgcr_rsa_new(ssh2_rsa_ctx **rsa,
+                        const unsigned char *edata, size_t elen,
+                        const unsigned char *ndata, size_t nlen,
+                        const unsigned char *ddata, size_t dlen,
+                        const unsigned char *pdata, size_t plen,
+                        const unsigned char *qdata, size_t qlen,
+                        const unsigned char *e1data, size_t e1len,
+                        const unsigned char *e2data, size_t e2len,
+                        const unsigned char *coeffdata, size_t coefflen)
 {
     int rc;
 
@@ -131,6 +131,14 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     }
 
     return 0;
+}
+
+int ssh2_rsa_new_pub(ssh2_rsa_ctx **rsa,
+                     const unsigned char *edata, size_t elen,
+                     const unsigned char *ndata, size_t nlen)
+{
+    return lgcr_rsa_new(rsa, edata, elen, ndata, nlen,
+                        NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0);
 }
 
 int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
@@ -344,7 +352,7 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
         goto fail;
     }
 
-    if(ssh2_rsa_new(rsa, e, elen, n, nlen, d, dlen, p, plen, q, qlen,
+    if(lgcr_rsa_new(rsa, e, elen, n, nlen, d, dlen, p, plen, q, qlen,
                     e1, e1len, e2, e2len, coeff, coefflen)) {
         ret = -1;
         goto fail;
