@@ -1551,7 +1551,7 @@ static void kex_method_ecdh_cleanup(LIBSSH2_SESSION *session,
         SSH2_SAFEFREE(session, key_state->public_key_oct);
 
     if(key_state->private_key) {
-        ssh2_ecdsa_free(key_state->private_key);
+        ssh2_ecdsa_free(key_state->private_key, session);
         key_state->private_key = NULL;
     }
 
@@ -1856,7 +1856,7 @@ static void kex_method_mlkem_nistp_cleanup(
         SSH2_SAFEFREE(session, key_state->public_key_oct);
 
     if(key_state->private_key) {
-        ssh2_ecdsa_free(key_state->private_key);
+        ssh2_ecdsa_free(key_state->private_key, session);
         key_state->private_key = NULL;
     }
 
