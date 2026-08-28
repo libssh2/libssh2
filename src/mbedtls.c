@@ -648,8 +648,10 @@ int ssh2_rsa_sha1_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
 
 void ssh2_rsa_free(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session)
 {
-    mbedtls_rsa_free(rsa);
-    SSH2_FREE(session, rsa);
+    if(rsa) {
+        mbedtls_rsa_free(rsa);
+        SSH2_FREE(session, rsa);
+    }
 }
 
 static unsigned char *mbed_gen_publickey_from_rsa(LIBSSH2_SESSION *session,
@@ -1306,8 +1308,10 @@ cleanup:
 
 void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session)
 {
-    mbedtls_ecdsa_free(ec_ctx);
-    SSH2_FREE(session, ec_ctx);
+    if(ec_ctx) {
+        mbedtls_ecdsa_free(ec_ctx);
+        SSH2_FREE(session, ec_ctx);
+    }
 }
 #endif /* LIBSSH2_ECDSA */
 
