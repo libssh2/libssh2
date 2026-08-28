@@ -251,6 +251,9 @@ int ssh2_ed25519_sign(ssh2_ed25519_ctx *ed_ctx, LIBSSH2_SESSION *session,
 int ssh2_ed25519_verify(ssh2_ed25519_ctx *ed_ctx, LIBSSH2_SESSION *session,
                         const uint8_t *s, size_t s_len,
                         const uint8_t *m, size_t m_len);
+#ifndef ssh2_ed25519_free
+void ssh2_ed25519_free(ssh2_ed25519_ctx *ed_ctx);
+#endif
 #endif /* LIBSSH2_ED25519 */
 
 #if LIBSSH2_MLKEM
