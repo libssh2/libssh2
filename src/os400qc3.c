@@ -1164,23 +1164,11 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 #if LIBSSH2_RSA
 int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
                  const unsigned char *edata, size_t elen,
-                 const unsigned char *ndata, size_t nlen,
-                 const unsigned char *ddata, size_t dlen,
-                 const unsigned char *pdata, size_t plen,
-                 const unsigned char *qdata, size_t qlen,
-                 const unsigned char *e1data, size_t e1len,
-                 const unsigned char *e2data, size_t e2len,
-                 const unsigned char *coeffdata, size_t coefflen)
+                 const unsigned char *ndata, size_t nlen)
 {
     ssh2_rsa_ctx *ctx;
     ssh2_bn *e = ssh2_bn_init_from_bin();
     ssh2_bn *n = ssh2_bn_init_from_bin();
-    ssh2_bn *d = NULL;
-    ssh2_bn *p = NULL;
-    ssh2_bn *q = NULL;
-    ssh2_bn *e1 = NULL;
-    ssh2_bn *e2 = NULL;
-    ssh2_bn *coeff = NULL;
     struct asn1Element *key = NULL;
     struct asn1Element *structkey = NULL;
     int keytype;
@@ -1196,31 +1184,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
         if(!e || !n)
             ret = -1;
     }
-    if(!ret && ddata) {
-        /* Private key. */
-        d = ssh2_bn_init_from_bin();
-        ssh2_bn_from_bin(d, ddata, dlen);
-        p = ssh2_bn_init_from_bin();
-        ssh2_bn_from_bin(p, pdata, plen);
-        q = ssh2_bn_init_from_bin();
-        ssh2_bn_from_bin(q, qdata, qlen);
-        e1 = ssh2_bn_init_from_bin();
-        ssh2_bn_from_bin(e1, e1data, e1len);
-        e2 = ssh2_bn_init_from_bin();
-        ssh2_bn_from_bin(e2, e2data, e2len);
-        coeff = ssh2_bn_init_from_bin();
-        ssh2_bn_from_bin(coeff, coeffdata, coefflen);
-        if(!d || !p || !q || !e1 || !e2 || !coeff)
-            ret = -1;
-
-        if(!ret) {
-            /* Build a PKCS#8 private key. */
-            key = rsaprivatekey(e, n, d, p, q, e1, e2, coeff);
-            structkey = rsaprivatekeyinfo(key);
-        }
-        keytype = Qc3_RSA_Private;
-    }
-    else if(!ret) {
+    if(!ret) {
         key = rsapublickey(e, n);
         structkey = rsasubjectpublickeyinfo(key);
         keytype = Qc3_RSA_Public;
@@ -1243,12 +1207,6 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
 
     ssh2_bn_free(e);
     ssh2_bn_free(n);
-    ssh2_bn_free(d);
-    ssh2_bn_free(p);
-    ssh2_bn_free(q);
-    ssh2_bn_free(e1);
-    ssh2_bn_free(e2);
-    ssh2_bn_free(coeff);
     asn1delete(key);
     asn1delete(structkey);
     if(ret && ctx) {
