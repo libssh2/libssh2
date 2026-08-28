@@ -911,11 +911,10 @@ static struct asn1Element *rsaprivatekeyinfo(struct asn1Element *privkey)
  *******************************************************************/
 
 static struct os400qc3_crypto_ctx *init_crypto_ctx(
-    struct os400qc3_crypto_ctx *ctx,
-    LIBSSH2_SESSION *session)
+    struct os400qc3_crypto_ctx *ctx)
 {
     if(!ctx)
-        ctx = SSH2_ALLOC(session, sizeof(*ctx));
+        ctx = malloc(sizeof(*ctx));
 
     if(ctx) {
         memset((char *)ctx, 0, sizeof(*ctx));
@@ -1103,7 +1102,7 @@ int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
     if(!ctx)
         return -1;
 
-    init_crypto_ctx(ctx, NULL);
+    init_crypto_ctx(ctx);
     algd.Block_Cipher_Alg = algo.algo;
     algd.Block_Length = algo.size;
     algd.Mode = algo.mode;
@@ -1190,7 +1189,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
 
     (void)session;
 
-    ctx = init_crypto_ctx(NULL, session);
+    ctx = init_crypto_ctx(NULL);
     if(!ctx)
         ret = -1;
     if(!ret) {
@@ -1816,12 +1815,12 @@ static int pkcs8kek(LIBSSH2_SESSION *session, struct os400qc3_crypto_ctx **ctx,
     memcpy(algd.Init_Vector, pkcs5.iv, pkcs5.ivlen);
 
     /* Create the key and algorithm context tokens. */
-    *ctx = init_crypto_ctx(NULL, session);
+    *ctx = init_crypto_ctx(NULL);
     if(!*ctx) {
         SSH2_FREE(session, dk);
         return -1;
     }
-    init_crypto_ctx(*ctx, NULL);
+    init_crypto_ctx(*ctx);
     set_EC_length(errcode, sizeof(errcode));
     Qc3CreateKeyContext(dk, &pkcs5.dklen, binstring, &algd.Block_Cipher_Alg,
                         qc3clear, NULL, NULL, (*ctx)->key.Key_Context_Token,
@@ -2296,7 +2295,7 @@ static int os400_rsa_new_priv_from_file(ssh2_rsa_ctx **rsa,
                                         const char *filename,
                                         const char *passphrase)
 {
-    ssh2_rsa_ctx *ctx = init_crypto_ctx(NULL, session);
+    ssh2_rsa_ctx *ctx = init_crypto_ctx(NULL);
     int ret;
 
     if(!ctx)
@@ -2317,7 +2316,7 @@ static int os400_rsa_new_priv_from_blob(ssh2_rsa_ctx **rsa,
                                         const char *blob, size_t blob_len,
                                         const char *passphrase)
 {
-    ssh2_rsa_ctx *ctx = init_crypto_ctx(NULL, session);
+    ssh2_rsa_ctx *ctx = init_crypto_ctx(NULL);
     unsigned char *data = NULL;
     size_t datalen = 0;
     int ret;
