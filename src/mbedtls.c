@@ -929,10 +929,9 @@ failed:
 
     ssh2_ecdsa_free(*ec_ctx, session);
     *ec_ctx = NULL;
-    if(*out_public_key_octal) {
-        ssh2_explicit_zero(*out_public_key_octal, plen);
-        SSH2_SAFEFREE(session, *out_public_key_octal);
-    }
+
+    ssh2_zero_free(session, *out_public_key_octal, plen);
+    *out_public_key_octal = NULL;
 
     return -1;
 }
@@ -1214,10 +1213,7 @@ int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
 
 cleanup:
 
-    if(data_nullterm) {
-        ssh2_explicit_zero(data_nullterm, data_len + 1);
-        SSH2_FREE(session, data_nullterm);
-    }
+    ssh2_zero_free(session, data_nullterm, data_len + 1);
 
     mbedtls_pk_free(&pkey);
 
