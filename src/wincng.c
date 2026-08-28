@@ -1329,11 +1329,12 @@ void ssh2_rsa_free(ssh2_rsa_ctx *rsa)
  */
 
 #if LIBSSH2_DSA
-int ssh2_dsa_new_pub(ssh2_dsa_ctx **dsa,
-                     const unsigned char *pdata, size_t plen,
-                     const unsigned char *qdata, size_t qlen,
-                     const unsigned char *gdata, size_t glen,
-                     const unsigned char *ydata, size_t ylen)
+static int wcng_dsa_new(ssh2_dsa_ctx **dsa,
+                        const unsigned char *pdata, size_t plen,
+                        const unsigned char *qdata, size_t qlen,
+                        const unsigned char *gdata, size_t glen,
+                        const unsigned char *ydata, size_t ylen,
+                        const unsigned char *xdata, size_t xlen)
 {
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_DSA_KEY_BLOB *dsakey;
@@ -1346,6 +1347,8 @@ int ssh2_dsa_new_pub(ssh2_dsa_ctx **dsa,
                  wcng_bn_size(ydata, ylen));
     offset = sizeof(BCRYPT_DSA_KEY_BLOB);
     keylen = offset + length * 3;
+    if(xdata && xlen > 0)
+        keylen += 20;
 
     dsakey = malloc(keylen);
     if(!dsakey)
@@ -1387,8 +1390,21 @@ int ssh2_dsa_new_pub(ssh2_dsa_ctx **dsa,
         memcpy((unsigned char *)dsakey + offset,
                ydata + ylen - length, length);
 
-    lpszBlobType = BCRYPT_DSA_PUBLIC_BLOB;
-    dsakey->dwMagic = BCRYPT_DSA_PUBLIC_MAGIC;
+    if(xdata && xlen > 0) {
+        offset += length;
+
+        if(xlen < 20)
+            memcpy((unsigned char *)dsakey + offset + 20 - xlen, xdata, xlen);
+        else
+            memcpy((unsigned char *)dsakey + offset, xdata + xlen - 20, 20);
+
+        lpszBlobType = BCRYPT_DSA_PRIVATE_BLOB;
+        dsakey->dwMagic = BCRYPT_DSA_PRIVATE_MAGIC;
+    }
+    else {
+        lpszBlobType = BCRYPT_DSA_PUBLIC_BLOB;
+        dsakey->dwMagic = BCRYPT_DSA_PUBLIC_MAGIC;
+    }
 
     ret = BCryptImportKeyPair(ssh2_wcng.hAlgDSA, NULL, lpszBlobType,
                               &hKey, (PUCHAR)dsakey, (ULONG)keylen, 0);
@@ -1411,6 +1427,16 @@ int ssh2_dsa_new_pub(ssh2_dsa_ctx **dsa,
     return 0;
 }
 
+int ssh2_dsa_new_pub(ssh2_dsa_ctx **dsa,
+                     const unsigned char *pdata, size_t plen,
+                     const unsigned char *qdata, size_t qlen,
+                     const unsigned char *gdata, size_t glen,
+                     const unsigned char *ydata, size_t ylen)
+{
+    return wcng_dsa_new(dsa, pdata, plen, qdata, qlen, gdata, glen,
+                        ydata, ylen, NULL, 0);
+}
+
 static int wcng_dsa_new_private_parse(ssh2_dsa_ctx **dsa,
                                       LIBSSH2_SESSION *session,
                                       unsigned char *pbEncoded,
@@ -1429,7 +1455,7 @@ static int wcng_dsa_new_private_parse(ssh2_dsa_ctx **dsa,
         return -1;
 
     if(length == 6)
-        ret = ssh2_dsa_new(dsa,
+        ret = wcng_dsa_new(dsa,
                            rpbDecoded[1], rcbDecoded[1],
                            rpbDecoded[2], rcbDecoded[2],
                            rpbDecoded[3], rcbDecoded[3],
