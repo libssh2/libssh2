@@ -1098,7 +1098,7 @@ static size_t wcng_bn_size(const unsigned char *bignum, size_t length)
  * Windows CNG backend: RSA functions
  */
 
-int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
+int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
                  const unsigned char *edata, size_t elen,
                  const unsigned char *ndata, size_t nlen,
                  const unsigned char *ddata, size_t dlen,
@@ -1113,6 +1113,8 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     LPCWSTR lpszBlobType;
     size_t keylen, offset, mlen, p1len = 0, p2len = 0;
     int ret;
+
+    (void)session;
 
     mlen = max(wcng_bn_size(ndata, nlen),
                wcng_bn_size(ddata, dlen));

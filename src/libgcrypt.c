@@ -98,7 +98,7 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
 }
 
 #if LIBSSH2_RSA
-int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
+int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
                  const unsigned char *edata, size_t elen,
                  const unsigned char *ndata, size_t nlen,
                  const unsigned char *ddata, size_t dlen,
@@ -110,6 +110,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
 {
     int rc;
 
+    (void)session;
     (void)e1data;
     (void)e1len;
     (void)e2data;
@@ -333,7 +334,7 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
         goto fail;
     }
 
-    if(ssh2_rsa_new(rsa, e, elen, n, nlen, d, dlen, p, plen, q, qlen,
+    if(ssh2_rsa_new(rsa, session, e, elen, n, nlen, d, dlen, p, plen, q, qlen,
                     e1, e1len, e2, e2len, coeff, coefflen)) {
         ret = -1;
         goto fail;

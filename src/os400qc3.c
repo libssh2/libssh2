@@ -1162,7 +1162,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
  *******************************************************************/
 
 #if LIBSSH2_RSA
-int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
+int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
                  const unsigned char *edata, size_t elen,
                  const unsigned char *ndata, size_t nlen,
                  const unsigned char *ddata, size_t dlen,
@@ -1186,6 +1186,8 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     int keytype;
     int ret = 0;
     int i;
+
+    (void)session;
 
     ctx = init_crypto_ctx(NULL);
     if(!ctx)

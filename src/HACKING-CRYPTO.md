@@ -436,7 +436,7 @@ If defined as 0, the rest of this section can be omitted.
 `ssh2_rsa_ctx`: Type of an RSA computation context. Generally a struct.
 
 ```c
-int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
+int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
                  const unsigned char *edata, size_t elen,
                  const unsigned char *ndata, size_t nlen,
                  const unsigned char *ddata, size_t dlen,

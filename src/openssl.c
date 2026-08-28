@@ -187,7 +187,7 @@ int ssh2_random(unsigned char *buf, size_t len)
 }
 
 #if LIBSSH2_RSA
-int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
+int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
                  const unsigned char *edata, size_t elen,
                  const unsigned char *ndata, size_t nlen,
                  const unsigned char *ddata, size_t dlen,
@@ -206,6 +206,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     unsigned char *ebuf = NULL;
     unsigned char *dbuf = NULL;
 
+    (void)session;
     (void)pdata;
     (void)plen;
     (void)qdata;
@@ -274,6 +275,8 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     BIGNUM *dmp1 = NULL;
     BIGNUM *dmq1 = NULL;
     BIGNUM *iqmp = NULL;
+
+    (void)session;
 
     e = BN_new();
     if(!e)
@@ -1231,7 +1234,7 @@ static int ossl_rsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    rc = ssh2_rsa_new(&ctx, e, elen, n, nlen, d, dlen,
+    rc = ssh2_rsa_new(&ctx, session, e, elen, n, nlen, d, dlen,
                       p, plen, q, qlen, NULL, 0, NULL, 0, coeff, coefflen);
     if(rc) {
         ssh2_deb((session, LIBSSH2_TRACE_AUTH,

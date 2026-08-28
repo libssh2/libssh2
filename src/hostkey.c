@@ -98,7 +98,7 @@ static int hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
        !ssh2_eob(&buf))
         return -1;
 
-    if(ssh2_rsa_new(&rsa, e, e_len, n, n_len,
+    if(ssh2_rsa_new(&rsa, session, e, e_len, n, n_len,
                     NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0))
         return -1;
 

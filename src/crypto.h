@@ -124,7 +124,7 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx);
 #define SSH2_MLKEM_1024_CIPHERTEXT      1568
 
 #if LIBSSH2_RSA
-int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
+int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
                  const unsigned char *edata, size_t elen,
                  const unsigned char *ndata, size_t nlen,
                  const unsigned char *ddata, size_t dlen,
