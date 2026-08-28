@@ -2074,7 +2074,7 @@ int ssh2_ecdsa_curve_name_with_octal_new(
 
 cleanup:
 
-    if(result != LIBSSH2_ERROR_NONE)
+    if(result != LIBSSH2_ERROR_NONE && *ec_ctx)
         SSH2_SAFEFREE(session, *ec_ctx);
 
     return result;
