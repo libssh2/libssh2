@@ -98,7 +98,7 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx)
 }
 
 #if LIBSSH2_RSA
-int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
+int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
                  const unsigned char *edata, size_t elen,
                  const unsigned char *ndata, size_t nlen,
                  const unsigned char *ddata, size_t dlen,
@@ -110,6 +110,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
 {
     int rc;
 
+    (void)session;
     (void)e1data;
     (void)e1len;
     (void)e2data;
@@ -207,7 +208,7 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
 #endif
 
 #if LIBSSH2_DSA
-int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
+int ssh2_dsa_new(ssh2_dsa_ctx **dsa, LIBSSH2_SESSION *session,
                  const unsigned char *pdata, size_t plen,
                  const unsigned char *qdata, size_t qlen,
                  const unsigned char *gdata, size_t glen,
@@ -215,6 +216,8 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
                  const unsigned char *xdata, size_t xlen)
 {
     int rc;
+
+    (void)session;
 
     if(xlen)
         rc = gcry_sexp_build(dsa, NULL,
@@ -333,7 +336,7 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
         goto fail;
     }
 
-    if(ssh2_rsa_new(rsa, e, elen, n, nlen, d, dlen, p, plen, q, qlen,
+    if(ssh2_rsa_new(rsa, session, e, elen, n, nlen, d, dlen, p, plen, q, qlen,
                     e1, e1len, e2, e2len, coeff, coefflen)) {
         ret = -1;
         goto fail;
@@ -415,7 +418,8 @@ int ssh2_dsa_new_priv(ssh2_dsa_ctx **dsa,
         goto fail;
     }
 
-    if(ssh2_dsa_new(dsa, p, plen, q, qlen, g, glen, y, ylen, x, xlen)) {
+    if(ssh2_dsa_new(dsa, session, p, plen, q, qlen, g, glen, y, ylen,
+                    x, xlen)) {
         ret = -1;
         goto fail;
     }

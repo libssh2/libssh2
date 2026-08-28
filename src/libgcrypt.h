@@ -86,10 +86,12 @@
 #endif
 
 #define ssh2_rsa_ctx          struct gcry_sexp
-#define ssh2_rsa_free(rsa)    gcry_sexp_release(rsa)
+#define ssh2_rsa_free(rsa, session) \
+    (gcry_sexp_release(rsa), (void)(session))
 
 #define ssh2_dsa_ctx          struct gcry_sexp
-#define ssh2_dsa_free(dsa)    gcry_sexp_release(dsa)
+#define ssh2_dsa_free(dsa, session) \
+    (gcry_sexp_release(dsa), (void)(session))
 
 #define SSH2_CIPHER_T(name)   int name
 #define ssh2_cipher_ctx       gcry_cipher_hd_t

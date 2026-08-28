@@ -45,10 +45,9 @@ static int hostkey_method_ssh_rsa_dtor(LIBSSH2_SESSION *session,
                                        void **abstract)
 {
     ssh2_rsa_ctx *rsa = (ssh2_rsa_ctx *)(*abstract);
-    (void)session;
 
     if(rsa)
-        ssh2_rsa_free(rsa);
+        ssh2_rsa_free(rsa, session);
 
     *abstract = NULL;
 
@@ -99,7 +98,7 @@ static int hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
        !ssh2_eob(&buf))
         return -1;
 
-    if(ssh2_rsa_new(&rsa, e, e_len, n, n_len,
+    if(ssh2_rsa_new(&rsa, session, e, e_len, n, n_len,
                     NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0))
         return -1;
 
@@ -404,10 +403,9 @@ static int hostkey_method_ssh_dss_dtor(LIBSSH2_SESSION *session,
                                        void **abstract)
 {
     ssh2_dsa_ctx *dsa = (ssh2_dsa_ctx *)(*abstract);
-    (void)session;
 
     if(dsa)
-        ssh2_dsa_free(dsa);
+        ssh2_dsa_free(dsa, session);
 
     *abstract = NULL;
 
@@ -449,7 +447,8 @@ static int hostkey_method_ssh_dss_init(LIBSSH2_SESSION *session,
        !ssh2_eob(&buf))
         return -1;
 
-    if(ssh2_dsa_new(&dsa, p, p_len, q, q_len, g, g_len, y, y_len, NULL, 0))
+    if(ssh2_dsa_new(&dsa, session, p, p_len, q, q_len, g, g_len, y, y_len,
+                    NULL, 0))
         return -1;
 
     *abstract = dsa;
@@ -577,10 +576,9 @@ static int hostkey_method_ssh_ecdsa_dtor(LIBSSH2_SESSION *session,
                                          void **abstract)
 {
     ssh2_ecdsa_ctx *ec_ctx = (ssh2_ecdsa_ctx *)(*abstract);
-    (void)session;
 
     if(ec_ctx)
-        ssh2_ecdsa_free(ec_ctx);
+        ssh2_ecdsa_free(ec_ctx, session);
 
     *abstract = NULL;
 
@@ -855,10 +853,9 @@ static int hostkey_method_ssh_ed25519_dtor(LIBSSH2_SESSION *session,
                                            void **abstract)
 {
     ssh2_ed25519_ctx *ed_ctx = (ssh2_ed25519_ctx *)(*abstract);
-    (void)session;
 
     if(ed_ctx)
-        ssh2_ed25519_free(ed_ctx);
+        ssh2_ed25519_free(ed_ctx, session);
 
     *abstract = NULL;
 

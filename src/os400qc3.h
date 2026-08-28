@@ -260,8 +260,8 @@ struct os400qc3_dh_ctx {  /* Diffie-Hellman context. */
 
 #if LIBSSH2_RSA
 #define ssh2_rsa_ctx             struct os400qc3_crypto_ctx
-#define ssh2_rsa_free(rsa) \
-    (ssh2_os400qc3_crypto_dtor(rsa), free((char *)rsa))
+#define ssh2_rsa_free(rsa, session) \
+    (ssh2_os400qc3_crypto_dtor(rsa), free((char *)rsa), (void)(session))
 #define ssh2_prepare_iovec(vec, len) \
     memset((char *)(vec), 0, (len) * sizeof(struct iovec))
 #if LIBSSH2_RSA_SHA1

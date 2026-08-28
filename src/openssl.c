@@ -187,7 +187,7 @@ int ssh2_random(unsigned char *buf, size_t len)
 }
 
 #if LIBSSH2_RSA
-int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
+int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
                  const unsigned char *edata, size_t elen,
                  const unsigned char *ndata, size_t nlen,
                  const unsigned char *ddata, size_t dlen,
@@ -206,6 +206,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     unsigned char *ebuf = NULL;
     unsigned char *dbuf = NULL;
 
+    (void)session;
     (void)pdata;
     (void)plen;
     (void)qdata;
@@ -274,6 +275,8 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     BIGNUM *dmp1 = NULL;
     BIGNUM *dmq1 = NULL;
     BIGNUM *iqmp = NULL;
+
+    (void)session;
 
     e = BN_new();
     if(!e)
@@ -424,7 +427,7 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
 #endif /* LIBSSH2_RSA */
 
 #if LIBSSH2_DSA
-int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
+int ssh2_dsa_new(ssh2_dsa_ctx **dsa, LIBSSH2_SESSION *session,
                  const unsigned char *pdata, size_t plen,
                  const unsigned char *qdata, size_t qlen,
                  const unsigned char *gdata, size_t glen,
@@ -441,6 +444,8 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
     unsigned char *g_buf = NULL;
     unsigned char *y_buf = NULL;
     unsigned char *x_buf = NULL;
+
+    (void)session;
 
     if(pdata && plen > 0) {
         p_buf = OPENSSL_malloc(plen);
@@ -520,6 +525,8 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
     BIGNUM *g_bn = NULL;
     BIGNUM *pub_key = NULL;
     BIGNUM *priv_key = NULL;
+
+    (void)session;
 
     p_bn = BN_new();
     if(!p_bn)
@@ -1231,7 +1238,7 @@ static int ossl_rsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    rc = ssh2_rsa_new(&ctx, e, elen, n, nlen, d, dlen,
+    rc = ssh2_rsa_new(&ctx, session, e, elen, n, nlen, d, dlen,
                       p, plen, q, qlen, NULL, 0, NULL, 0, coeff, coefflen);
     if(rc) {
         ssh2_deb((session, LIBSSH2_TRACE_AUTH,
@@ -1264,14 +1271,14 @@ static int ossl_rsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     if(rsa)
         *rsa = ctx;
     else
-        ssh2_rsa_free(ctx);
+        ssh2_rsa_free(ctx, session);
 
     return rc;
 
 fail:
 
     if(ctx)
-        ssh2_rsa_free(ctx);
+        ssh2_rsa_free(ctx, session);
 
     return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                     "Unable to allocate memory for private key data");
@@ -1470,7 +1477,7 @@ static int ossl_dsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    rc = ssh2_dsa_new(&ctx, p, plen, q, qlen, g, glen,
+    rc = ssh2_dsa_new(&ctx, session, p, plen, q, qlen, g, glen,
                       pub_key, pub_len, priv_key, priv_len);
     if(rc) {
         ssh2_deb((session, LIBSSH2_ERROR_PROTO,
@@ -1498,14 +1505,14 @@ static int ossl_dsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     if(dsa)
         *dsa = ctx;
     else
-        ssh2_dsa_free(ctx);
+        ssh2_dsa_free(ctx, session);
 
     return rc;
 
 fail:
 
     if(ctx)
-        ssh2_dsa_free(ctx);
+        ssh2_dsa_free(ctx, session);
 
     return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                     "Unable to allocate memory for private key data");
@@ -1774,14 +1781,14 @@ static int ossl_ed25519_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     if(ed_ctx)
         *ed_ctx = ctx;
     else if(ctx)
-        ssh2_ed25519_free(ctx);
+        ssh2_ed25519_free(ctx, session);
 
     return 0;
 
 clean_exit:
 
     if(ctx)
-        ssh2_ed25519_free(ctx);
+        ssh2_ed25519_free(ctx, session);
 
     if(method_buf)
         SSH2_FREE(session, method_buf);
@@ -1903,14 +1910,14 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
     if(ed_ctx)
         *ed_ctx = ctx;
     else if(ctx)
-        ssh2_ed25519_free(ctx);
+        ssh2_ed25519_free(ctx, session);
 
     return 0;
 
 clean_exit:
 
     if(ctx)
-        ssh2_ed25519_free(ctx);
+        ssh2_ed25519_free(ctx, session);
 
     if(method_buf)
         SSH2_FREE(session, method_buf);
@@ -1954,7 +1961,7 @@ int ssh2_ed25519_new_priv(ssh2_ed25519_ctx **ed_ctx,
     BIO_free(bp);
 
     if(*ed_ctx && EVP_PKEY_id(*ed_ctx) != EVP_PKEY_ED25519) {
-        ssh2_ed25519_free(*ed_ctx);
+        ssh2_ed25519_free(*ed_ctx, session);
         *ed_ctx = NULL;
         return ssh2_err(session, LIBSSH2_ERROR_PROTO,
                         "Private key is not an ED25519 key");
@@ -2677,7 +2684,7 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     if(ec_ctx)
         *ec_ctx = ctx;
     else
-        ssh2_ecdsa_free(ctx);
+        ssh2_ecdsa_free(ctx, session);
 
     return rc;
 
@@ -2688,7 +2695,7 @@ fail:
 #endif
 
     if(ctx)
-        ssh2_ecdsa_free(ctx);
+        ssh2_ecdsa_free(ctx, session);
 
     return rc;
 }
@@ -2805,13 +2812,13 @@ static int ossl_ecdsa_sk_openssh_priv_to_pubkey(
     if(ec_ctx)
         *ec_ctx = ctx;
     else
-        ssh2_ecdsa_free(ctx);
+        ssh2_ecdsa_free(ctx, session);
 
     return rc;
 
 fail:
     if(ctx)
-        ssh2_ecdsa_free(ctx);
+        ssh2_ecdsa_free(ctx, session);
 
     if(key)
         SSH2_FREE(session, key);
