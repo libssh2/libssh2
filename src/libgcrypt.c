@@ -243,12 +243,11 @@ static int lgcr_dsa_new(ssh2_dsa_ctx **dsa,
     return 0;
 }
 
-int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
-                 const unsigned char *pdata, size_t plen,
-                 const unsigned char *qdata, size_t qlen,
-                 const unsigned char *gdata, size_t glen,
-                 const unsigned char *ydata, size_t ylen,
-                 const unsigned char *xdata, size_t xlen)
+int ssh2_dsa_new_pub(ssh2_dsa_ctx **dsa,
+                     const unsigned char *pdata, size_t plen,
+                     const unsigned char *qdata, size_t qlen,
+                     const unsigned char *gdata, size_t glen,
+                     const unsigned char *ydata, size_t ylen)
 {
     return lgcr_dsa_new(dsa, pdata, plen, qdata, qlen, gdata, glen,
                         ydata, ylen, NULL, 0);
