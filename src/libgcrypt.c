@@ -117,11 +117,12 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
 
     if(ddata)
         rc = gcry_sexp_build(rsa, NULL,
-                 "(private-key(rsa(n%b)(e%b)(d%b)(q%b)(p%b)(u%b)))",
+                 "(private-key (rsa (n %b) (e %b) (d %b) "
+                 "(q %b) (p %b) (u %b)))",
                  (int)nlen, ndata, (int)elen, edata, (int)dlen, ddata,
                  (int)plen, pdata, (int)qlen, qdata, (int)coefflen, coeffdata);
     else
-        rc = gcry_sexp_build(rsa, NULL, "(public-key(rsa(n%b)(e%b)))",
+        rc = gcry_sexp_build(rsa, NULL, "(public-key (rsa (n %b) (e %b)))",
                              (int)nlen, ndata, (int)elen, edata);
 
     if(rc) {
@@ -176,7 +177,7 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
         goto out;
     }
 
-    if(gcry_sexp_build(&s_sig, NULL, "(sig-val(rsa(s %b)))", sig_len, sig)) {
+    if(gcry_sexp_build(&s_sig, NULL, "(sig-val (rsa (s %b)))", sig_len, sig)) {
         ret = -1;
         goto out;
     }
@@ -217,15 +218,14 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
 
     if(xlen)
         rc = gcry_sexp_build(dsa, NULL,
-                             "(private-key(dsa(p%b)(q%b)(g%b)(y%b)(x%b)))",
-                             (int)plen, pdata, (int)qlen, qdata,
-                             (int)glen, gdata, (int)ylen, ydata,
-                             (int)xlen, xdata);
+                 "(private-key (dsa (p %b) (q %b) (g %b) (y %b) (x %b)))",
+                 (int)plen, pdata, (int)qlen, qdata,
+                 (int)glen, gdata, (int)ylen, ydata, (int)xlen, xdata);
     else
         rc = gcry_sexp_build(dsa, NULL,
-                             "(public-key(dsa(p%b)(q%b)(g%b)(y%b)))",
-                             (int)plen, pdata, (int)qlen, qdata,
-                             (int)glen, gdata, (int)ylen, ydata);
+                 "(public-key (dsa (p %b) (q %b) (g %b) (y %b)))",
+                 (int)plen, pdata, (int)qlen, qdata,
+                 (int)glen, gdata, (int)ylen, ydata);
 
     if(rc) {
         *dsa = NULL;
@@ -589,11 +589,11 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
 
     hash[0] = 0;
 
-    if(gcry_sexp_build(&s_hash, NULL, "(data(flags raw)(value %b))",
+    if(gcry_sexp_build(&s_hash, NULL, "(data (flags raw) (value %b))",
                        SSH2_SHA1_DIG_LEN + 1, hash))
         return -1;
 
-    if(gcry_sexp_build(&s_sig, NULL, "(sig-val(dsa(r %b)(s %b)))",
+    if(gcry_sexp_build(&s_sig, NULL, "(sig-val (dsa (r %b) (s %b)))",
                        20, sig, 20, sig + 20)) {
         gcry_sexp_release(s_hash);
         return -1;
