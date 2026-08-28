@@ -427,7 +427,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
     int ret;
     ssh2_rsa_ctx *ctx;
 
-    ctx = mbedtls_calloc(1, sizeof(ssh2_rsa_ctx));
+    ctx = SSH2_CALLOC(session, sizeof(ssh2_rsa_ctx));
     if(!ctx)
         return -1;
 
@@ -484,7 +484,7 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
 
     (void)session;
 
-    *rsa = mbedtls_calloc(1, sizeof(ssh2_rsa_ctx));
+    *rsa = SSH2_CALLOC(session, sizeof(ssh2_rsa_ctx));
     if(!*rsa)
         return -1;
 
@@ -648,9 +648,8 @@ int ssh2_rsa_sha1_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
 
 void ssh2_rsa_free(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session)
 {
-    (void)session;
     mbedtls_rsa_free(rsa);
-    mbedtls_free(rsa);
+    SSH2_FREE(session, rsa);
 }
 
 static unsigned char *mbed_gen_publickey_from_rsa(LIBSSH2_SESSION *session,
@@ -900,7 +899,7 @@ int ssh2_ecdsa_create_key(ssh2_ec_key **ec_ctx, LIBSSH2_SESSION *session,
 {
     size_t plen = 0;
 
-    *ec_ctx = mbedtls_calloc(1, sizeof(mbedtls_ecp_keypair));
+    *ec_ctx = SSH2_CALLOC(session, sizeof(mbedtls_ecp_keypair));
     if(!*ec_ctx)
         goto failed;
 
@@ -946,7 +945,7 @@ int ssh2_ecdsa_curve_name_with_octal_new(
 {
     (void)session;
 
-    *ec_ctx = mbedtls_calloc(1, sizeof(mbedtls_ecp_keypair));
+    *ec_ctx = SSH2_CALLOC(session, sizeof(mbedtls_ecp_keypair));
     if(!*ec_ctx)
         goto failed;
 
@@ -1096,7 +1095,7 @@ static int mbed_parse_eckey(ssh2_ecdsa_ctx **ctx, LIBSSH2_SESSION *session,
     if(mbedtls_pk_get_type(pkey) != MBEDTLS_PK_ECKEY)
         goto failed;
 
-    *ctx = mbedtls_calloc(1, sizeof(ssh2_ecdsa_ctx));
+    *ctx = SSH2_CALLOC(session, sizeof(ssh2_ecdsa_ctx));
     if(!*ctx)
         goto failed;
 
@@ -1151,7 +1150,7 @@ static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
     if(ssh2_get_bignum_bytes(decrypted, &exponent, &exponent_len))
         goto failed;
 
-    *ctx = mbedtls_calloc(1, sizeof(ssh2_ecdsa_ctx));
+    *ctx = SSH2_CALLOC(session, sizeof(ssh2_ecdsa_ctx));
     if(!*ctx)
         goto failed;
 
@@ -1307,9 +1306,8 @@ cleanup:
 
 void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session)
 {
-    (void)session;
     mbedtls_ecdsa_free(ec_ctx);
-    mbedtls_free(ec_ctx);
+    SSH2_FREE(session, ec_ctx);
 }
 #endif /* LIBSSH2_ECDSA */
 
