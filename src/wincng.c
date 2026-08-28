@@ -1242,7 +1242,7 @@ static int wcng_rsa_new_private_parse(ssh2_rsa_ctx **rsa,
 
     ret = wcng_asn_decode(pbEncoded, (DWORD)cbEncoded, PKCS_RSA_PRIVATE_KEY,
                           &pbStructInfo, &cbStructInfo);
-    wcng_zero_free(pbEncoded, cbEncoded);
+    ssh2_zero_free(session, pbEncoded, cbEncoded);
     if(ret)
         return -1;
 
@@ -1511,7 +1511,7 @@ static int wcng_dsa_new_private_parse(ssh2_dsa_ctx **dsa,
 
     ret = wcng_asn_decode_bns(pbEncoded, (DWORD)cbEncoded,
                               &rpbDecoded, &rcbDecoded, &length);
-    wcng_zero_free(pbEncoded, cbEncoded);
+    ssh2_zero_free(session, pbEncoded, cbEncoded);
     if(ret)
         return -1;
 
@@ -2613,7 +2613,7 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session, char **method,
 
     ret = wcng_asn_decode_bns(pbEncoded, (DWORD)cbEncoded,
                               &rpbDecoded, &rcbDecoded, &length);
-    wcng_zero_free(pbEncoded, cbEncoded);
+    ssh2_zero_free(session, pbEncoded, cbEncoded);
     if(ret)
         goto cleanup;
 
