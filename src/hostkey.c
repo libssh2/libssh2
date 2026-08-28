@@ -855,10 +855,9 @@ static int hostkey_method_ssh_ed25519_dtor(LIBSSH2_SESSION *session,
                                            void **abstract)
 {
     ssh2_ed25519_ctx *ed_ctx = (ssh2_ed25519_ctx *)(*abstract);
-    (void)session;
 
     if(ed_ctx)
-        ssh2_ed25519_free(ed_ctx);
+        ssh2_ed25519_free(ed_ctx, session);
 
     *abstract = NULL;
 

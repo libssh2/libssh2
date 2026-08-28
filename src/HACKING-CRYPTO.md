@@ -512,7 +512,7 @@ This procedure is already prototyped in `crypto.h`.
 Note: this procedure is not used if macro `ssh2_rsa_sha1_signv()` is defined.
 
 ```c
-void ssh2_rsa_free(ssh2_rsa_ctx *rsa);
+void ssh2_rsa_free(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session);
 ```
 Releases the RSA computation context at `rsa`.
 
@@ -627,7 +627,7 @@ DSA signs the (`hash`, `hash_len`) data using SHA-1 and store the signature at
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-void ssh2_dsa_free(ssh2_dsa_ctx *dsa);
+void ssh2_dsa_free(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session);
 ```
 Releases the DSA computation context at `dsa`.
 
@@ -729,7 +729,7 @@ Returns the curve type associated with given context.
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ec_ctx);
+void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session);
 ```
 Releases the ECDSA computation context at `ec_ctx`.
 
@@ -813,7 +813,7 @@ Returns 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-void ssh2_ed25519_free(ssh2_ed25519_ctx *ed_ctx);
+void ssh2_ed25519_free(ssh2_ed25519_ctx *ed_ctx, LIBSSH2_SESSION *session);
 ```
 Releases the ED25519 computation context at `ed_ctx`.
 
