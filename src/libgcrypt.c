@@ -207,12 +207,12 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
 #endif
 
 #if LIBSSH2_DSA
-int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
-                 const unsigned char *pdata, size_t plen,
-                 const unsigned char *qdata, size_t qlen,
-                 const unsigned char *gdata, size_t glen,
-                 const unsigned char *ydata, size_t ylen,
-                 const unsigned char *xdata, size_t xlen)
+static int lgcr_dsa_new(ssh2_dsa_ctx **dsa,
+                        const unsigned char *pdata, size_t plen,
+                        const unsigned char *qdata, size_t qlen,
+                        const unsigned char *gdata, size_t glen,
+                        const unsigned char *ydata, size_t ylen,
+                        const unsigned char *xdata, size_t xlen)
 {
     int rc;
 
@@ -233,6 +233,17 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
     }
 
     return 0;
+}
+
+int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
+                 const unsigned char *pdata, size_t plen,
+                 const unsigned char *qdata, size_t qlen,
+                 const unsigned char *gdata, size_t glen,
+                 const unsigned char *ydata, size_t ylen,
+                 const unsigned char *xdata, size_t xlen)
+{
+    return lgcr_dsa_new(dsa, pdata, plen, qdata, qlen, gdata, glen,
+                        ydata, ylen, NULL, 0);
 }
 #endif
 
@@ -415,7 +426,7 @@ int ssh2_dsa_new_priv(ssh2_dsa_ctx **dsa,
         goto fail;
     }
 
-    if(ssh2_dsa_new(dsa, p, plen, q, qlen, g, glen, y, ylen, x, xlen)) {
+    if(lgcr_dsa_new(dsa, p, plen, q, qlen, g, glen, y, ylen, x, xlen)) {
         ret = -1;
         goto fail;
     }
