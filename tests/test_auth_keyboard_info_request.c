@@ -215,6 +215,7 @@ failed_malloc_test_cases[FAILED_MALLOC_TEST_CASES_LEN] = {
 };
 
 static int alloc_count = 0;
+static int free_count = 0;
 
 static LIBSSH2_ALLOC_FUNC(test_alloc)
 {
@@ -230,6 +231,7 @@ static LIBSSH2_ALLOC_FUNC(test_alloc)
 static LIBSSH2_FREE_FUNC(test_free)
 {
     (void)abstract;
+    free_count++;
     free(ptr);
 }
 
@@ -243,6 +245,7 @@ static int test_case(int num,
     LIBSSH2_SESSION *session;
 
     alloc_count = 0;
+    free_count = 0;
 
     session = libssh2_session_init_ex(test_alloc, test_free, NULL, abstract);
     if(!session) {
