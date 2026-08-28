@@ -414,15 +414,9 @@ static int mbed_bn_random(ssh2_bn *bn, int bits, int top, int bottom)
  */
 
 #if LIBSSH2_RSA
-int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
-                 const unsigned char *edata, size_t elen,
-                 const unsigned char *ndata, size_t nlen,
-                 const unsigned char *ddata, size_t dlen,
-                 const unsigned char *pdata, size_t plen,
-                 const unsigned char *qdata, size_t qlen,
-                 const unsigned char *e1data, size_t e1len,
-                 const unsigned char *e2data, size_t e2len,
-                 const unsigned char *coeffdata, size_t coefflen)
+int ssh2_rsa_new_pub(ssh2_rsa_ctx **rsa,
+                     const unsigned char *edata, size_t elen,
+                     const unsigned char *ndata, size_t nlen)
 {
     int ret;
     ssh2_rsa_ctx *ctx;
@@ -438,30 +432,12 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
        mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(N)), ndata, nlen))
         ret = -1;
 
-    if(!ret)
+    if(!ret) {
         ctx->MBEDTLS_PRIVATE(len) =
             mbedtls_mpi_size(&(ctx->MBEDTLS_PRIVATE(N)));
 
-    if(!ret && ddata) {
-        if(mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(D)),
-                                   ddata, dlen) ||
-           mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(P)),
-                                   pdata, plen) ||
-           mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(Q)),
-                                   qdata, qlen) ||
-           mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(DP)),
-                                   e1data, e1len) ||
-           mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(DQ)),
-                                   e2data, e2len) ||
-           mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(QP)),
-                                   coeffdata, coefflen)) {
-            ret = -1;
-        }
-        else
-            ret = mbedtls_rsa_check_privkey(ctx);
-    }
-    else if(!ret)
         ret = mbedtls_rsa_check_pubkey(ctx);
+    }
 
     if(ret && ctx) {
         ssh2_rsa_free(ctx);

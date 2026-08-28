@@ -436,26 +436,14 @@ If defined as 0, the rest of this section can be omitted.
 `ssh2_rsa_ctx`: Type of an RSA computation context. Generally a struct.
 
 ```c
-int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
-                 const unsigned char *edata, size_t elen,
-                 const unsigned char *ndata, size_t nlen,
-                 const unsigned char *ddata, size_t dlen,
-                 const unsigned char *pdata, size_t plen,
-                 const unsigned char *qdata, size_t qlen,
-                 const unsigned char *e1data, size_t e1len,
-                 const unsigned char *e2data, size_t e2len,
-                 const unsigned char *coeffdata, size_t coefflen);
+int ssh2_rsa_new_pub(ssh2_rsa_ctx **rsa,
+                     const unsigned char *edata, size_t elen,
+                     const unsigned char *ndata, size_t nlen);
 ```
 Creates a new context for RSA computations from key source values:
 
-- `pdata`, `plen` Prime number p. Only used if private key known (`ddata`).
-- `qdata`, `qlen` Prime number q. Only used if private key known (`ddata`).
 - `ndata`, `nlen` Modulus n.
 - `edata`, `elen` Exponent e.
-- `ddata`, `dlen` e^-1 % phi(n) = private key. May be NULL if unknown.
-- `e1data`, `e1len` dp = d % (p-1). Only used if private key known (`ddata`).
-- `e2data`, `e2len` dq = d % (q-1). Only used if private key known (`ddata`).
-- `coeffdata`, `coefflen` q^-1 % p. Only used if private key known.
 
 Returns 0 if OK.
 This procedure is already prototyped in `crypto.h`.
@@ -575,12 +563,11 @@ defined as 0, the rest of this section can be omitted.
 `ssh2_dsa_ctx`: Type of a DSA computation context. Generally a struct.
 
 ```c
-int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
-                 const unsigned char *pdata, size_t plen,
-                 const unsigned char *qdata, size_t qlen,
-                 const unsigned char *gdata, size_t glen,
-                 const unsigned char *ydata, size_t ylen,
-                 const unsigned char *x, size_t x_len);
+int ssh2_dsa_new_pub(ssh2_dsa_ctx **dsa,
+                     const unsigned char *pdata, size_t plen,
+                     const unsigned char *qdata, size_t qlen,
+                     const unsigned char *gdata, size_t glen,
+                     const unsigned char *ydata, size_t ylen);
 ```
 
 Creates a new context for DSA computations from source key values:
@@ -589,7 +576,6 @@ Creates a new context for DSA computations from source key values:
 - `qdata`, `qlen` Prime number q. Only used if private key known (`ddata`).
 - `gdata`, `glen` G number.
 - `ydata`, `ylen` Public key.
-- `xdata`, `xlen` Private key. Only taken if xlen non-zero.
 
 Returns 0 if OK.
 This procedure is already prototyped in `crypto.h`.

@@ -124,15 +124,9 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx);
 #define SSH2_MLKEM_1024_CIPHERTEXT      1568
 
 #if LIBSSH2_RSA
-int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
-                 const unsigned char *edata, size_t elen,
-                 const unsigned char *ndata, size_t nlen,
-                 const unsigned char *ddata, size_t dlen,
-                 const unsigned char *pdata, size_t plen,
-                 const unsigned char *qdata, size_t qlen,
-                 const unsigned char *e1data, size_t e1len,
-                 const unsigned char *e2data, size_t e2len,
-                 const unsigned char *coeffdata, size_t coefflen);
+int ssh2_rsa_new_pub(ssh2_rsa_ctx **rsa,
+                     const unsigned char *edata, size_t elen,
+                     const unsigned char *ndata, size_t nlen);
 int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
                       LIBSSH2_SESSION *session,
                       const char *filename,
@@ -161,12 +155,11 @@ void ssh2_rsa_free(ssh2_rsa_ctx *rsa);
 #endif /* LIBSSH2_RSA */
 
 #if LIBSSH2_DSA
-int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
-                 const unsigned char *pdata, size_t plen,
-                 const unsigned char *qdata, size_t qlen,
-                 const unsigned char *gdata, size_t glen,
-                 const unsigned char *ydata, size_t ylen,
-                 const unsigned char *xdata, size_t xlen);
+int ssh2_dsa_new_pub(ssh2_dsa_ctx **dsa,
+                     const unsigned char *pdata, size_t plen,
+                     const unsigned char *qdata, size_t qlen,
+                     const unsigned char *gdata, size_t glen,
+                     const unsigned char *ydata, size_t ylen);
 int ssh2_dsa_new_priv(ssh2_dsa_ctx **dsa,
                       LIBSSH2_SESSION *session,
                       const char *filename,

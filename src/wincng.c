@@ -1098,33 +1098,19 @@ static size_t wcng_bn_size(const unsigned char *bignum, size_t length)
  * Windows CNG backend: RSA functions
  */
 
-int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
-                 const unsigned char *edata, size_t elen,
-                 const unsigned char *ndata, size_t nlen,
-                 const unsigned char *ddata, size_t dlen,
-                 const unsigned char *pdata, size_t plen,
-                 const unsigned char *qdata, size_t qlen,
-                 const unsigned char *e1data, size_t e1len,
-                 const unsigned char *e2data, size_t e2len,
-                 const unsigned char *coeffdata, size_t coefflen)
+int ssh2_rsa_new_pub(ssh2_rsa_ctx **rsa,
+                     const unsigned char *edata, size_t elen,
+                     const unsigned char *ndata, size_t nlen)
 {
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_RSAKEY_BLOB *rsakey;
     LPCWSTR lpszBlobType;
-    size_t keylen, offset, mlen, p1len = 0, p2len = 0;
+    size_t keylen, offset, mlen;
     int ret;
 
-    mlen = max(wcng_bn_size(ndata, nlen),
-               wcng_bn_size(ddata, dlen));
+    mlen = wcng_bn_size(ndata, nlen);
     offset = sizeof(BCRYPT_RSAKEY_BLOB);
     keylen = offset + elen + mlen;
-    if(ddata && dlen > 0) {
-        p1len = max(wcng_bn_size(pdata, plen),
-                    wcng_bn_size(e1data, e1len));
-        p2len = max(wcng_bn_size(qdata, qlen),
-                    wcng_bn_size(e2data, e2len));
-        keylen += p1len * 3 + p2len * 2 + mlen;
-    }
 
     rsakey = malloc(keylen);
     if(!rsakey)
@@ -1145,67 +1131,10 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     else
         memcpy((unsigned char *)rsakey + offset, ndata + nlen - mlen, mlen);
 
-    if(ddata && dlen > 0) {
-        offset += mlen;
-
-        if(plen < p1len)
-            memcpy((unsigned char *)rsakey + offset + p1len - plen,
-                   pdata, plen);
-        else
-            memcpy((unsigned char *)rsakey + offset,
-                   pdata + plen - p1len, p1len);
-        offset += p1len;
-
-        if(qlen < p2len)
-            memcpy((unsigned char *)rsakey + offset + p2len - qlen,
-                   qdata, qlen);
-        else
-            memcpy((unsigned char *)rsakey + offset,
-                   qdata + qlen - p2len, p2len);
-        offset += p2len;
-
-        if(e1len < p1len)
-            memcpy((unsigned char *)rsakey + offset + p1len - e1len,
-                   e1data, e1len);
-        else
-            memcpy((unsigned char *)rsakey + offset,
-                   e1data + e1len - p1len, p1len);
-        offset += p1len;
-
-        if(e2len < p2len)
-            memcpy((unsigned char *)rsakey + offset + p2len - e2len,
-                   e2data, e2len);
-        else
-            memcpy((unsigned char *)rsakey + offset,
-                   e2data + e2len - p2len, p2len);
-        offset += p2len;
-
-        if(coefflen < p1len)
-            memcpy((unsigned char *)rsakey + offset + p1len - coefflen,
-                   coeffdata, coefflen);
-        else
-            memcpy((unsigned char *)rsakey + offset,
-                   coeffdata + coefflen - p1len, p1len);
-        offset += p1len;
-
-        if(dlen < mlen)
-            memcpy((unsigned char *)rsakey + offset + mlen - dlen,
-                   ddata, dlen);
-        else
-            memcpy((unsigned char *)rsakey + offset,
-                   ddata + dlen - mlen, mlen);
-
-        lpszBlobType = BCRYPT_RSAFULLPRIVATE_BLOB;
-        rsakey->Magic = BCRYPT_RSAFULLPRIVATE_MAGIC;
-        rsakey->cbPrime1 = (ULONG)p1len;
-        rsakey->cbPrime2 = (ULONG)p2len;
-    }
-    else {
-        lpszBlobType = BCRYPT_RSAPUBLIC_BLOB;
-        rsakey->Magic = BCRYPT_RSAPUBLIC_MAGIC;
-        rsakey->cbPrime1 = 0;
-        rsakey->cbPrime2 = 0;
-    }
+    lpszBlobType = BCRYPT_RSAPUBLIC_BLOB;
+    rsakey->Magic = BCRYPT_RSAPUBLIC_MAGIC;
+    rsakey->cbPrime1 = 0;
+    rsakey->cbPrime2 = 0;
 
     ret = BCryptImportKeyPair(ssh2_wcng.hAlgRSA, NULL, lpszBlobType,
                               &hKey, (PUCHAR)rsakey, (ULONG)keylen, 0);
@@ -1400,12 +1329,11 @@ void ssh2_rsa_free(ssh2_rsa_ctx *rsa)
  */
 
 #if LIBSSH2_DSA
-int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
-                 const unsigned char *pdata, size_t plen,
-                 const unsigned char *qdata, size_t qlen,
-                 const unsigned char *gdata, size_t glen,
-                 const unsigned char *ydata, size_t ylen,
-                 const unsigned char *xdata, size_t xlen)
+int ssh2_dsa_new_pub(ssh2_dsa_ctx **dsa,
+                     const unsigned char *pdata, size_t plen,
+                     const unsigned char *qdata, size_t qlen,
+                     const unsigned char *gdata, size_t glen,
+                     const unsigned char *ydata, size_t ylen)
 {
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_DSA_KEY_BLOB *dsakey;
@@ -1418,8 +1346,6 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
                  wcng_bn_size(ydata, ylen));
     offset = sizeof(BCRYPT_DSA_KEY_BLOB);
     keylen = offset + length * 3;
-    if(xdata && xlen > 0)
-        keylen += 20;
 
     dsakey = malloc(keylen);
     if(!dsakey)
@@ -1461,21 +1387,8 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
         memcpy((unsigned char *)dsakey + offset,
                ydata + ylen - length, length);
 
-    if(xdata && xlen > 0) {
-        offset += length;
-
-        if(xlen < 20)
-            memcpy((unsigned char *)dsakey + offset + 20 - xlen, xdata, xlen);
-        else
-            memcpy((unsigned char *)dsakey + offset, xdata + xlen - 20, 20);
-
-        lpszBlobType = BCRYPT_DSA_PRIVATE_BLOB;
-        dsakey->dwMagic = BCRYPT_DSA_PRIVATE_MAGIC;
-    }
-    else {
-        lpszBlobType = BCRYPT_DSA_PUBLIC_BLOB;
-        dsakey->dwMagic = BCRYPT_DSA_PUBLIC_MAGIC;
-    }
+    lpszBlobType = BCRYPT_DSA_PUBLIC_BLOB;
+    dsakey->dwMagic = BCRYPT_DSA_PUBLIC_MAGIC;
 
     ret = BCryptImportKeyPair(ssh2_wcng.hAlgDSA, NULL, lpszBlobType,
                               &hKey, (PUCHAR)dsakey, (ULONG)keylen, 0);

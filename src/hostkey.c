@@ -99,8 +99,7 @@ static int hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
        !ssh2_eob(&buf))
         return -1;
 
-    if(ssh2_rsa_new(&rsa, e, e_len, n, n_len,
-                    NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0))
+    if(ssh2_rsa_new_pub(&rsa, e, e_len, n, n_len))
         return -1;
 
     *abstract = rsa;
@@ -449,7 +448,7 @@ static int hostkey_method_ssh_dss_init(LIBSSH2_SESSION *session,
        !ssh2_eob(&buf))
         return -1;
 
-    if(ssh2_dsa_new(&dsa, p, p_len, q, q_len, g, g_len, y, y_len, NULL, 0))
+    if(ssh2_dsa_new_pub(&dsa, p, p_len, q, q_len, g, g_len, y, y_len))
         return -1;
 
     *abstract = dsa;
