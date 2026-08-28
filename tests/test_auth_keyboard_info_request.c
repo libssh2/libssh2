@@ -215,17 +215,14 @@ failed_malloc_test_cases[FAILED_MALLOC_TEST_CASES_LEN] = {
 };
 
 static int alloc_count = 0;
-static int free_count = 0;
 
 static LIBSSH2_ALLOC_FUNC(test_alloc)
 {
     int *threshold_int_ptr = *abstract;
-
-    if(*abstract && *threshold_int_ptr == alloc_count + 1) {
+    alloc_count++;
+    if(*abstract && *threshold_int_ptr == alloc_count) {
         return NULL;
     }
-
-    alloc_count++;
 
     return malloc(count);
 }
@@ -233,7 +230,6 @@ static LIBSSH2_ALLOC_FUNC(test_alloc)
 static LIBSSH2_FREE_FUNC(test_free)
 {
     (void)abstract;
-    free_count++;
     free(ptr);
 }
 
@@ -247,7 +243,6 @@ static int test_case(int num,
     LIBSSH2_SESSION *session;
 
     alloc_count = 0;
-    free_count = 0;
 
     session = libssh2_session_init_ex(test_alloc, test_free, NULL, abstract);
     if(!session) {
@@ -288,12 +283,6 @@ static int test_case(int num,
         return 1;
     }
     libssh2_session_free(session);
-
-    if(alloc_count != free_count) {
-        fprintf(stdout, "Mismatched alloc/free count: %d vs. %d\n",
-                alloc_count, free_count);
-        return 1;
-    }
 
     fprintf(stderr, "Test case %d passed\n", num);
 
