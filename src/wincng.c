@@ -1032,9 +1032,9 @@ static int wcng_asn_decode_bns(LIBSSH2_SESSION *session,
     if(!ret) {
         length = pbDecoded->cValue;
 
-        rpbDecoded = malloc(sizeof(PBYTE) * length);
+        rpbDecoded = SSH2_ALLOC(session, sizeof(PBYTE) * length);
         if(rpbDecoded) {
-            rcbDecoded = malloc(sizeof(DWORD) * length);
+            rcbDecoded = SSH2_ALLOC(session, sizeof(DWORD) * length);
             if(rcbDecoded) {
                 for(index = 0; index < length; index++) {
                     pBlob = &pbDecoded->rgValue[index];
@@ -1054,17 +1054,18 @@ static int wcng_asn_decode_bns(LIBSSH2_SESSION *session,
                 }
                 else {
                     for(length = 0; length < index; length++) {
-                        wcng_zero_free(rpbDecoded[length],
+                        ssh2_zero_free(session,
+                                       rpbDecoded[length],
                                        rcbDecoded[length]);
                         rpbDecoded[length] = NULL;
                         rcbDecoded[length] = 0;
                     }
-                    free(rpbDecoded);
-                    free(rcbDecoded);
+                    SSH2_FREE(session, rpbDecoded);
+                    SSH2_FREE(session, rcbDecoded);
                 }
             }
             else {
-                free(rpbDecoded);
+                SSH2_FREE(session, rpbDecoded);
                 ret = -1;
             }
         }
@@ -1533,13 +1534,13 @@ static int wcng_dsa_new_private_parse(ssh2_dsa_ctx **dsa,
         ret = -1;
 
     for(index = 0; index < length; index++) {
-        wcng_zero_free(rpbDecoded[index], rcbDecoded[index]);
+        ssh2_zero_free(session, rpbDecoded[index], rcbDecoded[index]);
         rpbDecoded[index] = NULL;
         rcbDecoded[index] = 0;
     }
 
-    free(rpbDecoded);
-    free(rcbDecoded);
+    SSH2_FREE(session, rpbDecoded);
+    SSH2_FREE(session, rcbDecoded);
 
     return ret;
 }
@@ -2677,13 +2678,13 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session, char **method,
 cleanup:
 
     for(index = 0; index < length; index++) {
-        wcng_zero_free(rpbDecoded[index], rcbDecoded[index]);
+        ssh2_zero_free(session, rpbDecoded[index], rcbDecoded[index]);
         rpbDecoded[index] = NULL;
         rcbDecoded[index] = 0;
     }
 
-    free(rpbDecoded);
-    free(rcbDecoded);
+    SSH2_FREE(session, rpbDecoded);
+    SSH2_FREE(session, rcbDecoded);
 
     if(ret) {
         if(method_buf)
