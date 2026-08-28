@@ -1264,14 +1264,14 @@ static int ossl_rsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     if(rsa)
         *rsa = ctx;
     else
-        ssh2_rsa_free(ctx);
+        ssh2_rsa_free(ctx, session);
 
     return rc;
 
 fail:
 
     if(ctx)
-        ssh2_rsa_free(ctx);
+        ssh2_rsa_free(ctx, session);
 
     return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                     "Unable to allocate memory for private key data");
@@ -1498,14 +1498,14 @@ static int ossl_dsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     if(dsa)
         *dsa = ctx;
     else
-        ssh2_dsa_free(ctx);
+        ssh2_dsa_free(ctx, session);
 
     return rc;
 
 fail:
 
     if(ctx)
-        ssh2_dsa_free(ctx);
+        ssh2_dsa_free(ctx, session);
 
     return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                     "Unable to allocate memory for private key data");
@@ -1774,14 +1774,14 @@ static int ossl_ed25519_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     if(ed_ctx)
         *ed_ctx = ctx;
     else if(ctx)
-        ssh2_ed25519_free(ctx);
+        ssh2_ed25519_free(ctx, session);
 
     return 0;
 
 clean_exit:
 
     if(ctx)
-        ssh2_ed25519_free(ctx);
+        ssh2_ed25519_free(ctx, session);
 
     if(method_buf)
         SSH2_FREE(session, method_buf);
@@ -1903,14 +1903,14 @@ static int ossl_ed25519_sk_openssh_priv_to_pubkey(
     if(ed_ctx)
         *ed_ctx = ctx;
     else if(ctx)
-        ssh2_ed25519_free(ctx);
+        ssh2_ed25519_free(ctx, session);
 
     return 0;
 
 clean_exit:
 
     if(ctx)
-        ssh2_ed25519_free(ctx);
+        ssh2_ed25519_free(ctx, session);
 
     if(method_buf)
         SSH2_FREE(session, method_buf);
@@ -1954,7 +1954,7 @@ int ssh2_ed25519_new_priv(ssh2_ed25519_ctx **ed_ctx,
     BIO_free(bp);
 
     if(*ed_ctx && EVP_PKEY_id(*ed_ctx) != EVP_PKEY_ED25519) {
-        ssh2_ed25519_free(*ed_ctx);
+        ssh2_ed25519_free(*ed_ctx, session);
         *ed_ctx = NULL;
         return ssh2_err(session, LIBSSH2_ERROR_PROTO,
                         "Private key is not an ED25519 key");
@@ -2677,7 +2677,7 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     if(ec_ctx)
         *ec_ctx = ctx;
     else
-        ssh2_ecdsa_free(ctx);
+        ssh2_ecdsa_free(ctx, session);
 
     return rc;
 
@@ -2688,7 +2688,7 @@ fail:
 #endif
 
     if(ctx)
-        ssh2_ecdsa_free(ctx);
+        ssh2_ecdsa_free(ctx, session);
 
     return rc;
 }
@@ -2805,13 +2805,13 @@ static int ossl_ecdsa_sk_openssh_priv_to_pubkey(
     if(ec_ctx)
         *ec_ctx = ctx;
     else
-        ssh2_ecdsa_free(ctx);
+        ssh2_ecdsa_free(ctx, session);
 
     return rc;
 
 fail:
     if(ctx)
-        ssh2_ecdsa_free(ctx);
+        ssh2_ecdsa_free(ctx, session);
 
     if(key)
         SSH2_FREE(session, key);

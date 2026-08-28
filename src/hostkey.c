@@ -45,10 +45,9 @@ static int hostkey_method_ssh_rsa_dtor(LIBSSH2_SESSION *session,
                                        void **abstract)
 {
     ssh2_rsa_ctx *rsa = (ssh2_rsa_ctx *)(*abstract);
-    (void)session;
 
     if(rsa)
-        ssh2_rsa_free(rsa);
+        ssh2_rsa_free(rsa, session);
 
     *abstract = NULL;
 
@@ -404,10 +403,9 @@ static int hostkey_method_ssh_dss_dtor(LIBSSH2_SESSION *session,
                                        void **abstract)
 {
     ssh2_dsa_ctx *dsa = (ssh2_dsa_ctx *)(*abstract);
-    (void)session;
 
     if(dsa)
-        ssh2_dsa_free(dsa);
+        ssh2_dsa_free(dsa, session);
 
     *abstract = NULL;
 
@@ -577,10 +575,9 @@ static int hostkey_method_ssh_ecdsa_dtor(LIBSSH2_SESSION *session,
                                          void **abstract)
 {
     ssh2_ecdsa_ctx *ec_ctx = (ssh2_ecdsa_ctx *)(*abstract);
-    (void)session;
 
     if(ec_ctx)
-        ssh2_ecdsa_free(ec_ctx);
+        ssh2_ecdsa_free(ec_ctx, session);
 
     *abstract = NULL;
 

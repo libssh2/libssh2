@@ -1252,7 +1252,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     asn1delete(key);
     asn1delete(structkey);
     if(ret && ctx) {
-        ssh2_rsa_free(ctx);
+        ssh2_rsa_free(ctx, session);
         ctx = NULL;
     }
     *rsa = ctx;

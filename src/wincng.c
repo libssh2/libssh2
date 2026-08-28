@@ -1381,8 +1381,10 @@ int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
 }
 #endif
 
-void ssh2_rsa_free(ssh2_rsa_ctx *rsa)
+void ssh2_rsa_free(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session)
 {
+    (void)session;
+
     if(!rsa)
         return;
 
@@ -1602,8 +1604,10 @@ int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
-void ssh2_dsa_free(ssh2_dsa_ctx *dsa)
+void ssh2_dsa_free(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session)
 {
+    (void)session;
+
     if(!dsa)
         return;
 
@@ -1936,8 +1940,10 @@ cleanup:
 /*
  * Windows CNG backend: ECDSA functions
  */
-void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ec_ctx)
+void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session)
 {
+    (void)session;
+
     if(!ec_ctx)
         return;
 
