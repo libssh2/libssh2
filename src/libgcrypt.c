@@ -420,6 +420,7 @@ int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
     const char *algo;
     gcry_sexp_t s_hash = NULL;
     gcry_sexp_t s_sig = NULL;
+    gcry_sexp_t s_data = NULL;
     gcry_error_t err;
     const char *tmp;
     size_t size;
@@ -447,11 +448,13 @@ int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
     if(err)
         return -1;
 
-    s_hash = gcry_sexp_find_token(s_sig, "s", 0);
-    if(!s_hash)
+    /* Extract S. */
+
+    s_data = gcry_sexp_find_token(s_sig, "s", 0);
+    if(!s_data)
         goto out;
 
-    tmp = gcry_sexp_nth_data(s_hash, 1, &size);
+    tmp = gcry_sexp_nth_data(s_data, 1, &size);
     if(!tmp)
         goto out;
 
@@ -470,10 +473,10 @@ int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
     ret = 0;
 
 out:
-    if(s_hash)
-        gcry_sexp_release(s_hash);
     if(s_sig)
         gcry_sexp_release(s_sig);
+    if(s_data)
+        gcry_sexp_release(s_data);
 
     return ret;
 }
