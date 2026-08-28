@@ -81,17 +81,6 @@ int ssh2_random(unsigned char *buf, size_t len)
     return psa_generate_random(buf, len) == PSA_SUCCESS ? 0 : -1;
 }
 
-static void mbed_zero_free(void *buf, size_t len)
-{
-    if(!buf)
-        return;
-
-    if(len > 0)
-        ssh2_explicit_zero(buf, len);
-
-    mbedtls_free(buf);
-}
-
 int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
@@ -280,7 +269,9 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
             memcpy(block, output, olen);
         }
 
-        mbed_zero_free(output, osize);
+        if(osize)
+            ssh2_explicit_zero(output, osize * sizeof(char));
+        mbedtls_free(output);
     }
     else
         ret = -1;
