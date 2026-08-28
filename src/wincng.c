@@ -1730,7 +1730,8 @@ static int wcng_p1363signature_from_point(IN LIBSSH2_SESSION *session,
 /*
  * Create a CNG public key from an ECC point.
  */
-static int wcng_publickey_from_point(IN wcng_ecc_keytype keytype,
+static int wcng_publickey_from_point(IN LIBSSH2_SESSION *session,
+                                     IN wcng_ecc_keytype keytype,
                                      IN struct ecdsa_point *point,
                                      OUT BCRYPT_KEY_HANDLE *key)
 {
@@ -1751,7 +1752,7 @@ static int wcng_publickey_from_point(IN wcng_ecc_keytype keytype,
 
     /* Initialize a blob to import */
     ecc_blob_len = sizeof(BCRYPT_ECCKEY_BLOB) + point->x_len + point->y_len;
-    ecc_blob = malloc(ecc_blob_len);
+    ecc_blob = SSH2_ALLOC(session, ecc_blob_len);
     if(!ecc_blob)
         return LIBSSH2_ERROR_ALLOC;
 
@@ -1782,14 +1783,15 @@ static int wcng_publickey_from_point(IN wcng_ecc_keytype keytype,
     result = LIBSSH2_ERROR_NONE;
 
 cleanup:
-    free(ecc_blob);
+    SSH2_FREE(session, ecc_blob);
     return result;
 }
 
 /*
  * Create a CNG private key from an ECC point.
  */
-static int wcng_privatekey_from_point(IN wcng_ecc_keytype keytype,
+static int wcng_privatekey_from_point(IN LIBSSH2_SESSION *session,
+                                      IN wcng_ecc_keytype keytype,
                                       IN struct ecdsa_point *q,
                                       IN unsigned char *d,
                                       IN size_t d_len,
@@ -1813,7 +1815,7 @@ static int wcng_privatekey_from_point(IN wcng_ecc_keytype keytype,
     /* Initialize a blob to import */
     ecc_blob_len =
         sizeof(BCRYPT_ECCPRIVATE_BLOB) + q->x_len + q->y_len + d_len;
-    ecc_blob = malloc(ecc_blob_len);
+    ecc_blob = SSH2_ALLOC(session, ecc_blob_len);
     if(!ecc_blob)
         return LIBSSH2_ERROR_ALLOC;
 
@@ -1846,7 +1848,7 @@ static int wcng_privatekey_from_point(IN wcng_ecc_keytype keytype,
     result = LIBSSH2_ERROR_NONE;
 
 cleanup:
-    free(ecc_blob);
+    SSH2_FREE(session, ecc_blob);
     return result;
 }
 
@@ -2070,7 +2072,7 @@ int ssh2_ecdsa_curve_name_with_octal_new(
     if(result != LIBSSH2_ERROR_NONE)
         goto cleanup;
 
-    result = wcng_publickey_from_point(
+    result = wcng_publickey_from_point(session,
         WCNG_ECC_KEYTYPE_ECDSA,
         &publickey,
         &publickey_handle);
@@ -2121,7 +2123,7 @@ int ssh2_ecdh_gen_k(OUT ssh2_bn **k, LIBSSH2_SESSION *session,
     if(result != LIBSSH2_ERROR_NONE)
         return result;
 
-    result = wcng_publickey_from_point(
+    result = wcng_publickey_from_point(session,
         WCNG_ECC_KEYTYPE_ECDH,
         &server_publickey,
         &publickey_handle);
@@ -2402,7 +2404,7 @@ static int wcng_ecdsa_new_private_parse(OUT ssh2_ecdsa_ctx **ec_ctx,
     /* Ignore the rest (comment, etc) */
 
     /* Use Q and d to create a key handle */
-    result = wcng_privatekey_from_point(
+    result = wcng_privatekey_from_point(session,
         WCNG_ECC_KEYTYPE_ECDSA,
         &q,
         d,
