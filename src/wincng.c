@@ -955,7 +955,8 @@ static int wcng_asn_decode(LIBSSH2_SESSION *session,
     return 0;
 }
 
-static int wcng_bn_ltob(unsigned char *pbInput, DWORD cbInput,
+static int wcng_bn_ltob(LIBSSH2_SESSION *session,
+                        unsigned char *pbInput, DWORD cbInput,
                         unsigned char **ppbOutput, DWORD *pcbOutput)
 {
     unsigned char *pbOutput;
@@ -975,7 +976,7 @@ static int wcng_bn_ltob(unsigned char *pbInput, DWORD cbInput,
         cbOutput += offset;
     }
 
-    pbOutput = malloc(cbOutput);
+    pbOutput = SSH2_ALLOC(session, cbOutput);
     if(!pbOutput)
         return -1;
 
@@ -1001,7 +1002,8 @@ static int wcng_asn_decode_bn(LIBSSH2_SESSION *session,
     ret = wcng_asn_decode(session, pbEncoded, cbEncoded, X509_MULTI_BYTE_UINT,
                           (void *)&pbInteger, &cbInteger);
     if(!ret) {
-        ret = wcng_bn_ltob(pbInteger->pbData,
+        ret = wcng_bn_ltob(session,
+                           pbInteger->pbData,
                            pbInteger->cbData,
                            &pbDecoded, &cbDecoded);
         if(!ret) {
