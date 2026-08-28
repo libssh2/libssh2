@@ -1082,38 +1082,6 @@ cleanup:
     return rc == 0 ? 0 : -1;
 }
 
-static int mbed_parse_eckey(ssh2_ecdsa_ctx **ctx, LIBSSH2_SESSION *session,
-                            mbedtls_pk_context *pkey,
-                            const char *data, size_t data_len,
-                            const char *passphrase)
-{
-    if(mbedtls_pk_parse_key(pkey,
-                            (const unsigned char *)data, data_len,
-                            (const unsigned char *)passphrase,
-                            passphrase ? strlen(passphrase) : 0,
-                            mbedtls_ctr_drbg_random, &mbed_ctr_drbg))
-        goto failed;
-
-    if(mbedtls_pk_get_type(pkey) != MBEDTLS_PK_ECKEY)
-        goto failed;
-
-    *ctx = SSH2_CALLOC(session, sizeof(ssh2_ecdsa_ctx));
-    if(!*ctx)
-        goto failed;
-
-    mbedtls_ecdsa_init(*ctx);
-
-    if(mbedtls_ecdsa_from_keypair(*ctx, mbedtls_pk_ec(*pkey)) == 0)
-        return 0;
-
-failed:
-
-    ssh2_ecdsa_free(*ctx, session);
-    *ctx = NULL;
-
-    return -1;
-}
-
 /*
  * returns key curve type that maps to ssh2_curve_type
  */
@@ -1218,9 +1186,28 @@ int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
         data_nullterm[blob_len] = '\0';  /* for mbedtls_pk_parse_key() */
     }
 
-    if(mbed_parse_eckey(ec_ctx, session, &pkey, data_nullterm, data_len + 1,
-                        passphrase) == 0)
-        goto cleanup;
+    /* try mbedTLS parser */
+
+    if(mbedtls_pk_parse_key(&pkey,
+                            (const unsigned char *)data_nullterm, data_len + 1,
+                            (const unsigned char *)passphrase,
+                            passphrase ? strlen(passphrase) : 0,
+                            mbedtls_ctr_drbg_random, &mbed_ctr_drbg) == 0 &&
+       mbedtls_pk_get_type(&pkey) == MBEDTLS_PK_ECKEY) {
+
+        *ec_ctx = SSH2_CALLOC(session, sizeof(ssh2_ecdsa_ctx));
+        if(*ec_ctx) {
+            mbedtls_ecdsa_init(*ec_ctx);
+
+            if(mbedtls_ecdsa_from_keypair(*ec_ctx, mbedtls_pk_ec(pkey)) == 0)
+                goto cleanup;  /* success */
+        }
+
+        ssh2_ecdsa_free(*ec_ctx, session);
+        *ec_ctx = NULL;
+    }
+
+    /* try local parser */
 
     mbed_parse_openssh_key(ec_ctx, session, data_nullterm, data_len,
                            passphrase);
