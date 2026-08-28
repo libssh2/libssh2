@@ -1237,10 +1237,9 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
     return 0;
 }
 
-static int wcng_rsa_new_private_parse(ssh2_rsa_ctx **rsa,
-                                      LIBSSH2_SESSION *session,
-                                      unsigned char *pbEncoded,
-                                      size_t cbEncoded)
+static int wcng_rsa_new_priv_parse(ssh2_rsa_ctx **rsa,
+                                   LIBSSH2_SESSION *session,
+                                   unsigned char *pbEncoded, size_t cbEncoded)
 {
     BCRYPT_KEY_HANDLE hKey;
     unsigned char *pbStructInfo;
@@ -1290,7 +1289,7 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
                       &pbEncoded, &cbEncoded, 1, 0))
         return -1;
 
-    return wcng_rsa_new_private_parse(rsa, session, pbEncoded, cbEncoded);
+    return wcng_rsa_new_priv_parse(rsa, session, pbEncoded, cbEncoded);
 }
 
 #if LIBSSH2_RSA_SHA1
@@ -1508,10 +1507,9 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa, LIBSSH2_SESSION *session,
     return 0;
 }
 
-static int wcng_dsa_new_private_parse(ssh2_dsa_ctx **dsa,
-                                      LIBSSH2_SESSION *session,
-                                      unsigned char *pbEncoded,
-                                      size_t cbEncoded)
+static int wcng_dsa_new_priv_parse(ssh2_dsa_ctx **dsa,
+                                   LIBSSH2_SESSION *session,
+                                   unsigned char *pbEncoded, size_t cbEncoded)
 {
     unsigned char **rpbDecoded;
     DWORD *rcbDecoded, index, length;
@@ -1560,7 +1558,7 @@ int ssh2_dsa_new_priv(ssh2_dsa_ctx **dsa,
                       &pbEncoded, &cbEncoded, 0, 1))
         return -1;
 
-    return wcng_dsa_new_private_parse(dsa, session, pbEncoded, cbEncoded);
+    return wcng_dsa_new_priv_parse(dsa, session, pbEncoded, cbEncoded);
 }
 
 int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
@@ -2318,10 +2316,10 @@ cleanup:
     return result;
 }
 
-static int wcng_ecdsa_new_private_parse(OUT ssh2_ecdsa_ctx **ec_ctx,
-                                        LIBSSH2_SESSION *session,
-                                        IN const unsigned char *privatekey,
-                                        IN size_t privatekey_len)
+static int wcng_ecdsa_new_priv_parse(ssh2_ecdsa_ctx **ec_ctx,
+                                     LIBSSH2_SESSION *session,
+                                     const unsigned char *privatekey,
+                                     size_t privatekey_len)
 {
     char *keytype = NULL;
     size_t keytype_len;
@@ -2427,7 +2425,7 @@ cleanup:
             SSH2_SAFEFREE(session, *ec_ctx);
 
         result = ssh2_err(session, result,
-                          "wcng_ecdsa_new_private_parse() failed");
+                          "wcng_ecdsa_new_priv_parse() failed");
     }
 
     return result;
@@ -2458,8 +2456,8 @@ int ssh2_ecdsa_new_priv(OUT ssh2_ecdsa_ctx **ec_ctx,
     if(result)
         goto cleanup;
 
-    result = wcng_ecdsa_new_private_parse(ec_ctx, session,
-                                          decrypted->data, decrypted->len);
+    result = wcng_ecdsa_new_priv_parse(ec_ctx, session,
+                                       decrypted->data, decrypted->len);
 
 cleanup:
     if(decrypted)
@@ -2604,11 +2602,10 @@ static DWORD wcng_pub_priv_write(unsigned char *key, DWORD offset,
     return offset;
 }
 
-static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session, char **method,
-                                       unsigned char **pubkeydata,
-                                       size_t *pubkeydata_len,
-                                       unsigned char *pbEncoded,
-                                       size_t cbEncoded)
+static int wcng_pub_priv_parse(LIBSSH2_SESSION *session, char **method,
+                               unsigned char **pubkeydata,
+                               size_t *pubkeydata_len,
+                               unsigned char *pbEncoded, size_t cbEncoded)
 {
     unsigned char **rpbDecoded = NULL;
     DWORD *rcbDecoded = NULL;
@@ -2719,9 +2716,9 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
                       &pbEncoded, &cbEncoded, 1, 1))
         return -1;
 
-    return wcng_pub_privkey_file_parse(session, method,
-                                       pubkeydata, pubkeydata_len,
-                                       pbEncoded, cbEncoded);
+    return wcng_pub_priv_parse(session, method,
+                               pubkeydata, pubkeydata_len,
+                               pbEncoded, cbEncoded);
 }
 #endif /* LIBSSH2_RSA || LIBSSH2_DSA */
 
