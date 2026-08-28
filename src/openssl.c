@@ -187,15 +187,9 @@ int ssh2_random(unsigned char *buf, size_t len)
 }
 
 #if LIBSSH2_RSA
-int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
-                 const unsigned char *edata, size_t elen,
-                 const unsigned char *ndata, size_t nlen,
-                 const unsigned char *ddata, size_t dlen,
-                 const unsigned char *pdata, size_t plen,
-                 const unsigned char *qdata, size_t qlen,
-                 const unsigned char *e1data, size_t e1len,
-                 const unsigned char *e2data, size_t e2len,
-                 const unsigned char *coeffdata, size_t coefflen)
+int ssh2_rsa_new_pub(ssh2_rsa_ctx **rsa,
+                     const unsigned char *edata, size_t elen,
+                     const unsigned char *ndata, size_t nlen)
 {
 #ifdef USE_OPENSSL_3
     int ret = 0;
@@ -204,18 +198,6 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
     int param_num = 0;
     unsigned char *nbuf = NULL;
     unsigned char *ebuf = NULL;
-    unsigned char *dbuf = NULL;
-
-    (void)pdata;
-    (void)plen;
-    (void)qdata;
-    (void)qlen;
-    (void)e1data;
-    (void)e1len;
-    (void)e2data;
-    (void)e2len;
-    (void)coeffdata;
-    (void)coefflen;
 
     if(ndata && nlen > 0) {
         nbuf = OPENSSL_malloc(nlen);
@@ -237,16 +219,6 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
         }
     }
 
-    if(ddata && dlen > 0) {
-        dbuf = OPENSSL_malloc(dlen);
-        if(dbuf) {
-            memcpy(dbuf, ddata, dlen);
-            ssh2_swap_bytes(dbuf, dlen);
-            params[param_num++] =
-                OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_RSA_D, dbuf, dlen);
-        }
-    }
-
     params[param_num] = OSSL_PARAM_construct_end();
 
     *rsa = NULL;
@@ -259,8 +231,6 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
         OPENSSL_clear_free(nbuf, nlen);
     if(ebuf)
         OPENSSL_clear_free(ebuf, elen);
-    if(dbuf)
-        OPENSSL_clear_free(dbuf, dlen);
 
     EVP_PKEY_CTX_free(ctx);
 
@@ -268,12 +238,6 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
 #else /* !USE_OPENSSL_3 */
     BIGNUM *e = NULL;
     BIGNUM *n = NULL;
-    BIGNUM *d = NULL;
-    BIGNUM *p = NULL;
-    BIGNUM *q = NULL;
-    BIGNUM *dmp1 = NULL;
-    BIGNUM *dmq1 = NULL;
-    BIGNUM *iqmp = NULL;
 
     e = BN_new();
     if(!e)
@@ -285,45 +249,11 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
         goto fail;
     BN_bin2bn(ndata, (int)nlen, n);
 
-    if(ddata) {
-        d = BN_new();
-        if(!d)
-            goto fail;
-        BN_bin2bn(ddata, (int)dlen, d);
-
-        p = BN_new();
-        if(!p)
-            goto fail;
-        BN_bin2bn(pdata, (int)plen, p);
-
-        q = BN_new();
-        if(!q)
-            goto fail;
-        BN_bin2bn(qdata, (int)qlen, q);
-
-        dmp1 = BN_new();
-        if(!dmp1)
-            goto fail;
-        BN_bin2bn(e1data, (int)e1len, dmp1);
-
-        dmq1 = BN_new();
-        if(!dmq1)
-            goto fail;
-        BN_bin2bn(e2data, (int)e2len, dmq1);
-
-        iqmp = BN_new();
-        if(!iqmp)
-            goto fail;
-        BN_bin2bn(coeffdata, (int)coefflen, iqmp);
-    }
-
     *rsa = RSA_new();
     if(!*rsa)
         goto fail;
 
-    RSA_set0_key(*rsa, n, e, d);
-    RSA_set0_factors(*rsa, p, q);
-    RSA_set0_crt_params(*rsa, dmp1, dmq1, iqmp);
+    RSA_set0_key(*rsa, n, e, NULL);
 
     return 0;
 
@@ -331,12 +261,6 @@ fail:
 
     BN_clear_free(e);
     BN_clear_free(n);
-    BN_clear_free(d);
-    BN_clear_free(p);
-    BN_clear_free(q);
-    BN_clear_free(dmp1);
-    BN_clear_free(dmq1);
-    BN_clear_free(iqmp);
 
     return -1;
 #endif /* USE_OPENSSL_3 */
@@ -424,12 +348,11 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
 #endif /* LIBSSH2_RSA */
 
 #if LIBSSH2_DSA
-int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
-                 const unsigned char *pdata, size_t plen,
-                 const unsigned char *qdata, size_t qlen,
-                 const unsigned char *gdata, size_t glen,
-                 const unsigned char *ydata, size_t ylen,
-                 const unsigned char *xdata, size_t xlen)
+int ssh2_dsa_new_pub(ssh2_dsa_ctx **dsa,
+                     const unsigned char *pdata, size_t plen,
+                     const unsigned char *qdata, size_t qlen,
+                     const unsigned char *gdata, size_t glen,
+                     const unsigned char *ydata, size_t ylen)
 {
 #ifdef USE_OPENSSL_3
     int ret = 0;
@@ -440,7 +363,6 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
     unsigned char *q_buf = NULL;
     unsigned char *g_buf = NULL;
     unsigned char *y_buf = NULL;
-    unsigned char *x_buf = NULL;
 
     if(pdata && plen > 0) {
         p_buf = OPENSSL_malloc(plen);
@@ -482,16 +404,6 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
         }
     }
 
-    if(xdata && xlen > 0) {
-        x_buf = OPENSSL_malloc(xlen);
-        if(x_buf) {
-            memcpy(x_buf, xdata, xlen);
-            ssh2_swap_bytes(x_buf, xlen);
-            params[param_num++] =
-                OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_PRIV_KEY, x_buf, xlen);
-        }
-    }
-
     params[param_num] = OSSL_PARAM_construct_end();
 
     *dsa = NULL;
@@ -506,8 +418,6 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
         OPENSSL_clear_free(q_buf, qlen);
     if(g_buf)
         OPENSSL_clear_free(g_buf, glen);
-    if(x_buf)
-        OPENSSL_clear_free(x_buf, xlen);
     if(y_buf)
         OPENSSL_clear_free(y_buf, ylen);
 
@@ -519,7 +429,6 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
     BIGNUM *q_bn = NULL;
     BIGNUM *g_bn = NULL;
     BIGNUM *pub_key = NULL;
-    BIGNUM *priv_key = NULL;
 
     p_bn = BN_new();
     if(!p_bn)
@@ -541,19 +450,12 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
         goto fail;
     BN_bin2bn(ydata, (int)ylen, pub_key);
 
-    if(xlen) {
-        priv_key = BN_new();
-        if(!priv_key)
-            goto fail;
-        BN_bin2bn(xdata, (int)xlen, priv_key);
-    }
-
     *dsa = DSA_new();
     if(!*dsa)
         goto fail;
 
     DSA_set0_pqg(*dsa, p_bn, q_bn, g_bn);
-    DSA_set0_key(*dsa, pub_key, priv_key);
+    DSA_set0_key(*dsa, pub_key, NULL);
 
     return 0;
 
@@ -563,7 +465,6 @@ fail:
     BN_clear_free(q_bn);
     BN_clear_free(g_bn);
     BN_free(pub_key);
-    BN_clear_free(priv_key);
 
     return -1;
 #endif /* USE_OPENSSL_3 */
