@@ -262,6 +262,19 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
         goto fail;
     }
 
+    /* RSA private key
+       version          integer
+       modulus          integer, n
+       publicExponent   integer, e
+       privateExponent  integer, d
+       prime1           integer, p
+       prime2           integer, q
+       exponent1        integer, d mod (p - 1)
+       exponent2        integer, d mod (q - 1)
+       coefficient      integer, (inverse of q) mod p
+       otherPrimeInfos  OPTIONAL
+     */
+
     /* First read Version field (should be 0). */
     ret = ssh2_pem_decode_integer(&data, &datalen, &n, &nlen);
     if(ret || (nlen != 1 && *n != '\0')) {
@@ -317,8 +330,8 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
         goto fail;
     }
 
-    if(ssh2_rsa_new(rsa, e, elen, n, nlen, d, dlen, p, plen,
-                    q, qlen, e1, e1len, e2, e2len, coeff, coefflen)) {
+    if(ssh2_rsa_new(rsa, e, elen, n, nlen, d, dlen, p, plen, q, qlen,
+                    e1, e1len, e2, e2len, coeff, coefflen)) {
         ret = -1;
         goto fail;
     }
