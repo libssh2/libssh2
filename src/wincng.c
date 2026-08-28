@@ -921,7 +921,7 @@ static int wcng_load_priv(LIBSSH2_SESSION *session,
 }
 
 static int wcng_asn_decode(LIBSSH2_SESSION *session,
-                           unsigned char *pbEncoded, DWORD cbEncoded,
+                           const unsigned char *pbEncoded, DWORD cbEncoded,
                            LPCSTR lpszStructType,
                            unsigned char **ppbDecoded, DWORD *pcbDecoded)
 {
@@ -956,7 +956,7 @@ static int wcng_asn_decode(LIBSSH2_SESSION *session,
 }
 
 static int wcng_bn_ltob(LIBSSH2_SESSION *session,
-                        unsigned char *pbInput, DWORD cbInput,
+                        const unsigned char *pbInput, DWORD cbInput,
                         unsigned char **ppbOutput, DWORD *pcbOutput)
 {
     unsigned char *pbOutput;
@@ -991,7 +991,7 @@ static int wcng_bn_ltob(LIBSSH2_SESSION *session,
 }
 
 static int wcng_asn_decode_bn(LIBSSH2_SESSION *session,
-                              unsigned char *pbEncoded, DWORD cbEncoded,
+                              const unsigned char *pbEncoded, DWORD cbEncoded,
                               unsigned char **ppbDecoded, DWORD *pcbDecoded)
 {
     unsigned char *pbDecoded = NULL;
@@ -1017,7 +1017,7 @@ static int wcng_asn_decode_bn(LIBSSH2_SESSION *session,
 }
 
 static int wcng_asn_decode_bns(LIBSSH2_SESSION *session,
-                               unsigned char *pbEncoded,
+                               const unsigned char *pbEncoded,
                                DWORD cbEncoded,
                                unsigned char ***prpbDecoded,
                                DWORD **prcbDecoded,
