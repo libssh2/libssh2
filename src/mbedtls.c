@@ -1200,7 +1200,7 @@ int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
             mbedtls_ecdsa_init(*ec_ctx);
 
             if(mbedtls_ecdsa_from_keypair(*ec_ctx, mbedtls_pk_ec(pkey)) == 0)
-                 goto cleanup;  /* success */
+                goto cleanup;  /* success */
         }
 
         ssh2_ecdsa_free(*ec_ctx, session);
