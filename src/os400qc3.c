@@ -946,8 +946,7 @@ void ssh2_os400qc3_crypto_dtor(struct os400qc3_crypto_ctx *x)
     }
     if(x->kek) {
         ssh2_os400qc3_crypto_dtor(x->kek);
-        free((char *)x->kek);
-        x->kek = NULL;
+        SSH2_SAFEFREE(session, x->kek);
     }
 }
 
@@ -1828,8 +1827,7 @@ static int pkcs8kek(LIBSSH2_SESSION *session, struct os400qc3_crypto_ctx **ctx,
                         (char *)&errcode);
     SSH2_FREE(session, dk);
     if(errcode.Bytes_Available) {
-        free((char *)*ctx);
-        *ctx = NULL;
+        SSH2_SAFEFREE(session, *ctx);
         return -1;
     }
 
@@ -1837,8 +1835,7 @@ static int pkcs8kek(LIBSSH2_SESSION *session, struct os400qc3_crypto_ctx **ctx,
                               (*ctx)->hash.Alg_Context_Token, &errcode);
     if(errcode.Bytes_Available) {
         Qc3DestroyKeyContext((*ctx)->key.Key_Context_Token, (char *)&ecnull);
-        free((char *)*ctx);
-        *ctx = NULL;
+        SSH2_SAFEFREE(session, *ctx);
         return -1;
     }
     return 1; /* Tell it is encrypted. */
