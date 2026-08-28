@@ -287,6 +287,12 @@ static int test_case(int num,
     }
     libssh2_session_free(session);
 
+    if(alloc_count != free_count) {
+        fprintf(stdout, "Mismatched alloc/free count: %d vs. %d\n",
+                alloc_count, free_count);
+        return 1;
+    }
+
     fprintf(stderr, "Test case %d passed\n", num);
 
     return 0;
