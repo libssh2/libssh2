@@ -920,7 +920,8 @@ static int wcng_load_priv(LIBSSH2_SESSION *session,
     return ret;
 }
 
-static int wcng_asn_decode(unsigned char *pbEncoded, DWORD cbEncoded,
+static int wcng_asn_decode(LIBSSH2_SESSION *session,
+                           unsigned char *pbEncoded, DWORD cbEncoded,
                            LPCSTR lpszStructType,
                            unsigned char **ppbDecoded, DWORD *pcbDecoded)
 {
@@ -935,7 +936,7 @@ static int wcng_asn_decode(unsigned char *pbEncoded, DWORD cbEncoded,
     if(!ret)
         return -1;
 
-    pbDecoded = malloc(cbDecoded);
+    pbDecoded = SSH2_ALLOC(session, cbDecoded);
     if(!pbDecoded)
         return -1;
 
@@ -944,7 +945,7 @@ static int wcng_asn_decode(unsigned char *pbEncoded, DWORD cbEncoded,
                               pbEncoded, cbEncoded, 0, NULL,
                               pbDecoded, &cbDecoded);
     if(!ret) {
-        wcng_zero_free(pbDecoded, cbDecoded);
+        ssh2_zero_free(session, pbDecoded, cbDecoded);
         return -1;
     }
 
@@ -988,7 +989,8 @@ static int wcng_bn_ltob(unsigned char *pbInput, DWORD cbInput,
     return 0;
 }
 
-static int wcng_asn_decode_bn(unsigned char *pbEncoded, DWORD cbEncoded,
+static int wcng_asn_decode_bn(LIBSSH2_SESSION *session,
+                              unsigned char *pbEncoded, DWORD cbEncoded,
                               unsigned char **ppbDecoded, DWORD *pcbDecoded)
 {
     unsigned char *pbDecoded = NULL;
@@ -996,7 +998,7 @@ static int wcng_asn_decode_bn(unsigned char *pbEncoded, DWORD cbEncoded,
     DWORD cbDecoded = 0, cbInteger;
     int ret;
 
-    ret = wcng_asn_decode(pbEncoded, cbEncoded, X509_MULTI_BYTE_UINT,
+    ret = wcng_asn_decode(session, pbEncoded, cbEncoded, X509_MULTI_BYTE_UINT,
                           (void *)&pbInteger, &cbInteger);
     if(!ret) {
         ret = wcng_bn_ltob(pbInteger->pbData,
@@ -1006,13 +1008,14 @@ static int wcng_asn_decode_bn(unsigned char *pbEncoded, DWORD cbEncoded,
             *ppbDecoded = pbDecoded;
             *pcbDecoded = cbDecoded;
         }
-        wcng_zero_free(pbInteger, cbInteger);
+        ssh2_zero_free(session, pbInteger, cbInteger);
     }
 
     return ret;
 }
 
-static int wcng_asn_decode_bns(unsigned char *pbEncoded,
+static int wcng_asn_decode_bns(LIBSSH2_SESSION *session,
+                               unsigned char *pbEncoded,
                                DWORD cbEncoded,
                                unsigned char ***prpbDecoded,
                                DWORD **prcbDecoded,
@@ -1024,7 +1027,7 @@ static int wcng_asn_decode_bns(unsigned char *pbEncoded,
     DWORD cbDecoded, *rcbDecoded, index, length;
     int ret;
 
-    ret = wcng_asn_decode(pbEncoded, cbEncoded, X509_SEQUENCE_OF_ANY,
+    ret = wcng_asn_decode(session, pbEncoded, cbEncoded, X509_SEQUENCE_OF_ANY,
                           (void *)&pbDecoded, &cbDecoded);
     if(!ret) {
         length = pbDecoded->cValue;
@@ -1035,7 +1038,8 @@ static int wcng_asn_decode_bns(unsigned char *pbEncoded,
             if(rcbDecoded) {
                 for(index = 0; index < length; index++) {
                     pBlob = &pbDecoded->rgValue[index];
-                    ret = wcng_asn_decode_bn(pBlob->pbData,
+                    ret = wcng_asn_decode_bn(session,
+                                             pBlob->pbData,
                                              pBlob->cbData,
                                              &rpbDecoded[index],
                                              &rcbDecoded[index]);
@@ -1067,7 +1071,7 @@ static int wcng_asn_decode_bns(unsigned char *pbEncoded,
         else
             ret = -1;
 
-        wcng_zero_free(pbDecoded, cbDecoded);
+        ssh2_zero_free(session, pbDecoded, cbDecoded);
     }
 
     return ret;
@@ -1242,7 +1246,8 @@ static int wcng_rsa_new_private_parse(ssh2_rsa_ctx **rsa,
 
     (void)session;
 
-    ret = wcng_asn_decode(pbEncoded, (DWORD)cbEncoded, PKCS_RSA_PRIVATE_KEY,
+    ret = wcng_asn_decode(session,
+                          pbEncoded, (DWORD)cbEncoded, PKCS_RSA_PRIVATE_KEY,
                           &pbStructInfo, &cbStructInfo);
     ssh2_zero_free(session, pbEncoded, cbEncoded);
     if(ret)
@@ -1251,14 +1256,14 @@ static int wcng_rsa_new_private_parse(ssh2_rsa_ctx **rsa,
     ret = BCryptImportKeyPair(ssh2_wcng.hAlgRSA, NULL, LEGACY_RSAPRIVATE_BLOB,
                               &hKey, pbStructInfo, cbStructInfo, 0);
     if(!BCRYPT_SUCCESS(ret)) {
-        wcng_zero_free(pbStructInfo, cbStructInfo);
+        ssh2_zero_free(session, pbStructInfo, cbStructInfo);
         return -1;
     }
 
     *rsa = SSH2_ALLOC(session, sizeof(ssh2_rsa_ctx));
     if(!*rsa) {
         BCryptDestroyKey(hKey);
-        wcng_zero_free(pbStructInfo, cbStructInfo);
+        ssh2_zero_free(session, pbStructInfo, cbStructInfo);
         return -1;
     }
 
@@ -1511,7 +1516,7 @@ static int wcng_dsa_new_private_parse(ssh2_dsa_ctx **dsa,
 
     (void)session;
 
-    ret = wcng_asn_decode_bns(pbEncoded, (DWORD)cbEncoded,
+    ret = wcng_asn_decode_bns(session, pbEncoded, (DWORD)cbEncoded,
                               &rpbDecoded, &rcbDecoded, &length);
     ssh2_zero_free(session, pbEncoded, cbEncoded);
     if(ret)
@@ -2608,7 +2613,7 @@ static int wcng_pub_privkey_file_parse(LIBSSH2_SESSION *session, char **method,
     DWORD index, off, length = 0;
     int ret;
 
-    ret = wcng_asn_decode_bns(pbEncoded, (DWORD)cbEncoded,
+    ret = wcng_asn_decode_bns(session, pbEncoded, (DWORD)cbEncoded,
                               &rpbDecoded, &rcbDecoded, &length);
     ssh2_zero_free(session, pbEncoded, cbEncoded);
     if(ret)
