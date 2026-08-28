@@ -104,16 +104,9 @@ static int lgcr_rsa_new(ssh2_rsa_ctx **rsa,
                         const unsigned char *ddata, size_t dlen,
                         const unsigned char *pdata, size_t plen,
                         const unsigned char *qdata, size_t qlen,
-                        const unsigned char *e1data, size_t e1len,
-                        const unsigned char *e2data, size_t e2len,
                         const unsigned char *coeffdata, size_t coefflen)
 {
     int rc;
-
-    (void)e1data;
-    (void)e1len;
-    (void)e2data;
-    (void)e2len;
 
     if(ddata)
         rc = gcry_sexp_build(rsa, NULL,
@@ -138,7 +131,7 @@ int ssh2_rsa_new_pub(ssh2_rsa_ctx **rsa,
                      const unsigned char *ndata, size_t nlen)
 {
     return lgcr_rsa_new(rsa, edata, elen, ndata, nlen,
-                        NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0);
+                        NULL, 0, NULL, 0, NULL, 0, NULL, 0);
 }
 
 int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
@@ -264,8 +257,8 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
     unsigned char *data, *save_data;
     size_t datalen;
     int ret;
-    unsigned char *n, *e, *d, *p, *q, *e1, *e2, *coeff;
-    unsigned int nlen, elen, dlen, plen, qlen, e1len, e2len, coefflen;
+    unsigned char *n, *e, *d, *p, *q, *coeff, *t;
+    unsigned int nlen, elen, dlen, plen, qlen, coefflen, tlen;
 
     ret = ssh2_pem_parse(session, PEM_RSA_HEADER, PEM_RSA_FOOTER,
                          filename, blob, blob_len, passphrase,
@@ -297,8 +290,8 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
      */
 
     /* First read Version field (should be 0). */
-    ret = ssh2_pem_decode_integer(&data, &datalen, &n, &nlen);
-    if(ret || (nlen != 1 && *n != '\0')) {
+    ret = ssh2_pem_decode_integer(&data, &datalen, &t, &tlen);
+    if(ret || (tlen != 1 && *t != '\0')) {
         ret = -1;
         goto fail;
     }
@@ -333,13 +326,13 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
         goto fail;
     }
 
-    ret = ssh2_pem_decode_integer(&data, &datalen, &e1, &e1len);
+    ret = ssh2_pem_decode_integer(&data, &datalen, &t, &tlen);
     if(ret) {
         ret = -1;
         goto fail;
     }
 
-    ret = ssh2_pem_decode_integer(&data, &datalen, &e2, &e2len);
+    ret = ssh2_pem_decode_integer(&data, &datalen, &t, &tlen);
     if(ret) {
         ret = -1;
         goto fail;
@@ -352,7 +345,7 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
     }
 
     if(lgcr_rsa_new(rsa, e, elen, n, nlen, d, dlen, p, plen, q, qlen,
-                    e1, e1len, e2, e2len, coeff, coefflen)) {
+                    coeff, coefflen)) {
         ret = -1;
         goto fail;
     }
