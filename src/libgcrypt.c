@@ -262,17 +262,20 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
         goto fail;
     }
 
-    /* RSA private key
-       version          integer
-       modulus          integer, n
-       publicExponent   integer, e
-       privateExponent  integer, d
-       prime1           integer, p
-       prime2           integer, q
-       exponent1        integer, d mod (p - 1)
-       exponent2        integer, d mod (q - 1)
-       coefficient      integer, (inverse of q) mod p
-       otherPrimeInfos  OPTIONAL
+    /* RSAPrivateKey ::= SEQUENCE {
+           version           Version,
+           modulus           INTEGER,  -- n
+           publicExponent    INTEGER,  -- e
+           privateExponent   INTEGER,  -- d
+           prime1            INTEGER,  -- p
+           prime2            INTEGER,  -- q
+           exponent1         INTEGER,  -- d mod (p-1)
+           exponent2         INTEGER,  -- d mod (q-1)
+           coefficient       INTEGER,  -- (inverse of q) mod p
+           otherPrimeInfos   OtherPrimeInfos OPTIONAL
+       }
+
+       https://datatracker.ietf.org/doc/html/rfc8017#appendix-A.1.2
      */
 
     /* First read Version field (should be 0). */
