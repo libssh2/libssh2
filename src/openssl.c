@@ -219,7 +219,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
     (void)coefflen;
 
     if(ndata && nlen > 0) {
-        nbuf = OPENSSL_malloc(nlen);
+        nbuf = SSH2_ALLOC(session, nlen);
         if(nbuf) {
             memcpy(nbuf, ndata, nlen);
             ssh2_swap_bytes(nbuf, nlen);
@@ -229,7 +229,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
     }
 
     if(edata && elen > 0) {
-        ebuf = OPENSSL_malloc(elen);
+        ebuf = SSH2_ALLOC(session, elen);
         if(ebuf) {
             memcpy(ebuf, edata, elen);
             ssh2_swap_bytes(ebuf, elen);
@@ -239,7 +239,7 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
     }
 
     if(ddata && dlen > 0) {
-        dbuf = OPENSSL_malloc(dlen);
+        dbuf = SSH2_ALLOC(session, dlen);
         if(dbuf) {
             memcpy(dbuf, ddata, dlen);
             ssh2_swap_bytes(dbuf, dlen);
@@ -256,12 +256,9 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
     if(ctx && EVP_PKEY_fromdata_init(ctx) > 0)
         ret = EVP_PKEY_fromdata(ctx, rsa, EVP_PKEY_KEYPAIR, params);
 
-    if(nbuf)
-        OPENSSL_clear_free(nbuf, nlen);
-    if(ebuf)
-        OPENSSL_clear_free(ebuf, elen);
-    if(dbuf)
-        OPENSSL_clear_free(dbuf, dlen);
+    ssh2_zero_free(session, nbuf, nlen);
+    ssh2_zero_free(session, ebuf, elen);
+    ssh2_zero_free(session, dbuf, dlen);
 
     EVP_PKEY_CTX_free(ctx);
 
@@ -448,7 +445,7 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa, LIBSSH2_SESSION *session,
     (void)session;
 
     if(pdata && plen > 0) {
-        p_buf = OPENSSL_malloc(plen);
+        p_buf = SSH2_ALLOC(session, plen);
         if(p_buf) {
             memcpy(p_buf, pdata, plen);
             ssh2_swap_bytes(p_buf, plen);
@@ -458,7 +455,7 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa, LIBSSH2_SESSION *session,
     }
 
     if(qdata && qlen > 0) {
-        q_buf = OPENSSL_malloc(qlen);
+        q_buf = SSH2_ALLOC(session, qlen);
         if(q_buf) {
             memcpy(q_buf, qdata, qlen);
             ssh2_swap_bytes(q_buf, qlen);
@@ -468,7 +465,7 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa, LIBSSH2_SESSION *session,
     }
 
     if(gdata && glen > 0) {
-        g_buf = OPENSSL_malloc(glen);
+        g_buf = SSH2_ALLOC(session, glen);
         if(g_buf) {
             memcpy(g_buf, gdata, glen);
             ssh2_swap_bytes(g_buf, glen);
@@ -478,7 +475,7 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa, LIBSSH2_SESSION *session,
     }
 
     if(ydata && ylen > 0) {
-        y_buf = OPENSSL_malloc(ylen);
+        y_buf = SSH2_ALLOC(session, ylen);
         if(y_buf) {
             memcpy(y_buf, ydata, ylen);
             ssh2_swap_bytes(y_buf, ylen);
@@ -488,7 +485,7 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa, LIBSSH2_SESSION *session,
     }
 
     if(xdata && xlen > 0) {
-        x_buf = OPENSSL_malloc(xlen);
+        x_buf = SSH2_ALLOC(session, xlen);
         if(x_buf) {
             memcpy(x_buf, xdata, xlen);
             ssh2_swap_bytes(x_buf, xlen);
@@ -505,16 +502,11 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa, LIBSSH2_SESSION *session,
     if(ctx && EVP_PKEY_fromdata_init(ctx) > 0)
         ret = EVP_PKEY_fromdata(ctx, dsa, EVP_PKEY_KEYPAIR, params);
 
-    if(p_buf)
-        OPENSSL_clear_free(p_buf, plen);
-    if(q_buf)
-        OPENSSL_clear_free(q_buf, qlen);
-    if(g_buf)
-        OPENSSL_clear_free(g_buf, glen);
-    if(x_buf)
-        OPENSSL_clear_free(x_buf, xlen);
-    if(y_buf)
-        OPENSSL_clear_free(y_buf, ylen);
+    ssh2_zero_free(session, p_buf, plen);
+    ssh2_zero_free(session, q_buf, qlen);
+    ssh2_zero_free(session, g_buf, glen);
+    ssh2_zero_free(session, x_buf, xlen);
+    ssh2_zero_free(session, y_buf, ylen);
 
     EVP_PKEY_CTX_free(ctx);
 
