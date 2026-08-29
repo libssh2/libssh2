@@ -199,14 +199,13 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
 {
 #ifdef USE_OPENSSL_3
     int ret = 0;
-    EVP_PKEY_CTX *ctx;
+    EVP_PKEY_CTX *ctx = NULL;
     OSSL_PARAM params[4];
     int param_num = 0;
     unsigned char *nbuf = NULL;
     unsigned char *ebuf = NULL;
     unsigned char *dbuf = NULL;
 
-    (void)session;
     (void)pdata;
     (void)plen;
     (void)qdata;
@@ -218,6 +217,8 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
     (void)coeffdata;
     (void)coefflen;
 
+    *rsa = NULL;
+
     if(ndata && nlen > 0) {
         nbuf = SSH2_ALLOC(session, nlen);
         if(nbuf) {
@@ -226,6 +227,8 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
             params[param_num++] =
                 OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_RSA_N, nbuf, nlen);
         }
+        else
+            goto fail;
     }
 
     if(edata && elen > 0) {
@@ -236,6 +239,8 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
             params[param_num++] =
                 OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_RSA_E, ebuf, elen);
         }
+        else
+            goto fail;
     }
 
     if(ddata && dlen > 0) {
@@ -246,15 +251,18 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
             params[param_num++] =
                 OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_RSA_D, dbuf, dlen);
         }
+        else
+            goto fail;
     }
 
     params[param_num] = OSSL_PARAM_construct_end();
 
-    *rsa = NULL;
     ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);
 
     if(ctx && EVP_PKEY_fromdata_init(ctx) > 0)
         ret = EVP_PKEY_fromdata(ctx, rsa, EVP_PKEY_KEYPAIR, params);
+
+fail:
 
     ssh2_zero_free(session, nbuf, nlen);
     ssh2_zero_free(session, ebuf, elen);
@@ -274,6 +282,8 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
     BIGNUM *iqmp = NULL;
 
     (void)session;
+
+    *rsa = NULL;
 
     e = BN_new();
     if(!e)
@@ -442,7 +452,7 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa, LIBSSH2_SESSION *session,
     unsigned char *y_buf = NULL;
     unsigned char *x_buf = NULL;
 
-    (void)session;
+    *dsa = NULL;
 
     if(pdata && plen > 0) {
         p_buf = SSH2_ALLOC(session, plen);
@@ -452,6 +462,8 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa, LIBSSH2_SESSION *session,
             params[param_num++] =
                 OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_FFC_P, p_buf, plen);
         }
+        else
+            goto fail;
     }
 
     if(qdata && qlen > 0) {
@@ -462,6 +474,8 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa, LIBSSH2_SESSION *session,
             params[param_num++] =
                 OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_FFC_Q, q_buf, qlen);
         }
+        else
+            goto fail;
     }
 
     if(gdata && glen > 0) {
@@ -472,6 +486,8 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa, LIBSSH2_SESSION *session,
             params[param_num++] =
                 OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_FFC_G, g_buf, glen);
         }
+        else
+            goto fail;
     }
 
     if(ydata && ylen > 0) {
@@ -482,6 +498,8 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa, LIBSSH2_SESSION *session,
             params[param_num++] =
                 OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_PUB_KEY, y_buf, ylen);
         }
+        else
+            goto fail;
     }
 
     if(xdata && xlen > 0) {
@@ -492,15 +510,18 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa, LIBSSH2_SESSION *session,
             params[param_num++] =
                 OSSL_PARAM_construct_BN(OSSL_PKEY_PARAM_PRIV_KEY, x_buf, xlen);
         }
+        else
+            goto fail;
     }
 
     params[param_num] = OSSL_PARAM_construct_end();
 
-    *dsa = NULL;
     ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_DSA, NULL);
 
     if(ctx && EVP_PKEY_fromdata_init(ctx) > 0)
         ret = EVP_PKEY_fromdata(ctx, dsa, EVP_PKEY_KEYPAIR, params);
+
+fail:
 
     ssh2_zero_free(session, p_buf, plen);
     ssh2_zero_free(session, q_buf, qlen);
@@ -519,6 +540,8 @@ int ssh2_dsa_new(ssh2_dsa_ctx **dsa, LIBSSH2_SESSION *session,
     BIGNUM *priv_key = NULL;
 
     (void)session;
+
+    *dsa = NULL;
 
     p_bn = BN_new();
     if(!p_bn)
