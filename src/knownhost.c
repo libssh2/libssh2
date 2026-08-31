@@ -465,7 +465,6 @@ static int knownhost_parse_ipv6(const char *src, size_t len,
                 (unsigned short)(((unsigned int)ipv4[0] << 8) | ipv4[1]);
             words[count++] =
                 (unsigned short)(((unsigned int)ipv4[2] << 8) | ipv4[3]);
-            p = end;
             break;
         }
 
