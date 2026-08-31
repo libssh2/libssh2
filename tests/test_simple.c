@@ -59,6 +59,175 @@ static int test_ssh2_base64_decode(LIBSSH2_SESSION *session)
     return 0;
 }
 
+static int test_knownhost_ipv6_case(LIBSSH2_SESSION *session,
+                                    const char *stored,
+                                    const char *checked,
+                                    int port,
+                                    int expected)
+{
+    static const char key[] = "AAAA";
+    const int typemask =
+        LIBSSH2_KNOWNHOST_TYPE_PLAIN |
+        LIBSSH2_KNOWNHOST_KEYENC_BASE64 |
+        LIBSSH2_KNOWNHOST_KEY_SSHRSA;
+    LIBSSH2_KNOWNHOSTS *hosts;
+    int rc;
+
+    hosts = libssh2_knownhost_init(session);
+    if(!hosts) {
+        fprintf(stderr, "libssh2_knownhost_init() failed\n");
+        return 1;
+    }
+
+    rc = libssh2_knownhost_addc(hosts, stored, NULL, key, strlen(key),
+                                NULL, 0, typemask, NULL);
+    if(rc) {
+        fprintf(stderr, "libssh2_knownhost_addc(%s) failed: %d\n",
+                stored, rc);
+        libssh2_knownhost_free(hosts);
+        return 1;
+    }
+
+    if(port >= 0)
+        rc = libssh2_knownhost_checkp(hosts, checked, port, key,
+                                      strlen(key), typemask, NULL);
+    else
+        rc = libssh2_knownhost_check(hosts, checked, key, strlen(key),
+                                     typemask, NULL);
+
+    libssh2_knownhost_free(hosts);
+
+    if(rc != expected) {
+        fprintf(stderr,
+                "knownhost IPv6: stored=%s checked=%s port=%d "
+                "expected=%d got=%d\n",
+                stored, checked, port, expected, rc);
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_knownhost_ipv6(LIBSSH2_SESSION *session)
+{
+    int err = 0;
+
+    err |= test_knownhost_ipv6_case(
+        session,
+        "fd5f:4268:2387:97c1:0000:0000:0000:0002",
+        "fd5f:4268:2387:97c1::2",
+        -1, LIBSSH2_KNOWNHOST_CHECK_MATCH);
+
+    err |= test_knownhost_ipv6_case(
+        session,
+        "fd5f:4268:2387:97c1::2",
+        "fd5f:4268:2387:97c1:0:0:0:2",
+        -1, LIBSSH2_KNOWNHOST_CHECK_MATCH);
+
+    err |= test_knownhost_ipv6_case(
+        session,
+        "0:0:0:0:0:ffff:c000:0201",
+        "::ffff:192.0.2.1",
+        -1, LIBSSH2_KNOWNHOST_CHECK_MATCH);
+
+    err |= test_knownhost_ipv6_case(
+        session,
+        "[fd5f:4268:2387:97c1:0000:0000:0000:0002]:2222",
+        "fd5f:4268:2387:97c1::2",
+        2222, LIBSSH2_KNOWNHOST_CHECK_MATCH);
+
+    err |= test_knownhost_ipv6_case(
+        session,
+        "[fd5f:4268:2387:97c1:0000:0000:0000:0002]:2222",
+        "fd5f:4268:2387:97c1::2",
+        22, LIBSSH2_KNOWNHOST_CHECK_NOTFOUND);
+
+    err |= test_knownhost_ipv6_case(
+        session,
+        "fd5f:4268:2387:97c1::2",
+        "fd5f:4268:2387:97c1::3",
+        -1, LIBSSH2_KNOWNHOST_CHECK_NOTFOUND);
+
+    err |= test_knownhost_ipv6_case(
+        session,
+        "fd5f:4268:2387:97c1::2",
+        "fd5f:4268:2387:97c1::1::2",
+        -1, LIBSSH2_KNOWNHOST_CHECK_NOTFOUND);
+
+    err |= test_knownhost_ipv6_case(
+        session,
+        "example.com",
+        "example.com",
+        -1, LIBSSH2_KNOWNHOST_CHECK_MATCH);
+
+    err |= test_knownhost_ipv6_case(
+        session,
+        "example.com",
+        "EXAMPLE.COM",
+        -1, LIBSSH2_KNOWNHOST_CHECK_NOTFOUND);
+
+    /* Hexadecimal digits are case-insensitive. */
+    err |= test_knownhost_ipv6_case(
+        session,
+        "2001:0DB8:0000:0000:0000:0000:0000:0001",
+        "2001:db8::1",
+        -1, LIBSSH2_KNOWNHOST_CHECK_MATCH);
+
+    /* Compression may represent the complete address. */
+    err |= test_knownhost_ipv6_case(
+        session,
+        "0:0:0:0:0:0:0:0",
+        "::",
+        -1, LIBSSH2_KNOWNHOST_CHECK_MATCH);
+
+    /* Compression at the end must expand to the remaining words. */
+    err |= test_knownhost_ipv6_case(
+        session,
+        "2001:db8:1:2:3:4:0:0",
+        "2001:db8:1:2:3:4::",
+        -1, LIBSSH2_KNOWNHOST_CHECK_MATCH);
+
+    /* More than eight words is not a valid IPv6 literal. */
+    err |= test_knownhost_ipv6_case(
+        session,
+        "2001:db8::1",
+        "1:2:3:4:5:6:7:8:9",
+        -1, LIBSSH2_KNOWNHOST_CHECK_NOTFOUND);
+
+    /* An embedded IPv4 address must contain valid octets. */
+    err |= test_knownhost_ipv6_case(
+        session,
+        "::ffff:192.0.2.1",
+        "::ffff:192.0.2.256",
+        -1, LIBSSH2_KNOWNHOST_CHECK_NOTFOUND);
+
+    /* Embedded IPv4 octets with leading zeros are not valid. */
+    err |= test_knownhost_ipv6_case(
+        session,
+        "::ffff:192.168.001.1",
+        "::ffff:192.168.1.1",
+        -1, LIBSSH2_KNOWNHOST_CHECK_NOTFOUND);
+
+    /* Identical malformed names retain the historical exact-string match. */
+    err |= test_knownhost_ipv6_case(
+        session,
+        "::ffff:192.168.001.1",
+        "::ffff:192.168.001.1",
+        -1, LIBSSH2_KNOWNHOST_CHECK_MATCH);
+
+    /*
+     * Preserve the historical exact-string behavior even when a plain host
+     * containing colons is not a valid IPv6 literal.
+     */
+    err |= test_knownhost_ipv6_case(
+        session,
+        "fd5f::1::2",
+        "fd5f::1::2",
+        -1, LIBSSH2_KNOWNHOST_CHECK_MATCH);
+
+    return err > 0;
+}
+
 static int test_ssh2_dh_validate(void)
 {
     struct tbn {
@@ -212,6 +381,7 @@ int main(int argc, char *argv[])
     }
 
     rc = test_ssh2_base64_decode(session);
+    rc |= test_knownhost_ipv6(session);
     rc |= test_ssh2_dh_validate();
     rc |= test_ssh2_scp_parse_c_fields();
 
