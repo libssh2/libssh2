@@ -1176,7 +1176,7 @@ jobs:
           fi
 
   cross:
-    name: "${{ matrix.os }} ${{ matrix.version }}, ${{ matrix.build }} ${{ matrix.cc }} ${{ matrix.desc }} ${{ matrix.arch }}"
+    name: "Cross ${{ matrix.os }} ${{ matrix.version }}, ${{ matrix.build }} ${{ matrix.cc }} ${{ matrix.desc }} ${{ matrix.arch }}"
     runs-on: ubuntu-26.04
     timeout-minutes: 10
     defaults:
