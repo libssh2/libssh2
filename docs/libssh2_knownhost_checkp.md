@@ -34,6 +34,11 @@ and returns info back about the (partially) matched entry.
 *host* is a pointer the hostname in plain text. The hostname can be the
 IP numerical address of the host or the full name.
 
+For LIBSSH2_KNOWNHOST_TYPE_PLAIN, valid IPv6 literals are compared by their
+binary address, so equivalent compressed and expanded representations match.
+No DNS lookup is performed. Hostnames, custom names and hashed known-host
+entries retain their existing matching behavior.
+
 *port* is the port number used by the host (or a negative number
 to check the generic host). If the port number is given, libssh2
 checks the key for the specific host + port number combination in

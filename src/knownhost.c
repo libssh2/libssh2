@@ -375,6 +375,206 @@ int libssh2_knownhost_addc(LIBSSH2_KNOWNHOSTS *hosts,
  * LIBSSH2_KNOWNHOST_CHECK_MATCH
  * LIBSSH2_KNOWNHOST_CHECK_MISMATCH
  */
+static int knownhost_hex_value(char c)
+{
+    if(c >= '0' && c <= '9')
+        return c - '0';
+    if(c >= 'a' && c <= 'f')
+        return c - 'a' + 10;
+    if(c >= 'A' && c <= 'F')
+        return c - 'A' + 10;
+    return -1;
+}
+
+static int knownhost_parse_ipv4(const char *src, const char *end,
+                                unsigned char result[4])
+{
+    unsigned int value = 0;
+    size_t digits = 0;
+    size_t count = 0;
+
+    while(src < end) {
+        if(*src >= '0' && *src <= '9') {
+            if(digits == 3)
+                return 0;
+            value = value * 10 + (unsigned int)(*src - '0');
+            if(value > 255)
+                return 0;
+            digits++;
+        }
+        else if(*src == '.' && digits && count < 3) {
+            result[count++] = (unsigned char)value;
+            value = 0;
+            digits = 0;
+        }
+        else
+            return 0;
+        src++;
+    }
+
+    if(!digits || count != 3)
+        return 0;
+
+    result[3] = (unsigned char)value;
+    return 1;
+}
+
+static int knownhost_parse_ipv6(const char *src, size_t len,
+                                unsigned char result[16])
+{
+    unsigned short words[8];
+    const char *p = src;
+    const char *end = src + len;
+    size_t count = 0;
+    int compressed = -1;
+    size_t i;
+
+    if(!len)
+        return 0;
+
+    memset(words, 0, sizeof(words));
+
+    if(*p == ':') {
+        if(p + 1 >= end || p[1] != ':')
+            return 0;
+        compressed = 0;
+        p += 2;
+    }
+
+    while(p < end) {
+        const char *part = p;
+        unsigned int value = 0;
+        size_t digits = 0;
+        int hex;
+
+        while(p < end && (hex = knownhost_hex_value(*p)) >= 0) {
+            if(digits == 4)
+                return 0;
+            value = (value << 4) | (unsigned int)hex;
+            digits++;
+            p++;
+        }
+
+        if(p < end && *p == '.') {
+            unsigned char ipv4[4];
+
+            if(count > 6 || !knownhost_parse_ipv4(part, end, ipv4))
+                return 0;
+
+            words[count++] =
+                (unsigned short)(((unsigned int)ipv4[0] << 8) | ipv4[1]);
+            words[count++] =
+                (unsigned short)(((unsigned int)ipv4[2] << 8) | ipv4[3]);
+            p = end;
+            break;
+        }
+
+        if(!digits || count >= 8)
+            return 0;
+
+        words[count++] = (unsigned short)value;
+
+        if(p == end)
+            break;
+        if(*p != ':')
+            return 0;
+
+        p++;
+        if(p < end && *p == ':') {
+            if(compressed >= 0)
+                return 0;
+            compressed = (int)count;
+            p++;
+            if(p == end)
+                break;
+        }
+        else if(p == end)
+            return 0;
+    }
+
+    if(compressed >= 0) {
+        size_t position = (size_t)compressed;
+        size_t zeros;
+
+        if(count >= 8)
+            return 0;
+
+        zeros = 8 - count;
+        memmove(&words[position + zeros], &words[position],
+                (count - position) * sizeof(words[0]));
+        memset(&words[position], 0, zeros * sizeof(words[0]));
+    }
+    else if(count != 8)
+        return 0;
+
+    for(i = 0; i < 8; i++) {
+        result[i * 2] = (unsigned char)(words[i] >> 8);
+        result[i * 2 + 1] = (unsigned char)words[i];
+    }
+
+    return 1;
+}
+
+static int knownhost_ipv6_part(const char *host, const char **address,
+                               size_t *address_len, const char **suffix)
+{
+    if(host[0] == '[') {
+        const char *close = strchr(host + 1, ']');
+        const char *port;
+
+        if(!close || close == host + 1 || close[1] != ':' || !close[2])
+            return 0;
+
+        port = close + 2;
+        while(*port) {
+            if(*port < '0' || *port > '9')
+                return 0;
+            port++;
+        }
+
+        *address = host + 1;
+        *address_len = (size_t)(close - host - 1);
+        *suffix = close + 1;
+    }
+    else {
+        *address = host;
+        *address_len = strlen(host);
+        *suffix = host + *address_len;
+    }
+
+    return 1;
+}
+
+static int knownhost_plain_match(const char *host, const char *known)
+{
+    const char *host_address;
+    const char *known_address;
+    const char *host_suffix;
+    const char *known_suffix;
+    size_t host_len;
+    size_t known_len;
+    unsigned char host_binary[16];
+    unsigned char known_binary[16];
+
+    if(!strcmp(host, known))
+        return 1;
+
+    if((host[0] == '[') != (known[0] == '['))
+        return 0;
+
+    if(!knownhost_ipv6_part(host, &host_address, &host_len, &host_suffix) ||
+       !knownhost_ipv6_part(known, &known_address, &known_len,
+                            &known_suffix) ||
+       strcmp(host_suffix, known_suffix))
+        return 0;
+
+    if(!knownhost_parse_ipv6(host_address, host_len, host_binary) ||
+       !knownhost_parse_ipv6(known_address, known_len, known_binary))
+        return 0;
+
+    return !memcmp(host_binary, known_binary, sizeof(host_binary));
+}
+
 static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                            const char *hostp, int port,
                            const char *key, size_t keylen,
@@ -448,7 +648,7 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
             switch(node->typemask & LIBSSH2_KNOWNHOST_TYPE_MASK) {
             case LIBSSH2_KNOWNHOST_TYPE_PLAIN:
                 if(type == LIBSSH2_KNOWNHOST_TYPE_PLAIN)
-                    match = !strcmp(host, node->name);
+                    match = knownhost_plain_match(host, node->name);
                 break;
             case LIBSSH2_KNOWNHOST_TYPE_CUSTOM:
                 if(type == LIBSSH2_KNOWNHOST_TYPE_CUSTOM)
