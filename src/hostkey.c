@@ -412,7 +412,7 @@ static int hostkey_method_ssh_rsa_init_cert(LIBSSH2_SESSION *session,
      * have more meta data we do not read
      */
 
-    if(ssh2_rsa_new(&rsa, e, e_len, n, n_len,
+    if(ssh2_rsa_new(&rsa, session, e, e_len, n, n_len,
                     NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0))
         return -1;
 
@@ -960,7 +960,7 @@ static int hostkey_method_ssh_ecdsa_init_cert(
      * have more meta data we do not read
      */
 
-    if(ssh2_ecdsa_curve_name_with_octal_new(&ec_ctx, public_key,
+    if(ssh2_ecdsa_curve_name_with_octal_new(&ec_ctx, session, public_key,
                                             key_len, curve))
         return -1;
 
