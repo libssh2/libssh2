@@ -124,7 +124,7 @@ void ssh2_hmac_cleanup(ssh2_hmac_ctx *ctx);
 #define SSH2_MLKEM_1024_CIPHERTEXT      1568
 
 #if LIBSSH2_RSA
-int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
+int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
                  const unsigned char *edata, size_t elen,
                  const unsigned char *ndata, size_t nlen,
                  const unsigned char *ddata, size_t dlen,
@@ -142,7 +142,7 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
 int ssh2_rsa_sha1_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len);
-int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
+int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len);
 #endif
@@ -150,17 +150,18 @@ int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
 int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char **signature, size_t *signature_len);
-int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
+int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
+                         size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len);
 #endif
 #ifndef ssh2_rsa_free
-void ssh2_rsa_free(ssh2_rsa_ctx *rsa);
+void ssh2_rsa_free(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session);
 #endif
 #endif /* LIBSSH2_RSA */
 
 #if LIBSSH2_DSA
-int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
+int ssh2_dsa_new(ssh2_dsa_ctx **dsa, LIBSSH2_SESSION *session,
                  const unsigned char *pdata, size_t plen,
                  const unsigned char *qdata, size_t qlen,
                  const unsigned char *gdata, size_t glen,
@@ -171,14 +172,14 @@ int ssh2_dsa_new_priv(ssh2_dsa_ctx **dsa,
                       const char *filename,
                       const char *blob, size_t blob_len,
                       const char *passphrase);
-int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
+int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash, size_t hash_len,
                        unsigned char *signature);
-int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
+int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
                          const unsigned char *sig,
                          const unsigned char *m, size_t m_len);
 #ifndef ssh2_dsa_free
-void ssh2_dsa_free(ssh2_dsa_ctx *dsa);
+void ssh2_dsa_free(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session);
 #endif
 #endif /* LIBSSH2_DSA */
 
@@ -188,7 +189,8 @@ void ssh2_dsa_free(ssh2_dsa_ctx *dsa);
  */
 #define EC_MAX_POINT_LEN ((((521 + 7) / 8) * 2) + 1)
 
-int ssh2_ecdh_gen_k(ssh2_bn **k, ssh2_ec_key *private_key,
+int ssh2_ecdh_gen_k(ssh2_bn **k, LIBSSH2_SESSION *session,
+                    ssh2_ec_key *private_key,
                     const unsigned char *server_public_key,
                     size_t server_public_key_len);
 
@@ -200,7 +202,7 @@ int ssh2_ecdsa_create_key(ssh2_ec_key **ec_ctx, LIBSSH2_SESSION *session,
                           ssh2_curve_type curve);
 
 int ssh2_ecdsa_curve_name_with_octal_new(
-    ssh2_ecdsa_ctx **ec_ctx,
+    ssh2_ecdsa_ctx **ec_ctx, LIBSSH2_SESSION *session,
     const unsigned char *publickey_encoded, size_t publickey_encoded_len,
     ssh2_curve_type curve);
 
@@ -213,12 +215,12 @@ int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
 int ssh2_ecdsa_sign(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
                     const unsigned char *hash, size_t hash_len,
                     unsigned char **signature, size_t *signature_len);
-int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
+int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
                       const unsigned char *r, size_t r_len,
                       const unsigned char *s, size_t s_len,
                       const unsigned char *m, size_t m_len);
 #ifndef ssh2_ecdsa_free
-void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ec_ctx);
+void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session);
 #endif
 #endif /* LIBSSH2_ECDSA */
 
@@ -249,6 +251,9 @@ int ssh2_ed25519_sign(ssh2_ed25519_ctx *ed_ctx, LIBSSH2_SESSION *session,
 int ssh2_ed25519_verify(ssh2_ed25519_ctx *ed_ctx, LIBSSH2_SESSION *session,
                         const uint8_t *s, size_t s_len,
                         const uint8_t *m, size_t m_len);
+#ifndef ssh2_ed25519_free
+void ssh2_ed25519_free(ssh2_ed25519_ctx *ed_ctx, LIBSSH2_SESSION *session);
+#endif
 #endif /* LIBSSH2_ED25519 */
 
 #if LIBSSH2_MLKEM

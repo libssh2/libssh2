@@ -436,7 +436,7 @@ If defined as 0, the rest of this section can be omitted.
 `ssh2_rsa_ctx`: Type of an RSA computation context. Generally a struct.
 
 ```c
-int ssh2_rsa_new(ssh2_rsa_ctx **rsa,
+int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
                  const unsigned char *edata, size_t elen,
                  const unsigned char *ndata, size_t nlen,
                  const unsigned char *ddata, size_t dlen,
@@ -478,9 +478,8 @@ Return 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa,
-                         const unsigned char *sig,
-                         size_t sig_len,
+int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
+                         const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len);
 ```
 Verify (`sig`, `sig_len`) signature of (`m`, `m_len`) using an SHA-1 hash and
@@ -513,7 +512,7 @@ This procedure is already prototyped in `crypto.h`.
 Note: this procedure is not used if macro `ssh2_rsa_sha1_signv()` is defined.
 
 ```c
-void ssh2_rsa_free(ssh2_rsa_ctx *rsa);
+void ssh2_rsa_free(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session);
 ```
 Releases the RSA computation context at `rsa`.
 
@@ -558,7 +557,7 @@ Returns 0 if OK, else -1.
 Note: this procedure is optional: if provided, it MUST be defined as a macro.
 
 ```c
-int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa,
+int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                          size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len);
@@ -576,7 +575,7 @@ defined as 0, the rest of this section can be omitted.
 `ssh2_dsa_ctx`: Type of a DSA computation context. Generally a struct.
 
 ```c
-int ssh2_dsa_new(ssh2_dsa_ctx **dsa,
+int ssh2_dsa_new(ssh2_dsa_ctx **dsa, LIBSSH2_SESSION *session,
                  const unsigned char *pdata, size_t plen,
                  const unsigned char *qdata, size_t qlen,
                  const unsigned char *gdata, size_t glen,
@@ -609,7 +608,7 @@ Returns 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa,
+int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
                          const unsigned char *sig,
                          const unsigned char *m, size_t m_len);
 ```
@@ -619,7 +618,7 @@ Returns 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa,
+int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
                        const unsigned char *hash,
                        size_t hash_len, unsigned char *sig);
 ```
@@ -628,7 +627,7 @@ DSA signs the (`hash`, `hash_len`) data using SHA-1 and store the signature at
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-void ssh2_dsa_free(ssh2_dsa_ctx *dsa);
+void ssh2_dsa_free(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session);
 ```
 Releases the DSA computation context at `dsa`.
 
@@ -677,6 +676,7 @@ This procedure is already prototyped in `crypto.h`.
 
 ```c
 int ssh2_ecdsa_curve_name_with_octal_new(ssh2_ecdsa_ctx **ec_ctx,
+                                         LIBSSH2_SESSION *session,
                                          const unsigned char *k,
                                          size_t k_len,
                                          ssh2_curve_type curve);
@@ -712,7 +712,7 @@ Returns 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx,
+int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
                       const unsigned char *r, size_t r_len,
                       const unsigned char *s, size_t s_len,
                       const unsigned char *m, size_t m_len);
@@ -729,7 +729,7 @@ Returns the curve type associated with given context.
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ec_ctx);
+void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session);
 ```
 Releases the ECDSA computation context at `ec_ctx`.
 
@@ -813,7 +813,7 @@ Returns 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-void ssh2_ed25519_free(ssh2_ed25519_ctx *ed_ctx);
+void ssh2_ed25519_free(ssh2_ed25519_ctx *ed_ctx, LIBSSH2_SESSION *session);
 ```
 Releases the ED25519 computation context at `ed_ctx`.
 

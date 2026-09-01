@@ -801,6 +801,17 @@ void ssh2_explicit_zero(void *buf, size_t size)
 }
 #endif
 
+void ssh2_zero_free(LIBSSH2_SESSION *session, void *buf, size_t len)
+{
+    if(!buf)
+        return;
+
+    if(len)
+        ssh2_explicit_zero(buf, len);
+
+    SSH2_FREE(session, buf);
+}
+
 /* String buffer */
 
 struct string_buf *ssh2_string_buf_new(LIBSSH2_SESSION *session)

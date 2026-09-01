@@ -839,6 +839,7 @@ jobs:
           - { build: 'AM', sys: msys   , crypto: openssl, env: x86_64 }
           - { build: 'CM', sys: msys   , crypto: OpenSSL, env: x86_64 }
           - { build: 'AM', sys: mingw64, crypto: wincng , env: x86_64 }
+          - { build: 'CM', sys: mingw64, crypto: WinCNG , env: x86_64, test: 'legacy-options' }
           - { build: 'AM', sys: mingw64, crypto: openssl, env: x86_64 }
           - { build: 'AM', sys: mingw32, crypto: openssl, env: i686, test: 'legacy-options' }
           - { build: 'AM', sys: ucrt64 , crypto: openssl, env: ucrt-x86_64 }
@@ -1014,7 +1015,12 @@ jobs:
             ldflags+=' -OPT:NOREF -OPT:NOICF -APPCONTAINER:NO'
             vsglobals=';AppxPackage=false;WindowsAppContainer=false'
           fi
-          [ "${MATRIX_CRYPTO}" = 'WinCNG' ] && options+=" -DENABLE_ECDSA_WINCNG=${MATRIX_WINCND_ECDSA}"
+          if [ "${MATRIX_CRYPTO}" = 'WinCNG' ]; then
+            options+=" -DENABLE_ECDSA_WINCNG=${MATRIX_WINCND_ECDSA}"
+            cflags+=' -DLIBSSH2_KEX_SHA1_ENABLE -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_SHA1_ENABLE'
+            cflags+=' -DLIBSSH2_RSA_SHA1_ENABLE -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_3DES_ENABLE'
+            cflags+=' -DLIBSSH2_DSA_ENABLE'
+          fi
           cmake -B bld ${options} \
             -DCMAKE_C_FLAGS="${cflags}" \
             -DCMAKE_EXE_LINKER_FLAGS="${ldflags}" \
@@ -1170,7 +1176,7 @@ jobs:
           fi
 
   cross:
-    name: "${{ matrix.os }} ${{ matrix.version }}, ${{ matrix.build }} ${{ matrix.cc }} ${{ matrix.desc }} ${{ matrix.arch }}"
+    name: "Cross ${{ matrix.os }} ${{ matrix.version }}, ${{ matrix.build }} ${{ matrix.cc }} ${{ matrix.desc }} ${{ matrix.arch }}"
     runs-on: ubuntu-26.04
     timeout-minutes: 10
     defaults:
@@ -1228,7 +1234,7 @@ jobs:
           persist-credentials: false
 
       - name: 'setup VM'
-        uses: cross-platform-actions/action@24ef01df165c76df1ed2b9f9e9212e78dc2fc963 # v1.4.0
+        uses: cross-platform-actions/action@faa0c6197e94aacf1c5956460152c8380d3560a5 # v1.5.0
         with:
           environment_variables: 'CC CURL_CI CURL_TEST_MIN DO_NOT_TRACK MAKEFLAGS MATRIX_BUILD MATRIX_INSTALL MATRIX_OPTIONS MATRIX_OS'
           operating_system: '${{ matrix.os }}'
