@@ -925,6 +925,10 @@ static int hostkey_method_ssh_ecdsa_init_cert(
     if(ssh2_get_chars(&buf, &type_str, &type_len))
         return -1;
 
+    /* cert type string must match the negotiated hostkey method */
+    if(strcmp(type_str, session->hostkey->name))
+        return -1;
+
     if(SSH2_IS_LITERAL(type_str, type_len,
                        "ecdsa-sha2-nistp256-cert-v01@openssh.com"))
         curve = SSH2_EC_CURVE_NISTP256;
