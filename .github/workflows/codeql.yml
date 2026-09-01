@@ -87,7 +87,6 @@ jobs:
           if [ "${MATRIX_PLATFORM}" = 'Windows' ]; then
             cmake -B . -DCRYPTO_BACKEND=WinCNG -DCMAKE_VS_GLOBALS=TrackFileAccess=false
             cmake --build . --verbose
-            cmake --build . --verbose --target libssh2-examples
           else
             eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
             export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls@3)/lib/pkgconfig"
