@@ -99,7 +99,7 @@ LIBSSH2_API int libssh2_publickey_add_ex(
 #define libssh2_publickey_add(pkey, name, blob, blob_len, overwrite, \
                               num_attrs, attrs)                      \
     libssh2_publickey_add_ex((pkey),                                 \
-                             (name), strlen(name),                   \
+                             name, strlen(name),                     \
                              (blob), (blob_len),                     \
                              (overwrite), (num_attrs), (attrs))
 
@@ -110,7 +110,7 @@ LIBSSH2_API int libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
                                             unsigned long blob_len);
 #define libssh2_publickey_remove(pkey, name, blob, blob_len) \
     libssh2_publickey_remove_ex((pkey),                      \
-                                (name), strlen(name),        \
+                                name, strlen(name),          \
                                 (blob), (blob_len))
 
 LIBSSH2_API int libssh2_publickey_list_fetch(
