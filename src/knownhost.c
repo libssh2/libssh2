@@ -395,7 +395,7 @@ static int knownhost_parse_ipv4(const char *src, const char *end,
 
     while(src < end) {
         if(*src >= '0' && *src <= '9') {
-            if(digits == 3)
+            if(digits == 3 || (digits && !value))
                 return 0;
             value = value * 10 + (unsigned int)(*src - '0');
             if(value > 255)

@@ -201,6 +201,20 @@ static int test_knownhost_ipv6(LIBSSH2_SESSION *session)
         "::ffff:192.0.2.256",
         -1, LIBSSH2_KNOWNHOST_CHECK_NOTFOUND);
 
+    /* Embedded IPv4 octets with leading zeros are not valid. */
+    err |= test_knownhost_ipv6_case(
+        session,
+        "::ffff:192.168.001.1",
+        "::ffff:192.168.1.1",
+        -1, LIBSSH2_KNOWNHOST_CHECK_NOTFOUND);
+
+    /* Identical malformed names retain the historical exact-string match. */
+    err |= test_knownhost_ipv6_case(
+        session,
+        "::ffff:192.168.001.1",
+        "::ffff:192.168.001.1",
+        -1, LIBSSH2_KNOWNHOST_CHECK_MATCH);
+
     /*
      * Preserve the historical exact-string behavior even when a plain host
      * containing colons is not a valid IPv6 literal.
