@@ -66,7 +66,8 @@ static int test_knownhost_ipv6_case(LIBSSH2_SESSION *session,
                                     int expected)
 {
     static const char key[] = "AAAA";
-    const int typemask = LIBSSH2_KNOWNHOST_TYPE_PLAIN |
+    const int typemask =
+        LIBSSH2_KNOWNHOST_TYPE_PLAIN |
         LIBSSH2_KNOWNHOST_KEYENC_BASE64 |
         LIBSSH2_KNOWNHOST_KEY_SSHRSA;
     LIBSSH2_KNOWNHOSTS *hosts;
