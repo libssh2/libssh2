@@ -87,7 +87,7 @@ jobs:
           if [ "${MATRIX_PLATFORM}" = 'Windows' ]; then
             cmake -B . -DCRYPTO_BACKEND=WinCNG -DCMAKE_VS_GLOBALS=TrackFileAccess=false
             cmake --build . --verbose
-            cmake --build . --target libssh2-examples
+            cmake --build . --verbose --target libssh2-examples
           else
             eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
             export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls@3)/lib/pkgconfig"
@@ -95,7 +95,7 @@ jobs:
               cmake -B _bld-"${crypto}" -G Ninja -DCRYPTO_BACKEND="${crypto}" -DENABLE_ZLIB_COMPRESSION=ON
               cmake --build _bld-"${crypto}" --verbose
               if [ "${crypto}" = 'OpenSSL' ]; then
-                cmake --build _bld-"${crypto}" --target libssh2-examples
+                cmake --build _bld-"${crypto}" --verbose --target libssh2-examples
               fi
             done
           fi
