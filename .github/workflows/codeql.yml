@@ -91,7 +91,11 @@ jobs:
             eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
             export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls@3)/lib/pkgconfig"
             for crypto in OpenSSL Libgcrypt mbedTLS wolfSSL; do
-              cmake -B _bld-"${crypto}" -G Ninja -DCRYPTO_BACKEND="${crypto}" -DENABLE_ZLIB_COMPRESSION=ON
+              options=''
+              if [ "${crypto}" = 'OpenSSL' ]; then
+                options+=' -DBUILD_OSSFUZZ=ON'
+              fi
+              cmake -B _bld-"${crypto}" -G Ninja -DCRYPTO_BACKEND="${crypto}" -DENABLE_ZLIB_COMPRESSION=ON ${options}
               cmake --build _bld-"${crypto}" --verbose
               if [ "${crypto}" = 'OpenSSL' ]; then
                 cmake --build _bld-"${crypto}" --verbose --target libssh2-examples
