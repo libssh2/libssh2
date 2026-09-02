@@ -1071,17 +1071,23 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
 
     if(session->scpSend_state == ssh2_NB_state_sent4) {
         /* Send mode, size, and basename */
+        int len;
         const char *base = strrchr(path, '/');
         if(base)
             base++;
         else
             base = path;
 
-        session->scpSend_response_len =
-            ssh2_snprintf((char *)session->scpSend_response,
-                          SSH2_SCP_RESPONSE_BUFLEN,
-                          "C0%o %" SSH2_INT64_T_FORMAT " %s\n",
-                          (unsigned int)mode, size, base);
+        len = ssh2_snprintf((char *)session->scpSend_response,
+                            sizeof(session->scpSend_response),
+                            "C0%o %" SSH2_INT64_T_FORMAT " %s\n",
+                            (unsigned int)mode, size, base);
+        if(len < 0 || (size_t)len >= sizeof(session->scpSend_response)) {
+            ssh2_err(session, LIBSSH2_ERROR_SCP_PROTOCOL,
+                     "SCP file path too long for response buffer");
+            goto scp_send_error;
+        }
+        session->scpSend_response_len = (size_t)len;
         ssh2_deb((session, LIBSSH2_TRACE_SCP, "Sent %s",
                   session->scpSend_response));
 
