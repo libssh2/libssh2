@@ -660,8 +660,8 @@ LIBSSH2_API int libssh2_userauth_password_ex(
     LIBSSH2_PASSWD_CHANGEREQ_FUNC(*passwd_change_cb));
 
 #define libssh2_userauth_password(session, username, password) \
-    libssh2_userauth_password_ex(session, username, \
-                                 (unsigned int)strlen(username), \
+    libssh2_userauth_password_ex(session, \
+                                 username, (unsigned int)strlen(username), \
                                  password, (unsigned int)strlen(password), \
                                  NULL)
 
@@ -837,10 +837,10 @@ LIBSSH2_API int libssh2_channel_setenv_ex(LIBSSH2_CHANNEL *channel,
                                           const char *value,
                                           unsigned int value_len);
 
-#define libssh2_channel_setenv(channel, varname, value)                 \
-    libssh2_channel_setenv_ex(channel, varname,                         \
-                              (unsigned int)strlen(varname), value,     \
-                              (unsigned int)strlen(value))
+#define libssh2_channel_setenv(channel, varname, value)               \
+    libssh2_channel_setenv_ex(channel,                                \
+                              varname, (unsigned int)strlen(varname), \
+                              value, (unsigned int)strlen(value))
 
 LIBSSH2_API int libssh2_channel_request_auth_agent(LIBSSH2_CHANNEL *channel);
 
@@ -852,8 +852,8 @@ LIBSSH2_API int libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel,
                                                int width, int height,
                                                int width_px, int height_px);
 #define libssh2_channel_request_pty(channel, term)                      \
-    libssh2_channel_request_pty_ex(channel, term,                       \
-                                   (unsigned int)strlen(term),          \
+    libssh2_channel_request_pty_ex(channel,                             \
+                                   term, (unsigned int)strlen(term),    \
                                    NULL, 0,                             \
                                    LIBSSH2_TERM_WIDTH,                  \
                                    LIBSSH2_TERM_HEIGHT,                 \
@@ -894,18 +894,16 @@ LIBSSH2_API int libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
                                     command, (unsigned int)strlen(command))
 #define libssh2_channel_subsystem(channel, subsystem) \
     libssh2_channel_process_startup(channel, "subsystem", \
-                                    sizeof("subsystem") - 1, subsystem, \
-                                    (unsigned int)strlen(subsystem))
+                                    sizeof("subsystem") - 1, \
+                                    subsystem, (unsigned int)strlen(subsystem))
 
 LIBSSH2_API ssize_t libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel,
                                             int stream_id, char *buf,
                                             size_t buflen);
 #define libssh2_channel_read(channel, buf, buflen) \
-    libssh2_channel_read_ex(channel, 0, \
-                            buf, buflen)
+    libssh2_channel_read_ex(channel, 0, buf, buflen)
 #define libssh2_channel_read_stderr(channel, buf, buflen) \
-    libssh2_channel_read_ex(channel, SSH_EXTENDED_DATA_STDERR, \
-                            buf, buflen)
+    libssh2_channel_read_ex(channel, SSH_EXTENDED_DATA_STDERR, buf, buflen)
 
 #ifndef LIBSSH2_NO_DEPRECATED
 LIBSSH2_DEPRECATED(1.2.0, "")
