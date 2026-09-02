@@ -920,7 +920,8 @@ static int hostkey_method_ssh_ecdsa_init_cert(
         return -1;
 
     /* cert type string must match the negotiated hostkey method */
-    if(strcmp(type_str, session->hostkey->name))
+    if(type_len != strlen(session->hostkey->name) ||
+       strncmp(type_str, session->hostkey->name, type_len))
         return -1;
 
     if(SSH2_IS_LITERAL(type_str, type_len,
