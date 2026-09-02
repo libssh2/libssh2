@@ -286,6 +286,7 @@ This release includes the following enhancements and bugfixes:
 - dist: include CMake files individually, fix to include tests/cmake (476fd5a7 #2538 #1170 follow: 8715c3d5 follow: d48d7c3a)
 - docker-bridge.ps1: update AppVeyor CI external IP detection endpoint (c2bae821 #2010 #1947)
 - docker-bridge.sh: use long-form option, show failure, fail on error (528b0d6d)
+- Dockerfile: bump debian from trixie-20260713-slim to trixie-20260824-slim (995b230a #2569)
 - Dockerfile: bump debian from trixie-20260623-slim to trixie-20260713-slim (67654c8f #2476)
 - Dockerfile: bump to debian:trixie-20260623-slim (e75b4bae #2124)
 - Dockerfile: bump to debian:trixie-20260610-slim (5b91afb2 #2115)
@@ -317,6 +318,9 @@ This release includes the following enhancements and bugfixes:
 - example/x11: fix messages, buffer sizes, error handling (5b734389 #1886 follow: 32080def)
 - example/x11: fix/simplify node removal (8eaef7c7 #1867 follow: 32080def)
 - example/x11: free session/cleanup (bb3c6bbf #1762)
+- GHA: restore building examples in CodeQL jobs (d7e461a0 #2571 #2276)
+- GHA: bump GitHub Actions (1f35fe43 #2570)
+- GHA: bump cross-build-actions to 1.5.0 (99f17f4f #2567)
 - GHA: bump cross-build-actions, test NetBSD 11.0 (bbb84be7 #2528)
 - GHA: bump GitHub Actions (23483587 #2477)
 - GHA: bump codespell from 2.4.2 to 2.4.3 (fdbd6ffc #2475)
@@ -426,6 +430,7 @@ This release includes the following enhancements and bugfixes:
 - GHA/appveyor_docker: silence zizmor with settings allowing concurrency (59a554e6 #2002 #1292 follow: b08cfbc9)
 - GHA/appveyor-status: disable `gh` tool telemetry (818660ca #1871)
 - GHA/cifuzz: pin oss-fuzz actions to hash (93dc28a4)
+- GHA/codeql: build C++ (fuzzer) code (c5434649 #2572)
 - GHA/codeql: limit cron job to the origin repository (1045cfd0 #1741)
 - GHA/dependabot: group updates, other tidy-ups (26a78929)
 - GHA/dependabot: minor fixes to prev (6c6ea30d #1724)
@@ -437,6 +442,7 @@ This release includes the following enhancements and bugfixes:
 - hash: drop interim macros, sync up types (52f9c3e6 #2242 #2241)
 - hash: pass through context as-is in `ssh2_hash_*()` macros (81e6f8ff #2241)
 - hmac: add generic `ssh2_hmac_init()`, use it (c34888e6 #2244)
+- hostkey: implement ECDSA/RSA certificate hostkey verification (c704efcc #2539 #2513 #2434 #2064)
 - hostkey: replace `strncmp()` with `SSH2_IS_LITERAL()` to harden checks (58a3e88c #2429)
 - hostkey: sanitize public API arguments, fix a return value on error (504e07e9 #2351)
 - hostkey: sync `hostkey_method_ssh_ecdsa_initPEM()` with siblings (tidy up) (775ecf7f #2238)
@@ -492,6 +498,7 @@ This release includes the following enhancements and bugfixes:
 - keys-generate.sh: group signed keys, drop newlines (e0595be5)
 - keys-generate.sh: allow overriding the username (4dad9717)
 - keys-generate.sh: create directories if missing (cdf94b8b)
+- knownhost: match equivalent IPv6 literals (dd47304a #2568 #1398)
 - knownhost: stop determining `keylen` if passed as zero in `libssh2_knownhost_add*()` (7b18532c #2364 #2363 #1641 follow: 4b991b23)
 - knownhost: fix OOB reads in `knownhost_line_hashed()`/`knownhost_add()` (102e4448 #2363)
 - knownhost: fix off-by-one read in `libssh2_knownhost_readline()` (fed2d6e0 #2350)
@@ -1036,16 +1043,16 @@ advice from friends like these:
   geral-victor on github, Hananto Adi, Haruki Oyama, Hemant Jadhav, Huang Rui,
   hyunjiHong on github, Jacob Barthelmeh, Jay Satiro, Jim B, Joren Afman,
   Josh Brobst, Joshua Rogers, Justin Smith, Kai Pastor, Karnakar Reddy,
-  Kian Kasad, Kit Knox, Lars Nordin, Liu Xing Yu, Lucas Queiroz,
-  Lukas Dürrenberger, manus-use on github, manusjs on github, Marc Hörsken,
-  Marcel Raad, Martin Nowak, Mateusz Gierblinski, Michael Buckley,
-  Mухтар Воблоев, nnarayanamurthy on github, Oblivionsage, Oliver Chang,
-  Omkar Bhor, oss-patch, Pascal Neuperger, Patrick Monnerat, Paul Howarth,
-  Pedro Masteguin, Pier Carlo Cadoppi, Pramod Kumar, pyscripter on github,
-  R6502 on github (Michael), Rainer Jung, Ralf Mueller, Raul Tambre,
-  RuiZhi Zhang, Ryan Kelley, Sebastien Tardif, Seojun Lee, sergey1369,
-  Sharique Raza, skuodi on github, Stanislav Osipov, Stephan Eggermont,
-  syed abdul khaliq, timelyslot on gitHub, TristanInSec, trustytrojan,
-  Trzik on github, Viktor Szakats, Vladimir Eli Tokarev,
+  Kian Kasad, Kit Knox, Krisscut on github, Lars Nordin, Liu Xing Yu,
+  Lucas Queiroz, Lukas Dürrenberger, manus-use on github, manusjs on github,
+  Marc Hörsken, Marcel Raad, Martin Nowak, Mateusz Gierblinski,
+  Michael Buckley, Mухтар Воблоев, nnarayanamurthy on github, Oblivionsage,
+  Oliver Chang, Omkar Bhor, oss-patch, Pascal Neuperger, Patrick Monnerat,
+  Paul Howarth, Pedro Masteguin, Pier Carlo Cadoppi, Pramod Kumar,
+  pyscripter on github, R6502 on github (Michael), Rainer Jung, Ralf Mueller,
+  Raul Tambre, RuiZhi Zhang, Ryan Kelley, Sebastien Tardif, Seojun Lee,
+  sergey1369, Sharique Raza, skuodi on github, Stanislav Osipov,
+  Stephan Eggermont, syed abdul khaliq, timelyslot on gitHub, TristanInSec,
+  trustytrojan, Trzik on github, Viktor Szakats, Vladimir Eli Tokarev,
   vnth4nhnt from CyStack, Wilfried Pascault, Will Cosgrove,
   yaotushaozhu on github, Yaroslav Rosomakho, Ze Sheng
