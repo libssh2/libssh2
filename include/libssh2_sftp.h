@@ -357,7 +357,7 @@ LIBSSH2_API int libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp,
                                         int link_type);
 #define libssh2_sftp_symlink(sftp, orig, linkpath) \
     libssh2_sftp_symlink_ex((sftp), orig, (unsigned int)strlen(orig), \
-                            (linkpath), (unsigned int)strlen(linkpath), \
+                            linkpath, (unsigned int)strlen(linkpath), \
                             LIBSSH2_SFTP_SYMLINK)
 #define libssh2_sftp_readlink(sftp, path, target, maxlen) \
     libssh2_sftp_symlink_ex((sftp), path, (unsigned int)strlen(path), \
