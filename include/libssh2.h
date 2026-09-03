@@ -851,13 +851,13 @@ LIBSSH2_API int libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel,
                                                unsigned int modes_len,
                                                int width, int height,
                                                int width_px, int height_px);
-#define libssh2_channel_request_pty(channel, term)                    \
-    libssh2_channel_request_pty_ex((channel),                         \
-                                   term, (unsigned int)strlen(term),  \
-                                   NULL, 0,                           \
-                                   LIBSSH2_TERM_WIDTH,                \
-                                   LIBSSH2_TERM_HEIGHT,               \
-                                   LIBSSH2_TERM_WIDTH_PX,             \
+#define libssh2_channel_request_pty(channel, term)                      \
+    libssh2_channel_request_pty_ex((channel),                           \
+                                   term, (unsigned int)strlen(term),    \
+                                   NULL, 0,                             \
+                                   LIBSSH2_TERM_WIDTH,                  \
+                                   LIBSSH2_TERM_HEIGHT,                 \
+                                   LIBSSH2_TERM_WIDTH_PX,               \
                                    LIBSSH2_TERM_HEIGHT_PX)
 
 LIBSSH2_API int libssh2_channel_request_pty_size_ex(LIBSSH2_CHANNEL *channel,
