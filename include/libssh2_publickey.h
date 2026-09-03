@@ -96,8 +96,8 @@ LIBSSH2_API int libssh2_publickey_add_ex(
     unsigned long blob_len, char overwrite,
     unsigned long num_attrs,
     const libssh2_publickey_attribute attrs[]);
-#define libssh2_publickey_add(pkey, name, blob, blob_len, overwrite,         \
-                              num_attrs, attrs)                              \
+#define libssh2_publickey_add(pkey, name, blob, blob_len, overwrite, \
+                              num_attrs, attrs) \
     libssh2_publickey_add_ex((pkey), name, strlen(name), (blob), (blob_len), \
                              (overwrite), (num_attrs), (attrs))
 
