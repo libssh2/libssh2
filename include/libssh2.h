@@ -701,17 +701,17 @@ LIBSSH2_API int libssh2_userauth_hostbased_fromfile_ex(
     const char *local_username,
     unsigned int local_username_len);
 
-#define libssh2_userauth_hostbased_fromfile(session, username,             \
-                                            pubkeyfile,                    \
-                                            privkeyfile, passphrase,       \
-                                            hostname)                      \
-    libssh2_userauth_hostbased_fromfile_ex((session), username,            \
-                                           (unsigned int)strlen(username), \
-                                           (pubkeyfile),                   \
-                                           (privkeyfile), (passphrase),    \
-                                           hostname,                       \
-                                           (unsigned int)strlen(hostname), \
-                                           username,                       \
+#define libssh2_userauth_hostbased_fromfile(session, username,                \
+                                            pubkeyfile,                       \
+                                            privkeyfile, passphrase,          \
+                                            hostname)                         \
+    libssh2_userauth_hostbased_fromfile_ex((session), username,               \
+                                           (unsigned int)strlen(username),    \
+                                           (pubkeyfile),                      \
+                                           (privkeyfile), (passphrase),       \
+                                           hostname,                          \
+                                           (unsigned int)strlen(hostname),    \
+                                           username,                          \
                                            (unsigned int)strlen(username))
 
 LIBSSH2_API int libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
