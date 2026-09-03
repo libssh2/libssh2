@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #
 # Copyright (C) Viktor Szakats
 # SPDX-License-Identifier: BSD-3-Clause
@@ -10,8 +10,8 @@ for dir in keys openssh_server; do
   rm -f "${dir}-dump"/*
 
   find "${dir}" -maxdepth 1 \( -name 'ca_host_*' -o -name 'ca_user_*' -o -name 'id_*' \) | while read -r f; do
-    o="${dir}-dump/$(basename $f)"
-    echo $f
+    o="${dir}-dump/$(basename "$f")"
+    echo "$f"
     if [[ "$f" = *'.pub' ]]; then
       b64="$(grep -o -E ' .+ ' "$f")"
       [ -z "$b64" ] && b64="$(grep -o -E ' .+$' "$f")"
