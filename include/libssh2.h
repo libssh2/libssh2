@@ -918,7 +918,7 @@ LIBSSH2_API unsigned long libssh2_channel_window_read_ex(
     unsigned long *read_avail,
     unsigned long *window_size_initial);
 #define libssh2_channel_window_read(channel) \
-    libssh2_channel_window_read_ex(channel, NULL, NULL)
+    libssh2_channel_window_read_ex((channel), NULL, NULL)
 
 #ifndef LIBSSH2_NO_DEPRECATED
 LIBSSH2_DEPRECATED(1.1.0, "Use libssh2_channel_receive_window_adjust2()")
