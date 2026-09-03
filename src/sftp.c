@@ -289,6 +289,12 @@ static int sftp_packet_read(LIBSSH2_SFTP *sftp)
                 return (int)rc;
             else if(rc < 0)
                 return ssh2_err(session, (int)rc, "channel read");
+            else if(rc == 0) {
+                sftp->packet_header_len = 0;
+                return ssh2_err(session, LIBSSH2_ERROR_SOCKET_RECV,
+                                "Unexpected channel EOF while reading "
+                                "SFTP packet header");
+            }
 
             sftp->packet_header_len += rc;
 
@@ -381,11 +387,15 @@ window_adjust:
                 sftp->packet_state = ssh2_NB_state_sent1;
                 return (int)rc;
             }
-            else if(rc < 0) {
+            else if(rc <= 0) {
                 SSH2_FREE(session, packet);
                 sftp->partial_packet = NULL;
-                return ssh2_err(session, (int)rc,
-                                "Error waiting for SFTP packet");
+                if(rc < 0)
+                    return ssh2_err(session, (int)rc,
+                                    "Error waiting for SFTP packet");
+                return ssh2_err(session, LIBSSH2_ERROR_SOCKET_RECV,
+                                "Unexpected channel EOF while reading "
+                                "SFTP packet body");
             }
             sftp->partial_received += rc;
         }
