@@ -223,6 +223,8 @@ LIBSSH2_CHANNEL *ssh2_channel_open(LIBSSH2_SESSION *session,
         }
 
         if(session->open_data[0] == SSH_MSG_CHANNEL_OPEN_CONFIRMATION) {
+            uint32_t window_size;
+            uint32_t packet_size;
 
             if(session->open_data_len < 17) {
                 ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -230,14 +232,20 @@ LIBSSH2_CHANNEL *ssh2_channel_open(LIBSSH2_SESSION *session,
                 goto channel_error;
             }
 
+            window_size = ssh2_ntohu32(session->open_data + 9);
+            packet_size = ssh2_ntohu32(session->open_data + 13);
+
+            if(!packet_size || !window_size) {
+                ssh2_err(session, LIBSSH2_ERROR_CHANNEL_FAILURE,
+                         "Invalid packet or window size received from server");
+                goto channel_error;
+            }
+
             session->open_channel->remote.id =
                 ssh2_ntohu32(session->open_data + 5);
-            session->open_channel->local.window_size =
-                ssh2_ntohu32(session->open_data + 9);
-            session->open_channel->local.window_size_initial =
-                ssh2_ntohu32(session->open_data + 9);
-            session->open_channel->local.packet_size =
-                ssh2_ntohu32(session->open_data + 13);
+            session->open_channel->local.window_size = window_size;
+            session->open_channel->local.window_size_initial = window_size;
+            session->open_channel->local.packet_size = packet_size;
             ssh2_deb((session, LIBSSH2_TRACE_CONN,
                       "Connection Established - ID: %u/%u win: %u/%u"
                       " pack: %u/%u",
