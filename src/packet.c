@@ -132,6 +132,14 @@ static SSH2_INLINE int packet_queue_listener(
                         break;
                     }
 
+                    if(!listen_state->packet_size) {
+                        ssh2_deb((session, LIBSSH2_TRACE_CONN,
+                                  "Invalid packet size received from server"));
+                        failure_code = SSH_OPEN_CONNECT_FAILED;
+                        listen_state->state = ssh2_NB_state_sent;
+                        break;
+                    }
+
                     channel = SSH2_CALLOC(session, sizeof(LIBSSH2_CHANNEL));
                     if(!channel) {
                         ssh2_err(session, LIBSSH2_ERROR_ALLOC,
@@ -325,6 +333,13 @@ static SSH2_INLINE int packet_x11_open(
 
     if(session->x11) {
         if(x11open_state->state == ssh2_NB_state_allocated) {
+            if(!x11open_state->packet_size) {
+                ssh2_deb((session, LIBSSH2_TRACE_CONN,
+                          "Invalid packet size received from server"));
+                failure_code = SSH_OPEN_CONNECT_FAILED;
+                goto x11_exit;
+            }
+
             channel = SSH2_CALLOC(session, sizeof(LIBSSH2_CHANNEL));
             if(!channel) {
                 ssh2_err(session, LIBSSH2_ERROR_ALLOC,
@@ -476,6 +491,13 @@ static SSH2_INLINE int packet_authagent_open(
 
     if(session->authagent) {
         if(authagent_state->state == ssh2_NB_state_allocated) {
+            if(!authagent_state->packet_size) {
+                ssh2_deb((session, LIBSSH2_TRACE_CONN,
+                          "Invalid packet size received from server"));
+                failure_code = SSH_OPEN_CONNECT_FAILED;
+                goto authagent_exit;
+            }
+
             channel = SSH2_CALLOC(session, sizeof(LIBSSH2_CHANNEL));
             authagent_state->channel = channel;
 

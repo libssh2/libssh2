@@ -230,14 +230,21 @@ LIBSSH2_CHANNEL *ssh2_channel_open(LIBSSH2_SESSION *session,
                 goto channel_error;
             }
 
+            packet_size = ssh2_ntohu32(session->open_data + 13);
+
+            if(!packet_size) {
+                ssh2_err(session, LIBSSH2_ERROR_CHANNEL_FAILURE,
+                         "Invalid packet size received from server");
+                goto channel_error;
+            }
+
             session->open_channel->remote.id =
                 ssh2_ntohu32(session->open_data + 5);
             session->open_channel->local.window_size =
                 ssh2_ntohu32(session->open_data + 9);
             session->open_channel->local.window_size_initial =
                 ssh2_ntohu32(session->open_data + 9);
-            session->open_channel->local.packet_size =
-                ssh2_ntohu32(session->open_data + 13);
+            session->open_channel->local.packet_size = packet_size;
             ssh2_deb((session, LIBSSH2_TRACE_CONN,
                       "Connection Established - ID: %u/%u win: %u/%u"
                       " pack: %u/%u",
