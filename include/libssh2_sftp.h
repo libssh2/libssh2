@@ -361,12 +361,10 @@ LIBSSH2_API int libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp,
                             LIBSSH2_SFTP_SYMLINK)
 #define libssh2_sftp_readlink(sftp, path, target, maxlen) \
     libssh2_sftp_symlink_ex((sftp), path, (unsigned int)strlen(path), \
-                            (target), (maxlen), \
-                            LIBSSH2_SFTP_READLINK)
+                            (target), (maxlen), LIBSSH2_SFTP_READLINK)
 #define libssh2_sftp_realpath(sftp, path, target, maxlen) \
     libssh2_sftp_symlink_ex((sftp), path, (unsigned int)strlen(path), \
-                            (target), (maxlen), \
-                            LIBSSH2_SFTP_REALPATH)
+                            (target), (maxlen), LIBSSH2_SFTP_REALPATH)
 
 #ifdef __cplusplus
 } /* extern "C" */
