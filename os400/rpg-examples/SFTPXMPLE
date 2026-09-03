@@ -318,7 +318,7 @@
                 length = len;
             endif;
         endif;
-        len = %scan(X'00': string: 1: length); // Maybe zero-terminated
+        len = %scan(X'00': string: 1: length); // Maybe null-terminated
         if len = 0;
             len = length + 1;
         endif;

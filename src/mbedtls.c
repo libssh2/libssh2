@@ -505,7 +505,7 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
     mbedtls_rsa_init(*rsa);
 
     if(!filename) {
-        /* mbedtls checks in "mbedtls/pkparse.c:1184"
+        /* mbedTLS checks in "mbedtls/pkparse.c:1184"
                if "key[keylen - 1] != '\0'"
            private-key from memory fails if the last byte is not a null byte */
         data_nullterm = SSH2_CALLOC(session, blob_len + 1);
@@ -770,7 +770,7 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
     unsigned char *data_nullterm = NULL;
 
     if(!privkeyfile) {
-        /* mbedtls checks in "mbedtls/pkparse.c:1184"
+        /* mbedTLS checks in "mbedtls/pkparse.c:1184"
                if "key[keylen - 1] != '\0'"
            private-key from memory fails if the last byte is not a null byte */
         data_nullterm = SSH2_CALLOC(session, privkeyblob_len + 1);

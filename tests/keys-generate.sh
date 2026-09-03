@@ -74,14 +74,18 @@ ssh-keygen -t ed25519         -N "${pw}"     -m RFC4716 -C 'id_ed25519_openssh_e
 ssh-keygen -t mldsa44-ed25519 -N ''          -m RFC4716 -C 'id_mldsa44-ed25519'           -f 'keys/id_mldsa44-ed25519'
 ssh-keygen -t mldsa44-ed25519 -N "${pw}"     -m RFC4716 -C 'id_mldsa44-ed25519_encrypted' -f 'keys/id_mldsa44-ed25519_encrypted'   -Z chacha20-poly1305@openssh.com
 
+# CA users
 ssh-keygen -t rsa     -b 4096 -N ''          -m PEM     -C 'id_rsa_pem_signed'            -f 'keys/id_rsa_pem_signed'
 ssh-keygen -t ssh-rsa         -I "${id}" -n "${pr}"     -s 'keys/ca_user_rsa'                'keys/id_rsa_pem_signed.pub'
 ssh-keygen -t rsa     -b 4096 -N ''          -m PEM     -C 'id_rsa_pem_sha2_512_signed'   -f 'keys/id_rsa_pem_sha2_512_signed'
 ssh-keygen -t rsa-sha2-512    -I "${id}" -n "${pr}"     -s 'keys/ca_user_rsa'                'keys/id_rsa_pem_sha2_512_signed.pub'
+
 ssh-keygen -t ecdsa   -b  384 -N ''          -m RFC4716 -C 'id_ecdsa_openssh_signed'      -f 'keys/id_ecdsa_openssh_signed'
 ssh-keygen                    -I "${id}" -n "${pr}"     -s 'keys/ca_user_ecdsa'              'keys/id_ecdsa_openssh_signed.pub'
+
 ssh-keygen -t ed25519         -N ''          -m RFC4716 -C 'id_ed25519_openssh_signed'    -f 'keys/id_ed25519_openssh_signed'
 ssh-keygen                    -I "${id}" -n "${pr}"     -s 'keys/ca_user_ed25519'            'keys/id_ed25519_openssh_signed.pub'
+
 ssh-keygen -t mldsa44-ed25519 -N ''          -m RFC4716 -C 'id_mldsa44-ed25519_signed'    -f 'keys/id_mldsa44-ed25519_signed'
 ssh-keygen                    -I "${id}" -n "${pr}"     -s 'keys/ca_user_mldsa44-ed25519'    'keys/id_mldsa44-ed25519_signed.pub'
 

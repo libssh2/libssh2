@@ -973,10 +973,9 @@ LIBSSH2_API int libssh2_channel_handle_extended_data2(LIBSSH2_CHANNEL *channel,
                                                       int ignore_mode);
 
 #ifndef LIBSSH2_NO_DEPRECATED
-/* libssh2_channel_ignore_extended_data() is defined below for BC with version
- * 0.1
+/* For backwards compatibility with version 0.1.
  *
- * Future uses should use libssh2_channel_handle_extended_data() directly if
+ * Future uses should use libssh2_channel_handle_extended_data2() directly if
  * LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE is passed, extended data is read
  * (FIFO) from the standard data channel
  */
@@ -1172,7 +1171,6 @@ LIBSSH2_API int libssh2_knownhost_addc(LIBSSH2_KNOWNHOSTS *hosts,
  * plain  - ascii "hostname.domain.tld"
  * custom - prehashed base64 encoded. Note that this cannot use any salts.
  *
- *
  * 'knownhost' may be set to NULL if you do not care about that info.
  *
  * Returns:
@@ -1250,7 +1248,6 @@ LIBSSH2_API int libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
  *
  * This implementation currently only knows one 'type' (openssh), all others
  * are reserved for future use.
- *
  */
 LIBSSH2_API int libssh2_knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
                                             struct libssh2_knownhost *known,
@@ -1300,7 +1297,6 @@ struct libssh2_agent_publickey {
  * libssh2_agent_init()
  *
  * Init an ssh-agent handle. Returns the pointer to the handle.
- *
  */
 LIBSSH2_API LIBSSH2_AGENT *libssh2_agent_init(LIBSSH2_SESSION *session);
 
@@ -1428,10 +1424,7 @@ LIBSSH2_API void libssh2_keepalive_config(LIBSSH2_SESSION *session,
 LIBSSH2_API int libssh2_keepalive_send(LIBSSH2_SESSION *session,
                                        int *seconds_to_next);
 
-/* NOTE NOTE NOTE
-   libssh2_trace() has no function in builds that are not built with debug
-   enabled
- */
+/* NOTE: has no function in builds that are not built with debug enabled. */
 LIBSSH2_API int libssh2_trace(LIBSSH2_SESSION *session, int bitmask);
 #define LIBSSH2_TRACE_TRANS      (1<<1)
 #define LIBSSH2_TRACE_KEX        (1<<2)
