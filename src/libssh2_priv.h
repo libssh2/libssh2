@@ -675,6 +675,9 @@ struct _LIBSSH2_PUBLICKEY {
     unsigned char listFetch_buffer[12];
     unsigned char *listFetch_data;
     size_t listFetch_data_len;
+    libssh2_publickey_list *listFetch_list;
+    unsigned long listFetch_keys;
+    unsigned long listFetch_max_keys;
 };
 #if defined(__clang__) && __clang_major__ >= 13
 #pragma clang diagnostic pop
