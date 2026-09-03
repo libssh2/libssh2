@@ -72,6 +72,7 @@ librunner_la_SOURCES = \
 EXTRA_DIST = \
   .checksrc \
   CMakeLists.txt \
+  keys-dump.sh \
   keys-generate.sh \
   keys/ca_host_ecdsa \
   keys/ca_host_ecdsa.pub \
