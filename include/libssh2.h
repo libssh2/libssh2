@@ -659,8 +659,8 @@ LIBSSH2_API int libssh2_userauth_password_ex(
     unsigned int password_len,
     LIBSSH2_PASSWD_CHANGEREQ_FUNC(*passwd_change_cb));
 
-#define libssh2_userauth_password(session, username, password)             \
-    libssh2_userauth_password_ex((session),                                \
+#define libssh2_userauth_password(session, username, password) \
+    libssh2_userauth_password_ex((session), \
                                  username, (unsigned int)strlen(username), \
                                  password, (unsigned int)strlen(password), \
                                  NULL)
