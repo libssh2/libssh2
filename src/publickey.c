@@ -942,7 +942,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
         }
         case SSH2_PUBLICKEY_RESPONSE_PUBLICKEY:
             /* What we want */
-            if(keys >= 128000) {
+            if(keys >= 32768) {
                 ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                          "Too many public keys");
                 goto err_exit;
