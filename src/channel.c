@@ -223,8 +223,6 @@ LIBSSH2_CHANNEL *ssh2_channel_open(LIBSSH2_SESSION *session,
         }
 
         if(session->open_data[0] == SSH_MSG_CHANNEL_OPEN_CONFIRMATION) {
-            uint32_t window_size;
-            uint32_t packet_size;
 
             if(session->open_data_len < 17) {
                 ssh2_err(session, LIBSSH2_ERROR_PROTO,
