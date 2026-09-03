@@ -795,9 +795,9 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
 {
     LIBSSH2_CHANNEL *channel;
     LIBSSH2_SESSION *session;
-    libssh2_publickey_list *list = NULL;
+    libssh2_publickey_list *list;
     /* 12 = packet_len(4) + list_len(4) + "list"(4) */
-    unsigned long buffer_len = 12, keys = 0, max_keys = 0, i;
+    unsigned long buffer_len = 12, keys, max_keys, i;
     int response;
     int rc;
 
@@ -809,6 +809,9 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
 
     if(pkey->listFetch_state == ssh2_NB_state_idle) {
         pkey->listFetch_data = NULL;
+        pkey->listFetch_list = NULL;
+        pkey->listFetch_keys = 0;
+        pkey->listFetch_max_keys = 0;
 
         pkey->listFetch_s = pkey->listFetch_buffer;
         ssh2_htonu32(pkey->listFetch_s, (uint32_t)(buffer_len - 4));
@@ -823,6 +826,10 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
 
         pkey->listFetch_state = ssh2_NB_state_created;
     }
+
+    list = pkey->listFetch_list;
+    keys = pkey->listFetch_keys;
+    max_keys = pkey->listFetch_max_keys;
 
     if(pkey->listFetch_state == ssh2_NB_state_created) {
         ssize_t nwritten;
@@ -844,8 +851,12 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
     for(;;) {
         rc = publickey_packet_receive(pkey, &pkey->listFetch_data,
                                       &pkey->listFetch_data_len);
-        if(rc == LIBSSH2_ERROR_EAGAIN)
+        if(rc == LIBSSH2_ERROR_EAGAIN) {
+            pkey->listFetch_list = list;
+            pkey->listFetch_keys = keys;
+            pkey->listFetch_max_keys = max_keys;
             return rc;
+        }
         else if(rc) {
             ssh2_err(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
                      "Timeout waiting for response from publickey subsystem");
@@ -919,6 +930,9 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 SSH2_SAFEFREE(session, pkey->listFetch_data);
                 *pkey_list = list;
                 *num_keys = keys;
+                pkey->listFetch_list = NULL;
+                pkey->listFetch_keys = 0;
+                pkey->listFetch_max_keys = 0;
                 pkey->listFetch_state = ssh2_NB_state_idle;
                 return 0;
             }
@@ -1200,6 +1214,9 @@ err_exit:
         SSH2_SAFEFREE(session, pkey->listFetch_data);
     if(list)
         libssh2_publickey_list_free(pkey, list);
+    pkey->listFetch_list = NULL;
+    pkey->listFetch_keys = 0;
+    pkey->listFetch_max_keys = 0;
     pkey->listFetch_state = ssh2_NB_state_idle;
     return -1;
 }
@@ -1235,6 +1252,7 @@ void libssh2_publickey_list_free(LIBSSH2_PUBLICKEY *pkey,
 int libssh2_publickey_shutdown(LIBSSH2_PUBLICKEY *pkey)
 {
     LIBSSH2_SESSION *session;
+    unsigned long i;
     int rc;
 
     if(!pkey)
@@ -1253,6 +1271,17 @@ int libssh2_publickey_shutdown(LIBSSH2_PUBLICKEY *pkey)
         SSH2_SAFEFREE(session, pkey->remove_packet);
     if(pkey->listFetch_data)
         SSH2_SAFEFREE(session, pkey->listFetch_data);
+    if(pkey->listFetch_list) {
+        for(i = 0; i < pkey->listFetch_keys; i++) {
+            if(pkey->listFetch_list[i].attrs)
+                SSH2_FREE(session, pkey->listFetch_list[i].attrs);
+            if(pkey->listFetch_list[i].packet)
+                SSH2_FREE(session, pkey->listFetch_list[i].packet);
+        }
+        SSH2_SAFEFREE(session, pkey->listFetch_list);
+        pkey->listFetch_keys = 0;
+        pkey->listFetch_max_keys = 0;
+    }
 
     rc = ssh2_channel_free(pkey->channel);
     if(rc == LIBSSH2_ERROR_EAGAIN)
