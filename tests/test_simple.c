@@ -294,37 +294,32 @@ static int test_ssh2_dh_validate(void)
     return err > 0;
 }
 
-#ifdef LIBSSH2_WINCNG
-static int test_ssh2_wcng_bn_normalize(void)
+static int test_ssh2_bn_from_bin(void)
 {
     static const unsigned char fixed_width[] = { 0, 0, 0x80, 0x42 };
     static const unsigned char expected[] = { 0x80, 0x42 };
-    ssh2_bn *bn = ssh2_bn_init();
+    unsigned char actual[sizeof(expected)] = { 0 };
+    ssh2_bn *bn = ssh2_bn_init_from_bin();
     int rc = 0;
 
-    if(!bn)
-        return 1;
-
-    bn->bignum = malloc(sizeof(fixed_width));
-    if(!bn->bignum) {
-        ssh2_bn_free(bn);
-        return 1;
+    if(ssh2_bn_from_bin(bn, fixed_width, sizeof(fixed_width))) {
+        fprintf(stderr, "ssh2_bn_from_bin() failed\n");
+        rc = 1;
     }
-    memcpy(bn->bignum, fixed_width, sizeof(fixed_width));
-    bn->length = sizeof(fixed_width);
-
-    ssh2_wcng_bn_normalize(bn);
-    if(bn->length != sizeof(expected) ||
-       memcmp(bn->bignum, expected, sizeof(expected)) ||
-       bn->bignum[sizeof(expected)] || bn->bignum[sizeof(expected) + 1]) {
-        fprintf(stderr, "WinCNG bignum normalization failed\n");
+    else if(ssh2_bn_bytes(bn) != sizeof(expected)) {
+        fprintf(stderr,
+                "ssh2_bn_from_bin() returned a non-canonical length\n");
+        rc = 1;
+    }
+    else if(ssh2_bn_to_bin(bn, actual) ||
+            memcmp(actual, expected, sizeof(expected))) {
+        fprintf(stderr, "ssh2_bn_from_bin() returned unexpected bytes\n");
         rc = 1;
     }
 
     ssh2_bn_free(bn);
     return rc;
 }
-#endif
 
 /* Return codes match scp.c (SCP_C_FIELDS_*). */
 static int test_ssh2_scp_parse_c_fields(void)
@@ -415,9 +410,7 @@ int main(int argc, char *argv[])
     rc = test_ssh2_base64_decode(session);
     rc |= test_knownhost_ipv6(session);
     rc |= test_ssh2_dh_validate();
-#ifdef LIBSSH2_WINCNG
-    rc |= test_ssh2_wcng_bn_normalize();
-#endif
+    rc |= test_ssh2_bn_from_bin();
     rc |= test_ssh2_scp_parse_c_fields();
 
     libssh2_session_free(session);
