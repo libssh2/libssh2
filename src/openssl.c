@@ -401,13 +401,11 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
     else if(nid_type == NID_sha512)
         md = EVP_sha512();
 
-    if(ctx && md) {
-        if(EVP_PKEY_verify_init(ctx) > 0 &&
-           EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_PADDING) > 0 &&
-           EVP_PKEY_CTX_set_signature_md(ctx, md) > 0) {
-            ret = EVP_PKEY_verify(ctx, sig, sig_len, hash, hash_len);
-        }
-    }
+    if(ctx && md &&
+       EVP_PKEY_verify_init(ctx) > 0 &&
+       EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_PKCS1_PADDING) > 0 &&
+       EVP_PKEY_CTX_set_signature_md(ctx, md) > 0)
+        ret = EVP_PKEY_verify(ctx, sig, sig_len, hash, hash_len);
 
     if(ctx)
         EVP_PKEY_CTX_free(ctx);

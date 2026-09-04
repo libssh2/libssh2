@@ -340,22 +340,18 @@ static int kex_finish(LIBSSH2_SESSION *session,
     if(session->local.comp && session->local.comp->dtor)
         session->local.comp->dtor(session, 1, &session->local.comp_abstract);
 
-    if(session->local.comp && session->local.comp->init) {
-        if(session->local.comp->init(session, 1,
-                                     &session->local.comp_abstract))
-            return LIBSSH2_ERROR_KEX_FAILURE;
-    }
+    if(session->local.comp && session->local.comp->init &&
+       session->local.comp->init(session, 1, &session->local.comp_abstract))
+        return LIBSSH2_ERROR_KEX_FAILURE;
     ssh2_deb((session, LIBSSH2_TRACE_KEX,
               "Client to Server compression initialized"));
 
     if(session->remote.comp && session->remote.comp->dtor)
         session->remote.comp->dtor(session, 0, &session->remote.comp_abstract);
 
-    if(session->remote.comp && session->remote.comp->init) {
-        if(session->remote.comp->init(session, 0,
-                                      &session->remote.comp_abstract))
-            return LIBSSH2_ERROR_KEX_FAILURE;
-    }
+    if(session->remote.comp && session->remote.comp->init &&
+       session->remote.comp->init(session, 0, &session->remote.comp_abstract))
+        return LIBSSH2_ERROR_KEX_FAILURE;
     ssh2_deb((session, LIBSSH2_TRACE_KEX,
               "Server to Client compression initialized"));
 
@@ -3223,17 +3219,16 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session, size_t kex_flags,
 
                 /* OK so far, but does it suit our purposes? (Encrypting
                    vs Signing) */
-                if((kex_flags & KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0 ||
-                   method->encrypt) {
-                    /* Either this hostkey can do encryption or this kex
-                       does not require it */
-                    if((kex_flags & KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) == 0 ||
-                       method->sig_verify) {
+                if(((kex_flags & KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0 ||
+                    method->encrypt) &&
+                   /* Either this hostkey can do encryption or this kex
+                      does not require it */
+                   ((kex_flags & KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) == 0 ||
+                    method->sig_verify)) {
                         /* Either this hostkey can do signing or this kex
                            does not require it */
-                        session->hostkey = method;
-                        return 0;
-                    }
+                    session->hostkey = method;
+                    return 0;
                 }
             }
 
@@ -3245,21 +3240,19 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session, size_t kex_flags,
     while(hostkeyp && *hostkeyp && (*hostkeyp)->name) {
         s = ssh2_kex_agree_instr(hostkey, hostkey_len,
                                  (*hostkeyp)->name, strlen((*hostkeyp)->name));
-        if(s) {
-            /* OK so far, but does it suit our purposes? (Encrypting vs
-               Signing) */
-            if((kex_flags & KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0 ||
-               (*hostkeyp)->encrypt) {
-                /* Either this hostkey can do encryption or this kex
-                   does not require it */
-                if((kex_flags & KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) == 0 ||
-                   (*hostkeyp)->sig_verify) {
-                    /* Either this hostkey can do signing or this kex
-                       does not require it */
-                    session->hostkey = *hostkeyp;
-                    return 0;
-                }
-            }
+        if(s &&
+           /* OK so far, but does it suit our purposes? (Encrypting vs
+              Signing) */
+           ((kex_flags & KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0 ||
+            (*hostkeyp)->encrypt) &&
+           /* Either this hostkey can do encryption or this kex
+              does not require it */
+           ((kex_flags & KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) == 0 ||
+            (*hostkeyp)->sig_verify)) {
+            /* Either this hostkey can do signing or this kex
+               does not require it */
+            session->hostkey = *hostkeyp;
+            return 0;
         }
         hostkeyp++;
     }
@@ -3320,21 +3313,20 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session,
     while(*kexp && (*kexp)->name) {
         s = ssh2_kex_agree_instr(kex, kex_len,
                                  (*kexp)->name, strlen((*kexp)->name));
-        if(s) {
-            /* We have agreed on a key exchange method,
-             * Can we agree on a hostkey that works with this kex?
-             */
-            if(kex_agree_hostkey(session, (*kexp)->flags, hostkey,
-                                 hostkey_len) == 0) {
-                session->kex = *kexp;
-                if(session->burn_optimistic_kexinit && kex == s)
-                    /* Server sent an optimistic packet, and client agrees
-                     * with preference cancel burning the first KEX_INIT
-                     * packet that comes in */
-                    session->burn_optimistic_kexinit = 0;
+        if(s &&
+           /* We have agreed on a key exchange method,
+            * Can we agree on a hostkey that works with this kex?
+            */
+           kex_agree_hostkey(session, (*kexp)->flags, hostkey,
+                             hostkey_len) == 0) {
+            session->kex = *kexp;
+            if(session->burn_optimistic_kexinit && kex == s)
+                /* Server sent an optimistic packet, and client agrees
+                 * with preference cancel burning the first KEX_INIT
+                 * packet that comes in */
+                session->burn_optimistic_kexinit = 0;
 
-                return 0;
-            }
+            return 0;
         }
         kexp++;
     }
@@ -3700,18 +3692,17 @@ int ssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
     else
         key_state->state = ssh2_NB_state_sent2;
 
-    if(rc == 0 && session->kex && session->kex->exchange_keys) {
-        if(key_state->state == ssh2_NB_state_sent2) {
-            retcode = session->kex->exchange_keys(session,
-                                                  &key_state->key_state_low);
-            if(retcode == LIBSSH2_ERROR_EAGAIN) {
-                session->state &= ~SSH2_STATE_KEX_ACTIVE;
-                return retcode;
-            }
-            else if(retcode)
-                rc = ssh2_err(session, LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE,
-                              "Unrecoverable error exchanging keys");
+    if(rc == 0 && session->kex && session->kex->exchange_keys &&
+       key_state->state == ssh2_NB_state_sent2) {
+        retcode = session->kex->exchange_keys(session,
+                                              &key_state->key_state_low);
+        if(retcode == LIBSSH2_ERROR_EAGAIN) {
+            session->state &= ~SSH2_STATE_KEX_ACTIVE;
+            return retcode;
         }
+        else if(retcode)
+            rc = ssh2_err(session, LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE,
+                          "Unrecoverable error exchanging keys");
     }
 
     /* Done with kexinit buffers */
