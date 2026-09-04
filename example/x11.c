@@ -229,6 +229,7 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, libssh2_socket_t sock)
         }
     }
 
+    /* NOLINTNEXTLINE(readability-redundant-casting) */
     rc = select((int)(sock + 1), &set, NULL, NULL, &timeval_out);
     if(rc > 0) {
         memset(buf, 0, bufsize);
