@@ -749,8 +749,8 @@ int ssh2_dh_validate(const ssh2_bn *f, const ssh2_bn *p)
     return 0;
 }
 
-int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
-                   ssh2_bn *p, ssh2_bn_ctx *bnctx)
+int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
+                   const ssh2_bn *f, const ssh2_bn *p, ssh2_bn_ctx *bnctx)
 {
     (void)bnctx;
 
@@ -758,7 +758,7 @@ int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
         return -1;
 
     /* Compute the shared secret */
-    gcry_mpi_powm(secret, f, *dhctx, p);
+    gcry_mpi_powm(secret, SSH2_UNCONST(f), *dhctx, SSH2_UNCONST(p));
     return 0;
 }
 

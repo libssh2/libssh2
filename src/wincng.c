@@ -3136,8 +3136,8 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
  * `*dhctx', the public key `f' from the other party and the same prime `p'
  * used at context creation. The result is stored in `secret'.  0 is returned
  * upon success, else -1.  */
-int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
-                   ssh2_bn *p, ssh2_bn_ctx *bnctx)
+int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
+                   const ssh2_bn *f, const ssh2_bn *p, ssh2_bn_ctx *bnctx)
 {
     (void)bnctx;
 
