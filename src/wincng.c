@@ -1731,7 +1731,7 @@ static int wcng_p1363signature_from_point(IN LIBSSH2_SESSION *session,
  */
 static int wcng_publickey_from_point(IN LIBSSH2_SESSION *session,
                                      IN wcng_ecc_keytype keytype,
-                                     IN struct ecdsa_point *point,
+                                     IN const struct ecdsa_point *point,
                                      OUT BCRYPT_KEY_HANDLE *key)
 {
     int result = LIBSSH2_ERROR_NONE;
@@ -1791,8 +1791,8 @@ cleanup:
  */
 static int wcng_privatekey_from_point(IN LIBSSH2_SESSION *session,
                                       IN wcng_ecc_keytype keytype,
-                                      IN struct ecdsa_point *q,
-                                      IN unsigned char *d,
+                                      IN const struct ecdsa_point *q,
+                                      IN const unsigned char *d,
                                       IN size_t d_len,
                                       OUT BCRYPT_KEY_HANDLE *key)
 {
