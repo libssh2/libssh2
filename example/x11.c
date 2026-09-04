@@ -494,8 +494,7 @@ int main(int argc, char *argv[])
             current_node = next_node;
         }
 
-        /* NOLINTNEXTLINE(readability-redundant-casting) */
-        rc = select((int)(fileno(stdin) + 1), &set, NULL, NULL, &timeval_out);
+        rc = select(fileno(stdin) + 1, &set, NULL, NULL, &timeval_out);
         if(rc > 0) {
             ssize_t wr = 0;
             nread = read(fileno(stdin), buf, 1); /* Data in stdin */
