@@ -2095,10 +2095,30 @@ ssize_t libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id,
     recv_window = libssh2_channel_window_read_ex(channel, NULL, NULL);
 
     if(buflen > recv_window) {
-        BLOCK_ADJUST(rc, channel->session,
-                     ssh2_channel_receive_window_adjust(channel,
-                                                        (uint32_t)buflen,
-                                                        1, NULL));
+        /* The window adjustment amount travels over the wire as a uint32,
+           so a caller-supplied buflen beyond that range must be clamped
+           rather than truncated: casting it directly can wrap around to
+           a small value that requests far less window than intended, and
+           once local window bookkeeping and what the server actually
+           granted disagree, a later adjustment can appear to overflow the
+           remote window even though the client is not asking for more
+           than the protocol allows.
+
+           Clamping to UINT32_MAX alone is not enough on its own, though:
+           ssh2_channel_receive_window_adjust() adds this value to the
+           existing remote window and rejects the result if it would
+           overflow a uint32, so the clamp also has to leave room for
+           whatever window is already outstanding. */
+        uint32_t max_adjust = (recv_window >= UINT32_MAX)
+                                  ? 0
+                                  : (uint32_t)(UINT32_MAX - recv_window);
+        uint32_t want = (buflen > max_adjust) ? max_adjust : (uint32_t)buflen;
+        if(want > 0) {
+            BLOCK_ADJUST(rc, channel->session,
+                         ssh2_channel_receive_window_adjust(channel,
+                                                            want,
+                                                            1, NULL));
+        }
     }
 
     BLOCK_ADJUST(rc, channel->session,
