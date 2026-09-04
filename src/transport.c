@@ -686,6 +686,8 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
 
             /* Get a packet handle put data into. We get one to
                hold all data, including padding and MAC. */
+            if(p->payload)
+                SSH2_FREE(session, p->payload);
             p->payload = SSH2_ALLOC(session, total_num);
             if(!p->payload)
                 return LIBSSH2_ERROR_ALLOC;
