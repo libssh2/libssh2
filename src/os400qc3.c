@@ -670,7 +670,7 @@ static void asn1delete(struct asn1Element *e)
     }
 }
 
-static struct asn1Element *asn1uint(ssh2_bn *bn)
+static struct asn1Element *asn1uint(const ssh2_bn *bn)
 {
     struct asn1Element *e;
     int bits;
@@ -1273,8 +1273,8 @@ void ssh2_dh_init(ssh2_dh_ctx *dhctx)
     memset((char *)dhctx, 0, sizeof(*dhctx));
 }
 
-int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
-                     ssh2_bn *p, int group_order, ssh2_bn_ctx *bnctx)
+int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, const ssh2_bn *g,
+                     const ssh2_bn *p, int group_order, ssh2_bn_ctx *bnctx)
 {
     struct asn1Element *prime;
     struct asn1Element *base;
@@ -1344,8 +1344,8 @@ int ssh2_dh_validate(const ssh2_bn *f, const ssh2_bn *p)
     return result;
 }
 
-int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret, ssh2_bn *f,
-                   ssh2_bn *p, ssh2_bn_ctx *bnctx)
+int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
+                   const ssh2_bn *f, const ssh2_bn *p, ssh2_bn_ctx *bnctx)
 {
     char *pubkey;
     int pubkeysize;
