@@ -3692,18 +3692,17 @@ int ssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
     else
         key_state->state = ssh2_NB_state_sent2;
 
-    if(rc == 0 && session->kex && session->kex->exchange_keys) {
-        if(key_state->state == ssh2_NB_state_sent2) {
-            retcode = session->kex->exchange_keys(session,
-                                                  &key_state->key_state_low);
-            if(retcode == LIBSSH2_ERROR_EAGAIN) {
-                session->state &= ~SSH2_STATE_KEX_ACTIVE;
-                return retcode;
-            }
-            else if(retcode)
-                rc = ssh2_err(session, LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE,
-                              "Unrecoverable error exchanging keys");
+    if(rc == 0 && session->kex && session->kex->exchange_keys &&
+       key_state->state == ssh2_NB_state_sent2) {
+        retcode = session->kex->exchange_keys(session,
+                                              &key_state->key_state_low);
+        if(retcode == LIBSSH2_ERROR_EAGAIN) {
+            session->state &= ~SSH2_STATE_KEX_ACTIVE;
+            return retcode;
         }
+        else if(retcode)
+            rc = ssh2_err(session, LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE,
+                          "Unrecoverable error exchanging keys");
     }
 
     /* Done with kexinit buffers */
