@@ -1338,7 +1338,8 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
 
 #if LIBSSH2_DSA
 static unsigned char *ossl_dsa_to_pubkey(LIBSSH2_SESSION *session,
-                                         ssh2_dsa_ctx *dsa, size_t *key_len)
+                                         const ssh2_dsa_ctx *dsa,
+                                         size_t *key_len)
 {
     static const char method_name[] = "ssh-dss";
     int p_bytes, q_bytes, g_bytes, k_bytes;
