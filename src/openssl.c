@@ -1102,7 +1102,7 @@ static int ossl_rsa_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
 
 #ifdef USE_OPENSSL_3
     rsa = pk;
-#elif defined(LIBSSH2_WOLFSSL)
+#elif defined(USE_OPENSSL111) || defined(LIBSSH2_WOLFSSL)
     rsa = EVP_PKEY_get1_RSA(SSH2_UNCONST(pk));
 #else
     rsa = EVP_PKEY_get1_RSA(pk);
@@ -1421,7 +1421,7 @@ static int ossl_dsa_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
 
 #ifdef USE_OPENSSL_3
     dsa = pk;
-#elif defined(LIBSSH2_WOLFSSL)
+#elif defined(USE_OPENSSL111) || defined(LIBSSH2_WOLFSSL)
     dsa = EVP_PKEY_get1_DSA(SSH2_UNCONST(pk));
 #else
     dsa = EVP_PKEY_get1_DSA(pk);
@@ -2468,7 +2468,7 @@ static int ossl_ecdsa_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
     if(!bn_ctx)
         return -1;
 
-#ifdef LIBSSH2_WOLFSSL
+#if defined(USE_OPENSSL111) || defined(LIBSSH2_WOLFSSL)
     ec = EVP_PKEY_get1_EC_KEY(SSH2_UNCONST(pk));
 #else
     ec = EVP_PKEY_get1_EC_KEY(pk);

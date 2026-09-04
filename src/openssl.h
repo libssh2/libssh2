@@ -128,6 +128,7 @@
 #    define SSH2_CRYPTO_ENGINE_NAME "BoringSSL"
 #  elif !defined(USE_OPENSSL_3)
 #    define SSH2_CRYPTO_ENGINE_NAME "OpenSSL/1.1.1"
+#    define USE_OPENSSL111
 #  else
 #    define SSH2_CRYPTO_ENGINE_NAME "OpenSSL"
 #  endif
