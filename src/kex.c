@@ -340,22 +340,18 @@ static int kex_finish(LIBSSH2_SESSION *session,
     if(session->local.comp && session->local.comp->dtor)
         session->local.comp->dtor(session, 1, &session->local.comp_abstract);
 
-    if(session->local.comp && session->local.comp->init) {
-        if(session->local.comp->init(session, 1,
-                                     &session->local.comp_abstract))
-            return LIBSSH2_ERROR_KEX_FAILURE;
-    }
+    if(session->local.comp && session->local.comp->init &&
+       session->local.comp->init(session, 1, &session->local.comp_abstract))
+        return LIBSSH2_ERROR_KEX_FAILURE;
     ssh2_deb((session, LIBSSH2_TRACE_KEX,
               "Client to Server compression initialized"));
 
     if(session->remote.comp && session->remote.comp->dtor)
         session->remote.comp->dtor(session, 0, &session->remote.comp_abstract);
 
-    if(session->remote.comp && session->remote.comp->init) {
-        if(session->remote.comp->init(session, 0,
-                                      &session->remote.comp_abstract))
-            return LIBSSH2_ERROR_KEX_FAILURE;
-    }
+    if(session->remote.comp && session->remote.comp->init &&
+       session->remote.comp->init(session, 0, &session->remote.comp_abstract))
+        return LIBSSH2_ERROR_KEX_FAILURE;
     ssh2_deb((session, LIBSSH2_TRACE_KEX,
               "Server to Client compression initialized"));
 
