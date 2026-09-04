@@ -670,7 +670,7 @@ static void asn1delete(struct asn1Element *e)
     }
 }
 
-static struct asn1Element *asn1uint(ssh2_bn *bn)
+static struct asn1Element *asn1uint(const ssh2_bn *bn)
 {
     struct asn1Element *e;
     int bits;
