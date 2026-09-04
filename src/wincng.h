@@ -273,6 +273,8 @@ struct wcng_bn {
 #define ssh2_bn                  struct wcng_bn
 #define ssh2_bn_bytes(bn)        ((bn)->length)
 
+void ssh2_wcng_bn_normalize(ssh2_bn *bn);
+
 /*
  * Windows CNG backend: Diffie-Hellman support
  */
