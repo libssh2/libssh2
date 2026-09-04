@@ -34,6 +34,7 @@ Checks:
   - portability-*
   - readability-duplicate-include
   - readability-inconsistent-declaration-parameter-name
+  - readability-misleading-indentation
   - readability-named-parameter
   - readability-redundant-control-flow
   - readability-redundant-declaration
