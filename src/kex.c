@@ -3219,17 +3219,16 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session, size_t kex_flags,
 
                 /* OK so far, but does it suit our purposes? (Encrypting
                    vs Signing) */
-                if((kex_flags & KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0 ||
-                   method->encrypt) {
-                    /* Either this hostkey can do encryption or this kex
-                       does not require it */
-                    if((kex_flags & KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) == 0 ||
-                       method->sig_verify) {
+                if(((kex_flags & KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0 ||
+                    method->encrypt) &&
+                   /* Either this hostkey can do encryption or this kex
+                      does not require it */
+                   ((kex_flags & KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) == 0 ||
+                    method->sig_verify)) {
                         /* Either this hostkey can do signing or this kex
                            does not require it */
-                        session->hostkey = method;
-                        return 0;
-                    }
+                    session->hostkey = method;
+                    return 0;
                 }
             }
 
