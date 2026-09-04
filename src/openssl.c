@@ -658,7 +658,7 @@ int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
 /*
  * returns key curve type that maps to ssh2_curve_type
  */
-ssh2_curve_type ssh2_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ec_ctx)
+ssh2_curve_type ssh2_ecdsa_get_curve_type(const ssh2_ecdsa_ctx *ec_ctx)
 {
 #ifdef USE_OPENSSL_3
     int bits = 0;
@@ -2434,7 +2434,7 @@ static int ossl_ecdsa_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
                                     unsigned char **pubkeydata,
                                     size_t *pubkeydata_len,
                                     int is_sk,
-                                    EVP_PKEY *pk)
+                                    const EVP_PKEY *pk)
 {
     int rc = 0;
     char *method_buf = NULL;

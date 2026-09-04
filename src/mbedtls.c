@@ -1084,7 +1084,7 @@ cleanup:
 /*
  * returns key curve type that maps to ssh2_curve_type
  */
-ssh2_curve_type ssh2_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ec_ctx)
+ssh2_curve_type ssh2_ecdsa_get_curve_type(const ssh2_ecdsa_ctx *ec_ctx)
 {
     return (ssh2_curve_type)ec_ctx->MBEDTLS_PRIVATE(grp).id;
 }

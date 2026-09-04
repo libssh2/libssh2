@@ -723,7 +723,7 @@ Return 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
 ```c
-ssh2_curve_type ssh2_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ec_ctx);
+ssh2_curve_type ssh2_ecdsa_get_curve_type(const ssh2_ecdsa_ctx *ec_ctx);
 ```
 Returns the curve type associated with given context.
 This procedure is already prototyped in `crypto.h`.

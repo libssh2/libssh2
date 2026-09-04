@@ -194,7 +194,7 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, LIBSSH2_SESSION *session,
                     const unsigned char *server_public_key,
                     size_t server_public_key_len);
 
-ssh2_curve_type ssh2_ecdsa_get_curve_type(ssh2_ecdsa_ctx *ec_ctx);
+ssh2_curve_type ssh2_ecdsa_get_curve_type(const ssh2_ecdsa_ctx *ec_ctx);
 
 int ssh2_ecdsa_create_key(ssh2_ec_key **ec_ctx, LIBSSH2_SESSION *session,
                           unsigned char **out_public_key_octal,
