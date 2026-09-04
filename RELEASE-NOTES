@@ -61,6 +61,7 @@ Deprecation notices:
 
 This release includes the following enhancements and bugfixes:
 
+- agent: fix potential infinite loop while receiving data from SSH agent (d0a0210b #2414)
 - agent: fix unused macro compiler warnings in UWP non-unity builds (0e2bc3d6 #2325 #2313)
 - agent: fix to replace `TEXT()` with `_TEXT()` in CRT calls (8e9f1ca1 #2320 #2313)
 - agent: add Unicode support, use secure `getenv()` on Windows (49abb5e5 #2313)
@@ -143,8 +144,9 @@ This release includes the following enhancements and bugfixes:
 - channel: fix 3 error messages (16c3c22e #2141)
 - channel: Check open_data length before accessing reason_code (9ffbe62b #2140)
 - channel: add window size bounds checking (a0057aef #1848)
-- channel: fix comment about handling of trailing zero byte (785cafa5 #1781)
+- channel: fix comment about handling of null-terminator (785cafa5 #1781)
 - channel: in channel_free, find all members in session structure with the channelpointer and free and clear those entries (80981c76 #1753 #1432)
+- channel, packet: validate packet size received from server (b5c37a91 #2582 GHSA-4q73-hh48-fmr8)
 - checksrc: extend to ossfuzz, reduce scope of exceptions (509eac8b #1998)
 - checksrc: stop disabling TYPEDEFSTRUCT globally (a73aa23c #1912 #1910 #1909 #1908 #1907)
 - checksrc: add missing semicolon, fix `IFDEFSINGLE` capture group (001571c1)
@@ -162,6 +164,9 @@ This release includes the following enhancements and bugfixes:
 - CI: drop redundant AppVeyor build jobs, limit building tests and examples (39cd3a82 #2051)
 - CI: dump `libssh2_config.h` to log (7e5b263b #1975)
 - CI: set `DO_NOT_TRACK=1` (c615272e #1872)
+- clang-tidy: fix `readability-redundant-casting` findings (0b915eab #2586)
+- clang-tidy: enable `readability-redundant-nested-if`, fix findings (c4ae6510 #2585)
+- clang-tidy: enable `readability-misleading-indentation` (404e32a4 #2584)
 - clang-tidy: fix two NOLINTs and drop obsolete ones (d5965d12 #2382)
 - clang-tidy: extend checks, fix fallouts (6e47049c #1844)
 - clang-tidy: fix and/or silence issues found, and more (a1a28ac9 #1561)
@@ -456,6 +461,7 @@ This release includes the following enhancements and bugfixes:
 - hostkey: prefer ED25519 over ECDSA in hostkey algorithm negotiation (0cb83514 #1783 #1782)
 - hostkey, kex: factor out hash helper macros and dispatchers (f2b41605 #2184 #2171)
 - hostkey, userauth: merge from-filename, from-memory codepaths (5b94157f #2354)
+- include: restore parentheses for macro arguments, for compatibility (dc656fd8 #2577 #1898)
 - include: delete conditional `sys/uio.h` include (e462f207 #2470 follow: 6bf89833 follow: c070bdac)
 - include: exclude two misspelled macros with `LIBSSH2_NO_DEPRECATED` (f69dc3f8 #1987 #1977 follow: 4b8db8c1)
 - include: add deprecated attributes where missing, related doc updates (2b2664bf #1977 follow: 2b8038e1 follow: 6875285b follow: 8eba2961)
@@ -486,7 +492,7 @@ This release includes the following enhancements and bugfixes:
 - kex: clarify buffer size using exact length (fdcbe4e3 #1787)
 - kex: fix 3 error messages (b07fef59 #1852)
 - kex: mlkem_nistp(): fix returning error on hash calculation failures (24615d62 #1846 #1644)
-- kex: do not assume buffer ends with trailing zero (d3421aef #1788)
+- kex: do not assume buffer has null-terminator (d3421aef #1788)
 - kex: missing `free()` when random data cannot be generated (ae0a2316 #1780)
 - kex: fix NULL dereference of kex->exchange_keys during key exchange. (631e2f82 #1763)
 - kex: remove unused kex state variable `exchange_hash` (c3d8976c #1713)
@@ -530,6 +536,7 @@ This release includes the following enhancements and bugfixes:
 - libssh2_scp_send, libssh2_scp_send_ex: add deprecation warning (70276045)
 - libssh2_sign_sk: add `LIBSSH2_API` attribute, document availability (e0635ab4 #1965 #698 follow: ed439a29)
 - libssh2_trace.3: Update prototype (7495084b #1518 #1517)
+- libssh2.h: macro value formatting (1545df09 #2576)
 - libssh2.h: bump `LIBSSH2_VERSION_PATCH` to match version string (5c1f36c6 #2219 follow: c04d57e7)
 - libssh2.h: merge two `#if` branches (cbdb0a8c #1869 #1793 #1578)
 - libssh2.h: _WINDLL being defined does not mean libssh2 was built as a DLL (35326015 #1793 #1578)
@@ -607,7 +614,7 @@ This release includes the following enhancements and bugfixes:
 - openssl: future-proof LibreSSL ECC support check (8358f2f5 #2523 #2519)
 - openssl: fix compiler warning with AWS-LC/BoringSSL and debug logging enabled (33a1df30 #2503)
 - openssl: sync patterns between functions (tidy-up) (9a376a86 #2442 #2308 #2029 #1644)
-- openssl: fix potential OOB read/write with AES-GCM in `ssh2_cipher_crypt()` (a2ed82d4 #2401 GHSA-c4f7-cvfc-33j7 #797 follow: 3c953c05)
+- openssl: fix potential OOB read/write with AES-GCM in `ssh2_cipher_crypt()` (a2ed82d4 #2401 GHSA-c4f7-cvfc-33j7 #797 #1491 follow: 3c953c05)
 - openssl: replace `ossl_*_openssh_priv_new()` functions with `ossl_key_from_openssh()` (ac9a71a7 #2396 #2394 #2379)
 - openssl: merge `ossl_key_from_openssh_*()` file/blob functions (3bb068e4 #2394 #2388 #2379 #2354)
 - openssl: fix importing DSA private keys from blob (e295f4ff #2395 #248 #2394 follow: 03092292)
@@ -706,6 +713,9 @@ This release includes the following enhancements and bugfixes:
 - pem: fix possible double free if key in error cases (2fb5803c #1550 #1549)
 - pem, test_hostkey: replace `strlen()` on literals with `sizeof()` (7bbf17a5 #2438 #2432)
 - pem, wincng: fix checking for OpenSSH PEM magic string (56c12e9d #2022 #248 #2014 #1315 follow: 03092292 follow: 3e723437)
+- publickey: cap number of public keys in `libssh2_publickey_list_fetch()` (14b9d877 #2580)
+- publickey: preserve list state across EAGAIN in `libssh2_publickey_list_fetch()` (b4e6761d #2578 GHSA-qwvp-xm4w-32m7)
+- publickey: initialize the list terminator in `libssh2_publickey_list_fetch()` (ad16eb11 #2579 #2380)
 - publickey: fix `attr` memleak on error in `libssh2_publickey_list_fetch()` (c2f1a3a2 #2380 #2368)
 - publickey: honor key type length in traces (865c86a8 #2386)
 - publickey: fix potential heap OOB reads in `publickey_init()` (edec1cce #2197 #2147)
@@ -725,6 +735,7 @@ This release includes the following enhancements and bugfixes:
 - readme.vms: fix typos (cont.) (3ccef401)
 - readme.vms: fix typos (622dfa06)
 - REUSE: add copyright headers to more files, `.gitignore` updates (4f9e6e0b #1718)
+- scp: handle `ssh2_snprintf()` failure in `scp_send()` (4884fc61 #2573 GHSA-p2v4-ghw2-mvq3 GHSA-v6rf-jr7x-9hhp)
 - scp: enable 64-bit timestamp support in `libssh2_scp_recv2()` (fe1ef985 #2460)
 - scp: delete two obsolete comments (b16b4e76 #2459 follow: 7a5ffc8c follow: ca2e81eb)
 - scp: drain long C-response basenames past fixed buffer (aa54fdd1 #2408 #1738)
@@ -748,6 +759,7 @@ This release includes the following enhancements and bugfixes:
 - session: null checks to quiet fuzzer (c090b696 #1556)
 - session_fixture: fix to skip AES-CBC/CTR tests if not supported or disabled (84cffeaf #2507)
 - session_fixture: re-enable algos disabled for mbedTLS, the issue is fixed now (571653ba #2446 #969 #793 #1758 follow: 7487dcf4 follow: 9ecb22da)
+- sftp: fix handling unexpected EOF in `sftp_packet_read()` (9438f90a #2581 GHSA-2q3j-q544-xxp7)
 - sftp: free response buffer on `sftp_read()` protocol-error paths (cdbda3cd #2537)
 - sftp: fix memleak on OOM in `sftp_init()` (0d275121 #2458 #2456 #1386 follow: fb652746)
 - sftp: reject bad readdir name counts and clear stuck dir state (092b2829 #2280 #2018)
@@ -845,6 +857,7 @@ This release includes the following enhancements and bugfixes:
 - test_ssh2, examples: bump to SHA-256 fingerprints (6f3c640d #2445)
 - test_ssh2, examples: avoid crash on NULL fingerprint (f784c21d #2179 #2174)
 - test_sshd.test: sync an option with `sshd_config` used in `Dockerfile` (cae4e3f8 #2481 #1024 follow: d4690e95)
+- tests: add script to dump test keys in more parsable formats (ceb15801 #2574)
 - tests: add tests for signed hostkey: `ssh-ed25519-cert-v01@openssh.com` (6036e577 #2513 #2435 #2434 #2064)
 - tests: rename CA keys to reflect they are user keys (19aa4338 #2512)
 - tests: upload host pubkeys to repo (c8543ef3 #2511 #2435 #2064)
@@ -983,6 +996,7 @@ This release includes the following enhancements and bugfixes:
 - vms/man2help: make functions static (b599ff5e)
 - vms/man2help: add missing void return type to prototype (aa45503a)
 - vms/man2help: misc fixes (3ec2920b #1902)
+- wincng: rename local private key parsing functions to share a suffix (e09f8111 #2575)
 - wincng: constify static function arguments, where missing (e655d94a #2561)
 - wincng: fix allow/free mismatch with `wcng_load_priv()` return buffers (48eb7c9f #2560 follow: d385230e)
 - wincng: avoid pointer cast in `wcng_ecdsa_new_private_parse()` (d4d068fa #2426 #2424 #1315 follow: 3e723437)
@@ -1035,24 +1049,25 @@ This release includes the following enhancements and bugfixes:
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
-  Adrian Moran, afldl on github, Aldo Ristori, Amy Lin, Anders Borum,
-  Asaf Meizner, Behzod Abdullayev, Bruce Dang, Chen Zhengzhe, Chris Emsen,
-  Christian Ghisler, Christoph Reiter, d3x0r, Dan Fandrich, Daniel Stenberg,
-  dapickle on github, Darren Carreras, dependabot[bot], Dhiraj Mishra,
-  DigitalCyberSoft, Eli Schwartz, Evgeny Grin, Feodor Fitsner,
+  Adrian Moran, afldl on github, Afonso Januário, Aldo Ristori, Amy Lin,
+  Anders Borum, Asaf Meizner, Behzod Abdullayev, Bruce Dang, Chen Zhengzhe,
+  Chris Emsen, Christian Ghisler, Christoph Reiter, d3x0r, Dan Fandrich,
+  Daniel Stenberg, dapickle on github, Darren Carreras, dependabot[bot],
+  Dhiraj Mishra, DigitalCyberSoft, Eli Schwartz, Evgeny Grin, Feodor Fitsner,
   geral-victor on github, Hananto Adi, Haruki Oyama, Hemant Jadhav, Huang Rui,
   hyunjiHong on github, Jacob Barthelmeh, Jay Satiro, Jim B, Joren Afman,
   Josh Brobst, Joshua Rogers, Justin Smith, Kai Pastor, Karnakar Reddy,
   Kian Kasad, Kit Knox, Krisscut on github, Lars Nordin, Liu Xing Yu,
   Lucas Queiroz, Lukas Dürrenberger, manus-use on github, manusjs on github,
   Marc Hörsken, Marcel Raad, Martin Nowak, Mateusz Gierblinski,
-  Michael Buckley, Mухтар Воблоев, nnarayanamurthy on github, Oblivionsage,
-  Oliver Chang, Omkar Bhor, oss-patch, Pascal Neuperger, Patrick Monnerat,
-  Paul Howarth, Pedro Masteguin, Pier Carlo Cadoppi, Pramod Kumar,
-  pyscripter on github, R6502 on github (Michael), Rainer Jung, Ralf Mueller,
-  Raul Tambre, RuiZhi Zhang, Ryan Kelley, Sebastien Tardif, Seojun Lee,
-  sergey1369, Sharique Raza, skuodi on github, Stanislav Osipov,
-  Stephan Eggermont, syed abdul khaliq, timelyslot on gitHub, TristanInSec,
-  trustytrojan, Trzik on github, Viktor Szakats, Vladimir Eli Tokarev,
-  vnth4nhnt from CyStack, Wilfried Pascault, Will Cosgrove,
-  yaotushaozhu on github, Yaroslav Rosomakho, Ze Sheng
+  Michael Buckley, Mухтар Воблоев, nnarayanamurthy on github, Nora-Qiu,
+  Oblivionsage, Oliver Chang, Omkar Bhor, oss-patch, Pascal Neuperger,
+  Patrick Monnerat, Paul Howarth, Pedro Masteguin, Pier Carlo Cadoppi,
+  Pramod Kumar, pyscripter on github, QcN3ep, R6502 on github (Michael),
+  Rainer Jung, Ralf Mueller, Raul Tambre, RELAUNCH DEPT., RuiZhi Zhang,
+  Ryan Kelley, Sebastien Tardif, Seojun Lee, sergey1369, Sharique Raza,
+  skuodi on github, Stanislav Osipov, Stephan Eggermont, syed abdul khaliq,
+  timelyslot on gitHub, TristanInSec, trustytrojan, Trzik on github,
+  Viktor Szakats, Vladimir Eli Tokarev, vnth4nhnt from CyStack,
+  Wilfried Pascault, Will Cosgrove, yaotushaozhu on github, Yaroslav Rosomakho,
+  Ze Sheng
