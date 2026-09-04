@@ -191,27 +191,25 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
     }
 
     /* Override crypt algorithm for the test */
-    if(crypt) {
-        if(libssh2_session_method_pref(connected_session,
-                                       LIBSSH2_METHOD_CRYPT_CS, crypt) ||
-           libssh2_session_method_pref(connected_session,
-                                       LIBSSH2_METHOD_CRYPT_SC, crypt)) {
-            fprintf(stderr, "libssh2_session_method_pref CRYPT failed "
-                            "(probably disabled in the build): '%s'\n", crypt);
-            return NULL;
-        }
+    if(crypt &&
+       (libssh2_session_method_pref(connected_session,
+                                    LIBSSH2_METHOD_CRYPT_CS, crypt) ||
+        libssh2_session_method_pref(connected_session,
+                                    LIBSSH2_METHOD_CRYPT_SC, crypt))) {
+        fprintf(stderr, "libssh2_session_method_pref CRYPT failed "
+                        "(probably disabled in the build): '%s'\n", crypt);
+        return NULL;
     }
 
     /* Override mac algorithm for the test */
-    if(mac) {
-        if(libssh2_session_method_pref(connected_session,
-                                       LIBSSH2_METHOD_MAC_CS, mac) ||
-           libssh2_session_method_pref(connected_session,
-                                       LIBSSH2_METHOD_MAC_SC, mac)) {
-            fprintf(stderr, "libssh2_session_method_pref MAC failed "
-                            "(probably disabled in the build): '%s'\n", mac);
-            return NULL;
-        }
+    if(mac &&
+       (libssh2_session_method_pref(connected_session,
+                                    LIBSSH2_METHOD_MAC_CS, mac) ||
+        libssh2_session_method_pref(connected_session,
+                                    LIBSSH2_METHOD_MAC_SC, mac))) {
+        fprintf(stderr, "libssh2_session_method_pref MAC failed "
+                        "(probably disabled in the build): '%s'\n", mac);
+        return NULL;
     }
 
     /* Without an explicit override, limit accepted hostkey types to those
