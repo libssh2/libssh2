@@ -1817,7 +1817,7 @@ static int kex_method_ecdh_key_exchange(
 
         ret = kex_ecdh_sha2_nistp(session, curve, key_state->data,
                                   key_state->data_len,
-                                  (unsigned char *)key_state->public_key_oct,
+                                  key_state->public_key_oct,
                                   key_state->public_key_oct_len,
                                   key_state->private_key,
                                   &key_state->exchange_state);
@@ -2165,7 +2165,7 @@ static int kex_method_mlkem_nistp_key_exchange(
 
     if(key_state->state == ssh2_NB_state_sent2) {
         ret = kex_mlkem_nistp(session, key_state->data, key_state->data_len,
-                              (unsigned char *)key_state->public_key_oct,
+                              key_state->public_key_oct,
                               key_state->public_key_oct_len,
                               key_state->private_key,
                               key_state->mlkem_public_key,

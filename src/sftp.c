@@ -3008,8 +3008,8 @@ static int sftp_posix_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
     }
     else if(rc) {
         sftp->posix_rename_state = ssh2_NB_state_idle;
-        return (int)ssh2_err(session, (int)rc,
-                             "Error waiting for FXP EXTENDED REPLY");
+        return ssh2_err(session, (int)rc,
+                        "Error waiting for FXP EXTENDED REPLY");
     }
 
     sftp->posix_rename_state = ssh2_NB_state_idle;
