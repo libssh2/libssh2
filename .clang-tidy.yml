@@ -36,6 +36,7 @@ Checks:
   - readability-inconsistent-declaration-parameter-name
   - readability-misleading-indentation
   - readability-named-parameter
+  # readability-redundant-casting  # false positives in types that change from platform to platform, even with IgnoreTypeAliases: true
   - readability-redundant-control-flow
   - readability-redundant-declaration
   - readability-redundant-function-ptr-dereference
