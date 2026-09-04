@@ -1645,7 +1645,7 @@ clean_exit:
 static int ossl_ed25519_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
                                       unsigned char **pubkeydata,
                                       size_t *pubkeydata_len,
-                                      EVP_PKEY *pk)
+                                      const EVP_PKEY *pk)
 {
     static const char method_name[] = "ssh-ed25519";
     char *method_buf = NULL;
