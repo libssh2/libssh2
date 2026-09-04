@@ -229,6 +229,7 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, libssh2_socket_t sock)
         }
     }
 
+    /* NOLINTNEXTLINE(readability-redundant-casting) */
     rc = select((int)(sock + 1), &set, NULL, NULL, &timeval_out);
     if(rc > 0) {
         memset(buf, 0, bufsize);
@@ -493,7 +494,7 @@ int main(int argc, char *argv[])
             current_node = next_node;
         }
 
-        rc = select((int)(fileno(stdin) + 1), &set, NULL, NULL, &timeval_out);
+        rc = select(fileno(stdin) + 1, &set, NULL, NULL, &timeval_out);
         if(rc > 0) {
             ssize_t wr = 0;
             nread = read(fileno(stdin), buf, 1); /* Data in stdin */

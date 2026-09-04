@@ -783,8 +783,6 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
     EVP_PKEY_CTX *ctx = NULL;
     unsigned char *der = NULL;
     int der_len = 0;
-#else
-    EC_KEY *ec_key = (EC_KEY *)ec_ctx;
 #endif
 
     ECDSA_SIG *ecdsa_sig;
@@ -863,17 +861,17 @@ cleanup:
     if(curve == SSH2_EC_CURVE_NISTP256) {
         unsigned char hash[SSH2_SHA256_DIG_LEN];
         if(ssh2_hash(SSH2_SHA256_ALG, m, m_len, hash, sizeof(hash)))
-            ret = ECDSA_do_verify(hash, sizeof(hash), ecdsa_sig, ec_key);
+            ret = ECDSA_do_verify(hash, sizeof(hash), ecdsa_sig, ec_ctx);
     }
     else if(curve == SSH2_EC_CURVE_NISTP384) {
         unsigned char hash[SSH2_SHA384_DIG_LEN];
         if(ssh2_hash(SSH2_SHA384_ALG, m, m_len, hash, sizeof(hash)))
-            ret = ECDSA_do_verify(hash, sizeof(hash), ecdsa_sig, ec_key);
+            ret = ECDSA_do_verify(hash, sizeof(hash), ecdsa_sig, ec_ctx);
     }
     else if(curve == SSH2_EC_CURVE_NISTP521) {
         unsigned char hash[SSH2_SHA512_DIG_LEN];
         if(ssh2_hash(SSH2_SHA512_ALG, m, m_len, hash, sizeof(hash)))
-            ret = ECDSA_do_verify(hash, sizeof(hash), ecdsa_sig, ec_key);
+            ret = ECDSA_do_verify(hash, sizeof(hash), ecdsa_sig, ec_ctx);
     }
 #endif
 

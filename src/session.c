@@ -647,6 +647,7 @@ int ssh2_wait_socket(LIBSSH2_SESSION *session, ssh2_time_t start_time)
             writefd = &wfd;
         }
 
+        /* NOLINTNEXTLINE(readability-redundant-casting) */
         rc = select((int)(session->socket_fd + 1), readfd, writefd, NULL,
                     has_timeout ? &tv : NULL);
     }
@@ -1730,6 +1731,7 @@ int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout_ms)
             tv.tv_usec = ssh2_timediff_to_usec(timeout_remaining);
 #endif
             start_time = ssh2_now();
+            /* NOLINTNEXTLINE(readability-redundant-casting) */
             sysret = select((int)(maxfd + 1), &rfds, &wfds, NULL,
                             timeout_remaining >= 0 ? &tv : NULL);
             now = ssh2_now();

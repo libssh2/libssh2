@@ -860,6 +860,7 @@ LIBSSH2_CHANNEL *libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path,
 
         sb->st_mtime = sb_intl.st_mtime;
         sb->st_atime = sb_intl.st_atime;
+        /* NOLINTNEXTLINE(readability-redundant-casting) */
         sb->st_size = (off_t)sb_intl.st_size;
         sb->st_mode = sb_intl.st_mode;
     }
