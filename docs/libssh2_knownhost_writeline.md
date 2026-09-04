@@ -38,8 +38,8 @@ the 'type' output format.
 *buflen* is the size of the *buffer*. See RETURN VALUE about the size.
 
 *outlen* must be a pointer to a size_t variable that gets the output
-length of the stored data chunk. The number does not included the trailing
-zero!
+length of the stored data chunk. The number does not included
+the null-terminator!
 
 *type* specifies what file type it is, and
 *LIBSSH2_KNOWNHOST_FILE_OPENSSH* is the only currently supported

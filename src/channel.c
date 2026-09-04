@@ -1322,7 +1322,7 @@ static int channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
         else {
             int i;
             /* note: the ssh2_snprintf() loop always writes 3 bytes so
-               the last one writes the trailing zero after the
+               the last one writes the null-terminator after the
                LIBSSH2_X11_RANDOM_COOKIE_LEN border in s, but s has extra
                4 bytes of size (for screen_number) */
             unsigned char buffer[LIBSSH2_X11_RANDOM_COOKIE_LEN / 2];

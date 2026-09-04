@@ -43,7 +43,7 @@ port number. For example: "[host.example.com]:222".
 
 *salt* is a pointer to the salt used for the host hashing, if the host is
 provided hashed. If the host is provided in plain text, salt has no meaning.
-The salt has to be provided base64 encoded with a trailing zero byte.
+The salt has to be provided base64 encoded with a null-terminator.
 
 *key* is a pointer to the key for the given host.
 

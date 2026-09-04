@@ -1367,7 +1367,8 @@ static int knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
         }
     }
 
-    /* we report the full length of the data with the trailing zero excluded */
+    /* we report the full length of the data with the null-terminator
+       excluded */
     *outlen = required_size - 1;
 
     if(required_size <= buflen)
