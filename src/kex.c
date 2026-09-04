@@ -3241,21 +3241,19 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session, size_t kex_flags,
     while(hostkeyp && *hostkeyp && (*hostkeyp)->name) {
         s = ssh2_kex_agree_instr(hostkey, hostkey_len,
                                  (*hostkeyp)->name, strlen((*hostkeyp)->name));
-        if(s) {
-            /* OK so far, but does it suit our purposes? (Encrypting vs
-               Signing) */
-            if((kex_flags & KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0 ||
-               (*hostkeyp)->encrypt) {
-                /* Either this hostkey can do encryption or this kex
-                   does not require it */
-                if((kex_flags & KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) == 0 ||
-                   (*hostkeyp)->sig_verify) {
-                    /* Either this hostkey can do signing or this kex
-                       does not require it */
-                    session->hostkey = *hostkeyp;
-                    return 0;
-                }
-            }
+        if(s &&
+           /* OK so far, but does it suit our purposes? (Encrypting vs
+              Signing) */
+           ((kex_flags & KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0 ||
+            (*hostkeyp)->encrypt) &&
+           /* Either this hostkey can do encryption or this kex
+              does not require it */
+           ((kex_flags & KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) == 0 ||
+            (*hostkeyp)->sig_verify)) {
+            /* Either this hostkey can do signing or this kex
+               does not require it */
+            session->hostkey = *hostkeyp;
+            return 0;
         }
         hostkeyp++;
     }
