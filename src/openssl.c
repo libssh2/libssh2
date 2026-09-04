@@ -1032,7 +1032,8 @@ static int ossl_passphrase_cb(char *buf, int size, int rwflag,
 
 #if LIBSSH2_RSA
 static unsigned char *ossl_rsa_to_pubkey(LIBSSH2_SESSION *session,
-                                         ssh2_rsa_ctx *rsa, size_t *key_len)
+                                         const ssh2_rsa_ctx *rsa,
+                                         size_t *key_len)
 {
     static const char method_name[] = "ssh-rsa";
     int e_bytes, n_bytes;
@@ -1084,10 +1085,14 @@ fail:
 static int ossl_rsa_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
                                   unsigned char **pubkeydata,
                                   size_t *pubkeydata_len,
-                                  EVP_PKEY *pk)
+                                  const EVP_PKEY *pk)
 {
     static const char method_name[] = "ssh-rsa";
-    ssh2_rsa_ctx *rsa = NULL;
+#ifdef USE_OPENSSL_3
+    const ssh2_rsa_ctx *rsa;
+#else
+    ssh2_rsa_ctx *rsa;
+#endif
     unsigned char *key;
     char *method_buf = NULL;
     size_t key_len;
