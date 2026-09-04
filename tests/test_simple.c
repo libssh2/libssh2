@@ -274,6 +274,42 @@ static int test_ssh2_dh_validate(void)
     return err > 0;
 }
 
+static int test_ssh2_bn_from_bin(void)
+{
+    static const struct {
+        unsigned char input[5];
+        size_t length;
+        size_t leading;
+    } tests[] = {
+        { { 1 }, 1, 0 },
+        { { 0x7f }, 1, 0 },
+        { { 0x80 }, 1, 0 },
+        { { 0xff, 0x42 }, 2, 0 },
+        { { 0, 1 }, 2, 1 },
+        { { 0, 0x80 }, 2, 1 },
+        { { 0, 0, 0x80, 0x42 }, 4, 2 },
+        { { 0, 0, 0, 0, 1 }, 5, 4 },
+    };
+    size_t i;
+    int rc = 0;
+
+    for(i = 0; i < SSH2_ARRAYSIZE(tests); i++) {
+        unsigned char actual[5] = { 0 };
+        size_t length = tests[i].length - tests[i].leading;
+        ssh2_bn *bn = NULL;
+        if(ssh2_bn_from_bin(&bn, tests[i].input, tests[i].length) ||
+           ssh2_bn_bytes(bn) != length ||
+           ssh2_bn_to_bin(bn, actual) ||
+           memcmp(actual, tests[i].input + tests[i].leading, length)) {
+            fprintf(stderr, "ssh2_bn_from_bin case %lu failed\n",
+                    (unsigned long)i);
+            rc = 1;
+        }
+        ssh2_bn_free(bn);
+    }
+    return rc;
+}
+
 /* Return codes match scp.c (SCP_C_FIELDS_*). */
 static int test_ssh2_scp_parse_c_fields(void)
 {
@@ -363,6 +399,7 @@ int main(int argc, char *argv[])
     rc = test_ssh2_base64_decode(session);
     rc |= test_knownhost_ipv6(session);
     rc |= test_ssh2_dh_validate();
+    rc |= test_ssh2_bn_from_bin();
     rc |= test_ssh2_scp_parse_c_fields();
 
     libssh2_session_free(session);
