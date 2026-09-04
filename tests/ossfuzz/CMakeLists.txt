@@ -8,17 +8,23 @@ target_include_directories(standaloneengine PRIVATE
   "${PROJECT_SOURCE_DIR}/include")
 set_target_properties(standaloneengine PROPERTIES UNITY_BUILD OFF)
 
-add_executable(ssh2_client_fuzzer "ssh2_client_fuzzer.cc" "testinput.h")
-target_include_directories(ssh2_client_fuzzer PRIVATE
-  "${PROJECT_SOURCE_DIR}/include")
-if(LIB_FUZZING_ENGINE)
-  if(LIB_FUZZING_ENGINE STREQUAL "-fsanitize=fuzzer")  # FIXME: compiler-specific
-    set_property(TARGET ssh2_client_fuzzer APPEND PROPERTY LINK_OPTIONS "${LIB_FUZZING_ENGINE}")
+foreach(_fuzz_target IN ITEMS
+    ssh2_client_fuzzer
+    ssh2_sftp_packet_fuzzer
+    ssh2_knownhost_fuzzer
+)
+  add_executable(${_fuzz_target} "${_fuzz_target}.cc" "testinput.h")
+  target_include_directories(${_fuzz_target} PRIVATE
+    "${PROJECT_SOURCE_DIR}/include")
+  if(LIB_FUZZING_ENGINE)
+    if(LIB_FUZZING_ENGINE STREQUAL "-fsanitize=fuzzer")  # FIXME: compiler-specific
+      set_property(TARGET ${_fuzz_target} APPEND PROPERTY LINK_OPTIONS "${LIB_FUZZING_ENGINE}")
+    else()
+      target_link_libraries(${_fuzz_target} ${LIB_FUZZING_ENGINE})
+    endif()
   else()
-    target_link_libraries(ssh2_client_fuzzer ${LIB_FUZZING_ENGINE})
+    target_link_libraries(${_fuzz_target} standaloneengine)
   endif()
-else()
-  target_link_libraries(ssh2_client_fuzzer standaloneengine)
-endif()
-target_link_libraries(ssh2_client_fuzzer ${LIB_STATIC} ${LIBSSH2_LIBS_SOCKET})
-set_target_properties(ssh2_client_fuzzer PROPERTIES UNITY_BUILD OFF)
+  target_link_libraries(${_fuzz_target} ${LIB_STATIC} ${LIBSSH2_LIBS_SOCKET})
+  set_target_properties(${_fuzz_target} PROPERTIES UNITY_BUILD OFF)
+endforeach()
