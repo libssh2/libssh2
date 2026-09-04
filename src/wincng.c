@@ -204,7 +204,8 @@ static int wcng_bn_random(ssh2_bn *rnd, int bits, int top, int bottom)
     return 0;
 }
 
-static int wcng_bn_mod_exp(ssh2_bn *r, ssh2_bn *a, ssh2_bn *p, ssh2_bn *m)
+static int wcng_bn_mod_exp(ssh2_bn *r, const ssh2_bn *a, const ssh2_bn *p,
+                           const ssh2_bn *m)
 {
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_RSAKEY_BLOB *rsakey;
@@ -2959,8 +2960,8 @@ static size_t wcng_round_down(size_t number, size_t multiple)
  * `group_order'. Can use the given big number context `bnctx' if needed.  The
  * private key is stored as opaque in the Diffie-Hellman context `*dhctx' and
  * the public key is returned in `pub'. 0 is returned upon success, else -1. */
-int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
-                     ssh2_bn *p, int group_order, ssh2_bn_ctx *bnctx)
+int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, const ssh2_bn *g,
+                     const ssh2_bn *p, int group_order, ssh2_bn_ctx *bnctx)
 {
     const int hasAlgDHwithKDF = ssh2_wcng.hasAlgDHwithKDF;
 

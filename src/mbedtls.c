@@ -806,8 +806,8 @@ void ssh2_dh_init(ssh2_dh_ctx *dhctx)
     *dhctx = ssh2_bn_init(); /* Random from client */
 }
 
-int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
-                     ssh2_bn *p, int group_order, ssh2_bn_ctx *bnctx)
+int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, const ssh2_bn *g,
+                     const ssh2_bn *p, int group_order, ssh2_bn_ctx *bnctx)
 {
     (void)bnctx;
 

@@ -274,9 +274,8 @@ Initializes the Diffie-Hellman context at `dhctx`. No effective context
 creation needed here.
 
 ```c
-int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public,
-                     ssh2_bn *g, ssh2_bn *p, int group_order,
-                     ssh2_bn_ctx *bnctx);
+int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *public, const ssh2_bn *g,
+                     const ssh2_bn *p, int group_order, ssh2_bn_ctx *bnctx);
 ```
 Generates a Diffie-Hellman key pair using base `g`, prime `p` and the given
 `group_order`. Can use the given big number context `bnctx` if needed.
