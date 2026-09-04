@@ -1402,10 +1402,14 @@ fail:
 static int ossl_dsa_evp_to_pubkey(LIBSSH2_SESSION *session, char **method,
                                   unsigned char **pubkeydata,
                                   size_t *pubkeydata_len,
-                                  EVP_PKEY *pk)
+                                  const EVP_PKEY *pk)
 {
     static const char method_name[] = "ssh-dss";
-    ssh2_dsa_ctx *dsa = NULL;
+#ifdef USE_OPENSSL_3
+    const ssh2_dsa_ctx *dsa;
+#else
+    ssh2_dsa_ctx *dsa;
+#endif
     unsigned char *key;
     char *method_buf = NULL;
     size_t key_len;
