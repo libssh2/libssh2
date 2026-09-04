@@ -1261,11 +1261,10 @@ int ssh2_transport_send(LIBSSH2_SESSION *session,
             }
         }
 
-        /* Calculate MAC hash. Put the output at index packet_length,
-           since that size includes the whole packet. The MAC is
-           calculated on the entire packet (length plain the rest
-           encrypted), including all fields except the MAC field
-           itself. */
+        /* Calculate MAC hash. Put the output at index packet_length, since
+           that size includes the whole packet. The MAC is calculated on the
+           entire packet (length plain the rest encrypted), including all
+           fields except the MAC field itself. */
         if(etm && local_mac->hash(session, p->outbuf + packet_length,
                                   session->local.seqno, p->outbuf,
                                   packet_length, NULL, 0,
