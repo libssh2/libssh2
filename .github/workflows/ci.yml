@@ -1418,7 +1418,7 @@ jobs:
           /usr/bin/find . \( -name '*.exe' -o -name '*.dll' -o -name '*.lib' -o -name '*.pdb' \) -print0 | grep -z curl | xargs -0 stat -c '%10s bytes: %n' --
           PATH="$PWD/bld/lib/Debug:$PATH"
           "bld/src/Debug/curl.exe" --disable --version
-          cmake --build bld --config Debug --parallel 5 --target testdeps
+          cmake --build . --config Debug --parallel 5 --target testdeps
 
       - name: 'install test prereqs'
         timeout-minutes: 2
