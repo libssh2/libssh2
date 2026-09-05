@@ -324,7 +324,7 @@ static void wcng_bn_normalize(ssh2_bn *bn)
     if(!bn || !bn->bignum || !bn->length)
         return;
 
-    while(offset + 1 < bn->length && !bn->bignum[offset])
+    while(!bn->bignum[offset] && offset + 1 < bn->length)
         offset++;
 
     if(offset > 0) {
@@ -3126,6 +3126,7 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, ssh2_bn *g,
         return -1;
     if(wcng_bn_mod_exp(pub, g, dhctx->dh_privbn, p))
         return -1;
+    wcng_bn_normalize(pub);
 
     return 0;
 }
@@ -3248,7 +3249,11 @@ out:
 
 fallback:
     /* Compute the shared secret */
-    return wcng_bn_mod_exp(secret, f, dhctx->dh_privbn, p);
+    if(wcng_bn_mod_exp(secret, f, dhctx->dh_privbn, p))
+        return -1;
+    wcng_bn_normalize(secret);
+
+    return 0;
 }
 
 #endif /* LIBSSH2_WINCNG */
