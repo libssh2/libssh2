@@ -1358,6 +1358,7 @@ jobs:
           MATRIX_SHARED: '${{ matrix.shared }}'
           MATRIX_ZLIB: '${{ matrix.zlib }}'
           MATRIX_UNITY: '${{ matrix.unity }}'
+          MATRIX_TYPE: '${{ matrix.type }}'
           MATRIX_OPENSSH: ''
         run: |
           options=''
