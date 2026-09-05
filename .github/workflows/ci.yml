@@ -1414,7 +1414,9 @@ jobs:
             -DCMAKE_GENERATOR_PLATFORM=${archgen} \
             -DCMAKE_VS_GLOBALS=TrackFileAccess=false \
             -DCMAKE_UNITY_BUILD=ON -DCURL_DROP_UNUSED=ON -DCURL_WERROR=ON \
-            -DCURL_DISABLE_LDAP=ON \
+            -DCURL_DISABLE_DICT=ON -DCURL_DISABLE_FILE=ON -DCURL_DISABLE_FTP=ON -DCURL_DISABLE_GOPHER=ON -DCURL_DISABLE_HTTP=ON -DCURL_DISABLE_IMAP=ON \
+            -DCURL_DISABLE_IPFS=ON -DCURL_DISABLE_LDAP=ON -DCURL_DISABLE_LDAPS=ON -DCURL_DISABLE_MQTT=ON -DCURL_DISABLE_POP3=ON \
+            -DCURL_DISABLE_RTSP=ON -DCURL_DISABLE_SMTP=ON -DCURL_DISABLE_TELNET=ON -DCURL_DISABLE_TFTP=ON -DCURL_DISABLE_WEBSOCKETS=ON \
             -DLIBSSH2_INCLUDE_DIR="$(cygpath --mixed "$HOME"/libssh2-install/include)" \
             -DLIBSSH2_LIBRARY="$(cygpath --mixed "$HOME"/libssh2-install/lib/libssh2.lib)"
           grep -F '#define' bld/lib/curl_config.h | sort || true
