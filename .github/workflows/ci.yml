@@ -1410,13 +1410,14 @@ jobs:
           cd "curl-${CURL_VERSION}"
           archgen="${MATRIX_ARCH}"; [ "${archgen}" = 'x86' ] && archgen='Win32'
           cmake -B bld -DBUILD_SHARED_LIBS=OFF -DCURL_USE_LIBPSL=OFF -DCURL_ENABLE_SSL=OFF -DENABLE_DEBUG=ON \
+            -DBUILD_LIBCURL_DOCS=OFF -DBUILD_MISC_DOCS=OFF -DENABLE_CURL_MANUAL=OFF -DCURL_DISABLE_TYPECHECK=ON \
             -DCMAKE_GENERATOR_PLATFORM=${archgen} \
             -DCMAKE_VS_GLOBALS=TrackFileAccess=false \
             -DCMAKE_UNITY_BUILD=ON -DCURL_DROP_UNUSED=ON -DCURL_WERROR=ON \
             -DLIBSSH2_INCLUDE_DIR="$(cygpath --mixed "$HOME"/libssh2-install/include)" \
             -DLIBSSH2_LIBRARY="$(cygpath --mixed "$HOME"/libssh2-install/lib/libssh2.lib)"
           grep -F '#define' bld/lib/curl_config.h | sort || true
-          cmake --build bld --config Debug --parallel 5
+          cmake --build bld --config Debug --parallel 5 --verbose
           /usr/bin/find . \( -name '*.exe' -o -name '*.dll' -o -name '*.lib' -o -name '*.pdb' \) -print0 | grep -z curl | xargs -0 file --
           /usr/bin/find . \( -name '*.exe' -o -name '*.dll' -o -name '*.lib' -o -name '*.pdb' \) -print0 | grep -z curl | xargs -0 stat -c '%10s bytes: %n' --
           PATH="$PWD/bld/lib/Debug:$PATH"
