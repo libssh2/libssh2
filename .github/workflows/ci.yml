@@ -1475,3 +1475,7 @@ jobs:
           fi
           PATH="$PWD/bld/lib/Debug:$PATH:/c/my-stunnel/bin"
           cmake --build bld --config Debug --target test-ci
+          cmake --build bld --config Debug --target test-ci
+          cmake --build bld --config Debug --target test-ci
+          cmake --build bld --config Debug --target test-ci
+          cmake --build bld --config Debug --target test-ci
