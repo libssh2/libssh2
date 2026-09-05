@@ -1321,7 +1321,7 @@ jobs:
       run:
         shell: msys2 {0}  # zizmor: ignore[misfeature]
     env:
-      CURL_VERSION: '8.22.0'
+      CURL_VERNUM: '8.22.0'
       CURL_SHA256: f7ef3ae8a22e521f289803fe93543eb64c329b58aa73a9e224dfd915a2a5f4f7
       OPENSSH_WINDOWS_VERSION: 10.0.0.0p2-Preview
       OPENSSH_WINDOWS_SHA256_ARM64: 698c6aec31c1dd0fb996206e8741f4531a97355686b5431ef347d531b07fcd42
@@ -1405,9 +1405,9 @@ jobs:
       - name: 'install curl from source'
         run: |
           curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
-            --location --proto-redir =https "https://github.com/curl/curl/releases/download/curl-${CURL_VERSION//./_}/curl-${CURL_VERSION}.tar.xz" --output pkg.bin
+            --location --proto-redir =https "https://github.com/curl/curl/releases/download/curl-${CURL_VERNUM//./_}/curl-${CURL_VERNUM}.tar.xz" --output pkg.bin
           sha256sum pkg.bin && sha256sum pkg.bin | grep -qwF -- "${CURL_SHA256}" && tar -xJf pkg.bin && rm -f pkg.bin
-          cd "curl-${CURL_VERSION}"
+          cd "curl-${CURL_VERNUM}"
           archgen="${MATRIX_ARCH}"; [ "${archgen}" = 'x86' ] && archgen='Win32'
           cmake -B bld -DBUILD_SHARED_LIBS=OFF -DCURL_USE_LIBPSL=OFF -DCURL_ENABLE_SSL=OFF -DENABLE_DEBUG=ON \
             -DBUILD_LIBCURL_DOCS=OFF -DBUILD_MISC_DOCS=OFF -DENABLE_CURL_MANUAL=OFF -DCURL_DISABLE_TYPECHECK=ON \
@@ -1451,7 +1451,7 @@ jobs:
       - name: 'run tests'
         timeout-minutes: 10
         run: |
-          cd "curl-${CURL_VERSION}"
+          cd "curl-${CURL_VERNUM}"
           TFLAGS="-j8 SCP SFTP"
           TFLAGS+=' !498'  # 'Reject too large HTTP response headers on endless redirects' HTTP, HTTP GET (runtests detecting result code 2009 instead of 56 returned by curl)
           TFLAGS+=' ~3000 ~3001 ~3023 ~3024'  # 'HTTPS localhost, last subject alt name matches, CN does not match' HTTPS, HTTP GET, PEM certificate (returning 56)
