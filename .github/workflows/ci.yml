@@ -1326,6 +1326,7 @@ jobs:
       OPENSSH_WINDOWS_VERSION: 10.0.0.0p2-Preview
       OPENSSH_WINDOWS_SHA256_ARM64: 698c6aec31c1dd0fb996206e8741f4531a97355686b5431ef347d531b07fcd42
       OPENSSH_WINDOWS_SHA256_WIN64: 23f50f3458c4c5d0b12217c6a5ddfde0137210a30fa870e98b29827f7b43aba5
+      MATRIX_ARCH: '${{ matrix.arch }}'
       MATRIX_CRYPTO: '${{ matrix.crypto }}'
       MATRIX_IMAGE: '${{ matrix.image }}'
       MATRIX_OPENSSH: ''
@@ -1353,7 +1354,6 @@ jobs:
 
       - name: 'configure'
         env:
-          MATRIX_ARCH: '${{ matrix.arch }}'
           MATRIX_PLAT: '${{ matrix.plat }}'
           MATRIX_WINCND_ECDSA: '${{ matrix.wincng_ecdsa }}'
           MATRIX_LOG: '${{ matrix.log }}'
@@ -1375,7 +1375,7 @@ jobs:
             -DCMAKE_EXE_LINKER_FLAGS="${ldflags}" \
             -DCMAKE_SHARED_LINKER_FLAGS="${ldflags}" \
             -DCMAKE_GENERATOR_PLATFORM=${archgen} \
-            -DCMAKE_VS_GLOBALS="TrackFileAccess=false${vsglobals}" \
+            -DCMAKE_VS_GLOBALS=TrackFileAccess=false \
             -DCMAKE_UNITY_BUILD="${MATRIX_UNITY}" \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING="${MATRIX_LOG}" \
@@ -1406,7 +1406,10 @@ jobs:
             --location --proto-redir =https "https://github.com/curl/curl/releases/download/curl-${CURL_VERSION//./_}/curl-${CURL_VERSION}.tar.xz" --output pkg.bin
           sha256sum pkg.bin && sha256sum pkg.bin | grep -qwF -- "${CURL_SHA256}" && tar -xJf pkg.bin && rm -f pkg.bin
           cd "curl-${CURL_VERSION}"
-          cmake -B . -G Ninja -DBUILD_SHARED_LIBS=OFF -DCURL_USE_LIBPSL=OFF -DCURL_ENABLE_SSL=OFF -DENABLE_DEBUG=ON \
+          archgen="${MATRIX_ARCH}"; [ "${archgen}" = 'x86' ] && archgen='Win32'
+          cmake -B . -DBUILD_SHARED_LIBS=OFF -DCURL_USE_LIBPSL=OFF -DCURL_ENABLE_SSL=OFF -DENABLE_DEBUG=ON \
+            -DCMAKE_GENERATOR_PLATFORM=${archgen} \
+            -DCMAKE_VS_GLOBALS=TrackFileAccess=false \
             -DCMAKE_UNITY_BUILD=ON -DCURL_DROP_UNUSED=ON -DCURL_WERROR=ON \
             -DLIBSSH2_INCLUDE_DIR="$HOME"/libssh2-install/include \
             -DLIBSSH2_LIBRARY="$HOME"/libssh2-install/lib/libssh2.lib
