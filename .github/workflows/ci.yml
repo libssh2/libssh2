@@ -1395,10 +1395,10 @@ jobs:
           grep -F '#define' bld/src/libssh2_config.h | sort || true
 
       - name: 'build'
-        run: cmake --build bld --config "${MATRIX_TYPE}" --parallel 5 --target package
+        run: cmake --build bld --config "${MATRIX_TYPE}" --parallel 5
 
       - name: 'install'
-        run: cmake --install bld --verbose
+        run: cmake --install bld --config "${MATRIX_TYPE}" --verbose
 
       - name: 'install curl from source'
         run: |
