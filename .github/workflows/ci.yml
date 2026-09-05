@@ -1407,18 +1407,18 @@ jobs:
           sha256sum pkg.bin && sha256sum pkg.bin | grep -qwF -- "${CURL_SHA256}" && tar -xJf pkg.bin && rm -f pkg.bin
           cd "curl-${CURL_VERSION}"
           archgen="${MATRIX_ARCH}"; [ "${archgen}" = 'x86' ] && archgen='Win32'
-          cmake -B . -DBUILD_SHARED_LIBS=OFF -DCURL_USE_LIBPSL=OFF -DCURL_ENABLE_SSL=OFF -DENABLE_DEBUG=ON \
+          cmake -B bld -DBUILD_SHARED_LIBS=OFF -DCURL_USE_LIBPSL=OFF -DCURL_ENABLE_SSL=OFF -DENABLE_DEBUG=ON \
             -DCMAKE_GENERATOR_PLATFORM=${archgen} \
             -DCMAKE_VS_GLOBALS=TrackFileAccess=false \
             -DCMAKE_UNITY_BUILD=ON -DCURL_DROP_UNUSED=ON -DCURL_WERROR=ON \
             -DLIBSSH2_INCLUDE_DIR="$HOME"/libssh2-install/include \
             -DLIBSSH2_LIBRARY="$HOME"/libssh2-install/lib/libssh2.lib
-          cmake --build . --config Debug --parallel 5
+          cmake --build bld --config Debug --parallel 5
           /usr/bin/find . \( -name '*.exe' -o -name '*.dll' -o -name '*.lib' -o -name '*.pdb' \) -print0 | grep -z curl | xargs -0 file --
           /usr/bin/find . \( -name '*.exe' -o -name '*.dll' -o -name '*.lib' -o -name '*.pdb' \) -print0 | grep -z curl | xargs -0 stat -c '%10s bytes: %n' --
           PATH="$PWD/bld/lib/Debug:$PATH"
-          "bld/src/Debug/curl.exe" --disable --version
-          cmake --build . --config Debug --parallel 5 --target testdeps
+          src/bld/Debug/curl.exe --disable --version
+          cmake --build bld --config Debug --parallel 5 --target testdeps
 
       - name: 'install test prereqs'
         timeout-minutes: 2
