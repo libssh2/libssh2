@@ -1312,3 +1312,159 @@ jobs:
           else
             make -C bld examples
           fi
+
+  build_msvc_curl:
+    name: 'msvc-curl, CM ${{ matrix.arch }}-${{ matrix.plat }} ${{ matrix.name }}'
+    runs-on: '${{ matrix.image }}'
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: msys2 {0}  # zizmor: ignore[misfeature]
+    env:
+      CURL_VERSION: '8.22.0'
+      CURL_SHA256: f7ef3ae8a22e521f289803fe93543eb64c329b58aa73a9e224dfd915a2a5f4f7
+      OPENSSH_WINDOWS_VERSION: 10.0.0.0p2-Preview
+      OPENSSH_WINDOWS_SHA256_ARM64: 698c6aec31c1dd0fb996206e8741f4531a97355686b5431ef347d531b07fcd42
+      OPENSSH_WINDOWS_SHA256_WIN64: 23f50f3458c4c5d0b12217c6a5ddfde0137210a30fa870e98b29827f7b43aba5
+      MATRIX_ARCH: '${{ matrix.arch }}'
+      MATRIX_CRYPTO: '${{ matrix.crypto }}'
+      MATRIX_IMAGE: '${{ matrix.image }}'
+      MATRIX_OPENSSH: ''
+      MATRIX_TYPE: '${{ matrix.type }}'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { image: 'windows-2025', arch: x64  , plat: windows, type: Debug  , crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'ON' , shared: 'OFF', zlib: 'OFF', unity: 'ON', name: 'WIP' }
+    steps:
+      - name: 'preinstalled tools'
+        shell: bash
+        run: echo '::group::MSYS2 packages'; /c/msys64/usr/bin/pacman.exe -Q || true; echo '::endgroup::'
+
+      - uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
+        with:
+          msystem: ${{ matrix.arch == 'arm64' && 'clangarm64' || 'ucrt64' }}
+          release: ${{ contains(matrix.image, 'arm') }}
+          cache: ${{ contains(matrix.image, 'arm') }}
+          path-type: inherit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: 'configure'
+        env:
+          MATRIX_PLAT: '${{ matrix.plat }}'
+          MATRIX_WINCND_ECDSA: '${{ matrix.wincng_ecdsa }}'
+          MATRIX_LOG: '${{ matrix.log }}'
+          MATRIX_SHARED: '${{ matrix.shared }}'
+          MATRIX_ZLIB: '${{ matrix.zlib }}'
+          MATRIX_UNITY: '${{ matrix.unity }}'
+        run: |
+          options=''
+          archgen="${MATRIX_ARCH}"; [ "${archgen}" = 'x86' ] && archgen='Win32'
+          if [ "${MATRIX_CRYPTO}" = 'WinCNG' ]; then
+            options+=" -DENABLE_ECDSA_WINCNG=${MATRIX_WINCND_ECDSA}"
+            cflags+=' -DLIBSSH2_KEX_SHA1_ENABLE -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_SHA1_ENABLE'
+            cflags+=' -DLIBSSH2_RSA_SHA1_ENABLE -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_3DES_ENABLE'
+            cflags+=' -DLIBSSH2_DSA_ENABLE'
+          fi
+          cmake -B bld ${options} \
+            -DCMAKE_INSTALL_PREFIX="$HOME"/libssh2-install \
+            -DCMAKE_C_FLAGS="${cflags}" \
+            -DCMAKE_EXE_LINKER_FLAGS="${ldflags}" \
+            -DCMAKE_SHARED_LINKER_FLAGS="${ldflags}" \
+            -DCMAKE_GENERATOR_PLATFORM=${archgen} \
+            -DCMAKE_VS_GLOBALS=TrackFileAccess=false \
+            -DCMAKE_UNITY_BUILD="${MATRIX_UNITY}" \
+            -DENABLE_WERROR=ON \
+            -DENABLE_DEBUG_LOGGING="${MATRIX_LOG}" \
+            -DBUILD_SHARED_LIBS="${MATRIX_SHARED}" \
+            -DCRYPTO_BACKEND="${MATRIX_CRYPTO}" \
+            -DENABLE_ZLIB_COMPRESSION="${MATRIX_ZLIB}" \
+            -DRUN_DOCKER_TESTS=OFF \
+            -DRUN_SSHD_TESTS=OFF
+
+      - name: 'configure log'
+        if: ${{ !cancelled() }}
+        run: cat bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
+
+      - name: 'libssh2_config.h'
+        run: |
+          echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'
+          grep -F '#define' bld/src/libssh2_config.h | sort || true
+
+      - name: 'build'
+        run: cmake --build bld --config "${MATRIX_TYPE}" --parallel 5
+
+      - name: 'install'
+        run: cmake --install bld --config "${MATRIX_TYPE}" --verbose
+
+      - name: 'install curl from source'
+        run: |
+          curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
+            --location --proto-redir =https "https://github.com/curl/curl/releases/download/curl-${CURL_VERSION//./_}/curl-${CURL_VERSION}.tar.xz" --output pkg.bin
+          sha256sum pkg.bin && sha256sum pkg.bin | grep -qwF -- "${CURL_SHA256}" && tar -xJf pkg.bin && rm -f pkg.bin
+          cd "curl-${CURL_VERSION}"
+          archgen="${MATRIX_ARCH}"; [ "${archgen}" = 'x86' ] && archgen='Win32'
+          cmake -B . -DBUILD_SHARED_LIBS=OFF -DCURL_USE_LIBPSL=OFF -DCURL_ENABLE_SSL=OFF -DENABLE_DEBUG=ON \
+            -DCMAKE_GENERATOR_PLATFORM=${archgen} \
+            -DCMAKE_VS_GLOBALS=TrackFileAccess=false \
+            -DCMAKE_UNITY_BUILD=ON -DCURL_DROP_UNUSED=ON -DCURL_WERROR=ON \
+            -DLIBSSH2_INCLUDE_DIR="$HOME"/libssh2-install/include \
+            -DLIBSSH2_LIBRARY="$HOME"/libssh2-install/lib/libssh2.lib
+          cmake --build . --config Debug --parallel 5
+          /usr/bin/find . \( -name '*.exe' -o -name '*.dll' -o -name '*.lib' -o -name '*.pdb' \) -print0 | grep -z curl | xargs -0 file --
+          /usr/bin/find . \( -name '*.exe' -o -name '*.dll' -o -name '*.lib' -o -name '*.pdb' \) -print0 | grep -z curl | xargs -0 stat -c '%10s bytes: %n' --
+          PATH="$PWD/bld/lib/Debug:$PATH"
+          "bld/src/Debug/curl.exe" --disable --version
+          cmake --build . --config Debug --parallel 5 --target testdeps
+
+      - name: 'install test prereqs'
+        timeout-minutes: 2
+        run: |
+          if [ -z "${MATRIX_OPENSSH}" ]; then  # MSYS2 openssh
+            /usr/bin/pacman --noconfirm --noprogressbar --sync --needed openssh
+          elif [ "${MATRIX_OPENSSH}" = 'OpenSSH-Windows-builtin' ]; then
+            # https://learn.microsoft.com/windows-server/administration/openssh/openssh_install_firstuse
+            if [[ "${MATRIX_IMAGE}" = *'windows-2025'* ]]; then
+              pwsh -Command 'Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0'
+              pwsh -Command 'Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0'
+            fi
+          else  # OpenSSH-Windows
+            cd /c  # no D: drive on windows-11-arm runners
+            if [[ "${MATRIX_IMAGE}" = *'-arm'* ]]; then
+              curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 60 --retry 3 --retry-connrefused \
+                --location --proto-redir =https "https://github.com/PowerShell/Win32-OpenSSH/releases/download/${OPENSSH_WINDOWS_VERSION}/OpenSSH-ARM64.zip" --output pkg.bin
+              sha256sum pkg.bin && sha256sum pkg.bin | grep -qwF -- "${OPENSSH_WINDOWS_SHA256_ARM64}" && unzip pkg.bin && rm -f pkg.bin
+            else
+              curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 60 --retry 3 --retry-connrefused \
+                --location --proto-redir =https "https://github.com/PowerShell/Win32-OpenSSH/releases/download/${OPENSSH_WINDOWS_VERSION}/OpenSSH-Win64.zip" --output pkg.bin
+              sha256sum pkg.bin && sha256sum pkg.bin | grep -qwF -- "${OPENSSH_WINDOWS_SHA256_WIN64}" && unzip pkg.bin && rm -f pkg.bin
+            fi
+          fi
+
+      - name: 'run tests'
+        timeout-minutes: 10
+        run: |
+          cd "curl-${CURL_VERSION}"
+          TFLAGS="-j8 SCP SFTP"
+          TFLAGS+=' !498'  # 'Reject too large HTTP response headers on endless redirects' HTTP, HTTP GET (runtests detecting result code 2009 instead of 56 returned by curl)
+          TFLAGS+=' ~3000 ~3001 ~3023 ~3024'  # 'HTTPS localhost, last subject alt name matches, CN does not match' HTTPS, HTTP GET, PEM certificate (returning 56)
+          if [[ "${MATRIX_CRYPTO}" = *'WinCNG'* ]]; then
+            unset CURL_TEST_SSH_KEYALGO  # libssh2 built with WinCNG does not support ssh-ed25519 hostkeys
+            export CURL_TEST_SSH_ENABLE_KEX=diffie-hellman-group-exchange-sha256
+          fi
+          if [ -n "${MATRIX_OPENSSH}" ]; then  # OpenSSH-Windows
+            TFLAGS+=' ~601 ~603 ~617 ~619 ~621 ~641 ~665 ~2004'  # SCP
+            TFLAGS+=' ~3022'  # 'SCP correct sha256 host key' SCP, server sha256 key check
+          fi
+          if [ "${MATRIX_OPENSSH}" = 'OpenSSH-Windows' ]; then
+            if [[ "${MATRIX_IMAGE}" = *'-arm'* ]]; then
+              PATH="/c/OpenSSH-ARM64:$PATH"
+            else
+              PATH="/c/OpenSSH-Win64:$PATH"
+            fi
+          fi
+          PATH="$PWD/bld/lib/Debug:$PATH:/c/my-stunnel/bin"
+          cmake --build bld --config Debug --target test-ci
