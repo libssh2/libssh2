@@ -1383,6 +1383,7 @@ jobs:
             -DBUILD_SHARED_LIBS="${MATRIX_SHARED}" \
             -DCRYPTO_BACKEND="${MATRIX_CRYPTO}" \
             -DENABLE_ZLIB_COMPRESSION="${MATRIX_ZLIB}" \
+            -DLIBSSH2_BUILD_DOCS=OFF \
             -DRUN_DOCKER_TESTS=OFF \
             -DRUN_SSHD_TESTS=OFF
 
