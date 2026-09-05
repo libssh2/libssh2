@@ -1347,6 +1347,7 @@ jobs:
           release: ${{ contains(matrix.image, 'arm') }}
           cache: ${{ contains(matrix.image, 'arm') }}
           path-type: inherit
+          install: perl
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -1413,11 +1414,12 @@ jobs:
             -DCMAKE_UNITY_BUILD=ON -DCURL_DROP_UNUSED=ON -DCURL_WERROR=ON \
             -DLIBSSH2_INCLUDE_DIR="$HOME"/libssh2-install/include \
             -DLIBSSH2_LIBRARY="$HOME"/libssh2-install/lib/libssh2.lib
+          grep -F '#define' bld/lib/curl_config.h | sort || true
           cmake --build bld --config Debug --parallel 5
           /usr/bin/find . \( -name '*.exe' -o -name '*.dll' -o -name '*.lib' -o -name '*.pdb' \) -print0 | grep -z curl | xargs -0 file --
           /usr/bin/find . \( -name '*.exe' -o -name '*.dll' -o -name '*.lib' -o -name '*.pdb' \) -print0 | grep -z curl | xargs -0 stat -c '%10s bytes: %n' --
           PATH="$PWD/bld/lib/Debug:$PATH"
-          src/bld/Debug/curl.exe --disable --version
+          bld/src/Debug/curl.exe --disable --version
           cmake --build bld --config Debug --parallel 5 --target testdeps
 
       - name: 'install test prereqs'
