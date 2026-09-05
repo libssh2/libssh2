@@ -318,11 +318,25 @@ size_t ssh2_bn_bits(const ssh2_bn *bn)
     return bits;
 }
 
+static void wcng_bn_normalize(ssh2_bn *bn)
+{
+    size_t offset = 0;
+
+    if(!bn || !bn->bignum || !bn->length)
+        return;
+
+    while(!bn->bignum[offset] && offset + 1 < bn->length)
+        offset++;
+
+    if(offset > 0) {
+        memmove(bn->bignum, bn->bignum + offset, bn->length - offset);
+        ssh2_explicit_zero(bn->bignum + bn->length - offset, offset);
+        bn->length -= offset;
+    }
+}
+
 int ssh2_bn_from_bin(ssh2_bn *bn, const unsigned char *bin, size_t len)
 {
-    unsigned char *bignum;
-    size_t offset, length, bits;
-
     if(!bn || !bin || !len)
         return -1;
 
@@ -330,25 +344,7 @@ int ssh2_bn_from_bin(ssh2_bn *bn, const unsigned char *bin, size_t len)
         return -1;
 
     memcpy(bn->bignum, bin, len);
-
-    bits = ssh2_bn_bits(bn);
-    length = (bits + 7) / 8;
-
-    offset = bn->length - length;
-    if(offset > 0) {
-        memmove(bn->bignum, bn->bignum + offset, length);
-
-        ssh2_explicit_zero(bn->bignum + length, offset);
-
-        bignum = realloc(bn->bignum, length);
-        if(bignum) {
-            bn->bignum = bignum;
-            bn->length = length;
-        }
-        else
-            return -1;
-    }
-
+    wcng_bn_normalize(bn);
     return 0;
 }
 
@@ -2190,6 +2186,7 @@ int ssh2_ecdh_gen_k(OUT ssh2_bn **k, LIBSSH2_SESSION *session,
      */
 
     ssh2_swap_bytes((*k)->bignum, secret_len);
+    wcng_bn_normalize(*k);
 
     result = LIBSSH2_ERROR_NONE;
 
@@ -3085,6 +3082,7 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, const ssh2_bn *g,
         memcpy(pub->bignum, (unsigned char *)dh_key_blob +
                             sizeof(*dh_key_blob) + 2 * dh_key_blob->cbKey,
                dh_key_blob->cbKey);
+        wcng_bn_normalize(pub);
 
         if(dh_key_blob->dwMagic == BCRYPT_DH_PRIVATE_MAGIC) {
             /* BCRYPT_DH_PRIVATE_BLOB additionally contains the Private data */
@@ -3129,6 +3127,7 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, const ssh2_bn *g,
         return -1;
     if(wcng_bn_mod_exp(pub, g, dhctx->dh_privbn, p))
         return -1;
+    wcng_bn_normalize(pub);
 
     return 0;
 }
@@ -3230,6 +3229,7 @@ int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
          * returned to us in host byte order, so we need to swap it to big
          * endian order. */
         ssh2_swap_bytes(secret->bignum, secret->length);
+        wcng_bn_normalize(secret);
 
         status = 0;
         ssh2_wcng.hasAlgDHwithKDF = 1;
@@ -3250,7 +3250,11 @@ out:
 
 fallback:
     /* Compute the shared secret */
-    return wcng_bn_mod_exp(secret, f, dhctx->dh_privbn, p);
+    if(wcng_bn_mod_exp(secret, f, dhctx->dh_privbn, p))
+        return -1;
+    wcng_bn_normalize(secret);
+
+    return 0;
 }
 
 #endif /* LIBSSH2_WINCNG */
