@@ -1456,8 +1456,6 @@ jobs:
         run: |
           cd "curl-${CURL_VERNUM}"
           export TFLAGS='-j8 SCP SFTP'
-          TFLAGS+=' !498'  # 'Reject too large HTTP response headers on endless redirects' HTTP, HTTP GET (runtests detecting result code 2009 instead of 56 returned by curl)
-          TFLAGS+=' ~3000 ~3001 ~3023 ~3024'  # 'HTTPS localhost, last subject alt name matches, CN does not match' HTTPS, HTTP GET, PEM certificate (returning 56)
           if [[ "${MATRIX_CRYPTO}" = *'WinCNG'* ]]; then
             unset CURL_TEST_SSH_KEYALGO  # libssh2 built with WinCNG does not support ssh-ed25519 hostkeys
             export CURL_TEST_SSH_ENABLE_KEX=diffie-hellman-group-exchange-sha256
