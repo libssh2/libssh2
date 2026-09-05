@@ -1337,10 +1337,6 @@ jobs:
         include:
           - { image: 'windows-2025', arch: x64  , plat: windows, type: Debug  , crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'ON' , shared: 'OFF', zlib: 'OFF', unity: 'ON', name: 'WIP' }
     steps:
-      - name: 'preinstalled tools'
-        shell: bash
-        run: echo '::group::MSYS2 packages'; /c/msys64/usr/bin/pacman.exe -Q || true; echo '::endgroup::'
-
       - uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
         with:
           msystem: ${{ matrix.arch == 'arm64' && 'clangarm64' || 'ucrt64' }}
@@ -1420,7 +1416,7 @@ jobs:
             -DLIBSSH2_INCLUDE_DIR="$(cygpath --mixed "$HOME"/libssh2-install/include)" \
             -DLIBSSH2_LIBRARY="$(cygpath --mixed "$HOME"/libssh2-install/lib/libssh2.lib)"
           grep -F '#define' bld/lib/curl_config.h | sort || true
-          cmake --build bld --config Debug --parallel 5 --verbose
+          cmake --build bld --config Debug --parallel 5
           /usr/bin/find . \( -name '*.exe' -o -name '*.dll' -o -name '*.lib' -o -name '*.pdb' \) -print0 | grep -z curl | xargs -0 file --
           /usr/bin/find . \( -name '*.exe' -o -name '*.dll' -o -name '*.lib' -o -name '*.pdb' \) -print0 | grep -z curl | xargs -0 stat -c '%10s bytes: %n' --
           PATH="$PWD/bld/lib/Debug:$PATH"
