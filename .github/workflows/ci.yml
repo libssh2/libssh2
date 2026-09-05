@@ -1330,7 +1330,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { image: 'windows-2025', arch: x64  , plat: windows, type: Debug  , crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'ON' , shared: 'OFF', zlib: 'OFF', unity: 'ON' }
+          - { image: 'windows-2025', arch: x64  , plat: windows, type: Debug  , crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'ON' , shared: 'OFF', zlib: 'OFF', unity: 'ON', name: 'WIP' }
     steps:
       - name: 'preinstalled tools'
         shell: bash
