@@ -1316,7 +1316,7 @@ jobs:
   build_msvc_curl:
     name: 'msvc-curl, CM ${{ matrix.arch }}-${{ matrix.plat }} ${{ matrix.name }}'
     runs-on: '${{ matrix.image }}'
-    timeout-minutes: 10
+    timeout-minutes: 100
     defaults:
       run:
         shell: msys2 {0}  # zizmor: ignore[misfeature]
@@ -1449,10 +1449,10 @@ jobs:
           fi
 
       - name: 'run tests'
-        timeout-minutes: 10
+        timeout-minutes: 100
         run: |
           cd "curl-${CURL_VERNUM}"
-          export TFLAGS='-j8 SCP SFTP --retry=0 --repeat=6'
+          export TFLAGS='-j8 SCP SFTP --retry=0 --repeat=60'
           if [[ "${MATRIX_CRYPTO}" = *'WinCNG'* ]]; then
             unset CURL_TEST_SSH_KEYALGO  # libssh2 built with WinCNG does not support ssh-ed25519 hostkeys
             export CURL_TEST_SSH_ENABLE_KEX=diffie-hellman-group-exchange-sha256
