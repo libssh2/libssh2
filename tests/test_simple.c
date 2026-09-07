@@ -248,7 +248,7 @@ static int test_ssh2_dh_validate(void)
 
     for(i = 0; i < SSH2_ARRAYSIZE(tests); i++) {
         struct tbn t = tests[i];
-        int got = 0;
+        int got;
         ssh2_bn *f = ssh2_bn_init();
         ssh2_bn *p = ssh2_bn_init();
         ssh2_bn_set_word(f, (uint32_t)atoi(t.f));
