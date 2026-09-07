@@ -1362,6 +1362,7 @@ jobs:
           MATRIX_UNITY: '${{ matrix.unity }}'
         run: |
           options=''
+          cflags='-DCURL_LIBSSH2_DEBUG'
           if [ "${MATRIX_CRYPTO}" = 'WinCNG' ]; then
             options+=" -DENABLE_ECDSA_WINCNG=${MATRIX_WINCND_ECDSA}"
             cflags+=' -DLIBSSH2_KEX_SHA1_ENABLE -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_SHA1_ENABLE'
