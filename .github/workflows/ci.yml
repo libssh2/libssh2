@@ -1362,7 +1362,6 @@ jobs:
           MATRIX_UNITY: '${{ matrix.unity }}'
         run: |
           options=''
-          archgen="${MATRIX_ARCH}"; [ "${archgen}" = 'x86' ] && archgen='Win32'
           if [ "${MATRIX_CRYPTO}" = 'WinCNG' ]; then
             options+=" -DENABLE_ECDSA_WINCNG=${MATRIX_WINCND_ECDSA}"
             cflags+=' -DLIBSSH2_KEX_SHA1_ENABLE -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_SHA1_ENABLE'
@@ -1372,7 +1371,7 @@ jobs:
           cmake -B bld ${options} \
             -DCMAKE_INSTALL_PREFIX="$HOME"/libssh2-install \
             -DCMAKE_C_FLAGS="${cflags}" \
-            -DCMAKE_GENERATOR_PLATFORM=${archgen} \
+            -DCMAKE_GENERATOR_PLATFORM="${MATRIX_ARCH}" \
             -DCMAKE_VS_GLOBALS=TrackFileAccess=false \
             -DCMAKE_UNITY_BUILD="${MATRIX_UNITY}" \
             -DENABLE_WERROR=ON \
@@ -1405,10 +1404,9 @@ jobs:
             --location --proto-redir =https "https://github.com/curl/curl/releases/download/curl-${CURL_VERNUM//./_}/curl-${CURL_VERNUM}.tar.xz" --output pkg.bin
           sha256sum pkg.bin && sha256sum pkg.bin | grep -qwF -- "${CURL_SHA256}" && tar -xJf pkg.bin && rm -f pkg.bin
           cd "curl-${CURL_VERNUM}"
-          archgen="${MATRIX_ARCH}"; [ "${archgen}" = 'x86' ] && archgen='Win32'
           cmake -B bld -DBUILD_SHARED_LIBS=OFF -DCURL_USE_LIBPSL=OFF -DCURL_ENABLE_SSL=OFF -DENABLE_DEBUG=ON \
             -DBUILD_LIBCURL_DOCS=OFF -DBUILD_MISC_DOCS=OFF -DENABLE_CURL_MANUAL=OFF -DCURL_DISABLE_TYPECHECK=ON \
-            -DCMAKE_GENERATOR_PLATFORM=${archgen} \
+            -DCMAKE_GENERATOR_PLATFORM="${MATRIX_ARCH}" \
             -DCMAKE_VS_GLOBALS=TrackFileAccess=false \
             -DCMAKE_UNITY_BUILD=ON -DCURL_DROP_UNUSED=ON -DCURL_WERROR=ON \
             -DCURL_DISABLE_DICT=ON -DCURL_DISABLE_FILE=ON -DCURL_DISABLE_FTP=ON -DCURL_DISABLE_GOPHER=ON -DCURL_DISABLE_HTTP=ON -DCURL_DISABLE_IMAP=ON \
@@ -1454,7 +1452,6 @@ jobs:
           cd "curl-${CURL_VERNUM}"
           export TFLAGS='-j8 SCP SFTP --retry=0 --repeat=6'
           if [[ "${MATRIX_CRYPTO}" = *'WinCNG'* ]]; then
-            unset CURL_TEST_SSH_KEYALGO  # libssh2 built with WinCNG does not support ssh-ed25519 hostkeys
             export CURL_TEST_SSH_ENABLE_KEX=diffie-hellman-group-exchange-sha256
           fi
           if [ -n "${MATRIX_OPENSSH}" ]; then  # OpenSSH-Windows
