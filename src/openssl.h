@@ -344,7 +344,6 @@ typedef enum {
 #define ssh2_bn                      BIGNUM
 #define ssh2_bn_init()               BN_new()
 #define ssh2_bn_set_word(bn, word)   !BN_set_word(bn, word)
-#define ssh2_bn_from_bin(bn, bin, l) (BN_bin2bn(bin, (int)(l), bn) ? 0 : -1)
 #define ssh2_bn_to_bin(bn, bin)      (BN_bn2bin(bn, bin) <= 0)
 #define ssh2_bn_bytes(bn)            ((size_t)BN_num_bytes(bn))
 #define ssh2_bn_bits(bn)             ((size_t)BN_num_bits(bn))

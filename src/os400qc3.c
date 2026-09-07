@@ -460,29 +460,37 @@ size_t ssh2_bn_bits(const ssh2_bn *bn)
     return 0;
 }
 
-int ssh2_bn_from_bin(ssh2_bn *bn, const unsigned char *bin, size_t len)
+int ssh2_bn_from_bin(ssh2_bn **bn, const unsigned char *bin, size_t len)
 {
     size_t i;
 
     if(!bn || (len && !bin))
         return -1;
 
+    if(!*bn) {
+        *bn = ssh2_bn_init();
+        if(!*bn)
+            return -1;
+    }
+
     for(; len && !*bin; len--)
         bin++;
 
-    if(bn_resize(bn, len))
+    if(bn_resize(*bn, len))
         return -1;
 
     for(i = len; i--;)
-        bn->bignum[i] = *bin++;
+        (*bn)->bignum[i] = *bin++;
 
     return 0;
 }
 
 int ssh2_bn_set_word(ssh2_bn *bn, uint32_t word)
 {
+    if(!bn)
+        return -1;
     word = htonl(word);
-    return ssh2_bn_from_bin(bn, (unsigned char *)&word, sizeof(word));
+    return ssh2_bn_from_bin(&bn, (unsigned char *)&word, sizeof(word));
 }
 
 int ssh2_bn_to_bin(const ssh2_bn *bn, unsigned char *bin)
@@ -1173,8 +1181,8 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
                  const unsigned char *coeffdata, size_t coefflen)
 {
     ssh2_rsa_ctx *ctx;
-    ssh2_bn *e = ssh2_bn_init_from_bin();
-    ssh2_bn *n = ssh2_bn_init_from_bin();
+    ssh2_bn *e = NULL;
+    ssh2_bn *n = NULL;
     ssh2_bn *d = NULL;
     ssh2_bn *p = NULL;
     ssh2_bn *q = NULL;
@@ -1193,25 +1201,19 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
     if(!ctx)
         ret = -1;
     if(!ret) {
-        ssh2_bn_from_bin(e, edata, elen);
-        ssh2_bn_from_bin(n, ndata, nlen);
+        ssh2_bn_from_bin(&e, edata, elen);
+        ssh2_bn_from_bin(&n, ndata, nlen);
         if(!e || !n)
             ret = -1;
     }
     if(!ret && ddata) {
         /* Private key. */
-        d = ssh2_bn_init_from_bin();
-        ssh2_bn_from_bin(d, ddata, dlen);
-        p = ssh2_bn_init_from_bin();
-        ssh2_bn_from_bin(p, pdata, plen);
-        q = ssh2_bn_init_from_bin();
-        ssh2_bn_from_bin(q, qdata, qlen);
-        e1 = ssh2_bn_init_from_bin();
-        ssh2_bn_from_bin(e1, e1data, e1len);
-        e2 = ssh2_bn_init_from_bin();
-        ssh2_bn_from_bin(e2, e2data, e2len);
-        coeff = ssh2_bn_init_from_bin();
-        ssh2_bn_from_bin(coeff, coeffdata, coefflen);
+        ssh2_bn_from_bin(&d, ddata, dlen);
+        ssh2_bn_from_bin(&p, pdata, plen);
+        ssh2_bn_from_bin(&q, qdata, qlen);
+        ssh2_bn_from_bin(&e1, e1data, e1len);
+        ssh2_bn_from_bin(&e2, e2data, e2len);
+        ssh2_bn_from_bin(&coeff, coeffdata, coefflen);
         if(!d || !p || !q || !e1 || !e2 || !coeff)
             ret = -1;
 
@@ -1289,6 +1291,8 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, const ssh2_bn *g,
 
     (void)bnctx;
 
+    if(!pub)
+        return -1;
     if(group_order <= 0)
         return -1;
 
@@ -1319,7 +1323,7 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, const ssh2_bn *g,
     asn1delete(pkcs3);
     if(errcode.Bytes_Available)
         return -1;
-    return ssh2_bn_from_bin(pub, (unsigned char *)pubkey, pubkeylen);
+    return ssh2_bn_from_bin(&pub, (unsigned char *)pubkey, pubkeylen);
 }
 
 int ssh2_dh_validate(const ssh2_bn *f, const ssh2_bn *p)
@@ -1356,6 +1360,8 @@ int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
 
     (void)bnctx;
 
+    if(!secret)
+        return -1;
     if(ssh2_dh_validate(f, p))
         return -1;
 
@@ -1369,7 +1375,7 @@ int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
                             &secretbufsize, &secretbuflen, &errcode);
     if(errcode.Bytes_Available)
         return -1;
-    return ssh2_bn_from_bin(secret, (unsigned char *)secretbuf, secretbuflen);
+    return ssh2_bn_from_bin(&secret, (unsigned char *)secretbuf, secretbuflen);
 }
 
 void ssh2_dh_dtor(ssh2_dh_ctx *dhctx)

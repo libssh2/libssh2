@@ -427,8 +427,7 @@ static int kex_diffie_hellman_sha(LIBSSH2_SESSION *session,
         exchange_state->ctx = ssh2_bn_ctx_new();
         ssh2_dh_init(&exchange_state->x);
         exchange_state->e = ssh2_bn_init(); /* g^x mod p */
-        exchange_state->f = ssh2_bn_init_from_bin(); /* g^(Random from
-                                                            server) mod p */
+        exchange_state->f = NULL; /* g^(Random from server) mod p */
         exchange_state->k = ssh2_bn_init(); /* The shared secret: f^x mod p */
 
         /* Zero the whole thing out */
@@ -557,7 +556,7 @@ static int kex_diffie_hellman_sha(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
 
-        if(ssh2_bn_from_bin(exchange_state->f,
+        if(ssh2_bn_from_bin(&exchange_state->f,
                             exchange_state->f_value,
                             exchange_state->f_value_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
@@ -761,8 +760,7 @@ static int kex_method_diffie_hellman_group1_sha1_key_exchange(
 
     if(key_state->state == ssh2_NB_state_idle) {
         /* g == 2 */
-        key_state->p = ssh2_bn_init_from_bin(); /* SSH2 defined value
-                                                       (p_value) */
+        key_state->p = NULL; /* SSH2 defined value (p_value) */
         key_state->g = ssh2_bn_init(); /* SSH2 defined value (2) */
 
         /* Initialize P and G */
@@ -771,7 +769,7 @@ static int kex_method_diffie_hellman_group1_sha1_key_exchange(
                            "Failed to allocate key state g.");
             goto clean_exit;
         }
-        if(!key_state->p || ssh2_bn_from_bin(key_state->p, p_value, 128)) {
+        if(ssh2_bn_from_bin(&key_state->p, p_value, 128)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                            "Failed to allocate key state p.");
             goto clean_exit;
@@ -856,8 +854,7 @@ static int kex_method_diffie_hellman_group14_key_exchange(
     int ret;
 
     if(key_state->state == ssh2_NB_state_idle) {
-        key_state->p = ssh2_bn_init_from_bin(); /* SSH2 defined value
-                                                       (p_value) */
+        key_state->p = NULL; /* SSH2 defined value (p_value) */
         key_state->g = ssh2_bn_init(); /* SSH2 defined value (2) */
 
         /* g == 2 */
@@ -867,8 +864,7 @@ static int kex_method_diffie_hellman_group14_key_exchange(
                            "Failed to allocate key state g.");
             goto clean_exit;
         }
-        else if(!key_state->p ||
-                ssh2_bn_from_bin(key_state->p, p_value, 256)) {
+        else if(ssh2_bn_from_bin(&key_state->p, p_value, 256)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                            "Failed to allocate key state p.");
             goto clean_exit;
@@ -968,8 +964,7 @@ static int kex_method_diffie_hellman_group16_sha512_key_exchange(
     int ret;
 
     if(key_state->state == ssh2_NB_state_idle) {
-        key_state->p = ssh2_bn_init_from_bin(); /* SSH2 defined value
-                                                       (p_value) */
+        key_state->p = NULL; /* SSH2 defined value (p_value) */
         key_state->g = ssh2_bn_init(); /* SSH2 defined value (2) */
 
         /* g == 2 */
@@ -979,7 +974,7 @@ static int kex_method_diffie_hellman_group16_sha512_key_exchange(
                            "Failed to allocate key state g.");
             goto clean_exit;
         }
-        if(!key_state->p || ssh2_bn_from_bin(key_state->p, p_value, 512)) {
+        if(ssh2_bn_from_bin(&key_state->p, p_value, 512)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                            "Failed to allocate key state p.");
             goto clean_exit;
@@ -1101,8 +1096,7 @@ static int kex_method_diffie_hellman_group18_sha512_key_exchange(
     int ret;
 
     if(key_state->state == ssh2_NB_state_idle) {
-        key_state->p = ssh2_bn_init_from_bin(); /* SSH2 defined value
-                                                       (p_value) */
+        key_state->p = NULL; /* SSH2 defined value (p_value) */
         key_state->g = ssh2_bn_init(); /* SSH2 defined value (2) */
 
         /* g == 2 */
@@ -1112,8 +1106,7 @@ static int kex_method_diffie_hellman_group18_sha512_key_exchange(
                            "Failed to allocate key state g.");
             goto clean_exit;
         }
-        else if(!key_state->p ||
-                ssh2_bn_from_bin(key_state->p, p_value, 1024)) {
+        else if(ssh2_bn_from_bin(&key_state->p, p_value, 1024)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                            "Failed to allocate key state p.");
             goto clean_exit;
@@ -1150,8 +1143,8 @@ static int kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
     int rc;
 
     if(key_state->state == ssh2_NB_state_idle) {
-        key_state->p = ssh2_bn_init_from_bin();
-        key_state->g = ssh2_bn_init_from_bin();
+        key_state->p = NULL;
+        key_state->g = NULL;
         /* Ask for a P and G pair */
         key_state->request[0] = SSH_MSG_KEX_DH_GEX_REQUEST;
         ssh2_htonu32(key_state->request + 1, SSH2_DH_GEX_MINGROUP);
@@ -1222,7 +1215,7 @@ static int kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
             goto dh_gex_clean_exit;
         }
 
-        if(ssh2_bn_from_bin(key_state->p, p, p_len)) {
+        if(ssh2_bn_from_bin(&key_state->p, p, p_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "Invalid DH-SHA1 p");
             goto dh_gex_clean_exit;
         }
@@ -1235,7 +1228,7 @@ static int kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
             goto dh_gex_clean_exit;
         }
 
-        if(ssh2_bn_from_bin(key_state->g, g, g_len)) {
+        if(ssh2_bn_from_bin(&key_state->g, g, g_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO, "Invalid DH-SHA1 g");
             goto dh_gex_clean_exit;
         }
@@ -1270,8 +1263,8 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
     int rc;
 
     if(key_state->state == ssh2_NB_state_idle) {
-        key_state->p = ssh2_bn_init_from_bin();
-        key_state->g = ssh2_bn_init_from_bin();
+        key_state->p = NULL;
+        key_state->g = NULL;
         /* Ask for a P and G pair */
         key_state->request[0] = SSH_MSG_KEX_DH_GEX_REQUEST;
         ssh2_htonu32(key_state->request + 1, SSH2_DH_GEX_MINGROUP);
@@ -1343,7 +1336,7 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
             goto dh_gex_clean_exit;
         }
 
-        if(ssh2_bn_from_bin(key_state->p, p, p_len)) {
+        if(ssh2_bn_from_bin(&key_state->p, p, p_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                            "Invalid DH-SHA256 p");
             goto dh_gex_clean_exit;
@@ -1357,7 +1350,7 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
             goto dh_gex_clean_exit;
         }
 
-        if(ssh2_bn_from_bin(key_state->g, g, g_len)) {
+        if(ssh2_bn_from_bin(&key_state->g, g, g_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                            "Invalid DH-SHA256 g");
             goto dh_gex_clean_exit;

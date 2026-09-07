@@ -305,11 +305,10 @@ void ssh2_bn_free(ssh2_bn *bn);
 #ifndef ssh2_bn_set_word
 int ssh2_bn_set_word(ssh2_bn *bn, uint32_t word);
 size_t ssh2_bn_bits(const ssh2_bn *bn);
-int ssh2_bn_from_bin(ssh2_bn *bn, const unsigned char *bin, size_t len);
 int ssh2_bn_to_bin(const ssh2_bn *bn, unsigned char *bin);
 #endif
-#ifndef ssh2_bn_init_from_bin
-#define ssh2_bn_init_from_bin()  ssh2_bn_init()
+#ifndef ssh2_bn_from_bin
+int ssh2_bn_from_bin(ssh2_bn **bn, const unsigned char *bin, size_t len);
 #endif
 
 void ssh2_dh_init(ssh2_dh_ctx *dhctx);

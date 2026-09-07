@@ -318,7 +318,7 @@ size_t ssh2_bn_bits(const ssh2_bn *bn)
     return bits;
 }
 
-int ssh2_bn_from_bin(ssh2_bn *bn, const unsigned char *bin, size_t len)
+int ssh2_bn_from_bin(ssh2_bn **bn, const unsigned char *bin, size_t len)
 {
     unsigned char *bignum;
     size_t offset, length, bits;
@@ -326,24 +326,30 @@ int ssh2_bn_from_bin(ssh2_bn *bn, const unsigned char *bin, size_t len)
     if(!bn || !bin || !len)
         return -1;
 
-    if(wcng_bn_resize(bn, len))
+    if(!*bn) {
+        *bn = ssh2_bn_init();
+        if(!*bn)
+            return -1;
+    }
+
+    if(wcng_bn_resize(*bn, len))
         return -1;
 
-    memcpy(bn->bignum, bin, len);
+    memcpy((*bn)->bignum, bin, len);
 
-    bits = ssh2_bn_bits(bn);
+    bits = ssh2_bn_bits(*bn);
     length = (bits + 7) / 8;
 
-    offset = bn->length - length;
+    offset = (*bn)->length - length;
     if(offset > 0) {
-        memmove(bn->bignum, bn->bignum + offset, length);
+        memmove((*bn)->bignum, (*bn)->bignum + offset, length);
 
-        ssh2_explicit_zero(bn->bignum + length, offset);
+        ssh2_explicit_zero((*bn)->bignum + length, offset);
 
-        bignum = realloc(bn->bignum, length);
+        bignum = realloc((*bn)->bignum, length);
         if(bignum) {
-            bn->bignum = bignum;
-            bn->length = length;
+            (*bn)->bignum = bignum;
+            (*bn)->length = length;
         }
         else
             return -1;
