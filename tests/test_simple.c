@@ -265,8 +265,7 @@ static int test_ssh2_dh_validate(void)
         if(got != t.expected) {
             fprintf(stderr,
                     "ssh2_dh_validate/%lu: f=%s p=%s: expected %d got %d\n",
-                    (unsigned long)i,
-                    t.f, t.p, t.expected, got);
+                    (unsigned long)i, t.f, t.p, t.expected, got);
             err++;
         }
     }
