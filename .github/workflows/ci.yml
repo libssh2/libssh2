@@ -1313,7 +1313,7 @@ jobs:
             make -C bld examples
           fi
 
-  build_curl_win:
+  build_curl:
     name: 'curl, CM ${{ matrix.arch }}-${{ matrix.plat }} ${{ matrix.name }}'
     runs-on: '${{ matrix.image }}'
     timeout-minutes: 10
