@@ -1196,7 +1196,7 @@ static int kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
         size_t p_len, g_len;
         unsigned char *p, *g;
         struct string_buf buf;
-        int bits;
+        size_t bits;
 
         if(key_state->data_len < 9) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -1227,7 +1227,7 @@ static int kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
             goto dh_gex_clean_exit;
         }
 
-        bits = (int)ssh2_bn_bits(key_state->p);
+        bits = ssh2_bn_bits(key_state->p);
         if(bits < SSH2_DH_GEX_MINGROUP ||
            bits > SSH2_DH_GEX_MAXGROUP) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -1317,7 +1317,7 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
         unsigned char *p, *g;
         size_t p_len, g_len;
         struct string_buf buf;
-        int bits;
+        size_t bits;
 
         if(key_state->data_len < 9) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
@@ -1349,7 +1349,7 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
             goto dh_gex_clean_exit;
         }
 
-        bits = (int)ssh2_bn_bits(key_state->p);
+        bits = ssh2_bn_bits(key_state->p);
         if(bits < SSH2_DH_GEX_MINGROUP ||
            bits > SSH2_DH_GEX_MAXGROUP) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
