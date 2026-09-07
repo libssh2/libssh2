@@ -349,17 +349,17 @@ Returns the number of bits of multiple precision number at `bn`.
 int ssh2_bn_set_word(ssh2_bn *bn, uint32_t word);
 ```
 Sets the value of `bn` to `word`.
-Returns 1 on success, 0 otherwise.
+Returns 0 on success, non-zero on failure.
 
 ```c
-ssh2_bn *ssh2_bn_from_bin(ssh2_bn **bn, const unsigned char *bin, size_t len);
+int ssh2_bn_from_bin(ssh2_bn **bn, const unsigned char *bin, size_t len);
 ```
 
 Converts the positive integer in big-endian form of length `len` at `bin` into
 an `ssh2_bn` and place it in `bn`. If `bn` is NULL, a new `ssh2_bn` is
 created.
 
-Returns a pointer to target `ssh2_bn` or NULL if error.
+Returns 0 on success, non-zero on failure.
 
 ```c
 int ssh2_bn_to_bin(ssh2_bn *bn, unsigned char *bin);
