@@ -243,8 +243,8 @@ static int test_error_cleanup_eagain(int send_case)
                 send_case ? "send" : "recv", (void *)result, rc,
                 session->err_msg ? session->err_msg : "(null)", api_calls,
                 eagain_returns, ctx.recv_calls, ctx.send_calls,
-                (unsigned int)(send_case ? session->scpSend_state :
-                                           session->scpRecv_state),
+                send_case ? (unsigned int)session->scpSend_state :
+                            (unsigned int)session->scpRecv_state,
                 (void *)(send_case ? session->scpSend_channel :
                                     session->scpRecv_channel));
         failed = 1;
