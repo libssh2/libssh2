@@ -378,8 +378,11 @@ int ssh2_bn_from_bin(ssh2_bn **bn, const unsigned char *bin, size_t len)
     if(!bn || !bin || !len)
         return -1;
 
-    if(!*bn)
+    if(!*bn) {
         *bn = ssh2_bn_init();
+        if(!*bn)
+            return -1;
+    }
 
     return mbedtls_mpi_read_binary(*bn, bin, len);
 }

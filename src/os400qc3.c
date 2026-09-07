@@ -467,8 +467,11 @@ int ssh2_bn_from_bin(ssh2_bn **bn, const unsigned char *bin, size_t len)
     if(!bn || (len && !bin))
         return -1;
 
-    if(!*bn)
+    if(!*bn) {
         *bn = ssh2_bn_init();
+        if(!*bn)
+            return -1;
+    }
 
     for(; len && !*bin; len--)
         bin++;
