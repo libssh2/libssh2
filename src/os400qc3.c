@@ -487,6 +487,8 @@ int ssh2_bn_from_bin(ssh2_bn **bn, const unsigned char *bin, size_t len)
 
 int ssh2_bn_set_word(ssh2_bn *bn, uint32_t word)
 {
+    if(!bn)
+        return -1;
     word = htonl(word);
     return ssh2_bn_from_bin(&bn, (unsigned char *)&word, sizeof(word));
 }
@@ -1289,6 +1291,8 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, const ssh2_bn *g,
 
     (void)bnctx;
 
+    if(!pub)
+        return -1;
     if(group_order <= 0)
         return -1;
 
@@ -1356,6 +1360,8 @@ int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
 
     (void)bnctx;
 
+    if(!secret)
+        return -1;
     if(ssh2_dh_validate(f, p))
         return -1;
 
