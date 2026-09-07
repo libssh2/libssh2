@@ -1327,7 +1327,6 @@ jobs:
       OPENSSH_WINDOWS_SHA256_ARM64: 698c6aec31c1dd0fb996206e8741f4531a97355686b5431ef347d531b07fcd42
       OPENSSH_WINDOWS_SHA256_WIN64: 23f50f3458c4c5d0b12217c6a5ddfde0137210a30fa870e98b29827f7b43aba5
       MATRIX_ARCH: '${{ matrix.arch }}'
-      MATRIX_CRYPTO: '${{ matrix.crypto }}'
       MATRIX_IMAGE: '${{ matrix.image }}'
       MATRIX_OPENSSH: '${{ matrix.openssh }}'
       MATRIX_TYPE: '${{ matrix.type }}'
@@ -1335,9 +1334,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { image: 'windows-2025'  , arch: x64  , plat: windows, type: Debug  , crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'ON' , shared: 'OFF', zlib: 'OFF', unity: 'ON',
+          - { image: 'windows-2025'  , arch: x64  , plat: windows, type: Debug  , wincng_ecdsa: 'ON' , log: 'ON' , shared: 'OFF', zlib: 'OFF', unity: 'ON',
               name: 'ECDSA' }
-          - { image: 'windows-11-arm', arch: arm64, plat: windows, type: Debug  , crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'ON' , shared: 'OFF', zlib: 'OFF', unity: 'ON',
+          - { image: 'windows-11-arm', arch: arm64, plat: windows, type: Debug  , wincng_ecdsa: 'OFF', log: 'ON' , shared: 'OFF', zlib: 'OFF', unity: 'ON',
               name: '!ECDSA', openssh: 'OpenSSH-Windows' }
     steps:
       - uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
@@ -1361,24 +1360,20 @@ jobs:
           MATRIX_ZLIB: '${{ matrix.zlib }}'
           MATRIX_UNITY: '${{ matrix.unity }}'
         run: |
-          options=''
-          archgen="${MATRIX_ARCH}"; [ "${archgen}" = 'x86' ] && archgen='Win32'
-          if [ "${MATRIX_CRYPTO}" = 'WinCNG' ]; then
-            options+=" -DENABLE_ECDSA_WINCNG=${MATRIX_WINCND_ECDSA}"
-            cflags+=' -DLIBSSH2_KEX_SHA1_ENABLE -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_SHA1_ENABLE'
-            cflags+=' -DLIBSSH2_RSA_SHA1_ENABLE -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_3DES_ENABLE'
-            cflags+=' -DLIBSSH2_DSA_ENABLE'
-          fi
-          cmake -B bld ${options} \
+          cflags+=' -DLIBSSH2_KEX_SHA1_ENABLE -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_SHA1_ENABLE'
+          cflags+=' -DLIBSSH2_RSA_SHA1_ENABLE -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_3DES_ENABLE'
+          cflags+=' -DLIBSSH2_DSA_ENABLE'
+          cmake -B bld \
             -DCMAKE_INSTALL_PREFIX="$HOME"/libssh2-install \
             -DCMAKE_C_FLAGS="${cflags}" \
-            -DCMAKE_GENERATOR_PLATFORM=${archgen} \
+            -DCMAKE_GENERATOR_PLATFORM="${MATRIX_ARCH}" \
             -DCMAKE_VS_GLOBALS=TrackFileAccess=false \
             -DCMAKE_UNITY_BUILD="${MATRIX_UNITY}" \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING="${MATRIX_LOG}" \
             -DBUILD_SHARED_LIBS="${MATRIX_SHARED}" \
-            -DCRYPTO_BACKEND="${MATRIX_CRYPTO}" \
+            -DCRYPTO_BACKEND=WinCNG \
+            -DENABLE_ECDSA_WINCNG="${MATRIX_WINCND_ECDSA}" \
             -DENABLE_ZLIB_COMPRESSION="${MATRIX_ZLIB}" \
             -DLIBSSH2_BUILD_DOCS=OFF \
             -DBUILD_EXAMPLES=OFF \
@@ -1405,10 +1400,9 @@ jobs:
             --location --proto-redir =https "https://github.com/curl/curl/releases/download/curl-${CURL_VERNUM//./_}/curl-${CURL_VERNUM}.tar.xz" --output pkg.bin
           sha256sum pkg.bin && sha256sum pkg.bin | grep -qwF -- "${CURL_SHA256}" && tar -xJf pkg.bin && rm -f pkg.bin
           cd "curl-${CURL_VERNUM}"
-          archgen="${MATRIX_ARCH}"; [ "${archgen}" = 'x86' ] && archgen='Win32'
           cmake -B bld -DBUILD_SHARED_LIBS=OFF -DCURL_USE_LIBPSL=OFF -DCURL_ENABLE_SSL=OFF -DENABLE_DEBUG=ON \
             -DBUILD_LIBCURL_DOCS=OFF -DBUILD_MISC_DOCS=OFF -DENABLE_CURL_MANUAL=OFF -DCURL_DISABLE_TYPECHECK=ON \
-            -DCMAKE_GENERATOR_PLATFORM=${archgen} \
+            -DCMAKE_GENERATOR_PLATFORM="${MATRIX_ARCH}" \
             -DCMAKE_VS_GLOBALS=TrackFileAccess=false \
             -DCMAKE_UNITY_BUILD=ON -DCURL_DROP_UNUSED=ON -DCURL_WERROR=ON \
             -DCURL_DISABLE_DICT=ON -DCURL_DISABLE_FILE=ON -DCURL_DISABLE_FTP=ON -DCURL_DISABLE_GOPHER=ON -DCURL_DISABLE_HTTP=ON -DCURL_DISABLE_IMAP=ON \
@@ -1453,10 +1447,7 @@ jobs:
         run: |
           cd "curl-${CURL_VERNUM}"
           export TFLAGS='-j8 SCP SFTP --retry=0 --repeat=6'
-          if [[ "${MATRIX_CRYPTO}" = *'WinCNG'* ]]; then
-            unset CURL_TEST_SSH_KEYALGO  # libssh2 built with WinCNG does not support ssh-ed25519 hostkeys
-            export CURL_TEST_SSH_ENABLE_KEX=diffie-hellman-group-exchange-sha256
-          fi
+          export CURL_TEST_SSH_ENABLE_KEX=diffie-hellman-group-exchange-sha256
           if [ -n "${MATRIX_OPENSSH}" ]; then  # OpenSSH-Windows
             TFLAGS+=' ~601 ~603 ~617 ~619 ~621 ~641 ~665 ~2004'  # SCP
             TFLAGS+=' ~3022'  # 'SCP correct sha256 host key' SCP, server sha256 key check
