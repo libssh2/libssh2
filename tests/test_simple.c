@@ -230,9 +230,10 @@ static int test_knownhost_ipv6(LIBSSH2_SESSION *session)
 
 static int test_ssh2_dh_validate(void)
 {
-    static const struct {
+    struct tbn {
         const char *f; const char *p; int expected;
-    } tests[] = {
+    };
+    static const struct tbn tests[] = {
         {   "2",  "10", -3 },
         {   "1",  "10", -1 },
         {   "0",  "10", -1 },
