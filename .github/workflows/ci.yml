@@ -1329,14 +1329,16 @@ jobs:
       MATRIX_ARCH: '${{ matrix.arch }}'
       MATRIX_CRYPTO: '${{ matrix.crypto }}'
       MATRIX_IMAGE: '${{ matrix.image }}'
-      MATRIX_OPENSSH: ''
+      MATRIX_OPENSSH: '${{ matrix.openssh }}'
       MATRIX_TYPE: '${{ matrix.type }}'
     strategy:
       fail-fast: false
       matrix:
         include:
-          - { image: 'windows-2025', arch: x64  , plat: windows, type: Debug  , crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'ON' , shared: 'OFF', zlib: 'OFF', unity: 'ON', name: 'ECDSA' }
-          - { image: 'windows-2025', arch: x64  , plat: windows, type: Debug  , crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'ON' , shared: 'OFF', zlib: 'OFF', unity: 'ON', name: '!ECDSA' }
+          - { image: 'windows-2025'  , arch: x64  , plat: windows, type: Debug  , crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'ON' , shared: 'OFF', zlib: 'OFF', unity: 'ON',
+              name: 'ECDSA' }
+          - { image: 'windows-11-arm', arch: arm64, plat: windows, type: Debug  , crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'ON' , shared: 'OFF', zlib: 'OFF', unity: 'ON',
+              name: '!ECDSA', openssh: 'OpenSSH-Windows' }
     steps:
       - uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
         with:
@@ -1449,7 +1451,7 @@ jobs:
           fi
 
       - name: 'run tests'
-        timeout-minutes: 10
+        timeout-minutes: 6
         run: |
           cd "curl-${CURL_VERNUM}"
           export TFLAGS='-j8 SCP SFTP --retry=0 --repeat=6'
