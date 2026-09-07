@@ -1313,8 +1313,8 @@ jobs:
             make -C bld examples
           fi
 
-  build_msvc_curl:
-    name: 'msvc-curl, CM ${{ matrix.arch }}-${{ matrix.plat }} ${{ matrix.name }}'
+  wincng:
+    name: 'WinCNG, CM ${{ matrix.arch }}-${{ matrix.plat }} ${{ matrix.name }}'
     runs-on: '${{ matrix.image }}'
     timeout-minutes: 10
     defaults:
