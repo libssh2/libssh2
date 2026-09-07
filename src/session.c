@@ -1004,8 +1004,14 @@ static int session_free(LIBSSH2_SESSION *session)
         SSH2_FREE(session, session->pkeyInit_data);
     if(session->scpRecv_command)
         SSH2_FREE(session, session->scpRecv_command);
+    if(session->scpRecv_error.message &&
+       (session->scpRecv_error.flags & SSH2_ERR_FLAG_DUP))
+        SSH2_FREE(session, SSH2_UNCONST(session->scpRecv_error.message));
     if(session->scpSend_command)
         SSH2_FREE(session, session->scpSend_command);
+    if(session->scpSend_error.message &&
+       (session->scpSend_error.flags & SSH2_ERR_FLAG_DUP))
+        SSH2_FREE(session, SSH2_UNCONST(session->scpSend_error.message));
     if(session->sftpInit_sftp)
         SSH2_FREE(session, session->sftpInit_sftp);
 
