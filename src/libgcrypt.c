@@ -768,4 +768,9 @@ void ssh2_dh_dtor(ssh2_dh_ctx *dhctx)
     *dhctx = NULL;
 }
 
+int ssh2_bn_from_bin(ssh2_bn **bn, const unsigned char *bin, size_t len)
+{
+    return gcry_mpi_scan(bn, GCRYMPI_FMT_USG, bin, len, NULL);
+}
+
 #endif /* LIBSSH2_LIBGCRYPT */
