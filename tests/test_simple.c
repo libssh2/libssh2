@@ -254,9 +254,11 @@ static int test_ssh2_dh_validate(void)
 #else
         ssh2_bn *f = ssh2_bn_init();
         ssh2_bn *p = ssh2_bn_init();
-        ssh2_bn_set_word(f, (uint32_t)atoi(t.f));
-        ssh2_bn_set_word(p, (uint32_t)atoi(t.p));
-        got = ssh2_dh_validate(f, p);
+        if(ssh2_bn_set_word(f, (uint32_t)atoi(t.f)) ||
+           ssh2_bn_set_word(p, (uint32_t)atoi(t.p)))
+            got = -9;
+        else
+            got = ssh2_dh_validate(f, p);
         ssh2_bn_free(f);
         ssh2_bn_free(p);
 #endif
