@@ -1372,8 +1372,6 @@ jobs:
           cmake -B bld ${options} \
             -DCMAKE_INSTALL_PREFIX="$HOME"/libssh2-install \
             -DCMAKE_C_FLAGS="${cflags}" \
-            -DCMAKE_EXE_LINKER_FLAGS="${ldflags}" \
-            -DCMAKE_SHARED_LINKER_FLAGS="${ldflags}" \
             -DCMAKE_GENERATOR_PLATFORM=${archgen} \
             -DCMAKE_VS_GLOBALS=TrackFileAccess=false \
             -DCMAKE_UNITY_BUILD="${MATRIX_UNITY}" \
