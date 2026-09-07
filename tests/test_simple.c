@@ -250,25 +250,20 @@ static int test_ssh2_dh_validate(void)
     for(i = 0; i < SSH2_ARRAYSIZE(tests); i++) {
         struct tbn t = tests[i];
         int got;
+        ssh2_bn *f = ssh2_bn_init();
+        ssh2_bn *p = ssh2_bn_init();
 #ifdef LIBSSH2_LIBGCRYPT
-        gcry_mpi_t f = gcry_mpi_set_ui(NULL, (unsigned long)abs(atoi(t.f)));
-        gcry_mpi_t p = gcry_mpi_set_ui(NULL, (unsigned long)atoi(t.p));
+        ssh2_bn_set_word(f, (unsigned long)abs(atoi(t.f)));
+        ssh2_bn_set_word(p, (unsigned long)atoi(t.p));
         if(t.f[0] == '-')
             gcry_mpi_neg(f, f);
         got = ssh2_dh_validate(f, p);
-        gcry_mpi_release(f);
-        gcry_mpi_release(p);
 #elif defined(LIBSSH2_MBEDTLS)
-        mbedtls_mpi f, p;
-        mbedtls_mpi_init(&f);
-        mbedtls_mpi_init(&p);
-        if(mbedtls_mpi_read_string(&f, 10, t.f) ||
-           mbedtls_mpi_read_string(&p, 10, t.p))
+        if(mbedtls_mpi_read_string(f, 10, t.f) ||
+           mbedtls_mpi_read_string(p, 10, t.p))
             got = -9;
         else
-            got = ssh2_dh_validate(&f, &p);
-        mbedtls_mpi_free(&f);
-        mbedtls_mpi_free(&p);
+            got = ssh2_dh_validate(f, p);
 #elif defined(LIBSSH2_OPENSSL) || \
     (defined(LIBSSH2_WOLFSSL) && LIBWOLFSSL_VERSION_HEX >= 0x05006000)
         BIGNUM *f = BN_new(), *p = BN_new();
@@ -277,11 +272,11 @@ static int test_ssh2_dh_validate(void)
             got = -9;
         else
             got = ssh2_dh_validate(f, p);
-        BN_free(f);
-        BN_free(p);
 #else
         got = t.expected;
 #endif
+        ssh2_bn_free(f);
+        ssh2_bn_free(p);
         if(got != t.expected) {
             fprintf(stderr,
                     "ssh2_dh_validate/%lu: f=%s p=%s: expected %d got %d\n",
