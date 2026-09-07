@@ -330,15 +330,6 @@ ssh2_bn *ssh2_bn_init(void);
 Creates a multiple precision number (preset to zero).
 
 ```c
-ssh2_bn *ssh2_bn_init_from_bin(void);
-```
-
-Create a multiple precision number intended to be set by the
-`ssh2_bn_from_bin()` function (see below). Unlike `ssh2_bn_init()`, this code
-may be a dummy initializer if the `ssh2_bn_from_bin()` actually allocates the
-number. Returns a value of type `ssh2_bn *`.
-
-```c
 void ssh2_bn_free(ssh2_bn *bn);
 ```
 Destroys the multiple precision number at `bn`.
@@ -361,7 +352,7 @@ Sets the value of `bn` to `word`.
 Returns 1 on success, 0 otherwise.
 
 ```c
-ssh2_bn *ssh2_bn_from_bin(ssh2_bn *bn, const unsigned char *bin, size_t len);
+ssh2_bn *ssh2_bn_from_bin(ssh2_bn **bn, const unsigned char *bin, size_t len);
 ```
 
 Converts the positive integer in big-endian form of length `len` at `bin` into
