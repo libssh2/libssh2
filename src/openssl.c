@@ -3715,4 +3715,15 @@ void ssh2_dh_dtor(ssh2_dh_ctx *dhctx)
     *dhctx = NULL;
 }
 
+int ssh2_bn_from_bin(ssh2_bn **bn, const unsigned char *bin, size_t len)
+{
+    if(!bn || !bin || !len)
+        return -1;
+
+    if(!*bn)
+        *bn = ssh2_bn_init();
+
+    return BN_bin2bn(bin, (int)len, *bn) ? 0 : -1;
+}
+
 #endif /* LIBSSH2_OPENSSL || LIBSSH2_WOLFSSL */

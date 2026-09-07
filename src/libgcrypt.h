@@ -120,7 +120,7 @@
                                                 creates a new bignum */
 #define ssh2_bn_set_word(bn, word)     gcry_mpi_set_ui(bn, word)
 #define ssh2_bn_from_bin(bn, bin, len) \
-    gcry_mpi_scan(&(bn), GCRYMPI_FMT_USG, bin, len, NULL)
+    gcry_mpi_scan(bn, GCRYMPI_FMT_USG, bin, len, NULL)
 #define ssh2_bn_to_bin(bn, bin) \
     gcry_mpi_print(GCRYMPI_FMT_USG, bin, ssh2_bn_bytes(bn), NULL, bn)
 #define ssh2_bn_bytes(bn) \
