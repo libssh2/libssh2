@@ -3139,13 +3139,6 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, const ssh2_bn *g,
     return 0;
 }
 
-int ssh2_dh_validate(const ssh2_bn *f, const ssh2_bn *p) /* FIXME: implement */
-{
-    (void)f;
-    (void)p;
-    return 0;
-}
-
 /* Computes the Diffie-Hellman secret from the previously created context
  * `*dhctx', the public key `f' from the other party and the same prime `p'
  * used at context creation. The result is stored in `secret'.  0 is returned
