@@ -296,14 +296,9 @@ static int test_ssh2_bn_from_bin(void)
     for(i = 0; i < SSH2_ARRAYSIZE(tests); i++) {
         unsigned char actual[5] = { 0 };
         size_t length = tests[i].length - tests[i].leading;
-        ssh2_bn *bn = ssh2_bn_init_from_bin();
-
-#ifndef LIBSSH2_LIBGCRYPT
-        if(!bn)
-            return 1;
-#endif
-        if(ssh2_bn_from_bin(bn, tests[i].input, tests[i].length) ||
-           (size_t)ssh2_bn_bytes(bn) != length ||
+        ssh2_bn *bn = NULL;
+        if(ssh2_bn_from_bin(&bn, tests[i].input, tests[i].length) ||
+           ssh2_bn_bytes(bn) != length ||
            ssh2_bn_to_bin(bn, actual) ||
            memcmp(actual, tests[i].input + tests[i].leading, length)) {
             fprintf(stderr, "ssh2_bn_from_bin case %lu failed\n",
