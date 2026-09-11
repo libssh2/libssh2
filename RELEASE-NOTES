@@ -4,7 +4,7 @@ Deprecation notices:
 
 - This release disables these options by default:
 
-  - SHA1-based hostkey methods and signatures: `ssh-rsa`,
+  - SHA1-based host key methods and signatures: `ssh-rsa`,
     `ssh-rsa-cert-v01@openssh.com`
     You can enable them with `-DLIBSSH2_RSA_SHA1_ENABLE`.
 
@@ -14,7 +14,7 @@ Deprecation notices:
     - `diffie-hellman-group-exchange-sha1`
     You can enable them with `-DLIBSSH2_KEX_SHA1_ENABLE`.
 
-  - DSA: `ssh-dss` hostkeys.
+  - DSA: `ssh-dss` host keys.
     You can enable it with `-DLIBSSH2_DSA_ENABLE`.
 
   - SHA1-based MACs: `hmac-sha1`, `hmac-sha1-etm@openssh.com`, `hmac-sha1-96`
@@ -459,7 +459,7 @@ This release includes the following enhancements and bugfixes:
 - hash: drop interim macros, sync up types (52f9c3e6 #2242 #2241)
 - hash: pass through context as-is in `ssh2_hash_*()` macros (81e6f8ff #2241)
 - hmac: add generic `ssh2_hmac_init()`, use it (c34888e6 #2244)
-- hostkey: implement ECDSA/RSA certificate hostkey verification (c704efcc #2539 #2513 #2434 #2064)
+- hostkey: implement ECDSA/RSA certificate host key verification (c704efcc #2539 #2513 #2434 #2064)
 - hostkey: replace `strncmp()` with `SSH2_IS_LITERAL()` to harden checks (58a3e88c #2429)
 - hostkey: sanitize public API arguments, fix a return value on error (504e07e9 #2351)
 - hostkey: sync `hostkey_method_ssh_ecdsa_initPEM()` with siblings (tidy up) (775ecf7f #2238)
@@ -470,7 +470,7 @@ This release includes the following enhancements and bugfixes:
 - hostkey: fix ed25519-cert host key initialization (65a276e8 #2064)
 - hostkey: reject zero-length inner signatures (d328895f #2030 #2019)
 - hostkey: reorder methods to match OpenSSH (b8b1d16d #1831)
-- hostkey: prefer ED25519 over ECDSA in hostkey algorithm negotiation (0cb83514 #1783 #1782)
+- hostkey: prefer ED25519 over ECDSA in host key algorithm negotiation (0cb83514 #1783 #1782)
 - hostkey, kex: factor out hash helper macros and dispatchers (f2b41605 #2184 #2171)
 - hostkey, userauth: merge from-filename, from-memory codepaths (5b94157f #2354)
 - include: restore parentheses for macro arguments, for compatibility (dc656fd8 #2577 #1898)
@@ -799,7 +799,7 @@ This release includes the following enhancements and bugfixes:
 - src: propagate `session` to replace bare allocators with SSH2 ones (a2ac6bd4 #2544)
 - src: check mingw-w64 version requirement (dc745585 #2535 #1919)
 - src: de-duplicate two byte swap functions into `ssh2_swap_bytes()` (0acd2f56 #2524)
-- src: disable SHA1-based hostkey methods and signatures by default, fix fallouts (079eeb85 #2501 #2444 #2443 #1435 follow: b7ab0faa)
+- src: disable SHA1-based host key methods and signatures by default, fix fallouts (079eeb85 #2501 #2444 #2443 #1435 follow: b7ab0faa)
 - src: add support for chacha20-poly130-encrypted OpenSSH key files (7abbac4e #2488 #2486 #1426 follow: 492bc543)
 - src: bump `ssh2_time_t`/`ssh2_timediff_t` resolution from milliseconds to microseconds (c97959e9 #2489 #2341)
 - src: de-duplicate `inttypes.h` and `sys/uio.h` includes, inline comment (7cbdcfbb #2469)
@@ -864,7 +864,7 @@ This release includes the following enhancements and bugfixes:
 - sshd_config: enable legacy KEXs for Libgcrypt and WinCNG, drop workarounds (1d0b86ac #2484 #2174 #1720)
 - sshd_config: enable `ssh-rsa-cert-v01@openssh.com` more (5b494b04 #2478 #2474)
 - test_auth_keyboard_info_request: delete unused `free_count` variable (1c9ff814 #2554 #663 follow: 83853f8a)
-- test_hostkey: free decoded expected hostkey (fb2b6d57 #2518 follow: cf80f2f4)
+- test_hostkey: free decoded expected host key (fb2b6d57 #2518 follow: cf80f2f4)
 - test_hostkey_hash: avoid `BUFSIZ` macro (00f6c3a6 #2112 #2104 #2099 #2096)
 - test_hostkey_hash: tidy up `calculate_digest()` (17389d83 #2104 #2103 #2099 #2096)
 - test_hostkey_hash: fix `-Wformat-truncation` with gcc-16 (36d38812 #2099 #2096)
@@ -884,7 +884,7 @@ This release includes the following enhancements and bugfixes:
 - tests: replace DSA with RSA key for fail test (b937ded9 #2604)
 - tests: drop WinCNG retry workarounds (5bfa5744 #2603 #804 #2583 #1023 follow: bc120a34)
 - tests: add script to dump test keys in more parsable formats (ceb15801 #2574)
-- tests: add tests for signed hostkey: `ssh-ed25519-cert-v01@openssh.com` (6036e577 #2513 #2435 #2434 #2064)
+- tests: add tests for signed host key: `ssh-ed25519-cert-v01@openssh.com` (6036e577 #2513 #2435 #2434 #2064)
 - tests: rename CA keys to reflect they are user keys (19aa4338 #2512)
 - tests: upload host pubkeys to repo (c8543ef3 #2511 #2435 #2064)
 - tests: rename keys/tests to contain the key format (72693e4e #2510)

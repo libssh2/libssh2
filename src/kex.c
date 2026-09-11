@@ -170,12 +170,12 @@ static int kex_proc_hostkey(LIBSSH2_SESSION *session, struct string_buf *buf,
 #endif /* LIBSSH2DEBUG */
 
     if(!session->hostkey)
-        return ssh2_err(session, LIBSSH2_ERROR_PROTO, "hostkey is NULL");
+        return ssh2_err(session, LIBSSH2_ERROR_PROTO, "host key is NULL");
     if(session->hostkey->init(session, session->server_hostkey,
                               session->server_hostkey_len,
                               &session->server_hostkey_abstract))
         return ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_INIT,
-                        "Unable to initialize hostkey importer");
+                        "Unable to initialize host key importer");
 
     return 0;
 }
@@ -692,10 +692,10 @@ static int kex_diffie_hellman_sha(LIBSSH2_SESSION *session,
 
         if(err) {
             ssh2_deb((session, LIBSSH2_TRACE_KEX,
-                      "Failed hostkey sig_verify(): %s: %d",
+                      "Failed host key sig_verify(): %s: %d",
                       session->hostkey->name, err));
             ret = ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
-                           "Unable to verify hostkey signature DH-SHA");
+                           "Unable to verify host key signature DH-SHA");
             goto clean_exit;
         }
 
@@ -1511,7 +1511,7 @@ static int kex_method_ec_sha_hash_create_verify(
                                        &session->server_hostkey_abstract);
     if(err) {
         ssh2_deb((session, LIBSSH2_TRACE_KEX,
-                  "Failed hostkey sig_verify() EC/ED: %s: %d",
+                  "Failed host key sig_verify() EC/ED: %s: %d",
                   session->hostkey->name, err));
         return ssh2_err(session, LIBSSH2_ERROR_HOSTKEY_SIGN, signerr);
     }
@@ -1669,7 +1669,7 @@ static int kex_ecdh_sha2_nistp(LIBSSH2_SESSION *session, ssh2_curve_type curve,
                  public_key, public_key_len, NULL, 0,
                  server_public_key, server_public_key_len,
                  hash_alg, digest_len,
-                 "Unable to verify hostkey signature ECDH");
+                 "Unable to verify host key signature ECDH");
         if(ret)
             goto clean_exit;
 
@@ -2016,7 +2016,7 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
                  public_pq_key, public_pq_key_len,
                  server_public_key, server_public_key_len,
                  hash_alg, digest_len,
-                 "Unable to verify hostkey signature mlkemnistp");
+                 "Unable to verify host key signature mlkemnistp");
         if(ret)
             goto clean_exit;
 
@@ -2312,7 +2312,7 @@ static int kex_curve25519_sha256(
                  public_key, public_key_len, NULL, 0,
                  server_public_key, server_public_key_len,
                  SSH2_SHA256_ALG, SSH2_SHA256_DIG_LEN,
-                 "Unable to verify hostkey signature curve25519");
+                 "Unable to verify host key signature curve25519");
         if(ret)
             goto clean_exit;
 
@@ -2595,7 +2595,7 @@ static int kex_mlkem768x25519_sha256(
                  public_pq_key, public_pq_key_len,
                  server_public_key, server_public_key_len,
                  SSH2_SHA256_ALG, SSH2_SHA256_DIG_LEN,
-                 "Unable to verify hostkey signature mlkem768x25519");
+                 "Unable to verify host key signature mlkem768x25519");
         if(ret)
             goto clean_exit;
 
@@ -3187,7 +3187,7 @@ static const struct common_method *kex_get_method_by_name(
 }
 
 /*
- * Agree on a Hostkey which works with this kex
+ * Agree on a host key which works with this kex
  */
 static int kex_agree_hostkey(LIBSSH2_SESSION *session, size_t kex_flags,
                              const char *hostkey, size_t hostkey_len)
@@ -3214,11 +3214,11 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session, size_t kex_flags,
                    vs Signing) */
                 if(((kex_flags & KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0 ||
                     method->encrypt) &&
-                   /* Either this hostkey can do encryption or this kex
+                   /* Either this host key can do encryption or this kex
                       does not require it */
                    ((kex_flags & KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) == 0 ||
                     method->sig_verify)) {
-                        /* Either this hostkey can do signing or this kex
+                        /* Either this host key can do signing or this kex
                            does not require it */
                     session->hostkey = method;
                     return 0;
@@ -3238,11 +3238,11 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session, size_t kex_flags,
               Signing) */
            ((kex_flags & KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0 ||
             (*hostkeyp)->encrypt) &&
-           /* Either this hostkey can do encryption or this kex
+           /* Either this host key can do encryption or this kex
               does not require it */
            ((kex_flags & KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) == 0 ||
             (*hostkeyp)->sig_verify)) {
-            /* Either this hostkey can do signing or this kex
+            /* Either this host key can do signing or this kex
                does not require it */
             session->hostkey = *hostkeyp;
             return 0;
@@ -3254,7 +3254,7 @@ static int kex_agree_hostkey(LIBSSH2_SESSION *session, size_t kex_flags,
 }
 
 /*
- * Agree on a Key Exchange method and a hostkey encoding type
+ * Agree on a Key Exchange method and a host key encoding type
  */
 static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session,
                                  const char *kex, size_t kex_len,
@@ -3283,7 +3283,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session,
                     return -1;  /* Invalid method -- Should never be reached */
 
                 /* We have agreed on a key exchange method,
-                 * Can we agree on a hostkey that works with this kex?
+                 * Can we agree on a host key that works with this kex?
                  */
                 if(kex_agree_hostkey(session, method->flags, hostkey,
                                      hostkey_len) == 0) {
@@ -3308,7 +3308,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session,
                                  (*kexp)->name, strlen((*kexp)->name));
         if(s &&
            /* We have agreed on a key exchange method,
-            * Can we agree on a hostkey that works with this kex?
+            * Can we agree on a host key that works with this kex?
             */
            kex_agree_hostkey(session, (*kexp)->flags, hostkey,
                              hostkey_len) == 0) {

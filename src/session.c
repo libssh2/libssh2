@@ -876,7 +876,7 @@ static int session_free(LIBSSH2_SESSION *session)
         session->kex->cleanup(session,
                               &session->startup_key_state.key_state_low);
 
-    /* hostkey */
+    /* host key */
     if(session->hostkey && session->hostkey->dtor)
         session->hostkey->dtor(session, &session->server_hostkey_abstract);
 

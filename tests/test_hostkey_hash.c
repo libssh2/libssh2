@@ -90,7 +90,7 @@ int test(LIBSSH2_SESSION *session)
 
     if(len < 4) {
         print_last_session_error("libssh2_session_hostkey() "
-                                 "hostkey missing length");
+                                 "host key missing length");
         return 1;
     }
 
@@ -103,7 +103,7 @@ int test(LIBSSH2_SESSION *session)
 
     if(len_str > len - 4) {
         print_last_session_error("libssh2_session_hostkey() "
-                                 "hostkey too short");
+                                 "host key too short");
         return 1;
     }
 
@@ -255,9 +255,9 @@ int test(LIBSSH2_SESSION *session)
     }
     else if(SSH2_IS_LITERAL(hostkey_str, len_str,
                             "ssh-ed25519-cert-v01@openssh.com"))
-        fprintf(stderr, "Signed hostkey: %.*s\n", (int)len_str, hostkey_str);
+        fprintf(stderr, "Signed host key: %.*s\n", (int)len_str, hostkey_str);
     else {
-        fprintf(stderr, "Unexpected type of hostkey: %d: %.*s\n",
+        fprintf(stderr, "Unexpected type of host key: %d: %.*s\n",
                 type, (int)len_str, hostkey_str);
         return 1;
     }

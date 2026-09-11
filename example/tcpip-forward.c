@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
     }
 
     /* At this point we have not yet authenticated.  The first thing to do
-     * is check the hostkey's fingerprint against our known hosts Your app
+     * is check the host key's fingerprint against our known hosts Your app
      * may have it hard coded, may go to a file, may present it to the
      * user, that is your call
      */
