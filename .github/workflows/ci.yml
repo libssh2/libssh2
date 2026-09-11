@@ -826,6 +826,7 @@ jobs:
     name: 'msys2'
     runs-on: windows-2022
     timeout-minutes: 10
+    cache-mode: write
     defaults:
       run:
         shell: msys2 {0}  # zizmor: ignore[misfeature]
