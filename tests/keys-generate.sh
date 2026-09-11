@@ -46,7 +46,7 @@ ssh-keygen                 -h -I 'host_ed25519' -n "${pr}" -s 'keys/ca_host_ed25
 # $ openssl asn1parse -dump -in <id-filename>
 
 ssh-keygen -t dsa             -N ''          -m PEM     -C 'id_dsa'                       -f 'keys/id_dsa'                         || touch 'keys/id_dsa.pub'
-ssh-keygen -t dsa             -N ''          -m PEM     -C 'id_dsa_wrong'                 -f 'keys/id_dsa_wrong'                   || true # not to add to 'authorized_keys'
+ssh-keygen -t rsa     -b 2048 -N ''          -m PEM     -C 'id_rsa_pem_miss'              -f 'keys/id_rsa_pem_miss'                # not to add to 'authorized_keys'
 ssh-keygen -t rsa     -b 2048 -N ''          -m PEM     -C 'id_rsa_pem'                   -f 'keys/id_rsa_pem'
 ssh-keygen -t rsa     -b 2048 -N "${pw}"     -m PEM     -C 'id_rsa_pem_encrypted'         -f 'keys/id_rsa_pem_encrypted'           # aes128-cbc
 ssh-keygen -t rsa     -b 3072 -N ''          -m PKCS8   -C 'id_rsa_pkcs8'                 -f 'keys/id_rsa_pkcs8'

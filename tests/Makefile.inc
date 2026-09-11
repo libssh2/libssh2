@@ -88,8 +88,6 @@ EXTRA_DIST = \
   keys/ca_user_rsa.pub \
   keys/id_dsa \
   keys/id_dsa.pub \
-  keys/id_dsa_wrong \
-  keys/id_dsa_wrong.pub \
   keys/id_ecdsa_openssh \
   keys/id_ecdsa_openssh.pub \
   keys/id_ecdsa_openssh_encrypted \
@@ -124,6 +122,8 @@ EXTRA_DIST = \
   keys/id_rsa_pem.pub \
   keys/id_rsa_pem_encrypted \
   keys/id_rsa_pem_encrypted.pub \
+  keys/id_rsa_pem_miss \
+  keys/id_rsa_pem_miss.pub \
   keys/id_rsa_pem_sha2_512_signed \
   keys/id_rsa_pem_sha2_512_signed-cert.pub \
   keys/id_rsa_pem_sha2_512_signed.pub \
