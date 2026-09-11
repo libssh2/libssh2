@@ -17,6 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions: {}
+cache-mode: none
 
 env:
   DO_NOT_TRACK: '1'
@@ -238,6 +239,7 @@ jobs:
     name: 'linux'
     runs-on: ${{ matrix.compiler == 'clang-tidy' && 'ubuntu-26.04' || (matrix.image || 'ubuntu-latest') }}
     timeout-minutes: 10
+    cache-mode: write
     strategy:
       fail-fast: false
       matrix:
@@ -1317,6 +1319,7 @@ jobs:
     name: 'curl, CM ${{ matrix.arch }}-${{ matrix.plat }} ${{ matrix.name }}'
     runs-on: '${{ matrix.image }}'
     timeout-minutes: 10
+    cache-mode: write
     defaults:
       run:
         shell: msys2 {0}  # zizmor: ignore[misfeature]
