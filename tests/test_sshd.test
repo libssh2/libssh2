@@ -148,7 +148,7 @@ anyerror=0
 
 echo "${count}..${total}"
 
-export OPENSSH_NO_DOCKER=1
+export FIXTURE_CONTAINER_CMD=''
 
 for test in ${tests}; do
   if ${LIBSSH2_TEST_EXE_RUNNER:-} "${test}"; then
