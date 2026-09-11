@@ -70,9 +70,9 @@ jobs:
           actionlint --version
           export SHELLCHECK_OPTS='--exclude=1090,1091,2086,2153 --enable=avoid-nullary-conditions,deprecate-which'
           actionlint \
-            --ignore ubuntu-26.04 .\
+            --ignore ubuntu-26.04 \
             --ignore 'unexpected key "cache-mode"' \
-            github/workflows/*.yml
+            .github/workflows/*.yml
 
       - name: 'shellcheck GHA'
         run: |
