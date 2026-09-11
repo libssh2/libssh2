@@ -959,7 +959,7 @@ static int knownhost_line_hashed(LIBSSH2_KNOWNHOSTS *hosts,
  * Parse a single known_host line pre-split into host and key.
  *
  * The key part may include an optional comment which is parsed here
- * for ssh-rsa and ssh-dsa keys.  Comments in other key types are not handled.
+ * for ssh-rsa keys.  Comments in other key types are not handled.
  *
  * The function assumes new-lines have already been removed from the arguments.
  */
@@ -1016,10 +1016,6 @@ static int knownhost_line(LIBSSH2_KNOWNHOSTS *hosts,
             key_type = LIBSSH2_KNOWNHOST_KEY_ECDSA_521;
         else if(!strncmp(key_type_name, "ssh-rsa", key_type_len))
             key_type = LIBSSH2_KNOWNHOST_KEY_SSHRSA;
-#if LIBSSH2_DSA && !defined(LIBSSH2_NO_DEPRECATED)
-        else if(!strncmp(key_type_name, "ssh-dss", key_type_len))
-            key_type = LIBSSH2_KNOWNHOST_KEY_SSHDSS;
-#endif
         else
             key_type = LIBSSH2_KNOWNHOST_KEY_UNKNOWN;
 
@@ -1093,9 +1089,8 @@ static int knownhost_line(LIBSSH2_KNOWNHOSTS *hosts,
  * <hash> consists of
  * |1|<salt>|hash
  *
- * <key> can be one of:
+ * <key> can be:
  * [RSA bits] [e] [n as a decimal number]
- * 'ssh-dss' [base64-encoded-key]
  * 'ssh-rsa' [base64-encoded-key]
  *
  */
@@ -1240,12 +1235,6 @@ static int knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
         key_type_name = "ssh-rsa";
         key_type_len = 7;
         break;
-#if LIBSSH2_DSA && !defined(LIBSSH2_NO_DEPRECATED)
-    case LIBSSH2_KNOWNHOST_KEY_SSHDSS:
-        key_type_name = "ssh-dss";
-        key_type_len = 7;
-        break;
-#endif
     case LIBSSH2_KNOWNHOST_KEY_ECDSA_256:
         key_type_name = "ecdsa-sha2-nistp256";
         key_type_len = 19;
