@@ -66,8 +66,10 @@ The key is encoded using one of the following encodings:
 LIBSSH2_KNOWNHOST_KEYENC_RAW or LIBSSH2_KNOWNHOST_KEYENC_BASE64.
 
 The key is using one of these algorithms:
-LIBSSH2_KNOWNHOST_KEY_RSA1, LIBSSH2_KNOWNHOST_KEY_SSHRSA or
-LIBSSH2_KNOWNHOST_KEY_SSHDSS (deprecated).
+LIBSSH2_KNOWNHOST_KEY_RSA1, LIBSSH2_KNOWNHOST_KEY_SSHRSA,
+LIBSSH2_KNOWNHOST_KEY_SSHDSS (deprecated), LIBSSH2_KNOWNHOST_KEY_ECDSA_256,
+LIBSSH2_KNOWNHOST_KEY_ECDSA_384, LIBSSH2_KNOWNHOST_KEY_ECDSA_521 or
+LIBSSH2_KNOWNHOST_KEY_ED25519.
 
 *store* should point to a pointer that gets filled in to point to the
 known host data after the addition. NULL can be passed if you do not care about
