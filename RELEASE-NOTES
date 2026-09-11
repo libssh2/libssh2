@@ -2,9 +2,13 @@ libssh2 1.11.2_DEV
 
 Deprecation notices:
 
+- This release drops this feature:
+
+  - DSA: `ssh-dss` host keys and public-key authentication.
+
 - This release disables these options by default:
 
-  - SHA1-based hostkey methods and signatures: `ssh-rsa`,
+  - SHA1-based host key methods and signatures: `ssh-rsa`,
     `ssh-rsa-cert-v01@openssh.com`
     You can enable them with `-DLIBSSH2_RSA_SHA1_ENABLE`.
 
@@ -13,9 +17,6 @@ Deprecation notices:
     - `diffie-hellman-group14-sha1`
     - `diffie-hellman-group-exchange-sha1`
     You can enable them with `-DLIBSSH2_KEX_SHA1_ENABLE`.
-
-  - DSA: `ssh-dss` hostkeys.
-    You can enable it with `-DLIBSSH2_DSA_ENABLE`.
 
   - SHA1-based MACs: `hmac-sha1`, `hmac-sha1-etm@openssh.com`, `hmac-sha1-96`
     You can enable them with `-DLIBSSH2_HMAC_SHA1_ENABLE`.
