@@ -2705,6 +2705,7 @@ cleanup:
 
     return ret;
 }
+#endif /* LIBSSH2_RSA || LIBSSH2_DSA */
 
 int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
                      unsigned char **pubkeydata, size_t *pubkeydata_len,
@@ -2712,6 +2713,7 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
                      const char *privkeyblob, size_t privkeyblob_len,
                      const char *passphrase)
 {
+#if LIBSSH2_RSA || LIBSSH2_DSA
     unsigned char *pbEncoded;
     size_t cbEncoded;
 
@@ -2723,8 +2725,21 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
     return wcng_pub_priv_parse(session, method,
                                pubkeydata, pubkeydata_len,
                                pbEncoded, cbEncoded);
+#else
+    (void)session;
+    (void)method;
+    (void)pubkeydata;
+    (void)pubkeydata_len;
+    (void)privkeyfile;
+    (void)privkeyblob;
+    (void)privkeyblob_len;
+    (void)passphrase;
+
+    /* FIXME: add ECDSA support */
+
+    return -1;
+#endif
 }
-#endif /* LIBSSH2_RSA || LIBSSH2_DSA */
 
 /*******************************************************************/
 /*
