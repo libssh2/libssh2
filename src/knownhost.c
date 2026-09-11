@@ -958,9 +958,6 @@ static int knownhost_line_hashed(LIBSSH2_KNOWNHOSTS *hosts,
 /*
  * Parse a single known_host line pre-split into host and key.
  *
- * The key part may include an optional comment which is parsed here
- * for ssh-rsa keys.  Comments in other key types are not handled.
- *
  * The function assumes new-lines have already been removed from the arguments.
  */
 static int knownhost_line(LIBSSH2_KNOWNHOSTS *hosts,
