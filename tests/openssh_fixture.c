@@ -291,9 +291,8 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
                            docker_cmd, container_id);
     else
         return run_command(ip_address_out, "%s inspect --format "
-                           "\"{{ index (index (index "
-                           ".NetworkSettings.Ports "
-                           "\\\"22/tcp\\\") 0) \\\"HostIp\\\" }}\" %s",
+                           "\"{{ index (index .NetworkSettings.Ports "
+                           "\\\"22/tcp\\\") 0).HostIp }}\" %s",
                            docker_cmd, container_id);
 }
 
@@ -305,8 +304,8 @@ static int port_from_container(char *container_id, char **port_out)
     }
     else
         return run_command(port_out, "%s inspect --format "
-                           "\"{{ index (index (index .NetworkSettings.Ports "
-                           "\\\"22/tcp\\\") 0) \\\"HostPort\\\" }}\" %s",
+                           "\"{{ index (index .NetworkSettings.Ports "
+                           "\\\"22/tcp\\\") 0).HostPort }}\" %s",
                            docker_cmd, container_id);
 }
 
