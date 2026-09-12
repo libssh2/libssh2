@@ -211,11 +211,16 @@ static int start_openssh_server(char **container_id_out)
 {
     if(have_docker) {
         const char *container_host_port = openssh_server_port();
-        if(container_host_port)
-            return run_command(container_id_out, "%s run --rm -d -p %s:22 "
-                               "libssh2/openssh_server",
-                               docker_cmd, container_host_port);
-
+        if(container_host_port) {
+            if(strstr(docker_cmd, "container"))
+                return run_command(container_id_out, "%s run --progress none "
+                                   "--rm -d -p %s:22 libssh2/openssh_server",
+                                   docker_cmd, container_host_port);
+            else
+                return run_command(container_id_out, "%s run "
+                                   "--rm -d -p %s:22 libssh2/openssh_server",
+                                   docker_cmd, container_host_port);
+        }
         return run_command(container_id_out, "%s run --rm -d -p 22 "
                            "libssh2/openssh_server", docker_cmd);
     }
@@ -305,8 +310,8 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
                            " %s", docker_cmd, container_id);
     else if(strstr(docker_cmd, "container"))
         /* Requires jq */
-        return run_command(ip_address_out, "%s inspect %s | "
-                           "jq --raw-output '.[0].networks[0].gateway'",
+        return run_command(ip_address_out, "%s inspect %s | jq --raw-output "
+                           "'.[0].status.networks[0].ipv4Gateway'",
                            docker_cmd, container_id);
     else {
         /* Requires podman 6.1.0+
