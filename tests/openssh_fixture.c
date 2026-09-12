@@ -302,7 +302,7 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
                               docker_cmd, container_id);
         if(ret && strstr(docker_cmd, "podman")) {
             /* Also works with both docker. */
-            ret = run_command(ip_address_out, "%s port \"22/tcp\" %s",
+            ret = run_command(ip_address_out, "%s port %s \"22/tcp\"",
                               docker_cmd, container_id);
             if(!ret) {
                 char *hit;
