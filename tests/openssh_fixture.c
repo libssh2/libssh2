@@ -64,12 +64,11 @@
 #define pclose _pclose
 #endif
 
-static int have_docker = 0;
 static const char *docker_cmd = NULL;
 
 int openssh_fixture_have_docker(void)
 {
-    return have_docker;
+    return !!docker_cmd;
 }
 
 static int run_command_varg(char **output, const char *command, va_list args)
@@ -168,7 +167,7 @@ static const char *openssh_server_image(void)
 
 static int build_openssh_server_docker_image(void)
 {
-    if(have_docker) {
+    if(docker_cmd) {
         const char *container_image_name = openssh_server_image();
         if(container_image_name) {
             int ret;
@@ -209,7 +208,7 @@ static const char *openssh_server_port(void)
 
 static int start_openssh_server(char **container_id_out)
 {
-    if(have_docker) {
+    if(docker_cmd) {
         const char *container_host_port = openssh_server_port();
         if(strstr(docker_cmd, "container")) {
             if(!container_host_port) {
@@ -236,7 +235,7 @@ static int start_openssh_server(char **container_id_out)
 
 static int stop_openssh_server(char *container_id)
 {
-    if(have_docker)
+    if(docker_cmd)
         return run_command(NULL, "%s stop %s", docker_cmd, container_id);
     else
         return 0;
@@ -380,7 +379,7 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
     unsigned int counter;
     libssh2_socket_t ret = LIBSSH2_INVALID_SOCKET;
 
-    if(have_docker) {
+    if(docker_cmd) {
         int res;
         res = ip_address_from_container(container_id, &ip_address);
         if(res) {
@@ -475,11 +474,12 @@ int start_openssh_fixture(void)
     }
 #endif
 
-    if(!getenv("OPENSSH_NO_DOCKER")) /* for compatibility */
+    if(!getenv("OPENSSH_NO_DOCKER")) {  /* for compatibility */
         docker_cmd = getenv("FIXTURE_CONTAINER_CMD");
         if(!docker_cmd)
             docker_cmd = "docker";
-        have_docker = !!*docker_cmd;
+        else if(!*docker_cmd)
+            docker_cmd = NULL;
     }
 
     ret = build_openssh_server_docker_image();
@@ -498,7 +498,7 @@ void stop_openssh_fixture(void)
         free(running_container_id);
         running_container_id = NULL;
     }
-    else if(have_docker)
+    else if(docker_cmd)
         fprintf(stderr, "Cannot stop container - none started\n");
 
 #ifdef _WIN32
