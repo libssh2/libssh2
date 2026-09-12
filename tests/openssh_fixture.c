@@ -296,10 +296,13 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
                               "\"{{ (index (index .NetworkSettings.Ports "
                               "\\\"22/tcp\\\") 0).HostIp }}\" %s",
                               docker_cmd, container_id);
-        if(ret)
+        if(ret && strstr(docker_cmd, "podman")) {
             /* Another alternative is `%s port "22/tcp"` which works with
                both docker and podman. */
             *ip_address_out = libssh2_strdup("0.0.0.0");
+            return 0;
+        }
+        return ret;
     }
 }
 
