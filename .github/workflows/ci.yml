@@ -1195,7 +1195,7 @@ jobs:
       - name: 'tests'
         timeout-minutes: 10
         run: |
-          #container system kernel set --recommended
+          container system kernel set --recommended
           container system start --disable-kernel-install
           export FIXTURE_CONTAINER_CMD=container
           export OPENSSH_SERVER_PORT=5678
