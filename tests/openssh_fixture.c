@@ -211,17 +211,20 @@ static int start_openssh_server(char **container_id_out)
 {
     if(have_docker) {
         const char *container_host_port = openssh_server_port();
-        if(container_host_port) {
-            if(strstr(docker_cmd, "container"))
-                /* Requires Apple container 0.7.0+ for '--progress none' */
-                return run_command(container_id_out, "%s run --progress none "
-                                   "--rm -d -p %s:22 libssh2/openssh_server",
-                                   docker_cmd, container_host_port);
-            else
-                return run_command(container_id_out, "%s run "
-                                   "--rm -d -p %s:22 libssh2/openssh_server",
-                                   docker_cmd, container_host_port);
+        if(strstr(docker_cmd, "container")) {
+            if(!container_host_port) {
+                fprintf(stderr, "OPENSSH_SERVER_PORT must be set\n");
+                return 1;
+            }
+            /* Requires Apple container 0.7.0+ for '--progress none' */
+            return run_command(container_id_out, "%s run --progress none "
+                               "--rm -d -p %s:22 libssh2/openssh_server",
+                               docker_cmd, container_host_port);
         }
+        else if(container_host_port)
+            return run_command(container_id_out, "%s run "
+                               "--rm -d -p %s:22 libssh2/openssh_server",
+                               docker_cmd, container_host_port);
         return run_command(container_id_out, "%s run --rm -d -p 22 "
                            "libssh2/openssh_server", docker_cmd);
     }
