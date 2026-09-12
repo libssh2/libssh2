@@ -48,6 +48,13 @@ jobs:
       contents: read   # To comply with https://docs.github.com/en/actions/tutorials/publish-packages/publish-docker-images
       packages: write  # To create/update container
     steps:
+      - name: 'install prereqs'
+        run: |
+          sudo find /etc/apt/sources.list.d -type f -not -name 'ubuntu.sources' -delete -print
+          sudo apt-get -o Dpkg::Use-Pty=0 update
+          sudo apt-get -o Dpkg::Use-Pty=0 install \
+            qemu-user-static
+
       - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ghcr.io
@@ -77,9 +84,16 @@ jobs:
           tags: |
             type=raw,value=${{ steps.hash.outputs.hash }}
 
+      - uses: docker/setup-qemu-action@1f40c72289eff860ee54a304f1438e3cff362e0a # v4.3.0
+        if: ${{ steps.poll.outcome == 'failure' }}
+
+      - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
+        if: ${{ steps.poll.outcome == 'failure' }}
+
       - uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         if: ${{ steps.poll.outcome == 'failure' }}
         with:
+          platforms: linux/amd64,linux/arm64
           context: ./tests/openssh_server
           push: true
           tags: ${{ steps.meta.outputs.tags }}
