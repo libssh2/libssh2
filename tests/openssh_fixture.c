@@ -337,6 +337,7 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
                               "\\\"22/tcp\\\") 0).HostIp }}\" %s",
                               docker_cmd, container_id);
         if(ret && strstr(docker_cmd, "podman")) {
+            free(*ip_address_out);
             /* Also works with docker. */
             ret = run_command(ip_address_out, "%s port %s \"22/tcp\"",
                               docker_cmd, container_id);
