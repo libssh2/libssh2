@@ -254,7 +254,7 @@ jobs:
         exclude:
           - { compiler: clang-tidy, zlib: 'OFF' }
         include:
-          - { compiler: gcc  , arch: amd64, crypto: AWS-LC                  , build: 'CM', zlib: 'ON' }
+          - { compiler: gcc  , arch: arm64, crypto: AWS-LC                  , build: 'CM', zlib: 'ON', image: ubuntu-26.04-arm }
           - { compiler: gcc  , arch: amd64, crypto: BoringSSL               , build: 'CM', zlib: 'ON', options: '-DENABLE_DEBUG_LOGGING=ON' }
           - { compiler: gcc  , arch: amd64, crypto: LibreSSL                , build: 'CM', zlib: 'ON' }
           - { compiler: gcc  , arch: i386 , crypto: mbedTLS-from-source     , build: 'CM', zlib: 'ON', image: ubuntu-26.04 }
@@ -296,7 +296,7 @@ jobs:
       WOLFSSL_SHA256_PREV: b7ee150e49def77c765bc02aac92ddeb0bebefd4cb12aa263d8f95e405221fb8
     steps:
       - name: 'install architecture'
-        if: ${{ matrix.arch != 'amd64' }}
+        if: ${{ matrix.arch = 'i386' }}
         timeout-minutes: 2
         run: |
           sudo find /etc/apt/sources.list.d -type f -not -name 'ubuntu.sources' -delete -print
