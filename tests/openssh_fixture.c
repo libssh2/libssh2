@@ -315,11 +315,19 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
         return run_command(ip_address_out, "%s inspect --format "
                            "\"{{ .NetworkSettings.IPAddress }}\""
                            " %s", docker_cmd, container_id);
-    else if(strstr(docker_cmd, "container"))
+    else if(strstr(docker_cmd, "container")) {
         /* Requires jq and Apple container 0.8.0+ */
-        return run_command(ip_address_out, "%s inspect %s | jq --raw-output "
-                           "'.[0].status.networks[0].ipv4Gateway'",
-                           docker_cmd, container_id);
+        int ret = run_command(ip_address_out, "%s inspect %s | jq --raw-output "
+                              "'.[0].status.networks[0].ipv4Gateway'",
+                              docker_cmd, container_id);
+        if(!ret && *ip_address_out &&
+           (!*ip_address_out[0] || !strcmp(*ip_address_out, "null"))) {
+            free(*ip_address_out);
+            *ip_address_out = NULL;
+            ret = 1;
+        }
+        return ret;
+    }
     else {
         /* Requires podman 6.1.0+
            https://github.com/podman-container-tools/podman/issues/29164 */
