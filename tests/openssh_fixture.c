@@ -113,7 +113,9 @@ static int run_command_varg(char **output, const char *command, va_list args)
         return -1;
     }
 
+#if 0
     fprintf(stderr, "Command: %s\n", command_buf);
+#endif
     fprintf(stdout, "Command: %s\n", command_buf);
     pipe = popen(buf, "r");
     if(!pipe) {
