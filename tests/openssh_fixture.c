@@ -301,15 +301,16 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
                               docker_cmd, container_id);
             if(!ret) {
                 char *hit;
-                hit = strchr(ip_address_out, '\r');
+                hit = strchr(*ip_address_out, '\r');
                 if(hit)
                     *hit = '\0';
-                hit = strchr(ip_address_out, '\n');
+                hit = strchr(*ip_address_out, '\n');
                 if(hit)
                     *hit = '\0';
-                hit = strrchr(ip_address_out, ':');
+                hit = strrchr(*ip_address_out, ':');
                 if(hit)
                     *hit = '\0';
+                fprintf(stderr, "||%d||\n", *ip_address_out);
             }
         }
         return ret;
