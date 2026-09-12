@@ -973,8 +973,7 @@ LIBSSH2_API int libssh2_channel_handle_extended_data2(LIBSSH2_CHANNEL *channel,
                                                       int ignore_mode);
 
 #ifndef LIBSSH2_NO_DEPRECATED
-/* libssh2_channel_ignore_extended_data() is defined below for BC with version
- * 0.1
+/* For backwards compatibility with version 0.1.
  *
  * Future uses should use libssh2_channel_handle_extended_data() directly if
  * LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE is passed, extended data is read
