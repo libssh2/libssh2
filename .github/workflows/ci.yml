@@ -1014,15 +1014,6 @@ jobs:
           - { image: 'windows-2025', arch: arm64, plat: uwp    , type: Debug  , crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'OFF' }
           - { image: 'windows-2022', arch: x86  , plat: windows, type: Debug  , crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
     steps:
-      - name: 'presintalled'
-        run: |
-          docker --version || true
-          wsl --list --verbose || true
-
-      - name: 'install test prereqs'
-        shell: powershell
-        run: wsl --install --distribution Ubuntu
-
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
