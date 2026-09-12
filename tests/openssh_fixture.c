@@ -331,13 +331,13 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
                               docker_cmd, container_id);
             if(!ret) {
                 char *hit;
-                hit = strchr(*ip_address_out, '\r');
+                hit = strchr(*ip_address_out, '\r');  /* ignore CR */
                 if(hit)
                     *hit = '\0';
-                hit = strchr(*ip_address_out, '\n');
+                hit = strchr(*ip_address_out, '\n');  /* pick first line */
                 if(hit)
                     *hit = '\0';
-                hit = strrchr(*ip_address_out, ':');
+                hit = strrchr(*ip_address_out, ':');  /* pick port part */
                 if(hit)
                     *hit = '\0';
             }
