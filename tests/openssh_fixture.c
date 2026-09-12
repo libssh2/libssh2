@@ -290,7 +290,12 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
                            " %s", docker_cmd, container_id);
     else {
         /* Requires podman 6.1.0+
-           https://github.com/podman-container-tools/podman/issues/29164 */
+           https://github.com/podman-container-tools/podman/issues/29164
+           For Apple container, this information is in the 'container inspect'
+           output:
+           $ jq --raw-output '.[0].configuration.publishedPorts[]
+             | select(.hostPort == 8912) | .containerPort'
+         */
         int ret = run_command(ip_address_out, "%s inspect --format "
                               "\"{{ (index (index .NetworkSettings.Ports "
                               "\\\"22/tcp\\\") 0).HostIp }}\" %s",
