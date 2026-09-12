@@ -70,13 +70,6 @@ static const char *ssh2_build_options =
     "off"
 #endif
     " "
-    "DSA:"
-#if LIBSSH2_DSA
-    "on"
-#else
-    "off"
-#endif
-    " "
     "RSA:"
 #if LIBSSH2_RSA
     "on"

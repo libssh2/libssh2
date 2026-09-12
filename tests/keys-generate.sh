@@ -45,7 +45,6 @@ ssh-keygen                 -h -I 'host_ed25519' -n "${pr}" -s 'keys/ca_host_ed25
 # inspect PKCS8 private keys with command:
 # $ openssl asn1parse -dump -in <id-filename>
 
-ssh-keygen -t dsa             -N ''          -m PEM     -C 'id_dsa'                       -f 'keys/id_dsa'                         || touch 'keys/id_dsa.pub'
 ssh-keygen -t rsa     -b 2048 -N ''          -m PEM     -C 'id_rsa_pem_miss'              -f 'keys/id_rsa_pem_miss'                # not to add to 'authorized_keys'
 ssh-keygen -t rsa     -b 2048 -N ''          -m PEM     -C 'id_rsa_pem'                   -f 'keys/id_rsa_pem'
 ssh-keygen -t rsa     -b 2048 -N "${pw}"     -m PEM     -C 'id_rsa_pem_encrypted'         -f 'keys/id_rsa_pem_encrypted'           # aes128-cbc
@@ -74,7 +73,6 @@ ssh-keygen -t ed25519         -N ''          -m RFC4716 -C 'id_ed25519_openssh_s
 ssh-keygen                    -I "${id}" -n "${pr}"     -s 'keys/ca_user_ed25519'            'keys/id_ed25519_openssh_signed.pub'
 
 cat \
-  'keys/id_dsa.pub' \
   'keys/id_rsa_pem.pub' \
   'keys/id_rsa_pem_encrypted.pub' \
   'keys/id_rsa_pkcs8.pub' \

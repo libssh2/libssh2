@@ -17,8 +17,7 @@ additional procedures are provided for string transcoding (see below). No
 wrappers to standard procedures are provided: however, nested calls to
 transcoding procedures may be used.
 
-Crypto API is provided by the IBM QC3 API library. It supports RSA and EC,
-but not DSA.
+Crypto API is provided by the IBM QC3 API library. It supports RSA and EC.
 
   Standard compilation environment does support neither autotools nor make;
 in fact, few common utilities are available. As a consequence, the

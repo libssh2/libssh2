@@ -514,9 +514,6 @@ jobs:
             cflags+=' -DLIBSSH2_KEX_SHA1_ENABLE -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_SHA1_ENABLE -DLIBSSH2_HMAC_RIPEMD_ENABLE'
             cflags+=' -DLIBSSH2_RSA_SHA1_ENABLE -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_CAST_ENABLE -DLIBSSH2_3DES_ENABLE'
           fi
-          if [ "${MATRIX_TARGET}" = 'distcheck' ]; then
-            cflags+=' -DLIBSSH2_DSA_ENABLE'  # build test only, it cannot pass test in CI
-          fi
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             if [ "${MATRIX_CRYPTO}" = 'AWS-LC' ] || \
                [ "${MATRIX_CRYPTO}" = 'BoringSSL' ] || \
@@ -887,7 +884,6 @@ jobs:
           if [ "${MATRIX_TEST}" = 'legacy-options' ]; then
             cflags+=' -DLIBSSH2_KEX_SHA1_ENABLE -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_SHA1_ENABLE -DLIBSSH2_HMAC_RIPEMD_ENABLE'
             cflags+=' -DLIBSSH2_RSA_SHA1_ENABLE -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_CAST_ENABLE -DLIBSSH2_3DES_ENABLE'
-            cflags+=' -DLIBSSH2_DSA_ENABLE'
           fi
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             if [[ "${MATRIX_ENV}" = 'clang'* ]]; then
@@ -1025,7 +1021,6 @@ jobs:
             options+=" -DENABLE_ECDSA_WINCNG=${MATRIX_WINCND_ECDSA}"
             cflags+=' -DLIBSSH2_KEX_SHA1_ENABLE -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_SHA1_ENABLE'
             cflags+=' -DLIBSSH2_RSA_SHA1_ENABLE -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_3DES_ENABLE'
-            cflags+=' -DLIBSSH2_DSA_ENABLE'
           fi
           cmake -B bld ${options} \
             -DCMAKE_C_FLAGS="${cflags}" \
@@ -1373,7 +1368,6 @@ jobs:
             options+=" -DENABLE_ECDSA_WINCNG=${MATRIX_WINCND_ECDSA}"
             cflags+=' -DLIBSSH2_KEX_SHA1_ENABLE -DLIBSSH2_MD5_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_HMAC_SHA1_ENABLE'
             cflags+=' -DLIBSSH2_RSA_SHA1_ENABLE -DLIBSSH2_BLOWFISH_ENABLE -DLIBSSH2_RC4_ENABLE -DLIBSSH2_3DES_ENABLE'
-            cflags+=' -DLIBSSH2_DSA_ENABLE'
           fi
           cmake -B bld ${options} \
             -DCMAKE_INSTALL_PREFIX="$HOME"/libssh2-install \

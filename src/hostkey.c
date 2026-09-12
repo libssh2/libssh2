@@ -459,178 +459,6 @@ static const struct hostkey_method hostkey_method_ssh_rsa_sha2_512_cert = {
 #endif /* LIBSSH2_RSA_SHA2 */
 #endif /* LIBSSH2_RSA */
 
-#if LIBSSH2_DSA
-/* *********
- * ssh-dss *
- ********* */
-
-/*
- * Shutdown the hostkey method
- */
-static int hostkey_method_ssh_dss_dtor(LIBSSH2_SESSION *session,
-                                       void **abstract)
-{
-    ssh2_dsa_ctx *dsa = (ssh2_dsa_ctx *)(*abstract);
-
-    if(dsa)
-        ssh2_dsa_free(dsa, session);
-
-    *abstract = NULL;
-
-    return 0;
-}
-
-/*
- * Initialize the server hostkey working area with p/q/g/y set
- */
-static int hostkey_method_ssh_dss_init(LIBSSH2_SESSION *session,
-                                       const unsigned char *hostkey_data,
-                                       size_t hostkey_data_len,
-                                       void **abstract)
-{
-    ssh2_dsa_ctx *dsa;
-    unsigned char *p, *q, *g, *y;
-    size_t p_len, q_len, g_len, y_len;
-    struct string_buf buf;
-
-    if(*abstract) {
-        hostkey_method_ssh_dss_dtor(session, abstract);
-        *abstract = NULL;
-    }
-
-    if(hostkey_data_len < 27) {
-        ssh2_deb((session, LIBSSH2_TRACE_ERROR, "host key length too short"));
-        return -1;
-    }
-
-    buf.data = SSH2_UNCONST(hostkey_data);
-    buf.dataptr = buf.data;
-    buf.len = hostkey_data_len;
-
-    if(ssh2_match_string(&buf, "ssh-dss") ||
-       ssh2_get_string(&buf, &p, &p_len) ||
-       ssh2_get_string(&buf, &q, &q_len) ||
-       ssh2_get_string(&buf, &g, &g_len) ||
-       ssh2_get_string(&buf, &y, &y_len) ||
-       !ssh2_eob(&buf))
-        return -1;
-
-    if(ssh2_dsa_new(&dsa, session, p, p_len, q, q_len, g, g_len, y, y_len,
-                    NULL, 0))
-        return -1;
-
-    *abstract = dsa;
-
-    return 0;
-}
-
-/*
- * Load a Private Key from a PEM file or blob
- */
-static int hostkey_method_ssh_dss_initPEM(LIBSSH2_SESSION *session,
-                                          const char *privkeyfile,
-                                          const char *privkeyblob,
-                                          size_t privkeyblob_len,
-                                          const char *passphrase,
-                                          void **abstract)
-{
-    ssh2_dsa_ctx *dsa;
-
-    if(*abstract) {
-        hostkey_method_ssh_dss_dtor(session, abstract);
-        *abstract = NULL;
-    }
-
-    if(ssh2_dsa_new_priv(&dsa, session,
-                         privkeyfile, privkeyblob, privkeyblob_len,
-                         passphrase))
-        return -1;
-
-    *abstract = dsa;
-
-    return 0;
-}
-
-/*
- * Verify signature created by remote
- */
-static int hostkey_method_ssh_dss_sig_verify(LIBSSH2_SESSION *session,
-                                             const unsigned char *sig,
-                                             size_t sig_len,
-                                             const unsigned char *m,
-                                             size_t m_len, void **abstract)
-{
-    ssh2_dsa_ctx *dsa = (ssh2_dsa_ctx *)(*abstract);
-
-    /* Skip past keyname_len(4) + keyname(7){"ssh-dss"} + signature_len(4) */
-    if(sig_len != 55)
-        return ssh2_err(session, LIBSSH2_ERROR_PROTO,
-                        "Invalid DSS signature length");
-
-    sig += 15;
-
-    return ssh2_dsa_sha1_verify(dsa, session, sig, m, m_len);
-}
-
-/*
- * Construct a signature from an array of vectors
- */
-static int hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session,
-                                        unsigned char **signature,
-                                        size_t *signature_len,
-                                        int veccount,
-                                        const struct iovec datavec[],
-                                        void **abstract)
-{
-    ssh2_dsa_ctx *dsa = (ssh2_dsa_ctx *)(*abstract);
-
-    int i;
-    unsigned char hash[SSH2_SHA1_DIG_LEN];
-    ssh2_hash_ctx ctx;
-
-    *signature = SSH2_CALLOC(session, 2 * SSH2_SHA1_DIG_LEN);
-    if(!*signature)
-        goto cleanup;
-
-    *signature_len = 2 * SSH2_SHA1_DIG_LEN;
-
-    if(!ssh2_hash_init(&ctx, SSH2_SHA1_ALG))
-        goto cleanup;
-    for(i = 0; i < veccount; i++) {
-        if(!ssh2_hash_update(&ctx, datavec[i].iov_base, datavec[i].iov_len)) {
-            (void)ssh2_hash_final(&ctx, hash, sizeof(hash));
-            goto cleanup;
-        }
-    }
-    if(!ssh2_hash_final(&ctx, hash, sizeof(hash)))
-        goto cleanup;
-
-    if(ssh2_dsa_sha1_sign(dsa, session, hash, SSH2_SHA1_DIG_LEN, *signature))
-        goto cleanup;
-
-    return 0;
-
-cleanup:
-
-    if(*signature)
-        SSH2_SAFEFREE(session, *signature);
-    *signature_len = 0;
-
-    return -1;
-}
-
-static const struct hostkey_method hostkey_method_ssh_dss = {
-    "ssh-dss",
-    SSH2_SHA1_DIG_LEN,
-    hostkey_method_ssh_dss_init,
-    hostkey_method_ssh_dss_initPEM,
-    hostkey_method_ssh_dss_sig_verify,
-    hostkey_method_ssh_dss_signv,
-    NULL, /* encrypt */
-    hostkey_method_ssh_dss_dtor,
-};
-#endif /* LIBSSH2_DSA */
-
 #if LIBSSH2_ECDSA
 
 /* *****************************
@@ -1260,9 +1088,6 @@ static const struct hostkey_method *hostkey_methods[] = {
     &hostkey_method_ssh_rsa_cert,
 #endif /* LIBSSH2_RSA_SHA1 */
 #endif /* LIBSSH2_RSA */
-#if LIBSSH2_DSA
-    &hostkey_method_ssh_dss,
-#endif /* LIBSSH2_DSA */
     NULL
 };
 
@@ -1304,11 +1129,6 @@ static int hostkey_type(const unsigned char *hostkey, size_t len)
     static const unsigned char rsa[] = {
         0, 0, 0, 0x07, 's', 's', 'h', '-', 'r', 's', 'a'
     };
-#if LIBSSH2_DSA && !defined(LIBSSH2_NO_DEPRECATED)
-    static const unsigned char dss[] = {
-        0, 0, 0, 0x07, 's', 's', 'h', '-', 'd', 's', 's'
-    };
-#endif
     static const unsigned char ecdsa_256[] = {
         0, 0, 0, 0x13, 'e', 'c', 'd', 's', 'a', '-', 's', 'h', 'a', '2', '-',
         'n', 'i', 's', 't', 'p', '2', '5', '6'
@@ -1330,11 +1150,6 @@ static int hostkey_type(const unsigned char *hostkey, size_t len)
 
     if(!memcmp(rsa, hostkey, 11))
         return LIBSSH2_HOSTKEY_TYPE_RSA;
-
-#if LIBSSH2_DSA && !defined(LIBSSH2_NO_DEPRECATED)
-    if(!memcmp(dss, hostkey, 11))
-        return LIBSSH2_HOSTKEY_TYPE_DSS;
-#endif
 
     if(len < 15)
         return LIBSSH2_HOSTKEY_TYPE_UNKNOWN;

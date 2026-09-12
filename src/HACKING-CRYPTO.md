@@ -378,16 +378,6 @@ Format of an RSA public key:
 
 Each item is preceded by its 32-bit byte length, MSB first.
 
-Format of a DSA public key:
-
-1. "ssh-dss".
-2. p, MSB first, with high order bit = 0.
-3. q, MSB first, with high order bit = 0.
-4. g, MSB first, with high order bit = 0.
-5. pub_key, MSB first, with high order bit = 0.
-
-Each item is preceded by its 32-bit byte length, MSB first.
-
 Format of an ECDSA public key:
 
 1. `ecdsa-sha2-nistp256` or `ecdsa-sha2-nistp384` or `ecdsa-sha2-nistp521`.
@@ -557,71 +547,7 @@ based on hash length and the RSA context.
 Return 0 if OK, else -1.
 This procedure is already prototyped in `crypto.h`.
 
-### 7.2) DSA
-
-`LIBSSH2_DSA`: define as 1 if the crypto library supports DSA, else 0. If
-defined as 0, the rest of this section can be omitted.
-
-`ssh2_dsa_ctx`: Type of a DSA computation context. Generally a struct.
-
-```c
-int ssh2_dsa_new(ssh2_dsa_ctx **dsa, LIBSSH2_SESSION *session,
-                 const unsigned char *pdata, size_t plen,
-                 const unsigned char *qdata, size_t qlen,
-                 const unsigned char *gdata, size_t glen,
-                 const unsigned char *ydata, size_t ylen,
-                 const unsigned char *x, size_t x_len);
-```
-
-Creates a new context for DSA computations from source key values:
-
-- `pdata`, `plen` Prime number p. Only used if private key known (`ddata`).
-- `qdata`, `qlen` Prime number q. Only used if private key known (`ddata`).
-- `gdata`, `glen` G number.
-- `ydata`, `ylen` Public key.
-- `xdata`, `xlen` Private key. Only taken if xlen non-zero.
-
-Returns 0 if OK.
-This procedure is already prototyped in `crypto.h`.
-
-```c
-int ssh2_dsa_new_priv(ssh2_dsa_ctx **dsa,
-                      LIBSSH2_SESSION *session,
-                      const char *filename,
-                      const char *blob, size_t blob_len,
-                      const char *passphrase);
-```
-Reads a DSA private key from file `filename`, or `blob` into a new DSA
-context.
-Must call `ssh2_init_if_needed()`.
-Returns 0 if OK, else -1.
-This procedure is already prototyped in `crypto.h`.
-
-```c
-int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
-                         const unsigned char *sig,
-                         const unsigned char *m, size_t m_len);
-```
-Verify (`sig`, `siglen`) signature of (`m`, `m_len`) using an SHA-1 hash and
-the DSA context.
-Returns 0 if OK, else -1.
-This procedure is already prototyped in `crypto.h`.
-
-```c
-int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
-                       const unsigned char *hash,
-                       size_t hash_len, unsigned char *sig);
-```
-DSA signs the (`hash`, `hash_len`) data using SHA-1 and store the signature at
-`sig`. Returns 0 if OK, else -1.
-This procedure is already prototyped in `crypto.h`.
-
-```c
-void ssh2_dsa_free(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session);
-```
-Releases the DSA computation context at `dsa`.
-
-### 7.3) ECDSA
+### 7.2) ECDSA
 
 `LIBSSH2_ECDSA`: define as 1 if the crypto library supports ECDSA, else 0. If
 defined as 0, `ssh2_ec_key` should be defined as void and the rest of this
@@ -723,7 +649,7 @@ void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session);
 ```
 Releases the ECDSA computation context at `ec_ctx`.
 
-### 7.4) ED25519
+### 7.3) ED25519
 
 `LIBSSH2_ED25519`: define as 1 if the crypto library supports ED25519, else 0.
 If defined as 0, the rest of this section can be omitted.
