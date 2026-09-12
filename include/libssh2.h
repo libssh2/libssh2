@@ -1171,7 +1171,6 @@ LIBSSH2_API int libssh2_knownhost_addc(LIBSSH2_KNOWNHOSTS *hosts,
  * plain  - ascii "hostname.domain.tld"
  * custom - prehashed base64 encoded. Note that this cannot use any salts.
  *
- *
  * 'knownhost' may be set to NULL if you do not care about that info.
  *
  * Returns:
