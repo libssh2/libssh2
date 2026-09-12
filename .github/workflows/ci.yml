@@ -612,7 +612,7 @@ jobs:
         if: ${{ !matrix.target }}
         timeout-minutes: 10
         run: |
-          export DOCKER_CMD='podman'
+          export FIXTURE_CONTAINER_CMD='podman'
           if [ "${MATRIX_CRYPTO}" = 'OpenSSL-3-no-deprecated' ] || [[ "${MATRIX_CRYPTO}" = 'OpenSSL' && "${MATRIX_COMPILER}" = 'clang-tidy' ]]; then
             export FIXTURE_TRACE_ALL_CONNECT=1  # to debug OpenSSL (ML-KEM) flaky CI failures
           fi
