@@ -284,19 +284,17 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
             }
         }
     }
-    else {
-        if(is_running_inside_a_container())
-            return run_command(ip_address_out, "%s inspect --format "
-                               "\"{{ .NetworkSettings.IPAddress }}\""
-                               " %s",
-                               docker_cmd, container_id);
-        else
-            return run_command(ip_address_out, "%s inspect --format "
-                               "\"{{ index (index (index "
-                               ".NetworkSettings.Ports "
-                               "\\\"22/tcp\\\") 0) \\\"HostIp\\\" }}\" %s",
-                               docker_cmd, container_id);
-    }
+    else if(is_running_inside_a_container())
+        return run_command(ip_address_out, "%s inspect --format "
+                           "\"{{ .NetworkSettings.IPAddress }}\""
+                           " %s",
+                           docker_cmd, container_id);
+    else
+        return run_command(ip_address_out, "%s inspect --format "
+                           "\"{{ index (index (index "
+                           ".NetworkSettings.Ports "
+                           "\\\"22/tcp\\\") 0) \\\"HostIp\\\" }}\" %s",
+                           docker_cmd, container_id);
 }
 
 static int port_from_container(char *container_id, char **port_out)
