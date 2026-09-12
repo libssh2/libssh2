@@ -310,7 +310,7 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
                            "\"{{ .NetworkSettings.IPAddress }}\""
                            " %s", docker_cmd, container_id);
     else if(strstr(docker_cmd, "container"))
-        /* Requires jq */
+        /* Requires jq and Apple container 0.8.0+ */
         return run_command(ip_address_out, "%s inspect %s | jq --raw-output "
                            "'.[0].status.networks[0].ipv4Gateway'",
                            docker_cmd, container_id);
