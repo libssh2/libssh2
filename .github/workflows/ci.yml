@@ -1014,6 +1014,10 @@ jobs:
           - { image: 'windows-2025', arch: arm64, plat: uwp    , type: Debug  , crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'OFF' }
           - { image: 'windows-2022', arch: x86  , plat: windows, type: Debug  , crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
     steps:
+      - name: 'presintalled'
+        run: |
+          docker --version || true
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
@@ -1126,6 +1130,12 @@ jobs:
         env:
           INSTALL_PACKAGES: ${{ matrix.build == 'AM' && 'automake libtool' || '' }}
         run: brew install ${INSTALL_PACKAGES} ${MATRIX_INSTALL}
+
+      - name: 'presintalled'
+        run: |
+          container --version || true
+          jq --version || true
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
