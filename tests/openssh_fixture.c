@@ -66,7 +66,6 @@
 
 static int have_docker = 0;
 static const char *docker_cmd;
-static const char *image_tag;
 
 int openssh_fixture_have_docker(void)
 {
@@ -213,11 +212,12 @@ static int start_openssh_server(char **container_id_out)
     if(have_docker) {
         const char *container_host_port = openssh_server_port();
         if(container_host_port)
-            return run_command(container_id_out, "%s run --rm -d -p %s:22 %s",
-                               docker_cmd, container_host_port, image_tag);
+            return run_command(container_id_out, "%s run --rm -d -p %s:22 "
+                               "libssh2/openssh_server",
+                               docker_cmd, container_host_port);
 
-        return run_command(container_id_out, "%s run --rm -d -p 22 %s",
-                           docker_cmd, image_tag);
+        return run_command(container_id_out, "%s run --rm -d -p 22 "
+                           "libssh2/openssh_server", docker_cmd);
     }
     else {
         *container_id_out = libssh2_strdup("");
@@ -474,11 +474,6 @@ int start_openssh_fixture(void)
     if(!docker_cmd)
         docker_cmd = "docker";
     have_docker = !!*docker_cmd;
-    if(have_docker) {
-        image_tag = getenv("OPENSSH_SERVER_TAG");
-        if(!image_tag)
-            image_tag = "libssh2/openssh_server";
-    }
 
     ret = build_openssh_server_docker_image();
     if(!ret)
