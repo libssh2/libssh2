@@ -1079,7 +1079,7 @@ jobs:
         run: cmake --build bld --config "${MATRIX_TYPE}" --parallel 5 --target package
 
       - name: 'install test prereqs'
-        shell: ps
+        shell: powershell
         run: wsl --install --distribution Debian
 
       - name: 'tests'
