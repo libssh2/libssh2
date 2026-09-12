@@ -252,8 +252,9 @@ static int is_running_inside_a_container(void)
 {
     int found = 0;
 #ifndef _WIN32
+    const char *env = getenv("container");
     /* Value may be 'podman', 'oci' */
-    if(getenv("container") && getenv("container")[0])
+    if(env && *env)
         found = 1;
     else {
         FILE *fp = fopen("/proc/self/cgroup", "r");
