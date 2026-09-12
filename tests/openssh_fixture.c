@@ -315,7 +315,6 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
                 hit = strrchr(*ip_address_out, ':');
                 if(hit)
                     *hit = '\0';
-                fprintf(stderr, "||%s||\n", *ip_address_out);
             }
         }
         return ret;
