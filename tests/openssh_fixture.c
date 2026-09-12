@@ -338,7 +338,11 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
 
 static int port_from_container(char *container_id, char **port_out)
 {
-    if(is_running_inside_a_container()) {
+    if(openssh_server_port()) {
+        *port_out = libssh2_strdup(openssh_server_port());
+        return 0;
+    }
+    else if(is_running_inside_a_container()) {
         *port_out = libssh2_strdup("22");
         return 0;
     }
