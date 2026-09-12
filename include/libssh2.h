@@ -1248,7 +1248,6 @@ LIBSSH2_API int libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
  *
  * This implementation currently only knows one 'type' (openssh), all others
  * are reserved for future use.
- *
  */
 LIBSSH2_API int libssh2_knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
                                             struct libssh2_knownhost *known,
@@ -1298,7 +1297,6 @@ struct libssh2_agent_publickey {
  * libssh2_agent_init()
  *
  * Init an ssh-agent handle. Returns the pointer to the handle.
- *
  */
 LIBSSH2_API LIBSSH2_AGENT *libssh2_agent_init(LIBSSH2_SESSION *session);
 
