@@ -536,8 +536,6 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_INIT_NO_CRYPTO        0x0001
 
 /*
- * libssh2_init()
- *
  * Initialize the libssh2 functions.  This typically initializes the
  * crypto library.  It uses a global state, and is not thread-safe --
  * you must make sure this function is not called concurrently.
@@ -552,22 +550,16 @@ typedef struct _LIBSSH2_POLLFD {
 LIBSSH2_API int libssh2_init(int flags);
 
 /*
- * libssh2_exit()
- *
  * Exit the libssh2 functions and free's all memory used internal.
  */
 LIBSSH2_API void libssh2_exit(void);
 
 /*
- * libssh2_free()
- *
  * Deallocate memory allocated by earlier call to libssh2 functions.
  */
 LIBSSH2_API void libssh2_free(LIBSSH2_SESSION *session, void *ptr);
 
 /*
- * libssh2_session_supported_algs()
- *
  * Fills algs with a list of supported cryptographic algorithms. Returns a
  * non-negative number (number of supported algorithms) on success or a
  * negative number (an error code) on failure.
@@ -1069,16 +1061,12 @@ struct libssh2_knownhost {
 };
 
 /*
- * libssh2_knownhost_init()
- *
  * Init a collection of known hosts. Returns the pointer to a collection.
  */
 LIBSSH2_API LIBSSH2_KNOWNHOSTS *libssh2_knownhost_init(
     LIBSSH2_SESSION *session);
 
 /*
- * libssh2_knownhost_add()
- *
  * Add a host and its associated key to the collection of known hosts.
  *
  * The 'type' argument specifies on what format the given host and keys are:
@@ -1131,8 +1119,6 @@ LIBSSH2_API int libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
 #endif
 
 /*
- * libssh2_knownhost_addc()
- *
  * Add a host and its associated key to the collection of known hosts.
  *
  * Takes a comment argument that may be NULL.  A NULL comment indicates
@@ -1162,8 +1148,6 @@ LIBSSH2_API int libssh2_knownhost_addc(LIBSSH2_KNOWNHOSTS *hosts,
                                        struct libssh2_knownhost **store);
 
 /*
- * libssh2_knownhost_check()
- *
  * Check a host and its associated key against the collection of known hosts.
  *
  * The type is the type/format of the given hostname.
@@ -1197,8 +1181,6 @@ LIBSSH2_API int libssh2_knownhost_checkp(LIBSSH2_KNOWNHOSTS *hosts,
                                          struct libssh2_knownhost **store);
 
 /*
- * libssh2_knownhost_del()
- *
  * Remove a host from the collection of known hosts. The 'entry' struct is
  * retrieved by a call to libssh2_knownhost_check().
  */
@@ -1206,15 +1188,11 @@ LIBSSH2_API int libssh2_knownhost_del(LIBSSH2_KNOWNHOSTS *hosts,
                                       struct libssh2_knownhost *entry);
 
 /*
- * libssh2_knownhost_free()
- *
  * Free an entire collection of known hosts.
  */
 LIBSSH2_API void libssh2_knownhost_free(LIBSSH2_KNOWNHOSTS *hosts);
 
 /*
- * libssh2_knownhost_readline()
- *
  * Pass in a line of a file of 'type'. It makes libssh2 read this line.
  *
  * LIBSSH2_KNOWNHOST_FILE_OPENSSH is the only supported type.
@@ -1224,8 +1202,6 @@ LIBSSH2_API int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
                                            int type);
 
 /*
- * libssh2_knownhost_readfile()
- *
  * Add hosts+key pairs from a given file.
  *
  * Returns a negative value for error or number of successfully added hosts.
@@ -1239,8 +1215,6 @@ LIBSSH2_API int libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
                                            const char *filename, int type);
 
 /*
- * libssh2_knownhost_writeline()
- *
  * Ask libssh2 to convert a known host to an output line for storage.
  *
  * Note that this function returns LIBSSH2_ERROR_BUFFER_TOO_SMALL if the given
@@ -1257,8 +1231,6 @@ LIBSSH2_API int libssh2_knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
                                             int type);
 
 /*
- * libssh2_knownhost_writefile()
- *
  * Write hosts+key pairs to a given file.
  *
  * This implementation currently only knows one 'type' (openssh), all others
@@ -1268,8 +1240,6 @@ LIBSSH2_API int libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
                                             const char *filename, int type);
 
 /*
- * libssh2_knownhost_get()
- *
  * Traverse the internal list of known hosts. Pass NULL to 'prev' to get
  * the first one. Or pass a pointer to the previously returned one to get the
  * next.
@@ -1294,15 +1264,11 @@ struct libssh2_agent_publickey {
 };
 
 /*
- * libssh2_agent_init()
- *
  * Init an ssh-agent handle. Returns the pointer to the handle.
  */
 LIBSSH2_API LIBSSH2_AGENT *libssh2_agent_init(LIBSSH2_SESSION *session);
 
 /*
- * libssh2_agent_connect()
- *
  * Connect to an ssh-agent.
  *
  * Returns 0 if succeeded, or a negative value for error.
@@ -1310,8 +1276,6 @@ LIBSSH2_API LIBSSH2_AGENT *libssh2_agent_init(LIBSSH2_SESSION *session);
 LIBSSH2_API int libssh2_agent_connect(LIBSSH2_AGENT *agent);
 
 /*
- * libssh2_agent_list_identities()
- *
  * Request an ssh-agent to list identities.
  *
  * Returns 0 if succeeded, or a negative value for error.
@@ -1319,8 +1283,6 @@ LIBSSH2_API int libssh2_agent_connect(LIBSSH2_AGENT *agent);
 LIBSSH2_API int libssh2_agent_list_identities(LIBSSH2_AGENT *agent);
 
 /*
- * libssh2_agent_get_identity()
- *
  * Traverse the internal list of public keys. Pass NULL to 'prev' to get
  * the first one. Or pass a pointer to the previously returned one to get the
  * next.
@@ -1336,8 +1298,6 @@ LIBSSH2_API int libssh2_agent_get_identity(
     struct libssh2_agent_publickey *prev);
 
 /*
- * libssh2_agent_userauth()
- *
  * Do publickey user authentication with the help of ssh-agent.
  *
  * Returns 0 if succeeded, or a negative value for error.
@@ -1348,8 +1308,6 @@ LIBSSH2_API int libssh2_agent_userauth(
     struct libssh2_agent_publickey *identity);
 
 /*
- * libssh2_agent_sign()
- *
  * Sign a payload using a system-installed ssh-agent.
  *
  * Returns 0 if succeeded, or a negative value for error.
@@ -1365,8 +1323,6 @@ LIBSSH2_API int libssh2_agent_sign(
     unsigned int method_len);
 
 /*
- * libssh2_agent_disconnect()
- *
  * Close a connection to an ssh-agent.
  *
  * Returns 0 if succeeded, or a negative value for error.
@@ -1374,31 +1330,23 @@ LIBSSH2_API int libssh2_agent_sign(
 LIBSSH2_API int libssh2_agent_disconnect(LIBSSH2_AGENT *agent);
 
 /*
- * libssh2_agent_free()
- *
  * Free an ssh-agent handle.  This function also frees the internal
  * collection of public keys.
  */
 LIBSSH2_API void libssh2_agent_free(LIBSSH2_AGENT *agent);
 
 /*
- * libssh2_agent_set_identity_path()
- *
  * Allows a custom agent identity socket path beyond SSH_AUTH_SOCK env
  */
 LIBSSH2_API void libssh2_agent_set_identity_path(LIBSSH2_AGENT *agent,
                                                  const char *path);
 
 /*
- * libssh2_agent_get_identity_path()
- *
  * Returns the custom agent identity socket path if set
  */
 LIBSSH2_API const char *libssh2_agent_get_identity_path(LIBSSH2_AGENT *agent);
 
 /*
- * libssh2_keepalive_config()
- *
  * Set how often keepalive messages should be sent.  WANT_REPLY
  * indicates whether the keepalive messages should request a response
  * from the server.  INTERVAL is number of seconds that can pass
@@ -1414,8 +1362,6 @@ LIBSSH2_API void libssh2_keepalive_config(LIBSSH2_SESSION *session,
                                           unsigned int interval_s);
 
 /*
- * libssh2_keepalive_send()
- *
  * Send a keepalive message if needed.  SECONDS_TO_NEXT indicates how
  * many seconds you can sleep after this call before you need to call
  * it again.  Returns 0 on success, or LIBSSH2_ERROR_SOCKET_SEND on
