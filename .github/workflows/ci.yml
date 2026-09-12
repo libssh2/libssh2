@@ -1019,6 +1019,10 @@ jobs:
           docker --version || true
           wsl --list --verbose || true
 
+      - name: 'install test prereqs'
+        shell: powershell
+        run: wsl --install --distribution Ubuntu
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
@@ -1078,10 +1082,6 @@ jobs:
       - name: 'build'
         run: cmake --build bld --config "${MATRIX_TYPE}" --parallel 5 --target package
 
-      - name: 'install test prereqs'
-        shell: powershell
-        run: wsl --install --distribution Debian
-
       - name: 'tests'
         # UWP binaries require a CRT DLL that is not found. Static CRT not supported.
         if: ${{ matrix.arch != 'arm64' && matrix.plat != 'uwp' }}
@@ -1135,7 +1135,6 @@ jobs:
         env:
           INSTALL_PACKAGES: ${{ matrix.build == 'AM' && 'automake libtool' || '' }}
         run: brew install ${INSTALL_PACKAGES} ${MATRIX_INSTALL}
-
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
