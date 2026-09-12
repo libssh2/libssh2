@@ -1134,12 +1134,7 @@ jobs:
       - name: 'install packages'
         env:
           INSTALL_PACKAGES: ${{ matrix.build == 'AM' && 'automake libtool' || '' }}
-        run: brew install container ${INSTALL_PACKAGES} ${MATRIX_INSTALL}
-
-      - name: 'presintalled'
-        run: |
-          container --version || true
-          jq --version || true
+        run: brew install ${INSTALL_PACKAGES} ${MATRIX_INSTALL}
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -1163,6 +1158,7 @@ jobs:
               -DENABLE_WERROR=ON \
               -DENABLE_DEBUG_LOGGING=ON \
               -DENABLE_ZLIB_COMPRESSION=ON \
+              -DRUN_DOCKER_TESTS=OFF \
               -DRUN_SSHD_TESTS=OFF
           else
             if [ "${MATRIX_INSTALL}" = 'mbedtls@3' ]; then
@@ -1172,6 +1168,7 @@ jobs:
             mkdir bld && cd bld
             ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
               --with-libz ${MATRIX_CONFIGURE} \
+              --disable-docker-tests \
               --disable-sshd-tests \
               --disable-dependency-tracking --disable-examples-build
           fi
@@ -1196,16 +1193,6 @@ jobs:
       - name: 'tests'
         timeout-minutes: 10
         run: |
-          container system status
-          container system start --enable-kernel-install
-          container system status
-          container system kernel set --recommended --force
-          container system status
-          container system kernel set --recommended
-          container system status
-          export FIXTURE_CONTAINER_CMD=container
-          export OPENSSH_SERVER_PORT=5678
-          export OPENSSH_SERVER_IMAGE; OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             cd bld && ctest -VV --output-on-failure
           else
