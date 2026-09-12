@@ -296,7 +296,7 @@ jobs:
       WOLFSSL_SHA256_PREV: b7ee150e49def77c765bc02aac92ddeb0bebefd4cb12aa263d8f95e405221fb8
     steps:
       - name: 'install architecture'
-        if: ${{ matrix.arch = 'i386' }}
+        if: ${{ matrix.arch == 'i386' }}
         timeout-minutes: 2
         run: |
           sudo find /etc/apt/sources.list.d -type f -not -name 'ubuntu.sources' -delete -print
