@@ -5,7 +5,7 @@
 
 #include "runner.h"
 
-/* set in Dockerfile */
+/* set in Containerfile */
 static const char *username = "libssh2";
 static const char *key_file_private = "keys/id_rsa_pem";
 static const char *key_file_public = "keys/id_rsa_pem.pub";

@@ -8,7 +8,7 @@
 int test(LIBSSH2_SESSION *session)
 {
 #if LIBSSH2_ECDSA
-    /* set in Dockerfile */
+    /* set in Containerfile */
     return test_auth_pubkey(session, 0,
                             "libssh2",
                             NULL,

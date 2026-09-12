@@ -145,7 +145,7 @@ EXTRA_DIST = \
   keys/id_rsa_pkcs8.pub \
   keys/id_rsa_pkcs8_encrypted \
   keys/id_rsa_pkcs8_encrypted.pub \
-  openssh_server/Dockerfile \
+  openssh_server/Containerfile \
   openssh_server/authorized_keys \
   openssh_server/ca_user_keys.pub \
   openssh_server/ssh_host_ecdsa_key \
