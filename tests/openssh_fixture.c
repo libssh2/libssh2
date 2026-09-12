@@ -65,7 +65,7 @@
 #endif
 
 static int have_docker = 0;
-static const char *docker_cmd;
+static const char *docker_cmd = NULL;
 
 int openssh_fixture_have_docker(void)
 {
