@@ -304,17 +304,13 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
                            "\"{{ .NetworkSettings.IPAddress }}\""
                            " %s", docker_cmd, container_id);
     else if(strstr(docker_cmd, "container"))
+        /* Requires jq */
         return run_command(ip_address_out, "%s inspect %s | "
                            "jq --raw-output '.[0].networks[0].gateway'",
                            docker_cmd, container_id);
     else {
         /* Requires podman 6.1.0+
-           https://github.com/podman-container-tools/podman/issues/29164
-           For Apple container, this information is in the 'container inspect'
-           output:
-           $ jq --raw-output '.[0].configuration.publishedPorts[]
-             | select(.hostPort == 8912) | .containerPort'
-         */
+           https://github.com/podman-container-tools/podman/issues/29164 */
         int ret = run_command(ip_address_out, "%s inspect --format "
                               "\"{{ (index (index .NetworkSettings.Ports "
                               "\\\"22/tcp\\\") 0).HostIp }}\" %s",
