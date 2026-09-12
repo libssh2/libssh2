@@ -1195,8 +1195,8 @@ jobs:
       - name: 'tests'
         timeout-minutes: 10
         run: |
-          container system kernel set --recommended
           container system start --disable-kernel-install
+          container system kernel set --recommended
           export FIXTURE_CONTAINER_CMD=container
           export OPENSSH_SERVER_PORT=5678
           export OPENSSH_SERVER_IMAGE; OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
