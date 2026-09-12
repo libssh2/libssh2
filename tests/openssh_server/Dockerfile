@@ -5,7 +5,7 @@
 FROM debian:testing-20260824-slim@sha256:b21cba5194c0cddc19b41045ceebce11b5413ac40bac7f2410c066b5acb28091
 
 RUN apt-get update \
- && apt-get install -y openssh-server \
+ && apt-get install -y --no-install-suggests --no-install-recommends openssh-server adduser \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 RUN [ -d /var/run/sshd ] || mkdir /var/run/sshd
