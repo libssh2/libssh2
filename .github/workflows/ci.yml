@@ -1017,7 +1017,6 @@ jobs:
       - name: 'presintalled'
         run: |
           docker --version || true
-          wsl --version || true
           wsl --list --verbose || true
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -1078,6 +1077,9 @@ jobs:
 
       - name: 'build'
         run: cmake --build bld --config "${MATRIX_TYPE}" --parallel 5 --target package
+
+      - name: 'install test prereqs'
+        run: wsl --install --distribution Debian
 
       - name: 'tests'
         # UWP binaries require a CRT DLL that is not found. Static CRT not supported.
