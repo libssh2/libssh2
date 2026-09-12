@@ -77,9 +77,18 @@ jobs:
           tags: |
             type=raw,value=${{ steps.hash.outputs.hash }}
 
+      - name: 'install prereqs'
+        if: ${{ steps.poll.outcome == 'failure' }}
+        run: |
+          sudo find /etc/apt/sources.list.d -type f -not -name 'ubuntu.sources' -delete -print
+          sudo apt-get -o Dpkg::Use-Pty=0 update
+          sudo apt-get -o Dpkg::Use-Pty=0 install \
+            qemu-user-static
+
       - uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         if: ${{ steps.poll.outcome == 'failure' }}
         with:
+          platforms: linux/amd64,linux/arm64
           context: ./tests/openssh_server
           push: true
           tags: ${{ steps.meta.outputs.tags }}
