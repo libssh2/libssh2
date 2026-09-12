@@ -9,7 +9,7 @@ int test(LIBSSH2_SESSION *session)
 {
 #if LIBSSH2_ED25519 && \
     !defined(LIBSSH2_LIBGCRYPT) && !defined(LIBSSH2_WINCNG)
-    /* set in Dockerfile */
+    /* set in Containerfile */
     return test_auth_pubkey(session, 0,
                             "libssh2",
                             NULL,

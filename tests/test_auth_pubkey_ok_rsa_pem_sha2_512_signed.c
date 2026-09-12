@@ -11,7 +11,7 @@ int test(LIBSSH2_SESSION *session)
 {
 #if LIBSSH2_RSA_SHA2
     const char *user = getenv("FIXTURE_USER");
-    /* set in Dockerfile */
+    /* set in Containerfile */
     return test_auth_pubkey(session, 0,
                             user ? user : "libssh2",
                             NULL,
