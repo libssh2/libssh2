@@ -290,13 +290,12 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
                            " %s",
                            docker_cmd, container_id);
     else {
-        int ret;
         /* Requires podman 6.1.0+
            https://github.com/podman-container-tools/podman/issues/29164 */
-        ret = run_command(ip_address_out, "%s inspect --format "
-                          "\"{{ (index (index .NetworkSettings.Ports "
-                          "\\\"22/tcp\\\") 0).HostIp }}\" %s",
-                          docker_cmd, container_id);
+        int ret = run_command(ip_address_out, "%s inspect --format "
+                              "\"{{ (index (index .NetworkSettings.Ports "
+                              "\\\"22/tcp\\\") 0).HostIp }}\" %s",
+                              docker_cmd, container_id);
         if(ret)
             /* Another alternative is `%s port "22/tcp"` which works with
                both docker and podman. */
