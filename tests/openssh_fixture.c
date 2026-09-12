@@ -250,25 +250,26 @@ static const char *docker_machine_name(void)
 
 static int is_running_inside_a_container(void)
 {
-#ifdef _WIN32
-    return 0;
-#else
-    static const char *cgroup_filename = "/proc/self/cgroup";
-    FILE *fp;
-    char line[256];
     int found = 0;
-    fp = fopen(cgroup_filename, "r");
-    if(!fp)
-        return 0;  /* Do not go further, we are not in a container */
-    while(fgets(line, sizeof(line), fp)) {
-        if(strstr(line, docker_cmd)) {
-            found = 1;
-            break;
+#ifndef _WIN32
+    /* Value may be 'podman', 'oci' */
+    if(getenv("container") && getenv("container")[0])
+        found = 1;
+    else {
+        FILE *fp = fopen("/proc/self/cgroup", "r");
+        if(fp) {
+            char line[256];
+            while(fgets(line, sizeof(line), fp)) {
+                if(strstr(line, "docker")) {
+                    found = 1;
+                    break;
+                }
+            }
+            fclose(fp);
         }
     }
-    fclose(fp);
-    return found;
 #endif
+    return found;
 }
 
 static void portable_sleep(unsigned int seconds)
