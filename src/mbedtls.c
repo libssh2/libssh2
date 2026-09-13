@@ -547,7 +547,6 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
     return 0;
 }
 
-#if LIBSSH2_RSA_SHA2 || LIBSSH2_RSA_SHA1
 int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                          size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
@@ -646,7 +645,6 @@ int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
 
     return ret == 0 ? 0 : -1;
 }
-#endif
 
 #if LIBSSH2_RSA_SHA1
 int ssh2_rsa_sha1_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
