@@ -17,28 +17,28 @@ RUN [ -d /var/run/sshd ] || mkdir /var/run/sshd
 # no effect (Docker AUFS-related bug maybe?)
 
 # Host keys
-COPY ssh_host_rsa_key /tmp/etc/ssh/ssh_host_rsa_key
-RUN install -m 0600 /tmp/etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_rsa_key
+COPY ssh_host_rsa_key /tmp/etc/ssh/
+RUN install -m 0600 /tmp/etc/ssh/ssh_host_rsa_key /etc/ssh/
 
-COPY ssh_host_ecdsa_key /tmp/etc/ssh/ssh_host_ecdsa_key
-RUN install -m 0600 /tmp/etc/ssh/ssh_host_ecdsa_key /etc/ssh/ssh_host_ecdsa_key
+COPY ssh_host_ecdsa_key /tmp/etc/ssh/
+RUN install -m 0600 /tmp/etc/ssh/ssh_host_ecdsa_key /etc/ssh/
 
-COPY ssh_host_ed25519_key /tmp/etc/ssh/ssh_host_ed25519_key
-RUN install -m 0600 /tmp/etc/ssh/ssh_host_ed25519_key /etc/ssh/ssh_host_ed25519_key
+COPY ssh_host_ed25519_key /tmp/etc/ssh/
+RUN install -m 0600 /tmp/etc/ssh/ssh_host_ed25519_key /etc/ssh/
 
 # Host certificates
-COPY ssh_host_rsa_key-cert.pub /tmp/etc/ssh/ssh_host_rsa_key-cert.pub
-RUN install -m 0644 /tmp/etc/ssh/ssh_host_rsa_key-cert.pub /etc/ssh/ssh_host_rsa_key-cert.pub
+COPY ssh_host_rsa_key-cert.pub /tmp/etc/ssh/
+RUN install -m 0644 /tmp/etc/ssh/ssh_host_rsa_key-cert.pub /etc/ssh/
 
-COPY ssh_host_ecdsa_key-cert.pub /tmp/etc/ssh/ssh_host_ecdsa_key-cert.pub
-RUN install -m 0644 /tmp/etc/ssh/ssh_host_ecdsa_key-cert.pub /etc/ssh/ssh_host_ecdsa_key-cert.pub
+COPY ssh_host_ecdsa_key-cert.pub /tmp/etc/ssh/
+RUN install -m 0644 /tmp/etc/ssh/ssh_host_ecdsa_key-cert.pub /etc/ssh/
 
-COPY ssh_host_ed25519_key-cert.pub /tmp/etc/ssh/ssh_host_ed25519_key-cert.pub
-RUN install -m 0644 /tmp/etc/ssh/ssh_host_ed25519_key-cert.pub /etc/ssh/ssh_host_ed25519_key-cert.pub
+COPY ssh_host_ed25519_key-cert.pub /tmp/etc/ssh/
+RUN install -m 0644 /tmp/etc/ssh/ssh_host_ed25519_key-cert.pub /etc/ssh/
 
 # Trusted user CA keys
-COPY ca_user_keys.pub /tmp/etc/ssh/ca_user_keys.pub
-RUN install -m 0600 /tmp/etc/ssh/ca_user_keys.pub /etc/ssh/ca_user_keys.pub
+COPY ca_user_keys.pub /tmp/etc/ssh/
+RUN install -m 0600 /tmp/etc/ssh/ca_user_keys.pub /etc/ssh/
 
 # User
 RUN adduser --disabled-password --gecos 'Test user for libssh2 integration tests' libssh2
@@ -46,7 +46,7 @@ RUN echo 'libssh2:my test password' | chpasswd
 
 # Config
 RUN sed -i 's/KbdInteractiveAuthentication no/KbdInteractiveAuthentication yes/' /etc/ssh/sshd_config
-COPY sshd_config /tmp/etc/ssh/sshd_config
+COPY sshd_config /tmp/etc/ssh/
 RUN cat /tmp/etc/ssh/sshd_config >> /etc/ssh/sshd_config
 RUN echo 'TrustedUserCAKeys /etc/ssh/ca_user_keys.pub' >> /etc/ssh/sshd_config
 RUN echo 'HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub' >> /etc/ssh/sshd_config
@@ -61,8 +61,8 @@ USER libssh2
 RUN mkdir -p /home/libssh2/.ssh
 RUN mkdir -p /home/libssh2/sandbox
 
-COPY authorized_keys /tmp/libssh2/.ssh/authorized_keys
-RUN install -m 0600 /tmp/libssh2/.ssh/authorized_keys /home/libssh2/.ssh/authorized_keys
+COPY authorized_keys /tmp/libssh2/.ssh/
+RUN install -m 0600 /tmp/libssh2/.ssh/authorized_keys /home/libssh2/.ssh/
 
 USER root
 
