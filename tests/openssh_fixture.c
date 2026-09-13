@@ -230,7 +230,7 @@ static void openssh_server_dump_logs(char *container_id)
     if(ret)
         fprintf(stderr, "Failed to query server logs: %d\n", ret);
     else
-        fprintf(stderr, "-----\n%s\n-----\n", logs);
+        fprintf(stderr, "-----sshd log-----\n%s\n----------\n", logs);
     free(logs);
 }
 
