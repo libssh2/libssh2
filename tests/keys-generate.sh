@@ -85,6 +85,7 @@ ssh-keygen                    -I "${id}" -n "${pr}"     -s 'keys/ca_user_ecdsa' 
 
 ssh-keygen -t ed25519         -N ''          -m RFC4716 -C 'id_ed25519_openssh_signed'    -f 'keys/id_ed25519_openssh_signed'
 ssh-keygen                    -I "${id}" -n "${pr}"     -s 'keys/ca_user_ed25519'            'keys/id_ed25519_openssh_signed.pub'
+
 ssh-keygen -t mldsa44-ed25519 -N ''          -m RFC4716 -C 'id_mldsa44-ed25519_signed'    -f 'keys/id_mldsa44-ed25519_signed'
 ssh-keygen                    -I "${id}" -n "${pr}"     -s 'keys/ca_user_mldsa44-ed25519'    'keys/id_mldsa44-ed25519_signed.pub'
 
