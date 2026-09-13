@@ -71,12 +71,6 @@ jobs:
           sudo apt-get -o Dpkg::Use-Pty=0 install \
             qemu-user
 
-      - name: 'docker login (ghcr.io)'
-        if: ${{ steps.poll.outcome == 'failure' }}
-        env:
-          GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-        run: echo "${GH_TOKEN}" | docker login -u "${GITHUB_REPOSITORY_OWNER}" --password-stdin ghcr.io
-
       - uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         if: ${{ steps.poll.outcome == 'failure' }}
         id: meta
@@ -84,6 +78,12 @@ jobs:
           images: ghcr.io/${{ github.repository_owner }}/ci_tests_openssh_server
           tags: |
             type=raw,value=${{ steps.hash.outputs.hash }}
+
+      - name: 'docker login (ghcr.io)'
+        if: ${{ steps.poll.outcome == 'failure' }}
+        env:
+          GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+        run: echo "${GH_TOKEN}" | docker login -u "${GITHUB_REPOSITORY_OWNER}" --password-stdin ghcr.io
 
       - uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         if: ${{ steps.poll.outcome == 'failure' }}
