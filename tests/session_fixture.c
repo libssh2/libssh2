@@ -488,7 +488,7 @@ int test_auth_pubkey(LIBSSH2_SESSION *session, int flags,
     int rc;
     const char *userauth_list;
 
-    /* Ignore our hard-wired Dockerfile user when not running under Docker */
+    /* Ignore our hard-wired Dockerfile user when not running in container */
     if(!openssh_fixture_have_container() && !strcmp(username, "libssh2")) {
         username = getenv("USER");
         if(!username)

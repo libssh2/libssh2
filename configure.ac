@@ -328,10 +328,10 @@ AS_HELP_STRING([--disable-windows-unicode],[Disable Windows Unicode (default)]),
   fi
 fi
 
-dnl Run Docker tests?
+dnl Run container tests?
 AC_ARG_ENABLE([docker-tests],
   [AS_HELP_STRING([--disable-docker-tests],
-    [Do not run tests requiring Docker])],
+    [Do not run tests requiring container])],
   [run_docker_tests=no], [run_docker_tests=yes])
 AM_CONDITIONAL([RUN_DOCKER_TESTS], [test "x$run_docker_tests" != "xno"])
 
@@ -498,19 +498,19 @@ AC_OUTPUT
 
 AC_MSG_NOTICE([summary of build options:
 
-  version:          ${LIBSSH2_VERSION}
-  Host type:        ${host}
-  Install prefix:   ${prefix}
-  Compiler:         ${CC}
-  Compiler flags:   ${CFLAGS}
-  Library types:    Shared=${enable_shared}, Static=${enable_static}
-  Crypto library:   ${found_crypto_str}
-  WinCNG ECDSA:     $wincng_ecdsa
-  zlib compression: ${found_libz}
-  Deprecated APIs:  $with_deprecated
-  Debug build:      $enable_debug
-  Build examples:   $build_examples
-  Run Docker tests: $run_docker_tests
-  Run sshd tests:   $run_sshd_tests
-  Path to sshd:     $ac_cv_path_SSHD (only for self-tests)
+  version:             ${LIBSSH2_VERSION}
+  Host type:           ${host}
+  Install prefix:      ${prefix}
+  Compiler:            ${CC}
+  Compiler flags:      ${CFLAGS}
+  Library types:       Shared=${enable_shared}, Static=${enable_static}
+  Crypto library:      ${found_crypto_str}
+  WinCNG ECDSA:        $wincng_ecdsa
+  zlib compression:    ${found_libz}
+  Deprecated APIs:     $with_deprecated
+  Debug build:         $enable_debug
+  Build examples:      $build_examples
+  Run container tests: $run_docker_tests
+  Run sshd tests:      $run_sshd_tests
+  Path to sshd:        $ac_cv_path_SSHD (only for self-tests)
 ])
