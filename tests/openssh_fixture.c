@@ -79,8 +79,8 @@ static int run_command_varg(char **output, const char *command, va_list args)
     static const char redirect_stderr[] = "%s 2>&1";
 
     FILE *pipe;
-    char command_buf[BUFSIZ];
-    char buf[BUFSIZ + sizeof(redirect_stderr)];
+    char command_buf[8192];
+    char buf[64 * 1024];  /* sizeof(command_buf) + 5 (" 2>&1") or larger */
     int ret;
     size_t buf_len;
 
@@ -98,12 +98,6 @@ static int run_command_varg(char **output, const char *command, va_list args)
 #endif
     if(ret < 0 || (size_t)ret >= sizeof(command_buf)) {
         fprintf(stderr, "Unable to format command (%s)\n", command);
-        return -1;
-    }
-
-    /* Rewrite the command to redirect stderr to stdout so we can output it */
-    if(strlen(command_buf) + strlen(redirect_stderr) >= sizeof(buf)) {
-        fprintf(stderr, "Unable to rewrite command (%s)\n", command);
         return -1;
     }
 
