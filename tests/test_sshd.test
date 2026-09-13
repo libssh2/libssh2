@@ -66,7 +66,7 @@ echo "# sshd log: '${logfsrv}'"
 
 SSHD_FLAGS="${SSHD_FLAGS:-}"
 if [ -n "${DEBUG:-}" ]; then
-  SSHD_FLAGS+=' -d -d'
+  SSHD_FLAGS+=' -dd'
 else
   SSHD_FLAGS+=" -E ${logfsrv}"
 fi
