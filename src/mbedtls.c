@@ -718,12 +718,15 @@ static int mbed_pub_priv_key(LIBSSH2_SESSION *session, char **method,
 {
     char *method_buf = NULL;
     unsigned char *key = NULL;
-    size_t keylen = 0, method_buf_len = 0;
+    size_t keylen = 0;
     int ret = 0;
+
+    (void)pkey;
 
 #if LIBSSH2_RSA
     if(mbedtls_pk_get_type(pkey) == MBEDTLS_PK_RSA) {
         mbedtls_rsa_context *rsa;
+        size_t method_buf_len;
 
         /* write method */
         method_buf_len = sizeof("ssh-rsa") - 1;
