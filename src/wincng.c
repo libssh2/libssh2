@@ -826,11 +826,14 @@ static int wcng_key_sha_verify(struct wcng_key_ctx *ctx,
     ULONG datalen;
     int ret;
 
+#if LIBSSH2_RSA_SHA1 || LIBSSH2_DSA
     if(hash_len == SSH2_SHA1_DIG_LEN) {
         hash_alg = SSH2_SHA1_ALG;
         paddingInfoPKCS1.pszAlgId = BCRYPT_SHA1_ALGORITHM;
     }
-    else if(hash_len == SSH2_SHA256_DIG_LEN) {
+    else
+#endif
+    if(hash_len == SSH2_SHA256_DIG_LEN) {
         hash_alg = SSH2_SHA256_ALG;
         paddingInfoPKCS1.pszAlgId = BCRYPT_SHA256_ALGORITHM;
     }
@@ -1329,9 +1332,12 @@ static int wcng_rsa_sha_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
     ULONG cbData, datalen, siglen;
     NTSTATUS ret;
 
+#if LIBSSH2_RSA_SHA1
     if(hash_len == SSH2_SHA1_DIG_LEN)
         paddingInfo.pszAlgId = BCRYPT_SHA1_ALGORITHM;
-    else if(hash_len == SSH2_SHA256_DIG_LEN)
+    else
+#endif
+    if(hash_len == SSH2_SHA256_DIG_LEN)
         paddingInfo.pszAlgId = BCRYPT_SHA256_ALGORITHM;
     else if(hash_len == SSH2_SHA384_DIG_LEN)
         paddingInfo.pszAlgId = BCRYPT_SHA384_ALGORITHM;
