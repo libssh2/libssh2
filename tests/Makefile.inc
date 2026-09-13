@@ -8,7 +8,7 @@
 # NOTE: test_auth_keyboard_info_request does not use the network, but when
 #       run as Windows standalone test, it intermittently fails on GHA with:
 #         `Terminate batch job (Y/N)?`
-DOCKER_TESTS = \
+CONTAINER_TESTS = \
   test_aa_warmup \
   test_agent_forward_ok \
   test_auth_keyboard_fail \
@@ -51,7 +51,7 @@ SSHD_TESTS = \
 
 # Programs of the above that use internal libssh2 functions so they need
 # to be statically linked against libssh2
-DOCKER_TESTS_STATIC = \
+CONTAINER_TESTS_STATIC = \
   test_auth_keyboard_info_request \
   test_hostkey
 
