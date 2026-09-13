@@ -93,7 +93,6 @@ chmod go-rwx \
   -o "HostCertificate ${d}/openssh_server/ssh_host_mldsa44-ed25519_key-cert.pub" \
   -o 'KbdInteractiveAuthentication yes' \
   -o 'PermitRootLogin yes' \
-  -o 'LogLevel DEBUG1' \
   -D \
   ${SSHD_FLAGS} &
 sshdpid=$!
