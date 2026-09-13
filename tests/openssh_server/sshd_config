@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+LogLevel DEBUG2
+
 CASignatureAlgorithms +ssh-rsa
 HostKeyAlgorithms +ssh-rsa,ssh-rsa-cert-v01@openssh.com
 # modern name in OpenSSH 8.5+: PubkeyAcceptedAlgorithms

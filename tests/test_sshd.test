@@ -65,11 +65,7 @@ logfcli="$(mktemp)"; readonly logfcli
 echo "# sshd log: '${logfsrv}'"
 
 SSHD_FLAGS="${SSHD_FLAGS:-}"
-if [ -n "${DEBUG:-}" ]; then
-  SSHD_FLAGS+=' -dd'
-else
-  SSHD_FLAGS+=" -E ${logfsrv}"
-fi
+SSHD_FLAGS+=" -E ${logfsrv}"
 
 chmod go-rwx \
   "${d}"/openssh_server/ssh_host_* \

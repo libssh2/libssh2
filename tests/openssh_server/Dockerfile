@@ -79,4 +79,4 @@ USER root
 
 EXPOSE 22
 # -e gives logs via 'docker logs'
-CMD ["/usr/sbin/sshd", "-D", "-e", "-d"]
+CMD ["/usr/sbin/sshd", "-D", "-e"]
