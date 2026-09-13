@@ -174,7 +174,8 @@ static int build_openssh_server_container_image(void)
         if(container_image_name) {
             int ret;
             if(strstr(container_cmd, "container")) {
-                ret = run_command(NULL, "%s image pull %s",
+                /* Requires Apple container 0.7.0+ for '--progress none' */
+                ret = run_command(NULL, "%s image pull --progress none %s",
                                   container_cmd, container_image_name);
                 if(ret == 0) {
                     ret = run_command(NULL, "%s image tag %s "
