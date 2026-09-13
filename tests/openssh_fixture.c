@@ -243,11 +243,6 @@ static int stop_openssh_server(char *container_id)
         return 0;
 }
 
-static const char *container_machine_name(void)
-{
-    return getenv("DOCKER_MACHINE_NAME");
-}
-
 static int is_running_inside_a_container(void)
 {
     int found = 0;
@@ -284,35 +279,7 @@ static void portable_sleep(unsigned int seconds)
 
 static int ip_address_from_container(char *container_id, char **ip_address_out)
 {
-    const char *active_container_machine = container_machine_name();
-    if(active_container_machine) {
-
-        /* This can be flaky when tests run in parallel (see
-           https://github.com/docker/machine/issues/2612), so we retry a few
-           times with exponential backoff if it fails */
-        int attempt_no = 0;
-        unsigned int wait_time = 1;
-        for(;;) {
-            /* FIXME: This command no longer exists: */
-            int ret = run_command(ip_address_out, "docker-machine ip %s",
-                                  active_container_machine);
-            if(ret == 0)
-                return 0;
-            else if(attempt_no > 5) {
-                fprintf(
-                    stderr,
-                    "Unable to get IP from docker-machine after %d attempts\n",
-                    attempt_no);
-                return -1;
-            }
-            else {
-                portable_sleep(wait_time);
-                ++attempt_no;
-                wait_time *= 2;
-            }
-        }
-    }
-    else if(is_running_inside_a_container())
+    if(is_running_inside_a_container())
         return run_command(ip_address_out, "%s inspect --format "
                            "\"{{ .NetworkSettings.IPAddress }}\""
                            " %s", container_cmd, container_id);
