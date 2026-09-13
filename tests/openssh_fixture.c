@@ -80,7 +80,7 @@ static int run_command_varg(char **output, const char *command, va_list args)
 
     FILE *pipe;
     char command_buf[8192];
-    char buf[2 * 1024 * 1024]; /* sizeof(command_buf + " 2>&1") or larger */
+    char buf[64 * 1024]; /* sizeof(command_buf + " 2>&1") or larger */
     int ret;
     size_t buf_len;
 
