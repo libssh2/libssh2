@@ -225,13 +225,18 @@ static int start_openssh_server(char **container_id_out)
 
 static void openssh_server_dump_logs(char *container_id)
 {
-    char *logs = NULL;
-    int ret = run_command(&logs, "%s logs %s", container_cmd, container_id);
-    if(ret)
-        fprintf(stderr, "Failed to query server logs: %d\n", ret);
-    else
-        fprintf(stderr, "-----sshd log-----\n%s\n----------\n", logs);
-    free(logs);
+    if(container_cmd) {
+        char *logs = NULL;
+        int ret;
+        ret = run_command(&logs, "%s logs %s", container_cmd, container_id);
+        if(ret)
+            fprintf(stderr, "Failed to query server logs: %d\n", ret);
+        else
+            fprintf(stderr,
+                    "-----sshd log-----\n%s\n"
+                    "------------------\n", logs);
+        free(logs);
+    }
 }
 
 static int stop_openssh_server(char *container_id)
