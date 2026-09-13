@@ -65,7 +65,11 @@ logfcli="$(mktemp)"; readonly logfcli
 echo "# sshd log: '${logfsrv}'"
 
 SSHD_FLAGS="${SSHD_FLAGS:-}"
-SSHD_FLAGS+=" -E ${logfsrv}"
+if [ -n "${DEBUG:-}" ]; then
+  SSHD_FLAGS+=' -dd'
+else
+  SSHD_FLAGS+=" -E ${logfsrv}"
+fi
 
 chmod go-rwx \
   "${d}"/openssh_server/ssh_host_* \
@@ -89,6 +93,7 @@ chmod go-rwx \
   -o "HostCertificate ${d}/openssh_server/ssh_host_mldsa44-ed25519_key-cert.pub" \
   -o 'KbdInteractiveAuthentication yes' \
   -o 'PermitRootLogin yes' \
+  -o 'LogLevel DEBUG1' \
   -D \
   ${SSHD_FLAGS} &
 sshdpid=$!
