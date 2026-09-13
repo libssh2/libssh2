@@ -547,7 +547,7 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
     return 0;
 }
 
-#if LIBSSH2_RSA_SHA2
+#if LIBSSH2_RSA_SHA2 || LIBSSH2_RSA_SHA1
 int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                          size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
@@ -565,12 +565,15 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
     if(!hash)
         return -1;
 
+#if LIBSSH2_RSA_SHA1
     if(hash_len == SSH2_SHA1_DIG_LEN) {
         ret = psa_hash_compute(PSA_ALG_SHA_1, m, m_len, hash, hash_len,
                                &actual_len) == PSA_SUCCESS ? 0 : -1;
         md_type = MBEDTLS_MD_SHA1;
     }
-    else if(hash_len == SSH2_SHA256_DIG_LEN) {
+    else
+#endif
+    if(hash_len == SSH2_SHA256_DIG_LEN) {
         ret = psa_hash_compute(PSA_ALG_SHA_256, m, m_len, hash, hash_len,
                                &actual_len) == PSA_SUCCESS ? 0 : -1;
         md_type = MBEDTLS_MD_SHA256;
@@ -613,9 +616,12 @@ int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
         return -1;
 
     ret = 0;
+#if LIBSSH2_RSA_SHA1
     if(hash_len == SSH2_SHA1_DIG_LEN)
         md_type = MBEDTLS_MD_SHA1;
-    else if(hash_len == SSH2_SHA256_DIG_LEN)
+    else
+#endif
+    if(hash_len == SSH2_SHA256_DIG_LEN)
         md_type = MBEDTLS_MD_SHA256;
     else if(hash_len == SSH2_SHA512_DIG_LEN)
         md_type = MBEDTLS_MD_SHA512;
