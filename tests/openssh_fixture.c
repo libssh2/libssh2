@@ -172,28 +172,17 @@ static int build_openssh_server_container_image(void)
     if(container_cmd) {
         const char *container_image_name = openssh_server_image();
         if(container_image_name) {
-            int ret;
-            if(strstr(container_cmd, "container")) {
-                /* Requires Apple container 0.7.0+ for '--progress none' */
-                ret = run_command(NULL, "%s image pull --progress none %s",
-                                  container_cmd, container_image_name);
-                if(ret == 0) {
-                    ret = run_command(NULL, "%s image tag %s "
-                                      "libssh2/openssh_server",
-                                      container_cmd, container_image_name);
-                    if(ret == 0)
-                        return ret;
-                }
-            }
-            else {
-                ret = run_command(NULL, "%s pull %s",
-                                  container_cmd, container_image_name);
-                if(ret == 0) {
-                    ret = run_command(NULL, "%s tag %s libssh2/openssh_server",
-                                      container_cmd, container_image_name);
-                    if(ret == 0)
-                        return ret;
-                }
+            int ret = run_command(NULL, "%s image pull %s%s", container_cmd,
+                                  /* Requires Apple container 0.7.0+ */
+                                  strstr(container_cmd, "container") ?
+                                      "--progress none " : "",
+                                  container_image_name);
+            if(!ret) {
+                ret = run_command(NULL, "%s image tag %s "
+                                  "libssh2/openssh_server", container_cmd,
+                                  container_image_name);
+                if(!ret)
+                    return ret;
             }
         }
         return run_command(NULL,
@@ -213,20 +202,18 @@ static int start_openssh_server(char **container_id_out)
 {
     if(container_cmd) {
         const char *container_host_port = openssh_server_port();
-        if(strstr(container_cmd, "container")) {
-            if(!container_host_port) {
-                fprintf(stderr, "OPENSSH_SERVER_PORT must be set\n");
-                return 1;
-            }
-            /* Requires Apple container 0.7.0+ for '--progress none' */
-            return run_command(container_id_out, "%s run --progress none "
-                               "--rm -d -p %s:22 libssh2/openssh_server",
-                               container_cmd, container_host_port);
+        if(strstr(container_cmd, "container") && !container_host_port) {
+            fprintf(stderr, "OPENSSH_SERVER_PORT must be set\n");
+            return 1;
         }
-        else if(container_host_port)
-            return run_command(container_id_out, "%s run "
+        if(container_host_port)
+            return run_command(container_id_out, "%s run %s"
                                "--rm -d -p %s:22 libssh2/openssh_server",
-                               container_cmd, container_host_port);
+                               container_cmd,
+                               /* Requires Apple container 0.7.0+ */
+                               strstr(container_cmd, "container") ?
+                                   "--progress none " : "",
+                               container_host_port);
         return run_command(container_id_out, "%s run --rm -d -p 22 "
                            "libssh2/openssh_server", container_cmd);
     }
