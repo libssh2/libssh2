@@ -758,7 +758,7 @@ jobs:
           work-vol: 'D:'
           site: https://mirrors.kernel.org/sourceware/cygwin/
           # https://cygwin.com/packages/
-          packages: ${{ matrix.build == 'AM' && 'autoconf automake libtool make' || 'cmake ninja' }} gcc-core gcc-g++ binutils libssl-devel zlib-devel
+          packages: ${{ matrix.build == 'AM' && 'autoconf-15 automake libtool make' || 'cmake ninja' }} gcc-core gcc-g++ binutils libssl-devel zlib-devel
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
