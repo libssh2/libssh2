@@ -245,7 +245,7 @@ static int stop_openssh_server(char *container_id)
 
 static const char *container_machine_name(void)
 {
-    return getenv("DOCKER_MACHINE_NAME");  /* for compatibility */
+    return getenv("DOCKER_MACHINE_NAME");
 }
 
 static int is_running_inside_a_container(void)
