@@ -79,8 +79,8 @@ static int run_command_varg(char **output, const char *command, va_list args)
     static const char redirect_stderr[] = "%s 2>&1";
 
     FILE *pipe;
-    char command_buf[BUFSIZ];
-    char buf[BUFSIZ + sizeof(redirect_stderr)];
+    char command_buf[8192];
+    char buf[64 * 1024]; /* sizeof(command_buf + " 2>&1") or larger */
     int ret;
     size_t buf_len;
 
@@ -98,12 +98,6 @@ static int run_command_varg(char **output, const char *command, va_list args)
 #endif
     if(ret < 0 || (size_t)ret >= sizeof(command_buf)) {
         fprintf(stderr, "Unable to format command (%s)\n", command);
-        return -1;
-    }
-
-    /* Rewrite the command to redirect stderr to stdout so we can output it */
-    if(strlen(command_buf) + strlen(redirect_stderr) >= sizeof(buf)) {
-        fprintf(stderr, "Unable to rewrite command (%s)\n", command);
         return -1;
     }
 
@@ -220,6 +214,22 @@ static int start_openssh_server(char **container_id_out)
     else {
         *container_id_out = libssh2_strdup("");
         return 0;
+    }
+}
+
+static void openssh_server_dump_logs(char *container_id)
+{
+    if(container_cmd) {
+        char *logs = NULL;
+        int ret;
+        ret = run_command(&logs, "%s logs %s", container_cmd, container_id);
+        if(ret)
+            fprintf(stderr, "Failed to query server logs: %d\n", ret);
+        else
+            fprintf(stderr,
+                    "---- sshd log ----\n%s\n"
+                    "------------------\n", logs);
+        free(logs);
     }
 }
 
@@ -461,9 +471,11 @@ int start_openssh_fixture(void)
     }
 }
 
-void stop_openssh_fixture(void)
+void stop_openssh_fixture(int exit_code)
 {
     if(running_container_id) {
+        if(exit_code)
+            openssh_server_dump_logs(running_container_id);
         stop_openssh_server(running_container_id);
         free(running_container_id);
         running_container_id = NULL;

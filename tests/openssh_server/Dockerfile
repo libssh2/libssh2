@@ -78,5 +78,5 @@ RUN install -m 0600 /tmp/libssh2/.ssh/authorized_keys /home/libssh2/.ssh/
 USER root
 
 EXPOSE 22
-# -e gives logs via 'docker logs'
+# -e gives logs via 'container/docker/podman logs'
 CMD ["/usr/sbin/sshd", "-D", "-e"]

@@ -258,7 +258,7 @@ void print_last_session_error(const char *function)
         fprintf(stderr, "No session\n");
 }
 
-void stop_session_fixture(void)
+void stop_session_fixture(int exit_code)
 {
     if(connected_session) {
         libssh2_session_disconnect(connected_session, "test ended");
@@ -273,7 +273,7 @@ void stop_session_fixture(void)
 
     libssh2_exit();
 
-    stop_openssh_fixture();
+    stop_openssh_fixture(exit_code);
 }
 
 /* If 'srcdir' env is set, return '$srcdir/<file>' in a static buffer

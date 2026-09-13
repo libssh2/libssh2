@@ -43,6 +43,6 @@ int main(void)
         fprintf(stderr, "Test skipped.\n");
         exit_code = 0;
     }
-    stop_session_fixture();
+    stop_session_fixture(exit_code);
     return exit_code;
 }

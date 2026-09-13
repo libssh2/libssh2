@@ -34,7 +34,7 @@
 #define LIBSSH2_TESTS_OPENSSH_FIXTURE_H
 
 int start_openssh_fixture(void);
-void stop_openssh_fixture(void);
+void stop_openssh_fixture(int exit_code);
 libssh2_socket_t open_socket_to_openssh_server(void);
 void close_socket_to_openssh_server(libssh2_socket_t sock);
 int openssh_fixture_have_container(void);
