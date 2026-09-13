@@ -38,7 +38,7 @@ the 'type' output format.
 *buflen* is the size of the *buffer*. See RETURN VALUE about the size.
 
 *outlen* must be a pointer to a size_t variable that gets the output
-length of the stored data chunk. The number does not included
+length of the stored data chunk. The number does not include
 the null-terminator!
 
 *type* specifies what file type it is, and
