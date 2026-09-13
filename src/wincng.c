@@ -79,12 +79,13 @@
  * Windows CNG backend: Missing definitions (for mingw-w64 and MS SDK)
  */
 
-/* BCRYPT_KDF_RAW_SECRET is available from Windows 8.1 and onwards */
-#ifndef BCRYPT_KDF_RAW_SECRET /* supported by mingw-w64 9.0+ and VS2017+ */
+/* Offered by mingw-w64 9+, MS SDK 10.0.14393.0/VS2015-u3+ */
+#ifndef BCRYPT_KDF_RAW_SECRET
 #define BCRYPT_KDF_RAW_SECRET L"TRUNCATE"
 #endif
 
-#ifndef BCRYPT_MESSAGE_BLOCK_LENGTH /* supported by mingw-w64 and VS2017+ */
+/* Offered by mingw-w64 3+, MS SDK 8.0/~VS2012+ */
+#ifndef BCRYPT_MESSAGE_BLOCK_LENGTH
 #define BCRYPT_MESSAGE_BLOCK_LENGTH L"MessageBlockLength"
 #endif
 
