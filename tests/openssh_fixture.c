@@ -64,11 +64,11 @@
 #define pclose _pclose
 #endif
 
-static const char *docker_cmd = NULL;
+static const char *container_cmd = NULL;
 
-int openssh_fixture_have_docker(void)
+int openssh_fixture_have_container(void)
 {
-    return !!docker_cmd;
+    return !!container_cmd;
 }
 
 static int run_command_varg(char **output, const char *command, va_list args)
@@ -167,29 +167,29 @@ static const char *openssh_server_image(void)
     return getenv("OPENSSH_SERVER_IMAGE");
 }
 
-static int build_openssh_server_docker_image(void)
+static int build_openssh_server_container_image(void)
 {
-    if(docker_cmd) {
+    if(container_cmd) {
         const char *container_image_name = openssh_server_image();
         if(container_image_name) {
             int ret;
-            if(strstr(docker_cmd, "container")) {
+            if(strstr(container_cmd, "container")) {
                 ret = run_command(NULL, "%s image pull %s",
-                                  docker_cmd, container_image_name);
+                                  container_cmd, container_image_name);
                 if(ret == 0) {
                     ret = run_command(NULL, "%s image tag %s "
                                       "libssh2/openssh_server",
-                                      docker_cmd, container_image_name);
+                                      container_cmd, container_image_name);
                     if(ret == 0)
                         return ret;
                 }
             }
             else {
                 ret = run_command(NULL, "%s pull %s",
-                                  docker_cmd, container_image_name);
+                                  container_cmd, container_image_name);
                 if(ret == 0) {
                     ret = run_command(NULL, "%s tag %s libssh2/openssh_server",
-                                      docker_cmd, container_image_name);
+                                      container_cmd, container_image_name);
                     if(ret == 0)
                         return ret;
                 }
@@ -197,7 +197,7 @@ static int build_openssh_server_docker_image(void)
         }
         return run_command(NULL,
                            "%s build --quiet -t libssh2/openssh_server %s",
-                           docker_cmd, srcdir_path("openssh_server"));
+                           container_cmd, srcdir_path("openssh_server"));
     }
     else
         return 0;
@@ -210,9 +210,9 @@ static const char *openssh_server_port(void)
 
 static int start_openssh_server(char **container_id_out)
 {
-    if(docker_cmd) {
+    if(container_cmd) {
         const char *container_host_port = openssh_server_port();
-        if(strstr(docker_cmd, "container")) {
+        if(strstr(container_cmd, "container")) {
             if(!container_host_port) {
                 fprintf(stderr, "OPENSSH_SERVER_PORT must be set\n");
                 return 1;
@@ -220,14 +220,14 @@ static int start_openssh_server(char **container_id_out)
             /* Requires Apple container 0.7.0+ for '--progress none' */
             return run_command(container_id_out, "%s run --progress none "
                                "--rm -d -p %s:22 libssh2/openssh_server",
-                               docker_cmd, container_host_port);
+                               container_cmd, container_host_port);
         }
         else if(container_host_port)
             return run_command(container_id_out, "%s run "
                                "--rm -d -p %s:22 libssh2/openssh_server",
-                               docker_cmd, container_host_port);
+                               container_cmd, container_host_port);
         return run_command(container_id_out, "%s run --rm -d -p 22 "
-                           "libssh2/openssh_server", docker_cmd);
+                           "libssh2/openssh_server", container_cmd);
     }
     else {
         *container_id_out = libssh2_strdup("");
@@ -237,13 +237,13 @@ static int start_openssh_server(char **container_id_out)
 
 static int stop_openssh_server(char *container_id)
 {
-    if(docker_cmd)
-        return run_command(NULL, "%s stop %s", docker_cmd, container_id);
+    if(container_cmd)
+        return run_command(NULL, "%s stop %s", container_cmd, container_id);
     else
         return 0;
 }
 
-static const char *docker_machine_name(void)
+static const char *container_machine_name(void)
 {
     return getenv("DOCKER_MACHINE_NAME");
 }
@@ -284,8 +284,8 @@ static void portable_sleep(unsigned int seconds)
 
 static int ip_address_from_container(char *container_id, char **ip_address_out)
 {
-    const char *active_docker_machine = docker_machine_name();
-    if(active_docker_machine) {
+    const char *active_container_machine = container_machine_name();
+    if(active_container_machine) {
 
         /* This can be flaky when tests run in parallel (see
            https://github.com/docker/machine/issues/2612), so we retry a few
@@ -293,8 +293,9 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
         int attempt_no = 0;
         unsigned int wait_time = 1;
         for(;;) {
+            /* FIXME: This command no longer exists: */
             int ret = run_command(ip_address_out, "docker-machine ip %s",
-                                  active_docker_machine);
+                                  active_container_machine);
             if(ret == 0)
                 return 0;
             else if(attempt_no > 5) {
@@ -314,13 +315,13 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
     else if(is_running_inside_a_container())
         return run_command(ip_address_out, "%s inspect --format "
                            "\"{{ .NetworkSettings.IPAddress }}\""
-                           " %s", docker_cmd, container_id);
-    else if(strstr(docker_cmd, "container")) {
+                           " %s", container_cmd, container_id);
+    else if(strstr(container_cmd, "container")) {
         /* Requires jq and Apple container 0.8.0+ */
         int ret = run_command(ip_address_out, "%s inspect %s | "
                               "jq --raw-output "
                               "'.[0].status.networks[0].ipv4Gateway'",
-                              docker_cmd, container_id);
+                              container_cmd, container_id);
         if(!ret && *ip_address_out &&
            (!*ip_address_out[0] || !strcmp(*ip_address_out, "null"))) {
             free(*ip_address_out);
@@ -335,12 +336,12 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
         int ret = run_command(ip_address_out, "%s inspect --format "
                               "\"{{ (index (index .NetworkSettings.Ports "
                               "\\\"22/tcp\\\") 0).HostIp }}\" %s",
-                              docker_cmd, container_id);
-        if(ret && strstr(docker_cmd, "podman")) {
+                              container_cmd, container_id);
+        if(ret && strstr(container_cmd, "podman")) {
             free(*ip_address_out);
-            /* Also works with docker. */
+            /* Also works with 'docker'. */
             ret = run_command(ip_address_out, "%s port %s \"22/tcp\"",
-                              docker_cmd, container_id);
+                              container_cmd, container_id);
             if(!ret) {
                 char *hit;
                 hit = strchr(*ip_address_out, '\r');  /* ignore CR */
@@ -372,7 +373,7 @@ static int port_from_container(char *container_id, char **port_out)
         return run_command(port_out, "%s inspect --format "
                            "\"{{ (index (index .NetworkSettings.Ports "
                            "\\\"22/tcp\\\") 0).HostPort }}\" %s",
-                           docker_cmd, container_id);
+                           container_cmd, container_id);
 }
 
 static void close_socket_to_container(libssh2_socket_t sock)
@@ -393,7 +394,7 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
     unsigned int counter;
     libssh2_socket_t ret = LIBSSH2_INVALID_SOCKET;
 
-    if(docker_cmd) {
+    if(container_cmd) {
         int res;
         res = ip_address_from_container(container_id, &ip_address);
         if(res) {
@@ -489,18 +490,18 @@ int start_openssh_fixture(void)
 #endif
 
     if(!getenv("OPENSSH_NO_DOCKER")) {  /* for compatibility */
-        docker_cmd = getenv("FIXTURE_CONTAINER_CMD");
-        if(!docker_cmd)
-            docker_cmd = "docker";
-        else if(!*docker_cmd)
-            docker_cmd = NULL;
+        container_cmd = getenv("FIXTURE_CONTAINER_CMD");
+        if(!container_cmd)
+            container_cmd = "docker";
+        else if(!*container_cmd)
+            container_cmd = NULL;
     }
 
-    ret = build_openssh_server_docker_image();
+    ret = build_openssh_server_container_image();
     if(!ret)
         return start_openssh_server(&running_container_id);
     else {
-        fprintf(stderr, "Failed to build docker image\n");
+        fprintf(stderr, "Failed to build container image\n");
         return ret;
     }
 }
@@ -512,7 +513,7 @@ void stop_openssh_fixture(void)
         free(running_container_id);
         running_container_id = NULL;
     }
-    else if(docker_cmd)
+    else if(container_cmd)
         fprintf(stderr, "Cannot stop container - none started\n");
 
 #ifdef _WIN32

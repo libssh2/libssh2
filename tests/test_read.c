@@ -35,8 +35,8 @@ int test(LIBSSH2_SESSION *session)
     const char *env;
     const char *userauth_list;
 
-    /* Ignore our hard-wired Dockerfile user when not running under Docker */
-    if(!openssh_fixture_have_docker()) {
+    /* Ignore our hard-wired Dockerfile user when not using a container */
+    if(!openssh_fixture_have_container()) {
         username = getenv("USER");
 #ifdef _WIN32
         if(!username)

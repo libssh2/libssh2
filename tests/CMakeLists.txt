@@ -35,10 +35,10 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "LIBSSH2_TESTS")
 list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
 libssh2_transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
-# Get DOCKER_TESTS, DOCKER_TESTS_STATIC, STANDALONE_TESTS, STANDALONE_TESTS_STATIC, SSHD_TESTS,
+# Get CONTAINER_TESTS, CONTAINER_TESTS_STATIC, STANDALONE_TESTS, STANDALONE_TESTS_STATIC, SSHD_TESTS,
 # librunner_la_SOURCES, EXTRA_DIST variables
 include("${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
-list(APPEND DOCKER_TESTS ${DOCKER_TESTS_STATIC})
+list(APPEND CONTAINER_TESTS ${CONTAINER_TESTS_STATIC})
 list(APPEND STANDALONE_TESTS ${STANDALONE_TESTS_STATIC})
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
@@ -71,8 +71,8 @@ target_include_directories(runner PRIVATE
 set_property(TARGET runner APPEND PROPERTY COMPILE_OPTIONS "${LIBSSH2_PICKY_C_FLAGS}")
 target_link_libraries(runner PRIVATE libssh2 ${LIBSSH2_LIBS})
 
-foreach(_test IN LISTS DOCKER_TESTS STANDALONE_TESTS SSHD_TESTS)
-  if(NOT ";${DOCKER_TESTS_STATIC};${STANDALONE_TESTS_STATIC};" MATCHES ";${_test};")
+foreach(_test IN LISTS CONTAINER_TESTS STANDALONE_TESTS SSHD_TESTS)
+  if(NOT ";${CONTAINER_TESTS_STATIC};${STANDALONE_TESTS_STATIC};" MATCHES ";${_test};")
     set(_lib_for_tests ${LIB_SELECTED})
   elseif(TARGET ${LIB_STATIC})
     set(_lib_for_tests ${LIB_STATIC})
@@ -81,7 +81,7 @@ foreach(_test IN LISTS DOCKER_TESTS STANDALONE_TESTS SSHD_TESTS)
     message(STATUS "Skip test requiring static libssh2 lib: ${_test}")
   endif()
 
-  # We support the same target as both Docker and SSHD test. Build those only once.
+  # We support the same target as both container and SSHD test. Build those only once.
   # Skip building tests that require the static lib when the static lib is not built.
   if(NOT TARGET ${_test} AND _lib_for_tests)
     add_executable(${_test} "${_test}.c")
@@ -104,10 +104,10 @@ foreach(_test IN LISTS DOCKER_TESTS STANDALONE_TESTS SSHD_TESTS)
   endif()
 endforeach()
 
-option(RUN_DOCKER_TESTS "Run tests requiring Docker" ON)
+option(RUN_DOCKER_TESTS "Run tests requiring container" ON)
 
 if(RUN_DOCKER_TESTS)
-  foreach(_test IN LISTS DOCKER_TESTS)
+  foreach(_test IN LISTS CONTAINER_TESTS)
     if(TARGET ${_test})
       add_test(NAME ${_test} COMMAND "$<TARGET_FILE:${_test}>")
       set_property(TEST ${_test} APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")

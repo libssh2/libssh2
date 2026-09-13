@@ -24,7 +24,7 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-name: 'OpenSSH Server Docker Image'
+name: 'OpenSSH Server Container Image'
 
 'on':
   push:
