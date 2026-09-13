@@ -223,6 +223,17 @@ static int start_openssh_server(char **container_id_out)
     }
 }
 
+static void openssh_server_dump_logs(char *container_id)
+{
+    char *logs = NULL;
+    int ret = run_command(&logs, "%s logs %s", container_cmd, container_id);
+    if(ret)
+        fprintf(stderr, "Failed to query server logs: %d\n", ret);
+    else
+        fprintf(stderr, "-----\n%s\n-----\n", logs);
+    free(logs);
+}
+
 static int stop_openssh_server(char *container_id)
 {
     if(container_cmd)
@@ -461,9 +472,11 @@ int start_openssh_fixture(void)
     }
 }
 
-void stop_openssh_fixture(void)
+void stop_openssh_fixture(int exit_code)
 {
     if(running_container_id) {
+        if(exit_code || 1)
+            openssh_server_dump_logs(running_container_id);
         stop_openssh_server(running_container_id);
         free(running_container_id);
         running_container_id = NULL;
