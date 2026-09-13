@@ -2402,7 +2402,7 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
                                             blob, blob_len, passphrase);
 }
 
-#if LIBSSH2_RSA_SHA2
+#if LIBSSH2_RSA
 int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                          size_t hash_len,
                          const unsigned char *sig, size_t sig_len,
@@ -2419,9 +2419,11 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
     algd.Public_Key_Alg = Qc3_RSA;
     algd.PKA_Block_Format = Qc3_PKCS1_01;
     switch(hash_len) {
+#if LIBSSH2_RSA_SHA1
     case SSH2_SHA1_DIG_LEN:
         algd.Signing_Hash_Alg = Qc3_SHA1;
         break;
+#endif
     case SSH2_SHA256_DIG_LEN:
         algd.Signing_Hash_Alg = Qc3_SHA256;
         break;
