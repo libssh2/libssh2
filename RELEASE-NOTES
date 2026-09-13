@@ -164,6 +164,7 @@ This release includes the following enhancements and bugfixes:
 - CI: drop redundant AppVeyor build jobs, limit building tests and examples (39cd3a82 #2051)
 - CI: dump `libssh2_config.h` to log (7e5b263b #1975)
 - CI: set `DO_NOT_TRACK=1` (c615272e #1872)
+- clang-tidy: enable `readability-redundant-casting`, fix/silence findings (da8d048d #2588 #2586)
 - clang-tidy: fix `readability-redundant-casting` findings (0b915eab #2586)
 - clang-tidy: enable `readability-redundant-nested-if`, fix findings (c4ae6510 #2585)
 - clang-tidy: enable `readability-misleading-indentation` (404e32a4 #2584)
@@ -262,6 +263,7 @@ This release includes the following enhancements and bugfixes:
 - crypt: fix length underflow on short chacha20-poly1305 packets (15257c08 #2389 GHSA-x4g5-mgfc-cxvv)
 - crypt: fix propagating `get_len()` error code in `ssh2_transport_read()` (12a8bda8 #2393 #2392 #1426 follow: 492bc543)
 - crypt: fix unused static function warnings when most crypto is disabled (a8dd5a2c #1981)
+- crypto: make `ssh2_bn_from_bin()` init the bignum, drop `ssh2_bn_init_from_bin()` (13e1042b #2594 #2583)
 - crypto: fix `LIBSSH2_NO_RSA` to explicitly disable both RSA SHA1/SHA2 (2042863d #2565 #2539)
 - crypto: propagate `session` to key alloc/free functions, switch to SSH2 allocator (5ef9591d #2559)
 - crypto: constify `ssh2_dh_validate()` args (199a4596 #2436 #2402 #2239)
@@ -291,6 +293,8 @@ This release includes the following enhancements and bugfixes:
 - dist: include CMake files individually, fix to include tests/cmake (476fd5a7 #2538 #1170 follow: 8715c3d5 follow: d48d7c3a)
 - docker-bridge.ps1: update AppVeyor CI external IP detection endpoint (c2bae821 #2010 #1947)
 - docker-bridge.sh: use long-form option, show failure, fail on error (528b0d6d)
+- Dockerfile: copy `ssh_host_*.pub` keys to avoid sshd warnings (e3f18532 #2614)
+- Dockerfile: drop repeating source filenames in the destination (7bf89e2b #2613)
 - Dockerfile: bump debian from trixie-20260713-slim to trixie-20260824-slim (995b230a #2569)
 - Dockerfile: bump debian from trixie-20260623-slim to trixie-20260713-slim (67654c8f #2476)
 - Dockerfile: bump to debian:trixie-20260623-slim (e75b4bae #2124)
@@ -300,6 +304,7 @@ This release includes the following enhancements and bugfixes:
 - Dockerfile: bump to debian:trixie-20260505-slim (587698cb #1926)
 - Dockerfile: pin Debian trixie image, enable Dependabot (d2230944 #1724)
 - Dockerfile: switch to Debian stable (f89406b5 #1595 #1594 #1591)
+- docs: update list of key types where necessary (65a93332 #2599)
 - docs: add missing man page for `libssh2_channel_signal()` (44a66e8f #1966 #991 #672 follow: a4544c01)
 - docs: move return type inline with the declarations (e85ce25b #1960 #1935)
 - docs: replace underscore with dash in `INSTALL*.md` filenames (34a292f9 #1876 #1724 #1713 #1617 #1599 #1508)
@@ -323,6 +328,11 @@ This release includes the following enhancements and bugfixes:
 - example/x11: fix messages, buffer sizes, error handling (5b734389 #1886 follow: 32080def)
 - example/x11: fix/simplify node removal (8eaef7c7 #1867 follow: 32080def)
 - example/x11: free session/cleanup (bb3c6bbf #1762)
+- GHA: bump cross-platform-actions, FreeBSD 14.5, enable DragonFly BSD (ff182c52 #2610 #1948)
+- GHA: switch a Linux job (with tests) to arm64 (ca8864db #2607 #2606)
+- GHA: use `cache-mode` (917f38bf #2601)
+- GHA: drop redundant shellcheck expression filter (1a1e62c5 #2602 #1609)
+- GHA: test WinCNG SCP/SFTP via curl runtests (bb8e0957 #2590 #804 #2583 #2049)
 - GHA: restore building examples in CodeQL jobs (d7e461a0 #2571 #2276)
 - GHA: bump GitHub Actions (1f35fe43 #2570)
 - GHA: bump cross-build-actions to 1.5.0 (99f17f4f #2567)
@@ -441,6 +451,8 @@ This release includes the following enhancements and bugfixes:
 - GHA/dependabot: minor fixes to prev (6c6ea30d #1724)
 - GHA/dependabot: fix Dockerfile path (d1ba043d #1724)
 - GHA/dependabot: fix pip directory (5dd317fa)
+- GHA/openssh_server: drop docker login Action, limit scope (f1572b28 #2616)
+- GHA/openssh_server: try with `qemu-user` (667f7cac #2606)
 - github: add LLM/AI usage warning to PR and bug report templates (80bfa8a2 #2048)
 - gitignore: compress rules (90a686ef)
 - HACKING-CRYPTO: move from docs to src, markdownify, update (db065d25 #2268)
@@ -469,6 +481,7 @@ This release includes the following enhancements and bugfixes:
 - INSTALL-CMAKE: update minimum version and links, drop old cmake instructions (fd43ce89 #1873 #1839)
 - INSTALL-CMAKE: fixes build result directories (98cd10d1 #1617)
 - keepalive: verify if `session` is non-NULL (4c8ff933 #2345)
+- kex: adjust type to drop casts for `ssh2_bn_bits()` value (c3c1743a #2593)
 - kex: disable SHA1-based methods by default (99f93535 #2443)
 - kex: replace magic number and `strlen()` with `sizeof()` (88c5fd98 #2400)
 - kex: fix misleading error codes returned by `ssh2_kex_exchange()` (b956943b #2399)
@@ -517,6 +530,7 @@ This release includes the following enhancements and bugfixes:
 - knownhost: fix for short hostnames (704299e9 #1500)
 - knownhost: improve known_hosts parsing and harden _libssh2_base64_encode() (d1c0e14d #1641)
 - knownhost: handle malformed comments in known_hosts parsing #1628 (aa4c7b5b #1629 #1628)
+- libgcrypt: fix `ssh2_bn_set_word()` return value (f0ac38ab #2596 #2595 #1354 follow: 95c824d5 follow: c9d40afa)
 - libgcrypt: tidy up variables names, S-expressions (f7335017 #2555)
 - libgcrypt: guard zero-length datum in `ssh2_dsa_sha1_sign()` (86adba14 #2534)
 - libgcrypt: reuse hash/hmac final code (88726a72 #2253 #2250)
@@ -597,10 +611,13 @@ This release includes the following enhancements and bugfixes:
 - misc: rename socket error variables to `sockerr` (d7698703 #2062)
 - misc: fix small leak in base64_encode() with empty data #1627 (cea8783e #1630 #1627)
 - misc: _libssh2_base64_decode() handle malformed data (8cad398b #1551)
+- openssh_fixture: drop `docker-machine ip` logic (86dca4ef #2611 #2609 #100 follow: cf80f2f4)
 - openssh_fixture: fix `ssh2_snprintf()` result check (38caa44a #2157 #489 follow: ac13b70a)
 - openssh_fixture: trim all right-padding whitespace from external command results (879aac02 #2142 follow: cf80f2f4)
 - openssh_fixture: increase `/proc/self/cgroup` read buffer (revert) (540f248c)
 - openssh_fixture: increase `/proc/self/cgroup` read buffer (826c9f09 #1688)
+- openssh_server: build container for arm64 also, fix Dockerfile for trixie (7d9d0f8d #2606)
+- openssl: make `ssh2_bn_bytes()`/`ssh2_bn_bits()` return `size_t` (b766778c #2592)
 - openssl: bail out early on bignum OOM in `ssh2_rsa_new()`, `ssh2_dsa_new()` with OpenSSL 3+ (eabe683e #2566 #2564 #1207 follow: b0ab005f)
 - openssl: replace OpenSSL allocator with the SSH2 one in `ssh2_rsa_new()`, `ssh2_dsa_new()` (8aeee000 #2564 #2559 #2548 #1207 follow: b0ab005f)
 - openssl: pass `session` to `ssh2_ecdsa_curve_name_with_octal_new()`, use SSH2 allocators (47cb2605 #2549 #2544)
@@ -777,6 +794,8 @@ This release includes the following enhancements and bugfixes:
 - sftp: add input bounds checking to SFTP API (ff50682c #1679)
 - spacecheck: cap max lines per file, use single-quotes (3a189abe #2480)
 - spacecheck: update, fix new issues found (95d7a8b9 #1851)
+- spellcheck.sh: exclude test keys to avoid false positives (520087ac #2615)
+- src: constify arguments where feasible (8e181e7a #2589)
 - src: propagate `session` to replace bare allocators with SSH2 ones (a2ac6bd4 #2544)
 - src: check mingw-w64 version requirement (dc745585 #2535 #1919)
 - src: de-duplicate two byte swap functions into `ssh2_swap_bytes()` (0acd2f56 #2524)
@@ -841,6 +860,7 @@ This release includes the following enhancements and bugfixes:
 - src: move outlier leading `&&` and `||` to the end of lines (3865eabe #1767)
 - src: fix two NULL checks (openssl, userauth) (51b35d1b #1656 #698 #1314 follow: 3a6ab70d follow: ed439a29)
 - src: disable deprecated algos by default (b89858b8 #1531)
+- sshd_config: drop accidental ML-DSA change (781b6ca8 #2615)
 - sshd_config: enable legacy KEXs for Libgcrypt and WinCNG, drop workarounds (1d0b86ac #2484 #2174 #1720)
 - sshd_config: enable `ssh-rsa-cert-v01@openssh.com` more (5b494b04 #2478 #2474)
 - test_auth_keyboard_info_request: delete unused `free_count` variable (1c9ff814 #2554 #663 follow: 83853f8a)
@@ -850,13 +870,19 @@ This release includes the following enhancements and bugfixes:
 - test_hostkey_hash: fix `-Wformat-truncation` with gcc-16 (36d38812 #2099 #2096)
 - test_hostkey_hash: silence `-Wformat-truncation` in `calculate_digest()` (837ce2f1 #2096)
 - test_read: fix to close and free channel on error (a1d2ca5d #2108)
+- test_simple: make `test_ssh2_dh_validate()` portable (a951e066 #2595 #2239)
 - test_simple: cast to avoid `-Wsign-conversion` (clang-tidy) (764de73f #2418 #2417 #2239)
 - test_simple: fix to check test result (4013a3fe #1973)
 - test_ssh2: fix to free channel on `libssh2_channel_shell()` fail (5569c5b6 #2109)
 - test_ssh2: fix detecting connect failure (2e69ba25 #1854)
 - test_ssh2, examples: bump to SHA-256 fingerprints (6f3c640d #2445)
 - test_ssh2, examples: avoid crash on NULL fingerprint (f784c21d #2179 #2174)
+- test_sshd.test: add RSA and ECDSA `HostCertificate` options (7498e661 #2612 #2539)
 - test_sshd.test: sync an option with `sshd_config` used in `Dockerfile` (cae4e3f8 #2481 #1024 follow: d4690e95)
+- tests: add ML-DSA host keys (not used or supported by libssh2) (5c50ea8a #2615)
+- tests: add support for `podman`, Apple `container` (9bd1f16d #2605)
+- tests: replace DSA with RSA key for fail test (b937ded9 #2604)
+- tests: drop WinCNG retry workarounds (5bfa5744 #2603 #804 #2583 #1023 follow: bc120a34)
 - tests: add script to dump test keys in more parsable formats (ceb15801 #2574)
 - tests: add tests for signed hostkey: `ssh-ed25519-cert-v01@openssh.com` (6036e577 #2513 #2435 #2434 #2064)
 - tests: rename CA keys to reflect they are user keys (19aa4338 #2512)
@@ -888,6 +914,7 @@ This release includes the following enhancements and bugfixes:
 - tests: delete CMake ExternalProject integration test (8011f901 #1522 #1510 #1116)
 - tests/.gitignore: delete two stray entries (1bc6e2c3 #1718)
 - tests/openssh_fixture: fix to close socket on connect failure (5ddc5997 #1855)
+- tidy-up: prefer term 'container' over 'docker' (2ded2f95 #2609 #2605)
 - tidy-up: miscellaneous (be937743 #2556)
 - tidy-up: version-related comments and messages (9a0b40af #1866 #827 #811 #1620 #1619 #1610 #1592 #1591 #1590 #1589 #1535 #1128)
 - tidy-up: miscellaneous (532ba6dc #2526)
@@ -996,6 +1023,8 @@ This release includes the following enhancements and bugfixes:
 - vms/man2help: make functions static (b599ff5e)
 - vms/man2help: add missing void return type to prototype (aa45503a)
 - vms/man2help: misc fixes (3ec2920b #1902)
+- wincng: fix builds with RSA and DSA disabled (3f26c15b #2600)
+- wincng: normalize fixed-width DH values before mpint encoding (f216bbe3 #2583 #804 #2590)
 - wincng: rename local private key parsing functions to share a suffix (e09f8111 #2575)
 - wincng: constify static function arguments, where missing (e655d94a #2561)
 - wincng: fix allow/free mismatch with `wcng_load_priv()` return buffers (48eb7c9f #2560 follow: d385230e)
@@ -1058,16 +1087,16 @@ advice from friends like these:
   hyunjiHong on github, Jacob Barthelmeh, Jay Satiro, Jim B, Joren Afman,
   Josh Brobst, Joshua Rogers, Justin Smith, Kai Pastor, Karnakar Reddy,
   Kian Kasad, Kit Knox, Krisscut on github, Lars Nordin, Liu Xing Yu,
-  Lucas Queiroz, Lukas Dürrenberger, manus-use on github, manusjs on github,
-  Marc Hörsken, Marcel Raad, Martin Nowak, Mateusz Gierblinski,
-  Michael Buckley, Mухтар Воблоев, nnarayanamurthy on github, Nora-Qiu,
-  Oblivionsage, Oliver Chang, Omkar Bhor, oss-patch, Pascal Neuperger,
-  Patrick Monnerat, Paul Howarth, Pedro Masteguin, Pier Carlo Cadoppi,
-  Pramod Kumar, pyscripter on github, QcN3ep, R6502 on github (Michael),
-  Rainer Jung, Ralf Mueller, Raul Tambre, RELAUNCH DEPT., RuiZhi Zhang,
-  Ryan Kelley, Sebastien Tardif, Seojun Lee, sergey1369, Sharique Raza,
-  skuodi on github, Stanislav Osipov, Stephan Eggermont, syed abdul khaliq,
-  timelyslot on gitHub, TristanInSec, trustytrojan, Trzik on github,
-  Viktor Szakats, Vladimir Eli Tokarev, vnth4nhnt from CyStack,
-  Wilfried Pascault, Will Cosgrove, yaotushaozhu on github, Yaroslav Rosomakho,
-  Ze Sheng
+  Lucas Queiroz, Lukas Dürrenberger, lv2dev, manus-use on github,
+  manusjs on github, Marc Hörsken, Marcel Raad, Martin Nowak,
+  Mateusz Gierblinski, Michael Buckley, Mухтар Воблоев,
+  nnarayanamurthy on github, Nora-Qiu, Oblivionsage, Oliver Chang, Omkar Bhor,
+  oss-patch, Pascal Neuperger, Patrick Monnerat, Paul Howarth, Pedro Masteguin,
+  Pier Carlo Cadoppi, Pramod Kumar, pyscripter on github, QcN3ep,
+  R6502 on github (Michael), Rainer Jung, Ralf Mueller, Raul Tambre,
+  RELAUNCH DEPT., RuiZhi Zhang, Ryan Kelley, Sebastien Tardif, Seojun Lee,
+  sergey1369, Sharique Raza, skuodi on github, Stanislav Osipov,
+  Stephan Eggermont, syed abdul khaliq, timelyslot on gitHub, TristanInSec,
+  trustytrojan, Trzik on github, Viktor Szakats, Vladimir Eli Tokarev,
+  vnth4nhnt from CyStack, Wilfried Pascault, Will Cosgrove,
+  yaotushaozhu on github, Yaroslav Rosomakho, Ze Sheng
