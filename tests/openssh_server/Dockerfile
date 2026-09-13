@@ -29,6 +29,10 @@ COPY ssh_host_ed25519_key.pub /etc/ssh/
 COPY ssh_host_ed25519_key /tmp/etc/ssh/
 RUN install -m 0600 /tmp/etc/ssh/ssh_host_ed25519_key /etc/ssh/
 
+COPY ssh_host_mldsa44-ed25519_key.pub /etc/ssh/
+COPY ssh_host_mldsa44-ed25519_key /tmp/etc/ssh/
+RUN install -m 0600 /tmp/etc/ssh/ssh_host_mldsa44-ed25519_key /etc/ssh/
+
 # Host certificates
 COPY ssh_host_rsa_key-cert.pub /tmp/etc/ssh/
 RUN install -m 0644 /tmp/etc/ssh/ssh_host_rsa_key-cert.pub /etc/ssh/
@@ -38,6 +42,9 @@ RUN install -m 0644 /tmp/etc/ssh/ssh_host_ecdsa_key-cert.pub /etc/ssh/
 
 COPY ssh_host_ed25519_key-cert.pub /tmp/etc/ssh/
 RUN install -m 0644 /tmp/etc/ssh/ssh_host_ed25519_key-cert.pub /etc/ssh/
+
+COPY ssh_host_mldsa44-ed25519_key-cert.pub /tmp/etc/ssh/
+RUN install -m 0644 /tmp/etc/ssh/ssh_host_mldsa44-ed25519_key-cert.pub /etc/ssh/
 
 # Trusted user CA keys
 COPY ca_user_keys.pub /tmp/etc/ssh/
@@ -55,6 +62,7 @@ RUN echo 'TrustedUserCAKeys /etc/ssh/ca_user_keys.pub' >> /etc/ssh/sshd_config
 RUN echo 'HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub' >> /etc/ssh/sshd_config
 RUN echo 'HostCertificate /etc/ssh/ssh_host_ecdsa_key-cert.pub' >> /etc/ssh/sshd_config
 RUN echo 'HostCertificate /etc/ssh/ssh_host_ed25519_key-cert.pub' >> /etc/ssh/sshd_config
+RUN echo 'HostCertificate /etc/ssh/ssh_host_mldsa44-ed25519_key-cert.pub' >> /etc/ssh/sshd_config
 
 # SSH login fix. Otherwise user is kicked off after login
 RUN sed 's/session\s*required\s*pam_loginuid.so/session optional pam_loginuid.so/g' -i /etc/pam.d/sshd
