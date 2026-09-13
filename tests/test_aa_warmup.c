@@ -17,7 +17,7 @@ int test(LIBSSH2_SESSION *session)
     (void)hostkey;
 
     fprintf(stdout,
-            "libssh2_session_hostkey returned len, type: %ld, %d\n",
+            "libssh2_session_hostkey() returned len, type: %ld, %d\n",
             (long)len, type);
 
     return 0;  /* always return success */

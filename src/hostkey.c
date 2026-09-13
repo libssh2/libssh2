@@ -39,7 +39,7 @@
  ********* */
 
 /*
- * Shutdown the hostkey
+ * Shutdown the host key
  */
 static int hostkey_method_ssh_rsa_dtor(LIBSSH2_SESSION *session,
                                        void **abstract)
@@ -55,7 +55,7 @@ static int hostkey_method_ssh_rsa_dtor(LIBSSH2_SESSION *session,
 }
 
 /*
- * Initialize the server hostkey working area with e/n pair
+ * Initialize the server host key working area with e/n pair
  */
 static int hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
                                        const unsigned char *hostkey_data,
@@ -357,7 +357,7 @@ static const struct hostkey_method hostkey_method_ssh_rsa_sha2_512 = {
 
 #if LIBSSH2_RSA_SHA1 || LIBSSH2_RSA_SHA2
 /*
- * Initialize the server hostkey cert.
+ * Initialize the server host key cert.
  *
  * OpenSSH certificate format (PROTOCOL.certkeys):
  *   string    "ssh-rsa-cert-v01@openssh.com"
@@ -465,7 +465,7 @@ static const struct hostkey_method hostkey_method_ssh_rsa_sha2_512_cert = {
  ********* */
 
 /*
- * Shutdown the hostkey method
+ * Shutdown the host key method
  */
 static int hostkey_method_ssh_dss_dtor(LIBSSH2_SESSION *session,
                                        void **abstract)
@@ -481,7 +481,7 @@ static int hostkey_method_ssh_dss_dtor(LIBSSH2_SESSION *session,
 }
 
 /*
- * Initialize the server hostkey working area with p/q/g/y set
+ * Initialize the server host key working area with p/q/g/y set
  */
 static int hostkey_method_ssh_dss_init(LIBSSH2_SESSION *session,
                                        const unsigned char *hostkey_data,
@@ -638,7 +638,7 @@ static const struct hostkey_method hostkey_method_ssh_dss = {
  ***************************** */
 
 /*
- * Shutdown the hostkey by freeing EC_KEY context
+ * Shutdown the host key by freeing EC_KEY context
  */
 static int hostkey_method_ssh_ecdsa_dtor(LIBSSH2_SESSION *session,
                                          void **abstract)
@@ -654,7 +654,7 @@ static int hostkey_method_ssh_ecdsa_dtor(LIBSSH2_SESSION *session,
 }
 
 /*
- * Initialize the server hostkey working area with e/n pair
+ * Initialize the server host key working area with e/n pair
  */
 static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
                                          const unsigned char *hostkey_data,
@@ -874,7 +874,7 @@ static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp521 = {
 };
 
 /*
- * Initialize the server hostkey cert.
+ * Initialize the server host key cert.
  *
  * OpenSSH certificate format (PROTOCOL.certkeys):
  *   string    "ecdsa-sha2-nistpXXX-cert-v01@openssh.com"
@@ -919,7 +919,7 @@ static int hostkey_method_ssh_ecdsa_init_cert(
     if(ssh2_get_chars(&buf, &type_str, &type_len))
         return -1;
 
-    /* cert type string must match the negotiated hostkey method */
+    /* cert type string must match the negotiated host key method */
     if(type_len != strlen(session->hostkey->name) ||
        strncmp(type_str, session->hostkey->name, type_len))
         return -1;
@@ -1013,7 +1013,7 @@ static const struct hostkey_method hostkey_method_ecdsa_ssh_nistp521_cert = {
  ********* */
 
 /*
- * Shutdown the hostkey by freeing key context
+ * Shutdown the host key by freeing key context
  */
 static int hostkey_method_ssh_ed25519_dtor(LIBSSH2_SESSION *session,
                                            void **abstract)
@@ -1029,7 +1029,7 @@ static int hostkey_method_ssh_ed25519_dtor(LIBSSH2_SESSION *session,
 }
 
 /*
- * Initialize the server hostkey working area with e/n pair
+ * Initialize the server host key working area with e/n pair
  */
 static int hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION *session,
                                            const unsigned char *hostkey_data,
@@ -1074,7 +1074,7 @@ static int hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION *session,
 }
 
 /*
- * Initialize the server hostkey cert
+ * Initialize the server host key cert
  */
 static int hostkey_method_ssh_ed25519_init_cert(
     LIBSSH2_SESSION *session,
