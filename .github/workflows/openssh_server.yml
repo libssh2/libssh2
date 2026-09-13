@@ -95,5 +95,5 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: 'docker logout (ghcr.io)'
-        if: ${{ steps.poll.outcome == 'failure' }}
+        if: ${{ always() && steps.poll.outcome == 'failure' }}
         run: docker logout ghcr.io
