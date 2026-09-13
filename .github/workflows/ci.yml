@@ -1201,16 +1201,16 @@ jobs:
       matrix:
         include:
           # https://github.com/DragonFlyBSD/DPorts
-          # { os: 'dragonflybsd', version: '6.4.2', build: 'AM', arch: 'x86_64', cc: 'gcc'  , desc: 'libgcrypt skiprun',
-          #   install: 'autoconf automake libtool libgcrypt',
-          #   options: '--with-crypto=libgcrypt --with-libgcrypt-prefix=/usr/local' }
+          - { os: 'dragonflybsd', version: '6.4.2', build: 'AM', arch: 'x86_64', cc: 'gcc'  , desc: 'libgcrypt skiprun',
+              install: 'autoconf automake libtool libgcrypt',
+              options: '--with-crypto=libgcrypt --with-libgcrypt-prefix=/usr/local' }
 
           # https://ports.freebsd.org/
           - { os: 'freebsd'     , version: '15.1',  build: 'AM', arch: 'x86_64', cc: 'clang', desc: 'openssl',
               install: 'autoconf automake libtool gettext',
               options: '--with-crypto=openssl' }
 
-          - { os: 'freebsd'     , version: '14.3',  build: 'CM', arch: 'arm64' , cc: 'clang', desc: 'openssl skiprun',
+          - { os: 'freebsd'     , version: '14.5',  build: 'CM', arch: 'arm64' , cc: 'clang', desc: 'openssl skiprun',
               install: 'cmake-core ninja',
               options: '-DCRYPTO_BACKEND=OpenSSL' }
 
@@ -1242,7 +1242,7 @@ jobs:
           persist-credentials: false
 
       - name: 'setup VM'
-        uses: cross-platform-actions/action@faa0c6197e94aacf1c5956460152c8380d3560a5 # v1.5.0
+        uses: cross-platform-actions/action@e0b9770014ba65d5e0815f15b74031c3a635f641 # v1.6.0
         with:
           environment_variables: 'CC CURL_CI CURL_TEST_MIN DO_NOT_TRACK MAKEFLAGS MATRIX_BUILD MATRIX_INSTALL MATRIX_OPTIONS MATRIX_OS'
           operating_system: '${{ matrix.os }}'
