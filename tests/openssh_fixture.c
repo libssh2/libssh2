@@ -245,9 +245,6 @@ static int stop_openssh_server(char *container_id)
 
 static const char *container_machine_name(void)
 {
-    const char *env = getenv("FIXTURE_CONTAINER_MACHINE_NAME");
-    if(env)
-        return env;
     return getenv("DOCKER_MACHINE_NAME");  /* for compatibility */
 }
 
