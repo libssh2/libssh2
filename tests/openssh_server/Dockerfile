@@ -17,12 +17,15 @@ RUN [ -d /var/run/sshd ] || mkdir /var/run/sshd
 # no effect (Docker AUFS-related bug maybe?)
 
 # Host keys
+COPY ssh_host_rsa_key.pub /etc/ssh/
 COPY ssh_host_rsa_key /tmp/etc/ssh/
 RUN install -m 0600 /tmp/etc/ssh/ssh_host_rsa_key /etc/ssh/
 
+COPY ssh_host_ecdsa_key.pub /etc/ssh/
 COPY ssh_host_ecdsa_key /tmp/etc/ssh/
 RUN install -m 0600 /tmp/etc/ssh/ssh_host_ecdsa_key /etc/ssh/
 
+COPY ssh_host_ed25519_key.pub /etc/ssh/
 COPY ssh_host_ed25519_key /tmp/etc/ssh/
 RUN install -m 0600 /tmp/etc/ssh/ssh_host_ed25519_key /etc/ssh/
 
