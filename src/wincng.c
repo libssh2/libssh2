@@ -3226,7 +3226,7 @@ int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
                                  0, &secret_len_bytes, 0);
         if(!BCRYPT_SUCCESS(status)) {
             if(status == STATUS_NOT_SUPPORTED)
-                ssh2_wcng.hasAlgDHwithKDF = -1;  /* Windows 8/2012 or older */
+                ssh2_wcng.hasAlgDHwithKDF = -1;  /* Windows 10/2016 or older */
             goto out;
         }
 
@@ -3243,7 +3243,7 @@ int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
                                  &secret_len_bytes, 0);
         if(!BCRYPT_SUCCESS(status)) {
             if(status == STATUS_NOT_SUPPORTED)
-                ssh2_wcng.hasAlgDHwithKDF = -1;  /* Windows 8/2012 or older */
+                ssh2_wcng.hasAlgDHwithKDF = -1;  /* Windows 10/2016 or older */
             goto out;
         }
 
