@@ -44,6 +44,5 @@ int main(void)
         exit_code = 0;
     }
     stop_session_fixture();
-
     return exit_code;
 }
