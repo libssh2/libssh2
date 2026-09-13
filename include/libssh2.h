@@ -975,7 +975,7 @@ LIBSSH2_API int libssh2_channel_handle_extended_data2(LIBSSH2_CHANNEL *channel,
 #ifndef LIBSSH2_NO_DEPRECATED
 /* For backwards compatibility with version 0.1.
  *
- * Future uses should use libssh2_channel_handle_extended_data() directly if
+ * Future uses should use libssh2_channel_handle_extended_data2() directly if
  * LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE is passed, extended data is read
  * (FIFO) from the standard data channel
  */
