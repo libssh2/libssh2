@@ -753,7 +753,7 @@ jobs:
       - uses: cygwin/cygwin-install-action@3f0a3f9f988f7e96b8c18098ae05eaec175f5b52 # v6.0.2
         with:
           platform: ${{ matrix.platform }}
-          packages: ${{ matrix.build == 'AM' && 'autoconf automake libtool make' || 'cmake ninja' }} gcc-core gcc-g++ binutils libssl-devel zlib-devel
+          packages: ${{ matrix.build == 'AM' && 'autoconf-15.3 automake libtool make' || 'cmake ninja' }} gcc-core gcc-g++ binutils libssl-devel zlib-devel
           site: https://mirrors.kernel.org/sourceware/cygwin/
           work-vol: 'D:'
 
