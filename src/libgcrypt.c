@@ -149,12 +149,15 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
     if(!hash)
         return -1;
 
+#if LIBSSH2_RSA_SHA1
     if(hash_len == SSH2_SHA1_DIG_LEN) {
         gcry_md_hash_buffer(GCRY_MD_SHA1, hash, m, m_len);
         algo = "sha1";
         ret = 0;
     }
-    else if(hash_len == SSH2_SHA256_DIG_LEN) {
+    else
+#endif
+    if(hash_len == SSH2_SHA256_DIG_LEN) {
         gcry_md_hash_buffer(GCRY_MD_SHA256, hash, m, m_len);
         algo = "sha256";
         ret = 0;
@@ -447,9 +450,12 @@ int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
     unsigned char *out_sig;
     int ret = -1;
 
+#if LIBSSH2_RSA_SHA1
     if(hash_len == SSH2_SHA1_DIG_LEN)
         algo = "sha1";
-    else if(hash_len == SSH2_SHA256_DIG_LEN)
+    else
+#endif
+    if(hash_len == SSH2_SHA256_DIG_LEN)
         algo = "sha256";
     else if(hash_len == SSH2_SHA512_DIG_LEN)
         algo = "sha512";

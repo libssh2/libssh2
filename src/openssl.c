@@ -367,11 +367,14 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
     if(!hash)
         return -1;
 
+#if LIBSSH2_RSA_SHA1
     if(hash_len == SSH2_SHA1_DIG_LEN) {
         nid_type = NID_sha1;
         ret = ssh2_hash(SSH2_SHA1_ALG, m, m_len, hash, hash_len);
     }
-    else if(hash_len == SSH2_SHA256_DIG_LEN) {
+    else
+#endif
+    if(hash_len == SSH2_SHA256_DIG_LEN) {
         nid_type = NID_sha256;
         ret = ssh2_hash(SSH2_SHA256_ALG, m, m_len, hash, hash_len);
     }
@@ -394,9 +397,12 @@ int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
 
     ctx = EVP_PKEY_CTX_new(rsa, NULL);
 
+#if LIBSSH2_RSA_SHA1
     if(nid_type == NID_sha1)
         md = EVP_sha1();
-    else if(nid_type == NID_sha256)
+    else
+#endif
+    if(nid_type == NID_sha256)
         md = EVP_sha256();
     else if(nid_type == NID_sha512)
         md = EVP_sha512();
@@ -2211,9 +2217,12 @@ int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
         return -1;
 
 #ifdef USE_OPENSSL_3
+#if LIBSSH2_RSA_SHA1
     if(hash_len == SSH2_SHA1_DIG_LEN)
         md = EVP_sha1();
-    else if(hash_len == SSH2_SHA256_DIG_LEN)
+    else
+#endif
+    if(hash_len == SSH2_SHA256_DIG_LEN)
         md = EVP_sha256();
     else if(hash_len == SSH2_SHA512_DIG_LEN)
         md = EVP_sha512();
@@ -2234,10 +2243,13 @@ int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
             EVP_PKEY_CTX_free(ctx);
     }
 #else
+#if LIBSSH2_RSA_SHA1
     if(hash_len == SSH2_SHA1_DIG_LEN)
         ret = RSA_sign(NID_sha1,
                        hash, (unsigned int)hash_len, sig, &sig_len, rsa);
-    else if(hash_len == SSH2_SHA256_DIG_LEN)
+    else
+#endif
+    if(hash_len == SSH2_SHA256_DIG_LEN)
         ret = RSA_sign(NID_sha256,
                        hash, (unsigned int)hash_len, sig, &sig_len, rsa);
     else if(hash_len == SSH2_SHA512_DIG_LEN)
