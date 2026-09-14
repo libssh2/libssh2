@@ -605,7 +605,7 @@ jobs:
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             export OPENSSH_SERVER_IMAGE; OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
             [ -d "$HOME"/usr ] && export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/usr/lib"
-            cd bld && ctest --parallel 10 -VV --output-on-failure
+            cd bld && ctest --parallel 20 -VV --output-on-failure
           else
             make -C bld check V=1 || { cat bld/tests/*.log; false; }
           fi
