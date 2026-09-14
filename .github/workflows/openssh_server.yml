@@ -30,6 +30,9 @@ name: 'OpenSSH Server Container Image'
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.sha }}
@@ -46,7 +49,7 @@ jobs:
     runs-on: ubuntu-26.04
     permissions:
       contents: read   # To comply with https://docs.github.com/en/actions/tutorials/publish-packages/publish-docker-images
-      packages: write  # To create/update container
+    # packages: write  # To create/update container
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -79,11 +82,11 @@ jobs:
           tags: |
             type=raw,value=${{ steps.hash.outputs.hash }}
 
-      - name: 'docker login (ghcr.io)'
-        if: ${{ steps.poll.outcome == 'failure' }}
-        env:
-          GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-        run: echo "${GH_TOKEN}" | docker login -u "${GITHUB_REPOSITORY_OWNER}" --password-stdin ghcr.io
+      # name: 'docker login (ghcr.io)'
+      # if: ${{ steps.poll.outcome == 'failure' }}
+      # env:
+      #   GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+      # run: echo "${GH_TOKEN}" | docker login -u "${GITHUB_REPOSITORY_OWNER}" --password-stdin ghcr.io
 
       - uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         if: ${{ steps.poll.outcome == 'failure' }}
@@ -94,6 +97,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: 'docker logout (ghcr.io)'
-        if: ${{ always() && steps.poll.outcome == 'failure' }}
-        run: docker logout ghcr.io
+      # name: 'docker logout (ghcr.io)'
+      # if: ${{ always() && steps.poll.outcome == 'failure' }}
+      # run: docker logout ghcr.io
