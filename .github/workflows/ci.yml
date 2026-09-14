@@ -605,7 +605,7 @@ jobs:
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             export OPENSSH_SERVER_IMAGE; OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
             [ -d "$HOME"/usr ] && export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/usr/lib"
-            cd bld && ctest -VV --output-on-failure
+            cd bld && ctest --parallel -VV --output-on-failure
           else
             make -C bld check V=1 || { cat bld/tests/*.log; false; }
           fi
@@ -815,7 +815,7 @@ jobs:
         run: |
           PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
-            cd bld && ctest -VV --output-on-failure
+            cd bld && ctest --parallel -VV --output-on-failure
           else
             make -C bld check V=1 || { cat bld/tests/*.log; false; }
           fi
@@ -965,7 +965,7 @@ jobs:
         run: |
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             if [ "${MATRIX_TEST}" != 'uwp' ]; then  # UWP missing 'msvcr120_app.dll', fails with exit code 0xc0000135
-              cd bld && ctest -VV --output-on-failure
+              cd bld && ctest --parallel -VV --output-on-failure
             fi
           else
             make -C bld check V=1 || { cat bld/tests/*.log; false; }
@@ -1064,7 +1064,7 @@ jobs:
         # UWP binaries require a CRT DLL that is not found. Static CRT not supported.
         if: ${{ matrix.arch != 'arm64' && matrix.plat != 'uwp' }}
         timeout-minutes: 10
-        run: cd bld && ctest -VV -C "${MATRIX_TYPE}" --output-on-failure
+        run: cd bld && ctest --parallel -VV -C "${MATRIX_TYPE}" --output-on-failure
 
       - name: 'build examples'
         run: cmake --build bld --config "${MATRIX_TYPE}" --parallel 5 --target libssh2-examples-build
@@ -1172,7 +1172,7 @@ jobs:
         timeout-minutes: 10
         run: |
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
-            cd bld && ctest -VV --output-on-failure
+            cd bld && ctest --parallel -VV --output-on-failure
           else
             make -C bld check V=1 || { cat bld/tests/*.log; false; }
           fi
