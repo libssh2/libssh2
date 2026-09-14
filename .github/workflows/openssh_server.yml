@@ -91,7 +91,7 @@ jobs:
       - name: 'build container'
         env:
           HASH: '${{ steps.hash.outputs.hash }}'
-          TRACE_1: '${{ steps.meta.outputs.tags }}'
+          TRACE_1: '${{ steps.meta.outputs.tags }}'  # ghcr.io/libssh2/ci_tests_openssh_server:fe54a727ef5d034d49
           TRACE_2: '${{ steps.meta.outputs.labels }}'
         run: |
           echo '---------------'
@@ -103,15 +103,15 @@ jobs:
           echo '---------------'
           docker buildx build \
             --iidfile ~/iid.txt \
-            --label org.opencontainers.image.description=the SSH library \
+            --label org.opencontainers.image.description='the SSH library' \
             --label org.opencontainers.image.licenses=BSD-3-Clause \
-            --label org.opencontainers.image.revision=${GITHUB_SHA} \
-            --label org.opencontainers.image.source=https://github.com/libssh2/libssh2 \
+            --label org.opencontainers.image.revision="${GITHUB_SHA}" \
+            --label org.opencontainers.image.source="${GITHUB_SERVER_UR}/${GITHUB_REPOSITORY}" \
             --label org.opencontainers.image.title=libssh2 \
-            --label org.opencontainers.image.url=https://github.com/libssh2/libssh2 \
-            --label org.opencontainers.image.version=${HASH} \
+            --label org.opencontainers.image.url="${GITHUB_SERVER_UR}/${GITHUB_REPOSITORY}" \
+            --label org.opencontainers.image.version="${HASH}" \
             --platform linux/amd64,linux/arm64 \
-            --tag ghcr.io/libssh2/ci_tests_openssh_server:${HASH} \
+            --tag "ghcr.io/libssh2/ci_tests_openssh_server:${HASH}" \
             ./tests/openssh_server  # --push
           docker inspect "$(cat ~/iid.txt)"
 
