@@ -88,14 +88,29 @@ jobs:
       #   GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
       # run: echo "${GH_TOKEN}" | docker login -u "${GITHUB_REPOSITORY_OWNER}" --password-stdin ghcr.io
 
-      - uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
-        if: ${{ steps.poll.outcome == 'failure' }}
-        with:
-          platforms: linux/amd64,linux/arm64
-          context: ./tests/openssh_server
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+      - name: 'build container'
+        env:
+          HASH: '${{ steps.hash.outputs.hash }}'
+          TRACE_1: '${{ steps.meta.outputs.tags }}'
+          TRACE_2: '${{ steps.meta.outputs.labels }}'
+        run: |
+          echo '---------------'
+          echo "${TRACE_1}"
+          echo '---------------'
+          echo "${TRACE_2}"
+          echo '---------------'
+          docker buildx build \
+            --iidfile ~/iid.txt \
+            --label org.opencontainers.image.description=the SSH library \
+            --label org.opencontainers.image.licenses=BSD-3-Clause \
+            --label org.opencontainers.image.revision=${GITHUB_SHA} \
+            --label org.opencontainers.image.source=https://github.com/libssh2/libssh2 \
+            --label org.opencontainers.image.title=libssh2 \
+            --label org.opencontainers.image.url=https://github.com/libssh2/libssh2 \
+            --label org.opencontainers.image.version=${HASH} \
+            --platform linux/amd64,linux/arm64 \
+            --tag ghcr.io/libssh2/ci_tests_openssh_server:${HASH} \
+            ./tests/openssh_server  # --push
 
       # name: 'docker logout (ghcr.io)'
       # if: ${{ always() && steps.poll.outcome == 'failure' }}
