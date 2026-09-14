@@ -99,6 +99,8 @@ jobs:
           echo '---------------'
           echo "${TRACE_2}"
           echo '---------------'
+          env | grep -F GITHUB_ || true
+          echo '---------------'
           docker buildx build \
             --iidfile ~/iid.txt \
             --label org.opencontainers.image.description=the SSH library \
@@ -111,6 +113,7 @@ jobs:
             --platform linux/amd64,linux/arm64 \
             --tag ghcr.io/libssh2/ci_tests_openssh_server:${HASH} \
             ./tests/openssh_server  # --push
+          docker inspect "$(cat ~/iid.txt)"
 
       # name: 'docker logout (ghcr.io)'
       # if: ${{ always() && steps.poll.outcome == 'failure' }}
