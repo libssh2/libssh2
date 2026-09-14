@@ -1077,6 +1077,7 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 10
     env:
+      MAKEFLAGS: -j 4
       MATRIX_BUILD: '${{ matrix.build }}'
       MATRIX_INSTALL: '${{ matrix.crypto.install }}'
     strategy:
