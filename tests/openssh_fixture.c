@@ -179,26 +179,11 @@ static int build_openssh_server_container_image(void)
                     return ret;
             }
         }
-        run_command(NULL,
-                    "%s build --quiet --tag libssh2/openssh_server "
-                    "--file %s %s", container_cmd,
-                    srcdir_path("openssh_server/Containerfile"),
-                    srcdir_path("openssh_server"));
-
-        {
-            char *out = NULL;
-            int ret = run_command(&out, "%s run --tty "
-                                  "libssh2/openssh_server "
-                                  "ls -lA /etc/ssh", container_cmd);
-            if(ret)
-                fprintf(stderr, "Failed to ls: %d\n", ret);
-            else
-                fprintf(stderr,
-                        "----- debug ------\n%s\n"
-                        "------------------\n", out);
-            free(out);
-            return ret;
-        }
+        return run_command(NULL,
+                           "%s build --quiet --tag libssh2/openssh_server "
+                           "--file %s %s", container_cmd,
+                           srcdir_path("openssh_server/Containerfile"),
+                           srcdir_path("openssh_server"));
     }
     else
         return 0;
