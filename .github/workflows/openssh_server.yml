@@ -74,46 +74,32 @@ jobs:
           sudo apt-get -o Dpkg::Use-Pty=0 install \
             qemu-user
 
-      - uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
-        if: ${{ steps.poll.outcome == 'failure' }}
-        id: meta
-        with:
-          images: ghcr.io/${{ github.repository_owner }}/ci_tests_openssh_server
-          tags: |
-            type=raw,value=${{ steps.hash.outputs.hash }}
-
       # name: 'docker login (ghcr.io)'
       # if: ${{ steps.poll.outcome == 'failure' }}
       # env:
       #   GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
       # run: echo "${GH_TOKEN}" | docker login -u "${GITHUB_REPOSITORY_OWNER}" --password-stdin ghcr.io
 
-      - name: 'build container'
+      - name: 'build image'
         env:
           HASH: '${{ steps.hash.outputs.hash }}'
-          TRACE_1: '${{ steps.meta.outputs.tags }}'  # ghcr.io/libssh2/ci_tests_openssh_server:fe54a727ef5d034d49
-          TRACE_2: '${{ steps.meta.outputs.labels }}'
         run: |
-          echo '---------------'
-          echo "${TRACE_1}"
-          echo '---------------'
-          echo "${TRACE_2}"
-          echo '---------------'
-          env | grep -F GITHUB_ || true
-          echo '---------------'
           docker buildx build \
-            --iidfile ~/iid.txt \
+            --iidfile ~/image_id.txt \
+            --label org.opencontainers.image.title=libssh2 \
             --label org.opencontainers.image.description='the SSH library' \
             --label org.opencontainers.image.licenses=BSD-3-Clause \
+            --label org.opencontainers.image.source="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}" \
+            --label org.opencontainers.image.url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}" \
             --label org.opencontainers.image.revision="${GITHUB_SHA}" \
-            --label org.opencontainers.image.source="${GITHUB_SERVER_UR}/${GITHUB_REPOSITORY}" \
-            --label org.opencontainers.image.title=libssh2 \
-            --label org.opencontainers.image.url="${GITHUB_SERVER_UR}/${GITHUB_REPOSITORY}" \
             --label org.opencontainers.image.version="${HASH}" \
             --platform linux/amd64,linux/arm64 \
             --tag "ghcr.io/libssh2/ci_tests_openssh_server:${HASH}" \
             ./tests/openssh_server  # --push
-          docker inspect "$(cat ~/iid.txt)"
+          docker inspect "$(cat ~/image_id.txt)"
+
+      - name: 'image info'
+        run: docker inspect "$(cat ~/image_id.txt)"
 
       # name: 'docker logout (ghcr.io)'
       # if: ${{ always() && steps.poll.outcome == 'failure' }}
