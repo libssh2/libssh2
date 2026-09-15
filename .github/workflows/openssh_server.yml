@@ -55,11 +55,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - shell: bash
+      - name: 'determine server configuration commit hash'
         id: hash
         run: echo "hash=$(git rev-parse --short=20 HEAD:tests/openssh_server)" >> "$GITHUB_OUTPUT"
 
-      - shell: bash
+      - name: 'check if image exists with this commit hash'
         id: poll
         continue-on-error: true
         env:
@@ -83,7 +83,11 @@ jobs:
       - name: 'build image'
         env:
           HASH: '${{ steps.hash.outputs.hash }}'
+          GITHUB_CONTEXT: ${{ toJson(github) }}
         run: |
+          echo '--------------'
+          echo "${GITHUB_CONTEXT}"
+          echo '--------------'
           docker buildx build \
             --iidfile ~/image_id.txt \
             --label org.opencontainers.image.title=libssh2 \
