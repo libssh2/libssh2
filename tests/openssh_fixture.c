@@ -179,9 +179,36 @@ static int build_openssh_server_container_image(void)
                     return ret;
             }
         }
-        return run_command(NULL,
-                           "%s build --quiet -t libssh2/openssh_server %s",
-                           container_cmd, srcdir_path("openssh_server"));
+        run_command(NULL,
+                    "%s build --quiet --tag libssh2/openssh_server "
+                    "--file %s %s", container_cmd,
+                    srcdir_path("openssh_server/Containerfile"),
+                    srcdir_path("openssh_server"));
+
+        {
+            char *out = NULL;
+            int ret = run_command(&out, "%s run --tty "
+                                  "libssh2/openssh_server "
+                                  "ls -lA /etc/ssh", container_cmd);
+            if(ret)
+                fprintf(stderr, "Failed to ls: %d\n", ret);
+            else
+                fprintf(stderr,
+                        "----- debug1 -----\n%s\n"
+                        "------------------\n", out);
+            free(out);
+            ret = run_command(&out, "%s run --tty "
+                              "libssh2/openssh_server "
+                              "ls -lA /home/libssh2/.ssh", container_cmd);
+            if(ret)
+                fprintf(stderr, "Failed to ls: %d\n", ret);
+            else
+                fprintf(stderr,
+                        "----- debug2 -----\n%s\n"
+                        "------------------\n", out);
+            free(out);
+            return ret;
+        }
     }
     else
         return 0;
@@ -202,13 +229,14 @@ static int start_openssh_server(char **container_id_out)
         }
         if(container_host_port)
             return run_command(container_id_out, "%s run %s"
-                               "--rm -d -p %s:22 libssh2/openssh_server",
-                               container_cmd,
+                               "--rm --detach --publish %s:22 "
+                               "libssh2/openssh_server", container_cmd,
                                /* Requires Apple container 0.7.0+ */
                                strstr(container_cmd, "container") ?
                                    "--progress none " : "",
                                container_host_port);
-        return run_command(container_id_out, "%s run --rm -d -p 22 "
+        return run_command(container_id_out, "%s run "
+                           "--rm --detach --publish 22 "
                            "libssh2/openssh_server", container_cmd);
     }
     else {
