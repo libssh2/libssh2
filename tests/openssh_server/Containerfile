@@ -57,7 +57,7 @@ USER libssh2
 
 RUN mkdir -p /home/libssh2/.ssh
 
-COPY --chmod=0600 --chown=libssh2:libssh2 authorized_keys /home/libssh2/.ssh/
+COPY --chmod=0600 --chown=libssh2 authorized_keys /home/libssh2/.ssh/
 
 USER root
 
