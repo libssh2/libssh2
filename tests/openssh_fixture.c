@@ -194,7 +194,17 @@ static int build_openssh_server_container_image(void)
                 fprintf(stderr, "Failed to ls: %d\n", ret);
             else
                 fprintf(stderr,
-                        "----- debug ------\n%s\n"
+                        "----- debug1 -----\n%s\n"
+                        "------------------\n", out);
+            free(out);
+            ret = run_command(&out, "%s run --tty "
+                              "libssh2/openssh_server "
+                              "ls -lA /home/libssh2/.ssh", container_cmd);
+            if(ret)
+                fprintf(stderr, "Failed to ls: %d\n", ret);
+            else
+                fprintf(stderr,
+                        "----- debug2 -----\n%s\n"
                         "------------------\n", out);
             free(out);
             return ret;
