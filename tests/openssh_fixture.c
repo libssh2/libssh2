@@ -180,7 +180,7 @@ static int build_openssh_server_container_image(void)
             }
         }
         return run_command(NULL,
-                           "%s build --quiet -t libssh2/openssh_server %s",
+                           "%s build --quiet --tag libssh2/openssh_server %s",
                            container_cmd, srcdir_path("openssh_server"));
     }
     else
@@ -202,13 +202,14 @@ static int start_openssh_server(char **container_id_out)
         }
         if(container_host_port)
             return run_command(container_id_out, "%s run %s"
-                               "--rm -d -p %s:22 libssh2/openssh_server",
-                               container_cmd,
+                               "--rm --detach --publish %s:22 "
+                               "libssh2/openssh_server", container_cmd,
                                /* Requires Apple container 0.7.0+ */
                                strstr(container_cmd, "container") ?
                                    "--progress none " : "",
                                container_host_port);
-        return run_command(container_id_out, "%s run --rm -d -p 22 "
+        return run_command(container_id_out, "%s run "
+                           "--rm --detach --publish 22 "
                            "libssh2/openssh_server", container_cmd);
     }
     else {
