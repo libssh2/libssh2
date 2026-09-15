@@ -103,6 +103,9 @@ jobs:
             tests/openssh_server  # --push
           cat ~/image_id.txt
 
+      - name: 'image info'
+        run: docker inspect "$(cat ~/image_id.txt)"
+
       - name: 'build image (podman)'
         env:
           HASH: '${{ steps.hash.outputs.hash }}'
@@ -124,9 +127,6 @@ jobs:
             --tag "ghcr.io/libssh2/ci_tests_openssh_server:${HASH}" \
             tests/openssh_server  # --push
           cat ~/image_id_podman.txt
-
-      - name: 'image info'
-        run: docker inspect "$(cat ~/image_id.txt)"
 
       - name: 'image info (podman)'
         run: podman inspect "$(cat ~/image_id_podman.txt)"
