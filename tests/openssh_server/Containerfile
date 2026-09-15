@@ -56,7 +56,6 @@ RUN sed 's/session\s*required\s*pam_loginuid.so/session optional pam_loginuid.so
 USER libssh2
 
 RUN mkdir -p /home/libssh2/.ssh
-RUN mkdir -p /home/libssh2/sandbox
 
 COPY --chmod=0600 authorized_keys /home/libssh2/.ssh/
 
