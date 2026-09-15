@@ -96,7 +96,6 @@ jobs:
             --platform linux/amd64,linux/arm64 \
             --tag "ghcr.io/libssh2/ci_tests_openssh_server:${HASH}" \
             ./tests/openssh_server  # --push
-          docker inspect "$(cat ~/image_id.txt)"
 
       - name: 'image info'
         run: docker inspect "$(cat ~/image_id.txt)"
