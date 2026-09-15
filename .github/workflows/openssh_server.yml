@@ -111,7 +111,7 @@ jobs:
           REPO_LICENSE: '${{ github.event.repository.license.spdx_id }}'
         run: |
           podman build \
-            --provenance false \
+            --omit-history \
             --iidfile ~/image_id_podman.txt \
             --label org.opencontainers.image.title="${REPO_NAME}" \
             --label org.opencontainers.image.description="${REPO_DESCRIPTION}" \
