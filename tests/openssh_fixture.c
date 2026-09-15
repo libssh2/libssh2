@@ -180,8 +180,10 @@ static int build_openssh_server_container_image(void)
             }
         }
         return run_command(NULL,
-                           "%s build --quiet --tag libssh2/openssh_server %s",
-                           container_cmd, srcdir_path("openssh_server"));
+                           "%s build --quiet --tag libssh2/openssh_server "
+                           "--file %s %s", container_cmd,
+                           srcdir_path("openssh_server/Containerfile"),
+                           srcdir_path("openssh_server"));
     }
     else
         return 0;
