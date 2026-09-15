@@ -88,6 +88,7 @@ jobs:
           REPO_LICENSE: '${{ github.event.repository.license.spdx_id }}'
         run: |
           docker buildx build \
+            --provenance false \
             --iidfile ~/image_id.txt \
             --label org.opencontainers.image.title="${REPO_NAME}" \
             --label org.opencontainers.image.description="${REPO_DESCRIPTION}" \
@@ -110,6 +111,7 @@ jobs:
           REPO_LICENSE: '${{ github.event.repository.license.spdx_id }}'
         run: |
           podman build \
+            --provenance false \
             --iidfile ~/image_id_podman.txt \
             --label org.opencontainers.image.title="${REPO_NAME}" \
             --label org.opencontainers.image.description="${REPO_DESCRIPTION}" \
