@@ -83,16 +83,15 @@ jobs:
       - name: 'build image'
         env:
           HASH: '${{ steps.hash.outputs.hash }}'
-          GITHUB_CONTEXT: ${{ toJson(github) }}
+          REPO_NAME: '${{ github.event.repository.name }}'
+          REPO_DESCRIPTION: '${{ github.event.repository.description }}'
+          REPO_LICENSE: '${{ github.event.repository.license.spdx_id }}'
         run: |
-          echo '--------------'
-          echo "${GITHUB_CONTEXT}"
-          echo '--------------'
           docker buildx build \
             --iidfile ~/image_id.txt \
-            --label org.opencontainers.image.title=libssh2 \
-            --label org.opencontainers.image.description='the SSH library' \
-            --label org.opencontainers.image.licenses=BSD-3-Clause \
+            --label org.opencontainers.image.title="${REPO_NAME}" \
+            --label org.opencontainers.image.description="${REPO_DESCRIPTION}" \
+            --label org.opencontainers.image.licenses="${REPO_LICENSE}" \
             --label org.opencontainers.image.source="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}" \
             --label org.opencontainers.image.url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}" \
             --label org.opencontainers.image.revision="${GITHUB_SHA}" \
