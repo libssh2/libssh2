@@ -98,6 +98,7 @@ jobs:
             --label org.opencontainers.image.version="${HASH}" \
             --platform linux/amd64,linux/arm64 \
             --tag "ghcr.io/libssh2/ci_tests_openssh_server:${HASH}" \
+            --file ./tests/openssh_server/Containerfile \
             ./tests/openssh_server  # --push
           cat ~/image_id.txt
 
