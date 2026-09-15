@@ -17,34 +17,38 @@ RUN [ -d /var/run/sshd ] || mkdir /var/run/sshd
 # no effect (Docker AUFS-related bug maybe?)
 
 # Host keys
-COPY ssh_host_rsa_key.pub /etc/ssh/
-COPY ssh_host_rsa_key /tmp/etc/ssh/
-RUN install -m 0600 /tmp/etc/ssh/ssh_host_rsa_key /etc/ssh/
+COPY ssh_host_rsa_key.pub \
+     ssh_host_ecdsa_key.pub \
+     ssh_host_ed25519_key.pub \
+     ssh_host_mldsa44-ed25519_key.pub \
+     /etc/ssh/
 
-COPY ssh_host_ecdsa_key.pub /etc/ssh/
-COPY ssh_host_ecdsa_key /tmp/etc/ssh/
-RUN install -m 0600 /tmp/etc/ssh/ssh_host_ecdsa_key /etc/ssh/
+COPY ssh_host_rsa_key \
+     ssh_host_ecdsa_key \
+     ssh_host_ed25519_key \
+     ssh_host_mldsa44-ed25519_key \
+     /tmp/etc/ssh/
 
-COPY ssh_host_ed25519_key.pub /etc/ssh/
-COPY ssh_host_ed25519_key /tmp/etc/ssh/
-RUN install -m 0600 /tmp/etc/ssh/ssh_host_ed25519_key /etc/ssh/
-
-COPY ssh_host_mldsa44-ed25519_key.pub /etc/ssh/
-COPY ssh_host_mldsa44-ed25519_key /tmp/etc/ssh/
-RUN install -m 0600 /tmp/etc/ssh/ssh_host_mldsa44-ed25519_key /etc/ssh/
+RUN install -m 0600 \
+    /tmp/etc/ssh/ssh_host_rsa_key \
+    /tmp/etc/ssh/ssh_host_ecdsa_key \
+    /tmp/etc/ssh/ssh_host_ed25519_key \
+    /tmp/etc/ssh/ssh_host_mldsa44-ed25519_key \
+    /etc/ssh/
 
 # Host certificates
-COPY ssh_host_rsa_key-cert.pub /tmp/etc/ssh/
-RUN install -m 0644 /tmp/etc/ssh/ssh_host_rsa_key-cert.pub /etc/ssh/
+COPY ssh_host_rsa_key-cert.pub \
+     ssh_host_ecdsa_key-cert.pub \
+     ssh_host_ed25519_key-cert.pub \
+     ssh_host_mldsa44-ed25519_key-cert.pub \
+     /tmp/etc/ssh/
 
-COPY ssh_host_ecdsa_key-cert.pub /tmp/etc/ssh/
-RUN install -m 0644 /tmp/etc/ssh/ssh_host_ecdsa_key-cert.pub /etc/ssh/
-
-COPY ssh_host_ed25519_key-cert.pub /tmp/etc/ssh/
-RUN install -m 0644 /tmp/etc/ssh/ssh_host_ed25519_key-cert.pub /etc/ssh/
-
-COPY ssh_host_mldsa44-ed25519_key-cert.pub /tmp/etc/ssh/
-RUN install -m 0644 /tmp/etc/ssh/ssh_host_mldsa44-ed25519_key-cert.pub /etc/ssh/
+RUN install -m 0644 \
+    /tmp/etc/ssh/ssh_host_rsa_key-cert.pub \
+    /tmp/etc/ssh/ssh_host_ecdsa_key-cert.pub \
+    /tmp/etc/ssh/ssh_host_ed25519_key-cert.pub \
+    /tmp/etc/ssh/ssh_host_mldsa44-ed25519_key-cert.pub \
+    /etc/ssh/
 
 # Trusted user CA keys
 COPY ca_user_keys.pub /tmp/etc/ssh/
