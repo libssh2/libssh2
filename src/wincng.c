@@ -1822,7 +1822,7 @@ static int wcng_privatekey_from_point(IN LIBSSH2_SESSION *session,
 
     /* Initialize a blob to import */
     ecc_blob_len =
-        sizeof(BCRYPT_ECCPRIVATE_BLOB) + q->x_len + q->y_len + d_len;
+        sizeof(BCRYPT_ECCKEY_BLOB) + q->x_len + q->y_len + d_len;
     ecc_blob = SSH2_ALLOC(session, ecc_blob_len);
     if(!ecc_blob)
         return LIBSSH2_ERROR_ALLOC;
