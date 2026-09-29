@@ -377,6 +377,43 @@ static int test_ssh2_scp_parse_c_fields(void)
     return err > 0;
 }
 
+/* Oversized username_len must be rejected before any network I/O by every
+ * userauth entry point, not wrapped around when sizing the request buffer
+ * (fix: #1858, commit 256d04b6). */
+static int test_userauth_bounds(LIBSSH2_SESSION *session)
+{
+    static const unsigned int bad = 0xFFFFFFFFU;
+    int err = 0;
+
+    if(libssh2_userauth_list(session, "user", bad)) {
+        fprintf(stderr, "userauth_list accepted oversized len\n");
+        err++;
+    }
+    if(libssh2_userauth_password_ex(session, "user", bad,
+                                    "pw", 2, NULL) >= 0) {
+        fprintf(stderr, "userauth_password accepted oversized len\n");
+        err++;
+    }
+    if(libssh2_userauth_publickey_fromfile_ex(session, "user", bad,
+                                              "pub", "priv", "") >= 0) {
+        fprintf(stderr, "userauth_publickey accepted oversized len\n");
+        err++;
+    }
+    if(libssh2_userauth_hostbased_fromfile_ex(session, "user", bad,
+                                              "pub", "priv", "",
+                                              "host", 4, "luser", 5) >= 0) {
+        fprintf(stderr, "userauth_hostbased accepted oversized len\n");
+        err++;
+    }
+    if(libssh2_userauth_keyboard_interactive_ex(session, "user", bad,
+                                                NULL) >= 0) {
+        fprintf(stderr, "userauth_kbdint accepted oversized len\n");
+        err++;
+    }
+
+    return err > 0;
+}
+
 int main(int argc, char *argv[])
 {
     LIBSSH2_SESSION *session;
@@ -401,6 +438,7 @@ int main(int argc, char *argv[])
     rc |= test_ssh2_dh_validate();
     rc |= test_ssh2_bn_from_bin();
     rc |= test_ssh2_scp_parse_c_fields();
+    rc |= test_userauth_bounds(session);
 
     libssh2_session_free(session);
 
