@@ -2509,6 +2509,7 @@ static int kex_mlkem768x25519_sha256(
         unsigned char shared_secret[SSH2_MLKEM_SHARED_SECRET_LEN +
                                     SSH2_ED25519_KEY_LEN];
         size_t server_public_key_len;
+        size_t x25519_len;
         struct string_buf buf;
 
         if(!data) {
@@ -2574,8 +2575,22 @@ static int kex_mlkem768x25519_sha256(
             goto clean_exit;
         }
 
+        /* The x25519 shared secret is a fixed-width 32-byte string, but
+           ssh2_bn_to_bin() omits leading zero bytes. Zero-fill the field and
+           write the value right-aligned; otherwise a secret with a leading
+           zero byte is left-shifted and the tail of shared_secret is hashed
+           uninitialized. */
+        x25519_len = ssh2_bn_bytes(exchange_state->k);
+        if(x25519_len == 0 || x25519_len > SSH2_ED25519_KEY_LEN) {
+            ret = ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                           "Invalid curve25519 shared secret length");
+            goto clean_exit;
+        }
+        memset(shared_secret + SSH2_MLKEM_SHARED_SECRET_LEN, 0,
+               SSH2_ED25519_KEY_LEN);
         if(ssh2_bn_to_bin(exchange_state->k,
-                          shared_secret + SSH2_MLKEM_SHARED_SECRET_LEN)) {
+                          shared_secret + SSH2_MLKEM_SHARED_SECRET_LEN +
+                          SSH2_ED25519_KEY_LEN - x25519_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                            "Cannot write shared secret");
             goto clean_exit;
