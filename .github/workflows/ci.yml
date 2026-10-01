@@ -838,17 +838,17 @@ jobs:
         include:
           - { build: 'AM', sys: msys   , crypto: openssl, env: x86_64 }
           - { build: 'CM', sys: msys   , crypto: OpenSSL, env: x86_64 }
-          - { build: 'AM', sys: mingw64, crypto: wincng , env: x86_64 }
+          - { build: 'AM', sys: ucrt64 , crypto: wincng , env: ucrt-x86_64 }
           - { build: 'CM', sys: mingw64, crypto: WinCNG , env: x86_64, test: 'legacy-options' }
-          - { build: 'AM', sys: mingw64, crypto: openssl, env: x86_64 }
+          - { build: 'AM', sys: ucrt64 , crypto: openssl, env: ucrt-x86_64 }
           - { build: 'AM', sys: mingw32, crypto: openssl, env: i686, test: 'legacy-options' }
           - { build: 'AM', sys: ucrt64 , crypto: openssl, env: ucrt-x86_64 }
           - { build: 'AM', sys: clang64, crypto: openssl, env: clang-x86_64 }
           - { build: 'AM', sys: clang64, crypto: wincng , env: clang-x86_64, test: 'unicode' }
           - { build: 'CM', sys: ucrt64 , crypto: OpenSSL, env: ucrt-x86_64 }
           - { build: 'CM', sys: clang64, crypto: OpenSSL, env: clang-x86_64 }
+          - { build: 'CM', sys: clang64, crypto: OpenSSL, env: clang-x86_64, test: 'no-options' }
           - { build: 'CM', sys: ucrt64 , crypto: OpenSSL, env: ucrt-x86_64, test: 'uwp' }
-          - { build: 'CM', sys: mingw64, crypto: OpenSSL, env: x86_64, test: 'no-options' }
 
     steps:
       - uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2.33.0
