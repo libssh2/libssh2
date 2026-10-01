@@ -119,13 +119,13 @@ jobs:
       - uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2.33.0
         if: ${{ contains(matrix.image, 'windows') }}
         with:
-          msystem: mingw64
+          msystem: ucrt64
           release: false
           update: false
           cache: false
           path-type: inherit
           install: >-
-            mingw-w64-x86_64-zlib mingw-w64-x86_64-libgcrypt mingw-w64-x86_64-openssl mingw-w64-x86_64-mbedtls
+            mingw-w64-ucrt-x86_64-zlib mingw-w64-ucrt-x86_64-libgcrypt mingw-w64-ucrt-x86_64-openssl mingw-w64-ucrt-x86_64-mbedtls
 
       - name: 'install packages'
         timeout-minutes: 3
