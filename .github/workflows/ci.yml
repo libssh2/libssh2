@@ -642,7 +642,7 @@ jobs:
 
   build_linux_cross_mingw64:
     name: "linux -> mingw-w64, ${{ matrix.build }} ${{ matrix.compiler }}"
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-26.04-arm
     timeout-minutes: 10
     strategy:
       fail-fast: false
@@ -682,6 +682,7 @@ jobs:
               options+=' -DLIBSSH2_CLANG_TIDY=ON -DCLANG_TIDY=/usr/bin/clang-tidy-22'
               options+=' -DCMAKE_C_COMPILER=clang-22'
               options+=" -DCMAKE_RC_COMPILER=llvm-windres-$(clang-22 -dumpversion | cut -d '.' -f 1)"
+              options+=' -DCMAKE_RC_FLAGS=--target=pe-x86-64'  # Required for non-x86-64 runners
             else
               options+=" -DCMAKE_C_COMPILER=${TRIPLET}-gcc"
             fi
