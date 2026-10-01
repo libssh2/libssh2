@@ -116,16 +116,16 @@ jobs:
       matrix:
         image: [ubuntu-26.04-arm, macos-latest, windows-2022]
     steps:
-      - uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
+      - uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2.33.0
         if: ${{ contains(matrix.image, 'windows') }}
         with:
-          msystem: mingw64
+          msystem: ucrt64
           release: false
           update: false
           cache: false
           path-type: inherit
           install: >-
-            mingw-w64-x86_64-zlib mingw-w64-x86_64-libgcrypt mingw-w64-x86_64-openssl mingw-w64-x86_64-mbedtls
+            mingw-w64-ucrt-x86_64-zlib mingw-w64-ucrt-x86_64-libgcrypt mingw-w64-ucrt-x86_64-openssl mingw-w64-ucrt-x86_64-mbedtls
 
       - name: 'install packages'
         timeout-minutes: 3
@@ -214,7 +214,7 @@ jobs:
           [[ "${MATRIX_IMAGE}" = *'macos'* ]] && export CFLAGS='-arch arm64'
           if [[ "${MATRIX_IMAGE}" = *'windows'* ]]; then
             export TEST_CMAKE_GENERATOR='MSYS Makefiles'
-            export TEST_CMAKE_FLAGS='-DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DOPENSSL_ROOT_DIR=C:/msys64/mingw64'
+            export TEST_CMAKE_FLAGS='-DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DOPENSSL_ROOT_DIR=C:/msys64/ucrt64'
           fi
           ./tests/cmake/test.sh add_subdirectory -DCRYPTO_BACKEND=OpenSSL
 
@@ -224,7 +224,7 @@ jobs:
           [[ "${MATRIX_IMAGE}" = *'macos'* ]] && export CFLAGS='-arch arm64'
           if [[ "${MATRIX_IMAGE}" = *'windows'* ]]; then
             export TEST_CMAKE_GENERATOR='MSYS Makefiles'
-            export TEST_CMAKE_FLAGS='-DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DOPENSSL_ROOT_DIR=C:/msys64/mingw64'
+            export TEST_CMAKE_FLAGS='-DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DOPENSSL_ROOT_DIR=C:/msys64/ucrt64'
           fi
           ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=OpenSSL
 
@@ -838,28 +838,29 @@ jobs:
         include:
           - { build: 'AM', sys: msys   , crypto: openssl, env: x86_64 }
           - { build: 'CM', sys: msys   , crypto: OpenSSL, env: x86_64 }
-          - { build: 'AM', sys: mingw64, crypto: wincng , env: x86_64 }
+          - { build: 'AM', sys: ucrt64 , crypto: wincng , env: ucrt-x86_64 }
           - { build: 'CM', sys: mingw64, crypto: WinCNG , env: x86_64, test: 'legacy-options' }
-          - { build: 'AM', sys: mingw64, crypto: openssl, env: x86_64 }
+          - { build: 'AM', sys: ucrt64 , crypto: openssl, env: ucrt-x86_64 }
           - { build: 'AM', sys: mingw32, crypto: openssl, env: i686, test: 'legacy-options' }
           - { build: 'AM', sys: ucrt64 , crypto: openssl, env: ucrt-x86_64 }
           - { build: 'AM', sys: clang64, crypto: openssl, env: clang-x86_64 }
           - { build: 'AM', sys: clang64, crypto: wincng , env: clang-x86_64, test: 'unicode' }
           - { build: 'CM', sys: ucrt64 , crypto: OpenSSL, env: ucrt-x86_64 }
           - { build: 'CM', sys: clang64, crypto: OpenSSL, env: clang-x86_64 }
+          - { build: 'CM', sys: clang64, crypto: OpenSSL, env: clang-x86_64, test: 'no-options' }
           - { build: 'CM', sys: ucrt64 , crypto: OpenSSL, env: ucrt-x86_64, test: 'uwp' }
-          - { build: 'CM', sys: mingw64, crypto: OpenSSL, env: x86_64, test: 'no-options' }
 
     steps:
-      - uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
+      - uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2.33.0
         if: ${{ matrix.sys == 'msys' }}
         with:
           msystem: ${{ matrix.sys }}
           install: gcc ${{ matrix.build == 'AM' && 'autotools make' || 'cmake ninja' }} openssl-devel zlib-devel
-      - uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
+      - uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2.33.0
         if: ${{ matrix.sys != 'msys' }}
         with:
           msystem: ${{ matrix.sys }}
+          suppress-deprecation-warnings: 'msystem-mingw64 msystem-mingw32'
           install: >-
             mingw-w64-${{ matrix.env }}-cc
             mingw-w64-${{ matrix.env }}-${{ matrix.build == 'AM' && 'autotools' || 'cmake' }} ${{ matrix.build == 'AM' && 'make' || '' }}
@@ -1343,11 +1344,10 @@ jobs:
           - { image: 'windows-11-arm', arch: arm64, plat: windows, type: Debug  , crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'ON' , shared: 'OFF', zlib: 'OFF', unity: 'ON',
               name: 'WinCNG !ECDSA', openssh: 'OpenSSH-Windows' }
     steps:
-      - uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
+      - uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2.33.0
         with:
           msystem: ${{ matrix.arch == 'arm64' && 'clangarm64' || 'ucrt64' }}
-          release: ${{ contains(matrix.image, 'arm') }}
-          cache: ${{ contains(matrix.image, 'arm') }}
+          release: false
           path-type: inherit
           install: perl
 
