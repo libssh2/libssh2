@@ -1459,7 +1459,7 @@ jobs:
           cd "curl-${CURL_VERNUM}"
           export TFLAGS='-j8 SCP SFTP --retry=0 --repeat=6'
           if [[ "${MATRIX_CRYPTO}" = *'WinCNG'* ]]; then
-            export CURL_TEST_SSH_ENABLE_KEX=diffie-hellman-group-exchange-sha256
+            export CURL_TEST_SSH_ENABLE_KEX=diffie-hellman-group16-sha512
           fi
           if [ -n "${MATRIX_OPENSSH}" ]; then  # OpenSSH-Windows
             TFLAGS+=' ~601 ~603 ~617 ~619 ~621 ~641 ~665 ~2004'  # SCP
