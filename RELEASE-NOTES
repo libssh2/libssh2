@@ -61,6 +61,7 @@ Deprecation notices:
 
 This release includes the following enhancements and bugfixes:
 
+- agent: add NULL guards to all public `libssh2_agent_*()` API functions (1f977e77 #2635)
 - agent: fix potential infinite loop while receiving data from SSH agent (d0a0210b #2414)
 - agent: fix unused macro compiler warnings in UWP non-unity builds (0e2bc3d6 #2325 #2313)
 - agent: fix to replace `TEXT()` with `_TEXT()` in CRT calls (8e9f1ca1 #2320 #2313)
@@ -159,6 +160,7 @@ This release includes the following enhancements and bugfixes:
 - checksrc: update, update local config, fix toctou in examples (557611f9 #1719)
 - checksrc: sync with curl (7e1c6be1 #1474)
 - checksrc-all.pl: limit checks to repo files only (3da7e627 #1900)
+- CI: use `--parallel` for `ctest` (c3de8626 #2625)
 - CI: minor fixes and improvements (Windows) (111a6d17 #2314 #2276)
 - CI: pass `--proto-redir =https` alongside `--location` (d58a25a0 #2117)
 - CI: drop redundant AppVeyor build jobs, limit building tests and examples (39cd3a82 #2051)
@@ -328,6 +330,15 @@ This release includes the following enhancements and bugfixes:
 - example/x11: fix messages, buffer sizes, error handling (5b734389 #1886 follow: 32080def)
 - example/x11: fix/simplify node removal (8eaef7c7 #1867 follow: 32080def)
 - example/x11: free session/cleanup (bb3c6bbf #1762)
+- GHA: move some jobs to ubuntu-slim and arm64 (a95ed7d8 #2644)
+- GHA: run clang-tidy jobs on arm64 Linux (bb63c2f5 #2643)
+- GHA: bump dependencies (b0028ca5 #2641)
+- GHA: set `cache-mode: none` where missing (244b4228 #2639 #2601)
+- GHA: bump msys2/setup-msys2 to v2.33.0, related improvements (5fa500d5 #2638)
+- GHA: drop `actionlint`, abandoned upstream (9bf9048b #2636 #1740)
+- GHA: bump Actions (788ee6d8 #2634)
+- GHA: omit running tests in clang-tidy Linux jobs (2e171745 #2627)
+- GHA: reduce parallelism to `-j4` in macOS runners (d702b043 #2626)
 - GHA: bump cross-platform-actions, FreeBSD 14.5, enable DragonFly BSD (ff182c52 #2610 #1948)
 - GHA: switch a Linux job (with tests) to arm64 (ca8864db #2607 #2606)
 - GHA: use `cache-mode` (917f38bf #2601)
@@ -445,14 +456,18 @@ This release includes the following enhancements and bugfixes:
 - GHA/appveyor_docker: silence zizmor with settings allowing concurrency (59a554e6 #2002 #1292 follow: b08cfbc9)
 - GHA/appveyor-status: disable `gh` tool telemetry (818660ca #1871)
 - GHA/cifuzz: pin oss-fuzz actions to hash (93dc28a4)
+- GHA/codeql: switch GHA check to arm64 (7839760c #2647)
+- GHA/codeql: switch Linux job to arm64 (3b3c1cff #2646)
 - GHA/codeql: build C++ (fuzzer) code (c5434649 #2572)
 - GHA/codeql: limit cron job to the origin repository (1045cfd0 #1741)
 - GHA/dependabot: group updates, other tidy-ups (26a78929)
 - GHA/dependabot: minor fixes to prev (6c6ea30d #1724)
 - GHA/dependabot: fix Dockerfile path (d1ba043d #1724)
 - GHA/dependabot: fix pip directory (5dd317fa)
+- GHA/distcheck: pass unix-style paths in MSYS2 configurations (b3e141ff #2640)
 - GHA/openssh_server: drop docker login Action, limit scope (f1572b28 #2616)
 - GHA/openssh_server: try with `qemu-user` (667f7cac #2606)
+- GHA/windows: move Linux cross-builds to arm64 runners (805317f6 #2637)
 - github: add LLM/AI usage warning to PR and bug report templates (80bfa8a2 #2048)
 - gitignore: compress rules (90a686ef)
 - HACKING-CRYPTO: move from docs to src, markdownify, update (db065d25 #2268)
@@ -481,6 +496,7 @@ This release includes the following enhancements and bugfixes:
 - INSTALL-CMAKE: update minimum version and links, drop old cmake instructions (fd43ce89 #1873 #1839)
 - INSTALL-CMAKE: fixes build result directories (98cd10d1 #1617)
 - keepalive: verify if `session` is non-NULL (4c8ff933 #2345)
+- kex: zero-pad x25519 shared secret in mlkem768x25519 (4f2692fd #2633 #1644)
 - kex: adjust type to drop casts for `ssh2_bn_bits()` value (c3c1743a #2593)
 - kex: disable SHA1-based methods by default (99f93535 #2443)
 - kex: replace magic number and `strlen()` with `sizeof()` (88c5fd98 #2400)
@@ -563,6 +579,7 @@ This release includes the following enhancements and bugfixes:
 - mac: fix `mac_method_none_init()` to set `free_key` #1951 (91b0d464 #1952 #1951)
 - man: document availability of `libssh2_publickey_*` functions (dabe1e36 #2139)
 - mansyntax.sh: revert a change to unhide `man` error output (c343f06b #982)
+- mbedtls: fix `-Wunused-variable` when building with `LIBSSH2_NO_RSA` (738c2ac4 #2623)
 - mbedtls: use `ssh2_zero_free()` where applicable (b15d84b3 #2563 #2544)
 - mbedtls: merge local function `mbed_parse_eckey()` into its sole caller (a794df66 #2562 #385 #2379 follow: 5528f3da)
 - mbedtls: drop local `mbed_zero_free()` function (8ada619d #2553 #2552 #2550)
@@ -611,6 +628,8 @@ This release includes the following enhancements and bugfixes:
 - misc: rename socket error variables to `sockerr` (d7698703 #2062)
 - misc: fix small leak in base64_encode() with empty data #1627 (cea8783e #1630 #1627)
 - misc: _libssh2_base64_decode() handle malformed data (8cad398b #1551)
+- openssh_fixture: merge Apple container commands with others (418c2a2a #2622 #2605)
+- openssh_fixture: drop progress from `image pull` with Apple container (1061e299 #2620 #2605)
 - openssh_fixture: drop `docker-machine ip` logic (86dca4ef #2611 #2609 #100 follow: cf80f2f4)
 - openssh_fixture: fix `ssh2_snprintf()` result check (38caa44a #2157 #489 follow: ac13b70a)
 - openssh_fixture: trim all right-padding whitespace from external command results (879aac02 #2142 follow: cf80f2f4)
@@ -795,6 +814,7 @@ This release includes the following enhancements and bugfixes:
 - spacecheck: cap max lines per file, use single-quotes (3a189abe #2480)
 - spacecheck: update, fix new issues found (95d7a8b9 #1851)
 - spellcheck.sh: exclude test keys to avoid false positives (520087ac #2615)
+- src: disable more RSA SHA1 code when unused (2a76dafa #2624)
 - src: constify arguments where feasible (8e181e7a #2589)
 - src: propagate `session` to replace bare allocators with SSH2 ones (a2ac6bd4 #2544)
 - src: check mingw-w64 version requirement (dc745585 #2535 #1919)
@@ -879,6 +899,7 @@ This release includes the following enhancements and bugfixes:
 - test_ssh2, examples: avoid crash on NULL fingerprint (f784c21d #2179 #2174)
 - test_sshd.test: add RSA and ECDSA `HostCertificate` options (7498e661 #2612 #2539)
 - test_sshd.test: sync an option with `sshd_config` used in `Dockerfile` (cae4e3f8 #2481 #1024 follow: d4690e95)
+- tests: dump container sshd log for test failures (45aa5c5f #2621 #2484 #2174 #1720)
 - tests: add ML-DSA host keys (not used or supported by libssh2) (5c50ea8a #2615)
 - tests: add support for `podman`, Apple `container` (9bd1f16d #2605)
 - tests: replace DSA with RSA key for fail test (b937ded9 #2604)
@@ -913,7 +934,10 @@ This release includes the following enhancements and bugfixes:
 - tests: add support for wine/qemu (5930dc3c #1562)
 - tests: delete CMake ExternalProject integration test (8011f901 #1522 #1510 #1116)
 - tests/.gitignore: delete two stray entries (1bc6e2c3 #1718)
+- tests/cmake: suppress stderr in `if` expression (c7541acd #2642)
 - tests/openssh_fixture: fix to close socket on connect failure (5ddc5997 #1855)
+- tidy-up: prefer `host key` in two words for human-readable text (14fbba96 #2618)
+- tidy-up: miscellaneous (967a24b3 #2617 #397 follow: 7a26697e)
 - tidy-up: prefer term 'container' over 'docker' (2ded2f95 #2609 #2605)
 - tidy-up: miscellaneous (be937743 #2556)
 - tidy-up: version-related comments and messages (9a0b40af #1866 #827 #811 #1620 #1619 #1610 #1592 #1591 #1590 #1589 #1535 #1128)
@@ -1023,6 +1047,7 @@ This release includes the following enhancements and bugfixes:
 - vms/man2help: make functions static (b599ff5e)
 - vms/man2help: add missing void return type to prototype (aa45503a)
 - vms/man2help: misc fixes (3ec2920b #1902)
+- wincng: fix ECC private key blob allocation size (01d0c895 #2631 #1315 follow: 3e723437)
 - wincng: fix builds with RSA and DSA disabled (3f26c15b #2600)
 - wincng: normalize fixed-width DH values before mpint encoding (f216bbe3 #2583 #804 #2590)
 - wincng: rename local private key parsing functions to share a suffix (e09f8111 #2575)
@@ -1083,8 +1108,8 @@ advice from friends like these:
   Chris Emsen, Christian Ghisler, Christoph Reiter, d3x0r, Dan Fandrich,
   Daniel Stenberg, dapickle on github, Darren Carreras, dependabot[bot],
   Dhiraj Mishra, DigitalCyberSoft, Eli Schwartz, Evgeny Grin, Feodor Fitsner,
-  geral-victor on github, Hananto Adi, Haruki Oyama, Hemant Jadhav, Huang Rui,
-  hyunjiHong on github, Jacob Barthelmeh, Jay Satiro, Jim B, Joren Afman,
+  filtede98, geral-victor on github, Hananto Adi, Haruki Oyama, Hemant Jadhav,
+  Huang Rui, hyunjiHong on github, Jacob Barthelmeh, Jay Satiro, Joren Afman,
   Josh Brobst, Joshua Rogers, Justin Smith, Kai Pastor, Karnakar Reddy,
   Kian Kasad, Kit Knox, Krisscut on github, Lars Nordin, Liu Xing Yu,
   Lucas Queiroz, Lukas Dürrenberger, lv2dev, manus-use on github,
