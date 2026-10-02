@@ -230,7 +230,7 @@ jobs:
 
   build_linux:
     name: 'linux'
-    runs-on: ${{ matrix.compiler == 'clang-tidy' && 'ubuntu-26.04' || (matrix.image || 'ubuntu-latest') }}
+    runs-on: ${{ matrix.compiler == 'clang-tidy' && 'ubuntu-26.04-arm' || (matrix.image || 'ubuntu-latest') }}
     timeout-minutes: 10
     cache-mode: write
     strategy:
