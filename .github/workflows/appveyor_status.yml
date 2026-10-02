@@ -39,7 +39,7 @@ cache-mode: none
 jobs:
   split:
     name: 'split'
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-26.04-arm
     if: ${{ github.event.sender.login == 'appveyor[bot]' }}
     permissions:
       statuses: write  # To update build statuses
