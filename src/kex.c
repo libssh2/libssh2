@@ -2590,7 +2590,7 @@ static int kex_mlkem768x25519_sha256(
                SSH2_ED25519_KEY_LEN);
         if(ssh2_bn_to_bin(exchange_state->k,
                           shared_secret + SSH2_MLKEM_SHARED_SECRET_LEN +
-                          (SSH2_ED25519_KEY_LEN - x25519_len))) {
+                          SSH2_ED25519_KEY_LEN - x25519_len)) {
             ret = ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                            "Cannot write shared secret");
             goto clean_exit;
