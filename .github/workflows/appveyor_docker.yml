@@ -54,7 +54,7 @@ env:
 jobs:
   daemon:
     name: 'Daemon'
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-26.04-arm
     timeout-minutes: 60
     env:
       SSH_HOST: '${{ github.event.inputs.ssh_host }}'
