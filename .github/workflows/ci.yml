@@ -298,11 +298,14 @@ jobs:
       - name: 'install packages'
         timeout-minutes: 2
         run: |
+          if [ "${MATRIX_ARCH}" = 'i386' ]; then
+            arch=":${MATRIX_ARCH}"
+          fi
           pkgs=''
           [ "${MATRIX_COMPILER}" = 'clang-tidy' ] && pkgs+=' clang-22 clang-tidy-22'
-          [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && pkgs+=" libgcrypt-dev:${MATRIX_ARCH}"
-          [ "${MATRIX_CRYPTO}" = 'OpenSSL' ] && pkgs+=" libssl-dev:${MATRIX_ARCH}"
-          [ "${MATRIX_CRYPTO}" = 'wolfSSL' ] && pkgs+=" libwolfssl-dev:${MATRIX_ARCH}"
+          [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && pkgs+=" libgcrypt-dev${arch}"
+          [ "${MATRIX_CRYPTO}" = 'OpenSSL' ] && pkgs+=" libssl-dev${arch}"
+          [ "${MATRIX_CRYPTO}" = 'wolfSSL' ] && pkgs+=" libwolfssl-dev${arch}"
           if [ -n "${pkgs}" ]; then
             sudo find /etc/apt/sources.list.d -type f -not -name 'ubuntu.sources' -delete -print
             sudo sed -i '/azure/d' /etc/apt/apt-mirrors.txt; cat /etc/apt/apt-mirrors.txt
