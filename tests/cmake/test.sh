@@ -57,7 +57,7 @@ fi
 
 if [ "${mode}" = 'all' ] || [ "${mode}" = 'add_subdirectory' ]; then
   rm -rf libssh2
-  if ! ln -s "${src}" libssh2; then
+  if ! ln -s "${src}" libssh2 2>/dev/null; then
     rm -rf libssh2; mkdir libssh2; (cd "${src}"; git archive --format=tar HEAD) | tar -x --directory=libssh2  # for MSYS2/Cygwin
   fi
   bldc='bld-add_subdirectory'
