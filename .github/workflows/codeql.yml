@@ -31,7 +31,7 @@ jobs:
   gha:
     if: ${{ github.repository_owner == 'libssh2' || github.event_name != 'schedule' }}
     name: 'GHA'
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-26.04-arm
     permissions:
       security-events: write  # To create/update security events
     steps:
