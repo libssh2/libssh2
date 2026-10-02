@@ -46,6 +46,7 @@ concurrency:
   group: ${{ github.run_id }}
 
 permissions: {}
+cache-mode: none
 
 env:
   DO_NOT_TRACK: '1'
