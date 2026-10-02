@@ -230,7 +230,7 @@ jobs:
 
   build_linux:
     name: 'linux'
-    runs-on: ${{ matrix.compiler == 'clang-tidy' && 'ubuntu-26.04' || (matrix.image || 'ubuntu-latest') }}
+    runs-on: ${{ matrix.compiler == 'clang-tidy' && 'ubuntu-26.04-arm' || (matrix.image || 'ubuntu-latest') }}
     timeout-minutes: 10
     cache-mode: write
     strategy:
@@ -258,7 +258,7 @@ jobs:
           - { compiler: clang, arch: amd64, crypto: wolfSSL-from-source-prev, build: 'CM', zlib: 'ON', image: ubuntu-26.04 }
     env:
       CC: ${{ matrix.compiler == 'clang-tidy' && 'clang' || matrix.compiler }}
-      MATRIX_ARCH: '${{ matrix.arch }}'
+      MATRIX_ARCH: ${{ matrix.compiler == 'clang-tidy' && 'arm64' || matrix.arch }}
       MATRIX_BUILD: '${{ matrix.build }}'
       MATRIX_COMPILER: '${{ matrix.compiler }}'
       MATRIX_CRYPTO: '${{ matrix.crypto }}'
@@ -286,7 +286,7 @@ jobs:
       WOLFSSL_SHA256_PREV: b7ee150e49def77c765bc02aac92ddeb0bebefd4cb12aa263d8f95e405221fb8
     steps:
       - name: 'install architecture'
-        if: ${{ matrix.arch == 'i386' }}
+        if: ${{ env.MATRIX_ARCH == 'i386' }}
         timeout-minutes: 2
         run: |
           sudo find /etc/apt/sources.list.d -type f -not -name 'ubuntu.sources' -delete -print
@@ -298,11 +298,14 @@ jobs:
       - name: 'install packages'
         timeout-minutes: 2
         run: |
+          if [ "${MATRIX_ARCH}" = 'i386' ]; then
+            arch=":${MATRIX_ARCH}"
+          fi
           pkgs=''
           [ "${MATRIX_COMPILER}" = 'clang-tidy' ] && pkgs+=' clang-22 clang-tidy-22'
-          [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && pkgs+=" libgcrypt-dev:${MATRIX_ARCH}"
-          [ "${MATRIX_CRYPTO}" = 'OpenSSL' ] && pkgs+=" libssl-dev:${MATRIX_ARCH}"
-          [ "${MATRIX_CRYPTO}" = 'wolfSSL' ] && pkgs+=" libwolfssl-dev:${MATRIX_ARCH}"
+          [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && pkgs+=" libgcrypt-dev${arch}"
+          [ "${MATRIX_CRYPTO}" = 'OpenSSL' ] && pkgs+=" libssl-dev${arch}"
+          [ "${MATRIX_CRYPTO}" = 'wolfSSL' ] && pkgs+=" libwolfssl-dev${arch}"
           if [ -n "${pkgs}" ]; then
             sudo find /etc/apt/sources.list.d -type f -not -name 'ubuntu.sources' -delete -print
             sudo sed -i '/azure/d' /etc/apt/apt-mirrors.txt; cat /etc/apt/apt-mirrors.txt
@@ -316,7 +319,7 @@ jobs:
         id: cache-aws-lc
         with:
           path: ~/usr
-          key: ${{ runner.os }}-aws-lc-${{ env.AWSLC_VERSION }}-${{ matrix.arch }}
+          key: ${{ runner.os }}-aws-lc-${{ env.AWSLC_VERSION }}-${{ env.MATRIX_ARCH }}
 
       - name: 'install AWS-LC from source'
         if: ${{ matrix.crypto == 'AWS-LC' && !steps.cache-aws-lc.outputs.cache-hit }}
@@ -335,7 +338,7 @@ jobs:
         id: cache-boringssl
         with:
           path: ~/usr
-          key: ${{ runner.os }}-boringssl-${{ env.BORINGSSL_VERSION }}-${{ matrix.arch }}
+          key: ${{ runner.os }}-boringssl-${{ env.BORINGSSL_VERSION }}-${{ env.MATRIX_ARCH }}
 
       - name: 'install BoringSSL from source'
         if: ${{ matrix.crypto == 'BoringSSL' && !steps.cache-boringssl.outputs.cache-hit }}
@@ -354,7 +357,7 @@ jobs:
         id: cache-libressl
         with:
           path: ~/usr
-          key: ${{ runner.os }}-libressl-${{ env.LIBRESSL_VERSION }}-${{ matrix.arch }}
+          key: ${{ runner.os }}-libressl-${{ env.LIBRESSL_VERSION }}-${{ env.MATRIX_ARCH }}
 
       - name: 'install LibreSSL from source'
         if: ${{ matrix.crypto == 'LibreSSL' && !steps.cache-libressl.outputs.cache-hit }}
@@ -373,7 +376,7 @@ jobs:
         id: cache-mbedtls
         with:
           path: ~/usr
-          key: ${{ runner.os }}-mbedtls-${{ env.MBEDTLS_VERSION }}-${{ matrix.arch }}
+          key: ${{ runner.os }}-mbedtls-${{ env.MBEDTLS_VERSION }}-${{ env.MATRIX_ARCH }}
 
       - name: 'install mbedTLS from source'
         if: ${{ matrix.crypto == 'mbedTLS-from-source' && !steps.cache-mbedtls.outputs.cache-hit }}
@@ -402,7 +405,7 @@ jobs:
         id: cache-mbedtls-prev
         with:
           path: ~/usr
-          key: ${{ runner.os }}-mbedtls-${{ env.MBEDTLS_VERSION_PREV }}-${{ matrix.arch }}
+          key: ${{ runner.os }}-mbedtls-${{ env.MBEDTLS_VERSION_PREV }}-${{ env.MATRIX_ARCH }}
 
       - name: 'install mbedTLS (prev) from source'
         if: ${{ matrix.crypto == 'mbedTLS-prev' && !steps.cache-mbedtls-prev.outputs.cache-hit }}
@@ -427,7 +430,7 @@ jobs:
         id: cache-openssl
         with:
           path: ~/usr
-          key: ${{ runner.os }}-openssl-${{ env.OPENSSL_VERSION }}-${{ matrix.arch }}
+          key: ${{ runner.os }}-openssl-${{ env.OPENSSL_VERSION }}-${{ env.MATRIX_ARCH }}
 
       - name: 'install OpenSSL from source'
         if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' && !steps.cache-openssl.outputs.cache-hit }}
@@ -447,7 +450,7 @@ jobs:
         id: cache-openssl111
         with:
           path: ~/usr
-          key: ${{ runner.os }}-openssl-${{ env.OPENSSL111_VERSION }}-${{ matrix.arch }}
+          key: ${{ runner.os }}-openssl-${{ env.OPENSSL111_VERSION }}-${{ env.MATRIX_ARCH }}
 
       - name: 'install OpenSSL 1.1.1 from source'
         if: ${{ matrix.crypto == 'OpenSSL-111-from-source' && !steps.cache-openssl111.outputs.cache-hit }}
