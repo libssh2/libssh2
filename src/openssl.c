@@ -3334,12 +3334,6 @@ int ssh2_ed25519_verify(ssh2_ed25519_ctx *ed_ctx, LIBSSH2_SESSION *session,
     }
 
     (void)session;
-#ifdef LIBSSH2_DEBUG_MLKEM
-    ssh2_deb((session, LIBSSH2_TRACE_KEX,
-              "ssh2_ed25519_verify(%p, %lu, %p, %lu)",
-              (const void *)s, (unsigned long)s_len,
-              (const void *)m, (unsigned long)m_len));
-#endif
 
     ret = EVP_DigestVerify(md_ctx, s, s_len, m, m_len);
     if(ret != 1)
