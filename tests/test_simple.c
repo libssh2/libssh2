@@ -377,6 +377,53 @@ static int test_ssh2_scp_parse_c_fields(void)
     return err > 0;
 }
 
+/*
+ * Regression test for CVE-2026-7598.
+ *
+ * Several userauth request builders size their packet buffer as
+ * username_len + a fixed overhead. Before the fix a username_len close to
+ * UINT_MAX made that addition wrap to a small value: a tiny buffer was
+ * allocated and then username_len bytes were written into it, overflowing
+ * the heap. The fix rejects an out-of-bounds username_len and returns an
+ * error. These checks run before any network I/O, so they are reachable on
+ * a freshly initialised, unconnected session.
+ *
+ * This exercises the two entry points reachable without a server:
+ *   - libssh2_userauth_list()      (userauth_list, username_len + 27)
+ *   - libssh2_userauth_password()  (userauth_password, username_len + 40)
+ * The third path fixed by the CVE (the password-change branch,
+ * username_len + password_len + 44) is only reached after the server sends
+ * SSH_MSG_USERAUTH_PASSWD_CHANGEREQ and therefore requires a live/mock
+ * server; it is not covered by this standalone test.
+ */
+static int test_userauth_bounds(LIBSSH2_SESSION *session)
+{
+    const char *list;
+    int rc;
+    int err = 0;
+
+    /* userauth_list: username_len + 27 must not wrap. */
+    list = libssh2_userauth_list(session, "user", 0xFFFFFFFFU);
+    if(list) {
+        fprintf(stderr,
+                "userauth_list accepted out-of-bounds username_len\n");
+        err++;
+    }
+
+    /* userauth_password: username_len + 40 must not wrap. A fixed library
+     * returns an error (< 0); a vulnerable one overflows during the request
+     * build. */
+    rc = libssh2_userauth_password_ex(session, "user", 0xFFFFFFFFU,
+                                      "pw", 2, NULL);
+    if(rc >= 0) {
+        fprintf(stderr,
+                "userauth_password accepted out-of-bounds username_len\n");
+        err++;
+    }
+
+    return err > 0;
+}
+
 int main(int argc, char *argv[])
 {
     LIBSSH2_SESSION *session;
@@ -401,6 +448,7 @@ int main(int argc, char *argv[])
     rc |= test_ssh2_dh_validate();
     rc |= test_ssh2_bn_from_bin();
     rc |= test_ssh2_scp_parse_c_fields();
+    rc |= test_userauth_bounds(session);
 
     libssh2_session_free(session);
 
