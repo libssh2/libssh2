@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-LogLevel DEBUG1
+LogLevel DEBUG2
 
 CASignatureAlgorithms +ssh-rsa
 HostKeyAlgorithms +ssh-rsa,ssh-rsa-cert-v01@openssh.com
