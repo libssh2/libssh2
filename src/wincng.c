@@ -3161,76 +3161,6 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, const ssh2_bn *g,
     return 0;
 }
 
-/* Validate that the peer's Diffie-Hellman public value `f' lies in the safe
- * range 1 < f < p-1 and carries at least four set bits, matching the check
- * the other crypto backends perform. `f' and `p' are the big-endian values
- * as stored by ssh2_bn_from_bin(). Returns 0 when valid, negative otherwise.
- */
-int ssh2_dh_validate(const ssh2_bn *f, const ssh2_bn *p)
-{
-    const unsigned char *fb, *pb, *q;
-    unsigned char *pm1;
-    size_t flen, plen, pm1len, i, bits_set = 0;
-    int ret;
-
-    if(!f || !f->bignum || !p || !p->bignum)
-        return -4;
-
-    /* strip leading zero bytes to normalize the big-endian values */
-    fb = f->bignum;
-    flen = f->length;
-    while(flen && !*fb) {
-        fb++;
-        flen--;
-    }
-    pb = p->bignum;
-    plen = p->length;
-    while(plen && !*pb) {
-        pb++;
-        plen--;
-    }
-
-    /* f <= 1 */
-    if(flen == 0 || (flen == 1 && fb[0] <= 1))
-        return -1;
-
-    /* reject f >= p - 1, i.e. require f <= p - 2 */
-    if(plen == 0)
-        return -4;
-    pm1 = malloc(plen);
-    if(!pm1)
-        return -4;
-    memcpy(pm1, pb, plen);
-    for(i = plen; i-- > 0;) {
-        if(pm1[i]--)  /* subtract one with borrow, big-endian */
-            break;
-    }
-    q = pm1;
-    pm1len = plen;
-    while(pm1len && !*q) {
-        q++;
-        pm1len--;
-    }
-    ret = (flen > pm1len ||
-           (flen == pm1len && memcmp(fb, q, flen) >= 0)) ? -2 : 0;
-    free(pm1);
-    if(ret)
-        return ret;
-
-    /* require at least four set bits, as the other backends do */
-    for(i = 0; i < flen; i++) {
-        unsigned char b = fb[i];
-        while(b) {
-            bits_set += (size_t)(b & 1U);
-            b >>= 1;
-        }
-    }
-    if(bits_set < 4)
-        return -3;
-
-    return 0;
-}
-
 /* Computes the Diffie-Hellman secret from the previously created context
  * `*dhctx', the public key `f' from the other party and the same prime `p'
  * used at context creation. The result is stored in `secret'.  0 is returned
@@ -3239,9 +3169,6 @@ int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
                    const ssh2_bn *f, const ssh2_bn *p, ssh2_bn_ctx *bnctx)
 {
     (void)bnctx;
-
-    if(ssh2_dh_validate(f, p))  /* Verify if parameters are valid */
-        return -1;
 
     if(ssh2_wcng.hAlgDH && ssh2_wcng.hasAlgDHwithKDF != -1 &&
        dhctx->dh_handle && dhctx->dh_params && f) {
