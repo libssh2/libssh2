@@ -256,8 +256,8 @@ static int wcng_bn_mod_exp(ssh2_bn *r, const ssh2_bn *a, const ssh2_bn *p,
                                         r->bignum, (ULONG)r->length, &offset,
                                         BCRYPT_PAD_NONE);
                     wcng_zero_free(bignum, length);
-                    if(BCRYPT_SUCCESS(ret))
-                        wcng_bn_resize(r, offset);
+                    if(BCRYPT_SUCCESS(ret) && wcng_bn_resize(r, offset))
+                        ret = (NTSTATUS)STATUS_NO_MEMORY;
                 }
                 else
                     ret = (NTSTATUS)STATUS_NO_MEMORY;
