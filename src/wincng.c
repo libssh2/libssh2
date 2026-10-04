@@ -2992,7 +2992,7 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, const ssh2_bn *g,
 
     (void)bnctx;
 
-    if(group_order <= 0)
+    if(group_order <= SSH2_DH_GROUP_ORDER_MIN)
         return -1;
 
     while(ssh2_wcng.hAlgDH && hasAlgDHwithKDF != -1) {

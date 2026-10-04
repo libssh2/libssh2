@@ -319,6 +319,12 @@ int ssh2_dh_secret(ssh2_dh_ctx *dhctx, ssh2_bn *secret,
                    const ssh2_bn *f, const ssh2_bn *p, ssh2_bn_ctx *bnctx);
 void ssh2_dh_dtor(ssh2_dh_ctx *dhctx);
 
+#ifdef LIBSSH2_KEX_SHA1_ENABLE
+#define SSH2_DH_GROUP_ORDER_MIN 128
+#else
+#define SSH2_DH_GROUP_ORDER_MIN 512
+#endif
+
 #if LIBSSH2_RSA
 #define PEM_RSA_HEADER          "-----BEGIN RSA PRIVATE KEY-----"
 #define PEM_RSA_FOOTER          "-----END RSA PRIVATE KEY-----"
