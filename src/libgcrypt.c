@@ -717,6 +717,7 @@ int ssh2_dh_key_pair(ssh2_dh_ctx *dhctx, ssh2_bn *pub, const ssh2_bn *g,
 {
     (void)bnctx;
 
+    printf("group_order||%d||\n", group_order)
     if(group_order <= SSH2_DH_GROUP_ORDER_MIN)
         return -1;
 
