@@ -1343,6 +1343,7 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
         }
 
         bits = ssh2_bn_bits(key_state->p);
+   printf("group_order-bits-1||%zu||%zu||\n", bits, p_len);
         if(bits < SSH2_DH_GEX_MINGROUP ||
            bits > SSH2_DH_GEX_MAXGROUP) {
             ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
