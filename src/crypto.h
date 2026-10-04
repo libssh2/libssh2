@@ -322,7 +322,7 @@ void ssh2_dh_dtor(ssh2_dh_ctx *dhctx);
 #ifdef LIBSSH2_KEX_SHA1_ENABLE
 #define SSH2_DH_GROUP_ORDER_MIN 128
 #else
-#define SSH2_DH_GROUP_ORDER_MIN 512
+#define SSH2_DH_GROUP_ORDER_MIN (SSH2_DH_GEX_MINGROUP / 8 )
 #endif
 
 #if LIBSSH2_RSA
