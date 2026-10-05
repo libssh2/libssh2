@@ -252,7 +252,7 @@ jobs:
           - { compiler: clang, arch: amd64, crypto: OpenSSL                 , build: 'AM', zlib: 'OFF', container: 'podman' }
           - { compiler: clang, arch: amd64, crypto: OpenSSL                 , build: 'AM', zlib: 'ON', target: 'distcheck' }
           - { compiler: clang, arch: amd64, crypto: OpenSSL                 , build: 'AM', zlib: 'ON', target: 'maketgz' }
-          - { compiler: gcc  , arch: amd64, crypto: OpenSSL-3-no-deprecated , build: 'CM', zlib: 'ON', image: ubuntu-26.04, container: 'podman' }
+          - { compiler: gcc  , arch: amd64, crypto: OpenSSL-4-no-deprecated , build: 'CM', zlib: 'ON', image: ubuntu-26.04, container: 'podman' }
           - { compiler: gcc  , arch: amd64, crypto: OpenSSL-111-from-source , build: 'CM', zlib: 'ON', image: ubuntu-26.04 }
           - { compiler: clang, arch: amd64, crypto: wolfSSL-from-source     , build: 'CM', zlib: 'ON', image: ubuntu-26.04, container: 'podman' }
           - { compiler: clang, arch: amd64, crypto: wolfSSL-from-source-prev, build: 'CM', zlib: 'ON', image: ubuntu-26.04 }
@@ -425,7 +425,7 @@ jobs:
           cmake --install .
 
       - name: 'cache OpenSSL'
-        if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' }}
+        if: ${{ matrix.crypto == 'OpenSSL-4-no-deprecated' }}
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         id: cache-openssl
         with:
@@ -433,7 +433,7 @@ jobs:
           key: ${{ runner.os }}-openssl-${{ env.OPENSSL_VERSION }}-${{ env.MATRIX_ARCH }}
 
       - name: 'install OpenSSL from source'
-        if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' && !steps.cache-openssl.outputs.cache-hit }}
+        if: ${{ matrix.crypto == 'OpenSSL-4-no-deprecated' && !steps.cache-openssl.outputs.cache-hit }}
         run: |
           curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
             --location --proto-redir =https "https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz" --output pkg.bin
