@@ -1954,6 +1954,7 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
         rc = ssh2_mlkem_get_sk(shared_secret, mlkem_size, private_pq_key,
                                server_public_key);
         if(rc) {
+            ssh2_explicit_zero(shared_secret, shared_secret_len);
             ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                            "Unable to create mlkem shared secret");
             goto clean_exit;
@@ -1961,14 +1962,17 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
 
         if(ssh2_bn_to_bin(exchange_state->k,
                           shared_secret + SSH2_MLKEM_SHARED_SECRET_LEN)) {
+            ssh2_explicit_zero(shared_secret, shared_secret_len);
             ret = ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                            "Cannot write shared secret");
             goto clean_exit;
         }
 
         /* verify hash */
-        if(!ssh2_hash(hash_alg, shared_secret, shared_secret_len,
-                      exchange_state->k_value + 4, digest_len)) {
+        rc = ssh2_hash(hash_alg, shared_secret, shared_secret_len,
+                       exchange_state->k_value + 4, digest_len);
+        ssh2_explicit_zero(shared_secret, shared_secret_len);
+        if(!rc) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                            "kex: failed to calculate hash");
             goto clean_exit;
