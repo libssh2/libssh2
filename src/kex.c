@@ -375,8 +375,11 @@ static void kex_diffie_hellman_state_cleanup(
         SSH2_SAFEFREE(session, exchange_state->e_packet);
     if(exchange_state->s_packet)
         SSH2_SAFEFREE(session, exchange_state->s_packet);
-    if(exchange_state->k_value)
-        SSH2_SAFEFREE(session, exchange_state->k_value);
+    if(exchange_state->k_value) {
+        ssh2_zero_free(session, exchange_state->k_value,
+                                exchange_state->k_value_len);
+        exchange_state->k_value = NULL;
+    }
 
     exchange_state->state = ssh2_NB_state_idle;
 }
@@ -1490,8 +1493,11 @@ static void kex_ecdh_exchange_state_cleanup(
     ssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
 
-    if(exchange_state->k_value)
-        SSH2_SAFEFREE(session, exchange_state->k_value);
+    if(exchange_state->k_value) {
+        ssh2_zero_free(session, exchange_state->k_value,
+                                exchange_state->k_value_len);
+        exchange_state->k_value = NULL;
+    }
 
     exchange_state->state = ssh2_NB_state_idle;
 }
@@ -1795,8 +1801,11 @@ static void kex_mlkem_nistp_exchange_state_cleanup(
     ssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
 
-    if(exchange_state->k_value)
-        SSH2_SAFEFREE(session, exchange_state->k_value);
+    if(exchange_state->k_value) {
+        ssh2_zero_free(session, exchange_state->k_value,
+                                exchange_state->k_value_len);
+        exchange_state->k_value = NULL;
+    }
 
     exchange_state->state = ssh2_NB_state_idle;
 }
@@ -1954,6 +1963,7 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
         rc = ssh2_mlkem_get_sk(shared_secret, mlkem_size, private_pq_key,
                                server_public_key);
         if(rc) {
+            ssh2_explicit_zero(shared_secret, shared_secret_len);
             ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                            "Unable to create mlkem shared secret");
             goto clean_exit;
@@ -1961,14 +1971,17 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
 
         if(ssh2_bn_to_bin(exchange_state->k,
                           shared_secret + SSH2_MLKEM_SHARED_SECRET_LEN)) {
+            ssh2_explicit_zero(shared_secret, shared_secret_len);
             ret = ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                            "Cannot write shared secret");
             goto clean_exit;
         }
 
         /* verify hash */
-        if(!ssh2_hash(hash_alg, shared_secret, shared_secret_len,
-                      exchange_state->k_value + 4, digest_len)) {
+        rc = ssh2_hash(hash_alg, shared_secret, shared_secret_len,
+                       exchange_state->k_value + 4, digest_len);
+        ssh2_explicit_zero(shared_secret, shared_secret_len);
+        if(!rc) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                            "kex: failed to calculate hash");
             goto clean_exit;
@@ -2147,8 +2160,11 @@ static void kex_curve25519_exchange_state_cleanup(
     ssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
 
-    if(exchange_state->k_value)
-        SSH2_SAFEFREE(session, exchange_state->k_value);
+    if(exchange_state->k_value) {
+        ssh2_zero_free(session, exchange_state->k_value,
+                                exchange_state->k_value_len);
+        exchange_state->k_value = NULL;
+    }
 
     exchange_state->state = ssh2_NB_state_idle;
 }
@@ -2407,8 +2423,11 @@ static void kex_mlkem768x25519_exchange_state_cleanup(
     ssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
 
-    if(exchange_state->k_value)
-        SSH2_SAFEFREE(session, exchange_state->k_value);
+    if(exchange_state->k_value) {
+        ssh2_zero_free(session, exchange_state->k_value,
+                                exchange_state->k_value_len);
+        exchange_state->k_value = NULL;
+    }
 
     exchange_state->state = ssh2_NB_state_idle;
 }
@@ -2523,6 +2542,7 @@ static int kex_mlkem768x25519_sha256(
         rc = ssh2_mlkem_get_sk(shared_secret, 768,
                                private_pq_key, server_public_key);
         if(rc) {
+            ssh2_explicit_zero(shared_secret, sizeof(shared_secret));
             ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                            "Unable to create mlkem shared secret");
             goto clean_exit;
@@ -2533,6 +2553,7 @@ static int kex_mlkem768x25519_sha256(
                                    server_public_key +
                                        SSH2_MLKEM_768_CIPHERTEXT);
         if(rc) {
+            ssh2_explicit_zero(shared_secret, sizeof(shared_secret));
             ret = ssh2_err(session, LIBSSH2_ERROR_KEX_FAILURE,
                            "Unable to create curve25519 shared secret");
             goto clean_exit;
@@ -2545,6 +2566,7 @@ static int kex_mlkem768x25519_sha256(
            uninitialized. */
         x25519_len = ssh2_bn_bytes(exchange_state->k);
         if(x25519_len == 0 || x25519_len > SSH2_ED25519_KEY_LEN) {
+            ssh2_explicit_zero(shared_secret, sizeof(shared_secret));
             ret = ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                            "Invalid curve25519 shared secret length");
             goto clean_exit;
@@ -2554,15 +2576,18 @@ static int kex_mlkem768x25519_sha256(
         if(ssh2_bn_to_bin(exchange_state->k,
                           shared_secret + SSH2_MLKEM_SHARED_SECRET_LEN +
                           SSH2_ED25519_KEY_LEN - x25519_len)) {
+            ssh2_explicit_zero(shared_secret, sizeof(shared_secret));
             ret = ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                            "Cannot write shared secret");
             goto clean_exit;
         }
 
         /* verify hash */
-        if(!ssh2_hash(SSH2_SHA256_ALG, shared_secret,
-                      SSH2_MLKEM_SHARED_SECRET_LEN + SSH2_ED25519_KEY_LEN,
-                      exchange_state->k_value + 4, SSH2_SHA256_DIG_LEN)) {
+        rc = ssh2_hash(SSH2_SHA256_ALG, shared_secret,
+                       SSH2_MLKEM_SHARED_SECRET_LEN + SSH2_ED25519_KEY_LEN,
+                       exchange_state->k_value + 4, SSH2_SHA256_DIG_LEN);
+        ssh2_explicit_zero(shared_secret, sizeof(shared_secret));
+        if(!rc) {
             ret = ssh2_err(session, LIBSSH2_ERROR_HASH_CALC,
                            "kex: failed to calculate hash");
             goto clean_exit;
