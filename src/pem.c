@@ -383,6 +383,8 @@ out:
 #define OPENSSH_PRIVKEY_FOOTER     "-----END OPENSSH PRIVATE KEY-----"
 #define OPENSSH_PRIVKEY_AUTH_MAGIC "openssh-key-v1"
 
+#define SSH2_KDF_ROUNDS_MAX  (1 << 20)
+
 static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
                                   const char *passphrase,
                                   const char *b64data, size_t b64datalen,
@@ -543,6 +545,12 @@ static int pem_parse_data_openssh(LIBSSH2_SESSION *session,
                ssh2_get_u32(&kdf_buf, &rounds) != 0) {
                 ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                "KDF contains unexpected values");
+                goto out;
+            }
+
+            if(rounds > SSH2_KDF_ROUNDS_MAX) {
+                ret = ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                               "Too many KDF rounds");
                 goto out;
             }
 
