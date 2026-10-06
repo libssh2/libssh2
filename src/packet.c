@@ -119,7 +119,6 @@ static SSH2_INLINE int packet_queue_listener(
                        listen_state->host_len)) {
                 /* This is our listener */
                 LIBSSH2_CHANNEL *channel = NULL;
-                listen_state->channel = NULL;
 
                 if(listen_state->state == ssh2_NB_state_allocated) {
                     if(listn->queue_maxsize &&
@@ -341,6 +340,8 @@ static SSH2_INLINE int packet_x11_open(
             }
 
             channel = SSH2_CALLOC(session, sizeof(LIBSSH2_CHANNEL));
+            x11open_state->channel = channel;
+
             if(!channel) {
                 ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                          "allocate a channel for new connection");
