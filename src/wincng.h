@@ -64,7 +64,6 @@
 #define LIBSSH2_RSA 1
 #define LIBSSH2_RSA_SHA1 1
 #define LIBSSH2_RSA_SHA2 1
-#define LIBSSH2_DSA 1
 #define LIBSSH2_ED25519 0
 #define LIBSSH2_MLKEM 0
 
@@ -106,9 +105,6 @@ struct wcng_ctx {
     BCRYPT_ALG_HANDLE hAlgHmacSHA384;
     BCRYPT_ALG_HANDLE hAlgHmacSHA512;
     BCRYPT_ALG_HANDLE hAlgRSA;
-#if LIBSSH2_DSA
-    BCRYPT_ALG_HANDLE hAlgDSA;
-#endif
     BCRYPT_ALG_HANDLE hAlgAES_CBC;
     BCRYPT_ALG_HANDLE hAlgAES_ECB;
 #if LIBSSH2_RC4
@@ -184,14 +180,6 @@ struct wcng_key_ctx {
  */
 
 #define ssh2_rsa_ctx struct wcng_key_ctx
-
-/*
- * Windows CNG backend: DSA functions
- */
-
-#if LIBSSH2_DSA
-#define ssh2_dsa_ctx struct wcng_key_ctx
-#endif
 
 /*
  * Windows CNG backend: ECDSA functions

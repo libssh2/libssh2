@@ -20,11 +20,6 @@
 #define LIBSSH2_HMAC_RIPEMD 0
 #endif
 
-#ifndef LIBSSH2_DSA_ENABLE
-#undef LIBSSH2_DSA
-#define LIBSSH2_DSA 0
-#endif
-
 #ifdef LIBSSH2_NO_RSA
 #undef LIBSSH2_RSA
 #define LIBSSH2_RSA 0
