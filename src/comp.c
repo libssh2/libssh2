@@ -142,7 +142,8 @@ static int comp_method_zlib_init(LIBSSH2_SESSION *session, int compr,
     strm->zalloc = (alloc_func)comp_method_zlib_alloc;
     strm->zfree = (free_func)comp_method_zlib_free;
     if(compr)
-        status = deflateInit(strm, Z_DEFAULT_COMPRESSION);
+        status = deflateInit2(strm, Z_BEST_SPEED, Z_DEFLATED, 15, 8,
+                              Z_HUFFMAN_ONLY);
     else
         status = inflateInit(strm);
 
