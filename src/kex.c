@@ -375,8 +375,11 @@ static void kex_diffie_hellman_state_cleanup(
         SSH2_SAFEFREE(session, exchange_state->e_packet);
     if(exchange_state->s_packet)
         SSH2_SAFEFREE(session, exchange_state->s_packet);
-    if(exchange_state->k_value)
-        SSH2_SAFEFREE(session, exchange_state->k_value);
+    if(exchange_state->k_value) {
+        ssh2_zero_free(session, exchange_state->k_value,
+                                exchange_state->k_value_len);
+        exchange_state->k_value = NULL;
+    }
 
     exchange_state->state = ssh2_NB_state_idle;
 }
@@ -1490,8 +1493,11 @@ static void kex_ecdh_exchange_state_cleanup(
     ssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
 
-    if(exchange_state->k_value)
-        SSH2_SAFEFREE(session, exchange_state->k_value);
+    if(exchange_state->k_value) {
+        ssh2_zero_free(session, exchange_state->k_value,
+                                exchange_state->k_value_len);
+        exchange_state->k_value = NULL;
+    }
 
     exchange_state->state = ssh2_NB_state_idle;
 }
@@ -1795,8 +1801,11 @@ static void kex_mlkem_nistp_exchange_state_cleanup(
     ssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
 
-    if(exchange_state->k_value)
-        SSH2_SAFEFREE(session, exchange_state->k_value);
+    if(exchange_state->k_value) {
+        ssh2_zero_free(session, exchange_state->k_value,
+                                exchange_state->k_value_len);
+        exchange_state->k_value = NULL;
+    }
 
     exchange_state->state = ssh2_NB_state_idle;
 }
@@ -2151,8 +2160,11 @@ static void kex_curve25519_exchange_state_cleanup(
     ssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
 
-    if(exchange_state->k_value)
-        SSH2_SAFEFREE(session, exchange_state->k_value);
+    if(exchange_state->k_value) {
+        ssh2_zero_free(session, exchange_state->k_value,
+                                exchange_state->k_value_len);
+        exchange_state->k_value = NULL;
+    }
 
     exchange_state->state = ssh2_NB_state_idle;
 }
@@ -2411,8 +2423,11 @@ static void kex_mlkem768x25519_exchange_state_cleanup(
     ssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
 
-    if(exchange_state->k_value)
-        SSH2_SAFEFREE(session, exchange_state->k_value);
+    if(exchange_state->k_value) {
+        ssh2_zero_free(session, exchange_state->k_value,
+                                exchange_state->k_value_len);
+        exchange_state->k_value = NULL;
+    }
 
     exchange_state->state = ssh2_NB_state_idle;
 }
