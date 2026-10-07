@@ -250,6 +250,7 @@ This release includes the following enhancements and bugfixes:
 - cmake/Find*: clear package version after `pkg-config` detection (d4e43c7b #1479)
 - cmakelint: also lint CMake `.in` files (fixup), fix a long line (69bed46a #1751)
 - cmakelint: also lint CMake `.in` files (9e4d307e #1751)
+- comp: mitigate potential side-channel attack by disabling LZ77 in zlib compression (d4e57803 #2658)
 - comp: check and avoid overflow in `comp_method_zlib_alloc()` (e8f815d3 #1924)
 - comp: add defensive code if src buffer is empty/null (7bcb223b #1813)
 - comp: use `z_const` when zlib supports it (c03eb8d3 #1555)
@@ -330,6 +331,8 @@ This release includes the following enhancements and bugfixes:
 - example/x11: fix messages, buffer sizes, error handling (5b734389 #1886 follow: 32080def)
 - example/x11: fix/simplify node removal (8eaef7c7 #1867 follow: 32080def)
 - example/x11: free session/cleanup (bb3c6bbf #1762)
+- GHA: bump to LibreSSL 4.3.3, OpenSSL 4.0.3 (from 3.6.x) (8f80526c #2652)
+- GHA: replace `diffie-hellman-group-exchange-sha256` with `diffie-hellman-group16-sha512` (740c2d33 #2648 #2590)
 - GHA: move some jobs to ubuntu-slim and arm64 (a95ed7d8 #2644)
 - GHA: run clang-tidy jobs on arm64 Linux (bb63c2f5 #2643)
 - GHA: bump dependencies (b0028ca5 #2641)
@@ -496,6 +499,8 @@ This release includes the following enhancements and bugfixes:
 - INSTALL-CMAKE: update minimum version and links, drop old cmake instructions (fd43ce89 #1873 #1839)
 - INSTALL-CMAKE: fixes build result directories (98cd10d1 #1617)
 - keepalive: verify if `session` is non-NULL (4c8ff933 #2345)
+- kex: clear buffers holding secrets (826fdb28 #2655 #2654 #2653 #1644)
+- kex: drop ML-KEM debug/trace code (9c731b2d #2651 #2633 #2259 #2227 #1644)
 - kex: zero-pad x25519 shared secret in mlkem768x25519 (4f2692fd #2633 #1644)
 - kex: adjust type to drop casts for `ssh2_bn_bits()` value (c3c1743a #2593)
 - kex: disable SHA1-based methods by default (99f93535 #2443)
@@ -566,6 +571,9 @@ This release includes the following enhancements and bugfixes:
 - libssh2_scp_send, libssh2_scp_send_ex: add deprecation warning (70276045)
 - libssh2_sign_sk: add `LIBSSH2_API` attribute, document availability (e0635ab4 #1965 #698 follow: ed439a29)
 - libssh2_trace.3: Update prototype (7495084b #1518 #1517)
+- libssh2_userauth_keyboard_interactive_ex.md: fix allocator requirement (59329f34 #2661 GHSA-p6p8-66vc-3f24 #2659 follow: d4aa801f follow: da653774)
+- libssh2_userauth_publickey_sk.md: say `LIBSSH2_ALLOC_FUNC` (was: `SSH2_ALLOC`) (77e54d83 #2660 #698 follow: ed439a29)
+- libssh2.h: add two FIXMEs for allocator requirements (ce631aaf #2659 GHSA-p6p8-66vc-3f24)
 - libssh2.h: macro value formatting (1545df09 #2576)
 - libssh2.h: bump `LIBSSH2_VERSION_PATCH` to match version string (5c1f36c6 #2219 follow: c04d57e7)
 - libssh2.h: merge two `#if` branches (cbdb0a8c #1869 #1793 #1578)
@@ -710,6 +718,7 @@ This release includes the following enhancements and bugfixes:
 - ossfuzz: replace assert() with goto in ssh2_client_fuzzer (e7e0383b #1823)
 - ossfuzz: fix picky compiler warnings, make it pass `checksrc` (96cbe618 #1526 #901 follow: 50124428)
 - ossfuzz.sh: disable build options unnecessary for fuzzing (6857c88c #2447)
+- packet: keep new channel across EAGAIN in x11 and tcpip forward opens (ff501d63 #2656 #1427)
 - packet: fix memleak on receiving multiple `exit-signal` packets (0a17ea04 #2504 GHSA-53q9-wmqr-fh7c follow: 6140ec2d)
 - packet: fix use-after-free of ignored extended data on eagain (bf7fa4c1 #2450)
 - packet: use `SSH2_IS_LITERAL()` macro (eaf7c1a0 #2433 #2429)
@@ -727,6 +736,7 @@ This release includes the following enhancements and bugfixes:
 - packet: fix type mismatch in "reason code" (13a71451 #1706)
 - packet, sftp: replace `strlen()` on literals with `sizeof()` (2eeae1e0 #2432 #752 #2400 #2224 #1179 follow: 88a960a8 follow: bc4e619e)
 - packet.h: delete two orphan function prototypes (db8e79fa #2267)
+- pem: cap accepted KDF rounds in `pem_parse_data_openssh()` (5d27ee28 #2657 GHSA-vc97-vgww-qggv)
 - pem: reduce static scope, use more `sizeof()` (89fa7a94 #2441)
 - pem: fix to exactly match the legacy PEM crypt annotation header (e3a428b8 #2440 #2438 follow: 386e0122)
 - pem: de-duplicate two identical curve type conversions functions (5cee2004 #2427 #2421)
@@ -899,6 +909,8 @@ This release includes the following enhancements and bugfixes:
 - test_ssh2, examples: avoid crash on NULL fingerprint (f784c21d #2179 #2174)
 - test_sshd.test: add RSA and ECDSA `HostCertificate` options (7498e661 #2612 #2539)
 - test_sshd.test: sync an option with `sshd_config` used in `Dockerfile` (cae4e3f8 #2481 #1024 follow: d4690e95)
+- tests: retry '(-43): Failed getting banner' flaky failures (2233bf95 #2662 #2603)
+- tests: set `PerSourcePenalties` for sshd, bump debug level to 2 (4ab391ec #2650 #2649 #2621)
 - tests: dump container sshd log for test failures (45aa5c5f #2621 #2484 #2174 #1720)
 - tests: add ML-DSA host keys (not used or supported by libssh2) (5c50ea8a #2615)
 - tests: add support for `podman`, Apple `container` (9bd1f16d #2605)
@@ -1047,6 +1059,8 @@ This release includes the following enhancements and bugfixes:
 - vms/man2help: make functions static (b599ff5e)
 - vms/man2help: add missing void return type to prototype (aa45503a)
 - vms/man2help: misc fixes (3ec2920b #1902)
+- wincng: validate Diffie-Hellman public value in `ssh2_dh_secret()` (7f28c290 #2645 GHSA-m9rg-h9jv-9gvh #2239)
+- wincng: check bignum length and resize result in `wcng_bn_mod_exp()` (10c374ca #2649 #2645)
 - wincng: fix ECC private key blob allocation size (01d0c895 #2631 #1315 follow: 3e723437)
 - wincng: fix builds with RSA and DSA disabled (3f26c15b #2600)
 - wincng: normalize fixed-width DH values before mpint encoding (f216bbe3 #2583 #804 #2590)
@@ -1107,21 +1121,22 @@ advice from friends like these:
   Anders Borum, Asaf Meizner, Behzod Abdullayev, Bruce Dang, Chen Zhengzhe,
   Chris Emsen, Christian Ghisler, Christoph Reiter, d3x0r, Dan Fandrich,
   Daniel Stenberg, dapickle on github, Darren Carreras, dependabot[bot],
-  Dhiraj Mishra, DigitalCyberSoft, Eli Schwartz, Evgeny Grin, Feodor Fitsner,
-  filtede98, geral-victor on github, Hananto Adi, Haruki Oyama, Hemant Jadhav,
-  Huang Rui, hyunjiHong on github, Jacob Barthelmeh, Jay Satiro, Joren Afman,
-  Josh Brobst, Joshua Rogers, Justin Smith, Kai Pastor, Karnakar Reddy,
-  Kian Kasad, Kit Knox, Krisscut on github, Lars Nordin, Liu Xing Yu,
-  Lucas Queiroz, Lukas Dürrenberger, lv2dev, manus-use on github,
-  manusjs on github, Marc Hörsken, Marcel Raad, Martin Nowak,
-  Mateusz Gierblinski, Michael Buckley, Mухтар Воблоев,
-  nnarayanamurthy on github, Nora-Qiu, Oblivionsage, Oliver Chang, Omkar Bhor,
-  oss-patch, Pascal Neuperger, Patrick Monnerat, Paul Howarth, Pedro Masteguin,
-  Pier Carlo Cadoppi, Pramod Kumar, pyscripter on github, QcN3ep,
-  R6502 on github (Michael), Rainer Jung, Ralf Mueller, Raul Tambre,
-  RELAUNCH DEPT., RuiZhi Zhang, Ryan Kelley, Sebastien Tardif, Seojun Lee,
-  sergey1369, Sharique Raza, skuodi on github, Stanislav Osipov,
-  Stephan Eggermont, syed abdul khaliq, timelyslot on gitHub, TristanInSec,
-  trustytrojan, Trzik on github, Viktor Szakats, Vladimir Eli Tokarev,
+  Dhiraj Mishra, DigitalCyberSoft, Eli Schwartz, Evgeny Grin, Fabian Bäumer,
+  Feodor Fitsner, filtede98, geral-victor on github, Hananto Adi, Haruki Oyama,
+  Hemant Jadhav, Huang Rui, hyunjiHong on github, Jacob Barthelmeh, Jay Satiro,
+  Job Snijders, Joren Afman, Josh Brobst, Joshua Rogers, Justin Smith,
+  Kai Pastor, Karnakar Reddy, Kian Kasad, Kit Knox, Krisscut on github,
+  Lars Nordin, Liu Xing Yu, Lucas Queiroz, Lukas Dürrenberger, lv2dev,
+  Makise Kurisu, manus-use on github, manusjs on github, Marc Hörsken,
+  Marcel Raad, Marcus Brinkmann, Martin Nowak, Mateusz Gierblinski,
+  Michael Buckley, Mухтар Воблоев, nnarayanamurthy on github, Nora-Qiu,
+  Oblivionsage, Oliver Chang, Omkar Bhor, oss-patch, Pascal Neuperger,
+  Patrick Monnerat, Paul Howarth, Pedro Masteguin, Pier Carlo Cadoppi,
+  Pramod Kumar, pyscripter on github, QcN3ep, R6502 on github (Michael),
+  Rainer Jung, Ralf Mueller, Raul Tambre, Ravikanth, RELAUNCH DEPT.,
+  RuiZhi Zhang, Ryan Kelley, Sebastien Tardif, Seojun Lee, sergey1369,
+  Sharique Raza, skuodi on github, Stanislav Osipov, Stephan Eggermont,
+  syed abdul khaliq, timelyslot on gitHub, TristanInSec, trustytrojan,
+  Trzik on github, Viktor Szakats, Vladimir Eli Tokarev,
   vnth4nhnt from CyStack, Wilfried Pascault, Will Cosgrove,
-  yaotushaozhu on github, Yaroslav Rosomakho, Ze Sheng
+  yaotushaozhu on github, Yaroslav Rosomakho, Yin Luming, Ze Sheng
