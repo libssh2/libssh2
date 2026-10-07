@@ -35,7 +35,6 @@
 #include "libssh2_priv.h"
 
 #include <ctype.h>
-#include <stdlib.h>  /* for free() */
 
 #include "transport.h"
 #include "session.h"
@@ -2064,11 +2063,9 @@ cleanup:
                 SSH2_SAFEFREE(session, session->userauth_kybd_prompts[i].text);
 
         if(session->userauth_kybd_responses)
-            for(i = 0; i < session->userauth_kybd_num_prompts; i++) {
-                /* use default system free, to match the API requirement */
-                free(session->userauth_kybd_responses[i].text);
-                session->userauth_kybd_responses[i].text = NULL;
-            }
+            for(i = 0; i < session->userauth_kybd_num_prompts; i++)
+                SSH2_SAFEFREE(session,
+                              session->userauth_kybd_responses[i].text);
 
         if(session->userauth_kybd_prompts)
             SSH2_SAFEFREE(session, session->userauth_kybd_prompts);

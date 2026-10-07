@@ -988,8 +988,8 @@ static int session_free(LIBSSH2_SESSION *session)
     if(session->userauth_kybd_responses) {
         for(i = 0; i < session->userauth_kybd_num_prompts; i++)
             if(session->userauth_kybd_responses[i].text)
-                /* use default system free, to match the API requirement */
-                free(session->userauth_kybd_responses[i].text);
+                SSH2_FREE(session,
+                          session->userauth_kybd_responses[i].text);
         SSH2_FREE(session, session->userauth_kybd_responses);
     }
     if(session->open_packet)
