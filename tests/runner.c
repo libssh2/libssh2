@@ -49,7 +49,7 @@ int main(void)
         }
         else
             exit_code = 1;
-        stop_session_fixture();
+        stop_session_fixture(exit_code);
         /* Retry:
           'libssh2_session_handshake failed (-43): Failed getting banner' */
         if(exit_code == 0 || rc != LIBSSH2_ERROR_SOCKET_RECV ||
