@@ -1247,6 +1247,11 @@ jobs:
             sudo pkg install -y ${MATRIX_INSTALL}
           elif [ "${MATRIX_OS}" = 'midnightbsd' ]; then
             sudo mport install ${MATRIX_INSTALL} | grep -v -E '(Downloading.+%|^/usr/local)' || true
+            if [ "${MATRIX_BUILD}" = 'CM' ]; then
+              command -v cmake >/dev/null 2>&1
+            else
+              command -v make >/dev/null 2>&1
+            fi
           elif [ "${MATRIX_OS}" = 'netbsd' ]; then
             sudo pkgin -y install ${MATRIX_INSTALL}
           elif [ "${MATRIX_OS}" = 'openbsd' ]; then
