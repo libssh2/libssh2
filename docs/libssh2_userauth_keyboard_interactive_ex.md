@@ -36,11 +36,12 @@ for.
 *username_len* - Length of username parameter.
 
 *response_callback* - As authentication proceeds, the host issues several
-(1 or more) challenges and requires responses. This callback is called at
-this moment. The callback is responsible to obtain responses for the
-challenges, fill the provided data structure and then return
-control. Responses are sent to the host. String values are free(3)ed
-by the library. The callback prototype must match this:
+(1 or more) challenges and requires responses. This callback is called at this
+moment. The callback is responsible to obtain responses for the challenges,
+fill the provided data structure and then return control. Use the custom
+LIBSSH2_ALLOC_FUNC (or, if not set, the default system allocator) to allocate
+memory for the `text` field. Responses are sent to the host. The callback
+prototype must match this:
 
 ~~~c
 void response(const char *name,
