@@ -218,14 +218,14 @@ typedef off_t libssh2_struct_stat_size;
 #endif
 typedef struct _LIBSSH2_USERAUTH_KBDINT_PROMPT
 {
-    unsigned char *text;
+    unsigned char *text;  /* FIXME: require LIBSSH2_ALLOC_FUNC */
     size_t length;
     unsigned char echo;
 } LIBSSH2_USERAUTH_KBDINT_PROMPT;
 
 typedef struct _LIBSSH2_USERAUTH_KBDINT_RESPONSE
 {
-    char *text;
+    char *text;           /* FIXME: require LIBSSH2_ALLOC_FUNC */
     unsigned int length;  /* FIXME: change type to size_t */
 } LIBSSH2_USERAUTH_KBDINT_RESPONSE;
 
