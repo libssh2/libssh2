@@ -47,6 +47,31 @@
 #define SCP_C_FIELDS_INCOMPLETE  1
 #define SCP_C_FIELDS_MALFORMED   (-1)
 
+static void scp_error_save(LIBSSH2_SESSION *session,
+                           struct scp_error_state *error)
+{
+    error->message = session->err_msg;
+    error->code = session->err_code;
+    error->flags = session->err_flags;
+
+    session->err_msg = NULL;
+    session->err_code = LIBSSH2_ERROR_NONE;
+    session->err_flags = 0;
+}
+
+static void scp_error_restore(LIBSSH2_SESSION *session,
+                              struct scp_error_state *error)
+{
+    if(session->err_msg && (session->err_flags & SSH2_ERR_FLAG_DUP))
+        SSH2_FREE(session, SSH2_UNCONST(session->err_msg));
+
+    session->err_msg = error->message;
+    session->err_code = error->code;
+    session->err_flags = error->flags;
+
+    memset(error, 0, sizeof(*error));
+}
+
 /*
  * Parse mode and size from an SCP "C" response line fragment.
  *
@@ -337,14 +362,15 @@ static LIBSSH2_CHANNEL *scp_recv(LIBSSH2_SESSION *session,
 {
     size_t cmd_len;
     int rc;
-    int tmp_err_code;
-    const char *tmp_err_msg;
 
     if(!path) {
         ssh2_err(session, LIBSSH2_ERROR_INVAL,
                  "Path argument can not be null");
         return NULL;
     }
+
+    if(session->scpRecv_state == ssh2_NB_state_error_closing)
+        goto scp_recv_error_closing;
 
     if(session->scpRecv_state == ssh2_NB_state_idle) {
         session->scpRecv_mode = 0;
@@ -820,13 +846,17 @@ scp_recv_empty_channel:
         return session->scpRecv_channel;
     /* fall-through */
 scp_recv_error:
-    tmp_err_code = session->err_code;
-    tmp_err_msg = session->err_msg;
-    while(libssh2_channel_free(session->scpRecv_channel) ==
-          LIBSSH2_ERROR_EAGAIN)
-        ;
-    session->err_code = tmp_err_code;
-    session->err_msg = tmp_err_msg;
+    scp_error_save(session, &session->scpRecv_error);
+    session->scpRecv_state = ssh2_NB_state_error_closing;
+
+scp_recv_error_closing:
+    rc = libssh2_channel_free(session->scpRecv_channel);
+    if(rc == LIBSSH2_ERROR_EAGAIN) {
+        ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
+                 "Would block closing SCP channel");
+        return NULL;
+    }
+    scp_error_restore(session, &session->scpRecv_error);
     session->scpRecv_channel = NULL;
     session->scpRecv_state = ssh2_NB_state_idle;
     return NULL;
@@ -891,14 +921,15 @@ static LIBSSH2_CHANNEL *scp_send(LIBSSH2_SESSION *session,
 {
     size_t cmd_len;
     int rc;
-    int tmp_err_code;
-    const char *tmp_err_msg;
 
     if(!path) {
         ssh2_err(session, LIBSSH2_ERROR_INVAL,
                  "Path argument can not be null");
         return NULL;
     }
+
+    if(session->scpSend_state == ssh2_NB_state_error_closing)
+        goto scp_send_error_closing;
 
     if(session->scpSend_state == ssh2_NB_state_idle) {
         session->scpSend_command_len =
@@ -1170,13 +1201,17 @@ scp_send_empty_channel:
         return session->scpSend_channel;
     /* fall-through */
 scp_send_error:
-    tmp_err_code = session->err_code;
-    tmp_err_msg = session->err_msg;
-    while(libssh2_channel_free(session->scpSend_channel) ==
-          LIBSSH2_ERROR_EAGAIN)
-        ;
-    session->err_code = tmp_err_code;
-    session->err_msg = tmp_err_msg;
+    scp_error_save(session, &session->scpSend_error);
+    session->scpSend_state = ssh2_NB_state_error_closing;
+
+scp_send_error_closing:
+    rc = libssh2_channel_free(session->scpSend_channel);
+    if(rc == LIBSSH2_ERROR_EAGAIN) {
+        ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
+                 "Would block closing SCP channel");
+        return NULL;
+    }
+    scp_error_restore(session, &session->scpSend_error);
     session->scpSend_channel = NULL;
     session->scpSend_state = ssh2_NB_state_idle;
     return NULL;
