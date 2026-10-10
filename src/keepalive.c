@@ -47,6 +47,7 @@ void libssh2_keepalive_config(LIBSSH2_SESSION *session,
     else
         session->keepalive_interval = ssh2_sec_to_timediff(interval_s);
     session->keepalive_want_reply = want_reply ? 1 : 0;
+    session->keepalive_last_sent = time(NULL);
 }
 
 int libssh2_keepalive_send(LIBSSH2_SESSION *session, int *seconds_to_next)
