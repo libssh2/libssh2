@@ -161,6 +161,7 @@ EXTRA_DIST = \
   openssh_server/ssh_host_rsa_key-cert.pub \
   openssh_server/ssh_host_rsa_key.pub \
   openssh_server/sshd_config \
+  sshd_config-compression-no.conf  \
   test_read_algos.test \
   test_read_algos.txt \
   test_sshd.test

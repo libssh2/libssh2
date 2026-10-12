@@ -91,7 +91,6 @@ chmod go-rwx \
   -o "HostCertificate ${d}/openssh_server/ssh_host_ecdsa_key-cert.pub" \
   -o "HostCertificate ${d}/openssh_server/ssh_host_ed25519_key-cert.pub" \
   -o "HostCertificate ${d}/openssh_server/ssh_host_mldsa44-ed25519_key-cert.pub" \
-  -o 'KbdInteractiveAuthentication yes' \
   -o 'PermitRootLogin yes' \
   -D \
   ${SSHD_FLAGS} &

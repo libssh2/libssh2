@@ -41,15 +41,13 @@ RUN adduser --disabled-password --gecos 'Test user for libssh2 integration tests
 RUN echo 'libssh2:my test password' | chpasswd
 
 # Config
-RUN sed -i 's/KbdInteractiveAuthentication no/KbdInteractiveAuthentication yes/' /etc/ssh/sshd_config
-COPY sshd_config /tmp/etc/ssh/
-RUN cat /tmp/etc/ssh/sshd_config >> /etc/ssh/sshd_config
-RUN echo 'TrustedUserCAKeys /etc/ssh/ca_user_keys.pub' >> /etc/ssh/sshd_config
-RUN echo 'HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub' >> /etc/ssh/sshd_config
-RUN echo 'HostCertificate /etc/ssh/ssh_host_ecdsa_key-cert.pub' >> /etc/ssh/sshd_config
-RUN echo 'HostCertificate /etc/ssh/ssh_host_ed25519_key-cert.pub' >> /etc/ssh/sshd_config
-RUN echo 'HostCertificate /etc/ssh/ssh_host_mldsa44-ed25519_key-cert.pub' >> /etc/ssh/sshd_config
-RUN echo 'PerSourcePenalties no' >> /etc/ssh/sshd_config
+COPY --chmod=0644 sshd_config /etc/ssh/sshd_config.d/1-base.conf
+RUN echo 'TrustedUserCAKeys /etc/ssh/ca_user_keys.pub' >> /etc/ssh/sshd_config.d/1-base.conf
+RUN echo 'HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub' >> /etc/ssh/sshd_config.d/1-base.conf
+RUN echo 'HostCertificate /etc/ssh/ssh_host_ecdsa_key-cert.pub' >> /etc/ssh/sshd_config.d/1-base.conf
+RUN echo 'HostCertificate /etc/ssh/ssh_host_ed25519_key-cert.pub' >> /etc/ssh/sshd_config.d/1-base.conf
+RUN echo 'HostCertificate /etc/ssh/ssh_host_mldsa44-ed25519_key-cert.pub' >> /etc/ssh/sshd_config.d/1-base.conf
+RUN echo 'PerSourcePenalties no' >> /etc/ssh/sshd_config.d/1-base.conf
 
 # SSH login fix. Otherwise user is kicked off after login
 RUN sed 's/session\s*required\s*pam_loginuid.so/session optional pam_loginuid.so/g' -i /etc/pam.d/sshd
