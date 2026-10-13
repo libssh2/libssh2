@@ -518,7 +518,7 @@ int start_openssh_fixture(void)
 void stop_openssh_fixture(int exit_code)
 {
     if(running_container_id) {
-        if(exit_code)
+        if(exit_code || getenv("FIXTURE_SUCCESS_LOGS"))
             openssh_server_dump_logs(running_container_id);
         stop_openssh_server(running_container_id);
         free(running_container_id);
