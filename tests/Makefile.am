@@ -17,7 +17,7 @@ CONTAINER_TESTS += $(CONTAINER_TESTS_STATIC)
 STANDALONE_TESTS += $(STANDALONE_TESTS_STATIC)
 endif
 
-# Some tests rely on the 'abs_srcdir' env. Set by autotools automatically.
+# Some tests rely on the 'srcdir' env. Set by autotools automatically.
 TESTS_ENVIRONMENT =
 
 # Tests to run

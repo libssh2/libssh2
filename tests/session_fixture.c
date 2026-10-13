@@ -284,11 +284,9 @@ const char *srcdir_path(const char *file)
     static char filepath[32][256];
     static size_t curpath;
 
-    const char *srcdir = getenv("abs_srcdir");  /* prefer absolute if set */
+    const char *srcdir = getenv("srcdir");
     int len;
 
-    if(!srcdir || !*srcdir)
-        srcdir = getenv("srcdir");
     if(!srcdir || !*srcdir)
         return file;
     if(!file)
