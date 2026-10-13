@@ -244,14 +244,14 @@ static int start_openssh_server(char **container_id_out)
         }
         if(container_host_port)
             return run_command(container_id_out, "%s run %s"
-                               "--rm --detach --publish %s:22 %s"
+                               "--rm --detach --publish %s:22 %s "
                                "libssh2/openssh_server", container_cmd,
                                /* Requires Apple container 0.7.0+ */
                                strstr(container_cmd, "container") ?
                                    "--progress none " : "",
                                container_host_port, extra_config_opt);
         return run_command(container_id_out, "%s run "
-                           "--rm --detach --publish 22 %s"
+                           "--rm --detach --publish 22 %s "
                            "libssh2/openssh_server", container_cmd,
                            extra_config_opt);
     }
