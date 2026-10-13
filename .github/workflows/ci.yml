@@ -588,7 +588,7 @@ jobs:
           FIXTURE_CONTAINER_CMD: ${{ matrix.container || 'docker' }}
         run: |
           if [ "${MATRIX_ZLIB}" = 'ON' ] && [ "${MATRIX_CRYPTO}" = 'OpenSSL-111-from-source' ]; then
-            export FIXTURE_CUSTOM_SSHD_CONFIG="$PWD/tests/sshd_config-compression-no.conf"
+            #export FIXTURE_CUSTOM_SSHD_CONFIG="$PWD/tests/sshd_config-compression-no.conf"
             export FIXTURE_SUCCESS_LOGS=1
           fi
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
