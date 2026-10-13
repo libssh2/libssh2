@@ -288,6 +288,8 @@ const char *srcdir_path(const char *file)
     int len;
 
     if(!srcdir || !*srcdir)
+        srcdir = getenv("srcdir");
+    if(!srcdir || !*srcdir)
         return file;
     if(!file)
         return NULL;
