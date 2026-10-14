@@ -104,11 +104,6 @@ struct agent_transaction_ctx {
     size_t send_recv_total;
 };
 
-typedef int (*agent_connect_func)(LIBSSH2_AGENT *agent);
-typedef int (*agent_transact_func)(LIBSSH2_AGENT *agent,
-                                   struct agent_transaction_ctx *transctx);
-typedef int (*agent_disconnect_func)(LIBSSH2_AGENT *agent);
-
 struct agent_publickey {
     struct list_node node;
 
@@ -117,9 +112,11 @@ struct agent_publickey {
 };
 
 struct agent_ops {
-    const agent_connect_func connect;
-    const agent_transact_func transact;
-    const agent_disconnect_func disconnect;
+    int (*connect_it)(LIBSSH2_AGENT *agent); /* prevent name clash with
+                                                POSIX connect() */
+    int (*transact)(LIBSSH2_AGENT *agent,
+                    struct agent_transaction_ctx *transctx);
+    int (*disconnect)(LIBSSH2_AGENT *agent);
 };
 
 struct _LIBSSH2_AGENT {
@@ -1135,7 +1132,7 @@ int libssh2_agent_connect(LIBSSH2_AGENT *agent)
 
     for(i = 0; agent_supported_backends[i].name; i++) {
         agent->ops = agent_supported_backends[i].ops;
-        rc = agent->ops->connect(agent);
+        rc = agent->ops->connect_it(agent);
         if(!rc)
             return LIBSSH2_ERROR_NONE;
     }
