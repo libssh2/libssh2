@@ -742,7 +742,6 @@ jobs:
         with:
           platform: ${{ matrix.platform }}
           work-vol: 'D:'
-          site: https://mirrors.kernel.org/sourceware/cygwin/
           # https://cygwin.com/packages/
           packages: ${{ matrix.build == 'AM' && 'autoconf automake libtool make' || 'cmake ninja' }} gcc-core gcc-g++ binutils libssl-devel zlib-devel
 
