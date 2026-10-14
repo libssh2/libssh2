@@ -309,10 +309,10 @@ static int transport_fullpacket(LIBSSH2_SESSION *session,
         session->fullpacket_payload_len -= p->padding_length;
 
         /* Check for and deal with decompression */
-        compressed = session->local.comp &&
-                     session->local.comp->compress &&
+        compressed = session->remote.comp &&
+                     session->remote.comp->compress &&
                      ((session->state & SSH2_STATE_AUTHENTICATED) ||
-                      session->local.comp->use_in_auth);
+                      session->remote.comp->use_in_auth);
 
         if(compressed && session->remote.comp_abstract) {
             /*
