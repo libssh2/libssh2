@@ -658,13 +658,19 @@ static struct asn1Element *asn1_new_from_bytes(const unsigned char *data,
     struct asn1Element *e;
     struct asn1Element et;
 
+    /* Get the content bounds, even if the header does not contain a length. */
     if(!getASN1Element(&et, (unsigned char *)data,
                        (unsigned char *)data + length))
         return NULL;
-    e = asn1_new(et.tag, et.end - et.beg);
 
-    if(e)
-        memcpy(e->header, data, e->end - e->header);
+    /* Build an equivalent element and preset header data.
+     * The new element always has an explicit length. */
+    length = et.end - et.beg;
+    e = asn1_new(*data, length);
+
+    /* Copy the content data. */
+    if(e && length)
+        memcpy(e->beg, et.beg, length);
 
     return e;
 }

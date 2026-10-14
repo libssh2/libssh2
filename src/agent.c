@@ -1135,7 +1135,8 @@ int libssh2_agent_connect(LIBSSH2_AGENT *agent)
 
     for(i = 0; agent_supported_backends[i].name; i++) {
         agent->ops = agent_supported_backends[i].ops;
-        rc = agent->ops->connect(agent);
+        /* Do not drop redundant parentheses: they prevent macro expansion. */
+        rc = (agent->ops->connect)(agent);
         if(!rc)
             return LIBSSH2_ERROR_NONE;
     }
