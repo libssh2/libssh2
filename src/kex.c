@@ -2002,8 +2002,10 @@ static int kex_mlkem_nistp(LIBSSH2_SESSION *session,
 
     if(exchange_state->state == ssh2_NB_state_sent) {
         rc = ssh2_transport_send(session, &exchange_state->c, 1, NULL, 0);
-        if(rc == LIBSSH2_ERROR_EAGAIN)
-            return rc;
+        if(rc == LIBSSH2_ERROR_EAGAIN) {
+            ret = rc;
+            goto clean_free;
+        }
         else if(rc) {
             ret = ssh2_err(session, rc,
                            "Unable to send NEWKEYS message mlkemnistp");
