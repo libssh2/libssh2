@@ -112,8 +112,8 @@ struct agent_publickey {
 };
 
 struct agent_ops {
-    int (*connect_it)(LIBSSH2_AGENT *agent); /* prevent name clash with
-                                                POSIX connect() */
+    int (*connect_it)(LIBSSH2_AGENT *agent);  /* prevent name clash with
+                                                 POSIX connect() */
     int (*transact)(LIBSSH2_AGENT *agent,
                     struct agent_transaction_ctx *transctx);
     int (*disconnect)(LIBSSH2_AGENT *agent);
