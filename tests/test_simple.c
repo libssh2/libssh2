@@ -314,16 +314,22 @@ static int test_ssh2_bn_from_bin(void)
 /* An OpenSSH-format sk-ecdsa private key must not load as an RSA key */
 static int test_ssh2_rsa_new_priv_sk_ecdsa(LIBSSH2_SESSION *session)
 {
+    /* keys/id_ecdsa_openssh_sk, see keys-generate.sh */
     static const char key[] =
         "-----BEGIN OPENSSH PRIVATE KEY-----\n"
         "b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAfwAA\n"
         "ACJzay1lY2RzYS1zaGEyLW5pc3RwMjU2QG9wZW5zc2guY29tAAAACG5pc3Rw\n"
-        "MjU2AAAAQQRrF9Hy4SxCR/i85uVjpEDydwN9gS3rM6D0oTlF2JjClk/jQuL+\n"
-        "Gn+bjufrSnwPnhYrzjNXazFezsu2QGg3v1H1AAAABHNzaDoAAACoESIzRBEi\n"
-        "M0QAAAAic2stZWNkc2Etc2hhMi1uaXN0cDI1NkBvcGVuc3NoLmNvbQAAAAhu\n"
-        "aXN0cDI1NgAAAEEEaxfR8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5RdiYwpZP\n"
-        "40Li/hp/m47n60p8D54WK84zV2sxXs7LtkBoN79R9QAAAARzc2g6AQAAABCq\n"
-        "qqqqqqqqqqqqqqqqqqqqAAAAAAAAAAABAgME\n"
+        "MjU2AAAAQQTcF2Rd4688a1/tncorP8JCurM/+39ZWzFe+8L6XVtdgot/0K8+\n"
+        "Th5XhDhV74q7BhVbIzG9On7Bs/JMxzY2VjVZAAAABHNzaDoAAAGQaZVG92mV\n"
+        "RvcAAAAic2stZWNkc2Etc2hhMi1uaXN0cDI1NkBvcGVuc3NoLmNvbQAAAAhu\n"
+        "aXN0cDI1NgAAAEEE3BdkXeOvPGtf7Z3KKz/CQrqzP/t/WVsxXvvC+l1bXYKL\n"
+        "f9CvPk4eV4Q4Ve+KuwYVWyMxvTp+wbPyTMc2NlY1WQAAAARzc2g6AQAAAOMt\n"
+        "LS0tLUJFR0lOIEVDIFBSSVZBVEUgS0VZLS0tLS0KTUhjQ0FRRUVJRGpUYzZQ\n"
+        "MW5tUjZJbm5sTkcvUW8xeklmYUp4dXJjdXIyMlpFNGowVnE1Rm9Bb0dDQ3FH\n"
+        "U000OQpBd0VIb1VRRFFnQUUzQmRrWGVPdlBHdGY3WjNLS3ovQ1FycXpQL3Qv\n"
+        "V1ZzeFh2dkMrbDFiWFlLTGY5Q3ZQazRlClY0UTRWZStLdXdZVld5TXh2VHAr\n"
+        "d2JQeVRNYzJObFkxV1E9PQotLS0tLUVORCBFQyBQUklWQVRFIEtFWS0tLS0t\n"
+        "CgAAAAAAAAATaWRfZWNkc2Ffb3BlbnNzaF9zawECAwQFBg==\n"
         "-----END OPENSSH PRIVATE KEY-----\n";
     ssh2_rsa_ctx *rsa = NULL;
 

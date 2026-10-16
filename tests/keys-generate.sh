@@ -65,6 +65,7 @@ ssh-keygen -t ecdsa   -b  384 -N ''          -m PKCS8   -C 'id_ecdsa_pkcs8'     
 ssh-keygen -t ecdsa   -b  521 -N "${pw}"     -m PKCS8   -C 'id_ecdsa_pkcs8_encrypted'     -f 'keys/id_ecdsa_pkcs8_encrypted'       # aes128-cbc
 ssh-keygen -t ecdsa   -b  384 -N ''          -m RFC4716 -C ''                             -f 'keys/id_ecdsa_openssh'               # empty comment
 ssh-keygen -t ecdsa   -b  256 -N "${pw}"     -m RFC4716 -C 'id_ecdsa_openssh_encrypted'   -f 'keys/id_ecdsa_openssh_encrypted'     -Z chacha20-poly1305@openssh.com
+ssh-keygen -t ecdsa-sk -b 256 -N ''          -m RFC4716 -C 'id_ecdsa_openssh_sk'          -f 'keys/id_ecdsa_openssh_sk'            # needs a FIDO authenticator
 
 ssh-keygen -t ed25519         -N ''          -m PKCS8   -C 'id_ed25519_pkcs8'             -f 'keys/id_ed25519_pkcs8'
 ssh-keygen -t ed25519         -N "${pw}"     -m PKCS8   -C 'id_ed25519_pkcs8_encrypted'   -f 'keys/id_ed25519_pkcs8_encrypted'     # aes128-cbc

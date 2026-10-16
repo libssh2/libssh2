@@ -99,6 +99,8 @@ EXTRA_DIST = \
   keys/id_ecdsa_openssh_signed \
   keys/id_ecdsa_openssh_signed-cert.pub \
   keys/id_ecdsa_openssh_signed.pub \
+  keys/id_ecdsa_openssh_sk \
+  keys/id_ecdsa_openssh_sk.pub \
   keys/id_ecdsa_pem \
   keys/id_ecdsa_pem.pub \
   keys/id_ecdsa_pem_encrypted \
