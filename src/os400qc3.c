@@ -663,8 +663,18 @@ static struct asn1Element *asn1_new_from_bytes(const unsigned char *data,
         return NULL;
     e = asn1_new(et.tag, et.end - et.beg);
 
-    if(e)
+    if(e) {
+        /* asn1_new() re-encodes the element with a minimal definite-length
+           header. If the source used a longer header (e.g. an
+           indefinite-length BER element), the copy below would read past the
+           end of the input, so reject such input. */
+        if(e->end - e->header > et.end - et.header) {
+            free((char *)e->header);
+            free((char *)e);
+            return NULL;
+        }
         memcpy(e->header, data, e->end - e->header);
+    }
 
     return e;
 }
