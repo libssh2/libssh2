@@ -307,6 +307,10 @@ static int test_ssh2_bn_from_bin(void)
 }
 
 #if LIBSSH2_RSA
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverlength-strings"
+#endif
 /* An OpenSSH-format sk-ecdsa private key must not load as an RSA key */
 static int test_ssh2_rsa_new_priv_sk_ecdsa(LIBSSH2_SESSION *session)
 {
@@ -330,6 +334,9 @@ static int test_ssh2_rsa_new_priv_sk_ecdsa(LIBSSH2_SESSION *session)
 
     return 0;
 }
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
 #endif
 
 /* Return codes match scp.c (SCP_C_FIELDS_*). */
