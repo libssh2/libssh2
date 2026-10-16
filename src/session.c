@@ -854,6 +854,16 @@ static int session_free(LIBSSH2_SESSION *session)
         /* !checksrc! disable EQUALSNULL 1 */
         while((ch = ssh2_list_first(&session->channels)) != NULL) {
             rc = ssh2_channel_free(ch);
+
+            if(rc == LIBSSH2_ERROR_EAGAIN) {
+                /* A non-blocking transport may be unable to send CHANNEL_CLOSE
+                   right now. The session is going away, so mark the channel
+                   locally closed and let the free path release it, exactly
+                   like it already does when the connection is lost. */
+                ch->local.close = 1;
+                rc = ssh2_channel_free(ch);
+            }
+
             if(rc == LIBSSH2_ERROR_EAGAIN)
                 return rc;
         }
