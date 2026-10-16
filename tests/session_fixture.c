@@ -276,21 +276,27 @@ void stop_session_fixture(int exit_code)
     stop_openssh_fixture(exit_code);
 }
 
-/* If 'srcdir' env is set, return '$srcdir/<file>' in a static buffer
-   (to avoid dynamic memory allocations), otherwise return the input pointer
-   unchanged. */
+/* If 'srcdir' env is set and `<file>` is not an absolute path, return
+   '$srcdir/<file>' in a static buffer (to avoid dynamic memory allocations),
+   otherwise return the input pointer unchanged. */
 const char *srcdir_path(const char *file)
 {
     static char filepath[32][256];
     static size_t curpath;
 
-    const char *srcdir = getenv("srcdir");
+    const char *srcdir;
     int len;
+
+    if(!file)
+        return NULL;
+
+    if(*file == '/')
+        return file;  /* got absolute path, return as-is */
+
+    srcdir = getenv("srcdir");
 
     if(!srcdir || !*srcdir)
         return file;
-    if(!file)
-        return NULL;
 
     if(curpath >= SSH2_ARRAYSIZE(filepath)) {
         fprintf(stderr, "srcdir_path: ran out of filepath slots.\n");
@@ -488,7 +494,7 @@ int test_auth_pubkey(LIBSSH2_SESSION *session, int flags,
     int rc;
     const char *userauth_list;
 
-    /* Ignore our hard-wired Dockerfile user when not using a container */
+    /* Ignore our hard-wired Containerfile user when not using a container */
     if(!openssh_fixture_have_container() && !strcmp(username, "libssh2")) {
         username = getenv("USER");
         if(!username)

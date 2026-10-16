@@ -11,7 +11,7 @@ int test(LIBSSH2_SESSION *session)
 {
     LIBSSH2_CHANNEL *channel;
 
-    /* set in Dockerfile */
+    /* set in Containerfile */
     if(test_auth_pubkey(session, 0, "libssh2", NULL,
                         "keys/id_rsa_pem.pub",
                         "keys/id_rsa_pem"))

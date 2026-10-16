@@ -587,6 +587,10 @@ jobs:
         env:
           FIXTURE_CONTAINER_CMD: ${{ matrix.container || 'docker' }}
         run: |
+          if [ "${MATRIX_ZLIB}" = 'ON' ] && [ "${MATRIX_CRYPTO}" = 'OpenSSL-111-from-source' ]; then
+            #export FIXTURE_CUSTOM_SSHD_CONFIG="$PWD/tests/sshd_config-compression-no.conf"
+            export FIXTURE_SUCCESS_LOGS=1
+          fi
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             export OPENSSH_SERVER_IMAGE; OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
             [ -d "$HOME"/usr ] && export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/usr/lib"

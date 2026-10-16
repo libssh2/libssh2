@@ -4,6 +4,8 @@
 
 LogLevel DEBUG2
 
+KbdInteractiveAuthentication yes
+
 CASignatureAlgorithms +ssh-rsa
 HostKeyAlgorithms +ssh-rsa,ssh-rsa-cert-v01@openssh.com
 # modern name in OpenSSH 8.5+: PubkeyAcceptedAlgorithms

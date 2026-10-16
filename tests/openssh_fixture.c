@@ -179,9 +179,36 @@ static int build_openssh_server_container_image(void)
                     return ret;
             }
         }
-        return run_command(NULL,
-                           "%s build --quiet -t libssh2/openssh_server %s",
-                           container_cmd, srcdir_path("openssh_server"));
+        run_command(NULL,
+                    "%s build --quiet --tag libssh2/openssh_server "
+                    "--file %s %s", container_cmd,
+                    srcdir_path("openssh_server/Containerfile"),
+                    srcdir_path("openssh_server"));
+
+        {
+            char *out = NULL;
+            int ret = run_command(&out, "%s run --tty "
+                                  "libssh2/openssh_server "
+                                  "ls -lA /etc/ssh", container_cmd);
+            if(ret)
+                fprintf(stderr, "Failed to ls: %d\n", ret);
+            else
+                fprintf(stderr,
+                        "----- debug1 -----\n%s\n"
+                        "------------------\n", out);
+            free(out);
+            ret = run_command(&out, "%s run --tty "
+                              "libssh2/openssh_server "
+                              "ls -lA /home/libssh2/.ssh", container_cmd);
+            if(ret)
+                fprintf(stderr, "Failed to ls: %d\n", ret);
+            else
+                fprintf(stderr,
+                        "----- debug2 -----\n%s\n"
+                        "------------------\n", out);
+            free(out);
+            return ret;
+        }
     }
     else
         return 0;
@@ -196,20 +223,37 @@ static int start_openssh_server(char **container_id_out)
 {
     if(container_cmd) {
         const char *container_host_port = openssh_server_port();
+        const char *extra_config;
+        char extra_config_opt[255];
         if(strstr(container_cmd, "container") && !container_host_port) {
             fprintf(stderr, "OPENSSH_SERVER_PORT must be set\n");
             return 1;
         }
+        extra_config_opt[0] = '\0';
+        extra_config = getenv("FIXTURE_CUSTOM_SSHD_CONFIG");
+        if(extra_config) {
+            int ret;
+            ret = snprintf(extra_config_opt, sizeof(extra_config_opt),
+                           "--volume "
+                           "%s:/etc/ssh/sshd_config.d/2-extra.conf:ro",
+                           srcdir_path(extra_config));
+            if(ret < 0 || (size_t)ret >= sizeof(extra_config_opt)) {
+                fprintf(stderr, "FIXTURE_CUSTOM_SSHD_CONFIG too large\n");
+                return 1;
+            }
+        }
         if(container_host_port)
             return run_command(container_id_out, "%s run %s"
-                               "--rm -d -p %s:22 libssh2/openssh_server",
-                               container_cmd,
+                               "--rm --detach --publish %s:22 %s "
+                               "libssh2/openssh_server", container_cmd,
                                /* Requires Apple container 0.7.0+ */
                                strstr(container_cmd, "container") ?
                                    "--progress none " : "",
-                               container_host_port);
-        return run_command(container_id_out, "%s run --rm -d -p 22 "
-                           "libssh2/openssh_server", container_cmd);
+                               container_host_port, extra_config_opt);
+        return run_command(container_id_out, "%s run "
+                           "--rm --detach --publish 22 %s "
+                           "libssh2/openssh_server", container_cmd,
+                           extra_config_opt);
     }
     else {
         *container_id_out = libssh2_strdup("");
@@ -474,7 +518,7 @@ int start_openssh_fixture(void)
 void stop_openssh_fixture(int exit_code)
 {
     if(running_container_id) {
-        if(exit_code)
+        if(exit_code || getenv("FIXTURE_SUCCESS_LOGS"))
             openssh_server_dump_logs(running_container_id);
         stop_openssh_server(running_container_id);
         free(running_container_id);
