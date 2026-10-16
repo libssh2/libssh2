@@ -409,8 +409,8 @@ LIBSSH2_SESSION *libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC(*my_alloc),
         session->alloc = local_alloc;
         session->free = local_free;
         session->realloc = local_realloc;
-        session->send = ssh2_send;
-        session->recv = ssh2_recv;
+        session->send_cb = ssh2_send;
+        session->recv_cb = ssh2_recv;
         session->abstract = abstract;
         session->api_timeout_ms = 0; /* timeout-free API by default */
         session->api_block_mode = 1; /* blocking API by default */
@@ -472,13 +472,13 @@ libssh2_cb_generic *libssh2_session_callback_set2(LIBSSH2_SESSION *session,
         return oldcb;
 
     case LIBSSH2_CALLBACK_SEND:
-        oldcb = (libssh2_cb_generic *)session->send;
-        session->send = (LIBSSH2_SEND_FUNC(*))callback;
+        oldcb = (libssh2_cb_generic *)session->send_cb;
+        session->send_cb = (LIBSSH2_SEND_FUNC(*))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_RECV:
-        oldcb = (libssh2_cb_generic *)session->recv;
-        session->recv = (LIBSSH2_RECV_FUNC(*))callback;
+        oldcb = (libssh2_cb_generic *)session->recv_cb;
+        session->recv_cb = (LIBSSH2_RECV_FUNC(*))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_AUTHAGENT:

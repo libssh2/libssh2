@@ -651,7 +651,7 @@ static int agent_transact_unix(LIBSSH2_AGENT *agent,
     /* Send the length of the request */
     if(transctx->state == agent_NB_state_request_created) {
         ssh2_htonu32(buf, (uint32_t)transctx->request_len);
-        rc = (int)agent_send_all(agent->session->send, agent->fd,
+        rc = (int)agent_send_all(agent->session->send_cb, agent->fd,
                                  buf, sizeof(buf), 0,
                                  &agent->session->abstract);
         if(rc == -EAGAIN)
@@ -664,7 +664,7 @@ static int agent_transact_unix(LIBSSH2_AGENT *agent,
 
     /* Send the request body */
     if(transctx->state == agent_NB_state_request_length_sent) {
-        rc = (int)agent_send_all(agent->session->send, agent->fd,
+        rc = (int)agent_send_all(agent->session->send_cb, agent->fd,
                                  transctx->request, transctx->request_len, 0,
                                  &agent->session->abstract);
         if(rc == -EAGAIN)
@@ -677,7 +677,7 @@ static int agent_transact_unix(LIBSSH2_AGENT *agent,
 
     /* Receive the length of the response */
     if(transctx->state == agent_NB_state_request_sent) {
-        rc = (int)agent_recv_all(agent->session->recv, agent->fd,
+        rc = (int)agent_recv_all(agent->session->recv_cb, agent->fd,
                                  buf, sizeof(buf), 0,
                                  &agent->session->abstract);
         if(rc < 0) {
@@ -702,7 +702,7 @@ static int agent_transact_unix(LIBSSH2_AGENT *agent,
 
     /* Receive the response body */
     if(transctx->state == agent_NB_state_response_length_received) {
-        rc = (int)agent_recv_all(agent->session->recv, agent->fd,
+        rc = (int)agent_recv_all(agent->session->recv_cb, agent->fd,
                                  transctx->response, transctx->response_len, 0,
                                  &agent->session->abstract);
         if(rc < 0) {
