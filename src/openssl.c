@@ -3434,7 +3434,9 @@ static int ossl_key_from_openssh(LIBSSH2_SESSION *session,
                                              (ssh2_dsa_ctx **)key_ctx);
 #endif
 #if LIBSSH2_ECDSA
-    if(SSH2_IS_LITERAL(buf, buf_len, "sk-ecdsa-sha2-nistp256@openssh.com"))
+    if(SSH2_IS_LITERAL(buf, buf_len, "sk-ecdsa-sha2-nistp256@openssh.com") &&
+       (!want_method ||
+        !strcmp("sk-ecdsa-sha2-nistp256@openssh.com", want_method)))
         rc = ossl_ecdsa_sk_openssh_priv_to_pubkey(session, decrypted,
                                                   method,
                                                   pubkeydata, pubkeydata_len,

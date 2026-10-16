@@ -306,6 +306,32 @@ static int test_ssh2_bn_from_bin(void)
     return rc;
 }
 
+#if LIBSSH2_RSA
+/* An OpenSSH-format sk-ecdsa private key must not load as an RSA key */
+static int test_ssh2_rsa_new_priv_sk_ecdsa(LIBSSH2_SESSION *session)
+{
+    static const char key[] =
+        "-----BEGIN OPENSSH PRIVATE KEY-----\n"
+        "b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAfwAA\n"
+        "ACJzay1lY2RzYS1zaGEyLW5pc3RwMjU2QG9wZW5zc2guY29tAAAACG5pc3Rw\n"
+        "MjU2AAAAQQRrF9Hy4SxCR/i85uVjpEDydwN9gS3rM6D0oTlF2JjClk/jQuL+\n"
+        "Gn+bjufrSnwPnhYrzjNXazFezsu2QGg3v1H1AAAABHNzaDoAAACoESIzRBEi\n"
+        "M0QAAAAic2stZWNkc2Etc2hhMi1uaXN0cDI1NkBvcGVuc3NoLmNvbQAAAAhu\n"
+        "aXN0cDI1NgAAAEEEaxfR8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5RdiYwpZP\n"
+        "40Li/hp/m47n60p8D54WK84zV2sxXs7LtkBoN79R9QAAAARzc2g6AQAAABCq\n"
+        "qqqqqqqqqqqqqqqqqqqqAAAAAAAAAAABAgME\n"
+        "-----END OPENSSH PRIVATE KEY-----\n";
+    ssh2_rsa_ctx *rsa = NULL;
+
+    if(!ssh2_rsa_new_priv(&rsa, session, NULL, key, sizeof(key) - 1, NULL)) {
+        fprintf(stderr, "ssh2_rsa_new_priv() accepted an sk-ecdsa key\n");
+        return 1;
+    }
+
+    return 0;
+}
+#endif
+
 /* Return codes match scp.c (SCP_C_FIELDS_*). */
 static int test_ssh2_scp_parse_c_fields(void)
 {
@@ -397,6 +423,9 @@ int main(int argc, char *argv[])
     rc |= test_ssh2_dh_validate();
     rc |= test_ssh2_bn_from_bin();
     rc |= test_ssh2_scp_parse_c_fields();
+#if LIBSSH2_RSA
+    rc |= test_ssh2_rsa_new_priv_sk_ecdsa(session);
+#endif
 
     libssh2_session_free(session);
 
