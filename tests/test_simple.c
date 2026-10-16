@@ -373,6 +373,45 @@ static int test_ssh2_scp_parse_c_fields(void)
     return err > 0;
 }
 
+#if LIBSSH2_RSA_SHA2
+static int test_userauth_sign_algs_fail_cleanup(LIBSSH2_SESSION *session)
+{
+    static const char server_algs[] = "ssh-ed25519";
+    static const unsigned char rsa_key[] = {
+        0, 0, 0, 7, 's', 's', 'h', '-', 'r', 's', 'a',
+        0, 0, 0, 1, 3, 0, 0, 0, 1, 0x7f
+    };
+    int rc;
+    int err = 0;
+
+    /* server-sig-algs without any RSA algorithm we can upgrade to */
+    session->server_sign_algorithms = SSH2_ALLOC(session, sizeof(server_algs));
+    if(!session->server_sign_algorithms)
+        return 1;
+    memcpy(session->server_sign_algorithms, server_algs, sizeof(server_algs));
+
+    rc = libssh2_userauth_publickey(session, "user",
+                                    rsa_key, sizeof(rsa_key), NULL, NULL);
+    if(rc != LIBSSH2_ERROR_METHOD_NONE) {
+        fprintf(stderr, "userauth sign algs: rc=%d (want %d)\n",
+                rc, LIBSSH2_ERROR_METHOD_NONE);
+        err++;
+    }
+
+    /* a stale method name would be reused by the next key */
+    if(session->userauth_pblc_method) {
+        fprintf(stderr, "userauth sign algs: method left set: %s\n",
+                session->userauth_pblc_method);
+        SSH2_SAFEFREE(session, session->userauth_pblc_method);
+        err++;
+    }
+
+    SSH2_SAFEFREE(session, session->server_sign_algorithms);
+
+    return err > 0;
+}
+#endif
+
 int main(int argc, char *argv[])
 {
     LIBSSH2_SESSION *session;
@@ -397,6 +436,9 @@ int main(int argc, char *argv[])
     rc |= test_ssh2_dh_validate();
     rc |= test_ssh2_bn_from_bin();
     rc |= test_ssh2_scp_parse_c_fields();
+#if LIBSSH2_RSA_SHA2
+    rc |= test_userauth_sign_algs_fail_cleanup(session);
+#endif
 
     libssh2_session_free(session);
 

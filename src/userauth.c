@@ -1442,8 +1442,10 @@ retry_auth:
         if(auth_attempts == 1) {
             rc = userauth_key_sign_algs(session,
                                         &session->userauth_pblc_method);
-            if(rc)
+            if(rc) {
+                SSH2_SAFEFREE(session, session->userauth_pblc_method);
                 return rc;
+            }
         }
 
         if(session->userauth_pblc_method && *session->userauth_pblc_method) {
