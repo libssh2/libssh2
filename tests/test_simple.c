@@ -31,7 +31,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "libssh2_priv.h"
+#include "session_fixture.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -307,42 +307,29 @@ static int test_ssh2_bn_from_bin(void)
 }
 
 #if LIBSSH2_RSA
-#if defined(__GNUC__) || defined(__clang__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Woverlength-strings"
-#endif
 /* An OpenSSH-format sk-ecdsa private key must not load as an RSA key */
 static int test_ssh2_rsa_new_priv_sk_ecdsa(LIBSSH2_SESSION *session)
 {
-    /* keys/id_ecdsa_openssh_sk, see keys-generate.sh */
-    static const char key[] =
-        "-----BEGIN OPENSSH PRIVATE KEY-----\n"
-        "b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAfwAA\n"
-        "ACJzay1lY2RzYS1zaGEyLW5pc3RwMjU2QG9wZW5zc2guY29tAAAACG5pc3Rw\n"
-        "MjU2AAAAQQTcF2Rd4688a1/tncorP8JCurM/+39ZWzFe+8L6XVtdgot/0K8+\n"
-        "Th5XhDhV74q7BhVbIzG9On7Bs/JMxzY2VjVZAAAABHNzaDoAAAGQaZVG92mV\n"
-        "RvcAAAAic2stZWNkc2Etc2hhMi1uaXN0cDI1NkBvcGVuc3NoLmNvbQAAAAhu\n"
-        "aXN0cDI1NgAAAEEE3BdkXeOvPGtf7Z3KKz/CQrqzP/t/WVsxXvvC+l1bXYKL\n"
-        "f9CvPk4eV4Q4Ve+KuwYVWyMxvTp+wbPyTMc2NlY1WQAAAARzc2g6AQAAAOMt\n"
-        "LS0tLUJFR0lOIEVDIFBSSVZBVEUgS0VZLS0tLS0KTUhjQ0FRRUVJRGpUYzZQ\n"
-        "MW5tUjZJbm5sTkcvUW8xeklmYUp4dXJjdXIyMlpFNGowVnE1Rm9Bb0dDQ3FH\n"
-        "U000OQpBd0VIb1VRRFFnQUUzQmRrWGVPdlBHdGY3WjNLS3ovQ1FycXpQL3Qv\n"
-        "V1ZzeFh2dkMrbDFiWFlLTGY5Q3ZQazRlClY0UTRWZStLdXdZVld5TXh2VHAr\n"
-        "d2JQeVRNYzJObFkxV1E9PQotLS0tLUVORCBFQyBQUklWQVRFIEtFWS0tLS0t\n"
-        "CgAAAAAAAAATaWRfZWNkc2Ffb3BlbnNzaF9zawECAwQFBg==\n"
-        "-----END OPENSSH PRIVATE KEY-----\n";
+    char *key;
+    size_t key_len;
     ssh2_rsa_ctx *rsa = NULL;
+    int rc = 0;
 
-    if(!ssh2_rsa_new_priv(&rsa, session, NULL, key, sizeof(key) - 1, NULL)) {
-        fprintf(stderr, "ssh2_rsa_new_priv() accepted an sk-ecdsa key\n");
+    if(ssh2_file_to_blob(session, srcdir_path("keys/id_ecdsa_openssh_sk"),
+                         &key, &key_len)) {
+        fprintf(stderr, "ssh2_file_to_blob() failed\n");
         return 1;
     }
 
-    return 0;
+    if(!ssh2_rsa_new_priv(&rsa, session, NULL, key, key_len, NULL)) {
+        fprintf(stderr, "ssh2_rsa_new_priv() accepted an sk-ecdsa key\n");
+        rc = 1;
+    }
+
+    SSH2_FREE(session, key);
+
+    return rc;
 }
-#if defined(__GNUC__) || defined(__clang__)
-#pragma GCC diagnostic pop
-#endif
 #endif
 
 /* Return codes match scp.c (SCP_C_FIELDS_*). */
