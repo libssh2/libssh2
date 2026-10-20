@@ -574,7 +574,7 @@ static char *getASN1Element(struct asn1Element *elem, char *beg, char *end)
         len = b;
     else if(!(b &= 0x7F)) {
         /* Unspecified length. Since we have all the data, we can determine the
-         * effective length by skipping element until an end element is
+         * effective length by skipping element until an EOC element is
          * found.
          */
         if(!elem->constructed)
@@ -585,10 +585,10 @@ static char *getASN1Element(struct asn1Element *elem, char *beg, char *end)
             if(!beg)
                 return NULL;
         }
-        if(beg >= end)
+        if(end - beg < 2 || beg[1])     /* EOC must have a zero length. */
             return NULL;
-        elem->end = beg;
-        return beg + 1;
+        elem->end = beg;                /* Do not include EOC as content. */
+        return beg + 2;                 /* After EOC element. */
     }
     else if(beg + b > end)
         return NULL; /* Does not fit in source. */
@@ -648,23 +648,6 @@ static struct asn1Element *asn1_new(unsigned int type, unsigned int length)
             e = NULL;
         }
     }
-
-    return e;
-}
-
-static struct asn1Element *asn1_new_from_bytes(const unsigned char *data,
-                                               unsigned int length)
-{
-    struct asn1Element *e;
-    struct asn1Element et;
-
-    if(!getASN1Element(&et, (unsigned char *)data,
-                       (unsigned char *)data + length))
-        return NULL;
-    e = asn1_new(et.tag, et.end - et.beg);
-
-    if(e)
-        memcpy(e->header, data, e->end - e->header);
 
     return e;
 }
@@ -890,7 +873,8 @@ static struct asn1Element *privatekeyinfo(struct asn1Element *privkey,
     asn1delete(version);
     asn1delete(algorithm);
     asn1delete(privatekeyalgorithm);
-    if(!version || !algorithm || !privatekeyalgorithm) {
+    asn1delete(privatekey);
+    if(!version || !algorithm || !privatekeyalgorithm || !privatekey) {
         asn1delete(privkeyinfo);
         privkeyinfo = NULL;
     }
@@ -2001,23 +1985,29 @@ static int pkcs1topkcs8(LIBSSH2_SESSION *session,
                         const unsigned char **data8, unsigned int *datalen8,
                         const unsigned char *data1, unsigned int datalen1)
 {
-    struct asn1Element *prvk;
+    struct asn1Element prvk;
     struct asn1Element *pkcs8;
     unsigned char *data;
 
     *data8 = NULL;
     *datalen8 = 0;
-    if(datalen1 < 2)
+
+    /* Reject unbounded key element for the following reasons:
+       - supported by BER format, but not DER,
+       - not used for an RSA key in the real world (even OpenSSL rejects it),
+       - known to introduce vulnerabilities,
+       - signature/HMAC on it is likely to fail, due to the variant notation,
+       - adds an extra-level of container generation handling complexity.
+     */
+    if(datalen1 < 2 || data1[1] == 0x80)
         return -1;
-    prvk = asn1_new_from_bytes(data1, datalen1);
-    if(!prvk)
+
+    data = (unsigned char *)getASN1Element(&prvk, (char *)data1,
+                                           (char *)data1 + datalen1);
+    if(data != (unsigned char *)data1 + datalen1)
         return -1;
-    pkcs8 = rsaprivatekeyinfo(prvk);
-    asn1delete(prvk);
-    if(!prvk) {  /* FIXME: always false condition */
-        asn1delete(pkcs8);
-        pkcs8 = NULL;
-    }
+
+    pkcs8 = rsaprivatekeyinfo(&prvk);
     if(!pkcs8)
         return -1;
     data = SSH2_ALLOC(session, pkcs8->end - pkcs8->header);
