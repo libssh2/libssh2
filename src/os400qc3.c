@@ -574,7 +574,7 @@ static char *getASN1Element(struct asn1Element *elem, char *beg, char *end)
         len = b;
     else if(!(b &= 0x7F)) {
         /* Unspecified length. Since we have all the data, we can determine the
-         * effective length by skipping element until an end element is
+         * effective length by skipping element until an EOC element is
          * found.
          */
         if(!elem->constructed)
@@ -585,10 +585,10 @@ static char *getASN1Element(struct asn1Element *elem, char *beg, char *end)
             if(!beg)
                 return NULL;
         }
-        if(beg >= end)
+        if(end - beg < 2 || beg[1])     /* EOC must have a zero length. */
             return NULL;
-        elem->end = beg;
-        return beg + 1;
+        elem->end = beg;                /* Do not include EOC as content. */
+        return beg + 2;                 /* After EOC element. */
     }
     else if(beg + b > end)
         return NULL; /* Does not fit in source. */
