@@ -214,8 +214,9 @@ static int kex_finish(LIBSSH2_SESSION *session,
     }
 
     /* Cleanup any existing cipher */
-    if(session->local.crypt->dtor)
+    if(session->local.crypt && session->local.crypt->dtor)
         session->local.crypt->dtor(session, &session->local.crypt_abstract);
+    session->local.crypt = session->local.crypt_next;
 
     /* Calculate IV/Secret/Key for each direction */
     if(session->local.crypt->init) {
@@ -253,9 +254,10 @@ static int kex_finish(LIBSSH2_SESSION *session,
     ssh2_deb((session, LIBSSH2_TRACE_KEX,
               "Client to Server IV and Key calculated"));
 
-    if(session->remote.crypt->dtor)
+    if(session->remote.crypt && session->remote.crypt->dtor)
         /* Cleanup any existing cipher */
         session->remote.crypt->dtor(session, &session->remote.crypt_abstract);
+    session->remote.crypt = session->remote.crypt_next;
 
     if(session->remote.crypt->init) {
         unsigned char *iv = NULL, *secret = NULL;
@@ -292,8 +294,9 @@ static int kex_finish(LIBSSH2_SESSION *session,
     ssh2_deb((session, LIBSSH2_TRACE_KEX,
               "Server to Client IV and Key calculated"));
 
-    if(session->local.mac->dtor)
+    if(session->local.mac && session->local.mac->dtor)
         session->local.mac->dtor(session, &session->local.mac_abstract);
+    session->local.mac = session->local.mac_next;
 
     if(session->local.mac->init) {
         unsigned char *key = NULL;
@@ -313,8 +316,9 @@ static int kex_finish(LIBSSH2_SESSION *session,
     ssh2_deb((session, LIBSSH2_TRACE_KEX,
               "Client to Server HMAC Key calculated"));
 
-    if(session->remote.mac->dtor)
+    if(session->remote.mac && session->remote.mac->dtor)
         session->remote.mac->dtor(session, &session->remote.mac_abstract);
+    session->remote.mac = session->remote.mac_next;
 
     if(session->remote.mac->init) {
         unsigned char *key = NULL;
@@ -339,6 +343,7 @@ static int kex_finish(LIBSSH2_SESSION *session,
     /* Cleanup any existing compression */
     if(session->local.comp && session->local.comp->dtor)
         session->local.comp->dtor(session, 1, &session->local.comp_abstract);
+    session->local.comp = session->local.comp_next;
 
     if(session->local.comp && session->local.comp->init &&
        session->local.comp->init(session, 1, &session->local.comp_abstract))
@@ -348,6 +353,7 @@ static int kex_finish(LIBSSH2_SESSION *session,
 
     if(session->remote.comp && session->remote.comp->dtor)
         session->remote.comp->dtor(session, 0, &session->remote.comp_abstract);
+    session->remote.comp = session->remote.comp_next;
 
     if(session->remote.comp && session->remote.comp->init &&
        session->remote.comp->init(session, 0, &session->remote.comp_abstract))
@@ -3358,7 +3364,7 @@ static int kex_agree_crypt(LIBSSH2_SESSION *session,
                 if(!method)
                     return -1;  /* Invalid method -- Should never be reached */
 
-                endpoint->crypt = method;
+                endpoint->crypt_next = method;
                 return 0;
             }
 
@@ -3371,7 +3377,7 @@ static int kex_agree_crypt(LIBSSH2_SESSION *session,
         s = ssh2_kex_agree_instr(crypt, crypt_len,
                                  (*cryptp)->name, strlen((*cryptp)->name));
         if(s) {
-            endpoint->crypt = *cryptp;
+            endpoint->crypt_next = *cryptp;
             return 0;
         }
         cryptp++;
@@ -3392,11 +3398,11 @@ static int kex_agree_mac(LIBSSH2_SESSION *session,
     const char *s;
     (void)session;
 
-    override = ssh2_mac_override(endpoint->crypt);
+    override = ssh2_mac_override(endpoint->crypt_next);
     if(override) {
         /* This crypto method has its own hmac method built-in, so a separate
          * negotiation (and use) of a separate hmac method is unnecessary */
-        endpoint->mac = override;
+        endpoint->mac_next = override;
         return 0;
     }
 
@@ -3415,7 +3421,7 @@ static int kex_agree_mac(LIBSSH2_SESSION *session,
                 if(!method)
                     return -1;  /* Invalid method -- Should never be reached */
 
-                endpoint->mac = method;
+                endpoint->mac_next = method;
                 return 0;
             }
 
@@ -3428,7 +3434,7 @@ static int kex_agree_mac(LIBSSH2_SESSION *session,
         s = ssh2_kex_agree_instr(mac, mac_len,
                                  (*macp)->name, strlen((*macp)->name));
         if(s) {
-            endpoint->mac = *macp;
+            endpoint->mac_next = *macp;
             return 0;
         }
         macp++;
@@ -3463,7 +3469,7 @@ static int kex_agree_comp(LIBSSH2_SESSION *session,
                 if(!method)
                     return -1;  /* Invalid method -- Should never be reached */
 
-                endpoint->comp = method;
+                endpoint->comp_next = method;
                 return 0;
             }
 
@@ -3476,7 +3482,7 @@ static int kex_agree_comp(LIBSSH2_SESSION *session,
         s = ssh2_kex_agree_instr(comp, comp_len,
                                  (*compp)->name, strlen((*compp)->name));
         if(s) {
-            endpoint->comp = *compp;
+            endpoint->comp_next = *compp;
             return 0;
         }
         compp++;
@@ -3574,17 +3580,17 @@ static int kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *data,
     ssh2_deb((session, LIBSSH2_TRACE_KEX, "Agreed on HOSTKEY method: %s",
               session->hostkey->name));
     ssh2_deb((session, LIBSSH2_TRACE_KEX, "Agreed on CRYPT_CS method: %s",
-              session->local.crypt->name));
+              session->local.crypt_next->name));
     ssh2_deb((session, LIBSSH2_TRACE_KEX, "Agreed on CRYPT_SC method: %s",
-              session->remote.crypt->name));
+              session->remote.crypt_next->name));
     ssh2_deb((session, LIBSSH2_TRACE_KEX, "Agreed on MAC_CS method: %s",
-              session->local.mac->name));
+              session->local.mac_next->name));
     ssh2_deb((session, LIBSSH2_TRACE_KEX, "Agreed on MAC_SC method: %s",
-              session->remote.mac->name));
+              session->remote.mac_next->name));
     ssh2_deb((session, LIBSSH2_TRACE_KEX, "Agreed on COMP_CS method: %s",
-              session->local.comp->name));
+              session->local.comp_next->name));
     ssh2_deb((session, LIBSSH2_TRACE_KEX, "Agreed on COMP_SC method: %s",
-              session->remote.comp->name));
+              session->remote.comp_next->name));
 
     return 0;
 }
