@@ -2781,11 +2781,13 @@ static int ossl_ecdsa_sk_openssh_priv_to_pubkey(
 
     if(ssh2_get_string(decrypted, &app, &app_len)) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO, "No SK application.");
+        rc = -1;
         goto fail;
     }
 
     if(flags && ssh2_get_byte(decrypted, flags)) {
         ssh2_err(session, LIBSSH2_ERROR_PROTO, "No SK flags.");
+        rc = -1;
         goto fail;
     }
 
@@ -2793,6 +2795,7 @@ static int ossl_ecdsa_sk_openssh_priv_to_pubkey(
         unsigned char *handle = NULL;
         if(ssh2_get_string(decrypted, &handle, key_handle_len)) {
             ssh2_err(session, LIBSSH2_ERROR_PROTO, "No SK key_handle.");
+            rc = -1;
             goto fail;
         }
 
