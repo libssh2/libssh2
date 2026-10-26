@@ -737,9 +737,8 @@ int ssh2_curve25519_new(LIBSSH2_SESSION *session,
                         uint8_t **out_private_key);
 ```
 Generates an ED25519 key pair, stores a pointer to them at `out_private_key`
-and `out_public_key` respectively and stores at `ctx` a new ED25519 context for
-this key.
-Argument `ctx`, `out_private_key` and `out_public` key may be NULL to disable
+and `out_public_key` respectively.
+Argument `out_private_key` and `out_public` key may be NULL to disable
 storing the corresponding value.
 Length of each key is `SSH2_ED25519_KEY_LEN` (32 bytes).
 Key buffers are allocated and should be released by caller after use.
