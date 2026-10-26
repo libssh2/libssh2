@@ -412,6 +412,81 @@ static int test_userauth_sign_algs_fail_cleanup(LIBSSH2_SESSION *session)
 }
 #endif
 
+#if LIBSSH2_MD5_PEM && LIBSSH2_AES_CBC
+static int pem_live_allocs;
+
+static LIBSSH2_ALLOC_FUNC(pem_test_alloc)
+{
+    void *p = malloc(count);
+    (void)abstract;
+    if(p)
+        pem_live_allocs++;
+    return p;
+}
+
+static LIBSSH2_REALLOC_FUNC(pem_test_realloc)
+{
+    void *p = realloc(ptr, count);
+    (void)abstract;
+    if(p && !ptr)
+        pem_live_allocs++;
+    return p;
+}
+
+static LIBSSH2_FREE_FUNC(pem_test_free)
+{
+    (void)abstract;
+    if(ptr)
+        pem_live_allocs--;
+    free(ptr);
+}
+
+static int test_ssh2_pem_parse_bad_padding(void)
+{
+    /* One AES-128-CBC block that decrypts to 15 zero bytes and a padding
+       byte of 0xff, which is larger than the decrypted data */
+    static const char pem[] =
+        "-----BEGIN RSA PRIVATE KEY-----\n"
+        "Proc-Type: 4,ENCRYPTED\n"
+        "DEK-Info: AES-128-CBC,000102030405060708090A0B0C0D0E0F\n"
+        "\n"
+        "x9wTwyw4T6PO7EmUNV0aow==\n"
+        "-----END RSA PRIVATE KEY-----\n";
+    LIBSSH2_SESSION *session;
+    unsigned char *data;
+    size_t datalen;
+    int live;
+    int rc;
+    int err = 0;
+
+    session = libssh2_session_init_ex(pem_test_alloc, pem_test_free,
+                                      pem_test_realloc, NULL);
+    if(!session) {
+        fprintf(stderr, "pem bad padding: session init failed\n");
+        return 1;
+    }
+
+    live = pem_live_allocs;
+    rc = ssh2_pem_parse(session, "-----BEGIN RSA PRIVATE KEY-----",
+                        "-----END RSA PRIVATE KEY-----", NULL,
+                        pem, sizeof(pem) - 1, "pass", &data, &datalen, NULL);
+    if(rc != LIBSSH2_ERROR_DECRYPT) {
+        fprintf(stderr, "pem bad padding: rc=%d (want %d)\n",
+                rc, LIBSSH2_ERROR_DECRYPT);
+        err++;
+    }
+    if(pem_live_allocs != live) {
+        fprintf(stderr, "pem bad padding: %d allocation(s) leaked\n",
+                pem_live_allocs - live);
+        err++;
+    }
+
+    libssh2_session_free(session);
+
+    return err > 0;
+}
+#endif
+
 int main(int argc, char *argv[])
 {
     LIBSSH2_SESSION *session;
@@ -438,6 +513,9 @@ int main(int argc, char *argv[])
     rc |= test_ssh2_scp_parse_c_fields();
 #if LIBSSH2_RSA_SHA2
     rc |= test_userauth_sign_algs_fail_cleanup(session);
+#endif
+#if LIBSSH2_MD5_PEM && LIBSSH2_AES_CBC
+    rc |= test_ssh2_pem_parse_bad_padding();
 #endif
 
     libssh2_session_free(session);
