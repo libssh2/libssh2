@@ -25,6 +25,4 @@ but must be downloaded and installed separately.
 
 [Python pylibssh2](https://pypi.python.org/pypi/pylibssh2)
 
-[Python-ctypes PySsh2](https://github.com/gellule/PySsh2)
-
 [Ruby libssh2-ruby](https://github.com/mitchellh/libssh2-ruby)
