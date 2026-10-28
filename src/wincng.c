@@ -2111,7 +2111,7 @@ int ssh2_ecdh_gen_k(OUT ssh2_bn **k, LIBSSH2_SESSION *session,
     int result = LIBSSH2_ERROR_NONE;
     NTSTATUS status;
 
-    BCRYPT_KEY_HANDLE publickey_handle;
+    BCRYPT_KEY_HANDLE publickey_handle = NULL;
     BCRYPT_SECRET_HANDLE agreed_secret_handle = NULL;
     ULONG secret_len;
     struct ecdsa_point server_publickey;
@@ -2212,6 +2212,9 @@ cleanup:
 
     if(agreed_secret_handle)
         BCryptDestroySecret(agreed_secret_handle);
+
+    if(publickey_handle)
+        BCryptDestroyKey(publickey_handle);
 
     return result;
 }
