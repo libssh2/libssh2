@@ -3035,7 +3035,6 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, LIBSSH2_SESSION *session,
                     size_t server_public_key_len)
 {
     int ret = 0;
-    BN_CTX *bn_ctx = NULL;
 
 #ifdef USE_OPENSSL_3
     char *group_name = NULL;
@@ -3052,10 +3051,6 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, LIBSSH2_SESSION *session,
 
     if(!k || !*k || server_public_key_len <= 0)
         return -1;
-
-    bn_ctx = BN_CTX_new();
-    if(!bn_ctx)
-        goto clean_exit;
 
     key_fromdata_ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
     if(!key_fromdata_ctx)
@@ -3134,6 +3129,7 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, LIBSSH2_SESSION *session,
     int secret_len;
     const EC_GROUP *private_key_group;
     EC_POINT *server_public_key_point;
+    BN_CTX *bn_ctx = NULL;
 
     bn_ctx = BN_CTX_new();
     if(!bn_ctx)
