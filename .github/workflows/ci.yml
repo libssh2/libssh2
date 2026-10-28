@@ -1091,13 +1091,13 @@ jobs:
             generate: -DCRYPTO_BACKEND=mbedTLS
           - name: 'OpenSSL 4'
             install: openssl@4
-            configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl@4
-          - name: 'OpenSSL 4'
-            install: openssl@4
+          # configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl@4
             generate: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@4
           - name: 'OpenSSL 3'
             install: openssl@3
-          # configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl@3 CFLAGS=-std=c90
+            configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl@3 CFLAGS=-std=c90
+          - name: 'OpenSSL 3'
+            install: openssl@3
             generate: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@3 -DCMAKE_C_STANDARD=90
           - name: 'wolfSSL'
             install: wolfssl
