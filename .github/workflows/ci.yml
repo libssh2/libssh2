@@ -1068,7 +1068,7 @@ jobs:
     env:
       MAKEFLAGS: -j 4
       MATRIX_INSTALL: '${{ matrix.build.install }}'
-      MATRIX_BUILD: '${{ matrix.build.generate && 'CM' || 'AM' }}'
+      MATRIX_BUILD: ${{ matrix.build.generate && 'CM' || 'AM' }}
       MATRIX_CONFIGURE: '${{ matrix.build.configure }}'
       MATRIX_GENERATE: '${{ matrix.build.generate }}'
     strategy:
