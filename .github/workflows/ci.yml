@@ -1217,7 +1217,7 @@ jobs:
               options: '-DCRYPTO_BACKEND=OpenSSL' }
 
           # https://pkgsrc.se/
-          - { os: 'netbsd'      , version: '10.1' , build: 'CM', arch: 'x86_64', cc: 'gcc'  , desc: 'openssl skiprun',
+          - { os: 'netbsd'      , version: '10.2' , build: 'CM', arch: 'x86_64', cc: 'gcc'  , desc: 'openssl skiprun',
               install: 'cmake ninja-build',
               options: '-DCRYPTO_BACKEND=OpenSSL' }
 
@@ -1227,7 +1227,7 @@ jobs:
 
           # https://openbsd.app/
           # https://www.openbsd.org/faq/faq15.html
-          - { os: 'openbsd'     , version: '7.9'  , build: 'CM', arch: 'x86_64', cc: 'clang', desc: 'libressl skiprun',
+          - { os: 'openbsd'     , version: '8.0'  , build: 'CM', arch: 'x86_64', cc: 'clang', desc: 'libressl skiprun',
               install: 'cmake ninja',
               options: '-DCRYPTO_BACKEND=OpenSSL' }
 
@@ -1238,7 +1238,7 @@ jobs:
           persist-credentials: false
 
       - name: 'setup VM'
-        uses: cross-platform-actions/action@e0b9770014ba65d5e0815f15b74031c3a635f641 # v1.6.0
+        uses: cross-platform-actions/action@82668f1fbd89d9c99487604f822cbf6716f124d3 # v1.7.0
         with:
           environment_variables: 'CC CURL_CI CURL_TEST_MIN DO_NOT_TRACK MAKEFLAGS MATRIX_BUILD MATRIX_INSTALL MATRIX_OPTIONS MATRIX_OS'
           operating_system: '${{ matrix.os }}'
