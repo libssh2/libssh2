@@ -116,6 +116,9 @@ jobs:
       matrix:
         image: [ubuntu-26.04-arm, macos-latest, windows-2022]
     steps:
+      - uses: $/.github/actions/macos-fix-certs
+        if: ${{ contains(runner.os, 'macos') }}
+
       - uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2.33.0
         if: ${{ contains(matrix.image, 'windows') }}
         with:
@@ -1096,6 +1099,8 @@ jobs:
             configure: --with-crypto=wolfssl --with-libwolfssl-prefix=/opt/homebrew
             cmake: -DCRYPTO_BACKEND=wolfSSL
     steps:
+      - uses: $/.github/actions/macos-fix-certs
+
       - name: 'install packages'
         env:
           INSTALL_PACKAGES: ${{ matrix.build == 'AM' && 'automake libtool' || '' }}
