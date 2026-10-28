@@ -3175,6 +3175,12 @@ clean_exit:
 
     if(server_key_ctx)
         EVP_PKEY_CTX_free(server_key_ctx);
+
+    if(peer_key)
+        EVP_PKEY_free(peer_key);
+
+    if(key_fromdata_ctx)
+        EVP_PKEY_CTX_free(key_fromdata_ctx);
 #else
     if(server_public_key_point)
         EC_POINT_free(server_public_key_point);
