@@ -1074,7 +1074,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        crypto:
+        build:
           - name: 'Libgcrypt'
             install: libgcrypt
             configure: --with-crypto=libgcrypt --with-libgcrypt-prefix=/opt/homebrew
