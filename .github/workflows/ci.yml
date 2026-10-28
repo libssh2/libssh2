@@ -1062,7 +1062,7 @@ jobs:
         run: du -sh .; echo; du -sh -t 250KB ./*; echo; du -h -t 250KB bld
 
   build_macos:
-    name: 'macOS (${{ matrix.build.generate && 'CM' || 'AM' }}, ${{ matrix.build.name }})'
+    name: "macOS (${{ matrix.build.generate && 'CM' || 'AM' }}, ${{ matrix.build.name }})"
     runs-on: macos-latest
     timeout-minutes: 10
     env:
