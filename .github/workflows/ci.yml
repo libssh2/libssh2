@@ -1098,6 +1098,11 @@ jobs:
             install: wolfssl
             configure: --with-crypto=wolfssl --with-libwolfssl-prefix=/opt/homebrew
             cmake: -DCRYPTO_BACKEND=wolfSSL
+        exclude:
+          - { build: 'AM', install: 'LibreSSL' }
+          - { build: 'AM', install: 'mbedTLS' }
+          - { build: 'AM', install: 'openssl@3' }
+          - { build: 'AM', install: 'wolfSSL' }
     steps:
       - uses: $/.github/actions/macos-fix-certs
 
