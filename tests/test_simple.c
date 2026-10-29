@@ -32,6 +32,8 @@
  */
 
 #include "libssh2_priv.h"
+#include "libssh2_sftp.h"
+#include "sftp.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -412,6 +414,76 @@ static int test_userauth_sign_algs_fail_cleanup(LIBSSH2_SESSION *session)
 }
 #endif
 
+static int test_sftp_symlink_name_reply(LIBSSH2_SESSION *session)
+{
+    /* SSH_FXP_NAME (104) reply to request id 1 with one name: "evil" */
+    static const unsigned char reply[] = {
+        104, 0, 0, 0, 1, 0, 0, 0, 1,
+        0, 0, 0, 4, 'e', 'v', 'i', 'l',
+        0, 0, 0, 0, 0, 0, 0, 0
+    };
+    char linkpath[] = "/tmp/link";
+    LIBSSH2_CHANNEL *channel;
+    LIBSSH2_SFTP *sftp;
+    struct sftp_packet *packet;
+    int socket_state = session->socket_state;
+    int rc;
+    int err = 0;
+
+    channel = SSH2_CALLOC(session, sizeof(*channel));
+    sftp = SSH2_CALLOC(session, sizeof(*sftp));
+    packet = SSH2_CALLOC(session, sizeof(*packet));
+    if(packet)
+        packet->data = SSH2_ALLOC(session, sizeof(reply));
+    if(!channel || !sftp || !packet || !packet->data) {
+        if(packet)
+            SSH2_FREE(session, packet->data);
+        SSH2_FREE(session, packet);
+        SSH2_FREE(session, sftp);
+        SSH2_FREE(session, channel);
+        return 1;
+    }
+    channel->session = session;
+    sftp->channel = channel;
+    sftp->version = 3;
+    ssh2_list_init(&sftp->packets);
+
+    memcpy(packet->data, reply, sizeof(reply));
+    packet->data_len = sizeof(reply);
+    packet->request_id = 1;
+    ssh2_list_add(&sftp->packets, &packet->node);
+
+    /* SYMLINK request id 1 sent, the server answers with a NAME packet */
+    sftp->symlink_state = ssh2_NB_state_sent;
+    sftp->symlink_request_id = 1;
+    session->socket_state = SSH2_SOCKET_CONNECTED;
+
+    rc = libssh2_sftp_symlink(sftp, "/tmp/orig", linkpath);
+    if(rc != LIBSSH2_ERROR_SFTP_PROTOCOL) {
+        fprintf(stderr, "sftp symlink: rc=%d (want %d)\n",
+                rc, LIBSSH2_ERROR_SFTP_PROTOCOL);
+        err++;
+    }
+    if(strcmp(linkpath, "/tmp/link")) {
+        fprintf(stderr, "sftp symlink: link path overwritten: %s\n",
+                linkpath);
+        err++;
+    }
+
+    session->socket_state = socket_state;
+
+    packet = ssh2_list_first(&sftp->packets);
+    if(packet) {
+        ssh2_list_remove(&packet->node);
+        SSH2_FREE(session, packet->data);
+        SSH2_FREE(session, packet);
+    }
+    SSH2_FREE(session, sftp);
+    SSH2_FREE(session, channel);
+
+    return err > 0;
+}
+
 int main(int argc, char *argv[])
 {
     LIBSSH2_SESSION *session;
@@ -439,6 +511,7 @@ int main(int argc, char *argv[])
 #if LIBSSH2_RSA_SHA2
     rc |= test_userauth_sign_algs_fail_cleanup(session);
 #endif
+    rc |= test_sftp_symlink_name_reply(session);
 
     libssh2_session_free(session);
 
