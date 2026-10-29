@@ -56,7 +56,6 @@
 #define LIBSSH2_RSA 1
 #define LIBSSH2_RSA_SHA1 1
 #define LIBSSH2_RSA_SHA2 1
-#define LIBSSH2_DSA 1
 #define LIBSSH2_ECDSA 0
 #define LIBSSH2_ED25519 0
 #define LIBSSH2_MLKEM 0
@@ -88,10 +87,6 @@
 #define ssh2_rsa_ctx          struct gcry_sexp
 #define ssh2_rsa_free(rsa, session) \
     (gcry_sexp_release(rsa), (void)(session))
-
-#define ssh2_dsa_ctx          struct gcry_sexp
-#define ssh2_dsa_free(dsa, session) \
-    (gcry_sexp_release(dsa), (void)(session))
 
 #define SSH2_CIPHER_T(name)   int name
 #define ssh2_cipher_ctx       gcry_cipher_hd_t
