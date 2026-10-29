@@ -32,6 +32,7 @@
  */
 
 #include "libssh2_priv.h"
+#include "session_fixture.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -373,6 +374,64 @@ static int test_ssh2_scp_parse_c_fields(void)
     return err > 0;
 }
 
+#if LIBSSH2_ECDSA
+static int test_ecdsa_hostkey_curve_mismatch(LIBSSH2_SESSION *session)
+{
+    const struct hostkey_method **methods = ssh2_hostkey_methods();
+    const struct hostkey_method *saved = session->hostkey;
+    const struct hostkey_method *p521 = NULL;
+    char key_type[64];
+    char key_b64[1024];
+    char *blob = NULL;
+    size_t blob_len = 0;
+    void *abstract = NULL;
+    FILE *fp;
+    int rc;
+
+    while(methods && *methods) {
+        if(!strcmp((*methods)->name, "ecdsa-sha2-nistp521")) {
+            p521 = *methods;
+            break;
+        }
+        methods++;
+    }
+    if(!p521)
+        return 0;
+
+    fp = fopen(srcdir_path("openssh_server/ssh_host_ecdsa_key.pub"), "r");
+    if(!fp) {
+        fprintf(stderr, "Could not open ECDSA host test key\n");
+        return 1;
+    }
+
+    rc = fscanf(fp, "%63s %1023s", key_type, key_b64);
+    fclose(fp);
+    if(rc != 2 || strcmp(key_type, "ecdsa-sha2-nistp256")) {
+        fprintf(stderr, "Could not read P-256 ECDSA host test key\n");
+        return 1;
+    }
+
+    rc = ssh2_base64_decode(session, &blob, &blob_len,
+                            key_b64, strlen(key_b64));
+    if(rc)
+        return 1;
+
+    session->hostkey = p521;
+    rc = p521->init(session, (const unsigned char *)blob, blob_len,
+                    &abstract);
+    session->hostkey = saved;
+    SSH2_FREE(session, blob);
+
+    if(!rc) {
+        fprintf(stderr, "P-521 hostkey method accepted a P-256 key blob\n");
+        p521->dtor(session, &abstract);
+        return 1;
+    }
+
+    return 0;
+}
+#endif
+
 #if LIBSSH2_RSA_SHA2
 static int test_userauth_sign_algs_fail_cleanup(LIBSSH2_SESSION *session)
 {
@@ -436,6 +495,9 @@ int main(int argc, char *argv[])
     rc |= test_ssh2_dh_validate();
     rc |= test_ssh2_bn_from_bin();
     rc |= test_ssh2_scp_parse_c_fields();
+#if LIBSSH2_ECDSA
+    rc |= test_ecdsa_hostkey_curve_mismatch(session);
+#endif
 #if LIBSSH2_RSA_SHA2
     rc |= test_userauth_sign_algs_fail_cleanup(session);
 #endif
