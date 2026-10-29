@@ -412,6 +412,43 @@ static int test_userauth_sign_algs_fail_cleanup(LIBSSH2_SESSION *session)
 }
 #endif
 
+#if LIBSSH2_ECDSA
+static int test_sk_ecdsa_truncated_privkey(LIBSSH2_SESSION *session)
+{
+    /* sk-ecdsa OpenSSH private key that ends right after the EC point,
+       without the application, flags and key handle fields */
+    static const char key[] =
+        "-----BEGIN OPENSSH PRIVATE KEY-----\n"
+        "b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAfwAAACJz\n"
+        "ay1lY2RzYS1zaGEyLW5pc3RwMjU2QG9wZW5zc2guY29tAAAACG5pc3RwMjU2AAAA\n"
+        "QQRrF9Hy4SxCR/i85uVjpEDydwN9gS3rM6D0oTlF2JjClk/jQuL+Gn+bjufrSnwP\n"
+        "nhYrzjNXazFezsu2QGg3v1H1AAAABHNzaDoAAAB/AAAAAQAAAAEAAAAic2stZWNk\n"
+        "c2Etc2hhMi1uaXN0cDI1NkBvcGVuc3NoLmNvbQAAAAhuaXN0cDI1NgAAAEEEaxfR\n"
+        "8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5RdiYwpZP40Li/hp/m47n60p8D54WK84z\n"
+        "V2sxXs7LtkBoN79R9Q==\n"
+        "-----END OPENSSH PRIVATE KEY-----\n";
+    char *method = NULL;
+    unsigned char *pubkeydata = NULL;
+    size_t pubkeydata_len = 0;
+    int rc;
+
+    rc = ssh2_pub_privkey(session, &method, &pubkeydata, &pubkeydata_len,
+                          NULL, key, sizeof(key) - 1, NULL);
+    if(rc == 0) {
+        fprintf(stderr, "sk-ecdsa truncated private key accepted "
+                "(method %p, pubkey %p)\n",
+                (void *)method, (void *)pubkeydata);
+        if(method)
+            SSH2_FREE(session, method);
+        if(pubkeydata)
+            SSH2_FREE(session, pubkeydata);
+        return 1;
+    }
+
+    return 0;
+}
+#endif
+
 int main(int argc, char *argv[])
 {
     LIBSSH2_SESSION *session;
@@ -438,6 +475,9 @@ int main(int argc, char *argv[])
     rc |= test_ssh2_scp_parse_c_fields();
 #if LIBSSH2_RSA_SHA2
     rc |= test_userauth_sign_algs_fail_cleanup(session);
+#endif
+#if LIBSSH2_ECDSA
+    rc |= test_sk_ecdsa_truncated_privkey(session);
 #endif
 
     libssh2_session_free(session);
