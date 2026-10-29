@@ -31,7 +31,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include "libssh2_priv.h"
+#include "session_fixture.h"
+#include "userauth.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -379,15 +380,12 @@ static int test_ecdsa_hostkey_curve_mismatch(LIBSSH2_SESSION *session)
     const struct hostkey_method **methods = ssh2_hostkey_methods();
     const struct hostkey_method *saved = session->hostkey;
     const struct hostkey_method *p521 = NULL;
-    const char *key_file = "openssh_server/ssh_host_ecdsa_key.pub";
-    const char *srcdir = getenv("srcdir");
-    char key_path[1024];
-    char key_type[64];
-    char key_b64[1024];
-    char *blob = NULL;
+    const char *key_file =
+        srcdir_path("keys/id_ecdsa_openssh_encrypted.pub");
+    char *method = NULL;
+    unsigned char *blob = NULL;
     size_t blob_len = 0;
     void *abstract = NULL;
-    FILE *fp;
     int rc;
 
     while(methods && *methods) {
@@ -400,37 +398,19 @@ static int test_ecdsa_hostkey_curve_mismatch(LIBSSH2_SESSION *session)
     if(!p521)
         return 0;
 
-    if(srcdir && *srcdir) {
-        rc = snprintf(key_path, sizeof(key_path), "%s/%s", srcdir, key_file);
-        if(rc < 0 || (size_t)rc >= sizeof(key_path)) {
-            fprintf(stderr, "ECDSA host test key path is too long\n");
-            return 1;
-        }
-        key_file = key_path;
-    }
-
-    fp = fopen(key_file, "r");
-    if(!fp) {
-        fprintf(stderr, "Could not open ECDSA host test key: %s\n", key_file);
+    rc = userauth_read_pubkey(session, &method, &blob, &blob_len,
+                              key_file, NULL, 0);
+    if(rc || strcmp(method, "ecdsa-sha2-nistp256")) {
+        fprintf(stderr, "Could not read P-256 ECDSA client test key\n");
+        SSH2_FREE(session, method);
+        SSH2_FREE(session, blob);
         return 1;
     }
-
-    rc = fscanf(fp, "%63s %1023s", key_type, key_b64);
-    fclose(fp);
-    if(rc != 2 || strcmp(key_type, "ecdsa-sha2-nistp256")) {
-        fprintf(stderr, "Could not read P-256 ECDSA host test key\n");
-        return 1;
-    }
-
-    rc = ssh2_base64_decode(session, &blob, &blob_len,
-                            key_b64, strlen(key_b64));
-    if(rc)
-        return 1;
 
     session->hostkey = p521;
-    rc = p521->init(session, (const unsigned char *)blob, blob_len,
-                    &abstract);
+    rc = p521->init(session, blob, blob_len, &abstract);
     session->hostkey = saved;
+    SSH2_FREE(session, method);
     SSH2_FREE(session, blob);
 
     if(!rc) {
