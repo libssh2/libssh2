@@ -32,7 +32,6 @@
  */
 
 #include "libssh2_priv.h"
-#include "session_fixture.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -380,6 +379,9 @@ static int test_ecdsa_hostkey_curve_mismatch(LIBSSH2_SESSION *session)
     const struct hostkey_method **methods = ssh2_hostkey_methods();
     const struct hostkey_method *saved = session->hostkey;
     const struct hostkey_method *p521 = NULL;
+    const char *key_file = "openssh_server/ssh_host_ecdsa_key.pub";
+    const char *srcdir = getenv("srcdir");
+    char key_path[1024];
     char key_type[64];
     char key_b64[1024];
     char *blob = NULL;
@@ -398,9 +400,18 @@ static int test_ecdsa_hostkey_curve_mismatch(LIBSSH2_SESSION *session)
     if(!p521)
         return 0;
 
-    fp = fopen(srcdir_path("openssh_server/ssh_host_ecdsa_key.pub"), "r");
+    if(srcdir && *srcdir) {
+        rc = snprintf(key_path, sizeof(key_path), "%s/%s", srcdir, key_file);
+        if(rc < 0 || (size_t)rc >= sizeof(key_path)) {
+            fprintf(stderr, "ECDSA host test key path is too long\n");
+            return 1;
+        }
+        key_file = key_path;
+    }
+
+    fp = fopen(key_file, "r");
     if(!fp) {
-        fprintf(stderr, "Could not open ECDSA host test key\n");
+        fprintf(stderr, "Could not open ECDSA host test key: %s\n", key_file);
         return 1;
     }
 
