@@ -2615,8 +2615,13 @@ int ssh2_channel_free(LIBSSH2_CHANNEL *channel)
         channel->free_state = ssh2_NB_state_created;
     }
 
-    /* Allow channel freeing even when the socket has lost its connection */
+    /* Allow channel freeing even when the socket has lost its connection.
+       In non-blocking mode, session_free() cannot wait for CHANNEL_CLOSE and
+       there is nothing left to retry, so skip the graceful close there.
+       libssh2_session_disconnect() is the graceful shutdown path. */
     if(!channel->local.close &&
+       ((session->free_state == ssh2_NB_state_idle) ||
+        session->api_block_mode) &&
        (session->socket_state == SSH2_SOCKET_CONNECTED)) {
         rc = ssh2_channel_close(channel);
 
@@ -2625,6 +2630,16 @@ int ssh2_channel_free(LIBSSH2_CHANNEL *channel)
 
         /* ignore all other errors as they otherwise risk blocking the channel
            free from happening */
+    }
+
+    if(!channel->local.close) {
+        /* The channel is being freed without a completed graceful close.
+           Finish the local close so the owner can release its resources. */
+        channel->local.close = 1;
+        if(channel->close_cb) {
+            SSH2_CHANNEL_CLOSE(session, channel);
+            channel->close_cb = NULL;
+        }
     }
 
     channel->free_state = ssh2_NB_state_idle;
