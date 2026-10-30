@@ -373,6 +373,37 @@ static int test_ssh2_scp_parse_c_fields(void)
     return err > 0;
 }
 
+/* A 0x80 length octet is the DER indefinite form and carries no length
+   octets. It must be rejected without reading past the element. The byte
+   after the 2-byte span is zero so that a parser reading it would take the
+   element as empty and accept it. */
+static int test_ssh2_pem_decode_indefinite(void)
+{
+    unsigned char seq[3] = { 0x30, 0x80, 0x00 };
+    unsigned char integer[3] = { 0x02, 0x80, 0x00 };
+    unsigned char *p;
+    unsigned char *i = NULL;
+    unsigned int ilen = 0;
+    size_t len;
+    int err = 0;
+
+    p = seq;
+    len = 2;
+    if(ssh2_pem_decode_sequence(&p, &len) == 0) {
+        fprintf(stderr, "pem_decode_sequence accepted indefinite length\n");
+        err++;
+    }
+
+    p = integer;
+    len = 2;
+    if(ssh2_pem_decode_integer(&p, &len, &i, &ilen) == 0) {
+        fprintf(stderr, "pem_decode_integer accepted indefinite length\n");
+        err++;
+    }
+
+    return err > 0;
+}
+
 #if LIBSSH2_RSA_SHA2
 static int test_userauth_sign_algs_fail_cleanup(LIBSSH2_SESSION *session)
 {
@@ -436,6 +467,7 @@ int main(int argc, char *argv[])
     rc |= test_ssh2_dh_validate();
     rc |= test_ssh2_bn_from_bin();
     rc |= test_ssh2_scp_parse_c_fields();
+    rc |= test_ssh2_pem_decode_indefinite();
 #if LIBSSH2_RSA_SHA2
     rc |= test_userauth_sign_algs_fail_cleanup(session);
 #endif
