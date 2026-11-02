@@ -2679,7 +2679,8 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     rc = ssh2_ecdsa_curve_name_with_octal_new(&ctx, session,
                                               pointbuf, pointbuf_len, curve);
     if(rc) {
-        rc = ssh2_err(session, LIBSSH2_ERROR_PROTO, "ECDSA could not create key");
+        rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                      "ECDSA could not create key");
         goto fail;
     }
 
