@@ -32,7 +32,10 @@
  */
 
 #include "libssh2_priv.h"
+#include "libssh2_sftp.h"
+#include "sftp.h"
 
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>  /* for atoi() */
@@ -449,6 +452,81 @@ static int test_sk_ecdsa_truncated_privkey(LIBSSH2_SESSION *session)
 }
 #endif
 
+static int sftp_mkdir_recv_calls;
+
+/* nothing to read at first, then the connection is gone */
+static LIBSSH2_RECV_FUNC(test_sftp_mkdir_recv)
+{
+    (void)socket;
+    (void)buffer;
+    (void)length;
+    (void)flags;
+    (void)abstract;
+    return sftp_mkdir_recv_calls++ ? 0 : -EAGAIN;
+}
+
+static int test_sftp_mkdir_resume_fail_cleanup(void)
+{
+    LIBSSH2_SESSION *session;
+    LIBSSH2_CHANNEL *channel;
+    LIBSSH2_SFTP *sftp;
+    int rc;
+    int err = 0;
+
+    session = libssh2_session_init();
+    if(!session)
+        return 1;
+
+    channel = SSH2_CALLOC(session, sizeof(*channel));
+    sftp = SSH2_CALLOC(session, sizeof(*sftp));
+    if(!channel || !sftp) {
+        if(channel)
+            SSH2_FREE(session, channel);
+        if(sftp)
+            SSH2_FREE(session, sftp);
+        libssh2_session_free(session);
+        return 1;
+    }
+
+    session->recv_cb = test_sftp_mkdir_recv;
+    session->socket_state = SSH2_SOCKET_CONNECTED;
+    libssh2_session_set_blocking(session, 0);
+
+    /* a zero local window makes the first write would-block */
+    channel->session = session;
+    ssh2_list_add(&session->channels, &channel->node);
+    sftp->channel = channel;
+    sftp->version = 3;
+
+    rc = libssh2_sftp_mkdir(sftp, "/dir", 0755);
+    if(rc != LIBSSH2_ERROR_EAGAIN || !sftp->mkdir_packet) {
+        fprintf(stderr, "sftp mkdir: first call rc=%d (want %d)\n",
+                rc, LIBSSH2_ERROR_EAGAIN);
+        err++;
+    }
+
+    rc = libssh2_sftp_mkdir(sftp, "/dir", 0755);
+    if(rc != LIBSSH2_ERROR_SOCKET_SEND) {
+        fprintf(stderr, "sftp mkdir: retry rc=%d (want %d)\n",
+                rc, LIBSSH2_ERROR_SOCKET_SEND);
+        err++;
+    }
+
+    /* a freed packet left here is freed again by libssh2_sftp_shutdown() */
+    if(sftp->mkdir_packet) {
+        fprintf(stderr, "sftp mkdir: freed packet left set\n");
+        sftp->mkdir_packet = NULL;
+        err++;
+    }
+
+    session->socket_state = SSH2_SOCKET_DISCONNECTED;
+    libssh2_sftp_shutdown(sftp);
+    SSH2_FREE(session, sftp);
+    libssh2_session_free(session);
+
+    return err > 0;
+}
+
 int main(int argc, char *argv[])
 {
     LIBSSH2_SESSION *session;
@@ -473,6 +551,7 @@ int main(int argc, char *argv[])
     rc |= test_ssh2_dh_validate();
     rc |= test_ssh2_bn_from_bin();
     rc |= test_ssh2_scp_parse_c_fields();
+    rc |= test_sftp_mkdir_resume_fail_cleanup();
 #if LIBSSH2_RSA_SHA2
     rc |= test_userauth_sign_algs_fail_cleanup(session);
 #endif

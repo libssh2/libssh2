@@ -628,6 +628,12 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                     /* we collect entire undecrypted packet including the
                        packet length field that we run MAC over */
                     p->packet_length = ssh2_ntohu32(block);
+
+                    if(p->packet_length < 1)
+                        return LIBSSH2_ERROR_DECRYPT;
+                    else if(p->packet_length > LIBSSH2_PACKET_MAXPAYLOAD)
+                        return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
+
                     total_num = 4 + p->packet_length + remote_mac->mac_len;
                 }
                 else {
