@@ -220,6 +220,14 @@ static int session_banner_send(LIBSSH2_SESSION *session)
         session->banner_TxRx_state = ssh2_NB_state_created;
     }
 
+    if(session->banner_TxRx_state == libssh2_NB_state_created) {
+        if(session->local.banner) {
+            /* reset custom banner fields on partial send */
+            banner_len = strlen((char *) session->local.banner);
+            banner = (char *) session->local.banner;
+        }
+    }
+
     /* no outgoing block yet! */
     session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_OUTBOUND;
 
