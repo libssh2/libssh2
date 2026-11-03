@@ -109,14 +109,16 @@ init:
       $LASTEXITCODE = 0
 
 install:
-  - ps: $env:PATH = "C:/my-cmake/bin;C:/my-docker/docker;$env:PATH"
+  - ps: $env:PATH = "C:/my-cmake/bin;$env:PATH"
   - ps: |
-      # prepare local SSH server for reverse tunneling from GitHub Actions hosting our docker container
-      $env:OPENSSH_SERVER_PORT = Get-Random -Minimum 2000 -Maximum 2300
-      [System.Environment]::SetEnvironmentVariable('OPENSSH_SERVER_PORT', $env:OPENSSH_SERVER_PORT)
-      ./scripts/appveyor/docker-bridge.ps1
-
       if($env:TESTS -notlike '*skipall*' -and $env:TESTS -notlike '*skiprun*') {
+        $env:PATH = "C:/my-docker/docker;$env:PATH"
+
+        # prepare local SSH server for reverse tunneling from GitHub Actions hosting our docker container
+        $env:OPENSSH_SERVER_PORT = Get-Random -Minimum 2000 -Maximum 2300
+        [System.Environment]::SetEnvironmentVariable('OPENSSH_SERVER_PORT', $env:OPENSSH_SERVER_PORT)
+        ./scripts/appveyor/docker-bridge.ps1
+
         Write-Host 'Waiting for SSH connection from GitHub Actions' -NoNewline
         $endDate = (Get-Date).AddMinutes(5)
         while((Get-Process -Name 'sshd' -ErrorAction SilentlyContinue).Count -eq 1 -and (Get-Date) -lt $endDate) {
