@@ -438,7 +438,7 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_HOSTKEY_TYPE_UNKNOWN            0
 #define LIBSSH2_HOSTKEY_TYPE_RSA                1
 #ifndef LIBSSH2_NO_DEPRECATED
-#define LIBSSH2_HOSTKEY_TYPE_DSS                2  /* deprecated */
+#define LIBSSH2_HOSTKEY_TYPE_DSS                2  /* obsolete, unused */
 #endif
 #define LIBSSH2_HOSTKEY_TYPE_ECDSA_256          3
 #define LIBSSH2_HOSTKEY_TYPE_ECDSA_384          4

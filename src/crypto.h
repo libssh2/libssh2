@@ -160,29 +160,6 @@ void ssh2_rsa_free(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session);
 #endif
 #endif /* LIBSSH2_RSA */
 
-#if LIBSSH2_DSA
-int ssh2_dsa_new(ssh2_dsa_ctx **dsa, LIBSSH2_SESSION *session,
-                 const unsigned char *pdata, size_t plen,
-                 const unsigned char *qdata, size_t qlen,
-                 const unsigned char *gdata, size_t glen,
-                 const unsigned char *ydata, size_t ylen,
-                 const unsigned char *xdata, size_t xlen);
-int ssh2_dsa_new_priv(ssh2_dsa_ctx **dsa,
-                      LIBSSH2_SESSION *session,
-                      const char *filename,
-                      const char *blob, size_t blob_len,
-                      const char *passphrase);
-int ssh2_dsa_sha1_sign(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
-                       const unsigned char *hash, size_t hash_len,
-                       unsigned char *signature);
-int ssh2_dsa_sha1_verify(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session,
-                         const unsigned char *sig,
-                         const unsigned char *m, size_t m_len);
-#ifndef ssh2_dsa_free
-void ssh2_dsa_free(ssh2_dsa_ctx *dsa, LIBSSH2_SESSION *session);
-#endif
-#endif /* LIBSSH2_DSA */
-
 #if LIBSSH2_ECDSA
 /* Maximum uncompressed EC point length for NIST P-521:
  * two 521-bit coordinates rounded up to bytes, plus 1-byte format prefix.
@@ -322,10 +299,6 @@ void ssh2_dh_dtor(ssh2_dh_ctx *dhctx);
 #if LIBSSH2_RSA
 #define PEM_RSA_HEADER          "-----BEGIN RSA PRIVATE KEY-----"
 #define PEM_RSA_FOOTER          "-----END RSA PRIVATE KEY-----"
-#endif
-#if LIBSSH2_DSA
-#define PEM_DSA_HEADER          "-----BEGIN DSA PRIVATE KEY-----"
-#define PEM_DSA_FOOTER          "-----END DSA PRIVATE KEY-----"
 #endif
 #if LIBSSH2_ECDSA
 #define PEM_ECDSA_HEADER        "-----BEGIN EC PRIVATE KEY-----"
