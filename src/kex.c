@@ -3692,14 +3692,11 @@ int ssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
         key_state->state = ssh2_NB_state_sent2;
 
     if(rc == 0 && session->kex && key_state->state == ssh2_NB_state_sent2) {
-        if(session->kex->exchange_keys) {
+        if(session->kex->exchange_keys)
             retcode = session->kex->exchange_keys(session,
                                                   &key_state->key_state_low);
-        }
-        else {
-            /* No exchange keys present */
-            retcode = LIBSSH2_ERROR_PROTO;
-        }
+        else
+            retcode = LIBSSH2_ERROR_PROTO;  /* No exchange keys present */
 
         if(retcode == LIBSSH2_ERROR_EAGAIN) {
             session->state &= ~SSH2_STATE_KEX_ACTIVE;
