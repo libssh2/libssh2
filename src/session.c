@@ -855,9 +855,16 @@ static int session_free(LIBSSH2_SESSION *session)
         while((ch = ssh2_list_first(&session->channels)) != NULL) {
             rc = ssh2_channel_free(ch);
             if(rc == LIBSSH2_ERROR_EAGAIN && !session->api_block_mode) {
-                session->force_free = 1;
+                /* The session is going away, so do not leave it behind just
+                   because the graceful close could not complete. Finish the
+                   local close and release resources owned by the callback
+                   before retrying the free. */
+                ch->local.close = 1;
+                if(ch->close_cb) {
+                    SSH2_CHANNEL_CLOSE(session, ch);
+                    ch->close_cb = NULL;
+                }
                 rc = ssh2_channel_free(ch);
-                session->force_free = 0;
             }
             if(rc == LIBSSH2_ERROR_EAGAIN)
                 return rc;

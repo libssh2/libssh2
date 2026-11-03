@@ -830,7 +830,6 @@ struct _LIBSSH2_SESSION {
 
     /* State variables used in libssh2_session_free() */
     ssh2_NB_states free_state;
-    int force_free;
 
     /* State variables used in libssh2_session_disconnect_ex() */
     ssh2_NB_states disconnect_state;

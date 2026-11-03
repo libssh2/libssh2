@@ -2615,10 +2615,8 @@ int ssh2_channel_free(LIBSSH2_CHANNEL *channel)
         channel->free_state = ssh2_NB_state_created;
     }
 
-    /* Allow channel freeing even when the socket has lost its connection.
-       session_free() sets force_free after a non-blocking close returns
-       EAGAIN; in that case skip the close and finish the local teardown. */
-    if(!channel->local.close && !session->force_free &&
+    /* Allow channel freeing even when the socket has lost its connection */
+    if(!channel->local.close &&
        (session->socket_state == SSH2_SOCKET_CONNECTED)) {
         rc = ssh2_channel_close(channel);
 
