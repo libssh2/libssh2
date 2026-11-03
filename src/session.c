@@ -220,7 +220,7 @@ static int session_banner_send(LIBSSH2_SESSION *session)
         session->banner_TxRx_state = ssh2_NB_state_created;
     }
 
-    if(session->banner_TxRx_state == libssh2_NB_state_created) {
+    if(session->banner_TxRx_state == ssh2_NB_state_created) {
         if(session->local.banner) {
             /* reset custom banner fields on partial send */
             banner_len = strlen((char *) session->local.banner);
