@@ -88,15 +88,37 @@ environment:
 matrix:
   fast_finish: true
 
-install:
-  - ps: $env:PATH = "C:/my-cmake/bin;C:/my-docker/docker;$env:PATH"
+init:
   - ps: |
-      # prepare local SSH server for reverse tunneling from GitHub Actions hosting our docker container
-      $env:OPENSSH_SERVER_PORT = Get-Random -Minimum 2000 -Maximum 2300
-      [System.Environment]::SetEnvironmentVariable('OPENSSH_SERVER_PORT', $env:OPENSSH_SERVER_PORT)
-      ./scripts/appveyor/docker-bridge.ps1
+      # Prevent running browser updates during the CI job
+      $ErrorActionPreference = 'SilentlyContinue'
+      Rename-Item -Verbose -LiteralPath 'C:\Program Files\Mozilla Firefox\firefox.exe' -NewName 'firefox.exe.bak'
+      Get-ChildItem -LiteralPath 'C:\Program Files\Google\Chrome\Application' -Filter 'chrmstp.exe' -File -Recurse |
+        Rename-Item -Verbose -NewName { $_.Name -replace '.exe','.exe.bak' }
+      Get-ChildItem -LiteralPath 'C:\Program Files (x86)\Microsoft\Edge\Application' -Filter 'setup.exe' -File -Recurse |
+        Rename-Item -Verbose -NewName { $_.Name -replace '.exe','.exe.bak' }
+      Get-ChildItem -LiteralPath 'C:\Program Files (x86)\Microsoft\EdgeUpdate' -Filter 'MicrosoftEdgeUpdate.exe' -File -Recurse |
+        Rename-Item -Verbose -NewName { $_.Name -replace '.exe','.exe.bak' }
+      $null = New-Item -Path "C:\Program Files (x86)\Microsoft\EdgeUpdate\MicrosoftEdgeUpdate.exe" -ItemType Directory  # not let it re-create it
+      Rename-Item -Verbose -LiteralPath 'C:\Program Files (x86)\Google\Update\GoogleUpdate.exe' -NewName 'GoogleUpdate.exe.bak'
+      Get-ChildItem -LiteralPath 'C:\Program Files (x86)\Google\GoogleUpdater' -Filter 'updater.exe' -File -Recurse |
+        Rename-Item -Verbose -NewName { $_.Name -replace '.exe','.exe.bak' }
+      Get-ChildItem -LiteralPath 'C:\Program Files (x86)\Google\Update' -Filter 'GoogleUpdate*.exe' -File -Recurse |
+        Rename-Item -Verbose -NewName { $_.Name -replace '.exe','.exe.bak' }  # Older versions
+      taskkill -f -t -im chrmstp.exe -im setup.exe -im MicrosoftEdgeUpdate.exe -im GoogleUpdate.exe -im updater.exe
+      $LASTEXITCODE = 0
 
+install:
+  - ps: $env:PATH = "C:/my-cmake/bin;$env:PATH"
+  - ps: |
       if($env:TESTS -notlike '*skipall*' -and $env:TESTS -notlike '*skiprun*') {
+        $env:PATH = "C:/my-docker/docker;$env:PATH"
+
+        # prepare local SSH server for reverse tunneling from GitHub Actions hosting our docker container
+        $env:OPENSSH_SERVER_PORT = Get-Random -Minimum 2000 -Maximum 2300
+        [System.Environment]::SetEnvironmentVariable('OPENSSH_SERVER_PORT', $env:OPENSSH_SERVER_PORT)
+        ./scripts/appveyor/docker-bridge.ps1
+
         Write-Host 'Waiting for SSH connection from GitHub Actions' -NoNewline
         $endDate = (Get-Date).AddMinutes(5)
         while((Get-Process -Name 'sshd' -ErrorAction SilentlyContinue).Count -eq 1 -and (Get-Date) -lt $endDate) {

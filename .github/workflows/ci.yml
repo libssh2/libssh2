@@ -116,6 +116,9 @@ jobs:
       matrix:
         image: [ubuntu-26.04-arm, macos-latest, windows-2022]
     steps:
+      - uses: $/.github/actions/macos-fix-certs
+        if: ${{ contains(runner.os, 'macos') }}
+
       - uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2.33.0
         if: ${{ contains(matrix.image, 'windows') }}
         with:
@@ -738,7 +741,7 @@ jobs:
           - { build: 'AM', platform: 'x86_64', compiler: 'gcc' }
           - { build: 'CM', platform: 'x86_64', compiler: 'gcc' }
     steps:
-      - uses: cygwin/cygwin-install-action@3f0a3f9f988f7e96b8c18098ae05eaec175f5b52 # v6.0.2
+      - uses: cygwin/cygwin-install-action@5a1b0cd107181fa6bb6bf3f90d500f4fb3132f18 # v7.0.0
         with:
           platform: ${{ matrix.platform }}
           work-vol: 'D:'
@@ -1059,46 +1062,53 @@ jobs:
         run: du -sh .; echo; du -sh -t 250KB ./*; echo; du -h -t 250KB bld
 
   build_macos:
-    name: 'macOS (${{ matrix.build }}, ${{ matrix.crypto.name }})'
+    name: "macOS (${{ matrix.build.generate && 'CM' || 'AM' }}, ${{ matrix.build.name }})"
     runs-on: macos-latest
     timeout-minutes: 10
     env:
       MAKEFLAGS: -j 4
-      MATRIX_BUILD: '${{ matrix.build }}'
-      MATRIX_INSTALL: '${{ matrix.crypto.install }}'
+      MATRIX_INSTALL: '${{ matrix.build.install }}'
+      MATRIX_BUILD: ${{ matrix.build.generate && 'CM' || 'AM' }}
+      MATRIX_CONFIGURE: '${{ matrix.build.configure }}'
+      MATRIX_GENERATE: '${{ matrix.build.generate }}'
     strategy:
       fail-fast: false
       matrix:
-        build: ['AM', 'CM']
-        crypto:
+        build:
           - name: 'Libgcrypt'
             install: libgcrypt
             configure: --with-crypto=libgcrypt --with-libgcrypt-prefix=/opt/homebrew
-            cmake: -DCRYPTO_BACKEND=Libgcrypt
+          - name: 'Libgcrypt'
+            install: libgcrypt
+            generate: -DCRYPTO_BACKEND=Libgcrypt
           - name: 'LibreSSL'
             install: libressl
-            configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/libressl
-            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/libressl
+          # configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/libressl
+            generate: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/libressl
           - name: 'mbedTLS'
             install: mbedtls@3
-            configure: --with-crypto=mbedtls --with-libmbedcrypto-prefix=/opt/homebrew
-            cmake: -DCRYPTO_BACKEND=mbedTLS
+          # configure: --with-crypto=mbedtls --with-libmbedcrypto-prefix=/opt/homebrew
+            generate: -DCRYPTO_BACKEND=mbedTLS
           - name: 'OpenSSL 4'
             install: openssl@4
-            configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl@4
-            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@4
+          # configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl@4
+            generate: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@4
           - name: 'OpenSSL 3'
             install: openssl@3
             configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl@3 CFLAGS=-std=c90
-            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@3 -DCMAKE_C_STANDARD=90
+          - name: 'OpenSSL 3'
+            install: openssl@3
+            generate: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@3 -DCMAKE_C_STANDARD=90
           - name: 'wolfSSL'
             install: wolfssl
-            configure: --with-crypto=wolfssl --with-libwolfssl-prefix=/opt/homebrew
-            cmake: -DCRYPTO_BACKEND=wolfSSL
+          # configure: --with-crypto=wolfssl --with-libwolfssl-prefix=/opt/homebrew
+            generate: -DCRYPTO_BACKEND=wolfSSL
     steps:
+      - uses: $/.github/actions/macos-fix-certs
+
       - name: 'install packages'
         env:
-          INSTALL_PACKAGES: ${{ matrix.build == 'AM' && 'automake libtool' || '' }}
+          INSTALL_PACKAGES: ${{ matrix.build.configure && 'automake libtool' || '' }}
         run: brew install ${INSTALL_PACKAGES} ${MATRIX_INSTALL}
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -1106,13 +1116,10 @@ jobs:
           persist-credentials: false
 
       - name: 'autoreconf'
-        if: ${{ matrix.build == 'AM' }}
+        if: ${{ matrix.build.configure }}
         run: autoreconf -fi
 
       - name: 'configure'
-        env:
-          MATRIX_CONFIGURE: '${{ matrix.crypto.configure }}'
-          MATRIX_GENERATE: '${{ matrix.crypto.cmake }}'
         run: |
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             if [ "${MATRIX_INSTALL}" = 'mbedtls@3' ]; then
@@ -1210,7 +1217,7 @@ jobs:
               options: '-DCRYPTO_BACKEND=OpenSSL' }
 
           # https://pkgsrc.se/
-          - { os: 'netbsd'      , version: '10.1' , build: 'CM', arch: 'x86_64', cc: 'gcc'  , desc: 'openssl skiprun',
+          - { os: 'netbsd'      , version: '10.2' , build: 'CM', arch: 'x86_64', cc: 'gcc'  , desc: 'openssl skiprun',
               install: 'cmake ninja-build',
               options: '-DCRYPTO_BACKEND=OpenSSL' }
 
@@ -1220,7 +1227,7 @@ jobs:
 
           # https://openbsd.app/
           # https://www.openbsd.org/faq/faq15.html
-          - { os: 'openbsd'     , version: '7.9'  , build: 'CM', arch: 'x86_64', cc: 'clang', desc: 'libressl skiprun',
+          - { os: 'openbsd'     , version: '8.0'  , build: 'CM', arch: 'x86_64', cc: 'clang', desc: 'libressl skiprun',
               install: 'cmake ninja',
               options: '-DCRYPTO_BACKEND=OpenSSL' }
 
@@ -1231,7 +1238,7 @@ jobs:
           persist-credentials: false
 
       - name: 'setup VM'
-        uses: cross-platform-actions/action@e0b9770014ba65d5e0815f15b74031c3a635f641 # v1.6.0
+        uses: cross-platform-actions/action@82668f1fbd89d9c99487604f822cbf6716f124d3 # v1.7.0
         with:
           environment_variables: 'CC CURL_CI CURL_TEST_MIN DO_NOT_TRACK MAKEFLAGS MATRIX_BUILD MATRIX_INSTALL MATRIX_OPTIONS MATRIX_OS'
           operating_system: '${{ matrix.os }}'
