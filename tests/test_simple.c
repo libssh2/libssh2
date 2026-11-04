@@ -483,7 +483,7 @@ static int test_ssh2_pem_parse_bad_padding(void)
                 pem_live_allocs - live);
         err++;
     }
-    
+
     libssh2_session_free(session);
 
     return err > 0;
