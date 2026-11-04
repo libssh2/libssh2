@@ -483,6 +483,12 @@ static int test_ssh2_pem_parse_bad_padding(void)
                 pem_live_allocs - live);
         err++;
     }
+    
+    libssh2_session_free(session);
+
+    return err > 0;
+}
+#endif
 
 static int sftp_mkdir_recv_calls;
 
@@ -558,7 +564,6 @@ static int test_sftp_mkdir_resume_fail_cleanup(void)
 
     return err > 0;
 }
-#endif
 
 int main(int argc, char *argv[])
 {
