@@ -108,6 +108,79 @@ init:
       taskkill -f -t -im chrmstp.exe -im setup.exe -im MicrosoftEdgeUpdate.exe -im GoogleUpdate.exe -im updater.exe
       $LASTEXITCODE = 0
 
+  # remove surplus CA bundles, fix the ones known to be used
+  - ps: |
+      $ErrorActionPreference = 'SilentlyContinue'
+      # 2019+
+      Remove-Item -LiteralPath 'C:/Program Files/Git/mingw64/etc/ssl/cert.pem'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/mingw64/etc/ssl/certs/ca-bundle.crt'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/mingw64/etc/ssl/certs/ca-bundle.trust.crt'
+      # <2019
+      Remove-Item -LiteralPath 'C:/Program Files/Git/mingw64/ssl/cert.pem'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/mingw64/ssl/certs/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/Tools/curl/bin/curl-ca-bundle.crt'
+      Remove-Item -LiteralPath 'C:/msys64/mingw32/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/msys64/mingw32/etc/pki/ca-trust/extracted/pem/email-ca-bundle.pem'
+      Remove-Item -LiteralPath 'C:/msys64/mingw32/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem'
+      Remove-Item -LiteralPath 'C:/msys64/mingw32/share/pki/ca-trust-source/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/msys64/mingw32/ssl/cert.pem'
+      Remove-Item -LiteralPath 'C:/msys64/mingw32/ssl/certs/ca-bundle.crt'
+      Remove-Item -LiteralPath 'C:/msys64/mingw32/ssl/certs/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/msys64/mingw64/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/msys64/mingw64/etc/pki/ca-trust/extracted/pem/email-ca-bundle.pem'
+      Remove-Item -LiteralPath 'C:/msys64/mingw64/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem'
+      Remove-Item -LiteralPath 'C:/msys64/mingw64/share/pki/ca-trust-source/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/msys64/mingw64/ssl/cert.pem'
+      Remove-Item -LiteralPath 'C:/msys64/mingw64/ssl/certs/ca-bundle.crt'
+      Remove-Item -LiteralPath 'C:/msys64/mingw64/ssl/certs/ca-bundle.trust.crt'
+      # common
+      Remove-Item -LiteralPath 'C:/Program Files/Git/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/etc/pki/ca-trust/extracted/pem/email-ca-bundle.pem'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/mingw64/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/mingw64/etc/pki/ca-trust/extracted/pem/email-ca-bundle.pem'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/mingw64/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/mingw64/share/pki/ca-trust-source/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/usr/share/pki/ca-trust-source/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/usr/ssl/cert.pem'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/usr/ssl/certs/ca-bundle.crt'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/usr/ssl/certs/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/msys64/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/msys64/etc/pki/ca-trust/extracted/pem/email-ca-bundle.pem'
+      Remove-Item -LiteralPath 'C:/msys64/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem'
+      Remove-Item -LiteralPath 'C:/msys64/usr/share/pki/ca-trust-source/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/msys64/usr/ssl/cert.pem'
+      Remove-Item -LiteralPath 'C:/msys64/usr/ssl/certs/ca-bundle.trust.crt'
+
+      # remove bad certs from bundles we may use
+      $issuers = @(
+        'emSign ECC Root CA - G3'
+        'emSign ECC Root CA - C3'
+        'emSign Root CA - C1'
+        'Comodo AAA Services root'
+      )
+      $prefixes = @(
+        'MIICTjCCAdOgAwIBAgIKPPYHqWhwDtqLhDAKBggqhkjOPQQDAzBrMQswCQYDVQQG'  # emSign ECC Root CA - G3
+        'MIICKzCCAbGgAwIBAgIKe3G2gla4EnycqDAKBggqhkjOPQQDAzBaMQswCQYDVQQG'  # emSign ECC Root CA - C3
+        'MIIDczCCAlugAwIBAgILAK7PALrEzzL4Q7IwDQYJKoZIhvcNAQELBQAwVjELMAkG'  # emSign Root CA - C1
+        'MIIEMjCCAxqgAwIBAgIBATANBgkqhkiG9w0BAQUFADB7MQswCQYDVQQGEwJHQjEb'  # AAA Certificate Services
+      )
+      $pattern1 = '(?ms)^[^\r\n]*(?:' + (($issuers | ForEach-Object { [regex]::Escape($_) }) -join '|') +
+        ')[^\r\n]*\r?\n.*?^-----END CERTIFICATE-----[^\r\n]*(?:\r?\n|$)'
+      $pattern2 = '(?ms)^-----BEGIN CERTIFICATE-----\r?\n(?:' + (($prefixes | ForEach-Object { [regex]::Escape($_) }) -join '|') +
+        ')[^\r\n]*\r?\n.*?^-----END CERTIFICATE-----[^\r\n]*(?:\r?\n|$)'
+      foreach($f in 'C:/msys64/usr/ssl/certs/ca-bundle.crt',
+                    'C:/Program Files/Git/mingw64/ssl/certs/ca-bundle.crt') {  # <2019
+        if(Test-Path -LiteralPath $f -PathType Leaf) {
+          $old = [IO.File]::ReadAllText($f)
+          $new = [regex]::Replace($old, $pattern1, '')
+          $new = [regex]::Replace($new, $pattern2, '')
+          if($old -cne $new) {
+            [IO.File]::WriteAllText($f, $new)
+          }
+        }
+      }
+
 install:
   - ps: $env:PATH = "C:/my-cmake/bin;$env:PATH"
   - ps: |
