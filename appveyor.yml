@@ -182,7 +182,7 @@ init:
       }
 
 install:
-  - ps: $env:PATH = "C:/my-cmake/bin;$env:PATH"
+  - ps: $env:PATH = "C:/my-cmake/bin;C:/msys64/usr/bin;$env:PATH"
   - ps: |
       if($env:TESTS -notlike '*skipall*' -and $env:TESTS -notlike '*skiprun*') {
         $env:PATH = "C:/my-docker/docker;$env:PATH"
