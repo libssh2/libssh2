@@ -2634,18 +2634,15 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
               "Computing ECDSA keys from private key data"));
 
     if(ssh2_get_string(decrypted, &curvebuf, &curvebuf_len) || !curvebuf_len) {
-        ssh2_err(session, LIBSSH2_ERROR_PROTO, "ECDSA no curve");
-        return -1;
+        return ssh2_err(session, LIBSSH2_ERROR_PROTO, "ECDSA no curve");
     }
 
     if(ssh2_get_string(decrypted, &pointbuf, &pointbuf_len)) {
-        ssh2_err(session, LIBSSH2_ERROR_PROTO, "ECDSA no point");
-        return -1;
+        return ssh2_err(session, LIBSSH2_ERROR_PROTO, "ECDSA no point");
     }
 
     if(ssh2_get_bignum_bytes(decrypted, &exponent, &exponent_len)) {
-        ssh2_err(session, LIBSSH2_ERROR_PROTO, "ECDSA no exponent");
-        return -1;
+        return ssh2_err(session, LIBSSH2_ERROR_PROTO, "ECDSA no exponent");
     }
 
 #ifdef USE_OPENSSL_3
@@ -2682,16 +2679,15 @@ static int ossl_ecdsa_openssh_priv_to_pubkey(LIBSSH2_SESSION *session,
     rc = ssh2_ecdsa_curve_name_with_octal_new(&ctx, session,
                                               pointbuf, pointbuf_len, curve);
     if(rc) {
-        rc = -1;
-        ssh2_err(session, LIBSSH2_ERROR_PROTO, "ECDSA could not create key");
+        rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                      "ECDSA could not create key");
         goto fail;
     }
 
     bn_exponent = BN_new();
     if(!bn_exponent) {
-        rc = -1;
-        ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                 "Unable to allocate memory for private key data");
+        rc = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
+                  "Unable to allocate memory for private key data");
         goto fail;
     }
 
@@ -2761,38 +2757,36 @@ static int ossl_ecdsa_sk_openssh_priv_to_pubkey(
     ssh2_deb((session, LIBSSH2_TRACE_AUTH, "Extracting ECDSA-SK public key"));
 
     if(ssh2_get_string(decrypted, &curvebuf, &curvebuf_len) || !curvebuf_len) {
-        ssh2_err(session, LIBSSH2_ERROR_PROTO, "ECDSA no curve");
-        return -1;
+        return ssh2_err(session, LIBSSH2_ERROR_PROTO, "ECDSA no curve");
     }
 
     if(ssh2_get_string(decrypted, &pointbuf, &pointbuf_len)) {
-        ssh2_err(session, LIBSSH2_ERROR_PROTO, "ECDSA no point");
-        return -1;
+        return ssh2_err(session, LIBSSH2_ERROR_PROTO, "ECDSA no point");
     }
 
     rc = ssh2_ecdsa_curve_name_with_octal_new(&ctx, session,
                                               pointbuf, pointbuf_len,
                                               SSH2_EC_CURVE_NISTP256);
     if(rc) {
-        rc = -1;
-        ssh2_err(session, LIBSSH2_ERROR_PROTO, "ECDSA could not create key");
+        rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
+                      "ECDSA could not create key");
         goto fail;
     }
 
     if(ssh2_get_string(decrypted, &app, &app_len)) {
-        ssh2_err(session, LIBSSH2_ERROR_PROTO, "No SK application.");
+        rc = ssh2_err(session, LIBSSH2_ERROR_PROTO, "No SK application.");
         goto fail;
     }
 
     if(flags && ssh2_get_byte(decrypted, flags)) {
-        ssh2_err(session, LIBSSH2_ERROR_PROTO, "No SK flags.");
+        rc = ssh2_err(session, LIBSSH2_ERROR_PROTO, "No SK flags.");
         goto fail;
     }
 
     if(key_handle && key_handle_len) {
         unsigned char *handle = NULL;
         if(ssh2_get_string(decrypted, &handle, key_handle_len)) {
-            ssh2_err(session, LIBSSH2_ERROR_PROTO, "No SK key_handle.");
+            rc = ssh2_err(session, LIBSSH2_ERROR_PROTO, "No SK key_handle.");
             goto fail;
         }
 
