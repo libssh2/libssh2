@@ -152,29 +152,12 @@ int ssh2_cipher_init(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
         || algo == MBEDTLS_CIPHER_DES_EDE3_CBC
 #endif
        )
-<<<<<<< HEAD
-      ) {
+      )
         ret = mbedtls_cipher_set_padding_mode(&ctx->u.cipher,
                                               MBEDTLS_PADDING_NONE);
-    }
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-      ) {
-        ret = mbedtls_cipher_set_padding_mode(ctx, MBEDTLS_PADDING_NONE);
-    }
-=======
-      )
-        ret = mbedtls_cipher_set_padding_mode(ctx, MBEDTLS_PADDING_NONE);
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
 
     if(!ret)
-<<<<<<< HEAD
         ret = mbedtls_cipher_setkey(&ctx->u.cipher, secret,
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-        ret = mbedtls_cipher_setkey(ctx,
-                  secret,
-=======
-        ret = mbedtls_cipher_setkey(ctx, secret,
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
                   (int)mbedtls_cipher_info_get_key_bitlen(cipher_info), op);
 
     if(!ret)
@@ -276,41 +259,16 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
 
     output = mbedtls_calloc(osize, sizeof(char));
     if(output) {
-<<<<<<< HEAD
         olen = 0;
         finish_olen = 0;
 
         ret = mbedtls_cipher_reset(&ctx->u.cipher);
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-        size_t olen = 0, finish_olen = 0;
-
-        ret = mbedtls_cipher_reset(ctx);
-
-=======
-        size_t olen = 0, finish_olen = 0;
-
-        ret = mbedtls_cipher_reset(ctx);
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
         if(!ret)
-<<<<<<< HEAD
             ret = mbedtls_cipher_update(&ctx->u.cipher, block,
                                         blocksize, output, &olen);
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-            ret = mbedtls_cipher_update(ctx, block, blocksize, output, &olen);
-
-=======
-            ret = mbedtls_cipher_update(ctx, block, blocksize, output, &olen);
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
         if(!ret)
-<<<<<<< HEAD
             ret = mbedtls_cipher_finish(&ctx->u.cipher,
                                         output + olen, &finish_olen);
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-            ret = mbedtls_cipher_finish(ctx, output + olen, &finish_olen);
-
-=======
-            ret = mbedtls_cipher_finish(ctx, output + olen, &finish_olen);
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
         if(!ret) {
             olen += finish_olen;
             memcpy(block, output, olen);
@@ -319,7 +277,7 @@ int ssh2_cipher_crypt(ssh2_cipher_ctx *ctx, SSH2_CIPHER_T(algo),
         if(osize)
             ssh2_explicit_zero(output, osize * sizeof(char));
         mbedtls_free(output);
-    }
+   }
     else
         ret = -1;
 
@@ -498,23 +456,13 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
     psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
     mbedtls_mpi mpi;
 
-<<<<<<< HEAD
-    ctx = SSH2_CALLOC(session, sizeof(ssh2_rsa_ctx));
-    if(!ctx)
-        return -1;
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    ctx = mbedtls_calloc(1, sizeof(ssh2_rsa_ctx));
-    if(!ctx)
-        return -1;
-=======
     unsigned char buf[PSA_EXPORT_KEY_PAIR_MAX_SIZE];
     unsigned char *start = buf;
     unsigned char *p = buf + sizeof(buf); /* write backwards ending at p */
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
 
     mbedtls_mpi_init(&mpi);
 
-    *rsa = mbedtls_calloc(1, sizeof(*rsa));
+    *rsa = SSH2_CALLOC(session, sizeof(*rsa));
     if(!*rsa)
         goto failed;
 
@@ -559,29 +507,13 @@ int ssh2_rsa_new(ssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
 failed:
 
     if(*rsa) {
-        ssh2_rsa_free(*rsa);
+        ssh2_rsa_free(*rsa, session);
         *rsa = NULL;
     }
 
-<<<<<<< HEAD
-    if(ret && ctx) {
-        ssh2_rsa_free(ctx, session);
-        ctx = NULL;
-    }
-    *rsa = ctx;
-    return ret;
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    if(ret && ctx) {
-        ssh2_rsa_free(ctx);
-        ctx = NULL;
-    }
-    *rsa = ctx;
-    return ret;
-=======
     mbedtls_mpi_free(&mpi);
 
     return -1;
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
 }
 
 int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
@@ -592,321 +524,89 @@ int ssh2_rsa_new_priv(ssh2_rsa_ctx **rsa,
 {
     int ret = -1;
     mbedtls_pk_context pkey;
-<<<<<<< HEAD
-    mbedtls_rsa_context *pk_rsa;
-    unsigned char *data_nullterm = NULL;
-
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    mbedtls_rsa_context *pk_rsa;
-
-=======
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
     (void)session;
 
-<<<<<<< HEAD
-    *rsa = SSH2_CALLOC(session, sizeof(ssh2_rsa_ctx));
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    *rsa = mbedtls_calloc(1, sizeof(ssh2_rsa_ctx));
-=======
-    *rsa = mbedtls_calloc(1, sizeof(*rsa));
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
+    *rsa = SSH2_CALLOC(session, sizeof(*rsa));
     if(!*rsa)
         goto failed;
 
     **rsa = PSA_KEY_ID_NULL;
 
-<<<<<<< HEAD
-    mbedtls_rsa_init(*rsa);
-
-    if(!filename) {
-        /* mbedTLS checks in "mbedtls/pkparse.c:1184"
-               if "key[keylen - 1] != '\0'"
-           private-key from memory fails if the last byte is not a null byte */
-        data_nullterm = SSH2_CALLOC(session, blob_len + 1);
-        if(!data_nullterm) {
-            ssh2_rsa_free(*rsa, session);
-            *rsa = NULL;
-            return -1;
+    if(filename) {
+        mbedtls_pk_init(&pkey);
+        ret = MBEDTLS_PK_PARSE_KEYFILE(&pkey, filename, passphrase);
+        if(!ret) {
+            psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
+            psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_HASH);
+            psa_set_key_type(&attr, PSA_KEY_TYPE_RSA_KEY_PAIR);
+            if(mbedtls_pk_import_into_psa(&pkey, &attr, *rsa))
+                ret = -1;
         }
-
+    }
+    else {
+        /* mbedTLS checks in "mbedtls/pkparse.c:1184" if
+              "key[keylen - 1] != '\0'"
+           private-key from memory fails if the last byte is not a null byte */
+        unsigned char *data_nullterm = SSH2_CALLOC(session, blob_len + 1);
+        if(!data_nullterm)
+            goto failed;
         memcpy(data_nullterm, blob, blob_len);
         data_nullterm[blob_len] = '\0';
-    }
 
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    mbedtls_rsa_init(*rsa);
-=======
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
-    mbedtls_pk_init(&pkey);
-<<<<<<< HEAD
-
-    if(!filename) {
-        ret = mbedtls_pk_parse_key(&pkey, data_nullterm, blob_len + 1,
+        mbedtls_pk_init(&pkey);
+        ret = MBEDTLS_PK_PARSE_KEY(&pkey, data_nullterm, blob_len + 1,
                                    (const unsigned char *)passphrase,
-                                   passphrase ? strlen(passphrase) : 0,
-                                   mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
+                                   passphrase ? strlen(passphrase) : 0);
         ssh2_zero_free(session, data_nullterm, blob_len + 1);
-    }
-    else
-        ret = mbedtls_pk_parse_keyfile(&pkey, filename, passphrase,
-                                       mbedtls_ctr_drbg_random,
-                                       &mbed_ctr_drbg);
 
-    if(ret || mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_RSA) {
-        mbedtls_pk_free(&pkey);
+        if(!ret) {
+            psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
+            psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_HASH);
+            psa_set_key_type(&attr, PSA_KEY_TYPE_RSA_KEY_PAIR);
+            if(mbedtls_pk_import_into_psa(&pkey, &attr, *rsa))
+                ret = -1;
+        }
+    }
+
+    mbedtls_pk_free(&pkey);
+
+failed:
+
+    if(ret && *rsa) {
         ssh2_rsa_free(*rsa, session);
         *rsa = NULL;
-        return -1;
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-
-    ret = mbedtls_pk_parse_keyfile(&pkey, filename, (const char *)passphrase,
-                                   mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
-    if(ret || mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_RSA) {
-        mbedtls_pk_free(&pkey);
-        ssh2_rsa_free(*rsa);
-        *rsa = NULL;
-        return -1;
-=======
-    ret = MBEDTLS_PK_PARSE_KEYFILE(&pkey, filename, (const char *)passphrase);
-    if(!ret) {
-        psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
-        psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_HASH);
-        psa_set_key_type(&attr, PSA_KEY_TYPE_RSA_KEY_PAIR);
-        if(mbedtls_pk_import_into_psa(&pkey, &attr, *rsa))
-            ret = -1;
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
-    }
-
-    mbedtls_pk_free(&pkey);
-
-failed:
-
-    if(ret && *rsa) {
-        ssh2_rsa_free(*rsa);
-        *rsa = NULL;
     }
 
     return ret;
 }
 
-<<<<<<< HEAD
 int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
                          size_t hash_len,
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
-                                    LIBSSH2_SESSION *session,
-                                    const char *blob, size_t blob_len,
-                                    const unsigned char *passphrase)
-{
-    int ret;
-    mbedtls_pk_context pkey;
-    mbedtls_rsa_context *pk_rsa;
-    unsigned char *data_nullterm;
-    size_t pwd_len;
-
-    (void)session;
-
-    *rsa = mbedtls_calloc(1, sizeof(ssh2_rsa_ctx));
-    if(!*rsa)
-        return -1;
-
-    mbedtls_rsa_init(*rsa);
-
-    /* mbedtls checks in "mbedtls/pkparse.c:1184" if "key[keylen - 1] != '\0'"
-       private-key from memory fails if the last byte is not a null byte */
-    data_nullterm = mbedtls_calloc(blob_len + 1, 1);
-    if(!data_nullterm) {
-        ssh2_rsa_free(*rsa);
-        *rsa = NULL;
-        return -1;
-    }
-
-    memcpy(data_nullterm, blob, blob_len);
-    data_nullterm[blob_len] = 0;
-
-    mbedtls_pk_init(&pkey);
-
-    pwd_len = passphrase ? strlen((const char *)passphrase) : 0;
-    ret = mbedtls_pk_parse_key(&pkey, data_nullterm, blob_len + 1,
-                               passphrase, pwd_len,
-                               mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
-    mbed_zero_free(data_nullterm, blob_len + 1);
-
-    if(ret || mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_RSA) {
-        mbedtls_pk_free(&pkey);
-        ssh2_rsa_free(*rsa);
-        *rsa = NULL;
-        return -1;
-    }
-
-    pk_rsa = mbedtls_pk_rsa(pkey);
-    mbedtls_rsa_copy(*rsa, pk_rsa);
-    mbedtls_pk_free(&pkey);
-
-    return 0;
-}
-
-int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
-=======
-int ssh2_rsa_new_private_frommemory(ssh2_rsa_ctx **rsa,
-                                    LIBSSH2_SESSION *session,
-                                    const char *blob, size_t blob_len,
-                                    const unsigned char *passphrase)
-{
-    int ret = -1;
-    mbedtls_pk_context pkey;
-    unsigned char *data_nullterm;
-    size_t pwd_len;
-    (void)session;
-
-    *rsa = mbedtls_calloc(1, sizeof(*rsa));
-    if(!*rsa)
-        goto failed;
-
-    **rsa = PSA_KEY_ID_NULL;
-
-    /* mbedtls checks in "mbedtls/pkparse.c:1184" if "key[keylen - 1] != '\0'"
-       private-key from memory fails if the last byte is not a null byte */
-    data_nullterm = mbedtls_calloc(blob_len + 1, 1);
-    if(!data_nullterm)
-        goto failed;
-    memcpy(data_nullterm, blob, blob_len);
-    data_nullterm[blob_len] = 0;
-
-    pwd_len = passphrase ? strlen((const char *)passphrase) : 0;
-
-    mbedtls_pk_init(&pkey);
-    ret = MBEDTLS_PK_PARSE_KEY(&pkey, data_nullterm, blob_len + 1,
-                               passphrase, pwd_len);
-    mbed_zero_free(data_nullterm, blob_len + 1);
-
-    if(!ret) {
-        psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
-        psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_HASH);
-        psa_set_key_type(&attr, PSA_KEY_TYPE_RSA_KEY_PAIR);
-        if(mbedtls_pk_import_into_psa(&pkey, &attr, *rsa))
-            ret = -1;
-    }
-
-    mbedtls_pk_free(&pkey);
-
-failed:
-
-    if(ret && *rsa) {
-        ssh2_rsa_free(*rsa);
-        *rsa = NULL;
-    }
-
-    return ret;
-}
-
-int ssh2_rsa_sha2_verify(ssh2_rsa_ctx *rsa, size_t hash_len,
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
                          const unsigned char *sig, size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
     ssh2_hash_alg hash_alg;
 
-<<<<<<< HEAD
-    if(sig_len < mbedtls_rsa_get_len(rsa))
-        return -1;
-
-    hash = SSH2_ALLOC(session, hash_len);
-    if(!hash)
-        return -1;
+    (void)session;
 
 #if LIBSSH2_RSA_SHA1
-    if(hash_len == SSH2_SHA1_DIG_LEN) {
-        ret = psa_hash_compute(PSA_ALG_SHA_1, m, m_len, hash, hash_len,
-                               &actual_len) == PSA_SUCCESS ? 0 : -1;
-        md_type = MBEDTLS_MD_SHA1;
-    }
-    else
-#endif
-    if(hash_len == SSH2_SHA256_DIG_LEN) {
-        ret = psa_hash_compute(PSA_ALG_SHA_256, m, m_len, hash, hash_len,
-                               &actual_len) == PSA_SUCCESS ? 0 : -1;
-        md_type = MBEDTLS_MD_SHA256;
-    }
-    else if(hash_len == SSH2_SHA512_DIG_LEN) {
-        ret = psa_hash_compute(PSA_ALG_SHA_512, m, m_len, hash, hash_len,
-                               &actual_len) == PSA_SUCCESS ? 0 : -1;
-        md_type = MBEDTLS_MD_SHA512;
-    }
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    if(sig_len < mbedtls_rsa_get_len(rsa))
-        return -1;
-
-    hash = malloc(hash_len);
-    if(!hash)
-        return -1;
-
-    if(hash_len == SSH2_SHA1_DIG_LEN) {
-        ret = psa_hash_compute(PSA_ALG_SHA_1, m, m_len, hash, hash_len,
-                               &actual_len) == PSA_SUCCESS ? 0 : -1;
-        md_type = MBEDTLS_MD_SHA1;
-    }
-    else if(hash_len == SSH2_SHA256_DIG_LEN) {
-        ret = psa_hash_compute(PSA_ALG_SHA_256, m, m_len, hash, hash_len,
-                               &actual_len) == PSA_SUCCESS ? 0 : -1;
-        md_type = MBEDTLS_MD_SHA256;
-    }
-    else if(hash_len == SSH2_SHA512_DIG_LEN) {
-        ret = psa_hash_compute(PSA_ALG_SHA_512, m, m_len, hash, hash_len,
-                               &actual_len) == PSA_SUCCESS ? 0 : -1;
-        md_type = MBEDTLS_MD_SHA512;
-    }
-=======
     if(hash_len == SSH2_SHA1_DIG_LEN)
         hash_alg = SSH2_SHA1_ALG;
-    else if(hash_len == SSH2_SHA256_DIG_LEN)
+    else
+#endif
+    if(hash_len == SSH2_SHA256_DIG_LEN)
         hash_alg = SSH2_SHA256_ALG;
     else if(hash_len == SSH2_SHA512_DIG_LEN)
         hash_alg = SSH2_SHA512_ALG;
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
     else {
-<<<<<<< HEAD
-        SSH2_FREE(session, hash);
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-        free(hash);
-=======
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
         return -1; /* unsupported digest */
     }
 
-<<<<<<< HEAD
-    if(ret) {
-        SSH2_FREE(session, hash);
-        return -1; /* failure */
-    }
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    if(ret) {
-        free(hash);
-        return -1; /* failure */
-    }
-=======
     if(psa_verify_message(*rsa, PSA_ALG_RSA_PKCS1V15_SIGN(hash_alg),
                           m, m_len, sig, sig_len) != PSA_SUCCESS)
         return -1;
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
 
-<<<<<<< HEAD
-    ret = mbedtls_rsa_pkcs1_verify(rsa,
-                                   md_type, (unsigned int)hash_len,
-                                   hash, sig);
-    SSH2_FREE(session, hash);
-
-    return ret == 0 ? 0 : -1;
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    ret = mbedtls_rsa_pkcs1_verify(rsa,
-                                   md_type, (unsigned int)hash_len,
-                                   hash, sig);
-    free(hash);
-
-    return ret == 0 ? 0 : -1;
-=======
     return 0;
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
 }
 
 int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
@@ -916,39 +616,13 @@ int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
     size_t sig_len = PSA_SIGNATURE_MAX_SIZE;
     ssh2_hash_alg hash_alg;
 
-<<<<<<< HEAD
-    sig_len = mbedtls_rsa_get_len(rsa);
-    sig = SSH2_ALLOC(session, sig_len);
-    if(!sig)
-        return -1;
-
-    ret = 0;
 #if LIBSSH2_RSA_SHA1
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    sig_len = mbedtls_rsa_get_len(rsa);
-    sig = SSH2_ALLOC(session, sig_len);
-    if(!sig)
-        return -1;
-
-    ret = 0;
-=======
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
     if(hash_len == SSH2_SHA1_DIG_LEN)
-<<<<<<< HEAD
-        md_type = MBEDTLS_MD_SHA1;
+        hash_alg = SSH2_SHA1_ALG;
     else
 #endif
     if(hash_len == SSH2_SHA256_DIG_LEN)
-        md_type = MBEDTLS_MD_SHA256;
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-        md_type = MBEDTLS_MD_SHA1;
-    else if(hash_len == SSH2_SHA256_DIG_LEN)
-        md_type = MBEDTLS_MD_SHA256;
-=======
-        hash_alg = SSH2_SHA1_ALG;
-    else if(hash_len == SSH2_SHA256_DIG_LEN)
         hash_alg = SSH2_SHA256_ALG;
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
     else if(hash_len == SSH2_SHA512_DIG_LEN)
         hash_alg = SSH2_SHA512_ALG;
     else {
@@ -992,182 +666,24 @@ int ssh2_rsa_sha1_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
 
 void ssh2_rsa_free(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session)
 {
-<<<<<<< HEAD
     if(rsa) {
-        mbedtls_rsa_free(rsa);
+        psa_destroy_key(*rsa);
         SSH2_FREE(session, rsa);
     }
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    mbedtls_rsa_free(rsa);
-    mbedtls_free(rsa);
-=======
-    psa_destroy_key(*rsa);
-    mbedtls_free(rsa);
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
-}
-
-<<<<<<< HEAD
-static unsigned char *mbed_gen_publickey_from_rsa(LIBSSH2_SESSION *session,
-                                                  mbedtls_rsa_context *rsa,
-                                                  size_t *keylen)
-{
-    static const char method_name[] = "ssh-rsa";
-    uint32_t e_bytes, n_bytes;
-    uint32_t len;
-    unsigned char *key;
-    unsigned char *p;
-
-    e_bytes = (uint32_t)mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(E));
-    n_bytes = (uint32_t)mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(N)) + 1;
-
-    /* Key form is "ssh-rsa" + e + n. */
-    len = 4 + (uint32_t)sizeof(method_name) - 1 + 4 + e_bytes + 4 + n_bytes;
-
-    key = SSH2_ALLOC(session, len);
-    if(!key)
-        return NULL;
-
-    /* Process key encoding. */
-    p = key;
-
-    ssh2_htonu32(p, sizeof(method_name) - 1); /* Key type. */
-    p += 4;
-    memcpy(p, method_name, sizeof(method_name) - 1);
-    p += sizeof(method_name) - 1;
-
-    ssh2_htonu32(p, e_bytes);
-    p += 4;
-    mbedtls_mpi_write_binary(&rsa->MBEDTLS_PRIVATE(E), p, e_bytes);
-    p += e_bytes; /* Increment write index after writing to buffer */
-
-    ssh2_htonu32(p, n_bytes);
-    p += 4;
-    mbedtls_mpi_write_binary(&rsa->MBEDTLS_PRIVATE(N), p, n_bytes);
-    p += n_bytes; /* Increment write index after writing to buffer */
-
-    *keylen = (size_t)(p - key);
-    return key;
 }
 #endif /* LIBSSH2_RSA */
 
 static int mbed_pub_priv_key(LIBSSH2_SESSION *session, char **method,
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-static unsigned char *mbed_gen_publickey_from_rsa(LIBSSH2_SESSION *session,
-                                                  mbedtls_rsa_context *rsa,
-                                                  size_t *keylen)
-{
-    uint32_t e_bytes, n_bytes;
-    uint32_t len;
-    unsigned char *key;
-    unsigned char *p;
-
-    e_bytes = (uint32_t)mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(E));
-    n_bytes = (uint32_t)mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(N)) + 1;
-
-    /* Key form is "ssh-rsa" + e + n. */
-    len = 4 + 7 + 4 + e_bytes + 4 + n_bytes;
-
-    key = SSH2_ALLOC(session, len);
-    if(!key)
-        return NULL;
-
-    /* Process key encoding. */
-    p = key;
-
-    ssh2_htonu32(p, 7); /* Key type. */
-    p += 4;
-    /* NOLINTNEXTLINE(bugprone-not-null-terminated-result) */
-    memcpy(p, "ssh-rsa", 7);
-    p += 7;
-
-    ssh2_htonu32(p, e_bytes);
-    p += 4;
-    mbedtls_mpi_write_binary(&rsa->MBEDTLS_PRIVATE(E), p, e_bytes);
-    p += e_bytes; /* Increment write index after writing to buffer */
-
-    ssh2_htonu32(p, n_bytes);
-    p += 4;
-    mbedtls_mpi_write_binary(&rsa->MBEDTLS_PRIVATE(N), p, n_bytes);
-    p += n_bytes; /* Increment write index after writing to buffer */
-
-    *keylen = (size_t)(p - key);
-    return key;
-}
-
-static int mbed_pub_priv_key(LIBSSH2_SESSION *session,
-                             unsigned char **method,
-                             size_t *method_len,
-=======
-static int mbed_pub_priv_key(LIBSSH2_SESSION *session,
-                             unsigned char **method,
-                             size_t *method_len,
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
                              unsigned char **pubkeydata,
                              size_t *pubkeydata_len,
                              const mbedtls_pk_context *pkey)
 {
-<<<<<<< HEAD
-    char *method_buf = NULL;
-    unsigned char *key = NULL;
-    size_t keylen = 0;
-    int ret = 0;
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    unsigned char *key = NULL, *mth = NULL;
-    size_t keylen = 0, mthlen = 0;
-    int ret;
-    mbedtls_rsa_context *rsa;
-=======
     int ret = -1;
     ssh2_rsa_ctx rsa = PSA_KEY_ID_NULL;
-    unsigned char *pubkey = NULL, *mth = NULL;
-    size_t pubkey_size, pubkey_len, mth_len;
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
+    char *method_buf = NULL;
+    unsigned char *pubkey = NULL;
+    size_t pubkey_size, pubkey_len, method_buf_len;
 
-<<<<<<< HEAD
-    (void)pkey;
-
-#if LIBSSH2_RSA
-    if(mbedtls_pk_get_type(pkey) == MBEDTLS_PK_RSA) {
-        mbedtls_rsa_context *rsa;
-        size_t method_buf_len;
-
-        /* write method */
-        method_buf_len = sizeof("ssh-rsa") - 1;
-        method_buf = SSH2_ALLOC(session, method_buf_len + 1);
-        if(method_buf)
-            memcpy(method_buf, "ssh-rsa", method_buf_len + 1);
-        else
-            ret = -1;
-
-        rsa = mbedtls_pk_rsa(*pkey);
-        key = mbed_gen_publickey_from_rsa(session, rsa, &keylen);
-        if(!key)
-            ret = -1;
-    }
-    else
-#endif
-        ret = ssh2_err(session, LIBSSH2_ERROR_FILE, "Key type not supported");
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    if(mbedtls_pk_get_type(pkey) != MBEDTLS_PK_RSA) {
-        mbedtls_pk_free(pkey);
-        return ssh2_err(session, LIBSSH2_ERROR_FILE, "Key type not supported");
-    }
-
-    ret = 0;
-
-    /* write method */
-    mthlen = 7;
-    mth = SSH2_ALLOC(session, mthlen);
-    if(mth)
-        memcpy(mth, "ssh-rsa", mthlen);
-    else
-        ret = -1;
-
-    rsa = mbedtls_pk_rsa(*pkey);
-    key = mbed_gen_publickey_from_rsa(session, rsa, &keylen);
-    if(!key)
-        ret = -1;
-=======
     psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
     psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_VERIFY_MESSAGE);
     psa_set_key_type(&attr, PSA_KEY_TYPE_RSA_KEY_PAIR);
@@ -1175,11 +691,11 @@ static int mbed_pub_priv_key(LIBSSH2_SESSION *session,
         goto cleanup;
 
     /* write method */
-    mth_len = sizeof("ssh-rsa") - 1;
-    mth = SSH2_ALLOC(session, mth_len);
-    if(!mth)
+    method_buf_len = sizeof("ssh-rsa") - 1;
+    method_buf = SSH2_ALLOC(session, method_buf_len + 1);
+    if(!method_buf)
         goto cleanup;
-    memcpy(mth, "ssh-rsa", mth_len);
+    memcpy(method_buf, "ssh-rsa", method_buf_len + 1);
 
     pubkey_size = PSA_EXPORT_PUBLIC_KEY_MAX_SIZE;
     pubkey = SSH2_ALLOC(session, pubkey_size);
@@ -1189,43 +705,18 @@ static int mbed_pub_priv_key(LIBSSH2_SESSION *session,
     if(psa_export_public_key(rsa, pubkey, pubkey_size,
                              &pubkey_len) == PSA_SUCCESS) {
         ret = 0;
-        *method = mth;
-        *method_len = mth_len;
+        *method = method_buf;
         *pubkeydata = pubkey;
         *pubkeydata_len = pubkey_len;
     }
 
 cleanup:
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
 
     if(ret) {
-<<<<<<< HEAD
-        if(method_buf)
-            SSH2_FREE(session, method_buf);
-        if(key)
-            SSH2_FREE(session, key);
-    }
-    else {
-        *method = method_buf;
-        *pubkeydata = key;
-        *pubkeydata_len = keylen;
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-        if(mth)
-            SSH2_FREE(session, mth);
-        if(key)
-            SSH2_FREE(session, key);
-    }
-    else {
-        *method = mth;
-        *method_len = mthlen;
-        *pubkeydata = key;
-        *pubkeydata_len = keylen;
-=======
         if(pubkey)
             SSH2_FREE(session, pubkey);
-        if(mth)
-            SSH2_FREE(session, mth);
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
+        if(method_buf)
+            SSH2_FREE(session, method_buf);
     }
 
     psa_destroy_key(rsa);
@@ -1244,8 +735,8 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
     unsigned char *data_nullterm = NULL;
 
     if(!privkeyfile) {
-        /* mbedTLS checks in "mbedtls/pkparse.c:1184"
-               if "key[keylen - 1] != '\0'"
+        /* mbedTLS checks in "mbedtls/pkparse.c:1184" if
+             "key[keylen - 1] != '\0'"
            private-key from memory fails if the last byte is not a null byte */
         data_nullterm = SSH2_CALLOC(session, privkeyblob_len + 1);
         if(!data_nullterm)
@@ -1256,140 +747,21 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
     }
 
     mbedtls_pk_init(&pkey);
-<<<<<<< HEAD
-
     if(!privkeyfile) {
-        ret = mbedtls_pk_parse_key(&pkey, data_nullterm, privkeyblob_len + 1,
-                                   (const unsigned char *)passphrase,
-                                   passphrase ? strlen(passphrase) : 0,
-                                   mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
+        ret = MBEDTLS_PK_PARSE_KEY(&pkey, data_nullterm, privkeyblob_len + 1,
+                                   (unsigned const char *)passphrase,
+                                   passphrase ? strlen(passphrase) : 0);
         ssh2_zero_free(session, data_nullterm, privkeyblob_len + 1);
     }
     else
-        ret = mbedtls_pk_parse_keyfile(&pkey, privkeyfile, passphrase,
-                                       mbedtls_ctr_drbg_random,
-                                       &mbed_ctr_drbg);
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    ret = mbedtls_pk_parse_keyfile(&pkey, privatekey, passphrase,
-                                   mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
-    if(ret) {
-        mbedtls_strerror(ret, (char *)buf, sizeof(buf));
-        mbedtls_pk_free(&pkey);
-        return ssh2_err_flags(session, LIBSSH2_ERROR_FILE, buf,
-                              SSH2_ERR_FLAG_DUP);
-    }
+        ret = MBEDTLS_PK_PARSE_KEYFILE(&pkey, privkeyfile, passphrase);
 
-    ret = mbed_pub_priv_key(session, method, method_len,
-                            pubkeydata, pubkeydata_len, &pkey);
-
-    mbedtls_pk_free(&pkey);
-
-    return ret;
-}
-
-int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                unsigned char **method,
-                                size_t *method_len,
-                                unsigned char **pubkeydata,
-                                size_t *pubkeydata_len,
-                                const char *privatekeydata,
-                                size_t privatekeydata_len,
-                                const char *passphrase)
-{
-    mbedtls_pk_context pkey;
-    char buf[1024];
-    int ret;
-    unsigned char *data_nullterm;
-    size_t pwd_len;
-
-    /* mbedtls checks in "mbedtls/pkparse.c:1184" if "key[keylen - 1] != '\0'"
-       private-key from memory fails if the last byte is not a null byte */
-    data_nullterm = mbedtls_calloc(privatekeydata_len + 1, 1);
-    if(!data_nullterm)
-        return -1;
-
-    memcpy(data_nullterm, privatekeydata, privatekeydata_len);
-    data_nullterm[privatekeydata_len] = 0;
-
-    mbedtls_pk_init(&pkey);
-
-    pwd_len = passphrase ? strlen((const char *)passphrase) : 0;
-    ret = mbedtls_pk_parse_key(&pkey, data_nullterm, privatekeydata_len + 1,
-                               (const unsigned char *)passphrase, pwd_len,
-                               mbedtls_ctr_drbg_random, &mbed_ctr_drbg);
-    mbed_zero_free(data_nullterm, privatekeydata_len + 1);
-=======
-    if(MBEDTLS_PK_PARSE_KEYFILE(&pkey, privatekey, passphrase))
-        ret = ssh2_err(session, LIBSSH2_ERROR_FILE,
-                       "Failed parsing private key file");
-    else
-        ret = mbed_pub_priv_key(session, method, method_len,
-                                pubkeydata, pubkeydata_len, &pkey);
-
-    mbedtls_pk_free(&pkey);
-
-    return ret;
-}
-
-int ssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                unsigned char **method,
-                                size_t *method_len,
-                                unsigned char **pubkeydata,
-                                size_t *pubkeydata_len,
-                                const char *privatekeydata,
-                                size_t privatekeydata_len,
-                                const char *passphrase)
-{
-    int ret;
-    mbedtls_pk_context pkey;
-    unsigned char *data_nullterm;
-    size_t pwd_len;
-
-    /* mbedtls checks in "mbedtls/pkparse.c:1184" if "key[keylen - 1] != '\0'"
-       private-key from memory fails if the last byte is not a null byte */
-    data_nullterm = mbedtls_calloc(privatekeydata_len + 1, 1);
-    if(!data_nullterm)
-        return -1;
-
-    memcpy(data_nullterm, privatekeydata, privatekeydata_len);
-    data_nullterm[privatekeydata_len] = 0;
-
-    mbedtls_pk_init(&pkey);
-
-    pwd_len = passphrase ? strlen((const char *)passphrase) : 0;
-    ret = MBEDTLS_PK_PARSE_KEY(&pkey, data_nullterm, privatekeydata_len + 1,
-                               (const unsigned char *)passphrase, pwd_len);
-    mbed_zero_free(data_nullterm, privatekeydata_len + 1);
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
-
-<<<<<<< HEAD
-    if(ret) {
-        mbedtls_strerror(ret, (char *)buf, sizeof(buf));
-        mbedtls_pk_free(&pkey);
-        return ssh2_err_flags(session, LIBSSH2_ERROR_FILE, buf,
-                              SSH2_ERR_FLAG_DUP);
-    }
-
-    ret = mbed_pub_priv_key(session, method,
-                            pubkeydata, pubkeydata_len, &pkey);
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    if(ret) {
-        mbedtls_strerror(ret, (char *)buf, sizeof(buf));
-        mbedtls_pk_free(&pkey);
-        return ssh2_err_flags(session, LIBSSH2_ERROR_FILE, buf,
-                              SSH2_ERR_FLAG_DUP);
-    }
-
-    ret = mbed_pub_priv_key(session, method, method_len,
-                            pubkeydata, pubkeydata_len, &pkey);
-=======
     if(ret)
         ret = ssh2_err(session, LIBSSH2_ERROR_FILE,
-                       "Failed parsing private key blob");
+                       "Failed parsing private key file/blob");
     else
-        ret = mbed_pub_priv_key(session, method, method_len,
+        ret = mbed_pub_priv_key(session, method,
                                 pubkeydata, pubkeydata_len, &pkey);
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
 
     mbedtls_pk_free(&pkey);
 
@@ -1502,13 +874,7 @@ int ssh2_ecdsa_create_key(ssh2_ec_key **ec_ctx, LIBSSH2_SESSION *session,
     size_t plen;
     psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
 
-<<<<<<< HEAD
-    *ec_ctx = SSH2_CALLOC(session, sizeof(mbedtls_ecp_keypair));
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    *ec_ctx = mbedtls_calloc(1, sizeof(mbedtls_ecp_keypair));
-=======
-    *ec_ctx = mbedtls_calloc(1, sizeof(*ec_ctx));
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
+    *ec_ctx = SSH2_CALLOC(session, sizeof(*ec_ctx));
     if(!*ec_ctx)
         goto failed;
 
@@ -1534,27 +900,13 @@ int ssh2_ecdsa_create_key(ssh2_ec_key **ec_ctx, LIBSSH2_SESSION *session,
 
 failed:
 
-<<<<<<< HEAD
-    ssh2_ecdsa_free(*ec_ctx, session);
-    *ec_ctx = NULL;
+    if(*ec_ctx) {
+        ssh2_ecdsa_free(*ec_ctx, session);
+        *ec_ctx = NULL;
+    }
 
     ssh2_zero_free(session, *out_public_key_octal, plen);
     *out_public_key_octal = NULL;
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    ssh2_ecdsa_free(*ec_ctx);
-    *ec_ctx = NULL;
-    if(*out_public_key_octal) {
-        ssh2_explicit_zero(*out_public_key_octal, plen);
-        SSH2_SAFEFREE(session, *out_public_key_octal);
-    }
-=======
-    if(*ec_ctx) {
-        ssh2_ecdsa_free(*ec_ctx);
-        *ec_ctx = NULL;
-    }
-    if(*out_public_key_octal)
-        SSH2_SAFEFREE(session, *out_public_key_octal);
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
 
     return -1;
 }
@@ -1567,17 +919,11 @@ int ssh2_ecdsa_curve_name_with_octal_new(
     const unsigned char *publickey_encoded, size_t publickey_encoded_len,
     ssh2_curve_type curve)
 {
-<<<<<<< HEAD
-    (void)session;
-
-    *ec_ctx = SSH2_CALLOC(session, sizeof(mbedtls_ecp_keypair));
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    *ec_ctx = mbedtls_calloc(1, sizeof(mbedtls_ecp_keypair));
-=======
     psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
 
-    *ec_ctx = mbedtls_calloc(1, sizeof(*ec_ctx));
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
+    (void)session;
+
+    *ec_ctx = SSH2_CALLOC(session, sizeof(*ec_ctx));
     if(!*ec_ctx)
         goto failed;
 
@@ -1593,18 +939,10 @@ int ssh2_ecdsa_curve_name_with_octal_new(
 
 failed:
 
-<<<<<<< HEAD
-    ssh2_ecdsa_free(*ec_ctx, session);
-    *ec_ctx = NULL;
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    ssh2_ecdsa_free(*ec_ctx);
-    *ec_ctx = NULL;
-=======
     if(*ec_ctx) {
-        ssh2_ecdsa_free(*ec_ctx);
+        ssh2_ecdsa_free(*ec_ctx, session);
         *ec_ctx = NULL;
     }
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
 
     return -1;
 }
@@ -1657,37 +995,9 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
                       const unsigned char *s, size_t s_len,
                       const unsigned char *m, size_t m_len)
 {
-<<<<<<< HEAD
-    mbedtls_mpi pr, ps;
-    size_t actual_len;
-    int rc = -1;
+    ssh2_hash_alg hash_alg;
 
     (void)session;
-
-    mbedtls_mpi_init(&pr);
-    mbedtls_mpi_init(&ps);
-
-    if(mbedtls_mpi_read_binary(&pr, r, r_len))
-        goto cleanup;
-
-    if(mbedtls_mpi_read_binary(&ps, s, s_len))
-        goto cleanup;
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    mbedtls_mpi pr, ps;
-    size_t actual_len;
-    int rc = -1;
-
-    mbedtls_mpi_init(&pr);
-    mbedtls_mpi_init(&ps);
-
-    if(mbedtls_mpi_read_binary(&pr, r, r_len))
-        goto cleanup;
-
-    if(mbedtls_mpi_read_binary(&ps, s, s_len))
-        goto cleanup;
-=======
-    ssh2_hash_alg hash_alg;
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
 
     switch(ssh2_ecdsa_get_curve_type(ec_ctx)) {
     case SSH2_EC_CURVE_NISTP256:
@@ -1714,73 +1024,6 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
     return 0;
 }
 
-<<<<<<< HEAD
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-static int mbed_parse_eckey(ssh2_ecdsa_ctx **ctx, mbedtls_pk_context *pkey,
-                            const unsigned char *data, size_t data_len,
-                            const unsigned char *pwd)
-{
-    size_t pwd_len;
-
-    pwd_len = pwd ? strlen((const char *)pwd) : 0;
-
-    if(mbedtls_pk_parse_key(pkey, data, data_len, pwd, pwd_len,
-                            mbedtls_ctr_drbg_random, &mbed_ctr_drbg))
-        goto failed;
-
-    if(mbedtls_pk_get_type(pkey) != MBEDTLS_PK_ECKEY)
-        goto failed;
-
-    *ctx = mbedtls_calloc(1, sizeof(ssh2_ecdsa_ctx));
-    if(!*ctx)
-        goto failed;
-
-    mbedtls_ecdsa_init(*ctx);
-
-    if(mbedtls_ecdsa_from_keypair(*ctx, mbedtls_pk_ec(*pkey)) == 0)
-        return 0;
-
-failed:
-
-    ssh2_ecdsa_free(*ctx);
-    *ctx = NULL;
-
-    return -1;
-}
-
-=======
-static int mbed_parse_eckey(ssh2_ecdsa_ctx **ec_ctx, mbedtls_pk_context *pkey,
-                            const unsigned char *data, size_t data_len,
-                            const unsigned char *pwd)
-{
-    psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
-    size_t pwd_len = pwd ? strlen((const char *)pwd) : 0;
-
-    *ec_ctx = mbedtls_calloc(1, sizeof(*ec_ctx));
-    if(!*ec_ctx)
-        goto failed;
-
-    **ec_ctx = PSA_KEY_ID_NULL;
-
-    if(MBEDTLS_PK_PARSE_KEY(pkey, data, data_len, pwd, pwd_len))
-        goto failed;
-
-    psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_HASH);
-    psa_set_key_type(&attr, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1));
-    if(!mbedtls_pk_import_into_psa(pkey, &attr, *ec_ctx))
-        return 0;
-
-failed:
-
-    if(*ec_ctx) {
-        ssh2_ecdsa_free(*ec_ctx);
-        *ec_ctx = NULL;
-    }
-
-    return -1;
-}
-
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
 /*
  * returns key curve type that maps to ssh2_curve_type
  */
@@ -1803,218 +1046,46 @@ ssh2_curve_type ssh2_ecdsa_get_curve_type(const ssh2_ecdsa_ctx *ec_ctx)
     return SSH2_EC_CURVE_NONE;
 }
 
-<<<<<<< HEAD
-static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-/*
- * returns 0 for success, key curve type that maps to ssh2_curve_type
- */
-static int mbed_ecdsa_curve_type_from_name(const char *name,
-                                           ssh2_curve_type *out_curve)
-{
-    ssh2_curve_type type;
-
-    if(!name || strlen(name) != 19)
-        return -1;
-
-    if(!strcmp(name, "ecdsa-sha2-nistp256"))
-        type = SSH2_EC_CURVE_NISTP256;
-    else if(!strcmp(name, "ecdsa-sha2-nistp384"))
-        type = SSH2_EC_CURVE_NISTP384;
-    else if(!strcmp(name, "ecdsa-sha2-nistp521"))
-        type = SSH2_EC_CURVE_NISTP521;
-    else
-        return -1;
-
-    if(out_curve)
-        *out_curve = type;
-
-    return 0;
-}
-
-static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ctx,
-=======
-/*
- * returns 0 for success, key curve type that maps to ssh2_curve_type
- */
-static int mbed_ecdsa_curve_type_from_name(const char *name,
-                                           ssh2_curve_type *out_curve)
-{
-    ssh2_curve_type type;
-
-    if(!name || strlen(name) != 19)
-        return -1;
-
-    if(!strcmp(name, "ecdsa-sha2-nistp256"))
-        type = SSH2_EC_CURVE_NISTP256;
-    else if(!strcmp(name, "ecdsa-sha2-nistp384"))
-        type = SSH2_EC_CURVE_NISTP384;
-    else if(!strcmp(name, "ecdsa-sha2-nistp521"))
-        type = SSH2_EC_CURVE_NISTP521;
-    else
-        return -1;
-
-    if(out_curve)
-        *out_curve = type;
-
-    return 0;
-}
-
 static int mbed_parse_openssh_key(ssh2_ecdsa_ctx **ec_ctx,
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
                                   LIBSSH2_SESSION *session,
                                   const char *data, size_t data_len,
                                   const char *passphrase)
 {
-<<<<<<< HEAD
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    ssh2_curve_type type;
-    unsigned char *name = NULL;
-=======
     int ret = -1;
-    ssh2_curve_type type;
-    unsigned char *name = NULL;
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
     struct string_buf *decrypted = NULL;
-<<<<<<< HEAD
     char *name = NULL;
     unsigned char *curvebuf, *exponent, *pointbuf;
     size_t name_len, curvebuf_len, exponent_len, pointbuf_len;
     ssh2_curve_type curve;
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    size_t curvelen, exponentlen, pointlen;
-    unsigned char *curve, *exponent, *point_buf;
-=======
-    size_t curvelen, exponentlen, pointlen;
-    unsigned char *curve, *exponent, *point_buf;
     psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
 
-    *ec_ctx = mbedtls_calloc(1, sizeof(*ec_ctx));
+    *ec_ctx = SSH2_CALLOC(session, sizeof(*ec_ctx));
     if(!*ec_ctx)
         goto cleanup;
 
     **ec_ctx = PSA_KEY_ID_NULL;
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
 
-<<<<<<< HEAD
     if(ssh2_openssh_pem_parse(session, NULL, data, data_len,
                               passphrase, &decrypted))
-        goto failed;
+        goto cleanup;
 
     if(ssh2_get_chars(decrypted, &name, &name_len))
-        goto failed;
-
+        goto cleanup;
     if(ssh2_pem_ecdsa_curve_type_from_name(name, name_len, &curve))
-        goto failed;
-
+        goto cleanup;
     if(ssh2_get_string(decrypted, &curvebuf, &curvebuf_len))
-        goto failed;
-
+        goto cleanup;
     if(ssh2_get_string(decrypted, &pointbuf, &pointbuf_len))
-        goto failed;
-
+        goto cleanup;
     if(ssh2_get_bignum_bytes(decrypted, &exponent, &exponent_len))
-        goto failed;
-
-    *ctx = SSH2_CALLOC(session, sizeof(ssh2_ecdsa_ctx));
-    if(!*ctx)
-        goto failed;
-
-    mbedtls_ecdsa_init(*ctx);
-
-    if(mbedtls_ecp_group_load(&(*ctx)->MBEDTLS_PRIVATE(grp),
-                              (mbedtls_ecp_group_id)curve))
-        goto failed;
-
-    if(mbedtls_mpi_read_binary(&(*ctx)->MBEDTLS_PRIVATE(d),
-                               exponent, exponent_len))
-        goto failed;
-
-    if(mbedtls_ecp_mul(&(*ctx)->MBEDTLS_PRIVATE(grp),
-                       &(*ctx)->MBEDTLS_PRIVATE(Q),
-                       &(*ctx)->MBEDTLS_PRIVATE(d),
-                       &(*ctx)->MBEDTLS_PRIVATE(grp).G,
-                       mbedtls_ctr_drbg_random, &mbed_ctr_drbg))
-        goto failed;
-
-    if(mbedtls_ecp_check_privkey(&(*ctx)->MBEDTLS_PRIVATE(grp),
-                                 &(*ctx)->MBEDTLS_PRIVATE(d)) == 0)
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    if(ssh2_openssh_pem_parse_memory(session, pwd,
-                                     (const char *)data, data_len,
-                                     &decrypted))
-        goto failed;
-
-    if(ssh2_get_string(decrypted, &name, NULL))
-        goto failed;
-
-    if(mbed_ecdsa_curve_type_from_name((const char *)name, &type))
-        goto failed;
-
-    if(ssh2_get_string(decrypted, &curve, &curvelen))
-        goto failed;
-
-    if(ssh2_get_string(decrypted, &point_buf, &pointlen))
-        goto failed;
-
-    if(ssh2_get_bignum_bytes(decrypted, &exponent, &exponentlen))
-        goto failed;
-
-    *ctx = mbedtls_calloc(1, sizeof(ssh2_ecdsa_ctx));
-    if(!*ctx)
-        goto failed;
-
-    mbedtls_ecdsa_init(*ctx);
-
-    if(mbedtls_ecp_group_load(&(*ctx)->MBEDTLS_PRIVATE(grp),
-                              (mbedtls_ecp_group_id)type))
-        goto failed;
-
-    if(mbedtls_mpi_read_binary(&(*ctx)->MBEDTLS_PRIVATE(d),
-                               exponent, exponentlen))
-        goto failed;
-
-    if(mbedtls_ecp_mul(&(*ctx)->MBEDTLS_PRIVATE(grp),
-                       &(*ctx)->MBEDTLS_PRIVATE(Q),
-                       &(*ctx)->MBEDTLS_PRIVATE(d),
-                       &(*ctx)->MBEDTLS_PRIVATE(grp).G,
-                       mbedtls_ctr_drbg_random, &mbed_ctr_drbg))
-        goto failed;
-
-    if(mbedtls_ecp_check_privkey(&(*ctx)->MBEDTLS_PRIVATE(grp),
-                                 &(*ctx)->MBEDTLS_PRIVATE(d)) == 0)
-=======
-    if(ssh2_openssh_pem_parse_memory(session, pwd,
-                                     (const char *)data, data_len,
-                                     &decrypted))
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
         goto cleanup;
 
-    if(ssh2_get_string(decrypted, &name, NULL))
-        goto cleanup;
-    if(mbed_ecdsa_curve_type_from_name((const char *)name, &type))
-        goto cleanup;
-    if(ssh2_get_string(decrypted, &curve, &curvelen))
-        goto cleanup;
-    if(ssh2_get_string(decrypted, &point_buf, &pointlen))
-        goto cleanup;
-    if(ssh2_get_bignum_bytes(decrypted, &exponent, &exponentlen))
-        goto cleanup;
-
-<<<<<<< HEAD
-    ssh2_ecdsa_free(*ctx, session);
-    *ctx = NULL;
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    ssh2_ecdsa_free(*ctx);
-    *ctx = NULL;
-=======
     psa_set_key_type(&attr, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1));
-    psa_set_key_bits(&attr, (size_t)type);
+    psa_set_key_bits(&attr, (size_t)curve);
     psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_HASH);
-    if(psa_import_key(&attr, exponent, exponentlen, *ec_ctx) == PSA_SUCCESS)
+    if(psa_import_key(&attr, exponent, exponent_len, *ec_ctx) == PSA_SUCCESS)
         ret = 0;
     psa_reset_key_attributes(&attr);
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
 
 cleanup:
 
@@ -2022,7 +1093,7 @@ cleanup:
         ssh2_string_buf_free(session, decrypted);
 
     if(ret && *ec_ctx) {
-        ssh2_ecdsa_free(*ec_ctx);
+        ssh2_ecdsa_free(*ec_ctx, session);
         *ec_ctx = NULL;
     }
 
@@ -2030,7 +1101,7 @@ cleanup:
 }
 
 /*
- * Creates a new private key given a file/blob and password
+ * Creates a new private key given a file path and password
  */
 int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
                         LIBSSH2_SESSION *session,
@@ -2039,8 +1110,9 @@ int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
                         const char *passphrase)
 {
     mbedtls_pk_context pkey;
-    char *data_nullterm = NULL;
+    unsigned char *data_nullterm = NULL;
     size_t data_len = 0;
+    long file_size;
 
     mbedtls_pk_init(&pkey);
 
@@ -2054,23 +1126,23 @@ int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
         if(!data_nullterm)
             goto cleanup;
         memcpy(data_nullterm, blob, blob_len);
-        data_nullterm[blob_len] = '\0';  /* for mbedtls_pk_parse_key() */
+        data[data_len] = '\0';  /* for mbedtls_pk_parse_key() */
     }
 
     /* try mbedTLS parser */
 
-    if(mbedtls_pk_parse_key(&pkey,
-                            (const unsigned char *)data_nullterm, data_len + 1,
-                            (const unsigned char *)passphrase,
-                            passphrase ? strlen(passphrase) : 0,
-                            mbedtls_ctr_drbg_random, &mbed_ctr_drbg) == 0 &&
-       mbedtls_pk_get_type(&pkey) == MBEDTLS_PK_ECKEY) {
+    if(MBEDTLS_PK_PARSE_KEY(pkey, data, data_len,
+                            passphrase,
+                            passphrase ? strlen(passphrase) : 0)) {
+        psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
 
-        *ec_ctx = SSH2_CALLOC(session, sizeof(ssh2_ecdsa_ctx));
+        *ec_ctx = SSH2_CALLOC(session, sizeof(*ec_ctx));
         if(*ec_ctx) {
-            mbedtls_ecdsa_init(*ec_ctx);
+            **ec_ctx = PSA_KEY_ID_NULL;
 
-            if(mbedtls_ecdsa_from_keypair(*ec_ctx, mbedtls_pk_ec(pkey)) == 0)
+            psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_HASH);
+            psa_set_key_type(&attr, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1));
+            if(!mbedtls_pk_import_into_psa(pkey, &attr, *ec_ctx))
                 goto cleanup;  /* success */
         }
 
@@ -2080,8 +1152,7 @@ int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
 
     /* try local parser */
 
-    mbed_parse_openssh_key(ec_ctx, session, data_nullterm, data_len,
-                           passphrase);
+    mbed_parse_openssh_key(ec_ctx, session, data_nullterm, data_len, passphrase);
 
 cleanup:
 
@@ -2126,39 +1197,15 @@ int ssh2_ecdsa_sign(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
 
     /* FIXME: convert to wire format */
 
-<<<<<<< HEAD
-    mbedtls_mpi_free(&pr);
-    mbedtls_mpi_free(&ps);
-
-    ssh2_zero_free(session, tmp_sign, tmp_sign_len);
-
-    return *signature ? 0 : -1;
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    mbedtls_mpi_free(&pr);
-    mbedtls_mpi_free(&ps);
-
-    mbed_zero_free(tmp_sign, tmp_sign_len);
-
-    return *signature ? 0 : -1;
-=======
     return 0;
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
 }
 
 void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session)
 {
-<<<<<<< HEAD
     if(ec_ctx) {
-        mbedtls_ecdsa_free(ec_ctx);
+        psa_destroy_key(*ec_ctx);
         SSH2_FREE(session, ec_ctx);
     }
-||||||| parent of 88102d08f (mbedtls: try adding 4.x support)
-    mbedtls_ecdsa_free(ec_ctx);
-    mbedtls_free(ec_ctx);
-=======
-    psa_destroy_key(*ec_ctx);
-    mbedtls_free(ec_ctx);
->>>>>>> 88102d08f (mbedtls: try adding 4.x support)
 }
 #endif /* LIBSSH2_ECDSA */
 

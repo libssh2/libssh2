@@ -47,11 +47,11 @@
 #if MBEDTLS_VERSION_NUMBER < 0x04000000 && !defined(MBEDTLS_CTR_DRBG_C)
 #  error "MBEDTLS_CTR_DRBG_C is required for mbedTLS 3.6.x."
 #endif
-#if !defined(MBEDTLS_ECDH_C) || \
-    !defined(MBEDTLS_ECDSA_C) || \
-    !defined(MBEDTLS_ECP_DP_SECP256R1_ENABLED) || \
-    !defined(MBEDTLS_ECP_DP_SECP384R1_ENABLED) || \
-    !defined(MBEDTLS_ECP_DP_SECP521R1_ENABLED)
+#if !defined(PSA_WANT_ALG_ECDH) || !PSA_WANT_ALG_ECDH || \
+    !defined(PSA_WANT_ALG_ECDSA) || !PSA_WANT_ALG_ECDSA || \
+    !defined(PSA_WANT_ECC_SECP_R1_256) || !PSA_WANT_ECC_SECP_R1_256 || \
+    !defined(PSA_WANT_ECC_SECP_R1_384) || !PSA_WANT_ECC_SECP_R1_384 || \
+    !defined(PSA_WANT_ECC_SECP_R1_521) || !PSA_WANT_ECC_SECP_R1_521
 #  error "ECDH/ECDSA with nistp256, nistp384, nistp521 curves is required"
 #endif
 
@@ -161,7 +161,7 @@ struct mbed_hash_ctx {
 typedef enum {
     SSH2_EC_CURVE_NISTP256 = MBEDTLS_ECP_DP_SECP256R1,
     SSH2_EC_CURVE_NISTP384 = MBEDTLS_ECP_DP_SECP384R1,
-    SSH2_EC_CURVE_NISTP521 = MBEDTLS_ECP_DP_SECP521R1
+    SSH2_EC_CURVE_NISTP521 = MBEDTLS_ECP_DP_SECP521R1,
     SSH2_EC_CURVE_NONE = 0
 } ssh2_curve_type;
 
