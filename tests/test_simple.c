@@ -35,6 +35,7 @@
 #include "libssh2_sftp.h"
 #include "sftp.h"
 
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>  /* for atoi() */
@@ -480,6 +481,157 @@ static int test_sftp_symlink_name_reply(LIBSSH2_SESSION *session)
     }
     SSH2_FREE(session, sftp);
     SSH2_FREE(session, channel);
+  
+    return err > 0;
+}
+
+  
+#if LIBSSH2_MD5_PEM && LIBSSH2_AES_CBC
+static int pem_live_allocs;
+
+static LIBSSH2_ALLOC_FUNC(pem_test_alloc)
+{
+    void *p = malloc(count);
+    (void)abstract;
+    if(p)
+        pem_live_allocs++;
+    return p;
+}
+
+static LIBSSH2_REALLOC_FUNC(pem_test_realloc)
+{
+    void *p = realloc(ptr, count);
+    (void)abstract;
+    if(p && !ptr)
+        pem_live_allocs++;
+    return p;
+}
+
+static LIBSSH2_FREE_FUNC(pem_test_free)
+{
+    (void)abstract;
+    if(ptr)
+        pem_live_allocs--;
+    free(ptr);
+}
+
+static int test_ssh2_pem_parse_bad_padding(void)
+{
+    /* One AES-128-CBC block that decrypts to 15 zero bytes and a padding
+       byte of 0xff, which is larger than the decrypted data */
+    static const char pem[] =
+        "-----BEGIN RSA PRIVATE KEY-----\n"
+        "Proc-Type: 4,ENCRYPTED\n"
+        "DEK-Info: AES-128-CBC,000102030405060708090A0B0C0D0E0F\n"
+        "\n"
+        "x9wTwyw4T6PO7EmUNV0aow==\n"
+        "-----END RSA PRIVATE KEY-----\n";
+    LIBSSH2_SESSION *session;
+    unsigned char *data;
+    size_t datalen;
+    int live;
+    int rc;
+    int err = 0;
+
+    session = libssh2_session_init_ex(pem_test_alloc, pem_test_free,
+                                      pem_test_realloc, NULL);
+    if(!session) {
+        fprintf(stderr, "pem bad padding: session init failed\n");
+        return 1;
+    }
+
+    live = pem_live_allocs;
+    rc = ssh2_pem_parse(session, "-----BEGIN RSA PRIVATE KEY-----",
+                        "-----END RSA PRIVATE KEY-----", NULL,
+                        pem, sizeof(pem) - 1, "pass", &data, &datalen, NULL);
+    if(rc != LIBSSH2_ERROR_DECRYPT) {
+        fprintf(stderr, "pem bad padding: rc=%d (want %d)\n",
+                rc, LIBSSH2_ERROR_DECRYPT);
+        err++;
+    }
+    if(pem_live_allocs != live) {
+        fprintf(stderr, "pem bad padding: %d allocation(s) leaked\n",
+                pem_live_allocs - live);
+        err++;
+    }
+
+    libssh2_session_free(session);
+
+    return err > 0;
+}
+#endif
+
+static int sftp_mkdir_recv_calls;
+
+/* nothing to read at first, then the connection is gone */
+static LIBSSH2_RECV_FUNC(test_sftp_mkdir_recv)
+{
+    (void)socket;
+    (void)buffer;
+    (void)length;
+    (void)flags;
+    (void)abstract;
+    return sftp_mkdir_recv_calls++ ? 0 : -EAGAIN;
+}
+
+static int test_sftp_mkdir_resume_fail_cleanup(void)
+{
+    LIBSSH2_SESSION *session;
+    LIBSSH2_CHANNEL *channel;
+    LIBSSH2_SFTP *sftp;
+    int rc;
+    int err = 0;
+
+    session = libssh2_session_init();
+    if(!session)
+        return 1;
+
+    channel = SSH2_CALLOC(session, sizeof(*channel));
+    sftp = SSH2_CALLOC(session, sizeof(*sftp));
+    if(!channel || !sftp) {
+        if(channel)
+            SSH2_FREE(session, channel);
+        if(sftp)
+            SSH2_FREE(session, sftp);
+        libssh2_session_free(session);
+        return 1;
+    }
+
+    session->recv_cb = test_sftp_mkdir_recv;
+    session->socket_state = SSH2_SOCKET_CONNECTED;
+    libssh2_session_set_blocking(session, 0);
+
+    /* a zero local window makes the first write would-block */
+    channel->session = session;
+    ssh2_list_add(&session->channels, &channel->node);
+    sftp->channel = channel;
+    sftp->version = 3;
+
+    rc = libssh2_sftp_mkdir(sftp, "/dir", 0755);
+    if(rc != LIBSSH2_ERROR_EAGAIN || !sftp->mkdir_packet) {
+        fprintf(stderr, "sftp mkdir: first call rc=%d (want %d)\n",
+                rc, LIBSSH2_ERROR_EAGAIN);
+        err++;
+    }
+
+    rc = libssh2_sftp_mkdir(sftp, "/dir", 0755);
+    if(rc != LIBSSH2_ERROR_SOCKET_SEND) {
+        fprintf(stderr, "sftp mkdir: retry rc=%d (want %d)\n",
+                rc, LIBSSH2_ERROR_SOCKET_SEND);
+        err++;
+    }
+
+    /* a freed packet left here is freed again by libssh2_sftp_shutdown() */
+    if(sftp->mkdir_packet) {
+        fprintf(stderr, "sftp mkdir: freed packet left set\n");
+        sftp->mkdir_packet = NULL;
+        err++;
+    }
+
+    session->socket_state = SSH2_SOCKET_DISCONNECTED;
+    libssh2_sftp_shutdown(sftp);
+    SSH2_FREE(session, sftp);
+    libssh2_session_free(session);
 
     return err > 0;
 }
@@ -508,10 +660,14 @@ int main(int argc, char *argv[])
     rc |= test_ssh2_dh_validate();
     rc |= test_ssh2_bn_from_bin();
     rc |= test_ssh2_scp_parse_c_fields();
+    rc |= test_sftp_mkdir_resume_fail_cleanup();
 #if LIBSSH2_RSA_SHA2
     rc |= test_userauth_sign_algs_fail_cleanup(session);
 #endif
     rc |= test_sftp_symlink_name_reply(session);
+#if LIBSSH2_MD5_PEM && LIBSSH2_AES_CBC
+    rc |= test_ssh2_pem_parse_bad_padding();
+#endif
 
     libssh2_session_free(session);
 

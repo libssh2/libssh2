@@ -116,6 +116,9 @@ jobs:
       matrix:
         image: [ubuntu-26.04-arm, macos-latest, windows-2022]
     steps:
+      - uses: $/.github/actions/macos-fix-certs
+        if: ${{ contains(runner.os, 'macos') }}
+
       - uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2.33.0
         if: ${{ contains(matrix.image, 'windows') }}
         with:
@@ -266,18 +269,18 @@ jobs:
       MATRIX_TARGET: '${{ matrix.target }}'
       MATRIX_TEST: '${{ matrix.test }}'
       MATRIX_ZLIB: '${{ matrix.zlib }}'
-      AWSLC_VERSION: 5.8.0
-      AWSLC_SHA256: 04d9aa258641265099a3b1fbd37a21866e942943e16619087bf79c0b6e08f64e
-      BORINGSSL_VERSION: 0.20260929.0
-      BORINGSSL_SHA256: 04da9ba0664e0a7f028e961c38d604f2cc6dac852a84ca0e51dc1fa051d4c8fe
-      LIBRESSL_VERSION: 4.3.3
-      LIBRESSL_SHA256: ff97c432457f349e6ba3d416ab903bc7468f1436f0f32efe5fff808de292c7b8
+      AWSLC_VERSION: 5.12.0
+      AWSLC_SHA256: 52c7f98ffd296d267cc015ad4653d1ffae399db65b14421da4f5f7efc44becd2
+      BORINGSSL_VERSION: 0.20261020.0
+      BORINGSSL_SHA256: fb43aac7fbd323c9dfa1f45fe92a1c01142433c05b23fe34f61d6ba8b13b642e
+      LIBRESSL_VERSION: 4.4.0
+      LIBRESSL_SHA256: 7d02522ad5070b9adb32eb253ecabce181184a3750cf65abac0675ee908687c1
       MBEDTLS_VERSION: 3.6.7
       MBEDTLS_SHA256: a7e8bcbec0e6f761b4af24f25677626b35f762f68eef79c08677a363212d11f6
       MBEDTLS_VERSION_PREV: 3.1.0
       MBEDTLS_SHA256_PREV: b02df6f68dd1537e115a8497d5c173dc71edc55ad084756e57a30f951b725acd
-      OPENSSL_VERSION: 4.0.3
-      OPENSSL_SHA256: 325b5c806167c13b40b1ffeadfe0248197c00eccc4cf123ec1e28d2d2fd216d9
+      OPENSSL_VERSION: 4.1.0
+      OPENSSL_SHA256: 50c17baf54cb008f6ce42d50deb4b28050a1aad711636cabd4b241c7e90cc2fd
       OPENSSL111_VERSION: 1.1.1w
       OPENSSL111_SHA256: cf3098950cb4d853ad95c0841f1f9c6d3dc102dccfcacd521d93925208b76ac8
       WOLFSSL_VERSION: 5.9.4
@@ -328,7 +331,7 @@ jobs:
             --location --proto-redir =https "https://github.com/awslabs/aws-lc/archive/refs/tags/v${AWSLC_VERSION}.tar.gz" --output pkg.bin
           sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${AWSLC_SHA256}" && tar -xzf pkg.bin && rm -f pkg.bin
           cd "aws-lc-${AWSLC_VERSION}"
-          cmake -B . -G Ninja -DCMAKE_INSTALL_PREFIX="$HOME"/usr -DBUILD_TOOL=OFF -DBUILD_TESTING=OFF
+          cmake -B . -G Ninja -DCMAKE_INSTALL_PREFIX="$HOME"/usr -DBUILD_TOOL=OFF -DBUILD_TESTING=OFF -DBUILD_LIBSSL=OFF
           cmake --build .
           cmake --install .
 
@@ -738,7 +741,7 @@ jobs:
           - { build: 'AM', platform: 'x86_64', compiler: 'gcc' }
           - { build: 'CM', platform: 'x86_64', compiler: 'gcc' }
     steps:
-      - uses: cygwin/cygwin-install-action@3f0a3f9f988f7e96b8c18098ae05eaec175f5b52 # v6.0.2
+      - uses: cygwin/cygwin-install-action@5a1b0cd107181fa6bb6bf3f90d500f4fb3132f18 # v7.0.0
         with:
           platform: ${{ matrix.platform }}
           work-vol: 'D:'
@@ -1059,46 +1062,53 @@ jobs:
         run: du -sh .; echo; du -sh -t 250KB ./*; echo; du -h -t 250KB bld
 
   build_macos:
-    name: 'macOS (${{ matrix.build }}, ${{ matrix.crypto.name }})'
+    name: "macOS (${{ matrix.build.generate && 'CM' || 'AM' }}, ${{ matrix.build.name }})"
     runs-on: macos-latest
     timeout-minutes: 10
     env:
       MAKEFLAGS: -j 4
-      MATRIX_BUILD: '${{ matrix.build }}'
-      MATRIX_INSTALL: '${{ matrix.crypto.install }}'
+      MATRIX_INSTALL: '${{ matrix.build.install }}'
+      MATRIX_BUILD: ${{ matrix.build.generate && 'CM' || 'AM' }}
+      MATRIX_CONFIGURE: '${{ matrix.build.configure }}'
+      MATRIX_GENERATE: '${{ matrix.build.generate }}'
     strategy:
       fail-fast: false
       matrix:
-        build: ['AM', 'CM']
-        crypto:
+        build:
           - name: 'Libgcrypt'
             install: libgcrypt
             configure: --with-crypto=libgcrypt --with-libgcrypt-prefix=/opt/homebrew
-            cmake: -DCRYPTO_BACKEND=Libgcrypt
+          - name: 'Libgcrypt'
+            install: libgcrypt
+            generate: -DCRYPTO_BACKEND=Libgcrypt
           - name: 'LibreSSL'
             install: libressl
-            configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/libressl
-            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/libressl
+          # configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/libressl
+            generate: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/libressl
           - name: 'mbedTLS'
             install: mbedtls@3
-            configure: --with-crypto=mbedtls --with-libmbedcrypto-prefix=/opt/homebrew
-            cmake: -DCRYPTO_BACKEND=mbedTLS
+          # configure: --with-crypto=mbedtls --with-libmbedcrypto-prefix=/opt/homebrew
+            generate: -DCRYPTO_BACKEND=mbedTLS
           - name: 'OpenSSL 4'
             install: openssl@4
-            configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl@4
-            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@4
+          # configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl@4
+            generate: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@4
           - name: 'OpenSSL 3'
             install: openssl@3
             configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl@3 CFLAGS=-std=c90
-            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@3 -DCMAKE_C_STANDARD=90
+          - name: 'OpenSSL 3'
+            install: openssl@3
+            generate: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@3 -DCMAKE_C_STANDARD=90
           - name: 'wolfSSL'
             install: wolfssl
-            configure: --with-crypto=wolfssl --with-libwolfssl-prefix=/opt/homebrew
-            cmake: -DCRYPTO_BACKEND=wolfSSL
+          # configure: --with-crypto=wolfssl --with-libwolfssl-prefix=/opt/homebrew
+            generate: -DCRYPTO_BACKEND=wolfSSL
     steps:
+      - uses: $/.github/actions/macos-fix-certs
+
       - name: 'install packages'
         env:
-          INSTALL_PACKAGES: ${{ matrix.build == 'AM' && 'automake libtool' || '' }}
+          INSTALL_PACKAGES: ${{ matrix.build.configure && 'automake libtool' || '' }}
         run: brew install ${INSTALL_PACKAGES} ${MATRIX_INSTALL}
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -1106,13 +1116,10 @@ jobs:
           persist-credentials: false
 
       - name: 'autoreconf'
-        if: ${{ matrix.build == 'AM' }}
+        if: ${{ matrix.build.configure }}
         run: autoreconf -fi
 
       - name: 'configure'
-        env:
-          MATRIX_CONFIGURE: '${{ matrix.crypto.configure }}'
-          MATRIX_GENERATE: '${{ matrix.crypto.cmake }}'
         run: |
           if [ "${MATRIX_BUILD}" = 'CM' ]; then
             if [ "${MATRIX_INSTALL}" = 'mbedtls@3' ]; then
@@ -1210,7 +1217,7 @@ jobs:
               options: '-DCRYPTO_BACKEND=OpenSSL' }
 
           # https://pkgsrc.se/
-          - { os: 'netbsd'      , version: '10.1' , build: 'CM', arch: 'x86_64', cc: 'gcc'  , desc: 'openssl skiprun',
+          - { os: 'netbsd'      , version: '10.2' , build: 'CM', arch: 'x86_64', cc: 'gcc'  , desc: 'openssl skiprun',
               install: 'cmake ninja-build',
               options: '-DCRYPTO_BACKEND=OpenSSL' }
 
@@ -1220,7 +1227,7 @@ jobs:
 
           # https://openbsd.app/
           # https://www.openbsd.org/faq/faq15.html
-          - { os: 'openbsd'     , version: '7.9'  , build: 'CM', arch: 'x86_64', cc: 'clang', desc: 'libressl skiprun',
+          - { os: 'openbsd'     , version: '8.0'  , build: 'CM', arch: 'x86_64', cc: 'clang', desc: 'libressl skiprun',
               install: 'cmake ninja',
               options: '-DCRYPTO_BACKEND=OpenSSL' }
 
@@ -1231,7 +1238,7 @@ jobs:
           persist-credentials: false
 
       - name: 'setup VM'
-        uses: cross-platform-actions/action@e0b9770014ba65d5e0815f15b74031c3a635f641 # v1.6.0
+        uses: cross-platform-actions/action@82668f1fbd89d9c99487604f822cbf6716f124d3 # v1.7.0
         with:
           environment_variables: 'CC CURL_CI CURL_TEST_MIN DO_NOT_TRACK MAKEFLAGS MATRIX_BUILD MATRIX_INSTALL MATRIX_OPTIONS MATRIX_OS'
           operating_system: '${{ matrix.os }}'

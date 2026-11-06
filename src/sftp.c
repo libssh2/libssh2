@@ -3389,14 +3389,14 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp,
             sftp->mkdir_packet = packet;
             return (int)nwritten;
         }
+        SSH2_FREE(session, packet);
+        sftp->mkdir_packet = NULL;
+
         if((ssize_t)packet_len != nwritten) {
-            SSH2_FREE(session, packet);
             sftp->mkdir_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             "ssh2_channel_write() failed");
         }
-        SSH2_FREE(session, packet);
-        sftp->mkdir_packet = NULL;
         sftp->mkdir_state = ssh2_NB_state_sent;
     }
 

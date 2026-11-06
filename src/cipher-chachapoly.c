@@ -99,9 +99,9 @@ int chachapoly_crypt(struct chachapoly_ctx *ctx, libssh2_uint64_t seqnr,
 
     r = LIBSSH2_ERROR_NONE;
 out:
-    memset(expected_tag, 0, sizeof(expected_tag));
-    memset(seqbuf, 0, sizeof(seqbuf));
-    memset(poly_key, 0, sizeof(poly_key));
+    ssh2_explicit_zero(expected_tag, sizeof(expected_tag));
+    ssh2_explicit_zero(seqbuf, sizeof(seqbuf));
+    ssh2_explicit_zero(poly_key, sizeof(poly_key));
     return r;
 }
 
