@@ -1160,7 +1160,8 @@ int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
             **ec_ctx = PSA_KEY_ID_NULL;
 
             psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_HASH);
-            psa_set_key_type(&attr, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1));
+            psa_set_key_type(&attr,
+                PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1));
             if(!mbedtls_pk_import_into_psa(&pkey, &attr, *ec_ctx))
                 goto cleanup;  /* success */
         }
@@ -1171,7 +1172,8 @@ int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
 
     /* try local parser */
 
-    mbed_parse_openssh_key(ec_ctx, session, data_nullterm, data_len, passphrase);
+    mbed_parse_openssh_key(ec_ctx, session, data_nullterm, data_len,
+                           passphrase);
 
 cleanup:
 
