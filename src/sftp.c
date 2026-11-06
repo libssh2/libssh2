@@ -3835,6 +3835,13 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp,
         }
     }
 
+    /* SYMLINK is answered with a STATUS only, and 'target' is input then */
+    if(link_type == LIBSSH2_SFTP_SYMLINK) {
+        SSH2_FREE(session, data);
+        return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                        "SFTP Protocol Error (unexpected SYMLINK reply)");
+    }
+
     /* look for at least one link */
     if(ssh2_get_u32(&buf, &tmp_u32) || tmp_u32 < 1) {
         SSH2_FREE(session, data);
