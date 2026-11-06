@@ -481,11 +481,10 @@ static int test_sftp_symlink_name_reply(LIBSSH2_SESSION *session)
     }
     SSH2_FREE(session, sftp);
     SSH2_FREE(session, channel);
-  
+
     return err > 0;
 }
 
-  
 #if LIBSSH2_MD5_PEM && LIBSSH2_AES_CBC
 static int pem_live_allocs;
 
