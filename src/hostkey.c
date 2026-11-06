@@ -685,6 +685,12 @@ static int hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION *session,
     if(ssh2_get_chars(&buf, &type_str, &len))
         return -1;
 
+    /* The key blob type is part of the negotiated host key algorithm. Do not
+       let the peer substitute another ECDSA curve after KEXINIT agreement. */
+    if(!session->hostkey || len != strlen(session->hostkey->name) ||
+       memcmp(type_str, session->hostkey->name, len))
+        return -1;
+
     if(SSH2_IS_LITERAL(type_str, len, "ecdsa-sha2-nistp256"))
         curve = SSH2_EC_CURVE_NISTP256;
     else if(SSH2_IS_LITERAL(type_str, len, "ecdsa-sha2-nistp384"))

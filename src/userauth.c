@@ -566,11 +566,11 @@ int libssh2_userauth_password_ex(
  * Returns an allocated string containing the key method (e.g. "ssh-dss")
  * in method on success.
  */
-static int userauth_read_pubkey(LIBSSH2_SESSION *session, char **method,
-                                unsigned char **pubkeydata,
-                                size_t *pubkeydata_len,
-                                const char *pubkeyfile,
-                                const char *pubkeyblob, size_t pubkeyblob_len)
+int userauth_read_pubkey(LIBSSH2_SESSION *session, char **method,
+                         unsigned char **pubkeydata,
+                         size_t *pubkeydata_len,
+                         const char *pubkeyfile,
+                         const char *pubkeyblob, size_t pubkeyblob_len)
 {
     char *pubkey = NULL, *sp1, *sp2, *tmp;
     size_t pubkey_len, method_len;

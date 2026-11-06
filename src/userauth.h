@@ -40,6 +40,12 @@ int ssh2_userauth_publickey(
     LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC(*sign_callback),
     void *abstract);
 
+int userauth_read_pubkey(LIBSSH2_SESSION *session, char **method,
+                         unsigned char **pubkeydata,
+                         size_t *pubkeydata_len,
+                         const char *pubkeyfile,
+                         const char *pubkeyblob, size_t pubkeyblob_len);
+
 /* Utility function for certificate auth */
 void ssh2_userauth_plain_method(char *method);
 
