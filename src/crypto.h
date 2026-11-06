@@ -226,7 +226,7 @@ void ssh2_ecdsa_free(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session);
 
 #if LIBSSH2_ED25519
 int ssh2_curve25519_gen_k(
-    ssh2_bn **k,
+    ssh2_bn **k, LIBSSH2_SESSION *session,
     uint8_t private_key[SSH2_ED25519_KEY_LEN],
     uint8_t server_public_key[SSH2_ED25519_KEY_LEN]);
 

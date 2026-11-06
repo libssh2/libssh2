@@ -35,19 +35,23 @@
 #define SSH2_CRYPTO_ENGINE libssh2_mbedtls
 #define SSH2_CRYPTO_ENGINE_NAME "mbedTLS"
 
+#define MBEDTLS_DECLARE_PRIVATE_IDENTIFIERS /* for mbedtls_mpi_read_string(),
+                                               mbedtls_mpi_init(),
+                                               mbedtls_mpi_free() */
+
 #include <mbedtls/version.h>
 
-#if MBEDTLS_VERSION_NUMBER < 0x03010000
-#  error "mbedTLS 3.1.0 or greater required"
+#if MBEDTLS_VERSION_NUMBER < 0x03060000
+#  error "mbedTLS 3.6.0 or greater required"
 #endif
 #if MBEDTLS_VERSION_NUMBER < 0x04000000 && !defined(MBEDTLS_CTR_DRBG_C)
-#  error "MBEDTLS_CTR_DRBG_C is required for mbedTLS 3.x."
+#  error "MBEDTLS_CTR_DRBG_C is required for mbedTLS 3.6.x."
 #endif
-#if !defined(MBEDTLS_ECDH_C) || \
-    !defined(MBEDTLS_ECDSA_C) || \
-    !defined(MBEDTLS_ECP_DP_SECP256R1_ENABLED) || \
-    !defined(MBEDTLS_ECP_DP_SECP384R1_ENABLED) || \
-    !defined(MBEDTLS_ECP_DP_SECP521R1_ENABLED)
+#if !defined(PSA_WANT_ALG_ECDH) || !PSA_WANT_ALG_ECDH || \
+    !defined(PSA_WANT_ALG_ECDSA) || !PSA_WANT_ALG_ECDSA || \
+    !defined(PSA_WANT_ECC_SECP_R1_256) || !PSA_WANT_ECC_SECP_R1_256 || \
+    !defined(PSA_WANT_ECC_SECP_R1_384) || !PSA_WANT_ECC_SECP_R1_384 || \
+    !defined(PSA_WANT_ECC_SECP_R1_521) || !PSA_WANT_ECC_SECP_R1_521
 #  error "ECDH/ECDSA with nistp256, nistp384, nistp521 curves is required"
 #endif
 
@@ -55,23 +59,13 @@
 #include <psa/crypto_config.h>
 #include <psa/crypto.h>
 #if MBEDTLS_VERSION_NUMBER < 0x04000000
-#include <mbedtls/rsa.h>
 #include <mbedtls/bignum.h>
 #include <mbedtls/cipher.h>
-#ifdef MBEDTLS_GCM_C
-# include <mbedtls/gcm.h>
-#endif
-#ifdef MBEDTLS_ECDH_C
-# include <mbedtls/ecdh.h>
-#endif
-#ifdef MBEDTLS_ECDSA_C
-# include <mbedtls/ecdsa.h>
-#endif
 #include <mbedtls/entropy.h>
 #include <mbedtls/ctr_drbg.h>
 #endif
+#include <mbedtls/asn1write.h>
 #include <mbedtls/pk.h>
-#include <mbedtls/error.h>
 
 /* Define which features are supported. */
 #if defined(PSA_WANT_ALG_MD5) && PSA_WANT_ALG_MD5
@@ -98,7 +92,7 @@
 #define LIBSSH2_BLOWFISH 0
 #define LIBSSH2_RC4 0
 #define LIBSSH2_CAST 0
-#ifdef MBEDTLS_DES_C
+#if defined(PSA_WANT_KEY_TYPE_DES) && PSA_WANT_KEY_TYPE_DES
 #define LIBSSH2_3DES 1
 #else
 #define LIBSSH2_3DES 0
@@ -156,7 +150,7 @@ struct mbed_hash_ctx {
  * mbedTLS backend: RSA functions
  */
 
-#define ssh2_rsa_ctx           mbedtls_rsa_context
+#define ssh2_rsa_ctx           psa_key_id_t
 
 /*******************************************************************/
 /*
@@ -167,11 +161,12 @@ struct mbed_hash_ctx {
 typedef enum {
     SSH2_EC_CURVE_NISTP256 = MBEDTLS_ECP_DP_SECP256R1,
     SSH2_EC_CURVE_NISTP384 = MBEDTLS_ECP_DP_SECP384R1,
-    SSH2_EC_CURVE_NISTP521 = MBEDTLS_ECP_DP_SECP521R1
+    SSH2_EC_CURVE_NISTP521 = MBEDTLS_ECP_DP_SECP521R1,
+    SSH2_EC_CURVE_NONE = 0
 } ssh2_curve_type;
 
-#define ssh2_ecdsa_ctx         mbedtls_ecdsa_context
-#define ssh2_ec_key            mbedtls_ecp_keypair
+#define ssh2_ecdsa_ctx         psa_key_id_t
+#define ssh2_ec_key            psa_key_id_t
 #endif /* LIBSSH2_ECDSA */
 
 /*******************************************************************/
