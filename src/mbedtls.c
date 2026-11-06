@@ -881,6 +881,7 @@ int ssh2_ecdsa_create_key(ssh2_ec_key **ec_ctx, LIBSSH2_SESSION *session,
     **ec_ctx = PSA_KEY_ID_NULL;
 
     psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_DERIVE);
+    psa_set_key_algorithm(&attr, PSA_ALG_ECDH);
     psa_set_key_type(&attr,
                      PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1));
     psa_set_key_bits(&attr, (size_t)curve);
@@ -930,6 +931,7 @@ int ssh2_ecdsa_curve_name_with_octal_new(
     **ec_ctx = PSA_KEY_ID_NULL;
 
     psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_VERIFY_MESSAGE);
+    psa_set_key_algorithm(&attr, PSA_ALG_ECDSA(PSA_ALG_ANY_HASH));
     psa_set_key_type(&attr,
                      PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_SECP_R1));
     psa_set_key_bits(&attr, (size_t)curve);
@@ -996,10 +998,14 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
                       const unsigned char *m, size_t m_len)
 {
     ssh2_hash_alg hash_alg;
+    ssh2_curve_type curve = ssh2_ecdsa_get_curve_type(ec_ctx);
+    /* PSA expects the raw r || s format, each padded to the curve size */
+    unsigned char sig[PSA_BITS_TO_BYTES(521) * 2];
+    size_t n;
 
     (void)session;
 
-    switch(ssh2_ecdsa_get_curve_type(ec_ctx)) {
+    switch(curve) {
     case SSH2_EC_CURVE_NISTP256:
         hash_alg = SSH2_SHA256_ALG;
         break;
@@ -1013,12 +1019,25 @@ int ssh2_ecdsa_verify(ssh2_ecdsa_ctx *ec_ctx, LIBSSH2_SESSION *session,
         return -1;
     }
 
-    /* FIXME: use r */
-    (void)r;
-    (void)r_len;
+    n = PSA_BITS_TO_BYTES((size_t)curve);
+
+    while(r_len > n && *r == 0) {
+        r++;
+        r_len--;
+    }
+    while(s_len > n && *s == 0) {
+        s++;
+        s_len--;
+    }
+    if(r_len > n || s_len > n)
+        return -1;
+
+    memset(sig, 0, 2 * n);
+    memcpy(sig + n - r_len, r, r_len);
+    memcpy(sig + 2 * n - s_len, s, s_len);
 
     if(psa_verify_message(*ec_ctx, PSA_ALG_ECDSA(hash_alg),
-                          m, m_len, s, s_len) != PSA_SUCCESS)
+                          m, m_len, sig, 2 * n) != PSA_SUCCESS)
         return -1;
 
     return 0;
