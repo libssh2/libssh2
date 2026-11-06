@@ -3290,7 +3290,8 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION *session,
                 /* We have agreed on a key exchange method,
                  * Can we agree on a host key that works with this kex?
                  */
-                if(kex_agree_hostkey(session, method->flags, hostkey,
+                if(method->exchange_keys &&
+                   kex_agree_hostkey(session, method->flags, hostkey,
                                      hostkey_len) == 0) {
                     session->kex = method;
                     if(session->burn_optimistic_kexinit && kex == q)
@@ -3690,10 +3691,13 @@ int ssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange,
     else
         key_state->state = ssh2_NB_state_sent2;
 
-    if(rc == 0 && session->kex && session->kex->exchange_keys &&
-       key_state->state == ssh2_NB_state_sent2) {
-        retcode = session->kex->exchange_keys(session,
-                                              &key_state->key_state_low);
+    if(rc == 0 && session->kex && key_state->state == ssh2_NB_state_sent2) {
+        if(session->kex->exchange_keys)
+            retcode = session->kex->exchange_keys(session,
+                                                  &key_state->key_state_low);
+        else
+            retcode = LIBSSH2_ERROR_PROTO;  /* No exchange keys present */
+
         if(retcode == LIBSSH2_ERROR_EAGAIN) {
             session->state &= ~SSH2_STATE_KEX_ACTIVE;
             return retcode;
