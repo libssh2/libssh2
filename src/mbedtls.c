@@ -871,7 +871,7 @@ int ssh2_ecdsa_create_key(ssh2_ec_key **ec_ctx, LIBSSH2_SESSION *session,
                           size_t *out_public_key_octal_len,
                           ssh2_curve_type curve)
 {
-    size_t plen;
+    size_t plen = 0;
     psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
 
     *ec_ctx = SSH2_CALLOC(session, sizeof(*ec_ctx));
@@ -1110,9 +1110,8 @@ int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
                         const char *passphrase)
 {
     mbedtls_pk_context pkey;
-    unsigned char *data_nullterm = NULL;
+    char *data_nullterm = NULL;
     size_t data_len = 0;
-    long file_size;
 
     mbedtls_pk_init(&pkey);
 
@@ -1126,13 +1125,14 @@ int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
         if(!data_nullterm)
             goto cleanup;
         memcpy(data_nullterm, blob, blob_len);
-        data[data_len] = '\0';  /* for mbedtls_pk_parse_key() */
+        data_nullterm[data_len] = '\0';  /* for mbedtls_pk_parse_key() */
     }
 
     /* try mbedTLS parser */
 
-    if(MBEDTLS_PK_PARSE_KEY(pkey, data, data_len,
-                            passphrase,
+    if(MBEDTLS_PK_PARSE_KEY(&pkey,
+                            (const unsigned char *)data_nullterm, data_len,
+                            (const unsigned char *)passphrase,
                             passphrase ? strlen(passphrase) : 0)) {
         psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
 
@@ -1142,7 +1142,7 @@ int ssh2_ecdsa_new_priv(ssh2_ecdsa_ctx **ec_ctx,
 
             psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_SIGN_HASH);
             psa_set_key_type(&attr, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1));
-            if(!mbedtls_pk_import_into_psa(pkey, &attr, *ec_ctx))
+            if(!mbedtls_pk_import_into_psa(&pkey, &attr, *ec_ctx))
                 goto cleanup;  /* success */
         }
 
