@@ -1746,6 +1746,11 @@ int ssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
         *store = channel->remote.window_size;
 
     if(channel->adjust_state == ssh2_NB_state_idle) {
+        /* the window must stay below 2^32 or the peer drops the connection */
+        uint32_t room = UINT32_MAX - channel->remote.window_size;
+        if(adjustment > room - channel->adjust_queue)
+            adjustment = room - channel->adjust_queue;
+
         if(!force &&
            (adjustment + channel->adjust_queue < LIBSSH2_CHANNEL_MINADJUST)) {
             ssh2_deb((channel->session, LIBSSH2_TRACE_CONN,
