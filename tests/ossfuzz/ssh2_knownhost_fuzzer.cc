@@ -5,10 +5,8 @@
  * OSS-Fuzz target: exercise the known_hosts file parser (knownhost.c) with
  * the fuzz input standing in for the known_hosts file.
  */
-#include <errno.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -74,7 +72,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
             if(len)
                 (void)libssh2_knownhost_readline(hosts, line, len,
-                                                 LIBSSH2_KNOWNHOST_FILE_OPENSSH);
+                                       LIBSSH2_KNOWNHOST_FILE_OPENSSH);
             if(!nl)
                 break;
             pos += len + 1;

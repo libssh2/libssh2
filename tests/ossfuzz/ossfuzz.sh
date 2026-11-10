@@ -57,3 +57,9 @@ cp -v tests/ossfuzz/ssh2_knownhost_fuzzer "$OUT/"
 zip -qj "$OUT/ssh2_knownhost_fuzzer_seed_corpus.zip" \
     tests/ossfuzz/ssh2_knownhost_fuzzer_seed_corpus/*
 cp -v tests/ossfuzz/ssh2_knownhost_fuzzer.dict "$OUT/"
+cp -v tests/ossfuzz/ssh2_pem_key_fuzzer "$OUT/"
+
+# Package the seed corpus and dictionary for the new target.
+zip -qj "$OUT/ssh2_pem_key_fuzzer_seed_corpus.zip" \
+    tests/ossfuzz/ssh2_pem_key_fuzzer_seed_corpus/*
+cp -v tests/ossfuzz/ssh2_pem_key_fuzzer.dict "$OUT/"

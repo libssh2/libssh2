@@ -26,7 +26,9 @@ set_target_properties(ssh2_client_fuzzer PROPERTIES UNITY_BUILD OFF)
 add_executable(ssh2_sftp_client_fuzzer "ssh2_sftp_client_fuzzer.cc" "testinput.h")
 target_include_directories(ssh2_sftp_client_fuzzer PRIVATE
   "${PROJECT_SOURCE_DIR}/include"
-  "${PROJECT_SOURCE_DIR}/src")
+  "${PROJECT_SOURCE_DIR}/src"
+  "${PROJECT_BINARY_DIR}/src")
+target_compile_definitions(ssh2_sftp_client_fuzzer PRIVATE ${CRYPTO_BACKEND_DEFINE})
 if(LIB_FUZZING_ENGINE)
   if(LIB_FUZZING_ENGINE STREQUAL "-fsanitize=fuzzer")  # FIXME: compiler-specific
     set_property(TARGET ssh2_sftp_client_fuzzer APPEND PROPERTY LINK_OPTIONS "${LIB_FUZZING_ENGINE}")
@@ -41,7 +43,9 @@ set_target_properties(ssh2_sftp_client_fuzzer PROPERTIES UNITY_BUILD OFF)
 add_executable(ssh2_agent_fuzzer "ssh2_agent_fuzzer.cc" "testinput.h")
 target_include_directories(ssh2_agent_fuzzer PRIVATE
   "${PROJECT_SOURCE_DIR}/include"
-  "${PROJECT_SOURCE_DIR}/src")
+  "${PROJECT_SOURCE_DIR}/src"
+  "${PROJECT_BINARY_DIR}/src")
+target_compile_definitions(ssh2_agent_fuzzer PRIVATE ${CRYPTO_BACKEND_DEFINE})
 if(LIB_FUZZING_ENGINE)
   if(LIB_FUZZING_ENGINE STREQUAL "-fsanitize=fuzzer")  # FIXME: compiler-specific
     set_property(TARGET ssh2_agent_fuzzer APPEND PROPERTY LINK_OPTIONS "${LIB_FUZZING_ENGINE}")
@@ -56,7 +60,9 @@ set_target_properties(ssh2_agent_fuzzer PROPERTIES UNITY_BUILD OFF)
 add_executable(ssh2_knownhost_fuzzer "ssh2_knownhost_fuzzer.cc" "testinput.h")
 target_include_directories(ssh2_knownhost_fuzzer PRIVATE
   "${PROJECT_SOURCE_DIR}/include"
-  "${PROJECT_SOURCE_DIR}/src")
+  "${PROJECT_SOURCE_DIR}/src"
+  "${PROJECT_BINARY_DIR}/src")
+target_compile_definitions(ssh2_knownhost_fuzzer PRIVATE ${CRYPTO_BACKEND_DEFINE})
 if(LIB_FUZZING_ENGINE)
   if(LIB_FUZZING_ENGINE STREQUAL "-fsanitize=fuzzer")  # FIXME: compiler-specific
     set_property(TARGET ssh2_knownhost_fuzzer APPEND PROPERTY LINK_OPTIONS "${LIB_FUZZING_ENGINE}")
@@ -68,7 +74,20 @@ else()
 endif()
 target_link_libraries(ssh2_knownhost_fuzzer ${LIB_STATIC} ${LIBSSH2_LIBS_SOCKET})
 set_target_properties(ssh2_knownhost_fuzzer PROPERTIES UNITY_BUILD OFF)
+add_executable(ssh2_pem_key_fuzzer "ssh2_pem_key_fuzzer.cc" "testinput.h")
+target_include_directories(ssh2_pem_key_fuzzer PRIVATE
   "${PROJECT_SOURCE_DIR}/include"
-  "${PROJECT_SOURCE_DIR}/src")
+  "${PROJECT_SOURCE_DIR}/src"
+  "${PROJECT_BINARY_DIR}/src")
+target_compile_definitions(ssh2_pem_key_fuzzer PRIVATE ${CRYPTO_BACKEND_DEFINE})
 if(LIB_FUZZING_ENGINE)
   if(LIB_FUZZING_ENGINE STREQUAL "-fsanitize=fuzzer")  # FIXME: compiler-specific
+    set_property(TARGET ssh2_pem_key_fuzzer APPEND PROPERTY LINK_OPTIONS "${LIB_FUZZING_ENGINE}")
+  else()
+    target_link_libraries(ssh2_pem_key_fuzzer ${LIB_FUZZING_ENGINE})
+  endif()
+else()
+  target_link_libraries(ssh2_pem_key_fuzzer standaloneengine)
+endif()
+target_link_libraries(ssh2_pem_key_fuzzer ${LIB_STATIC} ${LIBSSH2_LIBS_SOCKET})
+set_target_properties(ssh2_pem_key_fuzzer PROPERTIES UNITY_BUILD OFF)

@@ -5,7 +5,6 @@
  * OSS-Fuzz target: exercise the ssh-agent client reply parsing (agent.c)
  * with the fuzz input standing in for the agent's reply stream.
  */
-#include <errno.h>
 #include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>

@@ -32,3 +32,12 @@ SPDX-FileCopyrightText = "The libssh2 project and its contributors."
 SPDX-License-Identifier = "BSD-3-Clause"
 # If there is licensing/copyright information in or next to these files, prefer that
 precedence = "closest"
+
+[[annotations]]
+path = [
+  "tests/ossfuzz/*.dict",
+  "tests/ossfuzz/*_seed_corpus/*",
+]
+SPDX-FileCopyrightText = "The libssh2 project and its contributors."
+SPDX-License-Identifier = "BSD-3-Clause"
+precedence = "closest"

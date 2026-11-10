@@ -5,7 +5,6 @@
  * OSS-Fuzz target: drive the libssh2 SFTP client (sftp.c) against a
  * scripted, attacker-controlled "server".
  */
-#include <errno.h>
 #include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
