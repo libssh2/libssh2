@@ -306,6 +306,12 @@ typedef enum {
     ssh2_NB_state_jumpauthagent
 } ssh2_NB_states;
 
+struct scp_error_state {
+    const char *message;
+    int code;
+    int flags;
+};
+
 #define ssh2_time_t               libssh2_int64_t /* us */
 #define ssh2_timediff_t           libssh2_int64_t /* us */
 #define SSH2_TIME_T_FORMAT        SSH2_INT64_T_FORMAT
@@ -962,6 +968,7 @@ struct _LIBSSH2_SESSION {
     time_t scpRecv_mtime;
     time_t scpRecv_atime;
     LIBSSH2_CHANNEL *scpRecv_channel;
+    struct scp_error_state scpRecv_error;
 
     /* State variables used in libssh2_scp_send_ex() */
     ssh2_NB_states scpSend_state;
@@ -970,6 +977,7 @@ struct _LIBSSH2_SESSION {
     unsigned char scpSend_response[SSH2_SCP_RESPONSE_BUFLEN];
     size_t scpSend_response_len;
     LIBSSH2_CHANNEL *scpSend_channel;
+    struct scp_error_state scpSend_error;
 
     /* Keepalive variables used by keepalive.c. */
     ssh2_timediff_t keepalive_interval;
