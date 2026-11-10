@@ -396,7 +396,7 @@ case $host in
     ;;
 esac
 
-if test "x$have_windows_h" = "xyes"; then
+if test "x$have_windows_h" != "xyes"; then
 
   dnl Check for memset_s()
   libssh2_cv_func_memset_s="no"
