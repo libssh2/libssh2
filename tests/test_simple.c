@@ -34,6 +34,7 @@
 #include "libssh2_priv.h"
 #include "libssh2_sftp.h"
 #include "sftp.h"
+#include "transport.h"
 
 #include <errno.h>
 #include <stdio.h>
@@ -635,6 +636,62 @@ static int test_sftp_mkdir_resume_fail_cleanup(void)
     return err > 0;
 }
 
+static const unsigned char *transport_feed;
+static size_t transport_feed_len;
+
+static LIBSSH2_RECV_FUNC(transport_feed_recv)
+{
+    size_t len = SSH2_MIN(length, transport_feed_len);
+
+    (void)socket;
+    (void)flags;
+    (void)abstract;
+
+    if(!len)
+        return -EAGAIN;
+
+    memcpy(buffer, transport_feed, len);
+    transport_feed += len;
+    transport_feed_len -= len;
+
+    return (ssize_t)len;
+}
+
+static int test_transport_empty_payload(void)
+{
+    /* packet_length 5, padding_length 4: no room left for the message type */
+    static const unsigned char packet[] = {
+        0, 0, 0, 5, 4, SSH_MSG_REQUEST_SUCCESS, 0, 0, 0
+    };
+    LIBSSH2_SESSION *session;
+    int rc;
+    int err = 0;
+
+    session = libssh2_session_init();
+    if(!session)
+        return 1;
+
+    session->recv_cb = transport_feed_recv;
+    transport_feed = packet;
+    transport_feed_len = sizeof(packet);
+
+    rc = ssh2_transport_read(session);
+    if(rc != LIBSSH2_ERROR_PROTO) {
+        fprintf(stderr, "transport empty payload: rc=%d (want %d)\n",
+                rc, LIBSSH2_ERROR_PROTO);
+        err++;
+    }
+
+    if(ssh2_list_first(&session->packets)) {
+        fprintf(stderr, "transport empty payload: packet was queued\n");
+        err++;
+    }
+
+    libssh2_session_free(session);
+
+    return err > 0;
+}
+
 int main(int argc, char *argv[])
 {
     LIBSSH2_SESSION *session;
@@ -667,6 +724,8 @@ int main(int argc, char *argv[])
 #if LIBSSH2_MD5_PEM && LIBSSH2_AES_CBC
     rc |= test_ssh2_pem_parse_bad_padding();
 #endif
+
+    rc |= test_transport_empty_payload();
 
     libssh2_session_free(session);
 
