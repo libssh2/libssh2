@@ -1606,11 +1606,11 @@ int ssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid)
             packet = next;
         }
 
+        channel->read_avail -= channel->flush_flush_bytes;
+        channel->remote.window_size -= (uint32_t)channel->flush_flush_bytes;
+
         channel->flush_state = ssh2_NB_state_created;
     }
-
-    channel->read_avail -= channel->flush_flush_bytes;
-    channel->remote.window_size -= (uint32_t)channel->flush_flush_bytes;
 
     if(channel->flush_refund_bytes) {
         int rc = ssh2_channel_receive_window_adjust(channel,
