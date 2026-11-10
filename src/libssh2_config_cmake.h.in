@@ -45,6 +45,7 @@
 #cmakedefine HAVE_NETINET_IN_H
 
 /* Functions */
+#cmakedefine HAVE_EXPLICIT_BZERO
 #cmakedefine HAVE_MEMSET_S
 #cmakedefine HAVE_MEMSET_EXPLICIT
 
