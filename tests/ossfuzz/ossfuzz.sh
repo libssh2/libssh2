@@ -37,5 +37,11 @@ autoreconf -fi
             --enable-debug
 make V=1
 
-# Copy the fuzzer to the output directory.
+# Copy the fuzzers to the output directory.
 cp -v tests/ossfuzz/ssh2_client_fuzzer "$OUT/"
+cp -v tests/ossfuzz/ssh2_agent_fuzzer "$OUT/"
+
+# Package the seed corpus and dictionary for the new target.
+zip -qj "$OUT/ssh2_agent_fuzzer_seed_corpus.zip" \
+    tests/ossfuzz/ssh2_agent_fuzzer_seed_corpus/*
+cp -v tests/ossfuzz/ssh2_agent_fuzzer.dict "$OUT/"
