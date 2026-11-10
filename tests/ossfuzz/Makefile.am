@@ -52,3 +52,7 @@ libstandaloneengine_a_SOURCES = standaloneengine.cc
 libstandaloneengine_a_CXXFLAGS = $(AM_CXXFLAGS)
 
 EXTRA_DIST = .checksrc CMakeLists.txt ossfuzz.sh
+  ssh2_pem_key_fuzzer
+ssh2_pem_key_fuzzer_SOURCES = ssh2_pem_key_fuzzer.cc testinput.h
+ssh2_pem_key_fuzzer_CXXFLAGS = $(AM_CXXFLAGS) $(FUZZ_FLAG)
+ssh2_pem_key_fuzzer_LDFLAGS = $(AM_LDFLAGS) -static
