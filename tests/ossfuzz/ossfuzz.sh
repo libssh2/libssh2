@@ -47,7 +47,13 @@ zip -qj "$OUT/ssh2_sftp_client_fuzzer_seed_corpus.zip" \
 cp -v tests/ossfuzz/ssh2_sftp_client_fuzzer.dict "$OUT/"
 cp -v tests/ossfuzz/ssh2_agent_fuzzer "$OUT/"
 
-# Package the seed corpus and dictionary for the new target.
+# Package the ssh2 agent fuzzer's seed corpus and dictionary.
 zip -qj "$OUT/ssh2_agent_fuzzer_seed_corpus.zip" \
     tests/ossfuzz/ssh2_agent_fuzzer_seed_corpus/*
 cp -v tests/ossfuzz/ssh2_agent_fuzzer.dict "$OUT/"
+cp -v tests/ossfuzz/ssh2_knownhost_fuzzer "$OUT/"
+
+# Package the knownhost fuzzer's seed corpus and dictionary.
+zip -qj "$OUT/ssh2_knownhost_fuzzer_seed_corpus.zip" \
+    tests/ossfuzz/ssh2_knownhost_fuzzer_seed_corpus/*
+cp -v tests/ossfuzz/ssh2_knownhost_fuzzer.dict "$OUT/"
