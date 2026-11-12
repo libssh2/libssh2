@@ -37,9 +37,6 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifdef HAVE_INTTYPES_H
-#include <inttypes.h>
-#endif
 
 #include <assert.h>
 
@@ -132,6 +129,7 @@ LIBSSH2_CHANNEL *ssh2_channel_open(LIBSSH2_SESSION *session,
         SSH_MSG_CHANNEL_OPEN_FAILURE,
         0
     };
+
     unsigned char *s;
     int rc;
 
@@ -242,14 +240,21 @@ LIBSSH2_CHANNEL *ssh2_channel_open(LIBSSH2_SESSION *session,
                 goto channel_error;
             }
 
+            packet_size = ssh2_ntohu32(session->open_data + 13);
+
+            if(!packet_size) {
+                ssh2_err(session, LIBSSH2_ERROR_CHANNEL_FAILURE,
+                         "Invalid packet size received from server");
+                goto channel_error;
+            }
+
             session->open_channel->remote.id =
                 ssh2_ntohu32(session->open_data + 5);
             session->open_channel->local.window_size =
                 ssh2_ntohu32(session->open_data + 9);
             session->open_channel->local.window_size_initial =
                 ssh2_ntohu32(session->open_data + 9);
-            session->open_channel->local.packet_size =
-                ssh2_ntohu32(session->open_data + 13);
+            session->open_channel->local.packet_size = packet_size;
             ssh2_deb((session, LIBSSH2_TRACE_CONN,
                       "Connection Established - ID: %u/%u win: %u/%u"
                       " pack: %u/%u",
@@ -509,9 +514,10 @@ static LIBSSH2_LISTENER *channel_forward_listen(LIBSSH2_SESSION *session,
                                                 int *bound_port,
                                                 int queue_maxsize)
 {
-    unsigned char *s;
     static const unsigned char reply_codes[3] =
         { SSH_MSG_REQUEST_SUCCESS, SSH_MSG_REQUEST_FAILURE, 0 };
+
+    unsigned char *s;
     int rc;
 
     if(!host)
@@ -607,7 +613,7 @@ static LIBSSH2_LISTENER *channel_forward_listen(LIBSSH2_SESSION *session,
                 else {
                     listener->session = session;
                     memcpy(listener->host, host, session->fwdLstn_host_len);
-                    listener->host[session->fwdLstn_host_len] = 0;
+                    listener->host[session->fwdLstn_host_len] = '\0';
                     if(data_len >= 5 && !port) {
                         listener->port = ssh2_ntohu32(data + 1);
                         ssh2_deb((session, LIBSSH2_TRACE_CONN,
@@ -849,10 +855,11 @@ static int channel_setenv(LIBSSH2_CHANNEL *channel,
                           const char *varname, unsigned int varname_len,
                           const char *value, unsigned int value_len)
 {
-    LIBSSH2_SESSION *session = channel->session;
-    unsigned char *s, *data;
     static const unsigned char reply_codes[3] =
         { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
+
+    LIBSSH2_SESSION *session = channel->session;
+    unsigned char *s, *data;
     size_t data_len;
     int rc;
 
@@ -967,10 +974,11 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
                                int width, int height,
                                int width_px, int height_px)
 {
-    LIBSSH2_SESSION *session = channel->session;
-    unsigned char *s;
     static const unsigned char reply_codes[3] =
         { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
+
+    LIBSSH2_SESSION *session = channel->session;
+    unsigned char *s;
     int rc;
 
     if(channel->reqPTY_state == ssh2_NB_state_idle) {
@@ -995,7 +1003,7 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
 
         *(s++) = SSH_MSG_CHANNEL_REQUEST;
         ssh2_store_u32(&s, channel->remote.id);
-        ssh2_store_str(&s, (const char *)"pty-req", sizeof("pty-req") - 1);
+        ssh2_store_str(&s, "pty-req", sizeof("pty-req") - 1);
 
         *(s++) = 0x01;
 
@@ -1063,10 +1071,11 @@ static int channel_request_auth_agent(LIBSSH2_CHANNEL *channel,
                                       const char *request_str,
                                       int request_str_len)
 {
-    LIBSSH2_SESSION *session = channel->session;
-    unsigned char *s;
     static const unsigned char reply_codes[3] =
         { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
+
+    LIBSSH2_SESSION *session = channel->session;
+    unsigned char *s;
     int rc;
 
     if(channel->req_auth_agent_state == ssh2_NB_state_idle) {
@@ -1098,7 +1107,7 @@ static int channel_request_auth_agent(LIBSSH2_CHANNEL *channel,
         s = channel->req_auth_agent_packet;
         *(s++) = SSH_MSG_CHANNEL_REQUEST;
         ssh2_store_u32(&s, channel->remote.id);
-        ssh2_store_str(&s, (const char *)request_str, request_str_len);
+        ssh2_store_str(&s, request_str, request_str_len);
         *(s++) = 0x01;
 
         channel->req_auth_agent_state = ssh2_NB_state_created;
@@ -1248,8 +1257,7 @@ static int channel_request_pty_size(LIBSSH2_CHANNEL *channel, int width,
 
         *(s++) = SSH_MSG_CHANNEL_REQUEST;
         ssh2_store_u32(&s, channel->remote.id);
-        ssh2_store_str(&s, (const char *)"window-change",
-                       sizeof("window-change") - 1);
+        ssh2_store_str(&s, "window-change", sizeof("window-change") - 1);
         *(s++) = 0x00; /* Do not reply */
         ssh2_store_u32(&s, width);
         ssh2_store_u32(&s, height);
@@ -1304,10 +1312,11 @@ static int channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
                            const char *auth_proto, const char *auth_cookie,
                            int screen_number)
 {
-    LIBSSH2_SESSION *session = channel->session;
-    unsigned char *s;
     static const unsigned char reply_codes[3] =
         { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
+
+    LIBSSH2_SESSION *session = channel->session;
+    unsigned char *s;
     size_t proto_len =
         auth_proto ? strlen(auth_proto) : (sizeof("MIT-MAGIC-COOKIE-1") - 1);
     size_t cookie_len =
@@ -1355,7 +1364,7 @@ static int channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
         else {
             int i;
             /* note: the ssh2_snprintf() loop always writes 3 bytes so
-               the last one writes the trailing zero after the
+               the last one writes the null-terminator after the
                LIBSSH2_X11_RANDOM_COOKIE_LEN border in s, but s has extra
                4 bytes of size (for screen_number) */
             unsigned char buffer[LIBSSH2_X11_RANDOM_COOKIE_LEN / 2];
@@ -1449,10 +1458,11 @@ int ssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
                                  const char *request, size_t request_len,
                                  const char *message, size_t message_len)
 {
-    LIBSSH2_SESSION *session = channel->session;
-    unsigned char *s;
     static const unsigned char reply_codes[3] =
         { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
+
+    LIBSSH2_SESSION *session = channel->session;
+    unsigned char *s;
     int rc;
 
     if(channel->process_state == ssh2_NB_state_end)
@@ -1643,11 +1653,11 @@ int ssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid)
             packet = next;
         }
 
+        channel->read_avail -= channel->flush_flush_bytes;
+        channel->remote.window_size -= (uint32_t)channel->flush_flush_bytes;
+
         channel->flush_state = ssh2_NB_state_created;
     }
-
-    channel->read_avail -= channel->flush_flush_bytes;
-    channel->remote.window_size -= (uint32_t)channel->flush_flush_bytes;
 
     if(channel->flush_refund_bytes) {
         int rc = ssh2_channel_receive_window_adjust(channel,
@@ -1688,6 +1698,20 @@ int libssh2_channel_get_exit_status(LIBSSH2_CHANNEL *channel)
         return 0;
 
     return channel->exit_status;
+}
+
+/*
+ * Return 1 if the channel received an exit-status request, otherwise 0.
+ * libssh2_channel_get_exit_status() cannot report this.  A server that closes
+ * a channel without sending the request leaves the status at 0, the same
+ * value a successful command reports.  We return a zero if channel is NULL.
+ */
+int libssh2_channel_has_exit_status(LIBSSH2_CHANNEL *channel)
+{
+    if(!channel)
+        return 0;
+
+    return channel->exit_status_received;
 }
 
 /*

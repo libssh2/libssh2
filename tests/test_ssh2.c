@@ -8,7 +8,7 @@
 #include "libssh2_setup.h"
 #include "libssh2.h"
 
-#ifdef HAVE_SYS_SOCKET_H
+#ifndef _WIN32
 #include <sys/socket.h>
 #endif
 #ifdef HAVE_UNISTD_H
@@ -26,8 +26,8 @@
 
 static const char *hostname = "127.0.0.1";
 static const int port_number = 4711;
-static const char *pubkey = "key_rsa.pub";
-static const char *privkey = "key_rsa";
+static const char *pubkey = "keys/id_rsa_pem.pub";
+static const char *privkey = "keys/id_rsa_pem";
 static const char *username = "username";
 static const char *password = "password";
 
@@ -137,49 +137,34 @@ int main(int argc, char *argv[])
 
     if(getenv("FIXTURE_TRACE_ALL_CONNECT") ||
        getenv("FIXTURE_TRACE_ALL")) {
-        libssh2_trace(session, ~0);
+        libssh2_trace(session,
+            ~(getenv("FIXTURE_TRACE_NO_DEBUGDUMP") ? LIBSSH2_TRACE_TRANS : 0));
         fprintf(stdout, "Trace all enabled.\n");
     }
 
     libssh2_session_set_blocking(session, 1);
 
-    {
-        int retries = 0, retry = 0;
-#ifdef LIBSSH2_WINCNG
-        /* FIXME: Retry tests with WinCNG due to flakiness in hostkey
-           verification: https://github.com/libssh2/libssh2/issues/804 */
-        retries += 2;
-#endif
-        do {
-            rc = libssh2_session_handshake(session, sock);
-            if(rc == 0)
-                break;
-            fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
-            if(
-#ifdef LIBSSH2_WINCNG
-               rc != LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE ||
-#endif
-               ++retry > retries)
-                break;
-            fprintf(stderr, "Retrying... %d / %d\n", retry, retries);
-        } while(1);
+    rc = libssh2_session_handshake(session, sock);
+    if(rc) {
+        fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
+        goto shutdown;
     }
 
     rc = 1;
 
     /* At this point we have not yet authenticated.  The first thing to do
-     * is check the hostkey's fingerprint against our known hosts Your app
+     * is check the host key's fingerprint against our known hosts Your app
      * may have it hard coded, may go to a file, may present it to the
      * user, that is your call
      */
-    fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
+    fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA256);
     fprintf(stderr, "Fingerprint: ");
     if(!fingerprint) {
         fprintf(stderr, "(null)");
         goto shutdown;
     }
     else
-        for(i = 0; i < 20; i++)
+        for(i = 0; i < 32; i++)
             fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
     fprintf(stderr, "\n");
 

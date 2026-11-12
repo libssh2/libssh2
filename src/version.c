@@ -32,6 +32,8 @@
 
 #include "libssh2_priv.h"
 
+#include "agent.h"
+
 const char *libssh2_version(int req_version_num)
 {
     if(req_version_num <= LIBSSH2_VERSION_NUM)
@@ -45,8 +47,7 @@ libssh2_crypto_engine_t libssh2_crypto_engine(void)
 }
 
 static const char *ssh2_build_options =
-    "crypto:"
-    SSH2_CRYPTO_ENGINE_NAME
+    "crypto:" SSH2_CRYPTO_ENGINE_NAME
     " "
     "MD5:"
 #if LIBSSH2_MD5
@@ -160,6 +161,27 @@ static const char *ssh2_build_options =
     "off"
 #endif
     " "
+    "KEX-SHA1:"
+#ifdef LIBSSH2_KEX_SHA1_ENABLE
+    "on"
+#else
+    "off"
+#endif
+    " "
+    "MAC-SHA1:"
+#ifdef LIBSSH2_HMAC_SHA1_ENABLE
+    "on"
+#else
+    "off"
+#endif
+    " "
+    "deprecated-APIs:"
+#ifndef LIBSSH2_NO_DEPRECATED
+    "on"
+#else
+    "off"
+#endif
+    " "
     "zlib:"
 #ifdef LIBSSH2_HAVE_ZLIB
     "on"
@@ -167,13 +189,27 @@ static const char *ssh2_build_options =
     "off"
 #endif
     " "
-    "clear-memory:"
-#ifndef LIBSSH2_NO_CLEAR_MEMORY
+#ifdef SSH2_AGENT_BACKEND_WIN32_PAGEANT
+    "agent:" SSH2_AGENT_BACKEND_WIN32_PAGEANT
+    " "
+#endif
+#ifdef SSH2_AGENT_BACKEND_WIN32_OPENSSH
+    "agent:" SSH2_AGENT_BACKEND_WIN32_OPENSSH
+    " "
+#endif
+#ifdef SSH2_AGENT_BACKEND_UNIX
+    "agent:" SSH2_AGENT_BACKEND_UNIX
+    " "
+#endif
+#ifdef _WIN32
+    "Unicode:"
+#if defined(UNICODE) && defined(_UNICODE)
     "on"
 #else
     "off"
 #endif
     " "
+#endif
     "debug-logging:"
 #ifdef LIBSSH2DEBUG
     "on"

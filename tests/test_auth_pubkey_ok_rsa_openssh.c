@@ -7,14 +7,13 @@
 
 int test(LIBSSH2_SESSION *session)
 {
-#if LIBSSH2_RSA_SHA1 && \
-    (defined(LIBSSH2_OPENSSL) || defined(LIBSSH2_WOLFSSL))
+#if LIBSSH2_RSA && (defined(LIBSSH2_OPENSSL) || defined(LIBSSH2_WOLFSSL))
     /* set in Dockerfile */
     return test_auth_pubkey(session, 0,
                             "libssh2",
                             NULL,
-                            "key_rsa_openssh.pub",
-                            "key_rsa_openssh");
+                            "keys/id_rsa_openssh.pub",
+                            "keys/id_rsa_openssh");
 #else
     (void)session;
     return 0;

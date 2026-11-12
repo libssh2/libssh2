@@ -21,7 +21,6 @@
 /* $OpenBSD: cipher-chachapoly.c,v 1.8 2016/08/03 05:41:57 djm Exp $ */
 
 #include "libssh2_priv.h"
-#include "misc.h"
 #include "cipher-chachapoly.h"
 
 static int chachapoly_timingsafe_bcmp(const void *b1, const void *b2, size_t n)
@@ -57,12 +56,12 @@ int chachapoly_crypt(struct chachapoly_ctx *ctx, libssh2_uint64_t seqnr,
                      unsigned char *dest, const unsigned char *src, size_t len,
                      size_t aadlen, int do_encrypt)
 {
-    unsigned char seqbuf[8];
-    const unsigned char one[8] = {
+    static const unsigned char one[8] = {
         1, 0, 0, 0, 0, 0, 0, 0  /* NB little-endian */
     };
+    unsigned char seqbuf[8];
     unsigned char expected_tag[POLY1305_TAGLEN], poly_key[POLY1305_KEYLEN];
-    int r = LIBSSH2_ERROR_INVAL;
+    int r = LIBSSH2_ERROR_DECRYPT;  /* fail */
     unsigned char *ptr = NULL;
 
     /*
@@ -80,11 +79,8 @@ int chachapoly_crypt(struct chachapoly_ctx *ctx, libssh2_uint64_t seqnr,
         const unsigned char *tag = src + aadlen + len;
 
         poly1305_auth(expected_tag, src, aadlen + len, poly_key);
-        if(chachapoly_timingsafe_bcmp(expected_tag, tag, POLY1305_TAGLEN)
-           != 0) {
-            r = LIBSSH2_ERROR_DECRYPT;
+        if(chachapoly_timingsafe_bcmp(expected_tag, tag, POLY1305_TAGLEN))
             goto out;
-        }
     }
 
     /* Crypt additional data */
@@ -98,14 +94,14 @@ int chachapoly_crypt(struct chachapoly_ctx *ctx, libssh2_uint64_t seqnr,
     chacha_encrypt_bytes(&ctx->main_ctx, src + aadlen, dest + aadlen, len);
 
     /* If encrypting, calculate and append tag */
-    if(do_encrypt) {
+    if(do_encrypt)
         poly1305_auth(dest + aadlen + len, dest, aadlen + len, poly_key);
-    }
-    r = 0;
+
+    r = LIBSSH2_ERROR_NONE;
 out:
-    memset(expected_tag, 0, sizeof(expected_tag));
-    memset(seqbuf, 0, sizeof(seqbuf));
-    memset(poly_key, 0, sizeof(poly_key));
+    ssh2_explicit_zero(expected_tag, sizeof(expected_tag));
+    ssh2_explicit_zero(seqbuf, sizeof(seqbuf));
+    ssh2_explicit_zero(poly_key, sizeof(poly_key));
     return r;
 }
 
@@ -118,11 +114,11 @@ int chachapoly_get_length(struct chachapoly_ctx *ctx, unsigned int *plenp,
     unsigned char *ptr = NULL;
 
     if(len < 4)
-        return -1;
+        return -1;  /* fail */
     ptr = &seqbuf[0];
     ssh2_store_u64(&ptr, seqnr);
     chacha_ivsetup(&ctx->header_ctx, seqbuf, NULL);
     chacha_encrypt_bytes(&ctx->header_ctx, cp, buf, 4);
     *plenp = ssh2_ntohu32(buf);
-    return 0;
+    return 0;  /* success */
 }

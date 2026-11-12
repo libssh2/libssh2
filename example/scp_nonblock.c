@@ -13,18 +13,16 @@
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
+#include <stdio.h>
+
 #ifdef _WIN32
 #define write(f, b, c)  _write(f, b, (unsigned int)(c))
-#endif
-
-#ifdef HAVE_SYS_SOCKET_H
+#else
 #include <sys/socket.h>
+#include <unistd.h>
 #endif
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
-#endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
 #endif
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
@@ -32,11 +30,9 @@
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
-#ifdef HAVE_SYS_TIME_H
+#ifndef _MSC_VER
 #include <sys/time.h>  /* for timeval, gettimeofday() */
 #endif
-
-#include <stdio.h>
 
 static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
 static const char *privkey = "/home/username/.ssh/id_rsa";
@@ -44,14 +40,30 @@ static const char *username = "username";
 static const char *password = "password";
 static const char *scppath = "/tmp/TEST";
 
-#ifdef HAVE_GETTIMEOFDAY
+#ifdef _MSC_VER
+static int gettimeofday(struct timeval *tp, void *tzp)
+{
+    (void)tzp;
+    if(tp) {
+        union {
+            libssh2_uint64_t ns100; /* time since 1 Jan 1601 in 100ns units */
+            FILETIME ft;
+        } now;
+        GetSystemTimeAsFileTime(&now.ft);
+        tp->tv_usec = (long)((now.ns100 / 10) % 1000000);
+        /* subtract offset between 1601-01-01 and 1970-01-01 in 100ns units */
+        tp->tv_sec = (long)((now.ns100 - 116444736000000000) / 10000000);
+    }
+    return 0;
+}
+#endif
+
 /* diff in ms */
 static long tvdiff(struct timeval newer, struct timeval older)
 {
     return (newer.tv_sec - older.tv_sec) * 1000 +
         (newer.tv_usec - older.tv_usec) / 1000;
 }
-#endif
 
 static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 {
@@ -101,11 +113,9 @@ int main(int argc, char *argv[])
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
     libssh2_struct_stat fileinfo;
-#ifdef HAVE_GETTIMEOFDAY
     struct timeval start;
     struct timeval end;
     long time_ms;
-#endif
     int spin = 0;
     libssh2_struct_stat_size got = 0;
     libssh2_struct_stat_size total = 0;
@@ -149,7 +159,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr *)(&sin), sizeof(struct sockaddr_in))) {
+    if(connect(sock, (struct sockaddr *)&sin, sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect.\n");
         goto shutdown;
     }
@@ -164,9 +174,7 @@ int main(int argc, char *argv[])
     /* Since we have set non-blocking, tell libssh2 we are non-blocking */
     libssh2_session_set_blocking(session, 0);
 
-#ifdef HAVE_GETTIMEOFDAY
     gettimeofday(&start, NULL);
-#endif
 
     /* ... start it up. This trades welcome banners, exchange keys,
      * and setup crypto, compression, and MAC layers
@@ -180,18 +188,18 @@ int main(int argc, char *argv[])
     }
 
     /* At this point we have not yet authenticated.  The first thing to do
-     * is check the hostkey's fingerprint against our known hosts Your app
+     * is check the host key's fingerprint against our known hosts Your app
      * may have it hard coded, may go to a file, may present it to the
      * user, that is your call
      */
-    fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
+    fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA256);
     fprintf(stderr, "Fingerprint: ");
     if(!fingerprint) {
         fprintf(stderr, "(null)");
         goto shutdown;
     }
     else
-        for(i = 0; i < 20; i++)
+        for(i = 0; i < 32; i++)
             fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
     fprintf(stderr, "\n");
 
@@ -226,7 +234,6 @@ int main(int argc, char *argv[])
     fprintf(stderr, "libssh2_scp_recv2().\n");
     do {
         channel = libssh2_scp_recv2(session, scppath, &fileinfo);
-
         if(!channel) {
             if(libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
                 char *err_msg;
@@ -242,6 +249,13 @@ int main(int argc, char *argv[])
         }
     } while(!channel);
     fprintf(stderr, "libssh2_scp_recv2() is done, now receive data.\n");
+
+    fprintf(stderr,
+            "size = %lu byte(s)\nmode = 0%lo\nmtime = %ld\natime = %ld\n",
+            (unsigned long)fileinfo.st_size,
+            (unsigned long)fileinfo.st_mode,
+            (long)fileinfo.st_mtime,
+            (long)fileinfo.st_atime);
 
     while(got < fileinfo.st_size) {
         char mem[1024 * 24];
@@ -276,16 +290,12 @@ int main(int argc, char *argv[])
         break;
     }
 
-#ifdef HAVE_GETTIMEOFDAY
     gettimeofday(&end, NULL);
 
     time_ms = tvdiff(end, start);
     fprintf(stderr, "Got %ld bytes in %ld ms = %.1f bytes/sec spin: %d\n",
             (long)total, time_ms,
             (double)total / ((double)time_ms / 1000.0), spin);
-#else
-    fprintf(stderr, "Got %ld bytes spin: %d\n", (long)total, spin);
-#endif
 
     libssh2_channel_free(channel);
 

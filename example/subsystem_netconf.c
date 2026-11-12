@@ -6,10 +6,11 @@
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
-#ifdef HAVE_SYS_SOCKET_H
+#include <stdio.h>
+#include <string.h>
+
+#ifndef _WIN32
 #include <sys/socket.h>
-#endif
-#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #ifdef HAVE_NETINET_IN_H
@@ -18,9 +19,6 @@
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
-
-#include <stdio.h>
-#include <string.h>
 
 #ifndef INADDR_NONE
 #define INADDR_NONE ((in_addr_t)~0)
@@ -94,7 +92,7 @@ static ssize_t netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
 
     /* discard the special sequence so that only XML is returned */
     rd = (size_t)(specialsequence - buf);
-    buf[rd] = 0;
+    buf[rd] = '\0';
 
     return (ssize_t)rd;
 }
@@ -149,7 +147,7 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
     sin.sin_port = htons(830);
-    if(connect(sock, (struct sockaddr *)(&sin), sizeof(struct sockaddr_in))) {
+    if(connect(sock, (struct sockaddr *)&sin, sizeof(struct sockaddr_in))) {
         fprintf(stderr, "Failed to connect to %s.\n", inet_ntoa(sin.sin_addr));
         goto shutdown;
     }
@@ -171,18 +169,18 @@ int main(int argc, char *argv[])
     }
 
     /* At this point we have not yet authenticated.  The first thing to do
-     * is check the hostkey's fingerprint against our known hosts Your app
+     * is check the host key's fingerprint against our known hosts Your app
      * may have it hard coded, may go to a file, may present it to the
      * user, that is your call
      */
-    fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
+    fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA256);
     fprintf(stderr, "Fingerprint: ");
     if(!fingerprint) {
         fprintf(stderr, "(null)");
         goto shutdown;
     }
     else
-        for(i = 0; i < 20; i++)
+        for(i = 0; i < 32; i++)
             fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
     fprintf(stderr, "\n");
 
@@ -254,14 +252,14 @@ int main(int argc, char *argv[])
         "</capabilities>"
         "</hello>\n"
         "]]>]]>\n");
-    if(len < 0)
+    if(len < 0 || len >= (int)sizeof(buf))
         goto shutdown;
-    if(-1 == netconf_write(channel, buf, (size_t)len))
+    if(netconf_write(channel, buf, (size_t)len) == -1)
         goto shutdown;
 
     fprintf(stderr, "Reading NETCONF server <hello>\n");
     len = netconf_read_until(channel, "</hello>", buf, sizeof(buf));
-    if(-1 == len)
+    if(len == -1)
         goto shutdown;
 
     fprintf(stderr, "Got %ld bytes:\n----------------------\n%s",
@@ -274,14 +272,14 @@ int main(int argc, char *argv[])
         "<get-interface-information><terse/></get-interface-information>"
         "</rpc>\n"
         "]]>]]>\n");
-    if(len < 0)
+    if(len < 0 || len >= (int)sizeof(buf))
         goto shutdown;
-    if(-1 == netconf_write(channel, buf, (size_t)len))
+    if(netconf_write(channel, buf, (size_t)len) == -1)
         goto shutdown;
 
     fprintf(stderr, "Reading NETCONF <rpc-reply>\n");
     len = netconf_read_until(channel, "</rpc-reply>", buf, sizeof(buf));
-    if(-1 == len)
+    if(len == -1)
         goto shutdown;
 
     fprintf(stderr, "Got %ld bytes:\n----------------------\n%s",

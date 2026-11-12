@@ -32,15 +32,17 @@ Create a symlink or read out symlink information from the remote side.
 
 *sftp* - SFTP instance as returned by libssh2_sftp_init(3)
 
-*path* - Remote filesystem object to create a symlink from or resolve.
+*path* - For **LIBSSH2_SFTP_SYMLINK**, the first pathname sent to the
+server; see the argument order note below. For **LIBSSH2_SFTP_READLINK**
+or **LIBSSH2_SFTP_REALPATH**, the remote pathname to resolve.
 
-*path_len* - Length of the name of the remote filesystem object to
-create a symlink from or resolve.
+*path_len* - Length of *path* in bytes.
 
 *target* - a pointer to a buffer. The buffer has different uses depending
 what the *link_type* argument is set to.
 
-**LIBSSH2_SFTP_SYMLINK**: Remote filesystem object to link to.
+**LIBSSH2_SFTP_SYMLINK**: The second pathname sent to the server; see the
+argument order note below.
 
 **LIBSSH2_SFTP_READLINK**: Pre-allocated buffer to resolve symlink target
 into.
@@ -48,10 +50,23 @@ into.
 **LIBSSH2_SFTP_REALPATH**: Pre-allocated buffer to resolve realpath target
 into.
 
-*target_len* - Length of the name of the remote filesystem target object.
+*target_len* - Length of *target* in bytes for **LIBSSH2_SFTP_SYMLINK**,
+or the size of the output buffer for the other operations.
 
 *link_type* - One of the three previously mentioned constants which
 determines the resulting behavior of this function.
+
+For **LIBSSH2_SFTP_SYMLINK**, the meaning of *path* and *target* depends
+on the server. OpenSSH reverses the argument order specified by the SFTP
+version 3 draft: *path* is the destination stored in the symbolic link,
+and *target* is the pathname of the symbolic link to create. For example,
+*path* = "file" and *target* = "link" creates "link" pointing to "file" on
+an OpenSSH server. The destination need not exist.
+
+For a server following the SFTP version 3 draft order, *path* is the
+pathname of the symbolic link to create and *target* is its destination.
+libssh2 sends the arguments in the supplied order without detecting or
+adjusting for this server difference.
 
 These are convenience macros:
 

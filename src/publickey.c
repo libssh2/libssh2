@@ -184,7 +184,7 @@ static int publickey_response_id(unsigned char **pdata, size_t data_len)
 
     while(codes->name) {
         if((unsigned long)codes->name_len == response_len &&
-           !strncmp(codes->name, (char *)data, response_len)) {
+           !strncmp(codes->name, (const char *)data, response_len)) {
             *pdata = data + response_len;
             return codes->code;
         }
@@ -410,12 +410,6 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                 goto err_exit;
             }
 
-            if(session->pkeyInit_data_len < 4) {
-                ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
-                         "Public key init data too small");
-                goto err_exit;
-            }
-
             switch(response) {
             case SSH2_PUBLICKEY_RESPONSE_STATUS: {
                 /* Error */
@@ -476,6 +470,12 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
 
             case SSH2_PUBLICKEY_RESPONSE_VERSION:
                 /* What we want */
+                if(session->pkeyInit_data_len <
+                   (size_t)(s - session->pkeyInit_data) + 4) {
+                    ssh2_err(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                             "Public key version response too small");
+                    goto err_exit;
+                }
                 session->pkeyInit_pkey->version = ssh2_ntohu32(s);
                 if(session->pkeyInit_pkey->version > SSH2_PUBLICKEY_VERSION) {
                     ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
@@ -525,9 +525,14 @@ LIBSSH2_PUBLICKEY *libssh2_publickey_init(LIBSSH2_SESSION *session)
 {
     LIBSSH2_PUBLICKEY *ptr;
 
+    if(!session)
+        return NULL;
+
     BLOCK_ADJUST_ERRNO(ptr, session, publickey_init(session));
     return ptr;
 }
+
+#define PUBLICKEY_ATTRS_MAX  1024
 
 /*
  * Add a new public key entry
@@ -541,15 +546,22 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
 {
     LIBSSH2_CHANNEL *channel;
     LIBSSH2_SESSION *session;
-    /* 19 = packet_len(4) + add_len(4) + "add"(3) + name_len(4) + {name}
-       blob_len(4) + {blob} */
-    unsigned long i, packet_len = 19 + name_len + blob_len;
-    const unsigned char *comment = NULL;
+    unsigned long i, packet_len;
+    const char *comment = NULL;
     unsigned long comment_len = 0;
     int rc;
 
-    if(!pkey)
+    if(!pkey || !name || !blob || (num_attrs && !attrs))
         return LIBSSH2_ERROR_BAD_USE;
+
+    if(name_len > LIBSSH2_PACKET_MAXPAYLOAD ||
+       blob_len > LIBSSH2_PACKET_MAXPAYLOAD ||
+       num_attrs > PUBLICKEY_ATTRS_MAX)
+        return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
+
+    /* 19 = packet_len(4) + add_len(4) + "add"(3) + name_len(4) + {name}
+       blob_len(4) + {blob} */
+    packet_len = 19 + name_len + blob_len;
 
     channel = pkey->channel;
     session = channel->session;
@@ -557,15 +569,20 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
     if(pkey->add_state == ssh2_NB_state_idle) {
         pkey->add_packet = NULL;
 
-        ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY, "Adding %s publickey",
-                  name));
+        ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY, "Adding %.*s publickey",
+                  (int)name_len, name));
 
         if(pkey->version == 1) {
             for(i = 0; i < num_attrs; i++) {
                 /* Search for a comment attribute */
                 if(attrs[i].name_len == (sizeof("comment") - 1) &&
+                   attrs[i].name &&
                    !strncmp(attrs[i].name, "comment", sizeof("comment") - 1)) {
-                    comment = (const unsigned char *)attrs[i].value;
+                    if(!attrs[i].value)
+                        return LIBSSH2_ERROR_BAD_USE;
+                    if(attrs[i].value_len > LIBSSH2_PACKET_MAXPAYLOAD)
+                        return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
+                    comment = attrs[i].value;
                     comment_len = attrs[i].value_len;
                     break;
                 }
@@ -574,10 +591,21 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
         }
         else {
             packet_len += 5; /* overwrite(1) + attribute_count(4) */
-            for(i = 0; i < num_attrs; i++)
+            for(i = 0; i < num_attrs; i++) {
+                if(!attrs[i].name ||
+                   !attrs[i].value)
+                    return LIBSSH2_ERROR_BAD_USE;
+                if(attrs[i].name_len > LIBSSH2_PACKET_MAXPAYLOAD ||
+                   attrs[i].value_len > LIBSSH2_PACKET_MAXPAYLOAD)
+                    return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
                 /* name_len(4) + value_len(4) + mandatory(1) */
                 packet_len += 9 + attrs[i].name_len + attrs[i].value_len;
+            }
         }
+
+        if((packet_len - 4) > LIBSSH2_PACKET_MAXPAYLOAD)
+            return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                            "Packet too large");
 
         pkey->add_packet = SSH2_ALLOC(session, packet_len);
         if(!pkey->add_packet)
@@ -638,8 +666,8 @@ int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey,
 
         ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
                   "Sending publickey 'add' packet: "
-                  "type=%s blob_len=%lu num_attrs=%lu",
-                  name, blob_len, num_attrs));
+                  "type=%.*s blob_len=%lu num_attrs=%lu",
+                  (int)name_len, name, blob_len, num_attrs));
 
         pkey->add_state = ssh2_NB_state_created;
     }
@@ -680,19 +708,29 @@ int libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
 {
     LIBSSH2_CHANNEL *channel;
     LIBSSH2_SESSION *session;
-    /* 22 = packet_len(4) + remove_len(4) + "remove"(6) + name_len(4) + {name}
-       + blob_len(4) + {blob} */
-    unsigned long packet_len = 22 + name_len + blob_len;
+    unsigned long packet_len;
     int rc;
 
-    if(!pkey)
+    if(!pkey || !name || !blob)
         return LIBSSH2_ERROR_BAD_USE;
+
+    if(name_len > LIBSSH2_PACKET_MAXPAYLOAD ||
+       blob_len > LIBSSH2_PACKET_MAXPAYLOAD)
+        return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
+
+    /* 22 = packet_len(4) + remove_len(4) + "remove"(6) + name_len(4) + {name}
+       + blob_len(4) + {blob} */
+    packet_len = 22 + name_len + blob_len;
 
     channel = pkey->channel;
     session = channel->session;
 
     if(pkey->remove_state == ssh2_NB_state_idle) {
         pkey->remove_packet = NULL;
+
+        if((packet_len - 4) > LIBSSH2_PACKET_MAXPAYLOAD)
+            return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                            "Packet too large");
 
         pkey->remove_packet = SSH2_ALLOC(session, packet_len);
         if(!pkey->remove_packet)
@@ -717,8 +755,8 @@ int libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey,
         pkey->remove_s += blob_len;
 
         ssh2_deb((session, LIBSSH2_TRACE_PUBLICKEY,
-                  "Sending publickey 'remove' packet: "
-                  "type=%s blob_len=%lu", name, blob_len));
+                  "Sending publickey 'remove' packet: type=%.*s blob_len=%lu",
+                  (int)name_len, name, blob_len));
 
         pkey->remove_state = ssh2_NB_state_created;
     }
@@ -757,9 +795,9 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
 {
     LIBSSH2_CHANNEL *channel;
     LIBSSH2_SESSION *session;
-    libssh2_publickey_list *list = NULL;
+    libssh2_publickey_list *list;
     /* 12 = packet_len(4) + list_len(4) + "list"(4) */
-    unsigned long buffer_len = 12, keys = 0, max_keys = 0, i;
+    unsigned long buffer_len = 12, keys, max_keys, i;
     int response;
     int rc;
 
@@ -771,6 +809,9 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
 
     if(pkey->listFetch_state == ssh2_NB_state_idle) {
         pkey->listFetch_data = NULL;
+        pkey->listFetch_list = NULL;
+        pkey->listFetch_keys = 0;
+        pkey->listFetch_max_keys = 0;
 
         pkey->listFetch_s = pkey->listFetch_buffer;
         ssh2_htonu32(pkey->listFetch_s, (uint32_t)(buffer_len - 4));
@@ -785,6 +826,10 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
 
         pkey->listFetch_state = ssh2_NB_state_created;
     }
+
+    list = pkey->listFetch_list;
+    keys = pkey->listFetch_keys;
+    max_keys = pkey->listFetch_max_keys;
 
     if(pkey->listFetch_state == ssh2_NB_state_created) {
         ssize_t nwritten;
@@ -806,8 +851,12 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
     for(;;) {
         rc = publickey_packet_receive(pkey, &pkey->listFetch_data,
                                       &pkey->listFetch_data_len);
-        if(rc == LIBSSH2_ERROR_EAGAIN)
+        if(rc == LIBSSH2_ERROR_EAGAIN) {
+            pkey->listFetch_list = list;
+            pkey->listFetch_keys = keys;
+            pkey->listFetch_max_keys = max_keys;
             return rc;
+        }
         else if(rc) {
             ssh2_err(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
                      "Timeout waiting for response from publickey subsystem");
@@ -881,6 +930,9 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 SSH2_SAFEFREE(session, pkey->listFetch_data);
                 *pkey_list = list;
                 *num_keys = keys;
+                pkey->listFetch_list = NULL;
+                pkey->listFetch_keys = 0;
+                pkey->listFetch_max_keys = 0;
                 pkey->listFetch_state = ssh2_NB_state_idle;
                 return 0;
             }
@@ -890,6 +942,11 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
         }
         case SSH2_PUBLICKEY_RESPONSE_PUBLICKEY:
             /* What we want */
+            if(keys >= 32768) {
+                ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                         "Too many public keys");
+                goto err_exit;
+            }
             if(keys >= max_keys) {
                 libssh2_publickey_list *newlist;
                 /* Grow the key list if necessary */
@@ -903,7 +960,8 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                     goto err_exit;
                 }
                 list = newlist;
-                memset(&list[keys], 0, sizeof(list[keys]));
+                memset(&list[keys], 0,
+                       (max_keys - keys + 1) * sizeof(list[keys]));
             }
             if(pkey->version == 1) {
                 unsigned long comment_len;
@@ -943,7 +1001,8 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                     }
                     list[keys].attrs[0].name = "comment";
                     list[keys].attrs[0].name_len = sizeof("comment") - 1;
-                    list[keys].attrs[0].value = (char *)pkey->listFetch_s;
+                    list[keys].attrs[0].value =
+                        (const char *)pkey->listFetch_s;
                     list[keys].attrs[0].value_len = comment_len;
                     list[keys].attrs[0].mandatory = 0;
 
@@ -1063,7 +1122,7 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
                 pkey->listFetch_s += 4;
 
                 if(list[keys].num_attrs) {
-                    if(list[keys].num_attrs > 1024) {
+                    if(list[keys].num_attrs > PUBLICKEY_ATTRS_MAX) {
                         ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                  "Too many publickey attributes");
                         goto err_exit;
@@ -1142,10 +1201,9 @@ int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey,
             }
             /* To be FREEd in libssh2_publickey_list_free() */
             list[keys].packet = pkey->listFetch_data;
-            keys++;
-
-            list[keys].packet = NULL; /* Terminate the list */
             pkey->listFetch_data = NULL;
+
+            keys++;
             break;
         default:
             /* Unknown/Unexpected */
@@ -1161,6 +1219,9 @@ err_exit:
         SSH2_SAFEFREE(session, pkey->listFetch_data);
     if(list)
         libssh2_publickey_list_free(pkey, list);
+    pkey->listFetch_list = NULL;
+    pkey->listFetch_keys = 0;
+    pkey->listFetch_max_keys = 0;
     pkey->listFetch_state = ssh2_NB_state_idle;
     return -1;
 }
@@ -1179,10 +1240,11 @@ void libssh2_publickey_list_free(LIBSSH2_PUBLICKEY *pkey,
 
     session = pkey->channel->session;
 
-    while(p->packet) {
+    while(p->attrs || p->packet) {
         if(p->attrs)
             SSH2_FREE(session, p->attrs);
-        SSH2_FREE(session, p->packet);
+        if(p->packet)
+            SSH2_FREE(session, p->packet);
         p++;
     }
 
@@ -1195,6 +1257,7 @@ void libssh2_publickey_list_free(LIBSSH2_PUBLICKEY *pkey,
 int libssh2_publickey_shutdown(LIBSSH2_PUBLICKEY *pkey)
 {
     LIBSSH2_SESSION *session;
+    unsigned long i;
     int rc;
 
     if(!pkey)
@@ -1213,6 +1276,17 @@ int libssh2_publickey_shutdown(LIBSSH2_PUBLICKEY *pkey)
         SSH2_SAFEFREE(session, pkey->remove_packet);
     if(pkey->listFetch_data)
         SSH2_SAFEFREE(session, pkey->listFetch_data);
+    if(pkey->listFetch_list) {
+        for(i = 0; i < pkey->listFetch_keys; i++) {
+            if(pkey->listFetch_list[i].attrs)
+                SSH2_FREE(session, pkey->listFetch_list[i].attrs);
+            if(pkey->listFetch_list[i].packet)
+                SSH2_FREE(session, pkey->listFetch_list[i].packet);
+        }
+        SSH2_SAFEFREE(session, pkey->listFetch_list);
+        pkey->listFetch_keys = 0;
+        pkey->listFetch_max_keys = 0;
+    }
 
     rc = ssh2_channel_free(pkey->channel);
     if(rc == LIBSSH2_ERROR_EAGAIN)

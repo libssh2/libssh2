@@ -89,6 +89,13 @@ case $host in
     ;;
 esac
 
+libssh2_cv_winuwp='no'
+if test "x$have_windows_h" = "xyes"; then
+  case "$CPPFLAGS" in
+    *-DWINSTORECOMPAT*) libssh2_cv_winuwp='yes';;
+  esac
+fi
+
 dnl check for how to do large files
 AC_SYS_LARGEFILE
 
@@ -168,7 +175,7 @@ fi
 dnl ECDSA support with WinCNG
 AC_ARG_ENABLE(ecdsa-wincng,
   AS_HELP_STRING([--enable-ecdsa-wincng],
-    WinCNG ECDSA support (requires Windows 10 or later)),
+    WinCNG ECDSA support (requires Windows 10 or newer)),
   [wincng_ecdsa=$enableval])
 if test "$wincng_ecdsa" = yes; then
   AC_DEFINE(LIBSSH2_ECDSA_WINCNG, 1, [Enable WinCNG ECDSA support])
@@ -209,19 +216,6 @@ Try --with-libz-prefix=PATH if you know that you have it."
 fi
 
 AC_SUBST(LIBSSH2_PC_REQUIRES_PRIVATE)
-
-dnl
-dnl Optional Settings
-dnl
-AC_ARG_ENABLE(clear-memory,
-  AS_HELP_STRING([--disable-clear-memory],[Disable clearing of memory before being freed]),
-  [CLEAR_MEMORY=$enableval])
-if test "$CLEAR_MEMORY" = "no"; then
-  AC_DEFINE(LIBSSH2_NO_CLEAR_MEMORY, 1, [Disable clearing of memory before being freed])
-  enable_clear_memory=no
-else
-  enable_clear_memory=yes
-fi
 
 LIBSSH2_CFLAG_EXTRAS=""
 
@@ -306,10 +300,38 @@ AC_ARG_ENABLE([deprecated],
     [with_deprecated="yes"]
 )
 
-dnl Run Docker tests?
+dnl build with Windows Unicode?
+want_winuni="no"
+if test "x$have_windows_h" = "xyes"; then
+  if test "$libssh2_cv_winuwp" = "yes"; then
+    want_winuni="yes"
+  else
+    AC_MSG_CHECKING([whether to enable Windows Unicode (Windows native builds only)])
+    AC_ARG_ENABLE(windows-unicode,
+AS_HELP_STRING([--enable-windows-unicode],[Enable Windows Unicode])
+AS_HELP_STRING([--disable-windows-unicode],[Disable Windows Unicode (default)]),
+    [ case "$enableval" in
+      yes)
+        want_winuni="yes"
+        AC_MSG_RESULT([yes])
+        ;;
+      *)
+        AC_MSG_RESULT([no])
+        ;;
+      esac ],
+        AC_MSG_RESULT([no])
+    )
+  fi
+
+  if test "$want_winuni" = "yes"; then
+    CPPFLAGS="${CPPFLAGS} -DUNICODE -D_UNICODE"
+  fi
+fi
+
+dnl Run container tests?
 AC_ARG_ENABLE([docker-tests],
   [AS_HELP_STRING([--disable-docker-tests],
-    [Do not run tests requiring Docker])],
+    [Do not run tests requiring container])],
   [run_docker_tests=no], [run_docker_tests=yes])
 AM_CONDITIONAL([RUN_DOCKER_TESTS], [test "x$run_docker_tests" != "xno"])
 
@@ -352,7 +374,7 @@ AM_CONDITIONAL([USE_OSSFUZZ_STATIC], [test -f "$LIB_FUZZING_ENGINE"])
 
 dnl Checks for header files.
 AC_CHECK_HEADERS([unistd.h sys/uio.h])
-AC_CHECK_HEADERS([sys/select.h sys/socket.h sys/ioctl.h sys/time.h])
+AC_CHECK_HEADERS([sys/select.h sys/ioctl.h])
 AC_CHECK_HEADERS([arpa/inet.h netinet/in.h])
 AC_CHECK_HEADERS([sys/un.h])
 
@@ -374,28 +396,40 @@ case $host in
     ;;
 esac
 
-AC_CHECK_FUNCS(gettimeofday select strtoll explicit_bzero explicit_memset memset_s snprintf)
+if test "x$have_windows_h" != "xyes"; then
 
-dnl Check for select() into ws2_32 for Msys/Mingw
-if test "$ac_cv_func_select" != "yes"; then
-  AC_MSG_CHECKING([for select in ws2_32])
-  AC_LINK_IFELSE([AC_LANG_PROGRAM([[
-    #ifdef HAVE_WINDOWS_H
-    #ifndef WIN32_LEAN_AND_MEAN
-    #define WIN32_LEAN_AND_MEAN
-    #endif
-    #include <winsock2.h>
-    #endif
-    ]], [[
-      select(0, (fd_set *)NULL, (fd_set *)NULL, (fd_set *)NULL, (struct timeval *)NULL);
-    ]])],[
+  dnl Check for memset_s()
+  libssh2_cv_func_memset_s="no"
+  AC_MSG_CHECKING([if memset_s can be linked])
+  AC_LINK_IFELSE([
+    AC_LANG_FUNC_LINK_TRY([memset_s])
+  ],[
+    AC_MSG_RESULT([yes])
+    AC_MSG_CHECKING([if memset_s is compilable])
+    AC_COMPILE_IFELSE([
+      AC_LANG_PROGRAM([[
+        #include <string.h>
+      ]],[[
+        (void)memset_s;
+      ]])
+    ],[
       AC_MSG_RESULT([yes])
-      HAVE_SELECT="1"
-      AC_DEFINE_UNQUOTED(HAVE_SELECT, 1,
-        [Define to 1 if you have the select function.])
+      libssh2_cv_func_memset_s="yes"
+      AC_DEFINE_UNQUOTED(HAVE_MEMSET_S, 1,
+        [Define to 1 if you have the memset_s function.])
     ],[
       AC_MSG_RESULT([no])
+    ])
+  ],[
+    AC_MSG_RESULT([no])
   ])
+
+  if test "$libssh2_cv_func_memset_s" = "no"; then
+    AC_CHECK_FUNCS(explicit_bzero)
+    if test "$curl_cv_func_explicit_bzero" = "no"; then
+      AC_CHECK_FUNCS([memset_explicit])
+    fi
+  fi
 fi
 
 dnl Checks for typedefs, structures, and compiler characteristics.
@@ -470,20 +504,19 @@ AC_OUTPUT
 
 AC_MSG_NOTICE([summary of build options:
 
-  version:          ${LIBSSH2_VERSION}
-  Host type:        ${host}
-  Install prefix:   ${prefix}
-  Compiler:         ${CC}
-  Compiler flags:   ${CFLAGS}
-  Library types:    Shared=${enable_shared}, Static=${enable_static}
-  Crypto library:   ${found_crypto_str}
-  WinCNG ECDSA:     $wincng_ecdsa
-  zlib compression: ${found_libz}
-  Clear memory:     $enable_clear_memory
-  Deprecated APIs:  $with_deprecated
-  Debug build:      $enable_debug
-  Build examples:   $build_examples
-  Run Docker tests: $run_docker_tests
-  Run sshd tests:   $run_sshd_tests
-  Path to sshd:     $ac_cv_path_SSHD (only for self-tests)
+  version:             ${LIBSSH2_VERSION}
+  Host type:           ${host}
+  Install prefix:      ${prefix}
+  Compiler:            ${CC}
+  Compiler flags:      ${CFLAGS}
+  Library types:       Shared=${enable_shared}, Static=${enable_static}
+  Crypto library:      ${found_crypto_str}
+  WinCNG ECDSA:        $wincng_ecdsa
+  zlib compression:    ${found_libz}
+  Deprecated APIs:     $with_deprecated
+  Debug build:         $enable_debug
+  Build examples:      $build_examples
+  Run container tests: $run_docker_tests
+  Run sshd tests:      $run_sshd_tests
+  Path to sshd:        $ac_cv_path_SSHD (only for self-tests)
 ])

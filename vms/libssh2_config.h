@@ -20,16 +20,10 @@ typedef unsigned int socklen_t; /* missing in headers on VMS */
 
 #define HAVE_UNISTD_H
 #define HAVE_INTTYPES_H
-#define HAVE_SYS_TIME_H
-#define HAVE_SELECT
 #define HAVE_UIO
 
-#define HAVE_SYS_SOCKET_H
 #define HAVE_NETINET_IN_H
 #define HAVE_ARPA_INET_H
-
-#define HAVE_GETTIMEOFDAY 1
-#define HAVE_SNPRINTF 1
 
 #define POSIX_C_SOURCE
 

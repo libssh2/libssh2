@@ -39,34 +39,39 @@ environment:
   DOCKER_CLI_VERSION: 29.4.1
   DOCKER_CLI_SHA256: 927cb16737c6b7916db15ce31789c0864cf86264a56f2655bae41faa25628d5b
   FIXTURE_XFER_COUNT: 35020
-  SKIP_CTEST: 'yes'  # Connection to test server has been failing consistently since 2024-08-29
 
   matrix:
     - job_name: 'VS2026, OpenSSL 3.6, x64, Server 2019, clang-cl'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2026'
       CMAKE_GENERATOR: 'Visual Studio 18 2026'
       CMAKE_GENERATE: '-A x64 -T ClangCl -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v36-Win64'
+      TESTS: 'skipall'  # FIXME
+
+    - job_name: 'VS2010, WinCNG, x64, Server 2012 R2, Build-only, non-unity, tests, examples, docs'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
+      CMAKE_GENERATOR: 'Visual Studio 10 2010'
+      CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=WinCNG -DCMAKE_UNITY_BUILD=OFF -DLIBSSH2_BUILD_DOCS=ON'
+      CMAKE_CONFIGURATION: 'Debug'
+      TESTS: 'skiprun'
 
     - job_name: 'VS2022, OpenSSL 3.0, x64, Server 2019, Shared-only, docs'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
       CMAKE_GENERATOR: 'Visual Studio 17 2022'
       CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v30-Win64 -DBUILD_STATIC_LIBS=OFF -DLIBSSH2_BUILD_DOCS=ON'
+      TESTS: 'skipall'  # FIXME
 
     - job_name: 'VS2015, OpenSSL 1.1, x86, Server 2016, Static-only, Debug-logging'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
       CMAKE_GENERATOR: 'Visual Studio 14 2015'
       CMAKE_GENERATE: '-A Win32 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64 -DBUILD_SHARED_LIBS=OFF -DENABLE_DEBUG_LOGGING=ON'
+      CMAKE_CONFIGURATION: 'Debug'
+      TESTS: 'skipall'  # FIXME
 
-    - job_name: 'VS2013, OpenSSL 1.1, x64, Server 2012 R2'
+    - job_name: 'VS2013, OpenSSL 1.1, x64, Server 2012 R2, Debug-logging'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       CMAKE_GENERATOR: 'Visual Studio 12 2013'
-      CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64'
-
-    - job_name: 'VS2010, WinCNG, x64, Server 2012 R2, Build-only, non-unity, examples, docs'
-      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
-      CMAKE_GENERATOR: 'Visual Studio 10 2010'
-      CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=WinCNG -DCMAKE_UNITY_BUILD=OFF -DLIBSSH2_BUILD_DOCS=ON'
-      #SKIP_CTEST: 'yes'
+      CMAKE_GENERATE: '-A x64 -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64 -DENABLE_UNICODE=ON -DENABLE_DEBUG_LOGGING=ON'
+      TESTS: 'skipall'  # FIXME
 
   # Re-enable when tests work again
   # - job_name: 'VS2026, WinCNG, x64, Server 2019, Debug-logging'
@@ -78,19 +83,121 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
       CMAKE_GENERATOR: 'Visual Studio 14 2015'
       CMAKE_GENERATE: '-A Win32 -DCRYPTO_BACKEND=WinCNG -DENABLE_ECDSA_WINCNG=ON -DENABLE_DEBUG_LOGGING=ON'
+      TESTS: 'skipall'  # FIXME
 
 matrix:
   fast_finish: true
 
-install:
-  - ps: $env:PATH = "C:/my-cmake/bin;C:/my-docker/docker;$env:PATH"
+init:
   - ps: |
-      # prepare local SSH server for reverse tunneling from GitHub Actions hosting our docker container
-      $env:OPENSSH_SERVER_PORT = Get-Random -Minimum 2000 -Maximum 2300
-      [System.Environment]::SetEnvironmentVariable('OPENSSH_SERVER_PORT', $env:OPENSSH_SERVER_PORT)
-      ./scripts/appveyor/docker-bridge.ps1
+      # Prevent running browser updates during the CI job
+      $ErrorActionPreference = 'SilentlyContinue'
+      Get-ChildItem -LiteralPath 'C:\Program Files\Mozilla Firefox' -Filter 'firefox.exe' -File -Recurse |
+        Rename-Item -Verbose -NewName { $_.Name -replace '.exe','.exe.bak' }
+      Get-ChildItem -LiteralPath 'C:\Program Files (x86)\Mozilla Firefox' -Filter 'firefox.exe' -File -Recurse |
+        Rename-Item -Verbose -NewName { $_.Name -replace '.exe','.exe.bak' }
+      Get-ChildItem -LiteralPath 'C:\Program Files\Google\Chrome\Application' -Filter 'chrmstp.exe' -File -Recurse |
+        Rename-Item -Verbose -NewName { $_.Name -replace '.exe','.exe.bak' }
+      Get-ChildItem -LiteralPath 'C:\Program Files (x86)\Google\Chrome\Application' -Filter 'chrmstp.exe' -File -Recurse |
+        Rename-Item -Verbose -NewName { $_.Name -replace '.exe','.exe.bak' }
+      Get-ChildItem -LiteralPath 'C:\Program Files (x86)\Microsoft\Edge\Application' -Filter 'setup.exe' -File -Recurse |
+        Rename-Item -Verbose -NewName { $_.Name -replace '.exe','.exe.bak' }
+      Get-ChildItem -LiteralPath 'C:\Program Files (x86)\Microsoft\EdgeUpdate' -Filter 'MicrosoftEdgeUpdate.exe' -File -Recurse |
+        Rename-Item -Verbose -NewName { $_.Name -replace '.exe','.exe.bak' }
+      $null = New-Item -Path "C:\Program Files (x86)\Microsoft\EdgeUpdate\MicrosoftEdgeUpdate.exe" -ItemType Directory  # not let it re-create it
+      Rename-Item -Verbose -LiteralPath 'C:\Program Files (x86)\Google\Update\GoogleUpdate.exe' -NewName 'GoogleUpdate.exe.bak'
+      Get-ChildItem -LiteralPath 'C:\Program Files (x86)\Google\GoogleUpdater' -Filter 'updater.exe' -File -Recurse |
+        Rename-Item -Verbose -NewName { $_.Name -replace '.exe','.exe.bak' }
+      Get-ChildItem -LiteralPath 'C:\Program Files (x86)\Google\Update' -Filter 'GoogleUpdate*.exe' -File -Recurse |
+        Rename-Item -Verbose -NewName { $_.Name -replace '.exe','.exe.bak' }  # Older versions
+      taskkill -f -t -im chrmstp.exe -im setup.exe -im MicrosoftEdgeUpdate.exe -im GoogleUpdate.exe -im updater.exe
+      $LASTEXITCODE = 0
 
-      if($env:SKIP_CTEST -ne 'yes') {
+  # remove surplus CA bundles, fix the ones known to be used
+  - ps: |
+      $ErrorActionPreference = 'SilentlyContinue'
+      # 2019+
+      Remove-Item -LiteralPath 'C:/Program Files/Git/mingw64/etc/ssl/cert.pem'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/mingw64/etc/ssl/certs/ca-bundle.crt'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/mingw64/etc/ssl/certs/ca-bundle.trust.crt'
+      # <2019
+      Remove-Item -LiteralPath 'C:/Program Files/Git/mingw64/ssl/cert.pem'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/mingw64/ssl/certs/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/Tools/curl/bin/curl-ca-bundle.crt'
+      Remove-Item -LiteralPath 'C:/msys64/mingw32/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/msys64/mingw32/etc/pki/ca-trust/extracted/pem/email-ca-bundle.pem'
+      Remove-Item -LiteralPath 'C:/msys64/mingw32/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem'
+      Remove-Item -LiteralPath 'C:/msys64/mingw32/share/pki/ca-trust-source/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/msys64/mingw32/ssl/cert.pem'
+      Remove-Item -LiteralPath 'C:/msys64/mingw32/ssl/certs/ca-bundle.crt'
+      Remove-Item -LiteralPath 'C:/msys64/mingw32/ssl/certs/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/msys64/mingw64/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/msys64/mingw64/etc/pki/ca-trust/extracted/pem/email-ca-bundle.pem'
+      Remove-Item -LiteralPath 'C:/msys64/mingw64/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem'
+      Remove-Item -LiteralPath 'C:/msys64/mingw64/share/pki/ca-trust-source/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/msys64/mingw64/ssl/cert.pem'
+      Remove-Item -LiteralPath 'C:/msys64/mingw64/ssl/certs/ca-bundle.crt'
+      Remove-Item -LiteralPath 'C:/msys64/mingw64/ssl/certs/ca-bundle.trust.crt'
+      # common
+      Remove-Item -LiteralPath 'C:/Program Files/Git/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/etc/pki/ca-trust/extracted/pem/email-ca-bundle.pem'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/mingw64/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/mingw64/etc/pki/ca-trust/extracted/pem/email-ca-bundle.pem'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/mingw64/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/mingw64/share/pki/ca-trust-source/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/usr/share/pki/ca-trust-source/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/usr/ssl/cert.pem'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/usr/ssl/certs/ca-bundle.crt'
+      Remove-Item -LiteralPath 'C:/Program Files/Git/usr/ssl/certs/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/msys64/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/msys64/etc/pki/ca-trust/extracted/pem/email-ca-bundle.pem'
+      Remove-Item -LiteralPath 'C:/msys64/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem'
+      Remove-Item -LiteralPath 'C:/msys64/usr/share/pki/ca-trust-source/ca-bundle.trust.crt'
+      Remove-Item -LiteralPath 'C:/msys64/usr/ssl/cert.pem'
+      Remove-Item -LiteralPath 'C:/msys64/usr/ssl/certs/ca-bundle.trust.crt'
+
+      # remove bad certs from bundles we may use
+      $issuers = @(
+        'emSign ECC Root CA - G3'
+        'emSign ECC Root CA - C3'
+        'emSign Root CA - C1'
+        'Comodo AAA Services root'
+      )
+      $prefixes = @(
+        'MIICTjCCAdOgAwIBAgIKPPYHqWhwDtqLhDAKBggqhkjOPQQDAzBrMQswCQYDVQQG'  # emSign ECC Root CA - G3
+        'MIICKzCCAbGgAwIBAgIKe3G2gla4EnycqDAKBggqhkjOPQQDAzBaMQswCQYDVQQG'  # emSign ECC Root CA - C3
+        'MIIDczCCAlugAwIBAgILAK7PALrEzzL4Q7IwDQYJKoZIhvcNAQELBQAwVjELMAkG'  # emSign Root CA - C1
+        'MIIEMjCCAxqgAwIBAgIBATANBgkqhkiG9w0BAQUFADB7MQswCQYDVQQGEwJHQjEb'  # AAA Certificate Services
+      )
+      $pattern1 = '(?ms)^[^\r\n]*(?:' + (($issuers | ForEach-Object { [regex]::Escape($_) }) -join '|') +
+        ')[^\r\n]*\r?\n.*?^-----END CERTIFICATE-----[^\r\n]*(?:\r?\n|$)'
+      $pattern2 = '(?ms)^-----BEGIN CERTIFICATE-----\r?\n(?:' + (($prefixes | ForEach-Object { [regex]::Escape($_) }) -join '|') +
+        ')[^\r\n]*\r?\n.*?^-----END CERTIFICATE-----[^\r\n]*(?:\r?\n|$)'
+      foreach($f in 'C:/msys64/usr/ssl/certs/ca-bundle.crt',
+                    'C:/Program Files/Git/mingw64/ssl/certs/ca-bundle.crt') {  # <2019
+        if(Test-Path -LiteralPath $f -PathType Leaf) {
+          $old = [IO.File]::ReadAllText($f)
+          $new = [regex]::Replace($old, $pattern1, '')
+          $new = [regex]::Replace($new, $pattern2, '')
+          if($old -cne $new) {
+            Rename-Item -Verbose -LiteralPath "$f" -NewName "$f.bak"
+            [IO.File]::WriteAllText($f, $new)
+          }
+        }
+      }
+
+install:
+  - ps: $env:PATH = "C:/my-cmake/bin;C:/msys64/usr/bin;$env:PATH"
+  - ps: |
+      if($env:TESTS -notlike '*skipall*' -and $env:TESTS -notlike '*skiprun*') {
+        $env:PATH = "C:/my-docker/docker;$env:PATH"
+
+        # prepare local SSH server for reverse tunneling from GitHub Actions hosting our docker container
+        $env:OPENSSH_SERVER_PORT = Get-Random -Minimum 2000 -Maximum 2300
+        [System.Environment]::SetEnvironmentVariable('OPENSSH_SERVER_PORT', $env:OPENSSH_SERVER_PORT)
+        ./scripts/appveyor/docker-bridge.ps1
+
         Write-Host 'Waiting for SSH connection from GitHub Actions' -NoNewline
         $endDate = (Get-Date).AddMinutes(5)
         while((Get-Process -Name 'sshd' -ErrorAction SilentlyContinue).Count -eq 1 -and (Get-Date) -lt $endDate) {
@@ -110,16 +217,6 @@ install:
 build_script:
   - cmd: sh -c ./appveyor.sh
 
-test_script:
-  - ps: |
-      if($env:SKIP_CTEST -ne 'yes') {
-        if($env:CMAKE_GENERATE -like '*WinCNG*') {
-          $env:FIXTURE_TRACE_ALL_CONNECT = '1'
-        }
-        $env:OPENSSH_SERVER_IMAGE = [string] (& bash -c "echo ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)")
-        cd _bld; ctest -VV -C $($env:CMAKE_CONFIGURATION) --output-on-failure --timeout 900
-      }
-
 on_failure:
   - ps: |
       if(Test-Path _bld/CMakeFiles/CMakeConfigureLog.yaml) { cat _bld/CMakeFiles/CMakeConfigureLog.yaml }
@@ -128,9 +225,11 @@ on_failure:
 
 on_finish:
   - ps: |
-      Get-Process -Name 'sleep' -ErrorAction SilentlyContinue | Stop-Process
-      Start-Sleep -Seconds 3
-      Get-Process -Name 'sshd' -ErrorAction SilentlyContinue | Stop-Process
+      if($env:TESTS -notlike '*skipall*' -and $env:TESTS -notlike '*skiprun*') {
+        Get-Process -Name 'sleep' -ErrorAction SilentlyContinue | Stop-Process
+        Start-Sleep -Seconds 3
+        Get-Process -Name 'sshd' -ErrorAction SilentlyContinue | Stop-Process
+      }
 
 skip_commits:
   files:

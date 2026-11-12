@@ -46,6 +46,7 @@ concurrency:
   group: ${{ github.run_id }}
 
 permissions: {}
+cache-mode: none
 
 env:
   DO_NOT_TRACK: '1'
@@ -53,7 +54,7 @@ env:
 jobs:
   daemon:
     name: 'Daemon'
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-26.04-arm
     timeout-minutes: 60
     env:
       SSH_HOST: '${{ github.event.inputs.ssh_host }}'

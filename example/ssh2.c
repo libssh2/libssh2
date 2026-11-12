@@ -18,10 +18,14 @@
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
-#ifdef HAVE_SYS_SOCKET_H
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#ifdef _WIN32
+#define strdup _strdup
+#else
 #include <sys/socket.h>
-#endif
-#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #ifdef HAVE_NETINET_IN_H
@@ -31,12 +35,8 @@
 #include <arpa/inet.h>
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-static const char *pubkey = ".ssh/id_rsa.pub";
-static const char *privkey = ".ssh/id_rsa";
+static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+static const char *privkey = "/home/username/.ssh/id_rsa";
 static const char *username = "username";
 static const char *password = "password";
 
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
     fprintf(stderr, "Connecting to %s:%d as user %s\n",
             inet_ntoa(sin.sin_addr), ntohs(sin.sin_port), username);
 
-    if(connect(sock, (struct sockaddr *)(&sin), sizeof(struct sockaddr_in))) {
+    if(connect(sock, (struct sockaddr *)&sin, sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect.\n");
         goto shutdown;
     }
@@ -139,18 +139,18 @@ int main(int argc, char *argv[])
     rc = 1;
 
     /* At this point we have not yet authenticated.  The first thing to do
-     * is check the hostkey's fingerprint against our known hosts Your app
+     * is check the host key's fingerprint against our known hosts Your app
      * may have it hard coded, may go to a file, may present it to the
      * user, that is your call
      */
-    fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
+    fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA256);
     fprintf(stderr, "Fingerprint: ");
     if(!fingerprint) {
         fprintf(stderr, "(null)");
         goto shutdown;
     }
     else
-        for(i = 0; i < 20; i++)
+        for(i = 0; i < 32; i++)
             fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
     fprintf(stderr, "\n");
 

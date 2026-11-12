@@ -40,7 +40,6 @@
 #include "sftp.h"
 
 #include <assert.h>
-#include <stdlib.h>  /* strtol() */
 
 /* This release of libssh2 implements Version 5 with automatic downgrade
  * based on server's declaration
@@ -290,6 +289,12 @@ static int sftp_packet_read(LIBSSH2_SFTP *sftp)
                 return (int)rc;
             else if(rc < 0)
                 return ssh2_err(session, (int)rc, "channel read");
+            else if(rc == 0) {
+                sftp->packet_header_len = 0;
+                return ssh2_err(session, LIBSSH2_ERROR_SOCKET_RECV,
+                                "Unexpected channel EOF while reading "
+                                "SFTP packet header");
+            }
 
             sftp->packet_header_len += rc;
 
@@ -382,11 +387,15 @@ window_adjust:
                 sftp->packet_state = ssh2_NB_state_sent1;
                 return (int)rc;
             }
-            else if(rc < 0) {
+            else if(rc <= 0) {
                 SSH2_FREE(session, packet);
                 sftp->partial_packet = NULL;
-                return ssh2_err(session, (int)rc,
-                                "Error waiting for SFTP packet");
+                if(rc < 0)
+                    return ssh2_err(session, (int)rc,
+                                    "Error waiting for SFTP packet");
+                return ssh2_err(session, LIBSSH2_ERROR_SOCKET_RECV,
+                                "Unexpected channel EOF while reading "
+                                "SFTP packet body");
             }
             sftp->partial_received += rc;
         }
@@ -510,7 +519,7 @@ static int sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
 
     /* If no timeout is active, start a new one */
     if(sftp->requirev_start == 0)
-        sftp->requirev_start = time(NULL);
+        sftp->requirev_start = ssh2_now();
 
     while(sftp->channel->session->socket_state == SSH2_SOCKET_CONNECTED) {
         for(i = 0; i < num_valid_responses; i++) {
@@ -536,9 +545,9 @@ static int sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
         }
         else if(rc <= 0) {
             /* prevent busy-looping */
-            long left =
+            ssh2_timediff_t left =
                 sftp->channel->session->packet_read_timeout -
-                (long)(time(NULL) - sftp->requirev_start);
+                (ssh2_now() - sftp->requirev_start);
 
             if(left <= 0) {
                 sftp->requirev_start = 0;
@@ -653,7 +662,7 @@ static ssize_t sftp_bin2attr(LIBSSH2_SFTP_ATTRIBUTES *attrs,
 {
     struct string_buf buf;
     uint32_t flags = 0;
-    buf.data = (unsigned char *)SSH2_UNCONST(p);
+    buf.data = SSH2_UNCONST(p);
     buf.dataptr = buf.data;
     buf.len = data_len;
 
@@ -801,7 +810,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
         int ret = ssh2_channel_process_startup(session->sftpInit_channel,
                                                "subsystem",
                                                sizeof("subsystem") - 1,
-                                               "sftp", strlen("sftp"));
+                                               "sftp", sizeof("sftp") - 1);
         if(ret == LIBSSH2_ERROR_EAGAIN) {
             ssh2_err(session, LIBSSH2_ERROR_EAGAIN,
                      "Would block to request SFTP subsystem");
@@ -950,7 +959,11 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
 
         if(extdata_len > 0) {
             char *extversion_str = SSH2_ALLOC(session, extdata_len + 1);
+            const char *extversion_end;
+            libssh2_int64_t num;
+
             if(!extversion_str) {
+                SSH2_FREE(session, data);
                 ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                          "Unable to allocate memory for SSH_FXP_VERSION "
                          "packet");
@@ -958,12 +971,15 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
             }
             memcpy(extversion_str, extdata, extdata_len);
             extversion_str[extdata_len] = '\0';
-            /* !checksrc! disable BANNEDFUNC 1 */
-            extversion = (uint32_t)strtol(extversion_str, NULL, 10);
+
+            extversion_end = extversion_str;
+            if(!ssh2_str_number(&extversion_end, &num, UINT32_MAX, 10))
+                extversion = (uint32_t)num;
+
             SSH2_FREE(session, extversion_str);
         }
         if(extname_len == 24 &&
-           !strncmp("posix-rename@openssh.com", (char *)extname, 24)) {
+           !strncmp("posix-rename@openssh.com", (const char *)extname, 24)) {
             sftp_handle->posix_rename_version = extversion;
         }
     }
@@ -1118,7 +1134,7 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
     LIBSSH2_SFTP_HANDLE *fp;
     unsigned char *s;
     ssize_t rc;
-    int open_file = (open_type == LIBSSH2_SFTP_OPENFILE) ? 1 : 0;
+    int open_file = open_type == LIBSSH2_SFTP_OPENFILE ? 1 : 0;
 
     if(sftp->open_state == ssh2_NB_state_idle) {
 
@@ -1204,11 +1220,11 @@ static LIBSSH2_SFTP_HANDLE *sftp_open(LIBSSH2_SFTP *sftp,
     }
 
     if(sftp->open_state == ssh2_NB_state_sent) {
-        size_t data_len = 0;
-        unsigned char *data;
         static const unsigned char fopen_responses[2] = {
             SSH_FXP_HANDLE, SSH_FXP_STATUS
         };
+        size_t data_len = 0;
+        unsigned char *data;
         rc = sftp_packet_requirev(sftp, 2, fopen_responses,
                                   sftp->open_request_id, &data,
                                   &data_len, 1);
@@ -1584,12 +1600,12 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
         chunk = ssh2_list_first(&handle->packet_list);
 
         while(chunk) {
-            unsigned char *data;
-            size_t data_len = 0;
-            uint32_t rc32;
             static const unsigned char read_responses[2] = {
                 SSH_FXP_DATA, SSH_FXP_STATUS
             };
+            unsigned char *data;
+            size_t data_len = 0;
+            uint32_t rc32;
 
             if(chunk->lefttosend) {
                 /* if the chunk still has data left to send, we should not wait
@@ -1649,26 +1665,32 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                 }
 
             case SSH_FXP_DATA:
-                if(chunk->offset != filep->offset)
+                if(chunk->offset != filep->offset) {
                     /* This could happen if the server returns less bytes than
                        requested, which should not happen for normal files.
                        See:
                        https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-02#section-6.4
                      */
+                    SSH2_FREE(session, data);
                     return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                     "Read Packet At Unexpected Offset");
+                }
 
                 rc32 = ssh2_ntohu32(data + 5);
-                if(rc32 > (data_len - 9))
+                if(rc32 > (data_len - 9)) {
+                    SSH2_FREE(session, data);
                     return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                     "SFTP Protocol badness");
+                }
 
-                if(rc32 > chunk->len)
+                if(rc32 > chunk->len) {
                     /* A chunk larger than we requested was returned to us.
                        This is a protocol violation and we do not know how to
                        deal with it. Bail out! */
+                    SSH2_FREE(session, data);
                     return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                     "FXP_READ response too big");
+                }
 
                 if(rc32 != chunk->len)
                     /* a short read does not imply end of file, but we must
@@ -1760,6 +1782,10 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                             size_t longentry_maxlen,
                             LIBSSH2_SFTP_ATTRIBUTES *attrs)
 {
+    static const unsigned char read_responses[2] = {
+        SSH_FXP_NAME, SSH_FXP_STATUS
+    };
+
     LIBSSH2_SFTP *sftp = handle->sftp;
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
@@ -1768,9 +1794,6 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) */
     uint32_t packet_len = (uint32_t)(handle->handle_len + 13);
     unsigned char *s, *data;
-    static const unsigned char read_responses[2] = {
-        SSH_FXP_NAME, SSH_FXP_STATUS
-    };
     ssize_t retcode;
 
     if(sftp->readdir_state == ssh2_NB_state_idle) {
@@ -1872,6 +1895,15 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                 SSH2_FREE(session, handle->u.dir.names_packet);
 
 end:
+            /* Parse failure with names_left still > 0 would otherwise stick
+             * forever: each later call re-enters this branch and fails again
+             * without ever freeing names_packet. */
+            if((ssize_t)filename_len < 0) {
+                SSH2_SAFEFREE(session, handle->u.dir.names_packet);
+                handle->u.dir.names_left = 0;
+                handle->u.dir.names_packet_len = 0;
+                handle->u.dir.next_name = NULL;
+            }
             ssh2_deb((session, LIBSSH2_TRACE_SFTP,
                       "libssh2_sftp_readdir_ex() return %lu",
                       (unsigned long)filename_len));
@@ -1953,6 +1985,13 @@ end:
     if(!num_names) {
         SSH2_FREE(session, data);
         return 0;
+    }
+    /* Each name needs at least two u32 length fields (8 bytes). Cap the
+     * server-supplied count so names_left cannot outlive the packet body. */
+    if(data_len < 9 || num_names > (data_len - 9) / 8) {
+        SSH2_FREE(session, data);
+        return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                        "SFTP Protocol Error: invalid readdir name count");
     }
 
     handle->u.dir.names_left = num_names;
@@ -2341,6 +2380,10 @@ int libssh2_sftp_fsync(LIBSSH2_SFTP_HANDLE *handle)
 static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
                       LIBSSH2_SFTP_ATTRIBUTES *attrs, int setstat)
 {
+    static const unsigned char fstat_responses[2] = {
+        SSH_FXP_ATTRS, SSH_FXP_STATUS
+    };
+
     LIBSSH2_SFTP *sftp = handle->sftp;
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
@@ -2349,9 +2392,6 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
     uint32_t packet_len = (uint32_t)(handle->handle_len + 13 +
                                  (setstat ? sftp_attrsize(attrs->flags) : 0));
     unsigned char *s, *data = NULL;
-    static const unsigned char fstat_responses[2] = {
-        SSH_FXP_ATTRS, SSH_FXP_STATUS
-    };
     ssize_t rc;
 
     if(sftp->fstat_state == ssh2_NB_state_idle) {
@@ -2968,8 +3008,8 @@ static int sftp_posix_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
     }
     else if(rc) {
         sftp->posix_rename_state = ssh2_NB_state_idle;
-        return (int)ssh2_err(session, (int)rc,
-                             "Error waiting for FXP EXTENDED REPLY");
+        return ssh2_err(session, (int)rc,
+                        "Error waiting for FXP EXTENDED REPLY");
     }
 
     sftp->posix_rename_state = ssh2_NB_state_idle;
@@ -3010,6 +3050,10 @@ int libssh2_sftp_posix_rename_ex(LIBSSH2_SFTP *sftp,
  */
 static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
 {
+    static const unsigned char responses[2] = {
+        SSH_FXP_EXTENDED_REPLY, SSH_FXP_STATUS
+    };
+
     LIBSSH2_SFTP *sftp = handle->sftp;
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
@@ -3018,9 +3062,6 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
     unsigned char *packet, *s, *data = NULL;
     ssize_t rc;
     unsigned int flag;
-    static const unsigned char responses[2] = {
-        SSH_FXP_EXTENDED_REPLY, SSH_FXP_STATUS
-    };
 
     /* 17 = packet_len(4) + packet_type(1) + request_id(4) + ext_len(4)
        + handle_len (4) */
@@ -3151,6 +3192,10 @@ static int sftp_statvfs(LIBSSH2_SFTP *sftp,
                         const char *path, unsigned int path_len,
                         LIBSSH2_SFTP_STATVFS *st)
 {
+    static const unsigned char responses[2] = {
+        SSH_FXP_EXTENDED_REPLY, SSH_FXP_STATUS
+    };
+
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
     size_t data_len = 0;
@@ -3158,9 +3203,6 @@ static int sftp_statvfs(LIBSSH2_SFTP *sftp,
     unsigned char *packet, *s, *data = NULL;
     ssize_t rc;
     unsigned int flag;
-    static const unsigned char responses[2] = {
-        SSH_FXP_EXTENDED_REPLY, SSH_FXP_STATUS
-    };
 
     /* 17 = packet_len(4) + packet_type(1) + request_id(4) + ext_len(4)
        + path_len (4) */
@@ -3347,14 +3389,14 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp,
             sftp->mkdir_packet = packet;
             return (int)nwritten;
         }
+        SSH2_FREE(session, packet);
+        sftp->mkdir_packet = NULL;
+
         if((ssize_t)packet_len != nwritten) {
-            SSH2_FREE(session, packet);
             sftp->mkdir_state = ssh2_NB_state_idle;
             return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
                             "ssh2_channel_write() failed");
         }
-        SSH2_FREE(session, packet);
-        sftp->mkdir_packet = NULL;
         sftp->mkdir_state = ssh2_NB_state_sent;
     }
 
@@ -3507,6 +3549,10 @@ static int sftp_stat(LIBSSH2_SFTP *sftp,
                      const char *path, unsigned int path_len,
                      int stat_type, LIBSSH2_SFTP_ATTRIBUTES *attrs)
 {
+    static const unsigned char stat_responses[2] = {
+        SSH_FXP_ATTRS, SSH_FXP_STATUS
+    };
+
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
     size_t data_len = 0;
@@ -3515,9 +3561,6 @@ static int sftp_stat(LIBSSH2_SFTP *sftp,
                     ((stat_type ==
                     LIBSSH2_SFTP_SETSTAT) ? sftp_attrsize(attrs->flags) : 0);
     unsigned char *s, *data = NULL;
-    static const unsigned char stat_responses[2] = {
-        SSH_FXP_ATTRS, SSH_FXP_STATUS
-    };
     int rc;
 
     if(packet_len + (uint32_t)path_len < packet_len)
@@ -3646,15 +3689,16 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp,
                         char *target, unsigned int target_len,
                         int link_type)
 {
+    static const unsigned char link_responses[2] = {
+        SSH_FXP_NAME, SSH_FXP_STATUS
+    };
+
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
     size_t data_len = 0, lk_len;
     uint32_t packet_len;
     unsigned char *s, *data = NULL;
     struct string_buf buf;
-    static const unsigned char link_responses[2] = {
-        SSH_FXP_NAME, SSH_FXP_STATUS
-    };
     int retcode;
     unsigned char packet_type;
     uint32_t tmp_u32;
@@ -3755,7 +3799,7 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp,
 
     sftp->symlink_state = ssh2_NB_state_idle;
 
-    buf.data = (unsigned char *)SSH2_UNCONST(data);
+    buf.data = SSH2_UNCONST(data);
     buf.dataptr = buf.data;
     buf.len = data_len;
 
@@ -3789,6 +3833,13 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp,
             return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                             "SFTP Protocol Error");
         }
+    }
+
+    /* SYMLINK is answered with a STATUS only, and 'target' is input then */
+    if(link_type == LIBSSH2_SFTP_SYMLINK) {
+        SSH2_FREE(session, data);
+        return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                        "SFTP Protocol Error (unexpected SYMLINK reply)");
     }
 
     /* look for at least one link */

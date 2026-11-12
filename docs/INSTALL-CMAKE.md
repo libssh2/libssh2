@@ -12,7 +12,7 @@ Web site source code: <https://github.com/libssh2/www>
 
 # Installation instructions with CMake
 
-To build libssh2 you need [CMake v3.18 or later](https://cmake.org/download/)
+To build libssh2 you need [CMake 3.18 or greater](https://cmake.org/download/)
 and one of the following cryptography libraries:
 
 * Libgcrypt
@@ -82,11 +82,6 @@ The following options are available:
 
    Enable the libssh2_trace() function for showing debug traces.
    Can be `ON` or `OFF`. Default: `OFF` in Release, `ON` in `Debug`
-
-* `CLEAR_MEMORY=OFF`
-
-   Disable secure zero memory before freeing it (not recommended).
-   Can be `ON` or `OFF`. Default: `ON`
 
 ## Using AWS-LC or BoringSSL
 

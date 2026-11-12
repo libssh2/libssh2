@@ -33,9 +33,6 @@
 #include "session_fixture.h"
 #include "openssh_fixture.h"
 
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -63,23 +60,20 @@ static int connect_to_server(void)
     return LIBSSH2_ERROR_NONE;
 }
 
-/* List of crypto protocols for which tests are skipped */
+/* List of crypto algorithms for which tests are skipped */
 static char const *skip_crypt[] = {
-#ifdef LIBSSH2_MBEDTLS
-    /* Due to a bug with mbedTLS support, these crypt methods fail.
-       Until that bug is fixed, do not run them there to avoid this
-       known issue causing red tests.
-       See: https://github.com/libssh2/libssh2/issues/793 */
+#if !LIBSSH2_3DES
     "3des-cbc",
+#endif
+#if !LIBSSH2_AES_CTR
+    "aes128-ctr",
+    "aes192-ctr",
+    "aes256-ctr",
+#endif
+#if !LIBSSH2_AES_CBC
     "aes128-cbc",
     "aes192-cbc",
     "aes256-cbc",
-    "aes128-gcm@openssh.com",
-    "aes256-gcm@openssh.com",
-    "rijndael-cbc@lysator.liu.se",
-#endif
-#if !LIBSSH2_3DES
-    "3des-cbc",
 #endif
 #if !LIBSSH2_AES_GCM
     /* Support for AES-GCM hasn't been added to these back-ends yet */
@@ -89,11 +83,34 @@ static char const *skip_crypt[] = {
     NULL
 };
 
-/* List of MAC protocols for which tests are skipped */
+/* List of MAC algorithms for which tests are skipped */
 static char const *skip_mac[] = {
+#ifndef LIBSSH2_HMAC_SHA1_ENABLE
+    "hmac-sha1",
+    "hmac-sha1-etm@openssh.com",
+    "hmac-sha1-96",
+#endif
 #if !LIBSSH2_MD5
     "hmac-md5",
     "hmac-md5-96",
+#endif
+    NULL
+};
+
+/* List of host key algorithms for which tests are skipped */
+static char const *skip_hostkey[] = {
+#if !LIBSSH2_ECDSA
+    "ecdsa-sha2-nistp256-cert-v01@openssh.com",
+#endif
+#if !LIBSSH2_RSA_SHA2
+    "rsa-sha2-256-cert-v01@openssh.com",
+    "rsa-sha2-512-cert-v01@openssh.com",
+#endif
+#if !LIBSSH2_RSA_SHA1
+    "ssh-rsa-cert-v01@openssh.com",
+#endif
+#if !LIBSSH2_ED25519
+    "ssh-ed25519-cert-v01@openssh.com",
 #endif
     NULL
 };
@@ -104,6 +121,7 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
 
     const char *crypt = getenv("FIXTURE_TEST_CRYPT");
     const char *mac = getenv("FIXTURE_TEST_MAC");
+    const char *hostkey = getenv("FIXTURE_TEST_HOSTKEY");
 
     *skipped = 0;
     *err = LIBSSH2_ERROR_NONE;
@@ -132,6 +150,19 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
         }
     }
 
+    if(hostkey) {
+        char const * const *sk;
+        for(sk = skip_hostkey; *sk; ++sk) {
+            if(!strcmp(*sk, hostkey)) {
+                fprintf(stderr,
+                        "unsupported host key algorithm (%s) skipped.\n",
+                        hostkey);
+                *skipped = 1;
+                return NULL;
+            }
+        }
+    }
+
     rc = start_openssh_fixture();
     if(rc)
         return NULL;
@@ -149,36 +180,56 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
     }
 
     if(getenv("FIXTURE_TRACE_ALL_CONNECT")) {
-        libssh2_trace(connected_session, ~0);
+        libssh2_trace(connected_session,
+            ~(getenv("FIXTURE_TRACE_NO_DEBUGDUMP") ? LIBSSH2_TRACE_TRANS : 0));
         fprintf(stdout, "Trace all enabled for connect_to_server.\n");
     }
     else if(getenv("FIXTURE_TRACE_ALL")) {
-        libssh2_trace(connected_session, ~0);
+        libssh2_trace(connected_session,
+            ~(getenv("FIXTURE_TRACE_NO_DEBUGDUMP") ? LIBSSH2_TRACE_TRANS : 0));
         fprintf(stdout, "Trace all enabled.\n");
     }
 
     /* Override crypt algorithm for the test */
-    if(crypt) {
-        if(libssh2_session_method_pref(connected_session,
-                                       LIBSSH2_METHOD_CRYPT_CS, crypt) ||
-           libssh2_session_method_pref(connected_session,
-                                       LIBSSH2_METHOD_CRYPT_SC, crypt)) {
-            fprintf(stderr, "libssh2_session_method_pref CRYPT failed "
-                            "(probably disabled in the build): '%s'\n", crypt);
-            return NULL;
-        }
+    if(crypt &&
+       (libssh2_session_method_pref(connected_session,
+                                    LIBSSH2_METHOD_CRYPT_CS, crypt) ||
+        libssh2_session_method_pref(connected_session,
+                                    LIBSSH2_METHOD_CRYPT_SC, crypt))) {
+        fprintf(stderr, "libssh2_session_method_pref CRYPT failed "
+                        "(probably disabled in the build): '%s'\n", crypt);
+        return NULL;
     }
 
     /* Override mac algorithm for the test */
-    if(mac) {
-        if(libssh2_session_method_pref(connected_session,
-                                       LIBSSH2_METHOD_MAC_CS, mac) ||
-           libssh2_session_method_pref(connected_session,
-                                       LIBSSH2_METHOD_MAC_SC, mac)) {
-            fprintf(stderr, "libssh2_session_method_pref MAC failed "
-                            "(probably disabled in the build): '%s'\n", mac);
-            return NULL;
-        }
+    if(mac &&
+       (libssh2_session_method_pref(connected_session,
+                                    LIBSSH2_METHOD_MAC_CS, mac) ||
+        libssh2_session_method_pref(connected_session,
+                                    LIBSSH2_METHOD_MAC_SC, mac))) {
+        fprintf(stderr, "libssh2_session_method_pref MAC failed "
+                        "(probably disabled in the build): '%s'\n", mac);
+        return NULL;
+    }
+
+    /* Without an explicit override, limit accepted host key types to those
+       tested (or potentially tested) in test_hostkey.c and
+       test_hostkey_hash.c. */
+    if(!hostkey)
+        hostkey =
+            "ssh-ed25519,"
+            "ecdsa-sha2-nistp521,"
+            "ecdsa-sha2-nistp384,"
+            "ecdsa-sha2-nistp256,"
+            "rsa-sha2-256,"
+            "rsa-sha2-512,"
+            "ssh-rsa";
+
+    if(libssh2_session_method_pref(connected_session,
+                                   LIBSSH2_METHOD_HOSTKEY, hostkey)) {
+        fprintf(stderr, "libssh2_session_method_pref() host key failed "
+                        "(probably disabled in the build): '%s'\n", hostkey);
+        return NULL;
     }
 
     libssh2_session_set_blocking(connected_session, 1);
@@ -207,7 +258,7 @@ void print_last_session_error(const char *function)
         fprintf(stderr, "No session\n");
 }
 
-void stop_session_fixture(void)
+void stop_session_fixture(int exit_code)
 {
     if(connected_session) {
         libssh2_session_disconnect(connected_session, "test ended");
@@ -222,7 +273,7 @@ void stop_session_fixture(void)
 
     libssh2_exit();
 
-    stop_openssh_fixture();
+    stop_openssh_fixture(exit_code);
 }
 
 /* If 'srcdir' env is set, return '$srcdir/<file>' in a static buffer
@@ -246,8 +297,8 @@ const char *srcdir_path(const char *file)
         abort();
     }
 
-    len = ssh2_snprintf(filepath[curpath], sizeof(filepath[0]), "%s/%s",
-                        srcdir, file);
+    len = snprintf(filepath[curpath], sizeof(filepath[0]), "%s/%s",
+                   srcdir, file);
     if(len < 0 || (size_t)len >= sizeof(filepath[0])) {
         fprintf(stderr, "srcdir_path: path too long. srcdir='%s', fn='%s'\n",
                 srcdir, file);
@@ -437,8 +488,8 @@ int test_auth_pubkey(LIBSSH2_SESSION *session, int flags,
     int rc;
     const char *userauth_list;
 
-    /* Ignore our hard-wired Dockerfile user when not running under Docker */
-    if(!openssh_fixture_have_docker() && !strcmp(username, "libssh2")) {
+    /* Ignore our hard-wired Dockerfile user when not using a container */
+    if(!openssh_fixture_have_container() && !strcmp(username, "libssh2")) {
         username = getenv("USER");
         if(!username)
 #ifdef _WIN32

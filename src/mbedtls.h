@@ -36,6 +36,21 @@
 #define SSH2_CRYPTO_ENGINE_NAME "mbedTLS"
 
 #include <mbedtls/version.h>
+
+#if MBEDTLS_VERSION_NUMBER < 0x03010000
+#  error "mbedTLS 3.1.0 or greater required"
+#endif
+#if MBEDTLS_VERSION_NUMBER < 0x04000000 && !defined(MBEDTLS_CTR_DRBG_C)
+#  error "MBEDTLS_CTR_DRBG_C is required for mbedTLS 3.x."
+#endif
+#if !defined(MBEDTLS_ECDH_C) || \
+    !defined(MBEDTLS_ECDSA_C) || \
+    !defined(MBEDTLS_ECP_DP_SECP256R1_ENABLED) || \
+    !defined(MBEDTLS_ECP_DP_SECP384R1_ENABLED) || \
+    !defined(MBEDTLS_ECP_DP_SECP521R1_ENABLED)
+#  error "ECDH/ECDSA with nistp256, nistp384, nistp521 curves is required"
+#endif
+
 #include <mbedtls/platform.h>
 #include <psa/crypto_config.h>
 #include <psa/crypto.h>
@@ -43,6 +58,9 @@
 #include <mbedtls/rsa.h>
 #include <mbedtls/bignum.h>
 #include <mbedtls/cipher.h>
+#ifdef MBEDTLS_GCM_C
+# include <mbedtls/gcm.h>
+#endif
 #ifdef MBEDTLS_ECDH_C
 # include <mbedtls/ecdh.h>
 #endif
@@ -54,13 +72,6 @@
 #endif
 #include <mbedtls/pk.h>
 #include <mbedtls/error.h>
-
-#if MBEDTLS_VERSION_NUMBER < 0x03010000
-#  error "mbedTLS 3.1.0 or greater required"
-#endif
-#if MBEDTLS_VERSION_NUMBER < 0x04000000 && !defined(MBEDTLS_CTR_DRBG_C)
-#  error "MBEDTLS_CTR_DRBG_C is required for mbedTLS 3.x."
-#endif
 
 /* Define which features are supported. */
 #if defined(PSA_WANT_ALG_MD5) && PSA_WANT_ALG_MD5
@@ -79,7 +90,11 @@
 
 #define LIBSSH2_AES_CBC 1
 #define LIBSSH2_AES_CTR 1
+#ifdef MBEDTLS_GCM_C
+#define LIBSSH2_AES_GCM 1
+#else
 #define LIBSSH2_AES_GCM 0
+#endif
 #define LIBSSH2_BLOWFISH 0
 #define LIBSSH2_RC4 0
 #define LIBSSH2_CAST 0
@@ -93,11 +108,7 @@
 #define LIBSSH2_RSA_SHA1 1
 #define LIBSSH2_RSA_SHA2 1
 #define LIBSSH2_DSA 0
-#ifdef MBEDTLS_ECDSA_C
 #define LIBSSH2_ECDSA 1
-#else
-#define LIBSSH2_ECDSA 0
-#endif
 #define LIBSSH2_ED25519 0
 #define LIBSSH2_MLKEM 0
 
@@ -154,21 +165,9 @@ struct mbed_hash_ctx {
 
 #if LIBSSH2_ECDSA
 typedef enum {
-#ifdef MBEDTLS_ECP_DP_SECP256R1_ENABLED
     SSH2_EC_CURVE_NISTP256 = MBEDTLS_ECP_DP_SECP256R1,
-#else
-    SSH2_EC_CURVE_NISTP256 = MBEDTLS_ECP_DP_NONE,
-#endif
-#ifdef MBEDTLS_ECP_DP_SECP384R1_ENABLED
     SSH2_EC_CURVE_NISTP384 = MBEDTLS_ECP_DP_SECP384R1,
-#else
-    SSH2_EC_CURVE_NISTP384 = MBEDTLS_ECP_DP_NONE,
-#endif
-#ifdef MBEDTLS_ECP_DP_SECP521R1_ENABLED
     SSH2_EC_CURVE_NISTP521 = MBEDTLS_ECP_DP_SECP521R1
-#else
-    SSH2_EC_CURVE_NISTP521 = MBEDTLS_ECP_DP_NONE,
-#endif
 } ssh2_curve_type;
 
 #define ssh2_ecdsa_ctx         mbedtls_ecdsa_context
@@ -180,7 +179,23 @@ typedef enum {
  * mbedTLS backend: Cipher Context structure
  */
 
-#define ssh2_cipher_ctx        mbedtls_cipher_context_t
+/* Unified cipher context structure.
+   Handles both regular ciphers and AEAD ciphers (GCM)
+   using a union to optimize memory usage. */
+struct ssh2_mbed_cipher_ctx {
+    int is_aesgcm;
+    union {
+        mbedtls_cipher_context_t cipher;
+#if LIBSSH2_AES_GCM
+        struct {
+            mbedtls_gcm_context ctx;
+            unsigned char iv[12];
+        } gcm;
+#endif
+    } u;
+};
+
+#define ssh2_cipher_ctx        struct ssh2_mbed_cipher_ctx
 
 #define SSH2_CIPHER_T(algo)    mbedtls_cipher_type_t algo
 
@@ -193,13 +208,9 @@ typedef enum {
 #if LIBSSH2_3DES
 #define ssh2_cipher_3des       MBEDTLS_CIPHER_DES_EDE3_CBC
 #endif
+#define ssh2_cipher_aes128gcm  MBEDTLS_CIPHER_AES_128_GCM
+#define ssh2_cipher_aes256gcm  MBEDTLS_CIPHER_AES_256_GCM
 #define ssh2_cipher_chacha20   MBEDTLS_CIPHER_CHACHA20_POLY1305
-
-/*******************************************************************/
-/*
- * mbedTLS backend: Cipher functions
- */
-#define ssh2_cipher_dtor(ctx)  mbedtls_cipher_free(ctx)
 
 /*******************************************************************/
 /*
@@ -207,8 +218,7 @@ typedef enum {
  */
 
 #define ssh2_bn                        mbedtls_mpi
-#define ssh2_bn_set_word(bn, word)     mbedtls_mpi_lset(bn, word)
-#define ssh2_bn_from_bin(bn, bin, len) mbedtls_mpi_read_binary(bn, bin, len)
+#define ssh2_bn_set_word(bn, word)     mbedtls_mpi_lset(bn, (long long)(word))
 #define ssh2_bn_to_bin(bn, bin) \
     mbedtls_mpi_write_binary(bn, bin, mbedtls_mpi_size(bn))
 #define ssh2_bn_bytes(bn)              mbedtls_mpi_size(bn)

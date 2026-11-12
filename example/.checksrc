@@ -3,6 +3,7 @@
 
 allowfunc accept
 allowfunc atoi
+allowfunc fopen
 allowfunc fprintf
 allowfunc fstat
 allowfunc printf

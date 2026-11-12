@@ -32,8 +32,13 @@
  */
 
 #include "libssh2_priv.h"
+#include "libssh2_sftp.h"
+#include "sftp.h"
+#include "transport.h"
 
+#include <errno.h>
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>  /* for atoi() */
 
 static int test_ssh2_base64_decode(LIBSSH2_SESSION *session)
@@ -58,13 +63,181 @@ static int test_ssh2_base64_decode(LIBSSH2_SESSION *session)
     return 0;
 }
 
-static int test_ssh2_dh_is_valid(void)
+static int test_knownhost_ipv6_case(LIBSSH2_SESSION *session,
+                                    const char *stored,
+                                    const char *checked,
+                                    int port,
+                                    int expected)
+{
+    static const char key[] = "AAAA";
+    const int typemask =
+        LIBSSH2_KNOWNHOST_TYPE_PLAIN |
+        LIBSSH2_KNOWNHOST_KEYENC_BASE64 |
+        LIBSSH2_KNOWNHOST_KEY_SSHRSA;
+    LIBSSH2_KNOWNHOSTS *hosts;
+    int rc;
+
+    hosts = libssh2_knownhost_init(session);
+    if(!hosts) {
+        fprintf(stderr, "libssh2_knownhost_init() failed\n");
+        return 1;
+    }
+
+    rc = libssh2_knownhost_addc(hosts, stored, NULL, key, strlen(key),
+                                NULL, 0, typemask, NULL);
+    if(rc) {
+        fprintf(stderr, "libssh2_knownhost_addc(%s) failed: %d\n",
+                stored, rc);
+        libssh2_knownhost_free(hosts);
+        return 1;
+    }
+
+    if(port >= 0)
+        rc = libssh2_knownhost_checkp(hosts, checked, port, key,
+                                      strlen(key), typemask, NULL);
+    else
+        rc = libssh2_knownhost_check(hosts, checked, key, strlen(key),
+                                     typemask, NULL);
+
+    libssh2_knownhost_free(hosts);
+
+    if(rc != expected) {
+        fprintf(stderr,
+                "knownhost IPv6: stored=%s checked=%s port=%d "
+                "expected=%d got=%d\n",
+                stored, checked, port, expected, rc);
+        return 1;
+    }
+
+    return 0;
+}
+
+static int test_knownhost_ipv6(LIBSSH2_SESSION *session)
+{
+    int err = 0;
+
+    err |= test_knownhost_ipv6_case(
+        session,
+        "fd5f:4268:2387:97c1:0000:0000:0000:0002",
+        "fd5f:4268:2387:97c1::2",
+        -1, LIBSSH2_KNOWNHOST_CHECK_MATCH);
+
+    err |= test_knownhost_ipv6_case(
+        session,
+        "fd5f:4268:2387:97c1::2",
+        "fd5f:4268:2387:97c1:0:0:0:2",
+        -1, LIBSSH2_KNOWNHOST_CHECK_MATCH);
+
+    err |= test_knownhost_ipv6_case(
+        session,
+        "0:0:0:0:0:ffff:c000:0201",
+        "::ffff:192.0.2.1",
+        -1, LIBSSH2_KNOWNHOST_CHECK_MATCH);
+
+    err |= test_knownhost_ipv6_case(
+        session,
+        "[fd5f:4268:2387:97c1:0000:0000:0000:0002]:2222",
+        "fd5f:4268:2387:97c1::2",
+        2222, LIBSSH2_KNOWNHOST_CHECK_MATCH);
+
+    err |= test_knownhost_ipv6_case(
+        session,
+        "[fd5f:4268:2387:97c1:0000:0000:0000:0002]:2222",
+        "fd5f:4268:2387:97c1::2",
+        22, LIBSSH2_KNOWNHOST_CHECK_NOTFOUND);
+
+    err |= test_knownhost_ipv6_case(
+        session,
+        "fd5f:4268:2387:97c1::2",
+        "fd5f:4268:2387:97c1::3",
+        -1, LIBSSH2_KNOWNHOST_CHECK_NOTFOUND);
+
+    err |= test_knownhost_ipv6_case(
+        session,
+        "fd5f:4268:2387:97c1::2",
+        "fd5f:4268:2387:97c1::1::2",
+        -1, LIBSSH2_KNOWNHOST_CHECK_NOTFOUND);
+
+    err |= test_knownhost_ipv6_case(
+        session,
+        "example.com",
+        "example.com",
+        -1, LIBSSH2_KNOWNHOST_CHECK_MATCH);
+
+    err |= test_knownhost_ipv6_case(
+        session,
+        "example.com",
+        "EXAMPLE.COM",
+        -1, LIBSSH2_KNOWNHOST_CHECK_NOTFOUND);
+
+    /* Hexadecimal digits are case-insensitive. */
+    err |= test_knownhost_ipv6_case(
+        session,
+        "2001:0DB8:0000:0000:0000:0000:0000:0001",
+        "2001:db8::1",
+        -1, LIBSSH2_KNOWNHOST_CHECK_MATCH);
+
+    /* Compression may represent the complete address. */
+    err |= test_knownhost_ipv6_case(
+        session,
+        "0:0:0:0:0:0:0:0",
+        "::",
+        -1, LIBSSH2_KNOWNHOST_CHECK_MATCH);
+
+    /* Compression at the end must expand to the remaining words. */
+    err |= test_knownhost_ipv6_case(
+        session,
+        "2001:db8:1:2:3:4:0:0",
+        "2001:db8:1:2:3:4::",
+        -1, LIBSSH2_KNOWNHOST_CHECK_MATCH);
+
+    /* More than eight words is not a valid IPv6 literal. */
+    err |= test_knownhost_ipv6_case(
+        session,
+        "2001:db8::1",
+        "1:2:3:4:5:6:7:8:9",
+        -1, LIBSSH2_KNOWNHOST_CHECK_NOTFOUND);
+
+    /* An embedded IPv4 address must contain valid octets. */
+    err |= test_knownhost_ipv6_case(
+        session,
+        "::ffff:192.0.2.1",
+        "::ffff:192.0.2.256",
+        -1, LIBSSH2_KNOWNHOST_CHECK_NOTFOUND);
+
+    /* Embedded IPv4 octets with leading zeros are not valid. */
+    err |= test_knownhost_ipv6_case(
+        session,
+        "::ffff:192.168.001.1",
+        "::ffff:192.168.1.1",
+        -1, LIBSSH2_KNOWNHOST_CHECK_NOTFOUND);
+
+    /* Identical malformed names retain the historical exact-string match. */
+    err |= test_knownhost_ipv6_case(
+        session,
+        "::ffff:192.168.001.1",
+        "::ffff:192.168.001.1",
+        -1, LIBSSH2_KNOWNHOST_CHECK_MATCH);
+
+    /*
+     * Preserve the historical exact-string behavior even when a plain host
+     * containing colons is not a valid IPv6 literal.
+     */
+    err |= test_knownhost_ipv6_case(
+        session,
+        "fd5f::1::2",
+        "fd5f::1::2",
+        -1, LIBSSH2_KNOWNHOST_CHECK_MATCH);
+
+    return err > 0;
+}
+
+static int test_ssh2_dh_validate(void)
 {
     struct tbn {
         const char *f; const char *p; int expected;
     };
     static const struct tbn tests[] = {
-        {  "-1",  "10", -1 },
         {   "2",  "10", -3 },
         {   "1",  "10", -1 },
         {   "0",  "10", -1 },
@@ -78,48 +251,443 @@ static int test_ssh2_dh_is_valid(void)
     int err = 0;
 
     for(i = 0; i < SSH2_ARRAYSIZE(tests); i++) {
+        struct tbn t = tests[i];
         int got;
-#ifdef LIBSSH2_LIBGCRYPT
-        int fi = atoi(tests[i].f);
-        gcry_mpi_t f = gcry_mpi_set_ui(NULL, fi >= 0 ? fi : -fi);
-        gcry_mpi_t p = gcry_mpi_set_ui(NULL, atoi(tests[i].p));
-        if(tests[i].f[0] == '-')
-            gcry_mpi_neg(f, f);
-        got = ssh2_dh_is_valid(f, p);
-        gcry_mpi_release(f);
-        gcry_mpi_release(p);
-#elif defined(LIBSSH2_MBEDTLS)
-        mbedtls_mpi f, p;
-        mbedtls_mpi_init(&f);
-        mbedtls_mpi_init(&p);
-        if(mbedtls_mpi_read_string(&f, 10, tests[i].f) ||
-           mbedtls_mpi_read_string(&p, 10, tests[i].p))
+        ssh2_bn *f = ssh2_bn_init();
+        ssh2_bn *p = ssh2_bn_init();
+        if(!f || !p ||
+           ssh2_bn_set_word(f, (uint32_t)atoi(t.f)) ||
+           ssh2_bn_set_word(p, (uint32_t)atoi(t.p)))
             got = -9;
         else
-            got = ssh2_dh_is_valid(&f, &p);
-        mbedtls_mpi_free(&f);
-        mbedtls_mpi_free(&p);
-#elif defined(LIBSSH2_OPENSSL) || \
-    (defined(LIBSSH2_WOLFSSL) && LIBWOLFSSL_VERSION_HEX >= 0x05006000)
-        BIGNUM *f = BN_new(), *p = BN_new();
-        if(!BN_dec2bn(&f, tests[i].f) ||
-           !BN_dec2bn(&p, tests[i].p))
-            got = -9;
-        else
-            got = ssh2_dh_is_valid(f, p);
-        BN_free(f);
-        BN_free(p);
-#else
-        got = tests[i].expected;
-#endif
-        if(got != tests[i].expected) {
+            got = ssh2_dh_validate(f, p);
+        ssh2_bn_free(f);
+        ssh2_bn_free(p);
+        if(got != t.expected) {
             fprintf(stderr,
-                    "ssh2_dh_is_valid/%lu: f=%s p=%s: expected %d got %d\n",
-                    (unsigned long)i,
-                    tests[i].f, tests[i].p, tests[i].expected, got);
+                    "ssh2_dh_validate/%lu: f=%s p=%s: expected %d got %d\n",
+                    (unsigned long)i, t.f, t.p, t.expected, got);
             err++;
         }
     }
+
+    return err > 0;
+}
+
+static int test_ssh2_bn_from_bin(void)
+{
+    static const struct {
+        unsigned char input[5];
+        size_t length;
+        size_t leading;
+    } tests[] = {
+        { { 1 }, 1, 0 },
+        { { 0x7f }, 1, 0 },
+        { { 0x80 }, 1, 0 },
+        { { 0xff, 0x42 }, 2, 0 },
+        { { 0, 1 }, 2, 1 },
+        { { 0, 0x80 }, 2, 1 },
+        { { 0, 0, 0x80, 0x42 }, 4, 2 },
+        { { 0, 0, 0, 0, 1 }, 5, 4 },
+    };
+    size_t i;
+    int rc = 0;
+
+    for(i = 0; i < SSH2_ARRAYSIZE(tests); i++) {
+        unsigned char actual[5] = { 0 };
+        size_t length = tests[i].length - tests[i].leading;
+        ssh2_bn *bn = NULL;
+        if(ssh2_bn_from_bin(&bn, tests[i].input, tests[i].length) ||
+           ssh2_bn_bytes(bn) != length ||
+           ssh2_bn_to_bin(bn, actual) ||
+           memcmp(actual, tests[i].input + tests[i].leading, length)) {
+            fprintf(stderr, "ssh2_bn_from_bin case %lu failed\n",
+                    (unsigned long)i);
+            rc = 1;
+        }
+        ssh2_bn_free(bn);
+    }
+    return rc;
+}
+
+/* Return codes match scp.c (SCP_C_FIELDS_*). */
+static int test_ssh2_scp_parse_c_fields(void)
+{
+    long mode = -1;
+    libssh2_int64_t size = -1;
+    char long_line[SSH2_SCP_RESPONSE_BUFLEN];
+    int prefix_len;
+    int prc;
+    int err = 0;
+
+    /* Normal complete line with short name */
+    prc = ssh2_scp_parse_c_fields("C0644 123 shortname\n", 20, &mode, &size);
+    if(prc || mode != 420L || size != 123) { /* 0644 octal == 420 */
+        fprintf(stderr, "scp_parse short: prc=%d mode=%ld size=%lu\n",
+                prc, mode, (unsigned long)size);
+        err++;
+    }
+
+    /* Fields complete without trailing newline (name unfinished) */
+    mode = -1;
+    size = -1;
+    prc = ssh2_scp_parse_c_fields("C0755 42 ", 9, &mode, &size);
+    if(prc || mode != 493L || size != 42) { /* 0755 octal == 493 */
+        fprintf(stderr, "scp_parse partial-name: prc=%d mode=%ld size=%lu\n",
+                prc, mode, (unsigned long)size);
+        err++;
+    }
+
+    /* Incomplete size digits still growing */
+    prc = ssh2_scp_parse_c_fields("C0644 12", 8, &mode, &size);
+    if(prc != 1) {
+        fprintf(stderr, "scp_parse incomplete size: prc=%d (want 1)\n", prc);
+        err++;
+    }
+
+    /*
+     * Fixed buffer full of "Cmode size " + long name without newline. Mode and
+     * size must still parse so scp_recv can drain the unused basename.
+     */
+    prefix_len = snprintf(long_line, sizeof(long_line), "C0644 99 ");
+    if(prefix_len < 0 || (size_t)prefix_len >= sizeof(long_line)) {
+        fprintf(stderr, "scp_parse long-name: snprintf failed (%d)\n",
+                prefix_len);
+        return 1;
+    }
+    memset(long_line + prefix_len, 'a',
+           sizeof(long_line) - (size_t)prefix_len);
+    mode = -1;
+    size = -1;
+    prc = ssh2_scp_parse_c_fields(long_line, sizeof(long_line), &mode, &size);
+    if(prc || mode != 420L || size != 99) { /* 0644 octal == 420 */
+        fprintf(stderr,
+                "scp_parse long-name buffer: prc=%d mode=%ld size=%lu\n",
+                prc, mode, (unsigned long)size);
+        err++;
+    }
+
+    /* Malformed: bad mode */
+    prc = ssh2_scp_parse_c_fields("Cxyz 1 name\n", 12, &mode, &size);
+    if(prc != -1) {
+        fprintf(stderr, "scp_parse bad mode: prc=%d (want -1)\n", prc);
+        err++;
+    }
+
+    return err > 0;
+}
+
+#if LIBSSH2_RSA_SHA2
+static int test_userauth_sign_algs_fail_cleanup(LIBSSH2_SESSION *session)
+{
+    static const char server_algs[] = "ssh-ed25519";
+    static const unsigned char rsa_key[] = {
+        0, 0, 0, 7, 's', 's', 'h', '-', 'r', 's', 'a',
+        0, 0, 0, 1, 3, 0, 0, 0, 1, 0x7f
+    };
+    int rc;
+    int err = 0;
+
+    /* server-sig-algs without any RSA algorithm we can upgrade to */
+    session->server_sign_algorithms = SSH2_ALLOC(session, sizeof(server_algs));
+    if(!session->server_sign_algorithms)
+        return 1;
+    memcpy(session->server_sign_algorithms, server_algs, sizeof(server_algs));
+
+    rc = libssh2_userauth_publickey(session, "user",
+                                    rsa_key, sizeof(rsa_key), NULL, NULL);
+    if(rc != LIBSSH2_ERROR_METHOD_NONE) {
+        fprintf(stderr, "userauth sign algs: rc=%d (want %d)\n",
+                rc, LIBSSH2_ERROR_METHOD_NONE);
+        err++;
+    }
+
+    /* a stale method name would be reused by the next key */
+    if(session->userauth_pblc_method) {
+        fprintf(stderr, "userauth sign algs: method left set: %s\n",
+                session->userauth_pblc_method);
+        SSH2_SAFEFREE(session, session->userauth_pblc_method);
+        err++;
+    }
+
+    SSH2_SAFEFREE(session, session->server_sign_algorithms);
+
+    return err > 0;
+}
+#endif
+
+static int test_sftp_symlink_name_reply(LIBSSH2_SESSION *session)
+{
+    /* SSH_FXP_NAME (104) reply to request id 1 with one name: "evil" */
+    static const unsigned char reply[] = {
+        104, 0, 0, 0, 1, 0, 0, 0, 1,
+        0, 0, 0, 4, 'e', 'v', 'i', 'l',
+        0, 0, 0, 0, 0, 0, 0, 0
+    };
+    char linkpath[] = "/tmp/link";
+    LIBSSH2_CHANNEL *channel;
+    LIBSSH2_SFTP *sftp;
+    struct sftp_packet *packet;
+    int socket_state = session->socket_state;
+    int rc;
+    int err = 0;
+
+    channel = SSH2_CALLOC(session, sizeof(*channel));
+    sftp = SSH2_CALLOC(session, sizeof(*sftp));
+    packet = SSH2_CALLOC(session, sizeof(*packet));
+    if(packet)
+        packet->data = SSH2_ALLOC(session, sizeof(reply));
+    if(!channel || !sftp || !packet || !packet->data) {
+        if(packet)
+            SSH2_FREE(session, packet->data);
+        SSH2_FREE(session, packet);
+        SSH2_FREE(session, sftp);
+        SSH2_FREE(session, channel);
+        return 1;
+    }
+    channel->session = session;
+    sftp->channel = channel;
+    sftp->version = 3;
+    ssh2_list_init(&sftp->packets);
+
+    memcpy(packet->data, reply, sizeof(reply));
+    packet->data_len = sizeof(reply);
+    packet->request_id = 1;
+    ssh2_list_add(&sftp->packets, &packet->node);
+
+    /* SYMLINK request id 1 sent, the server answers with a NAME packet */
+    sftp->symlink_state = ssh2_NB_state_sent;
+    sftp->symlink_request_id = 1;
+    session->socket_state = SSH2_SOCKET_CONNECTED;
+
+    rc = libssh2_sftp_symlink(sftp, "/tmp/orig", linkpath);
+    if(rc != LIBSSH2_ERROR_SFTP_PROTOCOL) {
+        fprintf(stderr, "sftp symlink: rc=%d (want %d)\n",
+                rc, LIBSSH2_ERROR_SFTP_PROTOCOL);
+        err++;
+    }
+    if(strcmp(linkpath, "/tmp/link")) {
+        fprintf(stderr, "sftp symlink: link path overwritten: %s\n",
+                linkpath);
+        err++;
+    }
+
+    session->socket_state = socket_state;
+
+    packet = ssh2_list_first(&sftp->packets);
+    if(packet) {
+        ssh2_list_remove(&packet->node);
+        SSH2_FREE(session, packet->data);
+        SSH2_FREE(session, packet);
+    }
+    SSH2_FREE(session, sftp);
+    SSH2_FREE(session, channel);
+
+    return err > 0;
+}
+
+#if LIBSSH2_MD5_PEM && LIBSSH2_AES_CBC
+static int pem_live_allocs;
+
+static LIBSSH2_ALLOC_FUNC(pem_test_alloc)
+{
+    void *p = malloc(count);
+    (void)abstract;
+    if(p)
+        pem_live_allocs++;
+    return p;
+}
+
+static LIBSSH2_REALLOC_FUNC(pem_test_realloc)
+{
+    void *p = realloc(ptr, count);
+    (void)abstract;
+    if(p && !ptr)
+        pem_live_allocs++;
+    return p;
+}
+
+static LIBSSH2_FREE_FUNC(pem_test_free)
+{
+    (void)abstract;
+    if(ptr)
+        pem_live_allocs--;
+    free(ptr);
+}
+
+static int test_ssh2_pem_parse_bad_padding(void)
+{
+    /* One AES-128-CBC block that decrypts to 15 zero bytes and a padding
+       byte of 0xff, which is larger than the decrypted data */
+    static const char pem[] =
+        "-----BEGIN RSA PRIVATE KEY-----\n"
+        "Proc-Type: 4,ENCRYPTED\n"
+        "DEK-Info: AES-128-CBC,000102030405060708090A0B0C0D0E0F\n"
+        "\n"
+        "x9wTwyw4T6PO7EmUNV0aow==\n"
+        "-----END RSA PRIVATE KEY-----\n";
+    LIBSSH2_SESSION *session;
+    unsigned char *data;
+    size_t datalen;
+    int live;
+    int rc;
+    int err = 0;
+
+    session = libssh2_session_init_ex(pem_test_alloc, pem_test_free,
+                                      pem_test_realloc, NULL);
+    if(!session) {
+        fprintf(stderr, "pem bad padding: session init failed\n");
+        return 1;
+    }
+
+    live = pem_live_allocs;
+    rc = ssh2_pem_parse(session, "-----BEGIN RSA PRIVATE KEY-----",
+                        "-----END RSA PRIVATE KEY-----", NULL,
+                        pem, sizeof(pem) - 1, "pass", &data, &datalen, NULL);
+    if(rc != LIBSSH2_ERROR_DECRYPT) {
+        fprintf(stderr, "pem bad padding: rc=%d (want %d)\n",
+                rc, LIBSSH2_ERROR_DECRYPT);
+        err++;
+    }
+    if(pem_live_allocs != live) {
+        fprintf(stderr, "pem bad padding: %d allocation(s) leaked\n",
+                pem_live_allocs - live);
+        err++;
+    }
+
+    libssh2_session_free(session);
+
+    return err > 0;
+}
+#endif
+
+static int sftp_mkdir_recv_calls;
+
+/* nothing to read at first, then the connection is gone */
+static LIBSSH2_RECV_FUNC(test_sftp_mkdir_recv)
+{
+    (void)socket;
+    (void)buffer;
+    (void)length;
+    (void)flags;
+    (void)abstract;
+    return sftp_mkdir_recv_calls++ ? 0 : -EAGAIN;
+}
+
+static int test_sftp_mkdir_resume_fail_cleanup(void)
+{
+    LIBSSH2_SESSION *session;
+    LIBSSH2_CHANNEL *channel;
+    LIBSSH2_SFTP *sftp;
+    int rc;
+    int err = 0;
+
+    session = libssh2_session_init();
+    if(!session)
+        return 1;
+
+    channel = SSH2_CALLOC(session, sizeof(*channel));
+    sftp = SSH2_CALLOC(session, sizeof(*sftp));
+    if(!channel || !sftp) {
+        if(channel)
+            SSH2_FREE(session, channel);
+        if(sftp)
+            SSH2_FREE(session, sftp);
+        libssh2_session_free(session);
+        return 1;
+    }
+
+    session->recv_cb = test_sftp_mkdir_recv;
+    session->socket_state = SSH2_SOCKET_CONNECTED;
+    libssh2_session_set_blocking(session, 0);
+
+    /* a zero local window makes the first write would-block */
+    channel->session = session;
+    ssh2_list_add(&session->channels, &channel->node);
+    sftp->channel = channel;
+    sftp->version = 3;
+
+    rc = libssh2_sftp_mkdir(sftp, "/dir", 0755);
+    if(rc != LIBSSH2_ERROR_EAGAIN || !sftp->mkdir_packet) {
+        fprintf(stderr, "sftp mkdir: first call rc=%d (want %d)\n",
+                rc, LIBSSH2_ERROR_EAGAIN);
+        err++;
+    }
+
+    rc = libssh2_sftp_mkdir(sftp, "/dir", 0755);
+    if(rc != LIBSSH2_ERROR_SOCKET_SEND) {
+        fprintf(stderr, "sftp mkdir: retry rc=%d (want %d)\n",
+                rc, LIBSSH2_ERROR_SOCKET_SEND);
+        err++;
+    }
+
+    /* a freed packet left here is freed again by libssh2_sftp_shutdown() */
+    if(sftp->mkdir_packet) {
+        fprintf(stderr, "sftp mkdir: freed packet left set\n");
+        sftp->mkdir_packet = NULL;
+        err++;
+    }
+
+    session->socket_state = SSH2_SOCKET_DISCONNECTED;
+    libssh2_sftp_shutdown(sftp);
+    SSH2_FREE(session, sftp);
+    libssh2_session_free(session);
+
+    return err > 0;
+}
+
+static const unsigned char *transport_feed;
+static size_t transport_feed_len;
+
+static LIBSSH2_RECV_FUNC(transport_feed_recv)
+{
+    size_t len = SSH2_MIN(length, transport_feed_len);
+
+    (void)socket;
+    (void)flags;
+    (void)abstract;
+
+    if(!len)
+        return -EAGAIN;
+
+    memcpy(buffer, transport_feed, len);
+    transport_feed += len;
+    transport_feed_len -= len;
+
+    return (ssize_t)len;
+}
+
+static int test_transport_empty_payload(void)
+{
+    /* packet_length 5, padding_length 4: no room left for the message type */
+    static const unsigned char packet[] = {
+        0, 0, 0, 5, 4, SSH_MSG_REQUEST_SUCCESS, 0, 0, 0
+    };
+    LIBSSH2_SESSION *session;
+    int rc;
+    int err = 0;
+
+    session = libssh2_session_init();
+    if(!session)
+        return 1;
+
+    session->recv_cb = transport_feed_recv;
+    transport_feed = packet;
+    transport_feed_len = sizeof(packet);
+
+    rc = ssh2_transport_read(session);
+    if(rc != LIBSSH2_ERROR_PROTO) {
+        fprintf(stderr, "transport empty payload: rc=%d (want %d)\n",
+                rc, LIBSSH2_ERROR_PROTO);
+        err++;
+    }
+
+    if(ssh2_list_first(&session->packets)) {
+        fprintf(stderr, "transport empty payload: packet was queued\n");
+        err++;
+    }
+
+    libssh2_session_free(session);
 
     return err > 0;
 }
@@ -144,7 +712,20 @@ int main(int argc, char *argv[])
     }
 
     rc = test_ssh2_base64_decode(session);
-    rc |= test_ssh2_dh_is_valid();
+    rc |= test_knownhost_ipv6(session);
+    rc |= test_ssh2_dh_validate();
+    rc |= test_ssh2_bn_from_bin();
+    rc |= test_ssh2_scp_parse_c_fields();
+    rc |= test_sftp_mkdir_resume_fail_cleanup();
+#if LIBSSH2_RSA_SHA2
+    rc |= test_userauth_sign_algs_fail_cleanup(session);
+#endif
+    rc |= test_sftp_symlink_name_reply(session);
+#if LIBSSH2_MD5_PEM && LIBSSH2_AES_CBC
+    rc |= test_ssh2_pem_parse_bad_padding();
+#endif
+
+    rc |= test_transport_empty_payload();
 
     libssh2_session_free(session);
 

@@ -22,8 +22,8 @@ int libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
                                           size_t username_len,
                                           const char *publickeydata,
                                           size_t publickeydata_len,
-                                          const char *privatekeydata,
-                                          size_t privatekeydata_len,
+                                          const char *privkeyblob,
+                                          size_t privkeyblob_len,
                                           const char *passphrase);
 ~~~
 
@@ -39,9 +39,9 @@ int libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
 
 *publickeydata_len* - Length of public key data.
 
-*privatekeydata* - Buffer containing the contents of a private key file.
+*privkeyblob* - Buffer containing the contents of a private key file.
 
-*privatekeydata_len* - Length of private key data.
+*privkeyblob_len* - Length of private key data.
 
 *passphrase* - Passphrase to use when decoding private key file.
 

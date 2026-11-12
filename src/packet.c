@@ -38,13 +38,6 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifdef HAVE_INTTYPES_H
-#include <inttypes.h>
-#endif
-/* Needed for struct iovec on some platforms */
-#ifdef HAVE_SYS_UIO_H
-#include <sys/uio.h>
-#endif
 
 #include "transport.h"
 #include "channel.h"
@@ -69,7 +62,7 @@ static SSH2_INLINE int packet_queue_listener(
     int rc;
 
     if(listen_state->state == ssh2_NB_state_idle) {
-        size_t offset = strlen("forwarded-tcpip") + 5;
+        size_t offset = sizeof("forwarded-tcpip") - 1 + 5;
         size_t temp_len = 0;
         struct string_buf buf;
         buf.data = data;
@@ -126,7 +119,6 @@ static SSH2_INLINE int packet_queue_listener(
                        listen_state->host_len)) {
                 /* This is our listener */
                 LIBSSH2_CHANNEL *channel = NULL;
-                listen_state->channel = NULL;
 
                 if(listen_state->state == ssh2_NB_state_allocated) {
                     if(listn->queue_maxsize &&
@@ -135,6 +127,14 @@ static SSH2_INLINE int packet_queue_listener(
                         failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
                         ssh2_deb((session, LIBSSH2_TRACE_CONN,
                                   "Listener queue full, ignoring"));
+                        listen_state->state = ssh2_NB_state_sent;
+                        break;
+                    }
+
+                    if(!listen_state->packet_size) {
+                        ssh2_deb((session, LIBSSH2_TRACE_CONN,
+                                  "Invalid packet size received from server"));
+                        failure_code = SSH_OPEN_CONNECT_FAILED;
                         listen_state->state = ssh2_NB_state_sent;
                         break;
                     }
@@ -151,7 +151,7 @@ static SSH2_INLINE int packet_queue_listener(
                     listen_state->channel = channel;
 
                     channel->session = session;
-                    channel->channel_type_len = strlen("forwarded-tcpip");
+                    channel->channel_type_len = sizeof("forwarded-tcpip") - 1;
                     channel->channel_type =
                         SSH2_ALLOC(session, channel->channel_type_len + 1);
                     if(!channel->channel_type) {
@@ -282,7 +282,7 @@ static SSH2_INLINE int packet_x11_open(
     int rc;
 
     if(x11open_state->state == ssh2_NB_state_idle) {
-        size_t offset = strlen("x11") + 5;
+        size_t offset = sizeof("x11") - 1 + 5;
         size_t temp_len = 0;
         unsigned char *temp_buf = NULL;
         struct string_buf buf;
@@ -348,7 +348,16 @@ static SSH2_INLINE int packet_x11_open(
 
     if(session->x11) {
         if(x11open_state->state == ssh2_NB_state_allocated) {
+            if(!x11open_state->packet_size) {
+                ssh2_deb((session, LIBSSH2_TRACE_CONN,
+                          "Invalid packet size received from server"));
+                failure_code = SSH_OPEN_CONNECT_FAILED;
+                goto x11_exit;
+            }
+
             channel = SSH2_CALLOC(session, sizeof(LIBSSH2_CHANNEL));
+            x11open_state->channel = channel;
+
             if(!channel) {
                 ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                          "allocate a channel for new connection");
@@ -357,7 +366,7 @@ static SSH2_INLINE int packet_x11_open(
             }
 
             channel->session = session;
-            channel->channel_type_len = strlen("x11");
+            channel->channel_type_len = sizeof("x11") - 1;
             channel->channel_type =
                 SSH2_ALLOC(session, channel->channel_type_len + 1);
             if(!channel->channel_type) {
@@ -467,7 +476,7 @@ static SSH2_INLINE int packet_authagent_open(
     LIBSSH2_CHANNEL *channel = authagent_state->channel;
     int rc;
     struct string_buf buf;
-    size_t offset = strlen("auth-agent@openssh.org") + 5;
+    size_t offset = sizeof("auth-agent@openssh.com") - 1 + 5;
 
     buf.data = data;
     buf.dataptr = buf.data;
@@ -499,6 +508,13 @@ static SSH2_INLINE int packet_authagent_open(
 
     if(session->authagent) {
         if(authagent_state->state == ssh2_NB_state_allocated) {
+            if(!authagent_state->packet_size) {
+                ssh2_deb((session, LIBSSH2_TRACE_CONN,
+                          "Invalid packet size received from server"));
+                failure_code = SSH_OPEN_CONNECT_FAILED;
+                goto authagent_exit;
+            }
+
             channel = SSH2_CALLOC(session, sizeof(LIBSSH2_CHANNEL));
             authagent_state->channel = channel;
 
@@ -510,7 +526,7 @@ static SSH2_INLINE int packet_authagent_open(
             }
 
             channel->session = session;
-            channel->channel_type_len = strlen("auth agent");
+            channel->channel_type_len = sizeof("auth agent") - 1;
             channel->channel_type =
                 SSH2_ALLOC(session, channel->channel_type_len + 1);
             if(!channel->channel_type) {
@@ -619,8 +635,8 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                     size_t datalen, int macstate, uint32_t seq)
 {
     int rc = 0;
-    unsigned char *message = NULL;
-    unsigned char *language = NULL;
+    char *message = NULL;
+    char *language = NULL;
     size_t message_len = 0;
     size_t language_len = 0;
     LIBSSH2_CHANNEL *channelp = NULL;
@@ -642,7 +658,6 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
             SSH2_MACERROR(session, (char *)data, datalen))) {
             /* Bad MAC input, but no callback set or non-zero return from the
                callback */
-
             SSH2_FREE(session, data);
             return ssh2_err(session, LIBSSH2_ERROR_INVALID_MAC,
                             "Invalid MAC received");
@@ -676,18 +691,18 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                                     "Data too short extracting kex");
                 }
                 else {
-                    const unsigned char *strict =
-                        (const unsigned char *)"kex-strict-s-v00@openssh.com";
+                    static const char strict[] =
+                        "kex-strict-s-v00@openssh.com";
                     struct string_buf buf;
-                    unsigned char *algs = NULL;
+                    char *algs = NULL;
                     size_t algs_len = 0;
 
-                    buf.data = (unsigned char *)data;
+                    buf.data = data;
                     buf.dataptr = buf.data;
                     buf.len = datalen;
                     buf.dataptr += 17; /* advance past type and cookie */
 
-                    if(ssh2_get_string(&buf, &algs, &algs_len)) {
+                    if(ssh2_get_chars(&buf, &algs, &algs_len)) {
                         SSH2_FREE(session, data);
                         session->packAdd_state = ssh2_NB_state_idle;
                         return ssh2_err(session,
@@ -696,7 +711,8 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                     }
 
                     if(algs_len == 0 ||
-                       ssh2_kex_agree_instr(algs, algs_len, strict, 28)) {
+                       ssh2_kex_agree_instr(algs, algs_len,
+                                            strict, sizeof(strict) - 1)) {
                         session->kex_strict = 1;
                     }
                 }
@@ -743,19 +759,18 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
             if(datalen >= 5) {
                 uint32_t reason = 0;
                 struct string_buf buf;
-                buf.data = (unsigned char *)data;
+                buf.data = data;
                 buf.dataptr = buf.data;
                 buf.len = datalen;
                 buf.dataptr++; /* advance past type */
 
                 ssh2_get_u32(&buf, &reason);
-                ssh2_get_string(&buf, &message, &message_len);
-                ssh2_get_string(&buf, &language, &language_len);
+                ssh2_get_chars(&buf, &message, &message_len);
+                ssh2_get_chars(&buf, &language, &language_len);
 
                 if(session->ssh_msg_disconnect)
-                    SSH2_DISCONNECT(session, reason, (const char *)message,
-                                    message_len, (const char *)language,
-                                    language_len);
+                    SSH2_DISCONNECT(session, reason, message, message_len,
+                                    language, language_len);
 
                 ssh2_deb((session, LIBSSH2_TRACE_TRANS,
                           "Disconnect(%u): %.*s(%.*s)", reason,
@@ -798,19 +813,18 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
 
                 if(datalen >= 6) {
                     struct string_buf buf;
-                    buf.data = (unsigned char *)data;
+                    buf.data = data;
                     buf.dataptr = buf.data;
                     buf.len = datalen;
                     buf.dataptr += 2; /* advance past type & always display */
 
-                    ssh2_get_string(&buf, &message, &message_len);
-                    ssh2_get_string(&buf, &language, &language_len);
+                    ssh2_get_chars(&buf, &message, &message_len);
+                    ssh2_get_chars(&buf, &language, &language_len);
                 }
 
                 if(session->ssh_msg_debug)
-                    SSH2_DEBUG(session, always_display, (const char *)message,
-                               message_len, (const char *)language,
-                               language_len);
+                    SSH2_DEBUG(session, always_display, message, message_len,
+                               language, language_len);
             }
 
             ssh2_deb((session, LIBSSH2_TRACE_TRANS, "Debug Packet: %.*s",
@@ -831,7 +845,7 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
             if(datalen >= 5) {
                 uint32_t nr_extensions = 0;
                 struct string_buf buf;
-                buf.data = (unsigned char *)data;
+                buf.data = data;
                 buf.dataptr = buf.data;
                 buf.len = datalen;
                 buf.dataptr += 1; /* advance past type */
@@ -860,8 +874,7 @@ int ssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data,
                                   "Server to Client extension %.*s: %.*s",
                                   (int)name_len, name, (int)value_len, value));
 
-                    if(name && name_len == 15 &&
-                       !memcmp(name, "server-sig-algs", 15)) {
+                    if(SSH2_IS_LITERAL(name, name_len, "server-sig-algs")) {
                         if(session->server_sign_algorithms)
                             SSH2_FREE(session,
                                       session->server_sign_algorithms);
@@ -965,12 +978,10 @@ ssh2_packet_add_jump_point5:
                           stream_id));
             }
 #endif
-            if((channelp->remote.extended_data_ignore_mode ==
-                LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE) &&
-               (msg == SSH_MSG_CHANNEL_EXTENDED_DATA)) {
+            if(channelp->remote.extended_data_ignore_mode ==
+               LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE &&
+               msg == SSH_MSG_CHANNEL_EXTENDED_DATA) {
                 /* Pretend we did not receive this */
-                SSH2_FREE(session, data);
-
                 ssh2_deb((session, LIBSSH2_TRACE_CONN,
                           "Ignoring extended data and refunding %ld bytes",
                           (long)(datalen - 13)));
@@ -990,7 +1001,7 @@ ssh2_packet_add_jump_point5:
 
                 session->packAdd_channelp = channelp;
 
-                /* Adjust the window based on the block we freed */
+                /* Adjust the window based on the block we ignore */
 ssh2_packet_add_jump_point1:
                 session->packAdd_state = ssh2_NB_state_jump1;
                 rc = ssh2_channel_receive_window_adjust(session->
@@ -1000,6 +1011,11 @@ ssh2_packet_add_jump_point1:
                 if(rc == LIBSSH2_ERROR_EAGAIN)
                     return rc;
 
+                /* free only now that the window adjust is done: 'data' aliases
+                   session->packet.payload, which the transport layer re-passes
+                   to us if the adjust returns EAGAIN, so an earlier free would
+                   leave that pointer dangling */
+                SSH2_FREE(session, data);
                 session->packAdd_state = ssh2_NB_state_idle;
                 return 0;
             }
@@ -1122,9 +1138,7 @@ ssh2_packet_add_jump_point1:
                           "Channel %u received request type %.*s (wr %X)",
                           channel, (int)len, request, want_reply));
 
-                if(len == strlen("exit-status") &&
-                   !memcmp("exit-status", request, strlen("exit-status"))) {
-
+                if(SSH2_IS_LITERAL(request, len, "exit-status")) {
                     /* we have got "exit-status" packet. Set the session value.
                      */
                     if(datalen >= 20)
@@ -1136,6 +1150,8 @@ ssh2_packet_add_jump_point1:
                         if(ssh2_get_u32(&buf, &status))
                             rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                           "exit-signal status error");
+                        else
+                            channelp->exit_status_received = 1;
 
                         channelp->exit_status = (int)status;
 
@@ -1146,16 +1162,12 @@ ssh2_packet_add_jump_point1:
                                   channelp->remote.id));
                     }
                 }
-                else if(len == strlen("exit-signal") &&
-                        !memcmp("exit-signal", request,
-                                strlen("exit-signal"))) {
-
+                else if(SSH2_IS_LITERAL(request, len, "exit-signal")) {
                     /* command terminated due to signal */
                     if(datalen >= 20)
                         channelp = ssh2_channel_locate(session, channel);
 
                     if(channelp) {
-
                         /* signal name (without SIG prefix) */
                         unsigned char *sig_name = NULL;
                         size_t sig_len = 0;
@@ -1167,9 +1179,10 @@ ssh2_packet_add_jump_point1:
                             rc = ssh2_err(session, LIBSSH2_ERROR_PROTO,
                                           "signal name out of bounds");
                         else if(sig_len > 0) {
+                            if(channelp->exit_signal)
+                                SSH2_FREE(session, channelp->exit_signal);
                             channelp->exit_signal =
                                 SSH2_ALLOC(session, sig_len + 1);
-
                             if(channelp->exit_signal) {
                                 memcpy(channelp->exit_signal,
                                        sig_name, sig_len);
@@ -1186,8 +1199,8 @@ ssh2_packet_add_jump_point1:
                                 rc = ssh2_err(session, LIBSSH2_ERROR_ALLOC,
                                               "exit signal alloc error");
                         }
-                        else
-                            channelp->exit_signal = NULL;
+                        else if(channelp->exit_signal)
+                            SSH2_SAFEFREE(session, channelp->exit_signal);
                     }
                 }
 
@@ -1248,10 +1261,10 @@ clean_exit:
         case SSH_MSG_CHANNEL_OPEN:
             if(datalen < 17)
                 ;
-            else if(datalen >= (strlen("forwarded-tcpip") + 5) &&
-                    strlen("forwarded-tcpip") == ssh2_ntohu32(data + 1) &&
+            else if(datalen >= (sizeof("forwarded-tcpip") - 1 + 5) &&
+                    ssh2_ntohu32(data + 1) == sizeof("forwarded-tcpip") - 1 &&
                     !memcmp(data + 5, "forwarded-tcpip",
-                            strlen("forwarded-tcpip"))) {
+                            sizeof("forwarded-tcpip") - 1)) {
 
                 /* init the state struct */
                 memset(&session->packAdd_Qlstn_state, 0,
@@ -1262,9 +1275,9 @@ ssh2_packet_add_jump_point2:
                 rc = packet_queue_listener(session, data, datalen,
                                            &session->packAdd_Qlstn_state);
             }
-            else if(datalen >= (strlen("x11") + 5) &&
-                    strlen("x11") == ssh2_ntohu32(data + 1) &&
-                    !memcmp(data + 5, "x11", strlen("x11"))) {
+            else if(datalen >= (sizeof("x11") - 1 + 5) &&
+                    ssh2_ntohu32(data + 1) == sizeof("x11") - 1 &&
+                    !memcmp(data + 5, "x11", sizeof("x11") - 1)) {
 
                 /* init the state struct */
                 memset(&session->packAdd_x11open_state, 0,
@@ -1275,11 +1288,11 @@ ssh2_packet_add_jump_point3:
                 rc = packet_x11_open(session, data, datalen,
                                      &session->packAdd_x11open_state);
             }
-            else if(datalen >= (strlen("auth-agent@openssh.com") + 5) &&
-                    strlen("auth-agent@openssh.com") ==
-                        ssh2_ntohu32(data + 1) &&
+            else if(datalen >= (sizeof("auth-agent@openssh.com") - 1 + 5) &&
+                    ssh2_ntohu32(data + 1) ==
+                        sizeof("auth-agent@openssh.com") - 1 &&
                     !memcmp(data + 5, "auth-agent@openssh.com",
-                            strlen("auth-agent@openssh.com"))) {
+                            sizeof("auth-agent@openssh.com") - 1)) {
 
                 /* init the state struct */
                 memset(&session->packAdd_authagent_state, 0,
@@ -1395,7 +1408,7 @@ ssh2_packet_add_jump_authagent:
 
     if((msg == SSH_MSG_KEXINIT &&
         !(session->state & SSH2_STATE_EXCHANGING_KEYS)) ||
-       (session->packAdd_state == ssh2_NB_state_sent2)) {
+       session->packAdd_state == ssh2_NB_state_sent2) {
 
         if(session->packAdd_state == ssh2_NB_state_sent1) {
             /*
@@ -1481,12 +1494,11 @@ int ssh2_packet_ask(LIBSSH2_SESSION *session, unsigned char packet_type,
  * Scan for any of a list of packet types in the brigade, optionally poll the
  * socket for a packet first
  */
-int ssh2_packet_askv(LIBSSH2_SESSION *session,
-                     const unsigned char *packet_types,
-                     unsigned char **data, size_t *data_len,
-                     int match_ofs,
-                     const unsigned char *match_buf,
-                     size_t match_len)
+static int packet_askv(LIBSSH2_SESSION *session,
+                       const unsigned char *packet_types,
+                       unsigned char **data, size_t *data_len,
+                       int match_ofs,
+                       const unsigned char *match_buf, size_t match_len)
 {
     size_t i, packet_types_len = strlen((const char *)packet_types);
 
@@ -1521,7 +1533,7 @@ int ssh2_packet_require(LIBSSH2_SESSION *session,
                            match_len) == 0)
             return 0;  /* A packet was available in the packet brigade */
 
-        state->start = time(NULL);
+        state->start = ssh2_now();
     }
 
     while(session->socket_state == SSH2_SOCKET_CONNECTED) {
@@ -1545,8 +1557,8 @@ int ssh2_packet_require(LIBSSH2_SESSION *session,
         }
         else if(ret == 0) {
             /* nothing available, wait until data arrives or we time out */
-            long left = session->packet_read_timeout - (long)(time(NULL) -
-                                                              state->start);
+            ssh2_timediff_t left = session->packet_read_timeout -
+                (ssh2_now() - state->start);
 
             if(left <= 0) {
                 state->start = 0;
@@ -1577,8 +1589,8 @@ int ssh2_packet_burn(LIBSSH2_SESSION *session, ssh2_NB_states *state)
             all_packets[i - 1] = i;
         all_packets[254] = 0;
 
-        if(ssh2_packet_askv(session, all_packets, &data, &data_len, 0,
-                            NULL, 0) == 0) {
+        if(packet_askv(session, all_packets, &data, &data_len, 0,
+                       NULL, 0) == 0) {
             i = data[0];
             /* A packet was available in the packet brigade, burn it */
             SSH2_FREE(session, data);
@@ -1627,15 +1639,15 @@ int ssh2_packet_requirev(LIBSSH2_SESSION *session,
                          const unsigned char *match_buf, size_t match_len,
                          struct packet_requirev_state *state)
 {
-    if(ssh2_packet_askv(session, packet_types, data, data_len, match_ofs,
-                        match_buf, match_len) == 0) {
+    if(packet_askv(session, packet_types, data, data_len,
+                   match_ofs, match_buf, match_len) == 0) {
         /* One of the packets listed was available in the packet brigade */
         state->start = 0;
         return 0;
     }
 
     if(state->start == 0)
-        state->start = time(NULL);
+        state->start = ssh2_now();
 
     while(session->socket_state != SSH2_SOCKET_DISCONNECTED) {
         int ret = ssh2_transport_read(session);
@@ -1644,8 +1656,8 @@ int ssh2_packet_requirev(LIBSSH2_SESSION *session,
             return ret;
         }
         if(ret <= 0) {
-            long left = session->packet_read_timeout -
-                (long)(time(NULL) - state->start);
+            ssh2_timediff_t left = session->packet_read_timeout -
+                (ssh2_now() - state->start);
 
             if(left <= 0) {
                 state->start = 0;
@@ -1656,10 +1668,9 @@ int ssh2_packet_requirev(LIBSSH2_SESSION *session,
         }
 
         if(strchr((const char *)packet_types, ret)) {
-            /* Be lazy, let packet_ask pull it out of the brigade */
-            ret = ssh2_packet_askv(session, packet_types, data,
-                                   data_len, match_ofs, match_buf,
-                                   match_len);
+            /* Be lazy, let packet_askv() pull it out of the brigade */
+            ret = packet_askv(session, packet_types, data, data_len,
+                              match_ofs, match_buf, match_len);
             state->start = 0;
             return ret;
         }

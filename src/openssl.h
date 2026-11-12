@@ -111,6 +111,9 @@
 #  if LIBWOLFSSL_VERSION_HEX < 0x05004000
 #    error "wolfSSL 5.4.0 or greater required"
 #  endif
+#  ifndef HAVE_ECC
+#    error "wolfSSL ECC support is required"
+#  endif
 #elif defined(LIBRESSL_VERSION_NUMBER)
 #  define SSH2_CRYPTO_ENGINE_NAME "LibreSSL"
 #  if LIBRESSL_VERSION_NUMBER < 0x3070000fL
@@ -125,9 +128,14 @@
 #    define SSH2_CRYPTO_ENGINE_NAME "BoringSSL"
 #  elif !defined(USE_OPENSSL_3)
 #    define SSH2_CRYPTO_ENGINE_NAME "OpenSSL/1.1.1"
+#    define USE_OPENSSL111
 #  else
 #    define SSH2_CRYPTO_ENGINE_NAME "OpenSSL"
 #  endif
+#endif
+#if !defined(LIBSSH2_WOLFSSL) && \
+    (defined(OPENSSL_NO_EC) || defined(OPENSSL_NO_ECDSA))
+#  error "OpenSSL ECC support is required"
 #endif
 
 #ifdef OPENSSL_NO_RSA
@@ -146,12 +154,7 @@
 # define LIBSSH2_DSA 1
 #endif
 
-#if (!defined(OPENSSL_NO_ECDSA) && !defined(OPENSSL_NO_EC)) || \
-    (defined(LIBSSH2_WOLFSSL) && defined(HAVE_ECC))
-# define LIBSSH2_ECDSA 1
-#else
-# define LIBSSH2_ECDSA 0
-#endif
+#define LIBSSH2_ECDSA 1
 
 #ifdef LIBSSH2_WOLFSSL
 # define LIBSSH2_ED25519 0
@@ -222,7 +225,7 @@
 # define LIBSSH2_3DES 1
 #endif
 
-#define LIBSSH2_KEY_SK  /* implements ssh2_sk_pub_keyfilememory() */
+#define LIBSSH2_KEY_SK  /* implements ssh2_sk_pubkey() */
 
 #include "crypto_config.h"
 
@@ -271,31 +274,33 @@
 #if LIBSSH2_RSA
 #ifdef USE_OPENSSL_3
 #define ssh2_rsa_ctx                 EVP_PKEY
-#define ssh2_rsa_free(rsa)           EVP_PKEY_free(rsa)
+#define ssh2_rsa_free(rsa, session)  (EVP_PKEY_free(rsa), (void)(session))
 #else
 #define ssh2_rsa_ctx                 RSA
-#define ssh2_rsa_free(rsa)           RSA_free(rsa)
+#define ssh2_rsa_free(rsa, session)  (RSA_free(rsa), (void)(session))
 #endif
 #endif /* LIBSSH2_RSA */
 
 #if LIBSSH2_DSA
 #ifdef USE_OPENSSL_3
 #define ssh2_dsa_ctx                 EVP_PKEY
-#define ssh2_dsa_free(dsa)           EVP_PKEY_free(dsa)
+#define ssh2_dsa_free(dsa, session)  (EVP_PKEY_free(dsa), (void)(session))
 #else
 #define ssh2_dsa_ctx                 DSA
-#define ssh2_dsa_free(dsa)           DSA_free(dsa)
+#define ssh2_dsa_free(dsa, session)  (DSA_free(dsa), (void)(session))
 #endif
 #endif /* LIBSSH2_DSA */
 
 #if LIBSSH2_ECDSA
 #ifdef USE_OPENSSL_3
 #define ssh2_ecdsa_ctx               EVP_PKEY
-#define ssh2_ecdsa_free(ec_ctx)      EVP_PKEY_free(ec_ctx)
+#define ssh2_ecdsa_free(ec_ctx, session) \
+    (EVP_PKEY_free(ec_ctx), (void)(session))
 #define ssh2_ec_key                  EVP_PKEY
 #else
 #define ssh2_ecdsa_ctx               EC_KEY
-#define ssh2_ecdsa_free(ec_ctx)      EC_KEY_free(ec_ctx)
+#define ssh2_ecdsa_free(ec_ctx, session) \
+    (EC_KEY_free(ec_ctx), (void)(session))
 #define ssh2_ec_key                  EC_KEY
 #endif
 
@@ -308,15 +313,13 @@ typedef enum {
 
 #if LIBSSH2_ED25519
 #define ssh2_ed25519_ctx             EVP_PKEY
-#define ssh2_ed25519_free(ed_ctx)    EVP_PKEY_free(ed_ctx)
+#define ssh2_ed25519_free(ed_ctx, session) \
+    (EVP_PKEY_free(ed_ctx), (void)(session))
 #endif /* LIBSSH2_ED25519 */
 
 #define SSH2_CIPHER_T(name)          const EVP_CIPHER *(*(name))(void)
 
 #define ssh2_cipher_ctx              EVP_CIPHER_CTX *
-
-#define ssh2_cipher_aes256gcm        EVP_aes_256_gcm
-#define ssh2_cipher_aes128gcm        EVP_aes_128_gcm
 
 #define ssh2_cipher_aes256           EVP_aes_256_cbc
 #define ssh2_cipher_aes192           EVP_aes_192_cbc
@@ -324,6 +327,8 @@ typedef enum {
 #define ssh2_cipher_aes128ctr        EVP_aes_128_ctr
 #define ssh2_cipher_aes192ctr        EVP_aes_192_ctr
 #define ssh2_cipher_aes256ctr        EVP_aes_256_ctr
+#define ssh2_cipher_aes256gcm        EVP_aes_256_gcm
+#define ssh2_cipher_aes128gcm        EVP_aes_128_gcm
 #define ssh2_cipher_blowfish         EVP_bf_cbc
 #define ssh2_cipher_arcfour          EVP_rc4
 #define ssh2_cipher_cast5            EVP_cast5_cbc
@@ -339,10 +344,9 @@ typedef enum {
 #define ssh2_bn                      BIGNUM
 #define ssh2_bn_init()               BN_new()
 #define ssh2_bn_set_word(bn, word)   !BN_set_word(bn, word)
-#define ssh2_bn_from_bin(bn, bin, l) (BN_bin2bn(bin, (int)(l), bn) ? 0 : -1)
 #define ssh2_bn_to_bin(bn, bin)      (BN_bn2bin(bn, bin) <= 0)
-#define ssh2_bn_bytes(bn)            BN_num_bytes(bn)
-#define ssh2_bn_bits(bn)             BN_num_bits(bn)
+#define ssh2_bn_bytes(bn)            ((size_t)BN_num_bytes(bn))
+#define ssh2_bn_bits(bn)             ((size_t)BN_num_bits(bn))
 #define ssh2_bn_free(bn)             BN_clear_free(bn)
 
 #define ssh2_dh_ctx                  BIGNUM *

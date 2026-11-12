@@ -51,9 +51,6 @@
 /* use FIONBIO for non-blocking sockets */
 #undef HAVE_FIONBIO
 
-/* Define to 1 if you have the `gettimeofday' function. */
-#define HAVE_GETTIMEOFDAY 1
-
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
 
@@ -72,26 +69,14 @@
 /* Define to 1 if you have the `poll' function. */
 #undef HAVE_POLL
 
-/* Define to 1 if you have the select function. */
-#define HAVE_SELECT 1
-
 /* use SO_NONBLOCK for non-blocking sockets */
 #undef HAVE_SO_NONBLOCK
-
-/* Define to 1 if you have the `strtoll' function. */
-#define HAVE_STRTOLL 1
 
 /* Define to 1 if you have the <sys/ioctl.h> header file. */
 #define HAVE_SYS_IOCTL_H 1
 
 /* Define to 1 if you have the <sys/select.h> header file. */
 #undef HAVE_SYS_SELECT_H
-
-/* Define to 1 if you have the <sys/socket.h> header file. */
-#define HAVE_SYS_SOCKET_H 1
-
-/* Define to 1 if you have the <sys/time.h> header file. */
-#define HAVE_SYS_TIME_H 1
 
 /* Define to 1 if you have the <sys/uio.h> header file. */
 #define HAVE_SYS_UIO_H 1
@@ -119,10 +104,6 @@
 
 /* Use OS/400 Qc3 */
 #define LIBSSH2_OS400QC3
-
-/* Use our platform-specific local implementation:
-   _libssh2_os400_snprintf */
-#define HAVE_SNPRINTF 1
 
 /* Define to the subdirectory in which libtool stores uninstalled libraries.
  */

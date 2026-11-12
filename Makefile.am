@@ -18,6 +18,19 @@ include_HEADERS = \
 
 DISTCLEANFILES =
 
+CMAKE_DIST =                                     \
+  cmake/CheckFunctionExistsMayNeedLibrary.cmake  \
+  cmake/CheckNonblockingSocketSupport.cmake      \
+  cmake/FindLibgcrypt.cmake                      \
+  cmake/FindMbedTLS.cmake                        \
+  cmake/FindWolfSSL.cmake                        \
+  cmake/libssh2-config.in.cmake                  \
+  cmake/PickyWarnings.cmake                      \
+  CMakeLists.txt                                 \
+  tests/cmake/CMakeLists.txt                     \
+  tests/cmake/test.c                             \
+  tests/cmake/test.sh
+
 VMSFILES = vms/libssh2_make_example.dcl vms/libssh2_make_help.dcl \
   vms/libssh2_make_kit.dcl vms/libssh2_make_lib.dcl vms/man2help.c \
   vms/readme.vms vms/libssh2_config.h vms/.checksrc
@@ -52,7 +65,7 @@ SCRIPTSFILES = \
   scripts/codespell-ignore.words
 
 EXTRA_DIST = $(WIN32FILES) RELEASE-NOTES libssh2.pc.in $(VMSFILES) \
-  CMakeLists.txt cmake libssh2-style.el README.md $(OS400FILES) $(SCRIPTSFILES)
+  $(CMAKE_DIST) libssh2-style.el README.md $(OS400FILES) $(SCRIPTSFILES)
 
 ACLOCAL_AMFLAGS = -I m4
 

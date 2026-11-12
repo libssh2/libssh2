@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 AM_CPPFLAGS = -I$(top_builddir)/include
+AM_CPPFLAGS += -DLIBSSH2_TESTS
+
 LDADD = $(top_builddir)/src/libssh2.la
 
 if USE_OSSFUZZ_FLAG

@@ -23,8 +23,8 @@ int libssh2_userauth_publickey_sk(
     size_t username_len,
     const unsigned char *publickeydata,
     size_t publickeydata_len,
-    const char *privatekeydata,
-    size_t privatekeydata_len,
+    const char *privkeyblob,
+    size_t privkeyblob_len,
     const char *passphrase,
     LIBSSH2_USERAUTH_SK_SIGN_FUNC(*sign_callback),
     void **abstract);
@@ -48,7 +48,7 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
 int name(LIBSSH2_SESSION *session, LIBSSH2_SK_SIG_INFO *sig_info,
          const unsigned char *data, size_t data_len, int algorithm,
          uint8_t flags, const char *application,
-         const unsigned char *key_handle, size_t handle_len,
+         const unsigned char *key_handle, size_t key_handle_len,
          void **abstract);
 ~~~
 
@@ -61,15 +61,15 @@ int name(LIBSSH2_SESSION *session, LIBSSH2_SK_SIG_INFO *sig_info,
 *username_len* - Length of username parameter.
 
 *publickeydata* - Buffer containing the contents of a public key file. If
-NULL, the public key is extracted from the privatekeydata. When using
+NULL, the public key is extracted from the privkeyblob. When using
 certificate authentication, this buffer should contain the public certificate
 data.
 
 *publickeydata_len* - Length of public key data.
 
-*privatekeydata* - Buffer containing the contents of a private key file.
+*privkeyblob* - Buffer containing the contents of a private key file.
 
-*privatekeydata_len* - Length of private key data.
+*privkeyblob_len* - Length of private key data.
 
 *passphrase* - Passphrase to use when decoding private key file.
 
@@ -107,7 +107,7 @@ authenticator. Usually "ssh:".
 
 *key_handle* - The key handle to use for the authenticator's allow list.
 
-*handle_len* - The length of the key_handle parameter.
+*key_handle_len* - The length of the key_handle parameter.
 
 *abstract* - User-defined data. When a PIN is required, use this to pass in
 the PIN, or a function pointer to retrieve the PIN.
@@ -128,15 +128,15 @@ to the callback.
 *sig_r* - For Ed25519 signatures, this contains the entire signature, as
 returned directly from the authenticator. For ECDSA signatures, this contains
 the r component of the signature in a big-endian binary representation. For
-both algorithms, use SSH2_ALLOC to allocate memory. It is freed by the
-caller.
+both algorithms, use the custom LIBSSH2_ALLOC_FUNC (or, if not set, the
+default system allocator) to allocate memory. It is freed by the caller.
 
 *sig_r_len* - The length of the sig_r parameter.
 
 *sig_s* - For ECDSA signatures, this contains the s component of the
-signature in a big-endian binary representation. Use SSH2_ALLOC to allocate
-memory. It is freed by the caller. For Ed25519 signatures, set this to
-NULL.
+signature in a big-endian binary representation. Use the custom
+LIBSSH2_ALLOC_FUNC (or, if not set, the default system allocator) to allocate
+memory. It is freed by the caller. For Ed25519 signatures, set this to NULL.
 
 *sig_s_len* - The length of the sig_s parameter.
 

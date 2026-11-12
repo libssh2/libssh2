@@ -154,7 +154,6 @@ static void Blowfish_decipher(struct blf_ctx *c, uint32_t *xl, uint32_t *xr)
 static void Blowfish_initstate(struct blf_ctx *c)
 {
     /* P-box and S-box tables initialized with digits of Pi */
-
     static const struct blf_ctx initstate = {
         {
             {

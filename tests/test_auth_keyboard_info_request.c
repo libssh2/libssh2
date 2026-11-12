@@ -215,7 +215,6 @@ failed_malloc_test_cases[FAILED_MALLOC_TEST_CASES_LEN] = {
 };
 
 static int alloc_count = 0;
-static int free_count = 0;
 
 static LIBSSH2_ALLOC_FUNC(test_alloc)
 {
@@ -231,7 +230,6 @@ static LIBSSH2_ALLOC_FUNC(test_alloc)
 static LIBSSH2_FREE_FUNC(test_free)
 {
     (void)abstract;
-    free_count++;
     free(ptr);
 }
 
@@ -245,7 +243,6 @@ static int test_case(int num,
     LIBSSH2_SESSION *session;
 
     alloc_count = 0;
-    free_count = 0;
 
     session = libssh2_session_init_ex(test_alloc, test_free, NULL, abstract);
     if(!session) {
@@ -253,9 +250,11 @@ static int test_case(int num,
         return 1;
     }
 
-    session->userauth_kybd_data = SSH2_ALLOC(session, data_len);
-    session->userauth_kybd_data_len = data_len;
-    memcpy(session->userauth_kybd_data, data, data_len);
+    if(data_len) {
+        session->userauth_kybd_data = SSH2_ALLOC(session, data_len);
+        session->userauth_kybd_data_len = data_len;
+        memcpy(session->userauth_kybd_data, data, data_len);
+    }
 
     rc = userauth_keyboard_interactive_decode_info_request(session);
 

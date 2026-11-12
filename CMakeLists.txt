@@ -87,7 +87,7 @@ endfunction()
 
 # CMake does not recognize some targets accurately. Touch up configuration manually as a workaround.
 if(WINDOWS_STORE AND MINGW)  # mingw UWP build
-  # CMake (as of v3.31.2) gets confused and applies the MSVC rc.exe command-line
+  # CMake (as of 3.31.2) gets confused and applies the MSVC rc.exe command-line
   # template to windres. Reset it to the windres template via 'Modules/Platform/Windows-windres.cmake':
   set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> -O coff <DEFINES> <INCLUDES> <FLAGS> <SOURCE> <OBJECT>")
 endif()
@@ -174,6 +174,18 @@ if(NOT LIBSSH2_DISABLE_INSTALL)
       COPYING NEWS README RELEASE-NOTES
       docs/AUTHORS docs/BINDINGS.md docs/HACKING.md
     DESTINATION ${CMAKE_INSTALL_DOCDIR})
+endif()
+
+if(WIN32)
+  if(WINDOWS_STORE)
+    set(ENABLE_UNICODE ON)
+  else()
+    option(ENABLE_UNICODE "Use the Unicode version of the Windows API functions" OFF)
+    add_feature_info("Unicode" ENABLE_UNICODE "Use Unicode (wide) Win32 and CRT APIs")
+  endif()
+  if(ENABLE_UNICODE)
+    set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "UNICODE" "_UNICODE")
+  endif()
 endif()
 
 set(LIBSSH2_LIBS_SOCKET "")
@@ -300,42 +312,25 @@ include(PickyWarnings)
 # Keep this synced with src/libssh2_setup.h
 if(WIN32)
   if(MINGW)
-    set(HAVE_SNPRINTF 1)
     set(HAVE_UNISTD_H 1)
     set(HAVE_INTTYPES_H 1)
-    set(HAVE_SYS_TIME_H 1)
-    set(HAVE_GETTIMEOFDAY 1)
-    set(HAVE_STRTOLL 1)
   elseif(MSVC)
-    set(HAVE_GETTIMEOFDAY 0)
     set(HAVE_UNISTD_H 0)
-    set(HAVE_SYS_TIME_H 0)
     if(MSVC_VERSION GREATER_EQUAL 1800)
       set(HAVE_INTTYPES_H 1)
-      set(HAVE_STRTOLL 1)
     else()
       set(HAVE_INTTYPES_H 0)
-      set(HAVE_STRTOLL 0)
-      set(HAVE_STRTOI64 1)
-    endif()
-    if(MSVC_VERSION GREATER_EQUAL 1900)
-      set(HAVE_SNPRINTF 1)
-    else()
-      set(HAVE_SNPRINTF 0)
     endif()
   endif()
   set(HAVE_POLL 0)
-  set(HAVE_SELECT 1)
 endif()
 
 ## Platform checks
 check_include_files("inttypes.h" HAVE_INTTYPES_H)
 check_include_files("unistd.h" HAVE_UNISTD_H)
-check_include_files("sys/time.h" HAVE_SYS_TIME_H)  # Available on all non-Windows and mingw-w64
 if(NOT WIN32)
   check_include_files("sys/select.h" HAVE_SYS_SELECT_H)
   check_include_files("sys/uio.h" HAVE_SYS_UIO_H)
-  check_include_files("sys/socket.h" HAVE_SYS_SOCKET_H)
   check_include_files("sys/ioctl.h" HAVE_SYS_IOCTL_H)
   check_include_files("sys/un.h" HAVE_SYS_UN_H)
   check_include_files("arpa/inet.h" HAVE_ARPA_INET_H)  # example and tests
@@ -350,21 +345,14 @@ if(MSVC AND ENABLE_WERROR)
   string(APPEND CMAKE_REQUIRED_FLAGS " -WX-")
 endif()
 
-if(HAVE_SYS_TIME_H)
-  check_symbol_exists("gettimeofday" "sys/time.h" HAVE_GETTIMEOFDAY)
-else()
-  check_function_exists("gettimeofday" HAVE_GETTIMEOFDAY)
-endif()
-check_symbol_exists("strtoll" "stdlib.h" HAVE_STRTOLL)
-if(NOT HAVE_STRTOLL)
-  # Try _strtoi64() if strtoll() is not available
-  check_symbol_exists("_strtoi64" "stdlib.h" HAVE_STRTOI64)
-endif()
-check_symbol_exists("snprintf" "stdio.h" HAVE_SNPRINTF)
 if(NOT WIN32)
-  check_symbol_exists("explicit_bzero" "string.h" HAVE_EXPLICIT_BZERO)
-  check_symbol_exists("explicit_memset" "string.h" HAVE_EXPLICIT_MEMSET)
   check_symbol_exists("memset_s" "string.h" HAVE_MEMSET_S)
+  if(NOT HAVE_MEMSET_S)
+    check_symbol_exists("explicit_bzero" "string.h" HAVE_EXPLICIT_BZERO)
+    if(NOT HAVE_EXPLICIT_BZERO)
+      check_function_exists("memset_explicit" HAVE_MEMSET_EXPLICIT)
+    endif()
+  endif()
 endif()
 
 if(MSVC AND ENABLE_WERROR)
@@ -388,7 +376,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin" OR
 else()
   check_function_exists("poll" HAVE_POLL)
 endif()
-check_function_exists("select" HAVE_SELECT)
 
 # Non-blocking socket support tests. Use a separate, yet unset variable
 # for the socket libraries to not link against the other configured
@@ -492,7 +479,7 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_WINCNG")
     list(APPEND LIBSSH2_LIBS "crypt32" "bcrypt")
 
-    option(ENABLE_ECDSA_WINCNG "Enable WinCNG ECDSA support (requires Windows 10 or later)" OFF)
+    option(ENABLE_ECDSA_WINCNG "Enable WinCNG ECDSA support (requires Windows 10 or newer)" OFF)
     add_feature_info("WinCNG" ENABLE_ECDSA_WINCNG "WinCNG ECDSA support")
     if(ENABLE_ECDSA_WINCNG)
       set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "LIBSSH2_ECDSA_WINCNG")

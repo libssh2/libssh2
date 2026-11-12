@@ -49,33 +49,34 @@
 #define SSH2_SEND_LOW  send
 #endif
 
+#if defined(_MSC_VER) && _MSC_VER < 1900
 /* snprintf is not in pre-VS2015 CRTs and _snprintf dangerously incompatible.
-   We provide a safe wrapper for these environments */
-#ifndef HAVE_SNPRINTF
-#include <stdarg.h>
-
-/* Want safe, 'n += snprintf(b + n ...)' like function. Returns number of chars
-   placed in cp excluding the null-terminator. For cp_max_len > 0 the return
-   value is always < cp_max_len; for cp_max_len == 0 the return value is 0 (and
-   no chars are written to cp). Always null-terminate the output. */
-int ssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
+   Replicate standard snprintf using _vsnprintf_s and _vscprintf. */
+#if _MSC_VER < 1800  /* for VS2010, VS2012 */
+#define va_copy(dest, src) ((dest) = (src))
+#endif
+int ssh2_vsnprintf(char *buf, size_t buf_len, const char *fmt, va_list args)
 {
-    va_list args;
-    int n;
-    if(!cp_max_len)
-        return 0;
-    if(cp_max_len == 1) {
-        if(cp)
-            cp[0] = 0;
-        return 0;
+    if(buf && buf_len) {
+        int ret;
+        va_list args_dupe;
+        va_copy(args_dupe, args);
+        ret = _vsnprintf_s(buf, buf_len, _TRUNCATE, fmt, args_dupe);
+        va_end(args_dupe);
+        if(ret >= 0)
+            return ret;
     }
+    return _vscprintf(fmt, args);
+}
+
+int ssh2_snprintf(char *buf, size_t buf_len, const char *fmt, ...)
+{
+    int ret;
+    va_list args;
     va_start(args, fmt);
-    /* !checksrc! disable BANNEDFUNC 1 */
-    n = vsnprintf(cp, cp_max_len, fmt, args);
-    if(cp)
-        cp[cp_max_len - 1] = 0;
+    ret = ssh2_vsnprintf(buf, buf_len, fmt, args);
     va_end(args);
-    return (n < (int)cp_max_len) ? n : (int)(cp_max_len - 1);
+    return ret;
 }
 #endif
 
@@ -203,6 +204,26 @@ ssize_t ssh2_send(libssh2_socket_t socket,
     return rc;
 }
 
+void ssh2_swap_bytes(unsigned char *buf, size_t len)
+{
+#if !defined(WORDS_BIGENDIAN) || !WORDS_BIGENDIAN
+    if(buf && len >= 2) {
+        unsigned char *start = buf;
+        unsigned char *end = buf + len - 1;
+        while(start < end) {
+            unsigned char tmp = *end;
+            *end = *start;
+            *start = tmp;
+            start++;
+            end--;
+        }
+    }
+#else
+    (void)buf;
+    (void)len;
+#endif
+}
+
 uint32_t ssh2_ntohu32(const unsigned char *buf)
 {
     return
@@ -255,7 +276,7 @@ void ssh2_store_u64(unsigned char **buf, libssh2_uint64_t value)
     *buf += sizeof(libssh2_uint64_t);
 }
 
-int ssh2_store_str(unsigned char **buf, const char *str, size_t len)
+int ssh2_store_str(unsigned char **buf, const void *str, size_t len)
 {
     uint32_t len_stored = (uint32_t)len;
 
@@ -269,8 +290,8 @@ int ssh2_store_str(unsigned char **buf, const char *str, size_t len)
     return len_stored == len;
 }
 
-int ssh2_store_hybrid_str(unsigned char **buf, const char *str_1,
-                          size_t len_1, const char *str_2, size_t len_2)
+int ssh2_store_hybrid_str(unsigned char **buf, const void *str_1,
+                          size_t len_1, const void *str_2, size_t len_2)
 {
     uint32_t len_stored;
 
@@ -378,7 +399,12 @@ int libssh2_base64_decode(LIBSSH2_SESSION *session,
 #endif
 
 /*
- * Decode a base64 chunk and store it into a newly alloc'd buffer
+ * Decode a base64 chunk and store it into a newly allocated buffer
+ *
+ * Requires return buffer and length pointer to be non-NULL.
+ * Always initializes return buffer and length.
+ * Returns error and a NULL buffer if the internal allocation failed.
+ * May return success on zero 'src_len'.
  */
 int ssh2_base64_decode(LIBSSH2_SESSION *session,
                        char **data, size_t *datalen,
@@ -515,8 +541,6 @@ void libssh2_free(LIBSSH2_SESSION *session, void *ptr)
 }
 
 #ifdef LIBSSH2DEBUG
-#include <stdarg.h>
-
 int libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
 {
     if(!session)
@@ -538,11 +562,6 @@ int libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *context,
 void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
                   const char *format, ...)
 {
-    char buffer[1536];
-    int len, msglen, buflen = sizeof(buffer);
-    va_list vargs;
-    struct timeval now;
-    static long firstsec;
     static const char * const contexts[] = {
         "Unknown",
         "Transport",
@@ -555,6 +574,12 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
         "Publickey",
         "Socket",
     };
+    static ssh2_time_t firstnow;
+
+    char buffer[1536];
+    int len, msglen, buflen = sizeof(buffer);
+    va_list vargs;
+    ssh2_time_t now;
     const char *contexttext = contexts[0];
     unsigned int contextindex;
 
@@ -570,16 +595,21 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
         }
     }
 
-    gettimeofday(&now, NULL);
-    if(!firstsec)
-        firstsec = now.tv_sec;
-    now.tv_sec -= firstsec;
+    now = ssh2_now();
+    if(!firstnow)
+        firstnow = now;
+    now -= firstnow;
 
-    len = ssh2_snprintf(buffer, buflen, "[libssh2] %d.%06d %s: ",
-                        (int)now.tv_sec, (int)now.tv_usec, contexttext);
-
-    if(len >= buflen)
-        msglen = buflen - 1;
+    /* '[libssh2] 99999999999999999999.99999999999999999999 Failure Event: ' */
+    len = ssh2_snprintf(buffer, buflen, "[libssh2]"
+                        " %" SSH2_TIME_T_FORMAT ".%06" SSH2_TIME_T_FORMAT
+                        " %s: ",
+                        ssh2_timediff_to_sec(now),
+                        ssh2_timediff_to_usec(now), contexttext);
+    if(len < 0 || len >= buflen) {
+        msglen = len < 0 ? 0 : (buflen - 1);
+        buffer[msglen] = '\0';
+    }
     else {
         buflen -= len;
         msglen = len;
@@ -588,24 +618,27 @@ void ssh2_deb_low(LIBSSH2_SESSION *session, int context,
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 #endif
-        /* !checksrc! disable BANNEDFUNC 1 */
-        len = vsnprintf(buffer + msglen, buflen, format, vargs);
+        len = ssh2_vsnprintf(buffer + msglen, buflen, format, vargs);
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
         va_end(vargs);
-        msglen += len < buflen ? len : buflen - 1;
+        if(len < 0 || len >= buflen) {
+            msglen += len < 0 ? 0 : (buflen - 1);
+            buffer[msglen] = '\0';
+        }
+        else
+            msglen += len;
     }
 
     if(session && session->tracehandler)
-        (session->tracehandler)(session, session->tracehandler_context, buffer,
-                                msglen);
+        session->tracehandler(session, session->tracehandler_context, buffer,
+                              msglen);
     else
         /* !checksrc! disable BANNEDFUNC 1 */
         fprintf(stderr, "%s\n", buffer);
 }
-
-#else
+#else /* !LIBSSH2DEBUG */
 int libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
 {
     (void)session;
@@ -711,53 +744,42 @@ void ssh2_list_insert(struct list_node *after, /* insert before this */
     /* entry's head is the same as after's */
     entry->head = after->head;
 }
-
 #endif
 
-/* Defined in libssh2_priv.h for the correct platforms */
-#ifdef LIBSSH2_GETTIMEOFDAY
-
-/*
- * Implementation according to:
- * The Open Group Base Specifications Issue 6
- * IEEE Std 1003.1, 2004 Edition
- *
- * THIS SOFTWARE IS NOT COPYRIGHTED
- *
- * This source code is offered for use in the public domain. You may
- * use, modify or distribute it freely.
- *
- * This code is distributed in the hope that it is useful but
- * WITHOUT ANY WARRANTY. ALL WARRANTIES, EXPRESS OR IMPLIED ARE HEREBY
- * DISCLAIMED. This includes but is not limited to warranties of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- */
-int ssh2_gettimeofday(struct timeval *tp, void *tzp)
+ssh2_time_t ssh2_now(void) /* us */
 {
-    (void)tzp;
-    if(tp) {
 #ifdef _WIN32
-/* Offset between 1601-01-01 and 1970-01-01 in 100 nanosec units */
-#define SSH2_WIN32_FT_OFFSET 116444736000000000
-
-        union {
-            libssh2_uint64_t ns100; /* time since 1 Jan 1601 in 100ns units */
-            FILETIME ft;
-        } now;
-        GetSystemTimeAsFileTime(&now.ft);
-        tp->tv_usec = (long)((now.ns100 / 10) % 1000000);
-        tp->tv_sec = (long)((now.ns100 - SSH2_WIN32_FT_OFFSET) / 10000000);
+    ssh2_time_t sec, ns;
+    LARGE_INTEGER freq, count;
+    /* These never fail on supported Windows versions */
+    QueryPerformanceFrequency(&freq);
+    QueryPerformanceCounter(&count);
+    sec = (ssh2_time_t)(count.QuadPart / freq.QuadPart);
+    ns = (ssh2_time_t)(((count.QuadPart % freq.QuadPart) *
+        1000000000) / freq.QuadPart);
+    return sec * 1000000 + ns / 1000;
+#else /* !_WIN32 */
+#if defined(CLOCK_MONOTONIC_RAW) /* Apple/Linux */
+    struct timespec ts;
+    if(!clock_gettime(CLOCK_MONOTONIC_RAW, &ts))
+        return (ssh2_time_t)ts.tv_sec * 1000000 +
+            (ssh2_time_t)ts.tv_nsec / 1000;
+#elif defined(CLOCK_MONOTONIC) /* POSIX */
+    struct timespec ts;
+    if(!clock_gettime(CLOCK_MONOTONIC, &ts))
+        return (ssh2_time_t)ts.tv_sec * 1000000 +
+            (ssh2_time_t)ts.tv_nsec / 1000;
 #else
-        /* Platforms without a native implementation or local replacement */
-        tp->tv_usec = 0;
-        tp->tv_sec = 0;
+    struct timeval tv;
+    if(!gettimeofday(&tv, NULL))
+        return (ssh2_time_t)tv.tv_sec * 1000000 + (ssh2_time_t)tv.tv_usec;
 #endif
+    {
+        ssh2_time_t us = (ssh2_time_t)time(NULL) * 1000000;
+        return us ? us : 1;
     }
-    /* Always return 0 as per Open Group Base Specifications Issue 6.
-       Do not set errno on error.  */
-    return 0;
+#endif /* _WIN32 */
 }
-#endif
 
 void *ssh2_calloc(LIBSSH2_SESSION *session, size_t size)
 {
@@ -767,27 +789,28 @@ void *ssh2_calloc(LIBSSH2_SESSION *session, size_t size)
     return p;
 }
 
-/* XOR operation on buffers input1 and input2, result in output.
-   It is safe to use an input buffer as the output buffer. */
-void ssh2_xor_data(unsigned char *output,
-                   const unsigned char *input1,
-                   const unsigned char *input2,
-                   size_t length)
-{
-    size_t i;
-
-    for(i = 0; i < length; i++)
-        *output++ = *input1++ ^ *input2++;
-}
-
 #ifdef LIBSSH2_MEMZERO
-static void *(* const volatile memset_libssh)(void *, int, size_t) = memset;
+static void *(* const volatile p_ssh2_memset)(void *buf, int val,
+                                              size_t size) = memset;
 
-void ssh2_memzero(void *buf, size_t size)
+/* Local fallback in case there is no system function to securely zero a memory
+   buffer. */
+void ssh2_explicit_zero(void *buf, size_t size)
 {
-    memset_libssh(buf, 0, size);
+    p_ssh2_memset(buf, 0, size);
 }
 #endif
+
+void ssh2_zero_free(LIBSSH2_SESSION *session, void *buf, size_t len)
+{
+    if(!buf)
+        return;
+
+    if(len)
+        ssh2_explicit_zero(buf, len);
+
+    SSH2_FREE(session, buf);
+}
 
 /* String buffer */
 
@@ -855,11 +878,16 @@ int ssh2_get_u64(struct string_buf *buf, libssh2_uint64_t *out)
 
 int ssh2_match_string(struct string_buf *buf, const char *match)
 {
-    unsigned char *out;
-    size_t len = 0;
-    if(ssh2_get_string(buf, &out, &len) || len != strlen(match) ||
-       strncmp((const char *)out, match, strlen(match)))
+    char *out;
+    size_t len = 0, match_len;
+
+    if(ssh2_get_chars(buf, &out, &len))
         return -1;
+
+    match_len = strlen(match);
+    if(len != match_len || strncmp(out, match, match_len))
+        return -1;
+
     return 0;
 }
 
@@ -880,6 +908,23 @@ int ssh2_get_string(struct string_buf *buf, unsigned char **outbuf,
     return 0;
 }
 
+/* Same as ssh2_get_string() but returning 'char **' pointer */
+int ssh2_get_chars(struct string_buf *buf, char **outbuf, size_t *outlen)
+{
+    uint32_t data_len;
+    if(!buf || ssh2_get_u32(buf, &data_len) != 0)
+        return -1;
+    if(!ssh2_check_length(buf, data_len))
+        return -1;
+    *outbuf = (char *)buf->dataptr;
+    buf->dataptr += data_len;
+
+    if(outlen)
+        *outlen = (size_t)data_len;
+
+    return 0;
+}
+
 int ssh2_copy_string(LIBSSH2_SESSION *session, struct string_buf *buf,
                      unsigned char **outbuf, size_t *outlen)
 {
@@ -890,9 +935,16 @@ int ssh2_copy_string(LIBSSH2_SESSION *session, struct string_buf *buf,
         return -1;
 
     if(str_len) {
-        *outbuf = SSH2_ALLOC(session, str_len);
-        if(*outbuf)
+        if(str_len >= SIZE_MAX) {
+            *outbuf = NULL;
+            return -1;
+        }
+
+        *outbuf = SSH2_ALLOC(session, str_len + 1);
+        if(*outbuf) {
             memcpy(*outbuf, str, str_len);
+            (*outbuf)[str_len] = '\0';
+        }
         else
             return -1;
     }
@@ -953,8 +1005,8 @@ int ssh2_eob(struct string_buf *buf)
 
 int ssh2_timingsafe_bcmp(const void *b1, const void *b2, size_t n)
 {
-    const unsigned char *p1 = (const unsigned char *)b1;
-    const unsigned char *p2 = (const unsigned char *)b2;
+    const unsigned char *p1 = b1;
+    const unsigned char *p2 = b2;
     int ret = 0;
 
     for(; n > 0; n--)
@@ -963,36 +1015,304 @@ int ssh2_timingsafe_bcmp(const void *b1, const void *b2, size_t n)
 }
 
 #ifndef LIBSSH2_KEY_SK
-int ssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
-                              unsigned char **method,
-                              size_t *method_len,
-                              unsigned char **pubkeydata,
-                              size_t *pubkeydata_len,
-                              int *algorithm,
-                              unsigned char *flags,
-                              const char **application,
-                              const unsigned char **key_handle,
-                              size_t *handle_len,
-                              const char *privatekeydata,
-                              size_t privatekeydata_len,
-                              const unsigned char *passphrase)
+int ssh2_sk_pubkey(LIBSSH2_SESSION *session, char **method,
+                   unsigned char **pubkeydata, size_t *pubkeydata_len,
+                   int *algorithm, unsigned char *flags,
+                   const char **application,
+                   const unsigned char **key_handle, size_t *key_handle_len,
+                   const char *privkeyfile,
+                   const char *privkeyblob, size_t privkeyblob_len,
+                   const char *passphrase)
 {
     (void)method;
-    (void)method_len;
     (void)pubkeydata;
     (void)pubkeydata_len;
     (void)algorithm;
     (void)flags;
     (void)application;
     (void)key_handle;
-    (void)handle_len;
-    (void)privatekeydata;
-    (void)privatekeydata_len;
+    (void)key_handle_len;
+    (void)privkeyfile;
+    (void)privkeyblob;
+    (void)privkeyblob_len;
     (void)passphrase;
 
     return ssh2_err(session, LIBSSH2_ERROR_FILE,
-                    "Unable to extract public SK key from private key file: "
+                    "Unable to extract public SK key from private key: "
                     "Method unimplemented in "
                     SSH2_CRYPTO_ENGINE_NAME " backend");
 }
 #endif
+
+#ifdef _WIN32
+#include <share.h>  /* for _SH_DENYNO */
+#include <stdlib.h>  /* for malloc(), free() */
+#include <tchar.h>  /* for _tcsncmp() */
+
+#ifdef _UNICODE
+static wchar_t *ssh2_win32_fn_convert_UTF8_to_wchar(const char *str_utf8)
+{
+    wchar_t *str_w = NULL;
+
+    if(str_utf8) {
+        int str_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+                                            str_utf8, -1, NULL, 0);
+        if(str_w_len > 0) {
+            str_w = malloc(str_w_len * sizeof(wchar_t));
+            if(str_w) {
+                if(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
+                                       str_utf8, -1, str_w, str_w_len) == 0) {
+                    free(str_w);
+                    return NULL;
+                }
+            }
+        }
+    }
+    return str_w;
+}
+#endif
+
+/* declare GetFullPathNameW for mingw-w64 UWP builds targeting old Windows */
+#if defined(LIBSSH2_WINDOWS_UWP) && defined(__MINGW32__) && \
+  (_WIN32_WINNT < _WIN32_WINNT_WIN10)
+WINBASEAPI DWORD WINAPI GetFullPathNameW(LPCWSTR, DWORD, LPWSTR, LPWSTR *);
+#endif
+
+/* Fix excessive paths (paths that exceed MAX_PATH length of 260).
+ *
+ * This is a helper function to fix paths that would exceed the MAX_PATH
+ * limitation check done by Windows APIs. It does so by normalizing the passed
+ * in filename or path 'in' to its full canonical path, and if that path is
+ * longer than MAX_PATH then setting 'out' to "\\?\" prefix + that full path.
+ *
+ * For example 'in' filename255chars in current directory C:\foo\bar is
+ * fixed as \\?\C:\foo\bar\filename255chars for 'out' which tells Windows
+ * it is ok to access that filename even though the actual full path is longer
+ * than 260 chars.
+ *
+ * For non-Unicode builds this function may fail sometimes because only the
+ * Unicode versions of some Windows API functions can access paths longer than
+ * MAX_PATH, for example GetFullPathNameW which is used in this function. When
+ * the full path is then converted from Unicode to multibyte that fails if any
+ * directories in the path contain characters not in the current codepage.
+ */
+static int ssh2_win32_fix_excessive_path(const TCHAR *in, TCHAR **out)
+{
+    size_t needed, count;
+    const wchar_t *in_w;
+    wchar_t *fbuf = NULL;
+
+    /* MS-documented "approximate" limit for the maximum path length */
+    const size_t max_path_len = 32767;
+
+#ifndef _UNICODE
+    wchar_t *ibuf = NULL;
+    char *obuf = NULL;
+#endif
+
+    *out = NULL;
+
+    /* skip paths already normalized */
+    if(!_tcsncmp(in, _TEXT("\\\\?\\"), 4))
+        goto cleanup;
+
+#ifndef _UNICODE
+    /* convert multibyte input to unicode */
+    if(mbstowcs_s(&needed, NULL, 0, in, 0))
+        goto cleanup;
+    if(!needed || needed >= max_path_len)
+        goto cleanup;
+    ibuf = malloc(needed * sizeof(wchar_t));
+    if(!ibuf)
+        goto cleanup;
+    if(mbstowcs_s(&count, ibuf, needed, in, needed - 1))
+        goto cleanup;
+    if(count != needed)
+        goto cleanup;
+    in_w = ibuf;
+#else
+    in_w = in;
+#endif
+
+    /* GetFullPathNameW returns the normalized full path in unicode. It
+       converts forward slashes to backslashes, processes .. to remove
+       directory segments, etc. Unlike GetFullPathNameA it can process
+       paths that exceed MAX_PATH. */
+    needed = (size_t)GetFullPathNameW(in_w, 0, NULL, NULL);
+    if(!needed || needed > max_path_len)
+        goto cleanup;
+    /* skip paths that are not excessive and do not need modification */
+    if(needed <= MAX_PATH)
+        goto cleanup;
+    fbuf = malloc(needed * sizeof(wchar_t));
+    if(!fbuf)
+        goto cleanup;
+    count = (size_t)GetFullPathNameW(in_w, (DWORD)needed, fbuf, NULL);
+    if(!count || count >= needed)
+        goto cleanup;
+
+    /* prepend \\?\ or \\?\UNC\ to the excessively long path.
+     *
+     * c:\longpath            --->    \\?\c:\longpath
+     * \\.\c:\longpath        --->    \\?\c:\longpath
+     * \\?\c:\longpath        --->    \\?\c:\longpath  (unchanged)
+     * \\server\c$\longpath   --->    \\?\UNC\server\c$\longpath
+     *
+     * https://learn.microsoft.com/dotnet/standard/io/file-path-formats
+     */
+    if(!wcsncmp(fbuf, L"\\\\?\\", 4))
+        ; /* do nothing */
+    else if(!wcsncmp(fbuf, L"\\\\.\\", 4))
+        fbuf[2] = '?';
+    else if(!wcsncmp(fbuf, L"\\\\.", 3) || !wcsncmp(fbuf, L"\\\\?", 3))
+        /* Unexpected, not UNC. The formatting doc does not allow this
+           AFAICT. */
+        goto cleanup;
+    else {
+        wchar_t *temp;
+
+        if(!wcsncmp(fbuf, L"\\\\", 2)) {
+            /* "\\?\UNC\" + full path without "\\" + null */
+            needed = 8 + (count - 2) + 1;
+            if(needed > max_path_len)
+                goto cleanup;
+
+            temp = malloc(needed * sizeof(wchar_t));
+            if(!temp)
+                goto cleanup;
+
+            if(wcsncpy_s(temp, needed, L"\\\\?\\UNC\\", 8)) {
+                free(temp);
+                goto cleanup;
+            }
+            if(wcscpy_s(temp + 8, needed, fbuf + 2)) {
+                free(temp);
+                goto cleanup;
+            }
+        }
+        else {
+            /* "\\?\" + full path + null */
+            needed = 4 + count + 1;
+            if(needed > max_path_len)
+                goto cleanup;
+
+            temp = malloc(needed * sizeof(wchar_t));
+            if(!temp)
+                goto cleanup;
+
+            if(wcsncpy_s(temp, needed, L"\\\\?\\", 4)) {
+                free(temp);
+                goto cleanup;
+            }
+            if(wcscpy_s(temp + 4, needed, fbuf)) {
+                free(temp);
+                goto cleanup;
+            }
+        }
+
+        free(fbuf);
+        fbuf = temp;
+    }
+
+#ifndef _UNICODE
+    /* convert unicode full path to multibyte output */
+    if(wcstombs_s(&needed, NULL, 0, fbuf, 0))
+        goto cleanup;
+    if(!needed || needed >= max_path_len)
+        goto cleanup;
+    obuf = malloc(needed);
+    if(!obuf)
+        goto cleanup;
+    if(wcstombs_s(&count, obuf, needed, fbuf, needed - 1))
+        goto cleanup;
+    if(count != needed)
+        goto cleanup;
+    *out = obuf;
+    obuf = NULL;
+#else
+    *out = fbuf;
+    fbuf = NULL;
+#endif
+
+cleanup:
+    free(fbuf);
+#ifndef _UNICODE
+    free(ibuf);
+    free(obuf);
+#endif
+    return !!*out;
+}
+
+FILE *ssh2_fopen(const char *filename, const char *mode)
+{
+    FILE *fp = NULL;
+    TCHAR *fixed = NULL;
+    const TCHAR *target = NULL;
+
+#ifdef _UNICODE
+    wchar_t *filename_w = ssh2_win32_fn_convert_UTF8_to_wchar(filename);
+    wchar_t *mode_w = ssh2_win32_fn_convert_UTF8_to_wchar(mode);
+    if(filename_w && mode_w) {
+        if(ssh2_win32_fix_excessive_path(filename_w, &fixed))
+            target = fixed;
+        else
+            target = filename_w;
+        fp = _wfsopen(target, mode_w, _SH_DENYNO);
+    }
+    else
+        errno = EINVAL;
+    free(filename_w);
+    free(mode_w);
+#else
+    if(ssh2_win32_fix_excessive_path(filename, &fixed))
+        target = fixed;
+    else
+        target = filename;
+    fp = _fsopen(target, mode, _SH_DENYNO);
+#endif
+
+    free(fixed);
+    return fp;
+}
+#endif /* _WIN32 */
+
+/* given an ASCII character and max ascii, return TRUE if valid */
+#define valid_digit(x, m)  (((x) >= '0') && ((x) <= (m)))
+
+/* Get an unsigned number with no leading space or minus. Leading zeroes are
+   accepted. return non-zero on error */
+int ssh2_str_number(const char **linep,
+                    libssh2_int64_t *nump, libssh2_int64_t max,
+                    int base) /* 8 or 10, nothing else */
+{
+    libssh2_int64_t num = 0;
+    const char *p;
+    int m = (base == 10) ? '9' : '7';  /* the largest digit possible */
+    assert(linep && *linep && nump);
+    assert(base == 8 || base == 10);
+    assert(max >= 0); /* mostly to catch SIZE_MAX, which is too large */
+    *nump = 0;
+    p = *linep;
+    if(!valid_digit(*p, m))
+        return -1;
+    if(max < base) {
+        /* special-case low max scenario because check needs to be different */
+        do {
+            int n = *p++ - '0';
+            num = (num * base) + n;
+            if(num > max)
+                return -2;
+        } while(valid_digit(*p, m));
+    }
+    else {
+        do {
+            int n = *p++ - '0';
+            if(num > ((max - n) / base))
+                return -2;
+            num = (num * base) + n;
+        } while(valid_digit(*p, m));
+    }
+    *nump = num;
+    *linep = p;
+    return 0;
+}

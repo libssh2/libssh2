@@ -12,8 +12,8 @@
 
 /* set in Dockerfile */
 static const char *username = "libssh2";
-static const char *key_file_private = "key_rsa";
-static const char *key_file_public = "key_rsa.pub";
+static const char *key_file_private = "keys/id_rsa_pem";
+static const char *key_file_public = "keys/id_rsa_pem.pub";
 
 int test(LIBSSH2_SESSION *session)
 {
@@ -35,8 +35,8 @@ int test(LIBSSH2_SESSION *session)
     const char *env;
     const char *userauth_list;
 
-    /* Ignore our hard-wired Dockerfile user when not running under Docker */
-    if(!openssh_fixture_have_docker()) {
+    /* Ignore our hard-wired Dockerfile user when not using a container */
+    if(!openssh_fixture_have_container()) {
         username = getenv("USER");
 #ifdef _WIN32
         if(!username)
@@ -86,9 +86,9 @@ int test(LIBSSH2_SESSION *session)
     }
 
     /* command to transfer the desired amount of data */
-    ssh2_snprintf(remote_command, sizeof(remote_command),
-                  "dd if=/dev/zero bs=%lu count=%lu status=none",
-                  xfer_bs, xfer_count);
+    snprintf(remote_command, sizeof(remote_command),
+             "dd if=/dev/zero bs=%lu count=%lu status=none",
+             xfer_bs, xfer_count);
 
     /* Send the command to transfer data */
     if(libssh2_channel_exec(channel, remote_command)) {

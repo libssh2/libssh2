@@ -385,7 +385,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [jump-misses-init])
             tmp_CFLAGS="$tmp_CFLAGS -Wno-implicit-void-ptr-cast"
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [tentative-definition-compat])
-            if test "$curl_cv_native_windows" = "yes"; then
+            if test "x$have_windows_h" = "xyes"; then
               tmp_CFLAGS="$tmp_CFLAGS -Wno-c++-keyword"  # `wchar_t` triggers it on Windows
             else
               CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [c++-keyword])

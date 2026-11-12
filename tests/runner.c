@@ -35,13 +35,8 @@
 int main(void)
 {
     int exit_code;
-    int retries = 0, retry = 0;
-
-#ifdef LIBSSH2_WINCNG
-    /* FIXME: Retry tests with WinCNG due to flakiness in hostkey
-       verification: https://github.com/libssh2/libssh2/issues/804 */
-    retries += 2;
-#endif
+    /* Retry tests to mitigate flaky failures */
+    int retries = 2, retry = 0;
 
     do {
         int skipped, rc;
@@ -54,11 +49,10 @@ int main(void)
         }
         else
             exit_code = 1;
-        stop_session_fixture();
-        if(exit_code == 0 ||
-#ifdef LIBSSH2_WINCNG
-           rc != LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE ||
-#endif
+        stop_session_fixture(exit_code);
+        /* Retry:
+          'libssh2_session_handshake failed (-43): Failed getting banner' */
+        if(exit_code == 0 || rc != LIBSSH2_ERROR_SOCKET_RECV ||
            ++retry > retries) {
             break;
         }
@@ -66,5 +60,6 @@ int main(void)
                         rc, retry, retries);
     } while(1);
 
+    stop_session_fixture(exit_code);
     return exit_code;
 }

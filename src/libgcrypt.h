@@ -86,10 +86,12 @@
 #endif
 
 #define ssh2_rsa_ctx          struct gcry_sexp
-#define ssh2_rsa_free(rsa)    gcry_sexp_release(rsa)
+#define ssh2_rsa_free(rsa, session) \
+    (gcry_sexp_release(rsa), (void)(session))
 
 #define ssh2_dsa_ctx          struct gcry_sexp
-#define ssh2_dsa_free(dsa)    gcry_sexp_release(dsa)
+#define ssh2_dsa_free(dsa, session) \
+    (gcry_sexp_release(dsa), (void)(session))
 
 #define SSH2_CIPHER_T(name)   int name
 #define ssh2_cipher_ctx       gcry_cipher_hd_t
@@ -114,11 +116,9 @@
 
 #define ssh2_bn                        struct gcry_mpi
 #define ssh2_bn_init()                 gcry_mpi_new(0)
-#define ssh2_bn_init_from_bin()        NULL  /* because gcry_mpi_scan()
-                                                creates a new bignum */
-#define ssh2_bn_set_word(bn, word)     gcry_mpi_set_ui(bn, word)
+#define ssh2_bn_set_word(bn, word)     (gcry_mpi_set_ui(bn, word) ? 0 : 1)
 #define ssh2_bn_from_bin(bn, bin, len) \
-    gcry_mpi_scan(&(bn), GCRYMPI_FMT_USG, bin, len, NULL)
+    gcry_mpi_scan(bn, GCRYMPI_FMT_USG, bin, len, NULL)
 #define ssh2_bn_to_bin(bn, bin) \
     gcry_mpi_print(GCRYMPI_FMT_USG, bin, ssh2_bn_bytes(bn), NULL, bn)
 #define ssh2_bn_bytes(bn) \

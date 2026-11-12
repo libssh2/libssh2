@@ -33,12 +33,10 @@
 #ifndef LIBSSH2_TESTS_SESSION_FIXTURE_H
 #define LIBSSH2_TESTS_SESSION_FIXTURE_H
 
-#define LIBSSH2_TESTS
-
 #include "libssh2_priv.h"
 
 LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err);
-void stop_session_fixture(void);
+void stop_session_fixture(int exit_code);
 void print_last_session_error(const char *function);
 const char *srcdir_path(const char *file);
 

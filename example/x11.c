@@ -16,33 +16,31 @@
 
 #if defined(HAVE_SYS_UN_H) && !defined(LIBSSH2_NO_DEPRECATED)
 
+#include <stdlib.h>
+#include <string.h>
+
+#ifndef _WIN32
+#include <sys/socket.h>
+#include <unistd.h>
+#endif
 #ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #endif
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
-#endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
-#ifdef HAVE_SYS_TIME_H
+#if !defined(_WIN32) || defined(__MINGW32__)
 #include <sys/time.h>  /* for timeval */
 #endif
 #ifdef HAVE_SYS_UN_H
 #include <sys/un.h>
 #endif
-
-#include <stdlib.h>
-#include <string.h>
 
 #include <termios.h>
 
@@ -231,6 +229,7 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, libssh2_socket_t sock)
         }
     }
 
+    /* NOLINTNEXTLINE(readability-redundant-casting) */
     rc = select((int)(sock + 1), &set, NULL, NULL, &timeval_out);
     if(rc > 0) {
         memset(buf, 0, bufsize);
@@ -340,7 +339,7 @@ int main(int argc, char *argv[])
     sin.sin_port = htons((unsigned short)port);
     sin.sin_addr.s_addr = hostaddr;
 
-    if(connect(sock, (struct sockaddr *)(&sin), sizeof(struct sockaddr_in))) {
+    if(connect(sock, (struct sockaddr *)&sin, sizeof(struct sockaddr_in))) {
         fprintf(stderr, "Failed to establish connection.\n");
         return 1;
     }
@@ -495,7 +494,7 @@ int main(int argc, char *argv[])
             current_node = next_node;
         }
 
-        rc = select((int)(fileno(stdin) + 1), &set, NULL, NULL, &timeval_out);
+        rc = select(fileno(stdin) + 1, &set, NULL, NULL, &timeval_out);
         if(rc > 0) {
             ssize_t wr = 0;
             nread = read(fileno(stdin), buf, 1); /* Data in stdin */

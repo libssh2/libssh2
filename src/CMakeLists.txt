@@ -43,11 +43,6 @@ endif()
 
 set(_libssh2_definitions "")
 
-option(CLEAR_MEMORY "Enable clearing of memory before being freed" ON)
-if(NOT CLEAR_MEMORY)
-  list(APPEND _libssh2_definitions "LIBSSH2_NO_CLEAR_MEMORY")
-endif()
-
 option(ENABLE_ZLIB_COMPRESSION "Use zlib for compression" OFF)
 add_feature_info("Compression" ENABLE_ZLIB_COMPRESSION "using zlib for compression")
 if(ENABLE_ZLIB_COMPRESSION)

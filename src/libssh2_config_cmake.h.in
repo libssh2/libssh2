@@ -36,7 +36,6 @@
 #cmakedefine HAVE_INTTYPES_H
 #cmakedefine HAVE_SYS_SELECT_H
 #cmakedefine HAVE_SYS_UIO_H
-#cmakedefine HAVE_SYS_SOCKET_H
 #cmakedefine HAVE_SYS_IOCTL_H
 #cmakedefine HAVE_SYS_TIME_H
 #cmakedefine HAVE_SYS_UN_H
@@ -46,16 +45,11 @@
 #cmakedefine HAVE_NETINET_IN_H
 
 /* Functions */
-#cmakedefine HAVE_GETTIMEOFDAY
-#cmakedefine HAVE_STRTOLL
-#cmakedefine HAVE_STRTOI64
-#cmakedefine HAVE_SNPRINTF
 #cmakedefine HAVE_EXPLICIT_BZERO
-#cmakedefine HAVE_EXPLICIT_MEMSET
 #cmakedefine HAVE_MEMSET_S
+#cmakedefine HAVE_MEMSET_EXPLICIT
 
 #cmakedefine HAVE_POLL
-#cmakedefine HAVE_SELECT
 
 /* Socket non-blocking support */
 #cmakedefine HAVE_O_NONBLOCK

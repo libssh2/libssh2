@@ -35,6 +35,7 @@ man_MANS = \
   libssh2_channel_get_exit_status.3 \
   libssh2_channel_handle_extended_data.3 \
   libssh2_channel_handle_extended_data2.3 \
+  libssh2_channel_has_exit_status.3 \
   libssh2_channel_ignore_extended_data.3 \
   libssh2_channel_open_ex.3 \
   libssh2_channel_open_session.3 \

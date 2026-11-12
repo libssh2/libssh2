@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 # To update, get the latest digest e.g. from https://hub.docker.com/_/debian/tags
-FROM debian:trixie-20260623-slim@sha256:28de0877c2189802884ccd20f15ee41c203573bd87bb6b883f5f46362d24c5c2
+FROM debian:testing-20261104-slim@sha256:c6343ac5a6f7952485fc804a1cf700bdb8af7408d4c549faf682bed42b1c7f96
 
-RUN apt-get update \
- && apt-get install -y openssh-server \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y --no-install-suggests --no-install-recommends adduser openssh-server && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 RUN [ -d /var/run/sshd ] || mkdir /var/run/sshd
 
 # Chmodding because, when building on Windows, files are copied in with
@@ -17,24 +17,38 @@ RUN [ -d /var/run/sshd ] || mkdir /var/run/sshd
 # no effect (Docker AUFS-related bug maybe?)
 
 # Host keys
-COPY ssh_host_rsa_key /tmp/etc/ssh/ssh_host_rsa_key
-RUN install -m 0600 /tmp/etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_rsa_key
+COPY ssh_host_rsa_key.pub /etc/ssh/
+COPY ssh_host_rsa_key /tmp/etc/ssh/
+RUN install -m 0600 /tmp/etc/ssh/ssh_host_rsa_key /etc/ssh/
 
-COPY ssh_host_ecdsa_key /tmp/etc/ssh/ssh_host_ecdsa_key
-RUN install -m 0600 /tmp/etc/ssh/ssh_host_ecdsa_key /etc/ssh/ssh_host_ecdsa_key
+COPY ssh_host_ecdsa_key.pub /etc/ssh/
+COPY ssh_host_ecdsa_key /tmp/etc/ssh/
+RUN install -m 0600 /tmp/etc/ssh/ssh_host_ecdsa_key /etc/ssh/
 
-COPY ssh_host_ed25519_key /tmp/etc/ssh/ssh_host_ed25519_key
-RUN install -m 0600 /tmp/etc/ssh/ssh_host_ed25519_key /etc/ssh/ssh_host_ed25519_key
+COPY ssh_host_ed25519_key.pub /etc/ssh/
+COPY ssh_host_ed25519_key /tmp/etc/ssh/
+RUN install -m 0600 /tmp/etc/ssh/ssh_host_ed25519_key /etc/ssh/
 
-# Trusted CA keys
-COPY ca_ecdsa /tmp/etc/ssh/ca_ecdsa
-RUN install -m 0600 /tmp/etc/ssh/ca_ecdsa /etc/ssh/ca_ecdsa
+COPY ssh_host_mldsa44-ed25519_key.pub /etc/ssh/
+COPY ssh_host_mldsa44-ed25519_key /tmp/etc/ssh/
+RUN install -m 0600 /tmp/etc/ssh/ssh_host_mldsa44-ed25519_key /etc/ssh/
 
-COPY ca_rsa /tmp/etc/ssh/ca_rsa
-RUN install -m 0600 /tmp/etc/ssh/ca_rsa /etc/ssh/ca_rsa
+# Host certificates
+COPY ssh_host_rsa_key-cert.pub /tmp/etc/ssh/
+RUN install -m 0644 /tmp/etc/ssh/ssh_host_rsa_key-cert.pub /etc/ssh/
 
-COPY ca_user_keys.pub /tmp/etc/ssh/ca_user_keys.pub
-RUN install -m 0600 /tmp/etc/ssh/ca_user_keys.pub /etc/ssh/ca_user_keys.pub
+COPY ssh_host_ecdsa_key-cert.pub /tmp/etc/ssh/
+RUN install -m 0644 /tmp/etc/ssh/ssh_host_ecdsa_key-cert.pub /etc/ssh/
+
+COPY ssh_host_ed25519_key-cert.pub /tmp/etc/ssh/
+RUN install -m 0644 /tmp/etc/ssh/ssh_host_ed25519_key-cert.pub /etc/ssh/
+
+COPY ssh_host_mldsa44-ed25519_key-cert.pub /tmp/etc/ssh/
+RUN install -m 0644 /tmp/etc/ssh/ssh_host_mldsa44-ed25519_key-cert.pub /etc/ssh/
+
+# Trusted user CA keys
+COPY ca_user_keys.pub /tmp/etc/ssh/
+RUN install -m 0600 /tmp/etc/ssh/ca_user_keys.pub /etc/ssh/
 
 # User
 RUN adduser --disabled-password --gecos 'Test user for libssh2 integration tests' libssh2
@@ -42,9 +56,14 @@ RUN echo 'libssh2:my test password' | chpasswd
 
 # Config
 RUN sed -i 's/KbdInteractiveAuthentication no/KbdInteractiveAuthentication yes/' /etc/ssh/sshd_config
-COPY sshd_config /tmp/etc/ssh/sshd_config
+COPY sshd_config /tmp/etc/ssh/
 RUN cat /tmp/etc/ssh/sshd_config >> /etc/ssh/sshd_config
 RUN echo 'TrustedUserCAKeys /etc/ssh/ca_user_keys.pub' >> /etc/ssh/sshd_config
+RUN echo 'HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub' >> /etc/ssh/sshd_config
+RUN echo 'HostCertificate /etc/ssh/ssh_host_ecdsa_key-cert.pub' >> /etc/ssh/sshd_config
+RUN echo 'HostCertificate /etc/ssh/ssh_host_ed25519_key-cert.pub' >> /etc/ssh/sshd_config
+RUN echo 'HostCertificate /etc/ssh/ssh_host_mldsa44-ed25519_key-cert.pub' >> /etc/ssh/sshd_config
+RUN echo 'PerSourcePenalties no' >> /etc/ssh/sshd_config
 
 # SSH login fix. Otherwise user is kicked off after login
 RUN sed 's/session\s*required\s*pam_loginuid.so/session optional pam_loginuid.so/g' -i /etc/pam.d/sshd
@@ -54,11 +73,11 @@ USER libssh2
 RUN mkdir -p /home/libssh2/.ssh
 RUN mkdir -p /home/libssh2/sandbox
 
-COPY authorized_keys /tmp/libssh2/.ssh/authorized_keys
-RUN install -m 0600 /tmp/libssh2/.ssh/authorized_keys /home/libssh2/.ssh/authorized_keys
+COPY authorized_keys /tmp/libssh2/.ssh/
+RUN install -m 0600 /tmp/libssh2/.ssh/authorized_keys /home/libssh2/.ssh/
 
 USER root
 
 EXPOSE 22
-# -e gives logs via 'docker logs'
+# -e gives logs via 'container/docker/podman logs'
 CMD ["/usr/sbin/sshd", "-D", "-e"]

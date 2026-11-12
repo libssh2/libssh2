@@ -13,14 +13,16 @@
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
-#ifdef HAVE_SYS_SOCKET_H
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#ifndef _WIN32
 #include <sys/socket.h>
+#include <unistd.h>
 #endif
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
-#endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
 #endif
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
@@ -28,13 +30,9 @@
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
-#ifdef HAVE_SYS_TIME_H
+#if !defined(_WIN32) || defined(__MINGW32__)
 #include <sys/time.h>  /* for timeval */
 #endif
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 static const char *hostname = "127.0.0.1";
 static const char *commandline = "uptime";
@@ -135,7 +133,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr *)(&sin), sizeof(struct sockaddr_in))) {
+    if(connect(sock, (struct sockaddr *)&sin, sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect.\n");
         goto shutdown;
     }
@@ -240,6 +238,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Error\n");
         return 1;
     }
+
     while((rc = libssh2_channel_exec(channel, commandline)) ==
           LIBSSH2_ERROR_EAGAIN)
         waitsocket(sock, session);
@@ -247,6 +246,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "exec error\n");
         return 1;
     }
+
     for(;;) {
         ssize_t nread;
         /* loop until we block */
@@ -274,10 +274,11 @@ int main(int argc, char *argv[])
         else
             break;
     }
+
     exitcode = 127;
+
     while((rc = libssh2_channel_close(channel)) == LIBSSH2_ERROR_EAGAIN)
         waitsocket(sock, session);
-
     if(rc == 0) {
         exitcode = libssh2_channel_get_exit_status(channel);
         libssh2_channel_get_exit_signal(channel, &exitsignal,
