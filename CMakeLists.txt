@@ -1,32 +1,38 @@
 # Copyright (C) Alexander Lamaison <alexander.lamaison@gmail.com>
 # Copyright (C) Viktor Szakats
-# All rights reserved.
 #
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
+# Redistribution and use in source and binary forms,
+# with or without modification, are permitted provided
+# that the following conditions are met:
 #
-# 1. Redistributions of source code must retain the above copyright notice,
-#    this list of conditions and the following disclaimer.
+#   Redistributions of source code must retain the above
+#   copyright notice, this list of conditions and the
+#   following disclaimer.
 #
-# 2. Redistributions in binary form must reproduce the above copyright notice,
-#    this list of conditions and the following disclaimer in the documentation
-#    and/or other materials provided with the distribution.
+#   Redistributions in binary form must reproduce the above
+#   copyright notice, this list of conditions and the following
+#   disclaimer in the documentation and/or other materials
+#   provided with the distribution.
 #
-# 3. Neither the name of the copyright holder nor the names of its
-#    contributors may be used to endorse or promote products derived from this
-#    software without specific prior written permission.
+#   Neither the name of the copyright holder nor the names
+#   of any other contributors may be used to endorse or
+#   promote products derived from this software without
+#   specific prior written permission.
 #
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+# INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+# OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+# USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
+# OF SUCH DAMAGE.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -169,11 +175,12 @@ endif()
 option(LIBSSH2_DISABLE_INSTALL "Disable installation targets" OFF)
 if(NOT LIBSSH2_DISABLE_INSTALL)
   include(GNUInstallDirs)
-  install(
-    FILES
-      COPYING NEWS README RELEASE-NOTES
-      docs/AUTHORS docs/BINDINGS.md docs/HACKING.md
-    DESTINATION ${CMAKE_INSTALL_DOCDIR})
+
+#  install(
+#    FILES
+#      COPYING NEWS README RELEASE-NOTES
+#      docs/AUTHORS docs/BINDINGS.md docs/HACKING.md
+#    DESTINATION ${CMAKE_INSTALL_DOCDIR})
 endif()
 
 if(WIN32)
@@ -187,6 +194,8 @@ if(WIN32)
     set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "UNICODE" "_UNICODE")
   endif()
 endif()
+
+include(PickyWarnings)
 
 set(LIBSSH2_LIBS_SOCKET "")
 set(LIBSSH2_LIBS "")
@@ -228,14 +237,6 @@ if(BUILD_SHARED_LIBS)
 else()
   set(LIB_SELECTED ${LIB_STATIC})
 endif()
-
-# Override to force-disable or force-enable the use of CMake Configs.
-if(MSVC AND NOT VCPKG_TOOLCHAIN AND NOT CMAKE_CROSSCOMPILING)
-  set(_libssh2_use_cmakeconfig_default ON)
-else()
-  set(_libssh2_use_cmakeconfig_default OFF)
-endif()
-option(LIBSSH2_USE_CMAKECONFIG "Enable detecting dependencies via CMake Config" ${_libssh2_use_cmakeconfig_default})
 
 # Override to force-disable or force-enable the use of pkg-config.
 if((UNIX AND NOT ANDROID AND (NOT APPLE OR CMAKE_SYSTEM_NAME MATCHES "Darwin")) OR
@@ -303,8 +304,6 @@ if(LIBSSH2_CLANG_TIDY)
     list(APPEND CMAKE_C_CLANG_TIDY ${_tidy_flags_list})
   endif()
 endif()
-
-include(PickyWarnings)
 
 # Auto-detection
 
@@ -396,6 +395,8 @@ configure_file("src/libssh2_config_cmake.h.in"
 
 ## Cryptography backend choice
 
+set(__runtime_dependencies "")
+
 set(CRYPTO_BACKEND "" CACHE
   STRING "The backend to use for cryptography: Libgcrypt, mbedTLS, OpenSSL, WinCNG, wolfSSL, or empty to try any available")
 
@@ -424,6 +425,23 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
       # Statically linking to OpenSSL requires crypt32 for some Windows APIs.
       # This should really be handled by FindOpenSSL.cmake.
       list(APPEND LIBSSH2_LIBS "crypt32" "bcrypt")
+
+      #set(CMAKE_FIND_DEBUG_MODE ON)
+
+      find_file(DLL_LIBCRYPTO
+        NAMES "crypto.dll"
+          "libcrypto-1_1.dll" "libcrypto-1_1-x64.dll"
+          "libcrypto-3.dll" "libcrypto-3-x64.dll"
+        HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
+        PATH_SUFFIXES "bin" NO_DEFAULT_PATH)
+      if(DLL_LIBCRYPTO)
+        list(APPEND __runtime_dependencies ${DLL_LIBCRYPTO})
+        message(STATUS "Found libcrypto DLL: ${DLL_LIBCRYPTO}")
+      else()
+        message(WARNING "Unable to find OpenSSL libcrypto DLL, executables may not run")
+      endif()
+
+      #set(CMAKE_FIND_DEBUG_MODE OFF)
     endif()
 
     find_package(ZLIB)
@@ -434,11 +452,8 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
 endif()
 
 if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
-  find_package(WolfSSL MODULE ${_specific_crypto_requirement})
+  find_package(WolfSSL ${_specific_crypto_requirement})
   if(WOLFSSL_FOUND)
-    if(WOLFSSL_VERSION VERSION_LESS 5.4.0)
-      message(FATAL_ERROR "wolfSSL 5.4.0 or greater required")
-    endif()
     set(CRYPTO_BACKEND "wolfSSL")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_WOLFSSL")
     list(APPEND LIBSSH2_LIBS libssh2::wolfssl)
@@ -451,7 +466,7 @@ if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
 endif()
 
 if(CRYPTO_BACKEND STREQUAL "Libgcrypt" OR NOT CRYPTO_BACKEND)
-  find_package(Libgcrypt MODULE ${_specific_crypto_requirement})
+  find_package(Libgcrypt ${_specific_crypto_requirement})
   if(LIBGCRYPT_FOUND)
     set(CRYPTO_BACKEND "Libgcrypt")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_LIBGCRYPT")
@@ -460,10 +475,10 @@ if(CRYPTO_BACKEND STREQUAL "Libgcrypt" OR NOT CRYPTO_BACKEND)
 endif()
 
 if(CRYPTO_BACKEND STREQUAL "mbedTLS" OR NOT CRYPTO_BACKEND)
-  find_package(MbedTLS MODULE ${_specific_crypto_requirement})
+  find_package(MbedTLS ${_specific_crypto_requirement})
   if(MBEDTLS_FOUND)
     if(MBEDTLS_VERSION VERSION_LESS 3.1.0)
-      message(FATAL_ERROR "mbedTLS 3.1.0 or greater required")
+      message(FATAL_ERROR "mbedTLS v3.1.0 or upper required.")
     endif()
     set(CRYPTO_BACKEND "mbedTLS")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_MBEDTLS")
@@ -492,6 +507,19 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
   elseif(_specific_crypto_requirement STREQUAL "REQUIRED")
     message(FATAL_ERROR "WinCNG not available")
   endif()
+endif()
+
+# default fallback
+if( NOT CRYPTO_BACKEND OR CRYPTO_BACKEND STREQUAL "LibreSSL" )
+    set(CRYPTO_BACKEND "LibreSSL")
+    set(CRYPTO_BACKEND_DEFINE "LIBSSH2_OPENSSL")
+    if(NOT LIBRESSL_VERSION)
+      set(LIBRESSL_VERSION 4.3.2)
+    endif()
+    set(CRYPTO_BACKEND_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../libressl/${LIBRESSL_VERSION}/include)
+	include_directories( ${CRYPTO_BACKEND_INCLUDE_DIR} )
+	INCLUDE_DIRECTORIES( "${CMAKE_CURRENT_SOURCE_DIR}/../zlib-1.3" )
+    list(APPEND LIBRARIES ssl crypto tls )
 endif()
 
 # Global functions

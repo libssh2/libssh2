@@ -489,6 +489,11 @@ struct _LIBSSH2_CHANNEL {
     struct channel_data local, remote;
     /* Amount of bytes to be refunded to receive window (but not yet sent) */
     uint32_t adjust_queue;
+    /* Flow control for data_cb consumers: while window_hold is set, data
+       consumed by data_cb is not refunded to the peer; it collects in
+       window_held until libssh2_channel_window_hold(channel, 0). */
+    int window_hold;
+    uint32_t window_held;
     /* Data immediately available for reading */
     size_t read_avail;
 

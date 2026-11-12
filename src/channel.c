@@ -1904,6 +1904,42 @@ int libssh2_channel_receive_window_adjust2(LIBSSH2_CHANNEL *channel,
     return rc;
 }
 
+/*
+ * libssh2_channel_window_hold
+ *
+ * Flow control for channels read with LIBSSH2_CALLBACK_CHANNEL_DATA.  Data
+ * handed to the callback is normally refunded to the peer's send window
+ * right away.  While hold is non-zero it is not; the peer can send at most
+ * what is left of the window and then stops.  Clearing the hold refunds
+ * everything held back (sending the window adjust immediately).
+ *
+ * Not thread safe: call it from whatever serializes use of the session.
+ * Returns 0, or a negative error from sending the window adjust.
+ */
+LIBSSH2_API int
+libssh2_channel_window_hold(LIBSSH2_CHANNEL *channel, int hold)
+{
+    uint32_t held;
+    int rc;
+
+    if(!channel)
+        return LIBSSH2_ERROR_BAD_USE;
+
+    channel->window_hold = hold;
+    if(hold || !channel->window_held)
+        return 0;
+
+    held = channel->window_held;
+    channel->window_held = 0;
+    if(channel->adjust_state != ssh2_NB_state_idle) {
+        /* an adjust is mid-send; it takes this along when it goes */
+        channel->adjust_queue += held;
+        held = 0;
+    }
+    rc = ssh2_channel_receive_window_adjust(channel, held, 1, NULL);
+    return rc == LIBSSH2_ERROR_EAGAIN ? 0 : rc;
+}
+
 int ssh2_channel_extended_data(LIBSSH2_CHANNEL *channel, int ignore_mode)
 {
     if(channel->extData2_state == ssh2_NB_state_idle) {

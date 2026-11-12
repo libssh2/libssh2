@@ -823,6 +823,9 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                                                &session->remote.crypt_abstract,
                                                0)) {
                     p->total_num = 0; /* no packet buffer available */
+                    /* like the other error paths, don't leak the payload */
+                    if(p->payload)
+                        SSH2_SAFEFREE(session, p->payload);
                     return LIBSSH2_ERROR_DECRYPT;
                 }
 

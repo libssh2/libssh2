@@ -988,6 +988,10 @@ LIBSSH2_API int libssh2_channel_receive_window_adjust2(
     unsigned long adjustment,
     unsigned char force,
     unsigned int *storewindow);
+/* hold back (non-zero) or release (0) receive-window refunds for data
+   delivered through LIBSSH2_CALLBACK_CHANNEL_DATA */
+LIBSSH2_API int libssh2_channel_window_hold(LIBSSH2_CHANNEL *channel,
+                                            int hold);
 
 LIBSSH2_API ssize_t libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel,
                                              int stream_id, const char *buf,

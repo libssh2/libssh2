@@ -1393,6 +1393,33 @@ ssh2_packet_add_jump_authagent:
                                               datalen - data_head);
                     }
                     rc_cb = 1;
+                    {
+                        /* The callback consumed the data, so nothing will
+                         * ever channel_read() it: do the receive-window
+                         * bookkeeping channel_read() would have done and
+                         * hand the space back to the peer.  Without this
+                         * read_avail only grows, and the channel stalls
+                         * (data ignored) after one window's worth. */
+                        uint32_t consumed = (uint32_t)(datalen - data_head);
+                        channelp->read_avail -= consumed;
+                        channelp->remote.window_size -= consumed;
+                        if(channelp->window_hold) {
+                            /* consumer asked for backpressure; refund
+                             * when it releases the hold */
+                            channelp->window_held += consumed;
+                            consumed = 0;
+                        }
+                        else if(channelp->adjust_state !=
+                                ssh2_NB_state_idle) {
+                            /* an earlier adjust is still waiting to be
+                             * sent; it picks this up after it goes */
+                            channelp->adjust_queue += consumed;
+                            consumed = 0;
+                        }
+                        (void)ssh2_channel_receive_window_adjust(channelp,
+                                                                 consumed,
+                                                                 0, NULL);
+                    }
                 }
             }
         /*
@@ -1401,7 +1428,11 @@ ssh2_packet_add_jump_authagent:
          */
         if(!rc_cb)
             ssh2_list_add(&session->packets, &packetp->node);
-        else SSH2_FREE(session, packetp);
+        else {
+            /* consumed by the callback; nothing references it now */
+            SSH2_FREE(session, data);
+            SSH2_FREE(session, packetp);
+        }
 
         session->packAdd_state = ssh2_NB_state_sent1;
     }
