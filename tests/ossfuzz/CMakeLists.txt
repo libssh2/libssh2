@@ -22,3 +22,19 @@ else()
 endif()
 target_link_libraries(ssh2_client_fuzzer ${LIB_STATIC} ${LIBSSH2_LIBS_SOCKET})
 set_target_properties(ssh2_client_fuzzer PROPERTIES UNITY_BUILD OFF)
+
+add_executable(ssh2_sftp_client_fuzzer "ssh2_sftp_client_fuzzer.cc" "testinput.h")
+target_include_directories(ssh2_sftp_client_fuzzer PRIVATE
+  "${PROJECT_SOURCE_DIR}/include"
+  "${PROJECT_SOURCE_DIR}/src")
+if(LIB_FUZZING_ENGINE)
+  if(LIB_FUZZING_ENGINE STREQUAL "-fsanitize=fuzzer")  # FIXME: compiler-specific
+    set_property(TARGET ssh2_sftp_client_fuzzer APPEND PROPERTY LINK_OPTIONS "${LIB_FUZZING_ENGINE}")
+  else()
+    target_link_libraries(ssh2_sftp_client_fuzzer ${LIB_FUZZING_ENGINE})
+  endif()
+else()
+  target_link_libraries(ssh2_sftp_client_fuzzer standaloneengine)
+endif()
+target_link_libraries(ssh2_sftp_client_fuzzer ${LIB_STATIC} ${LIBSSH2_LIBS_SOCKET})
+set_target_properties(ssh2_sftp_client_fuzzer PROPERTIES UNITY_BUILD OFF)
