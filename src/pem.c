@@ -339,6 +339,10 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
             }
         }
 
+        /* Clean up */
+        ssh2_explicit_zero(secret, sizeof(secret));
+        method->dtor(session, &abstract);
+
         /* Account for padding */
         padding = (*data)[*datalen - 1];
         if(padding > *datalen) {
@@ -347,10 +351,6 @@ int ssh2_pem_parse(LIBSSH2_SESSION *session,
         }
         memset(&(*data)[*datalen - padding], 0, padding);
         *datalen -= padding;
-
-        /* Clean up */
-        ssh2_explicit_zero(secret, sizeof(secret));
-        method->dtor(session, &abstract);
 #else
         ret = ssh2_err(session, LIBSSH2_ERROR_ALGO_UNSUPPORTED,
                        "Unable to decrypt PEM, MD5 not enabled");

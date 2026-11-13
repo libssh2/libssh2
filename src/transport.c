@@ -337,6 +337,12 @@ static int transport_fullpacket(LIBSSH2_SESSION *session,
             session->fullpacket_payload_len = data_len;
         }
 
+        /* the payload must at least hold the message type */
+        if(session->fullpacket_payload_len < 1) {
+            SSH2_SAFEFREE(session, p->payload);
+            return LIBSSH2_ERROR_PROTO;
+        }
+
         session->fullpacket_packet_type = p->payload[0];
 
         transport_debugdump(session, "ssh2_transport_read() plain",

@@ -34,6 +34,7 @@
 #include "libssh2_priv.h"
 #include "libssh2_sftp.h"
 #include "sftp.h"
+#include "transport.h"
 
 #include <errno.h>
 #include <stdio.h>
@@ -452,6 +453,151 @@ static int test_sk_ecdsa_truncated_privkey(LIBSSH2_SESSION *session)
 }
 #endif
 
+static int test_sftp_symlink_name_reply(LIBSSH2_SESSION *session)
+{
+    /* SSH_FXP_NAME (104) reply to request id 1 with one name: "evil" */
+    static const unsigned char reply[] = {
+        104, 0, 0, 0, 1, 0, 0, 0, 1,
+        0, 0, 0, 4, 'e', 'v', 'i', 'l',
+        0, 0, 0, 0, 0, 0, 0, 0
+    };
+    char linkpath[] = "/tmp/link";
+    LIBSSH2_CHANNEL *channel;
+    LIBSSH2_SFTP *sftp;
+    struct sftp_packet *packet;
+    int socket_state = session->socket_state;
+    int rc;
+    int err = 0;
+
+    channel = SSH2_CALLOC(session, sizeof(*channel));
+    sftp = SSH2_CALLOC(session, sizeof(*sftp));
+    packet = SSH2_CALLOC(session, sizeof(*packet));
+    if(packet)
+        packet->data = SSH2_ALLOC(session, sizeof(reply));
+    if(!channel || !sftp || !packet || !packet->data) {
+        if(packet)
+            SSH2_FREE(session, packet->data);
+        SSH2_FREE(session, packet);
+        SSH2_FREE(session, sftp);
+        SSH2_FREE(session, channel);
+        return 1;
+    }
+    channel->session = session;
+    sftp->channel = channel;
+    sftp->version = 3;
+    ssh2_list_init(&sftp->packets);
+
+    memcpy(packet->data, reply, sizeof(reply));
+    packet->data_len = sizeof(reply);
+    packet->request_id = 1;
+    ssh2_list_add(&sftp->packets, &packet->node);
+
+    /* SYMLINK request id 1 sent, the server answers with a NAME packet */
+    sftp->symlink_state = ssh2_NB_state_sent;
+    sftp->symlink_request_id = 1;
+    session->socket_state = SSH2_SOCKET_CONNECTED;
+
+    rc = libssh2_sftp_symlink(sftp, "/tmp/orig", linkpath);
+    if(rc != LIBSSH2_ERROR_SFTP_PROTOCOL) {
+        fprintf(stderr, "sftp symlink: rc=%d (want %d)\n",
+                rc, LIBSSH2_ERROR_SFTP_PROTOCOL);
+        err++;
+    }
+    if(strcmp(linkpath, "/tmp/link")) {
+        fprintf(stderr, "sftp symlink: link path overwritten: %s\n",
+                linkpath);
+        err++;
+    }
+
+    session->socket_state = socket_state;
+
+    packet = ssh2_list_first(&sftp->packets);
+    if(packet) {
+        ssh2_list_remove(&packet->node);
+        SSH2_FREE(session, packet->data);
+        SSH2_FREE(session, packet);
+    }
+    SSH2_FREE(session, sftp);
+    SSH2_FREE(session, channel);
+
+    return err > 0;
+}
+
+#if LIBSSH2_MD5_PEM && LIBSSH2_AES_CBC
+static int pem_live_allocs;
+
+static LIBSSH2_ALLOC_FUNC(pem_test_alloc)
+{
+    void *p = malloc(count);
+    (void)abstract;
+    if(p)
+        pem_live_allocs++;
+    return p;
+}
+
+static LIBSSH2_REALLOC_FUNC(pem_test_realloc)
+{
+    void *p = realloc(ptr, count);
+    (void)abstract;
+    if(p && !ptr)
+        pem_live_allocs++;
+    return p;
+}
+
+static LIBSSH2_FREE_FUNC(pem_test_free)
+{
+    (void)abstract;
+    if(ptr)
+        pem_live_allocs--;
+    free(ptr);
+}
+
+static int test_ssh2_pem_parse_bad_padding(void)
+{
+    /* One AES-128-CBC block that decrypts to 15 zero bytes and a padding
+       byte of 0xff, which is larger than the decrypted data */
+    static const char pem[] =
+        "-----BEGIN RSA PRIVATE KEY-----\n"
+        "Proc-Type: 4,ENCRYPTED\n"
+        "DEK-Info: AES-128-CBC,000102030405060708090A0B0C0D0E0F\n"
+        "\n"
+        "x9wTwyw4T6PO7EmUNV0aow==\n"
+        "-----END RSA PRIVATE KEY-----\n";
+    LIBSSH2_SESSION *session;
+    unsigned char *data;
+    size_t datalen;
+    int live;
+    int rc;
+    int err = 0;
+
+    session = libssh2_session_init_ex(pem_test_alloc, pem_test_free,
+                                      pem_test_realloc, NULL);
+    if(!session) {
+        fprintf(stderr, "pem bad padding: session init failed\n");
+        return 1;
+    }
+
+    live = pem_live_allocs;
+    rc = ssh2_pem_parse(session, "-----BEGIN RSA PRIVATE KEY-----",
+                        "-----END RSA PRIVATE KEY-----", NULL,
+                        pem, sizeof(pem) - 1, "pass", &data, &datalen, NULL);
+    if(rc != LIBSSH2_ERROR_DECRYPT) {
+        fprintf(stderr, "pem bad padding: rc=%d (want %d)\n",
+                rc, LIBSSH2_ERROR_DECRYPT);
+        err++;
+    }
+    if(pem_live_allocs != live) {
+        fprintf(stderr, "pem bad padding: %d allocation(s) leaked\n",
+                pem_live_allocs - live);
+        err++;
+    }
+
+    libssh2_session_free(session);
+
+    return err > 0;
+}
+#endif
+
 static int sftp_mkdir_recv_calls;
 
 /* nothing to read at first, then the connection is gone */
@@ -527,6 +673,62 @@ static int test_sftp_mkdir_resume_fail_cleanup(void)
     return err > 0;
 }
 
+static const unsigned char *transport_feed;
+static size_t transport_feed_len;
+
+static LIBSSH2_RECV_FUNC(transport_feed_recv)
+{
+    size_t len = SSH2_MIN(length, transport_feed_len);
+
+    (void)socket;
+    (void)flags;
+    (void)abstract;
+
+    if(!len)
+        return -EAGAIN;
+
+    memcpy(buffer, transport_feed, len);
+    transport_feed += len;
+    transport_feed_len -= len;
+
+    return (ssize_t)len;
+}
+
+static int test_transport_empty_payload(void)
+{
+    /* packet_length 5, padding_length 4: no room left for the message type */
+    static const unsigned char packet[] = {
+        0, 0, 0, 5, 4, SSH_MSG_REQUEST_SUCCESS, 0, 0, 0
+    };
+    LIBSSH2_SESSION *session;
+    int rc;
+    int err = 0;
+
+    session = libssh2_session_init();
+    if(!session)
+        return 1;
+
+    session->recv_cb = transport_feed_recv;
+    transport_feed = packet;
+    transport_feed_len = sizeof(packet);
+
+    rc = ssh2_transport_read(session);
+    if(rc != LIBSSH2_ERROR_PROTO) {
+        fprintf(stderr, "transport empty payload: rc=%d (want %d)\n",
+                rc, LIBSSH2_ERROR_PROTO);
+        err++;
+    }
+
+    if(ssh2_list_first(&session->packets)) {
+        fprintf(stderr, "transport empty payload: packet was queued\n");
+        err++;
+    }
+
+    libssh2_session_free(session);
+
+    return err > 0;
+}
+
 int main(int argc, char *argv[])
 {
     LIBSSH2_SESSION *session;
@@ -558,6 +760,12 @@ int main(int argc, char *argv[])
 #if LIBSSH2_ECDSA
     rc |= test_sk_ecdsa_truncated_privkey(session);
 #endif
+    rc |= test_sftp_symlink_name_reply(session);
+#if LIBSSH2_MD5_PEM && LIBSSH2_AES_CBC
+    rc |= test_ssh2_pem_parse_bad_padding();
+#endif
+
+    rc |= test_transport_empty_payload();
 
     libssh2_session_free(session);
 

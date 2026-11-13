@@ -12,7 +12,7 @@ ssh-keygen -t ed25519 -f auth -q -N '' && mkdir .ssh && mv auth.pub .ssh/authori
 ssh-keygen -A
 "$(command -v sshd)" &
 
-curl \
+curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 25 \
   -F account="${APPVEYOR_ACCOUNT_NAME}" \
   -F project="${APPVEYOR_PROJECT_SLUG}" \
   -F buildid="${APPVEYOR_BUILD_VERSION}" \
@@ -25,4 +25,4 @@ curl \
   -F ssh_forward="127.0.0.1:${OPENSSH_SERVER_PORT} 127.0.0.1:${OPENSSH_SERVER_PORT},127.0.0.1:2375 /var/run/docker.sock" \
   -F ssh_hostkey="$(paste -d , /etc/ssh/ssh_host_*_key.pub)" \
   -F ssh_privkey="$(paste -sd , auth)" \
-  --silent --show-error --fail 'https://stuff.marc-hoersken.de/libssh2/dispatch.php'
+  'https://stuff.marc-hoersken.de/libssh2/dispatch.php'
