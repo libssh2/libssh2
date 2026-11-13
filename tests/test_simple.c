@@ -486,6 +486,82 @@ static int test_sftp_symlink_name_reply(LIBSSH2_SESSION *session)
     return err > 0;
 }
 
+static int test_sftp_fstat_status_ok(LIBSSH2_SESSION *session)
+{
+    /* SSH_FXP_STATUS (101) reply to request id 1 with code SSH_FX_OK */
+    static const unsigned char reply[] = {
+        101, 0, 0, 0, 1, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0
+    };
+    LIBSSH2_SFTP_ATTRIBUTES attrs;
+    LIBSSH2_CHANNEL *channel;
+    LIBSSH2_SFTP *sftp;
+    LIBSSH2_SFTP_HANDLE *handle;
+    struct sftp_packet *packet;
+    int socket_state = session->socket_state;
+    int rc;
+    int err = 0;
+
+    channel = SSH2_CALLOC(session, sizeof(*channel));
+    sftp = SSH2_CALLOC(session, sizeof(*sftp));
+    handle = SSH2_CALLOC(session, sizeof(*handle));
+    packet = SSH2_CALLOC(session, sizeof(*packet));
+    if(packet)
+        packet->data = SSH2_ALLOC(session, sizeof(reply));
+    if(!channel || !sftp || !handle || !packet || !packet->data) {
+        if(packet)
+            SSH2_FREE(session, packet->data);
+        SSH2_FREE(session, packet);
+        SSH2_FREE(session, handle);
+        SSH2_FREE(session, sftp);
+        SSH2_FREE(session, channel);
+        return 1;
+    }
+    channel->session = session;
+    sftp->channel = channel;
+    sftp->version = 3;
+    ssh2_list_init(&sftp->packets);
+    handle->sftp = sftp;
+
+    memcpy(packet->data, reply, sizeof(reply));
+    packet->data_len = sizeof(reply);
+    packet->request_id = 1;
+    ssh2_list_add(&sftp->packets, &packet->node);
+
+    /* FSTAT request id 1 sent, the server answers with STATUS OK */
+    sftp->fstat_state = ssh2_NB_state_sent;
+    sftp->fstat_request_id = 1;
+    session->socket_state = SSH2_SOCKET_CONNECTED;
+
+    /* stale caller data that must not be reported back as attributes */
+    memset(&attrs, 0xa5, sizeof(attrs));
+
+    rc = libssh2_sftp_fstat_ex(handle, &attrs, 0);
+    if(rc) {
+        fprintf(stderr, "sftp fstat: rc=%d (want 0)\n", rc);
+        err++;
+    }
+    if(attrs.flags) {
+        fprintf(stderr, "sftp fstat: attributes left unset: flags=%lx\n",
+                attrs.flags);
+        err++;
+    }
+
+    session->socket_state = socket_state;
+
+    packet = ssh2_list_first(&sftp->packets);
+    if(packet) {
+        ssh2_list_remove(&packet->node);
+        SSH2_FREE(session, packet->data);
+        SSH2_FREE(session, packet);
+    }
+    SSH2_FREE(session, handle);
+    SSH2_FREE(session, sftp);
+    SSH2_FREE(session, channel);
+
+    return err > 0;
+}
+
 #if LIBSSH2_MD5_PEM && LIBSSH2_AES_CBC
 static int pem_live_allocs;
 
@@ -721,6 +797,7 @@ int main(int argc, char *argv[])
     rc |= test_userauth_sign_algs_fail_cleanup(session);
 #endif
     rc |= test_sftp_symlink_name_reply(session);
+    rc |= test_sftp_fstat_status_ok(session);
 #if LIBSSH2_MD5_PEM && LIBSSH2_AES_CBC
     rc |= test_ssh2_pem_parse_bad_padding();
 #endif

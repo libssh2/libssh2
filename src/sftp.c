@@ -2455,8 +2455,11 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
 
         retcode = ssh2_ntohu32(data + 5);
         SSH2_FREE(session, data);
-        if(retcode == LIBSSH2_FX_OK)
+        if(retcode == LIBSSH2_FX_OK) {
+            if(!setstat)
+                memset(attrs, 0, sizeof(LIBSSH2_SFTP_ATTRIBUTES));
             return 0;
+        }
         else {
             sftp->last_errno = retcode;
             return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
