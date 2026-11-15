@@ -3131,6 +3131,8 @@ int ssh2_ecdh_gen_k(ssh2_bn **k, LIBSSH2_SESSION *session,
     EC_POINT *server_public_key_point;
     BN_CTX *bn_ctx = NULL;
 
+    (void)session;
+
     bn_ctx = BN_CTX_new();
     if(!bn_ctx)
         return -1;
@@ -3246,7 +3248,7 @@ clean_exit:
     return rc == 1 ? 0 : -1;
 }
 
-int ssh2_curve25519_gen_k(ssh2_bn **k,
+int ssh2_curve25519_gen_k(ssh2_bn **k, LIBSSH2_SESSION *session,
                           uint8_t private_key[SSH2_ED25519_KEY_LEN],
                           uint8_t server_public_key[SSH2_ED25519_KEY_LEN])
 {
@@ -3256,6 +3258,8 @@ int ssh2_curve25519_gen_k(ssh2_bn **k,
     EVP_PKEY_CTX *server_key_ctx = NULL;
     BN_CTX *bn_ctx = NULL;
     size_t out_len = 0;
+
+    (void)session;
 
     if(!k || !*k)
         return -1;
