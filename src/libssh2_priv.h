@@ -602,6 +602,12 @@ struct endpoint_data {
     const struct comp_method *comp;
     void *comp_abstract;
 
+    /* Methods agreed on in the latest KEXINIT. They replace the ones above
+       in kex_finish(), until then packets keep using the current methods. */
+    const struct crypt_method *crypt_next;
+    const struct mac_method *mac_next;
+    const struct comp_method *comp_next;
+
     /* Method Preferences -- NULL yields "load order" */
     char *crypt_prefs;
     char *mac_prefs;
