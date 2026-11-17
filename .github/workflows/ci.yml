@@ -757,81 +757,72 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { build: 'AM', platform: 'x86_64', compiler: 'gcc' }
-          - { build: 'CM', platform: 'x86_64', compiler: 'gcc' }
+          - { platform: 'x86_64', compiler: 'gcc' }
     steps:
       - uses: cygwin/cygwin-install-action@5a1b0cd107181fa6bb6bf3f90d500f4fb3132f18 # v7.0.0
         with:
           platform: ${{ matrix.platform }}
           work-vol: 'D:'
           # https://cygwin.com/packages/
-          packages: ${{ matrix.build == 'AM' && 'autoconf automake libtool make' || 'cmake ninja' }} gcc-core gcc-g++ binutils libssl-devel zlib-devel
+          packages: autoconf automake libtool make cmake ninja gcc-core gcc-g++ binutils libssl-devel zlib-devel
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - name: 'autoreconf'
-        if: ${{ matrix.build == 'AM' }}
-        run: autoreconf -fi
+      - name: 'CM configure'
+        timeout-minutes: 2
+        run: |
+          cmake -B bld-cm -G Ninja \
+            -DCMAKE_UNITY_BUILD=ON \
+            -DENABLE_WERROR=ON \
+            -DENABLE_DEBUG_LOGGING=ON \
+            -DCRYPTO_BACKEND=OpenSSL \
+            -DOPENSSL_ROOT_DIR=/usr/lib \
+            -DENABLE_ZLIB_COMPRESSION=ON \
+            -DBUILD_OSSFUZZ=ON \
+            -DRUN_DOCKER_TESTS=OFF \
+            -DRUN_SSHD_TESTS=OFF
 
-      - name: 'configure'
+      - name: 'CM configure log'
+        if: ${{ !cancelled() }}
+        run: cat bld-cm/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
+      - name: 'CM libssh2_config.h'
+        run: echo '::group::raw'; cat bld-cm/src/libssh2_config.h || true; echo '::endgroup::'; grep -F '#define' bld-cm/src/libssh2_config.h | sort || true
+      - name: 'CM build'
+        timeout-minutes: 5
+        run: PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"; cmake --build bld-cm
+      - name: 'CM tests'
+        timeout-minutes: 5
+        run: PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"; cd bld-cm && ctest --parallel 10 -VV --output-on-failure
+      - name: 'CM build examples'
+        run: PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"; cmake --build bld-cm --target libssh2-examples-build
+
+      - name: 'AM autoreconf'
+        run: autoreconf -fi
+      - name: 'AM configure'
         timeout-minutes: 2
         run: |
           PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
-          if [ "${MATRIX_BUILD}" = 'CM' ]; then
-            cmake -B bld -G Ninja \
-              -DCMAKE_UNITY_BUILD=ON \
-              -DENABLE_WERROR=ON \
-              -DENABLE_DEBUG_LOGGING=ON \
-              -DCRYPTO_BACKEND=OpenSSL \
-              -DOPENSSL_ROOT_DIR=/usr/lib \
-              -DENABLE_ZLIB_COMPRESSION=ON \
-              -DBUILD_OSSFUZZ=ON \
-              -DRUN_DOCKER_TESTS=OFF \
-              -DRUN_SSHD_TESTS=OFF
-          else
-            mkdir bld && cd bld
-            ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
-              --with-crypto=openssl \
-              --disable-docker-tests \
-              --disable-dependency-tracking --disable-examples-build
-          fi
+          mkdir bld-am && cd bld-am
+          ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
+            --with-crypto=openssl \
+            --disable-docker-tests \
+            --disable-dependency-tracking --disable-examples-build
 
-      - name: 'configure log'
+      - name: 'AM configure log'
         if: ${{ !cancelled() }}
-        run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
-
-      - name: 'libssh2_config.h'
-        run: echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'; grep -F '#define' bld/src/libssh2_config.h | sort || true
-
-      - name: 'build'
+        run: cat bld-am/config.log 2>/dev/null || true
+      - name: 'AM libssh2_config.h'
+        run: echo '::group::raw'; cat bld-am/src/libssh2_config.h || true; echo '::endgroup::'; grep -F '#define' bld-am/src/libssh2_config.h | sort || true
+      - name: 'AM build'
         timeout-minutes: 5
-        run: |
-          PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
-          if [ "${MATRIX_BUILD}" = 'CM' ]; then
-            cmake --build bld
-          else
-            make -C bld
-          fi
-
-      - name: 'tests'
+        run: PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"; make -C bld-am
+      - name: 'AM tests'
         timeout-minutes: 5
-        run: |
-          PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
-          if [ "${MATRIX_BUILD}" = 'CM' ]; then
-            cd bld && ctest --parallel 10 -VV --output-on-failure
-          else
-            make -C bld check V=1 || { cat bld/tests/*.log; false; }
-          fi
-
-      - name: 'build examples'
-        run: |
-          if [ "${MATRIX_BUILD}" = 'CM' ]; then
-            cmake --build bld --target libssh2-examples-build
-          else
-            make -C bld examples
-          fi
+        run: PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"; make -C bld-am check V=1 || { cat bld-am/tests/*.log; false; }
+      - name: 'AM build examples'
+        run: PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"; make -C bld-am examples
 
   build_msys2:
     name: 'msys2'
@@ -1147,7 +1138,6 @@ jobs:
 
       - name: 'AM autoreconf'
         run: autoreconf -fi
-
       - name: 'AM configure'
         env:
           MATRIX_CONFIGURE: '${{ matrix.build.configure }}'
