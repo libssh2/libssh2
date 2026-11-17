@@ -745,9 +745,16 @@ int ssh2_hash_init(ssh2_hash_ctx *ctx, ssh2_hash_alg alg)
 
 int ssh2_hash_update(ssh2_hash_ctx *ctx, const void *input, size_t input_len)
 {
-    return input_len <= ULONG_MAX &&
-        BCRYPT_SUCCESS(BCryptHashData(ctx->hHash, SSH2_UNCONST(input),
-                                      (ULONG)input_len, 0));
+    const BYTE *bytes = input;
+    do {
+        ULONG ilen = (ULONG)SSH2_MIN(input_len, ULONG_MAX);
+        if(!BCRYPT_SUCCESS(BCryptHashData(ctx->hHash, SSH2_UNCONST(bytes),
+                                          ilen, 0)))
+            return 0;
+        input_len -= ilen;
+        bytes += ilen;
+    } while(input_len);
+    return 1;
 }
 
 int ssh2_hash_final(ssh2_hash_ctx *ctx, void *digest, size_t digest_len)
