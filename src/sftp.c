@@ -2309,15 +2309,21 @@ static int sftp_fsync(LIBSSH2_SFTP_HANDLE *handle)
         ssh2_store_str(&s, "fsync@openssh.com", 17);
         ssh2_store_str(&s, handle->handle, handle->handle_len);
 
+        sftp->fsync_packet_sent = 0;
         sftp->fsync_state = ssh2_NB_state_created;
     }
     else
         packet = sftp->fsync_packet;
 
     if(sftp->fsync_state == ssh2_NB_state_created) {
-        rc = ssh2_channel_write(channel, 0, packet, packet_len);
+        rc = ssh2_channel_write(channel, 0,
+                                packet + sftp->fsync_packet_sent,
+                                packet_len - sftp->fsync_packet_sent);
         if(rc == LIBSSH2_ERROR_EAGAIN ||
-           (0 <= rc && rc < (ssize_t)packet_len)) {
+           (0 <= rc &&
+            rc < (ssize_t)(packet_len - sftp->fsync_packet_sent))) {
+            if(rc > 0)
+                sftp->fsync_packet_sent += rc;
             sftp->fsync_packet = packet;
             return LIBSSH2_ERROR_EAGAIN;
         }
@@ -2974,15 +2980,21 @@ static int sftp_posix_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
         ssh2_store_str(&s, source_filename, source_filename_len);
         ssh2_store_str(&s, dest_filename, dest_filename_len);
 
+        sftp->posix_rename_packet_sent = 0;
         sftp->posix_rename_state = ssh2_NB_state_created;
     }
     else
         packet = sftp->posix_rename_packet;
 
     if(sftp->posix_rename_state == ssh2_NB_state_created) {
-        rc = ssh2_channel_write(channel, 0, packet, packet_len);
+        rc = ssh2_channel_write(channel, 0,
+                                packet + sftp->posix_rename_packet_sent,
+                                packet_len - sftp->posix_rename_packet_sent);
         if(rc == LIBSSH2_ERROR_EAGAIN ||
-           (0 <= rc && rc < (ssize_t)packet_len)) {
+           (0 <= rc &&
+            rc < (ssize_t)(packet_len - sftp->posix_rename_packet_sent))) {
+            if(rc > 0)
+                sftp->posix_rename_packet_sent += rc;
             sftp->posix_rename_packet = packet;
             return LIBSSH2_ERROR_EAGAIN;
         }
@@ -3094,15 +3106,21 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
         ssh2_store_str(&s, "fstatvfs@openssh.com", 20);
         ssh2_store_str(&s, handle->handle, handle->handle_len);
 
+        sftp->fstatvfs_packet_sent = 0;
         sftp->fstatvfs_state = ssh2_NB_state_created;
     }
     else
         packet = sftp->fstatvfs_packet;
 
     if(sftp->fstatvfs_state == ssh2_NB_state_created) {
-        rc = ssh2_channel_write(channel, 0, packet, packet_len);
+        rc = ssh2_channel_write(channel, 0,
+                                packet + sftp->fstatvfs_packet_sent,
+                                packet_len - sftp->fstatvfs_packet_sent);
         if(rc == LIBSSH2_ERROR_EAGAIN ||
-           (0 <= rc && rc < (ssize_t)packet_len)) {
+           (0 <= rc &&
+            rc < (ssize_t)(packet_len - sftp->fstatvfs_packet_sent))) {
+            if(rc > 0)
+                sftp->fstatvfs_packet_sent += rc;
             sftp->fstatvfs_packet = packet;
             return LIBSSH2_ERROR_EAGAIN;
         }
@@ -3235,15 +3253,21 @@ static int sftp_statvfs(LIBSSH2_SFTP *sftp,
         ssh2_store_str(&s, "statvfs@openssh.com", 19);
         ssh2_store_str(&s, path, path_len);
 
+        sftp->statvfs_packet_sent = 0;
         sftp->statvfs_state = ssh2_NB_state_created;
     }
     else
         packet = sftp->statvfs_packet;
 
     if(sftp->statvfs_state == ssh2_NB_state_created) {
-        rc = ssh2_channel_write(channel, 0, packet, packet_len);
+        rc = ssh2_channel_write(channel, 0,
+                                packet + sftp->statvfs_packet_sent,
+                                packet_len - sftp->statvfs_packet_sent);
         if(rc == LIBSSH2_ERROR_EAGAIN ||
-           (0 <= rc && rc < (ssize_t)packet_len)) {
+           (0 <= rc &&
+            rc < (ssize_t)(packet_len - sftp->statvfs_packet_sent))) {
+            if(rc > 0)
+                sftp->statvfs_packet_sent += rc;
             sftp->statvfs_packet = packet;
             return LIBSSH2_ERROR_EAGAIN;
         }
