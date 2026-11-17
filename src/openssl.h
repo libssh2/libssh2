@@ -40,10 +40,6 @@
 #include <wolfssl/options.h>
 #include <wolfssl/openssl/ecdh.h>
 
-#if defined(NO_DSA) || defined(HAVE_FIPS)
-#define OPENSSL_NO_DSA
-#endif
-
 #if defined(NO_MD5) || defined(HAVE_FIPS)
 #define OPENSSL_NO_MD5
 #endif
@@ -67,9 +63,6 @@
 #include <wolfssl/openssl/opensslconf.h>
 #include <wolfssl/openssl/sha.h>
 #include <wolfssl/openssl/rsa.h>
-#ifndef OPENSSL_NO_DSA
-#include <wolfssl/openssl/dsa.h>
-#endif
 #ifndef OPENSSL_NO_MD5
 #include <wolfssl/openssl/md5.h>
 #endif
@@ -86,9 +79,6 @@
 #include <openssl/opensslconf.h>
 #include <openssl/sha.h>
 #include <openssl/rsa.h>
-#ifndef OPENSSL_NO_DSA
-#include <openssl/dsa.h>
-#endif
 #ifndef OPENSSL_NO_MD5
 #include <openssl/md5.h>
 #endif
@@ -146,12 +136,6 @@
 # define LIBSSH2_RSA 1
 # define LIBSSH2_RSA_SHA1 1
 # define LIBSSH2_RSA_SHA2 1
-#endif
-
-#ifdef OPENSSL_NO_DSA
-# define LIBSSH2_DSA 0
-#else
-# define LIBSSH2_DSA 1
 #endif
 
 #define LIBSSH2_ECDSA 1
@@ -280,16 +264,6 @@
 #define ssh2_rsa_free(rsa, session)  (RSA_free(rsa), (void)(session))
 #endif
 #endif /* LIBSSH2_RSA */
-
-#if LIBSSH2_DSA
-#ifdef USE_OPENSSL_3
-#define ssh2_dsa_ctx                 EVP_PKEY
-#define ssh2_dsa_free(dsa, session)  (EVP_PKEY_free(dsa), (void)(session))
-#else
-#define ssh2_dsa_ctx                 DSA
-#define ssh2_dsa_free(dsa, session)  (DSA_free(dsa), (void)(session))
-#endif
-#endif /* LIBSSH2_DSA */
 
 #if LIBSSH2_ECDSA
 #ifdef USE_OPENSSL_3
