@@ -594,9 +594,7 @@ jobs:
         run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'libssh2_config.h'
-        run: |
-          echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'
-          grep -F '#define' bld/src/libssh2_config.h | sort || true
+        run: echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'; grep -F '#define' bld/src/libssh2_config.h | sort || true
 
       - name: 'build'
         if: ${{ !matrix.target }}
@@ -727,9 +725,7 @@ jobs:
         run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'libssh2_config.h'
-        run: |
-          echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'
-          grep -F '#define' bld/src/libssh2_config.h | sort || true
+        run: echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'; grep -F '#define' bld/src/libssh2_config.h | sort || true
 
       - name: 'build'
         run: |
@@ -807,9 +803,7 @@ jobs:
         run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'libssh2_config.h'
-        run: |
-          echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'
-          grep -F '#define' bld/src/libssh2_config.h | sort || true
+        run: echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'; grep -F '#define' bld/src/libssh2_config.h | sort || true
 
       - name: 'build'
         timeout-minutes: 5
@@ -960,9 +954,7 @@ jobs:
         run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'libssh2_config.h'
-        run: |
-          echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'
-          grep -F '#define' bld/src/libssh2_config.h | sort || true
+        run: echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'; grep -F '#define' bld/src/libssh2_config.h | sort || true
 
       - name: 'build'
         run: |
@@ -1065,9 +1057,7 @@ jobs:
         run: cat bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'libssh2_config.h'
-        run: |
-          echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'
-          grep -F '#define' bld/src/libssh2_config.h | sort || true
+        run: echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'; grep -F '#define' bld/src/libssh2_config.h | sort || true
 
       - name: 'build'
         run: cmake --build bld --config "${MATRIX_TYPE}" --parallel 5 --target package
@@ -1307,9 +1297,7 @@ jobs:
         run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'libssh2_config.h'
-        run: |
-          echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'
-          grep -F '#define' bld/src/libssh2_config.h | sort || true
+        run: echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'; grep -F '#define' bld/src/libssh2_config.h | sort || true
 
       - name: 'build'
         run: |
@@ -1411,9 +1399,7 @@ jobs:
         run: cat bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'libssh2_config.h'
-        run: |
-          echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'
-          grep -F '#define' bld/src/libssh2_config.h | sort || true
+        run: echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'; grep -F '#define' bld/src/libssh2_config.h | sort || true
 
       - name: 'build'
         run: cmake --build bld --config "${MATRIX_TYPE}" --parallel 5
