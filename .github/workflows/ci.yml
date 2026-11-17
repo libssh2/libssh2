@@ -1085,15 +1085,12 @@ jobs:
         run: du -sh .; echo; du -sh -t 250KB ./*; echo; du -h -t 250KB bld
 
   build_macos:
-    name: "macOS (${{ matrix.build.generate && 'CM' || 'AM' }}, ${{ matrix.build.name }})"
+    name: "macOS (${{ matrix.build.name }})"
     runs-on: macos-latest
     timeout-minutes: 10
     env:
       MAKEFLAGS: -j 4
       MATRIX_INSTALL: '${{ matrix.build.install }}'
-      MATRIX_BUILD: ${{ matrix.build.generate && 'CM' || 'AM' }}
-      MATRIX_CONFIGURE: '${{ matrix.build.configure }}'
-      MATRIX_GENERATE: '${{ matrix.build.generate }}'
     strategy:
       fail-fast: false
       matrix:
@@ -1101,26 +1098,22 @@ jobs:
           - name: 'Libgcrypt'
             install: libgcrypt
             configure: --with-crypto=libgcrypt --with-libgcrypt-prefix=/opt/homebrew
-          - name: 'Libgcrypt'
-            install: libgcrypt
             generate: -DCRYPTO_BACKEND=Libgcrypt
           - name: 'LibreSSL'
             install: libressl
-          # configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/libressl
+            configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/libressl
             generate: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/libressl
           - name: 'mbedTLS'
             install: mbedtls@3
-          # configure: --with-crypto=mbedtls --with-libmbedcrypto-prefix=/opt/homebrew
+            configure: --with-crypto=mbedtls --with-libmbedcrypto-prefix=/opt/homebrew
             generate: -DCRYPTO_BACKEND=mbedTLS
           - name: 'OpenSSL 4'
             install: openssl@4
             configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl@4 CFLAGS=-std=c90
-          - name: 'OpenSSL 4'
-            install: openssl@4
             generate: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@4 -DCMAKE_C_STANDARD=90
           - name: 'wolfSSL'
             install: wolfssl
-          # configure: --with-crypto=wolfssl --with-libwolfssl-prefix=/opt/homebrew
+            configure: --with-crypto=wolfssl --with-libwolfssl-prefix=/opt/homebrew
             generate: -DCRYPTO_BACKEND=wolfSSL
     steps:
       - uses: $/.github/actions/macos-fix-certs
@@ -1134,69 +1127,72 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: 'autoreconf'
-        if: ${{ matrix.build.configure }}
+      - name: 'AM autoreconf'
         run: autoreconf -fi
 
-      - name: 'configure'
+      - name: 'AM configure'
+        env:
+          MATRIX_CONFIGURE: '${{ matrix.build.configure }}'
         run: |
-          if [ "${MATRIX_BUILD}" = 'CM' ]; then
-            if [ "${MATRIX_INSTALL}" = 'mbedtls@3' ]; then
-              export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls@3)"/lib/pkgconfig
-            fi
-            cmake -B bld -G Ninja ${MATRIX_GENERATE} \
-              -DCMAKE_UNITY_BUILD=ON \
-              -DENABLE_WERROR=ON \
-              -DENABLE_DEBUG_LOGGING=ON \
-              -DENABLE_ZLIB_COMPRESSION=ON \
-              -DRUN_DOCKER_TESTS=OFF \
-              -DRUN_SSHD_TESTS=OFF
-          else
-            if [ "${MATRIX_INSTALL}" = 'mbedtls@3' ]; then
-              export CPPFLAGS; CPPFLAGS=-I"$(brew --prefix mbedtls@3)"/include
-              export LDFLAGS; LDFLAGS=-L"$(brew --prefix mbedtls@3)"/lib
-            fi
-            mkdir bld && cd bld
-            ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
-              --with-libz ${MATRIX_CONFIGURE} \
-              --disable-docker-tests \
-              --disable-sshd-tests \
-              --disable-dependency-tracking --disable-examples-build
+          if [ "${MATRIX_INSTALL}" = 'mbedtls@3' ]; then
+            export CPPFLAGS; CPPFLAGS=-I"$(brew --prefix mbedtls@3)"/include
+            export LDFLAGS; LDFLAGS=-L"$(brew --prefix mbedtls@3)"/lib
           fi
+          mkdir bld-am && cd bld-am
+          ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
+            --with-libz ${MATRIX_CONFIGURE} \
+            --disable-docker-tests \
+            --disable-sshd-tests \
+            --disable-dependency-tracking --disable-examples-build
 
-      - name: 'configure log'
+      - name: 'AM configure log'
         if: ${{ !cancelled() }}
-        run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
+        run: cat bld-am/config.log 2>/dev/null || true
 
-      - name: 'libssh2_config.h'
-        run: |
-          echo '::group::raw'; cat bld/src/libssh2_config.h || true; echo '::endgroup::'
-          grep -F '#define' bld/src/libssh2_config.h | sort || true
+      - name: 'AM libssh2_config.h'
+        run: echo '::group::raw'; cat bld-am/src/libssh2_config.h || true; echo '::endgroup::'; grep -F '#define' bld-am/src/libssh2_config.h | sort || true
 
-      - name: 'build'
-        run: |
-          if [ "${MATRIX_BUILD}" = 'CM' ]; then
-            cmake --build bld --verbose
-          else
-            make -C bld -j4 V=1
-          fi
+      - name: 'AM build'
+        run: make -C bld-am -j4 V=1
 
-      - name: 'tests'
+      - name: 'AM tests'
         timeout-minutes: 10
-        run: |
-          if [ "${MATRIX_BUILD}" = 'CM' ]; then
-            cd bld && ctest --parallel 8 -VV --output-on-failure
-          else
-            make -C bld check V=1 || { cat bld/tests/*.log; false; }
-          fi
+        run: make -C bld-am check V=1 || { cat bld-am/tests/*.log; false; }
 
-      - name: 'build examples'
+      - name: 'AM build examples'
+        run: make -C bld-am V=1 examples
+
+      - name: 'CM configure'
+        env:
+          MATRIX_GENERATE: '${{ matrix.build.generate }}'
         run: |
-          if [ "${MATRIX_BUILD}" = 'CM' ]; then
-            cmake --build bld --verbose --target libssh2-examples-build
-          else
-            make -C bld V=1 examples
+          if [ "${MATRIX_INSTALL}" = 'mbedtls@3' ]; then
+            export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls@3)"/lib/pkgconfig
           fi
+          cmake -B bld-cm -G Ninja ${MATRIX_GENERATE} \
+            -DCMAKE_UNITY_BUILD=ON \
+            -DENABLE_WERROR=ON \
+            -DENABLE_DEBUG_LOGGING=ON \
+            -DENABLE_ZLIB_COMPRESSION=ON \
+            -DRUN_DOCKER_TESTS=OFF \
+            -DRUN_SSHD_TESTS=OFF
+
+      - name: 'CM configure log'
+        if: ${{ !cancelled() }}
+        run: cat bld-cm/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
+
+      - name: 'CM libssh2_config.h'
+        run: echo '::group::raw'; cat bld-cm/src/libssh2_config.h || true; echo '::endgroup::'; grep -F '#define' bld-cm/src/libssh2_config.h | sort || true
+
+      - name: 'CM build'
+        run: cmake --build bld-cm --verbose
+
+      - name: 'CM tests'
+        timeout-minutes: 10
+        run: cd bld-cm && ctest --parallel 8 -VV --output-on-failure
+
+      - name: 'CM build examples'
+        run: cmake --build bld-cm --verbose --target libssh2-examples-build
 
   cross:
     name: "Cross ${{ matrix.os }} ${{ matrix.version }}, ${{ matrix.build }} ${{ matrix.cc }} ${{ matrix.desc }} ${{ matrix.arch }}"
