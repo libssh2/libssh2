@@ -132,13 +132,13 @@ int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
 int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *input, size_t input_len)
 {
     const unsigned char *bytes = input;
-    do {
+    while(input_len) {
         int ilen = (int)SSH2_MIN(input_len, INT_MAX);
         if(!HMAC_Update(*ctx, bytes, ilen))
             return 0;
         input_len -= ilen;
         bytes += ilen;
-    } while(input_len);
+    }
     return 1;
 }
 #endif
