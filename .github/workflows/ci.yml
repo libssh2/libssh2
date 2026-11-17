@@ -1117,6 +1117,34 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: 'CM configure'
+        env:
+          MATRIX_GENERATE: '${{ matrix.build.generate }}'
+        run: |
+          if [ "${MATRIX_INSTALL}" = 'mbedtls@3' ]; then
+            export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls@3)"/lib/pkgconfig
+          fi
+          cmake -B bld-cm -G Ninja ${MATRIX_GENERATE} \
+            -DCMAKE_UNITY_BUILD=ON \
+            -DENABLE_WERROR=ON \
+            -DENABLE_DEBUG_LOGGING=ON \
+            -DENABLE_ZLIB_COMPRESSION=ON \
+            -DRUN_DOCKER_TESTS=OFF \
+            -DRUN_SSHD_TESTS=OFF
+
+      - name: 'CM configure log'
+        if: ${{ !cancelled() }}
+        run: cat bld-cm/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
+      - name: 'CM libssh2_config.h'
+        run: echo '::group::raw'; cat bld-cm/src/libssh2_config.h || true; echo '::endgroup::'; grep -F '#define' bld-cm/src/libssh2_config.h | sort || true
+      - name: 'CM build'
+        run: cmake --build bld-cm --verbose
+      - name: 'CM tests'
+        timeout-minutes: 10
+        run: cd bld-cm && ctest --parallel 8 -VV --output-on-failure
+      - name: 'CM build examples'
+        run: cmake --build bld-cm --verbose --target libssh2-examples-build
+
       - name: 'AM autoreconf'
         run: autoreconf -fi
 
@@ -1138,51 +1166,15 @@ jobs:
       - name: 'AM configure log'
         if: ${{ !cancelled() }}
         run: cat bld-am/config.log 2>/dev/null || true
-
       - name: 'AM libssh2_config.h'
         run: echo '::group::raw'; cat bld-am/src/libssh2_config.h || true; echo '::endgroup::'; grep -F '#define' bld-am/src/libssh2_config.h | sort || true
-
       - name: 'AM build'
         run: make -C bld-am -j4 V=1
-
       - name: 'AM tests'
         timeout-minutes: 10
         run: make -C bld-am check V=1 || { cat bld-am/tests/*.log; false; }
-
       - name: 'AM build examples'
         run: make -C bld-am V=1 examples
-
-      - name: 'CM configure'
-        env:
-          MATRIX_GENERATE: '${{ matrix.build.generate }}'
-        run: |
-          if [ "${MATRIX_INSTALL}" = 'mbedtls@3' ]; then
-            export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls@3)"/lib/pkgconfig
-          fi
-          cmake -B bld-cm -G Ninja ${MATRIX_GENERATE} \
-            -DCMAKE_UNITY_BUILD=ON \
-            -DENABLE_WERROR=ON \
-            -DENABLE_DEBUG_LOGGING=ON \
-            -DENABLE_ZLIB_COMPRESSION=ON \
-            -DRUN_DOCKER_TESTS=OFF \
-            -DRUN_SSHD_TESTS=OFF
-
-      - name: 'CM configure log'
-        if: ${{ !cancelled() }}
-        run: cat bld-cm/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
-
-      - name: 'CM libssh2_config.h'
-        run: echo '::group::raw'; cat bld-cm/src/libssh2_config.h || true; echo '::endgroup::'; grep -F '#define' bld-cm/src/libssh2_config.h | sort || true
-
-      - name: 'CM build'
-        run: cmake --build bld-cm --verbose
-
-      - name: 'CM tests'
-        timeout-minutes: 10
-        run: cd bld-cm && ctest --parallel 8 -VV --output-on-failure
-
-      - name: 'CM build examples'
-        run: cmake --build bld-cm --verbose --target libssh2-examples-build
 
   cross:
     name: "Cross ${{ matrix.os }} ${{ matrix.version }}, ${{ matrix.build }} ${{ matrix.cc }} ${{ matrix.desc }} ${{ matrix.arch }}"
