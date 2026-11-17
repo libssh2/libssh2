@@ -88,7 +88,7 @@ Must return 1 for success and 0 for failure.
 
 ```c
 int ssh2_hmac_update(ssh2_hmac_ctx *ctx,
-                     const void *input, int input_len);
+                     const void *input, size_t input_len);
 ```
 Continue computation of an HMAC on datalen bytes at `input` using context
 `ctx`. May be provided as a macro.
