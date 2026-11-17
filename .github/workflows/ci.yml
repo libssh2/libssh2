@@ -256,6 +256,7 @@ jobs:
           - { compiler: clang, arch: amd64, crypto: OpenSSL                 , build: 'AM', zlib: 'ON', target: 'distcheck' }
           - { compiler: clang, arch: amd64, crypto: OpenSSL                 , build: 'AM', zlib: 'ON', target: 'maketgz' }
           - { compiler: gcc  , arch: amd64, crypto: OpenSSL-4-no-deprecated , build: 'CM', zlib: 'ON', image: ubuntu-26.04, container: 'podman' }
+          - { compiler: clang, arch: arm64, crypto: OpenSSL-3-from-source   , build: 'CM', zlib: 'ON', image: ubuntu-24.04, container: 'podman' }
           - { compiler: gcc  , arch: amd64, crypto: OpenSSL-111-from-source , build: 'CM', zlib: 'ON', image: ubuntu-26.04 }
           - { compiler: clang, arch: amd64, crypto: wolfSSL-from-source     , build: 'CM', zlib: 'ON', image: ubuntu-26.04, container: 'podman' }
           - { compiler: clang, arch: amd64, crypto: wolfSSL-from-source-prev, build: 'CM', zlib: 'ON', image: ubuntu-26.04 }
@@ -281,6 +282,8 @@ jobs:
       MBEDTLS_SHA256_PREV: b02df6f68dd1537e115a8497d5c173dc71edc55ad084756e57a30f951b725acd
       OPENSSL_VERSION: 4.1.0
       OPENSSL_SHA256: 50c17baf54cb008f6ce42d50deb4b28050a1aad711636cabd4b241c7e90cc2fd
+      OPENSSL3_VERSION: 3.5.9
+      OPENSSL3_SHA256: 603f5602e2eef00d77fbd429d34dcd5822bb301757a1bc9cdb24c670f1eb859a
       OPENSSL111_VERSION: 1.1.1w
       OPENSSL111_SHA256: cf3098950cb4d853ad95c0841f1f9c6d3dc102dccfcacd521d93925208b76ac8
       WOLFSSL_VERSION: 5.9.4
@@ -443,6 +446,26 @@ jobs:
           sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${OPENSSL_SHA256}" && tar -xzf pkg.bin && rm -f pkg.bin
           cd "openssl-${OPENSSL_VERSION}"
           ./Configure no-deprecated \
+            no-apps no-docs no-tests no-makedepend \
+            no-comp no-quic no-legacy --prefix="$HOME"/usr
+          make install_sw
+
+      - name: 'cache OpenSSL 3.5'
+        if: ${{ matrix.crypto == 'OpenSSL-3-from-source' }}
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: cache-openssl3
+        with:
+          path: ~/usr
+          key: ${{ runner.os }}-openssl-${{ env.OPENSSL3_VERSION }}-${{ env.MATRIX_ARCH }}
+
+      - name: 'install OpenSSL 3.5 from source'
+        if: ${{ matrix.crypto == 'OpenSSL-3-from-source' && !steps.cache-openssl3.outputs.cache-hit }}
+        run: |
+          curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
+            --location --proto-redir =https "https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL3_VERSION}/openssl-${OPENSSL3_VERSION}.tar.gz" --output pkg.bin
+          sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${OPENSSL3_SHA256}" && tar -xzf pkg.bin && rm -f pkg.bin
+          cd "openssl-${OPENSSL3_VERSION}"
+          ./Configure \
             no-apps no-docs no-tests no-makedepend \
             no-comp no-quic no-legacy --prefix="$HOME"/usr
           make install_sw
