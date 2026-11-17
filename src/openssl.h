@@ -259,10 +259,7 @@
 #endif
 #else
 #define ssh2_hmac_ctx                HMAC_CTX *
-#ifdef LIBSSH2_WOLFSSL /* In wolfSSL length is int, not size_t */
-#define ssh2_hmac_update(ctx, d, l) \
-    HMAC_Update(*(ctx), (const unsigned char *)(d), (int)(l))
-#else
+#ifndef LIBSSH2_WOLFSSL /* for wolfSSL we use a function */
 #define ssh2_hmac_update(ctx, d, l) \
     HMAC_Update(*(ctx), (const unsigned char *)(d), l)
 #endif

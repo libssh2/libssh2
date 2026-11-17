@@ -128,6 +128,21 @@ int ssh2_hmac_init(ssh2_hmac_ctx *ctx, ssh2_hmac_alg alg,
 #endif
 }
 
+#ifdef LIBSSH2_WOLFSSL
+int ssh2_hmac_update(ssh2_hmac_ctx *ctx, const void *input, size_t input_len)
+{
+    const unsigned char *bytes = input;
+    do {
+        int ilen = (int)SSH2_MIN(input_len, INT_MAX);
+        if(!HMAC_Update(*ctx, bytes, ilen))
+            return 0;
+        input_len -= ilen;
+        bytes += ilen;
+    } while(input_len);
+    return 1;
+}
+#endif
+
 int ssh2_hmac_final(ssh2_hmac_ctx *ctx, void *mac, size_t mac_len)
 {
 #ifdef USE_OPENSSL_3
