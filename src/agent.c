@@ -149,10 +149,65 @@ struct _LIBSSH2_AGENT {
  */
 #define PAGEANT_COPYDATA_ID 0x804e50ba /* random goop */
 
+/* Pageant is the only user of user32.dll in libssh2. Resolve the two
+   functions it needs on first use, so that loading libssh2 does not map
+   user32.dll (and gdi32.dll with it) into every process that links it. */
+typedef HWND (WINAPI *pageant_findwindow_fn)(LPCTSTR, LPCTSTR);
+typedef LRESULT (WINAPI *pageant_sendmessage_fn)(HWND, UINT, WPARAM, LPARAM);
+
+static FARPROC pageant_user32_proc(const char *name)
+{
+    HMODULE user32 = GetModuleHandleW(L"user32.dll");
+    if(!user32) {
+        /* Load it by full path from the system directory, so that the DLL
+           search order does not matter */
+        static const WCHAR dll[] = L"\\user32.dll";
+        WCHAR path[MAX_PATH];
+        UINT len = GetSystemDirectoryW(path, MAX_PATH);
+        if(len && len + sizeof(dll) / sizeof(dll[0]) <= MAX_PATH) {
+            memcpy(path + len, dll, sizeof(dll));
+            /* !checksrc! disable BANNEDFUNC 1 */
+            user32 = LoadLibraryW(path);
+        }
+    }
+    return user32 ? GetProcAddress(user32, name) : NULL;
+}
+
+static HWND pageant_find_window(void)
+{
+    pageant_findwindow_fn fn;
+#ifdef UNICODE
+    FARPROC proc = pageant_user32_proc("FindWindowW");
+#else
+    FARPROC proc = pageant_user32_proc("FindWindowA");
+#endif
+    if(!proc)
+        return NULL;
+    /* copy rather than cast, function pointer casts trip
+       -Wcast-function-type-strict */
+    memcpy(&fn, &proc, sizeof(fn));
+    return fn(TEXT("Pageant"), TEXT("Pageant"));
+}
+
+static LRESULT pageant_send_message(HWND hwnd, UINT msg, WPARAM wparam,
+                                    LPARAM lparam)
+{
+    pageant_sendmessage_fn fn;
+#ifdef UNICODE
+    FARPROC proc = pageant_user32_proc("SendMessageW");
+#else
+    FARPROC proc = pageant_user32_proc("SendMessageA");
+#endif
+    if(!proc)
+        return 0;
+    memcpy(&fn, &proc, sizeof(fn));
+    return fn(hwnd, msg, wparam, lparam);
+}
+
 static int agent_connect_pageant(LIBSSH2_AGENT *agent)
 {
     HWND hwnd;
-    hwnd = FindWindow(TEXT("Pageant"), TEXT("Pageant"));
+    hwnd = pageant_find_window();
     if(!hwnd)
         return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                         "failed connecting agent");
@@ -174,7 +229,7 @@ static int agent_transact_pageant(LIBSSH2_AGENT *agent,
     if(!transctx || transctx->request_len > AGENT_MAX_MSGLEN - 4)
         return ssh2_err(agent->session, LIBSSH2_ERROR_INVAL, "illegal input");
 
-    hwnd = FindWindow(TEXT("Pageant"), TEXT("Pageant"));
+    hwnd = pageant_find_window();
     if(!hwnd)
         return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                         "found no pageant");
@@ -201,7 +256,7 @@ static int agent_transact_pageant(LIBSSH2_AGENT *agent,
     cds.cbData = (DWORD)(1 + strlen(mapname));
     cds.lpData = mapname;
 
-    id = SendMessage(hwnd, WM_COPYDATA, (WPARAM)NULL, (LPARAM)&cds);
+    id = pageant_send_message(hwnd, WM_COPYDATA, (WPARAM)NULL, (LPARAM)&cds);
     if(id > 0) {
         transctx->response_len = ssh2_ntohu32(p);
         if(transctx->response_len > AGENT_MAX_MSGLEN - 4) {
