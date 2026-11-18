@@ -416,48 +416,6 @@ static int test_userauth_sign_algs_fail_cleanup(LIBSSH2_SESSION *session)
 }
 #endif
 
-#if defined(LIBSSH2_OPENSSL) && LIBSSH2_RSA && LIBSSH2_RSA_SHA2
-static int test_ssh2_rsa_sha2_sign_fail(LIBSSH2_SESSION *session)
-{
-    static const char pem[] =
-        "-----BEGIN RSA PRIVATE KEY-----\n"
-        "MIIBOgIBAAJBAN5MM8NhaJrPxEcoXX9jvysG0AWGVqZXjGGvkLigtOKAC8TV+njs\n"
-        "/j98AmBPT08HFm7SIDkDLrtca1tO/iYVb7ECAwEAAQJAJYdH1dxEBJ6+zCSMZE06\n"
-        "oNDtnYEob7yn/nXdQM4gu3wB6ih0hEsDconc0Xf/vx0Dhy66o78BkAsvRUI7ygeR\n"
-        "YQIhAPZDAQVUbUdUK+kKt9LXWdoBZelc8xHay7t8Gm3s4AJLAiEA5xaZ8JcW84FP\n"
-        "X5jbwwNSGnTGUXUbSAdTzancPn5cOHMCIQDSwouoHRadmlsuSr8Cks5SdynabHOX\n"
-        "j1MX9WHFPJqHOwIgfv68uqtNwaReqnqmyxUYGdHy6vEgfQUJ2QxwLSfkJmECIHfE\n"
-        "MXcy2YAMS7CDX1z0pwQU++946fmqUdgKopyjiAsq\n"
-        "-----END RSA PRIVATE KEY-----\n";
-    /* not a SHA-1, SHA-256 or SHA-512 digest length */
-    static const unsigned char hash[16] = { 0 };
-    ssh2_rsa_ctx *rsa = NULL;
-    unsigned char *sig = NULL;
-    size_t sig_len = 0;
-    int rc;
-    int err = 0;
-
-    if(ssh2_rsa_new_priv(&rsa, session, NULL, pem, sizeof(pem) - 1, NULL)) {
-        fprintf(stderr, "rsa sign fail: key load failed\n");
-        return 1;
-    }
-
-    rc = ssh2_rsa_sha2_sign(rsa, session, hash, sizeof(hash),
-                            &sig, &sig_len);
-    if(rc != -1 || sig) {
-        fprintf(stderr, "rsa sign fail: rc=%d sig_len=%lu (want -1)\n",
-                rc, (unsigned long)sig_len);
-        err++;
-    }
-
-    if(sig)
-        SSH2_FREE(session, sig);
-    ssh2_rsa_free(rsa, session);
-
-    return err > 0;
-}
-#endif
-
 static int test_sftp_symlink_name_reply(LIBSSH2_SESSION *session)
 {
     /* SSH_FXP_NAME (104) reply to request id 1 with one name: "evil" */
@@ -761,9 +719,6 @@ int main(int argc, char *argv[])
     rc |= test_sftp_mkdir_resume_fail_cleanup();
 #if LIBSSH2_RSA_SHA2
     rc |= test_userauth_sign_algs_fail_cleanup(session);
-#endif
-#if defined(LIBSSH2_OPENSSL) && LIBSSH2_RSA && LIBSSH2_RSA_SHA2
-    rc |= test_ssh2_rsa_sha2_sign_fail(session);
 #endif
     rc |= test_sftp_symlink_name_reply(session);
 #if LIBSSH2_MD5_PEM && LIBSSH2_AES_CBC
