@@ -214,9 +214,25 @@ static SSH2_INLINE int packet_queue_listener(
 
                     /* Link the channel into the end of the queue list */
                     if(listen_state->channel) {
-                        ssh2_list_add(&listn->queue,
-                                      &listen_state->channel->node);
-                        listn->queue_size++;
+                        if(listn->connect_cb) {
+                            /*
+                             * add channel to session's channel list
+                             * with callback then channel_forward_accept()
+                             * doesn't need to be called, so just do the
+                             * work it did.
+                             */
+                            LIBSSH2_CHANNEL *new_channel =
+                                listen_state->channel;
+                            ssh2_list_add(&new_channel->session->channels,
+                                          &new_channel->node);
+                            SSH2_LISTENER_CONNECT(session, listn,
+                                                  new_channel);
+                        }
+                        else {
+                            ssh2_list_add(&listn->queue,
+                                          &listen_state->channel->node);
+                            listn->queue_size++;
+                        }
                     }
 
                     listen_state->state = ssh2_NB_state_idle;
@@ -1071,6 +1087,9 @@ ssh2_packet_add_jump_point1:
                           "EOF received for channel %u/%u",
                           channelp->local.id, channelp->remote.id));
                 channelp->remote.eof = 1;
+                /* post event callback, after channel set to eof state */
+                if(channelp->eof_cb)
+                    SSH2_CHANNEL_EOF(session, channelp);
             }
             SSH2_FREE(session, data);
             session->packAdd_state = ssh2_NB_state_idle;
@@ -1224,6 +1243,8 @@ clean_exit:
 
             channelp->remote.close = 1;
             channelp->remote.eof = 1;
+            if(channelp->close_cb)
+                SSH2_CHANNEL_CLOSE(session, channelp);
 
             SSH2_FREE(session, data);
             session->packAdd_state = ssh2_NB_state_idle;
@@ -1330,6 +1351,7 @@ ssh2_packet_add_jump_authagent:
     }
 
     if(session->packAdd_state == ssh2_NB_state_sent) {
+        int rc_cb;
         struct packet *packetp = SSH2_ALLOC(session, sizeof(struct packet));
         if(!packetp) {
             ssh2_deb((session, LIBSSH2_ERROR_ALLOC, "memory for packet"));
@@ -1340,8 +1362,77 @@ ssh2_packet_add_jump_authagent:
         packetp->data = data;
         packetp->data_len = datalen;
         packetp->data_head = data_head;
-
-        ssh2_list_add(&session->packets, &packetp->node);
+        rc_cb = 0;
+        if(channelp && channelp->data_cb)
+            if(channelp->close_state ==
+               ssh2_NB_state_idle) { /* not closed... */
+                if((data[0] == SSH_MSG_CHANNEL_DATA) ||
+                   (data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)) {
+                    /*
+                     * If the packet is channel data, send as default
+                     *    stdin stream.
+                     * If the streams are merged, send as stdin.
+                     * else if it's extended data, send as stderr stream if
+                     *    the stream id is SSH_EXTENDED_DATA_STDERR,
+                     *    otherwise send as stream id
+                     */
+                    if(data[0] == SSH_MSG_CHANNEL_DATA)
+                        SSH2_CHANNEL_DATA(session, channelp, 0,
+                                          data + data_head,
+                                          datalen - data_head);
+                    else if(data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) {
+                        uint32_t sid = ssh2_ntohu32(data + 5);
+                        if(channelp->remote.extended_data_ignore_mode ==
+                            LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE)
+                            SSH2_CHANNEL_DATA(session, channelp, sid,
+                                              data + data_head,
+                                              datalen - data_head);
+                        else if(sid == SSH_EXTENDED_DATA_STDERR)
+                            SSH2_CHANNEL_DATA(session, channelp, 1,
+                                              data + data_head,
+                                              datalen - data_head);
+                    }
+                    rc_cb = 1;
+                    {
+                        /* The callback consumed the data, so nothing will
+                         * ever channel_read() it: do the receive-window
+                         * bookkeeping channel_read() would have done and
+                         * hand the space back to the peer.  Without this
+                         * read_avail only grows, and the channel stalls
+                         * (data ignored) after one window's worth. */
+                        uint32_t consumed = (uint32_t)(datalen - data_head);
+                        channelp->read_avail -= consumed;
+                        channelp->remote.window_size -= consumed;
+                        if(channelp->window_hold) {
+                            /* consumer asked for backpressure; refund
+                             * when it releases the hold */
+                            channelp->window_held += consumed;
+                            consumed = 0;
+                        }
+                        else if(channelp->adjust_state !=
+                                ssh2_NB_state_idle) {
+                            /* an earlier adjust is still waiting to be
+                             * sent; it picks this up after it goes */
+                            channelp->adjust_queue += consumed;
+                            consumed = 0;
+                        }
+                        (void)ssh2_channel_receive_window_adjust(channelp,
+                                                                 consumed,
+                                                                 0, NULL);
+                    }
+                }
+            }
+        /*
+         * default action, post to packet queue,
+         *    otherwise it was already consumed
+         */
+        if(!rc_cb)
+            ssh2_list_add(&session->packets, &packetp->node);
+        else {
+            /* consumed by the callback; nothing references it now */
+            SSH2_FREE(session, data);
+            SSH2_FREE(session, packetp);
+        }
 
         session->packAdd_state = ssh2_NB_state_sent1;
     }

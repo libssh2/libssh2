@@ -823,6 +823,9 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                                                &session->remote.crypt_abstract,
                                                0)) {
                     p->total_num = 0; /* no packet buffer available */
+                    /* like the other error paths, don't leak the payload */
+                    if(p->payload)
+                        SSH2_SAFEFREE(session, p->payload);
                     return LIBSSH2_ERROR_DECRYPT;
                 }
 
@@ -984,6 +987,15 @@ static int transport_send_existing(LIBSSH2_SESSION *session,
     p->osent += rc; /* we sent away this much data */
 
     return rc < length ? LIBSSH2_ERROR_EAGAIN : LIBSSH2_ERROR_NONE;
+}
+
+/*
+ * public API entry to trigger processing a read.
+ * Used with callbacks when a response might be immediately available.
+ */
+int libssh2_session_read(LIBSSH2_SESSION *session)
+{
+    return ssh2_transport_read(session);
 }
 
 /*
