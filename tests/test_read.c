@@ -79,6 +79,13 @@ int test(LIBSSH2_SESSION *session)
         goto shutdown;
     }
 
+    /* grow the window past 2^32-1, the library has to clamp it */
+    rc = libssh2_channel_receive_window_adjust2(channel, UINT32_MAX, 1, NULL);
+    if(rc) {
+        print_last_session_error("libssh2_channel_receive_window_adjust2");
+        goto shutdown;
+    }
+
     env = getenv("FIXTURE_XFER_COUNT");
     if(env) {
         xfer_count = (unsigned long)atoi(env);
