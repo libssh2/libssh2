@@ -2277,7 +2277,7 @@ int ssh2_rsa_sha2_sign(ssh2_rsa_ctx *rsa, LIBSSH2_SESSION *session,
     }
 #endif
 
-    if(!ret) {
+    if(ret != 1) {
         SSH2_FREE(session, sig);
         return -1;
     }
