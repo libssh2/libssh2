@@ -164,6 +164,7 @@ struct _LIBSSH2_SFTP {
     /* State variables used in sftp_fsync() */
     ssh2_NB_states fsync_state;
     unsigned char *fsync_packet;
+    size_t fsync_packet_sent;
     uint32_t fsync_request_id;
 
     /* State variables used in libssh2_sftp_readdir() */
@@ -190,16 +191,19 @@ struct _LIBSSH2_SFTP {
     /* State variables used in libssh2_sftp_posix_rename_ex() */
     ssh2_NB_states posix_rename_state;
     unsigned char *posix_rename_packet;
+    size_t posix_rename_packet_sent;
     uint32_t posix_rename_request_id;
 
     /* State variables used in libssh2_sftp_fstatvfs() */
     ssh2_NB_states fstatvfs_state;
     unsigned char *fstatvfs_packet;
+    size_t fstatvfs_packet_sent;
     uint32_t fstatvfs_request_id;
 
     /* State variables used in libssh2_sftp_statvfs() */
     ssh2_NB_states statvfs_state;
     unsigned char *statvfs_packet;
+    size_t statvfs_packet_sent;
     uint32_t statvfs_request_id;
 
     /* State variables used in libssh2_sftp_mkdir() */

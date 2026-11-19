@@ -712,6 +712,134 @@ static int test_sftp_mkdir_resume_fail_cleanup(void)
     return err > 0;
 }
 
+static unsigned char sftp_wire[1024];
+static size_t sftp_wire_len;
+
+static LIBSSH2_SEND_FUNC(test_sftp_wire_send)
+{
+    (void)socket;
+    (void)flags;
+    (void)abstract;
+
+    if(length > sizeof(sftp_wire) - sftp_wire_len)
+        return -EAGAIN;
+
+    memcpy(&sftp_wire[sftp_wire_len], buffer, length);
+    sftp_wire_len += length;
+
+    return (ssize_t)length;
+}
+
+static LIBSSH2_RECV_FUNC(test_sftp_wire_recv)
+{
+    (void)socket;
+    (void)buffer;
+    (void)length;
+    (void)flags;
+    (void)abstract;
+    return -EAGAIN;
+}
+
+/* collect the SSH_MSG_CHANNEL_DATA payload from the plaintext packets */
+static size_t sftp_wire_channel_data(unsigned char *out, size_t out_len)
+{
+    size_t pos = 0;
+    size_t len = 0;
+
+    while(pos + 5 <= sftp_wire_len) {
+        uint32_t packet_length = ssh2_ntohu32(&sftp_wire[pos]);
+        const unsigned char *payload = &sftp_wire[pos + 5];
+        uint32_t data_len;
+
+        if(pos + 4 + packet_length > sftp_wire_len)
+            break;
+        if(payload[0] == SSH_MSG_CHANNEL_DATA) {
+            data_len = ssh2_ntohu32(payload + 5);
+            if(data_len <= out_len - len) {
+                memcpy(&out[len], payload + 9, data_len);
+                len += data_len;
+            }
+        }
+        pos += 4 + packet_length;
+    }
+
+    return len;
+}
+
+static int test_sftp_statvfs_partial_write(void)
+{
+    LIBSSH2_SESSION *session;
+    LIBSSH2_CHANNEL *channel;
+    LIBSSH2_SFTP *sftp;
+    LIBSSH2_SFTP_STATVFS st;
+    unsigned char stream[256];
+    size_t stream_len;
+    /* 36 bytes of header + "/tmp/x" */
+    const size_t request_len = 36 + 6;
+    int rc;
+    int err = 0;
+
+    session = libssh2_session_init();
+    if(!session)
+        return 1;
+
+    channel = SSH2_CALLOC(session, sizeof(*channel));
+    sftp = SSH2_CALLOC(session, sizeof(*sftp));
+    if(!channel || !sftp) {
+        if(channel)
+            SSH2_FREE(session, channel);
+        if(sftp)
+            SSH2_FREE(session, sftp);
+        libssh2_session_free(session);
+        return 1;
+    }
+
+    sftp_wire_len = 0;
+    session->send_cb = test_sftp_wire_send;
+    session->recv_cb = test_sftp_wire_recv;
+    session->socket_state = SSH2_SOCKET_CONNECTED;
+    libssh2_session_set_blocking(session, 0);
+
+    /* the window only has room for the first 10 bytes of the request */
+    channel->session = session;
+    channel->local.window_size = 10;
+    channel->local.packet_size = 32768;
+    ssh2_list_add(&session->channels, &channel->node);
+    sftp->channel = channel;
+    sftp->version = 3;
+
+    rc = libssh2_sftp_statvfs(sftp, "/tmp/x", 6, &st);
+    if(rc != LIBSSH2_ERROR_EAGAIN) {
+        fprintf(stderr, "sftp statvfs: first call rc=%d (want %d)\n",
+                rc, LIBSSH2_ERROR_EAGAIN);
+        err++;
+    }
+
+    channel->local.window_size = 1000;
+    rc = libssh2_sftp_statvfs(sftp, "/tmp/x", 6, &st);
+    if(rc != LIBSSH2_ERROR_EAGAIN) {
+        fprintf(stderr, "sftp statvfs: retry rc=%d (want %d)\n",
+                rc, LIBSSH2_ERROR_EAGAIN);
+        err++;
+    }
+
+    /* the request must reach the channel exactly once */
+    stream_len = sftp_wire_channel_data(stream, sizeof(stream));
+    if(stream_len != request_len ||
+       ssh2_ntohu32(stream) != request_len - 4) {
+        fprintf(stderr, "sftp statvfs: sent %lu bytes (want %lu)\n",
+                (unsigned long)stream_len, (unsigned long)request_len);
+        err++;
+    }
+
+    session->socket_state = SSH2_SOCKET_DISCONNECTED;
+    libssh2_sftp_shutdown(sftp);
+    SSH2_FREE(session, sftp);
+    libssh2_session_free(session);
+
+    return err > 0;
+}
+
 static const unsigned char *transport_feed;
 static size_t transport_feed_len;
 
@@ -793,6 +921,7 @@ int main(int argc, char *argv[])
     rc |= test_ssh2_bn_from_bin();
     rc |= test_ssh2_scp_parse_c_fields();
     rc |= test_sftp_mkdir_resume_fail_cleanup();
+    rc |= test_sftp_statvfs_partial_write();
 #if LIBSSH2_RSA_SHA2
     rc |= test_userauth_sign_algs_fail_cleanup(session);
 #endif
