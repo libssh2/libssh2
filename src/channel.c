@@ -2627,6 +2627,16 @@ int ssh2_channel_free(LIBSSH2_CHANNEL *channel)
            free from happening */
     }
 
+    if(!channel->local.close) {
+        /* The channel is being freed without a completed graceful close.
+           Finish the local close so the owner can release its resources. */
+        channel->local.close = 1;
+        if(channel->close_cb) {
+            SSH2_CHANNEL_CLOSE(session, channel);
+            channel->close_cb = NULL;
+        }
+    }
+
     channel->free_state = ssh2_NB_state_idle;
 
     if(channel->exit_signal)
