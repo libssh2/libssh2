@@ -1,0 +1,4 @@
+a.example.com,192.168.1.1 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDcZRamATRIXexamplekeydata0000000000000000000001=
+
+# comment line
+@revoked b.example.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHpheW1vcmUvaGVsbG8vd29ybGQvZWQyNTUxOQ==

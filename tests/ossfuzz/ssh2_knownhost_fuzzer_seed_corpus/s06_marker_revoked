@@ -1,0 +1,2 @@
+@cert-authority *.example.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDcZRamATRIXexamplekeydata0000000000000000000001=
+@revoked x.example.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHpheW1vcmUvaGVsbG8vd29ybGQvZWQyNTUxOQ==
