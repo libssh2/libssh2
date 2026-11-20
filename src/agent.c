@@ -510,7 +510,7 @@ static int agent_transact_openssh(LIBSSH2_AGENT *agent,
                             "agent recv failed");
 
         transctx->response_len = ssh2_ntohu32(buf);
-        if(transctx->response_len > AGENT_MAX_MSGLEN - 4) {
+        if(transctx->response_len > OPENSSH_AGENT_MAX_MSGLEN) {
             return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                             "agent response too large");
         }
@@ -687,7 +687,7 @@ static int agent_transact_unix(LIBSSH2_AGENT *agent,
                             "agent recv failed");
         }
         transctx->response_len = ssh2_ntohu32(buf);
-        if(transctx->response_len > AGENT_MAX_MSGLEN - 4) {
+        if(transctx->response_len > OPENSSH_AGENT_MAX_MSGLEN) {
             return ssh2_err(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                             "agent response too large");
         }
