@@ -8,7 +8,7 @@
 
 #include "libssh2_priv.h"
 
-#define AGENT_MAX_MSGLEN  8192
+#define AGENT_MAX_MSGLEN  (256 * 1024)
 
 #if defined(_WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
 #define SSH2_AGENT_BACKEND_WIN32_PAGEANT "Pageant"
