@@ -63,6 +63,10 @@ if(SH_EXECUTABLE)
 endif()
 
 add_library(runner STATIC ${librunner_la_SOURCES})
+# runner.c defines main(), while the fixture sources are also reused by
+# standalone tests. Keep it out of unity translation units so referencing a
+# fixture helper does not pull a second main() into those tests.
+set_source_files_properties(runner.c PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
 target_compile_definitions(runner PRIVATE "${CRYPTO_BACKEND_DEFINE}")
 target_include_directories(runner PRIVATE
   "${PROJECT_BINARY_DIR}/src"
