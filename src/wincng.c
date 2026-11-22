@@ -2457,7 +2457,6 @@ cleanup:
     return result;
 }
 
-#if LIBSSH2_ECDSA
 /* wcng_extract_openssh_ecdsa_pubkey
  *
  * Get unencrypted public key from the OpenSSH private key file path
@@ -2555,7 +2554,6 @@ static int wcng_extract_openssh_ecdsa_pubkey(LIBSSH2_SESSION *session,
     ssh2_zero_free(session, data, datalen);
     return 0;
 }
-#endif /* LIBSSH2_ECDSA */
 
 /*
  * Creates a new private key given a file or blob and password.
@@ -2835,6 +2833,11 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
                      const char *privkeyblob, size_t privkeyblob_len,
                      const char *passphrase)
 {
+#if LIBSSH2_RSA || LIBSSH2_DSA
+    unsigned char* pbEncoded;
+    size_t cbEncoded;
+#endif
+
 #if LIBSSH2_ECDSA
     if(wcng_extract_openssh_ecdsa_pubkey(session, method,
                                          pubkeydata, pubkeydata_len,
@@ -2845,9 +2848,6 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
 #endif
 
 #if LIBSSH2_RSA || LIBSSH2_DSA
-    unsigned char *pbEncoded;
-    size_t cbEncoded;
-
     if(wcng_load_priv(session,
                       privkeyfile, privkeyblob, privkeyblob_len, passphrase,
                       &pbEncoded, &cbEncoded, 1, 1))
