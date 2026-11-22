@@ -151,12 +151,16 @@ int main(int argc, char *argv[])
     /* Expand a path via SFTP */
     rc = libssh2_sftp_expand_path(sftp_session, sftppath, strlen(sftppath),
                                   expanded_path, sizeof(expanded_path));
-    if (rc > 0) {
+    if(rc > 0) {
         printf("%s expands to: %s\n", sftppath, expanded_path);
-    } else {
-        if (rc == LIBSSH2_ERROR_SFTP_PROTOCOL) {
-            fprintf(stderr, "libssh2_sftp_expand_path failed with sftp error: %lu\n", libssh2_sftp_last_error(sftp_session));
-        } else {
+    }
+    else {
+        if(rc == LIBSSH2_ERROR_SFTP_PROTOCOL) {
+            fprintf(stderr,
+                "libssh2_sftp_expand_path failed with sftp error: %lu\n",
+                    libssh2_sftp_last_error(sftp_session));
+        }
+        else {
             fprintf(stderr, "libssh2_sftp_expand_path failed: %d\n", rc);
         }
     }

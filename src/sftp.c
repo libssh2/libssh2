@@ -3088,8 +3088,9 @@ static int sftp_expand_path(LIBSSH2_SFTP *sftp, const char *path,
                   "Expanding path %s", path));
         s = packet = SSH2_ALLOC(session, packet_len);
         if(!packet)
-            return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-                            "Unable to allocate memory for FXP_EXTENDED packet");
+            return ssh2_err(session,
+                            LIBSSH2_ERROR_ALLOC,
+                    "Unable to allocate memory for FXP_EXTENDED packet");
 
         ssh2_store_u32(&s, packet_len - 4);
         *(s++) = SSH_FXP_EXTENDED;
@@ -3189,7 +3190,8 @@ static int sftp_expand_path(LIBSSH2_SFTP *sftp, const char *path,
                         "Invalid expand_path response, multiple path entries");
     }
 
-    if(ssh2_get_string(&buf, &path_target, &path_target_len) == LIBSSH2_ERROR_NONE) {
+    if(ssh2_get_string(&buf, &path_target, &path_target_len)
+        == LIBSSH2_ERROR_NONE) {
         if(path_target_len < target_len) {
             memcpy(target, path_target, path_target_len);
             target[path_target_len] = '\0';
