@@ -192,6 +192,11 @@ struct _LIBSSH2_SFTP {
     unsigned char *posix_rename_packet;
     uint32_t posix_rename_request_id;
 
+    /* State variables used in libssh2_sftp_expand_path() */
+    ssh2_NB_states expand_path_state;
+    unsigned char *expand_path_packet;
+    uint32_t expand_path_request_id;
+
     /* State variables used in libssh2_sftp_fstatvfs() */
     ssh2_NB_states fstatvfs_state;
     unsigned char *fstatvfs_packet;
