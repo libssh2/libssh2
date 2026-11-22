@@ -1081,6 +1081,8 @@ static int sftp_shutdown(LIBSSH2_SFTP *sftp)
         SSH2_SAFEFREE(session, sftp->unlink_packet);
     if(sftp->rename_packet)
         SSH2_SAFEFREE(session, sftp->rename_packet);
+    if(sftp->expand_path_packet)
+        SSH2_SAFEFREE(session, sftp->expand_path_packet);
     if(sftp->fstatvfs_packet)
         SSH2_SAFEFREE(session, sftp->fstatvfs_packet);
     if(sftp->statvfs_packet)
@@ -3045,6 +3047,182 @@ int libssh2_sftp_posix_rename_ex(LIBSSH2_SFTP *sftp,
     BLOCK_ADJUST(rc, sftp->channel->session,
                  sftp_posix_rename(sftp, source_filename, source_filename_len,
                                    dest_filename, dest_filename_len));
+    return rc;
+}
+
+static int sftp_expand_path(LIBSSH2_SFTP *sftp, const char *path,
+                            size_t path_len,
+                            char *target,
+                            size_t target_len)
+{
+    static const unsigned char link_responses[2] = {
+        SSH_FXP_NAME, SSH_FXP_STATUS
+    };
+
+    LIBSSH2_CHANNEL *channel = sftp->channel;
+    LIBSSH2_SESSION *session = channel->session;
+    uint32_t packet_len;
+    size_t data_len = 0, path_target_len;
+    unsigned char *packet, *s, *data = NULL;
+    ssize_t rc;
+    int retcode;
+    struct string_buf buf;
+    unsigned char packet_type;
+    uint32_t tmp_u32;
+    unsigned char *path_target;
+
+    /* 17 = packet_len(4) + packet_type(1) + request_id(4) + ext_len(4)
+       + path_len (4) */
+    /* 23 = string_len(4) + strlen("expand-path@openssh.com") */
+    packet_len = 23 + 17;
+
+    if(packet_len + (uint32_t)path_len < packet_len)
+        return ssh2_err(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                        "Input too large expand-path@openssh.com");
+    packet_len += (uint32_t)path_len;
+
+    if(sftp->expand_path_state == ssh2_NB_state_idle) {
+        sftp->last_errno = LIBSSH2_FX_OK;
+
+        ssh2_deb((session, LIBSSH2_TRACE_SFTP,
+                  "Expanding path %s", path));
+        s = packet = SSH2_ALLOC(session, packet_len);
+        if(!packet)
+            return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
+                            "Unable to allocate memory for FXP_EXTENDED packet");
+
+        ssh2_store_u32(&s, packet_len - 4);
+        *(s++) = SSH_FXP_EXTENDED;
+        sftp->expand_path_request_id = sftp->request_id++;
+        ssh2_store_u32(&s, sftp->expand_path_request_id);
+        ssh2_store_str(&s, "expand-path@openssh.com", 23);
+        ssh2_store_str(&s, path, path_len);
+
+        sftp->expand_path_state = ssh2_NB_state_created;
+    }
+    else
+        packet = sftp->expand_path_packet;
+
+    if(sftp->expand_path_state == ssh2_NB_state_created) {
+        rc = ssh2_channel_write(channel, 0, packet, packet_len);
+        if(rc == LIBSSH2_ERROR_EAGAIN ||
+           (0 <= rc && rc < (ssize_t)packet_len)) {
+            sftp->expand_path_packet = packet;
+            return LIBSSH2_ERROR_EAGAIN;
+        }
+
+        SSH2_FREE(session, packet);
+        sftp->expand_path_packet = NULL;
+
+        if(rc < 0) {
+            sftp->expand_path_state = ssh2_NB_state_idle;
+            return ssh2_err(session, LIBSSH2_ERROR_SOCKET_SEND,
+                            "ssh2_channel_write() failed");
+        }
+        sftp->expand_path_state = ssh2_NB_state_sent;
+    }
+
+    retcode = sftp_packet_requirev(sftp, 2, link_responses,
+                                   sftp->expand_path_request_id, &data,
+                                   &data_len, 9);
+    if(retcode == LIBSSH2_ERROR_EAGAIN)
+        return retcode;
+    else if(retcode == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
+        if(data_len > 0)
+            SSH2_FREE(session, data);
+        return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                        "SFTP expand_path packet too short");
+    }
+    else if(retcode) {
+        sftp->expand_path_state = ssh2_NB_state_idle;
+        return ssh2_err(session, retcode, "Error waiting for status message");
+    }
+
+    sftp->expand_path_state = ssh2_NB_state_idle;
+
+    buf.data = SSH2_UNCONST(data);
+    buf.dataptr = buf.data;
+    buf.len = data_len;
+
+    if(ssh2_get_byte(&buf, &packet_type)) {
+        SSH2_FREE(session, data);
+        return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                        "SFTP Protocol Error (type)");
+    }
+
+    /* advance past id */
+    if(ssh2_get_u32(&buf, &tmp_u32)) {
+        SSH2_FREE(session, data);
+        return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                        "SFTP Protocol Error (id)");
+    }
+
+    if(packet_type == SSH_FXP_STATUS) {
+        if(ssh2_get_u32(&buf, &tmp_u32)) {
+            SSH2_FREE(session, data);
+            return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                            "SFTP Protocol Error (code)");
+        }
+
+        retcode = (int)tmp_u32;
+
+        SSH2_FREE(session, data);
+        if(retcode == LIBSSH2_FX_OK)
+            return LIBSSH2_ERROR_NONE;
+        else {
+            sftp->last_errno = retcode;
+            return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                            "SFTP Protocol Error");
+        }
+    }
+
+    /* look for exactly one path */
+    if(ssh2_get_u32(&buf, &tmp_u32) || tmp_u32 < 1) {
+        SSH2_FREE(session, data);
+        return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                        "Invalid expand_path response, no path entry");
+    }
+
+    if(tmp_u32 != 1) {
+        SSH2_FREE(session, data);
+        return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                        "Invalid expand_path response, multiple path entries");
+    }
+
+    if(ssh2_get_string(&buf, &path_target, &path_target_len) == LIBSSH2_ERROR_NONE) {
+        if(path_target_len < target_len) {
+            memcpy(target, path_target, path_target_len);
+            target[path_target_len] = '\0';
+            retcode = (int)path_target_len;
+        }
+        else
+            retcode = LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+    }
+    else {
+        SSH2_FREE(session, data);
+        return ssh2_err(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                        "SFTP Protocol Error (filename)");
+    }
+
+    SSH2_FREE(session, data);
+    return retcode;
+}
+
+/*
+ * Expand a path on the remote server using the expand-path@openssh.com
+ * extension.
+ */
+int libssh2_sftp_expand_path(LIBSSH2_SFTP *sftp,
+                             const char *path,
+                             size_t path_len,
+                             char *target,
+                             size_t target_len)
+{
+    int rc;
+    if(!sftp)
+        return LIBSSH2_ERROR_BAD_USE;
+    BLOCK_ADJUST(rc, sftp->channel->session,
+                 sftp_expand_path(sftp, path, path_len, target, target_len));
     return rc;
 }
 

@@ -12,6 +12,7 @@ noinst_PROGRAMS = \
   sftp \
   sftp_RW_nonblock \
   sftp_append \
+  sftp_expand_path \
   sftp_mkdir \
   sftp_mkdir_nonblock \
   sftp_nonblock \
