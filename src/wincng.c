@@ -2458,47 +2458,47 @@ cleanup:
 }
 
 #if LIBSSH2_ECDSA
-/* ssh2_wincng_ecdsa_pub_priv_keyfile_parse
+/* wcng_extract_openssh_ecdsa_pubkey
  *
  * Get unencrypted public key from the OpenSSH private key file path
  */
 
-static int wcng_extract_openssh_ecdsa_pubkey(LIBSSH2_SESSION* session,
-    char** method,
-    unsigned char** pubkeydata,
-    size_t* pubkeydata_len,
-    const char* privkeyfile,
-    const char* privkeyblob,
-    size_t privkeyblob_len)
+static int wcng_extract_openssh_ecdsa_pubkey(LIBSSH2_SESSION *session,
+                                             char **method,
+                                             unsigned char **pubkeydata,
+                                             size_t *pubkeydata_len,
+                                             const char *privkeyfile,
+                                             const char *privkeyblob,
+                                             size_t privkeyblob_len)
 {
-    unsigned char* data = NULL;
+    unsigned char *data = NULL;
     size_t datalen = 0;
     struct string_buf data_buffer;
     struct string_buf pub_buffer;
-    unsigned char* tmp = NULL;
+    unsigned char *tmp = NULL;
     size_t tmp_len = 0;
-    unsigned char* pub_blob = NULL;
+    unsigned char *pub_blob = NULL;
     size_t pub_blob_len = 0;
-    unsigned char* algo = NULL;
+    unsigned char *algo = NULL;
     size_t algo_len = 0;
     uint32_t nkeys = 0;
     const size_t magic_len = sizeof(OPENSSH_PRIVKEY_AUTH_MAGIC);
-    char* method_buf = NULL;
-    unsigned char* key_buf = NULL;
+    char *method_buf = NULL;
+    unsigned char *key_buf = NULL;
     int rc;
 
     /* Base64-decode the OpenSSH envelope */
     rc = ssh2_pem_parse(session,
-        OPENSSH_PRIVKEY_HEADER,
-        OPENSSH_PRIVKEY_FOOTER,
-        privkeyfile, privkeyblob, privkeyblob_len,
-        NULL, &data, &datalen, NULL);
-    if (rc)
+                        OPENSSH_PRIVKEY_HEADER,
+                        OPENSSH_PRIVKEY_FOOTER,
+                        privkeyfile, privkeyblob, privkeyblob_len,
+                        NULL, &data, &datalen, NULL);
+    if(rc)
         return rc;
 
     /* Verify "openssh-key-v1\0" magic */
-    if (datalen < magic_len ||
-        memcmp(data, OPENSSH_PRIVKEY_AUTH_MAGIC, magic_len) != 0) {
+    if(datalen < magic_len ||
+       memcmp(data, OPENSSH_PRIVKEY_AUTH_MAGIC, magic_len) != 0) {
         ssh2_zero_free(session, data, datalen);
         return -1;
     }
@@ -2508,16 +2508,16 @@ static int wcng_extract_openssh_ecdsa_pubkey(LIBSSH2_SESSION* session,
     data_buffer.len = datalen;
 
     /* Skip ciphername, kdfname, and kdfoptions */
-    if (ssh2_get_string(&data_buffer, &tmp, &tmp_len) ||
-        ssh2_get_string(&data_buffer, &tmp, &tmp_len) ||
-        ssh2_get_string(&data_buffer, &tmp, &tmp_len)) {
+    if(ssh2_get_string(&data_buffer, &tmp, &tmp_len) ||
+       ssh2_get_string(&data_buffer, &tmp, &tmp_len) ||
+       ssh2_get_string(&data_buffer, &tmp, &tmp_len)) {
         ssh2_zero_free(session, data, datalen);
         return -1;
     }
 
     /* Read number of keys and the first unencrypted wire-format public key */
-    if (ssh2_get_u32(&data_buffer, &nkeys) || nkeys < 1 ||
-        ssh2_get_string(&data_buffer, &pub_blob, &pub_blob_len)) {
+    if(ssh2_get_u32(&data_buffer, &nkeys) || nkeys < 1 ||
+       ssh2_get_string(&data_buffer, &pub_blob, &pub_blob_len)) {
         ssh2_zero_free(session, data, datalen);
         return -1;
     }
@@ -2527,21 +2527,21 @@ static int wcng_extract_openssh_ecdsa_pubkey(LIBSSH2_SESSION* session,
     pub_buffer.dataptr = pub_blob;
     pub_buffer.len = pub_blob_len;
 
-    if (ssh2_get_string(&pub_buffer, &algo, &algo_len)) {
+    if(ssh2_get_string(&pub_buffer, &algo, &algo_len)) {
         ssh2_zero_free(session, data, datalen);
         return -1;
     }
 
     method_buf = SSH2_ALLOC(session, algo_len + 1);
     key_buf = SSH2_ALLOC(session, pub_blob_len);
-    if (!method_buf || !key_buf) {
-        if (method_buf)
+    if(!method_buf || !key_buf) {
+        if(method_buf)
             SSH2_FREE(session, method_buf);
-        if (key_buf)
+        if(key_buf)
             SSH2_FREE(session, key_buf);
         ssh2_zero_free(session, data, datalen);
         return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
-            "Unable to allocate memory for ECDSA public key");
+                        "Unable to allocate memory for ECDSA public key");
     }
 
     memcpy(method_buf, algo, algo_len);
@@ -2555,7 +2555,7 @@ static int wcng_extract_openssh_ecdsa_pubkey(LIBSSH2_SESSION* session,
     ssh2_zero_free(session, data, datalen);
     return 0;
 }
-#endif // LIBSSH2_ECDSA
+#endif /* LIBSSH2_ECDSA */
 
 /*
  * Creates a new private key given a file or blob and password.
@@ -2836,10 +2836,10 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
                      const char *passphrase)
 {
 #if LIBSSH2_ECDSA
-    if (wcng_extract_openssh_ecdsa_pubkey(session, method,
-                                       pubkeydata, pubkeydata_len,
-                                       privkeyfile, privkeyblob,
-                                       privkeyblob_len) == 0) {
+    if(wcng_extract_openssh_ecdsa_pubkey(session, method,
+                                         pubkeydata, pubkeydata_len,
+                                         privkeyfile, privkeyblob,
+                                         privkeyblob_len) == 0) {
         return 0;
     }
 #endif
