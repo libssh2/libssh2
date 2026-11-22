@@ -63,6 +63,10 @@
 #endif
 
 #if LIBSSH2_ECDSA
+#define OPENSSH_PRIVKEY_HEADER     "-----BEGIN OPENSSH PRIVATE KEY-----"
+#define OPENSSH_PRIVKEY_FOOTER     "-----END OPENSSH PRIVATE KEY-----"
+#define OPENSSH_PRIVKEY_AUTH_MAGIC "openssh-key-v1"
+
 /* Define these manually to avoid including <ntstatus.h> and thus
    clashing with <windows.h> symbols. */
 #ifndef STATUS_INVALID_SIGNATURE
@@ -2453,6 +2457,106 @@ cleanup:
     return result;
 }
 
+#if LIBSSH2_ECDSA
+/* ssh2_wincng_ecdsa_pub_priv_keyfile_parse
+ *
+ * Get unencrypted public key from the OpenSSH private key file path
+ */
+
+static int wcng_extract_openssh_ecdsa_pubkey(LIBSSH2_SESSION* session,
+    char** method,
+    unsigned char** pubkeydata,
+    size_t* pubkeydata_len,
+    const char* privkeyfile,
+    const char* privkeyblob,
+    size_t privkeyblob_len)
+{
+    unsigned char* data = NULL;
+    size_t datalen = 0;
+    struct string_buf data_buffer;
+    struct string_buf pub_buffer;
+    unsigned char* tmp = NULL;
+    size_t tmp_len = 0;
+    unsigned char* pub_blob = NULL;
+    size_t pub_blob_len = 0;
+    unsigned char* algo = NULL;
+    size_t algo_len = 0;
+    uint32_t nkeys = 0;
+    const size_t magic_len = sizeof(OPENSSH_PRIVKEY_AUTH_MAGIC);
+    char* method_buf = NULL;
+    unsigned char* key_buf = NULL;
+    int rc;
+
+    /* Base64-decode the OpenSSH envelope */
+    rc = ssh2_pem_parse(session,
+        OPENSSH_PRIVKEY_HEADER,
+        OPENSSH_PRIVKEY_FOOTER,
+        privkeyfile, privkeyblob, privkeyblob_len,
+        NULL, &data, &datalen, NULL);
+    if (rc)
+        return rc;
+
+    /* Verify "openssh-key-v1\0" magic */
+    if (datalen < magic_len ||
+        memcmp(data, OPENSSH_PRIVKEY_AUTH_MAGIC, magic_len) != 0) {
+        ssh2_zero_free(session, data, datalen);
+        return -1;
+    }
+
+    data_buffer.data = data;
+    data_buffer.dataptr = data + magic_len;
+    data_buffer.len = datalen;
+
+    /* Skip ciphername, kdfname, and kdfoptions */
+    if (ssh2_get_string(&data_buffer, &tmp, &tmp_len) ||
+        ssh2_get_string(&data_buffer, &tmp, &tmp_len) ||
+        ssh2_get_string(&data_buffer, &tmp, &tmp_len)) {
+        ssh2_zero_free(session, data, datalen);
+        return -1;
+    }
+
+    /* Read number of keys and the first unencrypted wire-format public key */
+    if (ssh2_get_u32(&data_buffer, &nkeys) || nkeys < 1 ||
+        ssh2_get_string(&data_buffer, &pub_blob, &pub_blob_len)) {
+        ssh2_zero_free(session, data, datalen);
+        return -1;
+    }
+
+    /* Extract algorithm name ("ecdsa-sha2-nistp256", etc.) from pub_blob */
+    pub_buffer.data = pub_blob;
+    pub_buffer.dataptr = pub_blob;
+    pub_buffer.len = pub_blob_len;
+
+    if (ssh2_get_string(&pub_buffer, &algo, &algo_len)) {
+        ssh2_zero_free(session, data, datalen);
+        return -1;
+    }
+
+    method_buf = SSH2_ALLOC(session, algo_len + 1);
+    key_buf = SSH2_ALLOC(session, pub_blob_len);
+    if (!method_buf || !key_buf) {
+        if (method_buf)
+            SSH2_FREE(session, method_buf);
+        if (key_buf)
+            SSH2_FREE(session, key_buf);
+        ssh2_zero_free(session, data, datalen);
+        return ssh2_err(session, LIBSSH2_ERROR_ALLOC,
+            "Unable to allocate memory for ECDSA public key");
+    }
+
+    memcpy(method_buf, algo, algo_len);
+    method_buf[algo_len] = '\0';
+    memcpy(key_buf, pub_blob, pub_blob_len);
+
+    *method = method_buf;
+    *pubkeydata = key_buf;
+    *pubkeydata_len = pub_blob_len;
+
+    ssh2_zero_free(session, data, datalen);
+    return 0;
+}
+#endif // LIBSSH2_ECDSA
+
 /*
  * Creates a new private key given a file or blob and password.
  * ECDSA private key files use the decoding defined in PROTOCOL.key
@@ -2731,6 +2835,15 @@ int ssh2_pub_privkey(LIBSSH2_SESSION *session, char **method,
                      const char *privkeyblob, size_t privkeyblob_len,
                      const char *passphrase)
 {
+#if LIBSSH2_ECDSA
+    if (wcng_extract_openssh_ecdsa_pubkey(session, method,
+                                       pubkeydata, pubkeydata_len,
+                                       privkeyfile, privkeyblob,
+                                       privkeyblob_len) == 0) {
+        return 0;
+    }
+#endif
+
 #if LIBSSH2_RSA || LIBSSH2_DSA
     unsigned char *pbEncoded;
     size_t cbEncoded;
