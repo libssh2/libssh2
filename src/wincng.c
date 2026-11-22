@@ -2457,7 +2457,7 @@ cleanup:
     return result;
 }
 
-/* 
+/*
  * Get unencrypted public key from the OpenSSH private key file path
  */
 static int wcng_extract_openssh_ecdsa_pubkey(LIBSSH2_SESSION *session,
