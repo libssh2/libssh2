@@ -640,6 +640,12 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                     else if(p->packet_length > LIBSSH2_PACKET_MAXPAYLOAD)
                         return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
 
+                    /* RFC 4253 section 6: the encrypted part of the packet
+                       must be a multiple of the cipher block size. The
+                       length field is sent in the clear here. */
+                    if(p->packet_length % (uint32_t)blocksize)
+                        return LIBSSH2_ERROR_DECRYPT;
+
                     total_num = 4 + p->packet_length + remote_mac->mac_len;
                 }
                 else {
@@ -650,6 +656,20 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                     p->padding_length = block[4];
                     if(p->padding_length > p->packet_length - 1)
                         return LIBSSH2_ERROR_DECRYPT;
+
+                    if(encrypted) {
+                        /* RFC 4253 section 6: the encrypted part of the
+                           packet must be a multiple of the cipher block
+                           size. That includes the length field, unless the
+                           cipher sends it in the clear as AAD. Otherwise
+                           transport_decrypt() would be handed a partial
+                           block at the end of the packet. */
+                        size_t aligned_len = p->packet_length;
+                        if(!CRYPT_FLAG_R(session, SSH2_CRYPT_FLAG_PKTLEN_AAD))
+                            aligned_len += 4;
+                        if(aligned_len % (size_t)blocksize)
+                            return LIBSSH2_ERROR_DECRYPT;
+                    }
 
                     /* total_num is the number of bytes following the initial
                        (5 bytes) packet length and padding length fields */
@@ -672,6 +692,12 @@ int ssh2_transport_read(LIBSSH2_SESSION *session)
                     return LIBSSH2_ERROR_DECRYPT;
                 else if(p->packet_length > LIBSSH2_PACKET_MAXPAYLOAD)
                     return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
+
+                /* RFC 4253 section 6: the encrypted part of the packet must
+                   be a multiple of the cipher block size. The length field
+                   is not encrypted here. */
+                if(p->packet_length % (uint32_t)blocksize)
+                    return LIBSSH2_ERROR_DECRYPT;
 
                 /* total_num may include size field, however due to existing
                  * logic it needs to be removed after the entire packet is read
