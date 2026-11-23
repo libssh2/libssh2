@@ -35,6 +35,7 @@
 #include "libssh2_sftp.h"
 #include "sftp.h"
 #include "transport.h"
+#include "mac.h"
 
 #include <errno.h>
 #include <stdio.h>
@@ -768,6 +769,118 @@ static int test_transport_empty_payload(void)
     return err > 0;
 }
 
+#if LIBSSH2_AES_CTR && LIBSSH2_HMAC_SHA256
+static const struct crypt_method *find_crypt_method(const char *name)
+{
+    const struct crypt_method **m = ssh2_crypt_methods();
+    for(; *m; m++)
+        if(!strcmp((*m)->name, name))
+            return *m;
+    return NULL;
+}
+
+static const struct mac_method *find_mac_method(const char *name)
+{
+    const struct mac_method **m = ssh2_mac_methods();
+    for(; *m; m++)
+        if(!strcmp((*m)->name, name))
+            return *m;
+    return NULL;
+}
+
+static int test_transport_misaligned_packet_length(void)
+{
+    /* packet_length 17 with a 16-byte block cipher: 4 + 17 is not a multiple
+       of the block size, so the last 5 bytes would be a partial block */
+    unsigned char packet[4 + 17 + 32]; /* length + packet + hmac-sha2-256 */
+    unsigned char *ptr = packet;
+    const struct crypt_method *crypt = find_crypt_method("aes128-ctr");
+    const struct mac_method *mac = find_mac_method("hmac-sha2-256");
+    LIBSSH2_SESSION *session;
+    unsigned char *iv, *secret, *key;
+    int free_iv = 0, free_secret = 0, free_key = 0;
+    int rc;
+    int err = 0;
+
+    if(!crypt || !mac)
+        return 0;
+
+    session = libssh2_session_init();
+    if(!session)
+        return 1;
+
+    /* the same key material for the sending and receiving side */
+    iv = SSH2_ALLOC(session, (size_t)crypt->iv_len);
+    secret = SSH2_ALLOC(session, (size_t)crypt->secret_len);
+    key = SSH2_ALLOC(session, (size_t)mac->key_len);
+    if(!iv || !secret || !key) {
+        SSH2_FREE(session, iv);
+        SSH2_FREE(session, secret);
+        SSH2_FREE(session, key);
+        libssh2_session_free(session);
+        return 1;
+    }
+    memset(iv, 0x11, (size_t)crypt->iv_len);
+    memset(secret, 0x22, (size_t)crypt->secret_len);
+    memset(key, 0x33, (size_t)mac->key_len);
+
+    /* the local context encrypts the first block like the peer would, the
+       remote context is what ssh2_transport_read() decrypts with */
+    session->local.crypt = crypt;
+    session->remote.crypt = crypt;
+    session->remote.mac = mac;
+    rc = crypt->init(session, crypt, iv, &free_iv, secret, &free_secret, 1, 0,
+                     &session->local.crypt_abstract);
+    if(!rc)
+        rc = crypt->init(session, crypt, iv, &free_iv, secret, &free_secret,
+                         0, 0, &session->remote.crypt_abstract);
+    if(!rc)
+        rc = mac->init(session, key, &free_key,
+                       &session->remote.mac_abstract);
+    if(rc) {
+        fprintf(stderr, "transport misaligned: init failed\n");
+        err++;
+    }
+    if(free_iv)
+        SSH2_FREE(session, iv);
+    if(free_secret)
+        SSH2_FREE(session, secret);
+    if(free_key)
+        SSH2_FREE(session, key);
+
+    if(!err) {
+        memset(packet, 0, sizeof(packet));
+        ssh2_store_u32(&ptr, 17);  /* packet_length */
+        *ptr++ = 4;                /* padding_length */
+        *ptr++ = SSH_MSG_IGNORE;
+
+        /* the rest of the packet is never looked at since the length is
+           rejected, so only the first block needs to be encrypted */
+        if(crypt->crypt(session, 0, packet, (size_t)crypt->blocksize,
+                        &session->local.crypt_abstract, FIRST_BLOCK)) {
+            fprintf(stderr, "transport misaligned: encrypt failed\n");
+            err++;
+        }
+
+        session->state |= SSH2_STATE_NEWKEYS;
+        session->recv_cb = transport_feed_recv;
+        transport_feed = packet;
+        transport_feed_len = sizeof(packet);
+
+        rc = ssh2_transport_read(session);
+        if(rc != LIBSSH2_ERROR_DECRYPT) {
+            fprintf(stderr, "transport misaligned: rc=%d (want %d)\n",
+                    rc, LIBSSH2_ERROR_DECRYPT);
+            err++;
+        }
+    }
+
+    libssh2_session_free(session);
+
+    return err > 0;
+}
+#endif /* LIBSSH2_AES_CTR && LIBSSH2_HMAC_SHA256 */
+
 int main(int argc, char *argv[])
 {
     LIBSSH2_SESSION *session;
@@ -803,6 +916,9 @@ int main(int argc, char *argv[])
 #endif
 
     rc |= test_transport_empty_payload();
+#if LIBSSH2_AES_CTR && LIBSSH2_HMAC_SHA256
+    rc |= test_transport_misaligned_packet_length();
+#endif
 
     libssh2_session_free(session);
 
