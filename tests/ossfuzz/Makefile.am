@@ -60,8 +60,4 @@ EXTRA_DIST = .checksrc CMakeLists.txt ossfuzz.sh \
   ssh2_agent_fuzzer.cc ssh2_agent_fuzzer.dict \
   ssh2_knownhost_fuzzer.cc ssh2_knownhost_fuzzer.dict \
   ssh2_pem_key_fuzzer.cc ssh2_pem_key_fuzzer.dict \
-  ssh2_sftp_client_fuzzer.cc ssh2_sftp_client_fuzzer.dict \
-  ssh2_agent_fuzzer_seed_corpus/* \
-  ssh2_knownhost_fuzzer_seed_corpus/* \
-  ssh2_pem_key_fuzzer_seed_corpus/* \
-  ssh2_sftp_client_fuzzer_seed_corpus/*
+  ssh2_sftp_client_fuzzer.cc ssh2_sftp_client_fuzzer.dict
