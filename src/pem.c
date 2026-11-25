@@ -820,7 +820,8 @@ static int pem_read_asn1_length(const unsigned char *data,
 
     if(*len >= 0x80) {
         lenlen = *len & 0x7F;
-        if(1 + lenlen > datalen)
+        /* 0x80 is the indefinite form and carries no length octets */
+        if(lenlen < 1 || 1 + lenlen > datalen)
             return -1;
         *len = data[1];
         if(lenlen > 1) {
