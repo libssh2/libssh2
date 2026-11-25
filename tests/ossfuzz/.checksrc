@@ -6,3 +6,8 @@ allowfunc fprintf
 allowfunc printf
 allowfunc send
 allowfunc socketpair
+
+# extern "C" wrappers around internal headers trip the brace check.
+disable CLOSEBRACE
+allowfunc snprintf
+allowfunc strncpy
